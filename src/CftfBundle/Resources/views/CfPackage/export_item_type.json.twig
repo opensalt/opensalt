@@ -1,0 +1,14 @@
+{% block body %}
+    {
+        "identifier": {{ lsItemType.identifier |json_encode |raw }},
+        "uri": {{ lsItemType.uri|local_uri |json_encode |raw }},
+        {% if lsItemType.title is not null %}
+        "title": {{ lsItemType.title |json_encode |raw }},
+        {% endif %}
+        {% if lsItemType.description is not null %}
+        "description": {{ lsItemType.description |json_encode |raw }},
+        {% endif %}
+        "code": {{ lsItemType.code |json_encode |raw }},
+        "hierarchyCode": {{ lsItemType.hierarchyCode |json_encode |raw }}
+    }
+{% endblock %}

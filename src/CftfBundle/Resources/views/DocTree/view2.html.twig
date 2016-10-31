@@ -1,0 +1,71 @@
+{% extends '::layout.html.twig' %}
+
+{% block title %}{{ lsDoc1.title }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-12">
+            <ol class="breadcrumb">
+                <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <section class="panel panel-default">
+                <div class="panel-body">
+                    <div id="tree1"></div>
+                </div>
+            </section>
+        </div>
+        <div class="col-sm-6">
+            <section class="panel panel-default">
+                <div class="panel-body">
+		    <div id="tree2"></div>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        window.app = window.app||{};
+        var tree1 = {{ render_esi(path('editor_render_document_only', {'id':lsDoc1.id, '_format':'json'})) }};
+        var tree2 = {{ render_esi(path('editor_render_document_only', {'id':lsDoc2.id, '_format':'json'})) }};
+        $(function(){
+            $('#tree1').fancytree({
+                extensions: ['dnd'],
+                source: tree1,
+                dnd: {
+                    focusOnClick: true,
+                    dragStart: function(node, data){},
+                    dragStop: function(node, data){},
+                    initHelper: function(){},
+                    updateHelper: function(){},
+
+                    dragEnter: function(node, data){ return true; },
+                    dragDrop: function(node, data){ data.otherNode.moveTo(node, data.hitMode); }
+                },
+                debugLevel:2
+            });
+
+            $('#tree2').fancytree({
+                extensions: ['dnd'],
+                source: tree2,
+                dnd: {
+                    focusOnClick: true,
+                    dragStart: function(node, data){},
+                    dragStop: function(node, data){},
+                    initHelper: function(){},
+                    updateHelper: function(){},
+
+                    dragEnter: function(node, data){ return true; },
+                    dragDrop: function(node, data){ data.otherNode.moveTo(node, data.hitMode); }
+                },
+                debugLevel:2
+            });
+        });
+    </script>
+{% endblock %}

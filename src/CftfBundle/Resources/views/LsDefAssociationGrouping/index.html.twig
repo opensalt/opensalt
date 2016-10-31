@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>LsDefAssociationGrouping list</h1>
+
+    <table class="table table-condensed table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Name</th>
+                <th>Updated At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for lsDefAssociationGrouping in lsDefAssociationGroupings %}
+            <tr>
+                <td><a href="{{ path('lsdef_association_grouping_show', { 'id': lsDefAssociationGrouping.id }) }}">{{ lsDefAssociationGrouping.id }}</a></td>
+                <td>{{ lsDefAssociationGrouping.title }}</td>
+                <td>{{ lsDefAssociationGrouping.description }}</td>
+                <td>{{ lsDefAssociationGrouping.name }}</td>
+                <td>{% if lsDefAssociationGrouping.updatedAt %}{{ lsDefAssociationGrouping.updatedAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>
+                    <ul class="list-inline">
+                        <li>
+                            <a class="btn btn-primary" href="{{ path('lsdef_association_grouping_show', { 'id': lsDefAssociationGrouping.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a class="btn btn-default" href="{{ path('lsdef_association_grouping_edit', { 'id': lsDefAssociationGrouping.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul class="list-inline">
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdef_association_grouping_new') }}">Create a new entry</a>
+        </li>
+    </ul>
+{% endblock %}

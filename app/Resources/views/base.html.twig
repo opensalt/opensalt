@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js no-auth lt-ie9 lt-ie8 lt-ie7 ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js no-auth lt-ie9 lt-ie8 ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js no-auth lt-ie9 ie8"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html class="no-js no-auth"><!--<![endif]-->
+    <head>
+        <meta charset="UTF-8" />
+        {% block xuacompatible %}
+            <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        {% endblock %}
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        {% block viewport %}
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% endblock %}
+        <title>{% block title %}SALT{% endblock %}</title>
+        {% block stylesheets %}
+            <link rel="stylesheet" href="{{ asset('css/main.css'|asset_version) }}" />
+        {% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                {%- block header -%}
+                    <p>
+                        <a href="http://pcgus.com/"><img src="{{ asset('/assets/img/ManagedByPCG.jpg') }}" /></a>
+                        <span class="lead pull-right">This is a demonstration preview of SALT</span>
+                    </p>
+                {%- endblock -%}
+            </div>
+            {% if app.request.hasPreviousSession %}
+            <div class="flash-messages">
+                {% for flash_message in app.session.flashBag.get('error') %}
+                    <div class="flash-error alert alert-danger alert-dismissable" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        {{ flash_message|raw }}
+                    </div>
+                {% endfor %}
+                {% for flash_message in app.session.flashBag.get('warning') %}
+                    <div class="flash-warning alert alert-warning alert-dismissable" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        {{ flash_message|raw }}
+                    </div>
+                {% endfor %}
+                {% for flash_message in app.session.flashBag.get('success') %}
+                    <div class="flash-notice alert alert-success alert-dismissable" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        {{ flash_message|raw }}
+                    </div>
+                {% endfor %}
+                {% for flash_message in app.session.flashBag.get('info') %}
+                    <div class="flash-notice alert alert-info alert-dismissable" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        {{ flash_message|raw }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="content">
+                {% block body %}{% endblock %}
+            </div>
+            <div class="footer">
+                {%- block footer -%}
+                {%- endblock -%}
+            </div>
+        </div>
+        <div style="display: none;">
+            {% block sitejavascripts %}
+                <script src="{{ asset('js/site.js'|asset_version) }}"></script>
+            {% endblock %}
+            {% block javascripts %}{% endblock %}
+        </div>
+    </body>
+</html>

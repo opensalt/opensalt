@@ -1,0 +1,79 @@
+{% extends '::layout.html.twig' %}
+
+{% block body %}
+    {% if not app.request.xmlHttpRequest %}
+        <h1>LsAssociation creation</h1>
+    {% endif %}
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+
+        <div id="lsItemListWrap" class="row">
+            <div class="col-sm-12">
+                <section id="lsItemList" class="panel panel-default panel-component">
+                    {% if lsDoc is not empty %}
+                        <div class="panel-heading">Select Destination Standard:</div>
+                        <div class="panel-body">
+                            <div>
+                                {{ render_esi(path('editor_render', {'id':lsDoc.id})) }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </section>
+            </div>
+        </div>
+
+        {% if not app.request.xmlHttpRequest %}
+            <input class="btn btn-primary" type="submit" value="Create" />
+        {% endif %}
+    {{ form_end(form) }}
+
+    {% if not app.request.xmlHttpRequest %}
+    <br/>
+    <ul class="list-inline">
+        <li>
+            <a class="btn btn-default" href="{{ path('lsassociation_index') }}">Back to the list</a>
+        </li>
+    </ul>
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        var $lsDoc = $('#ls_association_lsDoc');
+        $lsDoc.change(function(){
+            var $form = $(this).closest('form');
+            var data = {};
+            data[$lsDoc.attr('name')] = $lsDoc.val();
+            $.ajax({
+                url: $form.attr('action'),
+                type: $form.attr('method'),
+                data: data,
+                success: function(html) {
+                    var $list = $(html).find('#ls_association_destinationLsItem');
+
+                    var $replace = $('#ls_association_destinationNodeUri').length
+                        ?$('#ls_association_destinationNodeUri')
+                        :$('#ls_association_destinationLsItem');
+
+                    var $replacement = $(html).find('#ls_association_destinationLsItem').length
+                        ?$(html).find('#ls_association_destinationLsItem')
+                        :$(html).find('#ls_association_destinationNodeUri');
+
+                    $replace.replaceWith($replacement);
+
+                    $('#lsItemList').replaceWith($(html).find('#lsItemList'));
+                }
+            })
+        });
+
+        var $lsItemList = $('#lsItemListWrap');
+        $lsItemList.on('click', function(e){
+            e.stopPropagation();
+            e.preventDefault();
+
+            var $target = $(e.target);
+            $('#ls_association_destinationLsItem').val($target.attr('name').replace(/mark-/, ''));
+        });
+    </script>
+{% endblock %}

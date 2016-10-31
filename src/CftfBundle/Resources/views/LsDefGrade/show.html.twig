@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>LsDefGrade</h1>
+
+    <table class="table table-condensed table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ lsDefGrade.id }}</td>
+            </tr>
+            <tr>
+                <th>Identifier</th>
+                <td>{{ lsDefGrade.identifier }}</td>
+            </tr>
+            <tr>
+                <th>Uri</th>
+                <td>{{ lsDefGrade.uri|local_uri }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ lsDefGrade.title }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ lsDefGrade.description }}</td>
+            </tr>
+            <tr>
+                <th>Code</th>
+                <td>{{ lsDefGrade.code }}</td>
+            </tr>
+            <tr>
+                <th>Rank</th>
+                <td>{{ lsDefGrade.rank }}</td>
+            </tr>
+            <tr>
+                <th>Extra</th>
+                <td>{% dump(lsDefGrade.extra) %}{{ lsDefGrade.extra|json_encode(constant('JSON_PRETTY_PRINT')) }}</td>
+            </tr>
+            <tr>
+                <th>Updated At</th>
+                <td>{% if lsDefGrade.updatedAt %}{{ lsDefGrade.updatedAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul class="list-inline text-right">
+        <li>
+            <a class="btn btn-primary" href="{{ path('lsdef_grade_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdef_grade_edit', { 'id': lsDefGrade.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input class="btn btn-danger" type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

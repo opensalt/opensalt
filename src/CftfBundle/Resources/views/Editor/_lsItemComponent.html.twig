@@ -1,0 +1,22 @@
+{% if items is not empty %}
+    <section class="panel panel-default panel-component" id="item-component-{{ componentName }}">
+        <div class="panel-heading">{{ title }}</div>
+        <div class="panel-body">
+            <div>
+                <div class="list-group">
+                    {% for item in items %}
+                        <a href="{{ path('editor_lsitem', {'id':item.id}) }}" data-item-id="{{ item.id }}" class="list-group-item lsitem clearfix">
+                            {% if item.humanCodingScheme is not empty %}
+                                <span class="item-humanCodingScheme">{{ item.humanCodingScheme }}</span>
+                            {% endif %}
+                            {% if item.shortStatement != item.humanCodingScheme %}
+                                {{ item.shortStatement }}
+                            {% endif %}
+                            {% block end_of_item_a '' %}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}

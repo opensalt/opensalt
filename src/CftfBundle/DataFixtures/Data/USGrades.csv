@@ -1,0 +1,29 @@
+Rank,Code,Title,UUID
+1,IT,Infant/toddler,4d2c5cb4-1488-448f-9462-696b53ce9229
+2,PR,Preschool,f9dbfa6c-f0ed-4134-bb40-e64ac850c7ca
+3,PK,Prekindergarten,48c819af-862c-4cdb-ba0f-558a60548443
+4,TK,Transitional Kindergarten,a0c765e1-c750-40bd-8aa8-7e791b97cda5
+5,KG,Kindergarten,26cda924-a4e7-4b6e-a586-908b1b1222e2
+6,"01",First grade,14c6e4fe-bed1-4f99-85cf-738f5ce64ddb
+7,"02",Second grade,0d2642e9-d7e8-4903-91cd-4943ac32ca2a
+8,"03",Third grade,0b59cd25-e0b2-4e38-b856-c6d8cfc7dc1f
+9,"04",Fourth grade,07d57c34-5fb6-4e82-8383-af5fb63f65ab
+10,"05",Fifth grade,69f64667-b903-452d-9c91-0351b83455c2
+11,"06",Sixth grade,f4a33f16-ec2f-468b-955a-5cdf97a252b5
+12,"07",Seventh grade,2fc9c618-604d-4f90-aa98-1442b0edb6d8
+13,"08",Eighth grade,4b495023-110e-48d3-9892-1b7d18b74b2b
+14,"09",Ninth grade,335cfb2b-0208-4880-8c4e-e74cf4052adf
+15,10,Tenth grade,557b3a0b-56a0-461a-a1d7-bf47198de45d
+16,11,Eleventh grade,c74474d2-1828-4341-96da-9b8784999016
+17,12,Twelfth grade,14a857f6-c5b8-4a2e-a69f-b4354a58a772
+18,13,Grade 13,54a0c7e4-75b8-49ee-b00a-dac069ab6090
+19,AS,Associate's degree,8a9f08a6-b2de-41ee-ac06-199c6ad676e0
+20,BA,Bachelor's degree,6f6bd515-877f-4bd6-8073-dad3c0f93f89
+21,PB,Post-baccalaureate certificate,52361659-924d-4544-ab17-962f57b16581
+22,MD,Master's degree,5251cb06-d116-4a73-a893-edddc09d6ed7
+23,PM,Post-master's certificate,5b4df0fc-812d-4e46-965b-1c93478be35f
+24,DO,Doctoral degree,18f65aad-b29a-40a8-81d7-137218428f11
+25,PD,Post-doctoral certificate,c15af13b-fa91-47dc-8605-4ffd20ace2eb
+26,AE,Adult Education,ab25c6a0-a378-492e-9d3c-c57b511c7b80
+27,PT,Professional or technical credential,d1776264-29f6-448a-8ef1-1d09c86d57f0
+28,OT,Other,8ba30758-3a68-4067-82c0-12cf256f07fe

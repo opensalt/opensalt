@@ -1,0 +1,23 @@
+{% block body %}
+    {
+        "identifier": {{ lsAssociation.identifier |json_encode |raw }},
+        "uri": {{ lsAssociation.uri|local_uri |json_encode |raw }},
+        "lsDocIdentifier": {{ lsAssociation.lsDocIdentifier |json_encode |raw }},
+        "lsDocUri": {{ lsAssociation.lsDocUri|local_uri |json_encode |raw }},
+        {% if lsAssociation.groupName is not null %}
+        "lsAssociationGroup": {
+            "title": {{ lsAssociation.groupName |json_encode |raw }},
+            "uri": {{ lsAssociation.groupUri |json_encode |raw }}
+        },
+        {% endif %}
+        "origin": {
+            "identifier": {{ lsAssociation.originNodeIdentifier |json_encode |raw }},
+            "uri": {{ lsAssociation.originNodeUri|local_uri |json_encode |raw }}
+        },
+        "type": {{ (lsAssociation.type|slice(0,1)|lower~lsAssociation.type|slice(1))|replace({' ': ''}) |json_encode |raw }},
+        "destination": {
+            "identifier": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
+            "uri": {{ lsAssociation.destinationNodeUri|local_uri |json_encode |raw }}
+        }
+    }
+{% endblock %}

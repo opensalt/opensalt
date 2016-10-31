@@ -1,0 +1,228 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+    - { resource: services.yml }
+    - { resource: "@CftfBundle/Resources/config/services.yml" }
+    - { resource: "@CftfAsnBundle/Resources/config/services.yml" }
+    - { resource: "@CftfImsBundle/Resources/config/services.yml" }
+    - { resource: "@CftfSbacBundle/Resources/config/services.yml" }
+    - { resource: "@CftfCmsBundle/Resources/config/services.yml" }
+    - { resource: "@CftfUtilBundle/Resources/config/services.yml" }
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: en
+
+framework:
+    #esi:             ~
+    #translator:      { fallbacks: ["%locale%"] }
+    secret:          "%secret%"
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: ~
+    form:            ~
+    csrf_protection: ~
+    validation:      { enable_annotations: true }
+    #serializer:      { enable_annotations: true }
+    templating:
+        engines: ['twig']
+        #assets_version: SomeVersionScheme
+    default_locale:  "%locale%"
+    trusted_hosts:   ~
+    trusted_proxies: ~
+    session:
+        # handler_id set to null will use default session handler from php.ini
+        handler_id:  session.handler.pdo
+        #handler_id:  nelmio_security.session.handler
+        #save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
+        name: session
+        cookie_lifetime: 0
+        cookie_secure: true
+        cookie_httponly: true
+        gc_maxlifetime: 3600
+        gc_probability: 25
+        gc_divisor:     100
+        metadata_update_threshold: 120
+    fragments:       ~
+    http_method_override: true
+    request:
+      formats:
+        jsonapi: 'application/vnd.api+json'
+    #translator: { fallbacks: ['%locale%'] }
+    assets:
+        version: '201609010101'
+
+# Twig Configuration
+twig:
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"
+    form_themes:
+        - 'bootstrap_3_horizontal_layout.html.twig'
+        - 'TetranzSelect2EntityBundle:Form:fields.html.twig'
+
+# Assetic Configuration
+assetic:
+    debug:          "%kernel.debug%"
+    use_controller: false
+    bundles:        [ ]
+    #java: /usr/bin/java
+    filters:
+        cssrewrite: ~
+        #closure:
+        #    jar: "%kernel.root_dir%/Resources/java/compiler.jar"
+        #yui_css:
+        #    jar: "%kernel.root_dir%/Resources/java/yuicompressor-2.4.7.jar"
+
+services:
+    twig.extension.text:
+        class: Twig_Extensions_Extension_Text
+        tags:
+            - { name: twig.extension }
+
+stof_doctrine_extensions:
+    default_locale: en_US
+
+#    # Only used if you activated the Uploadable extension
+#    uploadable:
+#        # Default file path: This is one of the three ways you can configure the path for the Uploadable extension
+#        default_file_path:       %kernel.root_dir%/../web/uploads
+#
+#        # Mime type guesser class: Optional. By default, we provide an adapter for the one present in the HttpFoundation component of Symfony
+#        mime_type_guesser_class: Stof\DoctrineExtensionsBundle\Uploadable\MimeTypeGuesserAdapter
+#
+#        # Default file info class implementing FileInfoInterface: Optional. By default we provide a class which is prepared to receive an UploadedFile instance.
+#        default_file_info_class: Stof\DoctrineExtensionsBundle\Uploadable\UploadedFileInfo
+    orm:
+        default:
+            tree: true
+            timestampable: true
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        default_connection: default
+        connections:
+            default:
+                driver:   pdo_mysql
+                host:     "%database_host%"
+                port:     "%database_port%"
+                dbname:   "%database_name%"
+                user:     "%database_user%"
+                password: "%database_password%"
+                charset:  UTF8
+                schema_filter: ~^(?!(auth_session|LearningStandards))~
+                server_version: 5.7
+                mapping_types:
+                    json: string
+        types:
+            uuid: Ramsey\Uuid\Doctrine\UuidType
+            uuid_binary: Ramsey\Uuid\Doctrine\UuidBinaryType
+            json: Pcg\Doctrine\Types\JsonType
+        #mapping_types:
+        #    json: string
+        #    uuid: char(36)
+        #    uuid_binary: binary(16)
+
+    orm:
+        auto_generate_proxy_classes: "%kernel.debug%"
+
+        entity_managers:
+            default:
+                naming_strategy: doctrine.orm.naming_strategy.underscore
+                auto_mapping: true
+                second_level_cache:
+                    enabled: false
+                    log_enabled: true
+
+                mappings:
+#                    gedmo_translatable:
+#                        type: annotation
+#                        prefix: Gedmo\Translatable\Entity
+#                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translatable/Entity"
+#                        alias: GedmoTranslatable # (optional) it will default to the name set for the mapping
+#                        is_bundle: false
+#                    gedmo_translator:
+#                        type: annotation
+#                        prefix: Gedmo\Translator\Entity
+#                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translator/Entity"
+#                        alias: GedmoTranslator # (optional) it will default to the name set for the mapping
+#                        is_bundle: false
+#                    gedmo_loggable:
+#                        type: annotation
+#                        prefix: Gedmo\Loggable\Entity
+#                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Loggable/Entity"
+#                        alias: GedmoLoggable # (optional) it will default to the name set for the mappingmapping
+#                        is_bundle: false
+                    gedmo_tree:
+                        type: annotation
+                        prefix: Gedmo\Tree\Entity
+                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Tree/Entity"
+                        alias: GedmoTree # (optional) it will default to the name set for the mapping
+                        is_bundle: false
+
+# Swiftmailer Configuration
+swiftmailer:
+    transport: "%mailer_transport%"
+    host:      "%mailer_host%"
+    username:  "%mailer_user%"
+    password:  "%mailer_password%"
+    spool:     { type: memory }
+
+jms_di_extra:
+    locations:
+        all_bundles: true
+        #bundles: []
+        directories: ["%kernel.root_dir%/../src"]
+
+csa_guzzle:
+    profiler: '%kernel.debug%'
+    logger: true
+    clients:
+        json:
+            config:
+                timeout: 2.0
+                headers:
+                    Accept: 'application/json'
+
+nelmio_security:
+    cookie_session:
+        enabled: false
+        name: session
+        secure: true
+    signed_cookie:
+        names: ['*']
+        secret: '%cookie_secret%'
+        hash_algo: sha256
+    #encrypted_cookie:
+    #    names: ['*']
+    #    secret: '%cookie_secret%'
+    #    algorithm: rijndael-256
+    forced_ssl:
+        enabled: false
+    clickjacking:
+        paths:
+            '^/.*': DENY
+        content_types: []
+    external_redirects:
+        whitelist:
+            - google.com
+
+nelmio_api_doc:
+    name: 'API documentation'
+    exclude_sections: []
+    default_sections_opened: true
+    sandbox:
+        enabled: false
+        request_format:
+            method: accept_header
+        body_format:
+            formats: [ json ]
+    swagger:
+        api_base_path: /api
+        swagger_version: '1.2'
+        api_version: '0.4'
+        info:
+            title: 'SALT'
+            description: 'Open source implementation of the IMS CFTF specification'
+

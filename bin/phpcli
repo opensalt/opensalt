@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd $(dirname $0)/../docker
+
+docker-compose -f docker-compose.tools.yml run --rm -u $(id -u):$(id -g) phpcli "$@"

@@ -1,0 +1,36 @@
+# Learn more about services, parameters and containers at
+# http://symfony.com/doc/current/book/service_container.html
+parameters:
+#    parameter_name: value
+
+services:
+#    service_name:
+#        class: AppBundle\Directory\ClassName
+#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+
+#    google.preauth_subscriber:
+#        class: Pcg\GoogleBundle\Listener\ConnectPreAuthListener
+#        arguments: ["@twig"]
+#        tags:
+#            - { name: kernel.event_subscriber }
+
+#    twig_asset_version_extension:
+#        class: Pcg\Twig\Extension\AssetVersionExtension
+#        arguments: ["%kernel.root_dir%"]
+#        tags:
+#            - { name: twig.extension }
+
+    session.handler.pdo:
+        class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
+        public:    false
+        arguments:
+            - 'mysql:host=%database_host%;port=%database_port%;dbname=%database_name%'
+            - { db_username: '%database_user%', db_password: '%database_password%', db_table: 'auth_session', db_id_col: 'id' }
+
+
+    # Form Types
+    app.form.type.lsitem:
+        class: CftfBundle\Form\LsItemType
+        arguments: ["@doctrine.orm.entity_manager"]
+        tags:
+            - { name: form.type }

@@ -1,0 +1,54 @@
+version: '2'
+services:
+  phpfpm:
+    build:
+      context: ./php/fpm
+    image: salt/php:7.0.10-fpm
+    depends_on:
+      - db
+    environment:
+      SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
+      SYMFONY__MYSQL__USER: "${MYSQL_USER}"
+      SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
+      SYMFONY__MYSQL__HOST: "db"
+    volumes:
+      - &project_root "..:/var/www/html"
+    working_dir: /var/www/html
+
+  nginx:
+    build:
+      context: ./nginx
+    image: salt/nginx:1.10.1
+    depends_on:
+      - phpfpm
+    environment:
+      UPSTREAM_HOST: phpfpm:9000
+    ports:
+      - "80"
+    volumes:
+      - *project_root
+    working_dir: /var/www/html
+    networks:
+      default:
+      external:
+        aliases:
+          - "${COMPOSE_PROJECT_NAME}-salt"
+
+  db:
+    image: percona:${MYSQL_VERSION}
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+
+  #neo4j:
+  #elasticsearch:
+
+#volumes:
+#  mysql-data: {}
+
+networks:
+  external:

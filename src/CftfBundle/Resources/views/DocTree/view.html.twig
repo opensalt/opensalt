@@ -1,0 +1,94 @@
+{% extends '::layout.html.twig' %}
+
+{% block title %}{{ lsDoc1.title }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-12">
+            <ol class="breadcrumb">
+                <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
+                <li><a href="{{ path('editor_lsdoc', {'id':lsDoc1.id}) }}">{{ lsDoc1.title }}</a></li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <section class="panel panel-default">
+                <div class="panel-body">
+                    <div id="tree1"></div>
+                </div>
+            </section>
+        </div>
+        <div class="col-sm-6">
+            <div id="tree2"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        window.app = window.app||{};
+        var tree1 = {{ render_esi(path('editor_render_document_only', {'id':lsDoc1.id, '_format':'json'})) }};
+        $(function(){
+            $('#tree1').fancytree({
+                extensions: [],
+                source: tree1,
+                dnd: {
+                    focusOnClick: true,
+                    dragStart: function(node, data){},
+                    dragStop: function(node, data){},
+                    initHelper: function(){},
+                    updateHelper: function(){},
+
+                    dragEnter: function(node, data){ return true; },
+                    dragDrop: function(node, data){ data.otherNode.moveTo(node, data.hitMode); },
+                },
+
+                activate: function(event, data){console.log(event, data);},
+                click: function(event, data){console.log(event, data);},
+                beforeSelect: function(event, data){console.log(event, data);},
+                select: function(event, data){console.log(event, data);},
+                renderTitle: function(event, data){
+                    //console.log(event, data);
+                    if (data.node.data.humanCoding) {
+                        return '<span class="fancytree-title"><span class="item-humanCodingScheme">' + data.node.data.humanCoding + '</span> ' + data.node.title + '</span>';
+                    }
+                },
+
+                debugLevel:2
+            });
+
+            $("#tree1").contextmenu({
+              delegate: "span.fancytree-title",
+        //      menu: "#options",
+              menu: [
+                  {title: "Cut", cmd: "cut", uiIcon: "ui-icon-scissors"},
+                  {title: "Copy", cmd: "copy", uiIcon: "ui-icon-copy"},
+                  {title: "Paste", cmd: "paste", uiIcon: "ui-icon-clipboard", disabled: false },
+                  {title: "----"},
+                  {title: "Edit", cmd: "edit", uiIcon: "ui-icon-pencil", disabled: true },
+                  {title: "Delete", cmd: "delete", uiIcon: "ui-icon-trash", disabled: true },
+                  {title: "More", children: [
+                    {title: "Sub 1", cmd: "sub1"},
+                    {title: "Sub 2", cmd: "sub1"}
+                    ]}
+                  ],
+              beforeOpen: function(event, ui) {
+                var node = $.ui.fancytree.getNode(ui.target);
+                // Modify menu entries depending on node status
+                $("#tree").contextmenu("enableEntry", "paste", node.isFolder());
+                // Show/hide single entries
+        //            $("#tree").contextmenu("showEntry", "cut", false);
+
+                // Activate node on right-click
+                node.setActive();
+              },
+              select: function(event, ui) {
+                var node = $.ui.fancytree.getNode(ui.target);
+                alert("select " + ui.cmd + " on " + node);
+              }
+            });
+        });
+    </script>
+{% endblock %}

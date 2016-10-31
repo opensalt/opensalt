@@ -1,0 +1,15 @@
+{% extends '::base.html.twig' %}
+
+{% block title %}Standards Database{% endblock %}
+
+{% block body %}
+    <h1>CF Tool</h1>
+    <ul>
+        <li>
+            <a href="{{ path('lsdoc_index') }}">Index of LS Docs</a>
+        </li>
+        <li>
+            <a href="{{ path('lsitem_index') }}">Index of LS Items</a>
+        </li>
+    </ul>
+{% endblock %}

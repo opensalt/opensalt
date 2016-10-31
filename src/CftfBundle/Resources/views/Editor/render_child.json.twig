@@ -1,0 +1,14 @@
+{
+    "title":{{ lsItem.fullStatement|json_encode|raw }},
+    "humanCoding":{{ lsItem.humanCodingScheme|json_encode|raw }},
+    "key":{{ lsItem.id|json_encode|raw }}
+    {% if lsItem.children is not empty %}
+        , "folder": true, "expanded": true, "children": [
+            {% for childWithId in lsItem.children %}
+                {% if not loop.first %}, {% endif %}
+                {% set child = items[childWithId.id] %}
+                {% include 'CftfBundle:Editor:render_child.json.twig' with { 'lsItem':child, 'lsDoc':lsDoc, 'items':items, 'highlight':null} %}
+            {% endfor %}
+        ]
+    {% endif %}
+}

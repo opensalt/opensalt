@@ -1,0 +1,52 @@
+version: '2'
+services:
+  # Tools used
+  # the docker-compose format does not have a way to specify not to run these upon "up"
+  # so we set to command to /bin/true to exit right away
+  phpcli:
+    build:
+      context: ./php
+    image: salt/php:7.0.10-cli
+    environment:
+      SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
+      SYMFONY__MYSQL__USER: "${MYSQL_USER}"
+      SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
+      SYMFONY__MYSQL__HOST: "db"
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_HOST: "db"
+    volumes:
+      - &project_root "..:/var/www/html"
+    working_dir: /var/www/html
+    command: [ /bin/true ]
+
+  composer:
+    #image: geshan/php-composer-alpine:php7 -- missing pdo
+    image: composer/composer:php7
+    environment:
+      SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
+      SYMFONY__MYSQL__USER: "${MYSQL_USER}"
+      SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
+      SYMFONY__MYSQL__HOST: "db"
+    volumes:
+      - *project_root
+      - ./data/composer/slash:/composer
+      - ./data/composer/root-user:/root/composer
+      - ./data/composer/passwd.tmp:/etc/passwd
+    working_dir: /var/www/html
+    command: [ "-q" ]
+
+  node:
+    #image: mhart/alpine-node -- missing python (for gulp-sass building)
+    build:
+      context: ./node
+    image: salt/node
+    volumes:
+      - *project_root
+      - ./data/node/npm:/.npm
+      - ./data/node/config:/.config
+    working_dir: /var/www/html
+    command: [ "-v" ]
+
+#volumes:

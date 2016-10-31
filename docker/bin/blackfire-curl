@@ -1,0 +1,9 @@
+#!/bin/sh
+
+cd $(dirname $0)
+cd ..
+. ./.blackfire.env
+export BLACKFIRE_CLIENT_ID
+export BLACKFIRE_CLIENT_TOKEN
+
+docker run -it --rm -e BLACKFIRE_CLIENT_ID -e BLACKFIRE_CLIENT_TOKEN blackfire/blackfire blackfire curl "$@"

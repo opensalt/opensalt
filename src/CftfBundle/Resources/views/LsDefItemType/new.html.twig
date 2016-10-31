@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>LsDefItemType creation</h1>
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <p class="text-right">
+            <input class="btn btn-primary" type="submit" value="Create" />
+        </p>
+    {{ form_end(form) }}
+
+    <ul class="list-inline text-right">
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdef_item_type_index') }}">Back to the list</a>
+        </li>
+    </ul>
+{% endblock %}

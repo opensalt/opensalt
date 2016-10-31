@@ -1,0 +1,22 @@
+label.required:before {
+    content: '*';
+    color: red;
+}
+
+.panel-component .panel-body {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.item-humanCodingScheme {
+    font-weight: bold;
+}
+
+table.tree {
+    td.shrink {
+        white-space: nowrap;
+    }
+    td.expand {
+        width: 99%;
+    }
+}

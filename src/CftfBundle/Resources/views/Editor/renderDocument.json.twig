@@ -1,0 +1,22 @@
+{% set mainChildren = (lsDoc.topLsItemIds is not empty) %}
+[
+    {
+        "title": {{ lsDoc.title|json_encode|raw }},
+        "key": "doc-{{ lsDoc.id|raw }}",
+        "folder": true, "expanded": true, "children": [
+            {% for itemId in lsDoc.topLSItemIds %}
+                {% if not loop.first %}, {% endif %}
+                {% set item = items[itemId] %}
+                {% include 'CftfBundle:Editor:render_child.json.twig' with { 'lsItem':item, 'lsDoc':lsDoc, 'items':items, 'highlight':null } %}
+            {% endfor %}
+            {% if orphaned is not empty %}
+                {% if mainChildren %}, {% endif %}
+                {% for item in orphaned %}
+                    {% if not loop.first %}, {% endif %}
+                    {% include 'CftfBundle:Editor:render_child.json.twig' with { 'lsItem':item, 'lsDoc':lsDoc, 'items':items, 'highlight':null } %}
+                {% endfor %}
+            {% endif %}
+        ]
+    }
+]
+

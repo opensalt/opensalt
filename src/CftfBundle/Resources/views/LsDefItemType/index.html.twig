@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>LsDefItemType list</h1>
+
+    <table class="table table-condensed table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Code</th>
+                <th>Hierarchy Code</th>
+                <th>Updated At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for lsDefItemType in lsDefItemTypes %}
+            <tr>
+                <td><a href="{{ path('lsdef_item_type_show', { 'id': lsDefItemType.id }) }}">{{ lsDefItemType.id }}</a></td>
+                <td>{{ lsDefItemType.title }}</td>
+                <td>{{ lsDefItemType.description }}</td>
+                <td>{{ lsDefItemType.code }}</td>
+                <td>{{ lsDefItemType.hierarchyCode }}</td>
+                <td>{% if lsDefItemType.updatedAt %}{{ lsDefItemType.updatedAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>
+                    <ul class="list-inline">
+                        <li>
+                            <a class="btn btn-primary" href="{{ path('lsdef_item_type_show', { 'id': lsDefItemType.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a class="btn btn-default" href="{{ path('lsdef_item_type_edit', { 'id': lsDefItemType.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul class="list-inline">
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdef_item_type_new') }}">Create a new entry</a>
+        </li>
+    </ul>
+{% endblock %}

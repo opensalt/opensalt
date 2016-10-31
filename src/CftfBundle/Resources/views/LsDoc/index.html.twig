@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>LsDoc list</h1>
+
+    <table class="table table-condensed table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Creator</th>
+                <th>Publisher</th>
+                <th>Version</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for lsDoc in lsDocs %}
+            <tr>
+                <td><a href="{{ path('editor_lsdoc', { 'id': lsDoc.id }) }}">{{ lsDoc.title }}</a></td>
+                <td>{{ lsDoc.creator }}</td>
+                <td>{{ lsDoc.publisher }}</td>
+                <td>{{ lsDoc.version }}</td>
+                <td>
+                    <ul class="list-inline">
+                        <li>
+                            <a class="btn btn-primary" href="{{ path('editor_lsdoc', { 'id': lsDoc.id }) }}">show</a>
+                        </li>
+                        {#
+                        <li>
+                            <a class="btn btn-default" href="{{ path('lsdoc_edit', { 'id': lsDoc.id }) }}">edit</a>
+                        </li>
+                        #}
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul class="list-inline">
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdoc_new') }}">Create a new LS Doc</a>
+        </li>
+    </ul>
+{% endblock %}
