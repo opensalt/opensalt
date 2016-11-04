@@ -66,7 +66,7 @@ class ImportIMSCommand extends ContainerAwareCommand
         $itemTypes = [];
 
         foreach ($items as $item) {
-            if ($item['Status'] !== 'Active') {
+            if (array_key_exists('Status', $item) && ($item['Status'] !== 'Active')) {
                 continue;
             }
 
@@ -130,7 +130,7 @@ class ImportIMSCommand extends ContainerAwareCommand
         $useChapterSection = false;
 
         foreach ($items as $item) {
-            if ($item['Status'] !== 'Active') {
+            if (array_key_exists('Status', $item) && ($item['Status'] !== 'Active')) {
                 continue;
             }
 
