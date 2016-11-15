@@ -1,29 +1,51 @@
 {% block body %}
 {
+    "identifier": {{ lsDoc.identifier |json_encode |raw }},
     "uri": {{ lsDoc.uri|local_uri |json_encode |raw }},
     "creator": {{ lsDoc.creator |json_encode |raw }},
     "title": {{ lsDoc.title |json_encode |raw }},
-    "identifier": {{ lsDoc.identifier |json_encode |raw }},
-    "officialUri": {{ lsDoc.officialUri|local_uri |json_encode |raw }},
+    "lastChangeDateTime": {{ lsDoc.updatedAt |json_encode |raw }},
+{% if lsDoc.officialUri is not empty %}
+    "officialSourceURL": {{ lsDoc.officialUri|local_uri |json_encode |raw }},
+{% endif %}
+{% if lsDoc.publisher is not empty %}
     "publisher": {{ lsDoc.publisher |json_encode |raw }},
-    "version": {{ lsDoc.version |json_encode |raw }},
+{% endif %}
+{% if lsDoc.description is not empty %}
     "description": {{ lsDoc.description |json_encode |raw }},
+{% endif %}
+{% if lsDoc.subject is not empty %}
     "subject": {{ lsDoc.subject |json_encode |raw }},
-    "subjectUri": {{ lsDoc.subjectUri|local_uri |json_encode |raw }},
+{% endif %}
+{% if lsDoc.subjectUri is not empty %}
+    "subjectURI": {{ lsDoc.subjectUri|local_uri |json_encode |raw }},
+{% endif %}
+{% if lsDoc.language is not empty %}
     "language": {{ lsDoc.language |json_encode |raw }},
+{% endif %}
+{% if lsDoc.version is not empty %}
+    "version": {{ lsDoc.version |json_encode |raw }},
+{% endif %}
+{% if lsDoc.adoptionStatus is not empty %}
     "adoptionStatus": {{ lsDoc.adoptionStatus |json_encode |raw }},
-    "statusStart": {{ lsDoc.statusStart |json_encode |raw }},
-    "statusEnd": {{ lsDoc.statusEnd |json_encode |raw }},
-    "hasTopLSItems": [
-        {% for itemId in lsDoc.topLSItemIds %}
-            {% set item = items[itemId] %}
-            {% if not loop.first %},{% endif %}
-            {# render_esi(path('lsitem_export', { 'id': item.id })) #}
-            {# item.uri|local_uri |json_encode |raw #}
-            {% include 'CftfBundle:LsDoc:export_child.json.twig' with { 'lsItem':item, 'lsDoc':lsDoc, 'items':items} %}
-        {% endfor %}
-    ],
-    "note": {{ lsDoc.note |json_encode |raw }}
+{% endif %}
+{% if lsDoc.statusStart is not empty %}
+    "statusStartDate": {{ lsDoc.statusStart |json_encode |raw }},
+{% endif %}
+{% if lsDoc.statusEnd is not empty %}
+    "statusEndDate": {{ lsDoc.statusEnd |json_encode |raw }},
+{% endif %}
+{# TODO: LSDOC License#}
+{# if lsDoc.license is not empty %}
+    "license": {{  lsDoc.license | json_encode |raw }},
+{% endif %}
+{% if lsDoc.license is not empty %}
+    "licenseURI": {{  lsDoc.license | json_encode |raw }},
+{% endif #}
+{% if lsDoc.note is not empty %}
+    "notes": {{ lsDoc.note |json_encode |raw }},
+{% endif %}
+    "CFPackageURI": {{ lsDoc.uri |local_uri |json_encode |raw }}
 }
 {% endblock %}
 

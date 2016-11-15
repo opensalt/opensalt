@@ -1,21 +1,22 @@
 {% block body %}
     {
-        "uri": {{ lsItem.uri|local_uri |json_encode |raw }},
-        {#"lsDocUri": {{ lsItem.lsDocUri|local_uri |json_encode |raw }},#}
-        "fullStatement": {{ lsItem.fullStatement |json_encode |raw }},
+{# TODO: CFDocument URI #}
+        "CFDocumentURI": {{ lsItem.lsDocUri|local_uri |json_encode |raw }},
         "identifier": {{ lsItem.identifier |json_encode |raw }},
+        "uri": {{ lsItem.uri|local_uri |json_encode |raw }},
+        "fullStatement": {{ lsItem.fullStatement |json_encode |raw }},
         {% if lsItem.humanCodingScheme is not null %}
         "humanCodingScheme": {{ lsItem.humanCodingScheme |json_encode |raw }},
         {% endif %}
         {% if lsItem.listEnumInSource is not null %}
-        "listEnumInSource": {{ lsItem.listEnumInSource |json_encode |raw }},
+        "listEnumeration": {{ lsItem.listEnumInSource |json_encode |raw }},
         {% endif %}
         {% if lsItem.abbreviatedStatement is not null %}
         "abbreviatedStatement": {{ lsItem.abbreviatedStatement |json_encode |raw }},
         {% endif %}
         {% if lsItem.conceptKeywords is not null %}
         "conceptKeywords": {{ lsItem.conceptKeywords |json_encode |raw }},
-        "conceptKeywordsUri": {{ lsItem.conceptKeywordsUri|local_uri |json_encode |raw }},
+        "conceptKeywordsURI": {{ lsItem.conceptKeywordsUri|local_uri |json_encode |raw }},
         {% endif %}
         {% if lsItem.notes is not null %}
         "notes": {{ lsItem.notes |json_encode |raw }},
@@ -24,18 +25,23 @@
         "language": {{ lsItem.language |json_encode |raw }},
         {% endif %}
         {% if lsItem.educationalAlignment is not null %}
-        "educationalAlignment": {{ lsItem.educationalAlignment |json_encode |raw }},
+        "educationalLevel": {{ lsItem.educationalAlignment |json_encode |raw }},
         {% endif %}
         {% if lsItem.itemType is not null %}
-        "type": {
+        "CFItemType": {{ lsItem.itemType.code |json_encode |raw }},
+        "CFItemTypeURI": {
             "title": {{ lsItem.itemType.code |json_encode |raw }},
             "identifier": {{ lsItem.itemType.identifier |json_encode |raw }},
             "uri": {{ lsItem.itemType.uri|local_remote_uri |json_encode | raw }}
         },
         {% endif %}
         {% if lsItem.licenceUri is not null %}
+{# TODO: license #}
+        "licence": {{ lsItem.licenceUri|local_uri |json_encode |raw }},
         "licenceUri": {{ lsItem.licenceUri|local_uri |json_encode |raw }},
         {% endif %}
-        "changedAt": {{ lsItem.changedAt|date('c') |json_encode |raw }}
+        "lastChangeDateTime": {{ lsItem.changedAt|date('c') |json_encode |raw }},
+{# TODO: Item Association URI endpoint #}
+        "CFItemAssociationURI": {{ lsItem.uri |local_uri |raw }}
     }
 {% endblock %}

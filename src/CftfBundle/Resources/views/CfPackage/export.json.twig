@@ -6,20 +6,17 @@
         "creator": {{ lsDoc.creator |json_encode |raw }},
         "title": {{ lsDoc.title |json_encode |raw }},
         {% if lsDoc.officialUri is not null %}
-        "officialUri": {{ lsDoc.officialUri|local_remote_uri |json_encode |raw }},
+        "officialSourceURL": {{ lsDoc.officialUri|local_remote_uri |json_encode |raw }},
         {% endif %}
         {% if lsDoc.publisher is not null %}
         "publisher": {{ lsDoc.publisher |json_encode |raw }},
-        {% endif %}
-        {% if lsDoc.version is not null %}
-        "version": {{ lsDoc.version |json_encode |raw }},
         {% endif %}
         {% if lsDoc.description is not null %}
         "description": {{ lsDoc.description |json_encode |raw }},
         {% endif %}
         {% if subjects is not empty %}
             "subject": "{% for subject in lsDoc.subjects %}{% if not loop.first %}|{% endif %}{{ subject.title }}{% endfor %}",
-            "subject_uri": [
+            "subjectURI": [
                 {% for subject in lsDoc.subjects %}
                     {% if not loop.first %},{% endif %}
                     {
@@ -33,19 +30,25 @@
         {% if lsDoc.language is not null %}
         "language": {{ lsDoc.language |json_encode |raw }},
         {% endif %}
+        {% if lsDoc.version is not null %}
+        "version": {{ lsDoc.version |json_encode |raw }},
+        {% endif %}
         {% if lsDoc.adoptionStatus is not null %}
         "adoptionStatus": {{ lsDoc.adoptionStatus |json_encode |raw }},
         {% endif %}
         {% if lsDoc.statusStart is not null %}
-        "statusStart": {{ lsDoc.statusStart |json_encode |raw }},
+        "statusStartDate": {{ lsDoc.statusStart |json_encode |raw }},
         {% endif %}
         {% if lsDoc.statusEnd is not null %}
-        "statusEnd": {{ lsDoc.statusEnd |json_encode |raw }},
+        "statusEndDate": {{ lsDoc.statusEnd |json_encode |raw }},
         {% endif %}
+{# TODO: license and licenseURI #}
         {% if lsDoc.note is not null %}
-        "note": {{ lsDoc.note |json_encode |raw }},
+        "notes": {{ lsDoc.note |json_encode |raw }},
         {% endif %}
-        "lastChanged": {{ lsDoc.updatedAt|date('c') |json_encode |raw }}
+        "lastChangeDateTime": {{ lsDoc.updatedAt|date('c') |json_encode |raw }},
+{# TODO: CFPackage URI #}
+        "CFPackageURI": {{ lsDoc.uri|local_uri |json_encode |raw }}
     },
     "lsItems": [
     {% for item in items %}
