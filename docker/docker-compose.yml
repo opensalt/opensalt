@@ -24,7 +24,7 @@ services:
     environment:
       UPSTREAM_HOST: phpfpm:9000
     ports:
-      - "80"
+      - "3000:80"
     volumes:
       - *project_root
     working_dir: /var/www/html
