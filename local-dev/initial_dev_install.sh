@@ -20,11 +20,12 @@ sed -i '' "s#ThisTokenIsNotSoSecretChangeIt#${TOKEN2}#" app/config/parameters.ym
 # Run gulp to create css and js files
 ./bin/gulp
 
-# Do database migrations
-./bin/console-docker doctrine:migrations:migrate --no-interaction
-
 # Start docker containers
 cd docker
 docker-compose up -d
+cd ..
+
+# Do database migrations
+./bin/console-docker doctrine:migrations:migrate --no-interaction
 
 echo 'You should now be able to connect to http://localhost:3000'
