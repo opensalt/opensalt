@@ -2,4 +2,4 @@
 
 cd $(dirname $0)
 
-./phpcli ./bin/console "$@"
+./phpcli ./bin/console-real "$@"
