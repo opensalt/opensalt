@@ -38,7 +38,7 @@ framework:
         #save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
         name: session
         cookie_lifetime: 0
-        cookie_secure: true
+        cookie_secure: '%secure_cookie%'
         cookie_httponly: true
         gc_maxlifetime: 3600
         gc_probability: 25
@@ -225,4 +225,3 @@ nelmio_api_doc:
         info:
             title: 'SALT'
             description: 'Open source implementation of the IMS CFTF specification'
-
