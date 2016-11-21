@@ -6,7 +6,7 @@ services:
   phpcli:
     build:
       context: ./php
-    image: salt/php:7.0.10-cli
+    image: salt/php:7.0.13-cli
     environment:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
