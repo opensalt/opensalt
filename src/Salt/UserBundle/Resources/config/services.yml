@@ -2,3 +2,22 @@ services:
 #    salt_user.example:
 #        class: Salt\UserBundle\Example
 #        arguments: ["@service_id", "plain_value", "%parameter%"]
+
+    salt_user.framework_edit_voter:
+        class: Salt\UserBundle\Security\FrameworkEditVoter
+        tags:
+            - { name: security.voter }
+        public: false
+
+    salt_user.framework_create_voter:
+        class: Salt\UserBundle\Security\FrameworkCreateVoter
+        tags:
+            - { name: security.voter }
+        public: false
+
+#    salt_user.super_user_voter:
+#        class: Salt\UserBundle\Security\SuperUserVoter
+#        arguments: ['@security.access.decision_manager']
+#        tags:
+#            - { name: security.voter }
+#        public: false
