@@ -1,9 +1,23 @@
 # To get started with security, check out the documentation:
 # http://symfony.com/doc/current/book/security.html
 security:
+    role_hierarchy:
+        ROLE_READER: [ROLE_USER]
+        ROLE_WRITER: [ROLE_READER]
+        ROLE_ADMIN: [ROLE_WRITER]
+        ROLE_SITE_ADMIN: [ROLE_ADMIN]
+        ROLE_SUPER_ADMIN: [ROLE_SITE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+    encoders:
+        Salt\UserBundle\Entity\User:
+            algorithm: bcrypt
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
+        local_db_provider:
+            entity:
+                class: SaltUserBundle:User
+
         in_memory:
             memory: ~
 
@@ -13,20 +27,39 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        read_api:
+            pattern: ^/api/
+            methods: [GET]
+            security: false
+
         main:
             pattern: ^/
             anonymous: ~
-            stateless: true
+            #stateless: true
+            provider: local_db_provider
+
             # activate different ways to authenticate
 
-            # http_basic: ~
             # http://symfony.com/doc/current/book/security.html#a-configuring-how-your-users-will-authenticate
+            # http_basic: ~
 
-            # form_login: ~
             # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
+            form_login:
+                login_path: login
+                check_path: login
+                csrf_token_generator: security.csrf.token_manager
+                require_previous_session: false
+                default_target_path: cftf_index
+
+            logout:
+                path: /logout
+                target: cftf_index
 
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods
     # http://symfony.com/doc/current/cookbook/security/access_control.htm
     access_control:
-        #- { path: ^/login, roles: IS_AUTHETNICATED_ANONYMOUSLY, requires_channel: https }
+        #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/logout, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }

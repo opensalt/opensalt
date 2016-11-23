@@ -1,3 +1,8 @@
+salt_user:
+    resource: "@SaltUserBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
 cftf_util:
     resource: "@CftfUtilBundle/Controller/"
     type:     annotation
@@ -31,3 +36,6 @@ cftf:
 NelmioApiDocBundle:
     resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
     prefix:   /api/doc
+
+logout:
+    path: /logout

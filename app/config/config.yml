@@ -8,6 +8,7 @@ imports:
     - { resource: "@CftfSbacBundle/Resources/config/services.yml" }
     - { resource: "@CftfCmsBundle/Resources/config/services.yml" }
     - { resource: "@CftfUtilBundle/Resources/config/services.yml" }
+    - { resource: "@SaltUserBundle/Resources/config/services.yml" }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
@@ -186,14 +187,14 @@ csa_guzzle:
                     Accept: 'application/json'
 
 nelmio_security:
-    cookie_session:
-        enabled: false
-        name: session
-        secure: true
-    signed_cookie:
-        names: ['*']
-        secret: '%cookie_secret%'
-        hash_algo: sha256
+#    signed_cookie:
+#        names: ['*']
+#        secret: '%cookie_secret%'
+#        hash_algo: sha256
+    #cookie_session:
+    #    enabled: true
+    #    name: session
+    #    secure: true
     #encrypted_cookie:
     #    names: ['*']
     #    secret: '%cookie_secret%'
