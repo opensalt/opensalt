@@ -5,6 +5,7 @@ namespace CftfBundle\Controller;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Form\LsDocType;
@@ -43,6 +44,7 @@ class LsDocController extends Controller
      * @Route("/new", name="lsdoc_new")
      * @Method({"GET", "POST"})
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      */
     public function newAction(Request $request)
     {
@@ -92,6 +94,7 @@ class LsDocController extends Controller
      * @Route("/{id}/edit", name="lsdoc_edit")
      * @Method({"GET", "POST"})
      * @Template()
+     * @Security("is_granted('edit', lsDoc)")
      */
     public function editAction(Request $request, LsDoc $lsDoc)
     {
@@ -134,6 +137,7 @@ class LsDocController extends Controller
      *
      * @Route("/{id}", name="lsdoc_delete")
      * @Method("DELETE")
+     * @Security("is_granted('edit', lsDoc)")
      */
     public function deleteAction(Request $request, LsDoc $lsDoc)
     {
