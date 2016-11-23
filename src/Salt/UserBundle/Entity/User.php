@@ -32,14 +32,14 @@ class User implements UserInterface, \Serializable, EquatableInterface
      *
      * @ORM\Column(name="username", type="string", length=255, unique=true)
      *
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"registration", "Default"})
      */
     protected $username;
 
     /**
      * @var string
      *
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"registration"})
      * @Assert\Length(max=4096)
      */
     private $plainPassword;
@@ -52,17 +52,14 @@ class User implements UserInterface, \Serializable, EquatableInterface
     protected $password;
 
     /**
-     * @var string[]
-     *
      * @ORM\Column(name="roles", type="json_array", nullable=true)
      */
     protected $roles;
 
 
-    public function __construct($username, $plainPassword = null) {
-        $this->username = $username;
-        if (!empty($plainPassword)) {
-            $this->plainPassword = $plainPassword;
+    public function __construct($username = null) {
+        if (!empty($username)) {
+            $this->username = $username;
         }
     }
 
@@ -82,6 +79,16 @@ class User implements UserInterface, \Serializable, EquatableInterface
      */
     public function getUsername() {
         return $this->username;
+    }
+
+    /**
+     * @param string $username
+     * @return $this
+     */
+    public function setUsername($username) {
+        $this->username = $username;
+
+        return $this;
     }
 
     public function getPlainPassword() {
@@ -131,7 +138,7 @@ class User implements UserInterface, \Serializable, EquatableInterface
      * @param string[] $roles The user roles
      */
     public function setRoles($roles) {
-        $this->roles = $roles;
+        $this->roles = array_values($roles);
     }
 
     /**
