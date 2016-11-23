@@ -2,9 +2,10 @@
 # http://symfony.com/doc/current/book/security.html
 security:
     role_hierarchy:
-        ROLE_READER: [ROLE_USER]
-        ROLE_WRITER: [ROLE_READER]
-        ROLE_ADMIN: [ROLE_WRITER]
+        ROLE_USER: []
+        ROLE_VIEWER: [ROLE_USER]
+        ROLE_EDITOR: [ROLE_VIEWER]
+        ROLE_ADMIN: [ROLE_EDITOR]
         ROLE_SITE_ADMIN: [ROLE_ADMIN]
         ROLE_SUPER_ADMIN: [ROLE_SITE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
 
