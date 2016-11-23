@@ -21,3 +21,4 @@ RUN	apt-get -o 'Acquire::CompressionTypes::Order::="gz"' update \
 COPY memory_limit.ini /usr/local/etc/php/conf.d/memory_limit.ini
 COPY upload_size.ini /usr/local/etc/php/conf.d/upload_size.ini
 COPY short_tag.ini /usr/local/etc/php/conf.d/short_tag.ini
+COPY log.conf /usr/local/etc/php-fpm.d/zz-log.conf
