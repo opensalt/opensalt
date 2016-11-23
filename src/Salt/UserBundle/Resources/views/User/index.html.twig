@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Users list</h1>
+
+    <table class="table table-condensed table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Username</th>
+                <th>Roles</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td><a href="{{ path('admin_user_show', { 'id': user.id }) }}">{{ user.id }}</a></td>
+                <td>{{ user.username }}</td>
+                <td>
+                    {% for role in user.roles %}
+                        {{ role }}
+                    {% endfor %}
+                </td>
+                <td>
+                    <ul class="list-inline">
+                        <li>
+                            <a class="btn btn-primary" href="{{ path('admin_user_show', { 'id': user.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a class="btn btn-default" href="{{ path('admin_user_edit', { 'id': user.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul class="list-inline">
+        <li>
+            <a class="btn btn-default" href="{{ path('admin_user_new') }}">Create a new user</a>
+        </li>
+    </ul>
+{% endblock %}
