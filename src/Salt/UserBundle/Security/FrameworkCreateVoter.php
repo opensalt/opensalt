@@ -5,7 +5,6 @@
 
 namespace Salt\UserBundle\Security;
 
-use CftfBundle\Entity\LsDoc;
 use Salt\UserBundle\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -28,9 +27,9 @@ class FrameworkCreateVoter extends Voter
             return false;
         }
 
-//        if ($subject !== self::FRAMEWORK) {
-//            return false;
-//        }
+        if ($subject !== self::FRAMEWORK) {
+            return false;
+        }
 
         return true;
     }
