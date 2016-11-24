@@ -5,6 +5,7 @@
 
 namespace Salt\UserBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\EquatableInterface;
@@ -20,6 +21,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User implements UserInterface, \Serializable, EquatableInterface
 {
+    const USER_ROLES = [
+        'ROLE_USER',
+        'ROLE_VIEWER',
+        'ROLE_EDITOR',
+        'ROLE_ADMIN',
+        'ROLE_SITE_ADMIN',
+        'ROLE_SUPER_USER',
+    ];
+
     /**
      * @var int
      *
@@ -54,15 +64,21 @@ class User implements UserInterface, \Serializable, EquatableInterface
     protected $password;
 
     /**
+     * @var string[]
+     *
      * @ORM\Column(name="roles", type="json_array", nullable=true)
      */
-    protected $roles;
+    protected $roles = [];
 
 
     public function __construct($username = null) {
         if (!empty($username)) {
             $this->username = $username;
         }
+    }
+
+    static public function getUserRoles() {
+        return static::USER_ROLES;
     }
 
     /**
@@ -124,13 +140,13 @@ class User implements UserInterface, \Serializable, EquatableInterface
     /**
      * Returns the roles granted to the user.
      *
-     * @return (Role|string)[] The user roles
+     * @return string[] The user roles
      */
     public function getRoles() {
         $roles = $this->roles;
 
-        if (empty($roles) || count($roles) === 0) {
-            $roles = ['ROLE_USER'];
+        if (empty($roles)) {
+            $roles[] = 'ROLE_USER';
         }
 
         return $roles;
@@ -140,7 +156,14 @@ class User implements UserInterface, \Serializable, EquatableInterface
      * @param string[] $roles The user roles
      */
     public function setRoles($roles) {
-        $this->roles = array_values($roles);
+        if (!$roles instanceof \Traversable) {
+            throw new \InvalidArgumentException('The passed roles are not an array');
+        }
+
+        $this->roles = [];
+        foreach ($roles as $role) {
+            $this->addRole($role);
+        }
     }
 
     /**
@@ -202,20 +225,43 @@ class User implements UserInterface, \Serializable, EquatableInterface
      */
     public function isEqualTo(UserInterface $user) {
         if (!($user instanceof User)) {
-            var_dump('failed instanceof');exit();
             return false;
         }
 
         if ($user->getUsername() !== $this->getUsername()) {
-            var_dump('failed username');exit();
             return false;
         }
 
         if ($user->getId() !== $this->getId()) {
-            var_dump('failed id');exit();
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Add a role to a user
+     *
+     * @param string $role
+     * @return $this
+     */
+    public function addRole($role) {
+        if (!in_array($role, static::USER_ROLES, true)) {
+            throw new \InvalidArgumentException(sprintf('The role "%s" is not valid', $role));
+        }
+
+        if (!in_array($role, $this->roles, true)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
+    public function removeRole($role) {
+        if (($key = array_search($role, $this->roles, true)) !== false) {
+            unset($this->roles[$key]);
+        }
+
+        return $this;
     }
 }
