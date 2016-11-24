@@ -11,16 +11,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 
-class UserAddCommand extends ContainerAwareCommand
+class UserRemoveRoleCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setName('salt:user:add')
-            ->setDescription('Add a local user')
-            ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the new user')
-            ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Initial password for the new user')
-            ->addOption('role', 'r', InputOption::VALUE_REQUIRED, 'Role to give the new user (editor, admin, super-user)')
+            ->setName('salt:user:remove-role')
+            ->setDescription('Remove a role from a local user')
+            ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the user to change')
+            ->addArgument('role', InputArgument::REQUIRED, 'Role to remove from the user (editor, admin, super-user)')
         ;
     }
 
@@ -42,43 +41,29 @@ class UserAddCommand extends ContainerAwareCommand
             $input->setArgument('username', $username);
         }
 
-        if (empty($input->getOption('password'))) {
-            $question = new Question('Initial password for new user: ');
-            $question->setValidator(function ($value) {
-                if (trim($value) == '') {
-                    throw new \Exception('The password can not be empty');
-                }
-
-                return $value;
-            });
-            $password = $helper->ask($input, $output, $question);
-            $input->setOption('password', $password);
-        }
-
-        if (empty($input->getOption('role'))) {
+        if (empty($input->getArgument('role'))) {
             $question = new ChoiceQuestion('Role to give the new user: ', ['viewer', 'editor', 'admin', 'super user'], 0);
             $role = $helper->ask($input, $output, $question);
-            $input->setOption('role', $role);
+            $input->setArgument('role', $role);
         }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $username = trim($input->getArgument('username'));
-        $password = trim($input->getOption('password'));
-        $role = trim($input->getOption('role'));
+        $role = trim($input->getArgument('role'));
         $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
 
         if (!in_array($role, User::USER_ROLES)) {
-            $output->writeln(sprintf('<error>Role "%s" is not valid.</error>', $input->getOption('role')));
+            $output->writeln(sprintf('<error>Role "%s" is not valid.</error>', $input->getArgument('role')));
             return;
         }
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $userRepository = $em->getRepository('SaltUserBundle:User');
-        $userRepository->addNewUser($username, $password, $role);
+        $userRepository->removeRoleFromUser($username, $role);
 
-        $output->writeln(sprintf('The user "%s" has been added.', $username));
+        $output->writeln(sprintf('The role "%s" has been removed.', $input->getArgument('role')));
     }
 
 }
