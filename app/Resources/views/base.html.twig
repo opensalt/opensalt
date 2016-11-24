@@ -22,10 +22,19 @@
         <div class="container">
             <div class="header">
                 {%- block header -%}
-                    <p>
-                        <a href="http://pcgus.com/"><img src="{{ asset('/assets/img/ManagedByPCG.jpg') }}" /></a>
-                        <span class="lead pull-right">This is a demonstration preview of SALT</span>
-                    </p>
+                    <nav class="navbar navbar-default">
+                        <div class="container-fluid">
+                            <a class="navbar-brand" href="http://pcgus.com/" style="height: 88px;"><img src="{{ asset('/assets/img/ManagedByPCG.jpg') }}" /></a>
+
+                            <p class="navbar-text lead">This is a demonstration preview of SALT</p>
+
+                            {% if (is_granted('IS_AUTHENTICATED_REMEMBERED')) %}
+                                <a href="{{ url("logout") }}" class="btn btn-default navbar-btn pull-right">Logout</a>
+                            {% else %}
+                                <a href="{{ url("login") }}" class="btn btn-default navbar-btn pull-right">Login</a>
+                            {% endif %}
+                        </div>
+                    </nav>
                 {%- endblock -%}
             </div>
             {% if app.request.hasPreviousSession %}
