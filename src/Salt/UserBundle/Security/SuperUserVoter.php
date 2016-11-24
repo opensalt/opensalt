@@ -30,6 +30,16 @@ class SuperUserVoter extends Voter
      * @return bool True if the attribute and subject are supported, false otherwise
      */
     protected function supports($attribute, $subject) {
+        // Do not support the role check we are doing in voteOnAttribute
+        if ($attribute === 'ROLE_SUPER_USER') {
+            return false;
+        }
+
+        // Pass on IS_AUTHENTICATED_* checks
+        if (0 === strpos($attribute, 'IS_AUTHENTICATED_')) {
+            return false;
+        }
+
         return true;
     }
 
