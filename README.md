@@ -19,6 +19,9 @@ Installation
 1. Install Docker from [here](https://www.docker.com/products/docker)
 
   > **Note: the rest of the following can be automated by running `./local-dev/initial_dev_install.sh`**
+  
+  > To create a user use `./bin/console salt:user:add [username] [--password="secret"] [--role="rolename"]`
+  > > The *initial_dev_install.sh* command creates an initial super admin "admin" with password "secret"
 
   > `./bin/build.sh` also does much of the following, for doing a "build" after one has started development
 

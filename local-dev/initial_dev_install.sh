@@ -29,6 +29,8 @@ cd ..
 
 # Do database migrations
 ./bin/console-docker doctrine:migrations:migrate --no-interaction
-./bin/console-docker doctrine:fixtures:load --append --fixtures=./src/Salt/UserBundle/DataFixtures/ORM/LoadSuperAdminUser.php
+
+# Add an initial super user
+./bin/console-docker salt:user:add admin --password=secret --role=super-user
 
 echo 'You should now be able to connect to http://127.0.0.1:3000'
