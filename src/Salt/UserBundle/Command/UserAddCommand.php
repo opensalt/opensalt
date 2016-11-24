@@ -67,6 +67,9 @@ class UserAddCommand extends ContainerAwareCommand
         $username = trim($input->getArgument('username'));
         $password = trim($input->getOption('password'));
         $role = trim($input->getOption('role'));
+        if (empty($role)) {
+            $role = 'viewer';
+        }
         $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
 
         if (!in_array($role, User::USER_ROLES)) {
@@ -76,9 +79,13 @@ class UserAddCommand extends ContainerAwareCommand
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $userRepository = $em->getRepository('SaltUserBundle:User');
-        $userRepository->addNewUser($username, $password, $role);
+        $newPassword = $userRepository->addNewUser($username, $password, $role);
 
-        $output->writeln(sprintf('The user "%s" has been added.', $username));
+        if (empty($password)) {
+            $output->writeln(sprintf('The user "%s" has been added with password "%s".', $username, $newPassword));
+        } else {
+            $output->writeln(sprintf('The user "%s" has been added.', $username));
+        }
     }
 
 }

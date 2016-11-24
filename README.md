@@ -64,3 +64,9 @@ Installation
     ```
 
 9. [http://127.0.0.1:3000/app_dev.php/](http://127.0.0.1:3000/app_dev.php/) should show the initial screen with debug turned on
+
+
+Other Docs
+----------
+
+- [User Management Commands](./src/Salt/UserBundle/Resources/doc/Commands.md)

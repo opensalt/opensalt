@@ -56,7 +56,7 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      * @return string The user's password
      */
     public function addNewUser($username, $plainPassword = null, $role = null) {
-        if (null === $plainPassword) {
+        if (empty(trim($plainPassword))) {
             // if there is no password, make something ugly up
             $plainPassword = rtrim(strtr(base64_encode(random_bytes(15)), '+/', '-_'), '=');
         }
