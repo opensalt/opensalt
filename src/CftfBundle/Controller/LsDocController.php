@@ -31,7 +31,7 @@ class LsDocController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDocs = $em->getRepository('CftfBundle:LsDoc')->findAll();
+        $lsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC']);
 
         return [
             'lsDocs' => $lsDocs,

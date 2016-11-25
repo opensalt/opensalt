@@ -8,3 +8,37 @@ span.fancytree-drag-helper-img,
 #fancytree-drop-marker {
     background-image: url("/img/fancytree/icons.gif");
 }
+
+#competencyTree {
+    ul.fancytree-container {
+        border: none;
+        overflow: hidden;
+        font-family: inherit;
+
+        &:focus {
+            outline: none;
+        }
+
+        span.fancytree-title {
+            color: $link-color;
+            background-color: inherit;
+            outline: none;
+
+            &:focus {
+                outline: none;
+            }
+        }
+
+        span.fancytree-folder {
+            span.fancytree-title {
+                font-weight: bold;
+                color: $text-color;
+            }
+        }
+    }
+    
+    .salt-framework-link span.fancytree-title:hover {
+        text-decoration: $link-hover-decoration;
+        color: $link-hover-color;
+    }
+}
