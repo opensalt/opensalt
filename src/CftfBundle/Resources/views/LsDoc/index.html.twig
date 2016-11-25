@@ -1,47 +1,46 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>LsDoc list</h1>
+    <h1>Competency Frameworks
+        {% if is_granted('create', 'lsdoc') %}
+            <ul class="list-inline pull-right">
+                <li>
+                    <a class="btn btn-default" href="{{ path('lsdoc_new') }}">Create a new Framework</a>
+                </li>
+            </ul>
+        {% endif %}
+    </h1>
 
-    <table class="table table-condensed table-hover table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Creator</th>
-                <th>Publisher</th>
-                <th>Version</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for lsDoc in lsDocs %}
-            <tr>
-                <td><a href="{{ path('editor_lsdoc', { 'id': lsDoc.id }) }}">{{ lsDoc.title }}</a></td>
-                <td>{{ lsDoc.creator }}</td>
-                <td>{{ lsDoc.publisher }}</td>
-                <td>{{ lsDoc.version }}</td>
-                <td>
-                    <ul class="list-inline">
-                        <li>
-                            <a class="btn btn-primary" href="{{ path('editor_lsdoc', { 'id': lsDoc.id }) }}">show</a>
-                        </li>
-                        {#
-                        <li>
-                            <a class="btn btn-default" href="{{ path('lsdoc_edit', { 'id': lsDoc.id }) }}">edit</a>
-                        </li>
-                        #}
-                    </ul>
-                </td>
-            </tr>
+    <div id="competencyTree">
+        {% set lastCreator = '' %}
+        <ul id="comptencyTreeData" style="display:none;">
+        {% for framework in lsDocs %}
+            {% if framework.creator != lastCreator %}
+                {% if not loop.first %}
+                </ul></li>
+                {% endif %}
+                <li class="folder expanded">{{ framework.creator }}<ul>
+                {% set lastCreator = framework.creator %}
+            {% endif %}
+            <li class="salt-framework-link"><a href="{{ path('editor_lsdoc', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
+            {% if loop.last == true %}
+                </ul></li>
+            {% endif %}
         {% endfor %}
-        </tbody>
-    </table>
+        </ul>
+    </div>
+{% endblock %}
 
-    {% if is_granted('create', 'lsdoc') %}
-    <ul class="list-inline">
-        <li>
-            <a class="btn btn-default" href="{{ path('lsdoc_new') }}">Create a new LS Doc</a>
-        </li>
-    </ul>
-    {% endif %}
+{% block javascripts %}
+    <script>
+        $('#competencyTree').fancytree({
+            activate: function(event, data){
+                var node = data.node;
+                if (!$.isEmptyObject(node.data)) {
+                    if (undefined != node.data.href)
+                    window.location.href = node.data.href;
+                }
+            }
+        });
+    </script>
 {% endblock %}
