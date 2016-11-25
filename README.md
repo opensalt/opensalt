@@ -17,9 +17,10 @@ Installation
 ------------
 
 1. Install Docker from [here](https://www.docker.com/products/docker)
+  - [Docker for Mac notes](./DOCKER_FOR_MAC.md)
 
   > **Note: the rest of the following can be automated by running `./local-dev/initial_dev_install.sh`**
-  
+
   > To create a user use `./bin/console salt:user:add [username] [--password="secret"] [--role="rolename"]`
   > > The *initial_dev_install.sh* command creates an initial super admin "admin" with password "secret"
 
