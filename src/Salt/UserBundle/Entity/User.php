@@ -71,6 +71,12 @@ class User implements UserInterface, \Serializable, EquatableInterface
     protected $roles = [];
 
 
+    /**
+     * @ORM\Column(name="github_token", type="string", length=40, nullable=true)
+     */
+    protected $githubToken;
+
+
     public function __construct($username = null) {
         if (!empty($username)) {
             $this->username = $username;
@@ -164,6 +170,16 @@ class User implements UserInterface, \Serializable, EquatableInterface
         foreach ($roles as $role) {
             $this->addRole($role);
         }
+    }
+
+    public function getGithubToken(){
+      return $this->githubToken;
+    }
+
+    public function setGithubToken($token) {
+        $this->githubToken = $token;
+
+        return $this;
     }
 
     /**

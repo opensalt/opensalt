@@ -22,3 +22,5 @@ parameters:
     secure_cookie: true
 
     local_uri_host: http://localhost:3000/
+    github_client_id: YouAppClientId
+    github_client_secret: YouAppClientSecret

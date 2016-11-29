@@ -40,6 +40,7 @@ class AppKernel extends Kernel
             new Cftf\CmsBundle\CftfCmsBundle(),
             new Cftf\UtilBundle\CftfUtilBundle(),
             new Salt\UserBundle\SaltUserBundle(),
+            new HWI\Bundle\OAuthBundle\HWIOAuthBundle(),
         ];
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {
