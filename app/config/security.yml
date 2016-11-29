@@ -55,6 +55,16 @@ security:
             logout:
                 path: /logout
                 target: cftf_index
+        secured_area:
+            anonymous: ~
+            oauth:
+                resource_owners:
+                    github:     "/login/check-github"
+                use_forward:       false
+                login_path:        /login
+                failure_path:   /login
+                oauth_user_provider:
+                    service: hwi_oauth.user.provider
 
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods

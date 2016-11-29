@@ -83,7 +83,8 @@
 	"mervick/material-design-icons": "^2.2",
 
 
-        "ocramius/proxy-manager": "^1.0.2"
+        "ocramius/proxy-manager": "^1.0.2",
+        "hwi/oauth-bundle": "^0.5.1"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",

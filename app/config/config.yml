@@ -137,24 +137,6 @@ doctrine:
                     log_enabled: true
 
                 mappings:
-#                    gedmo_translatable:
-#                        type: annotation
-#                        prefix: Gedmo\Translatable\Entity
-#                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translatable/Entity"
-#                        alias: GedmoTranslatable # (optional) it will default to the name set for the mapping
-#                        is_bundle: false
-#                    gedmo_translator:
-#                        type: annotation
-#                        prefix: Gedmo\Translator\Entity
-#                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translator/Entity"
-#                        alias: GedmoTranslator # (optional) it will default to the name set for the mapping
-#                        is_bundle: false
-#                    gedmo_loggable:
-#                        type: annotation
-#                        prefix: Gedmo\Loggable\Entity
-#                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Loggable/Entity"
-#                        alias: GedmoLoggable # (optional) it will default to the name set for the mappingmapping
-#                        is_bundle: false
                     gedmo_tree:
                         type: annotation
                         prefix: Gedmo\Tree\Entity
@@ -226,3 +208,12 @@ nelmio_api_doc:
         info:
             title: 'SALT'
             description: 'Open source implementation of the IMS CFTF specification'
+
+hwi_oauth:
+    firewall_names: [secured_area]
+    resource_owners:
+        github:
+            type:                github
+            client_id:           "%github_client_id%"
+            client_secret:       "%github_client_secret%"
+            scopes:              'user:email,repo,repo_deployment,repo'
