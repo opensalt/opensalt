@@ -60,7 +60,22 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
             }
 
             // listEnumInSource
+            if (!empty($a['listEnumInSource']) && !empty($b['listEnumInSource'])) {
+                if ($a['listEnumInSource'] != $b['listEnumInSource']) {
+                    return ($a < $b) ? -1 : 1;
+                } // else fall through to next check
+            } elseif (!empty($a['listEnumInSource']) || !empty($b['listEnumInSource'])) {
+                return (!empty($a['listEnumInSource'])) ? -1 : 1;
+            }
+
             // humanCodingScheme
+            if (!empty($a['humanCodingScheme']) && !empty($b['humanCodingScheme'])) {
+                if ($a['humanCodingScheme'] != $b['humanCodingScheme']) {
+                    return ($a < $b) ? -1 : 1;
+                } // else fall through to next check
+            } elseif (!empty($a['humanCodingScheme']) || !empty($b['humanCodingScheme'])) {
+                return (!empty($a['humanCodingScheme'])) ? -1 : 1;
+            }
 
             return 0;
         });
@@ -72,15 +87,28 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
                     if (!empty($a['rank']) && !empty($b['rank'])) {
                         if ($a['rank'] != $b['rank']) {
                             return ($a < $b) ? -1 : 1;
-                        }
-                    } elseif (!empty($a['rank'])) {
-                        return -1;
-                    } else {
-                        return 1;
+                        } // else fall through to next check
+                    } elseif (!empty($a['rank']) || !empty($b['rank'])) {
+                        return (!empty($a['rank'])) ? -1 : 1;
                     }
 
                     // listEnumInSource
+                    if (!empty($a['listEnumInSource']) && !empty($b['listEnumInSource'])) {
+                        if ($a['listEnumInSource'] != $b['listEnumInSource']) {
+                            return ($a < $b) ? -1 : 1;
+                        } // else fall through to next check
+                    } elseif (!empty($a['listEnumInSource']) || !empty($b['listEnumInSource'])) {
+                        return (!empty($a['listEnumInSource'])) ? -1 : 1;
+                    }
+
                     // humanCodingScheme
+                    if (!empty($a['humanCodingScheme']) && !empty($b['humanCodingScheme'])) {
+                        if ($a['humanCodingScheme'] != $b['humanCodingScheme']) {
+                            return ($a < $b) ? -1 : 1;
+                        } // else fall through to next check
+                    } elseif (!empty($a['humanCodingScheme']) || !empty($b['humanCodingScheme'])) {
+                        return (!empty($a['humanCodingScheme'])) ? -1 : 1;
+                    }
 
                     return 0;
                 });
