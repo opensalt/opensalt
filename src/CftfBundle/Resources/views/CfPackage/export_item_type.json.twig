@@ -8,6 +8,6 @@
         "hierarchyCode": {{ lsItemType.hierarchyCode |json_encode |raw }},
         "URI": {{ lsItemType.uri|local_uri |json_encode |raw }},
         "identifier": {{ lsItemType.identifier |json_encode |raw }},
-        "lastChangeDateTime": {{ lsItemType.updatedAt |date('c') |raw }}
+        "lastChangeDateTime": {{ lsItemType.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
     }
 {% endblock %}

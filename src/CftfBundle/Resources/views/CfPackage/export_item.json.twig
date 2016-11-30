@@ -40,8 +40,8 @@
         "licence": {{ lsItem.licenceUri|local_uri |json_encode |raw }},
         "licenceUri": {{ lsItem.licenceUri|local_uri |json_encode |raw }},
         {% endif %}
-        "lastChangeDateTime": {{ lsItem.changedAt|date('c') |json_encode |raw }},
+        "lastChangeDateTime": {{ lsItem.changedAt|date('c') |replace({'+00:00':''}) |json_encode |raw }},
 {# TODO: Item Association URI endpoint #}
-        "CFItemAssociationURI": {{ lsItem.uri |local_uri |raw }}
+        "CFItemAssociationURI": {{ lsItem.uri |local_uri |json_encode |raw }}
     }
 {% endblock %}

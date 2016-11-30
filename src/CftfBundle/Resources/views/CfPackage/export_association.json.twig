@@ -13,6 +13,6 @@
         "associationType": {{ (lsAssociation.type|slice(0,1)|lower~lsAssociation.type|slice(1))|replace({' ': ''}) |json_encode |raw }},
         "destinationNodeIdentifier": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
         "destinationNodeURI": {{ lsAssociation.destinationNodeUri|local_uri |json_encode |raw }},
-        "lastChangeDateTime": {{ lsAssociation.updatedAt |date('c') |json_encode |raw }}
+        "lastChangeDateTime": {{ lsAssociation.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
     }
 {% endblock %}

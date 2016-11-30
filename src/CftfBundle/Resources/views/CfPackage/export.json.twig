@@ -37,16 +37,16 @@
         "adoptionStatus": {{ lsDoc.adoptionStatus |json_encode |raw }},
         {% endif %}
         {% if lsDoc.statusStart is not null %}
-        "statusStartDate": {{ lsDoc.statusStart |json_encode |raw }},
+        "statusStartDate": {{ lsDoc.statusStart |date('c') |replace({'+00:00':''}) |json_encode |raw }},
         {% endif %}
         {% if lsDoc.statusEnd is not null %}
-        "statusEndDate": {{ lsDoc.statusEnd |json_encode |raw }},
+        "statusEndDate": {{ lsDoc.statusEnd |date('c') |replace({'+00:00':''}) |json_encode |raw }},
         {% endif %}
 {# TODO: license and licenseURI #}
         {% if lsDoc.note is not null %}
         "notes": {{ lsDoc.note |json_encode |raw }},
         {% endif %}
-        "lastChangeDateTime": {{ lsDoc.updatedAt|date('c') |json_encode |raw }},
+        "lastChangeDateTime": {{ lsDoc.updatedAt|date('c') |replace({'+00:00':''}) |json_encode |raw }},
 {# TODO: CFPackage URI #}
         "CFPackageURI": {{ lsDoc.uri|local_uri |json_encode |raw }}
     },
