@@ -204,6 +204,14 @@ DELETE FROM ls_item
 xENDx;
         $conn->prepare($stmt)->execute($params);
 
+        $progressCallback('Deleting document subjects');
+        $stmt = <<<xENDx
+DELETE FROM ls_doc_subject
+ WHERE ls_doc_id = :lsDocId
+;
+xENDx;
+        $conn->prepare($stmt)->execute($params);
+
         $progressCallback('Deleting document');
         $stmt = <<<xENDx
 DELETE FROM ls_doc

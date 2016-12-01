@@ -43,7 +43,7 @@ class CfpackageDeleteCommand extends ContainerAwareCommand
             return;
         }
 
-        $progress = new ProgressBar($output, 4);
+        $progress = new ProgressBar($output, 5);
         $progress->start();
 
         $callback = function($message = '') use ($progress) {
