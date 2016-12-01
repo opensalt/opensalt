@@ -1,5 +1,0 @@
-#!/bin/sh
-
-cd $(dirname $0)/../docker
-
-docker-compose -f docker-compose.yml -f docker-compose.tools.yml run --rm -u $(id -u):$(id -g) node "$@"

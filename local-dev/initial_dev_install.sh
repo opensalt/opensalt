@@ -17,8 +17,6 @@ sed -i '' "s#ThisTokenIsNotSoSecretChangeIt#${TOKEN2}#" app/config/parameters.ym
 # Set secure_cookie to false to allow http connections
 sed -i '' "s#secure_cookie:.*#secure_cookie: false#" app/config/parameters.yml
 
-# Install node libraries for gulp
-./bin/npm install
 # Run gulp to create css and js files
 ./bin/gulp
 

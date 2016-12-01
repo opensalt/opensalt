@@ -6,7 +6,7 @@ services:
   phpcli:
     build:
       context: ./php
-    image: salt/php:7.0.13-cli
+    image: opensalt/php:7.0.13-cli
     environment:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
@@ -37,16 +37,12 @@ services:
     working_dir: /var/www/html
     command: [ "-q" ]
 
-  node:
+  gulp:
     #image: mhart/alpine-node -- missing python (for gulp-sass building)
     build:
-      context: ./node
-    image: salt/node
+      context: ./gulp
+    image: opensalt/gulp:latest
     volumes:
-      - *project_root
-      - ./data/node/npm:/.npm
-      - ./data/node/config:/.config
-    working_dir: /var/www/html
-    command: [ "-v" ]
+      - "..:/app"
 
 #volumes:

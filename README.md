@@ -35,26 +35,21 @@ Installation
   ```
   ./bin/composer install
   ```
-  *When asked, leave everything as their defaults except for the two secret keys*
+  *When asked, leave everything as their defaults except for the secret keys*
 
-4. Install the node packages
-  ```
-  ./bin/npm install
-  ```
-
-5. Run Gulp
+4. Run Gulp
   ```
   ./bin/gulp
   ```
 
-6. Run database migrations
+5. Run database migrations
   ```
   ./bin/console-docker doctrine:migrations:migrate --no-interaction
   ```
 
-7. Add a port to the nginx config in `docker/docker-compose.yml` change "80" to something like "3000:80" if you want use port :3000
+6. Add a port to the nginx config in `docker/docker-compose.yml` change "80" to something like "3000:80" if you want use port :3000
 
-8. Run the app
+7. Run the app
   ```
   cd docker; docker-compose up -d
   ```
@@ -64,7 +59,7 @@ Installation
     cd docker; docker-compose down -v
     ```
 
-9. [http://127.0.0.1:3000/app_dev.php/](http://127.0.0.1:3000/app_dev.php/) should show the initial screen with debug turned on
+8. [http://127.0.0.1:3000/app_dev.php/](http://127.0.0.1:3000/app_dev.php/) should show the initial screen with debug turned on
 
 
 Other Docs
