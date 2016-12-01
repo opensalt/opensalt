@@ -4,9 +4,9 @@ services:
   # the docker-compose format does not have a way to specify not to run these upon "up"
   # so we set to command to /bin/true to exit right away
   phpcli:
-    build:
-      context: ./php
-    image: salt/php:7.0.13-cli
+    #build:
+    #  context: ./php
+    image: opensalt/php:7.0.13-cli
     environment:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
@@ -22,8 +22,9 @@ services:
     command: [ /bin/true ]
 
   composer:
-    #image: geshan/php-composer-alpine:php7 -- missing pdo
-    image: composer/composer:php7
+    #build:
+    #  context: ./composer
+    image: opensalt/composer:latest
     environment:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
