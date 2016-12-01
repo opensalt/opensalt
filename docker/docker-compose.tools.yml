@@ -38,16 +38,11 @@ services:
     working_dir: /var/www/html
     command: [ "-q" ]
 
-  node:
-    #image: mhart/alpine-node -- missing python (for gulp-sass building)
-    build:
-      context: ./node
-    image: salt/node
+  gulp:
+    #build:
+    #  context: ./gulp
+    image: opensalt/gulp:latest
     volumes:
-      - *project_root
-      - ./data/node/npm:/.npm
-      - ./data/node/config:/.config
-    working_dir: /var/www/html
-    command: [ "-v" ]
+      - "..:/build/app"
 
 #volumes:
