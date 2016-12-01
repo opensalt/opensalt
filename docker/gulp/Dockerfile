@@ -7,7 +7,6 @@ RUN apk --no-cache add \
       python-dev \
       py-pip \
       build-base && \
-    mkdir /app && \
     mkdir /build && \
     cp /tmp/package.json /build/ && rm -f /tmp/package.json && \
     cd /build && \
@@ -16,11 +15,10 @@ RUN apk --no-cache add \
       python \
       python-dev \
       py-pip \
-      build-base
+      build-base && \
+    mkdir /build/app
 
-COPY gulp-wrapper.sh /build/gulp-wrapper.sh
+WORKDIR /build/app
 
-WORKDIR /app
-
-ENTRYPOINT ["sh", "-c", "/build/gulp-wrapper.sh"]
-CMD [""]
+ENTRYPOINT ["/build/node_modules/gulp/bin/gulp.js"]
+CMD []

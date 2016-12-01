@@ -38,11 +38,10 @@ services:
     command: [ "-q" ]
 
   gulp:
-    #image: mhart/alpine-node -- missing python (for gulp-sass building)
-    build:
-      context: ./gulp
+    #build:
+    #  context: ./gulp
     image: opensalt/gulp:latest
     volumes:
-      - "..:/app"
+      - "..:/build/app"
 
 #volumes:
