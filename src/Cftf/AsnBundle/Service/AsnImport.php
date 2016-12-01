@@ -93,24 +93,26 @@ class AsnImport {
             }
         }
 
-        if ($subject = $sd->getSubject()) {
-            $subject = ucfirst(preg_replace('#.*/#', '', $subject));
+        if ($subjects = $sd->getSubject()) {
+            foreach ($subjects as $sdSubject) {
+                $subject = ucfirst(preg_replace('#.*/#', '', $sdSubject->getValue()));
 
-            $s = $em->getRepository('CftfBundle:LsDefSubject')->findBy(['title' => $subject]);
-            if (null === $s) {
-                $uuid = Uuid::uuid5(Uuid::fromString('cacee394-85b7-11e6-9d43-005056a32dda'), $subject);
-                $s = new LsDefSubject();
-                $s->setIdentifier($uuid);
-                $s->setUri('local:'.$uuid->toString());
-                $s->setTitle($subject);
-                $s->setHierarchyCode("1");
+                $s = $em->getRepository('CftfBundle:LsDefSubject')->findOneBy(['title' => $subject]);
+                if (NULL === $s) {
+                    $uuid = Uuid::uuid5(Uuid::fromString('cacee394-85b7-11e6-9d43-005056a32dda'), $subject);
+                    $s = new LsDefSubject();
+                    $s->setIdentifier($uuid);
+                    $s->setUri('local:' . $uuid->toString());
+                    $s->setTitle($subject);
+                    $s->setHierarchyCode("1");
 
-                $subjects[$subject] = $s;
+                    $subjects[$subject] = $s;
 
-                $em->persist($s);
+                    $em->persist($s);
+                }
+
+                $lsDoc->addSubject($s);
             }
-
-            $lsDoc->addSubject($s);
         }
 //        if ($subject = $sd->getSubject()) {
 //            $subjectResponse = $this->jsonClient->request(
