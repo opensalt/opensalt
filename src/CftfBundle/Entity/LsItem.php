@@ -19,6 +19,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class LsItem
 {
+    const DISPLAY_IDENTIFIER_MAXLENGTH = 32;
+
     /**
      * @var integer
      *
@@ -319,6 +321,14 @@ class LsItem
     {
         if ($this->humanCodingScheme) {
             return $this->getHumanCodingScheme();
+        }
+
+        if ($this->abbreviatedStatement) {
+            return $this->abbreviatedStatement;
+        }
+
+        if ($this->fullStatement) {
+            return $this->fullStatement;
         }
 
         $uri = $this->getUri();
