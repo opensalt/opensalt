@@ -1,14 +1,14 @@
 {% extends "::base.html.twig" %}
 
-{% block title %}{{ lsItem.displayIdentifier }}{% endblock %}
+{% block title %}{{ lsItem.displayIdentifier |truncate(64, true) }}{% endblock %}
 
 {% block body %}
     <div class="row">
         <div class="col-sm-12">
             <ol class="breadcrumb">
                 <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
-                <li><a href="{{ path('editor_lsdoc', {'id':lsItem.lsDoc.id}) }}">{{ lsItem.lsDoc.title }}</a></li>
-                <li class="active">{{ lsItem.displayIdentifier }}</li>
+                <li><a href="{{ path('editor_lsdoc', {'id':lsItem.lsDoc.id}) }}">{{ lsItem.lsDoc.title |truncate(32, true) }}</a></li>
+                <li class="active">{{ lsItem.displayIdentifier |truncate(64, true) }}</li>
             </ol>
         </div>
     </div>
@@ -27,7 +27,6 @@
                             'humanCodingScheme': 'Human Coding Scheme',
                             'fullStatement': 'Full Statement',
                             'abbreviatedStatement': 'Abbreviated Statement',
-                            'identifier': 'Identifier',
                             'listEnumInSource': 'List Enumeration in Source',
                             'conceptKeywords': 'Concept Keywords',
                             'conceptKeywordsUri': 'Concept Keywords URI',
