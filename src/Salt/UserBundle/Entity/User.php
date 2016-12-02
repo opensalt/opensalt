@@ -23,10 +23,9 @@ class User implements UserInterface, \Serializable, EquatableInterface
 {
     const USER_ROLES = [
         'ROLE_USER',
-        'ROLE_VIEWER',
         'ROLE_EDITOR',
         'ROLE_ADMIN',
-        'ROLE_SITE_ADMIN',
+        'ROLE_SUPER_EDITOR',
         'ROLE_SUPER_USER',
     ];
 
