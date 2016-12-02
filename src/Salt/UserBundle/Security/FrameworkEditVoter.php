@@ -6,10 +6,18 @@
 namespace Salt\UserBundle\Security;
 
 use CftfBundle\Entity\LsDoc;
+use JMS\DiExtraBundle\Annotation as DI;
 use Salt\UserBundle\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/**
+ * Class FrameworkEditVoter
+ * @package Salt\UserBundle\Security
+ *
+ * @DI\Service(public=false)
+ * @DI\Tag("security.voter")
+ */
 class FrameworkEditVoter extends Voter
 {
     const EDIT = 'edit';

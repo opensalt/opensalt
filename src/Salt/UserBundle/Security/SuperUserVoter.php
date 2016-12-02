@@ -5,10 +5,18 @@
 
 namespace Salt\UserBundle\Security;
 
+use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/**
+ * Class SuperUserVoter
+ * @package Salt\UserBundle\Security
+ *
+ * @DI\Service(public=false)
+ * @DI\Tag("security.voter")
+ */
 class SuperUserVoter extends Voter
 {
     /**
@@ -16,6 +24,14 @@ class SuperUserVoter extends Voter
      */
     private $decisionManager;
 
+    /**
+     * SuperUserVoter constructor.
+     * @param \Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface $decisionManager
+     *
+     * @DI\InjectParams({
+     *     "decisionManager" = @DI\Inject("security.access.decision_manager")
+     * })
+     */
     public function __construct(AccessDecisionManagerInterface $decisionManager)
     {
         $this->decisionManager = $decisionManager;
