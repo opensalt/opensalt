@@ -3,7 +3,7 @@ services:
   phpfpm:
     #build:
     #  context: ./php/fpm
-    image: opensalt/php:7.0.13-fpm
+    image: opensalt/php:7.1.0RC6-fpm
     depends_on:
       - db
     environment:
