@@ -22,8 +22,9 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      */
     public function findAllChildrenArray(LsDoc $lsDoc){
         $query = $this->getEntityManager()->createQuery('
-            SELECT i, a, adi, add
+            SELECT i, t, a, adi, add
             FROM CftfBundle:LSItem i INDEX BY i.id
+            LEFT JOIN i.itemType t
             LEFT JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
