@@ -22,7 +22,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class User implements UserInterface, \Serializable, EquatableInterface
 {
     const USER_ROLES = [
-        'ROLE_USER',
         'ROLE_EDITOR',
         'ROLE_ADMIN',
         'ROLE_SUPER_EDITOR',
@@ -37,6 +36,16 @@ class User implements UserInterface, \Serializable, EquatableInterface
      * @ORM\Column(name="id", type="integer")
      */
     protected $id;
+
+    /**
+     * @var Organization
+     *
+     * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\Organization", inversedBy="users")
+     * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=false)
+     *
+     * @Assert\NotBlank()
+     */
+    protected $org;
 
     /**
      * @var string
@@ -276,6 +285,23 @@ class User implements UserInterface, \Serializable, EquatableInterface
         if (($key = array_search($role, $this->roles, true)) !== false) {
             unset($this->roles[$key]);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return \Salt\UserBundle\Entity\Organization
+     */
+    public function getOrg() {
+        return $this->org;
+    }
+
+    /**
+     * @param \Salt\UserBundle\Entity\Organization $org
+     * @return User
+     */
+    public function setOrg($org) {
+        $this->org = $org;
 
         return $this;
     }

@@ -2,6 +2,7 @@
 
 namespace Salt\UserBundle\Form;
 
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -34,6 +35,10 @@ class UserType extends AbstractType
                 'multiple' => true,
                 'expanded' => true,
                 'required' => false,
+            ])
+            ->add('org', EntityType::class, [
+                'class' => 'Salt\UserBundle\Entity\Organization',
+                'choice_label' => 'name',
             ])
         ;
     }
