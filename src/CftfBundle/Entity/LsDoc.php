@@ -9,6 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
 use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
+use Salt\UserBundle\Entity\UserDocAcl;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -242,6 +243,12 @@ class LsDoc
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDocAttribute", mappedBy="lsDoc", cascade={"ALL"}, indexBy="attribute")
      */
     private $attributes;
+
+    /**
+     * @var UserDocAcl[]|Collection
+     * @ORM\OneToMany(targetEntity="Salt\UserBundle\Entity\UserDocAcl", mappedBy="lsDoc", indexBy="user", fetch="EXTRA_LAZY")
+     */
+    protected $docAcls;
 
 
     /**
@@ -1010,5 +1017,12 @@ class LsDoc
         } else {
             return $this->user;
         }
+    }
+
+    /**
+     * @return Collection|UserDocAcl[]
+     */
+    public function getDocAcls() {
+        return $this->docAcls;
     }
 }

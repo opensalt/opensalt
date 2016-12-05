@@ -92,6 +92,12 @@ class User implements UserInterface, \Serializable, EquatableInterface
      */
     protected $frameworks;
 
+    /**
+     * @var UserDocAcl[]|Collection
+     * @ORM\OneToMany(targetEntity="UserDocAcl", mappedBy="user", indexBy="lsDoc", fetch="EXTRA_LAZY")
+     */
+    protected $docAcls;
+
 
     public function __construct($username = null) {
         if (!empty($username)) {
@@ -324,4 +330,10 @@ class User implements UserInterface, \Serializable, EquatableInterface
     public function getFrameworks() {
         return $this->frameworks;
     }
-}
+
+    /**
+     * @return Collection|UserDocAcl[]
+     */
+    public function getDocAcls() {
+        return $this->docAcls;
+    }}
