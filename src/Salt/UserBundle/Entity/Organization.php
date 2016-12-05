@@ -5,6 +5,7 @@
 
 namespace Salt\UserBundle\Entity;
 
+use CftfBundle\Entity\LsDoc;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -46,10 +47,18 @@ class Organization
     private $users;
 
     /**
+     * @var LsDoc[]|Collection
+     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDoc", mappedBy="org", indexBy="id", fetch="EXTRA_LAZY")
+     */
+    protected $frameworks;
+
+
+    /**
      * Organization constructor.
      */
     public function __construct() {
         $this->users = new ArrayCollection();
+        $this->frameworks = new ArrayCollection();
     }
 
     /**
@@ -72,6 +81,8 @@ class Organization
     }
 
     /**
+     * Get the name of the organization
+     *
      * @return string
      */
     public function getName() {
@@ -86,26 +97,20 @@ class Organization
     }
 
     /**
-     * @param \Doctrine\Common\Collections\Collection|\Salt\UserBundle\Entity\User[] $users
-     * @return Organization
-     */
-    public function setUsers($users): Organization {
-        $this->users = $users;
-
-        return $this;
-    }
-
-    /**
+     * Add a user to the organization
+     *
      * @param \Salt\UserBundle\Entity\User $user
      * @return Organization
      */
-    public function  addUser(User $user): Organization {
+    public function addUser(User $user): Organization {
         $this->users->add($user);
 
         return $this;
     }
 
     /**
+     * Remove a user from the organization
+     *
      * @param \Salt\UserBundle\Entity\User $user
      * @return Organization
      */
@@ -113,5 +118,14 @@ class Organization
         $this->users->removeElement($user);
 
         return $this;
+    }
+
+    /**
+     * Get the list of frameworks owned by the organization
+     *
+     * @return \CftfBundle\Entity\LsDoc[]|\Doctrine\Common\Collections\Collection
+     */
+    public function getFrameworks() {
+        return $this->frameworks;
     }
 }

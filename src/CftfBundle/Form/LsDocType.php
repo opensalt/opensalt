@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Form;
 
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -26,6 +27,21 @@ class LsDocType extends AbstractType
             ->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
             ->add('officialUri')
             ->add('publisher')
+
+            // TODO: These are placeholder, they should be determined upon creation with a choice of Org or User ownership
+            ->add('org', EntityType::class, [
+                'required' => false,
+                'label' => 'Owning Organization',
+                'class' => 'Salt\UserBundle\Entity\Organization',
+                'choice_label' => 'name',
+            ])
+            ->add('user', EntityType::class, [
+                'required' => false,
+                'label' => 'Owning User',
+                'class' => 'Salt\UserBundle\Entity\User',
+                'choice_label' => 'username',
+            ])
+
             ->add('version')
             ->add('description')
             ->add('subject')

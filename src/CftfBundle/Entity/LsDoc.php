@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
+use Salt\UserBundle\Entity\Organization;
+use Salt\UserBundle\Entity\User;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -31,6 +33,22 @@ class LsDoc
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
+
+    /**
+     * @var Organization
+     *
+     * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\Organization", inversedBy="frameworks")
+     * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=true)
+     */
+    protected $org;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\User", inversedBy="frameworks")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
+     */
+    protected $user;
 
     /**
      * @var string
@@ -937,5 +955,60 @@ class LsDoc
     public function addSubject(LsDefSubject $subject) {
         $this->subjects[] = $subject;
         return $this;
+    }
+
+    /**
+     * Get the organization owner for the framework
+     *
+     * @return \Salt\UserBundle\Entity\Organization
+     */
+    public function getOrg() {
+        return $this->org;
+    }
+
+    /**
+     * Set the organization owner for the framework
+     *
+     * @param \Salt\UserBundle\Entity\Organization $org
+     * @return LsDoc
+     */
+    public function setOrg(Organization $org = null) {
+        $this->org = $org;
+
+        return $this;
+    }
+
+    /**
+     * Get the user owner for the framework
+     *
+     * @return \Salt\UserBundle\Entity\User
+     */
+    public function getUser() {
+        return $this->user;
+    }
+
+    /**
+     * Set the user owner for the framework
+     *
+     * @param \Salt\UserBundle\Entity\User $user
+     * @return LsDoc
+     */
+    public function setUser(User $user = null) {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get the owner of the framework
+     *
+     * @return Organization|User
+     */
+    public function getOwner() {
+        if (null !== $this->org) {
+            return $this->org;
+        } else {
+            return $this->user;
+        }
     }
 }

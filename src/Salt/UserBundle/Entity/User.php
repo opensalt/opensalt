@@ -5,7 +5,9 @@
 
 namespace Salt\UserBundle\Entity;
 
+use CftfBundle\Entity\LsDoc;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\EquatableInterface;
@@ -84,11 +86,19 @@ class User implements UserInterface, \Serializable, EquatableInterface
      */
     protected $githubToken;
 
+    /**
+     * @var LsDoc[]|Collection
+     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDoc", mappedBy="user", indexBy="id", fetch="EXTRA_LAZY")
+     */
+    protected $frameworks;
+
 
     public function __construct($username = null) {
         if (!empty($username)) {
             $this->username = $username;
         }
+
+        $this->frameworks = new ArrayCollection();
     }
 
     static public function getUserRoles() {
@@ -304,5 +314,14 @@ class User implements UserInterface, \Serializable, EquatableInterface
         $this->org = $org;
 
         return $this;
+    }
+
+    /**
+     * Get the frameworks owned by the user
+     *
+     * @return \CftfBundle\Entity\LsDoc[]|\Doctrine\Common\Collections\Collection
+     */
+    public function getFrameworks() {
+        return $this->frameworks;
     }
 }
