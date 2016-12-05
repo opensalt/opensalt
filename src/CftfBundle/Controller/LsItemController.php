@@ -12,6 +12,7 @@ use CftfBundle\Form\LsItemParentType;
 use CftfBundle\Form\LsItemType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,6 +50,7 @@ class LsItemController extends Controller
      * @Route("/new/{doc}/{parent}", name="lsitem_new")
      * @Method({"GET", "POST"})
      * @Template()
+     * @Security("is_granted('create', 'lsitem')")
      */
     public function newAction(Request $request, LsDoc $doc = null, LsItem $parent = null)
     {
@@ -126,6 +128,7 @@ class LsItemController extends Controller
      * @Route("/{id}/edit", name="lsitem_edit")
      * @Method({"GET", "POST"})
      * @Template()
+     * @Security("is_granted('edit', lsItem)")
      */
     public function editAction(Request $request, LsItem $lsItem)
     {
@@ -169,6 +172,7 @@ class LsItemController extends Controller
      *
      * @Route("/{id}", name="lsitem_delete")
      * @Method("DELETE")
+     * @Security("is_granted('edit', lsItem)")
      */
     public function deleteAction(Request $request, LsItem $lsItem)
     {
