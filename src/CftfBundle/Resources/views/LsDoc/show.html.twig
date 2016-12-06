@@ -88,16 +88,20 @@
         <li>
             <a class="btn btn-primary" href="{{ path('lsdoc_index') }}">Back to the list</a>
         </li>
-        <li>
-            <a class="btn btn-default" href="{{ path('lsdoc_edit', { 'id': lsDoc.id }) }}">Edit</a>
-        </li>
+        {% if is_granted('edit', lsDoc) %}
+          <li>
+              <a class="btn btn-default" href="{{ path('lsdoc_edit', { 'id': lsDoc.id }) }}">Edit</a>
+          </li>
+        {% endif %}
         <li>
             <a class="btn btn-default" href="{{ path('lsdoc_export', { 'id': lsDoc.id }) }}">Export</a>
         </li>
-        <li>
-            {{ form_start(delete_form) }}
-                <input class="btn btn-danger" type="submit" value="Delete">
-            {{ form_end(delete_form) }}
-        </li>
+        {% if is_granted('edit', lsDoc) %}
+          <li>
+              {{ form_start(delete_form) }}
+                  <input class="btn btn-danger" type="submit" value="Delete">
+              {{ form_end(delete_form) }}
+          </li>
+        {% endif %}
     </ul>
 {% endblock %}

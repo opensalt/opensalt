@@ -2,4 +2,3 @@ services:
 #    salt_user.example:
 #        class: Salt\UserBundle\Example
 #        arguments: ["@service_id", "plain_value", "%parameter%"]
-
