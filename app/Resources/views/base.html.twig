@@ -15,6 +15,7 @@
         <title>{% block title %}SALT{% endblock %}</title>
         {% block stylesheets %}
             <link rel="stylesheet" href="{{ asset('css/main.css'|asset_version) }}" />
+            <link rel="stylesheet" href="{{ asset('css/app.css'|asset_version) }}" />
         {% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
     </head>

@@ -84,9 +84,11 @@
 	"mervick/material-design-icons": "^2.2",
 
 
-        "ocramius/proxy-manager": "^1.0.2"
-    },
-    "require-dev": {
+        "ocramius/proxy-manager": "^1.0.2",
+        "milo/github-api": "^1.4",
+        "league/oauth2-github": "^0.2.2"
+        },
+        "require-dev": {
         "sensio/generator-bundle": "^3.0",
         "symfony/phpunit-bridge": "^3.0",
 
