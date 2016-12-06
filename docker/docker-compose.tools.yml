@@ -6,7 +6,7 @@ services:
   phpcli:
     #build:
     #  context: ./php
-    image: opensalt/php:7.0.13-cli
+    image: opensalt/php:7.1-cli
     environment:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
@@ -24,7 +24,7 @@ services:
   composer:
     #build:
     #  context: ./composer
-    image: opensalt/composer:latest
+    image: opensalt/composer:1.2-7.1
     environment:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
