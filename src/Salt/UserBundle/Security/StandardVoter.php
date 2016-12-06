@@ -40,7 +40,7 @@ class StandardVoter extends Voter
       }
     }
 
-    if ($subject === self::EDIT) {
+    if ($attribute === self::EDIT) {
       if(!$subject instanceof LsItem){
         return false;
       }
