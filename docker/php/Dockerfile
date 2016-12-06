@@ -1,4 +1,4 @@
-FROM opensalt/php-base:7.1.0-cli
+FROM opensalt/php-base:7.1-cli
 
 ENV DEBIAN_FRONTEND noninteractive
 

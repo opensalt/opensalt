@@ -1,4 +1,4 @@
-FROM opensalt/php-base:7.1.0-fpm
+FROM opensalt/php-base:7.1-fpm
 
 ENV DEBIAN_FRONTEND noninteractive
 
