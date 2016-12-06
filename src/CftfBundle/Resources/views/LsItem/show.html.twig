@@ -96,13 +96,15 @@
         <li>
             <a class="btn btn-primary" href="{{ path('lsitem_index') }}">Back to the list</a>
         </li>
-        <li>
-            <a class="btn btn-default" href="{{ path('lsitem_edit', { 'id': lsItem.id }) }}">Edit</a>
-        </li>
-        <li>
-            {{ form_start(delete_form) }}
-                <input class="btn btn-default" type="submit" value="Delete">
-            {{ form_end(delete_form) }}
-        </li>
+        {% if is_granted('edit', lsItem) %}
+          <li>
+              <a class="btn btn-default" href="{{ path('lsitem_edit', { 'id': lsItem.id }) }}">Edit</a>
+          </li>
+          <li>
+              {{ form_start(delete_form) }}
+                  <input class="btn btn-default" type="submit" value="Delete">
+              {{ form_end(delete_form) }}
+          </li>
+        {% endif %}
     </ul>
 {% endblock %}

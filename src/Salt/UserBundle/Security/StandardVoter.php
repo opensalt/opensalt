@@ -4,7 +4,8 @@ namespace Salt\UserBundle\Security;
 
 use JMS\DiExtraBundle\Annotation as DI;
 use Salt\UserBundle\Entity\User;
-use Salt\CftfBundle\Entity\LsItem;
+use CftfBundle\Entity\LsDoc;
+use CftfBundle\Entity\LsItem;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -17,9 +18,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class StandardVoter extends Voter
 {
-  const CREATE = 'create';
+  const CREATE = 'add-standard-to';
   const EDIT = 'edit';
-  const ITEM = 'lsitem';
 
   /**
    * Determines if the attribute and subject are supported by this voter.
@@ -34,8 +34,16 @@ class StandardVoter extends Voter
       return false;
     }
 
-    if ($subject !== self::ITEM) {
-      return false;
+    if ($attribute === self::CREATE){
+      if(!$subject instanceof LsDoc && $subject !== null){
+        return false;
+      }
+    }
+
+    if ($subject === self::EDIT) {
+      if(!$subject instanceof LsItem){
+        return false;
+      }
     }
 
     return true;
@@ -58,13 +66,11 @@ class StandardVoter extends Voter
       return false;
     }
 
-    $item = $subject;
-
     switch($attribute) {
       case self::CREATE:
-        return $this->canCreate($item, $user);
+        return $this->canCreate($subject, $user);
       case self::EDIT:
-        return $this->canEdit($item, $user);
+        return $this->canEdit($subject, $user);
     }
 
     return false;
@@ -74,12 +80,12 @@ class StandardVoter extends Voter
   /**
    * Validate if a user can create a standard.
    *
-   * @param String $item
+   * @param LsDoc $lsDoc
    * @param User $user
    *
    * @return bool
    */
-  private function canCreate($item, User $user){
+  private function canCreate(LsDoc $lsDoc = null, User $user){
     return true;
   }
 
@@ -91,7 +97,7 @@ class StandardVoter extends Voter
    *
    * @return bool
    */
-  private function canEdit($item, User $user){
+  private function canEdit(LsItem $item, User $user){
     return true;
   }
 }

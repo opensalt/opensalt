@@ -50,7 +50,7 @@ class LsItemController extends Controller
      * @Route("/new/{doc}/{parent}", name="lsitem_new")
      * @Method({"GET", "POST"})
      * @Template()
-     * @Security("is_granted('create', 'lsitem')")
+     * @Security("is_granted('add-standard-to', doc)")
      */
     public function newAction(Request $request, LsDoc $doc = null, LsItem $parent = null)
     {
