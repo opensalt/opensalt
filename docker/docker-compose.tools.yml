@@ -6,7 +6,7 @@ services:
   phpcli:
     #build:
     #  context: ./php
-    image: opensalt/php:7.1.0RC6-cli
+    image: opensalt/php:7.1.0-cli
     environment:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
