@@ -250,6 +250,11 @@ class LsDoc
      */
     protected $docAcls;
 
+    /**
+     * @var string
+     */
+    protected $ownedBy;
+
 
     /**
      * Constructor
@@ -1024,5 +1029,34 @@ class LsDoc
      */
     public function getDocAcls() {
         return $this->docAcls;
+    }
+
+    /**
+     * Returns 'user' or 'organization' based on which value exists
+     *
+     * @return string
+     */
+    public function getOwnedBy(): ?string {
+        if (!empty($this->ownedBy)) {
+            return $this->ownedBy;
+        } else {
+            if ($this->getOrg()) {
+                return 'organization';
+            } elseif ($this->getUser()) {
+                return 'user';
+            } else {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * @param string $ownedBy
+     * @return LsDoc
+     */
+    public function setOwnedBy($ownedBy) {
+        $this->ownedBy = $ownedBy;
+
+        return $this;
     }
 }
