@@ -9,6 +9,7 @@ imports:
     - { resource: "@CftfCmsBundle/Resources/config/services.yml" }
     - { resource: "@CftfUtilBundle/Resources/config/services.yml" }
     - { resource: "@SaltUserBundle/Resources/config/services.yml" }
+    - { resource: "@GithubFilesBundle/Resources/config/services.yml" }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
@@ -208,12 +209,3 @@ nelmio_api_doc:
         info:
             title: 'SALT'
             description: 'Open source implementation of the IMS CFTF specification'
-
-hwi_oauth:
-    firewall_names: [secured_area]
-    resource_owners:
-        github:
-            type:                github
-            client_id:           "%github_client_id%"
-            client_secret:       "%github_client_secret%"
-            scopes:              'user:email,repo,repo_deployment,repo'

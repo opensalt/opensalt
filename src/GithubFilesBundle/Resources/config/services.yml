@@ -1,0 +1,4 @@
+services:
+#    github_files.example:
+#        class: GithubFilesBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]

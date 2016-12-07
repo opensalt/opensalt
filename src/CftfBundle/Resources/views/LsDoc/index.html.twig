@@ -1,6 +1,18 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    {% if is_granted('create', 'lsdoc') %}
+        <div class="panel panel-default">
+            <div class= "panel-heading">
+                Repositories list
+            </div>
+            <div class="panel-body js-github-list">
+                <p class="js-github-message-error" style="display: none;">Something went wrong while we are getting github information or you have not signed in with Github, do it <a href="{{ path('github_login') }}">here</a>.</p>
+                <p class="js-github-message-loading">Loading...</p>
+            </div>
+        </div>
+    {% endif %}
+
     <h1>Competency Frameworks
         {% if is_granted('create', 'lsdoc') %}
             <ul class="list-inline pull-right">
