@@ -83,8 +83,6 @@
         "fortawesome/font-awesome": "^4.6",
         "mervick/material-design-icons": "^2.2",
 
-
-        "ocramius/proxy-manager": "^1.0.2",
         "milo/github-api": "^1.4",
         "league/oauth2-github": "^0.2.2"
     },
@@ -126,7 +124,8 @@
         ]
     },
     "config": {
-        "bin-dir": "vendor/bin"
+        "bin-dir": "vendor/bin",
+	"optimize-autoloader": true
     },
     "extra": {
         "symfony-app-dir": "app",
