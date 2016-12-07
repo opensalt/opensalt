@@ -6,4 +6,5 @@ DIR=/var/www/html
 
 ./bin/composer install
 ./bin/gulp
-./bin/console-docker doctrine:migrations:migrate --no-interaction
+./bin/console doctrine:migrations:migrate --no-interaction
+./bin/console assets:install web --symlink --relative

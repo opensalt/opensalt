@@ -28,6 +28,9 @@ cd ..
 # Do database migrations
 ./bin/console-docker doctrine:migrations:migrate --no-interaction
 
+# Make bundle assets available
+./bin/console-docker assets:install web --symlink --relative
+
 # Add an initial super user
 ./bin/console-docker salt:user:add admin --password=secret --role=super-user
 

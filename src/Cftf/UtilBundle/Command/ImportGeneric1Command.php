@@ -17,7 +17,7 @@ class ImportGeneric1Command extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('util:import-generic1')
+            ->setName('util:import:generic1')
             ->setDescription('Import Generic CSV file (Type, Statement, Coding, Parent)')
             ->addArgument('filename', InputArgument::REQUIRED, 'Standards CSV File')
         ;
