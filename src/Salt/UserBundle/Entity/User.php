@@ -5,7 +5,9 @@
 
 namespace Salt\UserBundle\Entity;
 
+use CftfBundle\Entity\LsDoc;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\EquatableInterface;
@@ -22,11 +24,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 class User implements UserInterface, \Serializable, EquatableInterface
 {
     const USER_ROLES = [
-        'ROLE_USER',
-        'ROLE_VIEWER',
         'ROLE_EDITOR',
         'ROLE_ADMIN',
-        'ROLE_SITE_ADMIN',
+        'ROLE_SUPER_EDITOR',
         'ROLE_SUPER_USER',
     ];
 
@@ -38,6 +38,16 @@ class User implements UserInterface, \Serializable, EquatableInterface
      * @ORM\Column(name="id", type="integer")
      */
     protected $id;
+
+    /**
+     * @var Organization
+     *
+     * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\Organization", inversedBy="users")
+     * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=false)
+     *
+     * @Assert\NotBlank()
+     */
+    protected $org;
 
     /**
      * @var string
@@ -76,11 +86,25 @@ class User implements UserInterface, \Serializable, EquatableInterface
      */
     protected $githubToken;
 
+    /**
+     * @var LsDoc[]|Collection
+     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDoc", mappedBy="user", indexBy="id", fetch="EXTRA_LAZY")
+     */
+    protected $frameworks;
+
+    /**
+     * @var UserDocAcl[]|Collection
+     * @ORM\OneToMany(targetEntity="UserDocAcl", mappedBy="user", indexBy="lsDoc", fetch="EXTRA_LAZY")
+     */
+    protected $docAcls;
+
 
     public function __construct($username = null) {
         if (!empty($username)) {
             $this->username = $username;
         }
+
+        $this->frameworks = new ArrayCollection();
     }
 
     static public function getUserRoles() {
@@ -280,4 +304,36 @@ class User implements UserInterface, \Serializable, EquatableInterface
 
         return $this;
     }
-}
+
+    /**
+     * @return \Salt\UserBundle\Entity\Organization
+     */
+    public function getOrg() {
+        return $this->org;
+    }
+
+    /**
+     * @param \Salt\UserBundle\Entity\Organization $org
+     * @return User
+     */
+    public function setOrg($org) {
+        $this->org = $org;
+
+        return $this;
+    }
+
+    /**
+     * Get the frameworks owned by the user
+     *
+     * @return \CftfBundle\Entity\LsDoc[]|\Doctrine\Common\Collections\Collection
+     */
+    public function getFrameworks() {
+        return $this->frameworks;
+    }
+
+    /**
+     * @return Collection|UserDocAcl[]
+     */
+    public function getDocAcls() {
+        return $this->docAcls;
+    }}

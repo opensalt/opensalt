@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Add a User</h1>
+    <h1>Add an Organization</h1>
 
     {{ form_start(form) }}
         {{ form_widget(form) }}
@@ -10,7 +10,7 @@
 
     <ul class="list-inline">
         <li>
-            <a class="btn btn-default" href="{{ path('admin_user_index') }}">Back to the list</a>
+            <a class="btn btn-default" href="{{ path('admin_organization_index') }}">Back to the list</a>
         </li>
     </ul>
 {% endblock %}

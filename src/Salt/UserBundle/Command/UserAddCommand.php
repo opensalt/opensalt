@@ -19,6 +19,7 @@ class UserAddCommand extends ContainerAwareCommand
             ->setName('salt:user:add')
             ->setDescription('Add a local user')
             ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the new user')
+            ->addArgument('org', InputArgument::REQUIRED, 'Organization name for the new user')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Initial password for the new user')
             ->addOption('role', 'r', InputOption::VALUE_REQUIRED, 'Role to give the new user (editor, admin, super-user)')
         ;
@@ -28,6 +29,39 @@ class UserAddCommand extends ContainerAwareCommand
         parent::interact($input, $output);
 
         $helper = $this->getHelper('question');
+
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        if (!empty($input->getArgument('org'))) {
+            $org = $em->getRepository('SaltUserBundle:Organization')->findOneByName($input->getArgument('org'));
+            if (empty($org)) {
+                $output->writeln('<error>Organization passed does not exist</error>');
+                $input->setArgument('org', null);
+            }
+        }
+        if (empty($input->getArgument('org'))) {
+            $orgObjs = $em->getRepository('SaltUserBundle:Organization')->findAll();
+            $orgs = [];
+            foreach ($orgObjs as $org) {
+                $orgs[] = $org->getName();
+            }
+
+            $question = new Question('Organization name for the new user: ');
+            $question->setAutocompleterValues($orgs);
+            $question->setValidator(function ($value) use ($em) {
+                if (trim($value) == '') {
+                    throw new \Exception('The organization name must exist');
+                }
+
+                $org = $em->getRepository('SaltUserBundle:Organization')->findOneByName($value);
+                if (empty($org)) {
+                    throw new \Exception('The organization name must exist');
+                }
+
+                return $value;
+            });
+            $org = $helper->ask($input, $output, $question);
+            $input->setArgument('org', $org);
+        }
 
         if (empty($input->getArgument('username'))) {
             $question = new Question('Email address or username of new user: ');
@@ -56,7 +90,11 @@ class UserAddCommand extends ContainerAwareCommand
         }
 
         if (empty($input->getOption('role'))) {
-            $question = new ChoiceQuestion('Role to give the new user: ', ['viewer', 'editor', 'admin', 'super user'], 0);
+            $roleList = [];
+            foreach (User::getUserRoles() as $role) {
+                $roleList[] = strtolower(preg_replace('/[^A-Z]/', ' ', str_replace('ROLE_', '', $role)));
+            }
+            $question = new ChoiceQuestion('Role to give the new user: ', $roleList, 0);
             $role = $helper->ask($input, $output, $question);
             $input->setOption('role', $role);
         }
@@ -65,6 +103,7 @@ class UserAddCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $username = trim($input->getArgument('username'));
+        $org = trim($input->getArgument('org'));
         $password = trim($input->getOption('password'));
         $role = trim($input->getOption('role'));
         if (empty($role)) {
@@ -74,12 +113,18 @@ class UserAddCommand extends ContainerAwareCommand
 
         if (!in_array($role, User::USER_ROLES)) {
             $output->writeln(sprintf('<error>Role "%s" is not valid.</error>', $input->getOption('role')));
-            return;
+            exit(1);
         }
 
         $em = $this->getContainer()->get('doctrine')->getManager();
+        $orgObj = $em->getRepository('SaltUserBundle:Organization')->findOneByName($org);
+        if (empty($orgObj)) {
+            $output->writeln(sprintf('<error>Organization "%s" is not valid.</error>', $org));
+            exit(1);
+        }
+
         $userRepository = $em->getRepository('SaltUserBundle:User');
-        $newPassword = $userRepository->addNewUser($username, $password, $role);
+        $newPassword = $userRepository->addNewUser($username, $orgObj, $password, $role);
 
         if (empty($password)) {
             $output->writeln(sprintf('The user "%s" has been added with password "%s".', $username, $newPassword));
