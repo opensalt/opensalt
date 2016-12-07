@@ -17,14 +17,9 @@ class LsDocType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        if (!$options['ajax']) {
-            $builder->add('uri');
-        }
-
         $builder
             ->add('title')
             ->add('creator')
-            ->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
             ->add('officialUri')
             ->add('publisher')
 
