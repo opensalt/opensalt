@@ -57,7 +57,7 @@ class LsDocController extends Controller
             $em->persist($lsDoc);
             $em->flush();
 
-            return $this->redirectToRoute('lsdoc_show', array('id' => $lsDoc->getId()));
+            return $this->redirectToRoute('editor_lsdoc', array('id' => $lsDoc->getId()));
         }
 
         return [
