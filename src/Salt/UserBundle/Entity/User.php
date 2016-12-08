@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -21,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="salt_user")
  * @UniqueEntity("username")
  */
-class User implements UserInterface, \Serializable, EquatableInterface
+class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 {
     const USER_ROLES = [
         'ROLE_EDITOR',
@@ -80,6 +81,12 @@ class User implements UserInterface, \Serializable, EquatableInterface
      */
     protected $roles = [];
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="locked", type="boolean", nullable=false)
+     */
+    protected $locked = false;
 
     /**
      * @ORM\Column(name="github_token", type="string", length=40, nullable=true)
@@ -336,4 +343,96 @@ class User implements UserInterface, \Serializable, EquatableInterface
      */
     public function getDocAcls() {
         return $this->docAcls;
-    }}
+    }
+
+    /**
+     * Checks whether the user's account has expired.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw an AccountExpiredException and prevent login.
+     *
+     * @return bool true if the user's account is non expired, false otherwise
+     *
+     * @see AccountExpiredException
+     */
+    public function isAccountNonExpired() {
+        // Accounts do not currently expire
+        return true;
+    }
+
+    /**
+     * Checks whether the user is locked.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw a LockedException and prevent login.
+     *
+     * @return bool true if the user is not locked, false otherwise
+     *
+     * @see LockedException
+     */
+    public function isAccountNonLocked() {
+        return !$this->isSuspended();
+    }
+
+    /**
+     * Checks whether the user's credentials (password) has expired.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw a CredentialsExpiredException and prevent login.
+     *
+     * @return bool true if the user's credentials are non expired, false otherwise
+     *
+     * @see CredentialsExpiredException
+     */
+    public function isCredentialsNonExpired() {
+        // Currently credentials do not expire
+        return true;
+    }
+
+    /**
+     * Checks whether the user is enabled.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw a DisabledException and prevent login.
+     *
+     * @return bool true if the user is enabled, false otherwise
+     *
+     * @see DisabledException
+     */
+    public function isEnabled() {
+        return true;
+    }
+
+    /**
+     * @return bool true if the user is suspended
+     */
+    public function isSuspended() {
+        if (true === $this->locked) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Suspend the user
+     *
+     * @return $this
+     */
+    public function suspendUser() {
+        $this->locked = true;
+
+        return $this;
+    }
+
+    /**
+     * Unsuspend the user
+     *
+     * @return $this
+     */
+    public function unsuspendUser() {
+        $this->locked = false;
+
+        return $this;
+    }
+}

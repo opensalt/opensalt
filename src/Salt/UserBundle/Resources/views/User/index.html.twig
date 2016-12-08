@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Users list</h1>
+    <h1>User list</h1>
 
     <table class="table table-condensed table-hover table-bordered table-striped">
         <thead>
@@ -20,17 +20,26 @@
                 <td>{{ user.org.name }}</td>
                 <td>{{ user.username }}</td>
                 <td>
-                    {% for role in user.roles %}
-                        {{ role }}
-                    {% endfor %}
+                    {%- for role in user.roles -%}
+                        {% if not loop.first %}, {% endif %}{{ role |replace({'ROLE_':'', '_':' '}) |title }}
+                    {%- endfor -%}
                 </td>
                 <td>
                     <ul class="list-inline">
                         <li>
                             <a class="btn btn-primary" href="{{ path('admin_user_show', { 'id': user.id }) }}">show</a>
                         </li>
+                        {% if not user.suspended %}
+                            <li>
+                                <a class="btn btn-default" href="{{ path('admin_user_edit', { 'id': user.id }) }}">edit</a>
+                            </li>
+                        {% endif %}
                         <li>
-                            <a class="btn btn-default" href="{{ path('admin_user_edit', { 'id': user.id }) }}">edit</a>
+                            {% if user.suspended %}
+                                <a class="btn btn-default" href="{{ path('admin_user_unsuspend', { 'id': user.id }) }}">Unsuspend</a>
+                            {% else %}
+                                <a class="btn btn-default" href="{{ path('admin_user_suspend', { 'id': user.id }) }}">Suspend</a>
+                            {% endif %}
                         </li>
                     </ul>
                 </td>
