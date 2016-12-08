@@ -16,7 +16,8 @@ RUN	apt-get -o 'Acquire::CompressionTypes::Order::="gz"' update \
 	&& pecl install apcu-5.1.7 apcu_bc-1.0.3 \
 	&& docker-php-ext-enable --ini-name 0-apc.ini apcu apc \
 	&& apt-get purge --auto-remove -y libmcrypt-dev libbz2-dev libpng12-dev libfreetype6-dev libicu-dev \
-	&& apt-get install -y --no-install-recommends libmcrypt4 libbz2-1.0 libpng12-0 libfreetype6 libicu52
+	&& apt-get install -y --no-install-recommends libmcrypt4 libbz2-1.0 libpng12-0 libfreetype6 libicu52 \
+	&& rm -r /var/lib/apt/lists/*
 
 COPY memory_limit.ini /usr/local/etc/php/conf.d/memory_limit.ini
 COPY upload_size.ini /usr/local/etc/php/conf.d/upload_size.ini
