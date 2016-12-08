@@ -1,0 +1,31 @@
+sudo: required
+
+env:
+  DOCKER_COMPOSE_VERSION: 1.9.0
+
+language: php
+
+php:
+  - '7.1'
+
+services:
+  - docker
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+script:
+  - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml pull composer gulp
+  - ./bin/composer install
+  - ./bin/gulp
+  - ./bin/console assets:install web --symlink --relative
+ - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/build_pull_request; fi'
+ - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/build_normal; fi'
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    /bin/true
+    fi
