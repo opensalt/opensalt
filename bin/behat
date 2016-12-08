@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd $(dirname $0)
+cd $(dirname $0)/..
 
-./phpcli ./vendor/bin/behat "$@"
+./bin/phpcli ./vendor/bin/behat "$@"
