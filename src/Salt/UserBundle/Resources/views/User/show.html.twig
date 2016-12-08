@@ -5,10 +5,18 @@
 
     <table class="table table-condensed table-hover table-bordered table-striped">
         <tbody>
+        {#
             <tr>
                 <th>Id</th>
                 <td>{{ user.id }}</td>
             </tr>
+        #}
+            {% if user.suspended %}
+                <tr class="danger">
+                    <th>Suspended</th>
+                    <td>This user is suspended</td>
+                </tr>
+            {% endif %}
             <tr>
                 <th>Organization</th>
                 <td>{{ user.org.name }}</td>
@@ -20,9 +28,9 @@
             <tr>
                 <th>Roles</th>
                 <td>
-                    {% for role in user.roles %}
-                        {{ role }}
-                    {% endfor %}
+                    {%- for role in user.roles -%}
+                        {% if not loop.first %}, {% endif %}{{ role |replace({'ROLE_':'', '_':' '}) |title }}
+                    {%- endfor -%}
                 </td>
             </tr>
         </tbody>
@@ -32,9 +40,15 @@
         <li>
             <a class="btn btn-primary" href="{{ path('admin_user_index') }}">Back to the list</a>
         </li>
-        <li>
-            <a class="btn btn-default" href="{{ path('admin_user_edit', { 'id': user.id }) }}">Edit</a>
-        </li>
+        {% if not user.suspended %}
+            <li>
+                <a class="btn btn-default" href="{{ path('admin_user_edit', { 'id': user.id }) }}">Edit</a>
+            </li>
+        {% else %}
+            <li>
+                <a class="btn btn-default" href="{{ path('admin_user_unsuspend', { 'id': user.id }) }}">Unsuspend</a>
+            </li>
+        {% endif %}
         <li>
             {{ form_start(delete_form) }}
                 <input class="btn btn-danger" type="submit" value="Delete">
