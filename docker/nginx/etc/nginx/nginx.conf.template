@@ -112,7 +112,8 @@ http {
     server_tokens off;
 
     ## Fill in with your own resolver.
-    resolver 8.8.8.8;
+    resolver ${RESOLVER} ipv6=off;
+    resolver_timeout 10s;
 
     ## Uncomment to increase map_hash_bucket_size. If start getting
     ## [emerg]: could not build the map_hash, you should increase
