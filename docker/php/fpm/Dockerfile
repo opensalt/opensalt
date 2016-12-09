@@ -18,7 +18,10 @@ RUN	apt-get -o 'Acquire::CompressionTypes::Order::="gz"' update \
 	&& apt-get purge --auto-remove -y libmcrypt-dev libbz2-dev libpng12-dev libfreetype6-dev libicu-dev \
 	&& apt-get install -y --no-install-recommends libmcrypt4 libbz2-1.0 libpng12-0 libfreetype6 libicu52
 
-COPY memory_limit.ini /usr/local/etc/php/conf.d/memory_limit.ini
-COPY upload_size.ini /usr/local/etc/php/conf.d/upload_size.ini
-COPY short_tag.ini /usr/local/etc/php/conf.d/short_tag.ini
-COPY log.conf /usr/local/etc/php-fpm.d/zz-log.conf
+COPY \
+    memory_limit.ini \
+    upload_size.ini \
+    short_tag.ini \
+    opcache.ini \
+    log.ini \
+        /usr/local/etc/php/conf.d/
