@@ -4,6 +4,7 @@ namespace Salt\UserBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use JMS\DiExtraBundle\Annotation as DI;
+use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -50,12 +51,13 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      * Creates a user
      *
      * @param string $username
+     * @param Organization $org
      * @param string|null $plainPassword
      * @param string|null $role
      *
      * @return string The user's password
      */
-    public function addNewUser($username, $plainPassword = null, $role = null) {
+    public function addNewUser($username, Organization $org, $plainPassword = null, $role = null) {
         if (empty(trim($plainPassword))) {
             // if there is no password, make something ugly up
             $plainPassword = rtrim(strtr(base64_encode(random_bytes(15)), '+/', '-_'), '=');
@@ -66,6 +68,7 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
         }
 
         $user = new User($username);
+        $user->setOrg($org);
         $password = $this->encoder->encodePassword($user, $plainPassword);
         $user->setPassword($password);
         $user->addRole($role);

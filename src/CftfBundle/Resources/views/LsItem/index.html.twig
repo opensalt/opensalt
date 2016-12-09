@@ -44,9 +44,11 @@
         </tbody>
     </table>
 
-    <ul class="list-inline">
-        <li>
-            <a class="btn btn-default" href="{{ path('lsitem_new') }}">Create a new entry</a>
-        </li>
-    </ul>
+    {% if is_granted('add-standard-to', null) %}
+      <ul class="list-inline">
+          <li>
+              <a class="btn btn-default" href="{{ path('lsitem_new') }}">Create a new entry</a>
+          </li>
+      </ul>
+    {% endif %}
 {% endblock %}

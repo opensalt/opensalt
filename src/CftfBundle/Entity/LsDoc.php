@@ -7,6 +7,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
+use Salt\UserBundle\Entity\Organization;
+use Salt\UserBundle\Entity\User;
+use Salt\UserBundle\Entity\UserDocAcl;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -31,6 +34,22 @@ class LsDoc
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
+
+    /**
+     * @var Organization
+     *
+     * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\Organization", inversedBy="frameworks")
+     * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=true)
+     */
+    protected $org;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\User", inversedBy="frameworks")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
+     */
+    protected $user;
 
     /**
      * @var string
@@ -224,6 +243,17 @@ class LsDoc
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDocAttribute", mappedBy="lsDoc", cascade={"ALL"}, indexBy="attribute")
      */
     private $attributes;
+
+    /**
+     * @var UserDocAcl[]|Collection
+     * @ORM\OneToMany(targetEntity="Salt\UserBundle\Entity\UserDocAcl", mappedBy="lsDoc", indexBy="user", fetch="EXTRA_LAZY")
+     */
+    protected $docAcls;
+
+    /**
+     * @var string
+     */
+    protected $ownedBy;
 
 
     /**
@@ -936,6 +966,97 @@ class LsDoc
      */
     public function addSubject(LsDefSubject $subject) {
         $this->subjects[] = $subject;
+        return $this;
+    }
+
+    /**
+     * Get the organization owner for the framework
+     *
+     * @return \Salt\UserBundle\Entity\Organization
+     */
+    public function getOrg() {
+        return $this->org;
+    }
+
+    /**
+     * Set the organization owner for the framework
+     *
+     * @param \Salt\UserBundle\Entity\Organization $org
+     * @return LsDoc
+     */
+    public function setOrg(Organization $org = null) {
+        $this->org = $org;
+
+        return $this;
+    }
+
+    /**
+     * Get the user owner for the framework
+     *
+     * @return \Salt\UserBundle\Entity\User
+     */
+    public function getUser() {
+        return $this->user;
+    }
+
+    /**
+     * Set the user owner for the framework
+     *
+     * @param \Salt\UserBundle\Entity\User $user
+     * @return LsDoc
+     */
+    public function setUser(User $user = null) {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get the owner of the framework
+     *
+     * @return Organization|User
+     */
+    public function getOwner() {
+        if (null !== $this->org) {
+            return $this->org;
+        } else {
+            return $this->user;
+        }
+    }
+
+    /**
+     * @return Collection|UserDocAcl[]
+     */
+    public function getDocAcls() {
+        return $this->docAcls;
+    }
+
+    /**
+     * Returns 'user' or 'organization' based on which value exists
+     *
+     * @return string
+     */
+    public function getOwnedBy(): ?string {
+        if (!empty($this->ownedBy)) {
+            return $this->ownedBy;
+        } else {
+            if ($this->getOrg()) {
+                return 'organization';
+            } elseif ($this->getUser()) {
+                return 'user';
+            } else {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * @param string $ownedBy
+     * @return LsDoc
+     */
+    public function setOwnedBy($ownedBy) {
+        $this->ownedBy = $ownedBy;
+
         return $this;
     }
 }

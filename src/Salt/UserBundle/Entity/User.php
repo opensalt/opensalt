@@ -5,9 +5,12 @@
 
 namespace Salt\UserBundle\Entity;
 
+use CftfBundle\Entity\LsDoc;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -19,14 +22,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="salt_user")
  * @UniqueEntity("username")
  */
-class User implements UserInterface, \Serializable, EquatableInterface
+class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 {
     const USER_ROLES = [
-        'ROLE_USER',
-        'ROLE_VIEWER',
         'ROLE_EDITOR',
         'ROLE_ADMIN',
-        'ROLE_SITE_ADMIN',
+        'ROLE_SUPER_EDITOR',
         'ROLE_SUPER_USER',
     ];
 
@@ -38,6 +39,16 @@ class User implements UserInterface, \Serializable, EquatableInterface
      * @ORM\Column(name="id", type="integer")
      */
     protected $id;
+
+    /**
+     * @var Organization
+     *
+     * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\Organization", inversedBy="users")
+     * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=false)
+     *
+     * @Assert\NotBlank()
+     */
+    protected $org;
 
     /**
      * @var string
@@ -70,17 +81,37 @@ class User implements UserInterface, \Serializable, EquatableInterface
      */
     protected $roles = [];
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="locked", type="boolean", nullable=false)
+     */
+    protected $locked = false;
 
     /**
      * @ORM\Column(name="github_token", type="string", length=40, nullable=true)
      */
     protected $githubToken;
 
+    /**
+     * @var LsDoc[]|Collection
+     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDoc", mappedBy="user", indexBy="id", fetch="EXTRA_LAZY")
+     */
+    protected $frameworks;
+
+    /**
+     * @var UserDocAcl[]|Collection
+     * @ORM\OneToMany(targetEntity="UserDocAcl", mappedBy="user", indexBy="lsDoc", fetch="EXTRA_LAZY")
+     */
+    protected $docAcls;
+
 
     public function __construct($username = null) {
         if (!empty($username)) {
             $this->username = $username;
         }
+
+        $this->frameworks = new ArrayCollection();
     }
 
     static public function getUserRoles() {
@@ -277,6 +308,130 @@ class User implements UserInterface, \Serializable, EquatableInterface
         if (($key = array_search($role, $this->roles, true)) !== false) {
             unset($this->roles[$key]);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return \Salt\UserBundle\Entity\Organization
+     */
+    public function getOrg() {
+        return $this->org;
+    }
+
+    /**
+     * @param \Salt\UserBundle\Entity\Organization $org
+     * @return User
+     */
+    public function setOrg($org) {
+        $this->org = $org;
+
+        return $this;
+    }
+
+    /**
+     * Get the frameworks owned by the user
+     *
+     * @return \CftfBundle\Entity\LsDoc[]|\Doctrine\Common\Collections\Collection
+     */
+    public function getFrameworks() {
+        return $this->frameworks;
+    }
+
+    /**
+     * @return Collection|UserDocAcl[]
+     */
+    public function getDocAcls() {
+        return $this->docAcls;
+    }
+
+    /**
+     * Checks whether the user's account has expired.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw an AccountExpiredException and prevent login.
+     *
+     * @return bool true if the user's account is non expired, false otherwise
+     *
+     * @see AccountExpiredException
+     */
+    public function isAccountNonExpired() {
+        // Accounts do not currently expire
+        return true;
+    }
+
+    /**
+     * Checks whether the user is locked.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw a LockedException and prevent login.
+     *
+     * @return bool true if the user is not locked, false otherwise
+     *
+     * @see LockedException
+     */
+    public function isAccountNonLocked() {
+        return !$this->isSuspended();
+    }
+
+    /**
+     * Checks whether the user's credentials (password) has expired.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw a CredentialsExpiredException and prevent login.
+     *
+     * @return bool true if the user's credentials are non expired, false otherwise
+     *
+     * @see CredentialsExpiredException
+     */
+    public function isCredentialsNonExpired() {
+        // Currently credentials do not expire
+        return true;
+    }
+
+    /**
+     * Checks whether the user is enabled.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw a DisabledException and prevent login.
+     *
+     * @return bool true if the user is enabled, false otherwise
+     *
+     * @see DisabledException
+     */
+    public function isEnabled() {
+        return true;
+    }
+
+    /**
+     * @return bool true if the user is suspended
+     */
+    public function isSuspended() {
+        if (true === $this->locked) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Suspend the user
+     *
+     * @return $this
+     */
+    public function suspendUser() {
+        $this->locked = true;
+
+        return $this;
+    }
+
+    /**
+     * Unsuspend the user
+     *
+     * @return $this
+     */
+    public function unsuspendUser() {
+        $this->locked = false;
 
         return $this;
     }

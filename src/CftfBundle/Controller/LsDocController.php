@@ -2,7 +2,10 @@
 
 namespace CftfBundle\Controller;
 
+use CftfBundle\Form\DTO\LsDocCreateDTO;
+use CftfBundle\Form\LsDocCreateType;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -49,15 +52,22 @@ class LsDocController extends Controller
     public function newAction(Request $request)
     {
         $lsDoc = new LsDoc();
-        $form = $this->createForm('CftfBundle\Form\LsDocType', $lsDoc);
+        $form = $this->createForm(LsDocCreateType::class, $lsDoc);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $user = $this->getUser();
+            if ($lsDoc->getOwnedBy() === 'user') {
+                $lsDoc->setUser($user);
+            } else {
+                $lsDoc->setOrg($user->getOrg());
+            }
+
             $em = $this->getDoctrine()->getManager();
             $em->persist($lsDoc);
             $em->flush();
 
-            return $this->redirectToRoute('lsdoc_show', array('id' => $lsDoc->getId()));
+            return $this->redirectToRoute('editor_lsdoc', array('id' => $lsDoc->getId()));
         }
 
         return [

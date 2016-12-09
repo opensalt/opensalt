@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Organization</h1>
+
+    <table class="table table-condensed table-hover table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ organization.id }}</td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td>{{ organization.name }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul class="list-inline">
+        <li>
+            <a class="btn btn-primary" href="{{ path('admin_organization_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a class="btn btn-default" href="{{ path('admin_organization_edit', { 'id': organization.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input class="btn btn-danger" type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

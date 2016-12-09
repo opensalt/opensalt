@@ -40,7 +40,7 @@ class AppKernel extends Kernel
             new Cftf\CmsBundle\CftfCmsBundle(),
             new Cftf\UtilBundle\CftfUtilBundle(),
             new Salt\UserBundle\SaltUserBundle(),
-            new HWI\Bundle\OAuthBundle\HWIOAuthBundle(),
+            new GithubFilesBundle\GithubFilesBundle(),
         ];
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {
@@ -48,6 +48,7 @@ class AppKernel extends Kernel
             $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
             $bundles[] = new Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
             $bundles[] = new Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle();
+            $bundles[] = new Matthimatiker\OpcacheBundle\MatthimatikerOpcacheBundle();
         }
 
         return $bundles;

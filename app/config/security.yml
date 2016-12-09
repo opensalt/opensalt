@@ -3,11 +3,10 @@
 security:
     role_hierarchy:
         ROLE_USER: []
-        ROLE_VIEWER: [ROLE_USER]
-        ROLE_EDITOR: [ROLE_VIEWER]
+        ROLE_EDITOR: [ROLE_USER]
         ROLE_ADMIN: [ROLE_EDITOR]
-        ROLE_SITE_ADMIN: [ROLE_ADMIN]
-        ROLE_SUPER_ADMIN: [ROLE_SITE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_SUPER_EDITOR: [ROLE_EDITOR]
+        ROLE_SUPER_USER: [ROLE_ADMIN, ROLE_SUPER_EDITOR, ROLE_ALLOWED_TO_SWITCH]
 
     encoders:
         Salt\UserBundle\Entity\User:
@@ -55,17 +54,6 @@ security:
             logout:
                 path: /logout
                 target: cftf_index
-        secured_area:
-            anonymous: ~
-            oauth:
-                resource_owners:
-                    github:     "/login/check-github"
-                use_forward:       false
-                login_path:        /login
-                failure_path:   /login
-                oauth_user_provider:
-                    service: hwi_oauth.user.provider
-
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods
     # http://symfony.com/doc/current/cookbook/security/access_control.htm

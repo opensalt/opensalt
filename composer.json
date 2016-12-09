@@ -57,11 +57,11 @@
         "nelmio/security-bundle": "^2.0",
         "hwi/oauth-bundle": "^0.5.1",
 
-	"nilportugues/jsonapi-bundle": "^1.5.2",
+        "nilportugues/jsonapi-bundle": "^1.5.2",
 
         "phpoffice/phpexcel": "^1.8.1",
 
-	"nelmio/api-doc-bundle": "^2.13",
+        "nelmio/api-doc-bundle": "^2.13",
 
         "bower-asset/jquery": "^2.2.4",
         "bower-asset/jquery-ui": "^1.12.0",
@@ -72,19 +72,19 @@
         "bower-asset/modernizr": "^3.3.1",
         "bower-asset/normalize.css": "^3.0.3",
         "npm-asset/jquery-contextmenu": "^2.2.4",
-	"bower-asset/bootstrap-multiselect": "^0.9.13",
+        "bower-asset/bootstrap-multiselect": "^0.9.13",
 
         "bower-asset/select2": "^4.0.3",
         "bower-asset/select2-bootstrap-theme": "dev-master",
-	"tetranz/select2entity-bundle": "2.*",
+        "tetranz/select2entity-bundle": "2.*",
 
         "npm-asset/iso639-js": "^1.1",
 
-	"fortawesome/font-awesome": "^4.6",
-	"mervick/material-design-icons": "^2.2",
+        "fortawesome/font-awesome": "^4.6",
+        "mervick/material-design-icons": "^2.2",
 
-
-        "ocramius/proxy-manager": "^1.0.2"
+        "milo/github-api": "^1.4",
+        "league/oauth2-github": "^0.2.2"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",
@@ -105,7 +105,9 @@
 
         "squizlabs/php_codesniffer": "^2.6",
         "escapestudios/symfony2-coding-standard": "^2.9",
-        "friendsofphp/php-cs-fixer": "^1.11"
+        "friendsofphp/php-cs-fixer": "^1.11",
+
+	"matthimatiker/opcache-bundle": "^0.4"
     },
     "scripts": {
         "symfony-scripts": [
@@ -124,7 +126,8 @@
         ]
     },
     "config": {
-        "bin-dir": "vendor/bin"
+        "bin-dir": "vendor/bin",
+	"optimize-autoloader": true
     },
     "extra": {
         "symfony-app-dir": "app",
