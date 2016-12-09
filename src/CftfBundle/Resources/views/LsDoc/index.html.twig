@@ -1,58 +1,95 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    {% if github_client_id is not empty and is_granted('create', 'lsdoc') %}
-        <div class="panel panel-default">
-            <div class= "panel-heading">
-                Repositories list
-            </div>
-            <div class="panel-body js-github-list">
-                <p class="js-github-message-error" style="display: none;">Something went wrong while we are getting github information or you have not signed in with Github, do it <a href="{{ path('github_login') }}">here</a>.</p>
-                <p class="js-github-message-loading">Loading...</p>
-            </div>
-        </div>
+<h1>Competency Frameworks
+    {% if is_granted('create', 'lsdoc') %}
+    <ul class="list-inline pull-right">
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdoc_new') }}">Create a new Framework</a>
+        </li>
+        <li>
+            <a class="btn btn-default" href="#" onclick="loadModal();">Import Framework</a>
+        </li>
+    </ul>
     {% endif %}
+</h1>
 
-    <h1>Competency Frameworks
-        {% if is_granted('create', 'lsdoc') %}
-            <ul class="list-inline pull-right">
-                <li>
-                    <a class="btn btn-default" href="{{ path('lsdoc_new') }}">Create a new Framework</a>
-                </li>
-            </ul>
-        {% endif %}
-    </h1>
-
-    <div id="competencyTree">
-        {% set lastCreator = '' %}
-        <ul id="comptencyTreeData" style="display:none;">
+<div id="competencyTree">
+    {% set lastCreator = '' %}
+    <ul id="comptencyTreeData" style="display:none;">
         {% for framework in lsDocs %}
-            {% if framework.creator != lastCreator %}
-                {% if not loop.first %}
-                </ul></li>
-                {% endif %}
-                <li class="folder expanded">{{ framework.creator }}<ul>
-                {% set lastCreator = framework.creator %}
+        {% if framework.creator != lastCreator %}
+        {% if not loop.first %}
+    </ul></li>
+    {% endif %}
+    <li class="folder expanded">{{ framework.creator }}<ul>
+            {% set lastCreator = framework.creator %}
             {% endif %}
             <li class="salt-framework-link"><a href="{{ path('editor_lsdoc', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
             {% if loop.last == true %}
-                </ul></li>
-            {% endif %}
+        </ul></li>
+        {% endif %}
         {% endfor %}
         </ul>
+</div>
+
+<div id="wizard" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Import Framework</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        ASN:
+                        <input name="import" type="radio" value="asn"></input>
+                        Github:
+                        <input name="import" type="radio" value="github"></input>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="github" style="display: none">
+                            <div class="panel panel-default">
+                                <div class= "panel-heading">
+                                    Repositories list
+                                </div>
+                                <div class="panel-body js-github-list">
+                                    <p class="js-github-message-error" style="display: none;">
+                                        Something went wrong while we are getting github information or you have not signed in with Github, do it <a href="{{ path('github_login') }}">here</a>.
+                                    </p>
+                                    <p class="js-github-message-loading">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="asn" style="display: none">
+                            <input type="text" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Save Changes</button>
+            </div>
+        </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
-    <script>
-        $('#competencyTree').fancytree({
-            activate: function(event, data){
-                var node = data.node;
-                if (!$.isEmptyObject(node.data)) {
-                    if (undefined != node.data.href)
+<script>
+    $('#competencyTree').fancytree({
+        activate: function(event, data){
+            var node = data.node;
+            if (!$.isEmptyObject(node.data)) {
+                if (undefined != node.data.href)
                     window.location.href = node.data.href;
-                }
             }
-        });
-    </script>
+        }
+    });
+</script>
+<script src="{{ asset('js/main.js') }}"></script>
 {% endblock %}
