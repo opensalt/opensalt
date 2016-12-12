@@ -25,8 +25,9 @@ before_install:
 
 script:
   - env
+  - cp docker/.env.dist docker/.env
   - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml pull composer gulp
-  - ./bin/composer install
+  - ./bin/composer install --no-interaction
   - ./bin/gulp
   - ./bin/console assets:install web --symlink --relative
   - ./docker/app/build.sh
