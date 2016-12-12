@@ -11,21 +11,40 @@ php:
 services:
   - docker
 
+#apt addons:
+
 before_install:
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
+#install:
+
+#before_script:
+
 script:
+  - env
   - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml pull composer gulp
   - ./bin/composer install
   - ./bin/gulp
   - ./bin/console assets:install web --symlink --relative
- - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/build_pull_request; fi'
- - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/build_normal; fi'
+  - ./docker/app/build.sh
+#  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/build_pull_request; fi'
+#  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/build_normal; fi'
 
 after_success:
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then
-    /bin/true
-    fi
+  - env
+#  #$TRAVIS_TEST_RESULT has build result
+#  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+#    /bin/true
+#    fi
+
+#after_failure:
+
+#before_deploy:
+#deploy:
+#  skip_cleanup: true
+#after_deploy:
+
+#after_script:
