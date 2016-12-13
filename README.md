@@ -1,5 +1,6 @@
 Standards Alignment Tool (SALT)
 ===============================
+[![Build Status](https://travis-ci.org/opensalt/opensalt.svg?branch=develop)](https://travis-ci.org/opensalt/opensalt)
 
 
 Overview
