@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+    docker login -u $DOCKER_USER -p $DOCKER_PASS
     export REPO=opensalt/app
     #  export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $(echo $TRAVIS_BRANCH | sed -e 's#/#-#g') ; fi`
     #  docker tag $REPO:$COMMIT $REPO:$TAG
