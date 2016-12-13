@@ -85,7 +85,9 @@
         "mervick/material-design-icons": "^2.2",
 
         "milo/github-api": "^1.4",
-        "league/oauth2-github": "^0.2.2"
+        "league/oauth2-github": "^0.2.2",
+
+	"matthimatiker/opcache-bundle": "^0.4"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",
@@ -106,9 +108,7 @@
 
         "squizlabs/php_codesniffer": "^2.6",
         "escapestudios/symfony2-coding-standard": "^2.9",
-        "friendsofphp/php-cs-fixer": "^1.11",
-
-	"matthimatiker/opcache-bundle": "^0.4"
+        "friendsofphp/php-cs-fixer": "^1.11"
     },
     "scripts": {
         "symfony-scripts": [

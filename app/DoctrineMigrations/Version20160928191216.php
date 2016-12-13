@@ -2,12 +2,9 @@
 
 namespace Application\Migrations;
 
-use CftfBundle\Entity\LsDefSubject;
-use CftfBundle\Entity\LsDoc;
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -36,43 +33,70 @@ class Version20160928191216 extends AbstractMigration implements ContainerAwareI
      */
     public function up(Schema $schema)
     {
-        /** @var EntityManager $em */
-        $em = $this->container->get('doctrine.orm.entity_manager');
+        $sql = <<<xENDx
+SELECT d.id, d.subject, d.subject_uri
+  FROM ls_doc d
+ WHERE d.subject IS NOT NULL OR d.subject_uri IS NOT NULL
+xENDx;
+        $docsStmt = $this->connection->prepare($sql);
 
-        $qb = $em->createQueryBuilder();
-        $qb->select('d')
-            ->from('CftfBundle:LsDoc', 'd')
-            ->where('d.subject IS NOT NULL OR d.subjectUri IS NOT NULL')
-        ;
-        /** @var LsDoc[] $docs */
-        $docs = $qb->getQuery()->getResult();
+        $sql = <<<xENDx
+INSERT IGNORE INTO ls_def_subject
+  (identifier, uri, updated_at, title, hierarchy_code)
+VALUES
+  (:uuid, :uri, NOW(), :title, :hierarchy)
+xENDx;
+        $insertSubjectStmt = $this->connection->prepare($sql);
 
-        /** @var LsDefSubject[] $subjects */
+        $sql = <<<xENDx
+INSERT IGNORE INTO ls_doc_subject
+  (ls_doc_id, subject_id)
+VALUES
+  (:doc_id, :subj_id)
+xENDx;
+        $insertDocSubjectStmt = $this->connection->prepare($sql);
+
+        $sql = <<<xENDx
+SELECT s.id, s.title
+  FROM ls_def_subject s
+ WHERE s.identifier = :uuid
+xENDx;
+        $fetchStmt = $this->connection->prepare($sql);
+
+        $this->connection->beginTransaction();
+
+        $docsStmt->execute();
+        $docs = $docsStmt->fetchAll();
         $subjects = [];
         foreach ($docs as $doc) {
-            if (!($subject = $doc->getSubject())) {
-                $subject = ucfirst(preg_replace('#.*/#', '', $doc->getSubjectUri()));
+            if (empty($doc['subject'])) {
+                $subject = ucfirst(preg_replace('#.*/#', '', $doc['subject_uri']));
+            } else {
+                $subject = $doc['subject'];
             }
 
             if (!array_key_exists($subject, $subjects)) {
                 $uuid = Uuid::uuid5(Uuid::fromString('cacee394-85b7-11e6-9d43-005056a32dda'), $subject);
-                $s = new LsDefSubject();
-                $s->setIdentifier($uuid);
-                $s->setUri('local:'.$uuid->toString());
-                $s->setTitle($subject);
-                $s->setHierarchyCode("1");
+                $params = [
+                    'uuid' => $uuid->toString(),
+                    'uri' => 'local:'.$uuid->toString(),
+                    'title' => $subject,
+                    'hierarchy' => 1,
+                ];
+                $insertSubjectStmt->execute($params);
+
+                $fetchStmt->execute(['uuid' => $uuid]);
+                $s = $fetchStmt->fetch();
 
                 $subjects[$subject] = $s;
-
-                $em->persist($s);
             } else {
                 $s = $subjects[$subject];
             }
 
-            $doc->addSubject($s);
+            $insertDocSubjectStmt->execute(['doc_id' => $doc['id'], 'subj_id' => $s['id']]);
         }
 
-        $em->flush();
+        $this->connection->commit();
 
         $this->addSql("SELECT 'Updated subjects'");
     }
