@@ -20,7 +20,7 @@ services:
   nginx:
     #build:
     #  context: ./nginx
-    image: opensalt/nginx:1.10.1
+    image: opensalt/nginx:1.11-alpine
     depends_on:
       - phpfpm
     environment:

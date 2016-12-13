@@ -23,7 +23,8 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.0.1",
+        "php": "^7.1.0",
+
         "fxp/composer-asset-plugin": "^1.2",
 
         "symfony/symfony": "3.2.*",
@@ -84,7 +85,9 @@
         "mervick/material-design-icons": "^2.2",
 
         "milo/github-api": "^1.4",
-        "league/oauth2-github": "^0.2.2"
+        "league/oauth2-github": "^0.2.2",
+
+	"matthimatiker/opcache-bundle": "^0.4"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",
