@@ -4,6 +4,7 @@ services:
     #build:
     #  context: ./php/fpm
     image: opensalt/php:7.1-fpm
+    #image: opensalt/php:7.1-fpm-xdebug
     depends_on:
       - db
     environment:
@@ -11,6 +12,7 @@ services:
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
       SYMFONY__MYSQL__HOST: "db"
+      #XDEBUG_CONFIG: remote_host=Your_IP_Address
     volumes:
       - &project_root "..:/var/www/html"
     working_dir: /var/www/html

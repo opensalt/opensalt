@@ -18,6 +18,7 @@
 !web/bundles/.gitkeep
 
 # Docker
+/.env
 docker/.blackfire.env
 docker/blackfire.env
 docker/.env

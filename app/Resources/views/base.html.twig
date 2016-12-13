@@ -29,9 +29,9 @@
                             <p class="navbar-text lead">This is a demonstration preview of SALT</p>
 
                             {% if (is_granted('IS_AUTHENTICATED_REMEMBERED')) %}
-                                <a href="{{ url("logout") }}" class="btn btn-default navbar-btn pull-right">Logout</a>
+                                <a href="{{ url("logout") }}" class="btn btn-default navbar-btn pull-right logout">Logout</a>
                             {% else %}
-                                <a href="{{ url("login") }}" class="btn btn-default navbar-btn pull-right">Login</a>
+                                <a href="{{ url("login") }}" class="btn btn-default navbar-btn pull-right login">Login</a>
                             {% endif %}
                         </div>
                     </nav>
