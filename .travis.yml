@@ -37,25 +37,16 @@ script:
   - cp docker/.env.dist docker/.env
   - ln -s docker/.env ./.env
   - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml pull composer gulp
-  - ./bin/composer install --no-interaction
-  - ./bin/gulp
-  - ./bin/console assets:install web --symlink --relative
+  - ./bin/build.sh
   - ./docker/app/build.sh
 #  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/build_pull_request; fi'
 #  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/build_normal; fi'
 
+#$TRAVIS_TEST_RESULT has build result 0==success
 after_success:
   - env
-  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-  - export REPO=opensalt/app
-#  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $(echo $TRAVIS_BRANCH | sed -e 's#/#-#g') ; fi`
-#  - docker tag $REPO:$COMMIT $REPO:$TAG
-  - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
-  - docker push $REPO
-#  #$TRAVIS_TEST_RESULT has build result
-#  - if [ "$TRAVIS_BRANCH" == "master" ]; then
-#    /bin/true
-#    fi
+  - ./ci/travis/push_app.sh
+#  - if [ "$TRAVIS_BRANCH" == "master" ]; then /bin/true; fi
 
 #after_failure:
 
