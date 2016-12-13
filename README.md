@@ -1,6 +1,7 @@
 Standards Alignment Tool (SALT)
 ===============================
-[![Build Status](https://travis-ci.org/opensalt/opensalt.svg?branch=develop)](https://travis-ci.org/opensalt/opensalt)
+
+Develop branch status: [![Build Status](https://travis-ci.org/opensalt/opensalt.svg?branch=develop)](https://travis-ci.org/opensalt/opensalt) [![StyleCI](https://styleci.io/repos/72233269/shield?style=flat&branch=develop)](https://styleci.io/repos/72233269)
 
 
 Overview
