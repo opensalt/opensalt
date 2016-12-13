@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-if [ "x$COMMIT" != "x" ]; then
+if [ "x$COMMIT" == "x" ]; then
   export COMMIT=$(date "+%Y%m%d%H%M")
 fi
 
