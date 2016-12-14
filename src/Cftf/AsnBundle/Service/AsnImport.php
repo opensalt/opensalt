@@ -35,17 +35,14 @@ class AsnImport {
 
     /**
      * @param EntityManager $em
-     * @param Client $jsonClient
      *
      * @DI\InjectParams({
      *     "em" = @DI\Inject("doctrine.orm.entity_manager"),
-     *     "jsonClient" = @DI\Inject("csa_guzzle.client.json")
      * })
      */
-    public function __construct(EntityManager $em, Client $jsonClient)
+    public function __construct(EntityManager $em)
     {
         $this->em = $em;
-        $this->jsonClient = $jsonClient;
     }
 
     /**

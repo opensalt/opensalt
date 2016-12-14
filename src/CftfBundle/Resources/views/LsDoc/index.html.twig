@@ -8,7 +8,7 @@
             <a class="btn btn-default" href="{{ path('lsdoc_new') }}">Create a new Framework</a>
         </li>
         <li>
-            <a class="btn btn-default" href="#" onclick="loadModal();">Import Framework</a>
+            <a id="js-wizard-btn" class="btn btn-default" href="#">Import Framework</a>
         </li>
     </ul>
     {% endif %}
@@ -33,6 +33,7 @@
         </ul>
 </div>
 
+{% if is_granted('create', 'lsdoc') %}
 <div id="wizard" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -51,32 +52,39 @@
                 <hr>
                 <div class="row">
                     <div class="col-md-12">
-                        <div id="github" style="display: none">
+                        <div id="github" class="hidden">
                             <div class="panel panel-default">
-                                <div class= "panel-heading">
+                                <div class= "panel-heading panel-title">
                                     Repositories list
                                 </div>
                                 <div class="panel-body js-github-list">
+                                    <div id="repos" class="hidden"></div>
+                                    <div id="files" class="hidden"></div>
                                     <p class="js-github-message-error" style="display: none;">
                                         Something went wrong while we are getting github information or you have not signed in with Github, do it <a href="{{ path('github_login') }}">here</a>.
                                     </p>
                                     <p class="js-github-message-loading">Loading...</p>
                                 </div>
+                                <div class="panel-footer"><a href="#" onclick="listRepositories();" class="repositories-list hidden">List Repositories</a></div>
                             </div>
                         </div>
-                        <div id="asn" style="display: none">
-                            <input type="text" class="form-control">
+                        <div id="asn" class="hidden">
+                            <input id="asn-url" type="text" class="form-control">
+                            <br/>
+                            <div class="alert alert-danger asn-error-msg hidden" role="alert"></div>
+                            <button type="button" class="btn btn-primary import-framework">Import Framework</button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Save Changes</button>
             </div>
         </div>
     </div>
 </div>
+{% endif %}
+
 {% endblock %}
 
 {% block javascripts %}
@@ -91,5 +99,4 @@
         }
     });
 </script>
-<script src="{{ asset('js/main.js') }}"></script>
 {% endblock %}
