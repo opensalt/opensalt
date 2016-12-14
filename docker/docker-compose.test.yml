@@ -1,0 +1,35 @@
+version: '2'
+services:
+  app:
+    image: opensalt/app:develop
+
+  phpfpm:
+    image: opensalt/php:7.1-fpm
+    depends_on:
+      - db
+    environment:
+      SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
+      SYMFONY__MYSQL__USER: "${MYSQL_USER}"
+      SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
+      SYMFONY__MYSQL__HOST: "db"
+    volumes_from:
+      - app
+    working_dir: /var/www/html
+
+  nginx:
+    image: opensalt/nginx:1.11-alpine
+    depends_on:
+      - phpfpm
+    environment:
+      UPSTREAM_HOST: phpfpm:9000
+    volumes_from:
+      - app
+    working_dir: /var/www/html
+
+  db:
+    image: percona:${MYSQL_VERSION}
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
