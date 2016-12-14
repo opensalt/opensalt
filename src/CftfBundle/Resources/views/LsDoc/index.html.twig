@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    {% if is_granted('create', 'lsdoc') %}
+    {% if github_client_id is not empty and is_granted('create', 'lsdoc') %}
         <div class="panel panel-default">
             <div class= "panel-heading">
                 Repositories list
