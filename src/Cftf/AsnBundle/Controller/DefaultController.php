@@ -27,10 +27,6 @@ class DefaultController extends Controller
         $asnImport = new AsnImport($em);
         $res = $asnImport->parseAsnDocument($asnDoc);
 
-        $logger = $this->get('logger');
-        $logger->error('ERROR!');
-        $logger->info($res);
-
         return $response->setData(array(
             'message' => 'Framework imported successfully!'
         ));
