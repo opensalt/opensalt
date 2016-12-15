@@ -18,19 +18,17 @@
     {% set lastCreator = '' %}
     <ul id="comptencyTreeData" style="display:none;">
         {% for framework in lsDocs %}
-        {% if framework.creator != lastCreator %}
-        {% if not loop.first %}
-    </ul></li>
-    {% endif %}
-    <li class="folder expanded">{{ framework.creator }}<ul>
-            {% set lastCreator = framework.creator %}
+            {% if framework.creator != lastCreator %}
+                {% if not loop.first %}</ul></li>{% endif %}
+                <li class="folder expanded">{{ framework.creator }}<ul>
+                {% set lastCreator = framework.creator %}
             {% endif %}
             <li class="salt-framework-link"><a href="{{ path('editor_lsdoc', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
-            {% if loop.last == true %}
-        </ul></li>
-        {% endif %}
+            {% if loop.last == true and framework.creator != '' %}
+                </ul></li>
+            {% endif %}
         {% endfor %}
-        </ul>
+    </ul>
 </div>
 
 {% if is_granted('create', 'lsdoc') %}
@@ -45,29 +43,33 @@
                     <div class="col-md-12">
                         ASN:
                         <input name="import" type="radio" value="asn" checked="checked"></input>
-                        Github:
-                        <input name="import" type="radio" value="github"></input>
+                        {% if github_client_id is not empty %}
+                            Github:
+                            <input name="import" type="radio" value="github"></input>
+                        {% endif %}
                     </div>
                 </div>
                 <hr>
                 <div class="row">
                     <div class="col-md-12">
-                        <div id="github" class="hidden">
-                            <div class="panel panel-default">
-                                <div class= "panel-heading panel-title">
-                                    Repositories list
+                        {% if github_client_id is not empty %}
+                            <div id="github" class="hidden">
+                                <div class="panel panel-default">
+                                    <div class= "panel-heading panel-title">
+                                        Repositories list
+                                    </div>
+                                    <div class="panel-body js-github-list">
+                                        <div id="repos" class="hidden"></div>
+                                        <div id="files" class="hidden"></div>
+                                        <p class="js-github-message-error" style="display: none;">
+                                            Something went wrong while we are getting github information or you have not signed in with Github, do it <a href="{{ path('github_login') }}">here</a>.
+                                        </p>
+                                        <p class="js-github-message-loading">Loading...</p>
+                                    </div>
+                                    <div class="panel-footer"><a href="#" onclick="listRepositories();" class="repositories-list hidden">List Repositories</a></div>
                                 </div>
-                                <div class="panel-body js-github-list">
-                                    <div id="repos" class="hidden"></div>
-                                    <div id="files" class="hidden"></div>
-                                    <p class="js-github-message-error" style="display: none;">
-                                        Something went wrong while we are getting github information or you have not signed in with Github, do it <a href="{{ path('github_login') }}">here</a>.
-                                    </p>
-                                    <p class="js-github-message-loading">Loading...</p>
-                                </div>
-                                <div class="panel-footer"><a href="#" onclick="listRepositories();" class="repositories-list hidden">List Repositories</a></div>
                             </div>
-                        </div>
+                        {% endif %}
                         <div id="asn">
                             <input id="asn-url" type="text" class="form-control">
                             <br/>
