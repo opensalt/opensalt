@@ -3,6 +3,7 @@
 namespace Cftf\AsnBundle\Controller;
 
 use CftfBundle\Entity\LsDocRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -11,6 +12,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Cftf\AsnBundle\Service\AsnImport;
 use GuzzleHttp\Client;
 
+/**
+ * Class DefaultController
+ *
+ * @Security("is_granted('create', 'lsdoc')")
+ */
 class DefaultController extends Controller
 {
     /**

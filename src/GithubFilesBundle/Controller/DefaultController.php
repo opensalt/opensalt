@@ -2,12 +2,18 @@
 
 namespace GithubFilesBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Milo\Github;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Milo\Github;
 
+/**
+ * Class DefaultController
+ *
+ * @Security("is_granted('create', 'lsdoc')")
+ */
 class DefaultController extends Controller
 {
     /**
