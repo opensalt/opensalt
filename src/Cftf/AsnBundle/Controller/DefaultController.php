@@ -24,14 +24,13 @@ class DefaultController extends Controller
      */
     public function importAsnAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
         $response = new JsonResponse();
 
         $fileUrl = $request->request->get('fileUrl');
         $asnDoc = $this->getAsnFile($fileUrl);
 
-        $asnImport = new AsnImport($em);
-        $res = $asnImport->parseAsnDocument($asnDoc);
+        $asnImport = $this->get('cftf_import.asn');
+        $asnImport->parseAsnDocument($asnDoc);
 
         return $response->setData(array(
             'message' => 'Framework imported successfully!'
