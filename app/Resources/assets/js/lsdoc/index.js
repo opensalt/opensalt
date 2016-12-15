@@ -98,7 +98,7 @@ function loadContent(value){
     if (value ===  'github'){
         $("#asn").addClass('hidden');
         $("#github").removeClass('hidden');
-    }else if (value = 'asn'){
+    }else if (value === 'asn'){
         $("#github").addClass('hidden');
         $("#asn").removeClass('hidden');
     }
