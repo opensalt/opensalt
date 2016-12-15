@@ -19,7 +19,7 @@ var SaltGithub = (function(){
 
     function getRepoList(){
         if( $('.js-github-list').length > 0 ){
-            $.get('/app_dev.php/user/github/repos', function(data){
+            $.get('/user/github/repos', function(data){
 
                 $.each(data.data, function(i, e){
                     $(".js-github-list .js-github-message-loading").hide();
@@ -38,7 +38,7 @@ var SaltGithub = (function(){
 
     function getFiles(evt, path){
         $.ajax({
-            url: '/app_dev.php/user/github/files',
+            url: '/user/github/files',
             data: {owner: $(evt.target).attr('data-owner'), repo: $(evt.target).attr('data-repo'), path: $(evt.target).attr('data-path')},
             type: 'get',
             dataType: 'json',
@@ -46,7 +46,7 @@ var SaltGithub = (function(){
                 if(path){
                     // this will be the logic when importing from github. -- not yet implemented.
                     // $.ajax({
-                    //     url: '/app_dev.php/user/github/import',
+                    //     url: '/user/github/import',
                     //     data: {doc: response},
                     //     type: 'post',
                     //     dataType: 'text',
@@ -115,7 +115,7 @@ var ImportFrameworks = (function(){
 
     function asnStructure(content){
         $.ajax({
-            url: '/app_dev.php/cf/asn/import',
+            url: '/cf/asn/import',
             type: 'post',
             data: {
                 fileUrl: $('#asn-url').val()
