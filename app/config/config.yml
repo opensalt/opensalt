@@ -62,6 +62,8 @@ twig:
     form_themes:
         - 'bootstrap_3_horizontal_layout.html.twig'
         - 'TetranzSelect2EntityBundle:Form:fields.html.twig'
+    globals:
+      github_client_id: "%github_client_id%"
 
 # Assetic Configuration
 assetic:
