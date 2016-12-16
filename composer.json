@@ -100,11 +100,11 @@
         "behat/mink-extension": "^2.2",
         "behat/mink-browserkit-driver": "^1.3",
 
-        "rmiller/behat-spec": "^0.3.0",
+        "phpunit/phpunit": "^5.7.4",
 
-        "phpspec/phpspec": "^2.5",
-        "phpspec/nyan-formatters": "^1.0",
-        "ciaranmcnulty/phpspec-typehintedmethods": "^1.1.3",
+        "phpspec/phpspec": "^3.2.2",
+        "phpspec/nyan-formatters": "^2.0.0",
+        "ciaranmcnulty/phpspec-typehintedmethods": "^2.0.0",
 
         "squizlabs/php_codesniffer": "^2.6",
         "escapestudios/symfony2-coding-standard": "^2.9",
