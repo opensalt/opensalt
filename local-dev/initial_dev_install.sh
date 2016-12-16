@@ -3,7 +3,10 @@
 # Get to main project directory
 cd $(dirname $0)/..
 
-cp docker/.env.dist docker/.env
+ln -sf .env.dist docker/.env
+ln -sf docker/.env ./.env
+ln -sf docker-compose.dev.yml docker/docker-compose.yml
+
 
 # Install php libraries
 ./bin/composer --no-interaction install

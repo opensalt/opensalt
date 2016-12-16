@@ -27,17 +27,25 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
-#install:
-
-#before_script:
-
-script:
+# Create the application artifacts
+install:
   - env
-  - cp docker/.env.dist docker/.env
+  - ln -s docker-compose.test.yml docker/docker-compose.yml
+  - ln -s .env.test docker/.env
   - ln -s docker/.env ./.env
   - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml pull composer gulp
   - ./bin/build.sh
+
+# Create docker image with the running code
+before_script:
   - ./docker/app/build.sh
+  - docker-compose -f docker/docker-compose.yml up -d
+
+# Run the tests
+script:
+  - ./bin/console doctrine:migrations:migrate --no-interaction
+  - ./bin/behat
+  - ./bin/phpunit -c app
 #  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/build_pull_request; fi'
 #  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/build_normal; fi'
 
@@ -47,14 +55,17 @@ after_success:
   - ./ci/travis/push_app.sh
 #  - if [ "$TRAVIS_BRANCH" == "master" ]; then /bin/true; fi
 
-#after_failure:
+after_failure:
+  - env
+  - echo "Tests FAILED"
 
 #before_deploy:
 #deploy:
 #  skip_cleanup: true
 #after_deploy:
 
-#after_script:
+after_script:
+  - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml down -v
 
 notifications:
   hipchat:
