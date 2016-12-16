@@ -1,7 +1,7 @@
 version: '2'
 services:
   app:
-    image: opensalt/app:develop
+    image: opensalt/app:${COMMIT}
 
   phpfpm:
     image: opensalt/php:7.1-fpm

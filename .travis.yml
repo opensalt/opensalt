@@ -38,8 +38,8 @@ install:
 
 # Create docker image with the running code
 before_script:
-  - docker-compose -f docker/docker-compose.yml up -d
   - ./docker/app/build.sh
+  - docker-compose -f docker/docker-compose.yml up -d
 
 # Run the tests
 script:
