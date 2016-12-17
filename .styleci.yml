@@ -25,7 +25,7 @@ disabled:
     - function_declaration
     #- function_typehint_space
     #- hash_to_slash_comment
-    - heredoc_to_nowdoc
+    #- heredoc_to_nowdoc
     #- include
     #- lowercase_cast
     - lowercase_constants
@@ -67,21 +67,21 @@ disabled:
     #- normalize_index_brace
     #- object_operator_without_whitespace
     #- php_unit_fqcn_annotation
-    - phpdoc_annotation_without_dot
-    - phpdoc_indent
-    - phpdoc_inline_tag
-    - phpdoc_link_to_see
-    - phpdoc_no_access
-    - phpdoc_no_empty_return
-    - phpdoc_no_package
-    - phpdoc_scalar
+    #- phpdoc_annotation_without_dot
+    #- phpdoc_indent
+    #- phpdoc_inline_tag
+    #- phpdoc_link_to_see
+    #- phpdoc_no_access
+    #- phpdoc_no_empty_return
+    #- phpdoc_no_package
+    #- phpdoc_scalar
     - phpdoc_separation
-    - phpdoc_single_line_var_spacing
-    - phpdoc_to_comment
-    - phpdoc_trim
-    - phpdoc_type_to_var
-    - phpdoc_types
-    - pre_increment
+    #- phpdoc_single_line_var_spacing
+    #- phpdoc_to_comment
+    #- phpdoc_trim
+    #- phpdoc_type_to_var
+    #- phpdoc_types
+    #- pre_increment
     #- print_to_echo
     #- property_visibility_required
     #- psr4
@@ -106,7 +106,7 @@ disabled:
     #- trim_array_spaces
     - unalign_double_arrow
     - unalign_equals
-    - unary_operator_spaces
+    #- unary_operator_spaces
     #- unix_line_endings
     #- whitespace_after_comma_in_array
 
