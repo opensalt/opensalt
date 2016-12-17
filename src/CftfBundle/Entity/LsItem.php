@@ -22,7 +22,7 @@ class LsItem
     const DISPLAY_IDENTIFIER_MAXLENGTH = 32;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -352,7 +352,7 @@ class LsItem
     /**
      * Get id
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {

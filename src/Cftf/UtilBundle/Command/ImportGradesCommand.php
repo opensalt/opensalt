@@ -47,7 +47,7 @@ class ImportGradesCommand extends ContainerAwareCommand
             $lsItem->setType('Grade Level');
             $lsItem->setListEnumInSource($i);
             $lsItem->setRank($i);
-            $i++;
+            ++$i;
 
             $lsItem->addParent($lsDoc);
 

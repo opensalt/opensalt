@@ -13,7 +13,6 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * Class FrameworkEditVoter
- * @package Salt\UserBundle\Security
  *
  * @DI\Service(public=false)
  * @DI\Tag("security.voter")

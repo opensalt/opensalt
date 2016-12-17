@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Class AsnBase
- * @package Cftf\AsnBundle\Entity
  */
 abstract class AsnBase
 {

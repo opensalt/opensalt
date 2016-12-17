@@ -235,6 +235,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 
     /**
      * String representation of the user
+     *
      * @return string the string representation of the user
      */
     public function serialize() {
@@ -246,8 +247,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 
     /**
      * Constructs the object
-     * @param string $serialized The string representation of the object.
-     * @return void
+     *
+     * @param string $serialized the string representation of the object
      */
     public function unserialize($serialized) {
         list(

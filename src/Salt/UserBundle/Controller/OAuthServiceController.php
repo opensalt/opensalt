@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
  * OAuth Service controller.
  *
  * @Route("login")
- *
  */
 class OAuthServiceController extends Controller
 {
@@ -24,7 +23,6 @@ class OAuthServiceController extends Controller
      *
      * @Route("/check-github", name="github_login")
      * @Method("GET")
-     *
      */
     public function githubAction(Request $request)
     {

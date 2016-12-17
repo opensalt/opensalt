@@ -27,7 +27,7 @@ class LsDoc
     const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -284,7 +284,7 @@ class LsDoc
     /**
      * Get id
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {

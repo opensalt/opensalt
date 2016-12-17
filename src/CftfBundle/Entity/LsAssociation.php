@@ -40,7 +40,7 @@ class LsAssociation
     const INVERSE_EXEMPLAR = 'Exemplar For';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -275,7 +275,7 @@ class LsAssociation
     /**
      * Get id
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {

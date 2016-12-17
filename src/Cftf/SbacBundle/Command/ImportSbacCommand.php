@@ -86,7 +86,7 @@ class ImportSbacCommand extends ContainerAwareCommand
         $done = false;
         $row = 1;
         while (!$done) {
-            $row++;
+            ++$row;
 
             $level = (int) $stdSheet->getCellByColumnAndRow(0, $row)->getValue();
             if (empty($level)) {
@@ -120,7 +120,7 @@ class ImportSbacCommand extends ContainerAwareCommand
         $done = false;
         $row = 1;
         while (!$done) {
-            $row++;
+            ++$row;
             $key = $gradesSheet->getCellByColumnAndRow(0, $row)->getValue();
 
             if (!empty($key)) {

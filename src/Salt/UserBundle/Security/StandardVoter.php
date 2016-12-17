@@ -11,7 +11,6 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * Class StandardVoter
- * @package Salt\UserBundle\Security
  *
  * @DI\Service(public=false)
  * @DI\Tag("security.voter")

@@ -53,13 +53,13 @@ class LsItemType extends AbstractType
                 'label' => 'Education Level',
                 'choice_label' => 'code',
                 'choice_attr' => function ($val, $key, $index) {
-                    /** @var $val LsDefGrade */
+                    /* @var $val LsDefGrade */
                     return ['data-title' => $val->getTitle()];
                 },
                 'required' => false,
                 'multiple' => true,
                 'query_builder' => function (EntityRepository $er) {
-                    /** @var LsDefGradeRepository $er */
+                    /* @var LsDefGradeRepository $er */
                     return $er->createQueryBuilder('g')
                         ->addOrderBy('g.rank')
                         ;

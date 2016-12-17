@@ -33,14 +33,14 @@ class Version20160928191216 extends AbstractMigration implements ContainerAwareI
      */
     public function up(Schema $schema)
     {
-        $sql = <<<xENDx
+        $sql = <<<'xENDx'
 SELECT d.id, d.subject, d.subject_uri
   FROM ls_doc d
  WHERE d.subject IS NOT NULL OR d.subject_uri IS NOT NULL
 xENDx;
         $docsStmt = $this->connection->prepare($sql);
 
-        $sql = <<<xENDx
+        $sql = <<<'xENDx'
 INSERT IGNORE INTO ls_def_subject
   (identifier, uri, updated_at, title, hierarchy_code)
 VALUES
@@ -48,7 +48,7 @@ VALUES
 xENDx;
         $insertSubjectStmt = $this->connection->prepare($sql);
 
-        $sql = <<<xENDx
+        $sql = <<<'xENDx'
 INSERT IGNORE INTO ls_doc_subject
   (ls_doc_id, subject_id)
 VALUES
@@ -56,7 +56,7 @@ VALUES
 xENDx;
         $insertDocSubjectStmt = $this->connection->prepare($sql);
 
-        $sql = <<<xENDx
+        $sql = <<<'xENDx'
 SELECT s.id, s.title
   FROM ls_def_subject s
  WHERE s.identifier = :uuid

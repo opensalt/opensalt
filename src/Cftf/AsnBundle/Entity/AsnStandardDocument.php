@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Class AsnStandardDocument
- * @package Cftf\AsnBundle\Entity
  *
  * @method AsnValue[]|ArrayCollection getType()
  * @method AsnValue[]|ArrayCollection getJurisdiction()

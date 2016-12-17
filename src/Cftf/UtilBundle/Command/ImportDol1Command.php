@@ -84,7 +84,7 @@ class ImportDol1Command extends ContainerAwareCommand
                 if (empty($currentCategorySubId)) {
                     $currentCategorySubId = 'A';
                 } else {
-                    $currentCategorySubId++;
+                    ++$currentCategorySubId;
                 }
                 $id = $currentCategoryId = $currentCategory.'.'.$currentCategorySubId;
             } else {
