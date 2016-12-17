@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Salt\UserBundle\Security;
 
@@ -25,6 +22,7 @@ class SuperUserVoter extends Voter
 
     /**
      * SuperUserVoter constructor.
+     *
      * @param \Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface $decisionManager
      *
      * @DI\InjectParams({

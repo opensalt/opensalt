@@ -7,7 +7,6 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
@@ -39,7 +38,7 @@ class CfpackageDeleteCommand extends ContainerAwareCommand
         $helper = $this->getHelper('question');
         $question = new ConfirmationQuestion("<question>Do you really want to delete '{$lsDoc->getTitle()}'? (y/n)</question> ", false);
         if (!$helper->ask($input, $output, $question)) {
-            $output->writeln("<info>Not deleting LSDoc.</info>");
+            $output->writeln('<info>Not deleting LSDoc.</info>');
             return;
         }
 

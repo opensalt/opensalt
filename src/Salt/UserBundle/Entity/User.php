@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Salt\UserBundle\Entity;
 
@@ -138,6 +135,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 
     /**
      * @param string $username
+     *
      * @return $this
      */
     public function setUsername($username) {
@@ -291,6 +289,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * Add a role to a user
      *
      * @param string $role
+     *
      * @return $this
      */
     public function addRole($role) {
@@ -322,6 +321,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 
     /**
      * @param \Salt\UserBundle\Entity\Organization $org
+     *
      * @return User
      */
     public function setOrg($org) {

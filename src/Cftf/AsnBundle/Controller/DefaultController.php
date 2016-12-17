@@ -2,14 +2,11 @@
 
 namespace Cftf\AsnBundle\Controller;
 
-use CftfBundle\Entity\LsDocRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Cftf\AsnBundle\Service\AsnImport;
 use GuzzleHttp\Client;
 
 /**
@@ -40,7 +37,7 @@ class DefaultController extends Controller
     protected function getAsnFile($fileUrl){
         $client = new Client();
 
-        $result = $client->request('GET', $fileUrl . '_full.json',
+        $result = $client->request('GET', $fileUrl.'_full.json',
             [
                 'headers' => [
                     'Content-Type' => 'application/json',

@@ -8,7 +8,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsDefLicence;
-use CftfBundle\Form\LsDefLicenceType;
 
 /**
  * LsDefLicence controller.

@@ -2,14 +2,12 @@
 
 namespace Cftf\UtilBundle\Command;
 
-use CftfBundle\Entity\LsDefItemType;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportDol1Command extends ContainerAwareCommand
@@ -48,7 +46,7 @@ class ImportDol1Command extends ContainerAwareCommand
         $currentCategory = '';
         $currentCategoryId = '';
         $currentCategorySubId = '';
-        while (FALSE !== ($rec = fgetcsv($fd, 0, ","))) {
+        while (FALSE !== ($rec = fgetcsv($fd, 0, ','))) {
             // Skip empty lines
             if (empty($rec[0])) {
                 continue;

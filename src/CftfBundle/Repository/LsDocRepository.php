@@ -18,6 +18,7 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      * Get a list of all items for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsItems hydrated as an array
      */
     public function findAllChildrenArray(LsDoc $lsDoc){
@@ -123,6 +124,7 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      * Get a list of ids for all items that have parents for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsItem ids
      */
     public function findAllItemsWithParentsArray(LsDoc $lsDoc){
@@ -144,6 +146,7 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      * Get a list of all items for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsItems hydrated as an array
      */
     public function findTopChildrenIds(LsDoc $lsDoc){
@@ -168,6 +171,7 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
      * @param \Closure|null $progressCallback
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
     public function deleteDocument(LsDoc $lsDoc, \Closure $progressCallback = null) {
@@ -228,6 +232,7 @@ xENDx;
      * Get a list of all items for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsItems hydrated as an array
      */
     public function findAllItems(LsDoc $lsDoc) {
@@ -253,6 +258,7 @@ xENDx;
      * Get a list of all associations for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsAssociations hydrated as an array
      */
     public function findAllAssociations(LsDoc $lsDoc) {
@@ -274,6 +280,7 @@ xENDx;
      * Get a list of all associations for an LsDoc where the nodes are known items
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsAssociations hydrated as an array
      */
     public function findAllAssociationsForCapturedNodes(LsDoc $lsDoc) {

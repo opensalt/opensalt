@@ -74,4 +74,3 @@ class AbstractLsDefinition extends AbstractLsBase
         return $this->description;
     }
 }
-

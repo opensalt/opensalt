@@ -2,7 +2,6 @@
 
 namespace CftfBundle\Controller;
 
-use CftfBundle\Form\DTO\LsDocCreateDTO;
 use CftfBundle\Form\LsDocCreateType;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Salt\UserBundle\Entity\User;

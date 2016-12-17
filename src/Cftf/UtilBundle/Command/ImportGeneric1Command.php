@@ -9,7 +9,6 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportGeneric1Command extends ContainerAwareCommand
@@ -41,10 +40,10 @@ class ImportGeneric1Command extends ContainerAwareCommand
         $items = [];
 
         // Ignore first row (assuming it is a header)
-        fgetcsv($fd, 0, ",");
+        fgetcsv($fd, 0, ',');
 
         $i = 1;
-        while (FALSE !== ($rec = fgetcsv($fd, 0, ","))) {
+        while (FALSE !== ($rec = fgetcsv($fd, 0, ','))) {
             $lsItem = new LsItem();
             $lsItem->setLsDoc($lsDoc);
 

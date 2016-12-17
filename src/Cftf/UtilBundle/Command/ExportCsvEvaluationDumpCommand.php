@@ -2,14 +2,11 @@
 
 namespace Cftf\UtilBundle\Command;
 
-use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ExportCsvEvaluationDumpCommand extends ContainerAwareCommand
@@ -106,7 +103,7 @@ class ExportCsvEvaluationDumpCommand extends ContainerAwareCommand
 
             // Enclose fields containing $delimiter, $enclosure or whitespace
             if ($encloseAll || preg_match("/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field)) {
-                $output[] = $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure;
+                $output[] = $enclosure.str_replace($enclosure, $enclosure.$enclosure, $field).$enclosure;
             }
             else {
                 $output[] = $field;

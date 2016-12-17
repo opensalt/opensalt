@@ -194,7 +194,7 @@ class LsAssociation
     public function __construct()
     {
         $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
-        $this->uri = 'local:' . $this->identifier;
+        $this->uri = 'local:'.$this->identifier;
     }
 
     public function __toString()
@@ -232,6 +232,7 @@ class LsAssociation
 
     /**
      * @param string $name
+     *
      * @return string|null
      */
     public static function inverseName($name)
@@ -310,6 +311,7 @@ class LsAssociation
      * Set the Origination of the association
      *
      * @param string|LsDoc|LsItem $origin
+     *
      * @return $this
      */
     public function setOrigin($origin)
@@ -378,6 +380,7 @@ class LsAssociation
      * Set the Destination of the association
      *
      * @param string|LsDoc|LsItem $origin
+     *
      * @return $this
      */
     public function setDestination($origin)
@@ -656,6 +659,7 @@ class LsAssociation
 
     /**
      * @param string $groupName
+     *
      * @return LsAssociation
      */
     public function setGroupName($groupName) {
@@ -679,6 +683,7 @@ class LsAssociation
 
     /**
      * @param string $lsDocIdentifier
+     *
      * @return LsAssociation
      */
     public function setLsDocIdentifier($lsDocIdentifier) {
@@ -695,6 +700,7 @@ class LsAssociation
 
     /**
      * @param string $identifier
+     *
      * @return LsAssociation
      */
     public function setIdentifier($identifier) {
@@ -711,6 +717,7 @@ class LsAssociation
 
     /**
      * @param string $originNodeIdentifier
+     *
      * @return LsAssociation
      */
     public function setOriginNodeIdentifier($originNodeIdentifier) {
@@ -727,6 +734,7 @@ class LsAssociation
 
     /**
      * @param string $destinationNodeIdentifier
+     *
      * @return LsAssociation
      */
     public function setDestinationNodeIdentifier($destinationNodeIdentifier) {
@@ -743,6 +751,7 @@ class LsAssociation
 
     /**
      * @param string $groupUri
+     *
      * @return LsAssociation
      */
     public function setGroupUri($groupUri) {

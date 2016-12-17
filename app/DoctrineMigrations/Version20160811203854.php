@@ -18,14 +18,14 @@ class Version20160811203854 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql("
+        $this->addSql('
 UPDATE ls_association a, ls_item i
     SET a.ls_doc_id = i.ls_doc_id,
         a.ls_doc_uri = i.ls_doc_uri
     WHERE a.origin_lsitem_id = i.id
       AND a.origin_lsitem_id IS NOT NULL
       AND (a.ls_doc_id IS NULL OR a.ls_doc_uri IS NULL);
-        ");
+        ');
 
         $this->addSql('
 ALTER TABLE ls_association
@@ -43,37 +43,37 @@ UPDATE ls_association a
         ");
 
         // Document Identifier
-        $this->addSql("
+        $this->addSql('
 UPDATE ls_association a, ls_doc d
     SET a.ls_doc_identifier = d.global_id
     WHERE a.ls_doc_id = d.id
       AND a.ls_doc_id IS NOT NULL;
-        ");
+        ');
 
         // Origin node identifier
-        $this->addSql("
+        $this->addSql('
 UPDATE ls_association a, ls_item i
     SET a.origin_node_identifier = i.global_id
   WHERE a.origin_lsitem_id = i.id
     AND a.origin_lsitem_id IS NOT NULL
     AND a.origin_node_identifier IS NULL;
-        ");
+        ');
 
         // Destination node identifier
-        $this->addSql("
+        $this->addSql('
 UPDATE ls_association a, ls_item i
     SET a.destination_node_identifier = i.global_id
   WHERE a.destination_lsitem_id = i.id
     AND a.destination_lsitem_id IS NOT NULL
     AND a.destination_node_identifier IS NULL;
-        ");
-        $this->addSql("
+        ');
+        $this->addSql('
 UPDATE ls_association a, ls_doc d
     SET a.destination_node_identifier = d.global_id
   WHERE a.destination_lsdoc_id = d.id
     AND a.destination_lsdoc_id IS NOT NULL
     AND a.destination_node_identifier IS NULL;
-        ");
+        ');
         $this->addSql("
 UPDATE ls_association a
     SET a.destination_node_identifier = REPLACE(a.destination_node_uri, 'urn:guid:', '')

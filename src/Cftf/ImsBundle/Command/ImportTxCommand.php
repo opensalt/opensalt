@@ -10,7 +10,6 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportTxCommand extends ContainerAwareCommand
@@ -103,7 +102,7 @@ class ImportTxCommand extends ContainerAwareCommand
                     default:
                         if (is_numeric($item['GradeCode'])) {
                             if ($item['GradeCode'] < 10) {
-                                $grades[] = '0' . ((int) $item['GradeCode']);
+                                $grades[] = '0'.((int) $item['GradeCode']);
                             } else {
                                 $grades[] = $item['GradeCode'];
                             }

@@ -4,8 +4,6 @@ namespace Salt\UserBundle\Security;
 
 use JMS\DiExtraBundle\Annotation as DI;
 use Salt\UserBundle\Entity\User;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -27,6 +25,7 @@ class ManageUserVoter extends Voter
 
     /**
      * SuperUserVoter constructor.
+     *
      * @param \Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface $decisionManager
      *
      * @DI\InjectParams({

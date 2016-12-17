@@ -39,7 +39,7 @@ class UriController extends Controller
         $localPrefix = $this->generateUrl('editor_uri_lookup_empty', [], Router::ABSOLUTE_URL);
         if (0 === strpos($localUri, $localPrefix)) {
             $localUri = substr($localUri, strlen($localPrefix));
-            $localUri = 'local:' . $localUri;
+            $localUri = 'local:'.$localUri;
         }
 
         $item = $em->getRepository('CftfBundle:LsItem')

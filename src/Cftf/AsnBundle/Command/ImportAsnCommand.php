@@ -2,11 +2,9 @@
 
 namespace Cftf\AsnBundle\Command;
 
-use CftfBundle\Entity\LsDocRepository;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportAsnCommand extends ContainerAwareCommand
@@ -30,7 +28,7 @@ class ImportAsnCommand extends ContainerAwareCommand
                      'http://asn.desire2learn.com/resources/',
                  ] as $urlPrefix) {
             $asnResponse = $jsonClient->request(
-                'GET', $urlPrefix . $asnId . '_full.json', [
+                'GET', $urlPrefix.$asnId.'_full.json', [
                     'timeout' => 60,
                     'headers' => [
                         'Accept' => 'application/json',
@@ -48,7 +46,7 @@ class ImportAsnCommand extends ContainerAwareCommand
         }
 
         if ($asnResponse->getStatusCode() !== 200) {
-            $output->writeln("Error getting document from ASN.");
+            $output->writeln('Error getting document from ASN.');
         }
 
         //$asnDoc = file_get_contents('/var/www/html/tmp/D10003FB.json');

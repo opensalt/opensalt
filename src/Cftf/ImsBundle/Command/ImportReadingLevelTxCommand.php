@@ -9,7 +9,6 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportReadingLevelTxCommand extends ContainerAwareCommand
@@ -31,14 +30,14 @@ class ImportReadingLevelTxCommand extends ContainerAwareCommand
 
         $fd = fopen($filename, 'r');
 
-        $keys = fgetcsv($fd, 0, ",");
+        $keys = fgetcsv($fd, 0, ',');
 
         $items = [];
         $lists = [];
         foreach ($keys as $key) {
             $lists[$key] = [];
         }
-        while (FALSE !== ($rec = fgetcsv($fd, 0, ","))) {
+        while (FALSE !== ($rec = fgetcsv($fd, 0, ','))) {
             $item = array_combine($keys, $rec);
             $items[$rec[0]] = $item;
             foreach ($keys as $key) {

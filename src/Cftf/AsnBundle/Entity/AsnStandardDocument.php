@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Cftf\AsnBundle\Entity;
 
@@ -52,6 +49,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @method AsnStandardDocument setRightsHolder(ArrayCollection $value)
  * @method AsnStandardDocument setIdentifier(ArrayCollection $value)
  * @method AsnStandardDocument setHasChild(ArrayCollection $value)
+ *
  * @property AsnValue[]|ArrayCollection $type
  * @property AsnValue[]|ArrayCollection $jurisdiction
  * @property AsnValue[]|ArrayCollection $title

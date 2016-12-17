@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace CftfBundle\Form\DataTransformer;
 
@@ -11,7 +8,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Form\DataTransformerInterface;
-use Symfony\Component\Form\Exception\TransformationFailedException;
 
 class EducationAlignmentTransformer implements DataTransformerInterface
 {

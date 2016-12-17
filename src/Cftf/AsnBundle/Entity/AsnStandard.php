@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Cftf\AsnBundle\Entity;
 
@@ -44,6 +41,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @method AsnStandard setIsChildOf(ArrayCollection $value)
  * @method AsnStandard setComment(ArrayCollection $value)
  * @method AsnStandard setExactMatch(ArrayCollection $value)
+ *
  * @property AsnValue[]|ArrayCollection $type
  * @property AsnValue[]|ArrayCollection $identifier
  * @property AsnValue[]|ArrayCollection $isPartOf

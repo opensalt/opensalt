@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Pcg\Doctrine\Types;
 
@@ -13,6 +10,7 @@ class JsonType extends JsonArrayType
     /**
      * @param array $fieldDeclaration
      * @param AbstractPlatform $platform
+     *
      * @return string
      */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
@@ -22,8 +20,10 @@ class JsonType extends JsonArrayType
 
     /**
      * Convert the value of the field into a PHP data type
+     *
      * @param mixed $value
      * @param AbstractPlatform $platform
+     *
      * @return array|mixed|null
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
@@ -33,6 +33,7 @@ class JsonType extends JsonArrayType
 
     /**
      * Name of the db type
+     *
      * @return string
      */
     public function getName()

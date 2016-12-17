@@ -225,7 +225,7 @@ class LsItem
     public function __construct()
     {
         $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
-        $this->uri = 'local:' . $this->identifier;
+        $this->uri = 'local:'.$this->identifier;
         $this->children = new ArrayCollection();
         $this->lsItemParent = new ArrayCollection();
         $this->associations = new ArrayCollection();
@@ -254,7 +254,7 @@ class LsItem
         $this->children = new ArrayCollection();
 
         // TODO: We need to figure out a better way to handle the prefix for local items
-        $this->uri = 'local:' . \Ramsey\Uuid\Uuid::uuid4()->toString();
+        $this->uri = 'local:'.\Ramsey\Uuid\Uuid::uuid4()->toString();
 
         $this->changedAt = new \DateTime();
         $this->updatedAt = $this->changedAt;
@@ -932,6 +932,7 @@ class LsItem
 
     /**
      * @param string $lsDocIdentifier
+     *
      * @return LsItem
      */
     public function setLsDocIdentifier($lsDocIdentifier) {
@@ -948,6 +949,7 @@ class LsItem
 
     /**
      * @param int $rank
+     *
      * @return LsItem
      */
     public function setRank($rank) {
@@ -964,6 +966,7 @@ class LsItem
 
     /**
      * @param string $property
+     *
      * @return mixed
      */
     public function getExtraProperty($property) {
@@ -980,6 +983,7 @@ class LsItem
 
     /**
      * @param array $extra
+     *
      * @return LsItem
      */
     public function setExtra($extra) {
@@ -990,6 +994,7 @@ class LsItem
     /**
      * @param string $property
      * @param mixed $value
+     *
      * @return LsItem
      */
     public function setExtraProperty($property, $value) {
@@ -1033,6 +1038,7 @@ class LsItem
      * Set the LsItem language
      *
      * @param string $language
+     *
      * @return LsItem
      */
     public function setLanguage($language) {
@@ -1044,6 +1050,7 @@ class LsItem
      * Get (an indented) label representing this item
      *
      * @param string $indent
+     *
      * @return string
      */
     public function getLabel($indent = "\u{00a0}\u{00a0}\u{00a0}\u{00a0}") {
@@ -1080,6 +1087,7 @@ class LsItem
 
     /**
      * @param LsDefItemType $itemType
+     *
      * @return LsItem
      */
     public function setItemType($itemType) {
