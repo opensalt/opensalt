@@ -941,7 +941,7 @@ class LsDoc
      * @return bool
      */
     public function canEdit() {
-        return (is_null($this->adoptionStatus) || self::ADOPTION_STATUS_DRAFT === $this->adoptionStatus);
+        return is_null($this->adoptionStatus) || self::ADOPTION_STATUS_DRAFT === $this->adoptionStatus;
     }
 
     /**

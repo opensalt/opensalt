@@ -8,7 +8,8 @@ namespace CftfBundle\Form\DTO;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 
-class CopyToLsDocDTO {
+class CopyToLsDocDTO
+{
     /**
      * @var LsDoc
      */

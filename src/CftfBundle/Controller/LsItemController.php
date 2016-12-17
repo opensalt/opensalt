@@ -111,7 +111,7 @@ class LsItemController extends Controller
     {
         if ('json' === $_format) {
             // Redirect?  Change Action for Template?
-            return [ 'lsItem' => $lsItem ];
+            return ['lsItem' => $lsItem];
         }
 
         $deleteForm = $this->createDeleteForm($lsItem);

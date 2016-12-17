@@ -65,7 +65,7 @@ class AsnValue
         return $this->lang;
     }
 
-    static public function fromArray($arr)
+    public static function fromArray($arr)
     {
         $value = new static();
 
@@ -90,7 +90,7 @@ class AsnValue
         return $value;
     }
 
-    static public function fromJson($json)
+    public static function fromJson($json)
     {
         $arr = json_decode($json);
         $value = static::fromArray($arr);

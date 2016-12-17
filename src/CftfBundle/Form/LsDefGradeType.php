@@ -21,7 +21,7 @@ class LsDefGradeType extends AbstractType
             ->add('rank')
         ;
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

@@ -80,7 +80,7 @@ abstract class AsnBase
      * @param array $arr
      * @return AsnBase
      */
-    static public function fromArray($arr)
+    public static function fromArray($arr)
     {
         $md = new static();
 
@@ -95,7 +95,7 @@ abstract class AsnBase
      * @param string $json
      * @return AsnBase
      */
-    static public function fromJson($json)
+    public static function fromJson($json)
     {
         $arr = json_decode($json);
         $md = static::fromArray($arr);

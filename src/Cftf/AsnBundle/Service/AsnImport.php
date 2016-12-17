@@ -22,7 +22,8 @@ use Ramsey\Uuid\Uuid;
  *
  * @DI\Service("cftf_import.asn")
  */
-class AsnImport {
+class AsnImport
+{
     /**
      * @var EntityManager
      */

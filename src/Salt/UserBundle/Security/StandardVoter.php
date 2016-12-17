@@ -74,7 +74,6 @@ class StandardVoter extends Voter
     }
 
     return false;
-
   }
 
   /**

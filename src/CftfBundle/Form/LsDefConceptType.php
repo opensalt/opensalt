@@ -21,7 +21,7 @@ class LsDefConceptType extends AbstractType
             ->add('keywords')
         ;
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

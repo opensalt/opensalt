@@ -114,7 +114,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         $this->frameworks = new ArrayCollection();
     }
 
-    static public function getUserRoles() {
+    public static function getUserRoles() {
         return static::USER_ROLES;
     }
 
@@ -271,7 +271,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @return bool
      */
     public function isEqualTo(UserInterface $user) {
-        if (!($user instanceof User)) {
+        if (!($user instanceof self)) {
             return false;
         }
 

@@ -21,7 +21,7 @@ class LsDefItemTypeType extends AbstractType
             ->add('hierarchyCode')
         ;
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

@@ -20,7 +20,7 @@ class LsDefAssociationGroupingType extends AbstractType
             ->add('name')
         ;
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

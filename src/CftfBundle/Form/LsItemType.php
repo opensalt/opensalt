@@ -46,7 +46,7 @@ class LsItemType extends AbstractType
             ->add('conceptKeywordsUri')
             ->add('language', 'Symfony\Component\Form\Extension\Core\Type\LanguageType', [
                 'required' => false,
-                'preferred_choices' => [ 'en', 'es', 'fr' ],
+                'preferred_choices' => ['en', 'es', 'fr'],
             ])
             ->add('educationalAlignment', EntityType::class, [
                 'class' => 'CftfBundle:LsDefGrade',
@@ -129,7 +129,7 @@ class LsItemType extends AbstractType
             ->addModelTransformer(new EducationAlignmentTransformer($this->manager))
             ;
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

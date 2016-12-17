@@ -57,7 +57,7 @@ class LsDocCreateType extends AbstractType
             ->add('language', 'Symfony\Component\Form\Extension\Core\Type\LanguageType', [
                 'required' => false,
                 'label' => 'Language',
-                'preferred_choices' => [ 'en', 'es', 'fr' ],
+                'preferred_choices' => ['en', 'es', 'fr'],
             ])
             ->add('adoptionStatus', ChoiceType::class, [
                 'required' => false,
@@ -84,7 +84,7 @@ class LsDocCreateType extends AbstractType
         }
         */
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

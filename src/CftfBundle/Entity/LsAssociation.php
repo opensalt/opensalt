@@ -202,7 +202,7 @@ class LsAssociation
         return $this->uri;
     }
 
-    static public function allTypes()
+    public static function allTypes()
     {
         return [
             static::EXACT_MATCH_OF,
@@ -217,7 +217,7 @@ class LsAssociation
         ];
     }
 
-    static public function typeChoiceList()
+    public static function typeChoiceList()
     {
         return [
             static::RELATED_TO,
@@ -234,7 +234,7 @@ class LsAssociation
      * @param string $name
      * @return string|null
      */
-    static public function inverseName($name)
+    public static function inverseName($name)
     {
         static $inverses = [];
         if (!count($inverses)) {

@@ -10,7 +10,8 @@ use CftfBundle\Entity\LsItem;
 use CftfBundle\Form\DTO\CopyToLsDocDTO;
 use Doctrine\Common\Persistence\ObjectManager;
 
-class CopyToLsDocCommand {
+class CopyToLsDocCommand
+{
     public function convertToDTO(LsItem $lsItem) {
         $dto = new CopyToLsDocDTO();
         $dto->lsItem = $lsItem;

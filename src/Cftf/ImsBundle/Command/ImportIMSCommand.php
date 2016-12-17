@@ -284,10 +284,10 @@ class ImportIMSCommand extends ContainerAwareCommand
         }
 
         foreach ($level1Grades as $key => $grades) {
-            $level1[$key]->setEducationalAlignment(implode(',',array_keys($grades)));
+            $level1[$key]->setEducationalAlignment(implode(',', array_keys($grades)));
         }
         foreach ($level2Grades as $key => $grades) {
-            $level2[$key]->setEducationalAlignment(implode(',',array_keys($grades)));
+            $level2[$key]->setEducationalAlignment(implode(',', array_keys($grades)));
         }
 
         $em->flush();

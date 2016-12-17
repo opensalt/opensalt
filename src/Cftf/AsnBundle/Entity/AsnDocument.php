@@ -34,7 +34,7 @@ class AsnDocument
      * @param $arr
      * @return AsnDocument
      */
-    static public function fromArray($arr)
+    public static function fromArray($arr)
     {
         /** @var AsnDocument $doc */
         $doc = new static();
@@ -99,7 +99,7 @@ class AsnDocument
      * @param $json
      * @return AsnDocument
      */
-    static public function fromJson($json)
+    public static function fromJson($json)
     {
         $arr = json_decode($json, true);
 

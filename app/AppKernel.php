@@ -1,4 +1,5 @@
 <?php
+
 umask(0); // TODO: This should probably be in the constructor
 
 use Symfony\Component\HttpKernel\Kernel;
