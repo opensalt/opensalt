@@ -35,7 +35,7 @@ class LsAssociationAjaxType extends AbstractType
             ->add('destinationNodeUri')
         ;
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

@@ -77,7 +77,7 @@ class UserType extends AbstractType
             ]);
         }
     }
-    
+
     /**
      * {@inheritdoc}
      */

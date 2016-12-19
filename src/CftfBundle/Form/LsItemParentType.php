@@ -47,7 +47,7 @@ class LsItemParentType extends AbstractType
             ])
         ;
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

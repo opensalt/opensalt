@@ -24,7 +24,7 @@ class DefaultController extends Controller
         $currentUser = $this->getUser();
         $response = new JsonResponse();
         $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
-        $api = new \Milo\Github\Api;
+        $api = new \Milo\Github\Api();
         $api->setToken($token);
 
         $respos = $api->get('/user/repos');
@@ -41,7 +41,7 @@ class DefaultController extends Controller
         $currentUser = $this->getUser();
         $response = new JsonResponse();
         $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
-        $api = new \Milo\Github\Api;
+        $api = new \Milo\Github\Api();
         $api->setToken($token);
 
         $owner = $request->query->get('owner');

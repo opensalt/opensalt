@@ -182,6 +182,7 @@ class LsAssociationController extends Controller
      * @Template()
      *
      * @param \CftfBundle\Entity\LsAssociation $lsAssociation
+     *
      * @return array
      */
     public function removeChildAction(LsAssociation $lsAssociation)

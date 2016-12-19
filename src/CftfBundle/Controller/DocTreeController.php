@@ -37,6 +37,7 @@ class DocTreeController extends Controller
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc1
      * @param \CftfBundle\Entity\LsDoc $lsDoc2
+     *
      * @return array
      */
     public function view2Action(LsDoc $lsDoc1, LsDoc $lsDoc2, $_format = 'html')

@@ -29,6 +29,7 @@ class LsDefSubject extends AbstractLsDefinition
 
     /**
      * @param string $hierarchyCode
+     *
      * @return LsDefSubject
      */
     public function setHierarchyCode($hierarchyCode) {
@@ -36,4 +37,3 @@ class LsDefSubject extends AbstractLsDefinition
         return $this;
     }
 }
-

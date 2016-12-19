@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Salt\UserBundle\Entity;
 
@@ -72,6 +69,7 @@ class Organization
 
     /**
      * @param string $name
+     *
      * @return Organization
      */
     public function setName(string $name): Organization {
@@ -100,6 +98,7 @@ class Organization
      * Add a user to the organization
      *
      * @param \Salt\UserBundle\Entity\User $user
+     *
      * @return Organization
      */
     public function addUser(User $user): Organization {
@@ -112,6 +111,7 @@ class Organization
      * Remove a user from the organization
      *
      * @param \Salt\UserBundle\Entity\User $user
+     *
      * @return Organization
      */
     public function removeUser(User $user): Organization {

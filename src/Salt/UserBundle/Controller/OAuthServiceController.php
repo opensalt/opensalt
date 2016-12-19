@@ -3,19 +3,15 @@
 namespace Salt\UserBundle\Controller;
 
 use Salt\UserBundle\Entity\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * OAuth Service controller.
  *
  * @Route("login")
- *
  */
 class OAuthServiceController extends Controller
 {
@@ -24,7 +20,6 @@ class OAuthServiceController extends Controller
      *
      * @Route("/check-github", name="github_login")
      * @Method("GET")
-     *
      */
     public function githubAction(Request $request)
     {
@@ -41,19 +36,16 @@ class OAuthServiceController extends Controller
 
         if (!isset($code)) {
             $options = [
-                'scope' => ['user','user:email','repo']
+                'scope' => ['user', 'user:email', 'repo']
             ];
             // If we don't have an authorization code then get one
             $authUrl = $provider->getAuthorizationUrl($options);
             $_SESSION['oauth2state'] = $provider->getState();
             return $this->redirect($authUrl);
-
         // Check given state against previously stored one to mitigate CSRF attack
         } elseif (empty($state) || ($state !== $_SESSION['oauth2state'])) {
-
             unset($_SESSION['oauth2state']);
             throw new \Exception('Invalid state.');
-
         } else {
             $em = $this->getDoctrine()->getManager();
             $user = $em->getRepository('SaltUserBundle:User')->find($currentUser->getId());

@@ -2,7 +2,6 @@
 
 namespace CftfBundle\Controller;
 
-use CftfBundle\Form\DTO\LsDocCreateDTO;
 use CftfBundle\Form\LsDocCreateType;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Salt\UserBundle\Entity\User;
@@ -87,7 +86,7 @@ class LsDocController extends Controller
     {
         if ('json' === $_format) {
             // Redirect?  Change Action for Template?
-            return [ 'lsDoc' => $lsDoc ];
+            return ['lsDoc' => $lsDoc];
         }
 
         $deleteForm = $this->createDeleteForm($lsDoc);

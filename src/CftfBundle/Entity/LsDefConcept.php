@@ -36,6 +36,7 @@ class LsDefConcept extends AbstractLsDefinition
 
     /**
      * @param string $hierarchyCode
+     *
      * @return LsDefConcept
      */
     public function setHierarchyCode($hierarchyCode) {
@@ -52,6 +53,7 @@ class LsDefConcept extends AbstractLsDefinition
 
     /**
      * @param string $keywords
+     *
      * @return LsDefConcept
      */
     public function setKeywords($keywords) {
@@ -59,4 +61,3 @@ class LsDefConcept extends AbstractLsDefinition
         return $this;
     }
 }
-

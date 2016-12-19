@@ -2,14 +2,11 @@
 
 namespace Cftf\UtilBundle\Command;
 
-use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ExportCsvEvaluationDumpCommand extends ContainerAwareCommand
@@ -90,29 +87,29 @@ class ExportCsvEvaluationDumpCommand extends ContainerAwareCommand
     }
 
     /**
-      * Formats a line (passed as a fields  array) as CSV and returns the CSV as a string.
-      * Adapted from http://us3.php.net/manual/en/function.fputcsv.php#87120
-      */
-    protected function arrayToCsv( array &$fields, $delimiter = ',', $enclosure = '"', $encloseAll = true, $nullToMysqlNull = false ) {
+     * Formats a line (passed as a fields  array) as CSV and returns the CSV as a string.
+     * Adapted from http://us3.php.net/manual/en/function.fputcsv.php#87120
+     */
+    protected function arrayToCsv(array &$fields, $delimiter = ',', $enclosure = '"', $encloseAll = true, $nullToMysqlNull = false) {
         $delimiter_esc = preg_quote($delimiter, '/');
         $enclosure_esc = preg_quote($enclosure, '/');
 
         $output = array();
-        foreach ( $fields as $field ) {
+        foreach ($fields as $field) {
             if ($field === null && $nullToMysqlNull) {
                 $output[] = 'NULL';
                 continue;
             }
 
             // Enclose fields containing $delimiter, $enclosure or whitespace
-            if ( $encloseAll || preg_match( "/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field ) ) {
-                $output[] = $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure;
+            if ($encloseAll || preg_match("/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field)) {
+                $output[] = $enclosure.str_replace($enclosure, $enclosure.$enclosure, $field).$enclosure;
             }
             else {
                 $output[] = $field;
             }
         }
 
-        return implode( $delimiter, $output );
+        return implode($delimiter, $output);
     }
 }

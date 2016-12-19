@@ -36,6 +36,7 @@ class LsDefGrade extends AbstractLsDefinition
 
     /**
      * @param string $code
+     *
      * @return LsDefGrade
      */
     public function setCode($code) {
@@ -52,6 +53,7 @@ class LsDefGrade extends AbstractLsDefinition
 
     /**
      * @param int $rank
+     *
      * @return LsDefGrade
      */
     public function setRank($rank) {
@@ -63,4 +65,3 @@ class LsDefGrade extends AbstractLsDefinition
         return "{$this->getCode()} - {$this->getTitle()}";
     }
 }
-

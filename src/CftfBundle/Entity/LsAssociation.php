@@ -40,7 +40,7 @@ class LsAssociation
     const INVERSE_EXEMPLAR = 'Exemplar For';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -194,7 +194,7 @@ class LsAssociation
     public function __construct()
     {
         $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
-        $this->uri = 'local:' . $this->identifier;
+        $this->uri = 'local:'.$this->identifier;
     }
 
     public function __toString()
@@ -202,7 +202,7 @@ class LsAssociation
         return $this->uri;
     }
 
-    static public function allTypes()
+    public static function allTypes()
     {
         return [
             static::EXACT_MATCH_OF,
@@ -217,7 +217,7 @@ class LsAssociation
         ];
     }
 
-    static public function typeChoiceList()
+    public static function typeChoiceList()
     {
         return [
             static::RELATED_TO,
@@ -232,9 +232,10 @@ class LsAssociation
 
     /**
      * @param string $name
+     *
      * @return string|null
      */
-    static public function inverseName($name)
+    public static function inverseName($name)
     {
         static $inverses = [];
         if (!count($inverses)) {
@@ -275,7 +276,7 @@ class LsAssociation
     /**
      * Get id
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -310,6 +311,7 @@ class LsAssociation
      * Set the Origination of the association
      *
      * @param string|LsDoc|LsItem $origin
+     *
      * @return $this
      */
     public function setOrigin($origin)
@@ -378,6 +380,7 @@ class LsAssociation
      * Set the Destination of the association
      *
      * @param string|LsDoc|LsItem $origin
+     *
      * @return $this
      */
     public function setDestination($origin)
@@ -656,6 +659,7 @@ class LsAssociation
 
     /**
      * @param string $groupName
+     *
      * @return LsAssociation
      */
     public function setGroupName($groupName) {
@@ -679,6 +683,7 @@ class LsAssociation
 
     /**
      * @param string $lsDocIdentifier
+     *
      * @return LsAssociation
      */
     public function setLsDocIdentifier($lsDocIdentifier) {
@@ -695,6 +700,7 @@ class LsAssociation
 
     /**
      * @param string $identifier
+     *
      * @return LsAssociation
      */
     public function setIdentifier($identifier) {
@@ -711,6 +717,7 @@ class LsAssociation
 
     /**
      * @param string $originNodeIdentifier
+     *
      * @return LsAssociation
      */
     public function setOriginNodeIdentifier($originNodeIdentifier) {
@@ -727,6 +734,7 @@ class LsAssociation
 
     /**
      * @param string $destinationNodeIdentifier
+     *
      * @return LsAssociation
      */
     public function setDestinationNodeIdentifier($destinationNodeIdentifier) {
@@ -743,6 +751,7 @@ class LsAssociation
 
     /**
      * @param string $groupUri
+     *
      * @return LsAssociation
      */
     public function setGroupUri($groupUri) {

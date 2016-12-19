@@ -36,6 +36,7 @@ class LsDefItemType extends AbstractLsDefinition
 
     /**
      * @param string $code
+     *
      * @return LsDefItemType
      */
     public function setCode($code) {
@@ -52,6 +53,7 @@ class LsDefItemType extends AbstractLsDefinition
 
     /**
      * @param string $hierarchyCode
+     *
      * @return LsDefItemType
      */
     public function setHierarchyCode($hierarchyCode) {
@@ -59,4 +61,3 @@ class LsDefItemType extends AbstractLsDefinition
         return $this;
     }
 }
-

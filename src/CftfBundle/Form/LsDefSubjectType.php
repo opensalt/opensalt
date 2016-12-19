@@ -20,7 +20,7 @@ class LsDefSubjectType extends AbstractType
             ->add('hierarchyCode')
         ;
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

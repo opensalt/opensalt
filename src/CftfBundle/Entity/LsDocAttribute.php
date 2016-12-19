@@ -100,4 +100,3 @@ class LsDocAttribute
         return $this->value;
     }
 }
-

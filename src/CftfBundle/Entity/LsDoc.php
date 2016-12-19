@@ -27,7 +27,7 @@ class LsDoc
     const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -262,7 +262,7 @@ class LsDoc
     public function __construct()
     {
         $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
-        $this->uri = 'local:' . $this->identifier;
+        $this->uri = 'local:'.$this->identifier;
         $this->lsItems = new ArrayCollection();
         $this->docAssociations = new ArrayCollection();
         $this->associations = new ArrayCollection();
@@ -284,7 +284,7 @@ class LsDoc
     /**
      * Get id
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -897,6 +897,7 @@ class LsDoc
      * Remove a document attribute
      *
      * @param $name
+     *
      * @return $this
      */
     public function removeAttribute($name) {
@@ -909,6 +910,7 @@ class LsDoc
      * Get the value of an attribute
      *
      * @param string $name
+     *
      * @return string|null
      */
     public function getAttribute($name) {
@@ -928,6 +930,7 @@ class LsDoc
 
     /**
      * @param string $language
+     *
      * @return LsDoc
      */
     public function setLanguage($language) {
@@ -941,7 +944,7 @@ class LsDoc
      * @return bool
      */
     public function canEdit() {
-        return (is_null($this->adoptionStatus) || self::ADOPTION_STATUS_DRAFT === $this->adoptionStatus);
+        return is_null($this->adoptionStatus) || self::ADOPTION_STATUS_DRAFT === $this->adoptionStatus;
     }
 
     /**
@@ -953,6 +956,7 @@ class LsDoc
 
     /**
      * @param LsDefSubject[]|ArrayCollection $subjects
+     *
      * @return LsDoc
      */
     public function setSubjects($subjects) {
@@ -962,6 +966,7 @@ class LsDoc
 
     /**
      * @param LsDefSubject
+     *
      * @return LsDoc
      */
     public function addSubject(LsDefSubject $subject) {
@@ -982,6 +987,7 @@ class LsDoc
      * Set the organization owner for the framework
      *
      * @param \Salt\UserBundle\Entity\Organization $org
+     *
      * @return LsDoc
      */
     public function setOrg(Organization $org = null) {
@@ -1003,6 +1009,7 @@ class LsDoc
      * Set the user owner for the framework
      *
      * @param \Salt\UserBundle\Entity\User $user
+     *
      * @return LsDoc
      */
     public function setUser(User $user = null) {
@@ -1052,6 +1059,7 @@ class LsDoc
 
     /**
      * @param string $ownedBy
+     *
      * @return LsDoc
      */
     public function setOwnedBy($ownedBy) {

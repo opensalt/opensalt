@@ -44,4 +44,3 @@ class LsDefAssociationGrouping extends AbstractLsDefinition
         return $this->name;
     }
 }
-

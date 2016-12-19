@@ -46,20 +46,20 @@ class LsItemType extends AbstractType
             ->add('conceptKeywordsUri')
             ->add('language', 'Symfony\Component\Form\Extension\Core\Type\LanguageType', [
                 'required' => false,
-                'preferred_choices' => [ 'en', 'es', 'fr' ],
+                'preferred_choices' => ['en', 'es', 'fr'],
             ])
             ->add('educationalAlignment', EntityType::class, [
                 'class' => 'CftfBundle:LsDefGrade',
                 'label' => 'Education Level',
                 'choice_label' => 'code',
                 'choice_attr' => function ($val, $key, $index) {
-                    /** @var $val LsDefGrade */
+                    /* @var $val LsDefGrade */
                     return ['data-title' => $val->getTitle()];
                 },
                 'required' => false,
                 'multiple' => true,
                 'query_builder' => function (EntityRepository $er) {
-                    /** @var LsDefGradeRepository $er */
+                    /* @var LsDefGradeRepository $er */
                     return $er->createQueryBuilder('g')
                         ->addOrderBy('g.rank')
                         ;
@@ -129,7 +129,7 @@ class LsItemType extends AbstractType
             ->addModelTransformer(new EducationAlignmentTransformer($this->manager))
             ;
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

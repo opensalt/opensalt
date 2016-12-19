@@ -62,9 +62,9 @@ class LsAssociationType extends AbstractType
                     'required' => TRUE,
                     'multiple' => FALSE,
                     'class' => 'CftfBundle\Entity\LsItem',
-                    'query_builder' => function (EntityRepository $er ) use ($lsDoc) {
+                    'query_builder' => function (EntityRepository $er) use ($lsDoc) {
                         return $er->createQueryBuilder('d')
-                            ->where('d.lsDoc = ' . $lsDoc->getId())
+                            ->where('d.lsDoc = '.$lsDoc->getId())
                             ->orderBy('d.fullStatement', 'ASC');
                     }
                 ]);
@@ -103,7 +103,7 @@ class LsAssociationType extends AbstractType
             }
         );
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

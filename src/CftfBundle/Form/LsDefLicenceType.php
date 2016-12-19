@@ -20,7 +20,7 @@ class LsDefLicenceType extends AbstractType
             ->add('licenceText')
         ;
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

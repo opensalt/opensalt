@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Salt\UserBundle\Entity;
 
@@ -114,7 +111,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         $this->frameworks = new ArrayCollection();
     }
 
-    static public function getUserRoles() {
+    public static function getUserRoles() {
         return static::USER_ROLES;
     }
 
@@ -138,6 +135,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 
     /**
      * @param string $username
+     *
      * @return $this
      */
     public function setUsername($username) {
@@ -235,6 +233,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 
     /**
      * String representation of the user
+     *
      * @return string the string representation of the user
      */
     public function serialize() {
@@ -246,8 +245,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 
     /**
      * Constructs the object
-     * @param string $serialized The string representation of the object.
-     * @return void
+     *
+     * @param string $serialized the string representation of the object
      */
     public function unserialize($serialized) {
         list(
@@ -271,7 +270,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @return bool
      */
     public function isEqualTo(UserInterface $user) {
-        if (!($user instanceof User)) {
+        if (!($user instanceof self)) {
             return false;
         }
 
@@ -290,6 +289,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * Add a role to a user
      *
      * @param string $role
+     *
      * @return $this
      */
     public function addRole($role) {
@@ -321,6 +321,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 
     /**
      * @param \Salt\UserBundle\Entity\Organization $org
+     *
      * @return User
      */
     public function setOrg($org) {

@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Salt\UserBundle\Entity;
 
@@ -14,7 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="Salt\UserBundle\Repository\UserDocAclRepository")
  * @ORM\Table(name="salt_user_doc_acl")
  */
-class UserDocAcl {
+class UserDocAcl
+{
     const DENY = 0;
     const ALLOW = 1;
 

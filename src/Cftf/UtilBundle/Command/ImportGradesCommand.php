@@ -2,14 +2,12 @@
 
 namespace Cftf\UtilBundle\Command;
 
-use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportGradesCommand extends ContainerAwareCommand
@@ -38,7 +36,7 @@ class ImportGradesCommand extends ContainerAwareCommand
         $em->persist($lsDoc);
 
         $i = 1;
-        while (FALSE !== ($rec = fgetcsv($fd, 0, ","))) {
+        while (FALSE !== ($rec = fgetcsv($fd, 0, ','))) {
             $lsItem = new LsItem();
             $lsItem->setLsDoc($lsDoc);
 
@@ -47,7 +45,7 @@ class ImportGradesCommand extends ContainerAwareCommand
             $lsItem->setType('Grade Level');
             $lsItem->setListEnumInSource($i);
             $lsItem->setRank($i);
-            $i++;
+            ++$i;
 
             $lsItem->addParent($lsDoc);
 

@@ -29,6 +29,7 @@ class LsDefLicence extends AbstractLsDefinition
 
     /**
      * @param string $licenceText
+     *
      * @return LsDefLicence
      */
     public function setLicenceText($licenceText) {
@@ -36,4 +37,3 @@ class LsDefLicence extends AbstractLsDefinition
         return $this;
     }
 }
-

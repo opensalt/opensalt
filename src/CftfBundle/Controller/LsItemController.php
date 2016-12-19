@@ -111,7 +111,7 @@ class LsItemController extends Controller
     {
         if ('json' === $_format) {
             // Redirect?  Change Action for Template?
-            return [ 'lsItem' => $lsItem ];
+            return ['lsItem' => $lsItem];
         }
 
         $deleteForm = $this->createDeleteForm($lsItem);
@@ -230,6 +230,7 @@ class LsItemController extends Controller
      *
      * @param \CftfBundle\Entity\LsItem $parent
      * @param \CftfBundle\Entity\LsItem $child
+     *
      * @return array
      */
     public function removeChildAction(LsItem $parent, LsItem $child)
@@ -250,6 +251,7 @@ class LsItemController extends Controller
      * @Template()
      *
      * @param \CftfBundle\Entity\LsItem $lsItem
+     *
      * @return array|Response
      */
     public function copyAction(Request $request, LsItem $lsItem)

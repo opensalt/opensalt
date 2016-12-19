@@ -2,7 +2,6 @@
 
 namespace CftfBundle\Form;
 
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -57,7 +56,7 @@ class LsDocCreateType extends AbstractType
             ->add('language', 'Symfony\Component\Form\Extension\Core\Type\LanguageType', [
                 'required' => false,
                 'label' => 'Language',
-                'preferred_choices' => [ 'en', 'es', 'fr' ],
+                'preferred_choices' => ['en', 'es', 'fr'],
             ])
             ->add('adoptionStatus', ChoiceType::class, [
                 'required' => false,
@@ -84,7 +83,7 @@ class LsDocCreateType extends AbstractType
         }
         */
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

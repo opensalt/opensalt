@@ -12,6 +12,7 @@ class Version20160811225500 extends AbstractMigration
 {
     /**
      * @param \Doctrine\DBAL\Schema\Schema $schema
+     *
      * @throws \Doctrine\DBAL\Migrations\AbortMigrationException
      */
     public function up(Schema $schema)
@@ -39,6 +40,7 @@ ALTER TABLE ls_item
 
     /**
      * @param \Doctrine\DBAL\Schema\Schema $schema
+     *
      * @throws \Doctrine\DBAL\Migrations\AbortMigrationException
      */
     public function down(Schema $schema)

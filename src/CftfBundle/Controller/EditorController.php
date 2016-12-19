@@ -34,6 +34,7 @@ class EditorController extends Controller
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
      * @param string $_format
+     *
      * @return array
      */
     public function viewDocAction(LsDoc $lsDoc, $_format)
@@ -52,6 +53,7 @@ class EditorController extends Controller
      *
      * @param \CftfBundle\Entity\LsItem $lsItem
      * @param string $_format
+     *
      * @return array
      */
     public function viewItemAction(LsItem $lsItem, $_format)
@@ -71,6 +73,7 @@ class EditorController extends Controller
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
      * @param int $highlight
+     *
      * @return array
      */
     public function renderDocumentAction(LsDoc $lsDoc, $highlight = null, $_format = 'html')

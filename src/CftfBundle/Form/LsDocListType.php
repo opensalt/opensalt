@@ -30,7 +30,7 @@ class LsDocListType extends AbstractType
             ])
         ;
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

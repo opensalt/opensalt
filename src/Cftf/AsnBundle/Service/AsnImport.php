@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Cftf\AsnBundle\Service;
 
@@ -13,7 +10,6 @@ use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityManager;
-use GuzzleHttp\Client;
 use JMS\DiExtraBundle\Annotation as DI;
 use Ramsey\Uuid\Uuid;
 
@@ -22,7 +18,8 @@ use Ramsey\Uuid\Uuid;
  *
  * @DI\Service("cftf_import.asn")
  */
-class AsnImport {
+class AsnImport
+{
     /**
      * @var EntityManager
      */
@@ -99,9 +96,9 @@ class AsnImport {
                     $uuid = Uuid::uuid5(Uuid::fromString('cacee394-85b7-11e6-9d43-005056a32dda'), $subject);
                     $s = new LsDefSubject();
                     $s->setIdentifier($uuid);
-                    $s->setUri('local:' . $uuid->toString());
+                    $s->setUri('local:'.$uuid->toString());
                     $s->setTitle($subject);
-                    $s->setHierarchyCode("1");
+                    $s->setHierarchyCode('1');
 
                     $subjects[$subject] = $s;
 
@@ -235,7 +232,7 @@ class AsnImport {
                     default:
                         if (is_numeric($lvl)) {
                             if ($lvl < 10) {
-                                $levels[] = '0' . ((int) $lvl);
+                                $levels[] = '0'.((int) $lvl);
                             } else {
                                 $levels[] = $lvl;
                             }

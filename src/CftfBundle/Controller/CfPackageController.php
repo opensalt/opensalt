@@ -10,7 +10,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 /**
  * Class CfPackageController
- * @package CftfBundle\Controller
  *
  * @Route("/cfpackage")
  */
