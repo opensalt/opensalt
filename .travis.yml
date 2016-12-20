@@ -29,10 +29,12 @@ before_install:
 
 # Create the application artifacts
 install:
-  - env
   - ln -s docker-compose.test.yml docker/docker-compose.yml
   - ln -s .env.test docker/.env
   - ln -s docker/.env ./.env
+  - echo .%{TRAVIS_BUILD_NUMBER} >> VERSION
+  - echo $(date -u +%Y%m%d.%H%M).${COMMIT} > BUILD_MD
+  - echo $(cat VERSION)+$(cat BUILD_MD) > web/version.txt
   - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml pull composer gulp
   - ./bin/build.sh
 
@@ -52,12 +54,10 @@ script:
 
 #$TRAVIS_TEST_RESULT has build result 0==success
 after_success:
-  - env
   - ./ci/travis/push_app.sh
 #  - if [ "$TRAVIS_BRANCH" == "master" ]; then /bin/true; fi
 
 after_failure:
-  - env
   - echo "Tests FAILED"
 
 #before_deploy:
