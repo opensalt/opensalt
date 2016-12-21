@@ -87,7 +87,7 @@ class FrameworkEditorsVoter extends Voter
         }
 
         // Do not allow managing editors if the user is not an admin
-        if (! $this->decisionManager->decide($token, ['ROLE_ADMIN'])) {
+        if (!$this->decisionManager->decide($token, ['ROLE_ADMIN'])) {
             return false;
         }
 
@@ -95,7 +95,7 @@ class FrameworkEditorsVoter extends Voter
         $docAcls = $user->getDocAcls();
         foreach ($docAcls as $acl) {
             if ($acl->getLsDoc() === $subject) {
-                return (1 === $acl->getAccess());
+                return 1 === $acl->getAccess();
             }
         }
 

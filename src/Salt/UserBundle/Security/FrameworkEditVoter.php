@@ -82,7 +82,7 @@ class FrameworkEditVoter extends Voter
         }
 
         // Do not allow editing if the user is not an editor
-        if (! $this->decisionManager->decide($token, ['ROLE_EDITOR'])) {
+        if (!$this->decisionManager->decide($token, ['ROLE_EDITOR'])) {
             return false;
         }
 
@@ -100,7 +100,7 @@ class FrameworkEditVoter extends Voter
         $docAcls = $user->getDocAcls();
         foreach ($docAcls as $acl) {
             if ($acl->getLsDoc() === $subject) {
-                return (1 === $acl->getAccess());
+                return 1 === $acl->getAccess();
             }
         }
 

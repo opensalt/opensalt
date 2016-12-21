@@ -112,13 +112,13 @@ class FrameworkAclController extends Controller
 
         $iterator = $acls->getIterator();
         $iterator->uasort(function(UserDocAcl $a, UserDocAcl $b) {
-            return (strcasecmp($a->getUser()->getUsername(), $b->getUser()->getUsername()));
+            return strcasecmp($a->getUser()->getUsername(), $b->getUser()->getUsername());
         });
         $acls = new ArrayCollection(iterator_to_array($iterator));
 
         $deleteForms = [];
         foreach ($acls as $acl) {
-            /** @var UserDocAcl $acl */
+            /* @var UserDocAcl $acl */
             $deleteForms[$acl->getUser()->getId()] = $this->createDeleteForm($lsDoc, $acl->getUser())->createView();
         }
 
