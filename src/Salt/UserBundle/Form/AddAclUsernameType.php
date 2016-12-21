@@ -12,7 +12,9 @@ class AddAclUsernameType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username')
+            ->add('username', null, [
+                'required' => true,
+            ])
             ;
     }
 

@@ -22,8 +22,8 @@ class AddAclUserType extends AbstractType
         $builder
             ->add('user', EntityType::class, [
                 'class' => User::class,
-                'label' => 'User',
-                'placeholder' => '- Choose a user to exclude -',
+                'label' => 'Username',
+                'placeholder' => '- Choose an editor to exclude -',
                 'choice_label' => 'username',
                 'query_builder' => function (EntityRepository $er) use ($lsDoc) {
                     $org = $lsDoc->getOrg();
