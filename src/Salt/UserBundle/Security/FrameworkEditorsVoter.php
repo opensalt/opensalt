@@ -15,9 +15,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  * @DI\Service(public=false)
  * @DI\Tag("security.voter")
  */
-class FrameworkEditVoter extends Voter
+class FrameworkEditorsVoter extends Voter
 {
-    const EDIT = 'edit';
+    const MANGE_EDITORS = 'manage_editors';
 
     /**
      * @var AccessDecisionManagerInterface
@@ -47,7 +47,7 @@ class FrameworkEditVoter extends Voter
      * @return bool True if the attribute and subject are supported, false otherwise
      */
     protected function supports($attribute, $subject) {
-        if ($attribute !== self::EDIT) {
+        if ($attribute !== self::MANGE_EDITORS) {
             return false;
         }
 
@@ -81,19 +81,14 @@ class FrameworkEditVoter extends Voter
             return false;
         }
 
-        // Do not allow editing if the user is not an editor
-        if (! $this->decisionManager->decide($token, ['ROLE_EDITOR'])) {
-            return false;
-        }
-
-        // Allow the owner to edit the framework
+        // Allow the owner to manage their own framework
         if ($subject->getUser() === $user) {
             return true;
         }
 
-        // Allow editing if the user is a super-editor
-        if ($this->decisionManager->decide($token, ['ROLE_SUPER_EDITOR'])) {
-            return true;
+        // Do not allow managing editors if the user is not an admin
+        if (! $this->decisionManager->decide($token, ['ROLE_ADMIN'])) {
+            return false;
         }
 
         // Check for an explicit ACL

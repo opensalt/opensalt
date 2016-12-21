@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ lsDoc.title }} Access
+{% endblock %}
+
+{% block body %}
+    <h2>{{ lsDoc.title }}</h2>
+
+    {% if 0 == aclCount %}
+        There are no specific access controls for {{ lsDoc.title }}.
+    {% endif %}
+
+    <table class="table table-condensed table-bordered table-">
+        <thead>
+        <tr>
+            <th>User</th>
+            <th>Organization</th>
+            <th class="col-lg-1">Access</thcl>
+            <th class="col-lg-2"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for acl in acls %}
+            <tr class="{{ acl.access == 0 ? "bg-danger" : "bg-success" }}">
+                <td>{{ acl.user.username }}</td>
+                <td>{{ acl.user.org.name }}</td>
+                <td>{{ acl.access == 1 ? "Allowed" : "Denied" }}</td>
+                <td>
+                    {{ form_start(deleteForms[acl.user.id]) }}
+                    <input class="btn btn-danger" type="submit" value="Delete">
+                    {{ form_end(deleteForms[acl.user.id]) }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="clearfix">
+        {% if is_granted('manage_editors', lsDoc) and lsDoc.org is not empty %}
+            <div class="col-md-6 row">
+                <div class="panel panel-default panel-body">
+                    <p>
+                        You can deny users from your organization from being able to edit this framework.
+                    </p>
+                    {{ form_start(addOrgUserForm) }}
+                        {{ form_widget(addOrgUserForm) }}
+                        <input type="submit" value="Exclude User" class="btn btn-default pull-right" />
+                    {{ form_end(addOrgUserForm) }}
+                </div>
+            </div>
+        {% endif %}
+        {% if is_granted('manage_editors', lsDoc) %}
+            <div class="col-md-6 row pull-right">
+                <div class="panel panel-default panel-body">
+                    <p>
+                        You can allow users from outside your organization to edit this framework.
+                    </p>
+                    {{ form_start(addUsernameForm) }}
+                        {{ form_widget(addUsernameForm) }}
+                        <input type="submit" value="Allow User" class="btn btn-default pull-right" />
+                    {{ form_end(addUsernameForm) }}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div>
+        <a class="btn btn-primary" href="{{ url('editor_lsdoc', {"id":lsDoc.id}) }}">Return to Framework</a>
+    </div>
+
+{% endblock %}

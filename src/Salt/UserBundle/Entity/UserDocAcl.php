@@ -20,7 +20,7 @@ class UserDocAcl
      * @var User
      *
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="docAcls")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="docAcls", fetch="EAGER")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
      */
     protected $user;
@@ -29,7 +29,7 @@ class UserDocAcl
      * @var LsDoc
      *
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="docAcls")
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="docAcls", fetch="EAGER")
      * @ORM\JoinColumn(name="doc_id", referencedColumnName="id", nullable=false)
      */
     protected $lsDoc;
