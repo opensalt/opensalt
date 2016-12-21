@@ -1,3 +1,8 @@
+salt_site:
+    resource: "@SaltSiteBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
 github_files:
     resource: "@GithubFilesBundle/Controller/"
     type:     annotation

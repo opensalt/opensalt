@@ -10,6 +10,7 @@ imports:
     - { resource: "@CftfUtilBundle/Resources/config/services.yml" }
     - { resource: "@SaltUserBundle/Resources/config/services.yml" }
     - { resource: "@GithubFilesBundle/Resources/config/services.yml" }
+    - { resource: "@SaltSiteBundle/Resources/config/services.yml" }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
