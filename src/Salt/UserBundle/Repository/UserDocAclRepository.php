@@ -2,7 +2,9 @@
 
 namespace Salt\UserBundle\Repository;
 
+use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\EntityRepository;
+use Salt\UserBundle\Entity\User;
 
 /**
  * UserDocAclRepository
@@ -12,4 +14,16 @@ use Doctrine\ORM\EntityRepository;
  */
 class UserDocAclRepository extends EntityRepository
 {
+    /**
+     * Find an ACL by the document and user
+     *
+     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     * @param \Salt\UserBundle\Entity\User $user
+     *
+     * @return null|object
+     */
+    public function findByDocUser(LsDoc $lsDoc, User $user)
+    {
+        return $this->findOneBy(['lsDoc' => $lsDoc->getId(), 'user' => $user->getId()]);
+    }
 }

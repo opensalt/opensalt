@@ -31,11 +31,11 @@
             </tr>
             <tr>
                 <th>Owning Organization</th>
-                <td>{{ lsDoc.org }}</td>
+                <td>{{ lsDoc.org.name|default('') }}</td>
             </tr>
             <tr>
                 <th>Owning User</th>
-                <td>{{ lsDoc.user }}</td>
+                <td>{{ lsDoc.user.username|default('') }}</td>
             </tr>
             <tr>
                 <th>Title</th>
@@ -104,6 +104,11 @@
         <li>
             <a class="btn btn-default" href="{{ path('lsdoc_export', { 'id': lsDoc.id }) }}">Export</a>
         </li>
+        {% if is_granted('manage_editors', lsDoc) %}
+            <li>
+                <a class="btn btn-default" href="{{ path('framework_acl_edit', { 'id': lsDoc.id }) }}">Manage Access</a>
+            </li>
+        {% endif %}
         {% if is_granted('edit', lsDoc) %}
           <li>
               {{ form_start(delete_form) }}
