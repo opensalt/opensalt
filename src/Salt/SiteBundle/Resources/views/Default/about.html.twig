@@ -1,0 +1,39 @@
+{% extends '::layout.html.twig' %}
+
+{% block title %}About OpenSalt{% endblock %}
+
+{% block body %}
+    <h1>About OpenSalt</h1>
+
+    <section>
+        <p>
+            OpenSalt is a tool that allows for managing (importing, creating, editing, exporting) competency frameworks,
+            focused on IMS Global's Competency Framework Service specification.
+        </p>
+    </section>
+
+    <section>
+        <h2>Open Source</h2>
+        <p>
+            The source code for OpenSalt is available from GitHub at <a href="https://github.com/opensalt">https://github.com/opensalt</a>.
+        </p>
+    </section>
+
+    <section>
+        <h2>Collaborators</h2>
+        <p>
+            Multiple companies are collaborating on OpenSalt including:
+            <ul>
+                <li><a href="http://www.publicconsultinggroup.com/education/">Public Consulting Group</a></li>
+                <li><a href="https://www.opened.com/">OpenEd</a></li>
+                <li><a href="https://www.schoolcity.com/">SchoolCity Inc.</a></li>
+            </ul>
+        </p>
+    </section>
+
+    <aside class="pull-right">
+        <p class="text-muted">
+            <small>OpenSalt {{ salt_version }}</small>
+        </p>
+    </aside>
+{% endblock %}

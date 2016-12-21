@@ -42,6 +42,7 @@ class AppKernel extends Kernel
             new Cftf\UtilBundle\CftfUtilBundle(),
             new Salt\UserBundle\SaltUserBundle(),
             new GithubFilesBundle\GithubFilesBundle(),
+            new Salt\SiteBundle\SaltSiteBundle(),
         ];
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {
