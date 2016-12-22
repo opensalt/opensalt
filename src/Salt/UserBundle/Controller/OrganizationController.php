@@ -54,7 +54,7 @@ class OrganizationController extends Controller
             $em->persist($organization);
             $em->flush($organization);
 
-            return $this->redirectToRoute('admin_organization_show', array('id' => $organization->getId()));
+            return $this->redirectToRoute('admin_organization_index');
         }
 
         return [
@@ -96,7 +96,7 @@ class OrganizationController extends Controller
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('admin_organization_edit', array('id' => $organization->getId()));
+            return $this->redirectToRoute('admin_organization_index');
         }
 
         return [
