@@ -5,12 +5,14 @@
 
     {{ form_start(form) }}
         {{ form_widget(form) }}
-        <input class="btn btn-primary" type="submit" value="Add" />
+        <ul class="list-inline pull-right">
+            <li>
+                <a class="btn btn-default" href="{{ path('admin_user_index') }}">Back to the list</a>
+            </li>
+            <li>
+                <input class="btn btn-primary" type="submit" value="Add" />
+            </li>
+        </ul>
     {{ form_end(form) }}
 
-    <ul class="list-inline">
-        <li>
-            <a class="btn btn-default" href="{{ path('admin_user_index') }}">Back to the list</a>
-        </li>
-    </ul>
 {% endblock %}

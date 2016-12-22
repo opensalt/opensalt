@@ -70,7 +70,7 @@ class UserController extends Controller
             $em->persist($targetUser);
             $em->flush($targetUser);
 
-            return $this->redirectToRoute('admin_user_show', array('id' => $targetUser->getId()));
+            return $this->redirectToRoute('admin_user_index');
         }
 
         return [
@@ -121,7 +121,7 @@ class UserController extends Controller
 
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('admin_user_edit', array('id' => $targetUser->getId()));
+            return $this->redirectToRoute('admin_user_index');
         }
 
         return [

@@ -10,7 +10,7 @@
                 <th>Organization</th>
                 <th>Username</th>
                 <th>Roles</th>
-                <th>Actions</th>
+                <th class="col-md-3">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -24,7 +24,7 @@
                         {% if not loop.first %}, {% endif %}{{ role |replace({'ROLE_':'', '_':' '}) |title }}
                     {%- endfor -%}
                 </td>
-                <td>
+                <td class="text-center">
                     <ul class="list-inline">
                         <li>
                             <a class="btn btn-primary" href="{{ path('admin_user_show', { 'id': user.id }) }}">show</a>
@@ -48,7 +48,7 @@
         </tbody>
     </table>
 
-    <ul class="list-inline">
+    <ul class="list-inline pull-right">
         <li>
             <a class="btn btn-default" href="{{ path('admin_user_new') }}">Add a new user</a>
         </li>
