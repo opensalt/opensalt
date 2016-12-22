@@ -4,11 +4,17 @@ namespace Salt\UserBundle\Controller;
 
 use Salt\UserBundle\Form\ChangePasswordType;
 use Salt\UserBundle\Form\DTO\ChangePasswordDTO;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class ChangePasswordController
+ *
+ * @Security("is_granted('ROLE_USER')")
+ */
 class ChangePasswordController extends Controller
 {
     /**
