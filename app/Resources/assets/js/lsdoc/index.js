@@ -1,12 +1,16 @@
 $(document).on('ready', function(){
     SaltGithub.init();
+    Dropdowns.generate();
+
     $('input[name="import"]').click(function(){
         loadContent($('input[name="import"]:checked').val());
     });
     $('.import-framework').click(function(){
         ImportFrameworks.fromAsn();
     });
-
+    $('.send-info').click(function(){
+        Import.send();
+    });
 });
 
 var SaltGithub = (function(){
@@ -56,9 +60,9 @@ var SaltGithub = (function(){
                 if(sha){
                     var content = window.atob(response.data.content);
                     if(name.endsWith('.csv')){
-                        Importer.csv(content);
+                        Import.csv(content);
                     }else if(name.endsWith('.json')){
-                        Importer.json(content);
+                        Import.json(content);
                     }
                     // $.ajax({
                     //     url: '/user/github/import',
@@ -163,14 +167,27 @@ var ImportFrameworks = (function(){
     };
 })();
 
-var Importer = (function(){
+var Import = (function(){
 
     function csvImporter(file){
         var lines = file.split("\n");
         var columns = lines[0].split(",");
-        columns.forEach(function(val){
-            console.log(val);
+        var selects = $('.select');
+
+        $.each(selects, function(){
+            var $select = $(this);
+            $select.find('option').remove().end();
+            $select.append($('<option>').val('').text(''));
+
+            columns.forEach(function(column){
+                if(column.length > 0){
+                    $select.append($('<option />').val(column).text(column));
+                }
+            });
         });
+
+        $('#wizard').modal('hide');
+        $('#fields').modal('show');
     }
 
     function jsonImporter(file){
@@ -185,8 +202,64 @@ var Importer = (function(){
         });
     }
 
+    function sendData(){
+        var columns = {};
+        var selects = $('.select');
+
+        $.each(selects, function(){
+            var $select = $(this);
+            columns[$select.attr('name')] = $select.val();
+        });
+
+        console.log(columns);
+    }
+
     return {
         csv: csvImporter,
-        json: jsonImporter
+        json: jsonImporter,
+        send: sendData
     };
 })();
+
+var Dropdowns = (function(){
+
+    var dropdowns = [
+        'identifier',
+        'URI',
+        'creator',
+        'title',
+        'lastChangeDateTime',
+        'officialSourceURL',
+        'publisher',
+        'description',
+        'subject',
+        'subjectURL',
+        'language',
+        'version',
+        'adoptionStatus',
+        'statusStartDate',
+        'statusEndDate',
+        'license',
+        'licenseURI',
+        'notes',
+        'CFPackageURI'
+    ];
+
+    function generateDropdowns(){
+        dropdowns.forEach(function(dropdown){
+            $('.dropdowns').append('<div class="form-group"><label>'+dropdown.titleize()+'</label><select name="'+dropdown+'" class="form-control select"><option>Choose one option</option></select></div>');
+        });
+    }
+
+    return {
+        generate: generateDropdowns
+    };
+})();
+
+String.prototype.capitalize = function(){
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
+String.prototype.titleize = function(){
+    return this.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1").capitalize();
+}
