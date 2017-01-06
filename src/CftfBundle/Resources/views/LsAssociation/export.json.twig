@@ -1,10 +1,4 @@
 {% block body %}
-{
-    "uri": {{ lsAssociation.uri|local_uri |json_encode |raw }},
-    "type": {{ lsAssociation.type|json_encode |raw }},
-    "originNodeUri": {{ lsAssociation.originNodeUri|local_uri |json_encode |raw }},
-    "desitnationNodeUri": {{ lsAssociation.destinationNodeUri|local_uri |json_encode |raw }},
-    "updatedAt": {{ lsAssociation.updatedAt|json_encode |raw }}
-}
+{% include 'CftfBundle:CfPackage:export_association.json.twig' with { 'lsAssociation':lsAssociation, 'lsDoc':lsAssociation.lsDoc } %}
 {% endblock %}
 
