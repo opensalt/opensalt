@@ -1,7 +1,6 @@
 {
     "name": "pcgus/cftool",
-    "license": "proprietary",
-    "copyright": "Copyright 2016 by Public Consulting Group",
+    "license": "MIT",
     "type": "project",
     "description": "Standards Alignment Tool",
     "autoload": {

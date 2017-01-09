@@ -21,7 +21,8 @@ class UserSetPasswordCommand extends ContainerAwareCommand
         ;
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output) {
+    protected function interact(InputInterface $input, OutputInterface $output)
+    {
         parent::interact($input, $output);
 
         $helper = $this->getHelper('question');
@@ -29,7 +30,7 @@ class UserSetPasswordCommand extends ContainerAwareCommand
         if (empty($input->getArgument('username'))) {
             $question = new Question('Email address or username of new user: ');
             $question->setValidator(function ($value) {
-                if (trim($value) == '') {
+                if (trim($value) === '') {
                     throw new \Exception('The username can not be empty');
                 }
 

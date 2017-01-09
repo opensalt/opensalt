@@ -37,7 +37,7 @@ class DefaultController extends Controller
     /**
      * @Route("/user/github/files")
      */
-    public function getFiles(Request $request){
+    public function getFilesAction(Request $request){
         $currentUser = $this->getUser();
         $response = new JsonResponse();
         $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
