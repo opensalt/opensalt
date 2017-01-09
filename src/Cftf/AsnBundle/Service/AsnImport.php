@@ -93,10 +93,10 @@ class AsnImport
 
                 $s = $em->getRepository('CftfBundle:LsDefSubject')->findOneBy(['title' => $subject]);
                 if (NULL === $s) {
-                    $uuid = Uuid::uuid5(Uuid::fromString('cacee394-85b7-11e6-9d43-005056a32dda'), $subject);
+                    $uuid = Uuid::uuid5(Uuid::fromString('cacee394-85b7-11e6-9d43-005056a32dda'), $subject)->toString();
                     $s = new LsDefSubject();
                     $s->setIdentifier($uuid);
-                    $s->setUri('local:'.$uuid->toString());
+                    $s->setUri('local:'.$uuid);
                     $s->setTitle($subject);
                     $s->setHierarchyCode('1');
 
