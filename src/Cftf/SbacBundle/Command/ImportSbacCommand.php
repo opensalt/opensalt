@@ -58,8 +58,6 @@ class ImportSbacCommand extends ContainerAwareCommand
                 $s->setTitle($subject);
                 $s->setHierarchyCode('1');
 
-                $subjects[$subject] = $s;
-
                 $em->persist($s);
             }
 
