@@ -35,7 +35,6 @@ class ExportCsvEvaluationDumpCommand extends ContainerAwareCommand
 
         $items = $repo->findAllChildrenArray($lsDoc);
         $haveParents = $repo->findAllItemsWithParentsArray($lsDoc);
-        $topChildren = $repo->findTopChildrenIds($lsDoc);
 
         $orphaned = $items;
         /* This list is now found in the $haveParents list
