@@ -22,7 +22,8 @@ class UserAddRoleCommand extends ContainerAwareCommand
         ;
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output) {
+    protected function interact(InputInterface $input, OutputInterface $output)
+    {
         parent::interact($input, $output);
 
         $helper = $this->getHelper('question');
@@ -30,7 +31,7 @@ class UserAddRoleCommand extends ContainerAwareCommand
         if (empty($input->getArgument('username'))) {
             $question = new Question('Email address or username of new user: ');
             $question->setValidator(function ($value) {
-                if (trim($value) == '') {
+                if (trim($value) === '') {
                     throw new \Exception('The username can not be empty');
                 }
 
@@ -55,6 +56,7 @@ class UserAddRoleCommand extends ContainerAwareCommand
 
         if (!in_array($role, User::USER_ROLES)) {
             $output->writeln(sprintf('<error>Role "%s" is not valid.</error>', $input->getArgument('role')));
+
             return;
         }
 

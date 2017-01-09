@@ -25,19 +25,13 @@ class UserAddCommand extends ContainerAwareCommand
         ;
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output) {
+    protected function interact(InputInterface $input, OutputInterface $output)
+    {
         parent::interact($input, $output);
 
         $helper = $this->getHelper('question');
 
         $em = $this->getContainer()->get('doctrine')->getManager();
-        if (!empty($input->getArgument('org'))) {
-            $org = $em->getRepository('SaltUserBundle:Organization')->findOneByName($input->getArgument('org'));
-            if (empty($org)) {
-                $output->writeln('<error>Organization passed does not exist</error>');
-                $input->setArgument('org', null);
-            }
-        }
         if (empty($input->getArgument('org'))) {
             $orgObjs = $em->getRepository('SaltUserBundle:Organization')->findAll();
             $orgs = [];
@@ -48,7 +42,7 @@ class UserAddCommand extends ContainerAwareCommand
             $question = new Question('Organization name for the new user: ');
             $question->setAutocompleterValues($orgs);
             $question->setValidator(function ($value) use ($em) {
-                if (trim($value) == '') {
+                if (trim($value) === '') {
                     throw new \Exception('The organization name must exist');
                 }
 
@@ -66,7 +60,7 @@ class UserAddCommand extends ContainerAwareCommand
         if (empty($input->getArgument('username'))) {
             $question = new Question('Email address or username of new user: ');
             $question->setValidator(function ($value) {
-                if (trim($value) == '') {
+                if (trim($value) === '') {
                     throw new \Exception('The username can not be empty');
                 }
 
@@ -79,7 +73,7 @@ class UserAddCommand extends ContainerAwareCommand
         if (empty($input->getOption('password'))) {
             $question = new Question('Initial password for new user: ');
             $question->setValidator(function ($value) {
-                if (trim($value) == '') {
+                if (trim($value) === '') {
                     throw new \Exception('The password can not be empty');
                 }
 
@@ -113,14 +107,16 @@ class UserAddCommand extends ContainerAwareCommand
 
         if (!in_array($role, User::USER_ROLES)) {
             $output->writeln(sprintf('<error>Role "%s" is not valid.</error>', $input->getOption('role')));
-            exit(1);
+
+            return 1;
         }
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $orgObj = $em->getRepository('SaltUserBundle:Organization')->findOneByName($org);
         if (empty($orgObj)) {
             $output->writeln(sprintf('<error>Organization "%s" is not valid.</error>', $org));
-            exit(1);
+
+            return 1;
         }
 
         $userRepository = $em->getRepository('SaltUserBundle:User');
