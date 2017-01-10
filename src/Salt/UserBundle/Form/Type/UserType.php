@@ -1,6 +1,12 @@
 <?php
+/**
+ * Copyright (c) 2017 Public Consulting Group
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-namespace Salt\UserBundle\Form;
+namespace Salt\UserBundle\Form\Type;
 
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -83,10 +89,10 @@ class UserType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array(
+        $resolver->setDefaults([
             'data_class' => 'Salt\UserBundle\Entity\User',
             'validation_groups' => ['Default'],
-        ));
+        ]);
     }
 
     /**

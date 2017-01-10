@@ -3,6 +3,7 @@
 namespace Salt\UserBundle\Controller;
 
 use Salt\UserBundle\Entity\Organization;
+use Salt\UserBundle\Form\Type\OrganizationType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -24,6 +25,8 @@ class OrganizationController extends Controller
      * @Route("/", name="admin_organization_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -42,11 +45,15 @@ class OrganizationController extends Controller
      * @Route("/new", name="admin_organization_new")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
     {
         $organization = new Organization();
-        $form = $this->createForm('Salt\UserBundle\Form\OrganizationType', $organization);
+        $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -69,6 +76,10 @@ class OrganizationController extends Controller
      * @Route("/{id}", name="admin_organization_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param Organization $organization
+     *
+     * @return array
      */
     public function showAction(Organization $organization)
     {
@@ -86,11 +97,16 @@ class OrganizationController extends Controller
      * @Route("/{id}/edit", name="admin_organization_edit")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param Organization $organization
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function editAction(Request $request, Organization $organization)
     {
         $deleteForm = $this->createDeleteForm($organization);
-        $editForm = $this->createForm('Salt\UserBundle\Form\OrganizationType', $organization);
+        $editForm = $this->createForm(OrganizationType::class, $organization);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -111,6 +127,11 @@ class OrganizationController extends Controller
      *
      * @Route("/{id}", name="admin_organization_delete")
      * @Method("DELETE")
+     *
+     * @param Request $request
+     * @param Organization $organization
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, Organization $organization)
     {

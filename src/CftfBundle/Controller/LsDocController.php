@@ -2,14 +2,14 @@
 
 namespace CftfBundle\Controller;
 
-use CftfBundle\Form\LsDocCreateType;
+use CftfBundle\Form\Type\LsDocCreateType;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsDoc;
-use CftfBundle\Form\LsDocType;
+use CftfBundle\Form\Type\LsDocType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;

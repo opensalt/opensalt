@@ -1,6 +1,6 @@
 <?php
 
-namespace CftfBundle\Form;
+namespace CftfBundle\Form\Type;
 
 use CftfBundle\Entity\LsDefGrade;
 use CftfBundle\Form\DataTransformer\EducationAlignmentTransformer;
@@ -19,7 +19,8 @@ class LsItemType extends AbstractType
     /** @var ObjectManager */
     private $manager;
 
-    public function __construct(ObjectManager $manager) {
+    public function __construct(ObjectManager $manager)
+    {
         $this->manager = $manager;
     }
 

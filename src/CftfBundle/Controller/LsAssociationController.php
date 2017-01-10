@@ -9,7 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsAssociation;
-use CftfBundle\Form\LsAssociationType;
+use CftfBundle\Form\Type\LsAssociationType;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -25,6 +25,8 @@ class LsAssociationController extends Controller
      * @Route("/", name="lsassociation_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -43,6 +45,11 @@ class LsAssociationController extends Controller
      * @Route("/new/{sourceLsItem}", name="lsassociation_new")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsItem|null $sourceLsItem
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function newAction(Request $request, LsItem $sourceLsItem = null)
     {
@@ -99,6 +106,10 @@ class LsAssociationController extends Controller
      * @Route("/{id}", name="lsassociation_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsAssociation $lsAssociation
+     *
+     * @return array
      */
     public function showAction(LsAssociation $lsAssociation)
     {
@@ -116,11 +127,16 @@ class LsAssociationController extends Controller
      * @Route("/{id}/edit", name="lsassociation_edit")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsAssociation $lsAssociation
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function editAction(Request $request, LsAssociation $lsAssociation)
     {
         $deleteForm = $this->createDeleteForm($lsAssociation);
-        $editForm = $this->createForm('CftfBundle\Form\LsAssociationType', $lsAssociation);
+        $editForm = $this->createForm(LsAssociationType::class, $lsAssociation);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -143,6 +159,11 @@ class LsAssociationController extends Controller
      *
      * @Route("/{id}", name="lsassociation_delete")
      * @Method("DELETE")
+     *
+     * @param Request $request
+     * @param LsAssociation $lsAssociation
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsAssociation $lsAssociation)
     {
@@ -156,22 +177,6 @@ class LsAssociationController extends Controller
         }
 
         return $this->redirectToRoute('lsassociation_index');
-    }
-
-    /**
-     * Creates a form to delete a LsAssociation entity.
-     *
-     * @param LsAssociation $lsAssociation The LsAssociation entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm(LsAssociation $lsAssociation)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsassociation_delete', array('id' => $lsAssociation->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
-        ;
     }
 
     /**
@@ -200,11 +205,31 @@ class LsAssociationController extends Controller
      * @Route("/{id}/export", defaults={"_format"="json"}, name="lsassociation_export")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsAssociation $lsAssociation
+     *
+     * @return array
      */
     public function exportAction(LsAssociation $lsAssociation)
     {
         return [
             'lsAssociation' => $lsAssociation,
         ];
+    }
+
+    /**
+     * Creates a form to delete a LsAssociation entity.
+     *
+     * @param LsAssociation $lsAssociation The LsAssociation entity
+     *
+     * @return \Symfony\Component\Form\Form The form
+     */
+    private function createDeleteForm(LsAssociation $lsAssociation)
+    {
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('lsassociation_delete', array('id' => $lsAssociation->getId())))
+            ->setMethod('DELETE')
+            ->getForm()
+            ;
     }
 }

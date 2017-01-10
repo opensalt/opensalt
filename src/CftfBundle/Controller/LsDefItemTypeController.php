@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Controller;
 
+use CftfBundle\Form\Type\LsDefItemTypeType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -22,6 +23,8 @@ class LsDefItemTypeController extends Controller
      * @Route("/", name="lsdef_item_type_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -40,6 +43,10 @@ class LsDefItemTypeController extends Controller
      * @Route("/list.{_format}", defaults={"_format"="json"}, name="lsdef_item_type_index_json")
      * @Method("GET")
      * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array
      */
     public function jsonListAction(Request $request)
     {
@@ -63,11 +70,15 @@ class LsDefItemTypeController extends Controller
      * @Route("/new", name="lsdef_item_type_new")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
     {
         $lsDefItemType = new LsDefItemType();
-        $form = $this->createForm('CftfBundle\Form\LsDefItemTypeType', $lsDefItemType);
+        $form = $this->createForm(LsDefItemTypeType::class, $lsDefItemType);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -90,6 +101,10 @@ class LsDefItemTypeController extends Controller
      * @Route("/{id}", name="lsdef_item_type_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsDefItemType $lsDefItemType
+     *
+     * @return array
      */
     public function showAction(LsDefItemType $lsDefItemType)
     {
@@ -107,11 +122,16 @@ class LsDefItemTypeController extends Controller
      * @Route("/{id}/edit", name="lsdef_item_type_edit")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsDefItemType $lsDefItemType
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function editAction(Request $request, LsDefItemType $lsDefItemType)
     {
         $deleteForm = $this->createDeleteForm($lsDefItemType);
-        $editForm = $this->createForm('CftfBundle\Form\LsDefItemTypeType', $lsDefItemType);
+        $editForm = $this->createForm(LsDefItemTypeType::class, $lsDefItemType);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -134,6 +154,11 @@ class LsDefItemTypeController extends Controller
      *
      * @Route("/{id}", name="lsdef_item_type_delete")
      * @Method("DELETE")
+     *
+     * @param Request $request
+     * @param LsDefItemType $lsDefItemType
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsDefItemType $lsDefItemType)
     {

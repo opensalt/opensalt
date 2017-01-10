@@ -7,9 +7,9 @@ use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Form\Command\ChangeLsItemParentCommand;
 use CftfBundle\Form\Command\CopyToLsDocCommand;
-use CftfBundle\Form\LsDocListType;
-use CftfBundle\Form\LsItemParentType;
-use CftfBundle\Form\LsItemType;
+use CftfBundle\Form\Type\LsDocListType;
+use CftfBundle\Form\Type\LsItemParentType;
+use CftfBundle\Form\Type\LsItemType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -32,6 +32,8 @@ class LsItemController extends Controller
      * @Route("/", name="lsitem_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -51,6 +53,12 @@ class LsItemController extends Controller
      * @Method({"GET", "POST"})
      * @Template()
      * @Security("is_granted('add-standard-to', doc)")
+     *
+     * @param Request $request
+     * @param LsDoc|null $doc
+     * @param LsItem|null $parent
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function newAction(Request $request, LsDoc $doc = null, LsItem $parent = null)
     {
@@ -106,6 +114,11 @@ class LsItemController extends Controller
      * @Route("/{id}.{_format}", defaults={"_format"="html"}, name="lsitem_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsItem $lsItem
+     * @param string $_format
+     *
+     * @return array
      */
     public function showAction(LsItem $lsItem, $_format = 'html')
     {
@@ -129,6 +142,11 @@ class LsItemController extends Controller
      * @Method({"GET", "POST"})
      * @Template()
      * @Security("is_granted('edit', lsItem)")
+     *
+     * @param Request $request
+     * @param LsItem $lsItem
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function editAction(Request $request, LsItem $lsItem)
     {
@@ -173,6 +191,11 @@ class LsItemController extends Controller
      * @Route("/{id}", name="lsitem_delete")
      * @Method("DELETE")
      * @Security("is_granted('edit', lsItem)")
+     *
+     * @param Request $request
+     * @param LsItem $lsItem
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsItem $lsItem)
     {
@@ -213,6 +236,10 @@ class LsItemController extends Controller
      * @Route("/{id}/export", defaults={"_format"="json"}, name="lsitem_export")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsItem $lsItem
+     *
+     * @return array
      */
     public function exportAction(LsItem $lsItem)
     {
@@ -250,9 +277,10 @@ class LsItemController extends Controller
      * @Method({"GET", "POST"})
      * @Template()
      *
-     * @param \CftfBundle\Entity\LsItem $lsItem
+     * @param Request $request
+     * @param LsItem $lsItem
      *
-     * @return array|Response
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function copyAction(Request $request, LsItem $lsItem)
     {
@@ -303,6 +331,11 @@ class LsItemController extends Controller
      * @Route("/{id}/parent", name="lsitem_change_parent")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsItem $lsItem
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function changeParentAction(Request $request, LsItem $lsItem)
     {

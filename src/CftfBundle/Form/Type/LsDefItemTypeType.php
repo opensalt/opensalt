@@ -1,12 +1,12 @@
 <?php
 
-namespace CftfBundle\Form;
+namespace CftfBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class LsDefGradeType extends AbstractType
+class LsDefItemTypeType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -18,7 +18,7 @@ class LsDefGradeType extends AbstractType
             ->add('title')
             ->add('description')
             ->add('code')
-            ->add('rank')
+            ->add('hierarchyCode')
         ;
     }
 
@@ -28,7 +28,7 @@ class LsDefGradeType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'CftfBundle\Entity\LsDefGrade'
+            'data_class' => 'CftfBundle\Entity\LsDefItemType'
         ));
     }
 }

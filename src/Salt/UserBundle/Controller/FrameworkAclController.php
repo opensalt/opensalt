@@ -7,8 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Salt\UserBundle\Entity\User;
 use Salt\UserBundle\Entity\UserDocAcl;
-use Salt\UserBundle\Form\AddAclUsernameType;
-use Salt\UserBundle\Form\AddAclUserType;
+use Salt\UserBundle\Form\Type\AddAclUsernameType;
+use Salt\UserBundle\Form\Type\AddAclUserType;
 use Salt\UserBundle\Form\Command\AddAclUserCommand;
 use Salt\UserBundle\Form\Command\AddAclUsernameCommand;
 use Salt\UserBundle\Form\DTO\AddAclUserDTO;
@@ -35,7 +35,8 @@ class FrameworkAclController extends Controller
      * @Template()
      * @Security("is_granted('manage_editors', lsDoc)")
      *
-     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     * @param Request $request
+     * @param LsDoc $lsDoc
      *
      * @return array|RedirectResponse
      */
@@ -111,7 +112,7 @@ class FrameworkAclController extends Controller
         $aclCount = $acls->count();
 
         $iterator = $acls->getIterator();
-        $iterator->uasort(function(UserDocAcl $a, UserDocAcl $b) {
+        $iterator->uasort(function (UserDocAcl $a, UserDocAcl $b) {
             return strcasecmp($a->getUser()->getUsername(), $b->getUser()->getUsername());
         });
         $acls = new ArrayCollection(iterator_to_array($iterator));
@@ -144,8 +145,11 @@ class FrameworkAclController extends Controller
      * @Method("DELETE")
      * @Security("is_granted('manage_editors', lsDoc)")
      *
-     * @param \CftfBundle\Entity\LsDoc $lsDoc
-     * @param \Salt\UserBundle\Entity\User $targetUser
+     * @param Request $request
+     * @param LsDoc $lsDoc
+     * @param User $targetUser
+     *
+     * @return RedirectResponse
      */
     public function removeAclAction(Request $request, LsDoc $lsDoc, User $targetUser)
     {

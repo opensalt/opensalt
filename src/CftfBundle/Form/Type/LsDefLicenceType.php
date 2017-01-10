@@ -1,12 +1,12 @@
 <?php
 
-namespace CftfBundle\Form;
+namespace CftfBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class LsDefSubjectType extends AbstractType
+class LsDefLicenceType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -17,7 +17,7 @@ class LsDefSubjectType extends AbstractType
         $builder
             ->add('title')
             ->add('description')
-            ->add('hierarchyCode')
+            ->add('licenceText')
         ;
     }
 
@@ -27,7 +27,7 @@ class LsDefSubjectType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'CftfBundle\Entity\LsDefSubject'
+            'data_class' => 'CftfBundle\Entity\LsDefLicence'
         ));
     }
 }
