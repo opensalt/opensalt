@@ -1,0 +1,4 @@
+filter:
+    paths: ["src/*", "app/*"]
+    excluded_paths:
+        - "src/*Bundle/Tests/"
