@@ -743,7 +743,10 @@ class LsItem
      */
     public function getChildIds()
     {
-        $ids = $this->getChildren()->map(function($item){return $item->getId();});
+        $ids = $this->getChildren()->map(function (LsItem $item) {
+            return $item->getId();
+        });
+
         return $ids->toArray();
     }
 
