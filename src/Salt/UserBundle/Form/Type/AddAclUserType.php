@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\UserBundle\Form;
+namespace Salt\UserBundle\Form\Type;
 
 use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\EntityRepository;

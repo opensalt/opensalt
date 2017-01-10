@@ -1,6 +1,6 @@
 <?php
 
-namespace CftfBundle\Form;
+namespace CftfBundle\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;

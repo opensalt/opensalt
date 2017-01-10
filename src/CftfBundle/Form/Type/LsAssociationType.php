@@ -1,6 +1,6 @@
 <?php
 
-namespace CftfBundle\Form;
+namespace CftfBundle\Form\Type;
 
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;

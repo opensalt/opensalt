@@ -20,12 +20,14 @@ class UriController extends Controller
      * @Route("/uri/", defaults={"_format"="html"}, name="editor_uri_lookup_empty")
      * @Method("GET")
      * @Template()
+     *
+     * @param string $uri
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function findUriAction($uri = null)
     {
         $json = false;
-
-        $em = $this->getDoctrine()->getManager();
 
         $localUri = $uri;
         if (Uuid::isValid($uri)) {
@@ -42,8 +44,33 @@ class UriController extends Controller
             $localUri = 'local:'.$localUri;
         }
 
-        $item = $em->getRepository('CftfBundle:LsItem')
-            ->findOneBy(['uri'=>$localUri]);
+        if ($item = $this->findIfItem($json, $localUri)) {
+            return $item;
+        }
+
+        if ($doc = $this->findIfDoc($json, $localUri)) {
+            return $doc;
+        }
+
+        if ($association = $this->findIfAssociation($json, $localUri)) {
+            return $association;
+        }
+
+        return [
+            'uri' => $uri,
+        ];
+    }
+
+    /**
+     * @param $json
+     * @param $localUri
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
+     */
+    private function findIfItem($json, $localUri)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $item = $em->getRepository('CftfBundle:LsItem')->findOneBy(['uri'=>$localUri]);
         if ($item) {
             if ($json) {
                 return $this->forward('CftfBundle:Editor:viewItem', ['id' => $item->getId(), '_format' => 'json']);
@@ -51,9 +78,18 @@ class UriController extends Controller
             //return $this->forward('CftfBundle:Editor:viewItem', ['id' => $item->getId(), '_format' => 'html']);
             return $this->redirectToRoute('editor_lsitem', ['id' => $item->getId()]);
         }
+    }
 
-        $doc = $em->getRepository('CftfBundle:LsDoc')
-            ->findOneBy(['uri'=>$localUri]);
+    /**
+     * @param $json
+     * @param $localUri
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
+     */
+    private function findIfDoc($json, $localUri)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $doc = $em->getRepository('CftfBundle:LsDoc')->findOneBy(['uri'=>$localUri]);
         if ($doc) {
             if ($json) {
                 return $this->forward('CftfBundle:Editor:viewDoc', ['id' => $doc->getId(), '_format' => 'json']);
@@ -61,9 +97,18 @@ class UriController extends Controller
             //return $this->forward('CftfBundle:Editor:viewDoc', ['id' => $doc->getId(), '_format' => 'html']);
             return $this->redirectToRoute('editor_lsdoc', ['id' => $doc->getId()]);
         }
+    }
 
-        $association = $em->getRepository('CftfBundle:LsAssociation')
-            ->findOneBy(['uri'=>$localUri]);
+    /**
+     * @param $json
+     * @param $localUri
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
+     */
+    private function findIfAssociation($json, $localUri)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $association = $em->getRepository('CftfBundle:LsAssociation')->findOneBy(['uri'=>$localUri]);
         if ($association) {
             if ($json) {
                 return $this->forward('CftfBundle:LsAssociation:export', ['id' => $association->getId(), '_format' => 'json']);
@@ -80,9 +125,5 @@ class UriController extends Controller
             // TODO: Show a view focused on the association
             return $this->redirectToRoute('lsassociation_show', ['id' => $association->getId()]);
         }
-
-        return [
-            'uri' => $uri,
-        ];
     }
 }

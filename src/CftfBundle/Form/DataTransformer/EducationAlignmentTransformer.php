@@ -13,15 +13,25 @@ class EducationAlignmentTransformer implements DataTransformerInterface
 {
     private $manager;
 
-    public function __construct(ObjectManager $manager) {
+    /**
+     * EducationAlignmentTransformer constructor.
+     *
+     * @param ObjectManager $manager
+     */
+    public function __construct(ObjectManager $manager)
+    {
         $this->manager = $manager;
     }
 
-    public function transform($gradeString) {
-        $alignments = new ArrayCollection();
-
+    /**
+     * @param string $gradeString
+     *
+     * @return array|ArrayCollection
+     */
+    public function transform($gradeString)
+    {
         if (null === $gradeString) {
-            return $alignments;
+            return new ArrayCollection();
         }
 
         /** @var LsDefGradeRepository $repo */
@@ -30,14 +40,20 @@ class EducationAlignmentTransformer implements DataTransformerInterface
         $grades = preg_split('/,/', $gradeString);
         $alignments = $repo->findBy(['code' => $grades]);
 
-        if (null == $alignments) {
+        if (null === $alignments) {
             $alignments = new ArrayCollection();
         }
 
         return $alignments;
     }
 
-    public function reverseTransform($alignmentArray) {
+    /**
+     * @param array|Collection $alignmentArray
+     *
+     * @return null|string
+     */
+    public function reverseTransform($alignmentArray)
+    {
         if (is_array($alignmentArray)) {
             $alignmentArray = new ArrayCollection($alignmentArray);
         }

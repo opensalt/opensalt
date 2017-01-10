@@ -3,7 +3,7 @@
 namespace Salt\UserBundle\Controller;
 
 use Salt\UserBundle\Entity\User;
-use Salt\UserBundle\Form\UserType;
+use Salt\UserBundle\Form\Type\UserType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -25,6 +25,8 @@ class UserController extends Controller
      * @Route("/", name="admin_user_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -48,6 +50,10 @@ class UserController extends Controller
      * @Route("/new", name="admin_user_new")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
     {
@@ -86,6 +92,10 @@ class UserController extends Controller
      * @Security("is_granted('manage', targetUser)")
      * @Method("GET")
      * @Template()
+     *
+     * @param User $targetUser
+     *
+     * @return array
      */
     public function showAction(User $targetUser)
     {
@@ -104,6 +114,11 @@ class UserController extends Controller
      * @Security("is_granted('manage', targetUser)")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param User $targetUser
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function editAction(Request $request, User $targetUser)
     {
@@ -137,6 +152,11 @@ class UserController extends Controller
      * @Route("/{id}/suspend", name="admin_user_suspend")
      * @Security("is_granted('manage', targetUser)")
      * @Method({"GET"})
+     *
+     * @param Request $request
+     * @param User $targetUser
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function suspendAction(Request $request, User $targetUser) {
         $targetUser->suspendUser();
@@ -151,6 +171,11 @@ class UserController extends Controller
      * @Route("/{id}/unsuspend", name="admin_user_unsuspend")
      * @Security("is_granted('manage', targetUser)")
      * @Method({"GET"})
+     *
+     * @param Request $request
+     * @param User $targetUser
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function unsuspendAction(Request $request, User $targetUser) {
         $targetUser->unsuspendUser();
@@ -165,6 +190,11 @@ class UserController extends Controller
      * @Route("/{id}", name="admin_user_delete")
      * @Security("is_granted('manage', targetUser)")
      * @Method("DELETE")
+     *
+     * @param Request $request
+     * @param User $targetUser
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, User $targetUser)
     {

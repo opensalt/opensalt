@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Controller;
 
+use CftfBundle\Form\Type\LsDefAssociationGroupingType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -22,6 +23,8 @@ class LsDefAssociationGroupingController extends Controller
      * @Route("/", name="lsdef_association_grouping_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -40,11 +43,15 @@ class LsDefAssociationGroupingController extends Controller
      * @Route("/new", name="lsdef_association_grouping_new")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
     {
         $lsDefAssociationGrouping = new LsDefAssociationGrouping();
-        $form = $this->createForm('CftfBundle\Form\LsDefAssociationGroupingType', $lsDefAssociationGrouping);
+        $form = $this->createForm(LsDefAssociationGroupingType::class, $lsDefAssociationGrouping);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -67,6 +74,10 @@ class LsDefAssociationGroupingController extends Controller
      * @Route("/{id}", name="lsdef_association_grouping_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsDefAssociationGrouping $lsDefAssociationGrouping
+     *
+     * @return array
      */
     public function showAction(LsDefAssociationGrouping $lsDefAssociationGrouping)
     {
@@ -84,11 +95,16 @@ class LsDefAssociationGroupingController extends Controller
      * @Route("/{id}/edit", name="lsdef_association_grouping_edit")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsDefAssociationGrouping $lsDefAssociationGrouping
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function editAction(Request $request, LsDefAssociationGrouping $lsDefAssociationGrouping)
     {
         $deleteForm = $this->createDeleteForm($lsDefAssociationGrouping);
-        $editForm = $this->createForm('CftfBundle\Form\LsDefAssociationGroupingType', $lsDefAssociationGrouping);
+        $editForm = $this->createForm(LsDefAssociationGroupingType::class, $lsDefAssociationGrouping);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -111,6 +127,11 @@ class LsDefAssociationGroupingController extends Controller
      *
      * @Route("/{id}", name="lsdef_association_grouping_delete")
      * @Method("DELETE")
+     *
+     * @param Request $request
+     * @param LsDefAssociationGrouping $lsDefAssociationGrouping
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsDefAssociationGrouping $lsDefAssociationGrouping)
     {

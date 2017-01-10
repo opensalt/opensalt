@@ -1,14 +1,15 @@
 <?php
 
-namespace CftfBundle\Form;
+namespace CftfBundle\Form\Type;
 
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 
-class LsDocCreateType extends AbstractType
+class LsDocType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -19,17 +20,26 @@ class LsDocCreateType extends AbstractType
         $builder
             ->add('title')
             ->add('creator')
-
-            ->add('ownedBy', ChoiceType::class, [
-                'required' => true,
-                'choices' => [
-                    'My Organization' => 'organization',
-                    'Me' => 'user',
-                ],
-            ])
-
             ->add('officialUri')
             ->add('publisher')
+
+            // TODO: These are placeholder, they should be determined upon creation with a choice of Org or User ownership
+            ->add('org', EntityType::class, [
+                'required' => false,
+                'disabled' => true,
+                'placeholder' => 'None',
+                'label' => 'Owning Organization',
+                'class' => 'Salt\UserBundle\Entity\Organization',
+                'choice_label' => 'name',
+            ])
+            ->add('user', EntityType::class, [
+                'required' => false,
+                'disabled' => true,
+                'placeholder' => 'None',
+                'label' => 'Owning User',
+                'class' => 'Salt\UserBundle\Entity\User',
+                'choice_label' => 'username',
+            ])
 
             ->add('version')
             ->add('description')

@@ -2,7 +2,7 @@
 
 namespace Salt\UserBundle\Controller;
 
-use Salt\UserBundle\Form\ChangePasswordType;
+use Salt\UserBundle\Form\Type\ChangePasswordType;
 use Salt\UserBundle\Form\DTO\ChangePasswordDTO;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -43,6 +43,7 @@ class ChangePasswordController extends Controller
             $manager->flush($user);
 
             $this->addFlash('success', 'Your password has been changed.');
+
             return $this->redirectToRoute('editor_index');
         }
 

@@ -2,15 +2,14 @@
 
 namespace CftfBundle\Controller;
 
-use CftfBundle\Form\LsDocCreateType;
+use CftfBundle\Form\Type\LsDocCreateType;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsDoc;
-use CftfBundle\Form\LsDocType;
+use CftfBundle\Form\Type\LsDocType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -28,6 +27,8 @@ class LsDocController extends Controller
      * @Route("/", name="lsdoc_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -47,6 +48,10 @@ class LsDocController extends Controller
      * @Method({"GET", "POST"})
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
+     *
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
     {
@@ -81,6 +86,11 @@ class LsDocController extends Controller
      * @Route("/{id}.{_format}", defaults={"_format"="html"}, name="lsdoc_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsDoc $lsDoc
+     * @param string $_format
+     *
+     * @return array
      */
     public function showAction(LsDoc $lsDoc, $_format = 'html')
     {
@@ -104,6 +114,11 @@ class LsDocController extends Controller
      * @Method({"GET", "POST"})
      * @Template()
      * @Security("is_granted('edit', lsDoc)")
+     *
+     * @param Request $request
+     * @param LsDoc $lsDoc
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function editAction(Request $request, LsDoc $lsDoc)
     {
@@ -147,6 +162,11 @@ class LsDocController extends Controller
      * @Route("/{id}", name="lsdoc_delete")
      * @Method("DELETE")
      * @Security("is_granted('edit', lsDoc)")
+     *
+     * @param Request $request
+     * @param LsDoc $lsDoc
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsDoc $lsDoc)
     {
@@ -160,22 +180,6 @@ class LsDocController extends Controller
         }
 
         return $this->redirectToRoute('lsdoc_index');
-    }
-
-    /**
-     * Creates a form to delete a LsDoc entity.
-     *
-     * @param LsDoc $lsDoc The LsDoc entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm(LsDoc $lsDoc)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsdoc_delete', array('id' => $lsDoc->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
-        ;
     }
 
     /**
@@ -210,6 +214,11 @@ class LsDocController extends Controller
      * @Route("/{id}/export.{_format}", requirements={"_format"="(json|html|null)"}, defaults={"_format"="json"}, name="lsdoc_export")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsDoc $lsDoc
+     * @param string $_format
+     *
+     * @return array
      */
     public function exportAction(LsDoc $lsDoc, $_format = 'json')
     {
@@ -219,5 +228,21 @@ class LsDocController extends Controller
             'lsDoc' => $lsDoc,
             'items' => $items,
         ];
+    }
+
+    /**
+     * Creates a form to delete a LsDoc entity.
+     *
+     * @param LsDoc $lsDoc The LsDoc entity
+     *
+     * @return \Symfony\Component\Form\Form The form
+     */
+    private function createDeleteForm(LsDoc $lsDoc)
+    {
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('lsdoc_delete', array('id' => $lsDoc->getId())))
+            ->setMethod('DELETE')
+            ->getForm()
+            ;
     }
 }

@@ -1,15 +1,15 @@
 <?php
 
-namespace CftfBundle\Form;
+namespace CftfBundle\Form\Type;
 
 use CftfBundle\Entity\LsDefGrade;
-use CftfBundle\Entity\LsItem;
 use CftfBundle\Form\DataTransformer\EducationAlignmentTransformer;
 use CftfBundle\Repository\LsDefGradeRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\LanguageType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
@@ -19,7 +19,8 @@ class LsItemType extends AbstractType
     /** @var ObjectManager */
     private $manager;
 
-    public function __construct(ObjectManager $manager) {
+    public function __construct(ObjectManager $manager)
+    {
         $this->manager = $manager;
     }
 
@@ -44,7 +45,7 @@ class LsItemType extends AbstractType
             ->add('abbreviatedStatement')
             ->add('conceptKeywords')
             ->add('conceptKeywordsUri')
-            ->add('language', 'Symfony\Component\Form\Extension\Core\Type\LanguageType', [
+            ->add('language', LanguageType::class, [
                 'required' => false,
                 'preferred_choices' => ['en', 'es', 'fr'],
             ])
@@ -52,8 +53,7 @@ class LsItemType extends AbstractType
                 'class' => 'CftfBundle:LsDefGrade',
                 'label' => 'Education Level',
                 'choice_label' => 'code',
-                'choice_attr' => function ($val, $key, $index) {
-                    /* @var $val LsDefGrade */
+                'choice_attr' => function (LsDefGrade $val, $key, $index) {
                     return ['data-title' => $val->getTitle()];
                 },
                 'required' => false,
@@ -63,7 +63,7 @@ class LsItemType extends AbstractType
                     return $er->createQueryBuilder('g')
                         ->addOrderBy('g.rank')
                         ;
-                }
+                },
             ])
 //            ->add('educationalAlignment', EntityType::class, [
 //                'class' => 'CftfBundle:LsItem',
@@ -98,7 +98,7 @@ class LsItemType extends AbstractType
                     'new_tag_text' => '(NEW) ',
                     'new_tag_prefix' => '___',
                     'tag_separators' => ',',
-                ]
+                ],
             ])
             ->add('licenceUri')
             ->add('notes')
@@ -116,8 +116,8 @@ class LsItemType extends AbstractType
             $builder
                 ->add('children', EntityType::class, [
                     'class' => 'CftfBundle:LsItem',
-                    'required' => FALSE,
-                    'multiple' => TRUE,
+                    'required' => false,
+                    'multiple' => true,
                     'query_builder' => function (EntityRepository $er) {
                         return $er->createQueryBuilder('i')
                             ->orderBy('i.uri', 'ASC');

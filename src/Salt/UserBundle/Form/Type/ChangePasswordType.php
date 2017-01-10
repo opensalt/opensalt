@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\UserBundle\Form;
+namespace Salt\UserBundle\Form\Type;
 
 use Salt\UserBundle\Form\DTO\ChangePasswordDTO;
 use Symfony\Component\Form\AbstractType;

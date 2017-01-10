@@ -51,7 +51,28 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
             }
         }
 
-        uasort($results, function($a, $b) {
+        $this->rankItems($results);
+
+        foreach ($results as $key => $result) {
+            if (!empty($results[$key]['children'])) {
+                $this->rankItems($results[$key]['children']);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Rank the items in $itemArray
+     *   - by "rank"
+     *   - then by "listEnumInSource"
+     *   - then by "humanCodingScheme"
+     *
+     * @param array $itemArray
+     */
+    private function rankItems(array &$itemArray)
+    {
+        uasort($itemArray, function($a, $b) {
             // rank
             if (!empty($a['rank']) && !empty($b['rank'])) {
                 if ($a['rank'] != $b['rank']) {
@@ -81,43 +102,6 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
 
             return 0;
         });
-
-        foreach ($results as $key => $result) {
-            if (!empty($results[$key]['children'])) {
-                uasort($results[$key]['children'], function($a, $b) {
-                    // rank
-                    if (!empty($a['rank']) && !empty($b['rank'])) {
-                        if ($a['rank'] != $b['rank']) {
-                            return ($a < $b) ? -1 : 1;
-                        } // else fall through to next check
-                    } elseif (!empty($a['rank']) || !empty($b['rank'])) {
-                        return (!empty($a['rank'])) ? -1 : 1;
-                    }
-
-                    // listEnumInSource
-                    if (!empty($a['listEnumInSource']) && !empty($b['listEnumInSource'])) {
-                        if ($a['listEnumInSource'] != $b['listEnumInSource']) {
-                            return ($a < $b) ? -1 : 1;
-                        } // else fall through to next check
-                    } elseif (!empty($a['listEnumInSource']) || !empty($b['listEnumInSource'])) {
-                        return (!empty($a['listEnumInSource'])) ? -1 : 1;
-                    }
-
-                    // humanCodingScheme
-                    if (!empty($a['humanCodingScheme']) && !empty($b['humanCodingScheme'])) {
-                        if ($a['humanCodingScheme'] != $b['humanCodingScheme']) {
-                            return ($a < $b) ? -1 : 1;
-                        } // else fall through to next check
-                    } elseif (!empty($a['humanCodingScheme']) || !empty($b['humanCodingScheme'])) {
-                        return (!empty($a['humanCodingScheme'])) ? -1 : 1;
-                    }
-
-                    return 0;
-                });
-            }
-        }
-
-        return $results;
     }
 
     /**

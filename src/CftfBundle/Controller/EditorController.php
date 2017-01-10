@@ -20,7 +20,7 @@ class EditorController extends Controller
      * @Route("/", defaults={"_format"="html"}, name="editor_index")
      * @Method("GET")
      *
-     * @return array
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction()
     {
@@ -54,7 +54,7 @@ class EditorController extends Controller
      * @param \CftfBundle\Entity\LsItem $lsItem
      * @param string $_format
      *
-     * @return array
+     * @return array|\Symfony\Component\HttpFoundation\Response
      */
     public function viewItemAction(LsItem $lsItem, $_format)
     {
@@ -73,6 +73,7 @@ class EditorController extends Controller
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
      * @param int $highlight
+     * @param string $_format
      *
      * @return array
      */
