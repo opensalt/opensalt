@@ -2,7 +2,6 @@
 
 namespace Cftf\UtilBundle\Command;
 
-use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
