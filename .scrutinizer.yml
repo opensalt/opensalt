@@ -1,5 +1,4 @@
 filter:
-    paths: ["src/*", "app/*"]
+    paths: ["src/*"]
     excluded_paths:
         - "src/*Bundle/Tests/"
-        - "app/DoctrineMigrations/"
