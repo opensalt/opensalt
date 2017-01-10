@@ -21,7 +21,8 @@ ENV COMPOSER_HOME=/composer \
 # Install Composer
 RUN php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php \
     && composer --version \
-    && composer global require "hirak/prestissimo:^0.3"
+    && composer global require "hirak/prestissimo:^0.3" \
+    && chmod -R a+w /composer
 
 # Set up the volumes and working directory
 VOLUME ["/app"]
