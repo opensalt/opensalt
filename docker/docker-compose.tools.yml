@@ -24,7 +24,7 @@ services:
   composer:
     #build:
     #  context: ./composer
-    image: opensalt/composer:1.2-7.1
+    image: opensalt/composer:1.3-7.1
     environment:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"

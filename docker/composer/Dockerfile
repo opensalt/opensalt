@@ -16,11 +16,12 @@ RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
 ENV COMPOSER_HOME=/composer \
     PATH=/composer/vendor/bin:$PATH \
     COMPOSER_ALLOW_SUPERUSER=1 \
-    COMPOSER_VERSION=1.2.4
+    COMPOSER_VERSION=1.3.1
 
 # Install Composer
 RUN php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php \
-    && composer --version
+    && composer --version \
+    && composer global require "hirak/prestissimo:^0.3"
 
 # Set up the volumes and working directory
 VOLUME ["/app"]
