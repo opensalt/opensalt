@@ -21,6 +21,7 @@ class OAuthServiceController extends Controller
      * @Method("GET")
      *
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      *
      * @throws \UnexpectedValueException
