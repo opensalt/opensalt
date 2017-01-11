@@ -7,6 +7,7 @@ use CftfBundle\Form\DataTransformer\EducationAlignmentTransformer;
 use CftfBundle\Repository\LsDefGradeRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityRepository;
+use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\LanguageType;
@@ -14,11 +15,26 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 
+/**
+ * Class UserType
+ *
+ * @DI\Service()
+ * @DI\Tag("form.type")
+ */
 class LsItemType extends AbstractType
 {
     /** @var ObjectManager */
     private $manager;
 
+    /**
+     * Constructor.
+     *
+     * @param ObjectManager $manager
+     *
+     * @DI\InjectParams({
+     *     "manager" = @DI\Inject("doctrine.orm.entity_manager")
+     * })
+     */
     public function __construct(ObjectManager $manager)
     {
         $this->manager = $manager;
