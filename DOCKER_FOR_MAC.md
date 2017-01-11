@@ -30,4 +30,20 @@ Some possible remedies to help with the slowness issue are:
 "/Volumes" -alldirs -mapall=0:0 localhost
 "/private" -alldirs -mapall=0:0 localhost
     ```
+  - The `d4m-nfs/etc/d4m-nfs-mounts.txt` file also has to be adjusted to look like:
+    ```
+# Be sure that any mounts that have been added here
+# have been removed from Docker for Mac -> Preferences -> File Sharing
+#
+# You must supply the Mac source directory and Moby VM destination directory,
+# and optionally add on user/group mapping:
+#
+# https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man5/exports.5.html
+#
+# <MAC_SRD_DIR>:<MOBY_VM_DST_DIR>[:MAC_UID_MAP][:MAC_GID_MAP]
+#
+/Users:/Users:0:0
+/Volumes:/Volumes:0:0
+/private:/private:0:0
+    ```
   - The d4m-nfs.sh script needs to be re-run each time Docker for Mac is restarted
