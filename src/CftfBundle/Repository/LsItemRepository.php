@@ -3,6 +3,7 @@
 namespace CftfBundle\Repository;
 
 use CftfBundle\Entity\LsAssociation;
+use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsDocAttribute;
 use CftfBundle\Entity\LsItem;
 
@@ -14,11 +15,63 @@ use CftfBundle\Entity\LsItem;
  */
 class LsItemRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function removeAssociation(LsAssociation $association) {
+    /**
+     * @param LsDoc $lsDoc
+     *
+     * @return array
+     */
+    public function findAllForDoc(LsDoc $lsDoc)
+    {
+        return $this->findAllForDocQueryBuilder($lsDoc)->getQuery()->getResult();
+    }
+
+    public function findAllForDocWithAssociations(LsDoc $lsDoc)
+    {
+        $qry = $this->findAllForDocQueryBuilder($lsDoc);
+        $qry->leftJoin('fa.destinationLsItem', 'fad')
+            ->leftJoin('fa.originLsItem', 'fao')
+            ->leftJoin('ia.originLsItem', 'iao')
+            ->leftJoin('ia.destinationLsItem', 'iad')
+            ;
+
+        return $qry->getQuery()->getResult();
+    }
+
+    /**
+     * @param LsDoc $lsDoc
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function findAllForDocQueryBuilder(LsDoc $lsDoc)
+    {
+        $qry = $this->createQueryBuilder('i')
+            ->leftJoin('i.associations', 'fa')
+            ->leftJoin('i.inverseAssociations', 'ia')
+            ->leftJoin('i.itemType', 'item_type')
+            ->where('i.lsDoc = :lsDoc')
+            ->orderBy('i.rank', 'ASC')
+            ->addOrderBy('i.listEnumInSource', 'ASC')
+            ->addOrderBy('i.humanCodingScheme', 'ASC')
+            ->setParameter( 'lsDoc', $lsDoc->getId())
+            ;
+
+        return $qry;
+    }
+
+    /**
+     * @param LsAssociation $association
+     */
+    public function removeAssociation(LsAssociation $association)
+    {
         $this->_em->getRepository(LsAssociation::class)->removeAssociation($association);
     }
 
-    public function removeChild(LsItem $parent, LsItem $child) {
+    /**
+     * @param LsItem $parent
+     * @param LsItem $child
+     */
+    public function removeChild(LsItem $parent, LsItem $child)
+    {
         foreach ($child->getAssociations() as $association) {
             if ($association->getType() === LsAssociation::CHILD_OF
                 && $association->getDestinationLsItem()->getId() === $parent->getId()) {
@@ -27,7 +80,11 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
         }
     }
 
-    public function createGradeSelectListQueryBuilder() {
+    /**
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function createGradeSelectListQueryBuilder()
+    {
         return $this->createQueryBuilder('i')
             ->join('i.associations', 'a', 'WITH', 'a.type = :isChild')
             ->leftJoin('a.destinationLsItem', 'dest')

@@ -969,16 +969,17 @@ class LsItem
 
     /**
      * @param string $property
+     * @param string $default
      *
      * @return mixed
      */
-    public function getExtraProperty($property) {
+    public function getExtraProperty($property, $default = null) {
         if (is_null($this->extra)) {
-            return null;
+            return $default;
         }
 
         if (!array_key_exists($property, $this->extra)) {
-            return null;
+            return $default;
         }
 
         return $this->extra[$property];
