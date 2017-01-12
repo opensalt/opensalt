@@ -52,6 +52,7 @@ framework:
     request:
       formats:
         jsonapi: 'application/vnd.api+json'
+        csv: ['text/csv', 'text/plain']
     #translator: { fallbacks: ['%locale%'] }
     assets:
         version: '201609010101'
