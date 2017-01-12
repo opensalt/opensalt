@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CresstController extends Controller
 {
+    const ELA_ROOT_UUID = '9100ef5e-d793-4184-bb5b-3686d0258549';
+    const MATH_ROOT_UUID = 'c44427b4-8e4e-540f-a68b-dcdb1b7ff78d';
+
     /**
      * @Route("/sbac/dl/export/{id}.{_format}", name="dl_export", defaults={"_format"="html"}, requirements={"id"="\d+", "_format"="(html|csv)"})
      * @Template()
@@ -62,6 +65,7 @@ class CresstController extends Controller
 
             return $item;
         });
+        /** @var ArrayCollection $items */
         $items = $items->filter(function (LsItem $item) {
             return 'Measured Skill' !== $item->getType();
         });
@@ -77,6 +81,20 @@ class CresstController extends Controller
             'grade',
             'fullDescription',
             'crosswalk',
+        ];
+        $csvLine = \Util\CsvUtil::arrayToCsv($line);
+        $csvLines[] = $csvLine;
+
+        // "Virtual" top level node for ELA
+        $line = [
+            '9100ef5e-d793-4184-bb5b-3686d0258549',
+            '',
+            'TA-ELA-v1',
+            'E',
+            'English/Language Arts',
+            '',
+            'English/Language Arts',
+            '',
         ];
         $csvLine = \Util\CsvUtil::arrayToCsv($line);
         $csvLines[] = $csvLine;
@@ -101,6 +119,8 @@ class CresstController extends Controller
 
                     $item->setAbbreviatedStatement($parent->getAbbreviatedStatement().': '.$item->getAbbreviatedStatement());
                 }
+            } else {
+                $parentUuid = self::ELA_ROOT_UUID;
             }
 
             $crosswalk = $item->getExtraProperty('crosswalk', []);

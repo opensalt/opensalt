@@ -11,12 +11,11 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportCresstElaCommand extends ContainerAwareCommand
 {
-    const CRESST_NS = 'f007c085-7a20-4d4a-b4db-e980603680b0';
-
     protected function configure()
     {
         $this
@@ -124,7 +123,7 @@ class ImportCresstElaCommand extends ContainerAwareCommand
         foreach ($items as $key => $item) {
             $lsItem = new LsItem();
             $lsItem->setLsDoc($lsDoc);
-            $lsItemIdentifier = Uuid::uuid5(self::CRESST_NS, $key)->toString();
+            $lsItemIdentifier = Uuid::uuid5('f007c085-7a20-4d4a-b4db-e980603680b0', $key)->toString();
             $lsItem->setIdentifier($lsItemIdentifier);
             $lsItem->setUri('local:'.$lsItemIdentifier);
             $lsItem->setExtraProperty('source', $item);
