@@ -10,18 +10,19 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class CresstController extends Controller
 {
     /**
-     * @Route("/sbac/dl/export/{id}.{_format}", name="dl_export", defaults={"_format"="html"}, requirements={"id"="\d+"})
+     * @Route("/sbac/dl/export/{id}.{_format}", name="dl_export", defaults={"_format"="html"}, requirements={"id"="\d+", "_format"="(html|csv)"})
      * @Template()
      *
      * @param Request $request
      * @param LsDoc $lsDoc
      * @param string $_format
      *
-     * @return array
+     * @return Response|array
      */
     public function exportAction(Request $request, LsDoc $lsDoc, $_format = "html")
     {
@@ -42,12 +43,12 @@ class CresstController extends Controller
 
             $crosswalk = [];
             $related = $item->getInverseAssociations()->filter(function (LsAssociation $association) use (&$crosswalk) {
-                if ($association->getType() !== LsAssociation::RELATED_TO) {
+                if (LsAssociation::RELATED_TO !== $association->getType()) {
                     return false;
                 }
 
                 $origin = $association->getOriginLsItem();
-                if ($origin->getType() === 'Measured Skill'){
+                if ('Measured Skill' === $origin->getType()) {
                     $prop = $origin->getExtraProperty('source');
                     $crosswalk[] = $prop['legacyCodingScheme'];
 
@@ -62,7 +63,7 @@ class CresstController extends Controller
             return $item;
         });
         $items = $items->filter(function (LsItem $item) {
-            return $item->getType() !== 'Measured Skill';
+            return 'Measured Skill' !== $item->getType();
         });
 
         $csvLines = [];
@@ -74,7 +75,6 @@ class CresstController extends Controller
             'name',
             'shortName',
             'grade',
-            'alignmentKey',
             'fullDescription',
             'crosswalk',
         ];
@@ -83,6 +83,10 @@ class CresstController extends Controller
 
         /** @var LsItem $item */
         foreach ($items as $item) {
+            if ('Claim' === $item->getType()) {
+                continue;
+            }
+
             $grade = $item->getEducationalAlignment();
             if (false !== strpos($grade, ',')) {
                 $grade = 'HS';
@@ -91,6 +95,12 @@ class CresstController extends Controller
             $parentUuid = null;
             if ($parent = $item->getParentItem()) {
                 $parentUuid = $parent->getIdentifier();
+
+                if ('Claim' === $parent->getType()) {
+                    $parentUuid = $parent->getParentItem()->getIdentifier();
+
+                    $item->setAbbreviatedStatement($parent->getAbbreviatedStatement().': '.$item->getAbbreviatedStatement());
+                }
             }
 
             $crosswalk = $item->getExtraProperty('crosswalk', []);
@@ -102,13 +112,29 @@ class CresstController extends Controller
                 'name' => $item->getHumanCodingScheme(),
                 'shortName' => $item->getAbbreviatedStatement(),
                 'grade' => $grade,
-                'alignmentKey' => '',
                 'fullDescription' => $item->getFullStatement(),
                 'crosswalk' => implode('~', $crosswalk),
             ];
 
             $csvLine = \Util\CsvUtil::arrayToCsv($line);
             $csvLines[] = $csvLine;
+        }
+
+        if ('csv' === $_format) {
+            $response = new Response(
+                $this->renderView(
+                    'CftfSbacBundle:Cresst:export.csv.twig',
+                    [
+                        'csvLines' => $csvLines,
+                    ]
+                ),
+                200
+            );
+            $response->headers->set('Content-Type', 'text/csv');
+            $response->headers->set('Content-Disposition', 'attachment; filename=cresst-ela.csv');
+            $response->headers->set('Pragma', 'no-cache');
+
+            return $response;
         }
 
         return [
