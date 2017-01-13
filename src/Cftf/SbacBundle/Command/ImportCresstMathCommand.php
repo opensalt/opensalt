@@ -1,4 +1,10 @@
 <?php
+/**
+ * Copyright (c) 2017 Public Consulting Group
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cftf\SbacBundle\Command;
 
@@ -11,16 +17,17 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ImportCresstElaCommand extends ContainerAwareCommand
+class ImportCresstMathCommand extends ContainerAwareCommand
 {
+    const CRESST_NS = 'f007c085-7a20-4d4a-b4db-e980603680b0';
+
     protected function configure()
     {
         $this
-            ->setName('import:cresst-ela')
-            ->setDescription('Import CRESST ELA Excel file')
+            ->setName('import:cresst-math')
+            ->setDescription('Import CRESST Math Excel file')
             ->addArgument('filename', InputArgument::REQUIRED, 'File to load')
         ;
     }
@@ -44,26 +51,27 @@ class ImportCresstElaCommand extends ContainerAwareCommand
             ++$row;
 
             $item = [
-                'doc' => $sheet->getCellByColumnAndRow(0, $row)->getValue(),
-                'type' => $sheet->getCellByColumnAndRow(1, $row)->getValue(),
-                'claimCode' => $sheet->getCellByColumnAndRow(2, $row)->getValue(),
-                'claimName' => $sheet->getCellByColumnAndRow(3, $row)->getValue(),
-                'domainCode' => $sheet->getCellByColumnAndRow(4, $row)->getValue(),
-                'domainName' => $sheet->getCellByColumnAndRow(5, $row)->getValue(),
-                'targetCode' => $sheet->getCellByColumnAndRow(6, $row)->getValue(),
+                'doc' => $sheet->getCellByColumnAndRow(1, $row)->getValue(),
+                'type' => $sheet->getCellByColumnAndRow(2, $row)->getValue(),
+                'listEnumeration' => $sheet->getCellByColumnAndRow(3, $row)->getValue(),
+                'shortStatement' => $sheet->getCellByColumnAndRow(4, $row)->getValue(),
+                'additionalClaimInfo' => $sheet->getCellByColumnAndRow(5, $row)->getValue(),
+                'additionalClaimCode' => $sheet->getCellByColumnAndRow(6, $row)->getValue(),
                 'targetName' => $sheet->getCellByColumnAndRow(7, $row)->getValue(),
-                'ccssCode' => $sheet->getCellByColumnAndRow(8, $row)->getValue(),
-                'fullStatement' => $sheet->getCellByColumnAndRow(9, $row)->getValue(),
-                'educationLevel' => $sheet->getCellByColumnAndRow(10, $row)->getValue(),
-                'legacyCodingScheme' => $sheet->getCellByColumnAndRow(11, $row)->getValue(),
+                'targetCode' => $sheet->getCellByColumnAndRow(8, $row)->getValue(),
+                'ccssCode' => $sheet->getCellByColumnAndRow(9, $row)->getValue(),
+                'fullStatement' => $sheet->getCellByColumnAndRow(10, $row)->getValue(),
+                'humanCoding' => $sheet->getCellByColumnAndRow(11, $row)->getValue(),
+                'educationLevel' => $sheet->getCellByColumnAndRow(12, $row)->getValue(),
+                'legacyCodingScheme' => $sheet->getCellByColumnAndRow(13, $row)->getValue(),
                 'coding' => [
-                    'doc' => $sheet->getCellByColumnAndRow(12, $row)->getValue(),
-                    'grade' => $sheet->getCellByColumnAndRow(13, $row)->getValue(),
-                    'claim' => $sheet->getCellByColumnAndRow(14, $row)->getValue(),
-                    'target' => $sheet->getCellByColumnAndRow(15, $row)->getValue(),
-                    'ccss' => $sheet->getCellByColumnAndRow(16, $row)->getValue(),
+                    'doc' => $sheet->getCellByColumnAndRow(14, $row)->getValue(),
+                    'grade' => $sheet->getCellByColumnAndRow(15, $row)->getValue(),
+                    'claim' => $sheet->getCellByColumnAndRow(16, $row)->getValue(),
+                    'target' => $sheet->getCellByColumnAndRow(17, $row)->getValue(),
+                    'ccss' => $sheet->getCellByColumnAndRow(18, $row)->getValue(),
                 ],
-                'codingComplete' => $sheet->getCellByColumnAndRow(17, $row)->getValue(),
+                'codingComplete' => $sheet->getCellByColumnAndRow(19, $row)->getValue(),
                 'associations' => [
                     'Is Child Of' => [],
                     'Is Related To' => [],
@@ -81,7 +89,7 @@ class ImportCresstElaCommand extends ContainerAwareCommand
 
 
         // Parse associations
-        $sheet = $ss->getSheetByName('Assoc');
+        $sheet = $ss->getSheetByName('Assoc w New Code');
         $associations = [];
         $done = false;
         $row = 4;
@@ -89,9 +97,9 @@ class ImportCresstElaCommand extends ContainerAwareCommand
             ++$row;
 
             $association = [
-                'origin' => $sheet->getCellByColumnAndRow(0, $row)->getValue(),
-                'type' => $sheet->getCellByColumnAndRow(1, $row)->getValue(),
-                'destination' => $sheet->getCellByColumnAndRow(2, $row)->getValue(),
+                'origin' => $sheet->getCellByColumnAndRow(7, $row)->getValue(),
+                'type' => $sheet->getCellByColumnAndRow(8, $row)->getValue(),
+                'destination' => $sheet->getCellByColumnAndRow(9, $row)->getValue(),
             ];
 
             if (empty($association['origin'])) {
@@ -104,7 +112,7 @@ class ImportCresstElaCommand extends ContainerAwareCommand
                 $items[strtoupper($association['origin'])]['associations'][$association['type']][] = $association['destination'];
             } else {
                 $output->writeln("<error>Missing origin</error>");
-                dump($association);
+                dump($row, $association);
             }
         }
 
@@ -114,7 +122,7 @@ class ImportCresstElaCommand extends ContainerAwareCommand
         $lsDoc = new LsDoc();
         $lsDoc->setCreator('CRESST');
         $lsDoc->setPublisher('PCG');
-        $lsDoc->setTitle('SBAC ELA Targets');
+        $lsDoc->setTitle('SBAC Math Targets');
         $em->persist($lsDoc);
 
         $lsItems = [];
@@ -123,7 +131,7 @@ class ImportCresstElaCommand extends ContainerAwareCommand
         foreach ($items as $key => $item) {
             $lsItem = new LsItem();
             $lsItem->setLsDoc($lsDoc);
-            $lsItemIdentifier = Uuid::uuid5('f007c085-7a20-4d4a-b4db-e980603680b0', $key)->toString();
+            $lsItemIdentifier = Uuid::uuid5(self::CRESST_NS, $key)->toString();
             $lsItem->setIdentifier($lsItemIdentifier);
             $lsItem->setUri('local:'.$lsItemIdentifier);
             $lsItem->setExtraProperty('source', $item);
@@ -133,13 +141,15 @@ class ImportCresstElaCommand extends ContainerAwareCommand
                 $lsItem->setFullStatement($item['fullStatement']);
             } elseif ('Grade' === $item['type'] && !empty($item['educationLevel'])) {
                 $lsItem->setFullStatement($item['educationLevel']);
-            } elseif ('Domain' === $item['type'] && !empty($item['domainName'])) {
-                $lsItem->setFullStatement($item['domainName']);
+            } elseif ('Domain' === $item['type'] && !empty($item['additionalClaimInfo'])) {
+                $lsItem->setFullStatement($item['additionalClaimInfo']);
+            } elseif ('Conceptual Category' === $item['type'] && !empty($item['additionalClaimInfo'])) {
+                $lsItem->setFullStatement($item['additionalClaimInfo']);
             } elseif ('Target' === $item['type'] && !empty($item['targetName'])) {
                 $lsItem->setFullStatement($item['targetName']);
             } else {
                 $output->writeln("<error>Cannot find fullStatement</error>");
-                dump($item);
+                dump($i, $item);
 
                 // Fail as we do not know what the statement should be
                 return 1;
@@ -152,11 +162,15 @@ class ImportCresstElaCommand extends ContainerAwareCommand
                     break;
 
                 case 'Claim':
-                    $lsItem->setAbbreviatedStatement($item['claimName']);
+                    $lsItem->setAbbreviatedStatement($item['shortStatement']);
                     break;
 
                 case 'Domain':
-                    $lsItem->setAbbreviatedStatement($item['domainName']);
+                    $lsItem->setAbbreviatedStatement($item['additionalClaimInfo']);
+                    break;
+
+                case 'Conceptual Category':
+                    $lsItem->setAbbreviatedStatement($item['additionalClaimInfo']);
                     break;
 
                 case 'Target':
@@ -250,6 +264,11 @@ class ImportCresstElaCommand extends ContainerAwareCommand
                     if (empty($lsItems[strtoupper($dest)])) {
                         if (0 === strpos(strtoupper($dest), 'R-DOK')) {
                             // Skip DOK for now, TODO: Link to DOK
+                            continue;
+                        }
+
+                        if (0 === strpos(strtoupper($dest), 'MP.')) {
+                            // Skip MP for now, TODO: Link to Math Practice
                             continue;
                         }
 
