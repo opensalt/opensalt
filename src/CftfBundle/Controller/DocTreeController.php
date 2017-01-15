@@ -72,7 +72,7 @@ class DocTreeController extends Controller
      *
      * PW: this is similar to the renderDocument function in the Editor directory, but different enough that I think it deserves a separate controller/view
      */
-    public function renderDocumentAction(LsDoc $lsDoc, $_format = 'html', $documentActive = "false")
+    public function renderDocumentAction(LsDoc $lsDoc, $_format = 'html')
     {
         $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
 
@@ -102,7 +102,6 @@ class DocTreeController extends Controller
             'lsDoc'=>$lsDoc,
             'items'=>$items,
             'orphaned' => $orphaned,
-            'documentActive' => $documentActive
         ];
     }
 
