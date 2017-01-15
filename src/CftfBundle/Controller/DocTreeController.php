@@ -102,7 +102,6 @@ class DocTreeController extends Controller
             'lsDoc'=>$lsDoc,
             'items'=>$items,
             'orphaned' => $orphaned,
-            'expandFolders' => $expandFolders,
             'documentActive' => $documentActive
         ];
     }
