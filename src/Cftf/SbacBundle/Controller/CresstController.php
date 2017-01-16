@@ -53,7 +53,9 @@ class CresstController extends Controller
                 $origin = $association->getOriginLsItem();
                 if ('Measured Skill' === $origin->getType()) {
                     $prop = $origin->getExtraProperty('source');
-                    $crosswalk[] = $prop['legacyCodingScheme'];
+                    if (!empty($prop['legacyCodingScheme'])) {
+                        $crosswalk[] = $prop['legacyCodingScheme'];
+                    }
 
                     return true;
                 }
@@ -87,7 +89,7 @@ class CresstController extends Controller
 
         // "Virtual" top level node for ELA
         $line = [
-            '9100ef5e-d793-4184-bb5b-3686d0258549',
+            self::ELA_ROOT_UUID,
             '',
             'TA-ELA-v1',
             'E',
