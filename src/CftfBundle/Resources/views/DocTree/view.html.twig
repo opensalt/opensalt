@@ -1,54 +1,690 @@
 {% extends '::layout.html.twig' %}
 
-{% block title %}{{ lsDoc1.title }}{% endblock %}
+{% block title %}{{ lsDoc.title }}{% endblock %}
 
 {% block body %}
+<style>
+#viewmode_tree {
+	margin-bottom:20px;
+	margin-top:3px;		/* makes it aligned with panel on right */
+}
+
+#viewmode_tree ul {
+	border-width:0;
+	font-size:15px;
+}
+
+.breadcrumb {
+	font-size:1.8em;
+	font-weight:bold;
+}
+
+#docStatus {
+	padding: 8px 15px;
+	margin-bottom: 20px;
+	list-style: none;
+	border-radius: 4px;
+	font-size:1.8em;
+	font-weight:bold;
+	text-align:center;
+}
+
+.docStatus-Draft {
+	background-color: #ffe;
+	border:3px solid #ec0;
+}
+#docStatus.docStatus-Draft {
+	color:#ec0;
+}
+
+.docStatus-Adopted {
+	background-color: #efe;
+	border:3px solid #393;
+}
+#docStatus.docStatus-Adopted {
+	color:#393;
+}
+
+.docStatus-Deprecated {
+	background-color: #fee;
+	border:3px solid #933;
+}
+#docStatus.docStatus-Deprecated {
+	color:#933;
+}
+
+.itemTitle {
+	margin:10px 10px 20px 10px;
+	font-size:1.4em;
+}
+
+.lessImportant {
+	font-size:.85em;
+	color:#999;
+	padding-left:5px;
+	white-space:nowrap;
+}
+
+#itemSection {
+	border-width:3px;
+}
+
+#itemSection.lsDocItemSection {
+	background-color:#ffe;
+	border-color:#993;
+}
+
+#itemSection.lsItemItemSection {
+	background-color:#f6f6ff;
+	border-color:#669;
+}
+
+.lsItemDetailsMain {
+	margin-bottom:10px;
+}
+
+.lsItemDetailsMoreInfoLink {
+	text-align:right;
+	margin:0 5px 10px 0;
+	cursor:pointer;
+}
+
+.lsItemDetailsExtras {
+}
+
+.fancytree-drag-helper {
+	background-color:#fff;
+	opacity:0.8;
+	padding:5px;
+}
+</style>
+
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-10">
             <ol class="breadcrumb">
                 <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
-                <li><a href="{{ path('editor_lsdoc', {'id':lsDoc1.id}) }}">{{ lsDoc1.title }}</a></li>
+                <li>{{ lsDoc.title }}</li>
             </ol>
         </div>
+		<div id="docStatus" class="col-sm-2 docStatus-{{ lsDoc.adoptionStatus }}">{{ lsDoc.adoptionStatus }}</div>
     </div>
 
     <div class="row">
-        <div class="col-sm-12">
-            <section class="panel panel-default">
-                <div class="panel-body">
-                    <div id="tree1"></div>
-                </div>
+        <div class="col-sm-6">
+            <section>	<!-- class="panel panel-default" -->
+                <!-- <div class="panel-body"> -->
+                    <div id="viewmode_tree"></div>
+                <!-- </div> -->
             </section>
         </div>
         <div class="col-sm-6">
-            <div id="tree2"></div>
+            <section id="itemSection" class="panel panel-default docStatus-{{ lsDoc.adoptionStatus }}">
+                <div id="items" class="panel-body">
+                	<div id="documentInfo">
+						<h4 class="itemTitle">
+							{% if lsDoc.version is not empty %}
+								<span style="float:right" class="lessImportant">Version {{ lsDoc.version }}</span>
+							{% endif %}
+							{{lsDoc.title}}
+						</h4>
+						<ul class="list-group">
+							{% for field, name in {
+								'officialUri': 'Official URL',
+								'creator': 'Creator',
+								'description': 'Description',
+								'subjects': 'Subject',
+								'language': 'Language',
+								'adoptionStatus': 'Adoption Status',
+								'note': 'Notes'
+							} %}
+								{% if attribute(lsDoc, field) is not empty %}
+									<li class="list-group-item">
+										<strong>{{ name }}:</strong>
+										{% set value = attribute(lsDoc, field) %}
+										{% if field == 'creator' %}
+											{{ value }}
+											{% if lsDoc.publisher is not empty %}
+												<span class="lessImportant">Publisher: {{ lsDoc.publisher }}</span>
+											{% endif %}
+										{% elseif field == 'adoptionStatus' %}
+											{{ value }} 
+											{% if lsDoc.statusStart is not empty %}
+												<span class="lessImportant">From {{ lsDoc.statusStart|date("m/d/Y") }}</span>
+											{% endif %}
+											{% if lsDoc.statusEnd is not empty %}
+												<span class="lessImportant">Until {{ lsDoc.statusEnd|date("m/d/Y") }}</span>
+											{% endif %}
+											</span>
+										{% elseif field == 'subjects' %}
+											{% for subject in value %}
+												{%- if not loop.first %}, {% endif %}{{ subject.title }}
+											{%- endfor %}
+										{% elseif field == 'uri' %}
+											<a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+										{% else %}
+											{{ value }}
+										{% endif %}
+									</li>
+								{% endif %}
+							{% endfor %}
+						</ul>
+
+						<div class="text-center">
+							<ul class="list-inline">
+								<li>
+									<button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportModal">Export</button>
+								</li>
+								{# use first version if we need to edit the adoptionStatus #}
+								{# if is_granted('edit', lsDoc) #}
+								{% if lsDoc.canEdit and is_granted('edit', lsDoc) %}
+								<li>
+									<button type="button" class="btn btn-default" data-toggle="modal" data-target="#editDocModal">Edit</button>
+								</li>
+								<li>
+									<button type="button" class="btn btn-default" data-toggle="modal" data-target="#addChildModal">Add Learning Standard</button>
+								</li>
+								{% endif %}
+								{% if is_granted('manage_editors', lsDoc) %}
+									<li>
+										<a href="{{ path('framework_acl_edit', {'id':lsDoc.id}) }}" class="btn btn-default">Manage Access</a>
+									</li>
+								{% endif %}
+							</ul>
+						</div>
+
+					</div>
+					<div class="itemInfo" id="itemInfoTemplate" style="display:none">
+						<h4 class="itemTitle"></h4>
+						<div class="itemDetails">Item details loading...</div>
+					</div>
+				</div>            
+			</section>
         </div>
     </div>
+
+	{# lsDoc modals #}
+
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+        'modalName':'export',
+        'modalTitle':'Export Document',
+        'closeButton': 'Done'
+    } %}
+    	{% block modalButtons %}{% endblock %}
+    	{% block modalBody %}
+			{% embed 'CftfBundle:LsDoc:_exportComponent.html.twig' with {'view':'editor'} %}
+            {% endembed %}
+    	{% endblock %}
+    {% endembed %}
+
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+        'modalName':'editDoc',
+        'modalTitle':'Edit Document',
+        'closeButton': 'Cancel',
+        'saveButton': 'Save Changes'
+    } %}
+    {% endembed %}
+
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+        'modalName':'addChild',
+        'modalTitle':'Add Learning Standard',
+        'closeButton': 'Cancel',
+        'saveButton': 'Create'
+    } %}
+    {% endembed %}
+
+
+	{# lsItem modals #}
+
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+        'modalName':'editItem',
+        'modalTitle':'Edit Learning Standard',
+        'closeButton': 'Cancel',
+        'saveButton': 'Save changes'
+    } %}
+        {% block modalButtons %}
+            <button type="button" class="btn btn-primary btn-save">Save Changes</button>
+            <button type="button" class="btn btn-danger btn-delete" title="Delete this item">Delete</button>
+        {% endblock %}
+    {% endembed %}
+
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+        'modalName':'copy',
+        'modalTitle':'Add Standard To Package',
+        'closeButton': 'Cancel',
+        'saveButton': 'Copy'
+    } %}
+    {% endembed %}
+
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+        'modalName':'associate',
+        'modalTitle':'Add Relationship to this Standard',
+        'closeButton': 'Cancel',
+        'saveButton': 'Associate'
+    } %}
+    {% endembed %}
+
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+        'modalName':'changeParent',
+        'modalTitle':'Change Parent of Item',
+        'closeButton': 'Cancel',
+        'saveButton': 'Change'
+    } %}
+    {% endembed %}
+
 {% endblock %}
 
 {% block javascripts %}
+    <script src="{{ asset('bundles/tetranzselect2entity/js/select2entity.js') }}"></script>
     <script>
+    	//////////////////////////
+    	// Set up app object
         window.app = window.app||{};
-        var tree1 = {{ render_esi(path('editor_render_document_only', {'id':lsDoc1.id, '_format':'json'})) }};
+        app.lsDocId = {{ lsDoc.id }};
+	{% if lsItemId is not empty %}
+		app.lsItemId = {{ lsItemId }}
+	{% endif %}
+
+		// set onpopstate event to restore state when user clicks the browser back/forward button
+		window.onpopstate = function(event) {
+			var key = event.state;
+			// set popStateActivate so we don't re-push this history state
+			app.popStateActivate = true;
+			app.ft.fancytree("getTree").activateKey(key);
+		};
+		
+		// Function to update the history state; called when a tree node is activated
+		app.pushHistoryState = function(key, path) {
+			// if we just called this after the user clicked back or forward, though, don't push a new state
+			if (app.popStateActivate != true) {
+				window.history.pushState(key, "Competency Framework", path);
+			}
+			// clear popStateActivate
+			app.popStateActivate = false;
+		};
+		
+		// establish paths
+        app.path = app.path||{};
+        app.path.lsDoc = '{{ path('doc_tree_view', {'id':'ID'}) }}';
+        app.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';
+        app.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
+
+        app.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
+        app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
+
+        app.path.lsitem_edit = '{{ path('lsitem_edit', {'id':'ID'}) }}';
+        app.path.lsitem_delete = '{{ path('lsitem_delete', {'id':'ID'}) }}';
+        app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC', 'parent':'PARENT'}) }}';
+        app.path.lsitem_copy_item = '{{ path('lsitem_copy_item', {'id':'ID'}) }}';
+        app.path.lsitem_remove_child = '{{ path('lsitem_remove_child', {'id':'ID', 'child':'CHILD'}) }}';
+        app.path.lsitem_change_parent = '{{ path('lsitem_change_parent', {'id':'ID'}) }}';
+        app.path.editor_lsdoc = '{{ path('editor_lsdoc', {'id':'ID'}) }}';
+        app.path.lsassociation_new = '{{ path('lsassociation_new', {'sourceLsItem':'ID'}) }}';
+        app.path.lsassociation_delete = '{{ path('lsassociation_remove', {'id':'ID'}) }}';
+
+    	//////////////////////////
+    	// functions to prepare modals for various button presses
+        function prepareExportModal(){
+            var $exportModal = $('#exportModal');
+            $('[data-toggle="popover"]').popover();
+        }
+
+        function prepareEditDocModal(){
+            var $editDocModal = $('#editDocModal');
+            $editDocModal.on('shown.bs.modal', function(e){
+                $('#editDocModal').find('.modal-body').load(
+                        app.path.lsdoc_edit.replace('ID', app.lsDocId),
+                        null,
+                        function(responseText, textStatus, jqXHR){
+                            $('#ls_doc_subjects').select2entity({dropdownParent: $('#editDocModal')});
+                        }
+                )
+            }).on('hidden.bs.modal', function(e){
+                $('#editDocModal').find('.modal-body').html('Loading form...');
+            });
+            $editDocModal.find('.btn-save').on('click', function(e){
+                $.ajax({
+                    url: app.path.lsdoc_edit.replace('ID', app.lsDocId),
+                    method: 'POST',
+                    data: $editDocModal.find('form[name=ls_doc]').serialize()
+                }).done(function(data, textStatus, jqXHR){
+                    $editDocModal.modal('hide');
+                    window.location.reload(true);
+                }).fail(function(jqXHR, textStatus, errorThrown){
+                    $('#editDocModal').find('.modal-body').html(jqXHR.responseText);
+                    $('#ls_doc_subjects').select2entity({dropdownParent: $('#editDocModal')});
+                });
+            });
+        }
+		
+		function getAddChildPath() {
+			// if we don't have an lsItemId, we're showing/editing the doc
+			if (app.lsItemId == null) {
+				return app.path.lsitem_new.replace('DOC', app.lsDocId);
+
+			// else we're showing/editing an item
+			} else {
+				return app.path.lsitem_new.replace('DOC', app.lsDocId).replace('PARENT', app.lsItemId);
+			}
+		}
+		
+        function prepareAddChildModal() {
+            var $addChildModal = $('#addChildModal');
+            $addChildModal.on('shown.bs.modal', function(e){
+                $('#addChildModal').find('.modal-body').load(
+                        getAddChildPath(),
+                        null,
+                        function(responseText, textStatus, jqXHR){
+                            $('#ls_item_educationalAlignment').multiselect({
+                                optionLabel: function(element) {
+                                    return $(element).html() + ' - ' + $(element).data('title');
+                                },
+                                numberDisplayed: 20
+                            });
+                            $('#ls_item_itemType').select2entity({dropdownParent: $('#addChildModal')});
+                        }
+                )
+            }).on('hidden.bs.modal', function(e){
+                $('#addChildModal').find('.modal-body').html('Loading form...');
+            });
+            $addChildModal.find('.btn-save').on('click', function(e){
+                $.ajax({
+                    url: getAddChildPath(),
+                    method: 'POST',
+                    data: $addChildModal.find('form[name=ls_item]').serialize()
+                }).done(function(data, textStatus, jqXHR){
+                    $addChildModal.modal('hide');
+                    window.location.reload(true);
+                }).fail(function(jqXHR, textStatus, errorThrown){
+                    $('#addChildModal').find('.modal-body').html(jqXHR.responseText);
+                    $('#ls_item_educationalAlignment').multiselect({
+                        optionLabel: function(element) {
+                            return $(element).html() + ' - ' + $(element).data('title');
+                        },
+                        numberDisplayed: 20
+                    });
+                    $('#ls_item_itemType').select2entity({dropdownParent: $('#addChildModal')});
+                });
+            });
+        }
+
+        function prepareEditItemModal(){
+            var $editItemModal = $('#editItemModal');
+            $editItemModal.on('shown.bs.modal', function(e){
+                $('#editItemModal').find('.modal-body').load(
+                    app.path.lsitem_edit.replace('ID', app.lsItemId),
+                    null,
+                    function(responseText, textStatus, jqXHR) {
+                        $('#ls_item_educationalAlignment').multiselect({
+                            optionLabel: function(element) {
+                                return $(element).html() + ' - ' + $(element).data('title');
+                            },
+                            numberDisplayed: 20
+                        });
+                        $('#ls_item_itemType').select2entity({dropdownParent: $('#editItemModal')});
+
+			        	// add "disabled" class and attribute to delete button if item has children
+			        	var node = app.ft.fancytree("getTree").getNodeByKey(app.lsItemId+"");
+			        	if (node.children != null && node.children.length > 0) {
+				        	$('#editItemModal .btn-delete').addClass('disabled').prop('disabled', true).attr("title","You cannot delete this item because it has children.");
+						}
+                    }
+                )
+            }).on('hidden.bs.modal', function(e){
+                $('#editItemModal').find('.modal-body').html('Loading form...');
+				$('#editItemModal .btn-delete').removeClass('disabled').prop('disabled', false).attr("title","Delete this item");
+            });
+            $editItemModal.find('.btn-save').on('click', function(e){
+                $.ajax({
+                    url: app.path.lsitem_edit.replace('ID', app.lsItemId),
+                    method: 'POST',
+                    data: $editItemModal.find('form[name=ls_item]').serialize()
+                }).done(function(data, textStatus, jqXHR){
+                    $editItemModal.modal('hide');
+                    window.location.reload(true);
+
+                }).fail(function(jqXHR, textStatus, errorThrown){
+                    $('#editItemModal').find('.modal-body').html(jqXHR.responseText);
+                    $('#ls_item_educationalAlignment').multiselect({
+                        optionLabel: function(element) {
+                            return $(element).html() + ' - ' + $(element).data('title');
+                        },
+                        numberDisplayed: 20
+                    });
+                    $('#ls_item_itemType').select2entity({dropdownParent: $('#editItemModal')});
+                });
+            });
+            $editItemModal.find('.btn-delete').on('click', function(e){
+                $.ajax({
+                    url: app.path.lsitem_delete.replace('ID', app.lsItemId),
+                    method: 'POST', {# TODO: Make DELETE work correctly #}
+                    data: $editItemModal.find('form[name=form]').serialize()
+                }).done(function(data, textStatus, jqXHR){
+                    $editItemModal.modal('hide');
+                    window.location.assign(app.path.editor_lsdoc.replace('ID', app.lsDocId));
+
+                }).fail(function(jqXHR, textStatus, errorThrown){
+                    $('#editItemModal').find('.modal-body').html(jqXHR.responseText);
+                });
+            });
+        }
+
+        function prepareCopyModal(){
+            var $copyModal = $('#copyModal');
+            $copyModal.on('shown.bs.modal', function(e){
+                $('#copyModal').find('.modal-body').load(
+                        app.path.lsitem_copy_item.replace('ID', app.lsItemId),
+                        null,
+                        function(responseText, textStatus, jqXHR){ }
+                )
+            }).on('hidden.bs.modal', function(e){
+                $('#copyModal').find('.modal-body').html('Loading form...');
+            });
+            $copyModal.find('.btn-save').on('click', function(e){
+                $.ajax({
+                    url: app.path.lsitem_copy_item.replace('ID', app.lsItemId),
+                    method: 'POST',
+                    data: $copyModal.find('form[name=ls_doc_list]').serialize()
+                }).done(function(data, textStatus, jqXHR){
+                    $copyModal.modal('hide');
+                    var location = jqXHR.getResponseHeader('Location');
+                    if (location) {
+                        window.location.assign(location);
+                    } else {
+                        window.location.reload(true);
+                    }
+                }).fail(function(jqXHR, textStatus, errorThrown){
+                    $('#copyModal').find('.modal-body').html(jqXHR.responseText);
+                });
+            });
+        }
+
+        function prepareAssociateModal(){
+            var $associateModal = $('#associateModal');
+            $associateModal.on('shown.bs.modal', function(e){
+                $('#associateModal').find('.modal-body').load(
+                    app.path.lsassociation_new.replace('ID', app.lsItemId),
+                    null,
+                    function(responseText, textStatus, jqXHR){ }
+                )
+            }).on('hidden.bs.modal', function(e){
+                $('#associateModal').find('.modal-body').html('Loading form...');
+            });
+            $associateModal.find('.btn-save').on('click', function(e){
+                $.ajax({
+                    url: app.path.lsassociation_new.replace('ID', app.lsItemId),
+                    method: 'POST',
+                    data: $associateModal.find('form[name=ls_association]').serialize()
+                }).done(function(data, textStatus, jqXHR){
+                    $associateModal.modal('hide');
+                    var location = jqXHR.getResponseHeader('Location');
+                    if (location) {
+                        window.location.assign(location);
+                    } else {
+                        window.location.reload(true);
+                    }
+                }).fail(function(jqXHR, textStatus, errorThrown){
+                    $('#associateModal').find('.modal-body').html(jqXHR.responseText);
+                });
+            });
+
+            $associateModal.on('change', '#ls_association_lsDoc', function(){
+                var $lsDoc = $('#ls_association_lsDoc');
+                var $form = $(this).closest('form');
+                var data = {};
+                data[$lsDoc.attr('name')] = $lsDoc.val();
+
+                $('#lsItemListWrap').off('click');
+                $.ajax({
+                    //url: $form.attr('action'),
+                    url: app.path.lsassociation_new.replace('ID', app.lsItemId),
+                    type: $form.attr('method'),
+                    data: data
+                }).done(function(data, textStatus, jqXHR){
+                    var $list = $(data).find('#ls_association_destinationLsItem');
+
+                    $('#ls_association_destinationLsItem').closest('.form-group').remove();
+                    $('#ls_association_destinationNodeUri').closest('.form-group').remove();
+                    $('#ls_association_destinationNodeIdentifier').closest('.form-group').remove();
+
+                    if ($list.length) {
+                        $('#ls_association_lsDoc').closest('.form-group')
+                            .after($(data).find('#ls_association_destinationLsItem').closest('.form-group'))
+                    } else {
+                        $('#ls_association_lsDoc').closest('.form-group')
+                            .after($(data).find('#ls_association_destinationNodeUri').closest('.form-group'))
+                            .after($(data).find('#ls_association_destinationNodeIdentifier').closest('.form-group'))
+                        ;
+                    }
+
+                    $('#lsItemList').replaceWith($(data).find('#lsItemList'));
+
+                    var $lsItemList = $('#lsItemListWrap');
+                    $lsItemList.on('click', function(e){
+                        e.stopPropagation();
+                        e.preventDefault();
+
+                        var $target = $(e.target);
+                        $('#ls_association_destinationLsItem').val($target.attr('name').replace(/mark-/, ''));
+                    });
+                });
+            });
+        }
+
+        function prepareChangeParentModal(){
+            var
+                $children = $('#item-component-parent'),
+                $item = null
+            ;
+            $children.on('click', '.btn-change-parent', {}, function(e){
+                e.preventDefault();
+
+                $item = $(e.target).closest('.list-group-item');
+                $('#changeParentModal').modal('show');
+            });
+
+            var $changeParentModal = $('#changeParentModal');
+            $changeParentModal.on('shown.bs.modal', function(e){
+                $('#changeParentModal').find('.modal-body').load(
+                        app.path.lsitem_change_parent.replace('ID', app.lsItemId),
+                        null,
+                        function(responseText, textStatus, jqXHR){
+                            var $lsItemList = $('#lsItemListWrap-changeParent');
+                            $lsItemList.on('click', '.lsItem', function(e){
+                                e.stopPropagation();
+                                e.preventDefault();
+
+                                var $target = $(e.target);
+                                $('#ls_item_parent_parentItem').val($target.attr('name').replace(/mark-/, ''));
+                            });
+                            $lsItemList.on('click', '.lsDoc', function(e){
+                                e.stopPropagation();
+                                e.preventDefault();
+
+                                $('#ls_item_parent_parentItem').val('');
+                            });
+                        }
+                )
+            }).on('hidden.bs.modal', function(e){
+                var $lsItemList = $('#lsItemListWrap-changeParent');
+                $lsItemList.off('click', '.lsItem');
+                $lsItemList.off('click', '.lsDoc');
+                $('#changeParentModal').find('.modal-body').html('Loading form...');
+            });
+
+            $changeParentModal.find('.btn-save').on('click', function(e){
+                $.ajax({
+                    url: app.path.lsitem_change_parent.replace('ID', app.lsItemId),
+                    method: 'POST',
+                    data: $changeParentModal.find('form[name=ls_item_parent]').serialize()
+                }).done(function(data, textStatus, jqXHR){
+                    $changeParentModal.modal('hide');
+                    var location = jqXHR.getResponseHeader('Location');
+                    if (location) {
+                        window.location.assign(location);
+                    } else {
+                        window.location.reload(true);
+                    }
+                }).fail(function(jqXHR, textStatus, errorThrown){
+                    $('#changeParentModal').find('.modal-body').html(jqXHR.responseText);
+                });
+            });
+        }
+
+
+        function prepareRemoveChildButton(){
+            var $children = $('#item-component-children');
+            $children.on('click', '.btn-remove-child', {}, function(e){
+                e.preventDefault();
+
+                var
+                        target = $(e.target),
+                        item = target.parents('.lsitem')
+                        ;
+
+                $.ajax({
+                    url: app.path.lsitem_remove_child.replace('ID', app.lsItemId).replace('CHILD', item.data('itemId')),
+                    method: 'POST'
+                }).done(function(data, textStatus, jqXHR){
+                    window.location.reload(true);
+                }).fail(function(jqXHR, textStatus, errorThrown){
+
+                });
+            });
+        }
+
+        function prepareRemoveAssociationButton(){
+            var $components = $('.item-component');
+            $components.on('click', '.btn-remove-association', {}, function(e){
+                e.preventDefault();
+
+                var
+                    target = $(e.target),
+                    item = target.parents('.lsassociation')
+                ;
+
+                $.ajax({
+                    url: app.path.lsassociation_delete.replace('ID', item.data('associationId')),
+                    method: 'POST'
+                }).done(function(data, textStatus, jqXHR){
+                    window.location.reload(true);
+                }).fail(function(jqXHR, textStatus, errorThrown){
+
+                });
+            });
+        }
+
+    	//////////////////////////
+		// establish the tree for the lsdoc we're editing
+        var tree1 = {{ render_esi(path('doctree_render_document', {'id':lsDoc.id, '_format':'json'})) }};
+
+        // closure for setting up the tree and initializing
         $(function(){
-            $('#tree1').fancytree({
-                extensions: [],
+        	// establish the fancytree widget
+            app.ft = $('#viewmode_tree').fancytree({
+                extensions: ['dnd'],
                 source: tree1,
-                dnd: {
-                    focusOnClick: true,
-                    dragStart: function(node, data){},
-                    dragStop: function(node, data){},
-                    initHelper: function(){},
-                    updateHelper: function(){},
-
-                    dragEnter: function(node, data){ return true; },
-                    dragDrop: function(node, data){ data.otherNode.moveTo(node, data.hitMode); },
-                },
-
-                activate: function(event, data){console.log(event, data);},
-                click: function(event, data){console.log(event, data);},
-                beforeSelect: function(event, data){console.log(event, data);},
-                select: function(event, data){console.log(event, data);},
+				
+				// if we have a humanCoding for the node, show it first in bold
                 renderTitle: function(event, data){
                     //console.log(event, data);
                     if (data.node.data.humanCoding) {
@@ -56,39 +692,193 @@
                     }
                 },
 
-                debugLevel:2
-            });
+                // when item is activated (user clicks on it or activateKey() is called), show details for the item
+                activate: function(event, data){
+                	var n = data.node;
+					// replace app.lsItemId
+					app.lsItemId = app.lsItemIdFromNode(n);
+                	
+                	// if this is the lsDoc node
+                	if (app.lsItemId == null) {
+                		// replace url
+                		app.pushHistoryState(app.lsItemId, app.path.lsDoc.replace('ID', app.lsDocId));
 
-            $("#tree1").contextmenu({
-              delegate: "span.fancytree-title",
-        //      menu: "#options",
-              menu: [
-                  {title: "Cut", cmd: "cut", uiIcon: "ui-icon-scissors"},
-                  {title: "Copy", cmd: "copy", uiIcon: "ui-icon-copy"},
-                  {title: "Paste", cmd: "paste", uiIcon: "ui-icon-clipboard", disabled: false },
-                  {title: "----"},
-                  {title: "Edit", cmd: "edit", uiIcon: "ui-icon-pencil", disabled: true },
-                  {title: "Delete", cmd: "delete", uiIcon: "ui-icon-trash", disabled: true },
-                  {title: "More", children: [
-                    {title: "Sub 1", cmd: "sub1"},
-                    {title: "Sub 2", cmd: "sub1"}
-                    ]}
-                  ],
-              beforeOpen: function(event, ui) {
-                var node = $.ui.fancytree.getNode(ui.target);
-                // Modify menu entries depending on node status
-                $("#tree").contextmenu("enableEntry", "paste", node.isFolder());
-                // Show/hide single entries
-        //            $("#tree").contextmenu("showEntry", "cut", false);
+                		// show documentInfo and hide all itemInfos
+                		$(".itemInfo").hide();
+                		$("#documentInfo").show();
+                		
+                		// set appropriate class on itemSection 
+                		$("#itemSection").removeClass("lsItemItemSection").addClass("docStatus-{{ lsDoc.adoptionStatus }}");
+                	
+                	// else it's an lsItem
+                	} else {
+                		// replace url
+                		app.pushHistoryState(app.lsItemId, app.path.lsItem.replace('ID', app.lsItemId));
+                		
+                		// hide documentInfo and all itemInfos
+                		$(".itemInfo").hide();
+                		$("#documentInfo").hide();
 
-                // Activate node on right-click
-                node.setActive();
-              },
-              select: function(event, ui) {
-                var node = $.ui.fancytree.getNode(ui.target);
-                alert("select " + ui.cmd + " on " + node);
-              }
+                		// set appropriate class on itemSection 
+                		$("#itemSection").removeClass("docStatus-{{ lsDoc.adoptionStatus }}").addClass("lsItemItemSection");
+                		
+                		// if we already have an item div loaded for this item, just show it
+                		if ($(".itemInfo[data-item-lsItemId=" + app.lsItemId + "]").length > 0) {
+                			$(".itemInfo[data-item-lsItemId=" + app.lsItemId + "]").show();
+                		
+                		// else construct it...
+                		} else {
+                			// clone the itemInfoTemplate
+                			$jq = $("#itemInfoTemplate").clone();
+                			
+                			// add lsItemId
+                			$jq.attr("data-item-lsItemId", app.lsItemId);
+                			
+                			// fill in the title, which we already have from the node
+                			$jq.find(".itemTitle").text(" " + n.title);
+                			if (n.data != null && n.data.humanCoding != null) {
+                				$jq.find(".itemTitle").prepend($("<b></b>").text(n.data.humanCoding));
+                			}
+                			
+                			// append and show the node
+                			$("#items").append($jq);
+                			$jq.show();
+                			
+                			// ajax call to get the item details
+							$jq.find('.itemDetails').load(
+								app.path.lsItemDetails.replace('ID', app.lsItemId),
+								null,
+								function(responseText, textStatus, jqXHR) {
+									// details should be loaded
+									console.log("item " + app.lsItemId + " loaded");
+									
+									// enable hidden fields and more info link
+									$jq.find(".lsItemDetailsExtras").hide();
+									$jq.find(".lsItemDetailsMoreInfoLink a").on('click', function(e) {
+										$(this).parent().parent().find(".lsItemDetailsExtras").slideToggle(100);
+										if ($(this).attr("showing") != "true") {
+											$(this).text("Less Info");
+											$(this).attr("showing", "true");
+										} else {
+											$(this).text("More Info");
+											$(this).attr("showing", "false");
+										}
+									});
+								}
+							)
+
+                		}
+                	}
+                },
+                
+                // if user doubleclicks on a node, open the node, then simulate clicking the "Edit" button for it
+                dblclick: function(event, data) {
+                	console.log("dblclick");
+                	var lsItem = app.lsItemIdFromNode(data.node);
+                	setTimeout(app.treeDblClicked, 50, lsItem);
+                	
+                	// return false to cancel default processing (i.e. opening folders)
+                	return false;
+                },
+				
+				// drag-and-drop functionality
+                dnd: {
+                    // focusOnClick: true,
+                    // this function seems to need to be defined for the dnd functionality to work
+                    dragStart: function(node, data) {
+                    	// don't allow the document to be dragged
+                    	var lsItemId = app.lsItemIdFromNode(node);
+                    	if (lsItemId == null) {
+	                    	return false;
+	                    } else {
+	                    	return true;
+	                    }
+                    },
+                    //dragStop: function(node, data){ console.log('dragStop'); },
+                    //initHelper: function(){ console.log('initHelper'); },
+                    //updateHelper: function(){ console.log('updateHelper'); },
+					
+					// this function seems to need to be defined and to return true for the dnd functionality to work
+                    dragEnter: function(node, data) {
+                    	// if we returned false, you wouldn't be able to drag here
+                    	return true; 
+                    },
+                    dragDrop: function(node, data){  
+                    	// console.log('dragDrop', node, data);
+                    	
+                    	var draggedItemId = app.lsItemIdFromNode(data.otherNode);
+                    	var droppedItemId = app.lsItemIdFromNode(node);
+                    	var hitMode = data.hitMode;
+                    	
+                    	console.log('dragDrop: ' + draggedItemId + ' to ' + hitMode + ' ' + droppedItemId);
+                    	
+                    	// move the item in the tree
+                    	data.otherNode.moveTo(node, data.hitMode); 
+                    	
+                    	// TODO: update listEnum
+                    }
+                },
+                
+                // we don't currently need the below functions
+                // click: function(event, data){console.log(event, data);},
+                // beforeSelect: function(event, data){console.log(event, data);},
+                // select: function(event, data){console.log(event, data);},
+
+                // debugLevel:2
             });
+			
+			// given a node n, return the lsItemId as derived from the key -- or null if it's the doc node
+			app.lsItemIdFromNode = function(n) {
+				if (typeof(n) != "object" || n.parent == null || n.parent.parent == null) {
+					return null;
+				} else {
+					return n.key;
+				}
+			};
+			
+			// when user double-clicks an item, wait until the item is showing on the left, then click the edit button
+			app.treeDblClicked = function(lsItemId) {
+				// for doc, the edit button is there on page load
+				if (lsItemId == null) {
+					$(".btn[data-target='#editDocModal']").click();
+					
+				// for items, we can't click the button until the item details have been loaded
+				} else {
+					var $btn = $(".itemInfo[data-item-lsItemId=" + lsItemId + "]").find(".btn[data-target='#editItemModal']");
+					// btn will be there once the info has been loaded
+					if ($btn.length > 0) {
+						$btn.click();
+					} else {
+						setTimeout(app.treeDblClicked, 200, lsItemId);
+					}
+				}
+			};
+
+			// if we got an lsItemId, activate it (and expand it) now that the tree is loaded
+			if (app.lsItemId != null) {
+				// note that the key must be a string for this to work
+				app.ft.fancytree("getTree").activateKey(app.lsItemId+"").setExpanded(true); 
+
+				// format to get a node by key
+				// app.ft.fancytree("getTree").getNodeByKey("1098").setExpanded(true)
+			}
+        });
+		
+        $(document).ready(function(){
+        	// prepare modals for document
+        	prepareExportModal();
+            prepareEditDocModal();
+			
+			// prepare modals for item
+            prepareEditItemModal();
+            prepareCopyModal();
+            prepareAssociateModal();
+            prepareRemoveChildButton();
+            prepareRemoveAssociationButton();
+            prepareChangeParentModal();
+
+			// prepare modals that go with both doc and item
+            prepareAddChildModal();
         });
     </script>
 {% endblock %}
