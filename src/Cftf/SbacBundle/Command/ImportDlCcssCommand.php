@@ -6,9 +6,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Cftf\UtilBundle\Command;
+namespace Cftf\SbacBundle\Command;
 
-use CftfBundle\Entity\LsDefItemType;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityManager;
@@ -34,53 +33,92 @@ class ImportDlCcssCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         $filename = $input->getArgument('filename');
 
-        $fd = fopen($filename, 'r');
+        $fd = fopen($filename, 'rb');
 
         $lsDoc = new LsDoc();
-        $lsDoc->setTitle('Imported CSV');
-        $lsDoc->setCreator('System');
+        $lsDoc->setTitle('CCSS Imported from Digital Library');
+        $lsDoc->setCreator('SBAC');
 
         $em->persist($lsDoc);
 
-        $itemTypes = $em->getRepository('CftfBundle:LsDefItemType')->getList();
+        /** @var LsItem[] $items */
         $items = [];
 
-        // Ignore first row (assuming it is a header)
-        fgetcsv($fd, 0, ',');
+        // Get headers from first row (we are assuming it is a header)
+        //"Name","Term description","Alignment Key",
+        //"Taxonomy term UUID","Alignment Publication","Alignment ShortName","Alignment Grade","Weight","Parent UUID"
+        $headers = fgetcsv($fd, 0, ',');
 
-        $i = 1;
         while (false !== ($rec = fgetcsv($fd, 0, ','))) {
-            $lsItem = new LsItem();
+            $item = array_combine($headers, $rec);
+
+            $lsItem = new LsItem($item['Taxonomy term UUID']);
             $lsItem->setLsDoc($lsDoc);
+            $lsItem->setExtraProperty('_source', $item);
 
-            if (empty($itemTypes[$rec[0]])) {
-                $itemType = new LsDefItemType();
-                $itemType->setCode($rec[0]);
-                $itemType->setTitle($rec[0]);
-                $itemType->setHierarchyCode($rec[0]);
-
-                $em->persist($itemType);
-                $itemTypes[$rec[0]] = $itemType;
+            $lsItem->setFullStatement($item['Term description']);
+            if (!empty($item['Alignment ShortName']) && false === strpos($item['Alignment ShortName'], ' ')) {
+                // Skip if there is a space, as some have part of a sentence instead
+                $lsItem->setHumanCodingScheme($item['Alignment ShortName']);
+            } else {
+                $lsItem->setHumanCodingScheme($item['Name']);
             }
-            $lsItem->setItemType($itemTypes[$rec[0]]);
-            $lsItem->setFullStatement($rec[1]);
-            $lsItem->setHumanCodingScheme($rec[2]);
-            $lsItem->setRank($i++);
+            $lsItem->setRank((int) $item['Weight']);
+            if ('18379cc2-509c-4390-819b-d93169d0c0a9' === $item['Taxonomy term UUID']) {
+                // ELA Root
+                $lsItem->setRank(-2);
+            }
+            if ('7f84d3d1-2d6f-4f0d-9f25-bba0022746c7' === $item['Taxonomy term UUID']) {
+                // Math Root
+                $lsItem->setRank(-1);
+            }
+            $lsItem->setExtraProperty('legacyCoding', $item['Alignment Key']);
 
-            if (!empty($rec[3])) {
-                if (!empty($items[$rec[3]])) {
-                    $lsItem->addParent($items[$rec[3]]);
+            $lvl = $item['Alignment Grade'];
+            switch ($lvl) {
+                case 'K':
+                    $educationLevel = 'KG';
+                    break;
+                case 'Pre-K':
+                    $educationLevel = 'PK';
+                    break;
+                case 'HS':
+                    $educationLevel = '09,10,11,12';
+                    break;
+                default:
+                    if (is_numeric($lvl)) {
+                        if ($lvl < 10) {
+                            $educationLevel = '0'.((int) $lvl);
+                        } else {
+                            $educationLevel = $lvl;
+                        }
+                    } else {
+                        $educationLevel = 'OT';
+                    }
+            }
+            $lsItem->setEducationalAlignment($educationLevel);
+
+            $em->persist($lsItem);
+
+            $items[$item['Taxonomy term UUID']] = $lsItem;
+        }
+        fclose($fd);
+
+        // Add parents
+        foreach ($items as $lsItem) {
+            $source = $lsItem->getExtraProperty('_source');
+            $parentUuid = $source['Parent UUID'];
+
+            if (!empty($parentUuid)) {
+                if (!empty($items[$parentUuid])) {
+                    $lsItem->addParent($items[$parentUuid]);
                 } else {
+                    $lsItem->addParent($lsDoc);
                 }
             } else {
                 $lsItem->addParent($lsDoc);
             }
-
-            $em->persist($lsItem);
-
-            $items[$rec[2]] = $lsItem;
         }
-        fclose($fd);
 
         $em->flush();
 

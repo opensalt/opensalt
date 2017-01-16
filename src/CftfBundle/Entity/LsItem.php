@@ -221,10 +221,27 @@ class LsItem
     private $inverseAssociations;
 
 
-
-    public function __construct()
+    /**
+     * LsItem constructor.
+     *
+     * @param string|Uuid|null $identifier
+     */
+    public function __construct($identifier = null)
     {
-        $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
+        if (null !== $identifier) {
+            // If the identifier is in the form of a UUID then lower case it
+            if ($identifier instanceof Uuid) {
+                $identifier = strtolower($identifier->toString());
+            } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+                $identifier = strtolower(Uuid::fromString($identifier)->toString());
+            } else {
+                $identifier = Uuid::uuid4()->toString();
+            }
+        } else {
+            $identifier = Uuid::uuid4()->toString();
+        }
+
+        $this->identifier = $identifier;
         $this->uri = 'local:'.$this->identifier;
         $this->children = new ArrayCollection();
         $this->lsItemParent = new ArrayCollection();

@@ -122,11 +122,9 @@ class ImportCresstElaCommand extends ContainerAwareCommand
         $itemTypes = [];
         $i = 0;
         foreach ($items as $key => $item) {
-            $lsItem = new LsItem();
-            $lsItem->setLsDoc($lsDoc);
             $lsItemIdentifier = Uuid::uuid5(self::CRESST_NS, $key)->toString();
-            $lsItem->setIdentifier($lsItemIdentifier);
-            $lsItem->setUri('local:'.$lsItemIdentifier);
+            $lsItem = new LsItem($lsItemIdentifier);
+            $lsItem->setLsDoc($lsDoc);
             $lsItem->setExtraProperty('source', $item);
             $lsItem->setRank(++$i);
 
