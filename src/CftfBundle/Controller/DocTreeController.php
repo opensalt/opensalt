@@ -53,11 +53,15 @@ class DocTreeController extends Controller
     /**
      * @Route("/lsitem/{id}.{_format}", name="doc_tree_item_view", defaults={"_format"="html"})
      * @Method({"GET"})
-     * @Template()
+     *
+     * @param LsItem $lsItem
+     * @param string $_format
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function viewItemAction(LsItem $lsItem, $_format = 'html')
     {
-        return $this->forward('CftfBundle:DocTree:View', ['lsDoc' => $lsItem->getLsDoc(), 'html', 'lsItemId' => $lsItem->getid()]);
+        return $this->forward('CftfBundle:DocTree:view', ['lsDoc' => $lsItem->getLsDoc(), 'html', 'lsItemId' => $lsItem->getid()]);
     }
 
     /**
