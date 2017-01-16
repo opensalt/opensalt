@@ -1,3 +1,6 @@
+{% if closeButton is not defined %}
+    {% set closeButton = 'Close' %}
+{% endif %}
 {% if saveButton is not defined %}
     {% set saveButton = 'Save' %}
 {% endif %}
@@ -9,11 +12,11 @@
                 <h4 class="modal-title" id="{{ modalName }}ModalLabel">{{ modalTitle }}</h4>
             </div>
             <div class="modal-body">
-                {% block modalBody %}...{% endblock %}
+                {% block modalBody %}Loading form...{% endblock %}
             </div>
             <div class="modal-footer">
                 {% block modalAllButtons %}
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ closeButton }}</button>
                     {% block modalButtons %}
                         <button type="button" class="btn btn-primary btn-save">{{ saveButton }}</button>
                     {% endblock %}
