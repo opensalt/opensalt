@@ -63,30 +63,40 @@ class ImportDlCcssCommand extends ContainerAwareCommand
             } else {
                 $lsItem->setHumanCodingScheme($item['Name']);
             }
-            $lsItem->setRank((int) $item['Weight']);
             if ('18379cc2-509c-4390-819b-d93169d0c0a9' === $item['Taxonomy term UUID']) {
                 // ELA Root
                 $lsItem->setRank(-2);
-            }
-            if ('7f84d3d1-2d6f-4f0d-9f25-bba0022746c7' === $item['Taxonomy term UUID']) {
+            } elseif ('7f84d3d1-2d6f-4f0d-9f25-bba0022746c7' === $item['Taxonomy term UUID']) {
                 // Math Root
                 $lsItem->setRank(-1);
+            } else {
+                $lsItem->setRank((int) $item['Weight']);
             }
             $lsItem->setExtraProperty('legacyCoding', $item['Alignment Key']);
 
             $lvl = $item['Alignment Grade'];
             switch ($lvl) {
-                case 'K':
-                    $educationLevel = 'KG';
-                    break;
                 case 'Pre-K':
                     $educationLevel = 'PK';
+                    break;
+                case 'K':
+                case 'KG':
+                    $educationLevel = 'KG';
+                    break;
+                case '9-10':
+                    $educationLevel = '09,10';
+                    break;
+                case '11-12':
+                    $educationLevel = '11,12';
                     break;
                 case 'HS':
                     $educationLevel = '09,10,11,12';
                     break;
                 default:
-                    if (is_numeric($lvl)) {
+                    if (empty($lvl)) {
+                        // No educational level
+                        $educationLevel = '';
+                    } elseif (is_numeric($lvl)) {
                         if ($lvl < 10) {
                             $educationLevel = '0'.((int) $lvl);
                         } else {
@@ -96,7 +106,9 @@ class ImportDlCcssCommand extends ContainerAwareCommand
                         $educationLevel = 'OT';
                     }
             }
-            $lsItem->setEducationalAlignment($educationLevel);
+            if (!empty($educationLevel)) {
+                $lsItem->setEducationalAlignment($educationLevel);
+            }
 
             $em->persist($lsItem);
 
