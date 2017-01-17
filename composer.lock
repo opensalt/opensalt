@@ -186,16 +186,16 @@
         },
         {
             "name": "bower-asset/fancytree",
-            "version": "v2.20.0",
+            "version": "v2.21.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mar10/fancytree.git",
-                "reference": "b6ea14ff50a5883a854981e2cb6f56f27c3a5392"
+                "reference": "06f31b677e48757982e80dca6227a51000458cc7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mar10/fancytree/zipball/b6ea14ff50a5883a854981e2cb6f56f27c3a5392",
-                "reference": "b6ea14ff50a5883a854981e2cb6f56f27c3a5392",
+                "url": "https://api.github.com/repos/mar10/fancytree/zipball/06f31b677e48757982e80dca6227a51000458cc7",
+                "reference": "06f31b677e48757982e80dca6227a51000458cc7",
                 "shasum": ""
             },
             "require": {
