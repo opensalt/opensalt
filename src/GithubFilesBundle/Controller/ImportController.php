@@ -19,14 +19,17 @@ class ImportController extends Controller{
      * @Route("/cf/github/import", name="import_from_github")
      */
     public function importAction(Request $request) {
-        $lsdocKeys = $request->query->get('lsdocKeys');
-        $fileContent = $request->request->get('fileContent');
+        $response = new JsonResponse();
+        $lsDocKeys = $request->request->get('cfDocKeys');
+        $lsItemKeys = $request->request->get('cfItemKeys');
+        $lsAssociationKeys = $request->request->get('cfAssociationKeys');
+        $fileContent = $request->request->get('content');
 
         $githubImporter = $this->get('cftf_import.github');
-        $githubImporter->parseGithubDocument($lsdocKeys, $fileContent);
+        $githubImporter->parseGithubDocument($lsDocKeys, $lsItemKeys, base64_decode($fileContent));
 
-        /* return $response->setData(array( */
-        /*     'message' => 'Framework imported successfully!' */
-        /* )); */
+        return $response->setData(array(
+            'message' => "Success"
+        ));
     }
 }

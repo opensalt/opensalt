@@ -1,12 +1,39 @@
-<button type="button" class="btn btn-info" data-toggle="modal" data-target="#fields">Open Modal</button>
-
-<div id="fields" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+<div id="fields" class="modal bs-example-modal-lg fade" role="dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h4>Match Fields</h4>
             </div>
-            <div class="modal-body dropdowns"></div>
+            <div class="modal-body wizard-body-framework">
+                <div class="alert alert-warning hidden js-alert-missing-fields" role="alert">
+                    Some fields are missing to be matched.
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#cfdoc" aria-controls="home" role="tab" data-toggle="tab">CF Doc</a></li>
+                    <li role="presentation"><a href="#cfitem" aria-controls="profile" role="tab" data-toggle="tab">CF Item</a></li>
+                    <li role="presentation"><a href="#cfassociation" aria-controls="messages" role="tab" data-toggle="tab">CF Association</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="cfdoc">
+                        <form class="matched-fields-cfdoc">
+                            <div class="dropdowns cfdoc"></div>
+                        </form>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="cfitem">
+                        <form class="matched-fields-cfitem">
+                            <div class="dropdowns cfitem"></div>
+                        </form>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="cfassociation">
+                        <form class="matched-fields-cfassociation">
+                            <div class="dropdowns cfassociation"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary send-info">Send</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

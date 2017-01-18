@@ -1,6 +1,6 @@
 $(document).on('ready', function(){
     SaltGithub.init();
-    Dropdowns.generate();
+    Dropdowns.init();
 
     $('input[name="import"]').click(function(){
         loadContent($('input[name="import"]:checked').val());
@@ -9,7 +9,11 @@ $(document).on('ready', function(){
         ImportFrameworks.fromAsn();
     });
     $('.send-info').click(function(){
-        Import.send();
+        if( Dropdowns.validDropdown("form.matched-fields-cfdof") &&
+            Dropdowns.validDropdown("form.matched-fields-cfitem") &&
+              Dropdowns.validDropdown("form.matched-fields-cfassociation")){
+            Import.send();
+        }
     });
 });
 
@@ -169,7 +173,11 @@ var ImportFrameworks = (function(){
 
 var Import = (function(){
 
-    function csvImporter(file){
+    var file = "";
+
+    function csvImporter(content){
+        file = content;
+
         var lines = file.split("\n");
         var columns = lines[0].split(",");
         var selects = $('.select');
@@ -206,12 +214,29 @@ var Import = (function(){
         var columns = {};
         var selects = $('.select');
 
+        var dataRequest = {
+            content: window.btoa(file),
+            cfDocKeys: SanitizeData.matchedFields("form.matched-fields-cfdoc"),
+            cfItemKeys: SanitizeData.matchedFields("form.matched-fields-cfitem"),
+            cfAssociationKeys: SanitizeData.matchedFields("form.matched-fields-cfassociation")
+        };
+
+        console.info(dataRequest);
+
         $.each(selects, function(){
             var $select = $(this);
             columns[$select.attr('name')] = $select.val();
         });
 
-        console.log(columns);
+        $.ajax({
+            url: '/app_dev.php/cf/github/import',
+            type: 'post',
+            data: dataRequest,
+            success: function(response){
+                console.log(response);
+                location.reload();
+            }
+        });
     }
 
     return {
@@ -223,37 +248,124 @@ var Import = (function(){
 
 var Dropdowns = (function(){
 
-    var dropdowns = [
-        'identifier',
-        'URI',
-        'creator',
-        'title',
-        'lastChangeDateTime',
-        'officialSourceURL',
-        'publisher',
-        'description',
-        'subject',
-        'subjectURL',
-        'language',
-        'version',
-        'adoptionStatus',
-        'statusStartDate',
-        'statusEndDate',
-        'license',
-        'licenseURI',
-        'notes',
-        'CFPackageURI'
+    var docDropdowns = [
+        ['creator', 'M'],
+        ['title', 'M'],
+        ['lastChangeDateTime', 'O'],
+        ['officialSourceURL', 'O'],
+        ['publisher', 'O'],
+        ['description', 'O'],
+        ['subject', 'O'],
+        ['subjectURL', 'O'],
+        ['language', 'O'],
+        ['version', 'O'],
+        ['adoptionStatus', 'O'],
+        ['statusStartDate', 'O'],
+        ['statusEndDate', 'O'],
+        ['license', 'O'],
+        ['licenseURI', 'O'],
+        ['notes', 'O'],
+        ['CFPackageURI', 'O']
     ];
 
-    function generateDropdowns(){
-        dropdowns.forEach(function(dropdown){
-            $('.dropdowns').append('<div class="form-group"><label>'+dropdown.titleize()+'</label><select name="'+dropdown+'" class="form-control select"><option>Choose one option</option></select></div>');
+    var itemDropdowns = [
+        ['fullStatement', 'M'],
+        ['humanCodingScheme', 'O'],
+        ['listEnumeration', 'O'],
+        ['abbreviatedStatement', 'O'],
+        ['conceptKeywords', 'O'],
+        ['conceptKeywordsUri', 'O'],
+        ['notes', 'O'],
+        ['language', 'O'],
+        ['educationLevel', 'O'],
+        ['type', 'O'],
+        ['typeUri', 'O'],
+        ['license', 'O'],
+        ['lastChangeDateTime', 'O'],
+        ['lsItemAssociationUri', 'O']
+    ];
+    var associationDropdowns = [
+        ['origin', 'O'],
+        ['originNodeUri', 'O'],
+        ['destination', 'O'],
+        ['destinationNodeUri', 'O'],
+        ['identifier', 'O'],
+        ['originNodeIdentifier', 'O'],
+        ['originNodeUri', 'O'],
+        ['destinationNodeIdentifier', 'O'],
+        ['groupUri', 'O'],
+        // Association Types
+        ['isChildOf', 'O'],
+        ['isPartOf', 'O'],
+        ['exactMatchOf', 'O'],
+        ['precedes', 'O'],
+        ['isRelatedTo', 'O'],
+        ['replacedBy', 'O'],
+        ['exemplar', 'O'],
+        ['hasSkillLevel', 'O']
+    ];
+
+    function generateDropdowns(arrData, type){
+        var mandatoryClass = "";
+        arrData.chunk(2).forEach(function(dropdownGrouped){
+	    $('.dropdowns.'+type).append('<div class="row"></div>');
+	    dropdownGrouped.forEach(function(dropdown){
+                if( dropdown[1] === 'M' ){ mandatoryClass = "mandatory-class"; }
+                $('.dropdowns.'+type+' .row').last().append('<div class="col-xs-6"><div class="panel panel-default"><div class="panel-body '+ mandatoryClass +'"></div></div></div>');
+                $('.dropdowns.'+type+' .row .panel-body').last().append('<div class="col-xs-6"><div class="form-group"><label>'+dropdown[0].titleize()+'</label><select name="'+dropdown[0]+'" class="form-control select"><option>Choose one option</option></select></div></div>');
+                $('.dropdowns.'+type+' .row .panel-body').last().append('<div class="col-xs-6"><div class="form-group"><label>Enter default value if needed</label><input name="'+dropdown[0]+'_default_value" type="text" class="form-control"/></div></div>');
+                mandatoryClass = "";
+            });
         });
     }
 
+    function validDropdown(formMatchedSelector){
+        var missingRequiredFiles = false;
+        $(formMatchedSelector).find("div.mandatory-class select").each(function(i,e){
+            if ( $(e).val().length < 1 && $(e).parents(".panel-body").first().find("input").first().val().length < 1 ){
+                 missingRequiredFiles = true;
+            }
+        });
+        if(missingRequiredFiles){
+            $(".js-alert-missing-fields").removeClass("hidden");
+        }else{
+            $(".js-alert-missing-fields").addClass("hidden");
+        }
+        return !missingRequiredFiles;
+    }
+
+    function init(){
+        generateDropdowns(docDropdowns, 'cfdoc');
+        generateDropdowns(itemDropdowns, 'cfitem');
+        generateDropdowns(associationDropdowns, 'cfassociation');
+    }
+
     return {
-        generate: generateDropdowns
+        init: init,
+        validDropdown: validDropdown
     };
+})();
+
+var SanitizeData = (function(){
+    function matchedFields(formSelector){
+        var sanitizedData = {},
+            tempData = {},
+            formData = $(formSelector).serializeArray();
+
+        formData.forEach(function(e){ tempData[e.name] = e.value; });
+	for (i=0; i < formData.length;i+=2){
+            if( tempData[formData[i].name+'_default_value'] !== "" ){
+                sanitizedData[formData[i].name] = tempData[formData[i].name+'_default_value'] + ', true';
+                continue;
+            }
+            sanitizedData[formData[i].name] = formData[i].value;
+	}
+        return sanitizedData;
+    }
+
+    return {
+        matchedFields: matchedFields
+    }
 })();
 
 String.prototype.capitalize = function(){
@@ -263,3 +375,10 @@ String.prototype.capitalize = function(){
 String.prototype.titleize = function(){
     return this.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1").capitalize();
 }
+
+Array.prototype.chunk = function ( n ) {
+    if ( !this.length ) {
+        return [];
+    }
+    return [ this.slice( 0, n ) ].concat( this.slice(n).chunk(n) );
+};
