@@ -5,6 +5,7 @@ namespace CftfBundle\Repository;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\Query;
+use Util\Compare;
 
 /**
  * LsDocRepository
@@ -72,36 +73,7 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      */
     private function rankItems(array &$itemArray)
     {
-        uasort($itemArray, function($a, $b) {
-            // rank
-            if (!empty($a['rank']) && !empty($b['rank'])) {
-                if ($a['rank'] != $b['rank']) {
-                    return ($a < $b) ? -1 : 1;
-                } // else fall through to next check
-            } elseif (!empty($a['rank']) || !empty($b['rank'])) {
-                return (!empty($a['rank'])) ? -1 : 1;
-            }
-
-            // listEnumInSource
-            if (!empty($a['listEnumInSource']) && !empty($b['listEnumInSource'])) {
-                if ($a['listEnumInSource'] != $b['listEnumInSource']) {
-                    return ($a < $b) ? -1 : 1;
-                } // else fall through to next check
-            } elseif (!empty($a['listEnumInSource']) || !empty($b['listEnumInSource'])) {
-                return (!empty($a['listEnumInSource'])) ? -1 : 1;
-            }
-
-            // humanCodingScheme
-            if (!empty($a['humanCodingScheme']) && !empty($b['humanCodingScheme'])) {
-                if ($a['humanCodingScheme'] != $b['humanCodingScheme']) {
-                    return ($a < $b) ? -1 : 1;
-                } // else fall through to next check
-            } elseif (!empty($a['humanCodingScheme']) || !empty($b['humanCodingScheme'])) {
-                return (!empty($a['humanCodingScheme'])) ? -1 : 1;
-            }
-
-            return 0;
-        });
+        Compare::sortArrayByFields($itemArray, ['rank', 'listEnumInSource', 'humanCodingScheme']);
     }
 
     /**
@@ -140,12 +112,14 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
             JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
             JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE i.lsDoc = :lsDocId
-            ORDER BY i.rank ASC, i.listEnumInSource ASC, i.humanCodingScheme
+            ORDER BY i.rank ASC, i.listEnumInSource ASC, i.humanCodingScheme ASC
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
 
         $results = $query->getResult(Query::HYDRATE_ARRAY);
+
+        $this->rankItems($results);
 
         return array_keys($results);
     }
