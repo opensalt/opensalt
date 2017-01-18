@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "0d731c9f19d02a93bb5b69cfda790cfa",
+    "content-hash": "67d310c2af4356e6b2b705bf45115fdc",
     "packages": [
         {
             "name": "behat/transliterator",
@@ -417,6 +417,44 @@
                 "select2"
             ],
             "time": "2016-09-08 00:38:06"
+        },
+        {
+            "name": "bower-asset/twbs-pagination",
+            "version": "v1.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/esimakin/twbs-pagination.git",
+                "reference": "021d98dbb947479982aa9ec162f7a021f99b55b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/esimakin/twbs-pagination/zipball/021d98dbb947479982aa9ec162f7a021f99b55b8",
+                "reference": "021d98dbb947479982aa9ec162f7a021f99b55b8",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/jquery": ">=1.7"
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": "jquery.twbsPagination.js",
+                "bower-asset-ignore": [
+                    "**/.*",
+                    "node_modules",
+                    "bower_components",
+                    "tests"
+                ]
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "jQuery simple pagination plugin for bootstrap-style webpages",
+            "keywords": [
+                "bootstrap",
+                "jQuery",
+                "jQuery-plugin",
+                "pagination"
+            ]
         },
         {
             "name": "bower-asset/ui-contextmenu",
