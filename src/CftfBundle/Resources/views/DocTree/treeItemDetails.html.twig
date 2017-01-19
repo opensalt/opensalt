@@ -80,7 +80,7 @@
     {% for group, list in lsItem.groupedAssociations if list is not empty %}
         {# PW: don't show child of/parent of associations here, since you see that in the tree #}
         {% if (group is not constant('CftfBundle\\Entity\\LsAssociation::CHILD_OF')) and (group is not constant('CftfBundle\\Entity\\LsAssociation::INVERSE_CHILD_OF')) %}
-            {% embed 'CftfBundle:Editor:_lsAssociationComponent.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
+            {% embed 'CftfBundle:DocTree:_lsAssociationComponent.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
                 {% block start_of_item_a %}
                     {% if is_granted('edit', lsItem.lsDoc) %}
                         <span class="pull-right">

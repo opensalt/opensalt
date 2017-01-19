@@ -1,0 +1,75 @@
+{% if items is not empty %}
+    <section class="panel panel-default panel-component item-component" id="item-component-{{ componentName }}">
+        <div class="panel-heading">{{ title }}</div>
+        <div class="panel-body">
+            <div>
+                <div class="list-group">
+                    {% for association in items %}
+                        {% if association.destinationLsItem is defined %}
+                            {% if association.destinationLsItem is not empty %}
+                                {% if viewingItem == association.destinationLsItem %}
+                                    {% set item = association.originLsItem %}
+                                {% else %}
+                                    {% set item = association.destinationLsItem %}
+                                {% endif %}
+                                <a href="{{ path('doc_tree_item_view', {'id':item.id}) }}" data-item-id="{{ item.id }}" data-association-id="{{ association.id }}" class="list-group-item lsassociation lsitem clearfix">
+                                    {% block start_of_item_a '' %}
+                                    {% if item.humanCodingScheme is not empty %}
+                                        <span class="item-humanCodingScheme">{{ item.humanCodingScheme }}</span>
+                                    {% endif %}
+                                    {% if item.fullStatement != item.humanCodingScheme %}
+                                        {{ item.fullStatement }}
+                                    {% endif %}
+                                    {% if item.lsDoc != viewingItem.lsDoc %}
+                                        <span class="label label-default">{{ item.lsDoc.title|truncate(30) }}</span>
+                                    {% endif %}
+                                    {% block end_of_item_a '' %}
+                                </a>
+                            {% elseif association.destinationLsDoc is not empty %}
+                                {% set doc = association.destinationLsDoc %}
+                                <a href="{{ path('doc_tree_view', {'id':doc.id}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
+                                    Document: {{ doc.title }}
+                                    {{ block('end_of_item_a') }}
+                                </a>
+                            {% elseif association.destinationNodeUri is not empty %}
+                                {% set uri = association.destinationNodeUri %}
+                                <span data-association-id="{{ association.id }}" class="list-group-item lsassociation lsitem-uri clearfix">
+                                    {{ uri|local_remote_uri }}
+                                    {{ block('end_of_item_a') }}
+                                </span>
+                            {% else %}
+                                <span data-association-id="{{ association.id }}" class="list-group-item lsassociation lsitem-uri clearfix">
+                                    {{ association.destinationNodeIdentifier }}
+                                    {{ block('end_of_item_a') }}
+                                </span>
+                            {% endif %}
+                        {% elseif association.destinationLsDoc is defined %}
+                            {% set doc = association %}
+                            <a href="{{ path('doc_tree_view', {'id':doc.id}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
+                                Document: {{ doc.title }}
+                                {{ block('end_of_item_a') }}
+                            </a>
+                        {% elseif association.isLsItem is defined %}
+                            {% set item = association %}
+                            <a href="{{ path('doc_tree_item_view', {'id':item.id}) }}" data-item-id="{{ item.id }}" class="list-group-item lsitem clearfix">
+                                {% if item.humanCodingScheme is not empty %}
+                                    {{ item.humanCodingScheme }}
+                                {% endif %}
+                                {% if item.fullStatement != item.humanCodingScheme %}
+                                    {{ item.fullStatement }}
+                                {% endif %}
+                                {{ block('end_of_item_a') }}
+                            </a>
+                        {% elseif association.isLsDoc is defined %}
+                            {% set doc = association %}
+                            <a href="{{ path('doc_tree_view', {'id':doc.id}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
+                                Document: {{ doc.title }}
+                                {{ block('end_of_item_a') }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}
