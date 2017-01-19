@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Util\Compare;
 
 /**
  * Editor Tree controller.
@@ -102,6 +103,7 @@ class DocTreeController extends Controller
                 unset($orphaned[$id]);
             }
         }
+        Compare::sortArrayByFields($orphaned, ['rank', 'listEnumInSource', 'humanCodingScheme']);
 
         return [
             'topItemIds'=>$topChildren,

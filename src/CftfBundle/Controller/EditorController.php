@@ -8,6 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Util\Compare;
 
 /**
  * Editor controller.
@@ -93,6 +94,7 @@ class EditorController extends Controller
                 unset($orphaned[$id]);
             }
         }
+        Compare::sortArrayByFields($orphaned, ['rank', 'listEnumInSource', 'humanCodingScheme']);
 
         return [
             'topItemIds'=>$topChildren,

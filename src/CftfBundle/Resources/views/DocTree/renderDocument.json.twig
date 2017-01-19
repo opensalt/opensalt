@@ -14,10 +14,16 @@
             {% endfor %}
             {% if orphaned is not empty %}
                 {% if mainChildren %}, {% endif %}
-                {% for item in orphaned %}
-                    {% if not loop.first %}, {% endif %}
-                    {% include 'CftfBundle:DocTree:render_child.json.twig' with { 'lsItem':item, 'lsDoc':lsDoc, 'items':items } %}
-                {% endfor %}
+                {
+                    "title": "No parent",
+                    "folder": true,
+                    "children": [
+                        {% for item in orphaned %}
+                            {% if not loop.first %}, {% endif %}
+                            {% include 'CftfBundle:DocTree:render_child.json.twig' with { 'lsItem':item, 'lsDoc':lsDoc, 'items':items } %}
+                        {% endfor %}
+                    ]
+                }
             {% endif %}
         ]
     }
