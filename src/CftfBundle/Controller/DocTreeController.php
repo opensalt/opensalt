@@ -63,11 +63,15 @@ class DocTreeController extends Controller
     /**
      * @Route("/lsitem/{id}.{_format}", name="doc_tree_item_view", defaults={"_format"="html"})
      * @Method({"GET"})
-     * @Template()
+     *
+     * @param LsItem $lsItem
+     * @param string $_format
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function viewItemAction(LsItem $lsItem, $_format = 'html')
     {
-        return $this->forward('CftfBundle:DocTree:View', ['lsDoc' => $lsItem->getLsDoc(), 'html', 'lsItemId' => $lsItem->getid()]);
+        return $this->forward('CftfBundle:DocTree:view', ['lsDoc' => $lsItem->getLsDoc(), 'html', 'lsItemId' => $lsItem->getid()]);
     }
 
     /**
@@ -91,14 +95,6 @@ class DocTreeController extends Controller
         $topChildren = $repo->findTopChildrenIds($lsDoc);
 
         $orphaned = $items;
-        /* This list is now found in the $haveParents list
-        foreach ($lsDoc->getTopLsItemIds() as $id) {
-            // Not an orphan
-            if (!empty($orphaned[$id])) {
-                unset($orphaned[$id]);
-            }
-        }
-        */
         foreach ($haveParents as $child) {
             // Not an orphan
             $id = $child['id'];
@@ -139,7 +135,7 @@ class DocTreeController extends Controller
      * @param Request $request
      * @param LsItem $lsItem
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function deleteAction(Request $request, LsItem $lsItem)
     {
@@ -147,8 +143,8 @@ class DocTreeController extends Controller
         if ($request->isXmlHttpRequest()) {
             $ajax = true;
         }
-    	$lsDocId = $lsItem->getLsDoc()->getId();
-    	
+        $lsDocId = $lsItem->getLsDoc()->getId();
+
         $hasChildren = $lsItem->getChildren();
 
         if ($hasChildren->isEmpty()) {
@@ -157,14 +153,14 @@ class DocTreeController extends Controller
             $em->remove($lsItem);
             $em->flush();
         }
-		
-		if ($ajax) {
-			return new Response($this->generateUrl('doc_tree_view', ['id' => $lsDocId]), Response::HTTP_ACCEPTED);
-		} else {
-	        return $this->redirectToRoute('doc_tree_view', ['id' => $lsDocId]);
-	    }
+
+        if ($ajax) {
+            return new Response($this->generateUrl('doc_tree_view', ['id' => $lsDocId]), Response::HTTP_ACCEPTED);
+        } else {
+            return $this->redirectToRoute('doc_tree_view', ['id' => $lsDocId]);
+        }
     }
-    
+
     /**
      * Updates a set of items in the document from the tree view
      * Reorders are done by updating the listEnum fields of the items
@@ -185,81 +181,81 @@ class DocTreeController extends Controller
         if ($request->isXmlHttpRequest()) {
             $ajax = true;
         }
-    	$lsDocId = $lsDoc->getId();
-    	
-    	// by default we'll return the url of the document
-    	$returnUrl = new Response($this->generateUrl('doc_tree_view', ['id' => $lsDocId]), Response::HTTP_ACCEPTED);
+        $lsDocId = $lsDoc->getId();
 
-		$em = $this->getDoctrine()->getManager();
-		$lsItemRepo = $em->getRepository(LsItem::class);
+        // by default we'll return the url of the document
+        $returnUrl = new Response($this->generateUrl('doc_tree_view', ['id' => $lsDocId]), Response::HTTP_ACCEPTED);
 
-    	$lsItems = $request->request->get('lsItems');
-    	foreach ($lsItems as $lsItemId => $updates) {
-    		$copiedItem = false;
-    		
-			// copy item if copyFromId is specified
-			if (array_key_exists("copyFromId", $updates)) {
-				$copiedItem = true;
-				$originalItem = $lsItemRepo->findOneById($updates["copyFromId"]);
-				
-				// PW: code based on CopyToLsDocCommand
-				$lsItem = clone $originalItem;
-				$lsItem->setLsDoc($lsDoc);
-				$em->persist($lsItem);
-				// flush here to generate ID for new lsItem
-				$em->flush();
-				
-				// if we create a new item, we'll return the url of the new item
-				$returnUrl = new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
-				
-				// add "EXACT_MATCH_OF" relationship to the original item
-				$association = new LsAssociation();
-				$association->setLsDoc($lsDoc);
-				$association->setOrigin($lsItem);
-				$association->setDestination($originalItem);
-				$association->setType(LsAssociation::EXACT_MATCH_OF);
+        $em = $this->getDoctrine()->getManager();
+        $lsItemRepo = $em->getRepository(LsItem::class);
 
-				$em->persist($association);
-				
-				// we will add the "CHILD_OF" relationship, as well as listEnumInSource, below
-			
-			// else get lsItem from the repository
-			} else {
-	    		$lsItem = $lsItemRepo->findOneById($lsItemId);
-	    	}
-			
-			// change listEnumInSource if listEnumInSource is specified
-			if (array_key_exists("listEnumInSource", $updates)) {
-				$lsItem->setListEnumInSource($updates["listEnumInSource"]);
-			}
-			
-			// set/change parent if parentId is specified
-			if (array_key_exists("parentId", $updates)) {
-				// parent could be a doc or item
-				if ($updates["parentType"] == "item") {
-					$parentItem = $lsItemRepo->findOneById($updates["parentId"]);
-				} else {
-					$parentItem = $em->getRepository(LsDoc::class)->findOneById($updates["parentId"]);
-				}
-				// PW: code mostly copied from ChangeLsItemParentCommand
-				$lsItem->setUpdatedAt(new \DateTime());
-				// unless we copied the item, we need to remove previous CHILD_OF relationships.
-				if (!$copiedItem) {
-					$em->getRepository(LsAssociation::class)->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
-					// if we do this for a copied item, we also remove the CHILD_OF relationships for the original item
-				}
-				$lsItem->addParent($parentItem);
-			}
-			
-			// Note: this could be extended to allow for other updates if we wanted to do that...
-    	}
+        $lsItems = $request->request->get('lsItems');
+        foreach ($lsItems as $lsItemId => $updates) {
+            $copiedItem = false;
 
-		$em->flush();
+            // copy item if copyFromId is specified
+            if (array_key_exists("copyFromId", $updates)) {
+                $copiedItem = true;
+                $originalItem = $lsItemRepo->findOneById($updates["copyFromId"]);
 
-		if ($ajax) {
-			return $returnUrl;
-		} else {
-	        return $this->redirectToRoute('doc_tree_view', ['id' => $lsDocId]);
-	    }
+                // PW: code based on CopyToLsDocCommand
+                $lsItem = clone $originalItem;
+                $lsItem->setLsDoc($lsDoc);
+                $em->persist($lsItem);
+                // flush here to generate ID for new lsItem
+                $em->flush();
+
+                // if we create a new item, we'll return the url of the new item
+                $returnUrl = new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
+
+                // add "EXACT_MATCH_OF" relationship to the original item
+                $association = new LsAssociation();
+                $association->setLsDoc($lsDoc);
+                $association->setOrigin($lsItem);
+                $association->setDestination($originalItem);
+                $association->setType(LsAssociation::EXACT_MATCH_OF);
+
+                $em->persist($association);
+
+                // we will add the "CHILD_OF" relationship, as well as listEnumInSource, below
+
+            // else get lsItem from the repository
+            } else {
+                $lsItem = $lsItemRepo->findOneById($lsItemId);
+            }
+
+            // change listEnumInSource if listEnumInSource is specified
+            if (array_key_exists("listEnumInSource", $updates)) {
+                $lsItem->setListEnumInSource($updates["listEnumInSource"]);
+            }
+
+            // set/change parent if parentId is specified
+            if (array_key_exists("parentId", $updates)) {
+                // parent could be a doc or item
+                if ($updates["parentType"] == "item") {
+                    $parentItem = $lsItemRepo->findOneById($updates["parentId"]);
+                } else {
+                    $parentItem = $em->getRepository(LsDoc::class)->findOneById($updates["parentId"]);
+                }
+                // PW: code mostly copied from ChangeLsItemParentCommand
+                $lsItem->setUpdatedAt(new \DateTime());
+                // unless we copied the item, we need to remove previous CHILD_OF relationships.
+                if (!$copiedItem) {
+                    $em->getRepository(LsAssociation::class)->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
+                    // if we do this for a copied item, we also remove the CHILD_OF relationships for the original item
+                }
+                $lsItem->addParent($parentItem);
+            }
+
+            // Note: this could be extended to allow for other updates if we wanted to do that...
+        }
+
+        $em->flush();
+
+        if ($ajax) {
+            return $returnUrl;
+        } else {
+            return $this->redirectToRoute('doc_tree_view', ['id' => $lsDocId]);
+        }
     }
 }

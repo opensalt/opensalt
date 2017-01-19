@@ -43,9 +43,9 @@
                         {% set value = attribute(lsItem, field) %}
                         {% if value.timestamp is defined and value.timezone is defined %}
                             {{ value|date("m/d/Y H:i") }}
-                        {% elseif field == 'uri'%}
+                        {% elseif field == 'uri' %}
                             <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
-                        {% elseif field == 'lsDocUri'%}
+                        {% elseif field == 'lsDocUri' %}
                             <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
                         {% else %}
                             {{ value }}
@@ -59,34 +59,35 @@
 
     {% if lsItem.canEdit %}
     <div class="itemOptions">
-        {% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
-        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal">Edit</button>
-        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="deleteItem">Delete</button>
-        <button type="button" class="btn btn-default btn-sm" data-target="addAssociation">Add Association</button>
+        {% if is_granted('edit', lsItem) %}
+            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal">Edit</button>
+            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="deleteItem">Delete</button>
+        {% endif %}
+        {% if is_granted('edit', lsItem.lsDoc) %}
+            <button type="button" class="btn btn-default btn-sm" data-target="addAssociation">Add Association</button>
         {% endif %}
         {# TODO: How do we "find aligned resources"
         <button type="button" class="btn btn-default btn-sm" disabled="disabled">Find Aligned Resources</button>
         #}
 
-        {% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
-		<span style="white-space:nowrap; padding-left:15px;">Add Child: <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Copy of Existing Item</button></span>
+        {% if is_granted('edit', lsItem.lsDoc) %}
+            <span style="white-space:nowrap; padding-left:15px;">Add Child: <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Copy of Existing Item</button></span>
         {% endif %}
     </div>
     {% endif %}
-
 </div>
 <div class="lsItemAssociations">
     {% for group, list in lsItem.groupedAssociations if list is not empty %}
         {# PW: don't show child of/parent of associations here, since you see that in the tree #}
         {% if (group is not constant('CftfBundle\\Entity\\LsAssociation::CHILD_OF')) and (group is not constant('CftfBundle\\Entity\\LsAssociation::INVERSE_CHILD_OF')) %}
             {% embed 'CftfBundle:Editor:_lsAssociationComponent.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
-				{% block start_of_item_a %}
-					{% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
-					<span class="pull-right">
-					<span role="button" class="btn btn-xs btn-default btn-remove-association">Remove</span>
-					</span>
-					{% endif %}
-				{% endblock %}
+                {% block start_of_item_a %}
+                    {% if is_granted('edit', lsItem.lsDoc) %}
+                        <span class="pull-right">
+                            <span role="button" class="btn btn-xs btn-default btn-remove-association">Remove</span>
+                        </span>
+                    {% endif %}
+                {% endblock %}
             {% endembed %}
         {% endif %}
     {% endfor %}
