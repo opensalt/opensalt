@@ -324,15 +324,15 @@ span.fancytree-title {
                             <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
                             {# use first version if we need to edit the adoptionStatus #}
                             {# if is_granted('edit', lsDoc) #}
-                            {% if lsDoc.canEdit and is_granted('edit', lsDoc) %}
-                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal">Edit</button>
+                            {% if is_granted('edit', lsDoc) %}
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal">Edit</button>
                             {% endif %}
                             {% if is_granted('manage_editors', lsDoc) %}
-                            <a href="{{ path('framework_acl_edit', {'id':lsDoc.id}) }}" class="btn btn-default btn-sm">Manage Access</a>
+                                <a href="{{ path('framework_acl_edit', {'id':lsDoc.id}) }}" class="btn btn-default btn-sm">Manage Access</a>
                             {% endif %}
 
-                            {% if lsDoc.canEdit and is_granted('edit', lsDoc) %}
-                            <span style="white-space:nowrap; padding-left:15px;"><b>Add Child:</b> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Existing Item</button></span>
+                            {% if is_granted('edit', lsDoc) %}
+                                <span style="white-space:nowrap; padding-left:15px;"><b>Add Child:</b> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Existing Item</button></span>
                             {% endif %}
                         </div>
 

@@ -92,16 +92,16 @@
             {% for group, list in lsItem.groupedAssociations if list is not empty %}
                 {% embed 'CftfBundle:Editor:_lsAssociationComponent.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
                     {% block end_of_item_a %}
-                        {% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
-                        <span class="pull-right">
-                        {% if group is constant('CftfBundle\\Entity\\LsAssociation::CHILD_OF') %}
-                            <span role="button" class="btn btn-xs btn-default btn-change-parent">Change</span>
-                        {% elseif group is constant('CftfBundle\\Entity\\LsAssociation::INVERSE_CHILD_OF') %}
-                            <span role="button" class="btn btn-xs btn-danger btn-remove-child">Remove</span>
-                        {% else %}
-                            <span role="button" class="btn btn-xs btn-danger btn-remove-association">Remove</span>
-                        {% endif %}
-                        </span>
+                        {% if is_granted('edit', lsItem) and is_granted('edit', lsItem.lsDoc) %}
+                            <span class="pull-right">
+                            {% if group is constant('CftfBundle\\Entity\\LsAssociation::CHILD_OF') %}
+                                <span role="button" class="btn btn-xs btn-default btn-change-parent">Change</span>
+                            {% elseif group is constant('CftfBundle\\Entity\\LsAssociation::INVERSE_CHILD_OF') %}
+                                <span role="button" class="btn btn-xs btn-danger btn-remove-child">Remove</span>
+                            {% else %}
+                                <span role="button" class="btn btn-xs btn-danger btn-remove-association">Remove</span>
+                            {% endif %}
+                            </span>
                         {% endif %}
                     {% endblock %}
                 {% endembed %}

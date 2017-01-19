@@ -57,7 +57,7 @@
     </ul>
     <div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
 
-    {% if lsItem.canEdit %}
+    {% if is_granted('edit', lsItem) or is_granted('edit', lsItem.lsDoc) %}
     <div class="itemOptions">
         {% if is_granted('edit', lsItem) %}
             <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal">Edit</button>
@@ -71,7 +71,7 @@
         #}
 
         {% if is_granted('edit', lsItem.lsDoc) %}
-		<span style="white-space:nowrap; padding-left:15px;"><b>Add Child:</b> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Existing Item</button></span>
+            <span style="white-space:nowrap; padding-left:15px;"><b>Add Child:</b> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Existing Item</button></span>
         {% endif %}
     </div>
     {% endif %}
