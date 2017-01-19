@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Form\Type\LsAssociationType;
+use CftfBundle\Form\Type\LsAssociationTreeType;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -94,6 +95,58 @@ class LsAssociationController extends Controller
 
         if ($ajax && $form->isSubmitted() && !$form->isValid()) {
             //return $this->render('CftfBundle:LsAssociation:new.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
+            return $this->render('CftfBundle:LsAssociation:new.html.twig', $ret, new Response('', Response::HTTP_OK));
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Creates a new LsAssociation entity -- tree-view version (PW).
+     *
+     * @Route("/treenew/{originLsItem}/{destinationLsItem}", name="lsassociation_tree_new")
+     * @Method({"GET", "POST"})
+     * @Template()
+     *
+     * @param Request $request
+     * @param LsItem|null $sourceLsItem
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
+    public function treeNewAction(Request $request, LsItem $originLsItem = null, LsItem $destinationLsItem = null)
+    {
+        $ajax = false;
+        if ($request->isXmlHttpRequest()) {
+            $ajax = true;
+        }
+
+        $lsAssociation = new LsAssociation();
+        $lsAssociation->setOriginLsItem($originLsItem);
+        $lsAssociation->setDestinationLsItem($destinationLsItem);
+        // Add to the origin item's LsDoc
+        $lsAssociation->setLsDoc($originLsItem->getLsDoc());
+
+        $form = $this->createForm(LsAssociationTreeType::class, $lsAssociation, ['ajax'=>$ajax]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($lsAssociation);
+            $em->flush();
+
+            if ($ajax) {
+                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $destinationLsItem->getId()]), Response::HTTP_CREATED);
+            }
+
+            return $this->redirectToRoute('lsassociation_show', array('id' => $lsAssociation->getId()));
+        }
+
+        $ret = [
+            'lsAssociation' => $lsAssociation,
+            'form' => $form->createView()
+        ];
+
+        if ($ajax && $form->isSubmitted() && !$form->isValid()) {
             return $this->render('CftfBundle:LsAssociation:new.html.twig', $ret, new Response('', Response::HTTP_OK));
         }
 
