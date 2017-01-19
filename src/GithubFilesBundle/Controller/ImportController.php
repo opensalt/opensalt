@@ -26,7 +26,7 @@ class ImportController extends Controller{
         $fileContent = $request->request->get('content');
 
         $githubImporter = $this->get('cftf_import.github');
-        $githubImporter->parseGithubDocument($lsDocKeys, $lsItemKeys, base64_decode($fileContent));
+        $githubImporter->parseCSVGithubDocument($lsDocKeys, $lsItemKeys, base64_decode($fileContent));
 
         return $response->setData(array(
             'message' => "Success"

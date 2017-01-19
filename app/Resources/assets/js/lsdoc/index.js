@@ -202,11 +202,9 @@ var Import = (function(){
         var json = JSON.parse(file);
         var keys = Object.keys(json);
         var subKey = [];
-        console.log(keys);
 
         keys.forEach(function(subJson){
             subKey = Object.keys(subJson);
-            console.log(subKey);
         });
     }
 
@@ -221,8 +219,6 @@ var Import = (function(){
             cfAssociationKeys: SanitizeData.matchedFields("form.matched-fields-cfassociation")
         };
 
-        console.info(dataRequest);
-
         $.each(selects, function(){
             var $select = $(this);
             columns[$select.attr('name')] = $select.val();
@@ -233,7 +229,6 @@ var Import = (function(){
             type: 'post',
             data: dataRequest,
             success: function(response){
-                console.log(response);
                 location.reload();
             }
         });

@@ -19,7 +19,7 @@ class DefaultController extends Controller
     /**
      * @Route("/user/github/repos")
      */
-    public function getRepos(Request $request)
+    public function getReposAction(Request $request)
     {
         $page = $request->query->get('page');
         $perPage = $request->query->get('perPage');

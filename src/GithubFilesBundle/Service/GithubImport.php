@@ -50,7 +50,7 @@ class GithubImport
      * @param array $lsdocKeys
      * @param string $fileContent
      */
-    public function parseGithubDocument($lsDocKeys, $lsItemKeys, $fileContent){
+    public function parseCSVGithubDocument($lsDocKeys, $lsItemKeys, $fileContent){
         $csvContent = str_getcsv($fileContent, "\n");
         $headers = array();
         $content = array();
@@ -72,7 +72,7 @@ class GithubImport
             $tempContent = array();
         }
 
-        $this->saveGithubDocument($lsDocKeys, $lsItemKeys, $content);
+        $this->saveCSVGithubDocument($lsDocKeys, $lsItemKeys, $content);
     }
 
     /**
@@ -81,52 +81,47 @@ class GithubImport
      * @param array $lsdocKeys
      * @param string $content
      */
-    public function saveGithubDocument($lsDocKeys, $lsItemKeys, $content){
+    public function saveCSVGithubDocument($lsDocKeys, $lsItemKeys, $content){
         $em = $this->getEntityManager();
         $lsDoc = new LsDoc();
 
-        foreach($content as $i => $row){
-            if($i < 1){
-                //create the new LsDoc
-                $lsDocIdentifier = Uuid::uuid5(Uuid::NAMESPACE_URL, $this->getValue($lsDocKeys['title'], $row))->toString();
-                $lsDoc->setIdentifier($lsDocIdentifier);
-                $lsDoc->setUri('local:'.$lsDocIdentifier);
+        //create the new LsDoc
+        $lsDoc->setIdentifier();
+        $lsDoc->setUri('local:'.$lsDocIdentifier);
 
-                if(empty($this->getValue($lsDocKeys['creator'], $row))){
-                    $lsDoc->setCreator('Imported from GitHub');
-                }else{
-                    $lsDoc->setCreator($this->getValue($lsDocKeys['creator'], $row));
-                }
-
-                $lsDoc->setTitle($this->getValue($lsDocKeys['title'], $row));
-
-                $lsDoc->setOfficialUri($this->getValue($lsDocKeys['officialSourceURL'], $row));
-                $lsDoc->setPublisher($this->getValue($lsDocKeys['publisher'], $row));
-                $lsDoc->setDescription($this->getValue($lsDocKeys['description'], $row));
-                $lsDoc->setVersion($this->getValue($lsDocKeys['version'], $row));
-                $lsDoc->setSubject($this->getValue($lsDocKeys['subject'], $row));
-                $lsDoc->setLanguage($this->getValue($lsDocKeys['language'], $row));
-                $lsDoc->setNote($this->getValue($lsDocKeys['notes'], $row));
-
-                $em->persist($lsDoc);
-                $em->flush();
-                continue;
-            }
-
-            $lsItem = $this->parseGithubStandard($lsDoc, $lsItemKeys, $row);
-            //create a new association between the item and the doc
+        if(empty($this->getValue($lsDocKeys['creator'], $content[0]))){
+            $lsDoc->setCreator('Imported from GitHub');
+        }else{
+            $lsDoc->setCreator($this->getValue($lsDocKeys['creator'], $content[0]));
         }
+
+        $lsDoc->setTitle($this->getValue($lsDocKeys['title'], $content[0]));
+        $lsDoc->setOfficialUri($this->getValue($lsDocKeys['officialSourceURL'], $content[0]));
+        $lsDoc->setPublisher($this->getValue($lsDocKeys['publisher'], $content[0]));
+        $lsDoc->setDescription($this->getValue($lsDocKeys['description'], $content[0]));
+        $lsDoc->setVersion($this->getValue($lsDocKeys['version'], $content[0]));
+        $lsDoc->setSubject($this->getValue($lsDocKeys['subject'], $content[0]));
+        $lsDoc->setLanguage($this->getValue($lsDocKeys['language'], $content[0]));
+        $lsDoc->setNote($this->getValue($lsDocKeys['notes'], $content[0]));
+
+        $em->persist($lsDoc);
+
+        for($i=1; $i < sizeof($content); $i++){
+            $row = $content[$i];
+            $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $row);
+        }
+
+        $em->flush();
     }
 
-    public function parseGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data){
+    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data){
         $lsItem = new LsItem();
         $em = $this->getEntityManager();
 
         $lsItem->setLsDoc($lsDoc);
         $lsItem->setFullStatement($this->getValue($lsItemKeys['fullStatement'], $data));
 
-        $lsItemIdentifier = Uuid::uuid5(Uuid::NAMESPACE_URL, $this->getValue($lsItemKeys['fullStatement'], $data))->toString();
-        $lsItem->setIdentifier($lsItemIdentifier);
+        $lsItem->setIdentifier();
         $lsItem->setUri('local:'.$lsItemIdentifier);
 
         $lsItem->setHumanCodingScheme($this->getValue($lsItemKeys['humanCodingScheme'], $data));
@@ -147,7 +142,8 @@ class GithubImport
         $lsAssociation->setDestinationNodeIdentifier($lsItemIdentifier);
 
         $em->persist($lsAssociation);
-        $em->flush();
+
+        return $lsItem;
     }
 
     private function getValue($key, $row){
