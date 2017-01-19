@@ -138,7 +138,7 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
         $params = ['lsDocId' => $lsDoc->getId()];
 
         if (null === $progressCallback) {
-            $progressCallback = function($message = '') {};
+            $progressCallback = function ($message = '') {};
         }
 
         $progressCallback('Deleting associations');
@@ -146,15 +146,15 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
 DELETE FROM ls_association
  WHERE ls_doc_id = :lsDocId
     OR origin_lsitem_id IN (
-	 SELECT i.id
-	   FROM ls_item i
-	  WHERE i.ls_doc_id = :lsDocId
-       )
+      SELECT i.id
+        FROM ls_item i
+       WHERE i.ls_doc_id = :lsDocId
+    )
     OR destination_lsitem_id IN (
-	 SELECT i.id
-	   FROM ls_item i
-	  WHERE i.ls_doc_id = :lsDocId
-       )
+      SELECT i.id
+        FROM ls_item i
+       WHERE i.ls_doc_id = :lsDocId
+    )
 ;
 xENDx;
         $conn->prepare($stmt)->execute($params);
