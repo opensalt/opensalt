@@ -1,14 +1,12 @@
 {
-	{% if lsItem.abbreviatedStatement is not empty %}
-		"title":{{ lsItem.abbreviatedStatement|json_encode|raw }},
-	{% else %}		
-		"title":{{ lsItem.fullStatement|json_encode|raw }},
-	{% endif %}
+    "abbrStmt":{{ lsItem.abbreviatedStatement|json_encode|raw }},
+    "fullStmt":{{ lsItem.fullStatement|json_encode|raw }},
     "humanCoding":{{ lsItem.humanCodingScheme|json_encode|raw }},
+    "listEnum":{{ lsItem.listEnumInSource|json_encode|raw}},
     "key":{{ lsItem.id|json_encode|raw }}
     {% if lsItem.children is not empty %}
-        , "folder": true, 
-        "expanded": false, // lower nodes are not expanded by default
+        , "folder": true,
+        "expanded": false,{# lower nodes are not expanded by default #}
         "children": [
             {% for childWithId in lsItem.children %}
                 {% if not loop.first %}, {% endif %}
