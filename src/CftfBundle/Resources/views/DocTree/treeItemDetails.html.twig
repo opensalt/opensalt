@@ -1,96 +1,93 @@
 <div class="lsItemDetails">
-	<ul class="list-group lsItemDetailsMain">
-		{# we don't show abbreviatedStatement because it would be in the title if it's there #}
-		{# split into info that's always shown and info that's hidden at first #}
-		{% for field, name in {
-			'fullStatement': 'Full Statement',
-			'conceptKeywords': 'Concept Keywords',
-			'educationalAlignment': 'Education Level',
-			'notes': 'Notes'
-		} %}
-			{% if attribute(lsItem, field) is not empty %}
-				{% if field != 'fullStatement' or lsItem.abbreviatedStatement is not empty %}
-					<li class="list-group-item">
-						<strong>{{ name }}:</strong>
-						{% set value = attribute(lsItem, field) %}
-						{% if value.timestamp is defined and value.timezone is defined %}
-							{{ value|date("m/d/Y H:i") }}
-						{% elseif field == 'uri'%}
-							<a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
-						{% elseif field == 'lsDocUri'%}
-							<a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
-						{% else %}
-							{{ value }}
-						{% endif %}
-					</li>
-				{% endif %}
-			{% endif %}
-		{% endfor %}
+    <ul class="list-group lsItemDetailsMain">
+        {# we don't show abbreviatedStatement because it would be in the title if it's there #}
+        {# split into info that's always shown and info that's hidden at first #}
+        {% for field, name in {
+            'fullStatement': 'Full Statement',
+            'conceptKeywords': 'Concept Keywords',
+            'educationalAlignment': 'Education Level',
+            'notes': 'Notes'
+        } %}
+            {% if attribute(lsItem, field) is not empty %}
+                {% if field != 'fullStatement' or lsItem.abbreviatedStatement is not empty %}
+                    <li class="list-group-item">
+                        <strong>{{ name }}:</strong>
+                        {% set value = attribute(lsItem, field) %}
+                        {% if value.timestamp is defined and value.timezone is defined %}
+                            {{ value|date("m/d/Y H:i") }}
+                        {% elseif field == 'uri'%}
+                            <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                        {% elseif field == 'lsDocUri'%}
+                            <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif %}
+                    </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
 
-		{% for field, name in {
-			'uri': 'Statement URL',
-			'type': 'Type',
-			'listEnumInSource': 'List Enumeration in Source',
-			'conceptKeywordsUri': 'Concept Keywords URI',
-			'language': 'Language',
-			'licenceUri': 'Licence URI',
-			'changedAt': 'Last Changed'
-		} %}
-			{% if attribute(lsItem, field) is not empty %}
-				<li class="list-group-item lsItemDetailsExtras">
-					<strong>{{ name }}:</strong>
-					{% set value = attribute(lsItem, field) %}
-					{% if value.timestamp is defined and value.timezone is defined %}
-						{{ value|date("m/d/Y H:i") }}
-					{% elseif field == 'uri'%}
-						<a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
-					{% elseif field == 'lsDocUri'%}
-						<a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
-					{% else %}
-						{{ value }}
-					{% endif %}
-				</li>
-			{% endif %}
-		{% endfor %}
-	</ul>
-	<div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
+        {% for field, name in {
+            'uri': 'Statement URL',
+            'type': 'Type',
+            'listEnumInSource': 'List Enumeration in Source',
+            'conceptKeywordsUri': 'Concept Keywords URI',
+            'language': 'Language',
+            'licenceUri': 'Licence URI',
+            'changedAt': 'Last Changed'
+        } %}
+            {% if attribute(lsItem, field) is not empty %}
+                <li class="list-group-item lsItemDetailsExtras">
+                    <strong>{{ name }}:</strong>
+                    <span data-field-name='{{ field }}'>
+                        {% set value = attribute(lsItem, field) %}
+                        {% if value.timestamp is defined and value.timezone is defined %}
+                            {{ value|date("m/d/Y H:i") }}
+                        {% elseif field == 'uri'%}
+                            <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                        {% elseif field == 'lsDocUri'%}
+                            <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif %}
+                    </span>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    <div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
 
-	{% if lsItem.canEdit %}
-	<div class="text-center" style="margin-bottom:20px">
-		<ul class="list-inline">
-			{% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
-			<li>
-				<button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#editItemModal">Edit</button>
-			</li>
-			{% endif %}
-			<li>
-				<button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#copyModal">Add to Another CF Package</button>
-			</li>
-			{% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
-			<li>
-				<button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#addChildModal">Create Child Statement</button>
-			</li>
-			<li>
-				<button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#associateModal">Add Association</button>
-			</li>
-			{% endif %}
-			{# TODO: How do we "find aligned resources"
-			<li>
-				<button type="button" class="btn btn-sm btn-default" disabled="disabled">Find Aligned Resources</button>
-			</li>
-			#}
-		</ul>
-	</div>
-	{% endif %}
-	
+    {% if lsItem.canEdit %}
+    <div class="itemOptions">
+        {% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
+        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal">Edit</button>
+        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="deleteItem">Delete</button>
+        <button type="button" class="btn btn-default btn-sm" data-target="addAssociation">Add Association</button>
+        {% endif %}
+        {# TODO: How do we "find aligned resources"
+        <button type="button" class="btn btn-default btn-sm" disabled="disabled">Find Aligned Resources</button>
+        #}
+
+        {% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
+		<span style="white-space:nowrap; padding-left:15px;">Add Child: <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Copy of Existing Item</button></span>
+        {% endif %}
+    </div>
+    {% endif %}
 
 </div>
 <div class="lsItemAssociations">
-	{% for group, list in lsItem.groupedAssociations if list is not empty %}
-		{# PW: don't show child of/parent of associations here, since you see that in the tree #}
-		{% if (group is not constant('CftfBundle\\Entity\\LsAssociation::CHILD_OF')) and (group is not constant('CftfBundle\\Entity\\LsAssociation::INVERSE_CHILD_OF')) %}
-			{% embed 'CftfBundle:Editor:_lsAssociationComponent.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
-			{% endembed %}
-		{% endif %}
-	{% endfor %}
+    {% for group, list in lsItem.groupedAssociations if list is not empty %}
+        {# PW: don't show child of/parent of associations here, since you see that in the tree #}
+        {% if (group is not constant('CftfBundle\\Entity\\LsAssociation::CHILD_OF')) and (group is not constant('CftfBundle\\Entity\\LsAssociation::INVERSE_CHILD_OF')) %}
+            {% embed 'CftfBundle:Editor:_lsAssociationComponent.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
+				{% block start_of_item_a %}
+					{% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
+					<span class="pull-right">
+					<span role="button" class="btn btn-xs btn-default btn-remove-association">Remove</span>
+					</span>
+					{% endif %}
+				{% endblock %}
+            {% endembed %}
+        {% endif %}
+    {% endfor %}
 </div>
