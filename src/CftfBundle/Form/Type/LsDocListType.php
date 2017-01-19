@@ -20,7 +20,7 @@ class LsDocListType extends AbstractType
             ->add('lsDoc', EntityType::class, [
                 'label' => 'Choose Document',
                 'choice_label' => 'title',
-                'required' => true,
+                'required' => false,
                 'multiple' => false,
                 'class' => 'CftfBundle\Entity\LsDoc',
                 'query_builder' => function (EntityRepository $er) {
