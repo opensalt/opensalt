@@ -73,7 +73,7 @@
         "bower-asset/normalize.css": "^3.0.3",
         "npm-asset/jquery-contextmenu": "^2.2.4",
         "bower-asset/bootstrap-multiselect": "^0.9.13",
-	"bower-asset/twbs-pagination": "^1.4.1",
+        "bower-asset/twbs-pagination": "^1.4.1",
 
         "bower-asset/select2": "^4.0.3",
         "bower-asset/select2-bootstrap-theme": "dev-master",
