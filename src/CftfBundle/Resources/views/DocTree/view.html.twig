@@ -332,7 +332,7 @@ span.fancytree-title {
                             {% endif %}
 
                             {% if lsDoc.canEdit and is_granted('edit', lsDoc) %}
-                            <span style="white-space:nowrap; padding-left:15px;">Add Child: <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Copy of Existing Item</button></span>
+                            <span style="white-space:nowrap; padding-left:15px;"><b>Add Child:</b> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Existing Item</button></span>
                             {% endif %}
                         </div>
 
@@ -608,8 +608,10 @@ span.fancytree-title {
                 activate: function(event, data) {
                     app.tree1Activate(data.node);
                 },
+                // I don't think we really want to do this on click; that calls the tree1Activate function when you click the arrow to expand the item
                 click: function(event, data) {
-                    app.tree1Activate(data.node);
+                    //app.ft.fancytree("getTree").activateKey(data.node.key);
+                    //app.tree1Activate(data.node);
                 },
                 
                 // if user doubleclicks on a node, open the node, then simulate clicking the "Edit" button for it
@@ -989,6 +991,10 @@ span.fancytree-title {
             
             // move the item in the tree
             draggedNode.moveTo(droppedNode, hitMode);
+
+            // make sure droppedNode is expanded
+            droppedNode.setExpanded(true);
+            droppedNode.render();
             
             // now we need to update the listEnum fields for the draggedNode's (possibly new) parent's children
             // (the former parent's children will still be in order, though we might want to "clean up" those listEnums too)
