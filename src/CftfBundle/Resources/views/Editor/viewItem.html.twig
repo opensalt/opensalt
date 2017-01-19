@@ -55,17 +55,20 @@
                         {% endfor %}
                     </ul>
 
+                    {% if is_granted('edit', lsItem) or is_granted('add-standard-to', null) %}
                     <div class="text-center">
                         <ul class="list-inline">
-                            {% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
+                            {% if is_granted('edit', lsItem) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#editModal">Edit</button>
                             </li>
                             {% endif %}
+                            {% if is_granted('add-standard-to', null) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#copyModal">Add to Another CF Package</button>
                             </li>
-                            {% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
+                            {% endif %}
+                            {% if is_granted('edit', lsItem) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#addChildModal">Create Child Statement</button>
                             </li>
@@ -80,6 +83,7 @@
                             #}
                         </ul>
                     </div>
+                    {% endif %}
                 </div>
             </section>
         </div>

@@ -98,11 +98,11 @@
         'modalTitle':'Export Document',
         'closeButton': 'Done'
     } %}
-    	{% block modalButtons %}{% endblock %}
-    	{% block modalBody %}
-			{% embed 'CftfBundle:LsDoc:_exportComponent.html.twig' with {'view':'editor'} %}
+        {% block modalButtons %}{% endblock %}
+        {% block modalBody %}
+            {% embed 'CftfBundle:LsDoc:_exportComponent.html.twig' with {'view':'editor'} %}
             {% endembed %}
-    	{% endblock %}
+        {% endblock %}
     {% endembed %}
 
     {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
@@ -210,7 +210,7 @@
         }
 
         $(document).ready(function(){
-        	prepareExportModal();
+            prepareExportModal();
             prepareEditModal();
             prepareAddChildModal();
         });

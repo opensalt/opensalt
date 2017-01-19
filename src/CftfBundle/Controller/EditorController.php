@@ -86,14 +86,6 @@ class EditorController extends Controller
         $topChildren = $repo->findTopChildrenIds($lsDoc);
 
         $orphaned = $items;
-        /* This list is now found in the $haveParents list
-        foreach ($lsDoc->getTopLsItemIds() as $id) {
-            // Not an orphan
-            if (!empty($orphaned[$id])) {
-                unset($orphaned[$id]);
-            }
-        }
-        */
         foreach ($haveParents as $child) {
             // Not an orphan
             $id = $child['id'];

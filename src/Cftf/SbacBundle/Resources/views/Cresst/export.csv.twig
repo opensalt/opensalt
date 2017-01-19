@@ -1,0 +1,5 @@
+{% block body %}
+{% for line in csvLines %}
+{{ line|raw }}
+{% endfor %}
+{% endblock %}

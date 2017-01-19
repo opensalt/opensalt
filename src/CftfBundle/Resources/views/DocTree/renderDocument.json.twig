@@ -1,4 +1,4 @@
-{% set mainChildren = (lsDoc.topLsItemIds is not empty) %}
+{% set mainChildren = (topItemIds is not empty) %}
 [
     {
         "title": {{ lsDoc.title|json_encode|raw }},
@@ -7,7 +7,7 @@
         "folder": true, 
         "expanded": true,{# document node is expanded when first loaded #}
         "children": [
-            {% for itemId in lsDoc.topLSItemIds %}
+            {% for itemId in topItemIds %}
                 {% if not loop.first %}, {% endif %}
                 {% set item = items[itemId] %}
                 {% include 'CftfBundle:DocTree:render_child.json.twig' with { 'lsItem':item, 'lsDoc':lsDoc, 'items':items } %}

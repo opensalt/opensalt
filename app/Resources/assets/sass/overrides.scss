@@ -42,3 +42,9 @@ span.fancytree-drag-helper-img,
         color: $link-hover-color;
     }
 }
+
+#viewmode_tree {
+    ul.fancytree-container {
+        overflow: hidden;
+    }
+}

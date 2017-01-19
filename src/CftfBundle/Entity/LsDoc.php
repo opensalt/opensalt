@@ -12,6 +12,7 @@ use Salt\UserBundle\Entity\User;
 use Salt\UserBundle\Entity\UserDocAcl;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Util\Compare;
 
 /**
  * LsDoc
@@ -715,7 +716,21 @@ class LsDoc
      */
     public function getTopLsItemIds()
     {
-        $ids = $this->getTopLsItems()->map(function($item){return $item->getId();});
+        $items = $this->getTopLsItems()->map(function (LsItem $item) {
+            return [
+                'id' => $item->getId(),
+                'rank' => $item->getRank(),
+                'listEnumInSource' => $item->getListEnumInSource(),
+                'humanCodingScheme' => $item->getHumanCodingScheme(),
+            ];
+        })->toArray();
+        Compare::sortArrayByFields($items, ['rank', 'listEnumInSource', 'humanCodingScheme']);
+        $items = new ArrayCollection($items);
+
+        $ids = $items->map(function ($item) {
+            return $item['id'];
+        });
+
         return $ids->toArray();
     }
 
