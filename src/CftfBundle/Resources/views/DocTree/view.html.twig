@@ -991,6 +991,10 @@ span.fancytree-title {
             
             // move the item in the tree
             draggedNode.moveTo(droppedNode, hitMode);
+
+            // make sure droppedNode is expanded
+            droppedNode.setExpanded(true);
+            droppedNode.render();
             
             // now we need to update the listEnum fields for the draggedNode's (possibly new) parent's children
             // (the former parent's children will still be in order, though we might want to "clean up" those listEnums too)
