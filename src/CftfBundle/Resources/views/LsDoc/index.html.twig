@@ -23,7 +23,7 @@
                 <li class="folder expanded">{{ framework.creator }}<ul>
                 {% set lastCreator = framework.creator %}
             {% endif %}
-            <li class="salt-framework-link"><a href="{{ path('editor_lsdoc', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
+            <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
             {% if loop.last == true and framework.creator != '' %}
                 </ul></li>
             {% endif %}

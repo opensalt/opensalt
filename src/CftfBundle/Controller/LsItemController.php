@@ -90,7 +90,7 @@ class LsItemController extends Controller
             $em->flush();
 
             if ($ajax) {
-                return new Response($this->generateUrl('editor_lsitem', ['id' => $lsItem->getId()]), Response::HTTP_CREATED);
+                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_CREATED);
             }
 
             return $this->redirectToRoute('lsitem_show', array('id' => $lsItem->getId()));
@@ -166,7 +166,7 @@ class LsItemController extends Controller
             $em->flush();
 
             if ($ajax) {
-                return new Response($this->generateUrl('editor_lsitem', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
+                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
             }
 
             return $this->redirectToRoute('lsitem_edit', ['id' => $lsItem->getId()]);
@@ -303,10 +303,10 @@ class LsItemController extends Controller
 
             if ($ajax) {
                 return new Response(
-                    $this->generateUrl('editor_lsitem', ['id' => $newItem->getId()]),
+                    $this->generateUrl('doc_tree_item_view', ['id' => $newItem->getId()]),
                     Response::HTTP_CREATED,
                     [
-                        'Location' => $this->generateUrl('editor_lsitem', ['id' => $newItem->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                        'Location' => $this->generateUrl('doc_tree_item_view', ['id' => $newItem->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                     ]
                 );
             }
@@ -356,7 +356,7 @@ class LsItemController extends Controller
             $em->flush();
 
             if ($ajax) {
-                return new Response($this->generateUrl('editor_lsitem', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
+                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
             }
 
             return $this->redirectToRoute('lsitem_edit', ['id' => $lsItem->getId()]);

@@ -79,7 +79,7 @@ class LsAssociationController extends Controller
             $em->flush();
 
             if ($ajax) {
-                return new Response($this->generateUrl('editor_lsitem', ['id' => $sourceLsItem->getId()]), Response::HTTP_CREATED);
+                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $sourceLsItem->getId()]), Response::HTTP_CREATED);
             }
 
             return $this->redirectToRoute('lsassociation_show', array('id' => $lsAssociation->getId()));

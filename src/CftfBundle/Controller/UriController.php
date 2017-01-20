@@ -76,7 +76,7 @@ class UriController extends Controller
                 return $this->forward('CftfBundle:Editor:viewItem', ['id' => $item->getId(), '_format' => 'json']);
             }
             //return $this->forward('CftfBundle:Editor:viewItem', ['id' => $item->getId(), '_format' => 'html']);
-            return $this->redirectToRoute('editor_lsitem', ['id' => $item->getId()]);
+            return $this->redirectToRoute('doc_tree_item_view', ['id' => $item->getId()]);
         }
     }
 
@@ -95,7 +95,7 @@ class UriController extends Controller
                 return $this->forward('CftfBundle:Editor:viewDoc', ['id' => $doc->getId(), '_format' => 'json']);
             }
             //return $this->forward('CftfBundle:Editor:viewDoc', ['id' => $doc->getId(), '_format' => 'html']);
-            return $this->redirectToRoute('editor_lsdoc', ['id' => $doc->getId()]);
+            return $this->redirectToRoute('doc_tree_view', ['id' => $doc->getId()]);
         }
     }
 
@@ -117,9 +117,9 @@ class UriController extends Controller
             $hasOrigin = $association->getOrigin();
 
             if ($hasOrigin instanceof LsItem) {
-                return $this->redirectToRoute('editor_lsitem', ['id' => $hasOrigin->getId()]);
+                return $this->redirectToRoute('doc_tree_item_view', ['id' => $hasOrigin->getId()]);
             } elseif ($hasOrigin instanceof LsDoc) {
-                return $this->redirectToRoute('editor_lsdoc', ['id' => $hasOrigin->getId()]);
+                return $this->redirectToRoute('doc_tree_view', ['id' => $hasOrigin->getId()]);
             }
 
             // TODO: Show a view focused on the association
