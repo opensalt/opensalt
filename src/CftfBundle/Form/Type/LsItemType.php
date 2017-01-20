@@ -56,7 +56,7 @@ class LsItemType extends AbstractType
         $builder
             ->add('fullStatement')
             ->add('humanCodingScheme')
-            ->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
+            //->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
             ->add('listEnumInSource')
             ->add('abbreviatedStatement')
             ->add('conceptKeywords')
