@@ -85,9 +85,6 @@ class GithubImport
         $em = $this->getEntityManager();
         $lsDoc = new LsDoc();
 
-        //create the new LsDoc
-        $lsDoc->setUri('local:'.$lsDoc->getIdentifier());
-
         if(empty($this->getValue($lsDocKeys['creator'], $content[0]))){
             $lsDoc->setCreator('Imported from GitHub');
         }else{
@@ -103,13 +100,14 @@ class GithubImport
         $lsDoc->setLanguage($this->getValue($lsDocKeys['language'], $content[0]));
         $lsDoc->setNote($this->getValue($lsDocKeys['notes'], $content[0]));
 
-        $em->persist($lsDoc);
 
         for($i=1; $i < sizeof($content); $i++){
             $row = $content[$i];
             $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $row);
+            $lsDoc->addTopLsItem($lsItem);
         }
 
+        $em->persist($lsDoc);
         $em->flush();
     }
 
@@ -119,8 +117,6 @@ class GithubImport
 
         $lsItem->setLsDoc($lsDoc);
         $lsItem->setFullStatement($this->getValue($lsItemKeys['fullStatement'], $data));
-
-        $lsItem->setUri('local:'.$lsItem->getIdentifier());
 
         $lsItem->setHumanCodingScheme($this->getValue($lsItemKeys['humanCodingScheme'], $data));
         $lsItem->setAbbreviatedStatement($this->getValue($lsItemKeys['abbreviatedStatement'], $data));
@@ -132,14 +128,6 @@ class GithubImport
         $lsItem->setNotes($this->getValue($lsItemKeys['notes'], $data));
 
         $em->persist($lsItem);
-
-        $lsAssociation = new LsAssociation();
-        $lsAssociation->setLsDoc($lsDoc);
-        $lsAssociation->setOrigin($lsItem);
-        $lsAssociation->setType(LsAssociation::EXACT_MATCH_OF);
-        $lsAssociation->setDestinationNodeIdentifier($lsItem->getIdentifier());
-
-        $em->persist($lsAssociation);
 
         return $lsItem;
     }
