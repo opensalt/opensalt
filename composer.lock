@@ -774,7 +774,6 @@
         },
         {
             "name": "doctrine/common",
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "version": "v2.7.2",
             "source": {
                 "type": "git",
@@ -785,16 +784,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/doctrine/common/zipball/930297026c8009a567ac051fd545bf6124150347",
                 "reference": "930297026c8009a567ac051fd545bf6124150347",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/common.git",
-                "reference": "930297026c8009a567ac051fd545bf6124150347"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/common/zipball/5954c297e9d93ff84554906c2fbbc2a133c43941",
-                "reference": "5954c297e9d93ff84554906c2fbbc2a133c43941",
->>>>>>> Getting files from github and adding pagination to the repos list
                 "shasum": ""
             },
             "require": {
@@ -854,11 +843,7 @@
                 "persistence",
                 "spl"
             ],
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "time": "2017-01-13T14:02:13+00:00"
-=======
-            "time": "2017-01-13T14:02:13+00:00"
->>>>>>> update composer files to match develop
         },
         {
             "name": "doctrine/data-fixtures",
@@ -921,7 +906,6 @@
         },
         {
             "name": "doctrine/dbal",
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "version": "v2.5.9",
             "source": {
                 "type": "git",
@@ -932,16 +916,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/doctrine/dbal/zipball/0d2f8187d4b4c7b72d8e2acba359e25c36feaf5e",
                 "reference": "0d2f8187d4b4c7b72d8e2acba359e25c36feaf5e",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/dbal.git",
-                "reference": "3a351369582dade60c750e2cef540eb7b568e6b3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/a526d0df58daa8ab6802244bf3227f532e0deb45",
-                "reference": "a526d0df58daa8ab6802244bf3227f532e0deb45",
->>>>>>> Getting files from github and adding pagination to the repos list
                 "shasum": ""
             },
             "require": {
@@ -999,11 +973,7 @@
                 "persistence",
                 "queryobject"
             ],
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "time": "2017-01-19T13:27:33+00:00"
-=======
-            "time": "2017-01-14T21:05:28+00:00"
->>>>>>> update composer files to match develop
         },
         {
             "name": "doctrine/doctrine-bundle",
@@ -1448,7 +1418,7 @@
             "authors": [
                 {
                     "name": "Roman Borschel",
-                    "email": "roman@code-factory.orggit-time-machine"
+                    "email": "roman@code-factory.org"
                 },
                 {
                     "name": "Guilherme Blanco",
@@ -1539,11 +1509,7 @@
                 "database",
                 "migrations"
             ],
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "time": "2016-12-25T22:54:00+00:00"
-=======
-            "time": "2016-12-25T22:54:00+00:00"
->>>>>>> update composer files to match develop
         },
         {
             "name": "doctrine/orm",
@@ -1619,11 +1585,7 @@
                 "database",
                 "orm"
             ],
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "time": "2016-12-18T15:42:34+00:00"
-=======
-            "time": "2016-12-18T15:42:34+00:00"
->>>>>>> update composer files to match develop
         },
         {
             "name": "fortawesome/font-awesome",
@@ -1806,11 +1768,7 @@
                 "tree",
                 "uploadable"
             ],
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "time": "2016-12-21T13:46:54+00:00"
-=======
-            "time": "2016-12-21T13:46:54+00:00"
->>>>>>> update composer files to match develop
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1923,11 +1881,7 @@
             "keywords": [
                 "promise"
             ],
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "time": "2016-12-20T10:07:11+00:00"
-=======
-            "time": "2016-12-20T10:07:11+00:00"
->>>>>>> update composer files to match develop
         },
         {
             "name": "guzzlehttp/psr7",
@@ -5320,11 +5274,7 @@
             ],
             "description": "Symfony SwiftmailerBundle",
             "homepage": "http://symfony.com",
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "time": "2016-12-20T04:44:33+00:00"
-=======
-            "time": "2016-12-20T04:44:33+00:00"
->>>>>>> update composer files to match develop
         },
         {
             "name": "symfony/symfony",
@@ -5570,7 +5520,6 @@
         },
         {
             "name": "twig/twig",
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "version": "v1.31.0",
             "source": {
                 "type": "git",
@@ -5581,16 +5530,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/twigphp/Twig/zipball/ddc9e3e20ee9c0b6908f401ac8353635b750eca7",
                 "reference": "ddc9e3e20ee9c0b6908f401ac8353635b750eca7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/twigphp/Twig.git",
-                "reference": "ddc9e3e20ee9c0b6908f401ac8353635b750eca7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/c6ff71094fde15d12398eaba029434b013dc5e59",
-                "reference": "c6ff71094fde15d12398eaba029434b013dc5e59",
->>>>>>> Getting files from github and adding pagination to the repos list
                 "shasum": ""
             },
             "require": {
@@ -5603,11 +5542,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
                     "dev-master": "1.31-dev"
-=======
-                    "dev-master": "1.31-dev"
->>>>>>> update composer files to match develop
                 }
             },
             "autoload": {
@@ -5642,11 +5577,7 @@
             "keywords": [
                 "templating"
             ],
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "time": "2017-01-11T19:36:15+00:00"
-=======
-            "time": "2017-01-11T19:36:15+00:00"
->>>>>>> update composer files to match develop
         },
         {
             "name": "zendframework/zend-code",
@@ -5803,11 +5734,7 @@
                 "events",
                 "zf2"
             ],
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "time": "2016-12-19T21:47:12+00:00"
-=======
-            "time": "2016-12-19T21:47:12+00:00"
->>>>>>> update composer files to match develop
         }
     ],
     "packages-dev": [
@@ -5891,11 +5818,7 @@
                 "symfony",
                 "testing"
             ],
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "time": "2016-12-25T13:43:52+00:00"
-=======
-            "time": "2016-12-25T13:43:52+00:00"
->>>>>>> update composer files to match develop
         },
         {
             "name": "behat/gherkin",
@@ -6236,33 +6159,6 @@
                 "phpspec"
             ],
             "time": "2016-08-12T14:21:22+00:00"
-        },
-        {
-            "name": "container-interop/container-interop",
-            "version": "1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/container-interop/container-interop.git",
-                "reference": "fc08354828f8fd3245f77a66b9e23a6bca48297e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/container-interop/container-interop/zipball/fc08354828f8fd3245f77a66b9e23a6bca48297e",
-                "reference": "fc08354828f8fd3245f77a66b9e23a6bca48297e",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Interop\\Container\\": "src/Interop/Container/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Promoting the interoperability of container objects (DIC, SL, etc.)",
-            "time": "2014-12-30T15:22:37+00:00"
         },
         {
             "name": "container-interop/container-interop",
@@ -6914,11 +6810,7 @@
                 "testing",
                 "xunit"
             ],
-<<<<<<< 8da1bcfc976087762f5f24e965125bc0b095de8c
             "time": "2016-12-20T15:22:42+00:00"
-=======
-            "time": "2016-12-20T15:22:42+00:00"
->>>>>>> update composer files to match develop
         },
         {
             "name": "phpunit/php-file-iterator",
