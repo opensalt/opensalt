@@ -27,10 +27,3 @@ services:
             - 'mysql:host=%database_host%;port=%database_port%;dbname=%database_name%'
             - { db_username: '%database_user%', db_password: '%database_password%', db_table: 'auth_session', db_id_col: 'id' }
 
-
-    # Form Types
-    app.form.type.lsitem:
-        class: CftfBundle\Form\LsItemType
-        arguments: ["@doctrine.orm.entity_manager"]
-        tags:
-            - { name: form.type }
