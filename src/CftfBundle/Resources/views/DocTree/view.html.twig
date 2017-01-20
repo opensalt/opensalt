@@ -256,7 +256,7 @@ span.fancytree-title {
             </ol>
         </div>
         <div class="col-sm-2">
-            <div id="docStatus" class="docStatus-{{ lsDoc.adoptionStatus }}">{{ lsDoc.adoptionStatus }}</div>
+            <div id="docStatus" class="docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">{{ lsDoc.adoptionStatus|default('Draft') }}</div>
         </div>
     </div>
 
@@ -269,7 +269,7 @@ span.fancytree-title {
             </section>
         </div>
         <div class="col-sm-6">
-            <section id="itemSection" class="panel panel-default docStatus-{{ lsDoc.adoptionStatus }}">
+            <section id="itemSection" class="panel panel-default docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">
                 <div id="items" class="panel-body">
                     <div id="documentInfo">
                         <h4 class="itemTitle">
@@ -955,7 +955,7 @@ span.fancytree-title {
                 $("#documentInfo").show();
                 
                 // set appropriate class on itemSection 
-                $("#itemSection").removeClass("lsItemItemSection").addClass("docStatus-{{ lsDoc.adoptionStatus }}");
+                $("#itemSection").removeClass("lsItemItemSection").addClass("docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}");
             
             // else it's an lsItem
             } else {
@@ -967,7 +967,7 @@ span.fancytree-title {
                 $("#documentInfo").hide();
 
                 // set appropriate class on itemSection 
-                $("#itemSection").removeClass("docStatus-{{ lsDoc.adoptionStatus }}").addClass("lsItemItemSection");
+                $("#itemSection").removeClass("docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}").addClass("lsItemItemSection");
                 
                 // if we already have an item div loaded for this item, just show it
                 if (app.getLsItemDetailsJq(app.lsItemId).length > 0) {
