@@ -54,8 +54,10 @@ class AsnImport
      * Parse an ASN document into a LsDoc/LsItem hierarchy
      *
      * @param string $asnDoc
+     * @param string|null $creator
      */
-    public function parseAsnDocument($asnDoc) {
+    public function parseAsnDocument($asnDoc, $creator = null)
+    {
         $em = $this->getEntityManager();
 
         $doc = AsnDocument::fromJson($asnDoc);
@@ -131,7 +133,9 @@ class AsnImport
 //        }
 
         if (!$lsDoc->getCreator()) {
-            $lsDoc->setCreator('Imported from ASN');
+            $lsDoc->setCreator($creator ?: 'Imported from ASN');
+        } elseif (null !== $creator) {
+            $lsDoc->setCreator($creator.' - '.$lsDoc->getCreator());
         }
 
         $em->persist($lsDoc);
@@ -163,7 +167,8 @@ class AsnImport
      *
      * @return LsItem
      */
-    public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard) {
+    public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard)
+    {
         $em = $this->getEntityManager();
         $lsItem = new LsItem();
         $lsItem->setIdentifier(null);
@@ -197,7 +202,7 @@ class AsnImport
             $label = $asnStandard->statementLabel->first()->value;
 
             $itemType = $em->getRepository('CftfBundle:LsDefItemType')
-                ->findOneBy(['title'=>$label])
+                ->findOneBy(['title' => $label])
             ;
             if (null === $itemType) {
                 $itemType = new LsDefItemType();
