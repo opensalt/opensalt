@@ -136,7 +136,7 @@ class LsAssociation
     /**
      * @var LsItem
      *
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsItem", inversedBy="associations", fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsItem", inversedBy="associations", fetch="EAGER", cascade={"persist"})
      * @ORM\JoinColumn(name="origin_lsitem_id", referencedColumnName="id")
      */
     private $originLsItem;
@@ -169,7 +169,7 @@ class LsAssociation
     /**
      * @var LsItem
      *
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsItem", inversedBy="inverseAssociations", fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsItem", inversedBy="inverseAssociations", fetch="EAGER", cascade={"persist"})
      * @ORM\JoinColumn(name="destination_lsitem_id", referencedColumnName="id")
      */
     private $destinationLsItem;
