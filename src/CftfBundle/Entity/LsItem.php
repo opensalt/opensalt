@@ -255,6 +255,28 @@ class LsItem
     }
 
     /**
+     * Clone the LsItem - Do not carry over any associations
+     */
+    public function __clone()
+    {
+        // Clear values for new item
+        $this->id = null;
+        $this->children = new ArrayCollection();
+        $this->lsItemParent = new ArrayCollection();
+        $this->associations = new ArrayCollection();
+        $this->inverseAssociations = new ArrayCollection();
+
+        // Generate a new identifier
+        $identifier = Uuid::uuid4()->toString();
+        $this->identifier = $identifier;
+        $this->uri = 'local:'.$this->identifier;
+
+        // Set last change/update to now
+        $this->updatedAt = new \DateTime();
+        $this->changedAt = $this->updatedAt;
+    }
+
+    /**
      * Create a copy of the lsItem into a new document
      *
      * @param LsDoc $newLsDoc
@@ -263,40 +285,9 @@ class LsItem
      */
     public function copyToLsDoc(LsDoc $newLsDoc)
     {
-        $newItem = new LsItem();
+        $newItem = clone $this;
 
         $newItem->setLsDoc($newLsDoc);
-        if (null !== $this->abbreviatedStatement) {
-            $newItem->setAbbreviatedStatement($this->abbreviatedStatement);
-        }
-        $newItem->setFullStatement($this->getFullStatement());
-        if (null !== $this->humanCodingScheme) {
-            $newItem->setHumanCodingScheme($this->humanCodingScheme);
-        }
-        if (null !== $this->notes) {
-            $newItem->setNotes($this->notes);
-        }
-        if (null !== $this->itemType) {
-            $newItem->setItemType($this->itemType);
-        }
-        if (null !== $this->language) {
-            $newItem->setLanguage($this->language);
-        }
-        if (null !== $this->educationalAlignment) {
-            $newItem->setEducationalAlignment($this->educationalAlignment);
-        }
-        if (null !== $this->extra) {
-            $newItem->setExtra($this->extra);
-        }
-        if (null !== $this->conceptKeywords) {
-            $newItem->setConceptKeywords($this->conceptKeywords);
-        }
-        if (null !== $this->conceptKeywordsUri) {
-            $newItem->setConceptKeywordsUri($this->conceptKeywordsUri);
-        }
-        if (null !== $this->licenceUri) {
-            $newItem->setLicenceUri($this->licenceUri);
-        }
 
         // Add an "Exact" relationship to the original
         $exactMatch = new LsAssociation();
