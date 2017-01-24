@@ -6,6 +6,7 @@ use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Form\Type\LsDocListType;
+use CftfBundle\Repository\LsItemRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -198,11 +199,10 @@ class DocTreeController extends Controller
             // copy item if copyFromId is specified
             if (array_key_exists("copyFromId", $updates)) {
                 $copiedItem = true;
-                $originalItem = $lsItemRepo->findOneById($updates["copyFromId"]);
+                $originalItem = $lsItemRepo->find($updates["copyFromId"]);
 
                 // PW: code based on CopyToLsDocCommand
-                $lsItem = clone $originalItem;
-                $lsItem->setLsDoc($lsDoc);
+                $lsItem = $originalItem->copyToLsDoc($lsDoc);
                 $em->persist($lsItem);
                 // flush here to generate ID for new lsItem
                 $em->flush();
@@ -210,20 +210,11 @@ class DocTreeController extends Controller
                 // if we create a new item, we'll return the url of the new item
                 $returnUrl = new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
 
-                // add "EXACT_MATCH_OF" relationship to the original item
-                $association = new LsAssociation();
-                $association->setLsDoc($lsDoc);
-                $association->setOrigin($lsItem);
-                $association->setDestination($originalItem);
-                $association->setType(LsAssociation::EXACT_MATCH_OF);
-
-                $em->persist($association);
-
                 // we will add the "CHILD_OF" relationship, as well as listEnumInSource, below
 
             // else get lsItem from the repository
             } else {
-                $lsItem = $lsItemRepo->findOneById($lsItemId);
+                $lsItem = $lsItemRepo->find($lsItemId);
             }
 
             // change listEnumInSource if listEnumInSource is specified
@@ -234,10 +225,10 @@ class DocTreeController extends Controller
             // set/change parent if parentId is specified
             if (array_key_exists("parentId", $updates)) {
                 // parent could be a doc or item
-                if ($updates["parentType"] == "item") {
-                    $parentItem = $lsItemRepo->findOneById($updates["parentId"]);
+                if ($updates["parentType"] === "item") {
+                    $parentItem = $lsItemRepo->find($updates["parentId"]);
                 } else {
-                    $parentItem = $em->getRepository(LsDoc::class)->findOneById($updates["parentId"]);
+                    $parentItem = $em->getRepository(LsDoc::class)->find($updates["parentId"]);
                 }
                 // PW: code mostly copied from ChangeLsItemParentCommand
                 $lsItem->setUpdatedAt(new \DateTime());

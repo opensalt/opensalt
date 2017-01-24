@@ -254,27 +254,65 @@ class LsItem
         return $this->uri;
     }
 
-    public function __clone()
+    /**
+     * Create a copy of the lsItem into a new document
+     *
+     * @param LsDoc $newLsDoc
+     *
+     * @return LsItem
+     */
+    public function copyToLsDoc(LsDoc $newLsDoc)
     {
-        // TODO: Add an "Exact" relationship to the original
-        /*
+        $newItem = new LsItem();
+
+        $newItem->setLsDoc($newLsDoc);
+        if (null !== $this->abbreviatedStatement) {
+            $newItem->setAbbreviatedStatement($this->abbreviatedStatement);
+        }
+        $newItem->setFullStatement($this->getFullStatement());
+        if (null !== $this->humanCodingScheme) {
+            $newItem->setHumanCodingScheme($this->humanCodingScheme);
+        }
+        if (null !== $this->notes) {
+            $newItem->setNotes($this->notes);
+        }
+        if (null !== $this->itemType) {
+            $newItem->setItemType($this->itemType);
+        }
+        if (null !== $this->language) {
+            $newItem->setLanguage($this->language);
+        }
+        if (null !== $this->educationalAlignment) {
+            $newItem->setEducationalAlignment($this->educationalAlignment);
+        }
+        if (null !== $this->extra) {
+            $newItem->setExtra($this->extra);
+        }
+        if (null !== $this->conceptKeywords) {
+            $newItem->setConceptKeywords($this->conceptKeywords);
+        }
+        if (null !== $this->conceptKeywordsUri) {
+            $newItem->setConceptKeywordsUri($this->conceptKeywordsUri);
+        }
+        if (null !== $this->licenceUri) {
+            $newItem->setLicenceUri($this->licenceUri);
+        }
+
+        // Add an "Exact" relationship to the original
         $exactMatch = new LsAssociation();
-        $exactMatch->setOriginNodeUri($this->getUri());
-        $exactMatch->setDestinationNodeUri($this->getUri());
-        $exactMatch->setType('Exact Match Of');
-        */
+        $exactMatch->setLsDoc($newLsDoc);
+        $exactMatch->setOrigin($newItem);
+        $exactMatch->setType(LsAssociation::EXACT_MATCH_OF);
+        $exactMatch->setDestination($this);
+        $newItem->addAssociation($exactMatch);
+        $this->addInverseAssociation($exactMatch);
 
-        // Clear identifier
-        $this->id = null;
+        foreach ($this->getChildren() as $child) {
+            $newChild = $child->copyToLsDoc($newLsDoc);
+            $newItem->addChild($newChild);
+        }
 
-        // Do not copy the children (or references)?
-        $this->children = new ArrayCollection();
-
-        // TODO: We need to figure out a better way to handle the prefix for local items
-        $this->uri = 'local:'.\Ramsey\Uuid\Uuid::uuid4()->toString();
-
-        $this->changedAt = new \DateTime();
-        $this->updatedAt = $this->changedAt;
+        return $newItem;
     }
 
     public function isLsItem()

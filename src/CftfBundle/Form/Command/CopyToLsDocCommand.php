@@ -17,18 +17,9 @@ class CopyToLsDocCommand
     }
 
     public function perform(CopyToLsDocDTO $dto, ObjectManager $manager) {
-        $newItem = clone $dto->lsItem;
-        $newItem->setLsDoc($dto->lsDoc);
-        $dto->lsDoc->addTopLsItem($newItem);
-
-        $association = new LsAssociation();
-        $association->setLsDoc($dto->lsDoc);
-        $association->setOrigin($newItem);
-        $association->setDestination($dto->lsItem);
-        $association->setType(LsAssociation::EXACT_MATCH_OF);
+        $newItem = $dto->lsItem->copyToLsDoc($dto->lsDoc);
 
         $manager->persist($newItem);
-        $manager->persist($association);
 
         return $newItem;
     }
