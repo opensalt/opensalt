@@ -42,9 +42,11 @@
                         <div class="row">
                             <div class="col-md-12">
                                 ASN:
-                                <input name="import" type="radio" value="asn" checked="checked"></input>
-                                Github:
-                                <input name="import" type="radio" value="github"></input>
+                                <input name="import" type="radio" value="asn" checked="checked" />
+                                {% if github_client_id is not empty %}
+                                    Github:
+                                    <input name="import" type="radio" value="github" />
+                                {% endif %}
                             </div>
                         </div>
                         <hr>
@@ -59,11 +61,7 @@
                                             <div id="repos" class="hidden"></div>
                                             <div id="files" class="hidden"></div>
                                             <p class="js-github-message-error" style="display: none;">
-                                                {% if github_client_id is not empty %}
-                                                    <a href="{{ path('github_login') }}">Login with your GitHub credentials</a>
-                                                {% else %}
-                                                    Something went wrong while we were getting your github information.
-                                                {% endif %}
+                                                <a href="{{ path('github_login') }}">Login with your GitHub credentials</a>
                                             </p>
                                             <p class="js-github-message-loading">Loading...</p>
                                         </div>
