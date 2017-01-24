@@ -19,18 +19,29 @@ class DefaultController extends Controller
     /**
      * @Route("/user/github/repos")
      */
-    public function reposAction()
+    public function getReposAction(Request $request)
     {
         $currentUser = $this->getUser();
-        $response = new JsonResponse();
-        $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
-        $api = new \Milo\Github\Api();
-        $api->setToken($token);
 
-        $respos = $api->get('/user/repos');
+        if (!empty($currentUser->getGithubToken())){
+            $page = $request->query->get('page');
+            $perPage = $request->query->get('perPage');
+
+            $response = new JsonResponse();
+            $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
+            $api = new \Milo\Github\Api();
+            $api->setToken($token);
+
+            $repos = $api->get('/user/repos?page='.$page.'&per_page='.$perPage);
+
+            return $response->setData(array(
+                'totalPages' => static::parseLink($repos ->getHeader('link'), 'last'),
+                'data' => $api->decode($repos)
+            ));
+        }
 
         return $response->setData(array(
-            'data' => $api->decode($respos)
+            'message' => 'Please log in with your GitHub account'
         ));
     }
 
@@ -46,16 +57,33 @@ class DefaultController extends Controller
 
         $owner = $request->query->get('owner');
         $repoName = $request->query->get('repo');
-        $path = $request->query->get('path');
+        $sha = $request->query->get('sha');
 
-        $listFiles = $api->get('/repos/:owner/:repo/contents/:path', [
+        if( empty($sha)){
+            $url = "/repos/:owner/:repo/contents/";
+        }else{
+            $url = "/repos/:owner/:repo/git/blobs/:sha";
+        }
+
+        $blob = $api->get($url, [
             'owner' => $owner,
             'repo' => $repoName,
-            'path' => $path
+            'sha' => $sha
         ]);
 
         return $response->setData(array(
-            'data' => $api->decode($listFiles)
+            'data' => $api->decode($blob)
         ));
     }
+
+    public function parseLink($link, $rel){
+        if (!preg_match('(<([^>]+)>;\s*rel="' . preg_quote($rel) . '")', $link, $match)) {
+            return NULL;
+        }
+        if (!preg_match('([^\d]*(\d+))', $match[1], $total_pages)) {
+            return NULL;
+        }
+        return $total_pages[1];
+    }
+
 }
