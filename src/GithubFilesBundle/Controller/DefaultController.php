@@ -21,20 +21,27 @@ class DefaultController extends Controller
      */
     public function getReposAction(Request $request)
     {
-        $page = $request->query->get('page');
-        $perPage = $request->query->get('perPage');
-
         $currentUser = $this->getUser();
-        $response = new JsonResponse();
-        $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
-        $api = new \Milo\Github\Api();
-        $api->setToken($token);
 
-        $repos = $api->get('/user/repos?page='.$page.'&per_page='.$perPage);
+        if (!empty($currentUser->getGithubToken())){
+            $page = $request->query->get('page');
+            $perPage = $request->query->get('perPage');
+
+            $response = new JsonResponse();
+            $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
+            $api = new \Milo\Github\Api();
+            $api->setToken($token);
+
+            $repos = $api->get('/user/repos?page='.$page.'&per_page='.$perPage);
+
+            return $response->setData(array(
+                'totalPages' => static::parseLink($repos ->getHeader('link'), 'last'),
+                'data' => $api->decode($repos)
+            ));
+        }
 
         return $response->setData(array(
-            'totalPages' => static::parseLink($repos ->getHeader('link'), 'last'),
-            'data' => $api->decode($repos)
+            'message' => 'Please log in with your GitHub account'
         ));
     }
 
@@ -69,7 +76,7 @@ class DefaultController extends Controller
         ));
     }
 
-    public static function parseLink($link, $rel){
+    public function parseLink($link, $rel){
         if (!preg_match('(<([^>]+)>;\s*rel="' . preg_quote($rel) . '")', $link, $match)) {
             return NULL;
         }

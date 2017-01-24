@@ -28,7 +28,7 @@ var SaltGithub = (function(){
 
     function getRepoList(page, perPage){
         if( $('.js-github-list').length > 0 ){
-            $.get('/app_dev.php/user/github/repos', { page: page, perPage: perPage }, function(data){
+            $.get('/user/github/repos', { page: page, perPage: perPage }, function(data){
 
                 $('#repos').html('');
                 $.each(data.data, function(i, e){
@@ -52,7 +52,7 @@ var SaltGithub = (function(){
         var name = $(evt.target).attr('data-fname');
 
         $.ajax({
-            url: '/app_dev.php/user/github/files',
+            url: '/user/github/files',
             data: {
                 owner: $(evt.target).attr('data-owner'),
                 repo: $(evt.target).attr('data-repo'),
@@ -225,7 +225,7 @@ var Import = (function(){
         });
 
         $.ajax({
-            url: '/app_dev.php/cf/github/import',
+            url: '/cf/github/import',
             type: 'post',
             data: dataRequest,
             success: function(response){

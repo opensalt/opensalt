@@ -1,111 +1,109 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<h1>Competency Frameworks
+    <h1>Competency Frameworks
+        {% if is_granted('create', 'lsdoc') %}
+            <ul class="list-inline pull-right">
+                <li>
+                    <a class="btn btn-default" href="{{ path('lsdoc_new') }}">Create a new Framework</a>
+                </li>
+                <li>
+                    <a id="js-wizard-btn" class="btn btn-default" href="#">Import Framework</a>
+                </li>
+            </ul>
+        {% endif %}
+    </h1>
+
+    <div id="competencyTree">
+        {% set lastCreator = '' %}
+        <ul id="comptencyTreeData" style="display:none;">
+            {% for framework in lsDocs %}
+                {% if framework.creator != lastCreator %}
+                    {% if not loop.first %}</ul></li>{% endif %}
+                        <li class="folder expanded">{{ framework.creator }}<ul>
+                                {% set lastCreator = framework.creator %}
+                    {% endif %}
+                    <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
+                    {% if loop.last == true and framework.creator != '' %}
+                        </ul></li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+    </div>
+
     {% if is_granted('create', 'lsdoc') %}
-    <ul class="list-inline pull-right">
-        <li>
-            <a class="btn btn-default" href="{{ path('lsdoc_new') }}">Create a new Framework</a>
-        </li>
-        <li>
-            <a id="js-wizard-btn" class="btn btn-default" href="#">Import Framework</a>
-        </li>
-    </ul>
-    {% endif %}
-</h1>
-
-<div id="competencyTree">
-    {% set lastCreator = '' %}
-    <ul id="comptencyTreeData" style="display:none;">
-        {% for framework in lsDocs %}
-            {% if framework.creator != lastCreator %}
-                {% if not loop.first %}</ul></li>{% endif %}
-                <li class="folder expanded">{{ framework.creator }}<ul>
-                {% set lastCreator = framework.creator %}
-            {% endif %}
-            <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
-            {% if loop.last == true and framework.creator != '' %}
-                </ul></li>
-            {% endif %}
-        {% endfor %}
-    </ul>
-</div>
-
-{% if is_granted('create', 'lsdoc') %}
-<div id="wizard" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4>Import Framework</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        ASN:
-                        <input name="import" type="radio" value="asn" checked="checked"></input>
-                        Github:
-                        <input name="import" type="radio" value="github"></input>
+        <div id="wizard" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Import Framework</h4>
                     </div>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col-md-12">
-                        {% if github_client_id is not empty %}
-                            <div id="github" class="hidden">
-                                <div class="panel panel-default">
-                                    <div class= "panel-heading panel-title">
-                                        Repositories list
-                                    </div>
-                                    <div class="panel-body js-github-list">
-                                        <div id="repos" class="hidden"></div>
-                                        <div id="files" class="hidden"></div>
-                                        <p class="js-github-message-error" style="display: none;">
-                                            {% if github_client_id is not empty %}
-                                                <a href="{{ path('github_login') }}">Login with your GitHub credentials</a>
-                                            {% else %}
-                                                Something went wrong while we were getting your github information.
-                                            {% endif %}
-                                        </p>
-                                        <p class="js-github-message-loading">Loading...</p>
-                                    </div>
-                                    <div class="panel-footer">
-                                        <a href="#" onclick="listRepositories();" class="repositories-list hidden">List Repositories</a>
-                                        <div id="pagination"></div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                ASN:
+                                <input name="import" type="radio" value="asn" checked="checked"></input>
+                                Github:
+                                <input name="import" type="radio" value="github"></input>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="github" class="hidden">
+                                    <div class="panel panel-default">
+                                        <div class= "panel-heading panel-title">
+                                            Repositories list
+                                        </div>
+                                        <div class="panel-body js-github-list">
+                                            <div id="repos" class="hidden"></div>
+                                            <div id="files" class="hidden"></div>
+                                            <p class="js-github-message-error" style="display: none;">
+                                                {% if github_client_id is not empty %}
+                                                    <a href="{{ path('github_login') }}">Login with your GitHub credentials</a>
+                                                {% else %}
+                                                    Something went wrong while we were getting your github information.
+                                                {% endif %}
+                                            </p>
+                                            <p class="js-github-message-loading">Loading...</p>
+                                        </div>
+                                        <div class="panel-footer">
+                                            <a href="#" onclick="listRepositories();" class="repositories-list hidden">List Repositories</a>
+                                            <div id="pagination"></div>
+                                        </div>
                                     </div>
                                 </div>
+                                <div id="asn">
+                                    <input id="asn-url" type="text" class="form-control">
+                                    <br/>
+                                    <div class="alert alert-danger asn-error-msg hidden" role="alert"></div>
+                                    <button type="button" class="btn btn-primary import-framework">Import Framework</button>
+                                </div>
                             </div>
-                        {% endif %}
-                        <div id="asn">
-                            <input id="asn-url" type="text" class="form-control">
-                            <br/>
-                            <div class="alert alert-danger asn-error-msg hidden" role="alert"></div>
-                            <button type="button" class="btn btn-primary import-framework">Import Framework</button>
                         </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
         </div>
-    </div>
-</div>
-{% endif %}
+    {% endif %}
 
-{% include 'CftfBundle:LsDoc:wizard.html.twig' %}
+    {% include 'CftfBundle:LsDoc:wizard.html.twig' %}
 
-{% endblock %}
+            {% endblock %}
 
-{% block javascripts %}
-<script>
-    $('#competencyTree').fancytree({
-        activate: function(event, data){
-            var node = data.node;
-            if (!$.isEmptyObject(node.data)) {
-                if (undefined != node.data.href)
-                    window.location.href = node.data.href;
-            }
-        }
-    });
-</script>
-{% endblock %}
+            {% block javascripts %}
+                <script>
+                    $('#competencyTree').fancytree({
+                        activate: function(event, data){
+                            var node = data.node;
+                            if (!$.isEmptyObject(node.data)) {
+                                if (undefined != node.data.href)
+                                    window.location.href = node.data.href;
+                            }
+                        }
+                    });
+                </script>
+            {% endblock %}
