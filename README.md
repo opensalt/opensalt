@@ -31,7 +31,7 @@ Installation
 
 2. Create env file
   ```
-  cp docker/.env.dist to docker/.env
+  cp docker/.env.dist docker/.env
   ```
 
 3. Install components with composer
@@ -69,3 +69,4 @@ Other Docs
 ----------
 
 - [User Management Commands](./src/Salt/UserBundle/Resources/doc/Commands.md)
+- [Github Authentication Config](./src/GithubFilesBundle/Resources/doc/GithubAuth.md)
