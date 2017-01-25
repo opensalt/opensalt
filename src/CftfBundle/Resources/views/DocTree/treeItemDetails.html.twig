@@ -6,6 +6,7 @@
             'fullStatement': 'Full Statement',
             'conceptKeywords': 'Concept Keywords',
             'educationalAlignment': 'Education Level',
+            'type': 'Type',
             'notes': 'Notes'
         } %}
             {% if attribute(lsItem, field) is not empty %}
@@ -29,7 +30,6 @@
 
         {% for field, name in {
             'uri': 'Statement URL',
-            'type': 'Type',
             'listEnumInSource': 'List Enumeration in Source',
             'conceptKeywordsUri': 'Concept Keywords URI',
             'language': 'Language',
