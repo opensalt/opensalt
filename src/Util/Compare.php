@@ -20,9 +20,7 @@ class Compare
     {
         uasort($itemArray, function ($a, $b) use ($fields) {
             foreach ($fields as $field) {
-                $ret = Compare::arrayCompare($a, $b, $field);
-
-                if (0 !== $ret) {
+                if (0 !== ($ret = Compare::arrayCompare($a, $b, $field))) {
                     return $ret;
                 }
             }
@@ -42,8 +40,11 @@ class Compare
      */
     public static function arrayCompare($a, $b, $key, $setValueIsLower = true)
     {
-        $ret = Compare::isSetInArray($a, $b, $key, $setValueIsLower);
-        if (0 !== $ret) {
+        if (!isset($a[$key]) && !isset($b[$key])) {
+            return 0;
+        }
+
+        if (0 !== ($ret = Compare::isSetInArray($a, $b, $key, $setValueIsLower))) {
             return $ret;
         }
 
@@ -62,14 +63,15 @@ class Compare
             return ((float) $x < (float) $y) ? -1 : 1;
         }
 
-        if (0 < substr_count($x, '.') || 0 < substr_count($y, '.')) {
-            $xa = explode('.', $x);
-            $ya = explode('.', $y);
-
-            foreach ($xa as $idx => $val) {
-                $ret = self::arrayCompare($xa, $ya, $idx, false);
-
-                if (0 !== $ret) {
+        $xa = preg_split('/[\s.,-]/', $x);
+        $ya = preg_split('/[\s.,-]/', $y);
+        $len = count($xa);
+        if ($len < count($ya)) {
+            $len = count($ya);
+        }
+        if (1 < $len) {
+            for ($idx = 0; $idx < $len; $idx++) {
+                if (0 !== ($ret = self::arrayCompare($xa, $ya, $idx, false))) {
                     return $ret;
                 }
             }
