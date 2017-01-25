@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * LsAssociation controller.
  *
- * @Route("/lsassociation")
+ * @Route("/cfassociation")
  */
 class LsAssociationController extends Controller
 {

@@ -25,7 +25,7 @@ use Util\Compare;
 class DocTreeController extends Controller
 {
     /**
-     * @Route("/lsdoc/{id}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{id}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
      * @Method({"GET"})
      * @Template()
      */
@@ -43,7 +43,7 @@ class DocTreeController extends Controller
     }
 
     /**
-     * @Route("/lsdoc/{lsDoc1_id}/{lsDoc2_id}.{_format}", name="doc_tree_view2", defaults={"_format"="html"})
+     * @Route("/doc/{lsDoc1_id}/{lsDoc2_id}.{_format}", name="doc_tree_view2", defaults={"_format"="html"})
      * @ParamConverter("lsDoc1", class="CftfBundle:LsDoc", options={"id"="lsDoc1_id"})
      * @ParamConverter("lsDoc2", class="CftfBundle:LsDoc", options={"id"="lsDoc2_id"})
      * @Method({"GET"})
@@ -63,7 +63,7 @@ class DocTreeController extends Controller
     }
 
     /**
-     * @Route("/lsitem/{id}.{_format}", name="doc_tree_item_view", defaults={"_format"="html"})
+     * @Route("/item/{id}.{_format}", name="doc_tree_item_view", defaults={"_format"="html"})
      * @Method({"GET"})
      *
      * @param LsItem $lsItem
@@ -115,7 +115,7 @@ class DocTreeController extends Controller
     }
 
     /**
-     * @Route("/itemDetails/{id}", name="doc_tree_item_details")
+     * @Route("/item/{id}/details", name="doc_tree_item_details")
      * @Method("GET")
      * @Template()
      *
@@ -131,7 +131,7 @@ class DocTreeController extends Controller
     /**
      * Deletes a LsItem entity, from the tree view.
      *
-     * @Route("/lsItem/delete/{id}", name="lsitem_tree_delete")
+     * @Route("/item/{id}/delete", name="lsitem_tree_delete")
      * @Method("POST")
      * @Security("is_granted('edit', lsItem)")
      *
@@ -169,7 +169,7 @@ class DocTreeController extends Controller
      * Reorders are done by updating the listEnum fields of the items
      * This also does copies
      *
-     * @Route("/updateitems/{id}", name="doctree_update_items")
+     * @Route("/doc/{id}/updateitems", name="doctree_update_items")
      * @Method("POST")
      * @Security("is_granted('edit', lsDoc)")
      *

@@ -17,7 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 /**
  * LsDoc controller.
  *
- * @Route("/lsdoc")
+ * @Route("/cfdoc")
  */
 class LsDocController extends Controller
 {

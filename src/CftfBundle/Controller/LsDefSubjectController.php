@@ -13,7 +13,7 @@ use CftfBundle\Entity\LsDefSubject;
 /**
  * LsDefSubject controller.
  *
- * @Route("/lsdef/subject")
+ * @Route("/cfdef/subject")
  */
 class LsDefSubjectController extends Controller
 {
