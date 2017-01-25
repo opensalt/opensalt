@@ -13,7 +13,7 @@ use CftfBundle\Entity\LsDefGrade;
 /**
  * LsDefGrade controller.
  *
- * @Route("/lsdef/grade")
+ * @Route("/cfdef/grade")
  */
 class LsDefGradeController extends Controller
 {

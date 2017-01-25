@@ -13,7 +13,7 @@ use CftfBundle\Entity\LsDefItemType;
 /**
  * LsDefItemType controller.
  *
- * @Route("/lsdef/item_type")
+ * @Route("/cfdef/item_type")
  */
 class LsDefItemTypeController extends Controller
 {

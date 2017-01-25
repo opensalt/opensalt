@@ -13,7 +13,7 @@ use CftfBundle\Entity\LsDefAssociationGrouping;
 /**
  * LsDefAssociationGrouping controller.
  *
- * @Route("/lsdef/association_grouping")
+ * @Route("/cfdef/association_grouping")
  */
 class LsDefAssociationGroupingController extends Controller
 {

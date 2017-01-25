@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * LsItem controller.
  *
- * @Route("/lsitem")
+ * @Route("/cfitem")
  */
 class LsItemController extends Controller
 {

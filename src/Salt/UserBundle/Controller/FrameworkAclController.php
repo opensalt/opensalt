@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Class FrameworkAclController
  *
- * @Route("/lsdoc")
+ * @Route("/cfdoc")
  */
 class FrameworkAclController extends Controller
 {

@@ -29,7 +29,7 @@ class EditorController extends Controller
     }
 
     /**
-     * @Route("/lsdoc/{id}.{_format}", defaults={"_format" = "html"}, name="editor_lsdoc")
+     * @Route("/doc/{id}.{_format}", defaults={"_format" = "html"}, name="editor_lsdoc")
      * @Method("GET")
      * @Template()
      *
@@ -48,7 +48,7 @@ class EditorController extends Controller
     }
 
     /**
-     * @Route("/lsitem/{id}.{_format}", defaults={"_format" = "html"}, name="editor_lsitem")
+     * @Route("/item/{id}.{_format}", defaults={"_format" = "html"}, name="editor_lsitem")
      * @Method("GET")
      * @Template()
      *

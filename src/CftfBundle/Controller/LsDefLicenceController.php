@@ -13,7 +13,7 @@ use CftfBundle\Entity\LsDefLicence;
 /**
  * LsDefLicence controller.
  *
- * @Route("/lsdef/licence")
+ * @Route("/cfdef/licence")
  */
 class LsDefLicenceController extends Controller
 {
