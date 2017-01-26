@@ -14,6 +14,14 @@ class LsAssociationRepository extends EntityRepository
 {
     public function removeAssociation(LsAssociation $lsAssociation) {
         $this->_em->remove($lsAssociation);
+        $origin = $lsAssociation->getOrigin();
+        if (is_object($origin)) {
+            $origin->removeAssociation($lsAssociation);
+        }
+        $dest = $lsAssociation->getDestination();
+        if (is_object($dest)) {
+            $dest->removeInverseAssociation($lsAssociation);
+        }
     }
 
     /**

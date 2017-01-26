@@ -80,6 +80,29 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
         }
     }
 
+    public function removeItemAndChildren(LsItem $lsItem)
+    {
+        $children = $lsItem->getChildren();
+        foreach ($children as $child) {
+            $this->removeItemAndChildren($child);
+        }
+
+        return $this->removeItem($lsItem);
+    }
+
+    public function removeItem(LsItem $lsItem)
+    {
+        $hasChildren = $lsItem->getChildren();
+        if ($hasChildren->isEmpty()) {
+            $this->_em->getRepository(LsAssociation::class)->removeAllAssociations($lsItem);
+            $this->_em->remove($lsItem);
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * @return \Doctrine\ORM\QueryBuilder
      */

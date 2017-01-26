@@ -413,6 +413,35 @@ span.fancytree-title {
     } %}
     {% endembed %}
 
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+        'modalName':'deleteOneItem',
+        'modalTitle':'Delete Item',
+        'saveButton': 'Delete',
+        'closeButton': 'Cancel'
+    } %}
+        {% block modalBody %}
+            <p>Are you sure you want to delete this item?</p>
+        {% endblock %}
+        {% block modalButtons %}
+            <button type="button" class="btn btn-danger btn-delete">Delete</button>
+        {% endblock %}
+    {% endembed %}
+
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+        'modalName':'deleteItemAndChildren',
+        'modalTitle':'Delete Item and Children',
+        'saveButton': 'Delete',
+        'closeButton': 'Cancel'
+    } %}
+        {% block modalBody %}
+            <p><strong class="text-danger">Warning: </strong> This item has children.</p>
+            <p>Are you sure you want to delete this item <strong>and</strong> all its children?</p>
+        {% endblock %}
+        {% block modalButtons %}
+            <button type="button" class="btn btn-danger btn-delete">Delete</button>
+        {% endblock %}
+    {% endembed %}
+
     <div id="modalSpinner"><div id="modalSpinnerCover"></div><div id="modalSpinnerMessage"></div></div>
 {% endblock %}
 
@@ -437,7 +466,7 @@ span.fancytree-title {
         app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
 
         app.path.lsitem_edit = '{{ path('lsitem_edit', {'id':'ID'}) }}';
-        app.path.lsitem_tree_delete = '{{ path('lsitem_tree_delete', {'id':'ID'}) }}';
+        app.path.lsitem_tree_delete = '{{ path('lsitem_tree_delete', {'id':'ID', 'includingChildren':'CHILDREN'}) }}';
         app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC', 'parent':'PARENT'}) }}';
         app.path.lsitem_copy_item = '{{ path('lsitem_copy_item', {'id':'ID'}) }}';
         app.path.lsassociation_tree_new = '{{ path('lsassociation_tree_new', {'originLsItem':'ORIGIN_ID', 'destinationLsItem':'DESTINATION_ID'}) }}';
@@ -1491,39 +1520,47 @@ span.fancytree-title {
         app.deleteItem = function() {
             // get node
             var node = app.getNodeFromLsItemId(app.lsItemId);
-            
-            // if node has children, can't delete
-            if ($.isArray(node.children) && node.children.length > 0) {
-                alert("You cannot delete items that are parents of other items. If you first delete this item’s children, you can then delete the item itself.");
-                return;
-            }
+            var children = 0;
+            var deleteItem = function() {
+                // replace item with "Deleting..." message
+                app.getLsItemDetailsJq(app.lsItemId).find(".lsItemDetails").html(app.spinnerHtml("Deleting"));
+                app.getLsItemDetailsJq(app.lsItemId).find(".lsItemAssociations").text("");
+
+                $.ajax({
+                    url: app.path.lsitem_tree_delete.replace('ID', app.lsItemId).replace('CHILDREN', children),
+                    method: 'POST'
+                }).done(function (data, textStatus, jqXHR) {
+                    // find parent
+                    var parentNode = node.parent;
+
+                    // delete node
+                    node.remove();
+
+                    // activate parent
+                    parentNode.setActive();
+
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    alert("An error occurred.");
+                    // console.log(jqXHR.responseText);
+                });
+            };
 
             // make user confirm
-            if (!confirm("Are you sure you want to delete this item?")) {
-                return;
+            if ($.isArray(node.children) && node.children.length > 0) {
+                $('#deleteItemAndChildrenModal').modal()
+                    .one('click', '.btn-delete', function() {
+                        $(this).closest('.modal').modal('hide');
+                        children = 1;
+                        deleteItem();
+                    });
+            } else {
+                $('#deleteOneItemModal').modal()
+                    .one('click', '.btn-delete', function() {
+                        $(this).closest('.modal').modal('hide');
+                        deleteItem();
+                    });
             }
-            
-            // replace item with "Deleting..." message
-            app.getLsItemDetailsJq(app.lsItemId).find(".lsItemDetails").html(app.spinnerHtml("Deleting"));
-            app.getLsItemDetailsJq(app.lsItemId).find(".lsItemAssociations").text("");
-                
-            $.ajax({
-                url: app.path.lsitem_tree_delete.replace('ID', app.lsItemId),
-                method: 'POST'
-            }).done(function(data, textStatus, jqXHR) {
-                // find parent
-                var parentNode = node.parent;
-                
-                // delete node
-                node.remove();
-                
-                // activate parent
-                parentNode.setActive();
 
-            }).fail(function(jqXHR, textStatus, errorThrown){
-                alert("An error occurred.");
-                // console.log(jqXHR.responseText);
-            });
         };
         
         //////////////////////////////////////////////////////
