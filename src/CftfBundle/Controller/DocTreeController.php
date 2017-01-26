@@ -131,16 +131,17 @@ class DocTreeController extends Controller
     /**
      * Deletes a LsItem entity, from the tree view.
      *
-     * @Route("/item/{id}/delete", name="lsitem_tree_delete")
+     * @Route("/item/{id}/delete/{includingChildren}", name="lsitem_tree_delete", defaults={"includingChildren" = 0})
      * @Method("POST")
      * @Security("is_granted('edit', lsItem)")
      *
      * @param Request $request
      * @param LsItem $lsItem
+     * @param int $includingChildren
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function deleteAction(Request $request, LsItem $lsItem)
+    public function deleteAction(Request $request, LsItem $lsItem, $includingChildren = 0)
     {
         $ajax = false;
         if ($request->isXmlHttpRequest()) {
@@ -148,12 +149,13 @@ class DocTreeController extends Controller
         }
         $lsDocId = $lsItem->getLsDoc()->getId();
 
-        $hasChildren = $lsItem->getChildren();
+        $em = $this->getDoctrine()->getManager();
 
-        if ($hasChildren->isEmpty()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->getRepository(LsAssociation::class)->removeAllAssociations($lsItem);
-            $em->remove($lsItem);
+        if ($includingChildren) {
+            $em->getRepository(LsItem::class)->removeItemAndChildren($lsItem);
+            $em->flush();
+        } else {
+            $em->getRepository(LsItem::class)->removeItem($lsItem);
             $em->flush();
         }
 
