@@ -85,14 +85,15 @@ gulp.task('scripts', function() {
     app.addScript([
         config.bowerDir+'/jquery/dist/jquery.js',
         config.bowerDir+'/jquery-ui/jquery-ui.js',
-        config.bowerDir+'/bootstrap-sass/assets/javascripts/bootstrap.js',
         config.bowerDir+'/fancytree/dist/jquery.fancytree-all.js',
+        config.bowerDir+'/bootstrap-sass/assets/javascripts/bootstrap.js',
         config.bowerDir+'/ui-contextmenu/jquery.ui-contextmenu.js',
         config.bowerDir+'/bootstrap-multiselect/dist/js/bootstrap-multiselect.js',
         config.bowerDir+'/select2/dist/js/select2.full.js',
         config.bowerDir+'/twbs-pagination/jquery.twbsPagination.js',
         config.assetsDir+'/js/application.js',
         config.assetsDir+'/js/lsdoc/index.js',
+        config.assetsDir+'/js/cftree/view.js',
     ], 'site.js');
 });
 
