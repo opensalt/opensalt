@@ -1288,7 +1288,11 @@ span.fancytree-title {
             // get the parentNode (current item) and add the child to the parent
             var parentNode = app.getNodeFromLsItemId(app.lsItemId);
             parentNode.addChildren([data]);
-            
+
+            parentNode.folder = true;
+            parentNode.setExpanded(true);
+            parentNode.render();
+
             // enable the tooltip on the new child
             app.treeItemTooltip(app.getNodeFromLsItemId(data.key));
         };
