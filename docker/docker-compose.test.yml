@@ -12,6 +12,8 @@ services:
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
       SYMFONY__MYSQL__HOST: "db"
+      GITHUB_CLIENT_ID:
+      GITHUB_CLIENT_SECRET:
     volumes_from:
       - app
     working_dir: /var/www/html

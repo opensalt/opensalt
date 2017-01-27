@@ -13,6 +13,8 @@ services:
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
       SYMFONY__MYSQL__HOST: "db"
       #XDEBUG_CONFIG: remote_host=Your_IP_Address
+      GITHUB_CLIENT_ID:
+      GITHUB_CLIENT_SECRET:
     volumes:
       - &project_root "..:/var/www/html"
     working_dir: /var/www/html

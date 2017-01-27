@@ -16,6 +16,8 @@ imports:
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: en
+    github_client_id: '%env(GITHUB_CLIENT_ID)%'
+    github_client_secret: '%env(GITHUB_CLIENT_SECRET)%'
 
 framework:
     #esi:             ~
