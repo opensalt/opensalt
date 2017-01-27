@@ -1540,6 +1540,12 @@ span.fancytree-title {
                     // delete node
                     node.remove();
 
+                    if (!$.isArray(parentNode.children) || parentNode.children.length === 0) {
+                        parentNode.folder = false;
+                        parentNode.setExpanded(false);
+                        parentNode.render();
+                    }
+
                     // activate parent
                     parentNode.setActive();
 
