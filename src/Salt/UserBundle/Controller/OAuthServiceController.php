@@ -6,6 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * OAuth Service controller.
@@ -28,10 +29,21 @@ class OAuthServiceController extends Controller
      */
     public function githubAction(Request $request)
     {
+        if ($this->container->hasParameter('github_redirect_uri')) {
+            $redirectUri = $this->getParameter('github_redirect_uri');
+        }
+        if (empty($redirectUri)) {
+            $redirectUri = $this->generateUrl(
+                'github_login',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+        }
+
         $provider = new \League\OAuth2\Client\Provider\Github([
-            'clientId'          => $this->getParameter('github_client_id'),
-            'clientSecret'      => $this->getParameter('github_client_secret'),
-            'redirectUri'       => $this->getParameter('github_redirect_uri'),
+            'clientId'     => $this->getParameter('github_client_id'),
+            'clientSecret' => $this->getParameter('github_client_secret'),
+            'redirectUri'  => $redirectUri,
         ]);
 
         $code = $request->query->get('code');
