@@ -1289,9 +1289,11 @@ span.fancytree-title {
             var parentNode = app.getNodeFromLsItemId(app.lsItemId);
             parentNode.addChildren([data]);
 
-            parentNode.folder = true;
-            parentNode.setExpanded(true);
-            parentNode.render();
+            if (!parentNode.folder) {
+                parentNode.folder = true;
+                parentNode.setExpanded(true);
+                parentNode.render();
+            }
 
             // enable the tooltip on the new child
             app.treeItemTooltip(app.getNodeFromLsItemId(data.key));
@@ -1540,7 +1542,7 @@ span.fancytree-title {
                     // delete node
                     node.remove();
 
-                    if (!$.isArray(parentNode.children) || parentNode.children.length === 0) {
+                    if (!app.isDocNode(parentNode) && (!$.isArray(parentNode.children) || parentNode.children.length === 0)) {
                         parentNode.folder = false;
                         parentNode.setExpanded(false);
                         parentNode.render();
