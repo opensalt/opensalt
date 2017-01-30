@@ -11,22 +11,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20160928191216 extends AbstractMigration implements ContainerAwareInterface
+class Version20160928191216 extends AbstractMigration
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
-     * Sets the container.
-     *
-     * @param ContainerInterface|null $container A ContainerInterface instance or null
-     */
-    public function setContainer(ContainerInterface $container = NULL) {
-        $this->container = $container;
-    }
-
     /**
      * @param Schema $schema
      */
