@@ -42,8 +42,18 @@ class UserDocAcl
     protected $access;
 
 
-    public function __construct(User $user, LsDoc $lsDoc, int $access) {
-        if ($access < 0 || $access > 1) {
+    /**
+     * UserDocAcl constructor.
+     *
+     * @param User $user
+     * @param LsDoc $lsDoc
+     * @param int $access
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function __construct(User $user, LsDoc $lsDoc, int $access)
+    {
+        if (!in_array($access, [self::DENY, self::ALLOW], true)) {
             throw new \InvalidArgumentException('Invalid value for "access".  Access can only be 0 or 1');
         }
         $this->user = $user;
@@ -56,7 +66,8 @@ class UserDocAcl
      *
      * @return User
      */
-    public function getUser(): User {
+    public function getUser(): User
+    {
         return $this->user;
     }
 
@@ -65,7 +76,8 @@ class UserDocAcl
      *
      * @return LsDoc
      */
-    public function getLsDoc(): LsDoc {
+    public function getLsDoc(): LsDoc
+    {
         return $this->lsDoc;
     }
 
@@ -74,7 +86,8 @@ class UserDocAcl
      *
      * @return int 0|1 indicating Deny or Allow
      */
-    public function getAccess(): int {
+    public function getAccess(): int
+    {
         return $this->access;
     }
 }
