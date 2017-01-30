@@ -97,9 +97,9 @@
             <a class="btn btn-primary" href="{{ path('lsdoc_index') }}">Back to the list</a>
         </li>
         {% if is_granted('edit', lsDoc) %}
-          <li>
-              <a class="btn btn-default" href="{{ path('lsdoc_edit', { 'id': lsDoc.id }) }}">Edit</a>
-          </li>
+            <li>
+                <a class="btn btn-default" href="{{ path('lsdoc_edit', { 'id': lsDoc.id }) }}">Edit</a>
+            </li>
         {% endif %}
         <li>
             <a class="btn btn-default" href="{{ path('lsdoc_export', { 'id': lsDoc.id }) }}">Export</a>
@@ -109,12 +109,12 @@
                 <a class="btn btn-default" href="{{ path('framework_acl_edit', { 'id': lsDoc.id }) }}">Manage Access</a>
             </li>
         {% endif %}
-        {% if is_granted('edit', lsDoc) %}
-          <li>
-              {{ form_start(delete_form) }}
-                  <input class="btn btn-danger" type="submit" value="Delete">
-              {{ form_end(delete_form) }}
-          </li>
+        {% if is_granted('delete', lsDoc) %}
+            <li>
+                {{ form_start(delete_form) }}
+                    <input class="btn btn-danger" type="submit" value="Delete">
+                {{ form_end(delete_form) }}
+            </li>
         {% endif %}
     </ul>
 {% endblock %}

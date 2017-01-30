@@ -5,6 +5,7 @@ namespace Salt\UserBundle\Security;
 use CftfBundle\Entity\LsDoc;
 use JMS\DiExtraBundle\Annotation as DI;
 use Salt\UserBundle\Entity\User;
+use Salt\UserBundle\Entity\UserDocAcl;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -18,6 +19,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 class FrameworkEditVoter extends Voter
 {
     const EDIT = 'edit';
+    const DELETE = 'delete';
 
     /**
      * @var AccessDecisionManagerInterface
@@ -46,8 +48,9 @@ class FrameworkEditVoter extends Voter
      *
      * @return bool True if the attribute and subject are supported, false otherwise
      */
-    protected function supports($attribute, $subject) {
-        if ($attribute !== self::EDIT) {
+    protected function supports($attribute, $subject)
+    {
+        if (!in_array($attribute, [self::EDIT, self::DELETE], true)) {
             return false;
         }
 
@@ -68,7 +71,8 @@ class FrameworkEditVoter extends Voter
      *
      * @return bool
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token) {
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    {
         $user = $token->getUser();
 
         if (!$user instanceof User) {
@@ -78,6 +82,27 @@ class FrameworkEditVoter extends Voter
 
         // This check only supports LsDoc objects
         if (!$subject instanceof LsDoc) {
+            return false;
+        }
+
+        switch ($attribute) {
+            case self::EDIT:
+                return $this->canEditFramework($subject, $token);
+                break;
+
+            case self::DELETE:
+                return $this->canDeleteFramework($subject, $token);
+                break;
+        }
+
+        return false;
+    }
+
+    private function canEditFramework(LsDoc $subject, TokenInterface $token)
+    {
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            // If the user is not logged in then deny access
             return false;
         }
 
@@ -91,16 +116,11 @@ class FrameworkEditVoter extends Voter
             return true;
         }
 
-        // Allow editing if the user is a super-editor
-        if ($this->decisionManager->decide($token, ['ROLE_SUPER_EDITOR'])) {
-            return true;
-        }
-
         // Check for an explicit ACL
         $docAcls = $user->getDocAcls();
         foreach ($docAcls as $acl) {
             if ($acl->getLsDoc() === $subject) {
-                return 1 === $acl->getAccess();
+                return UserDocAcl::ALLOW === $acl->getAccess();
             }
         }
 
@@ -110,6 +130,11 @@ class FrameworkEditVoter extends Voter
         }
 
         // Otherwise the user does not have edit rights
+        return false;
+    }
+
+    private function canDeleteFramework(LsDoc $subject, TokenInterface $token)
+    {
         return false;
     }
 }

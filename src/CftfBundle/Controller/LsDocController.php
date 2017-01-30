@@ -161,7 +161,7 @@ class LsDocController extends Controller
      *
      * @Route("/{id}", name="lsdoc_delete")
      * @Method("DELETE")
-     * @Security("is_granted('edit', lsDoc)")
+     * @Security("is_granted('delete', lsDoc)")
      *
      * @param Request $request
      * @param LsDoc $lsDoc
@@ -174,9 +174,7 @@ class LsDocController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($lsDoc);
-            $em->flush();
+            $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->deleteDocument($lsDoc);
         }
 
         return $this->redirectToRoute('lsdoc_index');
