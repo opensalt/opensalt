@@ -138,7 +138,8 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
         $params = ['lsDocId' => $lsDoc->getId()];
 
         if (null === $progressCallback) {
-            $progressCallback = function ($message = '') {};
+            $progressCallback = function ($message = '') {
+            };
         }
 
         $progressCallback('Deleting associations');
@@ -171,6 +172,14 @@ xENDx;
         $stmt = <<<'xENDx'
 DELETE FROM ls_doc_subject
  WHERE ls_doc_id = :lsDocId
+;
+xENDx;
+        $conn->prepare($stmt)->execute($params);
+
+        $progressCallback('Deleting acls');
+        $stmt = <<<'xENDx'
+DELETE FROM salt_user_doc_acl
+ WHERE doc_id = :lsDocId
 ;
 xENDx;
         $conn->prepare($stmt)->execute($params);
