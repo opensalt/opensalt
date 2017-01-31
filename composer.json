@@ -5,7 +5,12 @@
     "description": "Standards Alignment Tool",
     "autoload": {
         "psr-4": {
-            "": "src/"
+            "Cftf\\": "src/Cftf/",
+            "CftfBundle\\": "src/CftfBundle/",
+            "GithubFilesBundle\\": "src/GithubFilesBundle/",
+            "Pcg\\": "src/Pcg/",
+            "Salt\\": "src/Salt/",
+            "Util\\": "src/Util/"
         },
         "classmap": [
             "app/AppKernel.php",
