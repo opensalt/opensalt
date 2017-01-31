@@ -14,7 +14,6 @@ use JMS\DiExtraBundle\Annotation as DI;
  */
 class GithubImport
 {
-
     /**
      * @var EntityManager
      */
@@ -55,7 +54,7 @@ class GithubImport
 
         foreach ($csvContent as $i => $row) {
             $tempContent = [];
-            $row = str_getcsv($row, ",");
+            $row = str_getcsv($row, ',');
 
             if ($i === 0) {
                 $headers = $row;
@@ -100,7 +99,7 @@ class GithubImport
         $lsDoc->setNote($this->getValue($lsDocKeys['notes'], $content[0]));
 
 
-        for ($i = 1, $iMax = count($content); $i < $iMax; $i++) {
+        for ($i = 1, $iMax = count($content); $i < $iMax; ++$i) {
             $row = $content[$i];
             $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $row);
             $lsDoc->addTopLsItem($lsItem);
@@ -148,9 +147,9 @@ class GithubImport
     private function getValue($key, $row)
     {
         if (empty($key)) {
-            return "";
+            return '';
         } else {
-            $res = explode(",", $key);
+            $res = explode(',', $key);
 
             if (count($res) > 1) {
                 return $res[0];

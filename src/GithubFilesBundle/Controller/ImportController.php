@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @Security("is_granted('create', 'lsdoc')")
  */
-class ImportController extends Controller{
-
+class ImportController extends Controller
+{
     /**
      * @Route("/cf/github/import", name="import_from_github")
      *
@@ -33,7 +33,7 @@ class ImportController extends Controller{
         $githubImporter->parseCSVGithubDocument($lsDocKeys, $lsItemKeys, base64_decode($fileContent));
 
         return $response->setData([
-            'message' => "Success",
+            'message' => 'Success',
         ]);
     }
 }
