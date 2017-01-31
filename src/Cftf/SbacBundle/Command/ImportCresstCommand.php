@@ -263,7 +263,7 @@ class ImportCresstCommand extends ContainerAwareCommand
 
                     if (empty($lsItems[strtoupper($dest)])) {
                         switch (true) {
-                            case 0 === strpos(strtoupper($dest), 'R-DOK'):
+                            case preg_match('/^.-DOK/', strtoupper($dest)):
                                 // Mark as external DOK for now, TODO: Link to DOK document
                                 // Using RFC4198 identifier, "cfr" => "CF Reference"
                                 $destItemUri = 'urn:fdc:edplancms.com:2016:cfr:DOK:'.rawurlencode($dest);
