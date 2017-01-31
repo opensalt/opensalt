@@ -43,29 +43,30 @@ class GithubImport
     /**
      * Parse an Github document into a LsDoc/LsItem hierarchy
      *
-     * @param array $lsdocKeys
+     * @param array $lsDocKeys
+     * @param array $lsItemKeys
      * @param string $fileContent
      */
-    public function parseCSVGithubDocument($lsDocKeys, $lsItemKeys, $fileContent){
+    public function parseCSVGithubDocument($lsDocKeys, $lsItemKeys, $fileContent)
+    {
         $csvContent = str_getcsv($fileContent, "\n");
-        $headers = array();
-        $content = array();
-        $tempContent = array();
+        $headers = [];
+        $content = [];
 
         foreach ($csvContent as $i => $row) {
+            $tempContent = [];
             $row = str_getcsv($row, ",");
 
-            if ($i == 0){
+            if ($i === 0) {
                 $headers = $row;
                 continue;
             }
 
-            foreach($headers as $h => $col){
+            foreach ($headers as $h => $col) {
                 $tempContent[$col] = $row[$h];
             }
 
-            array_push($content, $tempContent);
-            $tempContent = array();
+            $content[] = $tempContent;
         }
 
         $this->saveCSVGithubDocument($lsDocKeys, $lsItemKeys, $content);
@@ -74,16 +75,18 @@ class GithubImport
     /**
      * Save an Github document into a LsDoc/LsItem hierarchy
      *
-     * @param array $lsdocKeys
-     * @param string $content
+     * @param array $lsDocKeys
+     * @param array $lsItemKeys
+     * @param array $content
      */
-    public function saveCSVGithubDocument($lsDocKeys, $lsItemKeys, $content){
+    public function saveCSVGithubDocument($lsDocKeys, $lsItemKeys, $content)
+    {
         $em = $this->getEntityManager();
         $lsDoc = new LsDoc();
 
-        if(empty($this->getValue($lsDocKeys['creator'], $content[0]))){
+        if (empty($this->getValue($lsDocKeys['creator'], $content[0]))) {
             $lsDoc->setCreator('Imported from GitHub');
-        }else{
+        } else {
             $lsDoc->setCreator($this->getValue($lsDocKeys['creator'], $content[0]));
         }
 
@@ -97,7 +100,7 @@ class GithubImport
         $lsDoc->setNote($this->getValue($lsDocKeys['notes'], $content[0]));
 
 
-        for($i=1; $i < sizeof($content); $i++){
+        for ($i = 1, $iMax = count($content); $i < $iMax; $i++) {
             $row = $content[$i];
             $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $row);
             $lsDoc->addTopLsItem($lsItem);
@@ -107,7 +110,15 @@ class GithubImport
         $em->flush();
     }
 
-    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data){
+    /**
+     * @param LsDoc $lsDoc
+     * @param array $lsItemKeys
+     * @param string $data
+     *
+     * @return LsItem
+     */
+    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data)
+    {
         $lsItem = new LsItem();
         $em = $this->getEntityManager();
 
@@ -128,13 +139,20 @@ class GithubImport
         return $lsItem;
     }
 
-    private function getValue($key, $row){
-        if (empty($key)){
+    /**
+     * @param string $key
+     * @param string $row
+     *
+     * @return string
+     */
+    private function getValue($key, $row)
+    {
+        if (empty($key)) {
             return "";
-        }else{
+        } else {
             $res = explode(",", $key);
 
-            if (sizeof($res) > 1){
+            if (count($res) > 1) {
                 return $res[0];
             }
         }
