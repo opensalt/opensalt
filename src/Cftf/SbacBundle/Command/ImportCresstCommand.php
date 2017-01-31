@@ -231,6 +231,8 @@ class ImportCresstCommand extends ContainerAwareCommand
 
         // Add associations
         foreach ($items as $key => $item) {
+            $srcItem = $lsItems[strtoupper($key)];
+
             foreach ($item['associations'] as $associationType => $associations) {
                 switch (strtoupper($associationType)) {
                     case 'IS EXACT MATCH OF':
@@ -257,7 +259,6 @@ class ImportCresstCommand extends ContainerAwareCommand
                 }
 
                 foreach ($associations as $dest) {
-                    $srcItem = $lsItems[strtoupper($key)];
                     $destItem = null;
                     $destItemUri = null;
 
@@ -307,6 +308,22 @@ class ImportCresstCommand extends ContainerAwareCommand
                     }
                     $em->persist($lsAssoc);
                 }
+            }
+
+            if (!empty($item['ccssCode'])) {
+                $lsAssoc = new LsAssociation();
+                $lsAssoc->setLsDoc($lsDoc);
+                $lsAssoc->setOriginLsItem($srcItem);
+                $lsAssoc->setType(LsAssociation::EXACT_MATCH_OF);
+                if ('MATH' === strtoupper($item['doc'])) {
+                    $destDoc = 'CCSS-M';
+                } else {
+                    $destDoc = 'CCSS-E';
+                }
+                $destItemUri = 'urn:fdc:edplancms.com:2016:cfr:'.$destDoc.':'.rawurlencode($item['ccssCode']);
+                $lsAssoc->setDestinationNodeUri($destItemUri);
+                $lsAssoc->setDestinationNodeIdentifier(Uuid::uuid5(self::EDPLAN_2016_CFR_NS, $destItemUri)->toString());
+                $em->persist($lsAssoc);
             }
         }
 
