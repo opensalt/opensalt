@@ -17,19 +17,23 @@ class ImportController extends Controller{
 
     /**
      * @Route("/cf/github/import", name="import_from_github")
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
      */
-    public function importAction(Request $request) {
+    public function importAction(Request $request)
+    {
         $response = new JsonResponse();
         $lsDocKeys = $request->request->get('cfDocKeys');
         $lsItemKeys = $request->request->get('cfItemKeys');
-        $lsAssociationKeys = $request->request->get('cfAssociationKeys');
         $fileContent = $request->request->get('content');
 
         $githubImporter = $this->get('cftf_import.github');
         $githubImporter->parseCSVGithubDocument($lsDocKeys, $lsItemKeys, base64_decode($fileContent));
 
-        return $response->setData(array(
-            'message' => "Success"
-        ));
+        return $response->setData([
+            'message' => "Success",
+        ]);
     }
 }

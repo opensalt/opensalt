@@ -26,11 +26,6 @@ class AsnImport
     private $em;
 
     /**
-     * @var \GuzzleHttp\Client
-     */
-    private $jsonClient;
-
-    /**
      * @param EntityManager $em
      *
      * @DI\InjectParams({

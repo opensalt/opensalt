@@ -45,7 +45,7 @@ class CresstController extends Controller
             }
 
             $crosswalk = [];
-            $related = $item->getInverseAssociations()->filter(function (LsAssociation $association) use (&$crosswalk) {
+            $item->getInverseAssociations()->filter(function (LsAssociation $association) use (&$crosswalk) {
                 if (LsAssociation::RELATED_TO !== $association->getType()) {
                     return false;
                 }
