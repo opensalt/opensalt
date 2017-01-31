@@ -2,14 +2,10 @@
 
 namespace GithubFilesBundle\Service;
 
-use CftfBundle\Entity\LsAssociation;
-use CftfBundle\Entity\LsDefItemType;
-use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityManager;
 use JMS\DiExtraBundle\Annotation as DI;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Class GithubImport.

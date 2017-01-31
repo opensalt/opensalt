@@ -6,7 +6,6 @@ use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Form\Type\LsDocListType;
-use CftfBundle\Repository\LsItemRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
