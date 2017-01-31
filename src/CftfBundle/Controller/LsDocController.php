@@ -122,10 +122,7 @@ class LsDocController extends Controller
      */
     public function editAction(Request $request, LsDoc $lsDoc)
     {
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+        $ajax = $request->isXmlHttpRequest();
 
         $deleteForm = $this->createDeleteForm($lsDoc);
         $editForm = $this->createForm(LsDocType::class, $lsDoc, ['ajax' => $ajax]);

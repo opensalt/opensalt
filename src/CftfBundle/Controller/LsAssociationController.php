@@ -55,10 +55,7 @@ class LsAssociationController extends Controller
     public function newAction(Request $request, LsItem $sourceLsItem = null)
     {
         // @TODO: Add LsDoc of the new association for when adding via AJAX
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+        $ajax = $request->isXmlHttpRequest();
 
         $lsAssociation = new LsAssociation();
         if ($sourceLsItem) {
@@ -109,16 +106,14 @@ class LsAssociationController extends Controller
      * @Template()
      *
      * @param Request $request
-     * @param LsItem|null $sourceLsItem
+     * @param LsItem|null $originLsItem
+     * @param LsItem|null $destinationLsItem
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function treeNewAction(Request $request, LsItem $originLsItem = null, LsItem $destinationLsItem = null)
     {
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+        $ajax = $request->isXmlHttpRequest();
 
         $lsAssociation = new LsAssociation();
         $lsAssociation->setOriginLsItem($originLsItem);
@@ -143,7 +138,7 @@ class LsAssociationController extends Controller
 
         $ret = [
             'lsAssociation' => $lsAssociation,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ];
 
         if ($ajax && $form->isSubmitted() && !$form->isValid()) {

@@ -62,10 +62,7 @@ class LsItemController extends Controller
      */
     public function newAction(Request $request, LsDoc $doc = null, LsItem $parent = null)
     {
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+        $ajax = $request->isXmlHttpRequest();
 
         $lsItem = new LsItem();
 
@@ -150,10 +147,7 @@ class LsItemController extends Controller
      */
     public function editAction(Request $request, LsItem $lsItem)
     {
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+        $ajax = $request->isXmlHttpRequest();
 
         $deleteForm = $this->createDeleteForm($lsItem);
         $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
@@ -287,10 +281,8 @@ class LsItemController extends Controller
         // Steps
         //  - Select LsDoc to copy to
         //  - Clone LsItem to selected LsDoc
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+
+        $ajax = $request->isXmlHttpRequest();
 
         $command = new CopyToLsDocCommand();
         $form = $this->createForm(LsDocListType::class, $command->convertToDTO($lsItem), ['ajax' => $ajax]);
@@ -339,10 +331,7 @@ class LsItemController extends Controller
      */
     public function changeParentAction(Request $request, LsItem $lsItem)
     {
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+        $ajax = $request->isXmlHttpRequest();
 
         $lsDoc = $lsItem->getLsDoc();
 
