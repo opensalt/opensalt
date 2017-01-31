@@ -27,7 +27,7 @@ class CresstController extends Controller
      *
      * @return Response|array
      */
-    public function exportAction(Request $request, LsDoc $lsDoc, $_format = "html")
+    public function exportAction(Request $request, LsDoc $lsDoc, $_format = 'html')
     {
         // Find all targets for the document
         // Go through each target

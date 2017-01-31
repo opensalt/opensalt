@@ -104,7 +104,7 @@ class ImportCresstElaCommand extends ContainerAwareCommand
             if (!empty($items[strtoupper($association['origin'])])) {
                 $items[strtoupper($association['origin'])]['associations'][$association['type']][] = $association['destination'];
             } else {
-                $output->writeln("<error>Missing origin</error>");
+                $output->writeln('<error>Missing origin</error>');
                 dump($association);
             }
         }
@@ -137,7 +137,7 @@ class ImportCresstElaCommand extends ContainerAwareCommand
             } elseif ('Target' === $item['type'] && !empty($item['targetName'])) {
                 $lsItem->setFullStatement($item['targetName']);
             } else {
-                $output->writeln("<error>Cannot find fullStatement</error>");
+                $output->writeln('<error>Cannot find fullStatement</error>');
                 dump($item);
 
                 // Fail as we do not know what the statement should be
@@ -167,7 +167,7 @@ class ImportCresstElaCommand extends ContainerAwareCommand
                     break;
 
                 default:
-                    $output->writeln("<error>Unknown item type</error>");
+                    $output->writeln('<error>Unknown item type</error>');
                     dump($item);
 
                     // Fail as we do not know what the type is
@@ -237,7 +237,7 @@ class ImportCresstElaCommand extends ContainerAwareCommand
                         break;
 
                     default:
-                        $output->writeln("<error>Unknown association type</error>");
+                        $output->writeln('<error>Unknown association type</error>');
                         dump($associationType);
 
                         return 1;
@@ -252,7 +252,7 @@ class ImportCresstElaCommand extends ContainerAwareCommand
                             continue;
                         }
 
-                        $output->writeln("<error>Unknown destination for association</error>");
+                        $output->writeln('<error>Unknown destination for association</error>');
                         dump($dest);
 
                         return 1;

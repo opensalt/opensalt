@@ -52,7 +52,7 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
             ->orderBy('i.rank', 'ASC')
             ->addOrderBy('i.listEnumInSource', 'ASC')
             ->addOrderBy('i.humanCodingScheme', 'ASC')
-            ->setParameter( 'lsDoc', $lsDoc->getId())
+            ->setParameter('lsDoc', $lsDoc->getId())
             ;
 
         return $qry;

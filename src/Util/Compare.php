@@ -44,7 +44,7 @@ class Compare
             return 0;
         }
 
-        if (0 !== ($ret = Compare::isSetInArray($a, $b, $key, $setValueIsLower))) {
+        if (0 !== ($ret = self::isSetInArray($a, $b, $key, $setValueIsLower))) {
             return $ret;
         }
 
@@ -70,7 +70,7 @@ class Compare
             $len = count($ya);
         }
         if (1 < $len) {
-            for ($idx = 0; $idx < $len; $idx++) {
+            for ($idx = 0; $idx < $len; ++$idx) {
                 if (0 !== ($ret = self::arrayCompare($xa, $ya, $idx, false))) {
                     return $ret;
                 }

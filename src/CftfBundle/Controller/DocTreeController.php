@@ -198,9 +198,9 @@ class DocTreeController extends Controller
             $copiedItem = false;
 
             // copy item if copyFromId is specified
-            if (array_key_exists("copyFromId", $updates)) {
+            if (array_key_exists('copyFromId', $updates)) {
                 $copiedItem = true;
-                $originalItem = $lsItemRepo->find($updates["copyFromId"]);
+                $originalItem = $lsItemRepo->find($updates['copyFromId']);
 
                 // PW: code based on CopyToLsDocCommand
                 $lsItem = $originalItem->copyToLsDoc($lsDoc);
@@ -219,17 +219,17 @@ class DocTreeController extends Controller
             }
 
             // change listEnumInSource if listEnumInSource is specified
-            if (array_key_exists("listEnumInSource", $updates)) {
-                $lsItem->setListEnumInSource($updates["listEnumInSource"]);
+            if (array_key_exists('listEnumInSource', $updates)) {
+                $lsItem->setListEnumInSource($updates['listEnumInSource']);
             }
 
             // set/change parent if parentId is specified
-            if (array_key_exists("parentId", $updates)) {
+            if (array_key_exists('parentId', $updates)) {
                 // parent could be a doc or item
-                if ($updates["parentType"] === "item") {
-                    $parentItem = $lsItemRepo->find($updates["parentId"]);
+                if ($updates['parentType'] === 'item') {
+                    $parentItem = $lsItemRepo->find($updates['parentId']);
                 } else {
-                    $parentItem = $em->getRepository(LsDoc::class)->find($updates["parentId"]);
+                    $parentItem = $em->getRepository(LsDoc::class)->find($updates['parentId']);
                 }
                 // PW: code mostly copied from ChangeLsItemParentCommand
                 $lsItem->setUpdatedAt(new \DateTime());

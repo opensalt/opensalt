@@ -2,14 +2,13 @@
 
 namespace Cftf\AsnBundle\Tests\Controller;
 
-Use Cftf\AsnBundle\Controller\DefaultController;
-Use Cftf\AsnBundle\Service\AsnImport;
-Use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-Use Symfony\Component\HttpFoundation\Request;
+use Cftf\AsnBundle\Controller\DefaultController;
+use Cftf\AsnBundle\Service\AsnImport;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 
 class DefaultControllerTest extends WebTestCase
 {
-
     public function testImportAsnDoc()
     {
         $request = $this->createMock(Request::class);

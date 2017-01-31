@@ -38,7 +38,7 @@ class DefaultController extends Controller
             $repos = $api->get('/user/repos?page='.$page.'&per_page='.$perPage);
 
             return $response->setData([
-                'totalPages' => $this->parseLink($repos ->getHeader('link'), 'last'),
+                'totalPages' => $this->parseLink($repos->getHeader('link'), 'last'),
                 'data' => $api->decode($repos),
             ]);
         }
