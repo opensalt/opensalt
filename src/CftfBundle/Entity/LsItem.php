@@ -88,9 +88,9 @@ class LsItem
     /**
      * @var string
      *
-     * @ORM\Column(name="list_enum_in_source", type="string", length=10, nullable=true)
+     * @ORM\Column(name="list_enum_in_source", type="string", length=20, nullable=true)
      *
-     * @Assert\Length(max=10)
+     * @Assert\Length(max=20)
      */
     private $listEnumInSource;
 
@@ -349,9 +349,11 @@ class LsItem
         $associations = $this->getInverseAssociations();
         foreach ($associations as $association) {
             /** @var LsAssociation $association */
+            /* Commented out to show relations from other docs
             if ($association->getLsDoc()->getId() !== $this->getLsDoc()->getId()) {
                 continue;
             }
+            */
             $assocName = LsAssociation::inverseName($association->getType());
             if (empty($assocName)) {
                 $assocName = 'Inverse '.$association->getType();
