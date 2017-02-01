@@ -171,6 +171,9 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
 
             $em->persist($lsAssoc);
 
+            $lsItems[$rec['OriginNodeURI']]->addAssociation($lsAssoc);
+            $lsItems[$rec['DestinationNodeURI']]->addInverseAssociation($lsAssoc);
+
             $lsAssociations[$key] = $lsAssoc;
         }
 
@@ -182,7 +185,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             }
         }
 
-        $em->flush();
+        //$em->flush();
 
         $output->writeln('Done.');
     }
