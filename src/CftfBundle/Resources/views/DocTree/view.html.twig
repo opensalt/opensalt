@@ -6,131 +6,131 @@
 
 <div class="row">
     <div class="col-sm-10">
-	<ol class="breadcrumb">
-	    <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
-	    <li>{{ lsDoc.title }}</li>
-	</ol>
+        <ol class="breadcrumb">
+            <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
+            <li>{{ lsDoc.title }}</li>
+        </ol>
     </div>
     <div class="col-sm-2">
-	<div id="docStatus" class="docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">{{ lsDoc.adoptionStatus|default('Draft') }}</div>
+        <div id="docStatus" class="docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">{{ lsDoc.adoptionStatus|default('Draft') }}</div>
     </div>
 </div>
 
 <div class="row">
     <div class="col-sm-12">
-	<div class="form-group">
-	    <input type="text" class="form-control" id="filterOnTree" placeholder="Filter">
-	</div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="filterOnTree" placeholder="Filter">
+        </div>
     </div>
 </div>
 
 <div class="row">
     <div class="col-sm-6">
-	<section id="tree1Section"> <!-- class="panel panel-default" -->
-	    <!-- <div class="panel-body"> -->
-	    <div id="viewmode_tree"></div>
-	    <!-- </div> -->
-	</section>
+        <section id="tree1Section"> <!-- class="panel panel-default" -->
+            <!-- <div class="panel-body"> -->
+            <div id="viewmode_tree"></div>
+            <!-- </div> -->
+        </section>
     </div>
     <div class="col-sm-6">
-	<section id="itemSection" class="panel panel-default docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">
-	    <div id="items" class="panel-body">
-		<div id="documentInfo">
-		    <h4 class="itemTitle">
-			{% if lsDoc.version is not empty %}
-			<span style="float:right" class="lessImportant">Version {{ lsDoc.version }}</span>
-			{% endif %}
-			{{lsDoc.title}}
-		    </h4>
-		    <ul class="list-group">
-			{% for field, name in {
-			'officialUri': 'Official URL',
-			'creator': 'Creator',
-			'description': 'Description',
-			'subjects': 'Subject',
-			'language': 'Language',
-			'adoptionStatus': 'Adoption Status',
-			'note': 'Notes'
-			} %}
-			{% if attribute(lsDoc, field) is not empty %}
-			<li class="list-group-item">
-			    <strong>{{ name }}:</strong>
-			    {% set value = attribute(lsDoc, field) %}
-			    {% if field == 'creator' %}
-			    {{ value }}
-			    {% if lsDoc.publisher is not empty %}
-			    <span class="lessImportant">Publisher: {{ lsDoc.publisher }}</span>
-			    {% endif %}
-			    {% elseif field == 'adoptionStatus' %}
-			    {{ value }}
-			    {% if lsDoc.statusStart is not empty %}
-			    <span class="lessImportant">From {{ lsDoc.statusStart|date("m/d/Y") }}</span>
-			    {% endif %}
-			    {% if lsDoc.statusEnd is not empty %}
-			    <span class="lessImportant">Until {{ lsDoc.statusEnd|date("m/d/Y") }}</span>
-			    {% endif %}
-			    </span>
-			    {% elseif field == 'subjects' %}
-			    {% for subject in value %}
-			    {%- if not loop.first %}, {% endif %}{{ subject.title }}
-			    {%- endfor %}
-			    {% elseif field == 'uri' %}
-			    <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
-			    {% else %}
-			    {{ value }}
-			    {% endif %}
-			</li>
-			{% endif %}
-			{% endfor %}
-		    </ul>
+        <section id="itemSection" class="panel panel-default docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">
+            <div id="items" class="panel-body">
+                <div id="documentInfo">
+                    <h4 class="itemTitle">
+                        {% if lsDoc.version is not empty %}
+                        <span style="float:right" class="lessImportant">Version {{ lsDoc.version }}</span>
+                        {% endif %}
+                        {{lsDoc.title}}
+                    </h4>
+                    <ul class="list-group">
+                        {% for field, name in {
+                        'officialUri': 'Official URL',
+                        'creator': 'Creator',
+                        'description': 'Description',
+                        'subjects': 'Subject',
+                        'language': 'Language',
+                        'adoptionStatus': 'Adoption Status',
+                        'note': 'Notes'
+                        } %}
+                        {% if attribute(lsDoc, field) is not empty %}
+                        <li class="list-group-item">
+                            <strong>{{ name }}:</strong>
+                            {% set value = attribute(lsDoc, field) %}
+                            {% if field == 'creator' %}
+                            {{ value }}
+                            {% if lsDoc.publisher is not empty %}
+                            <span class="lessImportant">Publisher: {{ lsDoc.publisher }}</span>
+                            {% endif %}
+                            {% elseif field == 'adoptionStatus' %}
+                            {{ value }}
+                            {% if lsDoc.statusStart is not empty %}
+                            <span class="lessImportant">From {{ lsDoc.statusStart|date("m/d/Y") }}</span>
+                            {% endif %}
+                            {% if lsDoc.statusEnd is not empty %}
+                            <span class="lessImportant">Until {{ lsDoc.statusEnd|date("m/d/Y") }}</span>
+                            {% endif %}
+                            </span>
+                            {% elseif field == 'subjects' %}
+                            {% for subject in value %}
+                            {%- if not loop.first %}, {% endif %}{{ subject.title }}
+                            {%- endfor %}
+                            {% elseif field == 'uri' %}
+                            <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                            {% else %}
+                            {{ value }}
+                            {% endif %}
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
 
-		    <div class="itemOptions">
-			<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
-			{# use first version if we need to edit the adoptionStatus #}
-			{# if is_granted('edit', lsDoc) #}
-			{% if is_granted('edit', lsDoc) %}
-			<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal">Edit</button>
-			{% endif %}
-			{% if is_granted('manage_editors', lsDoc) %}
-			<a href="{{ path('framework_acl_edit', {'id':lsDoc.id}) }}" class="btn btn-default btn-sm">Manage Access</a>
-			{% endif %}
+                    <div class="itemOptions">
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
+                        {# use first version if we need to edit the adoptionStatus #}
+                        {# if is_granted('edit', lsDoc) #}
+                        {% if is_granted('edit', lsDoc) %}
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal">Edit</button>
+                        {% endif %}
+                        {% if is_granted('manage_editors', lsDoc) %}
+                        <a href="{{ path('framework_acl_edit', {'id':lsDoc.id}) }}" class="btn btn-default btn-sm">Manage Access</a>
+                        {% endif %}
 
-			{% if is_granted('edit', lsDoc) %}
-			<span style="white-space:nowrap; padding-left:15px;"><b>Add Child:</b> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Existing Item</button></span>
-			{% endif %}
-		    </div>
+                        {% if is_granted('edit', lsDoc) %}
+                        <span style="white-space:nowrap; padding-left:15px;"><b>Add Child:</b> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Existing Item</button></span>
+                        {% endif %}
+                    </div>
 
-		</div>
-		<div class="itemInfo" id="itemInfoTemplate" style="display:none">
-		    <h4 class="itemTitle"></h4>
-		    <div class="itemDetails"></div>
-		</div>
-	    </div>
-	</section>
+                </div>
+                <div class="itemInfo" id="itemInfoTemplate" style="display:none">
+                    <h4 class="itemTitle"></h4>
+                    <div class="itemDetails"></div>
+                </div>
+            </div>
+        </section>
 
-	<section id="tree2Section" class="panel panel-default">
-	    <div class="panel-body container-fluid">
-		<h4 class="itemTitle"></h4>
-		<div class="row">
-		    <div class="col-sm-10">
-			<div id="tree2SectionCopyInstructions" class="bg-info instructions">Select another Compentency Framework Document here, then drag and drop Learning Standards from the right to the Document you’re editing on the left top copy items.</div>
-			<div id="tree2SectionRelationshipInstructions" class="bg-info instructions">Select another Compentency Framework Document here, then drag and drop Learning Standards from the right onto Learning Standards in the Document you’re editing on the left to create an association.</div>
-		    </div>
-		    <div class="col-sm-2" style="text-align:right"><button id="closeTree2Btn" type="button" class="btn btn-primary btn-sm">Done</button></div>
-		</div>
-		<div class="row">
-		    {{ form_widget(docList) }}
-		</div>
-		<!--
-      <div class="row">
-      <div class="col-sm-3"></div><div class="col-sm-6"><button id="loadTree2Btn" type="button" class="btn btn-default btn-sm btn-block">Load Document</button></div>
-      </div>
-		-->
-		<div class="row"><div class="col-sm-12">
-			<div id="viewmode_tree2"></div>
-		    </div></div>
-	    </div>
-	</section>
+        <section id="tree2Section" class="panel panel-default">
+            <div class="panel-body container-fluid">
+                <h4 class="itemTitle"></h4>
+                <div class="row">
+                    <div class="col-sm-10">
+                        <div id="tree2SectionCopyInstructions" class="bg-info instructions">Select another Compentency Framework Document here, then drag and drop Learning Standards from the right to the Document you’re editing on the left top copy items.</div>
+                        <div id="tree2SectionRelationshipInstructions" class="bg-info instructions">Select another Compentency Framework Document here, then drag and drop Learning Standards from the right onto Learning Standards in the Document you’re editing on the left to create an association.</div>
+                    </div>
+                    <div class="col-sm-2" style="text-align:right"><button id="closeTree2Btn" type="button" class="btn btn-primary btn-sm">Done</button></div>
+                </div>
+                <div class="row">
+                    {{ form_widget(docList) }}
+                </div>
+                <!--
+                    <div class="row">
+                    <div class="col-sm-3"></div><div class="col-sm-6"><button id="loadTree2Btn" type="button" class="btn btn-default btn-sm btn-block">Load Document</button></div>
+                    </div>
+                -->
+                <div class="row"><div class="col-sm-12">
+                        <div id="viewmode_tree2"></div>
+                    </div></div>
+            </div>
+        </section>
     </div>
 </div>
 
@@ -212,59 +212,59 @@
 {% block javascripts %}
 <script src="{{ asset('bundles/tetranzselect2entity/js/select2entity.js') }}"></script>
 <script>
-    window.app = window.app||{};
-    app.lsDocId = {{ lsDoc.id }};
-    {% if lsItemId is not empty %}
+window.app = window.app||{};
+app.lsDocId = {{ lsDoc.id }};
+{% if lsItemId is not empty %}
     app.initialLsItemId = {{ lsItemId }};
-    {% endif %}
-    // establish paths
-    app.path = app.path||{};
-    app.path.lsDoc = '{{ path('doc_tree_view', {'id':'ID'}) }}';
-    app.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';
-    app.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
-    app.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
-    app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
-    app.path.lsitem_edit = '{{ path('lsitem_edit', {'id':'ID'}) }}';
-    app.path.lsitem_tree_delete = '{{ path('lsitem_tree_delete', {'id':'ID', 'includingChildren':'CHILDREN'}) }}';
-    app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC', 'parent':'PARENT'}) }}';
-    app.path.lsitem_copy_item = '{{ path('lsitem_copy_item', {'id':'ID'}) }}';
-    app.path.lsassociation_tree_new = '{{ path('lsassociation_tree_new', {'originLsItem':'ORIGIN_ID', 'destinationLsItem':'DESTINATION_ID'}) }}';
-    app.path.lsassociation_remove = '{{ path('lsassociation_remove', {'id':'ID'}) }}';
-    app.path.doctree_render_document = '{{ path('doctree_render_document', {'id':'ID', '_format':'json'}) }}';
-    app.path.doctree_update_items = '{{ path('doctree_update_items', {'id':'ID'}) }}';
-    //////////////////////////////////////////////////////
-    // INITIALIZATION
-    // establish the tree for the lsdoc we're editing
-    app.tree1 = {{ render_esi(path('doctree_render_document', {'id':lsDoc.id, '_format':'json'})) }};
-    $(document).ready(function() {
-        // render the document tree
-        app.renderTree1();
-        // prepare modals
-        app.prepareEditDocModal();
-        app.prepareEditItemModal();
-        app.prepareAssociateModal();
-        app.prepareAddNewChildModal();
-        // initialize popovers on export modal
-        $('#exportModal [data-toggle="popover"]').popover();
-        // "Copy from another CF Package" button
-        $("[data-target=copyItem]").on('click', app.copyItemInitiate);
-        // When user selects a document from the document list, load tree2
-        // PW: not sure if we actually need a button here; does the menu always load with a blank item listed first??
-        // $("#loadTree2Btn").on('click', app.tree2Selected);
-        $("#ls_doc_list_lsDoc").on('change', app.tree2Selected);
-        // "Done" button for tree2 section
-        $("#closeTree2Btn").on('click', function() { app.tree2Toggle(false); });
-        // if we got an initialLsItemId, activate it (and expand it)
-        if (app.initialLsItemId != null) {
-            // note that the key must be a string for this to work
-            app.ft.fancytree("getTree").activateKey(app.initialLsItemId+"").setExpanded(true);
-        }
-        // show itemSection to reveal either the document or item details
-        $("#itemSection").show();
-        // Prepare filter
-        app.filterOnTree();
-        // DEBUG
-        // $("[data-target=copyItem]").click();
-    });
+{% endif %}
+// establish paths
+app.path = app.path||{};
+app.path.lsDoc = '{{ path('doc_tree_view', {'id':'ID'}) }}';
+app.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';
+app.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
+app.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
+app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
+app.path.lsitem_edit = '{{ path('lsitem_edit', {'id':'ID'}) }}';
+app.path.lsitem_tree_delete = '{{ path('lsitem_tree_delete', {'id':'ID', 'includingChildren':'CHILDREN'}) }}';
+app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC', 'parent':'PARENT'}) }}';
+app.path.lsitem_copy_item = '{{ path('lsitem_copy_item', {'id':'ID'}) }}';
+app.path.lsassociation_tree_new = '{{ path('lsassociation_tree_new', {'originLsItem':'ORIGIN_ID', 'destinationLsItem':'DESTINATION_ID'}) }}';
+app.path.lsassociation_remove = '{{ path('lsassociation_remove', {'id':'ID'}) }}';
+app.path.doctree_render_document = '{{ path('doctree_render_document', {'id':'ID', '_format':'json'}) }}';
+app.path.doctree_update_items = '{{ path('doctree_update_items', {'id':'ID'}) }}';
+//////////////////////////////////////////////////////
+// INITIALIZATION
+// establish the tree for the lsdoc we're editing
+app.tree1 = {{ render_esi(path('doctree_render_document', {'id':lsDoc.id, '_format':'json'})) }};
+$(document).ready(function() {
+    // render the document tree
+    app.renderTree1();
+    // prepare modals
+    app.prepareEditDocModal();
+    app.prepareEditItemModal();
+    app.prepareAssociateModal();
+    app.prepareAddNewChildModal();
+    // initialize popovers on export modal
+    $('#exportModal [data-toggle="popover"]').popover();
+    // "Copy from another CF Package" button
+    $("[data-target=copyItem]").on('click', app.copyItemInitiate);
+    // When user selects a document from the document list, load tree2
+    // PW: not sure if we actually need a button here; does the menu always load with a blank item listed first??
+    // $("#loadTree2Btn").on('click', app.tree2Selected);
+    $("#ls_doc_list_lsDoc").on('change', app.tree2Selected);
+    // "Done" button for tree2 section
+    $("#closeTree2Btn").on('click', function() { app.tree2Toggle(false); });
+    // if we got an initialLsItemId, activate it (and expand it)
+    if (app.initialLsItemId != null) {
+        // note that the key must be a string for this to work
+        app.ft.fancytree("getTree").activateKey(app.initialLsItemId+"").setExpanded(true);
+    }
+    // show itemSection to reveal either the document or item details
+    $("#itemSection").show();
+    // Prepare filter
+    app.filterOnTree();
+    // DEBUG
+    // $("[data-target=copyItem]").click();
+});
 </script>
 {% endblock %}

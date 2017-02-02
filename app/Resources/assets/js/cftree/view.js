@@ -123,8 +123,8 @@ app.toggleMoreInfo = function(arg) {
 // TREE LOADING AND FUNCTIONALITY
 
 app.processTree = function(tree) {
-	// first make sure the node's title attribute is filled in and matches what will appear in the window
-	tree.title = app.titleFromNode(tree);
+    // first make sure the node's title attribute is filled in and matches what will appear in the window
+    tree.title = app.titleFromNode(tree);
 
     // if tree has any children
     if (tree.children != null && tree.children.length > 0) {
@@ -478,11 +478,11 @@ app.titleFromNode = function(node, format) {
     // if format is "ftTitleSpan", return wrapped in the fancytree-title span
     if (format == "ftTitleSpan") {
         return '<span class="fancytree-title">' + title + '</span>';
-    // if format is "textOnly", extract a text only version
+        // if format is "textOnly", extract a text only version
     } else if (format == "textOnly") {
-    	return $('<div>' + title + '</div>').text();
+        return $('<div>' + title + '</div>').text();
 
-    // otherwise return as is
+        // otherwise return as is
     } else {
         return title;
     }
@@ -880,10 +880,10 @@ app.prepareEditDocModal = function() {
                };
                */
 
-            }).fail(function(jqXHR, textStatus, errorThrown){
-                $('#editDocModal').find('.modal-body').html(jqXHR.responseText);
-                $('#ls_doc_subjects').select2entity({dropdownParent: $('#editDocModal')});
-                });
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            $('#editDocModal').find('.modal-body').html(jqXHR.responseText);
+            $('#ls_doc_subjects').select2entity({dropdownParent: $('#editDocModal')});
+        });
     });
 };
 
@@ -891,51 +891,51 @@ app.prepareEditItemModal = function() {
     $('#editItemModal').find('.modal-body').html(app.spinnerHtml("Loading Form"));
     var $editItemModal = $('#editItemModal');
     $editItemModal.on('shown.bs.modal', function(e){
-            $('#editItemModal').find('.modal-body').load(
-                    app.path.lsitem_edit.replace('ID', app.lsItemId),
-                    null,
-                    function(responseText, textStatus, jqXHR) {
-                    $('#ls_item_educationalAlignment').multiselect({
-optionLabel: function(element) {
-return $(element).html() + ' - ' + $(element).data('title');
-},
-numberDisplayed: 20
-});
-                    $('#ls_item_itemType').select2entity({dropdownParent: $('#editItemModal')});
-                    }
-                    )
-            }).on('hidden.bs.modal', function(e){
-                $('#editItemModal').find('.modal-body').html(app.spinnerHtml("Loading Form"));
+        $('#editItemModal').find('.modal-body').load(
+            app.path.lsitem_edit.replace('ID', app.lsItemId),
+            null,
+            function(responseText, textStatus, jqXHR) {
+                $('#ls_item_educationalAlignment').multiselect({
+                    optionLabel: function(element) {
+                        return $(element).html() + ' - ' + $(element).data('title');
+                    },
+                    numberDisplayed: 20
                 });
-$editItemModal.find('.btn-save').on('click', function(e){
+                $('#ls_item_itemType').select2entity({dropdownParent: $('#editItemModal')});
+            }
+        )
+    }).on('hidden.bs.modal', function(e){
+        $('#editItemModal').find('.modal-body').html(app.spinnerHtml("Loading Form"));
+    });
+    $editItemModal.find('.btn-save').on('click', function(e){
         app.showModalSpinner("Updating Item");
         $.ajax({
-url: app.path.lsitem_edit.replace('ID', app.lsItemId),
-method: 'POST',
-data: $editItemModal.find('form[name=ls_item]').serialize()
-}).done(function(data, textStatus, jqXHR){
-    app.hideModalSpinner();
-    // on successful add, update the item to the tree
-    var updatedData = {
-    "fullStmt": $("#ls_item_fullStatement").val(),
-    "humanCoding": $("#ls_item_humanCodingScheme").val(),
-    "abbrStmt": $("#ls_item_abbreviatedStatement").val(),
-    };
-    $editItemModal.modal('hide');
-    app.updateEditedItem(updatedData);
+            url: app.path.lsitem_edit.replace('ID', app.lsItemId),
+            method: 'POST',
+            data: $editItemModal.find('form[name=ls_item]').serialize()
+        }).done(function(data, textStatus, jqXHR){
+            app.hideModalSpinner();
+            // on successful add, update the item to the tree
+            var updatedData = {
+                "fullStmt": $("#ls_item_fullStatement").val(),
+                "humanCoding": $("#ls_item_humanCodingScheme").val(),
+                "abbrStmt": $("#ls_item_abbreviatedStatement").val(),
+            };
+            $editItemModal.modal('hide');
+            app.updateEditedItem(updatedData);
 
-    }).fail(function(jqXHR, textStatus, errorThrown){
-        app.hideModalSpinner();
-        $('#editItemModal').find('.modal-body').html(jqXHR.responseText);
-        $('#ls_item_educationalAlignment').multiselect({
-optionLabel: function(element) {
-return $(element).html() + ' - ' + $(element).data('title');
-},
-numberDisplayed: 20
-});
-        $('#ls_item_itemType').select2entity({dropdownParent: $('#editItemModal')});
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            app.hideModalSpinner();
+            $('#editItemModal').find('.modal-body').html(jqXHR.responseText);
+            $('#ls_item_educationalAlignment').multiselect({
+                optionLabel: function(element) {
+                    return $(element).html() + ' - ' + $(element).data('title');
+                },
+                numberDisplayed: 20
+            });
+            $('#ls_item_itemType').select2entity({dropdownParent: $('#editItemModal')});
         });
-});
+    });
 };
 
 app.updateEditedItem = function(data) {
@@ -963,33 +963,33 @@ app.prepareAssociateModal = function() {
     $('#associateModal').find('.modal-body').html(app.spinnerHtml("Loading Form"));
     var $associateModal = $('#associateModal');
     $associateModal.on('shown.bs.modal', function(e){
-            $('#associateModal').find('.modal-body').load(
-                    app.addAssociationCreatePath(),
-                    null,
-                    // Call app.createAssociationModalLoaded when modal is loaded
-                    function(responseText, textStatus, jqXHR){ app.createAssociationModalLoaded() }
-                    )
-            }).on('hidden.bs.modal', function(e){
-                $('#associateModal').find('.modal-body').html(app.spinnerHtml("Loading Form"));
-                });
+        $('#associateModal').find('.modal-body').load(
+            app.addAssociationCreatePath(),
+            null,
+            // Call app.createAssociationModalLoaded when modal is loaded
+            function(responseText, textStatus, jqXHR){ app.createAssociationModalLoaded() }
+        )
+    }).on('hidden.bs.modal', function(e){
+        $('#associateModal').find('.modal-body').html(app.spinnerHtml("Loading Form"));
+    });
     $associateModal.find('.btn-save').on('click', function(e){
-            app.showModalSpinner("Saving Association");
-            $.ajax({
-url: app.addAssociationCreatePath(),
-method: 'POST',
-data: $associateModal.find('form[name=ls_association_tree]').serialize()
-}).done(function(data, textStatus, jqXHR){
-    app.hideModalSpinner();
-    $associateModal.modal('hide');
+        app.showModalSpinner("Saving Association");
+        $.ajax({
+            url: app.addAssociationCreatePath(),
+            method: 'POST',
+            data: $associateModal.find('form[name=ls_association_tree]').serialize()
+        }).done(function(data, textStatus, jqXHR){
+            app.hideModalSpinner();
+            $associateModal.modal('hide');
 
-    // call createAssociationSaved when save is done
-    app.createAssociationSaved();
+            // call createAssociationSaved when save is done
+            app.createAssociationSaved();
 
-    }).fail(function(jqXHR, textStatus, errorThrown){
-        app.hideModalSpinner();
-        $('#associateModal').find('.modal-body').html(jqXHR.responseText);
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            app.hideModalSpinner();
+            $('#associateModal').find('.modal-body').html(jqXHR.responseText);
         });
-            });
+    });
 }
 
 // initiate adding an association from tree2 to tree1
@@ -1014,15 +1014,15 @@ app.createAssociation = function(draggedNode, droppedNode) {
     $('#associateModal').modal();
 };
 
-            app.addAssociationCreatePath = function() {
-                var path = app.path.lsassociation_tree_new;
-                // the "origin" refers to the node that's 'receiving' the association -- so this is the droppedNode
-                // the "destination" refers to the node that's being associated with the origin node -- so this is the draggedNode
-                path = path.replace('ORIGIN_ID', app.lsItemIdFromNode(app.createAssociationNodes.droppedNode));
-                path = path.replace('DESTINATION_ID', app.lsItemIdFromNode(app.createAssociationNodes.draggedNode));
-                console.log(path);
-                return path;
-            }
+app.addAssociationCreatePath = function() {
+    var path = app.path.lsassociation_tree_new;
+    // the "origin" refers to the node that's 'receiving' the association -- so this is the droppedNode
+    // the "destination" refers to the node that's being associated with the origin node -- so this is the draggedNode
+    path = path.replace('ORIGIN_ID', app.lsItemIdFromNode(app.createAssociationNodes.droppedNode));
+    path = path.replace('DESTINATION_ID', app.lsItemIdFromNode(app.createAssociationNodes.draggedNode));
+    console.log(path);
+    return path;
+}
 
 // callback after ajax to load associate form
 app.createAssociationModalLoaded = function() {
@@ -1052,18 +1052,18 @@ app.deleteAssociation = function(e) {
 
     app.showModalSpinner("Removing Association");
     $.ajax({
-url: app.path.lsassociation_remove.replace('ID', $item.data('associationId')),
-method: 'POST'
-}).done(function(data, textStatus, jqXHR){
-    app.hideModalSpinner();
-    // after deletion, clear and reload item details
-    app.clearItemDetails(app.lsItemId);
-    app.loadItemDetails(app.lsItemId);
+        url: app.path.lsassociation_remove.replace('ID', $item.data('associationId')),
+        method: 'POST'
+    }).done(function(data, textStatus, jqXHR){
+        app.hideModalSpinner();
+        // after deletion, clear and reload item details
+        app.clearItemDetails(app.lsItemId);
+        app.loadItemDetails(app.lsItemId);
 
     }).fail(function(jqXHR, textStatus, errorThrown){
         app.hideModalSpinner();
         alert("An error occurred.");
-        });
+    });
 };
 
 //////////////////////////////////////////////////////
@@ -1079,39 +1079,39 @@ app.deleteItem = function() {
         app.getLsItemDetailsJq(app.lsItemId).find(".lsItemAssociations").text("");
 
         $.ajax({
-url: app.path.lsitem_tree_delete.replace('ID', app.lsItemId).replace('CHILDREN', children),
-method: 'POST'
-}).done(function (data, textStatus, jqXHR) {
-    // find parent
-    var parentNode = node.parent;
+            url: app.path.lsitem_tree_delete.replace('ID', app.lsItemId).replace('CHILDREN', children),
+            method: 'POST'
+        }).done(function (data, textStatus, jqXHR) {
+            // find parent
+            var parentNode = node.parent;
 
-    // delete node
-    node.remove();
+            // delete node
+            node.remove();
 
-    // activate parent
-    parentNode.setActive();
+            // activate parent
+            parentNode.setActive();
 
-    }).fail(function (jqXHR, textStatus, errorThrown) {
-        alert("An error occurred.");
-        // console.log(jqXHR.responseText);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            alert("An error occurred.");
+            // console.log(jqXHR.responseText);
         });
-};
+    };
 
-// make user confirm
-if ($.isArray(node.children) && node.children.length > 0) {
-    $('#deleteItemAndChildrenModal').modal()
+    // make user confirm
+    if ($.isArray(node.children) && node.children.length > 0) {
+        $('#deleteItemAndChildrenModal').modal()
         .one('click', '.btn-delete', function() {
-                $(this).closest('.modal').modal('hide');
-                children = 1;
-                deleteItem();
-                });
-} else {
-    $('#deleteOneItemModal').modal()
+            $(this).closest('.modal').modal('hide');
+            children = 1;
+            deleteItem();
+        });
+    } else {
+        $('#deleteOneItemModal').modal()
         .one('click', '.btn-delete', function() {
-                $(this).closest('.modal').modal('hide');
-                deleteItem();
-                });
-}
+            $(this).closest('.modal').modal('hide');
+            deleteItem();
+        });
+    }
 
 };
 
