@@ -13,7 +13,7 @@ You can use `https://domainapp.com/login/check-github`
 or just `https://domainapp.com` as the *Authorization callback URL*.
 
 
-#### 2. Setup OpenSalt with GitHub access
+#### 2. Setup OpenSALT with GitHub access
 
 There are two options on how to add the GitHub access keys:
 
