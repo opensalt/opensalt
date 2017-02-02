@@ -106,7 +106,6 @@ class DocTreeController extends Controller
         }
 
         foreach ($orphaned as $orphan) {
-            dump($orphan);
             foreach ($orphan['associations'] as $association) {
                 if (LsAssociation::CHILD_OF === $association['type']) {
                     $parentsElsewhere[] = $orphan;
