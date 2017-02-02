@@ -93,6 +93,7 @@ gulp.task('scripts', function() {
         config.bowerDir+'/twbs-pagination/jquery.twbsPagination.js',
         config.assetsDir+'/js/application.js',
         config.assetsDir+'/js/lsdoc/index.js',
+        config.assetsDir+'/js/cftree/view.js',
     ], 'site.js');
 });
 
