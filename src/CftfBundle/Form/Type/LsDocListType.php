@@ -20,13 +20,16 @@ class LsDocListType extends AbstractType
             ->add('lsDoc', EntityType::class, [
                 'label' => 'Choose Document',
                 'choice_label' => 'title',
+                'group_by' => 'creator',
                 'required' => false,
                 'multiple' => false,
                 'class' => 'CftfBundle\Entity\LsDoc',
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('d')
-                        ->orderBy('d.title', 'ASC');
-                }
+                        ->addOrderBy('d.creator', 'ASC')
+                        ->addOrderBy('d.title', 'ASC')
+                        ;
+                },
             ])
         ;
     }
