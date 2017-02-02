@@ -89,6 +89,28 @@
                     {% endif %}
                 {% endblock %}
             {% endembed %}
+        {% else %}
+            {# Show children/parents in the list if from another document #}
+            {% set filteredList = [] %}
+            {% for assoc in list %}
+                {% if assoc.originLsItem is defined and assoc.originLsItem.lsDoc != lsItem.lsDoc %}
+                    {% set filteredList = filteredList|merge([assoc]) %}
+                {% endif %}
+                {% if assoc.destinationLsItem is defined and assoc.destinationLsItem.lsDoc != lsItem.lsDoc %}
+                    {% set filteredList = filteredList|merge([assoc]) %}
+                {% endif %}
+            {% endfor %}
+            {% if filteredList is not empty %}
+                {% embed 'CftfBundle:DocTree:_lsAssociationComponent.html.twig' with {'title':group, 'items':filteredList, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
+                    {% block start_of_item_a %}
+                        {% if is_granted('edit', lsItem.lsDoc) %}
+                            <span class="pull-right">
+                                <span role="button" class="btn btn-xs btn-default btn-remove-association">Remove</span>
+                            </span>
+                        {% endif %}
+                    {% endblock %}
+                {% endembed %}
+            {% endif %}
         {% endif %}
     {% endfor %}
 </div>

@@ -40,7 +40,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
         $subjects = $this->fetchFile($dirname.'/CFSubject.csv', 'URI');
         $docs = $this->fetchFile($dirname.'/CFDocument.csv', 'PackageURI');
         $itemTypes = $this->fetchFile($dirname.'/CFItemType.csv', 'URI');
-        $items = $this->fetchFile($dirname.'/CFItem.csv', 'URI');
+        $items = $this->fetchFile($dirname.'/CFItem.csv', 'Identifier');
         $associationGroups = $this->fetchFile($dirname.'/CFAssociationGrouping.csv', 'URI');
         $associations = $this->fetchFile($dirname.'/CFAssociation.csv', 'URI');
 
@@ -154,10 +154,10 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             $lsAssoc = new LsAssociation();
             $lsAssoc->setGroupName($rec['CFAssociationGroupingIdentifier']);
             $lsAssoc->setLsDoc($lsDocs[$rec['PackageURI']]);
-            if (!empty($lsItems[$rec['OriginNodeURI']])) {
-                $lsAssoc->setOrigin($lsItems[$rec['OriginNodeURI']]);
-            } elseif (!empty($lsDocs[$rec['OriginNodeURI']])) {
-                $lsAssoc->setOrigin($lsDocs[$rec['OriginNodeURI']]);
+            if (!empty($lsItems[$rec['OriginNodeIdentifier']])) {
+                $lsAssoc->setOrigin($lsItems[$rec['OriginNodeIdentifier']]);
+            } elseif (!empty($lsDocs[$rec['OriginNodeIdentifier']])) {
+                $lsAssoc->setOrigin($lsDocs[$rec['OriginNodeIdentifier']]);
             } else {
                 $output->writeln('<error>Unknown Origin URI</error>');
 
@@ -166,6 +166,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             }
             switch ($rec['AssociationType']) {
                 case 'is Child of':
+                case 'isChildOf':
                     $lsAssoc->setType(LsAssociation::CHILD_OF);
                     break;
 
@@ -176,10 +177,10 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
                     return 1;
                     break;
             }
-            if (!empty($lsItems[$rec['DestinationNodeURI']])) {
-                $lsAssoc->setDestination($lsItems[$rec['DestinationNodeURI']]);
-            } elseif (!empty($lsDocs[$rec['DestinationNodeURI']])) {
-                $lsAssoc->setDestination($lsDocs[$rec['DestinationNodeURI']]);
+            if (!empty($lsItems[$rec['DestinationNodeIdentifier']])) {
+                $lsAssoc->setDestination($lsItems[$rec['DestinationNodeIdentifier']]);
+            } elseif (!empty($lsDocs[$rec['DestinationNodeIdentifier']])) {
+                $lsAssoc->setDestination($lsDocs[$rec['DestinationNodeIdentifier']]);
             } else {
                 $output->writeln('<error>Unknown Destination URI</error>');
 
@@ -189,8 +190,8 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
 
             $em->persist($lsAssoc);
 
-            $lsItems[$rec['OriginNodeURI']]->addAssociation($lsAssoc);
-            $lsItems[$rec['DestinationNodeURI']]->addInverseAssociation($lsAssoc);
+            $lsItems[$rec['OriginNodeIdentifier']]->addAssociation($lsAssoc);
+            $lsItems[$rec['DestinationNodeIdentifier']]->addInverseAssociation($lsAssoc);
 
             $lsAssociations[$key] = $lsAssoc;
         }

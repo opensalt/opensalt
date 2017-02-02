@@ -94,6 +94,7 @@ class DocTreeController extends Controller
         $items = $repo->findAllChildrenArray($lsDoc);
         $haveParents = $repo->findAllItemsWithParentsArray($lsDoc);
         $topChildren = $repo->findTopChildrenIds($lsDoc);
+        $parentsElsewhere = [];
 
         $orphaned = $items;
         foreach ($haveParents as $child) {
@@ -103,12 +104,25 @@ class DocTreeController extends Controller
                 unset($orphaned[$id]);
             }
         }
+
+        foreach ($orphaned as $orphan) {
+            dump($orphan);
+            foreach ($orphan['associations'] as $association) {
+                if (LsAssociation::CHILD_OF === $association['type']) {
+                    $parentsElsewhere[] = $orphan;
+                    unset($orphaned[$orphan['id']]);
+                }
+            }
+        }
+
+
         Compare::sortArrayByFields($orphaned, ['rank', 'listEnumInSource', 'humanCodingScheme']);
 
         return [
-            'topItemIds'=>$topChildren,
-            'lsDoc'=>$lsDoc,
-            'items'=>$items,
+            'topItemIds' => $topChildren,
+            'lsDoc' => $lsDoc,
+            'items' => $items,
+            'parentsElsewhere' => $parentsElsewhere,
             'orphaned' => $orphaned,
         ];
     }

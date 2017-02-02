@@ -12,8 +12,22 @@
                 {% set item = items[itemId] %}
                 {% include 'CftfBundle:DocTree:render_child.json.twig' with { 'lsItem':item, 'lsDoc':lsDoc, 'items':items } %}
             {% endfor %}
-            {% if orphaned is not empty %}
+            {% if parentsElsewhere is not empty %}
                 {% if mainChildren %}, {% endif %}
+                {
+                    "title": "Parents are in another document",
+                    "key": "__externalParent",
+                    "folder": true,
+                    "children": [
+                        {% for item in parentsElsewhere %}
+                        {% if not loop.first %}, {% endif %}
+                        {% include 'CftfBundle:DocTree:render_child.json.twig' with { 'lsItem':item, 'lsDoc':lsDoc, 'items':items } %}
+                        {% endfor %}
+                    ]
+                }
+            {% endif %}
+            {% if orphaned is not empty %}
+                {% if mainChildren or parentsElsewhere is not empty %}, {% endif %}
                 {
                     "title": "No parent",
                     "key": "__noParent",
