@@ -93,10 +93,16 @@
             {# Show children/parents in the list if from another document #}
             {% set filteredList = [] %}
             {% for assoc in list %}
-                {% if assoc.originLsItem is defined and assoc.originLsItem.lsDoc != lsItem.lsDoc %}
+                {% if assoc.originLsItem is defined and assoc.originLsItem is not null and assoc.originLsItem.lsDoc != lsItem.lsDoc %}
                     {% set filteredList = filteredList|merge([assoc]) %}
                 {% endif %}
-                {% if assoc.destinationLsItem is defined and assoc.destinationLsItem.lsDoc != lsItem.lsDoc %}
+                {% if assoc.destinationLsItem is defined and assoc.destinationLsItem is not null and assoc.destinationLsItem.lsDoc != lsItem.lsDoc %}
+                    {% set filteredList = filteredList|merge([assoc]) %}
+                {% endif %}
+                {% if assoc.originLsDoc is defined and assoc.originLsDoc is not null and assoc.originLsDoc != lsItem.lsDoc %}
+                    {% set filteredList = filteredList|merge([assoc]) %}
+                {% endif %}
+                {% if assoc.destinationLsDoc is defined and assoc.destinationLsDoc is not null and assoc.destinationLsDoc != lsItem.lsDoc %}
                     {% set filteredList = filteredList|merge([assoc]) %}
                 {% endif %}
             {% endfor %}
