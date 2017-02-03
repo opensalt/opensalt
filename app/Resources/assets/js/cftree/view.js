@@ -47,7 +47,7 @@ app.getLsItemDetailsJq = function(lsItemId) {
 // Load details for the specified item
 app.loadItemDetails = function(lsItemId) {
     // clone the itemInfoTemplate
-    $jq = $("#itemInfoTe YouAppClientSecretmplate").clone();
+    $jq = $("#itemInfoTemplate").clone();
 
     // add lsItemId
     $jq.attr("data-item-lsItemId", lsItemId);
