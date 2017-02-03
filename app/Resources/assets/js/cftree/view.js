@@ -1124,18 +1124,34 @@ app.filterOnTree = function() {
     var tree1 = app.ft.fancytree("getTree");
     var tree2 = null;
 
-    if( app.ft2 != null ){
+    if (app.ft2) {
         tree2 = app.ft2.fancytree("getTree");
     }
 
-    [tree1, tree2].forEach(function(tree){
-        if(tree === null ){ return; }
-        $(inputSelector).on('keyup', function(){
-            if( $(this).val().trim().length > 0 ){
-                tree.filterNodes($(this).val(), {autoExpand: true, leavesOnly: false});
-            }else{
-                tree.clearFilter();
-            }
-        });
+    var debounce = (function() {
+        var timeout = null;
+        return function(callback, wait) {
+            if (timeout) { clearTimeout(timeout); }
+            timeout = setTimeout(callback, wait);
+        };
+    })();
+
+    $(inputSelector).on('keyup', function() {
+        var $that = $(this);
+        debounce(function(){
+            [tree1, tree2].forEach(function (tree) {
+                if (tree === null) {
+                    return;
+                }
+                if ($that.val().trim().length > 0) {
+                    tree.filterNodes($that.val(), {
+                        autoExpand: true,
+                        leavesOnly: false
+                    });
+                } else {
+                    tree.clearFilter();
+                }
+            });
+        }, 500);
     });
-}
+};
