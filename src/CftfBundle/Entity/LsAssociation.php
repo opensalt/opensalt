@@ -197,19 +197,30 @@ class LsAssociation
     private $updatedAt;
 
 
-
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
         $this->uri = 'local:'.$this->identifier;
+        $this->updatedAt = new \DateTime();
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->uri;
     }
 
-    public static function allTypes()
+    /**
+     * Get an array of all association types available
+     *
+     * @return array
+     */
+    public static function allTypes(): array
     {
         return [
             static::EXACT_MATCH_OF,
@@ -224,7 +235,12 @@ class LsAssociation
         ];
     }
 
-    public static function typeChoiceList()
+    /**
+     * Get an array of association types that should show in the choice list
+     *
+     * @return array
+     */
+    public static function typeChoiceList(): array
     {
         return [
             static::RELATED_TO,
@@ -242,7 +258,7 @@ class LsAssociation
      *
      * @return string|null
      */
-    public static function inverseName($name)
+    public static function inverseName(string $name): ?string
     {
         static $inverses = [];
         if (!count($inverses)) {
@@ -275,7 +291,12 @@ class LsAssociation
         return null;
     }
 
-    public function isLsAssociation()
+    /**
+     * Return true if this is an LsAssociation
+     *
+     * @return bool
+     */
+    public function isLsAssociation(): bool
     {
         return true;
     }
@@ -297,7 +318,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setUri($uri)
+    public function setUri($uri): LsAssociation
     {
         $this->uri = $uri;
 
@@ -309,7 +330,7 @@ class LsAssociation
      *
      * @return string
      */
-    public function getUri()
+    public function getUri(): string
     {
         return $this->uri;
     }
@@ -319,9 +340,11 @@ class LsAssociation
      *
      * @param string|LsDoc|LsItem $origin
      *
-     * @return $this
+     * @return LsAssociation
+     *
+     * @throws \UnexpectedValueException
      */
-    public function setOrigin($origin)
+    public function setOrigin($origin): LsAssociation
     {
         if (is_string($origin)) {
             $this->setOriginNodeUri($origin);
@@ -366,7 +389,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setOriginNodeUri($originNodeUri)
+    public function setOriginNodeUri($originNodeUri): LsAssociation
     {
         $this->originNodeUri = $originNodeUri;
 
@@ -388,9 +411,11 @@ class LsAssociation
      *
      * @param string|LsDoc|LsItem $origin
      *
-     * @return $this
+     * @return LsAssociation
+     *
+     * @throws \UnexpectedValueException
      */
-    public function setDestination($origin)
+    public function setDestination($origin): LsAssociation
     {
         if (is_string($origin)) {
             $this->setDestinationNodeUri($origin);
@@ -435,7 +460,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setDestinationNodeUri($destinationNodeUri)
+    public function setDestinationNodeUri($destinationNodeUri): LsAssociation
     {
         $this->destinationNodeUri = $destinationNodeUri;
 
@@ -459,7 +484,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setType($type)
+    public function setType($type): LsAssociation
     {
         $this->type = $type;
 
@@ -483,7 +508,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt($updatedAt): LsAssociation
     {
         $this->updatedAt = $updatedAt;
 
@@ -507,7 +532,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setOriginLsDoc(\CftfBundle\Entity\LsDoc $originLsDoc = null)
+    public function setOriginLsDoc(?LsDoc $originLsDoc = null): LsAssociation
     {
         $this->originLsDoc = $originLsDoc;
 
@@ -524,7 +549,7 @@ class LsAssociation
      *
      * @return \CftfBundle\Entity\LsDoc
      */
-    public function getOriginLsDoc()
+    public function getOriginLsDoc(): ?LsDoc
     {
         return $this->originLsDoc;
     }
@@ -536,7 +561,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setOriginLsItem(\CftfBundle\Entity\LsItem $originLsItem = null)
+    public function setOriginLsItem(?LsItem $originLsItem = null): LsAssociation
     {
         $this->originLsItem = $originLsItem;
 
@@ -553,7 +578,7 @@ class LsAssociation
      *
      * @return \CftfBundle\Entity\LsItem
      */
-    public function getOriginLsItem()
+    public function getOriginLsItem(): ?LsItem
     {
         return $this->originLsItem;
     }
@@ -565,7 +590,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setDestinationLsDoc(\CftfBundle\Entity\LsDoc $destinationLsDoc = null)
+    public function setDestinationLsDoc(?LsDoc $destinationLsDoc = null): LsAssociation
     {
         $this->destinationLsDoc = $destinationLsDoc;
         if (null !== $destinationLsDoc) {
@@ -581,7 +606,7 @@ class LsAssociation
      *
      * @return \CftfBundle\Entity\LsDoc
      */
-    public function getDestinationLsDoc()
+    public function getDestinationLsDoc(): ?LsDoc
     {
         return $this->destinationLsDoc;
     }
@@ -593,7 +618,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setDestinationLsItem(\CftfBundle\Entity\LsItem $destinationLsItem = null)
+    public function setDestinationLsItem(?LsItem $destinationLsItem = null): LsAssociation
     {
         $this->destinationLsItem = $destinationLsItem;
         if (null !== $destinationLsItem) {
@@ -609,7 +634,7 @@ class LsAssociation
      *
      * @return \CftfBundle\Entity\LsItem
      */
-    public function getDestinationLsItem()
+    public function getDestinationLsItem(): ?LsItem
     {
         return $this->destinationLsItem;
     }
@@ -621,7 +646,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setLsDocUri($lsDocUri)
+    public function setLsDocUri($lsDocUri): LsAssociation
     {
         $this->lsDocUri = $lsDocUri;
 
@@ -645,7 +670,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setLsDoc(\CftfBundle\Entity\LsDoc $lsDoc = null)
+    public function setLsDoc(?LsDoc $lsDoc = null): LsAssociation
     {
         $this->lsDoc = $lsDoc;
         $this->setLsDocUri($lsDoc->getUri());
@@ -659,7 +684,7 @@ class LsAssociation
      *
      * @return \CftfBundle\Entity\LsDoc
      */
-    public function getLsDoc()
+    public function getLsDoc(): ?LsDoc
     {
         return $this->lsDoc;
     }
@@ -669,22 +694,26 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setGroupName($groupName) {
+    public function setGroupName($groupName): LsAssociation
+    {
         $this->groupName = $groupName;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getGroupName() {
+    public function getGroupName()
+    {
         return $this->groupName;
     }
 
     /**
      * @return string
      */
-    public function getLsDocIdentifier() {
+    public function getLsDocIdentifier()
+    {
         return $this->lsDocIdentifier;
     }
 
@@ -693,15 +722,18 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setLsDocIdentifier($lsDocIdentifier) {
+    public function setLsDocIdentifier($lsDocIdentifier): LsAssociation
+    {
         $this->lsDocIdentifier = $lsDocIdentifier;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -710,15 +742,18 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier): LsAssociation
+    {
         $this->identifier = $identifier;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getOriginNodeIdentifier() {
+    public function getOriginNodeIdentifier()
+    {
         return $this->originNodeIdentifier;
     }
 
@@ -727,15 +762,18 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setOriginNodeIdentifier($originNodeIdentifier) {
+    public function setOriginNodeIdentifier($originNodeIdentifier): LsAssociation
+    {
         $this->originNodeIdentifier = $originNodeIdentifier;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getDestinationNodeIdentifier() {
+    public function getDestinationNodeIdentifier()
+    {
         return $this->destinationNodeIdentifier;
     }
 
@@ -744,15 +782,18 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setDestinationNodeIdentifier($destinationNodeIdentifier) {
+    public function setDestinationNodeIdentifier($destinationNodeIdentifier): LsAssociation
+    {
         $this->destinationNodeIdentifier = $destinationNodeIdentifier;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getGroupUri() {
+    public function getGroupUri()
+    {
         return $this->groupUri;
     }
 
@@ -761,8 +802,10 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setGroupUri($groupUri) {
+    public function setGroupUri($groupUri): LsAssociation
+    {
         $this->groupUri = $groupUri;
+
         return $this;
     }
 
@@ -771,7 +814,8 @@ class LsAssociation
      *
      * @return bool
      */
-    public function canEdit() {
+    public function canEdit(): bool
+    {
         return !(LsDoc::ADOPTION_STATUS_DEPRECATED === $this->lsDoc->getAdoptionStatus());
     }
 
