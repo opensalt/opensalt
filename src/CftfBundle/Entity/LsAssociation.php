@@ -91,6 +91,14 @@ class LsAssociation
     private $uri;
 
     /**
+     * @var LsDefAssociationGrouping
+     *
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDefAssociationGrouping", fetch="EAGER")
+     * @ORM\JoinColumn(name="assoc_group_id", referencedColumnName="id")
+     */
+    private $group;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="group_name", type="string", length=50, nullable=true)
@@ -702,11 +710,17 @@ class LsAssociation
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getGroupName()
     {
-        return $this->groupName;
+        if ($this->groupName) {
+            return $this->groupName;
+        } elseif ($this->group) {
+            return $this->group->getTitle();
+        }
+
+        return null;
     }
 
     /**
@@ -790,11 +804,17 @@ class LsAssociation
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getGroupUri()
     {
-        return $this->groupUri;
+        if ($this->groupUri) {
+            return $this->groupUri;
+        } elseif ($this->group) {
+            return $this->group->getUri();
+        }
+
+        return null;
     }
 
     /**
@@ -832,9 +852,29 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setSequenceNumber(?int $sequenceNumber = null): LsAssociation
+    public function setSequenceNumber(?int $sequenceNumber): LsAssociation
     {
         $this->sequenceNumber = $sequenceNumber;
+
+        return $this;
+    }
+
+    /**
+     * @return LsDefAssociationGrouping
+     */
+    public function getGroup(): ?LsDefAssociationGrouping
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param LsDefAssociationGrouping|null $group
+     *
+     * @return LsAssociation
+     */
+    public function setGroup(?LsDefAssociationGrouping $group)
+    {
+        $this->group = $group;
 
         return $this;
     }

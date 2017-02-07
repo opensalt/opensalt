@@ -24,10 +24,11 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      */
     public function findAllChildrenArray(LsDoc $lsDoc){
         $query = $this->getEntityManager()->createQuery('
-            SELECT i, t, a, adi, add
+            SELECT i, t, a, g, adi, add
             FROM CftfBundle:LSItem i INDEX BY i.id
             LEFT JOIN i.itemType t
             LEFT JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
+            LEFT JOIN a.group g
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE i.lsDoc = :lsDocId
@@ -48,6 +49,17 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
                 if (!empty($association['destinationLsItem'])) {
                     $parent = $association['destinationLsItem'];
                     $results[$parent['id']]['children'][] = $result;
+                    if (!empty($association['group'])) {
+                        $results[$key]['parents'][$parent['id']][] = ['group' => $association['group']['title']];
+                    } else {
+                        $results[$key]['parents'][$parent['id']][] = ['group' => $association['groupName']];
+                    }
+                } elseif (!empty($association['destinationLsDoc'])) {
+                    if (!empty($association['group'])) {
+                        $results[$key]['parents']['doc'][] = ['group' => $association['group']['title']];
+                    } else {
+                        $results[$key]['parents']['doc'][] = ['group' => $association['groupName']];
+                    }
                 }
             }
         }
