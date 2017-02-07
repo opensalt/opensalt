@@ -14,30 +14,30 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class LsAssociation
 {
-    const CHILD_OF = 'Is Child Of';
+    public const CHILD_OF = 'Is Child Of';
 
-    const EXACT_MATCH_OF = 'Exact Match Of';
-    const RELATED_TO = 'Is Related To';
-    const PART_OF = 'Is Part Of';
-    const REPLACED_BY = 'Replaced By';
-    const PRECEDES = 'Precedes';
-    const PREREQUISITE = 'Prerequisite';
-    const SKILL_LEVEL = 'Has Skill Level';
+    public const EXACT_MATCH_OF = 'Exact Match Of';
+    public const RELATED_TO = 'Is Related To';
+    public const PART_OF = 'Is Part Of';
+    public const REPLACED_BY = 'Replaced By';
+    public const PRECEDES = 'Precedes';
+    public const PREREQUISITE = 'Prerequisite';
+    public const SKILL_LEVEL = 'Has Skill Level';
 
-    const EXEMPLAR = 'Exemplar';
+    public const EXEMPLAR = 'Exemplar';
 
 
-    const INVERSE_CHILD_OF = 'Is Parent Of';
+    public const INVERSE_CHILD_OF = 'Is Parent Of';
 
-    const INVERSE_EXACT_MATCH_OF = 'Matched From';
-    const INVERSE_RELATED_TO = 'Related From';
-    const INVERSE_PART_OF = 'Has Part';
-    const INVERSE_REPLACED_BY = 'Replaces';
-    const INVERSE_PRECEDES = 'Has Predecesor';
-    const INVERSE_PREREQUISITE = 'Has Prerequisite';
-    const INVERSE_SKILL_LEVEL = 'Skill Level For';
+    public const INVERSE_EXACT_MATCH_OF = 'Matched From';
+    public const INVERSE_RELATED_TO = 'Related From';
+    public const INVERSE_PART_OF = 'Has Part';
+    public const INVERSE_REPLACED_BY = 'Replaces';
+    public const INVERSE_PRECEDES = 'Has Predecesor';
+    public const INVERSE_PREREQUISITE = 'Has Prerequisite';
+    public const INVERSE_SKILL_LEVEL = 'Skill Level For';
 
-    const INVERSE_EXEMPLAR = 'Exemplar For';
+    public const INVERSE_EXEMPLAR = 'Exemplar For';
 
     /**
      * @var int
