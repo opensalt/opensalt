@@ -64,7 +64,8 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
         foreach ($docs as $key => $rec) {
             $lsDoc = new LsDoc();
             $lsDoc->setTitle($rec['Title']);
-            $lsDoc->setCreator($rec['Creator']);
+            //$lsDoc->setCreator($rec['Creator']);
+            $lsDoc->setCreator('TEKS-STAAR Core Learning Standards');
             $lsDoc->setDescription($rec['Description']);
             $lsDoc->setLanguage('en');
             $lsDoc->setPublisher($rec['Publisher']);
@@ -159,7 +160,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             } elseif (!empty($lsDocs[$rec['OriginNodeIdentifier']])) {
                 $lsAssoc->setOrigin($lsDocs[$rec['OriginNodeIdentifier']]);
             } else {
-                $output->writeln('<error>Unknown Origin URI</error>');
+                $output->writeln("<error>Unknown Origin Identifier: {$rec['OriginNodeIdentifier']}</error>");
 
                 // Exit with an error
                 return 1;
@@ -171,7 +172,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
                     break;
 
                 default:
-                    $output->writeln('<error>Unknown Association Type</error>');
+                    $output->writeln("<error>Unknown Association Type: {$rec['AssociationType']}</error>");
 
                     // Exit with an error
                     return 1;
@@ -182,7 +183,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             } elseif (!empty($lsDocs[$rec['DestinationNodeIdentifier']])) {
                 $lsAssoc->setDestination($lsDocs[$rec['DestinationNodeIdentifier']]);
             } else {
-                $output->writeln('<error>Unknown Destination URI</error>');
+                $output->writeln("<error>Unknown Destination Identifier: {$rec['DestinationNodeIdentifier']}</error>");
 
                 // Exit with an error
                 return 1;
