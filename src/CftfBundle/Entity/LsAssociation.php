@@ -182,6 +182,13 @@ class LsAssociation
     private $type;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="seq", type="bigint", nullable=true)
+     */
+    private $sequenceNumber;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
@@ -766,5 +773,25 @@ class LsAssociation
      */
     public function canEdit() {
         return !(LsDoc::ADOPTION_STATUS_DEPRECATED === $this->lsDoc->getAdoptionStatus());
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getSequenceNumber(): ?int
+    {
+        return $this->sequenceNumber;
+    }
+
+    /**
+     * @param int|null $sequenceNumber
+     *
+     * @return LsAssociation
+     */
+    public function setSequenceNumber(?int $sequenceNumber = null): LsAssociation
+    {
+        $this->sequenceNumber = $sequenceNumber;
+
+        return $this;
     }
 }
