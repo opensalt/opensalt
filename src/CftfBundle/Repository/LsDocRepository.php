@@ -22,7 +22,8 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAllChildrenArray(LsDoc $lsDoc){
+    public function findAllChildrenArray(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t, a, g, adi, add
             FROM CftfBundle:LSItem i INDEX BY i.id
@@ -95,7 +96,8 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      *
      * @return array array of LsItem ids
      */
-    public function findAllItemsWithParentsArray(LsDoc $lsDoc){
+    public function findAllItemsWithParentsArray(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
             SELECT i.id
             FROM CftfBundle:LsItem i INDEX by i.id
@@ -117,7 +119,8 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findTopChildrenIds(LsDoc $lsDoc){
+    public function findTopChildrenIds(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, a, add
             FROM CftfBundle:LSItem i INDEX BY i.id
@@ -144,7 +147,8 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function deleteDocument(LsDoc $lsDoc, \Closure $progressCallback = null) {
+    public function deleteDocument(LsDoc $lsDoc, \Closure $progressCallback = null)
+    {
         $conn = $this->getEntityManager()->getConnection();
 
         $params = ['lsDocId' => $lsDoc->getId()];
@@ -214,7 +218,8 @@ xENDx;
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAllItems(LsDoc $lsDoc) {
+    public function findAllItems(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t, a, adi, add
             FROM CftfBundle:LSItem i INDEX BY i.id
@@ -240,7 +245,8 @@ xENDx;
      *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllAssociations(LsDoc $lsDoc) {
+    public function findAllAssociations(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, adi, add
             FROM CftfBundle:LSAssociation a INDEX BY a.id
@@ -262,7 +268,8 @@ xENDx;
      *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllAssociationsForCapturedNodes(LsDoc $lsDoc) {
+    public function findAllAssociationsForCapturedNodes(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, adi, add
             FROM CftfBundle:LSAssociation a INDEX BY a.id
