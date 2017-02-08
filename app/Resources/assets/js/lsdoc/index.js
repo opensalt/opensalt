@@ -266,6 +266,7 @@ var Dropdowns = (function(){
     var itemDropdowns = [
         ['fullStatement', 'M'],
         ['humanCodingScheme', 'O'],
+        ['groupBy', 'M'],
         ['listEnumeration', 'O'],
         ['abbreviatedStatement', 'O'],
         ['conceptKeywords', 'O'],
@@ -302,14 +303,15 @@ var Dropdowns = (function(){
 
     function generateDropdowns(arrData, type){
         var mandatoryClass = "";
+        var panelType = "default";
         arrData.chunk(2).forEach(function(dropdownGrouped){
 	    $('.dropdowns.'+type).append('<div class="row"></div>');
 	    dropdownGrouped.forEach(function(dropdown){
-                if( dropdown[1] === 'M' ){ mandatoryClass = "mandatory-class"; }
-                $('.dropdowns.'+type+' .row').last().append('<div class="col-xs-6"><div class="panel panel-default"><div class="panel-body '+ mandatoryClass +'"></div></div></div>');
+                if( dropdown[1] === 'M' ){ mandatoryClass = "mandatory-class"; panelType = "primary" }
+                $('.dropdowns.'+type+' .row').last().append('<div class="col-xs-6"><div class="panel panel-'+ panelType +'"><div class="panel-body '+ mandatoryClass +'"></div></div></div>');
                 $('.dropdowns.'+type+' .row .panel-body').last().append('<div class="col-xs-6"><div class="form-group"><label>'+dropdown[0].titleize()+'</label><select name="'+dropdown[0]+'" class="form-control select"><option>Choose one option</option></select></div></div>');
                 $('.dropdowns.'+type+' .row .panel-body').last().append('<div class="col-xs-6"><div class="form-group"><label>Enter default value if needed</label><input name="'+dropdown[0]+'_default_value" type="text" class="form-control"/></div></div>');
-                mandatoryClass = "";
+                mandatoryClass = "";panelType = "default";
             });
         });
     }

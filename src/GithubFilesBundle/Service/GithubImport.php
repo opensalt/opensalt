@@ -98,11 +98,28 @@ class GithubImport
         $lsDoc->setLanguage($this->getValue($lsDocKeys['language'], $content[0]));
         $lsDoc->setNote($this->getValue($lsDocKeys['notes'], $content[0]));
 
+        $lastGroupBy = "";
+        $groupBy = "";
+        $listGroupByInstances = [];
+        $listGroupByTitles = [];
 
         for ($i = 1, $iMax = count($content); $i < $iMax; ++$i) {
             $row = $content[$i];
-            $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $row);
-            $lsDoc->addTopLsItem($lsItem);
+            $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $row, false);
+            $groupBy = $this->getValue($lsItemKeys['groupBy'], $row);
+            if( $groupBy === $lastGroupBy && strlen($groupBy) > 0){
+                $listGroupByInstances[$groupBy]->addChild($lsItem);
+            }else{
+                if( in_array($groupBy, $listGroupByTitles)){
+                    $listGroupByInstances[$groupBy]->addChild($lsItem);
+                }else{
+                    array_push($listGroupByTitles, $groupBy);
+                    $newTopItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $row, true);
+                    $listGroupByInstances[$groupBy] = $newTopItem;
+                    $lsDoc->addTopLsItem($newTopItem);
+                }
+            }
+            $lastGroupBy = $groupBy;
         }
 
         $em->persist($lsDoc);
@@ -116,15 +133,21 @@ class GithubImport
      *
      * @return LsItem
      */
-    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data)
+    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data, $isTop)
     {
         $lsItem = new LsItem();
         $em = $this->getEntityManager();
 
-        $lsItem->setLsDoc($lsDoc);
-        $lsItem->setFullStatement($this->getValue($lsItemKeys['fullStatement'], $data));
+        $fullStatement = $this->getValue($lsItemKeys['fullStatement'], $data);
+        $humanCodingScheme = $this->getValue($lsItemKeys['humanCodingScheme'], $data);
 
-        $lsItem->setHumanCodingScheme($this->getValue($lsItemKeys['humanCodingScheme'], $data));
+        $lsItem->setLsDoc($lsDoc);
+        if( $isTop ){
+            $fullStatement = $this->getValue($lsItemKeys['groupBy'], $data);
+            $humanCodingScheme = "";
+        }
+        $lsItem->setFullStatement($fullStatement);
+        $lsItem->setHumanCodingScheme($humanCodingScheme);
         $lsItem->setAbbreviatedStatement($this->getValue($lsItemKeys['abbreviatedStatement'], $data));
         $lsItem->setListEnumInSource($this->getValue($lsItemKeys['listEnumeration'], $data));
         $lsItem->setConceptKeywords($this->getValue($lsItemKeys['conceptKeywords'], $data));
@@ -149,10 +172,10 @@ class GithubImport
         if (empty($key)) {
             return '';
         } else {
-            $res = explode(',', $key);
+            $res = strtok($key, ',');;
 
-            if (count($res) > 1) {
-                return $res[0];
+            if (strlen($res) !== strlen($key)) {
+                return $res;
             }
         }
 
