@@ -3,6 +3,7 @@
     "fullStmt":{{ lsItem.fullStatement|json_encode|raw }},
     "humanCoding":{{ lsItem.humanCodingScheme|json_encode|raw }},
     "listEnum":{{ lsItem.listEnumInSource|json_encode|raw}},
+    "childAssociationGroup": {{ lsItem.parents[parent]|default(null)|json_encode|raw }},
     "key":{{ lsItem.id|json_encode|raw }}
     {% if lsItem.children is not empty %}
         , "folder": true,
@@ -11,7 +12,7 @@
             {% for childWithId in lsItem.children %}
                 {% if not loop.first %}, {% endif %}
                 {% set child = items[childWithId.id] %}
-                {% include 'CftfBundle:DocTree:render_child.json.twig' with { 'lsItem':child, 'lsDoc':lsDoc, 'items':items} %}
+                {% include 'CftfBundle:DocTree:render_child.json.twig' with { 'lsItem':child, 'lsDoc':lsDoc, 'items':items, 'parent':lsItem.id } %}
             {% endfor %}
         ]
     {% endif %}
