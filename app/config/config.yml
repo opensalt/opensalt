@@ -151,6 +151,9 @@ doctrine:
                         alias: GedmoTree # (optional) it will default to the name set for the mapping
                         is_bundle: false
 
+doctrine_migrations:
+    dir_name: "%kernel.root_dir%/DoctrineMigrations"
+
 # Swiftmailer Configuration
 swiftmailer:
     transport: "%mailer_transport%"
