@@ -37,10 +37,12 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         $dirname = $input->getArgument('dirname');
 
+        $itemsKeyedBy = 'Identifier';
+
         $subjects = $this->fetchFile($dirname.'/CFSubject.csv', 'URI');
         $docs = $this->fetchFile($dirname.'/CFDocument.csv', 'PackageURI');
         $itemTypes = $this->fetchFile($dirname.'/CFItemType.csv', 'URI');
-        $items = $this->fetchFile($dirname.'/CFItem.csv', 'Identifier');
+        $items = $this->fetchFile($dirname.'/CFItem.csv', $itemsKeyedBy);
         $associationGroups = $this->fetchFile($dirname.'/CFAssociationGrouping.csv', 'URI');
         $associations = $this->fetchFile($dirname.'/CFAssociation.csv', 'URI');
 
@@ -60,8 +62,13 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
         }
         */
 
+        /** @var LsDoc[] $lsDocs */
         $lsDocs = [];
+        $lsDocsByIdentifier = [];
         foreach ($docs as $key => $rec) {
+            if (preg_replace('/^Document: /', '', $rec['GlobalIdentifier']) > 500) {
+                continue;
+            }
             $lsDoc = new LsDoc();
             $lsDoc->setTitle($rec['Title']);
             //$lsDoc->setCreator($rec['Creator']);
@@ -77,8 +84,10 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             $em->persist($lsDoc);
 
             $lsDocs[$key] = $lsDoc;
+            $lsDocsByIdentifier[$rec['GlobalIdentifier']] = $lsDoc;
         }
 
+        /** @var LsDefItemType[] $lsItemTypes */
         $lsItemTypes = [];
         foreach ($itemTypes as $key => $rec) {
             $lsItemType = new LsDefItemType();
@@ -93,11 +102,16 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             $lsItemTypes[$key] = $lsItemType;
         }
 
+        /** @var LsItem[] $lsItems */
         $lsItems = [];
         foreach ($items as $key => $rec) {
             $lsItem = new LsItem();
             $lsItem->setExtraProperty('_source', json_encode($rec));
             $lsItem->setLsDoc($lsDocs[$rec['PackageURI']]);
+            $fullStatement = $rec['fullStatement'];
+            if (preg_replace('/^Document: /', '', $rec['CFDocumentID']) < 40) {
+                $fullStatement = preg_replace('/^[(][^)]*[)]\s+/', '', $fullStatement);
+            }
             $lsItem->setFullStatement($rec['fullStatement']);
             $lsItem->setItemType($lsItemTypes[$rec['CFItemTypeURI']]);
             $lsItem->setHumanCodingScheme($rec['HumanCodingScheme']);
@@ -135,32 +149,37 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             $lsItems[$key] = $lsItem;
         }
 
-        /*
+        /** @var LsDefAssociationGrouping[] $lsAssocGroups */
         $lsAssocGroups = [];
         foreach ($associationGroups as $key => $rec) {
             $lsAssocGroup = new LsDefAssociationGrouping();
             $lsAssocGroup->setExtraProperty('_source', json_encode($rec));
             $lsAssocGroup->setTitle($rec['Title']);
             $lsAssocGroup->setDescription($rec['Description']);
-            $lsAssocGroup->setName($rec['Title']);
 
             $em->persist($lsAssocGroup);
 
             $lsAssocGroups[$key] = $lsAssocGroup;
         }
-        */
 
+        /** @var LsAssociation[] $lsAssociations */
         $lsAssociations = [];
         foreach ($associations as $key => $rec) {
             $lsAssoc = new LsAssociation();
-            $lsAssoc->setGroupName($rec['CFAssociationGroupingIdentifier']);
+            $assocGroup = $lsAssocGroups[$rec['CFAssociationGroupingURI']];
+            $lsAssoc->setGroup($assocGroup);
             $lsAssoc->setLsDoc($lsDocs[$rec['PackageURI']]);
-            if (!empty($lsItems[$rec['OriginNodeIdentifier']])) {
-                $lsAssoc->setOrigin($lsItems[$rec['OriginNodeIdentifier']]);
-            } elseif (!empty($lsDocs[$rec['OriginNodeIdentifier']])) {
-                $lsAssoc->setOrigin($lsDocs[$rec['OriginNodeIdentifier']]);
+            if (!empty($lsItems[$rec['OriginNode'.$itemsKeyedBy]])) {
+                $lsAssoc->setOrigin($lsItems[$rec['OriginNode'.$itemsKeyedBy]]);
+                $lsItems[$rec['OriginNode'.$itemsKeyedBy]]->addAssociation($lsAssoc);
+            } elseif (!empty($lsDocs[$rec['OriginNode'.$itemsKeyedBy]])) {
+                $lsAssoc->setOrigin($lsDocs[$rec['OriginNode'.$itemsKeyedBy]]);
+                $lsDocs[$rec['OriginNode'.$itemsKeyedBy]]->addAssociation($lsAssoc);
+            } elseif (!empty($lsDocsByIdentifier[$rec['OriginNode'.$itemsKeyedBy]])) {
+                $lsAssoc->setOrigin($lsDocsByIdentifier[$rec['OriginNode'.$itemsKeyedBy]]);
+                $lsDocsByIdentifier[$rec['OriginNode'.$itemsKeyedBy]]->addAssociation($lsAssoc);
             } else {
-                $output->writeln("<error>Unknown Origin Identifier: {$rec['OriginNodeIdentifier']}</error>");
+                $output->writeln("<error>Unknown Origin Identifier: {$rec['OriginNode'.$itemsKeyedBy]}</error>");
 
                 // Exit with an error
                 return 1;
@@ -171,6 +190,14 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
                     $lsAssoc->setType(LsAssociation::CHILD_OF);
                     break;
 
+                case 'isExactMatchOf':
+                    $lsAssoc->setType(LsAssociation::EXACT_MATCH_OF);
+                    break;
+
+                case 'isPartOf':
+                    $lsAssoc->setType(LsAssociation::PART_OF);
+                    break;
+
                 default:
                     $output->writeln("<error>Unknown Association Type: {$rec['AssociationType']}</error>");
 
@@ -178,21 +205,23 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
                     return 1;
                     break;
             }
-            if (!empty($lsItems[$rec['DestinationNodeIdentifier']])) {
-                $lsAssoc->setDestination($lsItems[$rec['DestinationNodeIdentifier']]);
-            } elseif (!empty($lsDocs[$rec['DestinationNodeIdentifier']])) {
-                $lsAssoc->setDestination($lsDocs[$rec['DestinationNodeIdentifier']]);
+            if (!empty($lsItems[$rec['DestinationNode'.$itemsKeyedBy]])) {
+                $lsAssoc->setDestination($lsItems[$rec['DestinationNode'.$itemsKeyedBy]]);
+                $lsItems[$rec['DestinationNode'.$itemsKeyedBy]]->addInverseAssociation($lsAssoc);
+            } elseif (!empty($lsDocs[$rec['DestinationNode'.$itemsKeyedBy]])) {
+                $lsAssoc->setDestination($lsDocs[$rec['DestinationNode'.$itemsKeyedBy]]);
+                $lsDocs[$rec['DestinationNode'.$itemsKeyedBy]]->addInverseAssociation($lsAssoc);
+            } elseif (!empty($lsDocsByIdentifier[$rec['DestinationNode'.$itemsKeyedBy]])) {
+                $lsAssoc->setDestination($lsDocsByIdentifier[$rec['DestinationNode'.$itemsKeyedBy]]);
+                $lsDocsByIdentifier[$rec['DestinationNode'.$itemsKeyedBy]]->addInverseAssociation($lsAssoc);
             } else {
-                $output->writeln("<error>Unknown Destination Identifier: {$rec['DestinationNodeIdentifier']}</error>");
+                $output->writeln("<error>Unknown Destination Identifier: {$rec['DestinationNode'.$itemsKeyedBy]}</error>");
 
                 // Exit with an error
                 return 1;
             }
 
             $em->persist($lsAssoc);
-
-            $lsItems[$rec['OriginNodeIdentifier']]->addAssociation($lsAssoc);
-            $lsItems[$rec['DestinationNodeIdentifier']]->addInverseAssociation($lsAssoc);
 
             $lsAssociations[$key] = $lsAssoc;
         }
