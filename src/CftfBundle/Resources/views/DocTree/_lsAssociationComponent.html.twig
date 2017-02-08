@@ -5,6 +5,12 @@
             <div>
                 <div class="list-group">
                     {% for association in items %}
+                        {% set groupLabel = '' %}
+                        {% if association.group is not empty %}
+                            {% set groupLabel =  '<span class="label label-default">'~association.group.title|e~'</span>' %}
+                        {% elseif association.groupName is not empty %}
+                            {% set groupLabel =  '<span class="label label-default">'~association.groupName|e~'</span>' %}
+                        {% endif %}
                         {% if association.destinationLsItem is defined %}
                             {% if association.destinationLsItem is not empty %}
                                 {% if viewingItem == association.destinationLsItem %}
@@ -12,6 +18,7 @@
                                 {% else %}
                                     {% set item = association.destinationLsItem %}
                                 {% endif %}
+                                {{ groupLabel|raw }}
                                 <a href="{{ path('doc_tree_item_view', {'id':item.id}) }}" data-item-id="{{ item.id }}" data-association-id="{{ association.id }}" class="list-group-item lsassociation lsitem clearfix">
                                     {% block start_of_item_a '' %}
                                     {% if item.humanCodingScheme is not empty %}
@@ -27,17 +34,20 @@
                                 </a>
                             {% elseif association.destinationLsDoc is not empty %}
                                 {% set doc = association.destinationLsDoc %}
+                                {{ groupLabel|raw }}
                                 <a href="{{ path('doc_tree_view', {'id':doc.id}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
                                     Document: {{ doc.title }}
                                     {{ block('end_of_item_a') }}
                                 </a>
                             {% elseif association.destinationNodeUri is not empty %}
                                 {% set uri = association.destinationNodeUri %}
+                                {{ groupLabel|raw }}
                                 <span data-association-id="{{ association.id }}" class="list-group-item lsassociation lsitem-uri clearfix">
                                     {{ uri|local_remote_uri }}
                                     {{ block('end_of_item_a') }}
                                 </span>
                             {% else %}
+                                {{ groupLabel|raw }}
                                 <span data-association-id="{{ association.id }}" class="list-group-item lsassociation lsitem-uri clearfix">
                                     {{ association.destinationNodeIdentifier }}
                                     {{ block('end_of_item_a') }}
@@ -45,12 +55,14 @@
                             {% endif %}
                         {% elseif association.destinationLsDoc is defined %}
                             {% set doc = association %}
+                            {{ groupLabel|raw }}
                             <a href="{{ path('doc_tree_view', {'id':doc.id}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
                                 Document: {{ doc.title }}
                                 {{ block('end_of_item_a') }}
                             </a>
                         {% elseif association.isLsItem is defined %}
                             {% set item = association %}
+                            {{ groupLabel|raw }}
                             <a href="{{ path('doc_tree_item_view', {'id':item.id}) }}" data-item-id="{{ item.id }}" class="list-group-item lsitem clearfix">
                                 {% if item.humanCodingScheme is not empty %}
                                     {{ item.humanCodingScheme }}
@@ -62,6 +74,7 @@
                             </a>
                         {% elseif association.isLsDoc is defined %}
                             {% set doc = association %}
+                            {{ groupLabel|raw }}
                             <a href="{{ path('doc_tree_view', {'id':doc.id}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
                                 Document: {{ doc.title }}
                                 {{ block('end_of_item_a') }}
