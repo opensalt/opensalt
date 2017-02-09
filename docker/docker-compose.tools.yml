@@ -16,6 +16,7 @@ services:
       MYSQL_USER:
       MYSQL_PASSWORD:
       MYSQL_HOST: "db"
+      #DB_USE_RDS_CERT:
     volumes:
       - &project_root "..:/var/www/html"
     working_dir: /var/www/html
@@ -30,6 +31,7 @@ services:
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
       SYMFONY__MYSQL__HOST: "db"
+      #DB_USE_RDS_CERT:
     volumes:
       - *project_root
       - ./data/composer/slash:/composer
