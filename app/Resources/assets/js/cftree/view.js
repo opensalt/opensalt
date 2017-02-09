@@ -93,7 +93,7 @@ app.loadItemDetails = function(lsItemId) {
 
             // new item button doesn't need to be enabled because it shows a dialog
         }
-    )
+    );
 };
 
 // Clear item details for the specified item
@@ -199,11 +199,7 @@ app.renderTree1 = function() {
             dragStart: function(node, data) {
                 // don't allow the document to be dragged
                 var lsItemId = app.lsItemIdFromNode(node);
-                if (lsItemId == null) {
-                    return false;
-                } else {
-                    return true;
-                }
+                return lsItemId !== null;
             },
             //dragStop: function(node, data){ console.log('dragStop'); },
             //initHelper: function(){ console.log('initHelper'); },
@@ -269,23 +265,23 @@ app.renderTree1 = function() {
                 console.log('tree1 dragDrop from ' + treeDraggedFrom + ' (tree2Mode: ' + app.tree2Mode + '): ' + draggedItemId + ' to ' + hitMode + ' ' + droppedItemId);
 
                 // intra-tree drag
-                if (treeDraggedFrom == "tree1") {
+                if (treeDraggedFrom === "tree1") {
                     // move the item in the tree
                     app.reorderItems(draggedNode, droppedNode, data.hitMode);
 
                     // inter-tree drag
                 } else {
                     // if we're in associate mode, show choice for what type of association to add
-                    if (app.tree2Mode == "addAssociation") {
+                    if (app.tree2Mode === "addAssociation") {
                         app.createAssociation(draggedNode, droppedNode);
 
                         // else if we're in copy mode; copy node to new tree
-                    } else if (app.tree2Mode == "copyItem") {
+                    } else if (app.tree2Mode === "copyItem") {
                         app.copyItem(draggedNode, droppedNode, data.hitMode);
                     }
                 }
             }
-        },
+        }
 
         // we don't currently need the below functions
         // beforeSelect: function(event, data){console.log(event, data);},
@@ -326,7 +322,7 @@ app.tree2Selected = function() {
         $('#viewmode_tree2').html("ERROR:" + jqXHR.responseText);
         $('#ls_doc_list_lsDoc').val("");
     });
-}
+};
 
 // Render tree2 to copy items or create associations
 app.renderTree2 = function() {
@@ -379,11 +375,7 @@ app.renderTree2 = function() {
 
                 // don't allow the document to be dragged
                 var lsItemId = app.lsItemIdFromNode(node);
-                if (lsItemId == null) {
-                    return false;
-                } else {
-                    return true;
-                }
+                return lsItemId !== null;
             },
 
             dragStop: function(node, data) {
@@ -402,9 +394,9 @@ app.renderTree2 = function() {
                 // we should never get here
                 console.log('tree2 dragDrop (' + app.tree2Mode + '): ' + draggedItemId + ' to ' + hitMode + ' ' + droppedItemId);
             }
-        },
+        }
     });
-}
+};
 
 // Toggle visibility of tree2 / the item details section
 app.tree2Showing = false;
@@ -427,12 +419,12 @@ app.tree2Toggle = function(showTree2) {
         // if we're hiding tree2, set app.tree2Mode to none
         app.tree2Mode = "none";
     }
-}
+};
 
 // Determine if a node is the main document node
 app.isDocNode = function(n) {
     return (n.parent == null || n.parent.parent == null);
-}
+};
 
 // Given an lsItemId, return the corresponding ft node
 app.getNodeFromLsItemId = function(lsItemId, tree) {
@@ -444,7 +436,7 @@ app.getNodeFromLsItemId = function(lsItemId, tree) {
     } else {
         return tree.fancytree("getTree").getNodeByKey(lsItemId+"");
     }
-}
+};
 
 // Given a node, return the lsItemId as derived from the key -- or null if it's the doc node
 app.lsItemIdFromNode = function(n) {
@@ -477,10 +469,10 @@ app.titleFromNode = function(node, format) {
         }
     }
     // if format is "ftTitleSpan", return wrapped in the fancytree-title span
-    if (format == "ftTitleSpan") {
+    if (format === "ftTitleSpan") {
         return '<span class="fancytree-title">' + title + '</span>';
         // if format is "textOnly", extract a text only version
-    } else if (format == "textOnly") {
+    } else if (format === "textOnly") {
         return $('<div>' + title + '</div>').text();
 
         // otherwise return as is
@@ -493,12 +485,9 @@ app.titleFromNode = function(node, format) {
 app.treeItemTooltip = function(node) {
     var $jq = $(node.span);
 
-    var content = node.title;
-    if (content == null) {
-        content = node.data.fullStmt;
-        if (node.data.humanCoding != null) {
-            content = '<span class="item-humanCodingScheme">' + node.data.humanCoding + '</span> ' + content;
-        }
+    var content = node.data.fullStmt;
+    if (node.data.humanCoding !== null) {
+        content = '<span class="item-humanCodingScheme">' + node.data.humanCoding + '</span> ' + content;
     }
 
     // Note: we need to make the tooltip appear on the title, not the whole node, so that we can have it persist
@@ -642,7 +631,6 @@ app.reorderItems = function(draggedNode, droppedNode, hitMode) {
         app.hideModalSpinner();
         alert("An error occurred.");
     });
-
 };
 
 
@@ -740,7 +728,7 @@ app.copyItem = function(draggedNode, droppedNode, hitMode) {
             alert("An error occurred.");
         });
     }, 50);    // end of anonymous setTimeout function
-}
+};
 
 //////////////////////////////////////////////////////
 // EDIT THE DOCUMENT OR AN ITEM
@@ -778,8 +766,8 @@ app.getAddNewChildPath = function() {
 };
 
 app.prepareAddNewChildModal = function() {
-    $('#addNewChildModal').find('.modal-body').html(app.spinnerHtml("Loading Form"));
     var $addNewChildModal = $('#addNewChildModal');
+    $addNewChildModal.find('.modal-body').html(app.spinnerHtml("Loading Form"));
     $addNewChildModal.on('shown.bs.modal', function(e){
         $('#addNewChildModal').find('.modal-body').load(
             app.getAddNewChildPath(),
@@ -821,7 +809,7 @@ app.prepareAddNewChildModal = function() {
             // window.location.reload(true);
         }).fail(function(jqXHR, textStatus, errorThrown){
             app.hideModalSpinner();
-            $('#addNewChildModal').find('.modal-body').html(jqXHR.responseText);
+            $addNewChildModal.find('.modal-body').html(jqXHR.responseText);
             $('#ls_item_educationalAlignment').multiselect({
                 optionLabel: function(element) {
                     return $(element).html() + ' - ' + $(element).data('title');
@@ -850,8 +838,8 @@ app.addNewChild = function(data) {
 // EDIT THE DOCUMENT OR AN ITEM
 
 app.prepareEditDocModal = function() {
-    $('#editDocModal').find('.modal-body').html(app.spinnerHtml("Loading Form"));
     var $editDocModal = $('#editDocModal');
+    $editDocModal.find('.modal-body').html(app.spinnerHtml("Loading Form"));
     $editDocModal.on('shown.bs.modal', function(e){
         $('#editDocModal').find('.modal-body').load(
             app.path.lsdoc_edit.replace('ID', app.lsDocId),
@@ -882,15 +870,15 @@ app.prepareEditDocModal = function() {
                */
 
         }).fail(function(jqXHR, textStatus, errorThrown){
-            $('#editDocModal').find('.modal-body').html(jqXHR.responseText);
+            $editDocModal.find('.modal-body').html(jqXHR.responseText);
             $('#ls_doc_subjects').select2entity({dropdownParent: $('#editDocModal')});
         });
     });
 };
 
 app.prepareEditItemModal = function() {
-    $('#editItemModal').find('.modal-body').html(app.spinnerHtml("Loading Form"));
     var $editItemModal = $('#editItemModal');
+    $editItemModal.find('.modal-body').html(app.spinnerHtml("Loading Form"));
     $editItemModal.on('shown.bs.modal', function(e){
         $('#editItemModal').find('.modal-body').load(
             app.path.lsitem_edit.replace('ID', app.lsItemId),
@@ -927,7 +915,7 @@ app.prepareEditItemModal = function() {
 
         }).fail(function(jqXHR, textStatus, errorThrown){
             app.hideModalSpinner();
-            $('#editItemModal').find('.modal-body').html(jqXHR.responseText);
+            $editItemModal.find('.modal-body').html(jqXHR.responseText);
             $('#ls_item_educationalAlignment').multiselect({
                 optionLabel: function(element) {
                     return $(element).html() + ' - ' + $(element).data('title');
@@ -961,8 +949,8 @@ app.updateEditedItem = function(data) {
 
 // Prepare the modal dialog used to select the type of relationship to be formed
 app.prepareAssociateModal = function() {
-    $('#associateModal').find('.modal-body').html(app.spinnerHtml("Loading Form"));
     var $associateModal = $('#associateModal');
+    $associateModal.find('.modal-body').html(app.spinnerHtml("Loading Form"));
     $associateModal.on('shown.bs.modal', function(e){
         $('#associateModal').find('.modal-body').load(
             app.addAssociationCreatePath(),
@@ -988,10 +976,10 @@ app.prepareAssociateModal = function() {
 
         }).fail(function(jqXHR, textStatus, errorThrown){
             app.hideModalSpinner();
-            $('#associateModal').find('.modal-body').html(jqXHR.responseText);
+            $associateModal.find('.modal-body').html(jqXHR.responseText);
         });
     });
-}
+};
 
 // initiate adding an association from tree2 to tree1
 app.addAssociation = function() {
@@ -1023,7 +1011,7 @@ app.addAssociationCreatePath = function() {
     path = path.replace('DESTINATION_ID', app.lsItemIdFromNode(app.createAssociationNodes.draggedNode));
     console.log(path);
     return path;
-}
+};
 
 // callback after ajax to load associate form
 app.createAssociationModalLoaded = function() {
@@ -1113,7 +1101,6 @@ app.deleteItem = function() {
             deleteItem();
         });
     }
-
 };
 
 /////////////////////////////////////////////////////
