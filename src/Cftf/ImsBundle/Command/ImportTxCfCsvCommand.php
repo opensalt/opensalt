@@ -198,6 +198,10 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
                     $lsAssoc->setType(LsAssociation::PART_OF);
                     break;
 
+                case 'isRelatedTo':
+                    $lsAssoc->setType(LsAssociation::RELATED_TO);
+                    break;
+
                 default:
                     $output->writeln("<error>Unknown Association Type: {$rec['AssociationType']}</error>");
 
