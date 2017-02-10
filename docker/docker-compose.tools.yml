@@ -11,11 +11,11 @@ services:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "db"
+      SYMFONY__MYSQL__HOST: "${MYSQL_HOST}"
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
-      MYSQL_HOST: "db"
+      MYSQL_HOST:
       #DB_USE_RDS_CERT:
     volumes:
       - &project_root "..:/var/www/html"
@@ -30,7 +30,11 @@ services:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "db"
+      SYMFONY__MYSQL__HOST: "${MYSQL_HOST}"
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_HOST:
       #DB_USE_RDS_CERT:
     volumes:
       - *project_root
