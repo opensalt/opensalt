@@ -575,12 +575,13 @@ app.reorderItems = function(draggedNode, droppedNode, hitMode) {
         var key = siblings[i].key;
 
         // update listEnum if changed
-        if (siblings[i].data == null || siblings[i].data.listEnum != (i+1)) {
+        if (key.lastIndexOf('__', 0) !== 0 && (siblings[i].data == null || siblings[i].data.listEnum != (i+1))) {
             lsItems[key] = {
-                "listEnumInSource": (i+1)
+                "listEnumInSource": (i + 1)
             };
+
             // update field value in display
-            app.getLsItemDetailsJq(key).find("[data-field-name=listEnumInSource]").text(i+1);
+            app.getLsItemDetailsJq(key).find("[data-field-name=listEnumInSource]").text(i + 1);
         }
 
         // if we got to the draggedNode...
@@ -830,6 +831,12 @@ app.addNewChild = function(data) {
     var parentNode = app.getNodeFromLsItemId(app.lsItemId);
     parentNode.addChildren([data]);
 
+    if (!parentNode.folder) {
+        parentNode.folder = true;
+        parentNode.setExpanded(true);
+        parentNode.render();
+    }
+
     // enable the tooltip on the new child
     app.treeItemTooltip(app.getNodeFromLsItemId(data.key));
 };
@@ -1077,9 +1084,14 @@ app.deleteItem = function() {
             // delete node
             node.remove();
 
+            if (!app.isDocNode(parentNode) && (!$.isArray(parentNode.children) || parentNode.children.length === 0)) {
+                parentNode.folder = false;
+                parentNode.setExpanded(false);
+                parentNode.render();
+            }
+
             // activate parent
             parentNode.setActive();
-
         }).fail(function (jqXHR, textStatus, errorThrown) {
             alert("An error occurred.");
             // console.log(jqXHR.responseText);
