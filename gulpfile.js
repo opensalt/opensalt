@@ -11,7 +11,7 @@ var config = {
     renameCss: false,
     renameJs: false,
     cleanCss: true,
-    uglifyJs: true,
+    uglifyJs: false,
     dropConsole: false,
     vendorDir: 'vendor',
     bowerDir: 'vendor/bower-asset',
@@ -117,12 +117,10 @@ gulp.task('images', function() {
     );
 });
 
-/*
 gulp.task('watch', function() {
     gulp.watch(config.assetsDir+'/'+config.sassPattern, ['styles']);
-    gulp.watch(config.assetsDir+'/js/**    /*.js', ['scripts']);
+    gulp.watch(config.assetsDir+'/js/**/*.js', ['scripts']);
 });
-*/
 
 //gulp.task('default', ['styles', 'scripts', 'fonts', 'watch']);
 gulp.task('default', ['styles', 'scripts', 'fonts', 'images']);
