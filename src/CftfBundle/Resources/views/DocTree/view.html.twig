@@ -17,19 +17,12 @@
 </div>
 
 <div class="row">
-    <div class="col-sm-12">
-        <div class="form-group">
-            <input type="text" class="form-control" id="filterOnTree" placeholder="Filter">
-        </div>
-    </div>
-</div>
-
-<div class="row">
     <div class="col-sm-6">
-        <section id="tree1Section"> <!-- class="panel panel-default" -->
-            <!-- <div class="panel-body"> -->
+        <section id="tree1Section" class="panel panel-default">
+            <div class="form-group">
+                <input type="text" class="form-control" id="filterOnTree" placeholder="Filter">
+            </div>
             <div id="viewmode_tree"></div>
-            <!-- </div> -->
         </section>
     </div>
     <div class="col-sm-6">
@@ -113,7 +106,7 @@
                 <h4 class="itemTitle"></h4>
                 <div class="row">
                     <div class="col-sm-10">
-                        <div id="tree2SectionCopyInstructions" class="bg-info instructions">Select another Compentency Framework Document here, then drag and drop Learning Standards from the right to the Document you’re editing on the left top copy items.</div>
+                        <div id="tree2SectionCopyInstructions" class="bg-info instructions">Select another Compentency Framework Document here, then drag and drop Learning Standards from the right to the Document you’re editing on the left to copy items.</div>
                         <div id="tree2SectionRelationshipInstructions" class="bg-info instructions">Select another Compentency Framework Document here, then drag and drop Learning Standards from the right onto Learning Standards in the Document you’re editing on the left to create an association.</div>
                     </div>
                     <div class="col-sm-2" style="text-align:right"><button id="closeTree2Btn" type="button" class="btn btn-primary btn-sm">Done</button></div>
@@ -173,6 +166,7 @@
 {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
 'modalName':'associate',
 'modalTitle':'Add Association',
+'closeButton': 'Cancel',
 'saveButton': 'Associate'
 } %}
 {% endembed %}
