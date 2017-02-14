@@ -98,28 +98,55 @@ class GithubImport
         $lsDoc->setLanguage($this->getValue($lsDocKeys['language'], $content[0]));
         $lsDoc->setNote($this->getValue($lsDocKeys['notes'], $content[0]));
 
-        $lastGroupBy = "";
+        $groups = [];
+        $lastGroupBy = "__default";
+        $listGroupBy = [];
         $groupBy = "";
-        $listGroupByInstances = [];
-        $listGroupByTitles = [];
 
         for ($i = 1, $iMax = count($content); $i < $iMax; ++$i) {
             $row = $content[$i];
             $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $row, false);
-            $groupBy = $this->getValue($lsItemKeys['groupBy'], $row);
-            if( $groupBy === $lastGroupBy && strlen($groupBy) > 0){
-                $listGroupByInstances[$groupBy]->addChild($lsItem);
-            }else{
-                if( in_array($groupBy, $listGroupByTitles)){
-                    $listGroupByInstances[$groupBy]->addChild($lsItem);
+            if( strlen($lsItemKeys['groupBy']) > 0 ){
+                $groupBy = $this->getValue($lsItemKeys['groupBy'], $row);
+                if( $groupBy == $lastGroupBy ){
+                    $listGroupBy[$groupBy]->addChild($lsItem);
                 }else{
-                    array_push($listGroupByTitles, $groupBy);
-                    $newTopItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $row, true);
-                    $listGroupByInstances[$groupBy] = $newTopItem;
-                    $lsDoc->addTopLsItem($newTopItem);
+                    if (array_key_exists($groupBy, $listGroupBy) ){
+                        $listGroupBy[$groupBy]->addChild($lsItem);
+                    }else{
+                        $listGroupBy[$groupBy] = $lsItem;
+                        $lsDoc->addTopLsItem($lsItem);
+                    }
+                }
+                $lastGroupBy = $groupBy;
+            }else{
+                if( array_key_exists($row['P2 Label'], $groups) ){
+                    if( array_key_exists($row['P3 Label'], $groups[$row['P2 Label']]) ){
+                        if( array_key_exists($row['P4 Label'], $groups[$row['P2 Label']][$row['P3 Label']]) ){
+                            if( array_key_exists($row['P5 Label'], $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']]) ){
+                                if( array_key_exists($row['P6 Label'], $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']]) ){
+                                    $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']][$row['P6 Label']]['instance__']->addChild($lsItem);
+                                }else{
+                                    $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']][$row['P6 Label']]['instance__'] = $lsItem;
+                                    $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']]['instance__']->addChild($lsItem);
+                                }
+                            }else{
+                                $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']]['instance__'] = $lsItem;
+                                $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']]['instance__']->addChild($lsItem);
+                            }
+                        }else{
+                            $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']]['instance__'] = $lsItem;
+                            $groups[$row['P2 Label']][$row['P3 Label']]['instance__']->addChild($lsItem);
+                        }
+                    }else{
+                        $groups[$row['P2 Label']][$row['P3 Label']]['instance__'] = $lsItem;
+                        $groups[$row['P2 Label']]['instance__']->addChild($lsItem);
+                    }
+                }else{
+                    $groups[$row['P2 Label']]['instance__'] = $lsItem;
+                    $lsDoc->addTopLsItem($lsItem);
                 }
             }
-            $lastGroupBy = $groupBy;
         }
 
         $em->persist($lsDoc);
