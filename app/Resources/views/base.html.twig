@@ -46,7 +46,7 @@
                                         </ul>
                                     </li>
                                 </ul>
-                            {% else %}
+                            {% elseif (app.request.attributes.get('_route') != 'login') %}
                                 <a href="{{ url("login") }}" class="btn btn-default navbar-btn pull-right login">Sign in</a>
                             {% endif %}
                         </div>
