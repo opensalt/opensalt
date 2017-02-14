@@ -266,7 +266,7 @@ var Dropdowns = (function(){
     var itemDropdowns = [
         ['fullStatement', 'M'],
         ['humanCodingScheme', 'O'],
-        ['groupBy', 'M'],
+        ['groupBy', 'O'],
         ['listEnumeration', 'O'],
         ['abbreviatedStatement', 'O'],
         ['conceptKeywords', 'O'],
