@@ -26,7 +26,10 @@
                         <input class="form-control" type="password" id="password" name="_password" />
                     </div>
 
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
+                    {% if redirect is not empty %}
+                        <input type="hidden" name="_target_path" value="{{ redirect }}"/>
+                    {% endif %}
 
                     <button class="pull-right btn btn-primary" type="submit">Login</button>
                 </form>
