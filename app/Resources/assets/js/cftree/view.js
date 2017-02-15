@@ -725,16 +725,27 @@ app.copyItem = function(draggedNode, droppedNode, hitMode) {
             // hide spinner
             app.hideModalSpinner();
 
-            // returned data will be the path for the new item, which gives us the id
-            var newItemId = data.replace(/.*\/(.*)$/, "$1");
+            // returned data will be a tree with the items            
+            // update keys in newNode and descendants
+            var fixTree = function(node, o) {
+            	node.key = o.itemId+"";
+            	if (o.children != null && node.children != null) {
+            		for (var i = 0; i < o.children.length; ++i) {
+            			if (node.children[i] != null) {
+            				fixTree(node.children[i], o.children[i]);
+            			}
+            		}
+            	}
+            }
+            fixTree(newNode, data[copiedLsItemId]);
 
-            // update key of newNode and re-render
-            newNode.key = newItemId;
+            // re-render
             newNode.render();
 
         }).fail(function(jqXHR, textStatus, errorThrown){
             app.hideModalSpinner();
             alert("An error occurred.");
+        	console.log(jqXHR, textStatus, errorThrown);
         });
     }, 50);    // end of anonymous setTimeout function
 };
