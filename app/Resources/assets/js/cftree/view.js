@@ -240,7 +240,10 @@ app.renderTree1 = function() {
                         }
                         // else we're in copy mode; use same thing here as moving within the tree
                     } else {
-                        if (droppedNode.folder == true) {
+                        // don't allow dropping before or after the document -- only "over" allowed in this case
+                        if (app.isDocNode(droppedNode)) {
+                            return "over";
+                        } else if (droppedNode.folder == true) {
                             return true;
                         } else {
                             return ["before", "after"];
@@ -484,11 +487,16 @@ app.titleFromNode = function(node, format) {
 // Initialize a tooltip for a tree item
 app.treeItemTooltip = function(node) {
     var $jq = $(node.span);
-
-    var content = node.data.fullStmt;
-    if (node.data.humanCoding !== null) {
-        content = '<span class="item-humanCodingScheme">' + node.data.humanCoding + '</span> ' + content;
-    }
+	
+	var content;
+	if (app.isDocNode(node)) {
+		content = "Document: " + node.title;
+	} else {
+		content = node.data.fullStmt;
+		if (node.data.humanCoding !== null) {
+			content = '<span class="item-humanCodingScheme">' + node.data.humanCoding + '</span> ' + content;
+		}
+	}
 
     // Note: we need to make the tooltip appear on the title, not the whole node, so that we can have it persist
     // when you drag from tree2 into tree1
