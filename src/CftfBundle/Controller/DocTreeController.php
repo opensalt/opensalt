@@ -181,27 +181,27 @@ class DocTreeController extends Controller
     /**
      * Updates a set of items in the document from the tree view
      * Reorders are done by updating the listEnum fields of the items
-     * This also does copies
+     * This also does copies, of either single items or folders.
+     * If we do a copy, the service returns an array of trees with the copied lsItemIds.
+     * For other operations, we return an empty array.
      *
-     * @Route("/doc/{id}/updateitems", name="doctree_update_items")
+     * @Route("/doc/{id}/updateitems.{_format}", name="doctree_update_items")
      * @Method("POST")
      * @Security("is_granted('edit', lsDoc)")
+     * @Template()
      *
      * @param Request $request
      * @param LsDoc $lsDoc
      *
-     * @return string|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @return array
      */
-    public function updateItemsAction(Request $request, LsDoc $lsDoc)
+    public function updateItemsAction(Request $request, LsDoc $lsDoc, $_format = 'json')
     {
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
         $lsDocId = $lsDoc->getId();
 
         // by default we'll return the url of the document
-        $returnUrl = new Response($this->generateUrl('doc_tree_view', ['id' => $lsDocId]), Response::HTTP_ACCEPTED);
+        // $returnUrl = new Response($this->generateUrl('doc_tree_view', ['id' => $lsDocId]), Response::HTTP_ACCEPTED);
+        $rv = [];
 
         $em = $this->getDoctrine()->getManager();
         $lsItemRepo = $em->getRepository(LsItem::class);
@@ -222,7 +222,11 @@ class DocTreeController extends Controller
                 $em->flush();
 
                 // if we create a new item, we'll return the url of the new item
-                $returnUrl = new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
+                // $returnUrl = new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
+                $rv[] = [
+                    'copyFromId' => $updates['copyFromId'],
+                    'lsItemId' => $lsItem->getId()
+                ];
 
                 // we will add the "CHILD_OF" relationship, as well as listEnumInSource, below
 
@@ -259,10 +263,15 @@ class DocTreeController extends Controller
 
         $em->flush();
 
-        if ($ajax) {
-            return $returnUrl;
+        if (sizeof($rv) == 0) {
+            return ['topItems' => $rv];
         } else {
-            return $this->redirectToRoute('doc_tree_view', ['id' => $lsDocId]);
+            // get doc items for return
+            $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAllChildrenArray($lsDoc);
+            return [
+                'topItems' => $rv,
+                'items' => $items
+            ];
         }
     }
 }

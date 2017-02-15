@@ -240,7 +240,10 @@ app.renderTree1 = function() {
                         }
                         // else we're in copy mode; use same thing here as moving within the tree
                     } else {
-                        if (droppedNode.folder == true) {
+                        // don't allow dropping before or after the document -- only "over" allowed in this case
+                        if (app.isDocNode(droppedNode)) {
+                            return "over";
+                        } else if (droppedNode.folder == true) {
                             return true;
                         } else {
                             return ["before", "after"];
@@ -484,11 +487,16 @@ app.titleFromNode = function(node, format) {
 // Initialize a tooltip for a tree item
 app.treeItemTooltip = function(node) {
     var $jq = $(node.span);
-
-    var content = node.data.fullStmt;
-    if (node.data.humanCoding !== null) {
-        content = '<span class="item-humanCodingScheme">' + node.data.humanCoding + '</span> ' + content;
-    }
+	
+	var content;
+	if (app.isDocNode(node)) {
+		content = "Document: " + node.title;
+	} else {
+		content = node.data.fullStmt;
+		if (node.data.humanCoding !== null) {
+			content = '<span class="item-humanCodingScheme">' + node.data.humanCoding + '</span> ' + content;
+		}
+	}
 
     // Note: we need to make the tooltip appear on the title, not the whole node, so that we can have it persist
     // when you drag from tree2 into tree1
@@ -717,16 +725,27 @@ app.copyItem = function(draggedNode, droppedNode, hitMode) {
             // hide spinner
             app.hideModalSpinner();
 
-            // returned data will be the path for the new item, which gives us the id
-            var newItemId = data.replace(/.*\/(.*)$/, "$1");
+            // returned data will be a tree with the items            
+            // update keys in newNode and descendants
+            var fixTree = function(node, o) {
+            	node.key = o.itemId+"";
+            	if (o.children != null && node.children != null) {
+            		for (var i = 0; i < o.children.length; ++i) {
+            			if (node.children[i] != null) {
+            				fixTree(node.children[i], o.children[i]);
+            			}
+            		}
+            	}
+            }
+            fixTree(newNode, data[copiedLsItemId]);
 
-            // update key of newNode and re-render
-            newNode.key = newItemId;
+            // re-render
             newNode.render();
 
         }).fail(function(jqXHR, textStatus, errorThrown){
             app.hideModalSpinner();
             alert("An error occurred.");
+        	console.log(jqXHR, textStatus, errorThrown);
         });
     }, 50);    // end of anonymous setTimeout function
 };
