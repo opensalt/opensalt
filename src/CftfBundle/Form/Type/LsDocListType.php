@@ -18,7 +18,7 @@ class LsDocListType extends AbstractType
     {
         $builder
             ->add('lsDoc', EntityType::class, [
-                'label' => 'Choose Document',
+                'label' => 'Document:',
                 'choice_label' => 'title',
                 'group_by' => 'creator',
                 'required' => false,

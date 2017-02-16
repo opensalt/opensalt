@@ -17,15 +17,41 @@
 </div>
 
 <div class="row">
-    <div class="col-sm-6">
-        <section id="tree1Section" class="panel panel-default">
-            <div class="form-group">
-                <input type="text" class="form-control" id="filterOnTree" placeholder="Filter">
+    <div id="treeSideLeft" class="col-sm-6 treeSide">
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button type="button" class="treeCheckboxControlBtn btn btn-default">
+                        <input class="treeCheckboxControl" type="checkbox">
+                    </button>
+
+                    <button type="button" class="treeCheckboxMenuBtn btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="display:none">Action <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a class="treeCheckboxMenuItem" data-cmd="delete">Delete</a></li>
+                        <li><a class="treeCheckboxMenuItem" data-cmd="edit">Edit</a></li>
+                        <li><a class="treeCheckboxMenuItem" data-cmd="hideCheckboxes">Hide Checkboxes</a></li>
+                    </ul>
+                </span>
+                <span class="filterClear glyphicon glyphicon-remove-circle"></span>
+                <input type="text" class="form-control treeFilter" id="filterOnTree" placeholder="Filter">
             </div>
-            <div id="viewmode_tree"></div>
+        </div>
+        <section id="tree1Section">
+            <div class="treeDiv" id="viewmode_tree"></div>
         </section>
     </div>
-    <div class="col-sm-6">
+    
+    <div id="treeSideRight" class="col-sm-6 treeSide">
+        {% if is_granted('edit', lsDoc) %}
+        <div class="form-group">
+            <div class="btn-group" role="group" aria-label="...">
+                <button id="rightSideItemDetailsBtn" type="button" class="btn btn-primary">Item Details</button>
+                <button id="rightSideCopyItemsBtn" type="button" class="btn btn-default">Copy Items</button>
+                <button id="rightSideCreateAssociationsBtn" type="button" class="btn btn-default">Create Associations</button>
+            </div>
+        </div>
+        {% endif %}
+       
         <section id="itemSection" class="panel panel-default docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">
             <div id="items" class="panel-body">
                 <div id="documentInfo">
@@ -89,7 +115,7 @@
                         {% endif %}
 
                         {% if is_granted('edit', lsDoc) %}
-                        <span style="white-space:nowrap; padding-left:15px;"><b>Add Child:</b> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Existing Item</button></span>
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">Add New Child Item</button>
                         {% endif %}
                     </div>
 
@@ -101,28 +127,33 @@
             </div>
         </section>
 
-        <section id="tree2Section" class="panel panel-default">
-            <div class="panel-body container-fluid">
-                <h4 class="itemTitle"></h4>
-                <div class="row">
-                    <div class="col-sm-10">
-                        <div id="tree2SectionCopyInstructions" class="bg-info instructions">Select another Compentency Framework Document here, then drag and drop Learning Standards from the right to the Document you’re editing on the left to copy items.</div>
-                        <div id="tree2SectionRelationshipInstructions" class="bg-info instructions">Select another Compentency Framework Document here, then drag and drop Learning Standards from the right onto Learning Standards in the Document you’re editing on the left to create an association.</div>
-                    </div>
-                    <div class="col-sm-2" style="text-align:right"><button id="closeTree2Btn" type="button" class="btn btn-primary btn-sm">Done</button></div>
+        <section id="tree2Section">
+            <div id="tree2InitialInstructions" class="bg-info instructions">Start by selecting another Compentency Framework Document here.</div>
+            <div id="tree2SectionCopyInstructions" class="bg-info instructions" style="display:none">Drag and drop from right to left to <b>copy items</b>.</div>
+            <div id="tree2SectionRelationshipInstructions" class="bg-info instructions" style="display:none">Drag and drop from right to left to <b>create associations</b>.</div>
+
+            <div id="tree2SelectorDiv" class="container-fluid"><div class="row">
+                {{ form_widget(docList) }}
+            </div></div>
+
+            <div id="tree2SectionControls" class="form-group">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button type="button" class="treeCheckboxControlBtn btn btn-default">
+                            <input class="treeCheckboxControl" type="checkbox">
+                        </button>
+
+                        <button type="button" class="treeCheckboxMenuBtn btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="display:none">Action <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a class="treeCheckboxMenuItem" data-cmd="hideCheckboxes">Hide Checkboxes</a></li>
+                        </ul>
+                    </span>
+                    <input type="text" class="form-control treeFilter" placeholder="Filter">
+                    <span class="filterClear glyphicon glyphicon-remove-circle"></span>
+                    <span class="input-group-btn"><button type="button" id="changeTree2DocumentBtn" class="btn btn-primary">Change Document</button></span>
                 </div>
-                <div class="row">
-                    {{ form_widget(docList) }}
-                </div>
-                <!--
-                    <div class="row">
-                    <div class="col-sm-3"></div><div class="col-sm-6"><button id="loadTree2Btn" type="button" class="btn btn-default btn-sm btn-block">Load Document</button></div>
-                    </div>
-                -->
-                <div class="row"><div class="col-sm-12">
-                        <div id="viewmode_tree2"></div>
-                    </div></div>
             </div>
+            <div id="viewmode_tree2" class="treeDiv"></div>
         </section>
     </div>
 </div>
@@ -149,7 +180,7 @@
 
 {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
 'modalName':'addNewChild',
-'modalTitle':'Add New Child Learning Standard',
+'modalTitle':'Add New Child Item',
 'closeButton': 'Cancel',
 'saveButton': 'Create'
 } %}
@@ -157,7 +188,7 @@
 
 {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
 'modalName':'editItem',
-'modalTitle':'Edit Learning Standard',
+'modalTitle':'Edit Item',
 'closeButton': 'Cancel',
 'saveButton': 'Save Changes'
 } %}
@@ -165,7 +196,7 @@
 
 {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
 'modalName':'associate',
-'modalTitle':'Add Association',
+'modalTitle':'Create Association',
 'closeButton': 'Cancel',
 'saveButton': 'Associate'
 } %}
@@ -194,6 +225,20 @@
 {% block modalBody %}
 <p><strong class="text-danger">Warning: </strong> This item has children.</p>
 <p>Are you sure you want to delete this item <strong>and</strong> all its children?</p>
+{% endblock %}
+{% block modalButtons %}
+<button type="button" class="btn btn-danger btn-delete">Delete</button>
+{% endblock %}
+{% endembed %}
+
+{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+'modalName':'deleteMultipleItems',
+'modalTitle':'Delete Items',
+'saveButton': 'Delete',
+'closeButton': 'Cancel'
+} %}
+{% block modalBody %}
+<p>Are you sure you want to delete the <strong id="deleteMultipleItemsModalCount"></strong> selected items?</p>
 {% endblock %}
 {% block modalButtons %}
 <button type="button" class="btn btn-danger btn-delete">Delete</button>
@@ -233,6 +278,10 @@ app.tree1 = {{ render_esi(path('doctree_render_document', {'id':lsDoc.id, '_form
 $(document).ready(function() {
     // render the document tree
     app.renderTree1();
+    
+    // initialize controls
+    app.initializeControls();
+
     // prepare modals
     app.prepareEditDocModal();
     app.prepareEditItemModal();
@@ -246,8 +295,7 @@ $(document).ready(function() {
     // PW: not sure if we actually need a button here; does the menu always load with a blank item listed first??
     // $("#loadTree2Btn").on('click', app.tree2Selected);
     $("#ls_doc_list_lsDoc").on('change', app.tree2Selected);
-    // "Done" button for tree2 section
-    $("#closeTree2Btn").on('click', function() { app.tree2Toggle(false); });
+
     // if we got an initialLsItemId, activate it (and expand it)
     if (app.initialLsItemId != null) {
         // note that the key must be a string for this to work
@@ -255,8 +303,6 @@ $(document).ready(function() {
     }
     // show itemSection to reveal either the document or item details
     $("#itemSection").show();
-    // Prepare filter
-    app.filterOnTree();
     // DEBUG
     // $("[data-target=copyItem]").click();
 });
