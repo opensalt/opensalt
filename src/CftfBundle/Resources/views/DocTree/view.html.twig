@@ -19,6 +19,7 @@
 <div class="row">
     <div id="treeSideLeft" class="col-sm-6 treeSide">
         <div class="form-group">
+            {% if is_granted('edit', lsDoc) %}
             <div class="input-group">
                 <span class="input-group-btn">
                     <button type="button" class="treeCheckboxControlBtn btn btn-default">
@@ -32,9 +33,12 @@
                         <li><a class="treeCheckboxMenuItem" data-cmd="hideCheckboxes">Hide Checkboxes</a></li>
                     </ul>
                 </span>
+            {% endif %}
                 <span class="filterClear glyphicon glyphicon-remove-circle"></span>
                 <input type="text" class="form-control treeFilter" id="filterOnTree" placeholder="Filter">
+            {% if is_granted('edit', lsDoc) %}
             </div>
+            {% endif %}
         </div>
         <section id="tree1Section">
             <div class="treeDiv" id="viewmode_tree"></div>
