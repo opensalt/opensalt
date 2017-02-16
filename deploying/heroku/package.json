@@ -1,0 +1,32 @@
+{
+  "name": "salt-node-build",
+  "version": "0.0.1",
+  "description": "Standards Alignment Tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "gulp"
+  },
+  "author": "Public Consulting Group",
+  "license": "MIT",
+  "copyright": "Copyright 2016 by Public Consulting Group",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-if": "^2.0.1",
+    "gulp-load-plugins": "^1.2.4",
+    "clean-css": "^3.4.18",
+    "gulp-clean-css": "^2.0.11",
+    "gulp-plumber": "^1.1.0",
+    "gulp-rev": "^7.1.0",
+    "gulp-sass": "^2.3.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-purge-sourcemaps": "^1.0.0",
+    "gulp-uglify": "^1.5.4",
+    "gulp-util": "^3.0.7",
+    "node-sass": "^3.8.0",
+    "grunt-grunt": "^0.2.4",
+    "gulp-rename": "^1.2.2",
+    "bower": "^1.7.9"
+  }
+}
