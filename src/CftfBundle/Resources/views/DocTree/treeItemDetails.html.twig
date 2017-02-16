@@ -61,17 +61,15 @@
     <div class="itemOptions">
         {% if is_granted('edit', lsItem) %}
             <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal">Edit</button>
-            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="deleteItem">Delete</button>
-        {% endif %}
-        {% if is_granted('edit', lsItem.lsDoc) %}
-            <button type="button" class="btn btn-default btn-sm" data-target="addAssociation">Add Association</button>
+            <button type="button" id="deleteItemBtn" class="btn btn-default btn-sm" data-toggle="modal">Delete</button>
         {% endif %}
         {# TODO: How do we "find aligned resources"
         <button type="button" class="btn btn-default btn-sm" disabled="disabled">Find Aligned Resources</button>
         #}
 
         {% if is_granted('edit', lsItem.lsDoc) %}
-            <span style="white-space:nowrap; padding-left:15px;"><b>Add Child:</b> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">New Item</button> <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="copyItem">Existing Item</button></span>
+            <button type="button" id="toggleFolderBtn" class="btn btn-default btn-sm" data-toggle="modal">Make This Item a Folder</button>
+            <button type="button" id="addChildBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">Add a New Child Item</button>
         {% endif %}
     </div>
     {% endif %}
