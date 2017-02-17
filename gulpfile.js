@@ -11,8 +11,8 @@ var config = {
     renameCss: false,
     renameJs: false,
     cleanCss: true,
-    uglifyJs: false,
-    dropConsole: false,
+    uglifyJs: true,
+    dropConsole: true,
     vendorDir: 'vendor',
     bowerDir: 'vendor/bower-asset',
     npmDir: 'vendor/npm-asset'
