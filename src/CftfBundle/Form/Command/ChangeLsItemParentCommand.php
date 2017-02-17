@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace CftfBundle\Form\Command;
 
@@ -14,6 +11,7 @@ class ChangeLsItemParentCommand
 {
     /**
      * @param \CftfBundle\Entity\LsItem $lsItem
+     *
      * @return \CftfBundle\Form\DTO\ChangeLsItemParentDTO
      */
     public function convertToDTO(LsItem $lsItem) {

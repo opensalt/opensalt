@@ -1,31 +1,9 @@
-FROM php:7.0.12-fpm
-
-ENV DEBIAN_FRONTEND noninteractive
+FROM opensalt/php:7.1-fpm
 
 # add extensions
-RUN	apt-get -o 'Acquire::CompressionTypes::Order::="gz"' update \
-	&& apt-get install -y --no-install-recommends \
-	 	libmcrypt-dev \
-		libbz2-dev \
-	    libfreetype6-dev \
-		libpng12-dev \
-		libjpeg-dev \
-	&& docker-php-ext-configure gd --with-freetype-dir=/usr/lib/x86_64-linux-gnu --with-jpeg-dir \
-	&& docker-php-ext-install mcrypt bz2 gd mbstring zip pdo pdo_mysql mysqli pcntl bcmath opcache \
-	&& pecl install apcu-5.1.7 apcu_bc-1.0.3 \
-	&& docker-php-ext-enable --ini-name 0-apc.ini apcu apc \
-	\
-	&& echo "-- Installing Blackfire" \
-	&& version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
+RUN	version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
 	&& curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/$version \
 	&& tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp \
 	&& mv /tmp/blackfire-*.so $(php -r "echo ini_get('extension_dir');")/blackfire.so \
 	&& rm /tmp/blackfire-probe.tar.gz \
-	&& printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8707\n" > $PHP_INI_DIR/conf.d/blackfire.ini \
-	&& echo "-- END Blackfire" \
-	\
-	&& apt-get purge --auto-remove -y libmcrypt-dev libbz2-dev libpng12-dev libfreetype6-dev \
-	&& apt-get install -y --no-install-recommends libmcrypt4 libbz2-1.0 libpng12-0 libfreetype6
-
-COPY memory_limit.ini /usr/local/etc/php/conf.d/memory_limit.ini
-COPY upload_size.ini /usr/local/etc/php/conf.d/upload_size.ini
+	&& printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8707\n" > $PHP_INI_DIR/conf.d/blackfire.ini

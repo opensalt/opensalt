@@ -2,17 +2,23 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
+    - { resource: pdo-options.php }
     - { resource: "@CftfBundle/Resources/config/services.yml" }
     - { resource: "@CftfAsnBundle/Resources/config/services.yml" }
     - { resource: "@CftfImsBundle/Resources/config/services.yml" }
     - { resource: "@CftfSbacBundle/Resources/config/services.yml" }
     - { resource: "@CftfCmsBundle/Resources/config/services.yml" }
     - { resource: "@CftfUtilBundle/Resources/config/services.yml" }
+    - { resource: "@SaltUserBundle/Resources/config/services.yml" }
+    - { resource: "@GithubFilesBundle/Resources/config/services.yml" }
+    - { resource: "@SaltSiteBundle/Resources/config/services.yml" }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: en
+    github_client_id: '%env(GITHUB_CLIENT_ID)%'
+    github_client_secret: '%env(GITHUB_CLIENT_SECRET)%'
 
 framework:
     #esi:             ~
@@ -38,7 +44,7 @@ framework:
         #save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
         name: session
         cookie_lifetime: 0
-        cookie_secure: true
+        cookie_secure: '%secure_cookie%'
         cookie_httponly: true
         gc_maxlifetime: 3600
         gc_probability: 25
@@ -49,9 +55,10 @@ framework:
     request:
       formats:
         jsonapi: 'application/vnd.api+json'
+        csv: ['text/csv', 'text/plain']
     #translator: { fallbacks: ['%locale%'] }
     assets:
-        version: '201609010101'
+        version: '170481'
 
 # Twig Configuration
 twig:
@@ -60,6 +67,8 @@ twig:
     form_themes:
         - 'bootstrap_3_horizontal_layout.html.twig'
         - 'TetranzSelect2EntityBundle:Form:fields.html.twig'
+    globals:
+      github_client_id: "%github_client_id%"
 
 # Assetic Configuration
 assetic:
@@ -110,6 +119,7 @@ doctrine:
                 dbname:   "%database_name%"
                 user:     "%database_user%"
                 password: "%database_password%"
+                options:  "%pdo_options%"
                 charset:  UTF8
                 schema_filter: ~^(?!(auth_session|LearningStandards))~
                 server_version: 5.7
@@ -136,30 +146,15 @@ doctrine:
                     log_enabled: true
 
                 mappings:
-#                    gedmo_translatable:
-#                        type: annotation
-#                        prefix: Gedmo\Translatable\Entity
-#                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translatable/Entity"
-#                        alias: GedmoTranslatable # (optional) it will default to the name set for the mapping
-#                        is_bundle: false
-#                    gedmo_translator:
-#                        type: annotation
-#                        prefix: Gedmo\Translator\Entity
-#                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translator/Entity"
-#                        alias: GedmoTranslator # (optional) it will default to the name set for the mapping
-#                        is_bundle: false
-#                    gedmo_loggable:
-#                        type: annotation
-#                        prefix: Gedmo\Loggable\Entity
-#                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Loggable/Entity"
-#                        alias: GedmoLoggable # (optional) it will default to the name set for the mappingmapping
-#                        is_bundle: false
                     gedmo_tree:
                         type: annotation
                         prefix: Gedmo\Tree\Entity
                         dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Tree/Entity"
                         alias: GedmoTree # (optional) it will default to the name set for the mapping
                         is_bundle: false
+
+doctrine_migrations:
+    dir_name: "%kernel.root_dir%/DoctrineMigrations"
 
 # Swiftmailer Configuration
 swiftmailer:
@@ -186,14 +181,14 @@ csa_guzzle:
                     Accept: 'application/json'
 
 nelmio_security:
-    cookie_session:
-        enabled: false
-        name: session
-        secure: true
-    signed_cookie:
-        names: ['*']
-        secret: '%cookie_secret%'
-        hash_algo: sha256
+#    signed_cookie:
+#        names: ['*']
+#        secret: '%cookie_secret%'
+#        hash_algo: sha256
+    #cookie_session:
+    #    enabled: true
+    #    name: session
+    #    secure: true
     #encrypted_cookie:
     #    names: ['*']
     #    secret: '%cookie_secret%'
@@ -225,4 +220,3 @@ nelmio_api_doc:
         info:
             title: 'SALT'
             description: 'Open source implementation of the IMS CFTF specification'
-

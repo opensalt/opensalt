@@ -1,36 +1,37 @@
 <?php
-/**
- *
- */
 
 namespace CftfBundle\Form\Command;
 
-use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Form\DTO\CopyToLsDocDTO;
 use Doctrine\Common\Persistence\ObjectManager;
 
-class CopyToLsDocCommand {
-    public function convertToDTO(LsItem $lsItem) {
+class CopyToLsDocCommand
+{
+    /**
+     * @param LsItem $lsItem
+     *
+     * @return CopyToLsDocDTO
+     */
+    public function convertToDTO(LsItem $lsItem)
+    {
         $dto = new CopyToLsDocDTO();
         $dto->lsItem = $lsItem;
 
         return $dto;
     }
 
-    public function perform(CopyToLsDocDTO $dto, ObjectManager $manager) {
-        $newItem = clone $dto->lsItem;
-        $newItem->setLsDoc($dto->lsDoc);
-        $dto->lsDoc->addTopLsItem($newItem);
-
-        $association = new LsAssociation();
-        $association->setLsDoc($dto->lsDoc);
-        $association->setOrigin($newItem);
-        $association->setDestination($dto->lsItem);
-        $association->setType(LsAssociation::EXACT_MATCH_OF);
+    /**
+     * @param CopyToLsDocDTO $dto
+     * @param ObjectManager $manager
+     *
+     * @return LsItem
+     */
+    public function perform(CopyToLsDocDTO $dto, ObjectManager $manager)
+    {
+        $newItem = $dto->lsItem->copyToLsDoc($dto->lsDoc);
 
         $manager->persist($newItem);
-        $manager->persist($association);
 
         return $newItem;
     }

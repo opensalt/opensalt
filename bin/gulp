@@ -1,5 +1,10 @@
 #!/bin/sh
 
-cd $(dirname $0)
+cd $(dirname $0)/../docker
 
-./node node_modules/gulp/bin/gulp.js $*
+if [ "x$@" == "x" ]; then
+	rm -f ../app/Resources/assets/rev-manifest.json
+fi
+
+docker-compose -f docker-compose.yml -f docker-compose.tools.yml pull gulp \
+  && docker-compose -f docker-compose.yml -f docker-compose.tools.yml run --rm -u $(id -u):$(id -g) gulp "$@"

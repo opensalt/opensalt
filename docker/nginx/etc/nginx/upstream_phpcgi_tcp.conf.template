@@ -15,11 +15,17 @@ upstream phpcgi {
     least_conn;
 
     server ${UPSTREAM_HOST};
+
     ## Create a backend connection cache. Note that this requires
     ## Nginx version greater or equal to 1.1.4.
     ## Cf. http://nginx.org/en/CHANGES. Comment out the following
     ## line if that's not the case.
-    keepalive 5;
+    ## NOTE: (at least in Docker for Mac)
+    ## This seems to cause 502 errors occasionally after a redirect
+    ## showing errors like
+    ## 2016/11/23 16:55:17 [error] 8#8: *1 upstream sent unexpected FastCGI record: 3 while reading response header from upstream, client: 172.31.0.1, server: , request: "GET /something HTTP/1.1", upstream: "fastcgi://172.31.0.3:9000", host: "hostname", referrer: "http://hostname/redirected-from"
+    ## 
+    #keepalive 5;
 }
 
 

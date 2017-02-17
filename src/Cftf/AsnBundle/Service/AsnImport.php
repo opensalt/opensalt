@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Cftf\AsnBundle\Service;
 
@@ -13,7 +10,6 @@ use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityManager;
-use GuzzleHttp\Client;
 use JMS\DiExtraBundle\Annotation as DI;
 use Ramsey\Uuid\Uuid;
 
@@ -22,30 +18,23 @@ use Ramsey\Uuid\Uuid;
  *
  * @DI\Service("cftf_import.asn")
  */
-class AsnImport {
+class AsnImport
+{
     /**
      * @var EntityManager
      */
     private $em;
 
     /**
-     * @var \GuzzleHttp\Client
-     */
-    private $jsonClient;
-
-    /**
      * @param EntityManager $em
-     * @param Client $jsonClient
      *
      * @DI\InjectParams({
      *     "em" = @DI\Inject("doctrine.orm.entity_manager"),
-     *     "jsonClient" = @DI\Inject("csa_guzzle.client.json")
      * })
      */
-    public function __construct(EntityManager $em, Client $jsonClient)
+    public function __construct(EntityManager $em)
     {
         $this->em = $em;
-        $this->jsonClient = $jsonClient;
     }
 
     /**
@@ -60,8 +49,10 @@ class AsnImport {
      * Parse an ASN document into a LsDoc/LsItem hierarchy
      *
      * @param string $asnDoc
+     * @param string|null $creator
      */
-    public function parseAsnDocument($asnDoc) {
+    public function parseAsnDocument($asnDoc, $creator = null)
+    {
         $em = $this->getEntityManager();
 
         $doc = AsnDocument::fromJson($asnDoc);
@@ -93,24 +84,26 @@ class AsnImport {
             }
         }
 
-        if ($subject = $sd->getSubject()) {
-            $subject = ucfirst(preg_replace('#.*/#', '', $subject));
+        if ($subjects = $sd->getSubject()) {
+            foreach ($subjects as $sdSubject) {
+                $subject = ucfirst(preg_replace('#.*/#', '', $sdSubject->getValue()));
 
-            $s = $em->getRepository('CftfBundle:LsDefSubject')->findBy(['title' => $subject]);
-            if (null === $s) {
-                $uuid = Uuid::uuid5(Uuid::fromString('cacee394-85b7-11e6-9d43-005056a32dda'), $subject);
-                $s = new LsDefSubject();
-                $s->setIdentifier($uuid);
-                $s->setUri('local:'.$uuid->toString());
-                $s->setTitle($subject);
-                $s->setHierarchyCode("1");
+                $s = $em->getRepository('CftfBundle:LsDefSubject')->findOneBy(['title' => $subject]);
+                if (null === $s) {
+                    $uuid = Uuid::uuid5('cacee394-85b7-11e6-9d43-005056a32dda', $subject)->toString();
+                    $s = new LsDefSubject();
+                    $s->setIdentifier($uuid);
+                    $s->setUri('local:'.$uuid);
+                    $s->setTitle($subject);
+                    $s->setHierarchyCode('1');
 
-                $subjects[$subject] = $s;
+                    $subjects[$subject] = $s;
 
-                $em->persist($s);
+                    $em->persist($s);
+                }
+
+                $lsDoc->addSubject($s);
             }
-
-            $lsDoc->addSubject($s);
         }
 //        if ($subject = $sd->getSubject()) {
 //            $subjectResponse = $this->jsonClient->request(
@@ -135,7 +128,9 @@ class AsnImport {
 //        }
 
         if (!$lsDoc->getCreator()) {
-            $lsDoc->setCreator('Imported from ASN');
+            $lsDoc->setCreator($creator ?: 'Imported from ASN');
+        } elseif (null !== $creator) {
+            $lsDoc->setCreator($creator.' - '.$lsDoc->getCreator());
         }
 
         $em->persist($lsDoc);
@@ -167,7 +162,8 @@ class AsnImport {
      *
      * @return LsItem
      */
-    public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard) {
+    public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard)
+    {
         $em = $this->getEntityManager();
         $lsItem = new LsItem();
         $lsItem->setIdentifier(null);
@@ -201,7 +197,7 @@ class AsnImport {
             $label = $asnStandard->statementLabel->first()->value;
 
             $itemType = $em->getRepository('CftfBundle:LsDefItemType')
-                ->findOneBy(['title'=>$label])
+                ->findOneBy(['title' => $label])
             ;
             if (null === $itemType) {
                 $itemType = new LsDefItemType();
@@ -236,7 +232,7 @@ class AsnImport {
                     default:
                         if (is_numeric($lvl)) {
                             if ($lvl < 10) {
-                                $levels[] = '0' . ((int) $lvl);
+                                $levels[] = '0'.((int) $lvl);
                             } else {
                                 $levels[] = $lvl;
                             }

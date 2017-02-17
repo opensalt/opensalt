@@ -58,7 +58,7 @@ class AbstractLsBase
     public function __construct()
     {
         $this->identifier = Uuid::uuid4()->toString();
-        $this->uri = 'local:' . $this->identifier;
+        $this->uri = 'local:'.$this->identifier;
     }
 
     /**
@@ -152,6 +152,7 @@ class AbstractLsBase
 
     /**
      * @param array $extra
+     *
      * @return self
      */
     public function setExtra($extra) {
@@ -162,6 +163,7 @@ class AbstractLsBase
 
     /**
      * @param string $property
+     *
      * @return mixed
      */
     public function getExtraProperty($property) {
@@ -179,6 +181,7 @@ class AbstractLsBase
     /**
      * @param string $property
      * @param mixed $value
+     *
      * @return self
      */
     public function setExtraProperty($property, $value) {
@@ -190,4 +193,3 @@ class AbstractLsBase
         return $this;
     }
 }
-

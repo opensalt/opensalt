@@ -1,0 +1,82 @@
+branches:
+  only:
+    - master
+    - develop
+    - /^[0-9].*$/
+
+sudo: required
+
+env:
+  global:
+    - secure: "RMbNU45j8ffJuMtV47S0A3hhpMaw23OYZeMT+NZMVSiFV+fKF1qEd8P2CstNygW77vR4qq3NYJgQFDdtitEI9n+ymI0XQqKp58/25aikIep6MPsfFO/7fHh76Ii1zZIo9qtbqWir3V0sinHeenl5xOXm2UuuPRJHUuNPO3UkX60SjlzluVdrXu+1yLWfYa23Y9lsNJzpvPER1ELi0i+LgeYM1p4WrMPBJdZASzJ8/4vXzmjW2aSaC59CNeUNFcGOrkpk8KVPUy2Ss2E379dCF79SFZ/cHX0qn8hEcdcykgIIY9iCvEs5Ds8Fvm5bxJ6Hc94DT5pfROcMU7lu8y9+1LtT3hfb1+94Z32iuYnxZauso4y1MqEmu0/fn6o4iUrk0B6WD9rdvneS1vfOz5EZUWVke5YETvFozWuVw/vAV2bM+qrbusja8mcMsCsKfGCF/In1bGWfpNlwuiOcIkLWp9+V8HcdLxCjrFZtk7igchvBBBru6C4rvhlYZt+CwlqwxWHV693P2xZubHs4xoIa7XMBbzjhMHjYudlb258KILnPhIkaqLcZdtOxv6ahnRnqf3gwdrtQwXmW13jb8VDU34gGTvAvnnCh4V1t97oc3yHm2aLqKkQKTGajuE7/jJuw/VnyrjQ+U1FywZDYgAhIR4ZWNdbEd6uFZBhxeR6n+hI="
+    - secure: "lSRoso9L/sobEd/sYefzYfBcYPI9Dnq0/oNiPalDKoKPWXvOhhyHN55LpE+L0ezFm37TjGzRpMmcIRx1mUm3RefyYJDWrtq1z+qwpXtjJFbMBZvHsEu0/yUyD4voji8vLZ/W/f4/ntiI8VvVX4LdVotFutiDKr78F7+FKkCajj4rVcx2Ww0Nhu+WHCzmNSP2/stZIVjTzg/PJPL0pVCZMnudefg3w7+2+mT6ki5fxRqwi6Kly0WiQSbnbxfZALDPNzyfGu02W5DbwxhCOerd13KcyS29Zwg7N29lBfRQgpYDygRb1X2oQb2tQOqwjhEURrLz/5XyAOi5p3AZqkmf6eaAcjULJlaj3XIKzTLxP2j/g6UA/UXP+8Dwgsuv8eX4CSvbCfMdhdNdPmvL6zOqCKadMRKO7Lcf+0eQvtyeskwp9GZR5PXxIJcJPu4dNlXrDF67uDVNCbnpq/KjGBUIZaMqjPAcZI5RRsEcWVirG5bi1laWGLV/37pFvo5UU+TEZE10gHviCYiL4RBFN32X/anAQ/DOLieMdnARSJbV+w8h9thtg565Y7LJSBlRJdc2bqhZfA+yyU4WEzw68bwQ8wH3i5ewVxWLM9HCFeWoGUB9SFfBepqdnrghgJgvayCvCfE60XC9D3xyXC1cMe4SXDD0adCBzKmSS9Ydyfs+fk8="
+    - COMMIT=${TRAVIS_COMMIT::8}
+    - DOCKER_COMPOSE_VERSION=1.11.0
+
+language: php
+
+php:
+  - '7.1'
+
+cache:
+  directories:
+    - vendor
+
+services:
+  - docker
+
+#apt addons:
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker -v
+  - docker-compose -v
+
+# Create the application artifacts
+install:
+  - ln -s docker-compose.test.yml docker/docker-compose.yml
+  - ln -s .env.test docker/.env
+  - ln -s docker/.env ./.env
+  - echo ${TRAVIS_BUILD_NUMBER} > BUILD_NUMBER
+  - echo $(date -u +%Y%m%d.%H%M).${COMMIT} > BUILD_MD
+  - echo $(cat VERSION).$(cat BUILD_NUMBER)+$(cat BUILD_MD) > web/version.txt
+  - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml pull composer gulp
+  - ./bin/build.sh
+
+# Create docker image with the running code
+before_script:
+  - ./docker/app/build.sh
+  - docker-compose -f docker/docker-compose.yml up -d
+  - sleep 30
+
+# Run the tests
+script:
+  - ./bin/console doctrine:migrations:migrate --no-interaction
+  - ./bin/behat
+  - ./bin/phpunit -c app
+#  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/build_pull_request; fi'
+#  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/build_normal; fi'
+
+#$TRAVIS_TEST_RESULT has build result 0==success
+after_success:
+  - ./ci/travis/push_app.sh
+#  - if [ "$TRAVIS_BRANCH" == "master" ]; then /bin/true; fi
+
+after_failure:
+  - echo "Tests FAILED"
+
+#before_deploy:
+#deploy:
+#  skip_cleanup: true
+#after_deploy:
+
+after_script:
+  - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml down -v
+
+notifications:
+  hipchat:
+    rooms:
+      secure: nnj4UI4oXCCT3UYPCcaXONoKmtj6Hf7zM7ysDmWlqBaH0oJiZIbReF3IqBl4EoOkteZ+gBJBVfstmTsTCPkgfCC7rrKj2KkkINS4rskzFUmvG84cJmsFyzdOJv3ArXiWU4YNdZJGggP0lXwxr/fNx8t1VVpdHzt6kHDm3pemoc/yuRiljJI4oPDTkNVIiuD/sRtk0OZt4CFDA3Dnm6fUtwKVBDQ3sEQpu2hCkx1BycISnpkksx+BmYlbmik3jBbdov7dwLOF2HS8YAeDH1Qo6y8Dh8Y94Vtx48w2eX5E0SUdlQj9FPRGh5MrVWxY5/UH1CNNFiTgfkqC+YQ3JR6AFMhSWJWVRnxsGws12GpK3J6WGVRPmAYweTcljJn1HTHi+vjfZbajsqZsEN6XrFXA6I/TPIjfVQO9Gb2HeK/DxMjbYTiReg7Sb4JMJwER63d2yyxmirusnR3JpH86c5z1YSa8I4T3vLKrzPuterj8f99kYHb4Yb8KcVF3aSTxI0ObmKR5AZqWNw0JX6yopUf2Y8barI2/FwpMpkUNaun7U0bECPhq9qdfXWh0BSjpHnXSRXsQH3e4PHDOPLcaK0itf8JT8UdCugo+cTrdIJMv72Jfno5AjG5lduSsWDErBOFj/y7pKDbgHrO1oVfrb5CgeXs9xumEWIW9efjjr5C+fUw=

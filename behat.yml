@@ -1,0 +1,15 @@
+default:
+  suites:
+    default:
+      contexts:
+        - FeatureContext:
+            session: '@session'
+    user_admin_suite:
+      type: symfony_bundle
+      bundle: SaltUserBundle
+  extensions:
+    Behat\Symfony2Extension: ~
+    Behat\MinkExtension:
+      sessions:
+        default:
+          symfony2: ~

@@ -1,13 +1,13 @@
 {% extends "::base.html.twig" %}
 
-{% block title %}{{ lsDoc.title }}{% endblock %}
+{% block title %}{{ lsDoc.title |truncate(64, true) }}{% endblock %}
 
 {% block body %}
     <div class="row">
         <div class="col-sm-12">
                 <ol class="breadcrumb">
                     <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
-                    <li class="active">{{ lsDoc.title }}</li>
+                    <li class="active">{{ lsDoc.title |truncate(64, true) }}</li>
                 </ol>
         </div>
     </div>
@@ -22,7 +22,6 @@
                             'officialUri': 'Official URL',
                             'creator': 'Creator',
                             'publisher': 'Publisher',
-                            'identifier': 'Identifier',
                             'description': 'Description',
                             'version': 'Version',
                             'subjects': 'Subject',
@@ -55,15 +54,20 @@
                     <div class="text-center">
                         <ul class="list-inline">
                             <li>
-                                <a href="{{ path('cfpackage_export2', {'id':lsDoc.id}) }}" class="btn btn-default">Export</a>
+                                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportModal">Export</button>
                             </li>
-                            {% if lsDoc.canEdit %}
-                            <li>
-                                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editModal">Edit</button>
-                            </li>
-                            <li>
-                                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addChildModal">Add Learning Standard</button>
-                            </li>
+                            {% if is_granted('edit', lsDoc) %}
+                                <li>
+                                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editModal">Edit</button>
+                                </li>
+                                <li>
+                                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addChildModal">Add Learning Standard</button>
+                                </li>
+                            {% endif %}
+                            {% if is_granted('manage_editors', lsDoc) %}
+                                <li>
+                                    <a href="{{ path('framework_acl_edit', {'id':lsDoc.id}) }}" class="btn btn-default">Manage Access</a>
+                                </li>
                             {% endif %}
                         </ul>
                     </div>
@@ -90,6 +94,18 @@
 
 
     {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+        'modalName':'export',
+        'modalTitle':'Export Document',
+        'closeButton': 'Done'
+    } %}
+        {% block modalButtons %}{% endblock %}
+        {% block modalBody %}
+            {% embed 'CftfBundle:LsDoc:_exportComponent.html.twig' with {'view':'editor'} %}
+            {% endembed %}
+        {% endblock %}
+    {% endembed %}
+
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
         'modalName':'edit',
         'modalTitle':'Edit Document',
         'saveButton': 'Save Changes'
@@ -112,6 +128,11 @@
         app.path = app.path||{};
         app.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
         app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
+
+        function prepareExportModal(){
+            var $exportModal = $('#exportModal');
+            $('[data-toggle="popover"]').popover();
+        }
 
         function prepareEditModal(){
             var $editModal = $('#editModal');
@@ -189,6 +210,7 @@
         }
 
         $(document).ready(function(){
+            prepareExportModal();
             prepareEditModal();
             prepareAddChildModal();
         });

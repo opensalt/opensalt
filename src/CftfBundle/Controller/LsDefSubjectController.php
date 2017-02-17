@@ -2,18 +2,18 @@
 
 namespace CftfBundle\Controller;
 
+use CftfBundle\Form\Type\LsDefSubjectType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsDefSubject;
-use CftfBundle\Form\LsDefSubjectType;
 
 /**
  * LsDefSubject controller.
  *
- * @Route("/lsdef/subject")
+ * @Route("/cfdef/subject")
  */
 class LsDefSubjectController extends Controller
 {
@@ -23,6 +23,8 @@ class LsDefSubjectController extends Controller
      * @Route("/", name="lsdef_subject_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -41,6 +43,10 @@ class LsDefSubjectController extends Controller
      * @Route("/list.{_format}", defaults={"_format"="json"}, name="lsdef_subject_index_json")
      * @Method("GET")
      * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array
      */
     public function jsonListAction(Request $request)
     {
@@ -64,11 +70,15 @@ class LsDefSubjectController extends Controller
      * @Route("/new", name="lsdef_subject_new")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
     {
         $lsDefSubject = new LsDefSubject();
-        $form = $this->createForm('CftfBundle\Form\LsDefSubjectType', $lsDefSubject);
+        $form = $this->createForm(LsDefSubjectType::class, $lsDefSubject);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -91,6 +101,10 @@ class LsDefSubjectController extends Controller
      * @Route("/{id}", name="lsdef_subject_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsDefSubject $lsDefSubject
+     *
+     * @return array
      */
     public function showAction(LsDefSubject $lsDefSubject)
     {
@@ -108,11 +122,16 @@ class LsDefSubjectController extends Controller
      * @Route("/{id}/edit", name="lsdef_subject_edit")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsDefSubject $lsDefSubject
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function editAction(Request $request, LsDefSubject $lsDefSubject)
     {
         $deleteForm = $this->createDeleteForm($lsDefSubject);
-        $editForm = $this->createForm('CftfBundle\Form\LsDefSubjectType', $lsDefSubject);
+        $editForm = $this->createForm(LsDefSubjectType::class, $lsDefSubject);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -135,6 +154,11 @@ class LsDefSubjectController extends Controller
      *
      * @Route("/{id}", name="lsdef_subject_delete")
      * @Method("DELETE")
+     *
+     * @param Request $request
+     * @param LsDefSubject $lsDefSubject
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsDefSubject $lsDefSubject)
     {

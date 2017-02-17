@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace CftfBundle\DataFixtures\ORM;
 
@@ -21,9 +18,9 @@ class LoadDefGradesFixture extends AbstractFixture
 
         $fd = fopen($filename, 'r');
 
-        $keys = fgetcsv($fd, 0, ",");
+        $keys = fgetcsv($fd, 0, ',');
 
-        while (FALSE !== ($rec = fgetcsv($fd, 0, ","))) {
+        while (FALSE !== ($rec = fgetcsv($fd, 0, ','))) {
             $level = array_combine($keys, $rec);
 
             $lsDefGrade = new LsDefGrade();

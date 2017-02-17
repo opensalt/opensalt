@@ -8,6 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Util\Compare;
 
 /**
  * Editor controller.
@@ -20,7 +21,7 @@ class EditorController extends Controller
      * @Route("/", defaults={"_format"="html"}, name="editor_index")
      * @Method("GET")
      *
-     * @return array
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction()
     {
@@ -28,12 +29,13 @@ class EditorController extends Controller
     }
 
     /**
-     * @Route("/lsdoc/{id}.{_format}", defaults={"_format" = "html"}, name="editor_lsdoc")
+     * @Route("/doc/{id}.{_format}", defaults={"_format" = "html"}, name="editor_lsdoc")
      * @Method("GET")
      * @Template()
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
      * @param string $_format
+     *
      * @return array
      */
     public function viewDocAction(LsDoc $lsDoc, $_format)
@@ -46,13 +48,14 @@ class EditorController extends Controller
     }
 
     /**
-     * @Route("/lsitem/{id}.{_format}", defaults={"_format" = "html"}, name="editor_lsitem")
+     * @Route("/item/{id}.{_format}", defaults={"_format" = "html"}, name="editor_lsitem")
      * @Method("GET")
      * @Template()
      *
      * @param \CftfBundle\Entity\LsItem $lsItem
      * @param string $_format
-     * @return array
+     *
+     * @return array|\Symfony\Component\HttpFoundation\Response
      */
     public function viewItemAction(LsItem $lsItem, $_format)
     {
@@ -71,6 +74,8 @@ class EditorController extends Controller
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
      * @param int $highlight
+     * @param string $_format
+     *
      * @return array
      */
     public function renderDocumentAction(LsDoc $lsDoc, $highlight = null, $_format = 'html')
@@ -82,14 +87,6 @@ class EditorController extends Controller
         $topChildren = $repo->findTopChildrenIds($lsDoc);
 
         $orphaned = $items;
-        /* This list is now found in the $haveParents list
-        foreach ($lsDoc->getTopLsItemIds() as $id) {
-            // Not an orphan
-            if (!empty($orphaned[$id])) {
-                unset($orphaned[$id]);
-            }
-        }
-        */
         foreach ($haveParents as $child) {
             // Not an orphan
             $id = $child['id'];
@@ -97,6 +94,7 @@ class EditorController extends Controller
                 unset($orphaned[$id]);
             }
         }
+        Compare::sortArrayByFields($orphaned, ['rank', 'listEnumInSource', 'humanCodingScheme']);
 
         return [
             'topItemIds'=>$topChildren,

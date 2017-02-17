@@ -14,33 +14,33 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class LsAssociation
 {
-    const CHILD_OF = 'Is Child Of';
+    public const CHILD_OF = 'Is Child Of';
 
-    const EXACT_MATCH_OF = 'Exact Match Of';
-    const RELATED_TO = 'Is Related To';
-    const PART_OF = 'Is Part Of';
-    const REPLACED_BY = 'Replaced By';
-    const PRECEDES = 'Precedes';
-    const PREREQUISITE = 'Prerequisite';
-    const SKILL_LEVEL = 'Has Skill Level';
+    public const EXACT_MATCH_OF = 'Exact Match Of';
+    public const RELATED_TO = 'Is Related To';
+    public const PART_OF = 'Is Part Of';
+    public const REPLACED_BY = 'Replaced By';
+    public const PRECEDES = 'Precedes';
+    public const PREREQUISITE = 'Prerequisite';
+    public const SKILL_LEVEL = 'Has Skill Level';
 
-    const EXEMPLAR = 'Exemplar';
+    public const EXEMPLAR = 'Exemplar';
 
 
-    const INVERSE_CHILD_OF = 'Is Parent Of';
+    public const INVERSE_CHILD_OF = 'Is Parent Of';
 
-    const INVERSE_EXACT_MATCH_OF = 'Matched From';
-    const INVERSE_RELATED_TO = 'Related From';
-    const INVERSE_PART_OF = 'Has Part';
-    const INVERSE_REPLACED_BY = 'Replaces';
-    const INVERSE_PRECEDES = 'Has Predecesor';
-    const INVERSE_PREREQUISITE = 'Has Prerequisite';
-    const INVERSE_SKILL_LEVEL = 'Skill Level For';
+    public const INVERSE_EXACT_MATCH_OF = 'Matched From';
+    public const INVERSE_RELATED_TO = 'Related From';
+    public const INVERSE_PART_OF = 'Has Part';
+    public const INVERSE_REPLACED_BY = 'Replaces';
+    public const INVERSE_PRECEDES = 'Has Predecesor';
+    public const INVERSE_PREREQUISITE = 'Has Prerequisite';
+    public const INVERSE_SKILL_LEVEL = 'Skill Level For';
 
-    const INVERSE_EXEMPLAR = 'Exemplar For';
+    public const INVERSE_EXEMPLAR = 'Exemplar For';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -91,6 +91,14 @@ class LsAssociation
     private $uri;
 
     /**
+     * @var LsDefAssociationGrouping
+     *
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDefAssociationGrouping", fetch="EAGER")
+     * @ORM\JoinColumn(name="assoc_group_id", referencedColumnName="id")
+     */
+    private $group;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="group_name", type="string", length=50, nullable=true)
@@ -128,7 +136,7 @@ class LsAssociation
     /**
      * @var LsDoc
      *
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="associations")
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="associations", fetch="EAGER")
      * @ORM\JoinColumn(name="origin_lsdoc_id", referencedColumnName="id")
      */
     private $originLsDoc;
@@ -136,7 +144,7 @@ class LsAssociation
     /**
      * @var LsItem
      *
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsItem", inversedBy="associations")
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsItem", inversedBy="associations", fetch="EAGER", cascade={"persist"})
      * @ORM\JoinColumn(name="origin_lsitem_id", referencedColumnName="id")
      */
     private $originLsItem;
@@ -161,7 +169,7 @@ class LsAssociation
     /**
      * @var LsDoc
      *
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="inverseAssociations")
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="inverseAssociations", fetch="EAGER")
      * @ORM\JoinColumn(name="destination_lsdoc_id", referencedColumnName="id")
      */
     private $destinationLsDoc;
@@ -169,7 +177,7 @@ class LsAssociation
     /**
      * @var LsItem
      *
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsItem", inversedBy="inverseAssociations")
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsItem", inversedBy="inverseAssociations", fetch="EAGER", cascade={"persist"})
      * @ORM\JoinColumn(name="destination_lsitem_id", referencedColumnName="id")
      */
     private $destinationLsItem;
@@ -182,6 +190,13 @@ class LsAssociation
     private $type;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="seq", type="bigint", nullable=true)
+     */
+    private $sequenceNumber;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
@@ -190,19 +205,30 @@ class LsAssociation
     private $updatedAt;
 
 
-
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
-        $this->uri = 'local:' . $this->identifier;
+        $this->uri = 'local:'.$this->identifier;
+        $this->updatedAt = new \DateTime();
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->uri;
     }
 
-    static public function allTypes()
+    /**
+     * Get an array of all association types available
+     *
+     * @return array
+     */
+    public static function allTypes(): array
     {
         return [
             static::EXACT_MATCH_OF,
@@ -217,7 +243,12 @@ class LsAssociation
         ];
     }
 
-    static public function typeChoiceList()
+    /**
+     * Get an array of association types that should show in the choice list
+     *
+     * @return array
+     */
+    public static function typeChoiceList(): array
     {
         return [
             static::RELATED_TO,
@@ -232,9 +263,10 @@ class LsAssociation
 
     /**
      * @param string $name
+     *
      * @return string|null
      */
-    static public function inverseName($name)
+    public static function inverseName(string $name): ?string
     {
         static $inverses = [];
         if (!count($inverses)) {
@@ -267,7 +299,12 @@ class LsAssociation
         return null;
     }
 
-    public function isLsAssociation()
+    /**
+     * Return true if this is an LsAssociation
+     *
+     * @return bool
+     */
+    public function isLsAssociation(): bool
     {
         return true;
     }
@@ -275,7 +312,7 @@ class LsAssociation
     /**
      * Get id
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -289,7 +326,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setUri($uri)
+    public function setUri($uri): LsAssociation
     {
         $this->uri = $uri;
 
@@ -301,7 +338,7 @@ class LsAssociation
      *
      * @return string
      */
-    public function getUri()
+    public function getUri(): string
     {
         return $this->uri;
     }
@@ -310,9 +347,12 @@ class LsAssociation
      * Set the Origination of the association
      *
      * @param string|LsDoc|LsItem $origin
-     * @return $this
+     *
+     * @return LsAssociation
+     *
+     * @throws \UnexpectedValueException
      */
-    public function setOrigin($origin)
+    public function setOrigin($origin): LsAssociation
     {
         if (is_string($origin)) {
             $this->setOriginNodeUri($origin);
@@ -357,7 +397,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setOriginNodeUri($originNodeUri)
+    public function setOriginNodeUri($originNodeUri): LsAssociation
     {
         $this->originNodeUri = $originNodeUri;
 
@@ -378,9 +418,12 @@ class LsAssociation
      * Set the Destination of the association
      *
      * @param string|LsDoc|LsItem $origin
-     * @return $this
+     *
+     * @return LsAssociation
+     *
+     * @throws \UnexpectedValueException
      */
-    public function setDestination($origin)
+    public function setDestination($origin): LsAssociation
     {
         if (is_string($origin)) {
             $this->setDestinationNodeUri($origin);
@@ -425,7 +468,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setDestinationNodeUri($destinationNodeUri)
+    public function setDestinationNodeUri($destinationNodeUri): LsAssociation
     {
         $this->destinationNodeUri = $destinationNodeUri;
 
@@ -449,7 +492,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setType($type)
+    public function setType($type): LsAssociation
     {
         $this->type = $type;
 
@@ -473,7 +516,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt($updatedAt): LsAssociation
     {
         $this->updatedAt = $updatedAt;
 
@@ -497,7 +540,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setOriginLsDoc(\CftfBundle\Entity\LsDoc $originLsDoc = null)
+    public function setOriginLsDoc(?LsDoc $originLsDoc = null): LsAssociation
     {
         $this->originLsDoc = $originLsDoc;
 
@@ -514,7 +557,7 @@ class LsAssociation
      *
      * @return \CftfBundle\Entity\LsDoc
      */
-    public function getOriginLsDoc()
+    public function getOriginLsDoc(): ?LsDoc
     {
         return $this->originLsDoc;
     }
@@ -526,7 +569,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setOriginLsItem(\CftfBundle\Entity\LsItem $originLsItem = null)
+    public function setOriginLsItem(?LsItem $originLsItem = null): LsAssociation
     {
         $this->originLsItem = $originLsItem;
 
@@ -543,7 +586,7 @@ class LsAssociation
      *
      * @return \CftfBundle\Entity\LsItem
      */
-    public function getOriginLsItem()
+    public function getOriginLsItem(): ?LsItem
     {
         return $this->originLsItem;
     }
@@ -555,7 +598,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setDestinationLsDoc(\CftfBundle\Entity\LsDoc $destinationLsDoc = null)
+    public function setDestinationLsDoc(?LsDoc $destinationLsDoc = null): LsAssociation
     {
         $this->destinationLsDoc = $destinationLsDoc;
         if (null !== $destinationLsDoc) {
@@ -571,7 +614,7 @@ class LsAssociation
      *
      * @return \CftfBundle\Entity\LsDoc
      */
-    public function getDestinationLsDoc()
+    public function getDestinationLsDoc(): ?LsDoc
     {
         return $this->destinationLsDoc;
     }
@@ -583,7 +626,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setDestinationLsItem(\CftfBundle\Entity\LsItem $destinationLsItem = null)
+    public function setDestinationLsItem(?LsItem $destinationLsItem = null): LsAssociation
     {
         $this->destinationLsItem = $destinationLsItem;
         if (null !== $destinationLsItem) {
@@ -599,7 +642,7 @@ class LsAssociation
      *
      * @return \CftfBundle\Entity\LsItem
      */
-    public function getDestinationLsItem()
+    public function getDestinationLsItem(): ?LsItem
     {
         return $this->destinationLsItem;
     }
@@ -611,7 +654,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setLsDocUri($lsDocUri)
+    public function setLsDocUri($lsDocUri): LsAssociation
     {
         $this->lsDocUri = $lsDocUri;
 
@@ -635,7 +678,7 @@ class LsAssociation
      *
      * @return LsAssociation
      */
-    public function setLsDoc(\CftfBundle\Entity\LsDoc $lsDoc = null)
+    public function setLsDoc(?LsDoc $lsDoc = null): LsAssociation
     {
         $this->lsDoc = $lsDoc;
         $this->setLsDocUri($lsDoc->getUri());
@@ -649,104 +692,140 @@ class LsAssociation
      *
      * @return \CftfBundle\Entity\LsDoc
      */
-    public function getLsDoc()
+    public function getLsDoc(): ?LsDoc
     {
         return $this->lsDoc;
     }
 
     /**
      * @param string $groupName
+     *
      * @return LsAssociation
      */
-    public function setGroupName($groupName) {
+    public function setGroupName($groupName): LsAssociation
+    {
         $this->groupName = $groupName;
+
         return $this;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getGroupName() {
-        return $this->groupName;
+    public function getGroupName()
+    {
+        if ($this->groupName) {
+            return $this->groupName;
+        } elseif ($this->group) {
+            return $this->group->getTitle();
+        }
+
+        return null;
     }
 
     /**
      * @return string
      */
-    public function getLsDocIdentifier() {
+    public function getLsDocIdentifier()
+    {
         return $this->lsDocIdentifier;
     }
 
     /**
      * @param string $lsDocIdentifier
+     *
      * @return LsAssociation
      */
-    public function setLsDocIdentifier($lsDocIdentifier) {
+    public function setLsDocIdentifier($lsDocIdentifier): LsAssociation
+    {
         $this->lsDocIdentifier = $lsDocIdentifier;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
     /**
      * @param string $identifier
+     *
      * @return LsAssociation
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier): LsAssociation
+    {
         $this->identifier = $identifier;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getOriginNodeIdentifier() {
+    public function getOriginNodeIdentifier()
+    {
         return $this->originNodeIdentifier;
     }
 
     /**
      * @param string $originNodeIdentifier
+     *
      * @return LsAssociation
      */
-    public function setOriginNodeIdentifier($originNodeIdentifier) {
+    public function setOriginNodeIdentifier($originNodeIdentifier): LsAssociation
+    {
         $this->originNodeIdentifier = $originNodeIdentifier;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getDestinationNodeIdentifier() {
+    public function getDestinationNodeIdentifier()
+    {
         return $this->destinationNodeIdentifier;
     }
 
     /**
      * @param string $destinationNodeIdentifier
+     *
      * @return LsAssociation
      */
-    public function setDestinationNodeIdentifier($destinationNodeIdentifier) {
+    public function setDestinationNodeIdentifier($destinationNodeIdentifier): LsAssociation
+    {
         $this->destinationNodeIdentifier = $destinationNodeIdentifier;
+
         return $this;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getGroupUri() {
-        return $this->groupUri;
+    public function getGroupUri()
+    {
+        if ($this->groupUri) {
+            return $this->groupUri;
+        } elseif ($this->group) {
+            return $this->group->getUri();
+        }
+
+        return null;
     }
 
     /**
      * @param string $groupUri
+     *
      * @return LsAssociation
      */
-    public function setGroupUri($groupUri) {
+    public function setGroupUri($groupUri): LsAssociation
+    {
         $this->groupUri = $groupUri;
+
         return $this;
     }
 
@@ -755,7 +834,48 @@ class LsAssociation
      *
      * @return bool
      */
-    public function canEdit() {
+    public function canEdit(): bool
+    {
         return !(LsDoc::ADOPTION_STATUS_DEPRECATED === $this->lsDoc->getAdoptionStatus());
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getSequenceNumber(): ?int
+    {
+        return $this->sequenceNumber;
+    }
+
+    /**
+     * @param int|null $sequenceNumber
+     *
+     * @return LsAssociation
+     */
+    public function setSequenceNumber(?int $sequenceNumber): LsAssociation
+    {
+        $this->sequenceNumber = $sequenceNumber;
+
+        return $this;
+    }
+
+    /**
+     * @return LsDefAssociationGrouping
+     */
+    public function getGroup(): ?LsDefAssociationGrouping
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param LsDefAssociationGrouping|null $group
+     *
+     * @return LsAssociation
+     */
+    public function setGroup(?LsDefAssociationGrouping $group)
+    {
+        $this->group = $group;
+
+        return $this;
     }
 }

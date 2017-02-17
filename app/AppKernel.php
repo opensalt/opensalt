@@ -1,4 +1,5 @@
 <?php
+
 umask(0); // TODO: This should probably be in the constructor
 
 use Symfony\Component\HttpKernel\Kernel;
@@ -39,6 +40,9 @@ class AppKernel extends Kernel
             new Cftf\SbacBundle\CftfSbacBundle(),
             new Cftf\CmsBundle\CftfCmsBundle(),
             new Cftf\UtilBundle\CftfUtilBundle(),
+            new Salt\UserBundle\SaltUserBundle(),
+            new GithubFilesBundle\GithubFilesBundle(),
+            new Salt\SiteBundle\SaltSiteBundle(),
         ];
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {
@@ -46,6 +50,7 @@ class AppKernel extends Kernel
             $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
             $bundles[] = new Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
             $bundles[] = new Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle();
+            $bundles[] = new Matthimatiker\OpcacheBundle\MatthimatikerOpcacheBundle();
         }
 
         return $bundles;

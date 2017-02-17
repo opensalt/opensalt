@@ -1,14 +1,14 @@
 {% extends "::base.html.twig" %}
 
-{% block title %}{{ lsItem.displayIdentifier }}{% endblock %}
+{% block title %}{{ lsItem.displayIdentifier |truncate(64, true) }}{% endblock %}
 
 {% block body %}
     <div class="row">
         <div class="col-sm-12">
             <ol class="breadcrumb">
                 <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
-                <li><a href="{{ path('editor_lsdoc', {'id':lsItem.lsDoc.id}) }}">{{ lsItem.lsDoc.title }}</a></li>
-                <li class="active">{{ lsItem.displayIdentifier }}</li>
+                <li><a href="{{ path('editor_lsdoc', {'id':lsItem.lsDoc.id}) }}">{{ lsItem.lsDoc.title |truncate(32, true) }}</a></li>
+                <li class="active">{{ lsItem.displayIdentifier |truncate(64, true) }}</li>
             </ol>
         </div>
     </div>
@@ -27,7 +27,6 @@
                             'humanCodingScheme': 'Human Coding Scheme',
                             'fullStatement': 'Full Statement',
                             'abbreviatedStatement': 'Abbreviated Statement',
-                            'identifier': 'Identifier',
                             'listEnumInSource': 'List Enumeration in Source',
                             'conceptKeywords': 'Concept Keywords',
                             'conceptKeywordsUri': 'Concept Keywords URI',
@@ -56,17 +55,20 @@
                         {% endfor %}
                     </ul>
 
+                    {% if is_granted('edit', lsItem) or is_granted('add-standard-to', null) %}
                     <div class="text-center">
                         <ul class="list-inline">
-                            {% if lsItem.canEdit %}
+                            {% if is_granted('edit', lsItem) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#editModal">Edit</button>
                             </li>
                             {% endif %}
+                            {% if is_granted('add-standard-to', null) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#copyModal">Add to Another CF Package</button>
                             </li>
-                            {% if lsItem.canEdit %}
+                            {% endif %}
+                            {% if is_granted('edit', lsItem) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#addChildModal">Create Child Statement</button>
                             </li>
@@ -81,6 +83,7 @@
                             #}
                         </ul>
                     </div>
+                    {% endif %}
                 </div>
             </section>
         </div>
@@ -89,16 +92,16 @@
             {% for group, list in lsItem.groupedAssociations if list is not empty %}
                 {% embed 'CftfBundle:Editor:_lsAssociationComponent.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
                     {% block end_of_item_a %}
-                        {% if lsItem.canEdit %}
-                        <span class="pull-right">
-                        {% if group is constant('CftfBundle\\Entity\\LsAssociation::CHILD_OF') %}
-                            <span role="button" class="btn btn-xs btn-default btn-change-parent">Change</span>
-                        {% elseif group is constant('CftfBundle\\Entity\\LsAssociation::INVERSE_CHILD_OF') %}
-                            <span role="button" class="btn btn-xs btn-danger btn-remove-child">Remove</span>
-                        {% else %}
-                            <span role="button" class="btn btn-xs btn-danger btn-remove-association">Remove</span>
-                        {% endif %}
-                        </span>
+                        {% if is_granted('edit', lsItem) and is_granted('edit', lsItem.lsDoc) %}
+                            <span class="pull-right">
+                            {% if group is constant('CftfBundle\\Entity\\LsAssociation::CHILD_OF') %}
+                                <span role="button" class="btn btn-xs btn-default btn-change-parent">Change</span>
+                            {% elseif group is constant('CftfBundle\\Entity\\LsAssociation::INVERSE_CHILD_OF') %}
+                                <span role="button" class="btn btn-xs btn-danger btn-remove-child">Remove</span>
+                            {% else %}
+                                <span role="button" class="btn btn-xs btn-danger btn-remove-association">Remove</span>
+                            {% endif %}
+                            </span>
                         {% endif %}
                     {% endblock %}
                 {% endembed %}

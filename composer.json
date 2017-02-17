@@ -1,12 +1,16 @@
 {
     "name": "pcgus/cftool",
-    "license": "proprietary",
-    "copyright": "Copyright 2016 by Public Consulting Group",
+    "license": "MIT",
     "type": "project",
     "description": "Standards Alignment Tool",
     "autoload": {
         "psr-4": {
-            "": "src/"
+            "Cftf\\": "src/Cftf/",
+            "CftfBundle\\": "src/CftfBundle/",
+            "GithubFilesBundle\\": "src/GithubFilesBundle/",
+            "Pcg\\": "src/Pcg/",
+            "Salt\\": "src/Salt/",
+            "Util\\": "src/Util/"
         },
         "classmap": [
             "app/AppKernel.php",
@@ -23,15 +27,16 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.0.1",
+        "php": "^7.1.0",
+
         "fxp/composer-asset-plugin": "^1.2",
 
-        "symfony/symfony": "3.1.*",
+        "symfony/symfony": "3.2.*",
         "doctrine/orm": "^2.5",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-cache-bundle": "^1.2",
         "symfony/swiftmailer-bundle": "^2.3",
-        "symfony/monolog-bundle": "^2.8",
+        "symfony/monolog-bundle": "^3.0",
         "symfony/polyfill-apcu": "^1.0",
         "sensio/distribution-bundle": "^5.0",
         "sensio/framework-extra-bundle": "^3.0.2",
@@ -55,12 +60,13 @@
         "csa/guzzle-bundle": "^2.1",
 
         "nelmio/security-bundle": "^2.0",
+        "hwi/oauth-bundle": "^0.5.1",
 
-	"nilportugues/jsonapi-bundle": "^1.5.2",
+        "nilportugues/jsonapi-bundle": "^1.5.2",
 
         "phpoffice/phpexcel": "^1.8.1",
 
-	"nelmio/api-doc-bundle": "^2.13",
+        "nelmio/api-doc-bundle": "^2.13",
 
         "bower-asset/jquery": "^2.2.4",
         "bower-asset/jquery-ui": "^1.12.0",
@@ -71,19 +77,22 @@
         "bower-asset/modernizr": "^3.3.1",
         "bower-asset/normalize.css": "^3.0.3",
         "npm-asset/jquery-contextmenu": "^2.2.4",
-	"bower-asset/bootstrap-multiselect": "^0.9.13",
+        "bower-asset/bootstrap-multiselect": "^0.9.13",
+	"bower-asset/twbs-pagination": "^1.4.1",
 
         "bower-asset/select2": "^4.0.3",
         "bower-asset/select2-bootstrap-theme": "dev-master",
-	"tetranz/select2entity-bundle": "2.*",
+        "tetranz/select2entity-bundle": "2.*",
 
         "npm-asset/iso639-js": "^1.1",
 
-	"fortawesome/font-awesome": "^4.6",
-	"mervick/material-design-icons": "^2.2",
+        "fortawesome/font-awesome": "^4.6",
+        "mervick/material-design-icons": "^2.2",
 
+        "milo/github-api": "^1.4",
+        "league/oauth2-github": "^0.2.2",
 
-        "ocramius/proxy-manager": "^1.0.2"
+	"matthimatiker/opcache-bundle": "^0.4"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",
@@ -96,18 +105,18 @@
         "behat/mink-extension": "^2.2",
         "behat/mink-browserkit-driver": "^1.3",
 
-        "rmiller/behat-spec": "^0.3.0",
+        "phpunit/phpunit": "^5.7.4",
 
-        "phpspec/phpspec": "^2.5",
-        "phpspec/nyan-formatters": "^1.0",
-        "ciaranmcnulty/phpspec-typehintedmethods": "^1.1.3",
+        "phpspec/phpspec": "^3.2.2",
+        "phpspec/nyan-formatters": "^2.0.0",
+        "ciaranmcnulty/phpspec-typehintedmethods": "^2.0.0",
 
         "squizlabs/php_codesniffer": "^2.6",
         "escapestudios/symfony2-coding-standard": "^2.9",
         "friendsofphp/php-cs-fixer": "^1.11"
     },
     "scripts": {
-        "post-install-cmd": [
+        "symfony-scripts": [
             "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache",
@@ -115,17 +124,16 @@
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installRequirementsFile",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::prepareDeploymentTarget"
         ],
+        "post-install-cmd": [
+	    "@symfony-scripts"
+	],
         "post-update-cmd": [
-            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installAssets",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installRequirementsFile",
-            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::prepareDeploymentTarget"
+	    "@symfony-scripts"
         ]
     },
     "config": {
-        "bin-dir": "vendor/bin"
+        "bin-dir": "vendor/bin",
+	"optimize-autoloader": true
     },
     "extra": {
         "symfony-app-dir": "app",
@@ -138,7 +146,7 @@
             "file": "app/config/parameters.yml"
         },
         "branch-alias": {
-            "dev-master": "0.1-alpha"
+            "dev-master": "0.1-dev"
         }
     }
 }

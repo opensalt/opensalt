@@ -5,6 +5,7 @@ namespace CftfBundle\Repository;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\Query;
+use Util\Compare;
 
 /**
  * LsDocRepository
@@ -18,13 +19,17 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      * Get a list of all items for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAllChildrenArray(LsDoc $lsDoc){
+    public function findAllChildrenArray(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
-            SELECT i, a, adi, add
+            SELECT i, t, a, g, adi, add
             FROM CftfBundle:LSItem i INDEX BY i.id
+            LEFT JOIN i.itemType t
             LEFT JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
+            LEFT JOIN a.group g
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE i.lsDoc = :lsDocId
@@ -45,45 +50,26 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
                 if (!empty($association['destinationLsItem'])) {
                     $parent = $association['destinationLsItem'];
                     $results[$parent['id']]['children'][] = $result;
+                    if (!empty($association['group'])) {
+                        $results[$key]['parents'][$parent['id']][] = ['group' => $association['group']['title']];
+                    } else {
+                        $results[$key]['parents'][$parent['id']][] = ['group' => $association['groupName']];
+                    }
+                } elseif (!empty($association['destinationLsDoc'])) {
+                    if (!empty($association['group'])) {
+                        $results[$key]['parents']['doc'][] = ['group' => $association['group']['title']];
+                    } else {
+                        $results[$key]['parents']['doc'][] = ['group' => $association['groupName']];
+                    }
                 }
             }
         }
 
-        uasort($results, function($a, $b) {
-            // rank
-            if (!empty($a['rank']) && !empty($b['rank'])) {
-                if ($a['rank'] != $b['rank']) {
-                    return ($a < $b) ? -1 : 1;
-                } // else fall through to next check
-            } elseif (!empty($a['rank']) || !empty($b['rank'])) {
-                return (!empty($a['rank'])) ? -1 : 1;
-            }
-
-            // listEnumInSource
-            // humanCodingScheme
-
-            return 0;
-        });
+        $this->rankItems($results);
 
         foreach ($results as $key => $result) {
             if (!empty($results[$key]['children'])) {
-                uasort($results[$key]['children'], function($a, $b) {
-                    // rank
-                    if (!empty($a['rank']) && !empty($b['rank'])) {
-                        if ($a['rank'] != $b['rank']) {
-                            return ($a < $b) ? -1 : 1;
-                        }
-                    } elseif (!empty($a['rank'])) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-
-                    // listEnumInSource
-                    // humanCodingScheme
-
-                    return 0;
-                });
+                $this->rankItems($results[$key]['children']);
             }
         }
 
@@ -91,12 +77,27 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
+     * Rank the items in $itemArray
+     *   - by "rank"
+     *   - then by "listEnumInSource"
+     *   - then by "humanCodingScheme"
+     *
+     * @param array $itemArray
+     */
+    private function rankItems(array &$itemArray)
+    {
+        Compare::sortArrayByFields($itemArray, ['rank', 'listEnumInSource', 'humanCodingScheme']);
+    }
+
+    /**
      * Get a list of ids for all items that have parents for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsItem ids
      */
-    public function findAllItemsWithParentsArray(LsDoc $lsDoc){
+    public function findAllItemsWithParentsArray(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
             SELECT i.id
             FROM CftfBundle:LsItem i INDEX by i.id
@@ -115,21 +116,25 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      * Get a list of all items for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsItems hydrated as an array
      */
-    public function findTopChildrenIds(LsDoc $lsDoc){
+    public function findTopChildrenIds(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, a, add
             FROM CftfBundle:LSItem i INDEX BY i.id
             JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
             JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE i.lsDoc = :lsDocId
-            ORDER BY i.rank ASC, i.listEnumInSource ASC, i.humanCodingScheme
+            ORDER BY i.rank ASC, i.listEnumInSource ASC, i.humanCodingScheme ASC
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
 
         $results = $query->getResult(Query::HYDRATE_ARRAY);
+
+        $this->rankItems($results);
 
         return array_keys($results);
     }
@@ -138,46 +143,65 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      * Delete an LsDoc and all associated items and associations
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
-     * @param \Closure|NULL $progressCallback
+     * @param \Closure|null $progressCallback
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function deleteDocument(LsDoc $lsDoc, \Closure $progressCallback = null) {
+    public function deleteDocument(LsDoc $lsDoc, \Closure $progressCallback = null)
+    {
         $conn = $this->getEntityManager()->getConnection();
 
         $params = ['lsDocId' => $lsDoc->getId()];
 
         if (null === $progressCallback) {
-            $progressCallback = function($message = '') {};
+            $progressCallback = function ($message = '') {
+            };
         }
 
         $progressCallback('Deleting associations');
-        $stmt = <<<xENDx
+        $stmt = <<<'xENDx'
 DELETE FROM ls_association
  WHERE ls_doc_id = :lsDocId
     OR origin_lsitem_id IN (
-	 SELECT i.id
-	   FROM ls_item i
-	  WHERE i.ls_doc_id = :lsDocId
-       )
+      SELECT i.id
+        FROM ls_item i
+       WHERE i.ls_doc_id = :lsDocId
+    )
     OR destination_lsitem_id IN (
-	 SELECT i.id
-	   FROM ls_item i
-	  WHERE i.ls_doc_id = :lsDocId
-       )
+      SELECT i.id
+        FROM ls_item i
+       WHERE i.ls_doc_id = :lsDocId
+    )
 ;
 xENDx;
         $conn->prepare($stmt)->execute($params);
 
         $progressCallback('Deleting items');
-        $stmt = <<<xENDx
+        $stmt = <<<'xENDx'
 DELETE FROM ls_item
  WHERE ls_doc_id = :lsDocId
 ;
 xENDx;
         $conn->prepare($stmt)->execute($params);
 
+        $progressCallback('Deleting document subjects');
+        $stmt = <<<'xENDx'
+DELETE FROM ls_doc_subject
+ WHERE ls_doc_id = :lsDocId
+;
+xENDx;
+        $conn->prepare($stmt)->execute($params);
+
+        $progressCallback('Deleting acls');
+        $stmt = <<<'xENDx'
+DELETE FROM salt_user_doc_acl
+ WHERE doc_id = :lsDocId
+;
+xENDx;
+        $conn->prepare($stmt)->execute($params);
+
         $progressCallback('Deleting document');
-        $stmt = <<<xENDx
+        $stmt = <<<'xENDx'
 DELETE FROM ls_doc
  WHERE id = :lsDocId
 ;
@@ -191,9 +215,11 @@ xENDx;
      * Get a list of all items for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAllItems(LsDoc $lsDoc) {
+    public function findAllItems(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t, a, adi, add
             FROM CftfBundle:LSItem i INDEX BY i.id
@@ -216,9 +242,11 @@ xENDx;
      * Get a list of all associations for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllAssociations(LsDoc $lsDoc) {
+    public function findAllAssociations(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, adi, add
             FROM CftfBundle:LSAssociation a INDEX BY a.id
@@ -237,9 +265,11 @@ xENDx;
      * Get a list of all associations for an LsDoc where the nodes are known items
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllAssociationsForCapturedNodes(LsDoc $lsDoc) {
+    public function findAllAssociationsForCapturedNodes(LsDoc $lsDoc)
+    {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, adi, add
             FROM CftfBundle:LSAssociation a INDEX BY a.id

@@ -2,18 +2,18 @@
 
 namespace CftfBundle\Controller;
 
+use CftfBundle\Form\Type\LsDefGradeType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsDefGrade;
-use CftfBundle\Form\LsDefGradeType;
 
 /**
  * LsDefGrade controller.
  *
- * @Route("/lsdef/grade")
+ * @Route("/cfdef/grade")
  */
 class LsDefGradeController extends Controller
 {
@@ -23,6 +23,8 @@ class LsDefGradeController extends Controller
      * @Route("/", name="lsdef_grade_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -41,11 +43,15 @@ class LsDefGradeController extends Controller
      * @Route("/new", name="lsdef_grade_new")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
     {
         $lsDefGrade = new LsDefGrade();
-        $form = $this->createForm('CftfBundle\Form\LsDefGradeType', $lsDefGrade);
+        $form = $this->createForm(LsDefGradeType::class, $lsDefGrade);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -68,6 +74,10 @@ class LsDefGradeController extends Controller
      * @Route("/{id}", name="lsdef_grade_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsDefGrade $lsDefGrade
+     *
+     * @return array
      */
     public function showAction(LsDefGrade $lsDefGrade)
     {
@@ -85,11 +95,16 @@ class LsDefGradeController extends Controller
      * @Route("/{id}/edit", name="lsdef_grade_edit")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsDefGrade $lsDefGrade
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function editAction(Request $request, LsDefGrade $lsDefGrade)
     {
         $deleteForm = $this->createDeleteForm($lsDefGrade);
-        $editForm = $this->createForm('CftfBundle\Form\LsDefGradeType', $lsDefGrade);
+        $editForm = $this->createForm(LsDefGradeType::class, $lsDefGrade);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -112,6 +127,11 @@ class LsDefGradeController extends Controller
      *
      * @Route("/{id}", name="lsdef_grade_delete")
      * @Method("DELETE")
+     *
+     * @param Request $request
+     * @param LsDefGrade $lsDefGrade
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsDefGrade $lsDefGrade)
     {

@@ -1,94 +1,315 @@
 {% extends '::layout.html.twig' %}
 
-{% block title %}{{ lsDoc1.title }}{% endblock %}
+{% block title %}{{ lsDoc.title }}{% endblock %}
 
 {% block body %}
-    <div class="row">
-        <div class="col-sm-12">
-            <ol class="breadcrumb">
-                <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
-                <li><a href="{{ path('editor_lsdoc', {'id':lsDoc1.id}) }}">{{ lsDoc1.title }}</a></li>
-            </ol>
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col-sm-12">
-            <section class="panel panel-default">
-                <div class="panel-body">
-                    <div id="tree1"></div>
-                </div>
-            </section>
-        </div>
-        <div class="col-sm-6">
-            <div id="tree2"></div>
-        </div>
+<div class="row">
+    <div class="col-sm-10">
+        <ol class="breadcrumb">
+            <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
+            <li>{{ lsDoc.title }}</li>
+        </ol>
     </div>
+    <div class="col-sm-2">
+        <div id="docStatus" class="docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">{{ lsDoc.adoptionStatus|default('Draft') }}</div>
+    </div>
+</div>
+
+<div class="row">
+    <div id="treeSideLeft" class="col-sm-6 treeSide">
+        <div class="form-group">
+            {% if is_granted('edit', lsDoc) %}
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button type="button" class="treeCheckboxControlBtn btn btn-default">
+                        <input class="treeCheckboxControl" type="checkbox">
+                    </button>
+
+                    <button type="button" class="treeCheckboxMenuBtn btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="display:none">Action <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a class="treeCheckboxMenuItem" data-cmd="delete">Delete</a></li>
+                        <li><a class="treeCheckboxMenuItem" data-cmd="edit">Edit</a></li>
+                        <li><a class="treeCheckboxMenuItem" data-cmd="makeFolders">Make Items Parents</a></li>
+                        <li><a class="treeCheckboxMenuItem" data-cmd="hideCheckboxes">Hide Checkboxes</a></li>
+                    </ul>
+                </span>
+            {% endif %}
+                <span class="filterClear glyphicon glyphicon-remove-circle"></span>
+                <input type="text" class="form-control treeFilter" id="filterOnTree" placeholder="Filter">
+            {% if is_granted('edit', lsDoc) %}
+            </div>
+            {% endif %}
+        </div>
+        <section id="tree1Section">
+            <div class="treeDiv" id="viewmode_tree"></div>
+        </section>
+    </div>
+    
+    <div id="treeSideRight" class="col-sm-6 treeSide">
+        {% if is_granted('edit', lsDoc) %}
+        <div class="form-group">
+            <div class="btn-group" role="group" aria-label="...">
+                <button id="rightSideItemDetailsBtn" type="button" class="btn btn-primary">Item Details</button>
+                <button id="rightSideCopyItemsBtn" type="button" class="btn btn-default">Copy Items</button>
+                <button id="rightSideCreateAssociationsBtn" type="button" class="btn btn-default">Create Associations</button>
+            </div>
+        </div>
+        {% endif %}
+       
+        <section id="itemSection" class="panel panel-default docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">
+            <div id="items" class="panel-body">
+                <div id="documentInfo">
+                    <h4 class="itemTitle">
+                        {% if lsDoc.version is not empty %}
+                        <span style="float:right" class="lessImportant">Version {{ lsDoc.version }}</span>
+                        {% endif %}
+                        {{lsDoc.title}}
+                    </h4>
+                    <ul class="list-group">
+                        {% for field, name in {
+                        'officialUri': 'Official URL',
+                        'creator': 'Creator',
+                        'description': 'Description',
+                        'subjects': 'Subject',
+                        'language': 'Language',
+                        'adoptionStatus': 'Adoption Status',
+                        'note': 'Notes'
+                        } %}
+                        {% if attribute(lsDoc, field) is not empty %}
+                        <li class="list-group-item">
+                            <strong>{{ name }}:</strong>
+                            {% set value = attribute(lsDoc, field) %}
+                            {% if field == 'creator' %}
+                            {{ value }}
+                            {% if lsDoc.publisher is not empty %}
+                            <span class="lessImportant">Publisher: {{ lsDoc.publisher }}</span>
+                            {% endif %}
+                            {% elseif field == 'adoptionStatus' %}
+                            {{ value }}
+                            {% if lsDoc.statusStart is not empty %}
+                            <span class="lessImportant">From {{ lsDoc.statusStart|date("m/d/Y") }}</span>
+                            {% endif %}
+                            {% if lsDoc.statusEnd is not empty %}
+                            <span class="lessImportant">Until {{ lsDoc.statusEnd|date("m/d/Y") }}</span>
+                            {% endif %}
+                            </span>
+                            {% elseif field == 'subjects' %}
+                            {% for subject in value %}
+                            {%- if not loop.first %}, {% endif %}{{ subject.title }}
+                            {%- endfor %}
+                            {% elseif field == 'uri' %}
+                            <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                            {% else %}
+                            {{ value }}
+                            {% endif %}
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+
+                    <div class="itemOptions">
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
+                        {# use first version if we need to edit the adoptionStatus #}
+                        {# if is_granted('edit', lsDoc) #}
+                        {% if is_granted('edit', lsDoc) %}
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal">Edit</button>
+                        {% endif %}
+                        {% if is_granted('manage_editors', lsDoc) %}
+                        <a href="{{ path('framework_acl_edit', {'id':lsDoc.id}) }}" class="btn btn-default btn-sm">Manage Access</a>
+                        {% endif %}
+
+                        {% if is_granted('edit', lsDoc) %}
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">Add New Child Item</button>
+                        {% endif %}
+                    </div>
+
+                </div>
+                <div class="itemInfo" id="itemInfoTemplate" style="display:none">
+                    <h4 class="itemTitle"></h4>
+                    <div class="itemDetails"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tree2Section">
+            <div id="tree2InitialInstructions" class="bg-info instructions">Start by selecting another Compentency Framework Document here.</div>
+            <div id="tree2SectionCopyInstructions" class="bg-info instructions" style="display:none">Drag and drop from right to left to <b>copy items</b>.</div>
+            <div id="tree2SectionRelationshipInstructions" class="bg-info instructions" style="display:none">Drag and drop from right to left to <b>create associations</b>.</div>
+
+            <div id="tree2SelectorDiv" class="container-fluid"><div class="row">
+                {{ form_widget(docList) }}
+            </div></div>
+
+            <div id="tree2SectionControls" class="form-group">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button type="button" class="treeCheckboxControlBtn btn btn-default">
+                            <input class="treeCheckboxControl" type="checkbox">
+                        </button>
+
+                        <button type="button" class="treeCheckboxMenuBtn btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="display:none">Action <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a class="treeCheckboxMenuItem" data-cmd="hideCheckboxes">Hide Checkboxes</a></li>
+                        </ul>
+                    </span>
+                    <input type="text" class="form-control treeFilter" placeholder="Filter">
+                    <span class="filterClear glyphicon glyphicon-remove-circle"></span>
+                    <span class="input-group-btn"><button type="button" id="changeTree2DocumentBtn" class="btn btn-primary">Change Document</button></span>
+                </div>
+            </div>
+            <div id="viewmode_tree2" class="treeDiv"></div>
+        </section>
+    </div>
+</div>
+
+{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+'modalName':'export',
+'modalTitle':'Export Document',
+'closeButton': 'Done'
+} %}
+{% block modalButtons %}{% endblock %}
+{% block modalBody %}
+{% embed 'CftfBundle:LsDoc:_exportComponent.html.twig' with {'view':'editor'} %}
+{% endembed %}
+{% endblock %}
+{% endembed %}
+
+{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+'modalName':'editDoc',
+'modalTitle':'Edit Document',
+'closeButton': 'Cancel',
+'saveButton': 'Save Changes'
+} %}
+{% endembed %}
+
+{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+'modalName':'addNewChild',
+'modalTitle':'Add New Child Item',
+'closeButton': 'Cancel',
+'saveButton': 'Create'
+} %}
+{% endembed %}
+
+{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+'modalName':'editItem',
+'modalTitle':'Edit Item',
+'closeButton': 'Cancel',
+'saveButton': 'Save Changes'
+} %}
+{% endembed %}
+
+{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+'modalName':'associate',
+'modalTitle':'Create Association',
+'closeButton': 'Cancel',
+'saveButton': 'Associate'
+} %}
+{% endembed %}
+
+{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+'modalName':'deleteOneItem',
+'modalTitle':'Delete Item',
+'saveButton': 'Delete',
+'closeButton': 'Cancel'
+} %}
+{% block modalBody %}
+<p>Are you sure you want to delete this item?</p>
+{% endblock %}
+{% block modalButtons %}
+<button type="button" class="btn btn-danger btn-delete">Delete</button>
+{% endblock %}
+{% endembed %}
+
+{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+'modalName':'deleteItemAndChildren',
+'modalTitle':'Delete Item and Children',
+'saveButton': 'Delete',
+'closeButton': 'Cancel'
+} %}
+{% block modalBody %}
+<p><strong class="text-danger">Warning: </strong> This item has children.</p>
+<p>Are you sure you want to delete this item <strong>and</strong> all its children?</p>
+{% endblock %}
+{% block modalButtons %}
+<button type="button" class="btn btn-danger btn-delete">Delete</button>
+{% endblock %}
+{% endembed %}
+
+{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+'modalName':'deleteMultipleItems',
+'modalTitle':'Delete Items',
+'saveButton': 'Delete',
+'closeButton': 'Cancel'
+} %}
+{% block modalBody %}
+<p>Are you sure you want to delete the <strong id="deleteMultipleItemsModalCount"></strong> selected items?</p>
+{% endblock %}
+{% block modalButtons %}
+<button type="button" class="btn btn-danger btn-delete">Delete</button>
+{% endblock %}
+{% endembed %}
+
+<div id="modalSpinner"><div id="modalSpinnerCover"></div><div id="modalSpinnerMessage"></div></div>
 {% endblock %}
 
 {% block javascripts %}
-    <script>
-        window.app = window.app||{};
-        var tree1 = {{ render_esi(path('editor_render_document_only', {'id':lsDoc1.id, '_format':'json'})) }};
-        $(function(){
-            $('#tree1').fancytree({
-                extensions: [],
-                source: tree1,
-                dnd: {
-                    focusOnClick: true,
-                    dragStart: function(node, data){},
-                    dragStop: function(node, data){},
-                    initHelper: function(){},
-                    updateHelper: function(){},
+<script src="{{ asset('bundles/tetranzselect2entity/js/select2entity.js') }}"></script>
+<script>
+window.app = window.app||{};
+app.lsDocId = {{ lsDoc.id }};
+{% if lsItemId is not empty %}
+    app.initialLsItemId = {{ lsItemId }};
+{% endif %}
+// establish paths
+app.path = app.path||{};
+app.path.lsDoc = '{{ path('doc_tree_view', {'id':'ID'}) }}';
+app.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';
+app.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
+app.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
+app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
+app.path.lsitem_edit = '{{ path('lsitem_edit', {'id':'ID'}) }}';
+app.path.lsitem_tree_delete = '{{ path('lsitem_tree_delete', {'id':'ID', 'includingChildren':'CHILDREN'}) }}';
+app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC', 'parent':'PARENT'}) }}';
+app.path.lsitem_copy_item = '{{ path('lsitem_copy_item', {'id':'ID'}) }}';
+app.path.lsassociation_tree_new = '{{ path('lsassociation_tree_new', {'originLsItem':'ORIGIN_ID', 'destinationLsItem':'DESTINATION_ID'}) }}';
+app.path.lsassociation_remove = '{{ path('lsassociation_remove', {'id':'ID'}) }}';
+app.path.doctree_render_document = '{{ path('doctree_render_document', {'id':'ID', '_format':'json'}) }}';
+app.path.doctree_update_items = '{{ path('doctree_update_items', {'id':'ID', '_format':'json'}) }}';
+//////////////////////////////////////////////////////
+// INITIALIZATION
+// establish the tree for the lsdoc we're editing
+app.tree1 = {{ render_esi(path('doctree_render_document', {'id':lsDoc.id, '_format':'json'})) }};
+$(document).ready(function() {
+    // render the document tree
+    app.renderTree1();
+    
+    // initialize controls
+    app.initializeControls();
 
-                    dragEnter: function(node, data){ return true; },
-                    dragDrop: function(node, data){ data.otherNode.moveTo(node, data.hitMode); },
-                },
+    // prepare modals
+    app.prepareEditDocModal();
+    app.prepareEditItemModal();
+    app.prepareAssociateModal();
+    app.prepareAddNewChildModal();
+    // initialize popovers on export modal
+    $('#exportModal [data-toggle="popover"]').popover();
+    // "Copy from another CF Package" button
+    $("[data-target=copyItem]").on('click', app.copyItemInitiate);
+    // When user selects a document from the document list, load tree2
+    // PW: not sure if we actually need a button here; does the menu always load with a blank item listed first??
+    // $("#loadTree2Btn").on('click', app.tree2Selected);
+    $("#ls_doc_list_lsDoc").on('change', app.tree2Selected);
 
-                activate: function(event, data){console.log(event, data);},
-                click: function(event, data){console.log(event, data);},
-                beforeSelect: function(event, data){console.log(event, data);},
-                select: function(event, data){console.log(event, data);},
-                renderTitle: function(event, data){
-                    //console.log(event, data);
-                    if (data.node.data.humanCoding) {
-                        return '<span class="fancytree-title"><span class="item-humanCodingScheme">' + data.node.data.humanCoding + '</span> ' + data.node.title + '</span>';
-                    }
-                },
-
-                debugLevel:2
-            });
-
-            $("#tree1").contextmenu({
-              delegate: "span.fancytree-title",
-        //      menu: "#options",
-              menu: [
-                  {title: "Cut", cmd: "cut", uiIcon: "ui-icon-scissors"},
-                  {title: "Copy", cmd: "copy", uiIcon: "ui-icon-copy"},
-                  {title: "Paste", cmd: "paste", uiIcon: "ui-icon-clipboard", disabled: false },
-                  {title: "----"},
-                  {title: "Edit", cmd: "edit", uiIcon: "ui-icon-pencil", disabled: true },
-                  {title: "Delete", cmd: "delete", uiIcon: "ui-icon-trash", disabled: true },
-                  {title: "More", children: [
-                    {title: "Sub 1", cmd: "sub1"},
-                    {title: "Sub 2", cmd: "sub1"}
-                    ]}
-                  ],
-              beforeOpen: function(event, ui) {
-                var node = $.ui.fancytree.getNode(ui.target);
-                // Modify menu entries depending on node status
-                $("#tree").contextmenu("enableEntry", "paste", node.isFolder());
-                // Show/hide single entries
-        //            $("#tree").contextmenu("showEntry", "cut", false);
-
-                // Activate node on right-click
-                node.setActive();
-              },
-              select: function(event, ui) {
-                var node = $.ui.fancytree.getNode(ui.target);
-                alert("select " + ui.cmd + " on " + node);
-              }
-            });
-        });
-    </script>
+    // if we got an initialLsItemId, activate it (and expand it)
+    if (app.initialLsItemId != null) {
+        // note that the key must be a string for this to work
+        app.ft.fancytree("getTree").activateKey(app.initialLsItemId+"").setExpanded(true);
+    }
+    // show itemSection to reveal either the document or item details
+    $("#itemSection").show();
+    // DEBUG
+    // $("[data-target=copyItem]").click();
+});
+</script>
 {% endblock %}

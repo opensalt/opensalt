@@ -20,49 +20,81 @@
     </head>
     <body>
         <div class="container">
-            <div class="header">
+            <header class="header">
                 {%- block header -%}
-                    <p>
-                        <a href="http://pcgus.com/"><img src="{{ asset('/assets/img/ManagedByPCG.jpg') }}" /></a>
-                        <span class="lead pull-right">This is a demonstration preview of SALT</span>
-                    </p>
+                    <nav class="navbar navbar-default">
+                        <div class="container-fluid">
+                            <a class="navbar-brand" href="{{ url('cftf_index') }}">OpenSALT</a>
+
+                            {% if (is_granted('ROLE_USER')) %}
+                                <ul class="nav navbar-nav navbar-right">
+                                    <li class="dropdown">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" area-expanded="false">Signed in as <strong>{{ app.user.username }}</strong> <span class="caret"></span></a>
+                                        <ul class="dropdown-menu">
+                                            {% if is_granted('ROLE_SUPER_USER') or is_granted('manage', 'users') %}
+                                                {% if is_granted('ROLE_SUPER_USER') %}
+                                                    <li><a href="{{ url("admin_organization_index") }}">Manage organizations</a></li>
+                                                {% endif %}
+                                                {% if is_granted('manage', 'users') %}
+                                                    <li><a href="{{ url("admin_user_index") }}">Manage users</a></li>
+                                                {% endif %}
+                                                <li role="separator" class="divider"></li>
+                                            {% endif %}
+                                            <li><a href="{{ url("user_change_password") }}">Change Password</a></li>
+                                            <li role="separator" class="divider"></li>
+                                            <li><a href="{{ url("logout") }}" class="logout">Sign out</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            {% elseif (app.request.attributes.get('_route') != 'login') %}
+                                <a href="{{ url("login") }}" class="btn btn-default navbar-btn pull-right login">Sign in</a>
+                            {% endif %}
+                        </div>
+                    </nav>
                 {%- endblock -%}
-            </div>
-            {% if app.request.hasPreviousSession %}
-            <div class="flash-messages">
-                {% for flash_message in app.session.flashBag.get('error') %}
-                    <div class="flash-error alert alert-danger alert-dismissable" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        {{ flash_message|raw }}
+            </header>
+            <main class="content clearfix" role="main">
+                {% if app.request.hasPreviousSession %}
+                    <div class="flash-messages">
+                        {% for flash_message in app.session.flashBag.get('error') %}
+                            <div class="flash-error alert alert-danger alert-dismissable" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                {{ flash_message|raw }}
+                            </div>
+                        {% endfor %}
+                        {% for flash_message in app.session.flashBag.get('warning') %}
+                            <div class="flash-warning alert alert-warning alert-dismissable" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                {{ flash_message|raw }}
+                            </div>
+                        {% endfor %}
+                        {% for flash_message in app.session.flashBag.get('success') %}
+                            <div class="flash-notice alert alert-success alert-dismissable" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                {{ flash_message|raw }}
+                            </div>
+                        {% endfor %}
+                        {% for flash_message in app.session.flashBag.get('info') %}
+                            <div class="flash-notice alert alert-info alert-dismissable" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                {{ flash_message|raw }}
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-                {% for flash_message in app.session.flashBag.get('warning') %}
-                    <div class="flash-warning alert alert-warning alert-dismissable" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        {{ flash_message|raw }}
-                    </div>
-                {% endfor %}
-                {% for flash_message in app.session.flashBag.get('success') %}
-                    <div class="flash-notice alert alert-success alert-dismissable" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        {{ flash_message|raw }}
-                    </div>
-                {% endfor %}
-                {% for flash_message in app.session.flashBag.get('info') %}
-                    <div class="flash-notice alert alert-info alert-dismissable" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        {{ flash_message|raw }}
-                    </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            <div class="content">
+                {% endif %}
                 {% block body %}{% endblock %}
-            </div>
-            <div class="footer">
+            </main>
+            <footer class="footer">
                 {%- block footer -%}
+                    <nav class="navbar navbar-default">
+                        <div class="container-fluid">
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><a href="{{ url('site_about') }}">About OpenSALT</a></li>
+                            </ul>
+                        </div>
+                    </nav>
                 {%- endblock -%}
-            </div>
+            </footer>
         </div>
         <div style="display: none;">
             {% block sitejavascripts %}

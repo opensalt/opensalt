@@ -10,7 +10,6 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportTxCommand extends ContainerAwareCommand
@@ -30,14 +29,14 @@ class ImportTxCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         $filename = $input->getArgument('filename');
 
-        $fd = fopen($filename, 'r');
+        $fd = fopen($filename, 'rb');
         stream_filter_append($fd, 'convert.iconv.ISO-8859-1/UTF-8');
 
         $keys = fgetcsv($fd, 0, "\t");
         //var_dump($keys);
 
         $items = [];
-        while (FALSE !== ($rec = fgetcsv($fd, 0, "\t"))) {
+        while (false !== ($rec = fgetcsv($fd, 0, "\t"))) {
             $item = array_combine($keys, $rec);
             // TODO: We can check if the key already exists, if it does then there is a problem with the file (should be unique)
             $items[$item['LearningStandard']] = $item;
@@ -103,7 +102,7 @@ class ImportTxCommand extends ContainerAwareCommand
                     default:
                         if (is_numeric($item['GradeCode'])) {
                             if ($item['GradeCode'] < 10) {
-                                $grades[] = '0' . ((int) $item['GradeCode']);
+                                $grades[] = '0'.((int) $item['GradeCode']);
                             } else {
                                 $grades[] = $item['GradeCode'];
                             }
@@ -152,19 +151,31 @@ class ImportTxCommand extends ContainerAwareCommand
                         $topLevel->setFullStatement(ucwords(strtolower($contentArea)));
                         switch ($contentArea) {
                             case 'LANGUAGE ARTS':
-                                $topLevel->setRank(10);
+                                $topLevel->setRank(110);
                                 break;
 
                             case 'MATHEMATICS':
-                                $topLevel->setRank(20);
+                                $topLevel->setRank(111);
                                 break;
 
                             case 'SCIENCE':
-                                $topLevel->setRank(30);
+                                $topLevel->setRank(112);
                                 break;
 
                             case 'SOCIAL STUDIES':
-                                $topLevel->setRank(40);
+                                $topLevel->setRank(113);
+                                break;
+
+                            case 'ECONOMICS':
+                                $topLevel->setRank(118);
+                                break;
+
+                            case 'SPANISH LANGUAGE ARTS/READING':
+                                $topLevel->setRank(128);
+                                break;
+
+                            case 'CAREER AND TECHNICAL EDUCATION':
+                                $topLevel->setRank(130);
                                 break;
 
                             default:
@@ -284,10 +295,10 @@ class ImportTxCommand extends ContainerAwareCommand
         }
 
         foreach ($level1Grades as $key => $grades) {
-            $level1[$key]->setEducationalAlignment(implode(',',array_keys($grades)));
+            $level1[$key]->setEducationalAlignment(implode(',', array_keys($grades)));
         }
         foreach ($level2Grades as $key => $grades) {
-            $level2[$key]->setEducationalAlignment(implode(',',array_keys($grades)));
+            $level2[$key]->setEducationalAlignment(implode(',', array_keys($grades)));
         }
 
         $em->flush();
@@ -313,6 +324,7 @@ array(33) {
   [11]=> string(10) "StrandCode" -- Writing
   [12]=> string(8) "Category" -- "RC3" / Reasoning Skills / STAAR Study Skills / NULL
   [13]=> string(20) "CategoryNomenclature" -- "Reporting Category" / NULL / "Across RCs"
+"CategoryLabel" -- Understanding and Analysis Across Genres / Matter and Energy / NULL
   [14]=> string(12) "StandardType" -- "Readiness"
   [15]=> string(11) "LSTypeStyle" -- No values currently
   [16]=> string(26) "ClassificationNomenclature" -- "Strand" / Genre / NULL
@@ -332,6 +344,17 @@ array(33) {
   [30]=> string(12) "DisplayOrder" -- "110192070"
   [31]=> string(6) "Status" -- "Active"
   [32]=> string(5) "SORID" -- AB Guid (or empty or "NULL")
+"EdPlanNotes" -- This TEKS standard is mapped to more than one reporting category, and to align to Figure 19 standard /
+"Outlinelevel" -- 1 / 2 / ...
+"ChangeType" -- ManyRC-Fig19 / New SE /
+"License" --
+"TypeURI" --
+"Language" -- eng /
+"ConceptKeywordsURI" --
+"ConceptKeywords" --
+"AbbreviatedStatement" --
+"LastChangeDate" --
+"CategoryCode" -- Algebra I.HS.RC2 / Biology.HS.Across All RCs
 }
 
  */

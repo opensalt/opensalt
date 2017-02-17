@@ -13,6 +13,7 @@
                                     {% set item = association.destinationLsItem %}
                                 {% endif %}
                                 <a href="{{ path('editor_lsitem', {'id':item.id}) }}" data-item-id="{{ item.id }}" data-association-id="{{ association.id }}" class="list-group-item lsassociation lsitem clearfix">
+                                    {% block start_of_item_a '' %}
                                     {% if item.humanCodingScheme is not empty %}
                                         <span class="item-humanCodingScheme">{{ item.humanCodingScheme }}</span>
                                     {% endif %}

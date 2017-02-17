@@ -9,13 +9,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsAssociation;
-use CftfBundle\Form\LsAssociationType;
+use CftfBundle\Form\Type\LsAssociationType;
+use CftfBundle\Form\Type\LsAssociationTreeType;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * LsAssociation controller.
  *
- * @Route("/lsassociation")
+ * @Route("/cfassociation")
  */
 class LsAssociationController extends Controller
 {
@@ -25,6 +26,8 @@ class LsAssociationController extends Controller
      * @Route("/", name="lsassociation_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -43,14 +46,16 @@ class LsAssociationController extends Controller
      * @Route("/new/{sourceLsItem}", name="lsassociation_new")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsItem|null $sourceLsItem
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function newAction(Request $request, LsItem $sourceLsItem = null)
     {
         // @TODO: Add LsDoc of the new association for when adding via AJAX
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+        $ajax = $request->isXmlHttpRequest();
 
         $lsAssociation = new LsAssociation();
         if ($sourceLsItem) {
@@ -71,7 +76,7 @@ class LsAssociationController extends Controller
             $em->flush();
 
             if ($ajax) {
-                return new Response($this->generateUrl('editor_lsitem', ['id' => $sourceLsItem->getId()]), Response::HTTP_CREATED);
+                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $sourceLsItem->getId()]), Response::HTTP_CREATED);
             }
 
             return $this->redirectToRoute('lsassociation_show', array('id' => $lsAssociation->getId()));
@@ -94,11 +99,65 @@ class LsAssociationController extends Controller
     }
 
     /**
+     * Creates a new LsAssociation entity -- tree-view version (PW).
+     *
+     * @Route("/treenew/{originLsItem}/{destinationLsItem}", name="lsassociation_tree_new")
+     * @Method({"GET", "POST"})
+     * @Template()
+     *
+     * @param Request $request
+     * @param LsItem|null $originLsItem
+     * @param LsItem|null $destinationLsItem
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
+    public function treeNewAction(Request $request, LsItem $originLsItem = null, LsItem $destinationLsItem = null)
+    {
+        $ajax = $request->isXmlHttpRequest();
+
+        $lsAssociation = new LsAssociation();
+        $lsAssociation->setOriginLsItem($originLsItem);
+        $lsAssociation->setDestinationLsItem($destinationLsItem);
+        // Add to the origin item's LsDoc
+        $lsAssociation->setLsDoc($originLsItem->getLsDoc());
+
+        $form = $this->createForm(LsAssociationTreeType::class, $lsAssociation, ['ajax'=>$ajax]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($lsAssociation);
+            $em->flush();
+
+            if ($ajax) {
+                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $destinationLsItem->getId()]), Response::HTTP_CREATED);
+            }
+
+            return $this->redirectToRoute('lsassociation_show', array('id' => $lsAssociation->getId()));
+        }
+
+        $ret = [
+            'lsAssociation' => $lsAssociation,
+            'form' => $form->createView(),
+        ];
+
+        if ($ajax && $form->isSubmitted() && !$form->isValid()) {
+            return $this->render('CftfBundle:LsAssociation:new.html.twig', $ret, new Response('', Response::HTTP_OK));
+        }
+
+        return $ret;
+    }
+
+    /**
      * Finds and displays a LsAssociation entity.
      *
      * @Route("/{id}", name="lsassociation_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsAssociation $lsAssociation
+     *
+     * @return array
      */
     public function showAction(LsAssociation $lsAssociation)
     {
@@ -116,11 +175,16 @@ class LsAssociationController extends Controller
      * @Route("/{id}/edit", name="lsassociation_edit")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsAssociation $lsAssociation
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function editAction(Request $request, LsAssociation $lsAssociation)
     {
         $deleteForm = $this->createDeleteForm($lsAssociation);
-        $editForm = $this->createForm('CftfBundle\Form\LsAssociationType', $lsAssociation);
+        $editForm = $this->createForm(LsAssociationType::class, $lsAssociation);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -143,6 +207,11 @@ class LsAssociationController extends Controller
      *
      * @Route("/{id}", name="lsassociation_delete")
      * @Method("DELETE")
+     *
+     * @param Request $request
+     * @param LsAssociation $lsAssociation
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsAssociation $lsAssociation)
     {
@@ -159,22 +228,6 @@ class LsAssociationController extends Controller
     }
 
     /**
-     * Creates a form to delete a LsAssociation entity.
-     *
-     * @param LsAssociation $lsAssociation The LsAssociation entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm(LsAssociation $lsAssociation)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsassociation_delete', array('id' => $lsAssociation->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
-        ;
-    }
-
-    /**
      * Remove a child LSItem
      *
      * @Route("/{id}/remove", name="lsassociation_remove")
@@ -182,6 +235,7 @@ class LsAssociationController extends Controller
      * @Template()
      *
      * @param \CftfBundle\Entity\LsAssociation $lsAssociation
+     *
      * @return array
      */
     public function removeChildAction(LsAssociation $lsAssociation)
@@ -199,11 +253,31 @@ class LsAssociationController extends Controller
      * @Route("/{id}/export", defaults={"_format"="json"}, name="lsassociation_export")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsAssociation $lsAssociation
+     *
+     * @return array
      */
     public function exportAction(LsAssociation $lsAssociation)
     {
         return [
             'lsAssociation' => $lsAssociation,
         ];
+    }
+
+    /**
+     * Creates a form to delete a LsAssociation entity.
+     *
+     * @param LsAssociation $lsAssociation The LsAssociation entity
+     *
+     * @return \Symfony\Component\Form\Form The form
+     */
+    private function createDeleteForm(LsAssociation $lsAssociation)
+    {
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('lsassociation_delete', array('id' => $lsAssociation->getId())))
+            ->setMethod('DELETE')
+            ->getForm()
+            ;
     }
 }

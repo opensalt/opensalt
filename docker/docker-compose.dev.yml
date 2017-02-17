@@ -1,0 +1,63 @@
+version: '2.1'
+services:
+  phpfpm:
+    #build:
+    #  context: ./php/fpm
+    image: opensalt/php:7.1-fpm
+    #image: opensalt/php:7.1-fpm-xdebug
+    depends_on:
+      - db
+    environment:
+      SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
+      SYMFONY__MYSQL__USER: "${MYSQL_USER}"
+      SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
+      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_HOST: "${MYSQL_HOST:-db}"
+      #XDEBUG_CONFIG: remote_host=Your_IP_Address
+      GITHUB_CLIENT_ID:
+      GITHUB_CLIENT_SECRET:
+      #DB_USE_RDS_CERT:
+    volumes:
+      - &project_root "..:/var/www/html"
+    working_dir: /var/www/html
+
+  nginx:
+    #build:
+    #  context: ./nginx
+    image: opensalt/nginx:1.11-alpine
+    depends_on:
+      - phpfpm
+    environment:
+      UPSTREAM_HOST: phpfpm:9000
+    ports:
+      - "${PORT:-3000}:80"
+    volumes:
+      - *project_root
+    working_dir: /var/www/html
+    networks:
+      default:
+      external:
+        aliases:
+          - "${COMPOSE_PROJECT_NAME}-salt"
+
+  db:
+    image: percona:${MYSQL_VERSION}
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+
+  #neo4j:
+  #elasticsearch:
+
+#volumes:
+#  mysql-data: {}
+
+networks:
+  external:

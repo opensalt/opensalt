@@ -7,6 +7,6 @@ if [ ! -d data/composer ]; then
     mkdir data/composer
 fi
 echo 'app:*:'$(id -u)':'$(id -g)':Docker:/tmp:/bin/bash' > data/composer/passwd.tmp
-docker-compose -f docker-compose.tools.yml run --rm \
+docker-compose -f docker-compose.yml -f docker-compose.tools.yml run --rm \
     -u $(id -u):$(id -g) \
     composer "$@"

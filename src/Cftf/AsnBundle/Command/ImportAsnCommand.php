@@ -2,7 +2,6 @@
 
 namespace Cftf\AsnBundle\Command;
 
-use CftfBundle\Entity\LsDocRepository;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,12 +16,14 @@ class ImportAsnCommand extends ContainerAwareCommand
             ->setName('import:asn')
             ->setDescription('Import ASN Standards Document')
             ->addArgument('asnId', InputArgument::REQUIRED, 'Identifier for ASN Document')
+            ->addOption('creator', null, InputOption::VALUE_OPTIONAL, 'Document creator')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $asnId = $input->getArgument('asnId');
+        $creator = $input->getOption('creator');
         $jsonClient = $this->getContainer()->get('csa_guzzle.client.json');
 
         foreach ([
@@ -30,7 +31,9 @@ class ImportAsnCommand extends ContainerAwareCommand
                      'http://asn.desire2learn.com/resources/',
                  ] as $urlPrefix) {
             $asnResponse = $jsonClient->request(
-                'GET', $urlPrefix . $asnId . '_full.json', [
+                'GET',
+                $urlPrefix.$asnId.'_full.json',
+                [
                     'timeout' => 60,
                     'headers' => [
                         'Accept' => 'application/json',
@@ -48,14 +51,14 @@ class ImportAsnCommand extends ContainerAwareCommand
         }
 
         if ($asnResponse->getStatusCode() !== 200) {
-            $output->writeln("Error getting document from ASN.");
+            $output->writeln('Error getting document from ASN.');
         }
 
         //$asnDoc = file_get_contents('/var/www/html/tmp/D10003FB.json');
         $asnDoc = $asnResponse->getBody()->getContents();
 
         $asnImport = $this->getContainer()->get('cftf_import.asn');
-        $asnImport->parseAsnDocument($asnDoc);
+        $asnImport->parseAsnDocument($asnDoc, $creator);
 
         $output->writeln('Done.');
     }

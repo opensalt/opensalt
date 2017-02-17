@@ -1,18 +1,32 @@
 {% block body %}
     {
-        "CFDocumentURI": {{ lsAssociation.lsDocUri|local_uri |json_encode |raw }},
+        "CFDocumentURI": {{ lsAssociation.lsDocUri|local_uri |json_encode |raw }}, {# TODO: missing in swagger #}
+{#- "lsDocIdentifier": {{ lsAssociation.lsDocIdentifier |json_encode |raw }}, #}
         "identifier": {{ lsAssociation.identifier |json_encode |raw }},
         "uri": {{ lsAssociation.uri|local_uri |json_encode |raw }},
-        {# "lsDocIdentifier": {{ lsAssociation.lsDocIdentifier |json_encode |raw }}, #}
         {% if lsAssociation.groupName is not null %}
             "CFAssociationGroupingIdentifier": {{ lsAssociation.identifier |json_encode |raw }},
-            "CFAssociationGroupingURI": {{ lsAssociation.groupUri |json_encode |raw }},
+            "CFAssociationGroupingURI": {
+                "title": "Association Group",
+                "identifier": {{ lsAssociation.identifier |json_encode |raw }},
+                "uri": {{ lsAssociation.groupUri |json_encode |raw }}
+            },
         {% endif %}
+{#- sequenceNumber -#}
+{#- relationship -#}
         "originNodeIdentifier": {{ lsAssociation.originNodeIdentifier |json_encode |raw }},
-        "originNodeURI": {{ lsAssociation.originNodeUri|local_uri |json_encode |raw }},
+        "originNodeURI": {
+            "title": "Origin",
+            "identifier": {{ lsAssociation.originNodeIdentifier |json_encode |raw }},
+            "uri": {{ lsAssociation.originNodeUri|local_uri |json_encode |raw }}
+        },
         "associationType": {{ (lsAssociation.type|slice(0,1)|lower~lsAssociation.type|slice(1))|replace({' ': ''}) |json_encode |raw }},
         "destinationNodeIdentifier": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
-        "destinationNodeURI": {{ lsAssociation.destinationNodeUri|local_uri |json_encode |raw }},
-        "lastChangeDateTime": {{ lsAssociation.updatedAt |date('c') |json_encode |raw }}
+        "destinationNodeURI": {
+            "title": "Destination",
+            "identifier": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
+            "uri": {{ lsAssociation.destinationNodeUri|local_uri |json_encode |raw }}
+        },
+        "lastChangeDateTime": {{ lsAssociation.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
     }
 {% endblock %}

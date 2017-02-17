@@ -32,9 +32,10 @@ class AsnDocument
 
     /**
      * @param $arr
+     *
      * @return AsnDocument
      */
-    static public function fromArray($arr)
+    public static function fromArray($arr)
     {
         /** @var AsnDocument $doc */
         $doc = new static();
@@ -57,6 +58,7 @@ class AsnDocument
     /**
      * @param string $key
      * @param array $val
+     *
      * @return AsnDocumentMetadata|AsnStandardDocument|AsnStandard|null
      */
     public function recordFromArray($key, $val)
@@ -97,9 +99,10 @@ class AsnDocument
 
     /**
      * @param $json
+     *
      * @return AsnDocument
      */
-    static public function fromJson($json)
+    public static function fromJson($json)
     {
         $arr = json_decode($json, true);
 
@@ -183,4 +186,3 @@ class AsnDocument
         return $this->standards;
     }
 }
-

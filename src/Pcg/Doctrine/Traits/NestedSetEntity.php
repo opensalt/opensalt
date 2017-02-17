@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Pcg\Doctrine\Traits;
 

@@ -19,8 +19,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class LsItem
 {
+    const DISPLAY_IDENTIFIER_MAXLENGTH = 32;
+
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -86,9 +88,9 @@ class LsItem
     /**
      * @var string
      *
-     * @ORM\Column(name="list_enum_in_source", type="string", length=10, nullable=true)
+     * @ORM\Column(name="list_enum_in_source", type="string", length=20, nullable=true)
      *
-     * @Assert\Length(max=10)
+     * @Assert\Length(max=20)
      */
     private $listEnumInSource;
 
@@ -219,11 +221,28 @@ class LsItem
     private $inverseAssociations;
 
 
-
-    public function __construct()
+    /**
+     * LsItem constructor.
+     *
+     * @param string|Uuid|null $identifier
+     */
+    public function __construct($identifier = null)
     {
-        $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
-        $this->uri = 'local:' . $this->identifier;
+        if (null !== $identifier) {
+            // If the identifier is in the form of a UUID then lower case it
+            if ($identifier instanceof Uuid) {
+                $identifier = strtolower($identifier->toString());
+            } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+                $identifier = strtolower(Uuid::fromString($identifier)->toString());
+            } else {
+                $identifier = Uuid::uuid4()->toString();
+            }
+        } else {
+            $identifier = Uuid::uuid4()->toString();
+        }
+
+        $this->identifier = $identifier;
+        $this->uri = 'local:'.$this->identifier;
         $this->children = new ArrayCollection();
         $this->lsItemParent = new ArrayCollection();
         $this->associations = new ArrayCollection();
@@ -235,27 +254,56 @@ class LsItem
         return $this->uri;
     }
 
+    /**
+     * Clone the LsItem - Do not carry over any associations
+     */
     public function __clone()
     {
-        // TODO: Add an "Exact" relationship to the original
-        /*
-        $exactMatch = new LsAssociation();
-        $exactMatch->setOriginNodeUri($this->getUri());
-        $exactMatch->setDestinationNodeUri($this->getUri());
-        $exactMatch->setType('Exact Match Of');
-        */
-
-        // Clear identifier
+        // Clear values for new item
         $this->id = null;
-
-        // Do not copy the children (or references)?
         $this->children = new ArrayCollection();
+        $this->lsItemParent = new ArrayCollection();
+        $this->associations = new ArrayCollection();
+        $this->inverseAssociations = new ArrayCollection();
 
-        // TODO: We need to figure out a better way to handle the prefix for local items
-        $this->uri = 'local:' . \Ramsey\Uuid\Uuid::uuid4()->toString();
+        // Generate a new identifier
+        $identifier = Uuid::uuid4()->toString();
+        $this->identifier = $identifier;
+        $this->uri = 'local:'.$this->identifier;
 
-        $this->changedAt = new \DateTime();
-        $this->updatedAt = $this->changedAt;
+        // Set last change/update to now
+        $this->updatedAt = new \DateTime();
+        $this->changedAt = $this->updatedAt;
+    }
+
+    /**
+     * Create a copy of the lsItem into a new document
+     *
+     * @param LsDoc $newLsDoc
+     *
+     * @return LsItem
+     */
+    public function copyToLsDoc(LsDoc $newLsDoc)
+    {
+        $newItem = clone $this;
+
+        $newItem->setLsDoc($newLsDoc);
+
+        // Add an "Exact" relationship to the original
+        $exactMatch = new LsAssociation();
+        $exactMatch->setLsDoc($newLsDoc);
+        $exactMatch->setOrigin($newItem);
+        $exactMatch->setType(LsAssociation::EXACT_MATCH_OF);
+        $exactMatch->setDestination($this);
+        $newItem->addAssociation($exactMatch);
+        $this->addInverseAssociation($exactMatch);
+
+        foreach ($this->getChildren() as $child) {
+            $newChild = $child->copyToLsDoc($newLsDoc);
+            $newItem->addChild($newChild);
+        }
+
+        return $newItem;
     }
 
     public function isLsItem()
@@ -301,9 +349,11 @@ class LsItem
         $associations = $this->getInverseAssociations();
         foreach ($associations as $association) {
             /** @var LsAssociation $association */
+            /* Commented out to show relations from other docs
             if ($association->getLsDoc()->getId() !== $this->getLsDoc()->getId()) {
                 continue;
             }
+            */
             $assocName = LsAssociation::inverseName($association->getType());
             if (empty($assocName)) {
                 $assocName = 'Inverse '.$association->getType();
@@ -319,6 +369,14 @@ class LsItem
     {
         if ($this->humanCodingScheme) {
             return $this->getHumanCodingScheme();
+        }
+
+        if ($this->abbreviatedStatement) {
+            return $this->abbreviatedStatement;
+        }
+
+        if ($this->fullStatement) {
+            return $this->fullStatement;
         }
 
         $uri = $this->getUri();
@@ -342,7 +400,7 @@ class LsItem
     /**
      * Get id
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -733,7 +791,10 @@ class LsItem
      */
     public function getChildIds()
     {
-        $ids = $this->getChildren()->map(function($item){return $item->getId();});
+        $ids = $this->getChildren()->map(function (LsItem $item) {
+            return $item->getId();
+        });
+
         return $ids->toArray();
     }
 
@@ -922,6 +983,7 @@ class LsItem
 
     /**
      * @param string $lsDocIdentifier
+     *
      * @return LsItem
      */
     public function setLsDocIdentifier($lsDocIdentifier) {
@@ -938,6 +1000,7 @@ class LsItem
 
     /**
      * @param int $rank
+     *
      * @return LsItem
      */
     public function setRank($rank) {
@@ -954,15 +1017,17 @@ class LsItem
 
     /**
      * @param string $property
+     * @param string $default
+     *
      * @return mixed
      */
-    public function getExtraProperty($property) {
+    public function getExtraProperty($property, $default = null) {
         if (is_null($this->extra)) {
-            return null;
+            return $default;
         }
 
         if (!array_key_exists($property, $this->extra)) {
-            return null;
+            return $default;
         }
 
         return $this->extra[$property];
@@ -970,6 +1035,7 @@ class LsItem
 
     /**
      * @param array $extra
+     *
      * @return LsItem
      */
     public function setExtra($extra) {
@@ -980,6 +1046,7 @@ class LsItem
     /**
      * @param string $property
      * @param mixed $value
+     *
      * @return LsItem
      */
     public function setExtraProperty($property, $value) {
@@ -1023,6 +1090,7 @@ class LsItem
      * Set the LsItem language
      *
      * @param string $language
+     *
      * @return LsItem
      */
     public function setLanguage($language) {
@@ -1034,6 +1102,7 @@ class LsItem
      * Get (an indented) label representing this item
      *
      * @param string $indent
+     *
      * @return string
      */
     public function getLabel($indent = "\u{00a0}\u{00a0}\u{00a0}\u{00a0}") {
@@ -1070,6 +1139,7 @@ class LsItem
 
     /**
      * @param LsDefItemType $itemType
+     *
      * @return LsItem
      */
     public function setItemType($itemType) {

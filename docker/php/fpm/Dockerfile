@@ -1,4 +1,4 @@
-FROM php:7.0.12-fpm
+FROM opensalt/php-base:7.1-fpm
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -13,11 +13,16 @@ RUN	apt-get -o 'Acquire::CompressionTypes::Order::="gz"' update \
 		libicu-dev \
 	&& docker-php-ext-configure gd --with-freetype-dir=/usr/lib/x86_64-linux-gnu --with-jpeg-dir \
 	&& docker-php-ext-install mcrypt bz2 gd mbstring zip pdo pdo_mysql mysqli pcntl bcmath opcache intl \
-	&& pecl install apcu-5.1.7 apcu_bc-1.0.3 \
+	&& pecl install apcu-5.1.8 apcu_bc-1.0.3 \
 	&& docker-php-ext-enable --ini-name 0-apc.ini apcu apc \
 	&& apt-get purge --auto-remove -y libmcrypt-dev libbz2-dev libpng12-dev libfreetype6-dev libicu-dev \
-	&& apt-get install -y --no-install-recommends libmcrypt4 libbz2-1.0 libpng12-0 libfreetype6 libicu52
+	&& apt-get install -y --no-install-recommends libmcrypt4 libbz2-1.0 libpng12-0 libfreetype6 libicu52 \
+	&& rm -r /var/lib/apt/lists/*
 
-COPY memory_limit.ini /usr/local/etc/php/conf.d/memory_limit.ini
-COPY upload_size.ini /usr/local/etc/php/conf.d/upload_size.ini
-COPY short_tag.ini /usr/local/etc/php/conf.d/short_tag.ini
+COPY \
+    memory_limit.ini \
+    upload_size.ini \
+    short_tag.ini \
+    opcache.ini \
+    log.ini \
+        /usr/local/etc/php/conf.d/

@@ -10,7 +10,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportSbacCommand extends ContainerAwareCommand
@@ -52,14 +51,12 @@ class ImportSbacCommand extends ContainerAwareCommand
 
             $s = $em->getRepository('CftfBundle:LsDefSubject')->findBy(['title' => $subject]);
             if (null === $s) {
-                $uuid = Uuid::uuid5(Uuid::fromString('cacee394-85b7-11e6-9d43-005056a32dda'), $subject);
+                $uuid = Uuid::uuid5('cacee394-85b7-11e6-9d43-005056a32dda', $subject)->toString();
                 $s = new LsDefSubject();
                 $s->setIdentifier($uuid);
-                $s->setUri('local:'.$uuid->toString());
+                $s->setUri('local:'.$uuid);
                 $s->setTitle($subject);
-                $s->setHierarchyCode("1");
-
-                $subjects[$subject] = $s;
+                $s->setHierarchyCode('1');
 
                 $em->persist($s);
             }
@@ -86,7 +83,7 @@ class ImportSbacCommand extends ContainerAwareCommand
         $done = false;
         $row = 1;
         while (!$done) {
-            $row++;
+            ++$row;
 
             $level = (int) $stdSheet->getCellByColumnAndRow(0, $row)->getValue();
             if (empty($level)) {
@@ -120,7 +117,7 @@ class ImportSbacCommand extends ContainerAwareCommand
         $done = false;
         $row = 1;
         while (!$done) {
-            $row++;
+            ++$row;
             $key = $gradesSheet->getCellByColumnAndRow(0, $row)->getValue();
 
             if (!empty($key)) {
@@ -130,7 +127,7 @@ class ImportSbacCommand extends ContainerAwareCommand
                         $grade = 'KG';
                     } elseif (is_numeric($grade)) {
                         if ($grade < 10) {
-                            $grade = '0' . $grade;
+                            $grade = '0'.$grade;
                         }
                     } else {
                         $grade = 'OT';
