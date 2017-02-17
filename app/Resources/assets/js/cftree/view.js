@@ -1028,7 +1028,11 @@ app.toggleFolders = function(itemIds, val) {
 	}
 	for (var i = 0; i < itemIds.length; ++i) {
 		var node = app.getNodeFromLsItemId(itemIds[i]);
-		node.folder = !(node.folder == true);
+		if (val == "toggle") {
+			node.folder = !(node.folder == true);
+		} else {
+			node.folder = val;
+		}
 		node.render();
 	}
 	
