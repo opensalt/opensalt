@@ -83,7 +83,7 @@ app.loadItemDetails = function(lsItemId) {
             $jq.find("[id=deleteItemBtn]").on('click', app.deleteItems);
 
             // enable toggleFolder button
-            $jq.find("[id=toggleFolderBtn]").on('click', app.toggleFolder);
+            $jq.find("[id=toggleFolderBtn]").on('click', app.toggleFolders);
             
             // hide/enable make folder and create new item buttons appropriately
             app.toggleItemCreationButtons();
@@ -254,7 +254,7 @@ app.renderTree1 = function() {
                             return true;
                         }
                     } else {
-                        return ["before", "after"];
+                        return ["before", "after"];		// , "over"
                     }
 
                     // drag from tree2 to tree1
@@ -437,6 +437,8 @@ app.treeCheckboxMenuItemSelected = function($menu) {
         alert("The ability to edit properties of multiple items at the same time will be coming soon.");
     } else if (cmd == "delete") {
         app.deleteItems(itemIds);
+    } else if (cmd == "makeFolders") {
+    	app.toggleFolders(itemIds, true);
     } else {    // hideCheckboxes
         // clear checkbox selections
         var $cb = $tree.closest(".treeSide").find(".treeCheckboxControl");
@@ -1013,15 +1015,24 @@ app.toggleItemCreationButtons = function() {
         $jq.find("[id=addChildBtn]").hide();
         
         // set the text of the toggleFolderBtn appropriately
-        $jq.find("[id=toggleFolderBtn]").text( (node.folder == true) ? "Make This Item a Singleton" : "Make This Item a Folder" );
+        $jq.find("[id=toggleFolderBtn]").text( (node.folder == true) ? "Make This Item a Child" : "Make This Item a Parent" );
     }
 }
 
-app.toggleFolder = function() {
-    var node = app.getNodeFromLsItemId(app.lsItemId);
-    node.folder = !(node.folder == true);
-    node.render();
-    app.toggleItemCreationButtons();
+app.toggleFolders = function(itemIds, val) {
+	if (!$.isArray(itemIds)) {
+		itemIds = [app.lsItemId];
+	}
+	if (typeof(val) != "boolean") {
+		val = "toggle";
+	}
+	for (var i = 0; i < itemIds.length; ++i) {
+		var node = app.getNodeFromLsItemId(itemIds[i]);
+		node.folder = !(node.folder == true);
+		node.render();
+	}
+	
+	app.toggleItemCreationButtons();
 };
 
 app.getAddNewChildPath = function() {
