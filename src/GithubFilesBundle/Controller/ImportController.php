@@ -27,10 +27,11 @@ class ImportController extends Controller
         $response = new JsonResponse();
         $lsDocKeys = $request->request->get('cfDocKeys');
         $lsItemKeys = $request->request->get('cfItemKeys');
+        $lsAssocKeys = $request->request->get('cfAssociationKeys');
         $fileContent = $request->request->get('content');
 
         $githubImporter = $this->get('cftf_import.github');
-        $githubImporter->parseCSVGithubDocument($lsDocKeys, $lsItemKeys, base64_decode($fileContent));
+        $githubImporter->parseCSVGithubDocument($lsDocKeys, $lsItemKeys, $lsAssocKeys, base64_decode($fileContent));
 
         return $response->setData([
             'message' => 'Success',
