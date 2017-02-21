@@ -16,7 +16,7 @@ services:
       MYSQL_USER:
       MYSQL_PASSWORD:
       MYSQL_HOST: "${MYSQL_HOST:-db}"
-      #DB_USE_RDS_CERT:
+      DB_USE_RDS_CERT:
     volumes:
       - &project_root "..:/var/www/html"
     working_dir: /var/www/html
@@ -35,7 +35,7 @@ services:
       MYSQL_USER:
       MYSQL_PASSWORD:
       MYSQL_HOST: "${MYSQL_HOST:-db}"
-      #DB_USE_RDS_CERT:
+      DB_USE_RDS_CERT:
     volumes:
       - *project_root
       - ./data/composer/slash:/composer
