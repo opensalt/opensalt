@@ -909,7 +909,7 @@ app.copyItem = function(draggedNode, droppedNode, hitMode) {
             var key = siblings[i].key;
 
             // update listEnum if changed
-            if (siblings[i].data == null || siblings[i].data.listEnum != (i+1)) {
+            if (key.lastIndexOf('__', 0) !== 0 && (siblings[i].data == null || siblings[i].data.listEnum != (i+1))) {
                 lsItems[key] = {
                     "listEnumInSource": (i+1)
                 };
