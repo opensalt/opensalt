@@ -43,6 +43,7 @@ class DefaultController extends Controller
             ]);
         }
 
+        $response->setStatusCode(401);
         return $response->setData([
             'message' => 'Please log in with your GitHub account',
         ]);
