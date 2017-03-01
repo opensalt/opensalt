@@ -20,7 +20,6 @@ $(document).on('ready', function(){
 var SaltGithub = (function(){
 
     function init(){
-        getRepoList(1, 30);
         $('#js-wizard-btn').click(function(){
             loadModal();
         });
@@ -126,12 +125,14 @@ var SaltGithub = (function(){
     }
 
     return {
-        init: init
+        init: init,
+        getRepoList: getRepoList
     };
 })();
 
 function loadContent(value){
     if (value ===  'github'){
+        SaltGithub.getRepoList(1, 30);
         $("#asn").addClass('hidden');
         $("#github").removeClass('hidden');
     }else if (value === 'asn'){

@@ -4,6 +4,7 @@ namespace GithubFilesBundle\Service;
 
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
+use CftfBundle\Entity\LsAssociation;
 use Doctrine\ORM\EntityManager;
 use JMS\DiExtraBundle\Annotation as DI;
 
@@ -46,8 +47,9 @@ class GithubImport
      * @param array $lsItemKeys
      * @param string $fileContent
      */
-    public function parseCSVGithubDocument($lsDocKeys, $lsItemKeys, $fileContent)
+    public function parseCSVGithubDocument($lsDocKeys, $lsItemKeys, $lsAssocKeys, $fileContent)
     {
+        $this->lsAssocKeys = $lsAssocKeys;
         $csvContent = str_getcsv($fileContent, "\n");
         $headers = [];
         $content = [];
@@ -158,23 +160,15 @@ class GithubImport
      * @param array $lsItemKeys
      * @param string $data
      *
-     * @return LsItem
      */
     public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data, $isTop)
     {
         $lsItem = new LsItem();
         $em = $this->getEntityManager();
 
-        $fullStatement = $this->getValue($lsItemKeys['fullStatement'], $data);
-        $humanCodingScheme = $this->getValue($lsItemKeys['humanCodingScheme'], $data);
-
         $lsItem->setLsDoc($lsDoc);
-        if( $isTop ){
-            $fullStatement = $this->getValue($lsItemKeys['groupBy'], $data);
-            $humanCodingScheme = "";
-        }
-        $lsItem->setFullStatement($fullStatement);
-        $lsItem->setHumanCodingScheme($humanCodingScheme);
+        $lsItem->setFullStatement($this->getValue($lsItemKeys['fullStatement'], $data));
+        $lsItem->setHumanCodingScheme($this->getValue($lsItemKeys['humanCodingScheme'], $data));
         $lsItem->setAbbreviatedStatement($this->getValue($lsItemKeys['abbreviatedStatement'], $data));
         $lsItem->setListEnumInSource($this->getValue($lsItemKeys['listEnumeration'], $data));
         $lsItem->setConceptKeywords($this->getValue($lsItemKeys['conceptKeywords'], $data));
@@ -182,6 +176,25 @@ class GithubImport
         $lsItem->setLanguage($this->getValue($lsItemKeys['language'], $data));
         $lsItem->setLicenceUri($this->getValue($lsItemKeys['license'], $data));
         $lsItem->setNotes($this->getValue($lsItemKeys['notes'], $data));
+
+        $itemsAssociated = $this->getValue($this->lsAssocKeys['isRelatedTo'], $data);
+
+        // Adding associations if items has one.
+        if( strlen($this->lsAssocKeys["isRelatedTo"]) > 0 && strlen($itemsAssociated) > 0){
+            $repository = $this->getEntityManager()->getRepository(LsItem::class);
+            $humanCodingSchemes = explode(',', $itemsAssociated);
+            $itemsRelated = $repository->findByHumanCodingScheme($humanCodingSchemes);
+            foreach($itemsRelated as $itemRelated){
+                $lsAssoc = new LsAssociation();
+                $lsAssoc->setLsDoc($itemRelated->getLsDoc());
+                $lsAssoc->setOrigin($itemRelated);
+                $lsAssoc->setType(LsAssociation::RELATED_TO);
+                $lsAssoc->setDestination($lsItem);
+                $itemRelated->addAssociation($lsAssoc);
+                $lsItem->addInverseAssociation($lsAssoc);
+            }
+        }
+
 
         $em->persist($lsItem);
 

@@ -19,7 +19,7 @@ services:
       #XDEBUG_CONFIG: remote_host=Your_IP_Address
       GITHUB_CLIENT_ID:
       GITHUB_CLIENT_SECRET:
-      #DB_USE_RDS_CERT:
+      DB_USE_RDS_CERT:
     volumes:
       - &project_root "..:/var/www/html"
     working_dir: /var/www/html

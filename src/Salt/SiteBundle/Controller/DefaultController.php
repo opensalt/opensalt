@@ -20,8 +20,7 @@ class DefaultController extends Controller
         if (file_exists($webDir.'/version.txt')) {
             $fullVersion = trim(file_get_contents($webDir.'/version.txt'));
         } elseif (file_exists($rootDir.'/../VERSION')) {
-            $pfxVersion = trim(file_get_contents($rootDir.'/../VERSION'));
-            $fullVersion = $pfxVersion.'-dev';
+            $fullVersion = trim(file_get_contents($rootDir.'/../VERSION'));
         } else {
             $fullVersion = 'UNKNOWN';
         }
