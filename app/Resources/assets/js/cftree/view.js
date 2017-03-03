@@ -760,6 +760,9 @@ app.tree1Activate = function(n) {
         // if we already have an item div loaded for this item, just show it
         if (app.getLsItemDetailsJq(app.lsItemId).length > 0) {
             app.getLsItemDetailsJq(app.lsItemId).show();
+            
+            // make sure make folder and create new item buttons are set appropriately
+            app.toggleItemCreationButtons();
 
             // else...
         } else {
@@ -998,10 +1001,12 @@ app.treeDblClicked = function(lsItemId) {
 //////////////////////////////////////////////////////
 // ADD A NEW CHILD TO A DOCUMENT OR ITEM
 app.toggleItemCreationButtons = function() {
+	console.log("toggleItemCreationButtons");
+	
     var $jq = $("[data-item-lsItemId=" + app.lsItemId + "]");
     var node = app.getNodeFromLsItemId(app.lsItemId);
     // if item already has children
-    if ($.isArray(node.children)) {
+    if ($.isArray(node.children) && node.children.length > 0) {
         // hide "Make this item a folder" button
         $jq.find("[id=toggleFolderBtn]").hide();
         // and show the "Add a new child item" button
@@ -1011,11 +1016,15 @@ app.toggleItemCreationButtons = function() {
     } else {
         // show "Make this item a folder" button
         $jq.find("[id=toggleFolderBtn]").show();
-        // and hide the "Add a new child item" button
-        $jq.find("[id=addChildBtn]").hide();
         
-        // set the text of the toggleFolderBtn appropriately
-        $jq.find("[id=toggleFolderBtn]").text( (node.folder == true) ? "Make This Item a Child" : "Make This Item a Parent" );
+        // set the text of the toggleFolderBtn and visibility of the addChildBtn appropriately
+        if (node.folder == true) {
+	        $jq.find("[id=toggleFolderBtn]").text("Make This Item a Child");
+	        $jq.find("[id=addChildBtn]").show();
+	    } else {
+	        $jq.find("[id=toggleFolderBtn]").text("Make This Item a Parent");
+	        $jq.find("[id=addChildBtn]").hide();
+	    }
     }
 }
 
@@ -1126,6 +1135,9 @@ app.addNewChild = function(data) {
 
     // and now we have to saveItemOrder
     app.saveItemOrder(newNode, parentNode);
+
+	// hide/enable make folder and create new item buttons on parent appropriately
+	app.toggleItemCreationButtons();
 };
 
 //////////////////////////////////////////////////////
