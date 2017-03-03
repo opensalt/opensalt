@@ -15,6 +15,7 @@ $(document).on('ready', function(){
             Import.send();
         }
     });
+    document.getElementById('file-url').addEventListener('change', SaltLocal.handleFile, false);
 });
 
 var SaltGithub = (function(){
@@ -130,25 +131,6 @@ var SaltGithub = (function(){
     };
 })();
 
-function loadContent(value){
-    if (value ===  'github'){
-        SaltGithub.getRepoList(1, 30);
-        $("#asn").addClass('hidden');
-        $("#github").removeClass('hidden');
-    }else if (value === 'asn'){
-        $("#github").addClass('hidden');
-        $("#asn").removeClass('hidden');
-    }
-}
-
-function listRepositories(){
-    $('#files').addClass('hidden');
-    $('#repos').removeClass('hidden');
-    $('#pagination').removeClass('hidden');
-    $('.repositories-list').addClass('hidden');
-    $('.panel-title').html('Repositories list');
-}
-
 var ImportFrameworks = (function(){
 
     function asnStructure(content){
@@ -240,6 +222,45 @@ var Import = (function(){
         json: jsonImporter,
         send: sendData
     };
+})();
+
+var SaltLocal = (function(){
+
+    function handleFileSelect(evt){
+
+        var files = evt.target.files; // FileList Object
+        var json = '', f;
+
+        if (window.File && window.FileReader && window.FileList && window.Blob){
+
+            for (var i=0; f = files[i]; i++){
+
+                console.log('name:', escape(f.name), '- type:', f.type || 'n/a', '- size:', f.size,
+                            'bytes', '- lastModifiedDate:', f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
+
+                var reader = new FileReader();
+                if (f.type === 'text/csv'){
+
+                    reader.onload = (function(theFile){
+                        return function(e){
+                            file = e.target.result;
+                            Import.csv(file);
+                        };
+                    })(f);
+
+                    reader.readAsText(f);
+                }else{
+                    console.error('file type not allowed - ' + f.type);
+                }
+            }
+        }else{
+            console.error('The FILE APIs are not fully supported in this broswer');
+        }
+    }
+
+    return {
+        handleFile: handleFileSelect
+    }
 })();
 
 var Dropdowns = (function(){
@@ -365,6 +386,31 @@ var SanitizeData = (function(){
         matchedFields: matchedFields
     }
 })();
+
+function loadContent(value){
+    if (value ===  'github'){
+        SaltGithub.getRepoList(1, 30);
+        $("#asn").addClass('hidden');
+        $("#local").addClass('hidden');
+        $("#github").removeClass('hidden');
+    }else if (value === 'asn'){
+        $("#github").addClass('hidden');
+        $("#local").addClass('hidden');
+        $("#asn").removeClass('hidden');
+    }else if (value === 'local'){
+        $("#github").addClass('hidden');
+        $("#asn").addClass('hidden');
+        $('#local').removeClass('hidden');
+    }
+}
+
+function listRepositories(){
+    $('#files').addClass('hidden');
+    $('#repos').removeClass('hidden');
+    $('#pagination').removeClass('hidden');
+    $('.repositories-list').addClass('hidden');
+    $('.panel-title').html('Repositories list');
+}
 
 String.prototype.capitalize = function(){
     return this.charAt(0).toUpperCase() + this.slice(1);
