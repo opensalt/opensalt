@@ -116,7 +116,7 @@
             "denheck/faker-context": "dev-master",
                 "fzaninotto/faker": "~1.6",
 
-        "phpunit/phpunit": "~6.0",
+        "phpunit/phpunit": "~5.7",
 
         "phpspec/phpspec": "~3.2",
             "rmiller/behat-spec": "*",
