@@ -207,6 +207,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             }
 
             $em->persist($lsAssoc);
+        }
 
         // Add items that do not have a parent as a child to the doc
         foreach ($lsItems as $key => $lsItem) {
