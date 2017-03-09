@@ -11,7 +11,6 @@ namespace Cftf\ImsBundle\Command;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Entity\LsDefItemType;
-use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityManager;
@@ -45,22 +44,6 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
         $items = $this->fetchFile($dirname.'/CFItem.csv', $itemsKeyedBy);
         $associationGroups = $this->fetchFile($dirname.'/CFAssociationGrouping.csv', 'URI');
         $associations = $this->fetchFile($dirname.'/CFAssociation.csv', 'URI');
-
-
-        /*
-        $lsSubjects = [];
-        foreach ($subjects as $key => $rec) {
-            $lsSubject = new LsDefSubject();
-            $lsSubject->setExtraProperty('_source', json_encode($rec));
-            $lsSubject->setDescription($rec['Description']);
-            $lsSubject->setHierarchyCode($rec['HierarchyCode']);
-            $lsSubject->setTitle($rec['Title']);
-
-            $em->persist($lsSubject);
-
-            $lsSubjects[$key] = $lsSubject;
-        }
-        */
 
         /** @var LsDoc[] $lsDocs */
         $lsDocs = [];
