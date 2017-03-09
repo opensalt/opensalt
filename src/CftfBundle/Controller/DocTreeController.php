@@ -259,7 +259,7 @@ class DocTreeController extends Controller
 
         $em->flush();
 
-        if (sizeof($rv) == 0) {
+        if (count($rv) == 0) {
             return ['topItems' => $rv];
         } else {
             // get doc items for return

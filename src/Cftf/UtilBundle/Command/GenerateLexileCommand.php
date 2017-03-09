@@ -64,7 +64,7 @@ class GenerateLexileCommand extends ContainerAwareCommand
 
         $lsItem = $this->createReadingLevel('BR', 'Reading Level', 0);
 
-        for ($i = 0; $i <= 2000; $i++) {
+        for ($i = 0; $i <= 2000; ++$i) {
             $lsItem = $this->createReadingLevel($i.'L', 'Reading Level', $i+1);
         }
 
@@ -78,7 +78,7 @@ class GenerateLexileCommand extends ContainerAwareCommand
         $lvl2Size = 10;
         for ($i = 1; $i <= 2000; $i += $lvl2Size) {
             $lsItem = $this->createReadingLevel($i.'L-'.($i+$lvl2Size-1).'L', 'Reading Levels', $i);
-            for ($j = $i, $jMax = $i+$lvl2Size; $j < $jMax; $j++) {
+            for ($j = $i, $jMax = $i+$lvl2Size; $j < $jMax; ++$j) {
                 $this->createAssociation($this->lsItems[$j.'L'], $lsItem, LsAssociation::CHILD_OF, $j+1);
                 $this->createAssociation($this->lsItems[$j.'L'], $lsItem, LsAssociation::PART_OF, $j+1);
             }

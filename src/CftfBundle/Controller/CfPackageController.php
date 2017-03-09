@@ -45,13 +45,13 @@ class CfPackageController extends Controller
             'associationGroupings' => [],
         ];
         $response = new Response($this->renderView("CftfBundle:CfPackage:export.$_format.twig", $arr));
-        
-        if ($_format == "json") {
+
+        if ($_format == 'json') {
             $response->headers->set('Content-Type', 'text/json');
-            $response->headers->set('Content-Disposition', 'attachment; filename=opensalt-framework-' . $lsDoc->getIdentifier() . '.json');
+            $response->headers->set('Content-Disposition', 'attachment; filename=opensalt-framework-'.$lsDoc->getIdentifier().'.json');
             $response->headers->set('Pragma', 'no-cache');
         }
-        
+
         return $response;
     }
 }

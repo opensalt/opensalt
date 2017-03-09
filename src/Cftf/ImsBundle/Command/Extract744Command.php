@@ -89,7 +89,7 @@ class Extract744Command extends ContainerAwareCommand
                 $em->persist($lsItem);
 
                 $thisLevel = $levels[$class];
-                for ($i = $lastLevel; $i >= $thisLevel; $i--) {
+                for ($i = $lastLevel; $i >= $thisLevel; --$i) {
                     array_pop($parents);
                 }
                 $lsItem->addParent(end($parents));

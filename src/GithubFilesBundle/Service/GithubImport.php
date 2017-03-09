@@ -102,9 +102,9 @@ class GithubImport
         $lsDoc->setLanguage($this->getValue($lsDocKeys['language'], $content[0]));
         $lsDoc->setNote($this->getValue($lsDocKeys['notes'], $content[0]));
 
-        $lastGroupBy = "__default";
+        $lastGroupBy = '__default';
         $listGroupBy = [];
-        $groupBy = "";
+        $groupBy = '';
 
         $lsItems = [];
         $humanCodingValues = [];
@@ -154,7 +154,6 @@ class GithubImport
      * @param LsDoc $lsDoc
      * @param array $lsItemKeys
      * @param string $data
-     *
      */
     public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data)
     {
@@ -175,7 +174,7 @@ class GithubImport
         $itemsAssociated = $this->getValue($this->lsAssocKeys['isRelatedTo'], $data);
 
         // Adding associations if items has one.
-        if (strlen($this->lsAssocKeys["isRelatedTo"]) > 0 && strlen($itemsAssociated) > 0) {
+        if (strlen($this->lsAssocKeys['isRelatedTo']) > 0 && strlen($itemsAssociated) > 0) {
             $repository = $this->getEntityManager()->getRepository(LsItem::class);
             $humanCodingSchemes = explode(',', $itemsAssociated);
             $itemsRelated = $repository->findByHumanCodingScheme($humanCodingSchemes);
