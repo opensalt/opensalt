@@ -39,5 +39,4 @@ class ImportAsnCommand extends ContainerAwareCommand
 
         $output->writeln('Done.');
     }
-
 }
