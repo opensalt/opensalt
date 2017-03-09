@@ -272,6 +272,7 @@ class AsnImport
      * @param string $asnLocator
      *
      * @return string
+     *
      * @throws \Exception
      */
     public function getAsnDocument(string $asnLocator)
@@ -315,6 +316,7 @@ class AsnImport
      * @param string $url
      *
      * @return string
+     *
      * @throws \Exception
      */
     public function requestAsnDocument(string $url)
