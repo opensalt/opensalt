@@ -196,7 +196,7 @@ var Import = (function(){
         var selects = $('.select');
 
         var dataRequest = {
-            content: window.btoa(file),
+            content: window.btoa(unescape(encodeURIComponent(file))),
             cfDocKeys: SanitizeData.matchedFields("form.matched-fields-cfdoc"),
             cfItemKeys: SanitizeData.matchedFields("form.matched-fields-cfitem"),
             cfAssociationKeys: SanitizeData.matchedFields("form.matched-fields-cfassociation")
