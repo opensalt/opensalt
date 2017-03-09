@@ -102,7 +102,6 @@ class GithubImport
         $lsDoc->setLanguage($this->getValue($lsDocKeys['language'], $content[0]));
         $lsDoc->setNote($this->getValue($lsDocKeys['notes'], $content[0]));
 
-        $groups = [];
         $lastGroupBy = "__default";
         $listGroupBy = [];
         $groupBy = "";
@@ -110,7 +109,7 @@ class GithubImport
         $lsItems = [];
         $humanCodingValues = [];
         for ($i = 1, $iMax = count($content); $i < $iMax; ++$i) {
-            $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $content[$i], false);
+            $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $content[$i]);
             $lsItems[$i] = $lsItem;
             if ($lsItem->getHumanCodingScheme()) {
                 $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
@@ -157,7 +156,7 @@ class GithubImport
      * @param string $data
      *
      */
-    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data, $isTop)
+    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data)
     {
         $lsItem = new LsItem();
         $em = $this->getEntityManager();

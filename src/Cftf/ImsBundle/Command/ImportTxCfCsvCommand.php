@@ -38,7 +38,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
 
         $itemsKeyedBy = 'Identifier';
 
-        $subjects = $this->fetchFile($dirname.'/CFSubject.csv', 'URI');
+        //$subjects = $this->fetchFile($dirname.'/CFSubject.csv', 'URI');
         $docs = $this->fetchFile($dirname.'/CFDocument.csv', 'PackageURI');
         $itemTypes = $this->fetchFile($dirname.'/CFItemType.csv', 'URI');
         $items = $this->fetchFile($dirname.'/CFItem.csv', $itemsKeyedBy);
@@ -145,8 +145,6 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             $lsAssocGroups[$key] = $lsAssocGroup;
         }
 
-        /** @var LsAssociation[] $lsAssociations */
-        $lsAssociations = [];
         foreach ($associations as $key => $rec) {
             $lsAssoc = new LsAssociation();
             $assocGroup = $lsAssocGroups[$rec['CFAssociationGroupingURI']];
@@ -209,9 +207,6 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             }
 
             $em->persist($lsAssoc);
-
-            $lsAssociations[$key] = $lsAssoc;
-        }
 
         // Add items that do not have a parent as a child to the doc
         foreach ($lsItems as $key => $lsItem) {

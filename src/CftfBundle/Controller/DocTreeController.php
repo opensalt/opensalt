@@ -197,10 +197,6 @@ class DocTreeController extends Controller
      */
     public function updateItemsAction(Request $request, LsDoc $lsDoc, $_format = 'json')
     {
-        $lsDocId = $lsDoc->getId();
-
-        // by default we'll return the url of the document
-        // $returnUrl = new Response($this->generateUrl('doc_tree_view', ['id' => $lsDocId]), Response::HTTP_ACCEPTED);
         $rv = [];
 
         $em = $this->getDoctrine()->getManager();
