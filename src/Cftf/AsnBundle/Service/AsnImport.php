@@ -4,11 +4,13 @@ namespace Cftf\AsnBundle\Service;
 
 use Cftf\AsnBundle\Entity\AsnDocument;
 use Cftf\AsnBundle\Entity\AsnStandard;
+use Cftf\AsnBundle\Entity\AsnValue;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefItemType;
 use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use GuzzleHttp\ClientInterface;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -63,7 +65,7 @@ class AsnImport
 
         $doc = AsnDocument::fromJson($asnDoc);
 
-        $md = $doc->getMetadata();
+        // Ignoring doc metadata that might be provided
         $sd = $doc->getStandardDocument();
         $lsDoc = new LsDoc();
 
@@ -71,13 +73,11 @@ class AsnImport
         $lsDoc->setIdentifier($lsDocIdentifier);
         $lsDoc->setUri('local:'.$lsDocIdentifier);
 
-        $map = [ // LsDoc from AsnStandardDocument
-            //'identifier' => 'identifier',
-            //'uri' => 'identifier',
+        $map = [
+            // LsDoc field from AsnStandardDocument field
             'title' => 'title',
             'note' => 'description',
             'officialUri' => 'source',
-            //'subjectUri' => 'subject',
             'creator' => 'publisher',
         ];
         foreach ($map as $ldProp => $sdProp) {
@@ -161,9 +161,8 @@ class AsnImport
 
         $em->persist($lsItem);
 
-        $map = [ // LsItem from AsnStandard
-            //'uri' => 'identifier',
-            //'identifier' => 'identifier',
+        $map = [
+            // LsItem field from AsnStandard field
             'fullStatement' => 'description',
             'humanCodingScheme' => 'statementNotation',
             'listEnumInSource' => 'listID',
@@ -186,12 +185,7 @@ class AsnImport
                 ->findOneBy(['title' => $label])
             ;
             if (null === $itemType) {
-                $itemType = new LsDefItemType();
-                $itemType->setTitle($label);
-                $itemType->setCode($label);
-                $itemType->setHierarchyCode('1');
-                $em->persist($itemType);
-                $em->flush($itemType);
+                $itemType = $this->addItemType($label);
             }
 
             $lsItem->setItemType($itemType);
@@ -205,47 +199,16 @@ class AsnImport
         }
 
         if ($asnStandard->educationLevel) {
-            $levels = [];
-            foreach ($asnStandard->educationLevel as $level) {
-                $lvl = preg_replace('#.*/#', '', $level->value);
-                switch ($lvl) {
-                    case 'K':
-                        $levels[] = 'KG';
-                        break;
-                    case 'Pre-K':
-                        $levels[] = 'PK';
-                        break;
-                    default:
-                        if (is_numeric($lvl)) {
-                            if ($lvl < 10) {
-                                $levels[] = '0'.((int) $lvl);
-                            } else {
-                                $levels[] = $lvl;
-                            }
-                        } else {
-                            $levels[] = 'OT';
-                        }
-                }
-            }
+            $levels = $this->getLevels($asnStandard->educationLevel);
 
-            if (0 <= count($levels)) {
+            if (0 < count($levels)) {
+                $levels = array_unique($levels);
                 $lsItem->setEducationalAlignment(implode(',', $levels));
             }
         }
 
         if ($matches = $asnStandard->getExactMatch()) {
-            foreach ($matches as $match) {
-                $assoc = new LsAssociation();
-                $assoc->setLsDoc($lsDoc);
-                $assoc->setType(LsAssociation::EXACT_MATCH_OF);
-                $assoc->setOriginLsItem($lsItem);
-                $assoc->setDestinationNodeUri($match->value);
-                $assoc->setDestinationNodeIdentifier($match->value);
-
-                $lsItem->addAssociation($assoc);
-
-                $em->persist($assoc);
-            }
+            $this->addExactMatches($lsDoc, $lsItem, $asnStandard->getExactMatch());
         }
 
         $lsAssociation = new LsAssociation();
@@ -341,5 +304,79 @@ class AsnImport
         }
 
         return $asnResponse->getBody()->getContents();
+    }
+
+    /**
+     * @param array $levelList
+     *
+     * @return array
+     */
+    protected function getLevels(array $levelList)
+    {
+        $levels = [];
+
+        foreach ($levelList as $level) {
+            $lvl = preg_replace('#.*/#', '', $level->value);
+            switch ($lvl) {
+                case 'K':
+                    $levels[] = 'KG';
+                    break;
+
+                case 'Pre-K':
+                    $levels[] = 'PK';
+                    break;
+
+                default:
+                    if (is_numeric($lvl)) {
+                        if ($lvl < 10) {
+                            $levels[] = '0'.((int) $lvl);
+                        } else {
+                            $levels[] = $lvl;
+                        }
+                    } else {
+                        $levels[] = 'OT';
+                    }
+            }
+        }
+
+        return $levels;
+    }
+
+    /**
+     * @param string $label
+     *
+     * @return LsDefItemType
+     */
+    protected function addItemType(string $label)
+    {
+        $itemType = new LsDefItemType();
+        $itemType->setTitle($label);
+        $itemType->setCode($label);
+        $itemType->setHierarchyCode('1');
+        $this->em->persist($itemType);
+        $this->em->flush($itemType);
+
+        return $itemType;
+    }
+
+    /**
+     * @param LsDoc $lsDoc
+     * @param LsItem $lsItem
+     * @param AsnValue[]|ArrayCollection $matches
+     */
+    protected function addExactMatches(LsDoc $lsDoc, LsItem $lsItem, $matches)
+    {
+        foreach ($matches as $match) {
+            $assoc = new LsAssociation();
+            $assoc->setLsDoc($lsDoc);
+            $assoc->setType(LsAssociation::EXACT_MATCH_OF);
+            $assoc->setOriginLsItem($lsItem);
+            $assoc->setDestinationNodeUri($match->value);
+            $assoc->setDestinationNodeIdentifier($match->value);
+
+            $lsItem->addAssociation($assoc);
+
+            $this->em->persist($assoc);
+        }
     }
 }
