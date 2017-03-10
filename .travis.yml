@@ -43,7 +43,6 @@ install:
   - echo ${TRAVIS_BUILD_NUMBER} > BUILD_NUMBER
   - echo $(date -u +%Y%m%d.%H%M).${COMMIT} > BUILD_MD
   - echo $(cat VERSION).$(cat BUILD_NUMBER)+$(cat BUILD_MD) > web/version.txt
-  - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml pull composer gulp
   - ./bin/build.sh
 
 # Create docker image with the running code
