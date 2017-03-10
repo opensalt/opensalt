@@ -57,7 +57,7 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @return string The user's password
      */
-    public function addNewUser($username, Organization $org, $plainPassword = null, $role = null) {
+    public function addNewUser(string $username, Organization $org, $plainPassword = null, $role = null) {
         if (empty(trim($plainPassword))) {
             // if there is no password, make something ugly up
             $plainPassword = rtrim(strtr(base64_encode(random_bytes(15)), '+/', '-_'), '=');
@@ -65,6 +65,13 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
 
         if (null === $role) {
             $role = 'ROLE_USER';
+        }
+        if (0 !== strpos($role, 'ROLE_')) {
+            $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
+        }
+
+        if (!in_array($role, array_merge(User::USER_ROLES, ['ROLE_USER']))) {
+            throw new \InvalidArgumentException("Role {$role} is not a valid role.");
         }
 
         $user = new User($username);

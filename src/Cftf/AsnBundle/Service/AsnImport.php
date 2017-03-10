@@ -10,7 +10,6 @@ use CftfBundle\Entity\LsDefItemType;
 use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use GuzzleHttp\ClientInterface;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -208,7 +207,7 @@ class AsnImport
         }
 
         if ($matches = $asnStandard->getExactMatch()) {
-            $this->addExactMatches($lsDoc, $lsItem, $asnStandard->getExactMatch());
+            $this->addExactMatches($lsDoc, $lsItem, $matches);
         }
 
         $lsAssociation = new LsAssociation();
@@ -362,7 +361,7 @@ class AsnImport
     /**
      * @param LsDoc $lsDoc
      * @param LsItem $lsItem
-     * @param AsnValue[]|ArrayCollection $matches
+     * @param AsnValue[] $matches
      */
     protected function addExactMatches(LsDoc $lsDoc, LsItem $lsItem, $matches)
     {

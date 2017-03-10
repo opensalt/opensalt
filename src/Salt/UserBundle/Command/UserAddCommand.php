@@ -101,7 +101,7 @@ class UserAddCommand extends ContainerAwareCommand
         $password = trim($input->getOption('password'));
         $role = trim($input->getOption('role'));
         if (empty($role)) {
-            $role = 'viewer';
+            $role = 'user';
         }
         $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
 
