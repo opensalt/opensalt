@@ -17,6 +17,8 @@ class OrganizationRepository extends EntityRepository
      * Add a new organization to the system
      *
      * @param string $organizationName
+     *
+     * @return Organization
      */
     public function addNewOrganization($organizationName) {
         $org = new Organization();
@@ -24,5 +26,7 @@ class OrganizationRepository extends EntityRepository
 
         $this->getEntityManager()->persist($org);
         $this->getEntityManager()->flush($org);
+
+        return $org;
     }
 }

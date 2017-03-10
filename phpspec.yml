@@ -1,2 +1,3 @@
 extensions:
-  RMiller\BehatSpecExtension\PhpSpecExtension: ~
+  - RMiller\BehatSpecExtension\PhpSpecExtension: ~
+code_generation: false

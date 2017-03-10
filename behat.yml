@@ -10,8 +10,10 @@ default:
       type: symfony_bundle
       bundle: SaltUserBundle
       contexts:
-        - Salt\UserBundle\Features\Context\FeatureContext:
+        - FeatureContext:
             session: '@session'
+        #- Salt\UserBundle\Features\Context\FeatureContext:
+        #    session: '@session'
   extensions:
     Behat\Symfony2Extension: ~
     Behat\MinkExtension:
@@ -22,4 +24,4 @@ default:
       sessions:
         default:
           symfony2: ~
-    RMiller\BehatSpecExtension\BehatExtension: ~
+#    RMiller\BehatSpecExtension\BehatExtension: ~
