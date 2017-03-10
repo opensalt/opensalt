@@ -29,14 +29,13 @@ class ImportAsnCommand extends ContainerAwareCommand
 
         try {
             $asnDoc = $asnImport->getAsnDocument($asnId);
+            $asnImport->parseAsnDocument($asnDoc, $creator);
+
+            $output->writeln('Done.');
         } catch (\Exception $e) {
-            $output->writeln('Error getting document from ASN.');
+            $output->writeln('<error>Error importing document from ASN.</error>');
 
             return 1; // Fail out of command
         }
-
-        $asnImport->parseAsnDocument($asnDoc, $creator);
-
-        $output->writeln('Done.');
     }
 }
