@@ -57,7 +57,7 @@ class FeatureContext extends MinkContext implements KernelAwareContext
      */
     public function takeScreenshotAfterFailedStep(AfterStepScope $scope)
     {
-        if ($scope->getTestResult() === TestResult::FAILED) {
+        if ($scope->getTestResult()->getResultCode() === TestResult::FAILED) {
             if ($this->getSession()->getDriver() instanceof Selenium2Driver) {
                 $stepText = $scope->getStep()->getText();
                 $fileTitle = preg_replace(
