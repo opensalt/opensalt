@@ -2,7 +2,7 @@
 
 cd $(dirname $0)/../docker
 
-if [ "x$@" == "x" ]; then
+if [ "x$@" = "x" ]; then
 	rm -f ../app/Resources/assets/rev-manifest.json
 fi
 
