@@ -1,9 +1,12 @@
 <?php
 
+use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Mink\Driver\Selenium2Driver;
 use Behat\MinkExtension\Context\MinkContext;
 use Behat\Symfony2Extension\Context\KernelAwareContext;
 use Behat\Symfony2Extension\Context\KernelDictionary;
+use Behat\Testwork\Tester\Result\TestResult;
 use Doctrine\ORM\EntityManager;
 use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
@@ -47,6 +50,28 @@ class FeatureContext extends MinkContext implements KernelAwareContext
         }
     }
 
+    /**
+     * @AfterStep
+     *
+     * @param AfterStepScope $scope
+     */
+    public function takeScreenshotAfterFailedStep(AfterStepScope $scope)
+    {
+        if ($scope->getTestResult() === TestResult::FAILED) {
+            if ($this->getSession()->getDriver() instanceof Selenium2Driver) {
+                $stepText = $scope->getStep()->getText();
+                $fileTitle = preg_replace(
+                    '#[^a-zA-Z0-9\._-]#',
+                    '',
+                    $stepText
+                );
+                $screenshot = $this->getSession()->getDriver()->getScreenshot();
+                // Save somewhere
+                $screenshotUrl = $this->uploadScreenshot($fileTitle, $screenshot);
+                echo "Screenshot for '{$stepText}' uploaded to '{$screenshotUrl}'\n";
+            }
+        }
+    }
 
     /**
      * @When I fill in :field with the username
@@ -106,5 +131,41 @@ class FeatureContext extends MinkContext implements KernelAwareContext
 
         $this->lastUser = ['user' => $username, 'pass' => $password];
         $this->users[] = $this->lastUser;
+    }
+
+    /**
+     * Upload a screenshot to Imgur
+     *
+     * @param string $title
+     * @param string $imageData
+     */
+    private function uploadScreenshot($title, $imageData)
+    {
+        $curl = curl_init();
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.imgur.com/3/image",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => "image=".urlencode(base64_encode($imageData))."&title=$title",
+            CURLOPT_HTTPHEADER => array(
+                "authorization: Client-ID 1e122774fbe1b31",
+                "cache-control: no-cache",
+                "content-type: application/x-www-form-urlencoded"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $error = curl_error($curl);
+        curl_close($curl);
+
+        $payload = json_decode($response);
+        if ($error || property_exists($payload, 'error')) {
+            return 'FAILED';
+        }
+        return $payload->data->link;
     }
 }
