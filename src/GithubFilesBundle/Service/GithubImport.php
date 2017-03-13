@@ -108,7 +108,7 @@ class GithubImport
 
         $lsItems = [];
         $humanCodingValues = [];
-        for ($i = 1, $iMax = count($content); $i < $iMax; ++$i) {
+        for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $content[$i]);
             $lsItems[$i] = $lsItem;
             if ($lsItem->getHumanCodingScheme()) {
@@ -116,7 +116,7 @@ class GithubImport
             }
         }
 
-        for ($i = 1, $iMax = count($content); $i < $iMax; ++$i) {
+        for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             if (strlen($lsItemKeys['groupBy']) > 0) {
                 $lsItem = $lsItem[$i];
                 $groupBy = $this->getValue($lsItemKeys['groupBy'], $content[$i]);
