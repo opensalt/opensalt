@@ -24,3 +24,6 @@ parameters:
     local_uri_host: http://localhost:3000/
     env(GITHUB_CLIENT_ID): ~
     env(GITHUB_CLIENT_SECRET): ~
+
+    env(BRAND_LOGO_URL): ~
+    env(BRAND_LINK_URL): ~
