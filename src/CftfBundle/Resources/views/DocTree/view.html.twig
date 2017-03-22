@@ -61,10 +61,13 @@
             <div id="items" class="panel-body">
                 <div id="documentInfo">
                     <h4 class="itemTitle">
-                        {% if lsDoc.version is not empty %}
-                        <span style="float:right" class="lessImportant">Version {{ lsDoc.version }}</span>
-                        {% endif %}
-                        {{lsDoc.title}}
+                        <img class="itemTitleIcon" src="/assets/img/doc.png">
+                        <span class="itemTitleSpan">
+							{% if lsDoc.version is not empty %}
+							<span style="float:right" class="lessImportant">Version {{ lsDoc.version }}</span>
+							{% endif %}
+                        	{{lsDoc.title}}
+                        </span>
                     </h4>
                     <ul class="list-group">
                         {% for field, name in {
