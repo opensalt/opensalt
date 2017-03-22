@@ -15,7 +15,9 @@ $(document).on('ready', function(){
             Import.send();
         }
     });
-    document.getElementById('file-url').addEventListener('change', SaltLocal.handleFile, false);
+    if (document.getElementById('file-url') != null) {
+        document.getElementById('file-url').addEventListener('change', SaltLocal.handleFile, false);
+    }
 });
 
 var SaltGithub = (function(){

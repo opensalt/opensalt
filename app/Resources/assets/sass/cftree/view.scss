@@ -72,6 +72,7 @@
 #viewmode_tree ul, #viewmode_tree2 ul {
     border-width:0;
     font-size:15px;
+    line-height:22px;
 }
 
 ul.fancytree-container {
@@ -85,7 +86,7 @@ span.fancytree-title {
 }
 
 .breadcrumb {
-    font-size:1.8em;
+    font-size:1.6em;
     font-weight:bold;
 }
 
@@ -97,6 +98,8 @@ span.fancytree-title {
     font-size:1.8em;
     font-weight:bold;
     text-align:center;
+    background-color: #d9f2fb;
+    border:3px solid #78C9E9;
 }
 
 .docStatus-Draft {
@@ -104,15 +107,13 @@ span.fancytree-title {
     border:3px solid #ec0;
 }
 #docStatus.docStatus-Draft {
-    color:#ec0;
+    color:#444;
 }
 
 .docStatus-Adopted {
-    background-color: #efe;
-    border:3px solid #393;
 }
 #docStatus.docStatus-Adopted {
-    color:#393;
+    color:#444;
 }
 
 .docStatus-Deprecated {
@@ -128,6 +129,22 @@ span.fancytree-title {
     font-size:1.4em;
 }
 
+.itemTitleIcon {
+    width: 8%;
+    margin-right: 1%;
+    margin-left:-5px;
+    padding: 5px;
+    background-color: #fff;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.itemTitleSpan {
+    display:inline-block;
+    width:89%;
+    vertical-align:top;
+}
+
 .lessImportant {
     font-size:.85em;
     color:#999;
@@ -137,7 +154,8 @@ span.fancytree-title {
 
 #itemSection {
     display:none;
-    border-width:3px;
+    background-color: #d9f2fb;
+    border:3px solid #78C9E9;
 }
 
 .itemOptions {
@@ -152,13 +170,9 @@ span.fancytree-title {
 }
 
 #itemSection.lsDocItemSection {
-    background-color:#ffe;
-    border-color:#993;
 }
 
 #itemSection.lsItemItemSection {
-    background-color:#f6f6ff;
-    border-color:#669;
 }
 
 .lsItemDetailsMain {
@@ -300,4 +314,48 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 
 .input-group-btn .btn {
     height:34px;    // make this line up with heights of other inputs in input-group-btn blocks
+}
+
+.treeSide {
+    // document
+    .fancytree-container span.fancytree-icon, .fancytree-container span.fancytree-icon:hover
+     {
+        background-image: url(/assets/img/doc.png);
+        background-position: inherit;
+        background-size: 20px;
+        width:20px;
+        height:24px;
+    }
+
+    // folder
+    .fancytree-container ul .fancytree-ico-cf span.fancytree-icon, .fancytree-container ul .fancytree-ico-cf span.fancytree-icon:hover,
+    .fancytree-container ul .fancytree-ico-ef span.fancytree-icon, .fancytree-container ul .fancytree-ico-ef span.fancytree-icon:hover
+     {
+        background-image: url(/assets/img/folder.png);
+    }
+
+    // leaf
+    .fancytree-container ul .fancytree-exp-n span.fancytree-icon, .fancytree-container ul .fancytree-exp-n span.fancytree-icon:hover,
+    .fancytree-container ul .fancytree-exp-nl span.fancytree-icon, .fancytree-container ul .fancytree-exp-nl span.fancytree-icon:hover
+     {
+        background-image: url(/assets/img/item.png);
+    }
+}
+
+#competencyTree {
+    // leaf
+    .fancytree-exp-n span.fancytree-icon, .fancytree-exp-n span.fancytree-icon:hover,
+    .fancytree-exp-nl span.fancytree-icon, .fancytree-exp-nl span.fancytree-icon:hover
+     {
+        background-image: url(/assets/img/doc.png);
+        background-position: inherit;
+        background-size: 20px;
+        width:20px;
+        height:24px;
+    }
+    
+    // hide folders that aren't showing any items
+    .fancytree-node.fancytree-expanded.fancytree-exp-nl {
+        display:none;
+    }
 }

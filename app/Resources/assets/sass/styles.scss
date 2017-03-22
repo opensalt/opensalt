@@ -1,19 +1,56 @@
 header .navbar-default {
-    border-top:1px solid #444;
+    border-width:0px;
+    background-color:#78C9E9;
+}
+
+.navbar-brand {
+    padding:5px;
+    background-color:#fff;
+    border-radius:4px;
+    margin:10px 15px 10px -5px !important;
+    height:inherit;
+}
+
+.navbar-brand:hover {
+    background-color:#fff !important;
+}
+
+.navbar-brand img {
+    height:60px;
 }
 
 footer .navbar-default {
-    border-radius:0;
-    border-color: #000;
-    border-width: 0 0 1px 0;
+    border-radius:4px 4px 0 0;
+    border-width: 0;
     min-height: auto;
     margin-top:30px;
-    background-color:#fff;
+    background-color:#78C9E9;
+}
+
+.navbar-default .navbar-nav > li > a, .navbar-default .navbar-nav > li > a:hover {
+    color:#fff;
 }
 
 footer .navbar-nav > li > a {
     padding-top: 8px;
     padding-bottom: 8px;
+}
+
+.breadcrumb {
+    background-color:#E6793A;
+    color:#fff;
+}
+
+.breadcrumb > li {
+    display:inline;
+}
+
+.breadcrumb > li + li:before {
+    color:#78C9E9;
+}
+
+.breadcrumb a, .breadcrumb a:hover {
+    color:#fff;
 }
 
 label.required:before {

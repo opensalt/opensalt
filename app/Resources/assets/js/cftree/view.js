@@ -55,7 +55,14 @@ app.loadItemDetails = function(lsItemId) {
 
     // fill in the title, which we can get from the item's tree node
     var n = app.getNodeFromLsItemId(lsItemId);
-    $jq.find(".itemTitle").html(app.titleFromNode(n));
+    var itemTitle;
+    if (n.folder == true) {
+        itemTitle = '<img class="itemTitleIcon" src="/assets/img/folder.png">';
+    } else {
+        itemTitle = '<img class="itemTitleIcon" src="/assets/img/item.png">';
+    }
+    itemTitle += '<span class="itemTitleSpan">' + app.titleFromNode(n) + '</span>';
+    $jq.find(".itemTitle").html(itemTitle);
     $jq.find('.itemDetails').html(app.spinnerHtml("Loading Item Details"));
 
     // append and show the shell details div
@@ -254,7 +261,7 @@ app.renderTree1 = function() {
                             return true;
                         }
                     } else {
-                        return ["before", "after"];		// , "over"
+                        return ["before", "after"];     // , "over"
                     }
 
                     // drag from tree2 to tree1
@@ -438,7 +445,7 @@ app.treeCheckboxMenuItemSelected = function($menu) {
     } else if (cmd == "delete") {
         app.deleteItems(itemIds);
     } else if (cmd == "makeFolders") {
-    	app.toggleFolders(itemIds, true);
+        app.toggleFolders(itemIds, true);
     } else {    // hideCheckboxes
         // clear checkbox selections
         var $cb = $tree.closest(".treeSide").find(".treeCheckboxControl");
@@ -1001,8 +1008,8 @@ app.treeDblClicked = function(lsItemId) {
 //////////////////////////////////////////////////////
 // ADD A NEW CHILD TO A DOCUMENT OR ITEM
 app.toggleItemCreationButtons = function() {
-	console.log("toggleItemCreationButtons");
-	
+    console.log("toggleItemCreationButtons");
+    
     var $jq = $("[data-item-lsItemId=" + app.lsItemId + "]");
     var node = app.getNodeFromLsItemId(app.lsItemId);
     // if item already has children
@@ -1019,33 +1026,33 @@ app.toggleItemCreationButtons = function() {
         
         // set the text of the toggleFolderBtn and visibility of the addChildBtn appropriately
         if (node.folder == true) {
-	        $jq.find("[id=toggleFolderBtn]").text("Make This Item a Child");
-	        $jq.find("[id=addChildBtn]").show();
-	    } else {
-	        $jq.find("[id=toggleFolderBtn]").text("Make This Item a Parent");
-	        $jq.find("[id=addChildBtn]").hide();
-	    }
+            $jq.find("[id=toggleFolderBtn]").text("Make This Item a Child");
+            $jq.find("[id=addChildBtn]").show();
+        } else {
+            $jq.find("[id=toggleFolderBtn]").text("Make This Item a Parent");
+            $jq.find("[id=addChildBtn]").hide();
+        }
     }
 }
 
 app.toggleFolders = function(itemIds, val) {
-	if (!$.isArray(itemIds)) {
-		itemIds = [app.lsItemId];
-	}
-	if (typeof(val) != "boolean") {
-		val = "toggle";
-	}
-	for (var i = 0; i < itemIds.length; ++i) {
-		var node = app.getNodeFromLsItemId(itemIds[i]);
-		if (val == "toggle") {
-			node.folder = !(node.folder == true);
-		} else {
-			node.folder = val;
-		}
-		node.render();
-	}
-	
-	app.toggleItemCreationButtons();
+    if (!$.isArray(itemIds)) {
+        itemIds = [app.lsItemId];
+    }
+    if (typeof(val) != "boolean") {
+        val = "toggle";
+    }
+    for (var i = 0; i < itemIds.length; ++i) {
+        var node = app.getNodeFromLsItemId(itemIds[i]);
+        if (val == "toggle") {
+            node.folder = !(node.folder == true);
+        } else {
+            node.folder = val;
+        }
+        node.render();
+    }
+    
+    app.toggleItemCreationButtons();
 };
 
 app.getAddNewChildPath = function() {
@@ -1136,8 +1143,8 @@ app.addNewChild = function(data) {
     // and now we have to saveItemOrder
     app.saveItemOrder(newNode, parentNode);
 
-	// hide/enable make folder and create new item buttons on parent appropriately
-	app.toggleItemCreationButtons();
+    // hide/enable make folder and create new item buttons on parent appropriately
+    app.toggleItemCreationButtons();
 };
 
 //////////////////////////////////////////////////////
