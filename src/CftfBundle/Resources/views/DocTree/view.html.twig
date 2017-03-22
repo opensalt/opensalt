@@ -45,7 +45,7 @@
             <div class="treeDiv" id="viewmode_tree"></div>
         </section>
     </div>
-    
+
     <div id="treeSideRight" class="col-sm-6 treeSide">
         {% if is_granted('edit', lsDoc) %}
         <div class="form-group">
@@ -56,7 +56,7 @@
             </div>
         </div>
         {% endif %}
-       
+
         <section id="itemSection" class="panel panel-default docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">
             <div id="items" class="panel-body">
                 <div id="documentInfo">
@@ -125,6 +125,10 @@
                         {% if is_granted('edit', lsDoc) %}
                         <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">Add New Child Item</button>
                         {% endif %}
+
+                        {% if is_granted('create', lsDoc) %}
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal">Import Children</button>
+                        {% endif %}
                     </div>
 
                 </div>
@@ -165,6 +169,11 @@
         </section>
     </div>
 </div>
+
+{% embed 'CftfBundle:DocTree:wizard.html.twig' with {
+    'lsDocId':lsDoc.id
+}%}
+{% endembed %}
 
 {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
 'modalName':'export',
