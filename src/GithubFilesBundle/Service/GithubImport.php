@@ -64,7 +64,9 @@ class GithubImport
             }
 
             foreach ($headers as $h => $col) {
-                $tempContent[$col] = $row[$h];
+                if ($h < count($row)) {
+                    $tempContent[$col] = $row[$h];
+                }
             }
 
             $content[] = $tempContent;
@@ -100,52 +102,45 @@ class GithubImport
         $lsDoc->setLanguage($this->getValue($lsDocKeys['language'], $content[0]));
         $lsDoc->setNote($this->getValue($lsDocKeys['notes'], $content[0]));
 
-        $groups = [];
-        $lastGroupBy = "__default";
+        $lastGroupBy = '__default';
         $listGroupBy = [];
-        $groupBy = "";
+        $groupBy = '';
 
-        for ($i = 1, $iMax = count($content); $i < $iMax; ++$i) {
-            $row = $content[$i];
-            $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $row, false);
-            if( strlen($lsItemKeys['groupBy']) > 0 ){
-                $groupBy = $this->getValue($lsItemKeys['groupBy'], $row);
-                if( $groupBy == $lastGroupBy ){
+        $lsItems = [];
+        $humanCodingValues = [];
+        for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
+            $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $content[$i]);
+            $lsItems[$i] = $lsItem;
+            if ($lsItem->getHumanCodingScheme()) {
+                $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
+            }
+        }
+
+        for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
+            if (strlen($lsItemKeys['groupBy']) > 0) {
+                $lsItem = $lsItem[$i];
+                $groupBy = $this->getValue($lsItemKeys['groupBy'], $content[$i]);
+                if ($groupBy == $lastGroupBy) {
                     $listGroupBy[$groupBy]->addChild($lsItem);
-                }else{
-                    if (array_key_exists($groupBy, $listGroupBy) ){
+                } else {
+                    if (array_key_exists($groupBy, $listGroupBy)) {
                         $listGroupBy[$groupBy]->addChild($lsItem);
-                    }else{
+                    } else {
                         $listGroupBy[$groupBy] = $lsItem;
                         $lsDoc->addTopLsItem($lsItem);
                     }
                 }
                 $lastGroupBy = $groupBy;
             }else{
-                if( array_key_exists($row['P2 Label'], $groups) ){
-                    if( array_key_exists($row['P3 Label'], $groups[$row['P2 Label']]) ){
-                        if( array_key_exists($row['P4 Label'], $groups[$row['P2 Label']][$row['P3 Label']]) ){
-                            if( array_key_exists($row['P5 Label'], $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']]) ){
-                                if( array_key_exists($row['P6 Label'], $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']]) ){
-                                    $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']][$row['P6 Label']]['instance__']->addChild($lsItem);
-                                }else{
-                                    $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']][$row['P6 Label']]['instance__'] = $lsItem;
-                                    $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']]['instance__']->addChild($lsItem);
-                                }
-                            }else{
-                                $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']]['instance__'] = $lsItem;
-                                $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']]['instance__']->addChild($lsItem);
-                            }
-                        }else{
-                            $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']]['instance__'] = $lsItem;
-                            $groups[$row['P2 Label']][$row['P3 Label']]['instance__']->addChild($lsItem);
-                        }
-                    }else{
-                        $groups[$row['P2 Label']][$row['P3 Label']]['instance__'] = $lsItem;
-                        $groups[$row['P2 Label']]['instance__']->addChild($lsItem);
+                $lsItem = $lsItems[$i];
+                if ($humanCoding = $lsItem->getHumanCodingScheme()) {
+                    $parent = substr($humanCoding, 0, strrpos($humanCoding, '.'));
+                    if (array_key_exists($parent, $humanCodingValues)) {
+                        $lsItems[$humanCodingValues[$parent]]->addChild($lsItem);
+                    } else {
+                        $lsDoc->addTopLsItem($lsItem);
                     }
-                }else{
-                    $groups[$row['P2 Label']]['instance__'] = $lsItem;
+                } else {
                     $lsDoc->addTopLsItem($lsItem);
                 }
             }
@@ -159,9 +154,8 @@ class GithubImport
      * @param LsDoc $lsDoc
      * @param array $lsItemKeys
      * @param string $data
-     *
      */
-    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data, $isTop)
+    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data)
     {
         $lsItem = new LsItem();
         $em = $this->getEntityManager();
@@ -180,7 +174,7 @@ class GithubImport
         $itemsAssociated = $this->getValue($this->lsAssocKeys['isRelatedTo'], $data);
 
         // Adding associations if items has one.
-        if( strlen($this->lsAssocKeys["isRelatedTo"]) > 0 && strlen($itemsAssociated) > 0){
+        if (strlen($this->lsAssocKeys['isRelatedTo']) > 0 && strlen($itemsAssociated) > 0) {
             $repository = $this->getEntityManager()->getRepository(LsItem::class);
             $humanCodingSchemes = explode(',', $itemsAssociated);
             $itemsRelated = $repository->findByHumanCodingScheme($humanCodingSchemes);
@@ -212,7 +206,7 @@ class GithubImport
         if (empty($key)) {
             return '';
         } else {
-            $res = strtok($key, ',');;
+            $res = strtok($key, ',');
 
             if (strlen($res) !== strlen($key)) {
                 return $res;

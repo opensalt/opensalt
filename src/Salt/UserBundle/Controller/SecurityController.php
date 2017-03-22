@@ -15,6 +15,11 @@ class SecurityController extends Controller
      */
     public function loginAction(Request $request)
     {
+        $securityContext = $this->get('security.authorization_checker');
+        if ($securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            return $this->redirect('/');
+        }
+
         $authenticationUtils = $this->get('security.authentication_utils');
 
         // get the login error if there is one

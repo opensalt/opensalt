@@ -47,6 +47,8 @@
                                     Github:
                                     <input name="import" type="radio" value="github" />
                                 {% endif %}
+                                Local:
+                                <input name="import" type="radio" value="local" />
                             </div>
                         </div>
                         <hr>
@@ -73,6 +75,12 @@
                                 </div>
                                 <div id="asn">
                                     <input id="asn-url" type="text" class="form-control">
+                                    <br/>
+                                    <div class="alert alert-danger asn-error-msg hidden" role="alert"></div>
+                                    <button type="button" class="btn btn-primary import-framework">Import Framework</button>
+                                </div>
+                                <div id="local" class="hidden">
+                                    <input id="file-url" type="file" class="form-control">
                                     <br/>
                                     <div class="alert alert-danger asn-error-msg hidden" role="alert"></div>
                                     <button type="button" class="btn btn-primary import-framework">Import Framework</button>
