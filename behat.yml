@@ -6,14 +6,14 @@ default:
       contexts:
         - FeatureContext:
             session: '@session'
-#    user_admin_suite:
-#      type: symfony_bundle
-#      bundle: SaltUserBundle
-#      contexts:
-#        - FeatureContext:
-#            session: '@session'
-#        #- Salt\UserBundle\Features\Context\FeatureContext:
-#        #    session: '@session'
+    user_admin_suite:
+      type: symfony_bundle
+      bundle: SaltUserBundle
+      contexts:
+        - FeatureContext:
+            session: '@session'
+        #- Salt\UserBundle\Features\Context\FeatureContext:
+        #    session: '@session'
   extensions:
     Behat\Symfony2Extension: ~
     Behat\MinkExtension:
