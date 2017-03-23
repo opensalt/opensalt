@@ -1,8 +1,8 @@
 imports:
     - { resource: parameters.yml }
+    - { resource: pdo-options.php }
     - { resource: security.yml }
     - { resource: services.yml }
-    - { resource: pdo-options.php }
     - { resource: "@CftfBundle/Resources/config/services.yml" }
     - { resource: "@CftfAsnBundle/Resources/config/services.yml" }
     - { resource: "@CftfImsBundle/Resources/config/services.yml" }
@@ -46,7 +46,7 @@ framework:
         #save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
         name: session
         cookie_lifetime: 0
-        cookie_secure: '%secure_cookie%'
+        #cookie_secure: true
         cookie_httponly: true
         gc_maxlifetime: 3600
         gc_probability: 25
