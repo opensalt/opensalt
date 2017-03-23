@@ -14,7 +14,7 @@ $(document).on('ready', function(){
 var SaltGithub = (function(){
 
     function getRepoList(page, perPage){
-        if( $('.js-github-list').length > 0 ){
+        if ($('.js-github-list').length > 0) {
             $.get('/user/github/repos', { page: page, perPage: perPage }, function(data){
 
                 $('#repos').html('');
@@ -47,11 +47,11 @@ var SaltGithub = (function(){
             type: 'get',
             dataType: 'json',
             success: function(response){
-                if(sha){
+                if (sha) {
                     var content = window.atob(response.data.content);
-                    if(name.endsWith('.csv')){
+                    if (name.endsWith('.csv')) {
                         Import.csv(content);
-                    }else if(name.endsWith('.json')){
+                    } else if (name.endsWith('.json')) {
                         Import.json(content);
                     }
                     // $.ajax({
@@ -63,8 +63,8 @@ var SaltGithub = (function(){
                     //         console.log('done');
                     //     }
                     // });
-                }else{
-                    $(".js-github-list #files").html('<ul></ul>')
+                } else {
+                    $(".js-github-list #files").html('<ul></ul>');
                     response.data.forEach(function(file){
                         if (file.name.endsWith('.json') || file.name.endsWith('.csv') || file.name.endsWith('.md')){
 
@@ -98,7 +98,7 @@ var SaltGithub = (function(){
     function itemListener(file){
         var $element = $('.item');
 
-        if(file){
+        if (file) {
             $element = $('.file-item');
         }
 
@@ -130,7 +130,7 @@ var Import = (function() {
             for (var j = 0; j < columns.length; j++) {
                 column = columns[j];
                 if (column.length > 0) {
-                    if (Util.simplify(field) == Util.simplify(column)) {
+                    if (Util.simplify(field) === Util.simplify(column)) {
                         cfItemKeys[field] = column;
 
                         index = fields.indexOf(field);
@@ -278,15 +278,15 @@ var CfItem = (function(){
         'isPartOf',
         'replacedBy',
         'exemplar',
-        'hasSkillLevel',
+        'hasSkillLevel'
     ];
 
     function generateDropdowns(arrData, type){
         var mandatoryClass = "";
         var panelType = "default";
         arrData.chunk(2).forEach(function(dropdownGrouped){
-	    $('.dropdowns.'+type).append('<div class="row"></div>');
-	    dropdownGrouped.forEach(function(dropdown){
+        $('.dropdowns.'+type).append('<div class="row"></div>');
+        dropdownGrouped.forEach(function(dropdown){
                 if( dropdown[1] === 'M' ){ mandatoryClass = "mandatory-class"; panelType = "primary" }
                 $('.dropdowns.'+type+' .row').last().append('<div class="col-xs-6"><div class="panel panel-'+ panelType +'"><div class="panel-body '+ mandatoryClass +'"></div></div></div>');
                 $('.dropdowns.'+type+' .row .panel-body').last().append('<div class="col-xs-6"><div class="form-group"><label>'+dropdown[0].titleize()+'</label><select name="'+dropdown[0]+'" class="form-control select"><option>Choose one option</option></select></div></div>');
@@ -370,14 +370,14 @@ var Util = (function(){
     }
 
     function loadContent(){
-        var value = $('input[name="import"]:checked').val()
+        var value = $('input[name="import"]:checked').val();
 
-        if (value ===  'github'){
+        if (value ===  'github') {
             SaltGithub.getRepoList(1, 30);
             $("#asn").addClass('hidden');
             $("#local").addClass('hidden');
             $("#github").removeClass('hidden');
-        }else if (value === 'local'){
+        } else if (value === 'local') {
             $("#github").addClass('hidden');
             $("#asn").addClass('hidden');
             $('#local').removeClass('hidden');
@@ -386,7 +386,7 @@ var Util = (function(){
 
     function spinnerHtml(msg) {
         return '<div class="spinnerOuter"><span class="glyphicon glyphicon-cog spinning spinnerCog"></span><span class="spinnerText">' + msg + '</span></div>';
-    };
+    }
 
     return {
         simplify: simplify,
