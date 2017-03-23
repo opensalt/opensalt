@@ -4,7 +4,6 @@ namespace GithubFilesBundle\Service;
 
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
-use CftfBundle\Entity\LsAssociation;
 use Doctrine\ORM\EntityManager;
 use JMS\DiExtraBundle\Annotation as DI;
 
