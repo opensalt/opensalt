@@ -9,7 +9,6 @@
                 <th>Id</th>
                 <th>Title</th>
                 <th>Description</th>
-                <th>Name</th>
                 <th>Updated At</th>
                 <th>Actions</th>
             </tr>
@@ -20,7 +19,6 @@
                 <td><a href="{{ path('lsdef_association_grouping_show', { 'id': lsDefAssociationGrouping.id }) }}">{{ lsDefAssociationGrouping.id }}</a></td>
                 <td>{{ lsDefAssociationGrouping.title }}</td>
                 <td>{{ lsDefAssociationGrouping.description }}</td>
-                <td>{{ lsDefAssociationGrouping.name }}</td>
                 <td>{% if lsDefAssociationGrouping.updatedAt %}{{ lsDefAssociationGrouping.updatedAt|date('Y-m-d H:i:s') }}{% endif %}</td>
                 <td>
                     <ul class="list-inline">
