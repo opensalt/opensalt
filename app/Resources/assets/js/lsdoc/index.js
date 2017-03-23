@@ -1,35 +1,20 @@
 $(document).on('ready', function(){
-    SaltGithub.init();
-    Dropdowns.init();
-
-    $('input[name="import"]').click(function(){
-        loadContent($('input[name="import"]:checked').val());
-    });
-    $('.import-framework').click(function(){
-        ImportFrameworks.fromAsn();
-    });
-    $('.send-info').click(function(){
-        if( Dropdowns.validDropdown("form.matched-fields-cfdof") &&
-            Dropdowns.validDropdown("form.matched-fields-cfitem") &&
-              Dropdowns.validDropdown("form.matched-fields-cfassociation")){
-            Import.send();
-        }
-    });
-    if (document.getElementById('file-url') != null) {
-        document.getElementById('file-url').addEventListener('change', SaltLocal.handleFile, false);
+    if ($('input[name="import"]').length > 0) {
+        $('input[name="import"]').click(function(){
+            Util.loadContent();
+        });
+        Util.loadContent();
     }
+
+    $('.import-framework').click(function(){
+        Import.fromAsn();
+    });
 });
 
 var SaltGithub = (function(){
 
-    function init(){
-        $('#js-wizard-btn').click(function(){
-            loadModal();
-        });
-    }
-
     function getRepoList(page, perPage){
-        if( $('.js-github-list').length > 0 ){
+        if ($('.js-github-list').length > 0) {
             $.get('/user/github/repos', { page: page, perPage: perPage }, function(data){
 
                 $('#repos').html('');
@@ -40,7 +25,6 @@ var SaltGithub = (function(){
                 });
 
                 paginate(data.totalPages);
-
                 itemListener(false);
             })
             .fail(function(){
@@ -63,11 +47,11 @@ var SaltGithub = (function(){
             type: 'get',
             dataType: 'json',
             success: function(response){
-                if(sha){
+                if (sha) {
                     var content = window.atob(response.data.content);
-                    if(name.endsWith('.csv')){
+                    if (name.endsWith('.csv')) {
                         Import.csv(content);
-                    }else if(name.endsWith('.json')){
+                    } else if (name.endsWith('.json')) {
                         Import.json(content);
                     }
                     // $.ajax({
@@ -79,8 +63,8 @@ var SaltGithub = (function(){
                     //         console.log('done');
                     //     }
                     // });
-                }else{
-                    $(".js-github-list #files").html('<ul></ul>')
+                } else {
+                    $(".js-github-list #files").html('<ul></ul>');
                     response.data.forEach(function(file){
                         if (file.name.endsWith('.json') || file.name.endsWith('.csv') || file.name.endsWith('.md')){
 
@@ -114,7 +98,7 @@ var SaltGithub = (function(){
     function itemListener(file){
         var $element = $('.item');
 
-        if(file){
+        if (file) {
             $element = $('.file-item');
         }
 
@@ -123,17 +107,98 @@ var SaltGithub = (function(){
         });
     }
 
-    function loadModal(){
-        $('#wizard').modal('show');
-    }
-
     return {
-        init: init,
         getRepoList: getRepoList
     };
 })();
 
-var ImportFrameworks = (function(){
+var Import = (function() {
+
+    var file = "";
+    var cfItemKeys = {};
+
+    function csvImporter(content) {
+        file = content;
+
+        var fields = CfItem.fields;
+        var lines = file.split("\n");
+        var columns = lines[0].split(",");
+        var index = null, field = null, column = null;
+
+        for (var i = 0; i < fields.length; i++) {
+            field = fields[i];
+            for (var j = 0; j < columns.length; j++) {
+                column = columns[j];
+                if (column.length > 0) {
+                    if (Util.simplify(field) === Util.simplify(column)) {
+                        cfItemKeys[field] = column;
+
+                        index = fields.indexOf(field);
+                        if (index >= 0) {
+                            fields.splice(index, 1);
+                        }
+
+                        index = columns.indexOf(column);
+                        if (index >= 0) {
+                            columns.splice(index, 1);
+                        }
+
+                        i--;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (fields.length > 0) {
+            fields.forEach(function(field) {
+                CfItem.missingField(field);
+            });
+
+            $('#import-div').addClass('hidden');
+            $('#errors').removeClass('hidden');
+        } else {
+            $('#import-div').addClass('hidden');
+            $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+            $('.file-loading').removeClass('hidden');
+        }
+
+        index = fields.indexOf('humanCodingScheme');
+
+        if (index < 0) {
+            $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+            $('.file-loading').removeClass('hidden');
+            sendData();
+        }
+    }
+
+    function jsonImporter(file){
+        var json = JSON.parse(file);
+        var keys = Object.keys(json);
+        var subKey = [];
+
+        keys.forEach(function(subJson){
+            subKey = Object.keys(subJson);
+        });
+    }
+
+    function sendData(){
+        var columns = {};
+        var dataRequest = {
+            content: window.btoa(unescape(encodeURIComponent(file))),
+            cfItemKeys: cfItemKeys,
+            lsDocId: $('#lsDocId').val()
+        };
+
+        $.ajax({
+            url: '/cf/github/import',
+            type: 'post',
+            data: dataRequest,
+            success: function(response){
+                location.reload();
+            }
+        });
+    }
 
     function asnStructure(content){
         $.ajax({
@@ -152,185 +217,76 @@ var ImportFrameworks = (function(){
     }
 
     return {
-        fromAsn: asnStructure
-    };
-})();
-
-var Import = (function(){
-
-    var file = "";
-
-    function csvImporter(content){
-        file = content;
-
-        var lines = file.split("\n");
-        var columns = lines[0].split(",");
-        var selects = $('.select');
-
-        $.each(selects, function(){
-            var $select = $(this);
-            $select.find('option').remove().end();
-            $select.append($('<option>').val('').text(''));
-
-            columns.forEach(function(column){
-                if(column.length > 0){
-                    $select.append($('<option />').val(column).text(column));
-                }
-            });
-        });
-
-        $('#wizard').modal('hide');
-        $('#fields').modal('show');
-    }
-
-    function jsonImporter(file){
-        var json = JSON.parse(file);
-        var keys = Object.keys(json);
-        var subKey = [];
-
-        keys.forEach(function(subJson){
-            subKey = Object.keys(subJson);
-        });
-    }
-
-    function sendData(){
-        var columns = {};
-        var selects = $('.select');
-
-        var dataRequest = {
-            content: window.btoa(unescape(encodeURIComponent(file))),
-            cfDocKeys: SanitizeData.matchedFields("form.matched-fields-cfdoc"),
-            cfItemKeys: SanitizeData.matchedFields("form.matched-fields-cfitem"),
-            cfAssociationKeys: SanitizeData.matchedFields("form.matched-fields-cfassociation")
-        };
-
-        $.each(selects, function(){
-            var $select = $(this);
-            columns[$select.attr('name')] = $select.val();
-        });
-
-        $.ajax({
-            url: '/cf/github/import',
-            type: 'post',
-            data: dataRequest,
-            success: function(response){
-                location.reload();
-            }
-        });
-    }
-
-    return {
         csv: csvImporter,
         json: jsonImporter,
-        send: sendData
+        send: sendData,
+        fromAsn: asnStructure
     };
 })();
 
 var SaltLocal = (function(){
 
-    function handleFileSelect(evt){
-
-        var files = evt.target.files; // FileList Object
+    function handleFileSelect(){
+        // var files = evt.target.files; // FileList Object
+        var files = document.getElementById('file-url').files;
         var json = '', f;
 
-        if (window.File && window.FileReader && window.FileList && window.Blob){
-
-            for (var i=0; f = files[i]; i++){
-
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            for (var i=0; f = files[i]; i++) {
                 console.log('name:', escape(f.name), '- type:', f.type || 'n/a', '- size:', f.size,
-                            'bytes', '- lastModifiedDate:', f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
+                            'bytes', '- lastModified:', f.lastModified ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
 
                 var reader = new FileReader();
-                if (f.type === 'text/csv'){
-
-                    reader.onload = (function(theFile){
-                        return function(e){
+                if (f.type === 'text/csv') {
+                    reader.onload = (function(theFile) {
+                        return function(e) {
                             file = e.target.result;
-                            Import.csv(file);
+                            Import.csv(file, lsDocId);
                         };
                     })(f);
 
                     reader.readAsText(f);
-                }else{
+                } else {
                     console.error('file type not allowed - ' + f.type);
                 }
             }
-        }else{
+        } else {
             console.error('The FILE APIs are not fully supported in this broswer');
         }
     }
 
     return {
         handleFile: handleFileSelect
-    }
+    };
 })();
 
-var Dropdowns = (function(){
+var CfItem = (function(){
 
-    var docDropdowns = [
-        ['creator', 'M'],
-        ['title', 'M'],
-        ['lastChangeDateTime', 'O'],
-        ['officialSourceURL', 'O'],
-        ['publisher', 'O'],
-        ['description', 'O'],
-        ['subject', 'O'],
-        ['subjectURL', 'O'],
-        ['language', 'O'],
-        ['version', 'O'],
-        ['adoptionStatus', 'O'],
-        ['statusStartDate', 'O'],
-        ['statusEndDate', 'O'],
-        ['license', 'O'],
-        ['licenseURI', 'O'],
-        ['notes', 'O'],
-        ['CFPackageURI', 'O']
-    ];
-
-    var itemDropdowns = [
-        ['fullStatement', 'M'],
-        ['humanCodingScheme', 'O'],
-        ['groupBy', 'O'],
-        ['listEnumeration', 'O'],
-        ['abbreviatedStatement', 'O'],
-        ['conceptKeywords', 'O'],
-        ['conceptKeywordsUri', 'O'],
-        ['notes', 'O'],
-        ['language', 'O'],
-        ['educationLevel', 'O'],
-        ['type', 'O'],
-        ['typeUri', 'O'],
-        ['license', 'O'],
-        ['lastChangeDateTime', 'O'],
-        ['lsItemAssociationUri', 'O']
-    ];
-    var associationDropdowns = [
-        ['origin', 'O'],
-        ['originNodeUri', 'O'],
-        ['destination', 'O'],
-        ['destinationNodeUri', 'O'],
-        ['identifier', 'O'],
-        ['originNodeIdentifier', 'O'],
-        ['originNodeUri', 'O'],
-        ['destinationNodeIdentifier', 'O'],
-        ['groupUri', 'O'],
-        // Association Types
-        ['isChildOf', 'O'],
-        ['isPartOf', 'O'],
-        ['exactMatchOf', 'O'],
-        ['precedes', 'O'],
-        ['isRelatedTo', 'O'],
-        ['replacedBy', 'O'],
-        ['exemplar', 'O'],
-        ['hasSkillLevel', 'O']
+    var fields = [
+        'identifier',
+        'fullStatement',
+        'humanCodingScheme',
+        'abbreviatedStatement',
+        'conceptKeywords',
+        'notes',
+        'language',
+        'educationLevel',
+        'cfItemType',
+        'license',
+        'cfAssociationGroupIdentifier',
+        'isChildOf',
+        'isPartOf',
+        'replacedBy',
+        'exemplar',
+        'hasSkillLevel'
     ];
 
     function generateDropdowns(arrData, type){
         var mandatoryClass = "";
         var panelType = "default";
         arrData.chunk(2).forEach(function(dropdownGrouped){
-	    $('.dropdowns.'+type).append('<div class="row"></div>');
-	    dropdownGrouped.forEach(function(dropdown){
+        $('.dropdowns.'+type).append('<div class="row"></div>');
+        dropdownGrouped.forEach(function(dropdown){
                 if( dropdown[1] === 'M' ){ mandatoryClass = "mandatory-class"; panelType = "primary" }
                 $('.dropdowns.'+type+' .row').last().append('<div class="col-xs-6"><div class="panel panel-'+ panelType +'"><div class="panel-body '+ mandatoryClass +'"></div></div></div>');
                 $('.dropdowns.'+type+' .row .panel-body').last().append('<div class="col-xs-6"><div class="form-group"><label>'+dropdown[0].titleize()+'</label><select name="'+dropdown[0]+'" class="form-control select"><option>Choose one option</option></select></div></div>');
@@ -340,71 +296,105 @@ var Dropdowns = (function(){
         });
     }
 
-    function validDropdown(formMatchedSelector){
+    function validDropdowns(formMatchedSelector) {
         var missingRequiredFiles = false;
-        $(formMatchedSelector).find("div.mandatory-class select").each(function(i,e){
-            if ( $(e).val().length < 1 && $(e).parents(".panel-body").first().find("input").first().val().length < 1 ){
+
+        $(formMatchedSelector).find("select").each(function(i,e) {
+            if ($(e).val().length < 1) {
                  missingRequiredFiles = true;
             }
         });
-        if(missingRequiredFiles){
+
+        if (missingRequiredFiles) {
             $(".js-alert-missing-fields").removeClass("hidden");
-        }else{
+        } else {
             $(".js-alert-missing-fields").addClass("hidden");
         }
+
         return !missingRequiredFiles;
     }
 
-    function init(){
-        generateDropdowns(docDropdowns, 'cfdoc');
-        generateDropdowns(itemDropdowns, 'cfitem');
-        generateDropdowns(associationDropdowns, 'cfassociation');
+    function missingField(field) {
+        var alert = '<div class="alert alert-warning js-alert-missing-fields" role="alert">';
+        alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
+        alert += '<strong>Missing field "'+Util.titleize(field)+'"</strong>, if you did not list a column '+field+' in your CSV ignore this message! ';
+        alert += 'if you meant to, please take a look at the import template and try again!';
+        alert += '<div>';
+
+        $('.missing-fields').append(alert);
     }
 
     return {
-        init: init,
-        validDropdown: validDropdown
+        fields: fields,
+        validDropdowns: validDropdowns,
+        missingField: missingField
     };
 })();
 
 var SanitizeData = (function(){
+
     function matchedFields(formSelector){
         var sanitizedData = {},
             tempData = {},
             formData = $(formSelector).serializeArray();
 
         formData.forEach(function(e){ tempData[e.name] = e.value; });
-	for (i=0; i < formData.length;i+=2){
-            if( tempData[formData[i].name+'_default_value'] !== "" ){
-                sanitizedData[formData[i].name] = tempData[formData[i].name+'_default_value'] + ', true';
-                continue;
-            }
-            sanitizedData[formData[i].name] = formData[i].value;
-	}
-        return sanitizedData;
+
+        return tempData;
     }
 
     return {
         matchedFields: matchedFields
-    }
+    };
 })();
 
-function loadContent(value){
-    if (value ===  'github'){
-        SaltGithub.getRepoList(1, 30);
-        $("#asn").addClass('hidden');
-        $("#local").addClass('hidden');
-        $("#github").removeClass('hidden');
-    }else if (value === 'asn'){
-        $("#github").addClass('hidden');
-        $("#local").addClass('hidden');
-        $("#asn").removeClass('hidden');
-    }else if (value === 'local'){
-        $("#github").addClass('hidden');
-        $("#asn").addClass('hidden');
-        $('#local').removeClass('hidden');
+var Util = (function(){
+
+    function simplify(string){
+        return string.match(/[a-zA-Z]*/g).join("").toLowerCase();
     }
-}
+
+    function capitalize(string){
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function titleize(string){
+        return capitalize(string.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1"));
+    }
+
+    function chunk(array, n){
+        if ( !this.length ) {
+            return [];
+        }
+        return [ this.slice( 0, n ) ].concat( this.slice(n).chunk(n) );
+    }
+
+    function loadContent(){
+        var value = $('input[name="import"]:checked').val();
+
+        if (value ===  'github') {
+            SaltGithub.getRepoList(1, 30);
+            $("#asn").addClass('hidden');
+            $("#local").addClass('hidden');
+            $("#github").removeClass('hidden');
+        } else if (value === 'local') {
+            $("#github").addClass('hidden');
+            $("#asn").addClass('hidden');
+            $('#local').removeClass('hidden');
+        }
+    }
+
+    function spinnerHtml(msg) {
+        return '<div class="spinnerOuter"><span class="glyphicon glyphicon-cog spinning spinnerCog"></span><span class="spinnerText">' + msg + '</span></div>';
+    }
+
+    return {
+        simplify: simplify,
+        loadContent: loadContent,
+        titleize: titleize,
+        spinner: spinnerHtml
+    };
+})();
 
 function listRepositories(){
     $('#files').addClass('hidden');
@@ -413,18 +403,3 @@ function listRepositories(){
     $('.repositories-list').addClass('hidden');
     $('.panel-title').html('Repositories list');
 }
-
-String.prototype.capitalize = function(){
-    return this.charAt(0).toUpperCase() + this.slice(1);
-}
-
-String.prototype.titleize = function(){
-    return this.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1").capitalize();
-}
-
-Array.prototype.chunk = function ( n ) {
-    if ( !this.length ) {
-        return [];
-    }
-    return [ this.slice( 0, n ) ].concat( this.slice(n).chunk(n) );
-};

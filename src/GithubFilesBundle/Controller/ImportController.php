@@ -25,13 +25,12 @@ class ImportController extends Controller
     public function importAction(Request $request)
     {
         $response = new JsonResponse();
-        $lsDocKeys = $request->request->get('cfDocKeys');
         $lsItemKeys = $request->request->get('cfItemKeys');
-        $lsAssocKeys = $request->request->get('cfAssociationKeys');
         $fileContent = $request->request->get('content');
+        $lsDocId = $request->request->get('lsDocId');
 
         $githubImporter = $this->get('cftf_import.github');
-        $githubImporter->parseCSVGithubDocument($lsDocKeys, $lsItemKeys, $lsAssocKeys, base64_decode($fileContent));
+        $githubImporter->parseCSVGithubDocument($lsItemKeys, base64_decode($fileContent), $lsDocId);
 
         return $response->setData([
             'message' => 'Success',
