@@ -21,8 +21,8 @@ class LsAssociation
     public const PART_OF = 'Is Part Of';
     public const REPLACED_BY = 'Replaced By';
     public const PRECEDES = 'Precedes';
-    public const PREREQUISITE = 'Prerequisite';
     public const SKILL_LEVEL = 'Has Skill Level';
+    public const IS_PEER_OF = 'Is Peer Of';
 
     public const EXEMPLAR = 'Exemplar';
 
@@ -34,8 +34,8 @@ class LsAssociation
     public const INVERSE_PART_OF = 'Has Part';
     public const INVERSE_REPLACED_BY = 'Replaces';
     public const INVERSE_PRECEDES = 'Has Predecesor';
-    public const INVERSE_PREREQUISITE = 'Has Prerequisite';
     public const INVERSE_SKILL_LEVEL = 'Skill Level For';
+    public const INVERSE_IS_PEER_OF = 'Is Peer Of';
 
     public const INVERSE_EXEMPLAR = 'Exemplar For';
 
@@ -236,8 +236,8 @@ class LsAssociation
             static::PART_OF,
             static::REPLACED_BY,
             static::PRECEDES,
-            static::PREREQUISITE,
             static::SKILL_LEVEL,
+            static::IS_PEER_OF,
 
             static::CHILD_OF,
         ];
@@ -256,8 +256,8 @@ class LsAssociation
             static::PART_OF,
             static::REPLACED_BY,
             static::PRECEDES,
-            static::PREREQUISITE,
             static::SKILL_LEVEL,
+            static::IS_PEER_OF,
         ];
     }
 
@@ -277,7 +277,7 @@ class LsAssociation
                 static::PART_OF => static::INVERSE_PART_OF,
                 static::REPLACED_BY => static::INVERSE_REPLACED_BY,
                 static::PRECEDES => static::INVERSE_PRECEDES,
-                static::PREREQUISITE => static::INVERSE_PREREQUISITE,
+                static::IS_PEER_OF => static::INVERSE_IS_PEER_OF,
                 static::SKILL_LEVEL => static::INVERSE_SKILL_LEVEL,
                 static::EXEMPLAR => static::INVERSE_EXEMPLAR,
                 static::INVERSE_CHILD_OF => static::CHILD_OF,
@@ -286,7 +286,7 @@ class LsAssociation
                 static::INVERSE_PART_OF => static::PART_OF,
                 static::INVERSE_REPLACED_BY => static::REPLACED_BY,
                 static::INVERSE_PRECEDES => static::PRECEDES,
-                static::INVERSE_PREREQUISITE => static::PREREQUISITE,
+                static::INVERSE_IS_PEER_OF => static::IS_PEER_OF,
                 static::INVERSE_SKILL_LEVEL => static::SKILL_LEVEL,
                 static::INVERSE_EXEMPLAR => static::EXEMPLAR,
             ];
