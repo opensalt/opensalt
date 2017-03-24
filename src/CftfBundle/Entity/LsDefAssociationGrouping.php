@@ -12,4 +12,30 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class LsDefAssociationGrouping extends AbstractLsDefinition
 {
+    /**
+     * @var LsDoc
+     *
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="associationGroupings")
+     */
+    private $lsDoc;
+
+    /**
+     * @return LsDoc
+     */
+    public function getLsDoc(): ?LsDoc
+    {
+        return $this->lsDoc;
+    }
+
+    /**
+     * @param LsDoc $lsDoc
+     *
+     * @return LsDefAssociationGrouping
+     */
+    public function setLsDoc(?LsDoc $lsDoc)
+    {
+        $this->lsDoc = $lsDoc;
+
+        return $this;
+    }
 }

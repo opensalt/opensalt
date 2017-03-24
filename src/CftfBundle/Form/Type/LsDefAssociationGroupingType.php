@@ -2,6 +2,8 @@
 
 namespace CftfBundle\Form\Type;
 
+use Doctrine\ORM\EntityRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -17,6 +19,17 @@ class LsDefAssociationGroupingType extends AbstractType
         $builder
             ->add('title')
             ->add('description')
+            ->add('lsDoc', EntityType::class, [
+                    'class' => 'CftfBundle:LsDoc',
+                    'choice_label' => 'title',
+                    'group_by' => 'creator',
+                    'required' => false,
+                    'multiple' => false,
+                    'query_builder' => function (EntityRepository $er) {
+                        return $er->createQueryBuilder('i')
+                            ->orderBy('i.title', 'ASC');
+                    },
+                ])
         ;
     }
 
