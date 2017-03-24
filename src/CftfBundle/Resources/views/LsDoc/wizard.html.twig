@@ -1,42 +1,25 @@
-<div id="fields" class="modal bs-example-modal-lg fade" role="dialog">
+<div id="wizard" class="modal bs-example-modal-lg fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4>Match Fields</h4>
+                <h4>Import Items</h4>
             </div>
-            <div class="modal-body wizard-body-framework">
-                <div class="alert alert-warning hidden js-alert-missing-fields" role="alert">
-                    Some fields are missing to be matched.
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <h6>* If you CSV file has files like "P2 Label, P3 Label, etc", don't worry we'll automatically group by them (fields). Otherwise, choose one field on "Group by" select to group the items.</h6>
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#cfdoc" aria-controls="home" role="tab" data-toggle="tab">CF Doc</a></li>
-                    <li role="presentation"><a href="#cfitem" aria-controls="profile" role="tab" data-toggle="tab">CF Item</a></li>
-                    <li role="presentation"><a href="#cfassociation" aria-controls="messages" role="tab" data-toggle="tab">CF Association</a></li>
-                </ul>
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="cfdoc">
-                        <form class="matched-fields-cfdoc">
-                            <div class="dropdowns cfdoc"></div>
-                        </form>
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="cfitem">
-                        <form class="matched-fields-cfitem">
-                            <div class="dropdowns cfitem"></div>
-                        </form>
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="cfassociation">
-                        <form class="matched-fields-cfassociation">
-                            <div class="dropdowns cfassociation"></div>
-                        </form>
+            <div class="modal-body fields-body-framework">
+                <h6>Questions about fields? <a href="#">see this guide</a></h6>
+                <div id="import-div">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="asn">
+                                <input id="asn-url" placeholder="ASN url" type="text" class="form-control">
+                                <br/>
+                                <div class="alert alert-danger asn-error-msg hidden" role="alert"></div>
+                                <button type="button" class="btn btn-primary import-framework">Import Framework</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary send-info">Send</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>

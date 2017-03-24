@@ -16,7 +16,13 @@
         {% block stylesheets %}
             <link rel="stylesheet" href="{{ asset('css/main.css'|asset_version) }}" />
         {% endblock %}
-        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        {# <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" /> #}
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+        <link rel="icon" type="image/png" href="{{ asset('favicon-32x32.png') }}" sizes="32x32">
+        <link rel="icon" type="image/png" href="{{ asset('favicon-16x16.png') }}" sizes="16x16">
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <link rel="mask-icon" href="{{ asset('safari-pinned-tab.svg') }}" color="#5bbad5">
+        <meta name="theme-color" content="#ffffff">
     </head>
     <body>
         <div class="container">
@@ -24,10 +30,8 @@
                 {%- block header -%}
                     <nav class="navbar navbar-default">
                         <div class="container-fluid">
-                            <a class="navbar-brand" href="{{ url('cftf_index') }}"><img src="/assets/img/opensalt.png"></a>
-                            {# David, here's where the company logo goes... #}
-                            <!-- <a class="navbar-brand" href="{{ url('cftf_index') }}"><img src="/assets/img/logo-SchoolCity.svg"></a> -->
-
+                            <a class="navbar-brand" href="{{ url('cftf_index') }}"><img src="{{ asset('assets/img/opensalt.png') }}"></a>
+                            {% if brand_logo_url is not empty %}<a class="navbar-brand" href="{{ brand_link_url |default(url('cftf_index')) }}"><img src="{{ brand_logo_url |default('') }}"></a>{% endif %}
                             {% if (is_granted('ROLE_USER')) %}
                                 <ul class="nav navbar-nav navbar-right">
                                     <li class="dropdown">
