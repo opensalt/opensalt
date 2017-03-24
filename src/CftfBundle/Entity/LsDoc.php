@@ -23,6 +23,7 @@ use Util\Compare;
  */
 class LsDoc
 {
+    const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
     const ADOPTION_STATUS_DRAFT = 'Draft';
     const ADOPTION_STATUS_ADOPTED = 'Adopted';
     const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
@@ -272,14 +273,48 @@ class LsDoc
         $this->subjects = new ArrayCollection();
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->uri;
     }
 
+    /**
+     * @return bool
+     */
     public function isLsDoc()
     {
         return true;
+    }
+
+    /**
+     * Get the list of Adoption Statuses
+     *
+     * @return array
+     */
+    public static function getStatuses(): array
+    {
+        return [
+            static::ADOPTION_STATUS_PRIVATE_DRAFT,
+            static::ADOPTION_STATUS_DRAFT,
+            static::ADOPTION_STATUS_ADOPTED,
+            static::ADOPTION_STATUS_DEPRECATED,
+        ];
+    }
+
+    /**
+     * Get the list of Adoption Statuses where editing is allowed
+     *
+     * @return array
+     */
+    public static function getEditableStatuses(): array
+    {
+        return [
+            static::ADOPTION_STATUS_PRIVATE_DRAFT,
+            static::ADOPTION_STATUS_DRAFT,
+        ];
     }
 
     /**
@@ -552,18 +587,13 @@ class LsDoc
     public function setAdoptionStatus($adoptionStatus)
     {
         // Check that adoptionStatus is valid
-        switch ($adoptionStatus) {
-            case self::ADOPTION_STATUS_DRAFT:
-            case self::ADOPTION_STATUS_ADOPTED:
-            case self::ADOPTION_STATUS_DEPRECATED:
-                break;
+        if (in_array($adoptionStatus, static::getStatuses(), true)) {
+            $this->adoptionStatus = $adoptionStatus;
 
-            default:
-                throw new \InvalidArgumentException('Invalid Adoptions Status of '.$adoptionStatus);
+            return $this;
         }
-        $this->adoptionStatus = $adoptionStatus;
 
-        return $this;
+        throw new \InvalidArgumentException('Invalid Adoptions Status of '.$adoptionStatus);
     }
 
     /**
@@ -959,7 +989,7 @@ class LsDoc
      * @return bool
      */
     public function canEdit() {
-        return is_null($this->adoptionStatus) || self::ADOPTION_STATUS_DRAFT === $this->adoptionStatus;
+        return is_null($this->adoptionStatus) || in_array($this->adoptionStatus, static::getEditableStatuses(), true);
     }
 
     /**
