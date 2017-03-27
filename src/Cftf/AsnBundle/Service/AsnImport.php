@@ -10,6 +10,7 @@ use CftfBundle\Entity\LsDefItemType;
 use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
 use GuzzleHttp\ClientInterface;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -306,11 +307,11 @@ class AsnImport
     }
 
     /**
-     * @param array $levelList
+     * @param array|Collection $levelList
      *
      * @return array
      */
-    protected function getLevels(array $levelList)
+    protected function getLevels($levelList)
     {
         $levels = [];
 
