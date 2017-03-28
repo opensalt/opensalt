@@ -16,8 +16,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  * @DI\Service(public=false)
  * @DI\Tag("security.voter")
  */
-class FrameworkEditVoter extends Voter
+class FrameworkAccessVoter extends Voter
 {
+    const VIEW = 'view';
     const EDIT = 'edit';
     const DELETE = 'delete';
 
@@ -50,7 +51,7 @@ class FrameworkEditVoter extends Voter
      */
     protected function supports($attribute, $subject)
     {
-        if (!in_array($attribute, [self::EDIT, self::DELETE], true)) {
+        if (!in_array($attribute, [static::VIEW, static::EDIT, static::DELETE], true)) {
             return false;
         }
 
@@ -73,19 +74,21 @@ class FrameworkEditVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        $user = $token->getUser();
-
-        if (!$user instanceof User) {
-            // If the user is not logged in then deny access
-            return false;
-        }
-
         // This check only supports LsDoc objects
         if (!$subject instanceof LsDoc) {
             return false;
         }
 
+        if (self::VIEW !== $attribute && !$token->getUser() instanceof User) {
+            // If the user is not logged in then deny access
+            return false;
+        }
+
         switch ($attribute) {
+            case self::VIEW:
+                return $this->canViewFramework($subject, $token);
+                break;
+
             case self::EDIT:
                 return $this->canEditFramework($subject, $token);
                 break;
@@ -96,6 +99,15 @@ class FrameworkEditVoter extends Voter
         }
 
         return false;
+    }
+
+    private function canViewFramework(LsDoc $subject, TokenInterface $token)
+    {
+        if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $subject->getAdoptionStatus()) {
+            return true;
+        }
+
+        return $this->canEditFramework($subject, $token);
     }
 
     private function canEditFramework(LsDoc $subject, TokenInterface $token)
