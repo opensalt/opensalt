@@ -116,7 +116,7 @@ class StandardVoter extends Voter
     {
         if (null !== $lsDoc) {
             // Check if the user can edit the document
-            if (!$this->decisionManager->decide($token, [FrameworkEditVoter::EDIT], $lsDoc)) {
+            if (!$this->decisionManager->decide($token, [FrameworkAccessVoter::EDIT], $lsDoc)) {
                 return false;
             }
         }
@@ -150,7 +150,7 @@ class StandardVoter extends Voter
         }
 
         // Allow editing of an item if the user can edit the document
-        if ($this->decisionManager->decide($token, [FrameworkEditVoter::EDIT], $item->getLsDoc())) {
+        if ($this->decisionManager->decide($token, [FrameworkAccessVoter::EDIT], $item->getLsDoc())) {
             return true;
         }
 
