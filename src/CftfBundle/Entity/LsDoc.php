@@ -719,10 +719,10 @@ class LsDoc
         }
 
         $iterator = $topAssociations->getIterator();
-        $iterator->uasort(function($a, $b) {
+        $iterator->uasort(function (LsItem $a, LsItem $b) {
             // rank
             if (!empty($a->getRank()) && !empty($b->getRank())) {
-                if ($a->getRank() != $b->getRank()) {
+                if ($a->getRank() !== $b->getRank()) {
                     return ($a < $b) ? -1 : 1;
                 } // else fall through to next check
             } elseif (!empty($a->getRank()) || !empty($b->getRank())) {
