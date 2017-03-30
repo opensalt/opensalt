@@ -13,19 +13,20 @@ $(document).on('ready', function(){
 
 var SaltGithub = (function(){
 
-    function getRepoList(page, perPage){
+    function getRepoList(page, perPage) {
         if ($('.js-github-list').length > 0) {
             $.get('/user/github/repos', { page: page, perPage: perPage }, function(data){
-
                 $('#repos').html('');
+
                 $.each(data.data, function(i, e){
                     $(".js-github-list .js-github-message-loading").hide();
-                    $(".js-github-list #repos").append('<li class="list-group-item item" data-owner="'+e.owner.login+'" data-repo="'+e.name+'" data-sha="">'+e.name+'</li>');
+                    $(".js-github-list #repos").append('<li class="list-group-item item" data-owner="'+e.owner.login+'" data-repo="'
+                                                       +e.name+'" data-sha="" data-path=""><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span> '+e.name+'</li>');
                     $('#repos').removeClass('hidden');
                 });
 
                 paginate(data.totalPages);
-                itemListener(false);
+                itemListener('item', false);
             })
             .fail(function(){
                 $(".js-github-list .js-github-message-loading").hide();
@@ -34,58 +35,85 @@ var SaltGithub = (function(){
         }
     }
 
-    function getFiles(evt, sha){
-        var name = $(evt.target).attr('data-fname');
+    function getFiles(evt, isFile) {
+        var name = $(evt.target).attr('data-fname'),
+            hasSubFolder = false;
 
         $.ajax({
             url: '/user/github/files',
             data: {
                 owner: $(evt.target).attr('data-owner'),
                 repo: $(evt.target).attr('data-repo'),
-                sha: $(evt.target).attr('data-sha')
+                sha: $(evt.target).attr('data-sha'),
+                path: $(evt.target).attr('data-path')
             },
             type: 'get',
             dataType: 'json',
             success: function(response){
-                if (sha) {
+                if (isFile) {
                     var content = window.atob(response.data.content);
                     if (name.endsWith('.csv')) {
                         Import.csv(content);
                     } else if (name.endsWith('.json')) {
                         Import.json(content);
                     }
-                    // $.ajax({
-                    //     url: '/user/github/import',
-                    //     data: {doc: response},
-                    //     type: 'post',
-                    //     dataType: 'text',
-                    //     success: function(){
-                    //         console.log('done');
-                    //     }
-                    // });
                 } else {
                     $(".js-github-list #files").html('<ul></ul>');
-                    response.data.forEach(function(file){
-                        if (file.name.endsWith('.json') || file.name.endsWith('.csv') || file.name.endsWith('.md')){
+                    response.data.forEach(function(item){
+                        if (item.type === 'file') {
+                            if (item.name.endsWith('.json') || item.name.endsWith('.csv') || item.name.endsWith('.md')) {
 
-                            $(".js-github-list #files")
-                            .append('<li class="list-group-item file-item" data-owner="'+$(evt.target)
-                                    .attr('data-owner')+'" data-repo="'+$(evt.target).attr('data-repo')+'" data-sha="'+file.sha+'" data-fname="'+file.name+'">'+file.name+'</li>');
+                                $(".js-github-list #files")
+                                .append('<li class="list-group-item file-item" data-owner="'+$(evt.target)
+                                        .attr('data-owner')+'" data-repo="'+$(evt.target).attr('data-repo')+'" data-sha="'+item.sha
+                                        +'" data-fname="'+item.name+'"><span class="glyphicon glyphicon-file" aria-hidden="true"></span> '+item.name+'</li>');
+                            }
+                        } else if (item.type === 'dir') {
+                            $(".js-github-list #files").append('<li class="list-group-item item" data-owner="'+$(evt.target).attr('data-owner')
+                                                               +'" data-repo="'+$(evt.target).attr('data-repo')+'" data-sha="" data-path="'+item.path
+                                                               +'"><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span> '+item.name+'</li>');
 
-                                    $('#repos').addClass('hidden');
-                                    $('#files').removeClass('hidden');
-                                    $('#pagination').addClass('hidden');
-                                    $('.repositories-list').removeClass('hidden');
-                                    $('.panel-title').html($(evt.target).attr('data-repo'));
+                            hasSubFolder = true;
                         }
                     });
-                    itemListener(true);
+
+                    $('#repos').addClass('hidden');
+                    $('#files').removeClass('hidden');
+                    $('#pagination').addClass('hidden');
+                    $('.repositories-list').removeClass('hidden');
+                    $('.panel-title').html($(evt.target).attr('data-repo') + '/');
+                    itemListener('file-item', true);
+
+                    if (hasSubFolder) {
+                        itemListener('item', false);
+                    }
+
+                    if ($(evt.target).attr('data-path').length > 0) {
+                        var path = $(evt.target).attr('data-path'), back = '';
+                        var split = path.split('/');
+
+                        for (var i = 0; i < split.length - 1; i++) {
+                            back += split[i];
+                        }
+
+                        $('.panel-title').html($(evt.target).attr('data-repo') + '/' + $(evt.target).attr('data-path') + '/');
+
+                        $('.back').attr('data-owner', $(evt.target).attr('data-owner'));
+                        $('.back').attr('data-repo', $(evt.target).attr('data-repo'));
+                        $('.back').attr('data-path', back);
+                    }
+
+                    if ($(evt.target).attr('data-repo') + '/' == $('.panel-title').html()) {
+                        $('.back').addClass('hidden');
+                    } else {
+                        $('.back').removeClass('hidden');
+                    }
                 }
             }
         });
     }
 
-    function paginate(pages){
+    function paginate(pages) {
         $('#pagination').twbsPagination({
             totalPages: pages,
             visiblePages: 5,
@@ -95,20 +123,17 @@ var SaltGithub = (function(){
         });
     }
 
-    function itemListener(file){
-        var $element = $('.item');
-
-        if (file) {
-            $element = $('.file-item');
-        }
+    function itemListener(elementClass, isFile) {
+        var $element = $('.' + elementClass);
 
         $element.click(function(evt){
-            getFiles(evt, file);
+            getFiles(evt, isFile);
         });
     }
 
     return {
-        getRepoList: getRepoList
+        getRepoList: getRepoList,
+        getFiles: getFiles
     };
 })();
 
@@ -402,4 +427,5 @@ function listRepositories(){
     $('#pagination').removeClass('hidden');
     $('.repositories-list').addClass('hidden');
     $('.panel-title').html('Repositories list');
+    $('#back').html('');
 }

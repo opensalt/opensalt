@@ -67,9 +67,10 @@ class DefaultController extends Controller
         $owner = $request->query->get('owner');
         $repoName = $request->query->get('repo');
         $sha = $request->query->get('sha');
+        $path = $request->query->get('path');
 
         if (empty($sha)) {
-            $url = '/repos/:owner/:repo/contents/';
+            $url = '/repos/:owner/:repo/contents/:path';
         } else {
             $url = '/repos/:owner/:repo/git/blobs/:sha';
         }
@@ -78,6 +79,7 @@ class DefaultController extends Controller
             'owner' => $owner,
             'repo' => $repoName,
             'sha' => $sha,
+            'path' => $path,
         ]);
 
         return $response->setData([
