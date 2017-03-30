@@ -53,14 +53,23 @@ class LsDefItemTypeController extends Controller
         // ?page_limit=N&q=SEARCHTEXT
         $em = $this->getDoctrine()->getManager();
 
-        $objects = $em->getRepository('CftfBundle:LsDefItemType')->getList();
+        $search = $request->query->get('q', null);
+        $page = $request->query->get('page',1);
+        $page_limit = $request->query->get('page_limit',50);
 
-//        $want = $request->query->get('q');
-//        if (!array_key_exists($want, $objects)) {
-//        }
+        $results = $em->getRepository('CftfBundle:LsDefItemType')
+            ->getSelect2List($search, $page_limit, $page);
+
+        if (empty($results['results'][$search]) && !empty($search)) {
+            array_unshift(
+                $results['results'],
+                ['id' => '__'.$search, 'title' => '(NEW) '.$search]
+            );
+        }
 
         return [
-            'objects' => $objects,
+            'results' => $results['results'],
+            'more' => $results['more'],
         ];
     }
 
