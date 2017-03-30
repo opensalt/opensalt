@@ -54,8 +54,8 @@ class LsDefItemTypeController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         $search = $request->query->get('q', null);
-        $page = $request->query->get('page',1);
-        $page_limit = $request->query->get('page_limit',50);
+        $page = $request->query->get('page', 1);
+        $page_limit = $request->query->get('page_limit', 50);
 
         $results = $em->getRepository('CftfBundle:LsDefItemType')
             ->getSelect2List($search, $page_limit, $page);

@@ -17,11 +17,11 @@ class ItemTypeTransformer implements DataTransformerInterface
 {
     /** @var ObjectManager */
     protected $em;
-    /** @var  string */
+    /** @var string */
     protected $className;
-    /** @var  string */
+    /** @var string */
     protected $textProperty;
-    /** @var  string */
+    /** @var string */
     protected $primaryKey;
 
     protected $accessor;
@@ -49,6 +49,7 @@ class ItemTypeTransformer implements DataTransformerInterface
      * Transform entity to array
      *
      * @param mixed $entity
+     *
      * @return array
      */
     public function transform($entity)
@@ -59,7 +60,7 @@ class ItemTypeTransformer implements DataTransformerInterface
         }
 
         $text = is_null($this->textProperty)
-            ? (string)$entity
+            ? (string) $entity
             : $this->accessor->getValue($entity, $this->textProperty);
 
         $data[$this->accessor->getValue($entity, $this->primaryKey)] = $text;
@@ -71,6 +72,7 @@ class ItemTypeTransformer implements DataTransformerInterface
      * Transform single id value to an entity
      *
      * @param string $value
+     *
      * @return mixed|null|object
      */
     public function reverseTransform($value)

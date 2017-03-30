@@ -3,7 +3,6 @@
 namespace CftfBundle\Repository;
 
 use CftfBundle\Entity\LsDefItemType;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * LsDefItemTypeRepository
