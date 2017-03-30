@@ -23,13 +23,10 @@
                         <li class="folder expanded">{{ framework.creator }}<ul>
                                 {% set lastCreator = framework.creator %}
                     {% endif %}
-                    {% if is_granted('ROLE_USER') or framework.adoptionStatus != 'Draft' %}
-                        <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
-                        {% if loop.last == true and framework.creator != '' %}
-                            </ul></li>
-                        {% endif %}
+                    <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
+                    {% if loop.last == true and framework.creator != '' %}
+                        </ul></li>
                     {% endif %}
-                    {# PW note: if there are any folders that don't have any documents, they'll be hidden via CSS (see view.scss) #}
                 {% endfor %}
                 </ul>
     </div>
