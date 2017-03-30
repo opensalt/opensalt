@@ -8,7 +8,7 @@
                     <a class="btn btn-default" href="{{ path('lsdoc_new') }}">Create a new Framework</a>
                 </li>
                 <li>
-                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#wizard">Import Framework</button>
+                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#wizard">Import from ASN</button>
                 </li>
             </ul>
         {% endif %}
@@ -20,15 +20,15 @@
             {% for framework in lsDocs %}
                 {% if framework.creator != lastCreator %}
                     {% if not loop.first %}</ul></li>{% endif %}
-                    <li class="folder expanded">{{ framework.creator }}<ul>
-                    {% set lastCreator = framework.creator %}
-                {% endif %}
-                <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
-                {% if loop.last == true and framework.creator != '' %}
-                    </ul></li>
-                {% endif %}
-            {% endfor %}
-        </ul>
+                        <li class="folder expanded">{{ framework.creator }}<ul>
+                                {% set lastCreator = framework.creator %}
+                    {% endif %}
+                    <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
+                    {% if loop.last == true and framework.creator != '' %}
+                        </ul></li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
     </div>
 {% include 'CftfBundle:LsDoc:wizard.html.twig' %}
 
