@@ -248,8 +248,9 @@ xENDx;
     public function findAllAssociations(LsDoc $lsDoc)
     {
         $query = $this->getEntityManager()->createQuery('
-            SELECT a, adi, add
+            SELECT a, ag, adi, add
             FROM CftfBundle:LSAssociation a INDEX BY a.id
+            LEFT JOIN a.group ag
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE a.lsDoc = :lsDocId
@@ -271,8 +272,9 @@ xENDx;
     public function findAllAssociationsForCapturedNodes(LsDoc $lsDoc)
     {
         $query = $this->getEntityManager()->createQuery('
-            SELECT a, adi, add
+            SELECT a, ag, adi, add, odi, odd
             FROM CftfBundle:LSAssociation a INDEX BY a.id
+            LEFT JOIN a.group ag
             LEFT JOIN a.originLsItem odi WITH odi.lsDoc = :lsDocId
             LEFT JOIN a.originLsDoc odd WITH odd.id = :lsDocId
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
