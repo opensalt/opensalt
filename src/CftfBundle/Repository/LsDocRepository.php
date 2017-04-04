@@ -15,6 +15,11 @@ use Util\Compare;
  */
 class LsDocRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function findAllDocuments()
+    {
+        return $this->findAll();
+    }
+
     /**
      * Get a list of all items for an LsDoc
      *

@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
@@ -20,6 +21,16 @@ use Util\Compare;
  * @ORM\Table(name="ls_doc")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsDocRepository")
  * @UniqueEntity("uri")
+ *
+ * @Serializer\VirtualProperty(
+ *     "uri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     options={
+ *         @Serializer\SerializedName("uri"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *     exp="service('salt.twig.local_uri').getLocalOrRemoteUri(object.getUri())",
  */
 class LsDoc
 {
@@ -34,6 +45,8 @@ class LsDoc
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Exclude()
      */
     private $id;
 
@@ -42,6 +55,8 @@ class LsDoc
      *
      * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\Organization", inversedBy="frameworks")
      * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     protected $org;
 
@@ -50,6 +65,8 @@ class LsDoc
      *
      * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\User", inversedBy="frameworks")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     protected $user;
 
@@ -60,6 +77,8 @@ class LsDoc
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $uri;
 
@@ -70,6 +89,8 @@ class LsDoc
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
      */
     private $identifier;
 
@@ -80,6 +101,9 @@ class LsDoc
      *
      * @Assert\Length(max=300)
      * @Assert\Url()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("officialSourceURL")
      */
     private $officialUri;
 
@@ -90,6 +114,8 @@ class LsDoc
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
      */
     private $creator;
 
@@ -99,6 +125,8 @@ class LsDoc
      * @ORM\Column(name="publisher", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
      */
     private $publisher;
 
@@ -118,6 +146,8 @@ class LsDoc
      * @ORM\Column(name="version", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
      */
     private $version;
 
@@ -127,6 +157,8 @@ class LsDoc
      * @ORM\Column(name="description", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
      */
     private $description;
 
@@ -146,6 +178,9 @@ class LsDoc
      *
      * @Assert\Url()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("subjectURI")
      */
     private $subjectUri;
 
@@ -157,6 +192,10 @@ class LsDoc
      *      joinColumns={@ORM\JoinColumn(name="ls_doc_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="subject_id", referencedColumnName="id")}
      * )
+     *
+     * @Serializer\Exclude()
+     * @Serializer\SerializedName("subject")
+     * @Serializer\Type("array<string>")
      */
     private $subjects;
 
@@ -166,6 +205,8 @@ class LsDoc
      * @ORM\Column(name="language", type="string", length=10, nullable=true)
      *
      * @Assert\Length(max=10)
+     *
+     * @Serializer\Expose(if="object.getLanguage() != ''")
      */
     private $language;
 
@@ -175,6 +216,9 @@ class LsDoc
      * @ORM\Column(name="adoption_status", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("adoptionStatus")
      */
     private $adoptionStatus;
 
@@ -184,6 +228,9 @@ class LsDoc
      * @ORM\Column(name="status_start", type="date", nullable=true)
      *
      * @Assert\Date()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("statusStartDate")
      */
     private $statusStart;
 
@@ -193,6 +240,9 @@ class LsDoc
      * @ORM\Column(name="status_end", type="date", nullable=true)
      *
      * @Assert\Date()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("statusEndDate")
      */
     private $statusEnd;
 
@@ -208,6 +258,9 @@ class LsDoc
      *
      * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Gedmo\Timestampable(on="update")
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("lastChangeDateTime")
      */
     private $updatedAt;
 
@@ -215,6 +268,8 @@ class LsDoc
      * @var Collection|LsItem[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsItem", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
      */
     private $lsItems;
 
@@ -222,6 +277,8 @@ class LsDoc
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
      */
     private $docAssociations;
 
@@ -229,6 +286,8 @@ class LsDoc
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="originLsDoc", indexBy="id", cascade={"persist"})
+     *
+     * @Serializer\Exclude()
      */
     private $associations;
 
@@ -236,6 +295,8 @@ class LsDoc
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="destinationLsDoc", indexBy="id", cascade={"persist"})
+     *
+     * @Serializer\Exclude()
      */
     private $inverseAssociations;
 
@@ -243,17 +304,23 @@ class LsDoc
      * @var LsDocAttribute[]|ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDocAttribute", mappedBy="lsDoc", cascade={"ALL"}, indexBy="attribute")
+     *
+     * @Serializer\Exclude()
      */
     private $attributes;
 
     /**
      * @var UserDocAcl[]|Collection
      * @ORM\OneToMany(targetEntity="Salt\UserBundle\Entity\UserDocAcl", mappedBy="lsDoc", indexBy="user", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
      */
     protected $docAcls;
 
     /**
      * @var string
+     *
+     * @Serializer\Exclude()
      */
     protected $ownedBy;
 

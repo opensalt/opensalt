@@ -174,6 +174,12 @@ jms_di_extra:
         #bundles: []
         directories: ["%kernel.root_dir%/../src"]
 
+jms_serializer:
+    handlers:
+        datetime:
+            default_format: "c" #ISO8601
+            default_timezone: "UTC"
+
 csa_guzzle:
     profiler: '%kernel.debug%'
     logger: true
