@@ -118,7 +118,7 @@ class GithubImport
     /**
      * @param LsDoc $lsDoc
      * @param array $lsItemKeys
-     * @param string $data
+     * @param array $data
      */
     public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data)
     {

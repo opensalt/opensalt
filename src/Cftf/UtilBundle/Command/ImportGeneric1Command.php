@@ -59,6 +59,7 @@ class ImportGeneric1Command extends ContainerAwareCommand
             $lsItem->setItemType($itemTypes[$rec[0]]);
             $lsItem->setFullStatement($rec[1]);
             $lsItem->setHumanCodingScheme($rec[2]);
+            $lsItem->setListEnumInSource($i);
             $lsItem->setRank($i++);
 
             if (!empty($rec[3])) {
@@ -68,6 +69,25 @@ class ImportGeneric1Command extends ContainerAwareCommand
                 }
             } else {
                 $lsItem->addParent($lsDoc);
+            }
+
+            if (!empty($rec[4])) {
+                $lsItem->setAbbreviatedStatement($rec[4]);
+            }
+
+            if (!empty($rec[5])) {
+                $grades = [];
+                if (is_numeric($rec[5])) {
+                    if ($rec[5] < 10) {
+                        $grades[] = '0'.((int) $rec[5]);
+                    } else {
+                        $grades[] = $rec[5];
+                    }
+                }
+
+                if (0 < count($grades)) {
+                    $lsItem->setEducationalAlignment(implode(',', $grades));
+                }
             }
 
             $em->persist($lsItem);

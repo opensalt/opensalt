@@ -34,7 +34,15 @@ class LsDocController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
+        $results = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
+
+        $lsDocs = [];
+        $authChecker = $this->get('security.authorization_checker');
+        foreach ($results as $lsDoc) {
+            if ($authChecker->isGranted('view', $lsDoc)) {
+                $lsDocs[] = $lsDoc;
+            }
+        }
 
         return [
             'lsDocs' => $lsDocs,
@@ -86,6 +94,7 @@ class LsDocController extends Controller
      * @Route("/{id}.{_format}", defaults={"_format"="html"}, name="lsdoc_show")
      * @Method("GET")
      * @Template()
+     * @Security("is_granted('view', 'lsdoc')")
      *
      * @param LsDoc $lsDoc
      * @param string $_format
@@ -209,6 +218,7 @@ class LsDocController extends Controller
      * @Route("/{id}/export.{_format}", requirements={"_format"="(json|html|null)"}, defaults={"_format"="json"}, name="lsdoc_export")
      * @Method("GET")
      * @Template()
+     * @Security("is_granted('view', 'lsdoc')")
      *
      * @param LsDoc $lsDoc
      * @param string $_format

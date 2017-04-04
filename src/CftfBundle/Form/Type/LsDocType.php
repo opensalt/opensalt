@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Form\Type;
 
+use CftfBundle\Entity\LsDoc;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -71,9 +72,10 @@ class LsDocType extends AbstractType
             ->add('adoptionStatus', ChoiceType::class, [
                 'required' => false,
                 'choices' => [
-                    'Draft' => 'Draft',
-                    'Adopted' => 'Adopted',
-                    'Deprecated' => 'Deprecated',
+                    'Private Draft' => LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT,
+                    'Draft' => LsDoc::ADOPTION_STATUS_DRAFT,
+                    'Adopted' => LsDoc::ADOPTION_STATUS_ADOPTED,
+                    'Deprecated' => LsDoc::ADOPTION_STATUS_DEPRECATED,
                 ]
             ])
             ->add('statusStart', 'Symfony\Component\Form\Extension\Core\Type\DateType', [

@@ -4,26 +4,25 @@
 {#- "lsDocIdentifier": {{ lsAssociation.lsDocIdentifier |json_encode |raw }}, #}
         "identifier": {{ lsAssociation.identifier |json_encode |raw }},
         "uri": {{ lsAssociation.uri|local_uri |json_encode |raw }},
-        {% if lsAssociation.groupName is not null %}
-            "CFAssociationGroupingIdentifier": {{ lsAssociation.identifier |json_encode |raw }},
+        {% if lsAssociation.group is not null %}
             "CFAssociationGroupingURI": {
-                "title": "Association Group",
-                "identifier": {{ lsAssociation.identifier |json_encode |raw }},
-                "uri": {{ lsAssociation.groupUri |json_encode |raw }}
+                "title": {{ lsAssociation.group.title |default("Association Group") | json_encode |raw }},
+                "identifier": {{ lsAssociation.group.identifier |json_encode |raw }},
+                "uri": {{ lsAssociation.group.uri|local_uri |json_encode |raw }}
             },
         {% endif %}
-{#- sequenceNumber -#}
+        {% if lsAssociation.sequenceNumber is not null %}
+            "sequenceNumber": {{ lsAssociation.sequenceNumber |json_encode |raw }},
+        {% endif %}
 {#- relationship -#}
-        "originNodeIdentifier": {{ lsAssociation.originNodeIdentifier |json_encode |raw }},
         "originNodeURI": {
-            "title": "Origin",
+            "title": {{ lsAssociation.originLsItem.humanCodingScheme |default(lsAssociation.originLsItem.abbreviatedStatement |default(lsAssociation.originLsDoc.title |default("Origin"))) |json_encode |raw }},
             "identifier": {{ lsAssociation.originNodeIdentifier |json_encode |raw }},
             "uri": {{ lsAssociation.originNodeUri|local_uri |json_encode |raw }}
         },
         "associationType": {{ (lsAssociation.type|slice(0,1)|lower~lsAssociation.type|slice(1))|replace({' ': ''}) |json_encode |raw }},
-        "destinationNodeIdentifier": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
         "destinationNodeURI": {
-            "title": "Destination",
+            "title": {{ lsAssociation.destinationLsItem.humanCodingScheme |default(lsAssociation.destinationLsItem.abbreviatedStatement |default(lsAssociation.destinationLsDoc.title |default("Destination"))) |json_encode |raw }},
             "identifier": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
             "uri": {{ lsAssociation.destinationNodeUri|local_uri |json_encode |raw }}
         },

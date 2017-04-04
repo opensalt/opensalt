@@ -36,3 +36,15 @@ The package.json need to run the gulp command to run the assets:
 Procfile
 ------------
 You can copy the Procfile located in `/deploying/heroku/Procfile` to the root directory or let heroku make one for you.
+
+TravisCI
+------------
+In order to config automated deploys for an Heroku app using TravisCI, you need to setup the `OPENSALT_HEROKU_DEPLOY=true` environment variable and appropriate values for the next variables:
+```
+OPENSALT_GIT_USER_MAIL
+OPENSALT_GIT_COMMIT_MSG
+OPENSALT_GIT_USER_NAME
+OPENSALT_HEROKU_APP
+OPENSALT_HEROKU_TOKEN
+```
+You can check the `OPENSALT_HEROKU_TOKEN` with: `heroku auth:token`.

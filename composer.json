@@ -1,8 +1,8 @@
 {
-    "name": "pcgus/cftool",
+    "name": "opensalt/opensalt",
     "license": "MIT",
     "type": "project",
-    "description": "Standards Alignment Tool",
+    "description": "A competency framework managment system that works with the CASE format",
     "autoload": {
         "psr-4": {
             "Cftf\\": "src/Cftf/",
@@ -159,7 +159,8 @@
             "file": "app/config/parameters.yml"
         },
         "branch-alias": {
-            "dev-master": "0.1-dev"
+            "dev-master": "1.0.x-dev",
+            "dev-develop": "1.1.x-dev"
         }
     }
 }
