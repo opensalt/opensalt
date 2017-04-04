@@ -32,6 +32,8 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $error = false;
+
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         $dirname = $input->getArgument('dirname');
@@ -163,7 +165,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
                 $output->writeln("<error>Unknown Origin Identifier: {$rec['OriginNode'.$itemsKeyedBy]}</error>");
 
                 // Exit with an error
-                return 1;
+                $error = 1;
             }
             switch ($rec['AssociationType']) {
                 case 'is Child of':
@@ -187,7 +189,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
                     $output->writeln("<error>Unknown Association Type: {$rec['AssociationType']}</error>");
 
                     // Exit with an error
-                    return 1;
+                    $error = true;
                     break;
             }
             if (!empty($lsItems[$rec['DestinationNode'.$itemsKeyedBy]])) {
@@ -203,7 +205,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
                 $output->writeln("<error>Unknown Destination Identifier: {$rec['DestinationNode'.$itemsKeyedBy]}</error>");
 
                 // Exit with an error
-                return 1;
+                $error = true;
             }
 
             $em->persist($lsAssoc);
@@ -215,6 +217,10 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             if ($lsItem->getLsItemParent()->isEmpty()) {
                 $lsItem->getLsDoc()->addTopLsItem($lsItem);
             }
+        }
+
+        if ($error) {
+            return 1;
         }
 
         $em->flush();
