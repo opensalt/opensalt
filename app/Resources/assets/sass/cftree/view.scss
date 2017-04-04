@@ -91,7 +91,7 @@ span.fancytree-title {
 }
 
 #docStatus {
-    padding: 8px 15px;
+    padding: 3px 15px 4px 15px;
     margin-bottom: 20px;
     list-style: none;
     border-radius: 4px;
@@ -355,7 +355,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     }
     
     // hide folders that aren't showing any items
-    .fancytree-node.fancytree-expanded.fancytree-exp-nl {
+    .fancytree-node.fancytree-expanded.fancytree-exp-nl, .fancytree-node.fancytree-expanded.fancytree-exp-n {
         display:none;
     }
 }

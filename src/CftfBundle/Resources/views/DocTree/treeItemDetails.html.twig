@@ -70,6 +70,7 @@
         {% if is_granted('edit', lsItem.lsDoc) %}
             <button type="button" id="toggleFolderBtn" class="btn btn-default btn-sm" data-toggle="modal">Make This Item a Parent</button>
             <button type="button" id="addChildBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">Add a New Child Item</button>
+            <button type="button" id="addExemplarBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addExemplarModal">Add an Exemplar</button>
         {% endif %}
     </div>
     {% endif %}

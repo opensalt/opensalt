@@ -355,6 +355,9 @@ app.initializeControls = function() {
     
     // Prepare filters
     app.filterOnTrees();
+    
+    // Prepare association group manager
+    app.initializeAssocGroupManager();
 };
 
 app.getTreeFromInput = function($jq) {
@@ -1008,7 +1011,7 @@ app.treeDblClicked = function(lsItemId) {
 //////////////////////////////////////////////////////
 // ADD A NEW CHILD TO A DOCUMENT OR ITEM
 app.toggleItemCreationButtons = function() {
-    console.log("toggleItemCreationButtons");
+    // console.log("toggleItemCreationButtons");
     
     var $jq = $("[data-item-lsItemId=" + app.lsItemId + "]");
     var node = app.getNodeFromLsItemId(app.lsItemId);
@@ -1313,7 +1316,6 @@ app.createAssociation = function(draggedNodes, droppedNode) {
 
 // callback after ajax to load associate form
 app.createAssociationModalLoaded = function() {
-    console.log("createAssociationModalLoaded");
     // show origin and destination
     var destination = app.titleFromNode(app.createAssociationNodes.draggedNodes[0]);
     if (app.createAssociationNodes.draggedNodes.length > 1) {
@@ -1388,6 +1390,62 @@ app.deleteAssociation = function(e) {
     }).fail(function(jqXHR, textStatus, errorThrown){
         app.hideModalSpinner();
         alert("An error occurred.");
+    });
+};
+
+//////////////////////////////////////////////////////
+// CREATE/DELETE EXEMPLARS FOR ITEMS
+
+// Prepare the modal dialog
+app.prepareExemplarModal = function() {
+    var $exemplarModal = $('#addExemplarModal');
+    $exemplarModal.on('shown.bs.modal', function(e){
+        var title = app.titleFromNode(app.getNodeFromLsItemId(app.lsItemId));
+        $("#addExemplarOriginTitle").html(title);
+    });
+    $exemplarModal.find('.btn-save').on('click', function(e){ app.createExemplarRun(); });
+};
+
+app.createExemplarRun = function() {
+    var $exemplarModal = $('#addExemplarModal');
+    // var ajaxData = $exemplarModal.find('form[name=ls_association_tree]').serialize();
+    
+    // TODO: send ajax request to create the exemplar
+    var ajaxData = {
+        exemplarUrl: $("#addExemplarFormUrl").val(),
+        exemplarDescription: $("#addExemplarFormDescription").val(),
+        associationType: "Exemplar"
+    };
+    if (ajaxData.exemplarUrl == "") {
+        alert("You must enter a URL to create an exemplar.");
+        return;
+    }
+
+    app.showModalSpinner("Saving Exemplar");
+    
+    // construct path for this association
+    var path = app.path.lsassociation_tree_new_exemplar;
+    path = path.replace('ORIGIN_ID', app.lsItemId);
+    
+    $.ajax({
+        url: path,
+        method: 'POST',
+        data: ajaxData
+    }).done(function(data, textStatus, jqXHR) {
+        app.hideModalSpinner();
+        $exemplarModal.modal('hide');
+
+        // clear form fields
+        $("#addExemplarFormUrl").val("");
+        $("#addExemplarFormDescription").val("");
+
+        // clear and reload item details for the selected item
+        app.clearItemDetails(app.lsItemId);
+        app.loadItemDetails(app.lsItemId);
+
+    }).fail(function(jqXHR, textStatus, errorThrown){
+        app.hideModalSpinner();
+        $exemplarModal.find('.modal-body').html(jqXHR.responseText);
     });
 };
 
@@ -1505,3 +1563,37 @@ app.filterOnTrees = function() {
         $(this).parent().find(".treeFilter").val("").trigger("keyup");
     });
 };
+
+/////////////////////////////////////////////////////
+// TAXONOMIES (ASSOCIATION GROUPS)
+
+app.initializeAssocGroupManager = function() {
+    // initialize buttons in association group modal
+    $(".assocgroup-edit-btn").off('click').on('click', function() { app.assocGroupEdit(this); });
+    $(".assocgroup-delete-btn").off('click').on('click', function() { app.assocGroupDelete(this); });
+    $(".assocgroup-add-btn").off('click').on('click', function() { app.assocGroupAdd(); });
+    
+    // show tree1AssocGroups if we have any association groups (other than default) to show
+    // PW: disabling this for now
+    if (false && $("#assocGroupSelect option").length > 1) {
+        $("#tree1AssocGroups").show();
+        $("#assocGroupSelect").off().on('change', function() { app.assocGroupSelected('tree1', this); });
+    }
+}
+
+app.assocGroupAdd = function() {
+    
+}
+
+app.assocGroupEdit = function(btn) {
+
+}
+
+app.assocGroupDelete = function(btn) {
+
+}
+
+app.assocGroupSelected = function(tree, menu) {
+    var assocGroupId = $(menu).val();
+    console.log(assocGroupId);
+}

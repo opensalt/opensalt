@@ -147,6 +147,40 @@ class LsAssociationController extends Controller
 
         return $ret;
     }
+    
+    /**
+     * Creates a new LsAssociation entity for an exemplar
+     *
+     * @Route("/treenewexemplar/{originLsItem}", name="lsassociation_tree_new_exemplar")
+     * @Method({"GET", "POST"})
+     * @Template()
+     *
+     * @param Request $request
+     * @param LsItem|null $originLsItem
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
+    public function treeNewExemplarAction(Request $request, LsItem $originLsItem = null)
+    {
+        $ajax = $request->isXmlHttpRequest();
+
+        $lsAssociation = new LsAssociation();
+        $lsAssociation->setOriginLsItem($originLsItem);
+        $lsAssociation->setUri($request->request->get("exemplarUrl"));
+        // TODO: setDescription is not currently a table field.
+        //$lsAssociation->setDescription($request->request->get("exemplarDescription"));
+
+        // Add to the origin item's LsDoc
+        $lsAssociation->setLsDoc($originLsItem->getLsDoc());
+
+		$em = $this->getDoctrine()->getManager();
+		// TODO: the following line currently fails with the message "Integrity constraint violation: 1048 Column 'destination_node_identifier' cannot be null"
+		//$em->persist($lsAssociation);
+		$em->flush();
+        
+		return new Response($this->generateUrl('doc_tree_item_view', ['id' => $originLsItem->getId()]), Response::HTTP_CREATED);
+    }
+    
 
     /**
      * Finds and displays a LsAssociation entity.
