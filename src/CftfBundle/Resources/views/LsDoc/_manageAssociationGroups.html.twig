@@ -1,0 +1,27 @@
+<div>
+    <p>Use association groups to organize a competency framework in different ways. For example, you may want to organize your framework by subject area by default, but use an alternative taxonomy to organize the same set of competencies by a set of reporting categories or by grade level. All frameworks include a “Default” association group. Use this interface to create and manage alternative groups.</p>
+
+	<table class="table table-striped">
+		<thead><tr><th style="width:30%">Association Group Name</th><th>Description</th></tr></thead>
+		<tbody>
+			<tr data-assocgroupid="default">
+				<td>(Default)</td>
+				<td><button class="assocgroup-edit-btn btn btn-default btn-xs pull-right">Edit</button>—</td>
+			</tr>
+
+            {% for ag in assocGroups %}
+			<tr data-assocgroupid="{{ ag.id }}">
+				<td>{{ ag.title }}</td>
+				<td>
+					<button class="assocgroup-edit-btn btn btn-default btn-xs pull-right">Edit</button>
+					<button class="assocgroup-delete-btn btn btn-default btn-xs pull-right" style="margin-right:5px">Delete</button>
+					{{ ag.description|default('—') }}
+				</td>
+			</tr>
+			{% endfor %}
+
+
+		</tbody>
+	</table>
+	<p><button class="assocgroup-add-btn btn btn-default">Add a New Association Group</button></p>
+</div>
