@@ -4,6 +4,7 @@ namespace GithubFilesBundle\Service;
 
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
+use CftfBundle\Entity\LsAssociation;
 use Doctrine\ORM\EntityManager;
 use JMS\DiExtraBundle\Annotation as DI;
 
@@ -110,9 +111,34 @@ class GithubImport
                     $lsDoc->addTopLsItem($lsItem);
                 }
             }
+            if ($cfAssociations = $content[$i][$lsItemKeys['cfAssociationGroupIdentifier']]) {
+                foreach(explode(',', $cfAssociations) as $cfAssociation){
+                    $this->addItemRelatedTo($lsDoc, $lsItem, $cfAssociation);
+                }
+            }
         }
 
         $em->flush();
+    }
+
+    /**
+     * @param LsDoc   $lsDoc
+     * @param LsItem  $lsItem
+     * @param string  $cfAssociation
+     */
+    public function addItemRelatedTo(LsDoc $lsDoc, $lsItem, $cfAssociation){
+        $em = $this->getEntityManager();
+        if( strlen(trim($cfAssociation)) > 0 ){
+            $itemAssociated = $em->getRepository('CftfBundle:LsItem')->findOneByIdentifier($cfAssociation);
+
+            $association = new LsAssociation();
+            $association->setLsDoc($lsDoc);
+            $association->setType(LsAssociation::RELATED_TO);
+            $association->setDestinationNodeIdentifier($lsItem);
+            $association->setOrigin($lsItem);
+
+            $em->persist($association);
+        }
     }
 
     /**
