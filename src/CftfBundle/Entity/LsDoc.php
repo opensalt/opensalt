@@ -318,6 +318,12 @@ class LsDoc
     protected $docAcls;
 
     /**
+     * @var LsDefAssociationGrouping[]|Collection
+     * @ORM\OneToMany(targetEntity="LsDefAssociationGrouping", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
+     */
+    protected $associationGroupings;
+
+    /**
      * @var string
      *
      * @Serializer\Exclude()
@@ -1176,6 +1182,26 @@ class LsDoc
      */
     public function setOwnedBy($ownedBy) {
         $this->ownedBy = $ownedBy;
+
+        return $this;
+    }
+
+    /**
+     * @return LsDefAssociationGrouping[]|Collection
+     */
+    public function getAssociationGroupings()
+    {
+        return $this->associationGroupings;
+    }
+
+    /**
+     * @param LsDefAssociationGrouping[]|Collection $associationGroupings
+     *
+     * @return LsDoc
+     */
+    public function setAssociationGroupings($associationGroupings)
+    {
+        $this->associationGroupings = $associationGroupings;
 
         return $this;
     }

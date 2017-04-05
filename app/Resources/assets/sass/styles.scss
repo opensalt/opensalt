@@ -1,3 +1,14 @@
+// use flex to force the footer to go to the bottom of the page
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main.content {
+    flex: 1;
+}
+
 header .navbar-default {
     border-width:0px;
     background-color:#78C9E9;
@@ -23,7 +34,7 @@ footer .navbar-default {
     border-radius:4px 4px 0 0;
     border-width: 0;
     min-height: auto;
-    margin-top:30px;
+    margin-bottom:0px;
     background-color:#78C9E9;
 }
 

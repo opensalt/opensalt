@@ -238,6 +238,7 @@ class LsAssociation
             static::PRECEDES,
             static::SKILL_LEVEL,
             static::IS_PEER_OF,
+            static::EXEMPLAR,
 
             static::CHILD_OF,
         ];

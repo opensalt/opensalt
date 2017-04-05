@@ -3,6 +3,7 @@
 namespace CftfBundle\Controller;
 
 use CftfBundle\Entity\LsItem;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -146,6 +147,36 @@ class LsAssociationController extends Controller
         }
 
         return $ret;
+    }
+
+    /**
+     * Creates a new LsAssociation entity for an exemplar
+     *
+     * @Route("/treenewexemplar/{originLsItem}", name="lsassociation_tree_new_exemplar")
+     * @Method({"GET", "POST"})
+     * @Template()
+     *
+     * @param Request $request
+     * @param LsItem|null $originLsItem
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
+    public function treeNewExemplarAction(Request $request, LsItem $originLsItem = null)
+    {
+        $lsAssociation = new LsAssociation();
+        $lsAssociation->setLsDoc($originLsItem->getLsDoc());
+        $lsAssociation->setOriginLsItem($originLsItem);
+        $lsAssociation->setType(LsAssociation::EXEMPLAR);
+        $lsAssociation->setDestinationNodeUri($request->request->get("exemplarUrl"));
+        $lsAssociation->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $lsAssociation->getDestinationNodeUri()));
+        // TODO: setDestinationTitle is not currently a table field.
+        //$lsAssociation->setDestinationTitle($request->request->get("exemplarDescription"));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($lsAssociation);
+        $em->flush();
+
+        return new Response($this->generateUrl('doc_tree_item_view', ['id' => $originLsItem->getId()]), Response::HTTP_CREATED);
     }
 
     /**
