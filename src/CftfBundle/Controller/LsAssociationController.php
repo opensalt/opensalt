@@ -3,6 +3,7 @@
 namespace CftfBundle\Controller;
 
 use CftfBundle\Entity\LsItem;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -147,7 +148,7 @@ class LsAssociationController extends Controller
 
         return $ret;
     }
-    
+
     /**
      * Creates a new LsAssociation entity for an exemplar
      *
@@ -162,25 +163,21 @@ class LsAssociationController extends Controller
      */
     public function treeNewExemplarAction(Request $request, LsItem $originLsItem = null)
     {
-        $ajax = $request->isXmlHttpRequest();
-
         $lsAssociation = new LsAssociation();
-        $lsAssociation->setOriginLsItem($originLsItem);
-        $lsAssociation->setUri($request->request->get("exemplarUrl"));
-        // TODO: setDescription is not currently a table field.
-        //$lsAssociation->setDescription($request->request->get("exemplarDescription"));
-
-        // Add to the origin item's LsDoc
         $lsAssociation->setLsDoc($originLsItem->getLsDoc());
+        $lsAssociation->setOriginLsItem($originLsItem);
+        $lsAssociation->setType(LsAssociation::EXEMPLAR);
+        $lsAssociation->setDestinationNodeUri($request->request->get("exemplarUrl"));
+        $lsAssociation->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $lsAssociation->getDestinationNodeUri()));
+        // TODO: setDestinationTitle is not currently a table field.
+        //$lsAssociation->setDestinationTitle($request->request->get("exemplarDescription"));
 
-		$em = $this->getDoctrine()->getManager();
-		// TODO: the following line currently fails with the message "Integrity constraint violation: 1048 Column 'destination_node_identifier' cannot be null"
-		//$em->persist($lsAssociation);
-		$em->flush();
-        
-		return new Response($this->generateUrl('doc_tree_item_view', ['id' => $originLsItem->getId()]), Response::HTTP_CREATED);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($lsAssociation);
+        $em->flush();
+
+        return new Response($this->generateUrl('doc_tree_item_view', ['id' => $originLsItem->getId()]), Response::HTTP_CREATED);
     }
-    
 
     /**
      * Finds and displays a LsAssociation entity.
