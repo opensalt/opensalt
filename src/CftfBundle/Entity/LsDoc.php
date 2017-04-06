@@ -30,6 +30,15 @@ use Util\Compare;
  *         @Serializer\Expose()
  *     }
  * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfPackageUri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object, 'api_v1p1_cfpackage')",
+ *     options={
+ *         @Serializer\SerializedName("CFPackageURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
  */
 class LsDoc
 {
