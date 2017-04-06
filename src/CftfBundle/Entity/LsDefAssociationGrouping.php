@@ -3,12 +3,15 @@
 namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * LsDefAssociationGrouping
  *
  * @ORM\Table(name="ls_def_association_grouping")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsDefAssociationGroupingRepository")
+ *
+ * @Serializer\ExclusionPolicy("all")
  */
 class LsDefAssociationGrouping extends AbstractLsDefinition
 {

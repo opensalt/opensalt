@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -16,6 +17,69 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="ls_item")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsItemRepository")
  * @UniqueEntity("uri")
+ *
+ * @Serializer\VirtualProperty(
+ *     "uri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     options={
+ *         @Serializer\SerializedName("uri"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfDocumentUri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object.getLsDoc())",
+ *     options={
+ *         @Serializer\SerializedName("CFDocumentURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfItemType",
+ *     exp="object.getItemType()?object.getItemType().getTitle():null",
+ *     options={
+ *         @Serializer\SerializedName("CFItemType"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfItemTypeUri",
+ *     exp="service('salt.api.v1p1.utils').getLinkUri(object.getItemType())",
+ *     options={
+ *         @Serializer\SerializedName("CFItemTypeURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "conceptKeywords",
+ *     exp="service('salt.api.v1p1.utils').splitByComma(object.getConceptKeywords())",
+ *     options={
+ *         @Serializer\SerializedName("conceptKeywords"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "educationLevel",
+ *     exp="service('salt.api.v1p1.utils').splitByComma(object.getEducationalAlignment())",
+ *     options={
+ *         @Serializer\SerializedName("educationLevel"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfItemAssociationsUri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object, 'api_v1p1_cfitemassociations')",
+ *     options={
+ *         @Serializer\SerializedName("CFItemAssociationsURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
  */
 class LsItem
 {
@@ -27,6 +91,8 @@ class LsItem
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Exclude()
      */
     private $id;
 
@@ -37,6 +103,8 @@ class LsItem
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $uri;
 
@@ -47,6 +115,8 @@ class LsItem
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $lsDocIdentifier;
 
@@ -55,6 +125,8 @@ class LsItem
      *
      * @ORM\Column(name="ls_doc_uri", type="string", length=300, nullable=true)
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $lsDocUri;
 
@@ -63,6 +135,8 @@ class LsItem
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="lsItems")
      * @Assert\NotBlank()
+     *
+     * @Serializer\Exclude()
      */
     private $lsDoc;
 
@@ -72,6 +146,9 @@ class LsItem
      * @ORM\Column(name="human_coding_scheme", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("humanCodingScheme")
      */
     private $humanCodingScheme;
 
@@ -82,6 +159,9 @@ class LsItem
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("identifier")
      */
     private $identifier;
 
@@ -91,6 +171,9 @@ class LsItem
      * @ORM\Column(name="list_enum_in_source", type="string", length=20, nullable=true)
      *
      * @Assert\Length(max=20)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("listEnumeration")
      */
     private $listEnumInSource;
 
@@ -98,6 +181,8 @@ class LsItem
      * @var int
      *
      * @ORM\Column(name="rank", type="bigint", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     private $rank;
 
@@ -107,6 +192,9 @@ class LsItem
      * @ORM\Column(name="full_statement", type="text", nullable=false)
      *
      * @Assert\NotBlank()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("fullStatement")
      */
     private $fullStatement;
 
@@ -116,6 +204,9 @@ class LsItem
      * @ORM\Column(name="abbreviated_statement", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("abbreviatedStatement")
      */
     private $abbreviatedStatement;
 
@@ -125,6 +216,8 @@ class LsItem
      * @ORM\Column(name="concept_keywords", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $conceptKeywords;
 
@@ -135,6 +228,9 @@ class LsItem
      *
      * @Assert\Length(max=300)
      * @Assert\Url()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("conceptKeywordsURI")
      */
     private $conceptKeywordsUri;
 
@@ -142,6 +238,9 @@ class LsItem
      * @var string
      *
      * @ORM\Column(name="notes", type="text", nullable=true)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("notes")
      */
     private $notes;
 
@@ -151,6 +250,9 @@ class LsItem
      * @ORM\Column(name="language", type="string", length=10, nullable=true)
      *
      * @Assert\Length(max=10)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("language")
      */
     private $language;
 
@@ -160,6 +262,8 @@ class LsItem
      * @ORM\Column(name="educational_alignment", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $educationalAlignment;
 
@@ -168,6 +272,8 @@ class LsItem
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDefItemType")
      * @ORM\JoinColumn(name="item_type_id", referencedColumnName="id")
+     *
+     * @Serializer\Exclude()
      */
     private $itemType;
 
@@ -178,6 +284,9 @@ class LsItem
      *
      * @Assert\Length(max=300)
      * @Assert\Url()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("CFLicenseURI")
      */
     private $licenceUri;
 
@@ -188,6 +297,8 @@ class LsItem
      * @Gedmo\Timestampable(on="update")
      *
      * @Assert\DateTime()
+     *
+     * @Serializer\Exclude()
      */
     private $changedAt;
 
@@ -196,6 +307,9 @@ class LsItem
      *
      * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Gedmo\Timestampable(on="update")
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("lastChangeDateTime")
      */
     private $updatedAt;
 
@@ -203,6 +317,8 @@ class LsItem
      * @var array
      *
      * @ORM\Column(name="extra", type="json_array", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     private $extra;
 
@@ -210,6 +326,8 @@ class LsItem
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="originLsItem", indexBy="id", cascade={"persist"})
+     *
+     * @Serializer\Exclude()
      */
     private $associations;
 
@@ -217,6 +335,8 @@ class LsItem
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="destinationLsItem", indexBy="id", cascade={"persist"})
+     *
+     * @Serializer\Exclude()
      */
     private $inverseAssociations;
 

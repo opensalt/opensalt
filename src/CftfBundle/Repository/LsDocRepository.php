@@ -15,6 +15,11 @@ use Util\Compare;
  */
 class LsDocRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function findAllDocuments()
+    {
+        return $this->findAll();
+    }
+
     /**
      * Get a list of all items for an LsDoc
      *
@@ -218,11 +223,11 @@ xENDx;
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAllItems(LsDoc $lsDoc)
+    public function findAllItems(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t, a, adi, add
-            FROM CftfBundle:LSItem i INDEX BY i.id
+            FROM CftfBundle:LsItem i INDEX BY i.id
             LEFT JOIN i.itemType t
             LEFT JOIN i.associations a WITH a.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
@@ -233,7 +238,30 @@ xENDx;
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult(Query::HYDRATE_ARRAY);
+        $results = $query->getResult($format);
+
+        return $results;
+    }
+
+    /**
+     * Get a list of all item types used in a document
+     *
+     * @param LsDoc $lsDoc
+     * @param int $format
+     *
+     * @return array array of LsDefItemTypes
+     */
+    public function findAllUsedItemTypes(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT t
+            FROM CftfBundle:LsDefItemType t, CftfBundle:LsItem i
+            WHERE i.lsDoc = :lsDocId
+              AND i.itemType = t
+        ');
+        $query->setParameter('lsDocId', $lsDoc->getId());
+
+        $results = $query->getResult($format);
 
         return $results;
     }
@@ -245,11 +273,11 @@ xENDx;
      *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllAssociations(LsDoc $lsDoc)
+    public function findAllAssociations(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, ag, adi, add
-            FROM CftfBundle:LSAssociation a INDEX BY a.id
+            FROM CftfBundle:LsAssociation a INDEX BY a.id
             LEFT JOIN a.group ag
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
@@ -257,7 +285,29 @@ xENDx;
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult(Query::HYDRATE_ARRAY);
+        $results = $query->getResult($format);
+
+        return $results;
+    }
+
+    /**
+     * Get a list of all association groups used in an LsDoc
+     *
+     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
+     * @return array array of LsAssociations hydrated as an array
+     */
+    public function findAllUsedAssociationGroups(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT ag
+            FROM CftfBundle:LsDefAssociationGrouping ag, CftfBundle:LsAssociation a 
+            WHERE a.lsDoc = :lsDocId
+              AND a.group = ag
+        ');
+        $query->setParameter('lsDocId', $lsDoc->getId());
+
+        $results = $query->getResult($format);
 
         return $results;
     }

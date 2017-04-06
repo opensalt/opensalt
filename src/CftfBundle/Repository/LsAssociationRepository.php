@@ -51,4 +51,17 @@ class LsAssociationRepository extends EntityRepository
             }
         }
     }
+
+    public function findAllAssociationsFor($id)
+    {
+        $item = $this->getEntityManager()->getRepository(LsItem::class)
+            ->findOneBy(['identifier' => str_replace('_', '', $id)]);
+        $qry = $this->createQueryBuilder('a')
+            ->where('a.originLsItem = :id')
+            ->orWhere('a.destinationLsItem = :id')
+            ->setParameter('id', $item->getId())
+            ->getQuery();
+
+        return $qry->getResult();
+    }
 }
