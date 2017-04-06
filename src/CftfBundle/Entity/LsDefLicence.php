@@ -3,12 +3,15 @@
 namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * LsDefLicence
  *
  * @ORM\Table(name="ls_def_licence")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsDefLicenceRepository")
+ *
+ * @Serializer\ExclusionPolicy("all")
  */
 class LsDefLicence extends AbstractLsDefinition
 {
@@ -16,6 +19,9 @@ class LsDefLicence extends AbstractLsDefinition
      * @var string
      *
      * @ORM\Column(name="licence_text", type="text")
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("licenseText")
      */
     private $licenceText;
 

@@ -4,6 +4,7 @@ namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -11,6 +12,60 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="ls_association")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsAssociationRepository")
+ *
+ * @Serializer\VirtualProperty(
+ *     "uri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     options={
+ *         @Serializer\SerializedName("uri"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfDocumentUri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object.getLsDoc())",
+ *     options={
+ *         @Serializer\SerializedName("CFDocumentURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfAssociationGroupingUri",
+ *     exp="service('salt.api.v1p1.utils').getLinkUri(object.getGroup())",
+ *     options={
+ *         @Serializer\SerializedName("CFAssociationGroupingURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "originNodeUri",
+ *     exp="service('salt.api.v1p1.utils').getNodeLinkUri('origin', object)",
+ *     options={
+ *         @Serializer\SerializedName("originNodeURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "associationType",
+ *     exp="service('salt.api.v1p1.utils').formatAssociationType(object.getType())",
+ *     options={
+ *         @Serializer\SerializedName("associationType"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "destinationNodeUri",
+ *     exp="service('salt.api.v1p1.utils').getNodeLinkUri('destination', object)",
+ *     options={
+ *         @Serializer\SerializedName("destinationNodeURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
  */
 class LsAssociation
 {
@@ -45,6 +100,8 @@ class LsAssociation
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Exclude()
      */
     private $id;
 
@@ -54,6 +111,8 @@ class LsAssociation
      * @ORM\Column(name="ls_doc_identifier", type="string", length=300, nullable=false)
      *
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $lsDocIdentifier;
 
@@ -63,6 +122,8 @@ class LsAssociation
      * @ORM\Column(name="ls_doc_uri", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $lsDocUri;
 
@@ -70,6 +131,8 @@ class LsAssociation
      * @var LsDoc
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="docAssociations")
+     *
+     * @Serializer\Exclude()
      */
     private $lsDoc;
 
@@ -80,6 +143,9 @@ class LsAssociation
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("identifier")
      */
     private $identifier;
 
@@ -87,6 +153,8 @@ class LsAssociation
      * @var string
      *
      * @ORM\Column(name="uri", type="string", length=300, nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     private $uri;
 
@@ -95,6 +163,8 @@ class LsAssociation
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDefAssociationGrouping", fetch="EAGER")
      * @ORM\JoinColumn(name="assoc_group_id", referencedColumnName="id")
+     *
+     * @Serializer\Exclude()
      */
     private $group;
 
@@ -104,6 +174,8 @@ class LsAssociation
      * @ORM\Column(name="group_name", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Exclude()
      */
     private $groupName;
 
@@ -113,6 +185,8 @@ class LsAssociation
      * @ORM\Column(name="group_uri", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $groupUri;
 
@@ -123,6 +197,8 @@ class LsAssociation
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $originNodeIdentifier;
 
@@ -130,6 +206,8 @@ class LsAssociation
      * @var string
      *
      * @ORM\Column(name="origin_node_uri", type="string", length=300, nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     private $originNodeUri;
 
@@ -138,6 +216,8 @@ class LsAssociation
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="associations", fetch="EAGER")
      * @ORM\JoinColumn(name="origin_lsdoc_id", referencedColumnName="id")
+     *
+     * @Serializer\Exclude()
      */
     private $originLsDoc;
 
@@ -146,6 +226,8 @@ class LsAssociation
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsItem", inversedBy="associations", fetch="EAGER", cascade={"persist"})
      * @ORM\JoinColumn(name="origin_lsitem_id", referencedColumnName="id")
+     *
+     * @Serializer\Exclude()
      */
     private $originLsItem;
 
@@ -156,6 +238,8 @@ class LsAssociation
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $destinationNodeIdentifier;
 
@@ -163,6 +247,8 @@ class LsAssociation
      * @var string
      *
      * @ORM\Column(name="destination_node_uri", type="string", length=300, nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     private $destinationNodeUri;
 
@@ -171,6 +257,8 @@ class LsAssociation
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="inverseAssociations", fetch="EAGER")
      * @ORM\JoinColumn(name="destination_lsdoc_id", referencedColumnName="id")
+     *
+     * @Serializer\Exclude()
      */
     private $destinationLsDoc;
 
@@ -179,6 +267,8 @@ class LsAssociation
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsItem", inversedBy="inverseAssociations", fetch="EAGER", cascade={"persist"})
      * @ORM\JoinColumn(name="destination_lsitem_id", referencedColumnName="id")
+     *
+     * @Serializer\Exclude()
      */
     private $destinationLsItem;
 
@@ -186,6 +276,8 @@ class LsAssociation
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=50, nullable=false)
+     *
+     * @Serializer\Exclude()
      */
     private $type;
 
@@ -193,6 +285,8 @@ class LsAssociation
      * @var int
      *
      * @ORM\Column(name="seq", type="bigint", nullable=true)
+     *
+     * @Serializer\Expose()
      */
     private $sequenceNumber;
 
@@ -201,6 +295,9 @@ class LsAssociation
      *
      * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Gedmo\Timestampable(on="update")
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("lastChangeDateTime")
      */
     private $updatedAt;
 

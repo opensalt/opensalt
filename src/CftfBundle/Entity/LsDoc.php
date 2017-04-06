@@ -30,7 +30,6 @@ use Util\Compare;
  *         @Serializer\Expose()
  *     }
  * )
- *     exp="service('salt.twig.local_uri').getLocalOrRemoteUri(object.getUri())",
  */
 class LsDoc
 {
@@ -250,6 +249,9 @@ class LsDoc
      * @var string
      *
      * @ORM\Column(name="note", type="text", nullable=true)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("notes")
      */
     private $note;
 
@@ -320,6 +322,8 @@ class LsDoc
     /**
      * @var LsDefAssociationGrouping[]|Collection
      * @ORM\OneToMany(targetEntity="LsDefAssociationGrouping", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
      */
     protected $associationGroupings;
 

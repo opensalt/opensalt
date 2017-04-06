@@ -4,12 +4,23 @@ namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 
 /**
  * AbstractLsBase
  *
  * @ORM\MappedSuperclass()
+ *
+ * @Serializer\ExclusionPolicy("all")
+ * @Serializer\VirtualProperty(
+ *     "uri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     options={
+ *         @Serializer\SerializedName("uri"),
+ *         @Serializer\Expose()
+ *     }
+ * )
  */
 class AbstractLsBase
 {
@@ -19,6 +30,8 @@ class AbstractLsBase
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Exclude()
      */
     private $id;
 
@@ -26,6 +39,8 @@ class AbstractLsBase
      * @var string
      *
      * @ORM\Column(name="identifier", type="string", length=300, nullable=false)
+     *
+     * @Serializer\Expose()
      */
     private $identifier;
 
@@ -33,6 +48,8 @@ class AbstractLsBase
      * @var string
      *
      * @ORM\Column(name="uri", type="string", length=300, nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     private $uri;
 
@@ -40,6 +57,8 @@ class AbstractLsBase
      * @var array
      *
      * @ORM\Column(name="extra", type="json", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     private $extra;
 
@@ -48,6 +67,9 @@ class AbstractLsBase
      *
      * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Gedmo\Timestampable(on="update")
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("lastChangeDateTime")
      */
     private $updatedAt;
 

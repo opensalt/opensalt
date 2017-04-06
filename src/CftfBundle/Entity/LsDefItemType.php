@@ -3,12 +3,15 @@
 namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * LsDefItemType
  *
  * @ORM\Table(name="ls_def_item_type")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsDefItemTypeRepository")
+ *
+ * @Serializer\ExclusionPolicy("all")
  */
 class LsDefItemType extends AbstractLsDefinition
 {
@@ -16,6 +19,9 @@ class LsDefItemType extends AbstractLsDefinition
      * @var string
      *
      * @ORM\Column(name="code", type="string", length=255)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("typeCode")
      */
     private $code;
 
@@ -23,6 +29,9 @@ class LsDefItemType extends AbstractLsDefinition
      * @var string
      *
      * @ORM\Column(name="hierarchy_code", type="string", length=255)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("hierarchyCode")
      */
     private $hierarchyCode;
 
