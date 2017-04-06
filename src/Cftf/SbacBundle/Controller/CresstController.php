@@ -16,6 +16,8 @@ class CresstController extends Controller
 {
     const ELA_ROOT_UUID = '9100ef5e-d793-4184-bb5b-3686d0258549';
     const MATH_ROOT_UUID = 'c44427b4-8e4e-540f-a68b-dcdb1b7ff78d';
+    const ELA_PUBLICATION = 'TA-ELA-v1';
+    const MATH_PUBLICATION = 'TA-Math-v1';
 
     /**
      * @Route("/sbac/dl/export/{id}.{_format}", name="dl_export", defaults={"_format"="html"}, requirements={"id"="\d+", "_format"="(html|csv)"})
@@ -40,7 +42,7 @@ class CresstController extends Controller
         $items = $em->getRepository('CftfBundle:LsItem')->findAllForDocWithAssociations($lsDoc);
         $items = new ArrayCollection($items);
         $items = $items->map(function (LsItem $item) {
-            if ($item->getType() !== 'Target') {
+            if ('Target' !== $item->getType()) {
                 return $item;
             }
 
@@ -91,8 +93,8 @@ class CresstController extends Controller
         $line = [
             self::ELA_ROOT_UUID,
             '',
-            'TA-ELA-v1',
-            'E',
+            self::ELA_PUBLICATION,
+            'ELA',
             'English/Language Arts',
             '',
             'English/Language Arts',
@@ -101,9 +103,24 @@ class CresstController extends Controller
         $csvLine = \Util\CsvUtil::arrayToCsv($line);
         $csvLines[] = $csvLine;
 
+        // "Virtual" top level node for Math
+        $line = [
+            self::MATH_ROOT_UUID,
+            '',
+            self::MATH_PUBLICATION,
+            'Math',
+            'Math',
+            '',
+            'Math',
+            '',
+        ];
+        $csvLine = \Util\CsvUtil::arrayToCsv($line);
+        $csvLines[] = $csvLine;
+
         /** @var LsItem $item */
         foreach ($items as $item) {
-            if ('Claim' === $item->getType()) {
+            if (in_array($item->getType(), ['Domain', 'Conceptual Category'], true)) {
+                // Merge Domain/Conceptual Category into Target
                 continue;
             }
 
@@ -112,17 +129,44 @@ class CresstController extends Controller
                 $grade = 'HS';
             }
 
+            // Expand the terms for the DL
+            $parts = explode('.', $item->getHumanCodingScheme());
+            if ('E' === $parts[0]) {
+                $parts[0] = 'ELA';
+                $publication = self::ELA_PUBLICATION;
+            } else {
+                $parts[0] = 'Math';
+                $publication = self::MATH_PUBLICATION;
+            }
+            $parts[1] = str_replace('G', 'Grade', $parts[1]);
+            if (!empty($parts[2])) {
+                $parts[2] = preg_replace('/[A-Z]$/', '', $parts[2]);
+                $parts[2] = str_replace('C', 'Claim', $parts[2]);
+            }
+            if (!empty($parts[3])) {
+                $parts[3] = str_replace('T', 'Target', $parts[3]);
+            }
+            $code = implode('.', $parts);
+            $item->setHumanCodingScheme($code);
+
+            // Get parent
             $parentUuid = null;
             if ($parent = $item->getParentItem()) {
                 $parentUuid = $parent->getIdentifier();
+                $parentType = $parent->getType();
 
-                if ('Claim' === $parent->getType()) {
+                if (in_array($parentType, ['Domain', 'Conceptual Category'], true)) {
+                    // Merge the Target into the Domain/Conceptual Category
                     $parentUuid = $parent->getParentItem()->getIdentifier();
 
                     $item->setAbbreviatedStatement($parent->getAbbreviatedStatement().': '.$item->getAbbreviatedStatement());
                 }
             } else {
-                $parentUuid = self::ELA_ROOT_UUID;
+                if (0 === strpos($code, 'E')) {
+                    $parentUuid = self::ELA_ROOT_UUID;
+                } else {
+                    $parentUuid = self::MATH_ROOT_UUID;
+                }
             }
 
             $crosswalk = $item->getExtraProperty('crosswalk', []);
@@ -130,7 +174,7 @@ class CresstController extends Controller
             $line = [
                 'uuid' => $item->getIdentifier(),
                 'parentUuid' => $parentUuid,
-                'publication' => 'TA-ELA-v1',
+                'publication' => $publication,
                 'name' => $item->getHumanCodingScheme(),
                 'shortName' => $item->getAbbreviatedStatement(),
                 'grade' => $grade,
