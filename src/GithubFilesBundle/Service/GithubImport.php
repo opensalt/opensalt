@@ -128,7 +128,7 @@ class GithubImport
      */
     public function addItemRelatedTo(LsDoc $lsDoc, $lsItem, $cfAssociation){
         $em = $this->getEntityManager();
-        if( strlen(trim($cfAssociation)) > 0 ){
+        if (strlen(trim($cfAssociation)) > 0) {
             $itemAssociated = $em->getRepository('CftfBundle:LsItem')->findOneByIdentifier($cfAssociation);
 
             $association = new LsAssociation();
