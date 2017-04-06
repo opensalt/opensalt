@@ -1,10 +1,8 @@
 $(document).on('ready', function(){
-    if ($('input[name="import"]').length > 0) {
-        $('input[name="import"]').click(function(){
-            Util.loadContent();
-        });
-        Util.loadContent();
-    }
+    $('.github-tab').click(function(){
+        SaltGithub.getRepoList(1, 30);
+        listRepositories();
+    });
 
     $('.import-framework').click(function(){
         Import.fromAsn();
@@ -93,7 +91,7 @@ var SaltGithub = (function(){
                         var split = path.split('/');
 
                         for (var i = 0; i < split.length - 1; i++) {
-                            back += split[i];
+                            back += split[i] + '/';
                         }
 
                         $('.panel-title').html($(evt.target).attr('data-repo') + '/' + $(evt.target).attr('data-path') + '/');
@@ -197,7 +195,7 @@ var Import = (function() {
         }
     }
 
-    function jsonImporter(file){
+    function jsonImporter(file) {
         var json = JSON.parse(file);
         var keys = Object.keys(json);
         var subKey = [];
@@ -207,7 +205,7 @@ var Import = (function() {
         });
     }
 
-    function sendData(){
+    function sendData() {
         var columns = {};
         var dataRequest = {
             content: window.btoa(unescape(encodeURIComponent(file))),
@@ -225,7 +223,7 @@ var Import = (function() {
         });
     }
 
-    function asnStructure(content){
+    function asnStructure(content) {
         $.ajax({
             url: '/cf/asn/import',
             type: 'post',
@@ -241,17 +239,39 @@ var Import = (function() {
         });
     }
 
+    function caseImporter(file) {
+        $('.tab-content').addClass('hidden');
+        $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+        $('.file-loading').removeClass('hidden');
+
+        $.ajax({
+            url: '/salt/case/import',
+            type: 'post',
+            data: {
+                fileContent: window.btoa(unescape(file))
+            },
+            success: function(response) {
+                location.reload();
+            },
+            error: function(){
+                $('.tab-content').removeClass('hidden');
+                console.error('error while importing the file');
+            }
+        });
+    }
+
     return {
         csv: csvImporter,
         json: jsonImporter,
         send: sendData,
-        fromAsn: asnStructure
+        fromAsn: asnStructure,
+        case: caseImporter
     };
 })();
 
 var SaltLocal = (function(){
 
-    function handleFileSelect(){
+    function handleFileSelect(fileType) {
         // var files = evt.target.files; // FileList Object
         var files = document.getElementById('file-url').files;
         var json = '', f;
@@ -262,11 +282,15 @@ var SaltLocal = (function(){
                             'bytes', '- lastModified:', f.lastModified ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
 
                 var reader = new FileReader();
-                if (f.type === 'text/csv') {
+                if (f.type === 'text/csv' || f.type === 'application/json') {
                     reader.onload = (function(theFile) {
                         return function(e) {
                             file = e.target.result;
-                            Import.csv(file, lsDocId);
+                            if (fileType === 'local') {
+                                Import.csv(file, lsDocId);
+                            } else if (fileType === 'case') {
+                                Import.case(file);
+                            }
                         };
                     })(f);
 
@@ -394,28 +418,12 @@ var Util = (function(){
         return [ this.slice( 0, n ) ].concat( this.slice(n).chunk(n) );
     }
 
-    function loadContent(){
-        var value = $('input[name="import"]:checked').val();
-
-        if (value ===  'github') {
-            SaltGithub.getRepoList(1, 30);
-            $("#asn").addClass('hidden');
-            $("#local").addClass('hidden');
-            $("#github").removeClass('hidden');
-        } else if (value === 'local') {
-            $("#github").addClass('hidden');
-            $("#asn").addClass('hidden');
-            $('#local').removeClass('hidden');
-        }
-    }
-
     function spinnerHtml(msg) {
         return '<div class="spinnerOuter"><span class="glyphicon glyphicon-cog spinning spinnerCog"></span><span class="spinnerText">' + msg + '</span></div>';
     }
 
     return {
         simplify: simplify,
-        loadContent: loadContent,
         titleize: titleize,
         spinner: spinnerHtml
     };
