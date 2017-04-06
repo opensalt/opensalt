@@ -128,6 +128,10 @@ class Api1Controller extends Controller
         $repo = $this->getDoctrine()->getRepository(LsAssociation::class);
         $results = $repo->findAllAssociationsFor($id);
 
+        if (null === $results) {
+            return $this->generate404($id, $_format);
+        }
+
         $associations = [];
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $association) {

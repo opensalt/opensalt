@@ -56,6 +56,11 @@ class LsAssociationRepository extends EntityRepository
     {
         $item = $this->getEntityManager()->getRepository(LsItem::class)
             ->findOneBy(['identifier' => str_replace('_', '', $id)]);
+
+        if (null === $item) {
+            return null;
+        }
+
         $qry = $this->createQueryBuilder('a')
             ->where('a.originLsItem = :id')
             ->orWhere('a.destinationLsItem = :id')
