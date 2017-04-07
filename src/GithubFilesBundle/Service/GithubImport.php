@@ -126,7 +126,7 @@ class GithubImport
      * @param LsItem  $lsItem
      * @param string  $cfAssociation
      */
-    public function addItemRelated(LsDoc $lsDoc, $lsItem, $cfAssociation)
+    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation)
     {
         $em = $this->getEntityManager();
         if (strlen(trim($cfAssociation)) > 0) {
@@ -143,13 +143,13 @@ class GithubImport
         }
     }
 
-    /*
+    /**
      * @param LsDoc $lsDoc
      * @param LsItem $lsItem
      * @param string|LsItem $itemAssociated
      * @param EntityManager $em
      */
-    public function saveAssociation($lsDoc, $lsItem, $elementAssociated, $em)
+    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, EntityManager $em)
     {
         $association = new LsAssociation();
         $association->setType(LsAssociation::RELATED_TO);
