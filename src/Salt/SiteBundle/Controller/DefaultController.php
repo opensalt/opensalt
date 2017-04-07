@@ -7,7 +7,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use CftfBundle\Entity\LsDoc;
 
 class DefaultController extends Controller
 {
@@ -37,6 +36,7 @@ class DefaultController extends Controller
      * @Route("/salt/case/import", name="import_case_file")
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function importAction(Request $request)
