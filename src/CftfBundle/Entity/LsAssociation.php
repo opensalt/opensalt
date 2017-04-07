@@ -67,7 +67,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     }
  * )
  */
-class LsAssociation
+class LsAssociation implements CaseApiInterface
 {
     public const CHILD_OF = 'Is Child Of';
 

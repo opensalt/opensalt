@@ -5,7 +5,8 @@ namespace Salt\SiteBundle\Service;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
-use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
@@ -16,36 +17,38 @@ use JMS\DiExtraBundle\Annotation as DI;
 class CaseImport
 {
     /**
-     * @var EntityManager
+     * @var ManagerRegistry
      */
-    private $em;
+    private $managerRegistry;
 
     /**
-     * @param EntityManager $em
+     * CresstCsv constructor
+     *
+     * @param ManagerRegistry $managerRegistry
      *
      * @DI\InjectParams({
-     *     "em" = @DI\Inject("doctrine.orm.entity_manager")
+     *     "managerRegistry" = @DI\Inject("doctrine")
      * })
      */
-    public function __construct(EntityManager $em)
+    public function __construct(ManagerRegistry $managerRegistry)
     {
-        $this->em = $em;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
-     * @return EntityManager
+     * @return ObjectManager
      */
-    public function getEntityManager()
+    public function getEntityManager(): ObjectManager
     {
-        return $this->em;
+        return $this->managerRegistry->getManagerForClass(LsDoc::class);
     }
 
     /**
      * Import a CASE file
      *
-     * @param json $fileContent
+     * @param \stdClass $fileContent JSON content
      */
-    public function importCaseFile($fileContent)
+    public function importCaseFile(\stdClass $fileContent)
     {
         $em = $this->getEntityManager();
         $lsDoc = new LsDoc();
@@ -59,8 +62,7 @@ class CaseImport
         $em->persist($lsDoc);
 
         $cfItems = $fileContent->CFItems;
-        for ($i = 0, $cnt = count($cfItems); $i < $cnt; ++$i) {
-            $cfItem = $cfItems[$i];
+        foreach ($cfItems as $cfItem) {
             $lsItem = new LsItem();
 
             $lsItem->setLsDoc($lsDoc);
@@ -73,8 +75,7 @@ class CaseImport
         }
 
         $cfAssociations = $fileContent->CFAssociations;
-        for ($i = 0, $cnt = count($cfAssociations); $i < $cnt; ++$i) {
-            $cfAssociation = $cfAssociations[$i];
+        foreach ($cfAssociations as $cfAssociation) {
             $lsAssociation = new LsAssociation();
 
             $lsAssociation->setLsDoc($lsDoc);

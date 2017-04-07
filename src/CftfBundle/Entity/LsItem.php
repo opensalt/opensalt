@@ -81,7 +81,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     }
  * )
  */
-class LsItem
+class LsItem implements CaseApiInterface
 {
     const DISPLAY_IDENTIFIER_MAXLENGTH = 32;
 

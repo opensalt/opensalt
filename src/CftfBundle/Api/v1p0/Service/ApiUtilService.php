@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Api\v1p0\Service;
 
+use CftfBundle\Entity\CaseApiInterface;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Entity\LsDefConcept;
@@ -53,7 +54,7 @@ class ApiUtilService
      *
      * @return null|string
      */
-    public function getApiUrl($obj, ?string $route = null)
+    public function getApiUrl(CaseApiInterface $obj, ?string $route = null)
     {
         $uri = $obj->getUri();
 
@@ -112,7 +113,7 @@ class ApiUtilService
      *
      * @return array|null
      */
-    public function getLinkUri($obj)
+    public function getLinkUri(CaseApiInterface $obj)
     {
         if (null === $obj) {
             return null;

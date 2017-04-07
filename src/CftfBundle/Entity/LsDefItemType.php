@@ -13,7 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @Serializer\ExclusionPolicy("all")
  */
-class LsDefItemType extends AbstractLsDefinition
+class LsDefItemType extends AbstractLsDefinition implements CaseApiInterface
 {
     /**
      * @var string

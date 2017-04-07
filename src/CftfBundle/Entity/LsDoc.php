@@ -40,7 +40,7 @@ use Util\Compare;
  *     }
  * )
  */
-class LsDoc
+class LsDoc implements CaseApiInterface
 {
     const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
     const ADOPTION_STATUS_DRAFT = 'Draft';

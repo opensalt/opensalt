@@ -33,12 +33,14 @@ class Api1Controller extends Controller
      */
     public function getAllCfDocumentsAction(Request $request, $_format)
     {
+        /*
         $limit = $request->query->get('limit', 100);
         $offset = $request->query->get('offset', 0);
         $sort = $request->query->get('sort', '');
         $orderBy = $request->query->get('orderBy', 'asc');
         $filter = $request->query->get('filter', '');
         $fields = $request->query->get('fields', []);
+        */
 
         $repo = $this->getDoctrine()->getRepository(LsDoc::class);
         $results = $repo->findAllDocuments();
