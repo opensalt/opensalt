@@ -59,7 +59,7 @@ class CaseImport
         $em->persist($lsDoc);
 
         $cfItems = $fileContent->CFItems;
-        for ($i = 0; $i < count($cfItems); $i++) {
+        for ($i = 0, $cnt = count($cfItems); $i < $cnt; ++$i) {
             $cfItem = $cfItems[$i];
             $lsItem = new LsItem();
 
@@ -73,9 +73,9 @@ class CaseImport
         }
 
         $cfAssociations = $fileContent->CFAssociations;
-        for ($i = 0; $i < count($cfAssociations); $i++) {
+        for ($i = 0, $cnt = count($cfAssociations); $i < $cnt; ++$i) {
             $cfAssociation = $cfAssociations[$i];
-            $lsAssociation = new LsAssociation;
+            $lsAssociation = new LsAssociation();
 
             $lsAssociation->setLsDoc($lsDoc);
             $lsAssociation->setIdentifier($cfAssociation->identifier);
