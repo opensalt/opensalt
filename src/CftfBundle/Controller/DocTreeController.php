@@ -5,7 +5,6 @@ namespace CftfBundle\Controller;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
-use CftfBundle\Form\Type\LsDefAssociationGroupingType;
 use CftfBundle\Form\Type\LsDocListType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -34,9 +33,9 @@ class DocTreeController extends Controller
 
         // get form field for selecting a document (for tree2)
         $form = $this->createForm(LsDocListType::class, null, ['ajax' => false]);
-		
-		$em = $this->getDoctrine()->getManager();
-		// TODO: get only association groupings tied to this document...
+
+        $em = $this->getDoctrine()->getManager();
+        // TODO: get only association groupings tied to this document...
         $lsDefAssociationGroupings = $em->getRepository('CftfBundle:LsDefAssociationGrouping')->findAll();
 
         return [

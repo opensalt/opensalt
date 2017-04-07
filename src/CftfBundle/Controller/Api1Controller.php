@@ -135,7 +135,7 @@ class Api1Controller extends Controller
         $associations = [];
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $association) {
-            /** @var LsAssociation $association */
+            /* @var LsAssociation $association */
             $associations[] = $association;
             if ($association->getUpdatedAt() > $lastModified) {
                 $lastModified = $association->getUpdatedAt();

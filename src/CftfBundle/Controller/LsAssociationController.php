@@ -167,7 +167,7 @@ class LsAssociationController extends Controller
         $lsAssociation->setLsDoc($originLsItem->getLsDoc());
         $lsAssociation->setOriginLsItem($originLsItem);
         $lsAssociation->setType(LsAssociation::EXEMPLAR);
-        $lsAssociation->setDestinationNodeUri($request->request->get("exemplarUrl"));
+        $lsAssociation->setDestinationNodeUri($request->request->get('exemplarUrl'));
         $lsAssociation->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $lsAssociation->getDestinationNodeUri()));
         // TODO: setDestinationTitle is not currently a table field.
         //$lsAssociation->setDestinationTitle($request->request->get("exemplarDescription"));
