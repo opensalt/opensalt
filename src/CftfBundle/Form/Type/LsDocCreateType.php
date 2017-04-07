@@ -2,11 +2,8 @@
 
 namespace CftfBundle\Form\Type;
 
-use CftfBundle\Entity\LsDoc;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 
 class LsDocCreateType extends AbstractLsDocCreateType
 {
