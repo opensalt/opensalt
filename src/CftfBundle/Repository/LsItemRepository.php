@@ -38,6 +38,23 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
+     * @param string $key
+     */
+    public function findAllByIdentifierOrHumanCodingScheme($key)
+    {
+        $qry = $this->createQueryBuilder('i');
+        $qry->select('i')
+            ->where($qry->expr()->orX(
+                $qry->expr()->eq('i.humanCodingScheme', ':humanCodingScheme'),
+                $qry->expr()->eq('i.identifier', ':identifier')
+            ))
+            ->setParameter('humanCodingScheme', $key)
+            ->setParameter('identifier', $key)
+            ;
+        return $qry->getQuery()->getResult();
+    }
+
+    /**
      * @param LsDoc $lsDoc
      *
      * @return \Doctrine\ORM\QueryBuilder

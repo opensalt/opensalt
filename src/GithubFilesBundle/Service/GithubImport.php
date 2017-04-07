@@ -113,7 +113,7 @@ class GithubImport
             }
             if ($cfAssociations = $content[$i][$lsItemKeys['cfAssociationGroupIdentifier']]) {
                 foreach(explode(',', $cfAssociations) as $cfAssociation){
-                    $this->addItemRelatedTo($lsDoc, $lsItem, $cfAssociation);
+                    $this->addItemRelated($lsDoc, $lsItem, $cfAssociation);
                 }
             }
         }
@@ -126,17 +126,42 @@ class GithubImport
      * @param LsItem  $lsItem
      * @param string  $cfAssociation
      */
-    public function addItemRelatedTo(LsDoc $lsDoc, $lsItem, $cfAssociation){
+    public function addItemRelated(LsDoc $lsDoc, $lsItem, $cfAssociation)
+    {
         $em = $this->getEntityManager();
         if (strlen(trim($cfAssociation)) > 0) {
-            $association = new LsAssociation();
-            $association->setLsDoc($lsDoc);
-            $association->setType(LsAssociation::RELATED_TO);
-            $association->setDestinationNodeIdentifier($lsItem);
-            $association->setOrigin($lsItem);
+            $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
+                ->findAllByIdentifierOrHumanCodingScheme($cfAssociation);
 
-            $em->persist($association);
+            if (count($itemsAssociated) > 0) {
+                foreach ($itemsAssociated as $itemAssociated) {
+                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $em);
+                }
+            } else {
+                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $em);
+            }
         }
+    }
+
+    /*
+     * @param LsDoc $lsDoc
+     * @param LsItem $lsItem
+     * @param string|LsItem $itemAssociated
+     * @param EntityManager $em
+     */
+    public function saveAssociation($lsDoc, $lsItem, $elementAssociated, $em)
+    {
+        $association = new LsAssociation();
+        $association->setType(LsAssociation::RELATED_TO);
+        $association->setLsDoc($lsDoc);
+        $association->setOrigin($lsItem);
+        if (is_string($elementAssociated))
+        {
+            $association->setDestinationNodeIdentifier($elementAssociated);
+        } else {
+            $association->setDestination($elementAssociated);
+        }
+        $em->persist($association);
     }
 
     /**
