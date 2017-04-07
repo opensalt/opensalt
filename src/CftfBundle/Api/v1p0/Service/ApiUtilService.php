@@ -54,7 +54,7 @@ class ApiUtilService
      *
      * @return null|string
      */
-    public function getApiUrl(CaseApiInterface $obj, ?string $route = null)
+    public function getApiUrl(?CaseApiInterface $obj, ?string $route = null)
     {
         $uri = $obj->getUri();
 
@@ -113,7 +113,7 @@ class ApiUtilService
      *
      * @return array|null
      */
-    public function getLinkUri(CaseApiInterface $obj)
+    public function getLinkUri(?CaseApiInterface $obj)
     {
         if (null === $obj) {
             return null;

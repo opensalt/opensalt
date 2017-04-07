@@ -213,26 +213,15 @@ class DocTreeController extends Controller
 
             // copy item if copyFromId is specified
             if (array_key_exists('copyFromId', $updates)) {
+                $lsItem = $this->copyFromId($lsDoc, $updates);
+
                 $copiedItem = true;
-                $originalItem = $lsItemRepo->find($updates['copyFromId']);
-
-                // PW: code based on CopyToLsDocCommand
-                $lsItem = $originalItem->copyToLsDoc($lsDoc);
-                $em->persist($lsItem);
-                // flush here to generate ID for new lsItem
-                $em->flush();
-
-                // if we create a new item, we'll return the url of the new item
-                // $returnUrl = new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
                 $rv[] = [
                     'copyFromId' => $updates['copyFromId'],
-                    'lsItemId' => $lsItem->getId()
+                    'lsItemId' => $lsItem->getId(),
                 ];
-
-                // we will add the "CHILD_OF" relationship, as well as listEnumInSource, below
-
-            // else get lsItem from the repository
             } else {
+                // else get lsItem from the repository
                 $lsItem = $lsItemRepo->find($lsItemId);
             }
 
@@ -243,36 +232,60 @@ class DocTreeController extends Controller
 
             // set/change parent if parentId is specified
             if (array_key_exists('parentId', $updates)) {
-                // parent could be a doc or item
-                if ($updates['parentType'] === 'item') {
-                    $parentItem = $lsItemRepo->find($updates['parentId']);
-                } else {
-                    $parentItem = $em->getRepository(LsDoc::class)->find($updates['parentId']);
-                }
-                // PW: code mostly copied from ChangeLsItemParentCommand
-                $lsItem->setUpdatedAt(new \DateTime());
-                // unless we copied the item, we need to remove previous CHILD_OF relationships.
-                if (!$copiedItem) {
-                    $em->getRepository(LsAssociation::class)->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
-                    // if we do this for a copied item, we also remove the CHILD_OF relationships for the original item
-                }
-                $lsItem->addParent($parentItem);
+                $this->setParentId($lsItem, $copiedItem, $updates);
             }
-
-            // Note: this could be extended to allow for other updates if we wanted to do that...
         }
 
         $em->flush();
 
-        if (count($rv) == 0) {
+        if (count($rv) === 0) {
             return ['topItems' => $rv];
-        } else {
-            // get doc items for return
-            $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAllChildrenArray($lsDoc);
-            return [
-                'topItems' => $rv,
-                'items' => $items
-            ];
         }
+
+        // get doc items for return
+        $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAllChildrenArray($lsDoc);
+        return [
+            'topItems' => $rv,
+            'items' => $items
+        ];
+    }
+
+    protected function copyFromId(LsDoc $lsDoc, array $updates): LsItem
+    {
+        $em = $this->getDoctrine()->getManager();
+        $lsItemRepo = $em->getRepository(LsItem::class);
+
+        $originalItem = $lsItemRepo->find($updates['copyFromId']);
+
+        // PW: code based on CopyToLsDocCommand
+        $lsItem = $originalItem->copyToLsDoc($lsDoc);
+        $em->persist($lsItem);
+        // flush here to generate ID for new lsItem
+        $em->flush();
+
+        // we will add the "CHILD_OF" relationship, as well as listEnumInSource separately
+
+        return $lsItem;
+    }
+
+    protected function setParentId(LsItem $lsItem, bool $copiedItem, array $updates): void
+    {
+        $em = $this->getDoctrine()->getManager();
+        $lsItemRepo = $em->getRepository(LsItem::class);
+
+        // parent could be a doc or item
+        if ($updates['parentType'] === 'item') {
+            $parentItem = $lsItemRepo->find($updates['parentId']);
+        } else {
+            $parentItem = $em->getRepository(LsDoc::class)->find($updates['parentId']);
+        }
+        // PW: code mostly copied from ChangeLsItemParentCommand
+        $lsItem->setUpdatedAt(new \DateTime());
+        // unless we copied the item, we need to remove previous CHILD_OF relationships.
+        if (!$copiedItem) {
+            $em->getRepository(LsAssociation::class)->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
+            // if we do this for a copied item, we also remove the CHILD_OF relationships for the original item
+        }
+        $lsItem->addParent($parentItem);
     }
 }

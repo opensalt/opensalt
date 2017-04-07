@@ -57,22 +57,12 @@ class Api1Controller extends Controller
             }
         }
 
-        $response = new Response();
-
-        $response->setEtag(md5($lastModified->format('U')));
-        $response->setLastModified($lastModified);
-        $response->setMaxAge(60);
-        $response->setSharedMaxAge(60);
-        $response->setPublic();
-
+        $response = $this->generateBaseReponse($lastModified);
         if ($response->isNotModified($request)) {
             return $response;
         }
 
-        $serializer = $this->get('serializer');
-        $result = $serializer->serialize(['CFDocuments' => $docs], $_format);
-
-        $response->setContent($result);
+        $response->setContent($this->get('serializer')->serialize(['CFDocuments' => $docs], $_format));
         $response->headers->set('X-Total-Count', count($docs));
 
         return $response;
@@ -144,22 +134,12 @@ class Api1Controller extends Controller
             }
         }
 
-        $response = new Response();
-
-        $response->setEtag(md5($lastModified->format('U')));
-        $response->setLastModified($lastModified);
-        $response->setMaxAge(60);
-        $response->setSharedMaxAge(60);
-        $response->setPublic();
-
+        $response = $this->generateBaseReponse($lastModified);
         if ($response->isNotModified($request)) {
             return $response;
         }
 
-        $serializer = $this->get('serializer');
-        $result = $serializer->serialize(['CFAssociations' => $associations], $_format);
-
-        $response->setContent($result);
+        $response->setContent($this->get('serializer')->serialize(['CFAssociations' => $associations], $_format));
         $response->headers->set('X-Total-Count', count($associations));
 
         return $response;
@@ -200,67 +180,33 @@ class Api1Controller extends Controller
     public function getCfPackageAction(Request $request, $id, $_format)
     {
         $repo = $this->getDoctrine()->getRepository(LsDoc::class);
-        /** @var LsDoc $doc */
+        /* @var LsDoc $doc */
         $doc = $repo->findOneBy(['identifier' => $id]);
 
-        if (empty($doc)) {
+        if (null === $doc) {
             return $this->generate404($id, $_format);
         }
 
-        $response = new Response();
-        $response->setEtag(md5($doc->getUpdatedAt()->format('U')));
-        $response->setLastModified($doc->getUpdatedAt());
-        $response->setMaxAge(60);
-        $response->setSharedMaxAge(60);
-        $response->setPublic();
-
+        $response = $this->generateBaseReponse($doc->getUpdatedAt());
         if ($response->isNotModified($request)) {
             return $response;
         }
 
-        $results = $repo->findAllItems($doc, Query::HYDRATE_OBJECT);
-        $pkgItems = [];
-        foreach ($results as $r) {
-            $pkgItems[] = $r;
-        }
-
-        $results = $repo->findAllAssociations($doc, Query::HYDRATE_OBJECT);
-        $pkgAssociations = [];
-        foreach ($results as $r) {
-            $pkgAssociations[] = $r;
-        }
-
-        $results = $repo->findAllUsedItemTypes($doc, Query::HYDRATE_OBJECT);
-        $pkgItemTypes = [];
-        foreach ($results as $r) {
-            $pkgItemTypes[] = $r;
-        }
-
-        $results = $repo->findAllUsedAssociationGroups($doc, Query::HYDRATE_OBJECT);
-        $pkgAssociationGroups = [];
-        foreach ($results as $r) {
-            $pkgAssociationGroups[] = $r;
-        }
-
-
         $pkg = [
             'CFDocument' => $doc,
-            'CFItems' => $pkgItems,
-            'CFAssociations' => $pkgAssociations,
+            'CFItems' => $repo->findAllItems($doc, Query::HYDRATE_OBJECT),
+            'CFAssociations' => $repo->findAllAssociations($doc, Query::HYDRATE_OBJECT),
             'CFDefinitions' => [
                 'CFConcepts' => [],
                 'CFSubjects' => $doc->getSubjects(),
                 'CFLicenses' => [],
-                'CFItemTypes' => $pkgItemTypes,
-                'CFAssociationGroupings' => $pkgAssociationGroups,
+                'CFItemTypes' => $repo->findAllUsedItemTypes($doc, Query::HYDRATE_OBJECT),
+                'CFAssociationGroupings' => $repo->findAllUsedAssociationGroups($doc, Query::HYDRATE_OBJECT),
             ],
             'CFRubrics' => [],
         ];
 
-        $serializer = $this->get('serializer');
-        $result = $serializer->serialize($pkg, $_format);
-
-        $response->setContent($result);
+        $response->setContent($this->get('serializer')->serialize($pkg, $_format));
 
         return $response;
     }
@@ -281,6 +227,26 @@ class Api1Controller extends Controller
     public function getCfSubjectAction(Request $request, $id, $_format)
     {
         return $this->generateObjectResponse(LsDefSubject::class, $request, $id, $_format);
+    }
+
+    /**
+     * Generat a base response
+     * @param Response $response
+     * @param \DateTime $lastModified
+     *
+     * @return Response
+     */
+    protected function generateBaseReponse(\DateTime $lastModified)
+    {
+        $response = new Response();
+
+        $response->setEtag(md5($lastModified->format('U')));
+        $response->setLastModified($lastModified);
+        $response->setMaxAge(60);
+        $response->setSharedMaxAge(60);
+        $response->setPublic();
+
+        return $response;
     }
 
     /**
