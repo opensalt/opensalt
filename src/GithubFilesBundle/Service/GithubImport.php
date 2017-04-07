@@ -5,7 +5,8 @@ namespace GithubFilesBundle\Service;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
-use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
@@ -16,28 +17,28 @@ use JMS\DiExtraBundle\Annotation as DI;
 class GithubImport
 {
     /**
-     * @var EntityManager
+     * @var ManagerRegistry
      */
-    private $em;
+    private $managerRegistry;
 
     /**
-     * @param EntityManager $em
+     * @param ManagerRegistry $managerRegistry
      *
      * @DI\InjectParams({
-     *     "em" = @DI\Inject("doctrine.orm.entity_manager"),
+     *     "managerRegistry" = @DI\Inject("doctrine"),
      * })
      */
-    public function __construct(EntityManager $em)
+    public function __construct(ManagerRegistry $managerRegistry)
     {
-        $this->em = $em;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
-     * @return EntityManager
+     * @return ObjectManager
      */
     protected function getEntityManager()
     {
-        return $this->em;
+        return $this->managerRegistry->getManagerForClass(LsDoc::class);
     }
 
     /**
@@ -135,10 +136,10 @@ class GithubImport
 
             if (count($itemsAssociated) > 0) {
                 foreach ($itemsAssociated as $itemAssociated) {
-                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $em);
+                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated);
                 }
             } else {
-                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $em);
+                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation);
             }
         }
     }
@@ -147,9 +148,8 @@ class GithubImport
      * @param LsDoc $lsDoc
      * @param LsItem $lsItem
      * @param string|LsItem $itemAssociated
-     * @param EntityManager $em
      */
-    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, EntityManager $em)
+    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated)
     {
         $association = new LsAssociation();
         $association->setType(LsAssociation::RELATED_TO);
@@ -161,7 +161,7 @@ class GithubImport
         } else {
             $association->setDestination($elementAssociated);
         }
-        $em->persist($association);
+        $this->getEntityManager()->persist($association);
     }
 
     /**
