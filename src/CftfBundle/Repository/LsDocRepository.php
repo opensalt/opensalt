@@ -313,6 +313,27 @@ xENDx;
     }
 
     /**
+     * Get a list of all association groups used in an LsDoc
+     *
+     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
+     * @return array array of LsAssociations hydrated as an array
+     */
+    public function findAllDocAssociationGroups(LsDoc $lsDoc, $format = Query::HYDRATE_OBJECT)
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT ag
+            FROM CftfBundle:LsDefAssociationGrouping ag
+            WHERE ag.lsDoc = :lsDocId
+        ');
+        $query->setParameter('lsDocId', $lsDoc->getId());
+
+        $results = $query->getResult($format);
+
+        return $results;
+    }
+
+    /**
      * Get a list of all associations for an LsDoc where the nodes are known items
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
