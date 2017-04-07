@@ -126,19 +126,18 @@ class GithubImport
      * @param LsItem  $lsItem
      * @param string  $cfAssociation
      */
-    public function addItemRelated(LsDoc $lsDoc, $lsItem, $cfAssociation){
+    public function addItemRelated(LsDoc $lsDoc, $lsItem, $cfAssociation)
+    {
         $em = $this->getEntityManager();
         if (strlen(trim($cfAssociation)) > 0) {
             $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
                 ->findAllByIdentifierOrHumanCodingScheme($cfAssociation);
 
-            if (count($itemsAssociated) > 0)
-            {
-                foreach ($itemsAssociated as $itemAssociated)
-                {
+            if (count($itemsAssociated) > 0) {
+                foreach ($itemsAssociated as $itemAssociated) {
                     $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $em);
                 }
-            }else{
+            } else {
                 $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $em);
             }
         }
