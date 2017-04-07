@@ -230,7 +230,8 @@ class Api1Controller extends Controller
     }
 
     /**
-     * Generat a base response
+     * Generate a base response
+     *
      * @param Response $response
      * @param \DateTime $lastModified
      *
