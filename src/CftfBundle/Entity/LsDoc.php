@@ -768,16 +768,22 @@ class LsDoc implements CaseApiInterface
      * Add topLsItem
      *
      * @param LsItem $topLsItem
+     * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsDoc
      */
-    public function addTopLsItem(LsItem $topLsItem)
+    public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null)
     {
         $association = new LsAssociation();
         $association->setLsDoc($this);
         $association->setOriginLsItem($topLsItem);
         $association->setType(LsAssociation::CHILD_OF);
         $association->setDestinationLsDoc($this);
+
+        // PW: set assocGroup if provided and non-null
+        if ($assocGroup !== null) {
+            $association->setGroup($assocGroup);
+        }
 
         $topLsItem->addAssociation($association);
         $this->addInverseAssociation($association);

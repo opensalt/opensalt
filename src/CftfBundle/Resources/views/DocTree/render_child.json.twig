@@ -2,9 +2,10 @@
     "abbrStmt":{{ lsItem.abbreviatedStatement|json_encode|raw }},
     "fullStmt":{{ lsItem.fullStatement|json_encode|raw }},
     "humanCoding":{{ lsItem.humanCodingScheme|json_encode|raw }},
-    "listEnum":{{ lsItem.listEnumInSource|json_encode|raw}},
-    "childAssociationGroup": {{ lsItem.parents[parent|default(null)]|default(null)|json_encode|raw }},
-    "key":{{ lsItem.id|json_encode|raw }}
+    "sequenceNumber":{{ lsItem.assoc[parent].sequenceNumber|default(lsItem.listEnumInSource)|json_encode|raw}},
+{#    "childAssociationGroup": {{ lsItem.parents[parent|default(null)]|default(null)|json_encode|raw }}, #}
+    "assoc": {{ lsItem.assoc[parent]|default(null)|json_encode|raw }},
+    "key":{{ lsItem.id|json_encode|raw }}.{{ lsItem.assoc[parent].group|default(0)|json_encode|raw }}
     {% if lsItem.children is not empty %}
         , "folder": true,
         "expanded": false,{# lower nodes are not expanded by default #}

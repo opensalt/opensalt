@@ -400,10 +400,11 @@ class LsItem implements CaseApiInterface
      * Create a copy of the lsItem into a new document
      *
      * @param LsDoc $newLsDoc
+     * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsItem
      */
-    public function copyToLsDoc(LsDoc $newLsDoc)
+    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null)
     {
         $newItem = clone $this;
 
@@ -415,12 +416,19 @@ class LsItem implements CaseApiInterface
         $exactMatch->setOrigin($newItem);
         $exactMatch->setType(LsAssociation::EXACT_MATCH_OF);
         $exactMatch->setDestination($this);
+
+        // PW: set assocGroup if provided and non-null
+        // TODO: should the assocGroup be on both associations, or just the first association, or just the inverse association??
+        if ($assocGroup !== null) {
+            $exactMatch->setGroup($assocGroup);
+        }
+
         $newItem->addAssociation($exactMatch);
         $this->addInverseAssociation($exactMatch);
 
         foreach ($this->getChildren() as $child) {
-            $newChild = $child->copyToLsDoc($newLsDoc);
-            $newItem->addChild($newChild);
+            $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup);
+            $newItem->addChild($newChild, $assocGroup);
         }
 
         return $newItem;
@@ -868,16 +876,23 @@ class LsItem implements CaseApiInterface
      * Add child
      *
      * @param LsItem $child
+     * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsItem
      */
-    public function addChild(LsItem $child)
+    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null)
     {
         $association = new LsAssociation();
         $association->setLsDoc($child->getLsDoc());
         $association->setOrigin($child);
         $association->setType(LsAssociation::CHILD_OF);
         $association->setDestination($this);
+
+        // PW: set assocGroup if provided and non-null
+        if ($assocGroup !== null) {
+            $association->setGroup($assocGroup);
+        }
+
         $child->addAssociation($association);
         $this->addInverseAssociation($association);
 
@@ -1182,19 +1197,32 @@ class LsItem implements CaseApiInterface
      * Add Parent
      *
      * @param LsItem|LsDoc $parent
+     * @param int $sequenceNumber
+     * @param LsDefAssociationGrouping|null $assocGroup
      *
-     * @return LsItem
+     * @return LsAssociation inserted association (in case the caller needs to get the id later)
      */
-    public function addParent($parent)
+    public function addParent($parent, $sequenceNumber = null, ?LsDefAssociationGrouping $assocGroup = null)
     {
         $association = new LsAssociation();
         $association->setLsDoc($this->getLsDoc());
         $association->setOrigin($this);
         $association->setType(LsAssociation::CHILD_OF);
         $association->setDestination($parent?:$this->lsDoc);
+
+        // PW: set sequenceNumber if provided and non-null
+        if ($sequenceNumber !== null) {
+            $association->setSequenceNumber($sequenceNumber);
+        }
+
+        // PW: set assocGroup if provided and non-null
+        if ($assocGroup !== null) {
+            $association->setGroup($assocGroup);
+        }
+
         $this->addAssociation($association);
 
-        return $this;
+        return $association;
     }
 
     /**

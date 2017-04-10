@@ -5,6 +5,7 @@ namespace CftfBundle\Controller;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
+use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Form\Command\ChangeLsItemParentCommand;
 use CftfBundle\Form\Command\CopyToLsDocCommand;
 use CftfBundle\Form\Type\LsDocListType;
@@ -50,6 +51,7 @@ class LsItemController extends Controller
      * Creates a new LsItem entity.
      *
      * @Route("/new/{doc}/{parent}", name="lsitem_new")
+     * @Route("/new/{doc}/{parent}/{assocGroup}", name="lsitem_new_ag")
      * @Method({"GET", "POST"})
      * @Template()
      * @Security("is_granted('add-standard-to', doc)")
@@ -57,10 +59,11 @@ class LsItemController extends Controller
      * @param Request $request
      * @param LsDoc|null $doc
      * @param LsItem|null $parent
+     * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function newAction(Request $request, LsDoc $doc = null, LsItem $parent = null)
+    public function newAction(Request $request, LsDoc $doc = null, LsItem $parent = null, LsDefAssociationGrouping $assocGroup = null)
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -71,9 +74,9 @@ class LsItemController extends Controller
             $lsItem->setLsDocUri($doc->getUri());
 
             if ($parent) {
-                $parent->addChild($lsItem);
+                $parent->addChild($lsItem, $assocGroup);
             } else {
-                $doc->addTopLsItem($lsItem);
+                $doc->addTopLsItem($lsItem, $assocGroup);
             }
         }
 
