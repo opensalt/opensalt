@@ -3,7 +3,7 @@
     {
         "title": {{ lsDoc.title|json_encode|raw }},
         "key": "doc-{{ lsDoc.id|raw }}",
-        "assocGroup": "all",
+        "assoc": {"group": "all"},
         "active": true,{# document node is active when first loaded #}
         "folder": true, 
         "expanded": true,{# document node is expanded when first loaded #}

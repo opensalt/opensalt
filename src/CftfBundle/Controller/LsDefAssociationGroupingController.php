@@ -4,6 +4,7 @@ namespace CftfBundle\Controller;
 
 use CftfBundle\Form\Type\LsDefAssociationGroupingType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -50,6 +51,8 @@ class LsDefAssociationGroupingController extends Controller
      */
     public function newAction(Request $request)
     {
+        $ajax = $request->isXmlHttpRequest();
+
         $lsDefAssociationGrouping = new LsDefAssociationGrouping();
         $form = $this->createForm(LsDefAssociationGroupingType::class, $lsDefAssociationGrouping);
         $form->handleRequest($request);
@@ -59,7 +62,15 @@ class LsDefAssociationGroupingController extends Controller
             $em->persist($lsDefAssociationGrouping);
             $em->flush();
 
+            // if ajax request, just return the created id
+            if ($ajax) {
+                return new Response($lsDefAssociationGrouping->getId(), Response::HTTP_CREATED);
+            }
             return $this->redirectToRoute('lsdef_association_grouping_show', array('id' => $lsDefAssociationGrouping->getId()));
+        }
+
+        if ($ajax && $form->isSubmitted() && !$form->isValid()) {
+            return $this->render('CftfBundle:LsDefAssociationGrouping:new.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
         return [

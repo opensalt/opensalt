@@ -23,7 +23,7 @@
     overflow:auto;
     padding:3px;
     margin-bottom:20px;
-    padding:10px;
+    // padding:10px;
     border-width:0;
 }
 
@@ -319,7 +319,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 .treeSide {
     // document
     .fancytree-container span.fancytree-icon, .fancytree-container span.fancytree-icon:hover
-     {
+    {
         background-image: url(/assets/img/doc.png);
         background-position: inherit;
         background-size: 20px;
@@ -329,15 +329,20 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 
     // folder
     .fancytree-container ul .fancytree-ico-cf span.fancytree-icon, .fancytree-container ul .fancytree-ico-cf span.fancytree-icon:hover,
-    .fancytree-container ul .fancytree-ico-ef span.fancytree-icon, .fancytree-container ul .fancytree-ico-ef span.fancytree-icon:hover
-     {
+    .fancytree-container ul .fancytree-ico-ef span.fancytree-icon, .fancytree-container ul .fancytree-ico-ef span.fancytree-icon:hover,
+    {
         background-image: url(/assets/img/folder.png);
+    }
+
+    .fancytree-folder span.fancytree-icon, .fancytree-folder span.fancytree-icon:hover
+    {
+        background-image: url(/assets/img/folder.png) !important;
     }
 
     // leaf
     .fancytree-container ul .fancytree-exp-n span.fancytree-icon, .fancytree-container ul .fancytree-exp-n span.fancytree-icon:hover,
     .fancytree-container ul .fancytree-exp-nl span.fancytree-icon, .fancytree-container ul .fancytree-exp-nl span.fancytree-icon:hover
-     {
+    {
         background-image: url(/assets/img/item.png);
     }
 }
@@ -353,7 +358,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
         width:20px;
         height:24px;
     }
-    
+
     // hide folders that aren't showing any items
     .fancytree-node.fancytree-expanded.fancytree-exp-nl, .fancytree-node.fancytree-expanded.fancytree-exp-n {
         display:none;

@@ -1,0 +1,33 @@
+---
+engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - javascript
+      - php
+    checks:
+      Similar code:
+        enabled: false
+  eslint:
+    enabled: true
+  fixme:
+    enabled: true
+  phpmd:
+    enabled: true
+    checks:
+      Naming/ShortMethodName:
+        enabled: false
+      Naming/ShortVariable:
+        enabled: false
+      UnusedFormalParameter:
+        enabled: false
+ratings:
+  paths:
+  - "**.inc"
+  - "**.js"
+  - "**.jsx"
+  - "**.module"
+  - "**.php"
+exclude_paths:
+  - features/

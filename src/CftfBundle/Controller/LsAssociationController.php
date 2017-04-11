@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsAssociation;
+use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Form\Type\LsAssociationType;
 use CftfBundle\Form\Type\LsAssociationTreeType;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,15 +46,17 @@ class LsAssociationController extends Controller
      * Creates a new LsAssociation entity.
      *
      * @Route("/new/{sourceLsItem}", name="lsassociation_new")
+     * @Route("/new/{sourceLsItem}/{assocGroup}", name="lsassociation_new_ag")
      * @Method({"GET", "POST"})
      * @Template()
      *
      * @param Request $request
      * @param LsItem|null $sourceLsItem
+     * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function newAction(Request $request, LsItem $sourceLsItem = null)
+    public function newAction(Request $request, ?LsItem $sourceLsItem = null, ?LsDefAssociationGrouping $assocGroup = null)
     {
         // @TODO: Add LsDoc of the new association for when adding via AJAX
         $ajax = $request->isXmlHttpRequest();
@@ -61,6 +64,11 @@ class LsAssociationController extends Controller
         $lsAssociation = new LsAssociation();
         if ($sourceLsItem) {
             $lsAssociation->setOriginLsItem($sourceLsItem);
+        }
+
+        // PW: set assocGroup if provided and non-null
+        if ($assocGroup !== null) {
+            $lsAssociation->setGroup($assocGroup);
         }
 
         $form = $this->createForm(LsAssociationType::class, $lsAssociation, ['ajax'=>$ajax]);
@@ -103,16 +111,18 @@ class LsAssociationController extends Controller
      * Creates a new LsAssociation entity -- tree-view version (PW).
      *
      * @Route("/treenew/{originLsItem}/{destinationLsItem}", name="lsassociation_tree_new")
+     * @Route("/treenew/{originLsItem}/{destinationLsItem}/{assocGroup}", name="lsassociation_tree_new_ag")
      * @Method({"GET", "POST"})
      * @Template()
      *
      * @param Request $request
-     * @param LsItem|null $originLsItem
-     * @param LsItem|null $destinationLsItem
+     * @param LsItem $originLsItem
+     * @param LsItem $destinationLsItem
+     * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function treeNewAction(Request $request, LsItem $originLsItem = null, LsItem $destinationLsItem = null)
+    public function treeNewAction(Request $request, LsItem $originLsItem, LsItem $destinationLsItem, ?LsDefAssociationGrouping $assocGroup = null)
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -121,6 +131,11 @@ class LsAssociationController extends Controller
         $lsAssociation->setDestinationLsItem($destinationLsItem);
         // Add to the origin item's LsDoc
         $lsAssociation->setLsDoc($originLsItem->getLsDoc());
+
+        // PW: set assocGroup if provided and non-null
+        if ($assocGroup !== null) {
+            $lsAssociation->setGroup($assocGroup);
+        }
 
         $form = $this->createForm(LsAssociationTreeType::class, $lsAssociation, ['ajax'=>$ajax]);
         $form->handleRequest($request);
@@ -157,11 +172,11 @@ class LsAssociationController extends Controller
      * @Template()
      *
      * @param Request $request
-     * @param LsItem|null $originLsItem
+     * @param LsItem $originLsItem
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function treeNewExemplarAction(Request $request, LsItem $originLsItem = null)
+    public function treeNewExemplarAction(Request $request, LsItem $originLsItem)
     {
         $lsAssociation = new LsAssociation();
         $lsAssociation->setLsDoc($originLsItem->getLsDoc());
