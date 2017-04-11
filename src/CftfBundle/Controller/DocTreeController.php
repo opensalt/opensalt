@@ -192,9 +192,6 @@ class DocTreeController extends Controller
         $rv = [];
 
         $em = $this->getDoctrine()->getManager();
-        $docRepo = $em->getRepository(LsDoc::class);
-        $lsItemRepo = $em->getRepository(LsItem::class);
-        $assocRepo = $em->getRepository(LsAssociation::class);
         $assocGroupRepo = $em->getRepository(LsDefAssociationGrouping::class);
 
         $lsItems = $request->request->get('lsItems');

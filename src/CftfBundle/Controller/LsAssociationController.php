@@ -56,7 +56,7 @@ class LsAssociationController extends Controller
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function newAction(Request $request, LsItem $sourceLsItem = null, LsDefAssociationGrouping $assocGroup = null)
+    public function newAction(Request $request, ?LsItem $sourceLsItem = null, ?LsDefAssociationGrouping $assocGroup = null)
     {
         // @TODO: Add LsDoc of the new association for when adding via AJAX
         $ajax = $request->isXmlHttpRequest();
@@ -67,7 +67,7 @@ class LsAssociationController extends Controller
         }
 
         // PW: set assocGroup if provided and non-null
-        if ($assocGroup != null) {
+        if ($assocGroup !== null) {
             $lsAssociation->setGroup($assocGroup);
         }
 
@@ -116,14 +116,13 @@ class LsAssociationController extends Controller
      * @Template()
      *
      * @param Request $request
-     * @param LsItem|null $originLsItem
-     * @param LsItem|null $destinationLsItem
-     * @param LsDefAssociationGrouping|null $assocGroup
+     * @param LsItem $originLsItem
+     * @param LsItem $destinationLsItem
      * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function treeNewAction(Request $request, LsItem $originLsItem = null, LsItem $destinationLsItem = null, LsDefAssociationGrouping $assocGroup = null)
+    public function treeNewAction(Request $request, LsItem $originLsItem, LsItem $destinationLsItem, ?LsDefAssociationGrouping $assocGroup = null)
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -134,7 +133,7 @@ class LsAssociationController extends Controller
         $lsAssociation->setLsDoc($originLsItem->getLsDoc());
 
         // PW: set assocGroup if provided and non-null
-        if ($assocGroup != null) {
+        if ($assocGroup !== null) {
             $lsAssociation->setGroup($assocGroup);
         }
 
@@ -173,11 +172,11 @@ class LsAssociationController extends Controller
      * @Template()
      *
      * @param Request $request
-     * @param LsItem|null $originLsItem
+     * @param LsItem $originLsItem
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function treeNewExemplarAction(Request $request, LsItem $originLsItem = null)
+    public function treeNewExemplarAction(Request $request, LsItem $originLsItem)
     {
         $lsAssociation = new LsAssociation();
         $lsAssociation->setLsDoc($originLsItem->getLsDoc());
