@@ -14,6 +14,9 @@ services:
       SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
       GITHUB_CLIENT_ID:
       GITHUB_CLIENT_SECRET:
+      DB_USE_RDS_CERT:
+      BRAND_LOGO_URL:
+      BRAND_LINK_URL:
     volumes_from:
       - app
     working_dir: /var/www/html

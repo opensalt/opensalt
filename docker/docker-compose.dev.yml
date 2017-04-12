@@ -20,6 +20,8 @@ services:
       GITHUB_CLIENT_ID:
       GITHUB_CLIENT_SECRET:
       DB_USE_RDS_CERT:
+      BRAND_LOGO_URL:
+      BRAND_LINK_URL:
     volumes:
       - &project_root "..:/var/www/html"
     working_dir: /var/www/html
