@@ -173,11 +173,6 @@ class ApiUtilService
         ];
     }
 
-    public function serializeUuidToJson($uuid)
-    {
-        return $uuid.'x';
-    }
-
     public function formatAssociationType($type)
     {
         return lcfirst(str_replace(' ', '', $type));
