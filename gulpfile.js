@@ -84,6 +84,9 @@ gulp.task('styles', function() {
 
 gulp.task('scripts', function() {
     app.addScript([
+        config.bowerDir+'/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js',
+    ], 'modernizr.js');
+    app.addScript([
         config.bowerDir+'/html5-boilerplate/dist/js/plugins.js',
         config.bowerDir+'/jquery/dist/jquery.js',
         config.bowerDir+'/jquery-ui/jquery-ui.js',

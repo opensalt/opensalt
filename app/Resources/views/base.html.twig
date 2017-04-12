@@ -1,8 +1,9 @@
+{%- set authClass = is_granted('ROLE_USER') ? 'auth' : 'no-auth' -%}
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js no-auth lt-ie9 lt-ie8 lt-ie7 ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js no-auth lt-ie9 lt-ie8 ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js no-auth lt-ie9 ie8"><![endif]-->
-<!--[if (gte IE 9)|!(IE)]><!--><html class="no-js no-auth"><!--<![endif]-->
+<!--[if lt IE 7 ]><html class="no-js {{ authClass }} lt-ie9 lt-ie8 lt-ie7 ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js {{ authClass }} lt-ie9 lt-ie8 ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js {{ authClass }} lt-ie9 ie8"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html class="no-js {{ authClass }}"><!--<![endif]-->
     <head>
         <meta charset="UTF-8" />
         {% block xuacompatible %}
@@ -25,6 +26,8 @@
         <meta name="apple-mobile-web-app-title" content="OpenSALT">
         <meta name="application-name" content="OpenSALT">
         <meta name="theme-color" content="#ffffff">
+        {#- <script src="{{ asset('js/modernizr.js'|asset_version) }}"></script> -#}
+        <script>list = document.getElementsByTagName("html")[0].classList;list.remove("no-js");list.add("js");</script>
     </head>
     <body class="{% block bodyclasses %}{% endblock %}">
         <div class="container">
