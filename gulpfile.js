@@ -95,6 +95,7 @@ gulp.task('scripts', function() {
         config.bowerDir+'/ui-contextmenu/jquery.ui-contextmenu.js',
         config.bowerDir+'/bootstrap-multiselect/dist/js/bootstrap-multiselect.js',
         config.bowerDir+'/select2/dist/js/select2.full.js',
+        config.vendorDir+'/tetranz/select2entity-bundle/Tetranz/Select2EntityBundle/Resources/public/js/select2entity.js',
         config.bowerDir+'/twbs-pagination/jquery.twbsPagination.js',
         config.assetsDir+'/js/application.js',
         config.assetsDir+'/js/lsdoc/index.js',
