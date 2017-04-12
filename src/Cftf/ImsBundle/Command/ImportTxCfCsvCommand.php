@@ -257,6 +257,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
 
     /**
      * Get or create an association group for the LsDoc
+     *
      * @param array $lsAssocGroups
      * @param LsDoc $lsDoc
      * @param string $key
