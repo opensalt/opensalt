@@ -137,21 +137,23 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
         /** @var LsDefAssociationGrouping[] $lsAssocGroups */
         $lsAssocGroups = [];
         foreach ($associationGroups as $key => $rec) {
-            $lsAssocGroup = new LsDefAssociationGrouping();
-            $lsAssocGroup->setExtraProperty('_source', json_encode($rec));
-            $lsAssocGroup->setTitle($rec['Title']);
-            $lsAssocGroup->setDescription($rec['Description']);
+            $groupRec = [
+                'def' => [
+                    'title' => $rec['Title'],
+                    'description' => $rec['Description'],
+                    'extraProperty' => json_encode($rec),
+                ],
+                'instances' => [],
+            ];
 
-            $em->persist($lsAssocGroup);
-
-            $lsAssocGroups[$key] = $lsAssocGroup;
+            $lsAssocGroups[$key] = $groupRec;
         }
 
         foreach ($associations as $key => $rec) {
             $lsAssoc = new LsAssociation();
-            $assocGroup = $lsAssocGroups[$rec['CFAssociationGroupingURI']];
-            $lsAssoc->setGroup($assocGroup);
             $lsAssoc->setLsDoc($lsDocs[$rec['PackageURI']]);
+            $assocGroup = $this->findAssociationGroup($lsAssocGroups, $lsAssoc->getLsDoc(), $rec['CFAssociationGroupingURI']);
+            $lsAssoc->setGroup($assocGroup);
             if (!empty($lsItems[$rec['OriginNode'.$itemsKeyedBy]])) {
                 $lsAssoc->setOrigin($lsItems[$rec['OriginNode'.$itemsKeyedBy]]);
                 $lsItems[$rec['OriginNode'.$itemsKeyedBy]]->addAssociation($lsAssoc);
@@ -251,5 +253,39 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
         fclose($fd);
 
         return $recs;
+    }
+
+    /**
+     * Get or create an association group for the LsDoc
+     * @param array $lsAssocGroups
+     * @param LsDoc $lsDoc
+     * @param string $key
+     *
+     * @return LsDefAssociationGrouping|null
+     */
+    private function findAssociationGroup(array &$lsAssocGroups, LsDoc $lsDoc, $key)
+    {
+        if (!array_key_exists($key, $lsAssocGroups)) {
+            return null;
+        }
+
+        $groupInfo = $lsAssocGroups[$key];
+        if (array_key_exists($lsDoc->getId(), $groupInfo['instances'])) {
+            return $groupInfo['instances'][$lsDoc->getId()];
+        }
+
+        $lsAssocGroup = new LsDefAssociationGrouping();
+        $lsAssocGroup->setLsDoc($lsDoc);
+        $lsAssocGroup->setExtraProperty('_source', $groupInfo['def']['extraProperty']);
+        $lsAssocGroup->setTitle($groupInfo['def']['title']);
+        $lsAssocGroup->setDescription($groupInfo['def']['description']);
+
+        /** @var EntityManager $em */
+        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $em->persist($lsAssocGroup);
+
+        $lsAssocGroups[$key]['instances'][$lsDoc->getId()] = $lsAssocGroup;
+
+        return $lsAssocGroup;
     }
 }
