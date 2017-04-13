@@ -1,0 +1,14 @@
+#competencyTree {
+    .fancytree-folder {
+        span.fancytree-icon {
+            @extend .material-icons;
+            background-image: none;
+            color: #1e427f;
+
+            &::after {
+                content: "account_balance";
+                font-size: 18px;
+            }
+        }
+    }
+}

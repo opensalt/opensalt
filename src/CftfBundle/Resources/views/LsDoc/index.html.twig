@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 
+{% block bodyclasses %}{{ parent() }}{% endblock %}
 {% block body %}
     <h1>Competency Frameworks
         {% if is_granted('create', 'lsdoc') %}
@@ -20,7 +21,7 @@
             {% for framework in lsDocs %}
                 {% if framework.creator != lastCreator %}
                     {% if not loop.first %}</ul></li>{% endif %}
-                        <li class="folder expanded">{{ framework.creator }}<ul>
+                        <li class="folder">{{ framework.creator }}<ul>
                                 {% set lastCreator = framework.creator %}
                     {% endif %}
                     <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'id': framework.id }) }}">{{ framework.title }}</a></li>
@@ -30,8 +31,7 @@
                 {% endfor %}
                 </ul>
     </div>
-{% include 'CftfBundle:LsDoc:wizard.html.twig' %}
-
+    {% include 'CftfBundle:LsDoc:wizard.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}
@@ -40,8 +40,17 @@
         activate: function(event, data){
             var node = data.node;
             if (!$.isEmptyObject(node.data)) {
-                if (undefined != node.data.href)
+                if (undefined !== node.data.href)
                     window.location.href = node.data.href;
+            }
+        },
+        dblclick: function(event, data) {
+            // ignore double clicks
+            return false;
+        },
+        click: function(event, data) {
+            if (data.node.isFolder() && data.targetType !== 'expander') {
+                data.node.toggleExpanded();
             }
         }
     });

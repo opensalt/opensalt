@@ -4,6 +4,7 @@ namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * LsDefAssociationGrouping
@@ -19,6 +20,8 @@ class LsDefAssociationGrouping extends AbstractLsDefinition implements CaseApiIn
      * @var LsDoc
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="associationGroupings")
+     *
+     * @Assert\NotNull()
      */
     private $lsDoc;
 

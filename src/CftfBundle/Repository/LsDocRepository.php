@@ -198,6 +198,14 @@ DELETE FROM ls_association
 xENDx;
         $conn->prepare($stmt)->execute($params);
 
+        $progressCallback('Deleting association groups');
+        $stmt = <<<'xENDx'
+DELETE FROM ls_def_association_grouping
+ WHERE ls_doc_id = :lsDocId
+;
+xENDx;
+        $conn->prepare($stmt)->execute($params);
+
         $progressCallback('Deleting items');
         $stmt = <<<'xENDx'
 DELETE FROM ls_item

@@ -23,7 +23,7 @@ class LsDefAssociationGroupingType extends AbstractType
                     'class' => 'CftfBundle:LsDoc',
                     'choice_label' => 'title',
                     'group_by' => 'creator',
-                    'required' => false,
+                    'required' => true,
                     'multiple' => false,
                     'query_builder' => function (EntityRepository $er) {
                         return $er->createQueryBuilder('i')

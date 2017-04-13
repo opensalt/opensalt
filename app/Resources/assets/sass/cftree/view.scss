@@ -125,7 +125,7 @@ span.fancytree-title {
 }
 
 .itemTitle {
-    margin:0px 5px 15px 5px;
+    margin:0 5px 15px 5px;
     font-size:1.4em;
 }
 
@@ -329,7 +329,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 
     // folder
     .fancytree-container ul .fancytree-ico-cf span.fancytree-icon, .fancytree-container ul .fancytree-ico-cf span.fancytree-icon:hover,
-    .fancytree-container ul .fancytree-ico-ef span.fancytree-icon, .fancytree-container ul .fancytree-ico-ef span.fancytree-icon:hover,
+    .fancytree-container ul .fancytree-ico-ef span.fancytree-icon, .fancytree-container ul .fancytree-ico-ef span.fancytree-icon:hover
     {
         background-image: url(/assets/img/folder.png);
     }
