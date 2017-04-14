@@ -2,6 +2,15 @@
 // INITIALIZATION
 window.app = window.app||{};
 app.initialize = function() {
+    if ("undefined" === typeof(app.initialLsItemId)) {
+        app.initialLsItemId = null;
+    }
+    if ("undefined" === typeof(app.initialAssocGroup)) {
+        app.initialAssocGroup = null;
+    }
+    if ("undefined" === typeof(app.allAssocGroups)) {
+        app.allAssocGroups = {};
+    }
     // render the document tree
     app.renderTree1();
 
@@ -13,7 +22,7 @@ app.initialize = function() {
     app.prepareAddNewChildModal();
     app.prepareAddAssocGroupModal();
     // initialize popovers on export modal
-    $('#exportModal [data-toggle="popover"]').popover();
+    $('#exportModal').find('[data-toggle="popover"]').popover();
     // "Copy from another CF Package" button
     $("[data-target=copyItem]").on('click', app.copyItemInitiate);
     // When user selects a document from the document list, load tree2
@@ -40,16 +49,16 @@ app.initialize = function() {
     app.initializeAssocGroups();
 
     // if we got an initialLsItemId, activate it (and expand it)
-    if (app.initialLsItemId != null) {
+    if (null !== app.initialLsItemId) {
         var key = app.keyFromLsItemId(app.initialLsItemId, app.initialAssocGroup);
         // check to see if this key is valid
-        if (app.ft.fancytree("getTree").getNodeByKey(key) == null) {
+        if (app.ft.fancytree("getTree").getNodeByKey(key) === null) {
             // if not valid, look for the item in other assocGroups
             var foundAssocGroup = false;
             for (var assocGroup in app.allAssocGroups) {
                 key = app.keyFromLsItemId(app.initialLsItemId, assocGroup);
                 // if we find it...
-                if (app.ft.fancytree("getTree").getNodeByKey(key) != null) {
+                if (app.ft.fancytree("getTree").getNodeByKey(key) !== null) {
                     // set selectedAssocGroup and break
                     app.selectedAssocGroup = assocGroup;
                     foundAssocGroup = true;
@@ -62,7 +71,7 @@ app.initialize = function() {
                 key = null;
             }
         }
-        if (key != null) {
+        if (null !== key) {
             app.ft.fancytree("getTree").activateKey(key).setExpanded(true);
         }
     }
@@ -158,7 +167,7 @@ app.loadItemDetails = function(lsItemId) {
     // fill in the title, which we can get from the item's tree node
     var n = app.getNodeFromLsItemId(lsItemId);
     var itemTitle;
-    if (n.folder == true) {
+    if (n.folder === true) {
         itemTitle = '<img class="itemTitleIcon" src="/assets/img/folder.png">';
     } else {
         itemTitle = '<img class="itemTitleIcon" src="/assets/img/item.png">';
@@ -740,13 +749,13 @@ app.tree2Toggle = function(showTree2) {
 
 // Determine if a node is the main document node
 app.isDocNode = function(n) {
-    return (n.parent == null || n.parent.parent == null);
+    return (null === n.parent || null === n.parent.parent);
 };
 
 // Given an lsItemId, return the corresponding ft node
 app.getNodeFromLsItemId = function(lsItemId, tree) {
     var key;
-    if (tree == "tree2") {
+    if ("tree2" === tree) {
         tree = app.ft2;
         key = app.keyFromLsItemId(lsItemId, app.selectedAssocGroupTree2);
     } else {
@@ -758,7 +767,7 @@ app.getNodeFromLsItemId = function(lsItemId, tree) {
 
 // Given a node, return the lsItemId as derived from the key -- or null if it's the doc node
 app.lsItemIdFromNode = function(n) {
-    if (typeof(n) != "object" || app.isDocNode(n)) {
+    if ("object" !== typeof(n) || app.isDocNode(n)) {
         return null;
     } else {
         return app.lsItemIdFromKey(n.key);
@@ -778,16 +787,16 @@ app.lsItemIdFromKey = function(key) {
 app.keyFromLsItemId = function(lsItemId, assocGroup) {
     var key = lsItemId;
     // if lsItemId is null, we're look for the document node
-    if (key == null) {
+    if (null === key) {
         key = "doc-" + app.lsDocId;
-
-    // else we're looking for an item node...
     } else {
+        // else we're looking for an item node...
         // if assocGroup is set, the key should have ".x" on the end for the assocGroup
-        if (assocGroup != "default" && assocGroup != null) {
+        if ("undefined" !== typeof(assocGroup) && null !== assocGroup && "" !== assocGroup && "default" !== assocGroup) {
             key += "." + assocGroup;
+        } else {
+            key += ".0";
         }
-        // (note that for the default group, keys are written as, e.g., 1234.0, but they get converted to "1234")
     }
     return key + "";
 };
@@ -1859,18 +1868,24 @@ app.initializeAssocGroups = function() {
     app.initializeManageAssocGroupButtons();
 
     // change event on assocGroup menus
-    $("#treeSideLeft .assocGroupSelect").off().on('change', function() { app.processAssocGroups('tree1', this); });
-    $("#treeSideRight .assocGroupSelect").off().on('change', function() { app.processAssocGroups('tree2', this); });
+    $("#treeSideLeft").find(".assocGroupSelect").off().on('change', function() { app.processAssocGroups('tree1', this); });
+    $("#treeSideRight").find(".assocGroupSelect").off().on('change', function() { app.processAssocGroups('tree2', this); });
 
     // if we got an initialAssocGroup, set app.selectedAssocGroup
-    if (app.initialAssocGroup != null) {
+    if (null !== app.initialAssocGroup) {
         app.selectedAssocGroup = app.initialAssocGroup;
-
-    // else get assocGroup from currently-loaded item
     } else {
-        app.selectedAssocGroup = app.getNodeFromLsItemId(app.lsItemId).data.assoc.group;
+        // else get assocGroup from currently-loaded item
+        if ("undefined" !== typeof(app.lsItemId)) {
+            app.selectedAssocGroup = app.getNodeFromLsItemId(app.lsItemId).data.assoc.group;
+        } else {
+            app.selectedAssocGroup = "default";
+        }
+
         // if it's "all", the document is loaded, so use default
-        if (app.selectedAssocGroup == "all" || app.selectedAssocGroup == null || app.selectedAssocGroup == "") app.selectedAssocGroup = "default";
+        if (app.selectedAssocGroup === null || app.selectedAssocGroup === "" || app.selectedAssocGroup === "all") {
+            app.selectedAssocGroup = "default";
+        }
     }
 
     // process association groups for tree1
@@ -1885,8 +1900,12 @@ app.initializeManageAssocGroupButtons = function() {
 
 app.assocGroupsMatch = function(ag1, ag2) {
     // null, "default", and "all" are all the same thing
-    if (ag1 === null || ag1 === "" || ag1 === "default" || ag1 === "all") ag1 = "default";
-    if (ag2 === null || ag2 === "" || ag2 === "default" || ag2 === "all") ag2 = "default";
+    if (ag1 === null || ag1 === "" || ag1 === "default" || ag1 === "all") {
+        ag1 = "default";
+    }
+    if (ag2 === null || ag2 === "" || ag2 === "default" || ag2 === "all") {
+        ag2 = "default";
+    }
     return (ag1 === ag2);
 };
 
@@ -1995,19 +2014,19 @@ app.assocGroupDelete = function(btn) {
 };
 
 app.processAssocGroups = function(tree, menu) {
-    var assocGroup, $treeSide, ft;
+    var assocGroup = null, $treeSide, ft;
     var includedAssocGroups = [];
     var showMenu = false;
 
     // if menu provided, get assocGroup from it
-    if (menu !== null) {
+    if ("undefined" !== typeof(menu) && null !== menu) {
         assocGroup = $(menu).val();
     }
 
     // for left-side tree...
-    if (tree == "tree1" || tree == "viewmode_tree") {
+    if (tree === "tree1" || tree === "viewmode_tree") {
         // if no menu passed in, use current selectedAssocGroup
-        if (assocGroup === null || assocGroup == "") {
+        if (null === assocGroup || "" === assocGroup) {
             assocGroup = app.selectedAssocGroup;
         // else set app.selectedAssocGroup
         } else {
@@ -2023,7 +2042,7 @@ app.processAssocGroups = function(tree, menu) {
         // if we're processing tree1, all assocGroups listed as belonging to that document should be shown,
         // even if there aren't any items associated with the group
         for (var assocGroupId in app.allAssocGroups) {
-            if (app.allAssocGroups[assocGroupId].lsDocId == app.lsDocId) {
+            if (app.allAssocGroups[assocGroupId].lsDocId === app.lsDocId) {
                 includedAssocGroups.push(assocGroupId + "");
                 showMenu = true;
             }
@@ -2036,9 +2055,8 @@ app.processAssocGroups = function(tree, menu) {
         if (menu !== null) {
             app.pushHistoryState(app.lsItemId, app.selectedAssocGroup);
         }
-
-    // else right-side tree...
     } else {
+        // else right-side tree...
         // if no menu passed in, use current selectedAssocGroupTree2
         if (assocGroup === null || assocGroup === "") {
             assocGroup = app.selectedAssocGroupTree2;
@@ -2063,8 +2081,11 @@ app.processAssocGroups = function(tree, menu) {
         // those selections would be cleared)
         parent.setSelected(false);
 
-        if (parent.data.assoc.group != "all") {
+        if (parent.data.assoc.group !== "all") {
             var pag = parent.data.assoc.group + "";
+            if ("all" === pag || "" === pag) {
+                pag = "default";
+            }
             // update includedAssocGroups list
             if ($.inArray(pag, includedAssocGroups) === -1 && pag !== "default") {
                 includedAssocGroups.push(pag);
@@ -2166,7 +2187,7 @@ app.prepareAddAssocGroupModal = function() {
             html += '<span class="assocgroup-description">' + $("#ls_def_association_grouping_description").val() + '</span>';
             html += '</td>';
             html += '</tr>';
-            $("#manageAssocGroupsModal tbody").append(html);
+            $("#manageAssocGroupsModal").find("tbody").append(html);
             app.initializeManageAssocGroupButtons();
 
             // add it to the select menu
