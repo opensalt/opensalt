@@ -156,7 +156,15 @@ app.getLsItemDetailsJq = function(lsItemId) {
 };
 
 // Load details for the specified item
-app.loadItemDetails = function(lsItemId) {
+app.loadItemDetails = function(item) {
+    var n, lsItemId;
+    if ("object" === typeof(item)) {
+        n = item;
+        lsItemId = app.lsItemIdFromNode(n);
+    } else {
+        lsItemId = item;
+        n = app.getNodeFromLsItemId(item);
+    }
     // clone the itemInfoTemplate
     $jq = $("#itemInfoTemplate").clone();
     $jq.removeAttr('id');
@@ -165,7 +173,6 @@ app.loadItemDetails = function(lsItemId) {
     $jq.attr("data-item-lsItemId", lsItemId);
 
     // fill in the title, which we can get from the item's tree node
-    var n = app.getNodeFromLsItemId(lsItemId);
     var itemTitle;
     if (n.folder === true) {
         itemTitle = '<img class="itemTitleIcon" src="/assets/img/folder.png">';
@@ -762,6 +769,7 @@ app.getNodeFromLsItemId = function(lsItemId, tree) {
         tree = app.ft;
         key = app.keyFromLsItemId(lsItemId, app.selectedAssocGroup);
     }
+
     return tree.fancytree("getTree").getNodeByKey(key);
 };
 
@@ -804,21 +812,24 @@ app.keyFromLsItemId = function(lsItemId, assocGroup) {
 // Given a node, return the title html we want to show for the node
 app.titleFromNode = function(node, format) {
     var data;
-    if (node.data != null) data = node.data;
-    else data = node;
+    if ("undefined" !== typeof(node.data) && null !== node.data) {
+        data = node.data;
+    } else {
+        data = node;
+    }
 
     var title;
     // document -- for some reason the title is in node and other data is in node.data
-    if (node.title != null) {
+    if ("undefined" !== typeof(node.title) && null !== node.title) {
         title = node.title;
     } else {
-        if (data.abbrStmt != null && data.abbrStmt != "") {
+        if ("undefined" !== typeof(data.abbrStmt) && null !== data.abbrStmt && "" !== data.abbrStmt) {
             title = data.abbrStmt;
         } else {
             title = data.fullStmt;
         }
         // if we have a humanCoding for the node, show it first in bold
-        if (data.humanCoding != null && data.humanCoding != "") {
+        if ("undefined" !== typeof(data.humanCoding) && null !== data.humanCoding && "" !== data.humanCoding) {
             title = '<span class="item-humanCodingScheme">' + data.humanCoding + '</span> ' + title;
         }
     }
@@ -870,23 +881,24 @@ app.tree1Activate = function(n) {
     var lsItemId = app.lsItemIdFromNode(n);
 
     // if this item is already showing, return now (after making sure the item details, rather than tree2, is showing)
-    if (lsItemId == app.lsItemId) return;
+    if (lsItemId === app.lsItemId) {
+        return;
+    }
 
     // replace app.lsItemId and push history state
     app.lsItemId = lsItemId;
     app.pushHistoryState(app.lsItemId, app.selectedAssocGroup);
 
     // if this is the lsDoc node
-    if (app.lsItemId == null) {
+    if (null === app.lsItemId) {
         // show documentInfo and hide all itemInfos
         $(".itemInfo").hide();
         $("#documentInfo").show();
 
         // set appropriate class on itemSection
         $("#itemSection").removeClass("lsItemItemSection").addClass("docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}");
-
-        // else it's an lsItem
     } else {
+        // else it's an lsItem
         // hide documentInfo and all itemInfos
         $(".itemInfo").hide();
         $("#documentInfo").hide();
@@ -904,7 +916,7 @@ app.tree1Activate = function(n) {
             // else...
         } else {
             // construct and show it
-            app.loadItemDetails(app.lsItemId);
+            app.loadItemDetails(n);
         }
     }
 };
