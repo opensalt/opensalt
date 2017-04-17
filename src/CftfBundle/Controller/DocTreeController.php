@@ -38,13 +38,15 @@ class DocTreeController extends Controller
         $em = $this->getDoctrine()->getManager();
         // TODO: get only association groupings tied to this document...
         $lsDefAssociationGroupings = $em->getRepository('CftfBundle:LsDefAssociationGrouping')->findAll();
+        $lsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
 
         return [
             'lsDoc' => $lsDoc,
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,
             'docList' => $form->createView(),
-            'assocGroups' => $lsDefAssociationGroupings
+            'assocGroups' => $lsDefAssociationGroupings,
+            'lsDocs' => $lsDocs
         ];
     }
 

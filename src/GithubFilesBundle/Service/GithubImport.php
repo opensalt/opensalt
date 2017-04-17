@@ -47,8 +47,9 @@ class GithubImport
      * @param array $lsDocKeys
      * @param array $lsItemKeys
      * @param string $fileContent
+     * @param string $frameworkToAssociate
      */
-    public function parseCSVGithubDocument($lsItemKeys, $fileContent, $lsDocId)
+    public function parseCSVGithubDocument($lsItemKeys, $fileContent, $lsDocId, $frameworkToAssociate)
     {
         $csvContent = str_getcsv($fileContent, "\n");
         $headers = [];
@@ -72,7 +73,7 @@ class GithubImport
             $content[] = $tempContent;
         }
 
-        $this->saveCSVGithubDocument($lsItemKeys, $content, $lsDocId);
+        $this->saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate);
     }
 
     /**
@@ -82,7 +83,7 @@ class GithubImport
      * @param array $lsItemKeys
      * @param array $content
      */
-    public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId)
+    public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate)
     {
         $em = $this->getEntityManager();
         $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find($lsDocId);
@@ -114,7 +115,7 @@ class GithubImport
             }
             if ($cfAssociations = $content[$i][$lsItemKeys['cfAssociationGroupIdentifier']]) {
                 foreach(explode(',', $cfAssociations) as $cfAssociation){
-                    $this->addItemRelated($lsDoc, $lsItem, $cfAssociation);
+                    $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate);
                 }
             }
         }
@@ -127,12 +128,17 @@ class GithubImport
      * @param LsItem  $lsItem
      * @param string  $cfAssociation
      */
-    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation)
+    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate)
     {
         $em = $this->getEntityManager();
         if (strlen(trim($cfAssociation)) > 0) {
-            $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
-                ->findAllByIdentifierOrHumanCodingScheme($cfAssociation);
+            if( $frameworkToAssociate == 'all' ){
+                $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
+                    ->findAllByIdentifierOrHumanCodingSchemeByValue($cfAssociation);
+            }else{
+                $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
+                    ->findByAllIdentifierOrHumanCodingSchemeByLsDoc($frameworkToAssociate, $cfAssociation);
+            }
 
             if (count($itemsAssociated) > 0) {
                 foreach ($itemsAssociated as $itemAssociated) {
