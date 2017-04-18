@@ -38,7 +38,14 @@ class DocTreeController extends Controller
         $em = $this->getDoctrine()->getManager();
         // TODO: get only association groupings tied to this document...
         $lsDefAssociationGroupings = $em->getRepository('CftfBundle:LsDefAssociationGrouping')->findAll();
-        $lsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
+        $resultlsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
+        $lsDocs = [];
+        $authChecker = $this->get('security.authorization_checker');
+        foreach ($resultlsDocs as $lsDoc) {
+            if ($authChecker->isGranted('view', $lsDoc)) {
+                $lsDocs[] = $lsDoc;
+            }
+        }
 
         return [
             'lsDoc' => $lsDoc,
