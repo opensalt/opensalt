@@ -132,10 +132,10 @@ class GithubImport
     {
         $em = $this->getEntityManager();
         if (strlen(trim($cfAssociation)) > 0) {
-            if( $frameworkToAssociate == 'all' ){
+            if ($frameworkToAssociate == 'all') {
                 $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
                     ->findAllByIdentifierOrHumanCodingSchemeByValue($cfAssociation);
-            }else{
+            } else {
                 $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
                     ->findByAllIdentifierOrHumanCodingSchemeByLsDoc($frameworkToAssociate, $cfAssociation);
             }
