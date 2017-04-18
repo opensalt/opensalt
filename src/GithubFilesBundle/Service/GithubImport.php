@@ -114,7 +114,7 @@ class GithubImport
                 }
             }
             if ($cfAssociations = $content[$i][$lsItemKeys['cfAssociationGroupIdentifier']]) {
-                foreach(explode(',', $cfAssociations) as $cfAssociation){
+                foreach (explode(',', $cfAssociations) as $cfAssociation) {
                     $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate);
                 }
             }
@@ -132,10 +132,10 @@ class GithubImport
     {
         $em = $this->getEntityManager();
         if (strlen(trim($cfAssociation)) > 0) {
-            if( $frameworkToAssociate == 'all' ){
+            if ($frameworkToAssociate === 'all') {
                 $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
                     ->findAllByIdentifierOrHumanCodingSchemeByValue($cfAssociation);
-            }else{
+            } else {
                 $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
                     ->findByAllIdentifierOrHumanCodingSchemeByLsDoc($frameworkToAssociate, $cfAssociation);
             }
@@ -161,8 +161,7 @@ class GithubImport
         $association->setType(LsAssociation::RELATED_TO);
         $association->setLsDoc($lsDoc);
         $association->setOrigin($lsItem);
-        if (is_string($elementAssociated))
-        {
+        if (is_string($elementAssociated)) {
             $association->setDestinationNodeIdentifier($elementAssociated);
         } else {
             $association->setDestination($elementAssociated);
