@@ -41,9 +41,9 @@ class DocTreeController extends Controller
         $resultlsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
         $lsDocs = [];
         $authChecker = $this->get('security.authorization_checker');
-        foreach ($resultlsDocs as $lsDoc) {
-            if ($authChecker->isGranted('view', $lsDoc)) {
-                $lsDocs[] = $lsDoc;
+        foreach ($resultlsDocs as $doc) {
+            if ($authChecker->isGranted('view', $doc)) {
+                $lsDocs[] = $doc;
             }
         }
 
