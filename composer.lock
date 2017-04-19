@@ -316,16 +316,16 @@
         },
         {
             "name": "bower-asset/modernizr",
-            "version": "v3.3.1",
+            "version": "v3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Modernizr/Modernizr.git",
-                "reference": "f6ebbb887780c57deeb4af439609ebbc92a0241f"
+                "reference": "7db55bbfa9de67289892b94b60bf2f088c11d669"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Modernizr/Modernizr/zipball/f6ebbb887780c57deeb4af439609ebbc92a0241f",
-                "reference": "f6ebbb887780c57deeb4af439609ebbc92a0241f",
+                "url": "https://api.github.com/repos/Modernizr/Modernizr/zipball/7db55bbfa9de67289892b94b60bf2f088c11d669",
+                "reference": "7db55bbfa9de67289892b94b60bf2f088c11d669",
                 "shasum": ""
             },
             "type": "bower-asset-library"
@@ -462,16 +462,16 @@
         },
         {
             "name": "bower-asset/ui-contextmenu",
-            "version": "v1.16.0",
+            "version": "v1.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mar10/jquery-ui-contextmenu.git",
-                "reference": "038f24e7828bcd1821fffd8b3db84c00d21b72d9"
+                "reference": "aab080cc84bd7e43c9251769da568d48f738a3c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mar10/jquery-ui-contextmenu/zipball/038f24e7828bcd1821fffd8b3db84c00d21b72d9",
-                "reference": "038f24e7828bcd1821fffd8b3db84c00d21b72d9",
+                "url": "https://api.github.com/repos/mar10/jquery-ui-contextmenu/zipball/aab080cc84bd7e43c9251769da568d48f738a3c9",
+                "reference": "aab080cc84bd7e43c9251769da568d48f738a3c9",
                 "shasum": ""
             },
             "require": {
@@ -2619,16 +2619,16 @@
         },
         {
             "name": "jms/serializer",
-            "version": "1.6.0",
+            "version": "1.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/serializer.git",
-                "reference": "5e9008cbb0bac2986979d905a87ae48efcf578c4"
+                "reference": "b8683d206e7297f54034f67a877f966c14dc12ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/serializer/zipball/5e9008cbb0bac2986979d905a87ae48efcf578c4",
-                "reference": "5e9008cbb0bac2986979d905a87ae48efcf578c4",
+                "url": "https://api.github.com/repos/schmittjoh/serializer/zipball/b8683d206e7297f54034f67a877f966c14dc12ea",
+                "reference": "b8683d206e7297f54034f67a877f966c14dc12ea",
                 "shasum": ""
             },
             "require": {
@@ -2694,7 +2694,7 @@
                 "serialization",
                 "xml"
             ],
-            "time": "2017-03-24T13:11:23+00:00"
+            "time": "2017-04-17T15:27:46+00:00"
         },
         {
             "name": "jms/serializer-bundle",
@@ -4381,26 +4381,26 @@
         },
         {
             "name": "ramsey/uuid-doctrine",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid-doctrine.git",
-                "reference": "503c5e0c22b17fe5a53af53124621360e9e07f41"
+                "reference": "2b80966f4c09b1c39a07b30fecdd24869374c66e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid-doctrine/zipball/503c5e0c22b17fe5a53af53124621360e9e07f41",
-                "reference": "503c5e0c22b17fe5a53af53124621360e9e07f41",
+                "url": "https://api.github.com/repos/ramsey/uuid-doctrine/zipball/2b80966f4c09b1c39a07b30fecdd24869374c66e",
+                "reference": "2b80966f4c09b1c39a07b30fecdd24869374c66e",
                 "shasum": ""
             },
             "require": {
                 "doctrine/orm": "^2.5",
-                "php": ">=5.4",
+                "php": "^5.4 || ^7.0",
                 "ramsey/uuid": "^3.0"
             },
             "require-dev": {
                 "jakub-onderka/php-parallel-lint": "^0.9.0",
-                "phpunit/phpunit": "^4.7|^5.0",
+                "phpunit/phpunit": "^4.7 || ^5.0",
                 "satooshi/php-coveralls": "^0.6.1",
                 "squizlabs/php_codesniffer": "^2.3"
             },
@@ -4433,7 +4433,7 @@
                 "identifier",
                 "uuid"
             ],
-            "time": "2016-03-23T17:44:03+00:00"
+            "time": "2017-04-13T16:09:49+00:00"
         },
         {
             "name": "roave/security-advisories",
@@ -5738,16 +5738,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.33.0",
+            "version": "v1.33.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a"
+                "reference": "a87f959f4b691da66aada267a2dfdb260d0bb58a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a",
-                "reference": "05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/a87f959f4b691da66aada267a2dfdb260d0bb58a",
+                "reference": "a87f959f4b691da66aada267a2dfdb260d0bb58a",
                 "shasum": ""
             },
             "require": {
@@ -5796,7 +5796,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2017-03-22T15:40:09+00:00"
+            "time": "2017-04-18T21:43:11+00:00"
         },
         {
             "name": "ua-parser/uap-php",
@@ -6961,16 +6961,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.6.0",
+            "version": "1.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "5a5a9fc8025a08d8919be87d6884d5a92520cefe"
+                "reference": "8e6e04167378abf1ddb4d3522d8755c5fd90d102"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/5a5a9fc8025a08d8919be87d6884d5a92520cefe",
-                "reference": "5a5a9fc8025a08d8919be87d6884d5a92520cefe",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/8e6e04167378abf1ddb4d3522d8755c5fd90d102",
+                "reference": "8e6e04167378abf1ddb4d3522d8755c5fd90d102",
                 "shasum": ""
             },
             "require": {
@@ -6999,7 +6999,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2017-01-26T22:05:40+00:00"
+            "time": "2017-04-12T18:52:22+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////
 // INITIALIZATION
-window.app = window.app||{};
+window.app = window.app||{}; /* global app */
 app.initialize = function() {
     if ("undefined" === typeof(app.initialLsItemId)) {
         app.initialLsItemId = null;
