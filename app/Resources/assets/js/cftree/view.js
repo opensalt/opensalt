@@ -756,7 +756,7 @@ app.tree2Toggle = function(showTree2) {
 
 // Determine if a node is the main document node
 app.isDocNode = function(n) {
-    return (null === n.parent || null === n.parent.parent);
+    return (null === n.parent || undefined === n.parent || null === n.parent.parent || undefined === n.parent.parent);
 };
 
 // Given an lsItemId, return the corresponding ft node
@@ -794,8 +794,8 @@ app.lsItemIdFromKey = function(key) {
 
 app.keyFromLsItemId = function(lsItemId, assocGroup) {
     var key = lsItemId;
-    // if lsItemId is null, we're look for the document node
-    if (null === key) {
+    // if lsItemId is == null (null or undefined), we're look for the document node
+    if (null === key || undefined === key) {
         key = "doc-" + app.lsDocId;
     } else {
         // else we're looking for an item node...
@@ -855,7 +855,7 @@ app.treeItemTooltip = function(node) {
         content = "Document: " + node.title;
     } else {
         content = node.data.fullStmt;
-        if (node.data.humanCoding !== null) {
+        if (node.data.humanCoding !== null && node.data.humanCoding !== undefined) {
             content = '<span class="item-humanCodingScheme">' + node.data.humanCoding + '</span> ' + content;
         }
     }
@@ -890,7 +890,7 @@ app.tree1Activate = function(n) {
     app.pushHistoryState(app.lsItemId, app.selectedAssocGroup);
 
     // if this is the lsDoc node
-    if (null === app.lsItemId) {
+    if (null === app.lsItemId || undefined === app.lsItemId) {
         // show documentInfo and hide all itemInfos
         $(".itemInfo").hide();
         $("#documentInfo").show();
@@ -962,13 +962,13 @@ app.saveItemOrder = function(node, originalParent) {
         }
 
         // if we got to the dragged node and (the parent changed OR this is a just-created item, which doesn't have an assoc.id)...
-        if (key == node.key && (node.parent != originalParent || node.data.assoc.id === null)) {
+        if (key == node.key && (node.parent != originalParent || node.data.assoc.id === null || node.data.assoc.id === undefined)) {
             // delete the old childOf relationship for the dragged node
             lsItems[lsItemId].deleteChildOf = {
                 "assocId": siblings[i].data.assoc.id
             };
 
-            if (lsItems[lsItemId].deleteChildOf.assocId === null) {
+            if (lsItems[lsItemId].deleteChildOf.assocId === null || lsItems[lsItemId].deleteChildOf.assocId === undefined) {
                 lsItems[lsItemId].deleteChildOf.assocId = "all";
             }
 
@@ -989,7 +989,7 @@ app.saveItemOrder = function(node, originalParent) {
             }
 
             // also, in this case we should update sequenceNumber's for the original parent, in case we took the node out
-            if (originalParent.children !== null && originalParent.children.length > 0) {
+            if (originalParent.children !== null && originalParent.children !== undefined && originalParent.children.length > 0) {
                 for (var j = 0; j < originalParent.children.length; ++j) {
                     var lsItemIdX = app.lsItemIdFromKey(originalParent.children[j].key);
 
@@ -1039,26 +1039,26 @@ app.updateItemsAjaxDone = function(data) {
             console.log("couldn't get node for " + o.originalKey);
         } else {
             // update key if we got back an lsItemId
-            if (o.lsItemId !== null) {
+            if (o.lsItemId !== null && o.lsItemId !== undefined) {
                 n.key = app.keyFromLsItemId(o.lsItemId, app.selectedAssocGroup);
                 console.log("updating key: " + o.lsItemId + " / " + n.key);
             }
 
             // update fullStatement if we got it back
-            if (o.fullStatement !== null) {
+            if (o.fullStatement !== null && o.fullStatement != undefined) {
                 n.data.fullStmt = o.fullStatement;
                 n.title = null;
                 n.setTitle(app.titleFromNode(n));
             }
 
             // update association data if we got back a sequenceNumber
-            if (o.sequenceNumber !== null) {
-                if (n.data.assoc === null) {
+            if (o.sequenceNumber !== null && o.sequenceNumber !== undefined) {
+                if (n.data.assoc === null || n.data.assoc === undefined) {
                     n.data.assoc = {};
                 }
                 n.data.assoc.group = app.selectedAssocGroup;
                 n.data.assoc.sequenceNumber = o.sequenceNumber;
-                if (o.assocId !== null) {
+                if (o.assocId !== null && o.assocId !== undefined) {
                     n.data.assoc.id = o.assocId;
                 }
             }
@@ -1305,7 +1305,7 @@ app.toggleFolders = function(itemIds, val) {
 app.getAddNewChildPath = function() {
     var path;
     // if we don't have an lsItemId, we're showing/editing the doc
-    if (app.lsItemId === null) {
+    if (app.lsItemId === null || app.lsItemId === undefined) {
         path = app.path.lsitem_new.replace('DOC', app.lsDocId);
 
         // else we're showing/editing an item
@@ -1895,7 +1895,7 @@ app.initializeAssocGroups = function() {
         }
 
         // if it's "all", the document is loaded, so use default
-        if (app.selectedAssocGroup === null || app.selectedAssocGroup === "" || app.selectedAssocGroup === "all") {
+        if (app.selectedAssocGroup === null || app.selectedAssocGroup === undefined || app.selectedAssocGroup === "" || app.selectedAssocGroup === "all") {
             app.selectedAssocGroup = "default";
         }
     }
@@ -1912,13 +1912,13 @@ app.initializeManageAssocGroupButtons = function() {
 
 app.assocGroupsMatch = function(ag1, ag2) {
     // null, "default", and "all" are all the same thing
-    if (ag1 === null || ag1 === "" || ag1 === "default" || ag1 === "all") {
+    if (ag1 === null || ag1 === undefined || ag1 === "" || ag1 === "default" || ag1 === "all") {
         ag1 = "default";
     }
-    if (ag2 === null || ag2 === "" || ag2 === "default" || ag2 === "all") {
+    if (ag2 === null || ag2 === undefined || ag2 === "" || ag2 === "default" || ag2 === "all") {
         ag2 = "default";
     }
-    return (ag1 === ag2);
+    return (ag1+"" === ag2+"");
 };
 
 app.assocGroupEdit = function(btn) {
@@ -2031,14 +2031,14 @@ app.processAssocGroups = function(tree, menu) {
     var showMenu = false;
 
     // if menu provided, get assocGroup from it
-    if ("undefined" !== typeof(menu) && null !== menu) {
+    if (menu !== null && menu !== undefined) {
         assocGroup = $(menu).val();
     }
 
     // for left-side tree...
     if (tree === "tree1" || tree === "viewmode_tree") {
         // if no menu passed in, use current selectedAssocGroup
-        if (null === assocGroup || "" === assocGroup) {
+        if (null === assocGroup || "" === assocGroup || undefined === assocGroup) {
             assocGroup = app.selectedAssocGroup;
         // else set app.selectedAssocGroup
         } else {
@@ -2047,7 +2047,7 @@ app.processAssocGroups = function(tree, menu) {
 
         // if the currently-showing item isn't part of this group, select the document in the tree
         var n = app.getNodeFromLsItemId(app.lsItemId);
-        if (n === null || !app.assocGroupsMatch(n.data.assoc.group, app.selectedAssocGroup)) {
+        if (n === null || n === undefined || !app.assocGroupsMatch(n.data.assoc.group, app.selectedAssocGroup)) {
             app.getNodeFromLsItemId(null, "tree1").setActive();
         }
 
@@ -2064,17 +2064,17 @@ app.processAssocGroups = function(tree, menu) {
         ft = app.ft;
 
         // if item was selected from the menu, push a history state
-        if (menu !== null) {
+        if (menu !== null && menu !== undefined) {
             app.pushHistoryState(app.lsItemId, app.selectedAssocGroup);
         }
     } else {
         // else right-side tree...
         // if no menu passed in, use current selectedAssocGroupTree2
-        if (assocGroup === null || assocGroup === "") {
+        if (assocGroup === null || assocGroup === undefined || assocGroup === "") {
             assocGroup = app.selectedAssocGroupTree2;
         }
         // and if we still don't have a value, use default
-        if (assocGroup === null || assocGroup === "") {
+        if (assocGroup === null || assocGroup === undefined || assocGroup === "") {
             assocGroup = "default";
         }
         app.selectedAssocGroupTree2 = assocGroup;

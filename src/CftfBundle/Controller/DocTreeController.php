@@ -229,7 +229,7 @@ class DocTreeController extends Controller
 
             // create new childOf association if specified
             if (array_key_exists('newChildOf', $updates)) {
-                $this->addChildOfAssociations($lsItem, $updates, $lsItemId, $rv);
+                $this->addChildOfAssociations($lsItem, $updates, $lsItemId, $rv, $assocGroup);
             }
         }
 
@@ -365,7 +365,7 @@ class DocTreeController extends Controller
      * @param int $lsItemId
      * @param array $rv
      */
-    protected function addChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv): void
+    protected function addChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv, ?LsDefAssociationGrouping $assocGroup = null): void
     {
         $em = $this->getDoctrine()->getManager();
 
