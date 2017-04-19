@@ -322,12 +322,16 @@ var CfItem = (function(){
         'educationLevel',
         'cfItemType',
         'license',
+
         'cfAssociationGroupIdentifier',
         'isChildOf',
         'isPartOf',
         'replacedBy',
         'exemplar',
-        'hasSkillLevel'
+        'precedes',
+        'isPeerOf',
+        'hasSkillLevel',
+        'isRelatedTo'
     ];
 
     function generateDropdowns(arrData, type){
