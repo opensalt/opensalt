@@ -288,7 +288,7 @@ var SaltLocal = (function(){
                 if (f.type === 'text/csv' || f.type === 'application/json') {
                     reader.onload = (function(theFile) {
                         return function(e) {
-                            file = e.target.result;
+                            var file = e.target.result;
                             if (fileType === 'local') {
                                 Import.csv(file, lsDocId);
                             } else if (fileType === 'case') {

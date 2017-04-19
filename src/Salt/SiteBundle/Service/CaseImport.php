@@ -38,7 +38,7 @@ class CaseImport
     /**
      * @return ObjectManager
      */
-    public function getEntityManager()
+    public function getEntityManager(): ObjectManager
     {
         return $this->managerRegistry->getManagerForClass(LsDoc::class);
     }
