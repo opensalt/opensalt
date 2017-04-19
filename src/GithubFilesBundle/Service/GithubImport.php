@@ -120,9 +120,9 @@ class GithubImport
     }
 
     /**
-     * @param integer   $position
+     * @param int       $position
      * @param array     $content
-     * @param  array    $lsItemKeys
+     * @param array     $lsItemKeys
      * @param LsItem    $lsItem
      * @param LsDoc     $lsDoc
      * @param string    $frameworkToAssociate
@@ -182,7 +182,7 @@ class GithubImport
     /**
      * @param LsDoc $lsDoc
      * @param LsItem $lsItem
-     * @param string|LsItem $itemAssociated
+     * @param string|LsItem $elementAssociated
      * @param string $assocType
      */
     public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, $assocType)
