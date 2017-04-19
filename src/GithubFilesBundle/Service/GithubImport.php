@@ -139,7 +139,7 @@ class GithubImport
             'hasSkillLevel' =>                LsAssociation::SKILL_LEVEL,
             'cfAssociationGroupIdentifier' => LsAssociation::RELATED_TO
         ];
-        // We don't use is_child_of because that it alaready used to created parents relations before. :)
+        // We don't use is_child_of because that it alaready used to create parents relations before. :)
         // checking each association field
         foreach ($fieldsAndTypes as $fieldName => $assocType){
             if ($cfAssociations = $content[$position][$lsItemKeys[$fieldName]]) {
