@@ -243,6 +243,7 @@ var Import = (function() {
         $('.tab-content').addClass('hidden');
         $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
         $('.file-loading').removeClass('hidden');
+        $('.case-error-msg').addClass('hidden');
 
         $.ajax({
             url: '/salt/case/import',
@@ -255,7 +256,9 @@ var Import = (function() {
             },
             error: function(){
                 $('.tab-content').removeClass('hidden');
-                console.error('error while importing the file');
+                $('.case-error-msg').html('Error while importing the file');
+                $('.case-error-msg').removeClass('hidden');
+                $('.file-loading').addClass('hidden');
             }
         });
     }
