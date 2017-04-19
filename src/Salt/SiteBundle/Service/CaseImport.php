@@ -94,18 +94,14 @@ class CaseImport
             $lsAssociation->setType($this->ifExists($cfAssociation->associationType));
             $lsAssociation->setGroupName($this->ifExists($cfAssociation->groupName));
 
-            if ($this->ifExists($cfAssociation-originNodeURI)) {
-                if (is_object($cfAssociation->originNodeURI)) {
-                    $lsAssociation->setOriginNodeUri($cfAssociation->destinationNodeURI->uri);
-                    $lsAssociation->setOriginNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
-                }
+            if ($this->ifExists($cfAssociation->originNodeURI) && is_object($cfAssociation->originNodeURI)) {
+                $lsAssociation->setOriginNodeUri($cfAssociation->destinationNodeURI->uri);
+                $lsAssociation->setOriginNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
             }
 
-            if ($this->ifExists($cfAssociation->destinationNodeURI)){
-                if (is_object($cfAssociation->destinationNodeURI)) {
-                    $lsAssociation->setDestinationNodeUri($cfAssociation->destinationNodeURI->uri);
-                    $lsAssociation->setDestinationNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
-                }
+            if ($this->ifExists($cfAssociation->destinationNodeURI) && is_object($cfAssociation->destinationNodeURI)) {
+                $lsAssociation->setDestinationNodeUri($cfAssociation->destinationNodeURI->uri);
+                $lsAssociation->setDestinationNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
             }
 
             $em->persist($lsAssociation);
