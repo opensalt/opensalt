@@ -189,8 +189,7 @@ var Import = (function() {
         index = fields.indexOf('humanCodingScheme');
 
         if (index < 0) {
-            $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
-            $('.file-loading').removeClass('hidden');
+            $('.file-loading').addClass('hidden');
             sendData();
         }
     }
@@ -210,7 +209,8 @@ var Import = (function() {
         var dataRequest = {
             content: window.btoa(unescape(encodeURIComponent(file))),
             cfItemKeys: cfItemKeys,
-            lsDocId: $('#lsDocId').val()
+            lsDocId: $('#lsDocId').val(),
+            frameworkToAssociate: $('#js-framework-to-association').val()
         };
 
         $.ajax({

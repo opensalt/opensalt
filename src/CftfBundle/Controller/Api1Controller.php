@@ -194,8 +194,8 @@ class Api1Controller extends Controller
 
         $pkg = [
             'CFDocument' => $doc,
-            'CFItems' => $repo->findAllItems($doc, Query::HYDRATE_OBJECT),
-            'CFAssociations' => $repo->findAllAssociations($doc, Query::HYDRATE_OBJECT),
+            'CFItems' => array_values($repo->findAllItems($doc, Query::HYDRATE_OBJECT)),
+            'CFAssociations' => array_values($repo->findAllAssociations($doc, Query::HYDRATE_OBJECT)),
             'CFDefinitions' => [
                 'CFConcepts' => [],
                 'CFSubjects' => $doc->getSubjects(),
