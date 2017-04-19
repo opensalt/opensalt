@@ -1589,6 +1589,25 @@ app.createAssociationModalLoaded = function() {
     var origin = app.titleFromNode(app.createAssociationNodes.droppedNode);
     $("#lsAssociationDestinationDisplay").html(destination);
     $("#lsAssociationOriginDisplay").html(origin);
+    
+    // add association group menu if we have one and there's more than one item (the first item is always "default") in the menu
+    var agMenu = $("#treeSideLeft").find(".assocGroupSelect");
+    if (agMenu.find("option").length > 1) {
+        agMenu = agMenu.clone();
+        agMenu.attr("id", "ls_association_tree_group");
+        $("#ls_association_tree").append(
+              '<div id="ls_association_tree_group_form_group" class="form-group">'
+            + '<label class="col-sm-2 control-label required" for="ls_association_tree_group">Association Group</label>'
+            + '<div class="col-sm-10" id="ls_association_tree_group_holder"></div>'
+            + '</div>'
+        );
+        $("#ls_association_tree_group_holder").append(agMenu);
+        
+        // if an assocGroup other than default is selected, select that group in the menu
+        if (app.selectedAssocGroup != "default") {
+            $("#ls_association_tree_group").val(app.selectedAssocGroup);
+        }
+    }
 };
 
 app.createAssociationRun = function() {
@@ -1607,9 +1626,10 @@ app.createAssociationRun = function() {
         path = path.replace('ORIGIN_ID', app.lsItemIdFromNode(app.createAssociationNodes.droppedNode));
         path = path.replace('DESTINATION_ID', app.lsItemIdFromNode(app.createAssociationNodes.draggedNodes[i]));
 
-        // if we have an assocGroup other than default selected, add that to the path
-        if (app.selectedAssocGroup != "default") {
-            path += "/" + app.selectedAssocGroup;
+        // if an assocGroup is selected via ls_association_tree_group and isn't default, add that to the path
+        var agMenu = $("#ls_association_tree_group");
+        if (agMenu.length > 0 && agMenu.val() != "default") {
+            path += "/" + agMenu.val();
         }
 
         $.ajax({
