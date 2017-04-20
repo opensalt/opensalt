@@ -243,6 +243,7 @@ var Import = (function() {
         $('.tab-content').addClass('hidden');
         $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
         $('.file-loading').removeClass('hidden');
+        $('.case-error-msg').addClass('hidden');
 
         $.ajax({
             url: '/salt/case/import',
@@ -255,7 +256,9 @@ var Import = (function() {
             },
             error: function(){
                 $('.tab-content').removeClass('hidden');
-                console.error('error while importing the file');
+                $('.case-error-msg').html('Error while importing the file');
+                $('.case-error-msg').removeClass('hidden');
+                $('.file-loading').addClass('hidden');
             }
         });
     }
@@ -285,7 +288,7 @@ var SaltLocal = (function(){
                 if (f.type === 'text/csv' || f.type === 'application/json') {
                     reader.onload = (function(theFile) {
                         return function(e) {
-                            file = e.target.result;
+                            var file = e.target.result;
                             if (fileType === 'local') {
                                 Import.csv(file, lsDocId);
                             } else if (fileType === 'case') {
@@ -322,12 +325,16 @@ var CfItem = (function(){
         'educationLevel',
         'cfItemType',
         'license',
+
         'cfAssociationGroupIdentifier',
         'isChildOf',
         'isPartOf',
         'replacedBy',
         'exemplar',
-        'hasSkillLevel'
+        'precedes',
+        'isPeerOf',
+        'hasSkillLevel',
+        'isRelatedTo'
     ];
 
     function generateDropdowns(arrData, type){

@@ -113,22 +113,51 @@ class GithubImport
                     $lsDoc->addTopLsItem($lsItem);
                 }
             }
-            if ($cfAssociations = $content[$i][$lsItemKeys['cfAssociationGroupIdentifier']]) {
-                foreach (explode(',', $cfAssociations) as $cfAssociation) {
-                    $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate);
-                }
-            }
+            $this->saveAssociations($i, $content, $lsItemKeys, $lsItem, $lsDoc, $frameworkToAssociate);
         }
 
         $em->flush();
     }
 
     /**
+     * @param int       $position
+     * @param array     $content
+     * @param array     $lsItemKeys
+     * @param LsItem    $lsItem
+     * @param LsDoc     $lsDoc
+     * @param string    $frameworkToAssociate
+     */
+    public function saveAssociations($position, $content, $lsItemKeys, LsItem $lsItem, LsDoc $lsDoc, $frameworkToAssociate)
+    {
+        $fieldsAndTypes = [
+            'isPartOf' =>                     LsAssociation::PART_OF,
+            'exemplar' =>                     LsAssociation::EXEMPLAR,
+            'isPeerOf' =>                     LsAssociation::IS_PEER_OF,
+            'precedes' =>                     LsAssociation::PRECEDES,
+            'isRelatedTo' =>                  LsAssociation::RELATED_TO,
+            'replacedBy' =>                   LsAssociation::REPLACED_BY,
+            'hasSkillLevel' =>                LsAssociation::SKILL_LEVEL,
+            'cfAssociationGroupIdentifier' => LsAssociation::RELATED_TO
+        ];
+        // We don't use is_child_of because that it alaready used to create parents relations before. :)
+        // checking each association field
+        foreach ($fieldsAndTypes as $fieldName => $assocType){
+            if ($cfAssociations = $content[$position][$lsItemKeys[$fieldName]]) {
+                foreach (explode(',', $cfAssociations) as $cfAssociation) {
+                    $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate, $assocType);
+                }
+            }
+        }
+    }
+
+    /**
      * @param LsDoc   $lsDoc
      * @param LsItem  $lsItem
      * @param string  $cfAssociation
+     * @param string  $frameworkToAssociate
+     * @param string  $assocType
      */
-    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate)
+    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, $assocType)
     {
         $em = $this->getEntityManager();
         if (strlen(trim($cfAssociation)) > 0) {
@@ -142,10 +171,10 @@ class GithubImport
 
             if (count($itemsAssociated) > 0) {
                 foreach ($itemsAssociated as $itemAssociated) {
-                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated);
+                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType);
                 }
             } else {
-                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation);
+                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType);
             }
         }
     }
@@ -153,12 +182,13 @@ class GithubImport
     /**
      * @param LsDoc $lsDoc
      * @param LsItem $lsItem
-     * @param string|LsItem $itemAssociated
+     * @param string|LsItem $elementAssociated
+     * @param string $assocType
      */
-    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated)
+    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, $assocType)
     {
         $association = new LsAssociation();
-        $association->setType(LsAssociation::RELATED_TO);
+        $association->setType($assocType);
         $association->setLsDoc($lsDoc);
         $association->setOrigin($lsItem);
         if (is_string($elementAssociated)) {

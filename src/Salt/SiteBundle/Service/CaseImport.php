@@ -53,11 +53,16 @@ class CaseImport
         $em = $this->getEntityManager();
         $lsDoc = new LsDoc();
 
-        $lsDoc->setIdentifier($fileContent->CFDocument->identifier);
-        $lsDoc->setUri($fileContent->CFDocument->uri);
-        $lsDoc->setCreator($fileContent->CFDocument->creator);
-        $lsDoc->setTitle($fileContent->CFDocument->title);
-        $lsDoc->setAdoptionStatus($fileContent->CFDocument->adoptionStatus);
+        $lsDoc->setIdentifier($this->ifExists($fileContent->CFDocument->identifier));
+        $lsDoc->setUri($this->ifExists($fileContent->CFDocument->uri));
+        $lsDoc->setCreator($this->ifExists($fileContent->CFDocument->creator));
+        $lsDoc->setPublisher($this->ifExists($fileContent->CFDocument->publisher));
+        $lsDoc->setTitle($this->ifExists($fileContent->CFDocument->title));
+        $lsDoc->setNote($this->ifExists($fileContent->CFDocument->notes));
+        $lsDoc->setOfficialUri($this->ifExists($fileContent->CFDocument->officialSourceURL));
+        $lsDoc->setVersion($this->ifExists($fileContent->CFDocument->version));
+        $lsDoc->setDescription($this->ifExists($fileContent->CFDocument->description));
+        $lsDoc->setLanguage($this->ifExists($fileContent->CFDocument->language));
 
         $em->persist($lsDoc);
 
@@ -66,10 +71,15 @@ class CaseImport
             $lsItem = new LsItem();
 
             $lsItem->setLsDoc($lsDoc);
-            $lsItem->setIdentifier($cfItem->identifier);
-            $lsItem->setUri($cfItem->uri);
-            $lsItem->setFullStatement($cfItem->fullStatement);
-            $lsItem->setListEnumInSource($cfItem->listEnumeration);
+            $lsItem->setIdentifier($this->ifExists($cfItem->identifier));
+            $lsItem->setUri($this->ifExists($cfItem->uri));
+            $lsItem->setFullStatement($this->ifExists($cfItem->fullStatement));
+            $lsItem->setListEnumInSource($this->ifExists($cfItem->listEnumeration));
+            $lsItem->setHumanCodingScheme($this->ifExists($cfItem->humanCodingScheme));
+            $lsItem->setAbbreviatedStatement($this->ifExists($cfItem->abbreviatedStatement));
+            $lsItem->setNotes($this->ifExists($cfItem->notes));
+            $lsItem->setEducationalAlignment($this->ifExists($cfItem->educationAlignment));
+            $lsItem->setLanguage($this->ifExists($cfItem->language));
 
             $em->persist($lsItem);
         }
@@ -79,15 +89,29 @@ class CaseImport
             $lsAssociation = new LsAssociation();
 
             $lsAssociation->setLsDoc($lsDoc);
-            $lsAssociation->setIdentifier($cfAssociation->identifier);
-            $lsAssociation->setUri($cfAssociation->uri);
-            $lsAssociation->setOriginNodeIdentifier($cfAssociation->originNodeIdentifier);
-            $lsAssociation->setType($cfAssociation->associationType);
-            $lsAssociation->setDestinationNodeIdentifier($cfAssociation->destinationNodeIdentifier);
+            $lsAssociation->setIdentifier($this->ifExists($cfAssociation->identifier));
+            $lsAssociation->setUri($this->ifExists($cfAssociation->uri));
+            $lsAssociation->setType($this->ifExists($cfAssociation->associationType));
+            $lsAssociation->setGroupName($this->ifExists($cfAssociation->groupName));
+
+            if ($this->ifExists($cfAssociation->originNodeURI) && is_object($cfAssociation->originNodeURI)) {
+                $lsAssociation->setOriginNodeUri($cfAssociation->destinationNodeURI->uri);
+                $lsAssociation->setOriginNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
+            }
+
+            if ($this->ifExists($cfAssociation->destinationNodeURI) && is_object($cfAssociation->destinationNodeURI)) {
+                $lsAssociation->setDestinationNodeUri($cfAssociation->destinationNodeURI->uri);
+                $lsAssociation->setDestinationNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
+            }
 
             $em->persist($lsAssociation);
         }
 
         $em->flush();
+    }
+
+    public function ifExists($data)
+    {
+        return isset($data) ? $data : '';
     }
 }
