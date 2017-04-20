@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Doctrine\ORM\Query;
 use Util\Compare;
 
 /**
@@ -25,7 +26,8 @@ class DocTreeController extends Controller
 {
     /**
      * @Route("/doc/{id}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{id}/{assocGroup}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{id}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{id}/{assocGroup}.{_format}", name="doc_tree_view_ag", defaults={"_format"="html", "lsItemId"=null})
      * @Method({"GET"})
      * @Template()
      */
@@ -36,8 +38,37 @@ class DocTreeController extends Controller
         $form = $this->createForm(LsDocListType::class, null, ['ajax' => false]);
 
         $em = $this->getDoctrine()->getManager();
-        // TODO: get only association groupings tied to this document...
+
+        // Get all association groups (for all documents); 
+        // we need groups for other documents if/when we show a document on the right side
         $lsDefAssociationGroupings = $em->getRepository('CftfBundle:LsDefAssociationGrouping')->findAll();
+        
+        // Get a list of all associations and process them...
+        $lsAssociations = $em->getRepository('CftfBundle:LsAssociation')->findBy(['lsDoc'=>$lsDoc]);
+        $assocItems = array();
+        foreach ($lsAssociations as $assoc) {
+            // for each assoc, we'll decide whether or not we need to include info about the origin and/or destination item
+
+            // if the assoc has a destination in the current SALT instance...
+            if (!empty($assoc->getDestinationLsItem())) {
+                // then if the destination item's document isn't the current document...
+                if ($assoc->getDestinationLsItem()->getLsDoc()->getId() != $lsDoc->getId()) {
+                    // we need to include info about the item
+                    $assocItems[$assoc->getDestinationLsItem()->getId()] = $assoc->getDestinationLsItem();
+                }
+            }
+
+            // if the assoc has an origin in the current SALT instance (it almost always will)...
+            if (!empty($assoc->getOriginLsItem())) {
+                // then if the Origin item's document isn't the current document...
+                if ($assoc->getOriginLsItem()->getLsDoc()->getId() != $lsDoc->getId()) {
+                    // we need to include info about the item
+                    $assocItems[$assoc->getOriginLsItem()->getId()] = $assoc->getOriginLsItem();
+                }
+            }
+        }
+        
+        // get list of all documents
         $resultlsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
         $lsDocs = [];
         $authChecker = $this->get('security.authorization_checker');
@@ -53,6 +84,8 @@ class DocTreeController extends Controller
             'assocGroup' => $assocGroup,
             'docList' => $form->createView(),
             'assocGroups' => $lsDefAssociationGroupings,
+            'lsAssociations' => $lsAssociations,
+            'assocItems' => $assocItems,
             'lsDocs' => $lsDocs
         ];
     }

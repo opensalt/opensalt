@@ -11,6 +11,10 @@ app.initialize = function() {
     if ("undefined" === typeof(app.allAssocGroups)) {
         app.allAssocGroups = {};
     }
+    
+    // process document data
+    app.processDocumentData();
+    
     // render the document tree
     app.renderTree1();
 
@@ -29,6 +33,10 @@ app.initialize = function() {
     // PW: not sure if we actually need a button here; does the menu always load with a blank item listed first??
     // $("#loadTree2Btn").on('click', app.tree2Selected);
     $("#ls_doc_list_lsDoc").on('change', app.tree2Selected);
+    
+    // doc view/tree view buttongroup
+    $("#displayTreeBtn").on('click', function() { app.showTreeView("button"); });
+    $("#displayAssocBtn").on('click', function() { app.showAssocView("button"); });
 
     // right-side buttongroup
     $("#rightSideItemDetailsBtn").on('click', function() { app.tree2Toggle(false); });
@@ -78,6 +86,53 @@ app.initialize = function() {
 
     // show itemSection to reveal either the document or item details
     $("#itemSection").show();
+    
+    // if the url ends with "av", toggle to association view
+    if (window.location.href.search(/\/av$/) > -1) {
+        app.showAssocView("pageLoaded");
+        app.lastViewButtonPushed = "assoc";
+        app.initialView = "assocView";
+    } else {
+        app.initialView = "treeView";
+    }
+};
+
+// process document data in preparation for being able to show the associations table
+app.processDocumentData = function() {
+    function processChildren(parent) {
+        // if node has any children, process them
+        if (parent.children != null && parent.children.length > 0) {
+            for (var i = 0; i < parent.children.length; ++i) {
+                var node = parent.children[i];
+                var id = app.lsItemIdFromKey(node.key);
+                // add it to the docItems hash if it isn't already there
+                if ("undefined" === typeof(app.docItems[id])) {
+                    app.docItems[id] = {"id": id};
+                    app.docItems[id].hcs = node.humanCoding;
+                    app.docItems[id].stmt = node.abbrStmt;
+                    if (app.docItems[id].stmt === null) {
+                        app.docItems[id].stmt = node.fullStmt;
+                    }
+                }
+                processChildren(node);
+            }
+        }
+    }
+    
+    app.docItems = {};
+    processChildren(app.tree1[0]);
+    
+    // clean up app.docAssocs
+    for (var id in app.docAssocs) {
+        var a = app.docAssocs[id];
+        a.id = id;
+    }
+    
+    // clean up app.associatedItems
+    for (var id in app.associatedItems) {
+        var ai = app.associatedItems[id];
+        ai.id = id;
+    }
 };
 
 //////////////////////////////////////////////////////
@@ -103,44 +158,60 @@ window.onpopstate = function(event) {
     // set popStateActivate so we don't re-push this history state
     app.popStateActivate = true;
 
-    var lsItemId, assocGroup;
+    var lsItemId, assocGroup, view;
     // if event.state is null, we're back to the initial values...
     if (event.state == null) {
         lsItemId = app.initialLsItemId;
         assocGroup = app.initialAssocGroup;
+        view = app.initialView;
     } else {
         lsItemId = event.state.lsItemId;
         assocGroup = event.state.assocGroup;
+        view = event.state.view;
     }
+    
+    // now if we're moving to assocView, show it
+    if (view == "assocView") {
+        app.showAssocView("history");
+    
+    // else show the relevant item
+    } else {
+        app.showTreeView("history");
+        // restore assocGroup if necessary
+        if (assocGroup != app.selectedAssocGroup) {
+            app.selectedAssocGroup = assocGroup;
+            app.processAssocGroups("tree1");
+        }
 
-    // restore assocGroup if necessary
-    if (assocGroup != app.selectedAssocGroup) {
-        app.selectedAssocGroup = assocGroup;
-        app.processAssocGroups("tree1");
+        app.ft.fancytree("getTree").activateKey(app.keyFromLsItemId(lsItemId, assocGroup));
     }
-
-    app.ft.fancytree("getTree").activateKey(app.keyFromLsItemId(lsItemId, assocGroup));
 };
 
 // Function to update the history state; called when a tree node is activated
-app.pushHistoryState = function(lsItemId, assocGroup) {
+app.pushHistoryState = function(lsItemId, assocGroup, view) {
     // if we just called this after the user clicked back or forward, though, don't push a new state
     if (app.popStateActivate != true) {
         var path;
         if (lsItemId == null) {
             path = app.path.lsDoc.replace('ID', app.lsDocId);
+            // add "/av" to path if necessary
+            if (view == "assocView") {
+                path += "/av";
+            }
         } else {
             path = app.path.lsItem.replace('ID', lsItemId);
         }
 
-        var state = {
-            "lsItemId": lsItemId,
-            "assocGroup": assocGroup
-        };
         // add assocGroup to path if necessary
         if (assocGroup != null && assocGroup != "default") {
             path += "/" + assocGroup;
         }
+
+        var state = {
+            "lsItemId": lsItemId,
+            "assocGroup": assocGroup,
+            "view": view
+        };
 
         window.history.pushState(state, "Competency Framework", path);
     }
@@ -214,7 +285,7 @@ app.loadItemDetails = function(item) {
             app.toggleItemCreationButtons();
 
             // enable remove association button(s)
-            $jq.find(".btn-remove-association").on('click', function(e) { app.deleteAssociation(e); });
+            $jq.find(".btn-remove-association").on('click', function(e) { app.deleteAssociationFromItemView(e); });
 
             // new item button doesn't need to be enabled because it shows a dialog
         }
@@ -848,6 +919,38 @@ app.titleFromNode = function(node, format) {
     }
 };
 
+app.getStatementFromNode = function(node) {
+    if (app.isDocNode(node)) {
+        return node.title;
+    } else if (("data" in node) && (null !== node.data)) {
+        if (("abbrStmt" in node.data) && (null !== node.data.abbrStmt)) {
+            return node.data.abbrStmt;
+        } else if (("fullStmt" in node.data) && (null !== node.data.fullStmt)) {
+            return node.data.fullStmt;
+        }
+    }
+    return "???";   // we shouldn't get to here
+};
+
+app.getHumanCodingFromNode = function(node) {
+    if (("data" in node) && (null !== node.data) && ("humanCoding" in node.data) && (null !== node.data.humanCoding)) {
+        return node.data.humanCoding;
+    } else {
+        return "";
+    }
+};
+
+// we can get a document's title from the documents menu on the right side
+app.getDocTitleFromId = function(docId) {
+    var menuItem = $("#ls_doc_list_lsDoc option[value=" + docId + "]");
+    if (menuItem.length > 0) {
+        return menuItem.html();
+    } else {
+        return "";
+    }
+};
+
+
 // Initialize a tooltip for a tree item
 app.treeItemTooltip = function(node) {
     var $jq = $(node.span);
@@ -867,7 +970,7 @@ app.treeItemTooltip = function(node) {
     $jq.find(".fancytree-title").tooltip({
         // "content": content,  // this is for popover
         "title": content,   // this is for tooltip
-        "delay": { "show": 500, "hide": 100 },
+        "delay": { "show": 200, "hide": 100 },
         "placement": "bottom",
         "html": true,
         "container": "body"
@@ -889,7 +992,7 @@ app.tree1Activate = function(n) {
 
     // replace app.lsItemId and push history state
     app.lsItemId = lsItemId;
-    app.pushHistoryState(app.lsItemId, app.selectedAssocGroup);
+    app.pushHistoryState(app.lsItemId, app.selectedAssocGroup, "treeView");
 
     // if this is the lsDoc node
     if ("undefined" === typeof(app.lsItemId) || null === app.lsItemId) {
@@ -1628,17 +1731,64 @@ app.createAssociationRun = function() {
 
         // if an assocGroup is selected via ls_association_tree_group and isn't default, add that to the path
         var agMenu = $("#ls_association_tree_group");
+        var assocGroup = "default";
         if (agMenu.length > 0 && agMenu.val() != "default") {
-            path += "/" + agMenu.val();
+            assocGroup = agMenu.val();
+            path += "/" + assocGroup;
         }
 
         $.ajax({
             url: path,
             method: 'POST',
-            data: ajaxData
-        }).done(function(data, textStatus, jqXHR) {
+            data: ajaxData,
+            context: {
+                "origin": app.createAssociationNodes.droppedNode,
+                "dest": app.createAssociationNodes.draggedNodes[i],
+                "type": $("#ls_association_tree_type").val(),
+                "assocGroup": assocGroup
+            }
+        }).done(function(assocId, textStatus, jqXHR) {
             // increment completed counter
             ++completed;
+            
+            // add to app.docAssocs array
+            var originId = app.lsItemIdFromNode(this.origin);
+            var destId = app.lsItemIdFromNode(this.dest);
+            var assoc = {
+                "id": assocId,
+                "t": this.type,
+                "o": originId+"",
+                "d": destId+""
+            }
+            if (this.assocGroup != "default") {
+                assoc.g = this.assocGroup;
+            }
+            app.docAssocs[assocId] = assoc;
+            
+            // add origin/destination to app.associatedItems array
+            if (!(originId in app.docItems) && !(originId in app.associatedItems)) {
+                app.associatedItems[originId] = {
+                    "id": originId,
+                    "doc": app.lsDoc2Id,
+                    "stmt": app.getStatementFromNode(this.origin)
+                };
+                var hcs = app.getHumanCodingFromNode(this.origin);
+                if (hcs != "") app.associatedItems[originId].hcs = hcs;
+            }
+            if (!(destId in app.docItems) && !(destId in app.associatedItems)) {
+                app.associatedItems[destId] = {
+                    "id": destId,
+                    "doc": app.lsDoc2Id,
+                    "stmt": app.getStatementFromNode(this.dest)
+                };
+                var hcs = app.getHumanCodingFromNode(this.dest);
+                if (hcs != "") app.associatedItems[destId].hcs = hcs;
+            }
+            
+            // note that the assocView is no longer fresh, so that if the user clicks to view the association view it will refresh.
+            if (app.assocViewStatus != "not_written") {
+                app.assocViewStatus = "stale";
+            }
 
             // if all are completed, finish up
             if (completed == app.createAssociationNodes.draggedNodes.length) {
@@ -1661,21 +1811,41 @@ app.createAssociationRun = function() {
     }
 };
 
-app.deleteAssociation = function(e) {
+app.deleteAssociationFromItemView = function(e) {
     e.preventDefault();
 
     var $target = $(e.target);
     var $item = $target.parents('.lsassociation');
+    
+    app.deleteAssociation($item.data('associationId'), app.lsItemId, null);
+};
 
+app.deleteAssociation = function(assocId, lsItemId, callbackFn) {
+    if (!confirm("Are you sure you want to remove this association? This can’t be undone.")) {
+        return;
+    }
+    
     app.showModalSpinner("Removing Association");
     $.ajax({
-        url: app.path.lsassociation_remove.replace('ID', $item.data('associationId')),
+        url: app.path.lsassociation_remove.replace('ID', assocId),
         method: 'POST'
     }).done(function(data, textStatus, jqXHR){
         app.hideModalSpinner();
-        // after deletion, clear and reload item details
-        app.clearItemDetails(app.lsItemId);
-        app.loadItemDetails(app.lsItemId);
+        
+        // after deletion, clear item details
+        if (lsItemId !== "none") {
+            app.clearItemDetails(app.lsItemId);
+        
+            // and reload the item now if this is the item that's currently showing
+            if (lsItemId == app.lsItemId) {
+                app.loadItemDetails(app.lsItemId);
+            }
+        }
+        
+        // call callbackFn if specified
+        if (callbackFn != null) {
+            callbackFn();
+        }
 
     }).fail(function(jqXHR, textStatus, errorThrown){
         app.hideModalSpinner();
@@ -2046,6 +2216,7 @@ app.assocGroupDelete = function(btn) {
     });
 };
 
+app.includedAssocGroups = [];
 app.processAssocGroups = function(tree, menu) {
     var assocGroup = null, $treeSide, ft;
     var includedAssocGroups = [];
@@ -2058,6 +2229,8 @@ app.processAssocGroups = function(tree, menu) {
 
     // for left-side tree...
     if (tree === "tree1" || tree === "viewmode_tree") {
+        tree = "tree1";
+        
         // if no menu passed in, use current selectedAssocGroup
         if ("undefined" === typeof(assocGroup) || "" === assocGroup || null === assocGroup) {
             assocGroup = app.selectedAssocGroup;
@@ -2086,10 +2259,12 @@ app.processAssocGroups = function(tree, menu) {
 
         // if item was selected from the menu, push a history state
         if (typeof(menu) !== "undefined" && menu !== null) {
-            app.pushHistoryState(app.lsItemId, app.selectedAssocGroup);
+            app.pushHistoryState(app.lsItemId, app.selectedAssocGroup, "treeView");
         }
     } else {
         // else right-side tree...
+        tree = "tree2";
+        
         // if no menu passed in, use current selectedAssocGroupTree2
         if (typeof(assocGroup) === "undefined" || assocGroup === null || assocGroup === "") {
             assocGroup = app.selectedAssocGroupTree2;
@@ -2146,6 +2321,11 @@ app.processAssocGroups = function(tree, menu) {
         }
     }
     processChildren(ft.fancytree("getTree").getFirstChild());
+    
+    // if we're processing tree1, save includedAssocGroups in app
+    if (tree === "tree1") {
+        app.includedAssocGroups = includedAssocGroups;
+    }
 
     // clear the assocGroup menu
     $treeSide.find(".assocGroupSelect").html('');
@@ -2243,3 +2423,296 @@ app.prepareAddAssocGroupModal = function() {
     });
 };
 
+
+/////////////////////////////////////////////////////
+// TREE VIEW / ASSOCIATIONS VIEW MODES
+app.lastViewButtonPushed = "tree";
+app.showTreeView = function(context) {
+    // if the user clicked the button to show this view, or clicked an item from the associations table
+    if (context == "button" || context == "avTable") {
+        // if the user clicked the button and the last view button pushed wasn't tree...
+        if (context == "button" && app.lastViewButtonPushed != "tree") {
+            // then the user must have been in the assoc view, then clicked the button to go to the tree view, so push a history state
+            app.pushHistoryState(app.lsItemId, app.selectedAssocGroup, "treeView");
+        }
+        // set lastViewButtonPushed to "tree" (so if we got back to the tree view via clicking on an item from the assoc table, we "simulate" clicking the tree view button)
+        app.lastViewButtonPushed = "tree";
+    }
+    
+    // set buttons appropriately
+    $("#displayAssocBtn").removeClass("btn-primary").addClass("btn-default").blur();
+    $("#displayTreeBtn").addClass("btn-primary").removeClass("btn-default").blur();
+    
+    // hide the assocView and show the treeView
+    $("#assocView").hide();
+    $("#treeView").show();
+};
+
+app.avFilters = {
+    "avShowChild": false,
+    "avShowExact": false,
+    "avShowExemplar": true,
+    "avShowOtherTypes": true,
+    "groups": []
+};
+app.assocViewStatus = "not_written";
+app.showAssocView = function(context) {
+    // if we're refreshing the view
+    if (context == "refresh") {
+        // set assocViewStatus to "stale" so we make sure to reload it
+        app.assocViewStatus = "stale";
+    
+    // else if the user clicked the button to load this view
+    } else if (context == "button") {
+        // unless the user has now clicked the Associations button twice in a row, push a history state
+        if (app.lastViewButtonPushed != "assoc") {
+            app.pushHistoryState(null, null, "assocView");
+        }
+        
+        // note that this was the last button pushed
+        app.lastViewButtonPushed = "assoc";
+    }
+    
+    // if assocViewStatus isn't "current", re-write the table
+    if (app.assocViewStatus != "current") {
+        // destroy previous table if we already created it
+        if (app.assocViewStatus != "not_written") {
+            $("#assocViewTable").DataTable().destroy();
+        }
+    
+        // make sure avFilters.groups is set up to use included groups
+        var gft = {};
+        for (var i = 0; i < app.includedAssocGroups.length; ++i) {
+            var groupId = app.includedAssocGroups[i] + "";  // make sure this is a string
+            if ("undefined" != typeof(app.avFilters.groups[groupId])) {
+                gft[groupId] = app.avFilters.groups[groupId];
+            } else {
+                gft[groupId] = true;
+            }
+        }
+        // add a value for the default group; item 0
+        if ("undefined" != typeof(app.avFilters.groups["0"])) {
+            gft["0"] = app.avFilters.groups["0"];
+        } else {
+            gft["0"] = true;
+        }
+        app.avFilters.groups = gft;
+    
+        function assocViewTitle(item) {
+            var title = "";
+            if ("hcs" in item && item.hcs != null) {
+                title += '<span class="item-humanCodingScheme">' + item.hcs + '</span> ';
+            }
+            if ("stmt" in item) {
+                title += item.stmt;
+            } else {
+                title += "Item " + item.id;
+            }
+            return title;
+        }
+    
+        // compose datatables data array
+        var dataSet = [];
+        for (var id in app.docAssocs) {
+            var assoc = app.docAssocs[id];
+        
+            // skip types if filters dictate
+            if (assoc.t == "Is Child Of") {
+                if (!app.avFilters.avShowChild) continue;
+            } else if (assoc.t == "Exact Match Of") {
+                if (!app.avFilters.avShowExact) continue;
+            } else if (assoc.t == "Examplar") {
+                if (!app.avFilters.avShowExemplar) continue;
+            } else {
+                if (!app.avFilters.avShowOtherTypes) continue;
+            }
+        
+            // skip groups if filters dictate
+            if ("g" in assoc) {
+                if (!app.avFilters.groups[assoc.g+""]) continue;
+            } else {
+                if (!app.avFilters.groups["0"]) continue;
+            }
+            
+            // determine groupForLinks
+            var groupForLinks = "default";
+            if ("g" in assoc) {
+                groupForLinks = assoc.g;
+            }
+        
+            // get text to show in origin column
+            var origin;
+            var originItemId = "none";  // also get originItemId for association remove button
+            if ("o" in assoc) {
+                origin = assoc.o;
+                // look for item in app.docItems
+                if (origin in app.docItems) {
+                    origin = '<div class="assocViewTitle avTree1item" data-item-id="' + assoc.o + '" data-group-id="' + groupForLinks + '">' + assocViewTitle(app.docItems[origin]) + '</div>';
+                    originItemId = assoc.o;
+                } else if (origin in app.associatedItems) {
+                    origin = '<div class="assocViewTitle">' + assocViewTitle(app.associatedItems[origin]) + '</div>';
+                } else {
+                    origin = "Item " + origin;
+                }
+        
+            } else if ("ou" in assoc) {
+                origin = assoc.ou;
+            } else if ("oi" in assoc) {
+                origin = assoc.oi;
+            } else {
+                origin = "???";
+            }
+        
+            // get text to show in destination column
+            var dest;
+            if ("d" in assoc) {
+                dest = assoc.d;
+                // look for item in app.docItems
+                if (dest in app.docItems) {
+                    dest = '<div class="assocViewTitle avTree1item" data-item-id="' + assoc.o + '" data-group-id="' + groupForLinks + '">' + assocViewTitle(app.docItems[dest]) + '</div>';
+                } else if (dest in app.associatedItems) {
+                    var ai = app.associatedItems[dest];
+                    var doc = "";
+                    if ("doc" in ai) {
+                        doc = ai.doc;
+                    }
+                    dest = '<div class="assocViewTitle" data-doc-id="' + doc + '">' + assocViewTitle(ai) + '</div>';
+                } else {
+                    dest = "Item " + dest;
+                }
+        
+            } else if ("du" in assoc) {
+                dest = assoc.du;
+            } else if ("di" in assoc) {
+                dest = assoc.di;
+            } else {
+                dest = "???";
+            }
+        
+            // get type cell
+            var type = assoc.t;
+            type += ' <button class="avRemoveAssoc btn btn-default btn-xs" data-assoc-id="' + assoc.id + '" data-item-id="' + originItemId + '"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Remove</span></button>';
+        
+            // construct array for row
+            var arr = [origin, type, dest];
+
+            // add group to row array if we have any groups
+            if (app.includedAssocGroups.length > 0) {
+                if ("g" in assoc) {
+                    arr.push(app.allAssocGroups[assoc.g].title);
+                } else {
+                    arr.push("– Default –");
+                }
+            }
+        
+            // push row array onto dataSet array
+            dataSet.push(arr);
+        }
+    
+        // set up columns
+        var columns = [
+            { "title": "Origin", "className": "avTitleCell" },
+            { "title": "Association Type", "className": "avTypeCell" },
+            { "title": "Destination", "className": "avTitleCell" }
+        ];
+        // add group if we have any
+        if (app.includedAssocGroups.length > 0) {
+            columns.push({"title": "Association Group", "className": "avGroupCell"})
+        }
+
+        // populate the table
+        $("#assocViewTable").DataTable({
+            "data": dataSet,
+            "columns": columns,
+            "stateSave": true,
+            "lengthMenu": [ [ 25, 100, 500, -1 ], [25, 100, 500, "All"]],
+            "pageLength": 100,
+            //"select": true
+        });
+
+        // add filters
+        $("#assocViewTable_wrapper .dataTables_length").prepend($("#assocViewTableFilters").html());
+
+        // enable type filters
+        for (var filter in app.avFilters) {
+            $("#assocViewTable_wrapper input[data-filter=" + filter + "]").prop("checked", app.avFilters[filter])
+                .on('change', function() {
+                    app.avFilters[$(this).attr("data-filter")] = $(this).is(":checked");
+                    app.showAssocView("refresh");
+                    // TODO: save this value in localStorage?
+                });
+        }
+    
+        // enable group filters if we have any groups
+        if (app.includedAssocGroups.length > 0) {
+            $gf = $("#assocViewTable_wrapper .assocViewTableGroupFilters");
+            for (var groupId in app.avFilters.groups) {
+                if (groupId != "0") {
+                    $gf.append('<label class="avGroupFilter"><input type="checkbox" data-group-id="' + groupId + '"> ' + app.allAssocGroups[groupId].title + '</label><br>');
+                }
+                $("#assocViewTable_wrapper .avGroupFilter input[data-group-id=" + groupId + "]").prop("checked", app.avFilters.groups[groupId])
+                    .on('change', function() {
+                        app.avFilters.groups[$(this).attr("data-group-id")] = $(this).is(":checked");
+                        app.showAssocView("refresh");
+                        // TODO: save this value in localStorage?
+                    });
+            }
+            $gf.css("display", "inline-block");
+        }
+    
+        // enable remove buttons
+        $(".avRemoveAssoc").on('click', function() {
+            var assocId = $(this).attr("data-assoc-id");
+            var itemId = $(this).attr("data-item-id");
+            app.deleteAssociation(assocId, itemId, function() {
+                // remove the association from app.docAssocs
+                delete app.docAssocs[assocId];
+                
+                // and refresh the table
+                app.showAssocView("refresh");
+            });
+        });
+    
+        // tooltips for items with titles
+        $(".assocViewTitle").each(function() {
+            var content = $(this).html();
+            var doc = $(this).attr("data-doc-id");
+            if (doc != "") {
+                doc = app.getDocTitleFromId(doc);
+            }
+            if (doc != "") {
+                content += "<div style='color:red; font-weight:bold'>[Document: " + doc + "]</div>";
+            }
+            $(this).tooltip({
+                // "content": content,  // this is for popover
+                "title": content,   // this is for tooltip
+                "delay": { "show": 200, "hide": 100 },
+                "placement": "bottom",
+                "html": true,
+                "container": "body"
+                // "trigger": "hover"   // this is for popover
+            });
+        });
+        
+        // click on items in tree 1 to view the item in the tree
+        $(".avTree1item").on("click", function() {
+            var lsItemId = $(this).attr("data-item-id");
+            var assocGroup = $(this).attr("data-group-id");
+            var key = app.keyFromLsItemId(lsItemId, assocGroup);
+            app.ft.fancytree("getTree").activateKey(key).setExpanded(true);
+            setTimeout(function() { app.showTreeView("avTable"); }, 10);
+        });
+
+        app.assocViewStatus = "current";
+        
+    // end of code for writing table
+    }
+        
+    // set mode toggle buttons appropriately
+    $("#displayTreeBtn").removeClass("btn-primary").addClass("btn-default").blur();
+    $("#displayAssocBtn").addClass("btn-primary").removeClass("btn-default").blur();
+
+    // hide the treeView and show the assocView
+    $("#treeView").hide();
+    $("#assocView").show();
+};

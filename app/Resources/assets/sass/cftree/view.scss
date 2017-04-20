@@ -85,9 +85,25 @@ span.fancytree-title {
     text-overflow:ellipsis;
 }
 
-.breadcrumb {
+#docTitle {
+    padding: 3px 15px;
+    margin-bottom: 20px;
+    border:3px solid #E6793A;
+    background-color:#f9ddcd;
+    color:#000;
+    border-radius: 4px;
     font-size:1.6em;
     font-weight:bold;
+}
+
+#displayBtnGroup {
+    float:right;
+    margin-left:5px;
+    margin-top:-2px;
+}
+
+#displayBtnGroup .btn {
+    width:80px;
 }
 
 #docStatus {
@@ -95,7 +111,7 @@ span.fancytree-title {
     margin-bottom: 20px;
     list-style: none;
     border-radius: 4px;
-    font-size:1.8em;
+    font-size:1.6em;
     font-weight:bold;
     text-align:center;
     background-color: #d9f2fb;
@@ -363,4 +379,57 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     .fancytree-node.fancytree-expanded.fancytree-exp-nl, .fancytree-node.fancytree-expanded.fancytree-exp-n {
         display:none;
     }
+}
+
+#assocView {
+    display:none;
+}
+
+#assocViewTable {
+    // max-width: 1000px;
+}
+
+#assocViewTable_filter [type=search] {
+    width: 20vw;
+    max-width: 300px;
+}
+
+.assocViewTitle {
+    max-width:400px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow:hidden;
+}
+
+.avTitleCell {
+
+}
+
+.avTypeCell, .avGroupCell {
+    text-align:center;
+}
+
+.avRemoveAssoc {
+    float:right;
+}
+
+.avTree1item {
+    cursor:pointer;
+}
+
+.assocViewTableTypeFilters, .assocViewTableGroupFilters {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 5px;
+    margin-right: 15px;
+}
+
+.assocViewTableTypeFiltersHeader, .assocViewTableGroupFiltersHeader {
+    margin-bottom:3px;
+    padding-bottom:3px;
+    border-bottom:1px solid #ccc;
+}
+
+.assocViewTableGroupFilters {
+    display:none;
 }

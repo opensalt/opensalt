@@ -98,7 +98,16 @@
         "milo/github-api": "^1.4",
         "league/oauth2-github": "^0.2.2",
 
-        "matthimatiker/opcache-bundle": "^0.4"
+        "matthimatiker/opcache-bundle": "^0.4",
+        
+        "bower-asset/datatables.net": "^1.10.15",
+        "bower-asset/datatables.net-bs": "^1.10.15",
+        "bower-asset/datatables.net-fixedheader": "^3.1.2",
+        "bower-asset/datatables.net-fixedheader-bs": "^3.1.2",
+        "bower-asset/datatables.net-scroller": "^1.4.2",
+        "bower-asset/datatables.net-scroller-bs": "^1.4.2",
+        "bower-asset/datatables.net-select": "^1.2.2",
+        "bower-asset/datatables.net-select-bs": "^1.2.2"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.1",

@@ -47,23 +47,6 @@ footer .navbar-nav > li > a {
     padding-bottom: 8px;
 }
 
-.breadcrumb {
-    background-color:#E6793A;
-    color:#fff;
-}
-
-.breadcrumb > li {
-    display:inline;
-}
-
-.breadcrumb > li + li:before {
-    color:#78C9E9;
-}
-
-.breadcrumb a, .breadcrumb a:hover {
-    color:#fff;
-}
-
 label.required:before {
     content: '*';
     color: red;
