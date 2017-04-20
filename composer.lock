@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "43b23fdc415db2735cb3fb6236b48331",
+    "content-hash": "2d5fb997c9714436ebfe49600006a6d3",
     "packages": [
         {
             "name": "behat/transliterator",
@@ -186,6 +186,343 @@
                 "bootstrap",
                 "sass",
                 "twbs"
+            ]
+        },
+        {
+            "name": "bower-asset/datatables.net",
+            "version": "1.10.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DataTables/Dist-DataTables.git",
+                "reference": "d3251ca51f55e44f8ca43bdec6f713c971339a60"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables/zipball/d3251ca51f55e44f8ca43bdec6f713c971339a60",
+                "reference": "d3251ca51f55e44f8ca43bdec6f713c971339a60",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/jquery": ">=1.7"
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": [
+                    "js/jquery.dataTables.js"
+                ],
+                "bower-asset-ignore": [
+                    "composer.json",
+                    "datatables.json",
+                    "package.json"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "DataTables for jQuery ",
+            "keywords": [
+                "DataTables",
+                "DataTables",
+                "filter",
+                "jQuery",
+                "sort",
+                "table"
+            ]
+        },
+        {
+            "name": "bower-asset/datatables.net-bs",
+            "version": "1.10.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DataTables/Dist-DataTables-Bootstrap.git",
+                "reference": "8d0255d35ca0a8a05aa5adb849db513f9495c2f2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Bootstrap/zipball/8d0255d35ca0a8a05aa5adb849db513f9495c2f2",
+                "reference": "8d0255d35ca0a8a05aa5adb849db513f9495c2f2",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/datatables.net": ">=1.10.9",
+                "bower-asset/jquery": ">=1.7"
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": [
+                    "js/dataTables.bootstrap.js",
+                    "css/dataTables.bootstrap.css"
+                ],
+                "bower-asset-ignore": [
+                    "composer.json",
+                    "datatables.json",
+                    "package.json"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "DataTables for jQuery with styling for [Bootstrap](http://getbootstrap.com/)",
+            "keywords": [
+                "Bootstrap",
+                "DataTables",
+                "filter",
+                "jQuery",
+                "sort",
+                "table"
+            ]
+        },
+        {
+            "name": "bower-asset/datatables.net-fixedheader",
+            "version": "3.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DataTables/Dist-DataTables-FixedHeader.git",
+                "reference": "39bb578f2c4881c98aecb3e2e7cedcfdfaba2c5c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-FixedHeader/zipball/39bb578f2c4881c98aecb3e2e7cedcfdfaba2c5c",
+                "reference": "39bb578f2c4881c98aecb3e2e7cedcfdfaba2c5c",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/datatables.net": ">=1.10.9",
+                "bower-asset/jquery": ">=1.7"
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": [
+                    "js/dataTables.fixedHeader.js"
+                ],
+                "bower-asset-ignore": [
+                    "composer.json",
+                    "datatables.json",
+                    "package.json"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "FixedHeader for DataTables ",
+            "keywords": [
+                "DataTables",
+                "DataTables",
+                "fixed headers",
+                "jQuery",
+                "sticky",
+                "table"
+            ]
+        },
+        {
+            "name": "bower-asset/datatables.net-fixedheader-bs",
+            "version": "3.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DataTables/Dist-DataTables-FixedHeader-Bootstrap.git",
+                "reference": "bf97d7384dcb9954b78d14fb9ec345ffd2f43130"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-FixedHeader-Bootstrap/zipball/bf97d7384dcb9954b78d14fb9ec345ffd2f43130",
+                "reference": "bf97d7384dcb9954b78d14fb9ec345ffd2f43130",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/datatables.net-bs": ">=1.10.9",
+                "bower-asset/datatables.net-fixedheader": ">=3.0.0",
+                "bower-asset/jquery": ">=1.7"
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": [
+                    "css/fixedHeader.bootstrap.css"
+                ],
+                "bower-asset-ignore": [
+                    "composer.json",
+                    "datatables.json",
+                    "package.json"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "FixedHeader for DataTables with styling for [Bootstrap](http://getbootstrap.com/)",
+            "keywords": [
+                "Bootstrap",
+                "DataTables",
+                "fixed headers",
+                "jQuery",
+                "sticky",
+                "table"
+            ]
+        },
+        {
+            "name": "bower-asset/datatables.net-scroller",
+            "version": "1.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DataTables/Dist-DataTables-Scroller.git",
+                "reference": "504b09f264cc61b1e91c3da01b8db73330feb63a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Scroller/zipball/504b09f264cc61b1e91c3da01b8db73330feb63a",
+                "reference": "504b09f264cc61b1e91c3da01b8db73330feb63a",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/datatables.net": ">=1.10.9",
+                "bower-asset/jquery": ">=1.7"
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": [
+                    "js/dataTables.scroller.js"
+                ],
+                "bower-asset-ignore": [
+                    "composer.json",
+                    "datatables.json",
+                    "package.json"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Scroller for DataTables ",
+            "keywords": [
+                "DataTables",
+                "DataTables",
+                "jQuery",
+                "table",
+                "virtual scrolling"
+            ]
+        },
+        {
+            "name": "bower-asset/datatables.net-scroller-bs",
+            "version": "1.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DataTables/Dist-DataTables-Scroller-Bootstrap.git",
+                "reference": "4e769ea6d84bc4ec2f833211598588691db1cf30"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Scroller-Bootstrap/zipball/4e769ea6d84bc4ec2f833211598588691db1cf30",
+                "reference": "4e769ea6d84bc4ec2f833211598588691db1cf30",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/datatables.net-bs": ">=1.10.9",
+                "bower-asset/datatables.net-scroller": ">=1.3.0",
+                "bower-asset/jquery": ">=1.7"
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": [
+                    "css/scroller.bootstrap.css"
+                ],
+                "bower-asset-ignore": [
+                    "composer.json",
+                    "datatables.json",
+                    "package.json"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Scroller for DataTables with styling for [Bootstrap](http://getbootstrap.com/)",
+            "keywords": [
+                "Bootstrap",
+                "DataTables",
+                "jQuery",
+                "table",
+                "virtual scrolling"
+            ]
+        },
+        {
+            "name": "bower-asset/datatables.net-select",
+            "version": "1.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DataTables/Dist-DataTables-Select.git",
+                "reference": "01fcacdd392d7b8d06722b1ef237a00eb46425c1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Select/zipball/01fcacdd392d7b8d06722b1ef237a00eb46425c1",
+                "reference": "01fcacdd392d7b8d06722b1ef237a00eb46425c1",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/datatables.net": ">=1.10.9",
+                "bower-asset/jquery": ">=1.7"
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": [
+                    "js/dataTables.select.js"
+                ],
+                "bower-asset-ignore": [
+                    "composer.json",
+                    "datatables.json",
+                    "package.json"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Select for DataTables ",
+            "keywords": [
+                "DataTables",
+                "DataTables",
+                "jQuery",
+                "select",
+                "selection",
+                "table"
+            ]
+        },
+        {
+            "name": "bower-asset/datatables.net-select-bs",
+            "version": "1.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DataTables/Dist-DataTables-Select-Bootstrap.git",
+                "reference": "418dd236be15c4cff7c08a1b595d570c529da2a3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Select-Bootstrap/zipball/418dd236be15c4cff7c08a1b595d570c529da2a3",
+                "reference": "418dd236be15c4cff7c08a1b595d570c529da2a3",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/datatables.net-bs": ">=1.10.9",
+                "bower-asset/datatables.net-select": ">=1.0.1",
+                "bower-asset/jquery": ">=1.7"
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": [
+                    "css/select.bootstrap.css"
+                ],
+                "bower-asset-ignore": [
+                    "composer.json",
+                    "datatables.json",
+                    "package.json"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Select for DataTables with styling for [Bootstrap](http://getbootstrap.com/)",
+            "keywords": [
+                "Bootstrap",
+                "DataTables",
+                "jQuery",
+                "select",
+                "selection",
+                "table"
             ]
         },
         {
@@ -5638,17 +5975,17 @@
         },
         {
             "name": "tetranz/select2entity-bundle",
-            "version": "v2.9.1",
+            "version": "v2.9.2",
             "target-dir": "Tetranz/Select2EntityBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tetranz/select2entity-bundle.git",
-                "reference": "4680720627266dffd258a68485ca80a76d9c4ddf"
+                "reference": "c22c34c159dd8509ccfe503469e86dd4ee4cbf58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tetranz/select2entity-bundle/zipball/4680720627266dffd258a68485ca80a76d9c4ddf",
-                "reference": "4680720627266dffd258a68485ca80a76d9c4ddf",
+                "url": "https://api.github.com/repos/tetranz/select2entity-bundle/zipball/c22c34c159dd8509ccfe503469e86dd4ee4cbf58",
+                "reference": "c22c34c159dd8509ccfe503469e86dd4ee4cbf58",
                 "shasum": ""
             },
             "require": {
@@ -5682,7 +6019,7 @@
                 "symfony",
                 "typeahead"
             ],
-            "time": "2017-03-26T14:59:01+00:00"
+            "time": "2017-04-18T16:05:34+00:00"
         },
         {
             "name": "twig/extensions",
