@@ -72,7 +72,7 @@
 
         "phpoffice/phpexcel": "^1.8.1",
 
-	"activelamp/swagger-ui-bundle": "dev-master",
+        "activelamp/swagger-ui-bundle": "dev-master",
 
         "bower-asset/jquery": "^2.2.4",
         "bower-asset/jquery-ui": "^1.12.0",
