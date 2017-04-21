@@ -94,7 +94,10 @@ class CaseImport
             $lsAssociation->setLsDoc($lsDoc);
             if (property_exists($cfAssociation, 'identifier')) $lsAssociation->setIdentifier($cfAssociation->identifier);
             if (property_exists($cfAssociation, 'uri')) $lsAssociation->setUri($cfAssociation->uri);
-            if (property_exists($cfAssociation, 'associationType')) $lsAssociation->setType($cfAssociation->associationType);
+            if (property_exists($cfAssociation, 'associationType')) {
+                $associationType = ucfirst(preg_replace('/([A-Z])/', ' $1', $cfAssociation->associationType));
+                if (in_array($associationType, LsAssociation::allTypes())) $lsAssociation->setType($associationType);
+            }
             if (property_exists($cfAssociation, 'groupName')) $lsAssociation->setGroupName($cfAssociation->groupName);
 
             if (property_exists($cfAssociation, 'originNodeURI') && is_object($cfAssociation->originNodeURI)) {
