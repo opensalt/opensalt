@@ -193,7 +193,7 @@ class GithubImport
         $association->setLsDoc($lsDoc);
         $association->setOrigin($lsItem);
         if (is_string($elementAssociated)) {
-            if (\Ramsey\Uuid\Uuid::isValid($elementAssociated) ) {
+            if (\Ramsey\Uuid\Uuid::isValid($elementAssociated)) {
                 $association->setDestinationNodeIdentifier($elementAssociated);
             } elseif (!filter_var($elementAssociated, FILTER_VALIDATE_URL) === false) {
                 $association->setDestinationNodeUri($elementAssociated);
@@ -214,10 +214,10 @@ class GithubImport
      *
      * @return string
      */
-    protected function encodeHumanCodingScheme($humanCodingScheme) : string
+    protected function encodeHumanCodingScheme($humanCodingScheme): string
     {
         $prefix = 'data:text/x-ref-unresolved;base64,';
-        return $prefix . base64_encode($humanCodingScheme);
+        return $prefix.base64_encode($humanCodingScheme);
     }
 
     /**
