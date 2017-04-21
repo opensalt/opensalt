@@ -4,8 +4,53 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d5fb997c9714436ebfe49600006a6d3",
+    "content-hash": "3349b1e48705011b4316d536fe95f524",
     "packages": [
+        {
+            "name": "activelamp/swagger-ui-bundle",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/activelamp/swagger-ui-bundle.git",
+                "reference": "3a080d4b81f48e1d6475a2c1d2a130528f93442b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/activelamp/swagger-ui-bundle/zipball/3a080d4b81f48e1d6475a2c1d2a130528f93442b",
+                "reference": "3a080d4b81f48e1d6475a2c1d2a130528f93442b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0",
+                "symfony/finder": "~2.1 || ^3.0",
+                "symfony/framework-bundle": "~2.1 || ^3.0",
+                "symfony/twig-bundle": "~2.1 || ^3.0"
+            },
+            "require-dev": {
+                "sensio/framework-extra-bundle": "~2.1 || ^3.0",
+                "symfony/browser-kit": "~2.1 || ^3.0",
+                "symfony/css-selector": "~2.1 || ^3.0",
+                "symfony/yaml": "~2.1 || ^3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ActiveLAMP\\Bundle\\SwaggerUIBundle\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bez Hermoso",
+                    "email": "bez@activelamp.com"
+                }
+            ],
+            "description": "Creates a Swagger UI page in your Symfony2 application",
+            "time": "2016-12-16 17:13:25"
+        },
         {
             "name": "behat/transliterator",
             "version": "v1.2.0",
@@ -527,16 +572,16 @@
         },
         {
             "name": "bower-asset/fancytree",
-            "version": "v2.22.0",
+            "version": "v2.22.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mar10/fancytree.git",
-                "reference": "2590bb57b59d8a784543b14db535b7e9fcee0a2d"
+                "reference": "45081df986b203045a89b5a90c26b12c9e14594c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mar10/fancytree/zipball/2590bb57b59d8a784543b14db535b7e9fcee0a2d",
-                "reference": "2590bb57b59d8a784543b14db535b7e9fcee0a2d",
+                "url": "https://api.github.com/repos/mar10/fancytree/zipball/45081df986b203045a89b5a90c26b12c9e14594c",
+                "reference": "45081df986b203045a89b5a90c26b12c9e14594c",
                 "shasum": ""
             },
             "require": {
@@ -3431,57 +3476,6 @@
             "time": "2016-02-22T01:05:40+00:00"
         },
         {
-            "name": "michelf/php-markdown",
-            "version": "1.7.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/michelf/php-markdown.git",
-                "reference": "1f51cc520948f66cd2af8cbc45a5ee175e774220"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/michelf/php-markdown/zipball/1f51cc520948f66cd2af8cbc45a5ee175e774220",
-                "reference": "1f51cc520948f66cd2af8cbc45a5ee175e774220",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-lib": "1.4.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Michelf": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Michel Fortin",
-                    "email": "michel.fortin@michelf.ca",
-                    "homepage": "https://michelf.ca/",
-                    "role": "Developer"
-                },
-                {
-                    "name": "John Gruber",
-                    "homepage": "https://daringfireball.net/"
-                }
-            ],
-            "description": "PHP Markdown",
-            "homepage": "https://michelf.ca/projects/php-markdown/",
-            "keywords": [
-                "markdown"
-            ],
-            "time": "2016-10-29T18:58:20+00:00"
-        },
-        {
             "name": "milo/github-api",
             "version": "v1.4.4",
             "source": {
@@ -3651,91 +3645,6 @@
             ],
             "description": "Get the cURL shell command from a Guzzle request",
             "time": "2016-11-23T08:01:36+00:00"
-        },
-        {
-            "name": "nelmio/api-doc-bundle",
-            "version": "2.13.1",
-            "target-dir": "Nelmio/ApiDocBundle",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nelmio/NelmioApiDocBundle.git",
-                "reference": "eab2d5d8fcbd759c4ae109b6060b7d90d4269952"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioApiDocBundle/zipball/eab2d5d8fcbd759c4ae109b6060b7d90d4269952",
-                "reference": "eab2d5d8fcbd759c4ae109b6060b7d90d4269952",
-                "shasum": ""
-            },
-            "require": {
-                "michelf/php-markdown": "~1.4",
-                "php": ">=5.4",
-                "symfony/console": "~2.3|~3.0",
-                "symfony/framework-bundle": "~2.3|~3.0",
-                "symfony/twig-bundle": "~2.3|~3.0"
-            },
-            "conflict": {
-                "jms/serializer": "<0.12",
-                "jms/serializer-bundle": "<0.11",
-                "symfony/symfony": "~2.7.8",
-                "twig/twig": "<1.12"
-            },
-            "require-dev": {
-                "doctrine/doctrine-bundle": "~1.5",
-                "doctrine/orm": "~2.3",
-                "dunglas/api-bundle": "~1.0@dev",
-                "friendsofsymfony/rest-bundle": "~1.0|~2.0",
-                "jms/serializer-bundle": ">=0.11",
-                "sensio/framework-extra-bundle": "~3.0",
-                "symfony/browser-kit": "~2.3|~3.0",
-                "symfony/css-selector": "~2.3|~3.0",
-                "symfony/finder": "~2.3|~3.0",
-                "symfony/form": "~2.3|~3.0",
-                "symfony/phpunit-bridge": "~2.7|~3.0",
-                "symfony/serializer": "~2.7|~3.0",
-                "symfony/validator": "~2.3|~3.0",
-                "symfony/yaml": "~2.3|~3.0"
-            },
-            "suggest": {
-                "dunglas/api-bundle": "For making use of resources definitions of DunglasApiBundle.",
-                "friendsofsymfony/rest-bundle": "For making use of REST information in the doc.",
-                "jms/serializer": "For making use of serializer information in the doc.",
-                "symfony/form": "For using form definitions as input.",
-                "symfony/validator": "For making use of validator information in the doc."
-            },
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.13-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Nelmio\\ApiDocBundle": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nelmio",
-                    "homepage": "http://nelm.io"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://github.com/nelmio/NelmioApiDocBundle/contributors"
-                }
-            ],
-            "description": "Generates documentation for your REST API from annotations",
-            "keywords": [
-                "api",
-                "doc",
-                "documentation",
-                "rest"
-            ],
-            "time": "2017-02-19T05:14:31+00:00"
         },
         {
             "name": "nelmio/security-bundle",
@@ -5137,16 +5046,16 @@
         },
         {
             "name": "swiftmailer/swiftmailer",
-            "version": "v5.4.6",
+            "version": "v5.4.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swiftmailer/swiftmailer.git",
-                "reference": "81fdccfaf8bdc5d5d7a1ef6bb3a61bbb1a6c4a3e"
+                "reference": "56db4ed32a6d5c9824c3ecc1d2e538f663f47eb4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/81fdccfaf8bdc5d5d7a1ef6bb3a61bbb1a6c4a3e",
-                "reference": "81fdccfaf8bdc5d5d7a1ef6bb3a61bbb1a6c4a3e",
+                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/56db4ed32a6d5c9824c3ecc1d2e538f663f47eb4",
+                "reference": "56db4ed32a6d5c9824c3ecc1d2e538f663f47eb4",
                 "shasum": ""
             },
             "require": {
@@ -5187,7 +5096,7 @@
                 "mail",
                 "mailer"
             ],
-            "time": "2017-02-13T07:52:53+00:00"
+            "time": "2017-04-20T17:32:18+00:00"
         },
         {
             "name": "symfony/assetic-bundle",
@@ -6075,16 +5984,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.33.1",
+            "version": "v1.33.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "a87f959f4b691da66aada267a2dfdb260d0bb58a"
+                "reference": "dd6ca96227917e1e85b41c7c3cc6507b411e0927"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/a87f959f4b691da66aada267a2dfdb260d0bb58a",
-                "reference": "a87f959f4b691da66aada267a2dfdb260d0bb58a",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/dd6ca96227917e1e85b41c7c3cc6507b411e0927",
+                "reference": "dd6ca96227917e1e85b41c7c3cc6507b411e0927",
                 "shasum": ""
             },
             "require": {
@@ -6133,7 +6042,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2017-04-18T21:43:11+00:00"
+            "time": "2017-04-20T17:39:48+00:00"
         },
         {
             "name": "ua-parser/uap-php",
@@ -9188,6 +9097,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "roave/security-advisories": 20,
+        "activelamp/swagger-ui-bundle": 20,
         "bower-asset/select2-bootstrap-theme": 20,
         "denheck/faker-context": 20
     },

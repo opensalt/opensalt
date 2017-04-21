@@ -3,7 +3,6 @@
 namespace CftfBundle\Controller;
 
 use CftfBundle\Form\Type\LsDocCreateType;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -188,32 +187,6 @@ class LsDocController extends Controller
 
     /**
      * Finds and displays a LsDoc entity.
-     *
-     * @ApiDoc(
-     *   resource=true,
-     *   resourceDescription="Operations on LsDoc",
-     *   description="Get an LsDoc",
-     *   https=true,
-     *   tags={"beta"="#ff0000"},
-     *   section="cftf",
-     *   requirements={
-     *     {
-     *       "name"="id",
-     *       "dataType"="string",
-     *       "description"="Identifier of the LsDoc"
-     *     },
-     *     {
-     *       "name"="_format",
-     *       "dataType"="string",
-     *       "requirement"="json|html|null",
-     *       "description"="Short mime type of output, defaults to json if not provided",
-     *       "default"="json",
-     *       "required"=false
-     *     }
-     *   },
-     *   input="LsDoc",
-     *   output="\CftfBundle\Entity\LsDoc"
-     * )
      *
      * @Route("/{id}/export.{_format}", requirements={"_format"="(json|html|null)"}, defaults={"_format"="json"}, name="lsdoc_export")
      * @Method("GET")
