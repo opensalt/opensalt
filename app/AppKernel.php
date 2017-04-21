@@ -32,7 +32,7 @@ class AppKernel extends Kernel
             new Csa\Bundle\GuzzleBundle\CsaGuzzleBundle(),
 
             new Nelmio\SecurityBundle\NelmioSecurityBundle(),
-            new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
+            new ActiveLAMP\Bundle\SwaggerUIBundle\ALSwaggerUIBundle(),
 
             new CftfBundle\CftfBundle(),
             new Cftf\AsnBundle\CftfAsnBundle(),
