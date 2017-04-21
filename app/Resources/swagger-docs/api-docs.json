@@ -17,32 +17,7 @@
     },
     "basePath" : "/ims/case/v1p0",
     "schemes" : [ "https" ],
-    "tags" : [
-        {
-            "name" : "AssociationsManager",
-            "description" : "The set of service operations that manage access to the Competency Framework Associations. Associations are to establish relationships between definitions from different sources. This interface manages the associations between CFDocuments and between CFItems."
-        },
-        {
-            "name" : "DefinitionsManager",
-            "description" : "The set of service operations that manage access to the Competency Framework Definitions. This interface manages the definitions of the: Competency Framework Concepts, Competency Framework Subjects, Competency Framework Licenses, Competency Framework Item Types and Competency Framework Association Groupings."
-        },
-        {
-            "name" : "DocumentsManager",
-            "description" : "The set of service operations that manage access to the Competency Framework Documents. Documents are the root entry point for the definition of a learning standard. This interface manages the document descriptions only i.e. it does not support the management of Items, Associations, etc."
-        },
-        {
-            "name" : "ItemsManager",
-            "description" : "The set of service operations that manage access to the Competency Framework Items. Items are the containers for the definitions in a learning standard. This interface manages the Item descriptions only i.e. it does not support the management of Associations, etc."
-        },
-        {
-            "name" : "PackagesManager",
-            "description" : "The set of service operations that manage access to the Competency Framework Packages as a whole. A Competency Framework Package is a package that contains all of the arefacts that are used for the defnition of a Competency Framework Document."
-        },
-        {
-            "name" : "RubricsManager",
-            "description" : "The set of service operations that manage access to the Competency Framework Rubrics. Rubrics associate the set of rubric criteria being defined for a specific competency (defined as either a CFItem or a CFDocument)."
-        }
-    ],
+    "tags" : [],
     "paths" : {
         "/CFAssociationGroupings/{sourcedId}" : {
             "get" : {
