@@ -14,7 +14,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Doctrine\ORM\Query;
 use Util\Compare;
 
 /**
@@ -39,10 +38,10 @@ class DocTreeController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
-        // Get all association groups (for all documents); 
+        // Get all association groups (for all documents)
         // we need groups for other documents if/when we show a document on the right side
         $lsDefAssociationGroupings = $em->getRepository('CftfBundle:LsDefAssociationGrouping')->findAll();
-        
+
         // Get a list of all associations and process them...
         $lsAssociations = $em->getRepository('CftfBundle:LsAssociation')->findBy(['lsDoc'=>$lsDoc]);
         $assocItems = array();
@@ -67,7 +66,7 @@ class DocTreeController extends Controller
                 }
             }
         }
-        
+
         // get list of all documents
         $resultlsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
         $lsDocs = [];
