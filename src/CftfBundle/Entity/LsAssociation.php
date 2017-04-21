@@ -584,6 +584,16 @@ class LsAssociation implements CaseApiInterface
     }
 
     /**
+     * Get HumanCodingScheme from DestinationNodeUri
+     *
+     * @return string
+     */
+    public function getHumanCodingSchemeFromDestinationNodeUri()
+    {
+        return base64_decode(explode(',', $this->destinationNodeUri)[1]);
+    }
+
+    /**
      * Set type
      *
      * @param string $type

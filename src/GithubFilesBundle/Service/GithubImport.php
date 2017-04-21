@@ -2,6 +2,7 @@
 
 namespace GithubFilesBundle\Service;
 
+use Ramsey\Uuid\Uuid;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
@@ -196,9 +197,11 @@ class GithubImport
                 $association->setDestinationNodeIdentifier($elementAssociated);
             } elseif (!filter_var($elementAssociated, FILTER_VALIDATE_URL) === false) {
                 $association->setDestinationNodeUri($elementAssociated);
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $elementAssociated));
             } else {
                 $encodedHumanCodingScheme = $this->encodeHumanCodingScheme($elementAssociated);
                 $association->setDestinationNodeUri($encodedHumanCodingScheme);
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $encodedHumanCodingScheme));
             }
         } else {
             $association->setDestination($elementAssociated);
