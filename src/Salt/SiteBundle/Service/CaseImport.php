@@ -53,35 +53,38 @@ class CaseImport
         $em = $this->getEntityManager();
         $lsDoc = new LsDoc();
 
-        $lsDoc->setIdentifier($this->ifExists($fileContent->CFDocument->identifier));
-        $lsDoc->setUri($this->ifExists($fileContent->CFDocument->uri));
-        $lsDoc->setCreator($this->ifExists($fileContent->CFDocument->creator));
-        $lsDoc->setPublisher($this->ifExists($fileContent->CFDocument->publisher));
-        $lsDoc->setTitle($this->ifExists($fileContent->CFDocument->title));
-        $lsDoc->setNote($this->ifExists($fileContent->CFDocument->notes));
-        $lsDoc->setOfficialUri($this->ifExists($fileContent->CFDocument->officialSourceURL));
-        $lsDoc->setVersion($this->ifExists($fileContent->CFDocument->version));
-        $lsDoc->setDescription($this->ifExists($fileContent->CFDocument->description));
-        $lsDoc->setLanguage($this->ifExists($fileContent->CFDocument->language));
+        if (property_exists($fileContent->CFDocument, 'identifier')) $lsDoc->setIdentifier($fileContent->CFDocument->identifier);
+        if (property_exists($fileContent->CFDocument, 'uri')) $lsDoc->setUri($fileContent->CFDocument->uri);
+        if (property_exists($fileContent->CFDocument, 'creator')) $lsDoc->setCreator($fileContent->CFDocument->creator);
+        if (property_exists($fileContent->CFDocument, 'publisher')) $lsDoc->setPublisher($fileContent->CFDocument->publisher);
+        if (property_exists($fileContent->CFDocument, 'title')) $lsDoc->setTitle($fileContent->CFDocument->title);
+        if (property_exists($fileContent->CFDocument, 'notes')) $lsDoc->setNote($fileContent->CFDocument->notes);
+        if (property_exists($fileContent->CFDocument, 'officialSourceURL')) $lsDoc->setOfficialUri($fileContent->CFDocument->officialSourceURL);
+        if (property_exists($fileContent->CFDocument, 'version')) $lsDoc->setVersion($fileContent->CFDocument->version);
+        if (property_exists($fileContent->CFDocument, 'description')) $lsDoc->setDescription($fileContent->CFDocument->description);
+        if (property_exists($fileContent->CFDocument, 'language')) $lsDoc->setLanguage($fileContent->CFDocument->language);
 
         $em->persist($lsDoc);
 
         $cfItems = $fileContent->CFItems;
+        $items = [];
+        $items[$lsDoc->getIdentifier()] = $lsDoc;
         foreach ($cfItems as $cfItem) {
             $lsItem = new LsItem();
 
             $lsItem->setLsDoc($lsDoc);
-            $lsItem->setIdentifier($this->ifExists($cfItem->identifier));
-            $lsItem->setUri($this->ifExists($cfItem->uri));
-            $lsItem->setFullStatement($this->ifExists($cfItem->fullStatement));
-            $lsItem->setListEnumInSource($this->ifExists($cfItem->listEnumeration));
-            $lsItem->setHumanCodingScheme($this->ifExists($cfItem->humanCodingScheme));
-            $lsItem->setAbbreviatedStatement($this->ifExists($cfItem->abbreviatedStatement));
-            $lsItem->setNotes($this->ifExists($cfItem->notes));
-            $lsItem->setEducationalAlignment($this->ifExists($cfItem->educationAlignment));
-            $lsItem->setLanguage($this->ifExists($cfItem->language));
+            if (property_exists($cfItem, 'identifier')) $lsItem->setIdentifier($cfItem->identifier);
+            if (property_exists($cfItem, 'uri')) $lsItem->setUri($cfItem->uri);
+            if (property_exists($cfItem, 'fullStatement')) $lsItem->setFullStatement($cfItem->fullStatement);
+            if (property_exists($cfItem, 'listEnumeration')) $lsItem->setListEnumInSource($cfItem->listEnumeration);
+            if (property_exists($cfItem, 'humanCodingScheme')) $lsItem->setHumanCodingScheme($cfItem->humanCodingScheme);
+            if (property_exists($cfItem, 'abbreviatedStatement')) $lsItem->setAbbreviatedStatement($cfItem->abbreviatedStatement);
+            if (property_exists($cfItem, 'notes')) $lsItem->setNotes($cfItem->notes);
+            if (property_exists($cfItem, 'educationAlignment')) $lsItem->setEducationalAlignment($cfItem->educationAlignment);
+            if (property_exists($cfItem, 'language')) $lsItem->setLanguage($cfItem->language);
 
             $em->persist($lsItem);
+            $items[$cfItem->identifier] = $lsItem;
         }
 
         $cfAssociations = $fileContent->CFAssociations;
@@ -89,29 +92,35 @@ class CaseImport
             $lsAssociation = new LsAssociation();
 
             $lsAssociation->setLsDoc($lsDoc);
-            $lsAssociation->setIdentifier($this->ifExists($cfAssociation->identifier));
-            $lsAssociation->setUri($this->ifExists($cfAssociation->uri));
-            $lsAssociation->setType($this->ifExists($cfAssociation->associationType));
-            $lsAssociation->setGroupName($this->ifExists($cfAssociation->groupName));
+            if (property_exists($cfAssociation, 'identifier')) $lsAssociation->setIdentifier($cfAssociation->identifier);
+            if (property_exists($cfAssociation, 'uri')) $lsAssociation->setUri($cfAssociation->uri);
+            if (property_exists($cfAssociation, 'associationType')) {
+                $associationType = ucfirst(preg_replace('/([A-Z])/', ' $1', $cfAssociation->associationType));
+                if (in_array($associationType, LsAssociation::allTypes())) $lsAssociation->setType($associationType);
+            }
+            if (property_exists($cfAssociation, 'groupName')) $lsAssociation->setGroupName($cfAssociation->groupName);
 
-            if ($this->ifExists($cfAssociation->originNodeURI) && is_object($cfAssociation->originNodeURI)) {
-                $lsAssociation->setOriginNodeUri($cfAssociation->destinationNodeURI->uri);
-                $lsAssociation->setOriginNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
+            if (property_exists($cfAssociation, 'originNodeURI') && is_object($cfAssociation->originNodeURI)) {
+                if (array_key_exists($cfAssociation->originNodeURI->identifier, $items)) {
+                    $lsAssociation->setOrigin($items[$cfAssociation->originNodeURI->identifier]);
+                } else {
+                    $lsAssociation->setOriginNodeUri($cfAssociation->destinationNodeURI->uri);
+                    $lsAssociation->setOriginNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
+                }
             }
 
-            if ($this->ifExists($cfAssociation->destinationNodeURI) && is_object($cfAssociation->destinationNodeURI)) {
-                $lsAssociation->setDestinationNodeUri($cfAssociation->destinationNodeURI->uri);
-                $lsAssociation->setDestinationNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
+            if (property_exists($cfAssociation, 'destinationNodeURI') && is_object($cfAssociation->destinationNodeURI)) {
+                if (array_key_exists($cfAssociation->destinationNodeURI->identifier, $items)) {
+                    $lsAssociation->setDestination($items[$cfAssociation->destinationNodeURI->identifier]);
+                } else {
+                    $lsAssociation->setDestinationNodeUri($cfAssociation->destinationNodeURI->uri);
+                    $lsAssociation->setDestinationNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
+                }
             }
 
             $em->persist($lsAssociation);
         }
 
         $em->flush();
-    }
-
-    public function ifExists($data)
-    {
-        return isset($data) ? $data : '';
     }
 }
