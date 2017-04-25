@@ -5,11 +5,12 @@ namespace CftfBundle\Controller;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
+use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Form\Command\ChangeLsItemParentCommand;
 use CftfBundle\Form\Command\CopyToLsDocCommand;
-use CftfBundle\Form\LsDocListType;
-use CftfBundle\Form\LsItemParentType;
-use CftfBundle\Form\LsItemType;
+use CftfBundle\Form\Type\LsDocListType;
+use CftfBundle\Form\Type\LsItemParentType;
+use CftfBundle\Form\Type\LsItemType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -22,7 +23,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * LsItem controller.
  *
- * @Route("/lsitem")
+ * @Route("/cfitem")
  */
 class LsItemController extends Controller
 {
@@ -32,6 +33,8 @@ class LsItemController extends Controller
      * @Route("/", name="lsitem_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -48,16 +51,21 @@ class LsItemController extends Controller
      * Creates a new LsItem entity.
      *
      * @Route("/new/{doc}/{parent}", name="lsitem_new")
+     * @Route("/new/{doc}/{parent}/{assocGroup}", name="lsitem_new_ag")
      * @Method({"GET", "POST"})
      * @Template()
      * @Security("is_granted('add-standard-to', doc)")
+     *
+     * @param Request $request
+     * @param LsDoc|null $doc
+     * @param LsItem|null $parent
+     * @param LsDefAssociationGrouping|null $assocGroup
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function newAction(Request $request, LsDoc $doc = null, LsItem $parent = null)
+    public function newAction(Request $request, LsDoc $doc = null, LsItem $parent = null, LsDefAssociationGrouping $assocGroup = null)
     {
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+        $ajax = $request->isXmlHttpRequest();
 
         $lsItem = new LsItem();
 
@@ -66,9 +74,9 @@ class LsItemController extends Controller
             $lsItem->setLsDocUri($doc->getUri());
 
             if ($parent) {
-                $parent->addChild($lsItem);
+                $parent->addChild($lsItem, $assocGroup);
             } else {
-                $doc->addTopLsItem($lsItem);
+                $doc->addTopLsItem($lsItem, $assocGroup);
             }
         }
 
@@ -82,7 +90,7 @@ class LsItemController extends Controller
             $em->flush();
 
             if ($ajax) {
-                return new Response($this->generateUrl('editor_lsitem', ['id' => $lsItem->getId()]), Response::HTTP_CREATED);
+                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_CREATED);
             }
 
             return $this->redirectToRoute('lsitem_show', array('id' => $lsItem->getId()));
@@ -106,6 +114,11 @@ class LsItemController extends Controller
      * @Route("/{id}.{_format}", defaults={"_format"="html"}, name="lsitem_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsItem $lsItem
+     * @param string $_format
+     *
+     * @return array
      */
     public function showAction(LsItem $lsItem, $_format = 'html')
     {
@@ -129,13 +142,15 @@ class LsItemController extends Controller
      * @Method({"GET", "POST"})
      * @Template()
      * @Security("is_granted('edit', lsItem)")
+     *
+     * @param Request $request
+     * @param LsItem $lsItem
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function editAction(Request $request, LsItem $lsItem)
     {
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+        $ajax = $request->isXmlHttpRequest();
 
         $deleteForm = $this->createDeleteForm($lsItem);
         $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
@@ -148,7 +163,7 @@ class LsItemController extends Controller
             $em->flush();
 
             if ($ajax) {
-                return new Response($this->generateUrl('editor_lsitem', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
+                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
             }
 
             return $this->redirectToRoute('lsitem_edit', ['id' => $lsItem->getId()]);
@@ -173,6 +188,11 @@ class LsItemController extends Controller
      * @Route("/{id}", name="lsitem_delete")
      * @Method("DELETE")
      * @Security("is_granted('edit', lsItem)")
+     *
+     * @param Request $request
+     * @param LsItem $lsItem
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsItem $lsItem)
     {
@@ -213,6 +233,10 @@ class LsItemController extends Controller
      * @Route("/{id}/export", defaults={"_format"="json"}, name="lsitem_export")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsItem $lsItem
+     *
+     * @return array
      */
     public function exportAction(LsItem $lsItem)
     {
@@ -250,19 +274,18 @@ class LsItemController extends Controller
      * @Method({"GET", "POST"})
      * @Template()
      *
-     * @param \CftfBundle\Entity\LsItem $lsItem
+     * @param Request $request
+     * @param LsItem $lsItem
      *
-     * @return array|Response
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function copyAction(Request $request, LsItem $lsItem)
     {
         // Steps
         //  - Select LsDoc to copy to
         //  - Clone LsItem to selected LsDoc
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+
+        $ajax = $request->isXmlHttpRequest();
 
         $command = new CopyToLsDocCommand();
         $form = $this->createForm(LsDocListType::class, $command->convertToDTO($lsItem), ['ajax' => $ajax]);
@@ -275,10 +298,10 @@ class LsItemController extends Controller
 
             if ($ajax) {
                 return new Response(
-                    $this->generateUrl('editor_lsitem', ['id' => $newItem->getId()]),
+                    $this->generateUrl('doc_tree_item_view', ['id' => $newItem->getId()]),
                     Response::HTTP_CREATED,
                     [
-                        'Location' => $this->generateUrl('editor_lsitem', ['id' => $newItem->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                        'Location' => $this->generateUrl('doc_tree_item_view', ['id' => $newItem->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                     ]
                 );
             }
@@ -303,13 +326,15 @@ class LsItemController extends Controller
      * @Route("/{id}/parent", name="lsitem_change_parent")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsItem $lsItem
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function changeParentAction(Request $request, LsItem $lsItem)
     {
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+        $ajax = $request->isXmlHttpRequest();
 
         $lsDoc = $lsItem->getLsDoc();
 
@@ -323,7 +348,7 @@ class LsItemController extends Controller
             $em->flush();
 
             if ($ajax) {
-                return new Response($this->generateUrl('editor_lsitem', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
+                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
             }
 
             return $this->redirectToRoute('lsitem_edit', ['id' => $lsItem->getId()]);

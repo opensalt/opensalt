@@ -19,23 +19,17 @@ class OrgAddCommand extends ContainerAwareCommand
         ;
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output) {
+    protected function interact(InputInterface $input, OutputInterface $output)
+    {
         parent::interact($input, $output);
 
         $helper = $this->getHelper('question');
 
-        $em = $this->getContainer()->get('doctrine')->getManager();
-        if (!empty($input->getArgument('org'))) {
-            $org = $em->getRepository('SaltUserBundle:Organization')->findOneByName($input->getArgument('org'));
-            if (!empty($org)) {
-                $output->writeln('<error>Organization name already exists</error>');
-                exit(1);
-            }
-        }
         if (empty($input->getArgument('org'))) {
+            $em = $this->getContainer()->get('doctrine')->getManager();
             $question = new Question('New organization name: ');
             $question->setValidator(function ($value) use ($em) {
-                if (trim($value) == '') {
+                if (trim($value) === '') {
                     throw new \Exception('The organization name must note be empty');
                 }
 
@@ -57,11 +51,12 @@ class OrgAddCommand extends ContainerAwareCommand
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $orgRepository = $em->getRepository('SaltUserBundle:Organization');
-        $orgObj = $orgRepository->findOneByName($org);
 
+        $orgObj = $orgRepository->findOneByName($org);
         if (!empty($orgObj)) {
             $output->writeln(sprintf('<error>Organization "%s" aleady exists.</error>', $org));
-            exit(1);
+
+            return 1;
         }
 
         $orgRepository->addNewOrganization($org);

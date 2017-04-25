@@ -54,15 +54,15 @@
                     <div class="text-center">
                         <ul class="list-inline">
                             <li>
-                                <a href="{{ path('cfpackage_export2', {'id':lsDoc.id}) }}" class="btn btn-default">Export</a>
+                                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportModal">Export</button>
                             </li>
-                            {% if lsDoc.canEdit and is_granted('edit', lsDoc) %}
-                            <li>
-                                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editModal">Edit</button>
-                            </li>
-                            <li>
-                                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addChildModal">Add Learning Standard</button>
-                            </li>
+                            {% if is_granted('edit', lsDoc) %}
+                                <li>
+                                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editModal">Edit</button>
+                                </li>
+                                <li>
+                                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addChildModal">Add Learning Standard</button>
+                                </li>
                             {% endif %}
                             {% if is_granted('manage_editors', lsDoc) %}
                                 <li>
@@ -94,6 +94,18 @@
 
 
     {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+        'modalName':'export',
+        'modalTitle':'Export Document',
+        'closeButton': 'Done'
+    } %}
+        {% block modalButtons %}{% endblock %}
+        {% block modalBody %}
+            {% embed 'CftfBundle:LsDoc:_exportComponent.html.twig' with {'view':'editor'} %}
+            {% endembed %}
+        {% endblock %}
+    {% endembed %}
+
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
         'modalName':'edit',
         'modalTitle':'Edit Document',
         'saveButton': 'Save Changes'
@@ -109,13 +121,17 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script src="{{ asset('bundles/tetranzselect2entity/js/select2entity.js') }}"></script>
     <script>
         window.app = window.app||{};
         app.lsDocId = {{ lsDoc.id }};
         app.path = app.path||{};
         app.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
         app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
+
+        function prepareExportModal(){
+            var $exportModal = $('#exportModal');
+            $('[data-toggle="popover"]').popover();
+        }
 
         function prepareEditModal(){
             var $editModal = $('#editModal');
@@ -193,6 +209,7 @@
         }
 
         $(document).ready(function(){
+            prepareExportModal();
             prepareEditModal();
             prepareAddChildModal();
         });

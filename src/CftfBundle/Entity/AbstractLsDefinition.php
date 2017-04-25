@@ -3,11 +3,14 @@
 namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * AbstractLsDefinition
  *
  * @ORM\MappedSuperclass()
+ *
+ * @Serializer\ExclusionPolicy("all")
  */
 class AbstractLsDefinition extends AbstractLsBase
 {
@@ -15,6 +18,8 @@ class AbstractLsDefinition extends AbstractLsBase
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Expose()
      */
     private $title;
 
@@ -22,6 +27,8 @@ class AbstractLsDefinition extends AbstractLsBase
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
+     *
+     * @Serializer\Expose()
      */
     private $description;
 

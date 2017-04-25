@@ -1,3 +1,48 @@
+// use flex to force the footer to go to the bottom of the page
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main.content {
+    flex: 1;
+}
+
+header .navbar-default {
+    border-width:0px;
+    background-color:#78C9E9;
+}
+
+.navbar-brand {
+    padding:5px;
+    background-color:#fff;
+    border-radius:4px;
+    margin:10px 15px 10px -5px !important;
+    height:inherit;
+}
+
+.navbar-brand img {
+    height:60px;
+}
+
+footer .navbar-default {
+    border-radius:4px 4px 0 0;
+    border-width: 0;
+    min-height: auto;
+    margin-bottom:0px;
+    background-color:#78C9E9;
+}
+
+.navbar-default .navbar-nav > li > a, .navbar-default .navbar-nav > li > a:hover {
+    color:#fff;
+}
+
+footer .navbar-nav > li > a {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
 label.required:before {
     content: '*';
     color: red;
@@ -23,4 +68,9 @@ table.tree {
 
 .list-group-item {
     word-wrap: break-word;
+}
+
+.modal-body.fields-body-framework {
+    max-height: 400px;
+    overflow-y: auto;
 }

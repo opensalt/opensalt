@@ -14,6 +14,14 @@ class LsAssociationRepository extends EntityRepository
 {
     public function removeAssociation(LsAssociation $lsAssociation) {
         $this->_em->remove($lsAssociation);
+        $origin = $lsAssociation->getOrigin();
+        if (is_object($origin)) {
+            $origin->removeAssociation($lsAssociation);
+        }
+        $dest = $lsAssociation->getDestination();
+        if (is_object($dest)) {
+            $dest->removeInverseAssociation($lsAssociation);
+        }
     }
 
     /**
@@ -42,5 +50,23 @@ class LsAssociationRepository extends EntityRepository
                 $this->removeAssociation($association);
             }
         }
+    }
+
+    public function findAllAssociationsFor($id)
+    {
+        $item = $this->getEntityManager()->getRepository(LsItem::class)
+            ->findOneBy(['identifier' => str_replace('_', '', $id)]);
+
+        if (null === $item) {
+            return null;
+        }
+
+        $qry = $this->createQueryBuilder('a')
+            ->where('a.originLsItem = :id')
+            ->orWhere('a.destinationLsItem = :id')
+            ->setParameter('id', $item->getId())
+            ->getQuery();
+
+        return $qry->getResult();
     }
 }

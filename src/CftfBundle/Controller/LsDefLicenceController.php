@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Controller;
 
+use CftfBundle\Form\Type\LsDefLicenceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -12,7 +13,7 @@ use CftfBundle\Entity\LsDefLicence;
 /**
  * LsDefLicence controller.
  *
- * @Route("/lsdef/licence")
+ * @Route("/cfdef/licence")
  */
 class LsDefLicenceController extends Controller
 {
@@ -22,6 +23,8 @@ class LsDefLicenceController extends Controller
      * @Route("/", name="lsdef_licence_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -40,11 +43,15 @@ class LsDefLicenceController extends Controller
      * @Route("/new", name="lsdef_licence_new")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
     {
         $lsDefLicence = new LsDefLicence();
-        $form = $this->createForm('CftfBundle\Form\LsDefLicenceType', $lsDefLicence);
+        $form = $this->createForm(LsDefLicenceType::class, $lsDefLicence);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -67,6 +74,10 @@ class LsDefLicenceController extends Controller
      * @Route("/{id}", name="lsdef_licence_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsDefLicence $lsDefLicence
+     *
+     * @return array
      */
     public function showAction(LsDefLicence $lsDefLicence)
     {
@@ -84,11 +95,16 @@ class LsDefLicenceController extends Controller
      * @Route("/{id}/edit", name="lsdef_licence_edit")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsDefLicence $lsDefLicence
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function editAction(Request $request, LsDefLicence $lsDefLicence)
     {
         $deleteForm = $this->createDeleteForm($lsDefLicence);
-        $editForm = $this->createForm('CftfBundle\Form\LsDefLicenceType', $lsDefLicence);
+        $editForm = $this->createForm(LsDefLicenceType::class, $lsDefLicence);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -111,6 +127,11 @@ class LsDefLicenceController extends Controller
      *
      * @Route("/{id}", name="lsdef_licence_delete")
      * @Method("DELETE")
+     *
+     * @param Request $request
+     * @param LsDefLicence $lsDefLicence
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsDefLicence $lsDefLicence)
     {

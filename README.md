@@ -1,7 +1,7 @@
 Standards Alignment Tool (SALT)
 ===============================
 
-Develop branch status: [![Build Status](https://travis-ci.org/opensalt/opensalt.svg?branch=develop)](https://travis-ci.org/opensalt/opensalt) [![StyleCI](https://styleci.io/repos/72233269/shield?style=flat&branch=develop)](https://styleci.io/repos/72233269)
+[![Latest Stable Version](https://poser.pugx.org/opensalt/opensalt/v/stable)](https://github.com/opensalt/opensalt) [![Build Status](https://travis-ci.org/opensalt/opensalt.svg?branch=develop)](https://travis-ci.org/opensalt/opensalt) [![StyleCI](https://styleci.io/repos/72233269/shield?style=flat&branch=develop)](https://styleci.io/repos/72233269) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/opensalt/opensalt/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/opensalt/opensalt/?branch=develop) [![SensioLabsInsight](https://insight.sensiolabs.com/projects/e4aee568-15d9-4d97-944f-fb742bb9e885/mini.png)](https://insight.sensiolabs.com/projects/e4aee568-15d9-4d97-944f-fb742bb9e885)
 
 
 Overview
@@ -31,7 +31,7 @@ Installation
 
 2. Create env file
   ```
-  cp docker/.env.dist to docker/.env
+  cp docker/.env.dist docker/.env
   ```
 
 3. Install components with composer
@@ -69,3 +69,4 @@ Other Docs
 ----------
 
 - [User Management Commands](./src/Salt/UserBundle/Resources/doc/Commands.md)
+- [Github Authentication Config](./src/GithubFilesBundle/Resources/doc/GithubAuth.md)

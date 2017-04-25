@@ -1,0 +1,121 @@
+<div class="lsItemDetails">
+    <ul class="list-group lsItemDetailsMain">
+        {# we don't show abbreviatedStatement because it would be in the title if it's there #}
+        {# split into info that's always shown and info that's hidden at first #}
+        {% for field, name in {
+            'fullStatement': 'Full Statement',
+            'conceptKeywords': 'Concept Keywords',
+            'educationalAlignment': 'Education Level',
+            'type': 'Type',
+            'notes': 'Notes'
+        } %}
+            {% if attribute(lsItem, field) is not empty %}
+                {% if field != 'fullStatement' or lsItem.abbreviatedStatement is not empty %}
+                    <li class="list-group-item">
+                        <strong>{{ name }}:</strong>
+                        {% set value = attribute(lsItem, field) %}
+                        {% if value.timestamp is defined and value.timezone is defined %}
+                            {{ value|date("m/d/Y H:i") }}
+                        {% elseif field == 'uri'%}
+                            <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                        {% elseif field == 'lsDocUri'%}
+                            <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif %}
+                    </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% for field, name in {
+            'uri': 'Statement URL',
+            'listEnumInSource': 'List Enumeration in Source',
+            'conceptKeywordsUri': 'Concept Keywords URI',
+            'language': 'Language',
+            'licenceUri': 'Licence URI',
+            'changedAt': 'Last Changed'
+        } %}
+            {% if attribute(lsItem, field) is not empty %}
+                <li class="list-group-item lsItemDetailsExtras">
+                    <strong>{{ name }}:</strong>
+                    <span data-field-name='{{ field }}'>
+                        {% set value = attribute(lsItem, field) %}
+                        {% if value.timestamp is defined and value.timezone is defined %}
+                            {{ value|date("m/d/Y H:i") }}
+                        {% elseif field == 'uri' %}
+                            <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                        {% elseif field == 'lsDocUri' %}
+                            <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif %}
+                    </span>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    <div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
+
+    {% if is_granted('edit', lsItem) or is_granted('edit', lsItem.lsDoc) %}
+    <div class="itemOptions">
+        {% if is_granted('edit', lsItem) %}
+            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal">Edit</button>
+            <button type="button" id="deleteItemBtn" class="btn btn-default btn-sm" data-toggle="modal">Delete</button>
+        {% endif %}
+        {# TODO: How do we "find aligned resources"
+        <button type="button" class="btn btn-default btn-sm" disabled="disabled">Find Aligned Resources</button>
+        #}
+
+        {% if is_granted('edit', lsItem.lsDoc) %}
+            <button type="button" id="toggleFolderBtn" class="btn btn-default btn-sm" data-toggle="modal">Make This Item a Parent</button>
+            <button type="button" id="addChildBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">Add a New Child Item</button>
+            <button type="button" id="addExemplarBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addExemplarModal">Add an Exemplar</button>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+<div class="lsItemAssociations">
+    {% for group, list in lsItem.groupedAssociations if list is not empty %}
+        {# PW: don't show child of/parent of associations here, since you see that in the tree #}
+        {% if (group is not constant('CftfBundle\\Entity\\LsAssociation::CHILD_OF')) and (group is not constant('CftfBundle\\Entity\\LsAssociation::INVERSE_CHILD_OF')) %}
+            {% embed 'CftfBundle:DocTree:_lsAssociationComponent.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
+                {% block start_of_item_a %}
+                    {% if is_granted('edit', lsItem.lsDoc) %}
+                        <span class="pull-right">
+                            <span role="button" class="btn btn-xs btn-default btn-remove-association">Remove</span>
+                        </span>
+                    {% endif %}
+                {% endblock %}
+            {% endembed %}
+        {% else %}
+            {# Show children/parents in the list if from another document #}
+            {% set filteredList = [] %}
+            {% for assoc in list %}
+                {% if assoc.originLsItem is defined and assoc.originLsItem is not null and assoc.originLsItem.lsDoc != lsItem.lsDoc %}
+                    {% set filteredList = filteredList|merge([assoc]) %}
+                {% endif %}
+                {% if assoc.destinationLsItem is defined and assoc.destinationLsItem is not null and assoc.destinationLsItem.lsDoc != lsItem.lsDoc %}
+                    {% set filteredList = filteredList|merge([assoc]) %}
+                {% endif %}
+                {% if assoc.originLsDoc is defined and assoc.originLsDoc is not null and assoc.originLsDoc != lsItem.lsDoc %}
+                    {% set filteredList = filteredList|merge([assoc]) %}
+                {% endif %}
+                {% if assoc.destinationLsDoc is defined and assoc.destinationLsDoc is not null and assoc.destinationLsDoc != lsItem.lsDoc %}
+                    {% set filteredList = filteredList|merge([assoc]) %}
+                {% endif %}
+            {% endfor %}
+            {% if filteredList is not empty %}
+                {% embed 'CftfBundle:DocTree:_lsAssociationComponent.html.twig' with {'title':group, 'items':filteredList, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
+                    {% block start_of_item_a %}
+                        {% if is_granted('edit', lsItem.lsDoc) %}
+                            <span class="pull-right">
+                                <span role="button" class="btn btn-xs btn-default btn-remove-association">Remove</span>
+                            </span>
+                        {% endif %}
+                    {% endblock %}
+                {% endembed %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+</div>

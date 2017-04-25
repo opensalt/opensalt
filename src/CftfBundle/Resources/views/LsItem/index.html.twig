@@ -18,7 +18,7 @@
         <tbody>
         {% for lsItem in lsItems %}
             <tr>
-                <td><a href="{{ path('editor_lsitem', { 'id': lsItem.id }) }}">{{ lsItem.uri|local_uri }}</a></td>
+                <td><a href="{{ path('doc_tree_item_view', { 'id': lsItem.id }) }}">{{ lsItem.uri|local_uri }}</a></td>
                 <td>{{ lsItem.lsDocUri }}</td>
                 <td>{{ lsItem.humanCodingScheme }}</td>
                 <td>{% if lsItem.abbreviatedStatement is empty %}
@@ -32,7 +32,7 @@
                 <td>
                     <ul class="list-inline">
                         <li>
-                            <a class="btn btn-primary" href="{{ path('editor_lsitem', { 'id': lsItem.id }) }}">show</a>
+                            <a class="btn btn-primary" href="{{ path('doc_tree_item_view', { 'id': lsItem.id }) }}">show</a>
                         </li>
                         <li>
                             <a class="btn btn-default" href="{{ path('lsitem_edit', { 'id': lsItem.id }) }}">edit</a>

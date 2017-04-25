@@ -48,8 +48,9 @@ security:
                 login_path: login
                 check_path: login
                 csrf_token_generator: security.csrf.token_manager
-                require_previous_session: false
                 default_target_path: cftf_index
+                always_use_default_target_path: false
+                use_referer: true
 
             logout:
                 path: /logout

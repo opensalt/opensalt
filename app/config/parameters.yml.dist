@@ -19,8 +19,9 @@ parameters:
     secret:            ThisTokenIsNotSoSecretSoChangeIt
     cookie_secret:     ThisTokenIsNotSoSecretChangeIt
 
-    secure_cookie: true
-
     local_uri_host: http://localhost:3000/
-    github_client_id: ~
-    github_client_secret: ~
+    env(GITHUB_CLIENT_ID): ~
+    env(GITHUB_CLIENT_SECRET): ~
+
+    env(BRAND_LOGO_URL): ~
+    env(BRAND_LINK_URL): ~

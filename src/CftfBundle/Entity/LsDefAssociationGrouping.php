@@ -3,44 +3,45 @@
 namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * LsDefAssociationGrouping
  *
  * @ORM\Table(name="ls_def_association_grouping")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsDefAssociationGroupingRepository")
+ *
+ * @Serializer\ExclusionPolicy("all")
  */
-class LsDefAssociationGrouping extends AbstractLsDefinition
+class LsDefAssociationGrouping extends AbstractLsDefinition implements CaseApiInterface
 {
     /**
-     * @var string
+     * @var LsDoc
      *
-     * @ORM\Column(name="name", type="string", length=255)
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="associationGroupings")
+     *
+     * @Assert\NotNull()
      */
-    private $name;
-
+    private $lsDoc;
 
     /**
-     * Set name
-     *
-     * @param string $name
-     *
-     * @return LsDefAssociationGrouping
+     * @return LsDoc
      */
-    public function setName($name)
+    public function getLsDoc(): ?LsDoc
     {
-        $this->name = $name;
-
-        return $this;
+        return $this->lsDoc;
     }
 
     /**
-     * Get name
+     * @param LsDoc $lsDoc
      *
-     * @return string
+     * @return LsDefAssociationGrouping
      */
-    public function getName()
+    public function setLsDoc(?LsDoc $lsDoc)
     {
-        return $this->name;
+        $this->lsDoc = $lsDoc;
+
+        return $this;
     }
 }

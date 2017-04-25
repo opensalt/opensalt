@@ -3,19 +3,25 @@
 namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * LsDefSubject
  *
  * @ORM\Table(name="ls_def_subject")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsDefSubjectRepository")
+ *
+ * @Serializer\ExclusionPolicy("all")
  */
-class LsDefSubject extends AbstractLsDefinition
+class LsDefSubject extends AbstractLsDefinition implements CaseApiInterface
 {
     /**
      * @var string
      *
      * @ORM\Column(name="hierarchy_code", type="string", length=255)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("hierarchyCode")
      */
     private $hierarchyCode;
 

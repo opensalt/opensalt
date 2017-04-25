@@ -35,6 +35,6 @@ cd ..
 ./bin/console-docker assets:install web --symlink --relative
 
 # Add an initial super user
-./bin/console-docker salt:user:add admin --password=secret --role=super-user
+./bin/console-docker salt:user:add admin Unknown --password=secret --role=super-user
 
 echo 'You should now be able to connect to http://127.0.0.1:3000'

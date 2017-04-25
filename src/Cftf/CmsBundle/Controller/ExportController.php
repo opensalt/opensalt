@@ -16,7 +16,7 @@ class ExportController extends Controller
     /**
      * Generate JSON formatted for export to CMS
      *
-     * @Route("/lsdoc/{id}.{_format}", name="lsdoc_api_view", requirements={"id"="\d+"})
+     * @Route("/cfdoc/{id}.{_format}", name="lsdoc_api_view", requirements={"id"="\d+"})
      * @Method({"GET"})
      * @Template()
      *

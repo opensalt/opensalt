@@ -1,15 +1,20 @@
-{% extends 'base.html.twig' %}
+{% extends '::layout.html.twig' %}
 
 {% block body %}
+    {% if not app.request.xmlHttpRequest %}
     <h1>LsDefAssociationGrouping edit</h1>
+    {% endif %}
 
     {{ form_start(edit_form) }}
         {{ form_widget(edit_form) }}
+        {% if not app.request.xmlHttpRequest %}
         <p class="text-right">
             <input class="btn btn-primary" type="submit" value="Save Changes" />
         </p>
+        {% endif %}
     {{ form_end(edit_form) }}
 
+    {% if not app.request.xmlHttpRequest %}
     <ul class="list-inline text-right">
         <li>
             <a class="btn btn-default" href="{{ path('lsdef_association_grouping_index') }}">Back to the list</a>
@@ -20,4 +25,5 @@
             {{ form_end(delete_form) }}
         </li>
     </ul>
+    {% endif %}
 {% endblock %}

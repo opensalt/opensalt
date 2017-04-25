@@ -4,12 +4,15 @@ namespace Cftf\AsnBundle\Service;
 
 use Cftf\AsnBundle\Entity\AsnDocument;
 use Cftf\AsnBundle\Entity\AsnStandard;
+use Cftf\AsnBundle\Entity\AsnValue;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefItemType;
 use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
+use GuzzleHttp\ClientInterface;
 use JMS\DiExtraBundle\Annotation as DI;
 use Ramsey\Uuid\Uuid;
 
@@ -25,9 +28,7 @@ class AsnImport
      */
     private $em;
 
-    /**
-     * @var \GuzzleHttp\Client
-     */
+    /** @var ClientInterface */
     private $jsonClient;
 
     /**
@@ -35,11 +36,13 @@ class AsnImport
      *
      * @DI\InjectParams({
      *     "em" = @DI\Inject("doctrine.orm.entity_manager"),
+     *     "jsonClient" = @DI\Inject("csa_guzzle.client.json"),
      * })
      */
-    public function __construct(EntityManager $em)
+    public function __construct(EntityManager $em, $jsonClient)
     {
         $this->em = $em;
+        $this->jsonClient = $jsonClient;
     }
 
     /**
@@ -54,13 +57,15 @@ class AsnImport
      * Parse an ASN document into a LsDoc/LsItem hierarchy
      *
      * @param string $asnDoc
+     * @param string|null $creator
      */
-    public function parseAsnDocument($asnDoc) {
+    public function parseAsnDocument($asnDoc, $creator = null)
+    {
         $em = $this->getEntityManager();
 
         $doc = AsnDocument::fromJson($asnDoc);
 
-        $md = $doc->getMetadata();
+        // Ignoring doc metadata that might be provided
         $sd = $doc->getStandardDocument();
         $lsDoc = new LsDoc();
 
@@ -68,13 +73,11 @@ class AsnImport
         $lsDoc->setIdentifier($lsDocIdentifier);
         $lsDoc->setUri('local:'.$lsDocIdentifier);
 
-        $map = [ // LsDoc from AsnStandardDocument
-            //'identifier' => 'identifier',
-            //'uri' => 'identifier',
+        $map = [
+            // LsDoc field from AsnStandardDocument field
             'title' => 'title',
             'note' => 'description',
             'officialUri' => 'source',
-            //'subjectUri' => 'subject',
             'creator' => 'publisher',
         ];
         foreach ($map as $ldProp => $sdProp) {
@@ -89,14 +92,15 @@ class AsnImport
 
         if ($subjects = $sd->getSubject()) {
             foreach ($subjects as $sdSubject) {
+                // Note: We could also get more information about the subject at the URL provided
                 $subject = ucfirst(preg_replace('#.*/#', '', $sdSubject->getValue()));
 
                 $s = $em->getRepository('CftfBundle:LsDefSubject')->findOneBy(['title' => $subject]);
-                if (NULL === $s) {
-                    $uuid = Uuid::uuid5(Uuid::fromString('cacee394-85b7-11e6-9d43-005056a32dda'), $subject);
+                if (null === $s) {
+                    $uuid = Uuid::uuid5('cacee394-85b7-11e6-9d43-005056a32dda', $subject)->toString();
                     $s = new LsDefSubject();
                     $s->setIdentifier($uuid);
-                    $s->setUri('local:'.$uuid->toString());
+                    $s->setUri('local:'.$uuid);
                     $s->setTitle($subject);
                     $s->setHierarchyCode('1');
 
@@ -108,30 +112,11 @@ class AsnImport
                 $lsDoc->addSubject($s);
             }
         }
-//        if ($subject = $sd->getSubject()) {
-//            $subjectResponse = $this->jsonClient->request(
-//                'GET', $subject->first()->value . '.json', [
-//                    'timeout' => 60,
-//                    'headers' => [
-//                        'Accept' => 'application/json',
-//                    ],
-//                    'http_errors' => false,
-//                ]
-//            );
-//
-//            if ($subjectResponse->getStatusCode() === 200) {
-//                $subjectArray = json_decode($subjectResponse->getBody()->getContents());
-//                if (array_key_exists($subject->first()->value, $subjectArray)) {
-//                    $subjectArray = $subjectArray[$subject->first()->value];
-//                    if (array_key_exists('http://www.w3.org/2004/02/skos/core#prefLabel', $subjectArray)) {
-//
-//                    }
-//                }
-//            }
-//        }
 
         if (!$lsDoc->getCreator()) {
-            $lsDoc->setCreator('Imported from ASN');
+            $lsDoc->setCreator($creator ?: 'Imported from ASN');
+        } elseif (null !== $creator) {
+            $lsDoc->setCreator($creator.' - '.$lsDoc->getCreator());
         }
 
         $em->persist($lsDoc);
@@ -163,7 +148,8 @@ class AsnImport
      *
      * @return LsItem
      */
-    public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard) {
+    public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard)
+    {
         $em = $this->getEntityManager();
         $lsItem = new LsItem();
         $lsItem->setIdentifier(null);
@@ -175,9 +161,8 @@ class AsnImport
 
         $em->persist($lsItem);
 
-        $map = [ // LsItem from AsnStandard
-            //'uri' => 'identifier',
-            //'identifier' => 'identifier',
+        $map = [
+            // LsItem field from AsnStandard field
             'fullStatement' => 'description',
             'humanCodingScheme' => 'statementNotation',
             'listEnumInSource' => 'listID',
@@ -197,15 +182,10 @@ class AsnImport
             $label = $asnStandard->statementLabel->first()->value;
 
             $itemType = $em->getRepository('CftfBundle:LsDefItemType')
-                ->findOneBy(['title'=>$label])
+                ->findOneBy(['title' => $label])
             ;
             if (null === $itemType) {
-                $itemType = new LsDefItemType();
-                $itemType->setTitle($label);
-                $itemType->setCode($label);
-                $itemType->setHierarchyCode('1');
-                $em->persist($itemType);
-                $em->flush($itemType);
+                $itemType = $this->addItemType($label);
             }
 
             $lsItem->setItemType($itemType);
@@ -219,47 +199,16 @@ class AsnImport
         }
 
         if ($asnStandard->educationLevel) {
-            $levels = [];
-            foreach ($asnStandard->educationLevel as $level) {
-                $lvl = preg_replace('#.*/#', '', $level->value);
-                switch ($lvl) {
-                    case 'K':
-                        $levels[] = 'KG';
-                        break;
-                    case 'Pre-K':
-                        $levels[] = 'PK';
-                        break;
-                    default:
-                        if (is_numeric($lvl)) {
-                            if ($lvl < 10) {
-                                $levels[] = '0'.((int) $lvl);
-                            } else {
-                                $levels[] = $lvl;
-                            }
-                        } else {
-                            $levels[] = 'OT';
-                        }
-                }
-            }
+            $levels = $this->getLevels($asnStandard->educationLevel);
 
-            if (0 <= count($levels)) {
+            if (0 < count($levels)) {
+                $levels = array_unique($levels);
                 $lsItem->setEducationalAlignment(implode(',', $levels));
             }
         }
 
         if ($matches = $asnStandard->getExactMatch()) {
-            foreach ($matches as $match) {
-                $assoc = new LsAssociation();
-                $assoc->setLsDoc($lsDoc);
-                $assoc->setType(LsAssociation::EXACT_MATCH_OF);
-                $assoc->setOriginLsItem($lsItem);
-                $assoc->setDestinationNodeUri($match->value);
-                $assoc->setDestinationNodeIdentifier($match->value);
-
-                $lsItem->addAssociation($assoc);
-
-                $em->persist($assoc);
-            }
+            $this->addExactMatches($lsDoc, $lsItem, $matches);
         }
 
         $lsAssociation = new LsAssociation();
@@ -280,5 +229,154 @@ class AsnImport
         }
 
         return $lsItem;
+    }
+
+    /**
+     * @param string $asnLocator
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
+    public function getAsnDocument(string $asnLocator)
+    {
+        $asnId = '';
+        $asnHost = '';
+
+        if (preg_match('/(D\d+)/', $asnLocator, $matches)) {
+            $asnId = $matches[1];
+        }
+
+        if (preg_match('!^(https?://[^/]+/resources/)!', $asnLocator, $matches)) {
+            $asnHost = $matches[1];
+        }
+
+        if (!empty($asnHost)) {
+            $urlPrefixes = [$asnHost];
+        } else {
+            $urlPrefixes = [
+                'http://asn.jesandco.org/resources/',
+                'http://asn.desire2learn.com/resources/',
+            ];
+        }
+
+        foreach ($urlPrefixes as $urlPrefix) {
+            try {
+                $asnDoc = $this->requestAsnDocument($urlPrefix.$asnId.'_full.json');
+                break;
+            } catch (\Exception $e) {
+                // If on the second ASN URL then the first will not be found
+            }
+        }
+
+        if (empty($asnDoc)) {
+            throw new \Exception('Error getting document from ASN.');
+        }
+
+        return $asnDoc;
+    }
+
+    /**
+     * @param string $url
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
+    public function requestAsnDocument(string $url)
+    {
+        $jsonClient = $this->jsonClient;
+
+        $asnResponse = $jsonClient->request(
+            'GET',
+            $url,
+            [
+                'timeout' => 60,
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+                'http_errors' => false,
+            ]
+        );
+
+        if ($asnResponse->getStatusCode() !== 200) {
+            throw new \Exception('Error getting document from ASN.');
+        }
+
+        return $asnResponse->getBody()->getContents();
+    }
+
+    /**
+     * @param array|Collection $levelList
+     *
+     * @return array
+     */
+    protected function getLevels($levelList)
+    {
+        $levels = [];
+
+        foreach ($levelList as $level) {
+            $lvl = preg_replace('#.*/#', '', $level->value);
+            switch ($lvl) {
+                case 'K':
+                    $levels[] = 'KG';
+                    break;
+
+                case 'Pre-K':
+                    $levels[] = 'PK';
+                    break;
+
+                default:
+                    if (is_numeric($lvl)) {
+                        if ($lvl < 10) {
+                            $levels[] = '0'.((int) $lvl);
+                        } else {
+                            $levels[] = $lvl;
+                        }
+                    } else {
+                        $levels[] = 'OT';
+                    }
+            }
+        }
+
+        return $levels;
+    }
+
+    /**
+     * @param string $label
+     *
+     * @return LsDefItemType
+     */
+    protected function addItemType(string $label)
+    {
+        $itemType = new LsDefItemType();
+        $itemType->setTitle($label);
+        $itemType->setCode($label);
+        $itemType->setHierarchyCode('1');
+        $this->em->persist($itemType);
+        $this->em->flush($itemType);
+
+        return $itemType;
+    }
+
+    /**
+     * @param LsDoc $lsDoc
+     * @param LsItem $lsItem
+     * @param AsnValue[] $matches
+     */
+    protected function addExactMatches(LsDoc $lsDoc, LsItem $lsItem, $matches)
+    {
+        foreach ($matches as $match) {
+            $assoc = new LsAssociation();
+            $assoc->setLsDoc($lsDoc);
+            $assoc->setType(LsAssociation::EXACT_MATCH_OF);
+            $assoc->setOriginLsItem($lsItem);
+            $assoc->setDestinationNodeUri($match->value);
+            $assoc->setDestinationNodeIdentifier($match->value);
+
+            $lsItem->addAssociation($assoc);
+
+            $this->em->persist($assoc);
+        }
     }
 }

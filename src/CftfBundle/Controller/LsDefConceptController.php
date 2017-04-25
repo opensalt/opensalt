@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Controller;
 
+use CftfBundle\Form\Type\LsDefConceptType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -12,7 +13,7 @@ use CftfBundle\Entity\LsDefConcept;
 /**
  * LsDefConcept controller.
  *
- * @Route("/lsdef/concept")
+ * @Route("/cfdef/concept")
  */
 class LsDefConceptController extends Controller
 {
@@ -22,6 +23,8 @@ class LsDefConceptController extends Controller
      * @Route("/", name="lsdef_concept_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
@@ -40,11 +43,15 @@ class LsDefConceptController extends Controller
      * @Route("/new", name="lsdef_concept_new")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
     {
         $lsDefConcept = new LsDefConcept();
-        $form = $this->createForm('CftfBundle\Form\LsDefConceptType', $lsDefConcept);
+        $form = $this->createForm(LsDefConceptType::class, $lsDefConcept);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -67,6 +74,10 @@ class LsDefConceptController extends Controller
      * @Route("/{id}", name="lsdef_concept_show")
      * @Method("GET")
      * @Template()
+     *
+     * @param LsDefConcept $lsDefConcept
+     *
+     * @return array
      */
     public function showAction(LsDefConcept $lsDefConcept)
     {
@@ -84,11 +95,16 @@ class LsDefConceptController extends Controller
      * @Route("/{id}/edit", name="lsdef_concept_edit")
      * @Method({"GET", "POST"})
      * @Template()
+     *
+     * @param Request $request
+     * @param LsDefConcept $lsDefConcept
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function editAction(Request $request, LsDefConcept $lsDefConcept)
     {
         $deleteForm = $this->createDeleteForm($lsDefConcept);
-        $editForm = $this->createForm('CftfBundle\Form\LsDefConceptType', $lsDefConcept);
+        $editForm = $this->createForm(LsDefConceptType::class, $lsDefConcept);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -111,6 +127,11 @@ class LsDefConceptController extends Controller
      *
      * @Route("/{id}", name="lsdef_concept_delete")
      * @Method("DELETE")
+     *
+     * @param Request $request
+     * @param LsDefConcept $lsDefConcept
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsDefConcept $lsDefConcept)
     {

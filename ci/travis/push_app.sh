@@ -11,7 +11,7 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     if [ "$TRAVIS_BRANCH" == "develop" ]; then
         docker tag $REPO:$COMMIT $REPO:develop
     fi
-    docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
+    #docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
     docker rmi $REPO:$COMMIT
     docker push $REPO
 fi

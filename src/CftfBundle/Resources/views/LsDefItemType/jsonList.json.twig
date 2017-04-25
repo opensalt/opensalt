@@ -1,11 +1,14 @@
 {% extends '::layout.html.twig' %}
 
 {% block body %}
-    [
-    {% for obj in objects %}
-    {% if not loop.first %},{% endif %}
-    { "id": {{ obj.id }}, "text": {{ obj.title|json_encode|raw }} }
-    {% endfor %}
-    ]
+    {
+        "results": [
+            {% for obj in results %}
+                {% if not loop.first %},{% endif %}
+                { "id": {{ obj.id|json_encode|raw }}, "text": {{ obj.title|json_encode|raw }} }
+            {% endfor %}
+        ],
+        "more": {{ more|json_encode|raw }}
+    }
 {% endblock %}
 

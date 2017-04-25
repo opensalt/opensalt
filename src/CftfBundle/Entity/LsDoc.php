@@ -6,12 +6,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
 use Salt\UserBundle\Entity\UserDocAcl;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Util\Compare;
 
 /**
  * LsDoc
@@ -19,9 +21,28 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="ls_doc")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsDocRepository")
  * @UniqueEntity("uri")
+ *
+ * @Serializer\VirtualProperty(
+ *     "uri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     options={
+ *         @Serializer\SerializedName("uri"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfPackageUri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object, 'api_v1p1_cfpackage')",
+ *     options={
+ *         @Serializer\SerializedName("CFPackageURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
  */
-class LsDoc
+class LsDoc implements CaseApiInterface
 {
+    const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
     const ADOPTION_STATUS_DRAFT = 'Draft';
     const ADOPTION_STATUS_ADOPTED = 'Adopted';
     const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
@@ -32,6 +53,8 @@ class LsDoc
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Exclude()
      */
     private $id;
 
@@ -40,6 +63,8 @@ class LsDoc
      *
      * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\Organization", inversedBy="frameworks")
      * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     protected $org;
 
@@ -48,6 +73,8 @@ class LsDoc
      *
      * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\User", inversedBy="frameworks")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     protected $user;
 
@@ -58,6 +85,8 @@ class LsDoc
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $uri;
 
@@ -68,6 +97,8 @@ class LsDoc
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
      */
     private $identifier;
 
@@ -78,6 +109,9 @@ class LsDoc
      *
      * @Assert\Length(max=300)
      * @Assert\Url()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("officialSourceURL")
      */
     private $officialUri;
 
@@ -88,6 +122,8 @@ class LsDoc
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
      */
     private $creator;
 
@@ -97,6 +133,8 @@ class LsDoc
      * @ORM\Column(name="publisher", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
      */
     private $publisher;
 
@@ -116,6 +154,8 @@ class LsDoc
      * @ORM\Column(name="version", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
      */
     private $version;
 
@@ -125,6 +165,8 @@ class LsDoc
      * @ORM\Column(name="description", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
      */
     private $description;
 
@@ -144,6 +186,9 @@ class LsDoc
      *
      * @Assert\Url()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("subjectURI")
      */
     private $subjectUri;
 
@@ -155,6 +200,10 @@ class LsDoc
      *      joinColumns={@ORM\JoinColumn(name="ls_doc_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="subject_id", referencedColumnName="id")}
      * )
+     *
+     * @Serializer\Exclude()
+     * @Serializer\SerializedName("subject")
+     * @Serializer\Type("array<string>")
      */
     private $subjects;
 
@@ -164,6 +213,8 @@ class LsDoc
      * @ORM\Column(name="language", type="string", length=10, nullable=true)
      *
      * @Assert\Length(max=10)
+     *
+     * @Serializer\Expose(if="object.getLanguage() != ''")
      */
     private $language;
 
@@ -173,6 +224,9 @@ class LsDoc
      * @ORM\Column(name="adoption_status", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("adoptionStatus")
      */
     private $adoptionStatus;
 
@@ -182,6 +236,9 @@ class LsDoc
      * @ORM\Column(name="status_start", type="date", nullable=true)
      *
      * @Assert\Date()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("statusStartDate")
      */
     private $statusStart;
 
@@ -191,6 +248,9 @@ class LsDoc
      * @ORM\Column(name="status_end", type="date", nullable=true)
      *
      * @Assert\Date()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("statusEndDate")
      */
     private $statusEnd;
 
@@ -198,6 +258,9 @@ class LsDoc
      * @var string
      *
      * @ORM\Column(name="note", type="text", nullable=true)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("notes")
      */
     private $note;
 
@@ -206,6 +269,9 @@ class LsDoc
      *
      * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Gedmo\Timestampable(on="update")
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("lastChangeDateTime")
      */
     private $updatedAt;
 
@@ -213,6 +279,8 @@ class LsDoc
      * @var Collection|LsItem[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsItem", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
      */
     private $lsItems;
 
@@ -220,6 +288,8 @@ class LsDoc
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
      */
     private $docAssociations;
 
@@ -227,6 +297,8 @@ class LsDoc
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="originLsDoc", indexBy="id", cascade={"persist"})
+     *
+     * @Serializer\Exclude()
      */
     private $associations;
 
@@ -234,6 +306,8 @@ class LsDoc
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="destinationLsDoc", indexBy="id", cascade={"persist"})
+     *
+     * @Serializer\Exclude()
      */
     private $inverseAssociations;
 
@@ -241,17 +315,31 @@ class LsDoc
      * @var LsDocAttribute[]|ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDocAttribute", mappedBy="lsDoc", cascade={"ALL"}, indexBy="attribute")
+     *
+     * @Serializer\Exclude()
      */
     private $attributes;
 
     /**
      * @var UserDocAcl[]|Collection
      * @ORM\OneToMany(targetEntity="Salt\UserBundle\Entity\UserDocAcl", mappedBy="lsDoc", indexBy="user", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
      */
     protected $docAcls;
 
     /**
+     * @var LsDefAssociationGrouping[]|Collection
+     * @ORM\OneToMany(targetEntity="LsDefAssociationGrouping", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
+     */
+    protected $associationGroupings;
+
+    /**
      * @var string
+     *
+     * @Serializer\Exclude()
      */
     protected $ownedBy;
 
@@ -271,14 +359,48 @@ class LsDoc
         $this->subjects = new ArrayCollection();
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->uri;
     }
 
+    /**
+     * @return bool
+     */
     public function isLsDoc()
     {
         return true;
+    }
+
+    /**
+     * Get the list of Adoption Statuses
+     *
+     * @return array
+     */
+    public static function getStatuses(): array
+    {
+        return [
+            static::ADOPTION_STATUS_PRIVATE_DRAFT,
+            static::ADOPTION_STATUS_DRAFT,
+            static::ADOPTION_STATUS_ADOPTED,
+            static::ADOPTION_STATUS_DEPRECATED,
+        ];
+    }
+
+    /**
+     * Get the list of Adoption Statuses where editing is allowed
+     *
+     * @return array
+     */
+    public static function getEditableStatuses(): array
+    {
+        return [
+            static::ADOPTION_STATUS_PRIVATE_DRAFT,
+            static::ADOPTION_STATUS_DRAFT,
+        ];
     }
 
     /**
@@ -551,18 +673,13 @@ class LsDoc
     public function setAdoptionStatus($adoptionStatus)
     {
         // Check that adoptionStatus is valid
-        switch ($adoptionStatus) {
-            case self::ADOPTION_STATUS_DRAFT:
-            case self::ADOPTION_STATUS_ADOPTED:
-            case self::ADOPTION_STATUS_DEPRECATED:
-                break;
+        if (in_array($adoptionStatus, static::getStatuses(), true)) {
+            $this->adoptionStatus = $adoptionStatus;
 
-            default:
-                throw new \InvalidArgumentException('Invalid Adoptions Status of '.$adoptionStatus);
+            return $this;
         }
-        $this->adoptionStatus = $adoptionStatus;
 
-        return $this;
+        throw new \InvalidArgumentException('Invalid Adoptions Status of '.$adoptionStatus);
     }
 
     /**
@@ -651,16 +768,22 @@ class LsDoc
      * Add topLsItem
      *
      * @param LsItem $topLsItem
+     * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsDoc
      */
-    public function addTopLsItem(LsItem $topLsItem)
+    public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null)
     {
         $association = new LsAssociation();
         $association->setLsDoc($this);
         $association->setOriginLsItem($topLsItem);
         $association->setType(LsAssociation::CHILD_OF);
         $association->setDestinationLsDoc($this);
+
+        // PW: set assocGroup if provided and non-null
+        if ($assocGroup !== null) {
+            $association->setGroup($assocGroup);
+        }
 
         $topLsItem->addAssociation($association);
         $this->addInverseAssociation($association);
@@ -688,10 +811,10 @@ class LsDoc
         }
 
         $iterator = $topAssociations->getIterator();
-        $iterator->uasort(function($a, $b) {
+        $iterator->uasort(function (LsItem $a, LsItem $b) {
             // rank
             if (!empty($a->getRank()) && !empty($b->getRank())) {
-                if ($a->getRank() != $b->getRank()) {
+                if ($a->getRank() !== $b->getRank()) {
                     return ($a < $b) ? -1 : 1;
                 } // else fall through to next check
             } elseif (!empty($a->getRank()) || !empty($b->getRank())) {
@@ -715,7 +838,21 @@ class LsDoc
      */
     public function getTopLsItemIds()
     {
-        $ids = $this->getTopLsItems()->map(function($item){return $item->getId();});
+        $items = $this->getTopLsItems()->map(function (LsItem $item) {
+            return [
+                'id' => $item->getId(),
+                'rank' => $item->getRank(),
+                'listEnumInSource' => $item->getListEnumInSource(),
+                'humanCodingScheme' => $item->getHumanCodingScheme(),
+            ];
+        })->toArray();
+        Compare::sortArrayByFields($items, ['rank', 'listEnumInSource', 'humanCodingScheme']);
+        $items = new ArrayCollection($items);
+
+        $ids = $items->map(function ($item) {
+            return $item['id'];
+        });
+
         return $ids->toArray();
     }
 
@@ -944,7 +1081,7 @@ class LsDoc
      * @return bool
      */
     public function canEdit() {
-        return is_null($this->adoptionStatus) || self::ADOPTION_STATUS_DRAFT === $this->adoptionStatus;
+        return is_null($this->adoptionStatus) || in_array($this->adoptionStatus, static::getEditableStatuses(), true);
     }
 
     /**
@@ -1064,6 +1201,26 @@ class LsDoc
      */
     public function setOwnedBy($ownedBy) {
         $this->ownedBy = $ownedBy;
+
+        return $this;
+    }
+
+    /**
+     * @return LsDefAssociationGrouping[]|Collection
+     */
+    public function getAssociationGroupings()
+    {
+        return $this->associationGroupings;
+    }
+
+    /**
+     * @param LsDefAssociationGrouping[]|Collection $associationGroupings
+     *
+     * @return LsDoc
+     */
+    public function setAssociationGroupings($associationGroupings)
+    {
+        $this->associationGroupings = $associationGroupings;
 
         return $this;
     }

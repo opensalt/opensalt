@@ -2,7 +2,6 @@
 
 namespace Cftf\UtilBundle\Command;
 
-use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -38,14 +37,6 @@ class ExportCsvEvaluationDumpCommand extends ContainerAwareCommand
         $topChildren = $repo->findTopChildrenIds($lsDoc);
 
         $orphaned = $items;
-        /* This list is now found in the $haveParents list
-        foreach ($lsDoc->getTopLsItemIds() as $id) {
-            // Not an orphan
-            if (!empty($orphaned[$id])) {
-                unset($orphaned[$id]);
-            }
-        }
-        */
         foreach ($haveParents as $child) {
             // Not an orphan
             $id = $child['id'];
@@ -54,7 +45,7 @@ class ExportCsvEvaluationDumpCommand extends ContainerAwareCommand
             }
         }
 
-        foreach ($lsDoc->getTopLsItemIds() as $itemId) {
+        foreach ($topChildren as $itemId) {
             $this->writeItem($itemId, $items, 0, $fd);
         }
 
@@ -63,7 +54,8 @@ class ExportCsvEvaluationDumpCommand extends ContainerAwareCommand
         $output->writeln('Done.');
     }
 
-    protected function writeItem($itemId, &$items, $level, $fd) {
+    protected function writeItem($itemId, &$items, $level, $fd)
+    {
         $item = $items[$itemId];
         // save row
 
@@ -74,9 +66,9 @@ class ExportCsvEvaluationDumpCommand extends ContainerAwareCommand
             'Education Level' => "${item['educationalAlignment']}",
             'Legacy Coding Scheme' => $item['humanCodingScheme'],
         ];
-        //fputcsv($fd, array_values($line));
+
         $line = array_values($line);
-        fwrite($fd, $this->arrayToCsv($line)."\n");
+        fwrite($fd, \Util\CsvUtil::arrayToCsv($line)."\n");
 
         if (!empty($item['children'])) {
             $children = $item['children'];
@@ -84,32 +76,5 @@ class ExportCsvEvaluationDumpCommand extends ContainerAwareCommand
                 $this->writeItem($child['id'], $items, $level+1, $fd);
             }
         }
-    }
-
-    /**
-     * Formats a line (passed as a fields  array) as CSV and returns the CSV as a string.
-     * Adapted from http://us3.php.net/manual/en/function.fputcsv.php#87120
-     */
-    protected function arrayToCsv(array &$fields, $delimiter = ',', $enclosure = '"', $encloseAll = true, $nullToMysqlNull = false) {
-        $delimiter_esc = preg_quote($delimiter, '/');
-        $enclosure_esc = preg_quote($enclosure, '/');
-
-        $output = array();
-        foreach ($fields as $field) {
-            if ($field === null && $nullToMysqlNull) {
-                $output[] = 'NULL';
-                continue;
-            }
-
-            // Enclose fields containing $delimiter, $enclosure or whitespace
-            if ($encloseAll || preg_match("/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field)) {
-                $output[] = $enclosure.str_replace($enclosure, $enclosure.$enclosure, $field).$enclosure;
-            }
-            else {
-                $output[] = $field;
-            }
-        }
-
-        return implode($delimiter, $output);
     }
 }

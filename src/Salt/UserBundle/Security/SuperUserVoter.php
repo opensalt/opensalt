@@ -42,7 +42,8 @@ class SuperUserVoter extends Voter
      *
      * @return bool True if the attribute and subject are supported, false otherwise
      */
-    protected function supports($attribute, $subject) {
+    protected function supports($attribute, $subject)
+    {
         // Do not support the role check we are doing in voteOnAttribute
         if ($attribute === 'ROLE_SUPER_USER') {
             return false;
@@ -66,7 +67,8 @@ class SuperUserVoter extends Voter
      *
      * @return bool
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token) {
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    {
         // ROLE_SUPER_USER can do anything
         if ($this->decisionManager->decide($token, ['ROLE_SUPER_USER'])) {
             return true;

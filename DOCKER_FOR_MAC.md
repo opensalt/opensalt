@@ -23,5 +23,27 @@ Some possible remedies to help with the slowness issue are:
 
 4. Add nfs mounts to Docker for Mac with something like [d4m-nfs](https://github.com/IFSight/d4m-nfs)
   - Random tests have shown about a 10x improvement in running SALT in development mode (~700ms vs ~6s for the */app_dev.php/lsdoc/* page)
-  - The export file needs to map to the root user instead of the normal user for applications like mysql to be able to chown files (otherwise those applications break)
+  - The `/etc/exports` file needs to map to the root user instead of the normal user for applications like mysql to be able to chown files (otherwise those applications break), so use the following instead of the defaults:
+    ```
+# d4m-nfs exports
+"/Users" -alldirs -mapall=0:0 localhost
+"/Volumes" -alldirs -mapall=0:0 localhost
+"/private" -alldirs -mapall=0:0 localhost
+    ```
+  - The `d4m-nfs/etc/d4m-nfs-mounts.txt` file also has to be adjusted to look like:
+    ```
+# Be sure that any mounts that have been added here
+# have been removed from Docker for Mac -> Preferences -> File Sharing
+#
+# You must supply the Mac source directory and Moby VM destination directory,
+# and optionally add on user/group mapping:
+#
+# https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man5/exports.5.html
+#
+# <MAC_SRD_DIR>:<MOBY_VM_DST_DIR>[:MAC_UID_MAP][:MAC_GID_MAP]
+#
+/Users:/Users:0:0
+/Volumes:/Volumes:0:0
+/private:/private:0:0
+    ```
   - The d4m-nfs.sh script needs to be re-run each time Docker for Mac is restarted

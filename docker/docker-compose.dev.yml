@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 services:
   phpfpm:
     #build:
@@ -11,8 +11,17 @@ services:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "db"
+      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_HOST: "${MYSQL_HOST:-db}"
       #XDEBUG_CONFIG: remote_host=Your_IP_Address
+      GITHUB_CLIENT_ID:
+      GITHUB_CLIENT_SECRET:
+      DB_USE_RDS_CERT:
+      BRAND_LOGO_URL:
+      BRAND_LINK_URL:
     volumes:
       - &project_root "..:/var/www/html"
     working_dir: /var/www/html
@@ -26,7 +35,7 @@ services:
     environment:
       UPSTREAM_HOST: phpfpm:9000
     ports:
-      - "3000:80"
+      - "${PORT:-3000}:80"
     volumes:
       - *project_root
     working_dir: /var/www/html

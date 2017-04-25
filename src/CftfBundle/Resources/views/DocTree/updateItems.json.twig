@@ -1,0 +1,6 @@
+[
+    {% for returnedItem in returnedItems %}
+        {% if not loop.first %}, {% endif %}
+        {{ returnedItem|json_encode|raw }}
+    {% endfor %}
+]

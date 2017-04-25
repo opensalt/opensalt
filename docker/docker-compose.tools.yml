@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 services:
   # Tools used
   # the docker-compose format does not have a way to specify not to run these upon "up"
@@ -11,11 +11,12 @@ services:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "db"
+      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
-      MYSQL_HOST: "db"
+      MYSQL_HOST: "${MYSQL_HOST:-db}"
+      DB_USE_RDS_CERT:
     volumes:
       - &project_root "..:/var/www/html"
     working_dir: /var/www/html
@@ -24,12 +25,17 @@ services:
   composer:
     #build:
     #  context: ./composer
-    image: opensalt/composer:1.2-7.1
+    image: opensalt/composer:1.4-7.1
     environment:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "db"
+      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_HOST: "${MYSQL_HOST:-db}"
+      DB_USE_RDS_CERT:
     volumes:
       - *project_root
       - ./data/composer/slash:/composer

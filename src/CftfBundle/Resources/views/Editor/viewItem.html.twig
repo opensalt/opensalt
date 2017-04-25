@@ -55,17 +55,20 @@
                         {% endfor %}
                     </ul>
 
+                    {% if is_granted('edit', lsItem) or is_granted('add-standard-to', null) %}
                     <div class="text-center">
                         <ul class="list-inline">
-                            {% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
+                            {% if is_granted('edit', lsItem) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#editModal">Edit</button>
                             </li>
                             {% endif %}
+                            {% if is_granted('add-standard-to', null) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#copyModal">Add to Another CF Package</button>
                             </li>
-                            {% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
+                            {% endif %}
+                            {% if is_granted('edit', lsItem) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#addChildModal">Create Child Statement</button>
                             </li>
@@ -80,6 +83,7 @@
                             #}
                         </ul>
                     </div>
+                    {% endif %}
                 </div>
             </section>
         </div>
@@ -88,16 +92,16 @@
             {% for group, list in lsItem.groupedAssociations if list is not empty %}
                 {% embed 'CftfBundle:Editor:_lsAssociationComponent.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
                     {% block end_of_item_a %}
-                        {% if lsItem.canEdit and is_granted('edit', lsItem.lsDoc) %}
-                        <span class="pull-right">
-                        {% if group is constant('CftfBundle\\Entity\\LsAssociation::CHILD_OF') %}
-                            <span role="button" class="btn btn-xs btn-default btn-change-parent">Change</span>
-                        {% elseif group is constant('CftfBundle\\Entity\\LsAssociation::INVERSE_CHILD_OF') %}
-                            <span role="button" class="btn btn-xs btn-danger btn-remove-child">Remove</span>
-                        {% else %}
-                            <span role="button" class="btn btn-xs btn-danger btn-remove-association">Remove</span>
-                        {% endif %}
-                        </span>
+                        {% if is_granted('edit', lsItem) and is_granted('edit', lsItem.lsDoc) %}
+                            <span class="pull-right">
+                            {% if group is constant('CftfBundle\\Entity\\LsAssociation::CHILD_OF') %}
+                                <span role="button" class="btn btn-xs btn-default btn-change-parent">Change</span>
+                            {% elseif group is constant('CftfBundle\\Entity\\LsAssociation::INVERSE_CHILD_OF') %}
+                                <span role="button" class="btn btn-xs btn-danger btn-remove-child">Remove</span>
+                            {% else %}
+                                <span role="button" class="btn btn-xs btn-danger btn-remove-association">Remove</span>
+                            {% endif %}
+                            </span>
                         {% endif %}
                     {% endblock %}
                 {% endembed %}
@@ -158,7 +162,6 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script src="{{ asset('bundles/tetranzselect2entity/js/select2entity.js') }}"></script>
     <script>
         window.app = window.app||{};
         app.lsItemId = {{ lsItem.id }};

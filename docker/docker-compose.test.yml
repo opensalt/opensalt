@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 services:
   app:
     image: opensalt/app:${COMMIT}
@@ -11,7 +11,12 @@ services:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "db"
+      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
+      GITHUB_CLIENT_ID:
+      GITHUB_CLIENT_SECRET:
+      DB_USE_RDS_CERT:
+      BRAND_LOGO_URL:
+      BRAND_LINK_URL:
     volumes_from:
       - app
     working_dir: /var/www/html

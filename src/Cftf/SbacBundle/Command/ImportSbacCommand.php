@@ -51,14 +51,12 @@ class ImportSbacCommand extends ContainerAwareCommand
 
             $s = $em->getRepository('CftfBundle:LsDefSubject')->findBy(['title' => $subject]);
             if (null === $s) {
-                $uuid = Uuid::uuid5(Uuid::fromString('cacee394-85b7-11e6-9d43-005056a32dda'), $subject);
+                $uuid = Uuid::uuid5('cacee394-85b7-11e6-9d43-005056a32dda', $subject)->toString();
                 $s = new LsDefSubject();
                 $s->setIdentifier($uuid);
-                $s->setUri('local:'.$uuid->toString());
+                $s->setUri('local:'.$uuid);
                 $s->setTitle($subject);
                 $s->setHierarchyCode('1');
-
-                $subjects[$subject] = $s;
 
                 $em->persist($s);
             }

@@ -2,15 +2,13 @@
 
 namespace CftfBundle\Controller;
 
-use CftfBundle\Form\LsDocCreateType;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Salt\UserBundle\Entity\User;
+use CftfBundle\Form\Type\LsDocCreateType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsDoc;
-use CftfBundle\Form\LsDocType;
+use CftfBundle\Form\Type\LsDocType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -18,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 /**
  * LsDoc controller.
  *
- * @Route("/lsdoc")
+ * @Route("/cfdoc")
  */
 class LsDocController extends Controller
 {
@@ -28,12 +26,22 @@ class LsDocController extends Controller
      * @Route("/", name="lsdoc_index")
      * @Method("GET")
      * @Template()
+     *
+     * @return array
      */
     public function indexAction()
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC']);
+        $results = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
+
+        $lsDocs = [];
+        $authChecker = $this->get('security.authorization_checker');
+        foreach ($results as $lsDoc) {
+            if ($authChecker->isGranted('view', $lsDoc)) {
+                $lsDocs[] = $lsDoc;
+            }
+        }
 
         return [
             'lsDocs' => $lsDocs,
@@ -47,6 +55,10 @@ class LsDocController extends Controller
      * @Method({"GET", "POST"})
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
+     *
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
     {
@@ -66,7 +78,7 @@ class LsDocController extends Controller
             $em->persist($lsDoc);
             $em->flush();
 
-            return $this->redirectToRoute('editor_lsdoc', array('id' => $lsDoc->getId()));
+            return $this->redirectToRoute('doc_tree_view', array('id' => $lsDoc->getId()));
         }
 
         return [
@@ -81,6 +93,12 @@ class LsDocController extends Controller
      * @Route("/{id}.{_format}", defaults={"_format"="html"}, name="lsdoc_show")
      * @Method("GET")
      * @Template()
+     * @Security("is_granted('view', 'lsdoc')")
+     *
+     * @param LsDoc $lsDoc
+     * @param string $_format
+     *
+     * @return array
      */
     public function showAction(LsDoc $lsDoc, $_format = 'html')
     {
@@ -104,13 +122,15 @@ class LsDocController extends Controller
      * @Method({"GET", "POST"})
      * @Template()
      * @Security("is_granted('edit', lsDoc)")
+     *
+     * @param Request $request
+     * @param LsDoc $lsDoc
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function editAction(Request $request, LsDoc $lsDoc)
     {
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
+        $ajax = $request->isXmlHttpRequest();
 
         $deleteForm = $this->createDeleteForm($lsDoc);
         $editForm = $this->createForm(LsDocType::class, $lsDoc, ['ajax' => $ajax]);
@@ -146,7 +166,12 @@ class LsDocController extends Controller
      *
      * @Route("/{id}", name="lsdoc_delete")
      * @Method("DELETE")
-     * @Security("is_granted('edit', lsDoc)")
+     * @Security("is_granted('delete', lsDoc)")
+     *
+     * @param Request $request
+     * @param LsDoc $lsDoc
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, LsDoc $lsDoc)
     {
@@ -154,12 +179,33 @@ class LsDocController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($lsDoc);
-            $em->flush();
+            $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->deleteDocument($lsDoc);
         }
 
         return $this->redirectToRoute('lsdoc_index');
+    }
+
+    /**
+     * Finds and displays a LsDoc entity.
+     *
+     * @Route("/{id}/export.{_format}", requirements={"_format"="(json|html|null)"}, defaults={"_format"="json"}, name="lsdoc_export")
+     * @Method("GET")
+     * @Template()
+     * @Security("is_granted('view', 'lsdoc')")
+     *
+     * @param LsDoc $lsDoc
+     * @param string $_format
+     *
+     * @return array
+     */
+    public function exportAction(LsDoc $lsDoc, $_format = 'json')
+    {
+        $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAllChildrenArray($lsDoc);
+
+        return [
+            'lsDoc' => $lsDoc,
+            'items' => $items,
+        ];
     }
 
     /**
@@ -175,49 +221,6 @@ class LsDocController extends Controller
             ->setAction($this->generateUrl('lsdoc_delete', array('id' => $lsDoc->getId())))
             ->setMethod('DELETE')
             ->getForm()
-        ;
-    }
-
-    /**
-     * Finds and displays a LsDoc entity.
-     *
-     * @ApiDoc(
-     *   resource=true,
-     *   resourceDescription="Operations on LsDoc",
-     *   description="Get an LsDoc",
-     *   https=true,
-     *   tags={"beta"="#ff0000"},
-     *   section="cftf",
-     *   requirements={
-     *     {
-     *       "name"="id",
-     *       "dataType"="string",
-     *       "description"="Identifier of the LsDoc"
-     *     },
-     *     {
-     *       "name"="_format",
-     *       "dataType"="string",
-     *       "requirement"="json|html|null",
-     *       "description"="Short mime type of output, defaults to json if not provided",
-     *       "default"="json",
-     *       "required"=false
-     *     }
-     *   },
-     *   input="LsDoc",
-     *   output="\CftfBundle\Entity\LsDoc"
-     * )
-     *
-     * @Route("/{id}/export.{_format}", requirements={"_format"="(json|html|null)"}, defaults={"_format"="json"}, name="lsdoc_export")
-     * @Method("GET")
-     * @Template()
-     */
-    public function exportAction(LsDoc $lsDoc, $_format = 'json')
-    {
-        $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAllChildrenArray($lsDoc);
-
-        return [
-            'lsDoc' => $lsDoc,
-            'items' => $items,
-        ];
+            ;
     }
 }

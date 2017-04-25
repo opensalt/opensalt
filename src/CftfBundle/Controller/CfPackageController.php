@@ -5,8 +5,8 @@ namespace CftfBundle\Controller;
 use CftfBundle\Entity\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 /**
  * Class CfPackageController
@@ -18,10 +18,9 @@ class CfPackageController extends Controller
     /**
      * Export a CFPackage
      *
-     * @Route("/lsdoc/{id}.{_format}", requirements={"_format"="(json|html)"}, defaults={"_format"="json"}, name="cfpackage_export")
-     * @Route("/lsdoc/{id}/export.{_format}", requirements={"_format"="(json|html)"}, defaults={"_format"="json"}, name="cfpackage_export2")
+     * @Route("/doc/{id}.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, defaults={"_format"="json"}, name="cfpackage_export")
+     * @Route("/doc/{id}/export.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, defaults={"_format"="json"}, name="cfpackage_export2")
      * @Method("GET")
-     * @Template()
      */
     public function exportAction(LsDoc $lsDoc, $_format = 'json')
     {
@@ -35,7 +34,7 @@ class CfPackageController extends Controller
             }
         }
 
-        return [
+        $arr = [
             'lsDoc' => $lsDoc,
             'items' => $items,
             'associations' => $associations,
@@ -45,5 +44,14 @@ class CfPackageController extends Controller
             'licences' => [],
             'associationGroupings' => [],
         ];
+        $response = new Response($this->renderView("CftfBundle:CfPackage:export.$_format.twig", $arr));
+
+        if ($_format == 'json') {
+            $response->headers->set('Content-Type', 'text/json');
+            $response->headers->set('Content-Disposition', 'attachment; filename=opensalt-framework-'.$lsDoc->getIdentifier().'.json');
+            $response->headers->set('Pragma', 'no-cache');
+        }
+
+        return $response;
     }
 }

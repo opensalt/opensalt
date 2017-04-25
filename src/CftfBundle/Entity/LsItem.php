@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -16,8 +17,71 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="ls_item")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsItemRepository")
  * @UniqueEntity("uri")
+ *
+ * @Serializer\VirtualProperty(
+ *     "uri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     options={
+ *         @Serializer\SerializedName("uri"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfDocumentUri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object.getLsDoc())",
+ *     options={
+ *         @Serializer\SerializedName("CFDocumentURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfItemType",
+ *     exp="object.getItemType()?object.getItemType().getTitle():null",
+ *     options={
+ *         @Serializer\SerializedName("CFItemType"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfItemTypeUri",
+ *     exp="service('salt.api.v1p1.utils').getLinkUri(object.getItemType())",
+ *     options={
+ *         @Serializer\SerializedName("CFItemTypeURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "conceptKeywords",
+ *     exp="service('salt.api.v1p1.utils').splitByComma(object.getConceptKeywords())",
+ *     options={
+ *         @Serializer\SerializedName("conceptKeywords"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "educationLevel",
+ *     exp="service('salt.api.v1p1.utils').splitByComma(object.getEducationalAlignment())",
+ *     options={
+ *         @Serializer\SerializedName("educationLevel"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfItemAssociationsUri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object, 'api_v1p1_cfitemassociations')",
+ *     options={
+ *         @Serializer\SerializedName("CFItemAssociationsURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
  */
-class LsItem
+class LsItem implements CaseApiInterface
 {
     const DISPLAY_IDENTIFIER_MAXLENGTH = 32;
 
@@ -27,6 +91,8 @@ class LsItem
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Serializer\Exclude()
      */
     private $id;
 
@@ -37,6 +103,8 @@ class LsItem
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $uri;
 
@@ -47,6 +115,8 @@ class LsItem
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $lsDocIdentifier;
 
@@ -55,6 +125,8 @@ class LsItem
      *
      * @ORM\Column(name="ls_doc_uri", type="string", length=300, nullable=true)
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $lsDocUri;
 
@@ -63,6 +135,8 @@ class LsItem
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="lsItems")
      * @Assert\NotBlank()
+     *
+     * @Serializer\Exclude()
      */
     private $lsDoc;
 
@@ -72,6 +146,9 @@ class LsItem
      * @ORM\Column(name="human_coding_scheme", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("humanCodingScheme")
      */
     private $humanCodingScheme;
 
@@ -82,15 +159,21 @@ class LsItem
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("identifier")
      */
     private $identifier;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="list_enum_in_source", type="string", length=10, nullable=true)
+     * @ORM\Column(name="list_enum_in_source", type="string", length=20, nullable=true)
      *
-     * @Assert\Length(max=10)
+     * @Assert\Length(max=20)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("listEnumeration")
      */
     private $listEnumInSource;
 
@@ -98,6 +181,8 @@ class LsItem
      * @var int
      *
      * @ORM\Column(name="rank", type="bigint", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     private $rank;
 
@@ -107,6 +192,9 @@ class LsItem
      * @ORM\Column(name="full_statement", type="text", nullable=false)
      *
      * @Assert\NotBlank()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("fullStatement")
      */
     private $fullStatement;
 
@@ -116,6 +204,9 @@ class LsItem
      * @ORM\Column(name="abbreviated_statement", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("abbreviatedStatement")
      */
     private $abbreviatedStatement;
 
@@ -125,6 +216,8 @@ class LsItem
      * @ORM\Column(name="concept_keywords", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $conceptKeywords;
 
@@ -135,6 +228,9 @@ class LsItem
      *
      * @Assert\Length(max=300)
      * @Assert\Url()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("conceptKeywordsURI")
      */
     private $conceptKeywordsUri;
 
@@ -142,6 +238,9 @@ class LsItem
      * @var string
      *
      * @ORM\Column(name="notes", type="text", nullable=true)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("notes")
      */
     private $notes;
 
@@ -151,6 +250,9 @@ class LsItem
      * @ORM\Column(name="language", type="string", length=10, nullable=true)
      *
      * @Assert\Length(max=10)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("language")
      */
     private $language;
 
@@ -160,6 +262,8 @@ class LsItem
      * @ORM\Column(name="educational_alignment", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $educationalAlignment;
 
@@ -168,6 +272,8 @@ class LsItem
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDefItemType")
      * @ORM\JoinColumn(name="item_type_id", referencedColumnName="id")
+     *
+     * @Serializer\Exclude()
      */
     private $itemType;
 
@@ -178,6 +284,9 @@ class LsItem
      *
      * @Assert\Length(max=300)
      * @Assert\Url()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("CFLicenseURI")
      */
     private $licenceUri;
 
@@ -188,6 +297,8 @@ class LsItem
      * @Gedmo\Timestampable(on="update")
      *
      * @Assert\DateTime()
+     *
+     * @Serializer\Exclude()
      */
     private $changedAt;
 
@@ -196,6 +307,9 @@ class LsItem
      *
      * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Gedmo\Timestampable(on="update")
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("lastChangeDateTime")
      */
     private $updatedAt;
 
@@ -203,6 +317,8 @@ class LsItem
      * @var array
      *
      * @ORM\Column(name="extra", type="json_array", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     private $extra;
 
@@ -210,6 +326,8 @@ class LsItem
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="originLsItem", indexBy="id", cascade={"persist"})
+     *
+     * @Serializer\Exclude()
      */
     private $associations;
 
@@ -217,14 +335,33 @@ class LsItem
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="destinationLsItem", indexBy="id", cascade={"persist"})
+     *
+     * @Serializer\Exclude()
      */
     private $inverseAssociations;
 
 
-
-    public function __construct()
+    /**
+     * LsItem constructor.
+     *
+     * @param string|Uuid|null $identifier
+     */
+    public function __construct($identifier = null)
     {
-        $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
+        if (null !== $identifier) {
+            // If the identifier is in the form of a UUID then lower case it
+            if ($identifier instanceof Uuid) {
+                $identifier = strtolower($identifier->toString());
+            } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+                $identifier = strtolower(Uuid::fromString($identifier)->toString());
+            } else {
+                $identifier = Uuid::uuid4()->toString();
+            }
+        } else {
+            $identifier = Uuid::uuid4()->toString();
+        }
+
+        $this->identifier = $identifier;
         $this->uri = 'local:'.$this->identifier;
         $this->children = new ArrayCollection();
         $this->lsItemParent = new ArrayCollection();
@@ -237,27 +374,64 @@ class LsItem
         return $this->uri;
     }
 
+    /**
+     * Clone the LsItem - Do not carry over any associations
+     */
     public function __clone()
     {
-        // TODO: Add an "Exact" relationship to the original
-        /*
-        $exactMatch = new LsAssociation();
-        $exactMatch->setOriginNodeUri($this->getUri());
-        $exactMatch->setDestinationNodeUri($this->getUri());
-        $exactMatch->setType('Exact Match Of');
-        */
-
-        // Clear identifier
+        // Clear values for new item
         $this->id = null;
-
-        // Do not copy the children (or references)?
         $this->children = new ArrayCollection();
+        $this->lsItemParent = new ArrayCollection();
+        $this->associations = new ArrayCollection();
+        $this->inverseAssociations = new ArrayCollection();
 
-        // TODO: We need to figure out a better way to handle the prefix for local items
-        $this->uri = 'local:'.\Ramsey\Uuid\Uuid::uuid4()->toString();
+        // Generate a new identifier
+        $identifier = Uuid::uuid4()->toString();
+        $this->identifier = $identifier;
+        $this->uri = 'local:'.$this->identifier;
 
-        $this->changedAt = new \DateTime();
-        $this->updatedAt = $this->changedAt;
+        // Set last change/update to now
+        $this->updatedAt = new \DateTime();
+        $this->changedAt = $this->updatedAt;
+    }
+
+    /**
+     * Create a copy of the lsItem into a new document
+     *
+     * @param LsDoc $newLsDoc
+     * @param LsDefAssociationGrouping|null $assocGroup
+     *
+     * @return LsItem
+     */
+    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null)
+    {
+        $newItem = clone $this;
+
+        $newItem->setLsDoc($newLsDoc);
+
+        // Add an "Exact" relationship to the original
+        $exactMatch = new LsAssociation();
+        $exactMatch->setLsDoc($newLsDoc);
+        $exactMatch->setOrigin($newItem);
+        $exactMatch->setType(LsAssociation::EXACT_MATCH_OF);
+        $exactMatch->setDestination($this);
+
+        // PW: set assocGroup if provided and non-null
+        // TODO: should the assocGroup be on both associations, or just the first association, or just the inverse association??
+        if ($assocGroup !== null) {
+            $exactMatch->setGroup($assocGroup);
+        }
+
+        $newItem->addAssociation($exactMatch);
+        $this->addInverseAssociation($exactMatch);
+
+        foreach ($this->getChildren() as $child) {
+            $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup);
+            $newItem->addChild($newChild, $assocGroup);
+        }
+
+        return $newItem;
     }
 
     public function isLsItem()
@@ -303,9 +477,11 @@ class LsItem
         $associations = $this->getInverseAssociations();
         foreach ($associations as $association) {
             /** @var LsAssociation $association */
+            /* Commented out to show relations from other docs
             if ($association->getLsDoc()->getId() !== $this->getLsDoc()->getId()) {
                 continue;
             }
+            */
             $assocName = LsAssociation::inverseName($association->getType());
             if (empty($assocName)) {
                 $assocName = 'Inverse '.$association->getType();
@@ -700,16 +876,23 @@ class LsItem
      * Add child
      *
      * @param LsItem $child
+     * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsItem
      */
-    public function addChild(LsItem $child)
+    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null)
     {
         $association = new LsAssociation();
         $association->setLsDoc($child->getLsDoc());
         $association->setOrigin($child);
         $association->setType(LsAssociation::CHILD_OF);
         $association->setDestination($this);
+
+        // PW: set assocGroup if provided and non-null
+        if ($assocGroup !== null) {
+            $association->setGroup($assocGroup);
+        }
+
         $child->addAssociation($association);
         $this->addInverseAssociation($association);
 
@@ -743,7 +926,10 @@ class LsItem
      */
     public function getChildIds()
     {
-        $ids = $this->getChildren()->map(function($item){return $item->getId();});
+        $ids = $this->getChildren()->map(function (LsItem $item) {
+            return $item->getId();
+        });
+
         return $ids->toArray();
     }
 
@@ -966,16 +1152,17 @@ class LsItem
 
     /**
      * @param string $property
+     * @param string $default
      *
      * @return mixed
      */
-    public function getExtraProperty($property) {
+    public function getExtraProperty($property, $default = null) {
         if (is_null($this->extra)) {
-            return null;
+            return $default;
         }
 
         if (!array_key_exists($property, $this->extra)) {
-            return null;
+            return $default;
         }
 
         return $this->extra[$property];
@@ -1010,19 +1197,32 @@ class LsItem
      * Add Parent
      *
      * @param LsItem|LsDoc $parent
+     * @param int $sequenceNumber
+     * @param LsDefAssociationGrouping|null $assocGroup
      *
-     * @return LsItem
+     * @return LsAssociation inserted association (in case the caller needs to get the id later)
      */
-    public function addParent($parent)
+    public function addParent($parent, $sequenceNumber = null, ?LsDefAssociationGrouping $assocGroup = null)
     {
         $association = new LsAssociation();
         $association->setLsDoc($this->getLsDoc());
         $association->setOrigin($this);
         $association->setType(LsAssociation::CHILD_OF);
         $association->setDestination($parent?:$this->lsDoc);
+
+        // PW: set sequenceNumber if provided and non-null
+        if ($sequenceNumber !== null) {
+            $association->setSequenceNumber($sequenceNumber);
+        }
+
+        // PW: set assocGroup if provided and non-null
+        if ($assocGroup !== null) {
+            $association->setGroup($assocGroup);
+        }
+
         $this->addAssociation($association);
 
-        return $this;
+        return $association;
     }
 
     /**
