@@ -14,6 +14,6 @@ Feature: An anonymous user can view the home page
     And I should see "Sign in" in the "a.login" element
 
     When I follow "Sign in"
-    Then I should see "Email Address"
+    Then I should see "Username"
     And I should see "Password"
     And I should see "Login"
