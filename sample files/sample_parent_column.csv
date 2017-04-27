@@ -1,9 +1,0 @@
-Identifier,Human Coding Scheme,Education Level,IsChildOf Text,IsChildOf,FullStatement
-Math,M,3-5,,,Everything about math
-Math.Fractions,M.F,3-5,Math,M,Fractions are rational numbers - this standard group explores those concepts
-Math.Fractions.Cluster1,M.F.C1,3-5,Math.Fractions,M.F,Students understand operations on fractions.
-Math.Fractions.Cluster1.Standard1,M.F.C1.S1,3-5,Math.Fractions.Cluster1,M.F.C1,Students understand that fractions are closed under the four operations
-Math.Fractions.Cluster1.Standard1a,M.F.C1.S1a,3-5,Math.Fractions.Cluster1.Standard1,M.F.C1.S1,Students can add or subtract fractions
-Math.Fractions.Cluster1.Standard1b,M.F.C1.S1b,3-5,Math.Fractions.Cluster1.Standard1,M.F.C1.S1,Students can multiply or divide fractions
-Math.Fractions.Cluster2,M.F.C2,3-5,Math.Fractions,M.F,Students are able to distinguish between rational and irrational numbers
-Math.Fractions.Cluster2.Standard1,M.F.C2.S1,3-5,Math.Fractions.Cluster2,M.F.C2,If a fraction repeats it is irrational
