@@ -7,12 +7,12 @@ Feature: A user can sign into the application
   Scenario Outline: An anonymous user lands on the front page
     Given I am on the homepage
     When I follow "Sign in"
-    Then I should see "Email Address"
+    Then I should see "Username"
     And I should see "Password"
     And I should see "Login"
 
     Given a user exists with role "<role>"
-    When I fill in "Email Address" with the username
+    When I fill in "Username" with the username
     And I fill in "Password" with the password
     And I press "Login"
     Then I should see "Signed in as"
