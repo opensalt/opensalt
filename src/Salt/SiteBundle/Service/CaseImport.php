@@ -104,8 +104,8 @@ class CaseImport
                 if (array_key_exists($cfAssociation->originNodeURI->identifier, $items)) {
                     $lsAssociation->setOrigin($items[$cfAssociation->originNodeURI->identifier]);
                 } else {
-                    $lsAssociation->setOriginNodeUri($cfAssociation->destinationNodeURI->uri);
-                    $lsAssociation->setOriginNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
+                    $lsAssociation->setOriginNodeUri($cfAssociation->originNodeURI->uri);
+                    $lsAssociation->setOriginNodeIdentifier($cfAssociation->originNodeURI->identifier);
                 }
             }
 
