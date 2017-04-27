@@ -14,6 +14,7 @@ use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\Query;
+use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -259,7 +260,11 @@ class Api1Controller extends Controller
     protected function generate404(string $identifier, string $_format)
     {
         // Object not found
-        $errField = new ImsxCodeMinorField('id', ImsxCodeMinorField::CODE_MINOR_UNKNOWN_OBJECT);
+        if (Uuid::isValid($identifier)) {
+            $errField = new ImsxCodeMinorField('sourceId', ImsxCodeMinorField::CODE_MINOR_UNKNOWN_OBJECT);
+        } else {
+            $errField = new ImsxCodeMinorField('sourceId', ImsxCodeMinorField::CODE_MINOR_INVALID_UUID);
+        }
         $errMinor = new ImsxCodeMinor([$errField]);
         $err = new ImsxStatusInfo(
             ImsxStatusInfo::CODE_MAJOR_FAILURE,
