@@ -129,12 +129,13 @@ class AsnImport
 
         $em->persist($lsAssociation);
 
+        $seq = 0;
         foreach ($sd->getHasChild() as $val) {
             /** @var AsnStandard $child */
             $child = $doc->getStandards()->get($val->getValue());
             if ($child) {
                 $lsItem = $this->parseAsnStandard($doc, $lsDoc, $child);
-                $lsDoc->addTopLsItem($lsItem);
+                $lsDoc->createChildItem($lsItem, null, ++$seq);
             }
         }
 
@@ -219,12 +220,13 @@ class AsnImport
 
         $em->persist($lsAssociation);
 
+        $seq = 0;
         if ($children = $asnStandard->getHasChild()) {
             foreach ($children as $val) {
                 /** @var AsnStandard $child */
                 $child = $doc->getStandards()->get($val->getValue());
                 $childLsItem = $this->parseAsnStandard($doc, $lsDoc, $child);
-                $lsItem->addChild($childLsItem);
+                $lsItem->createChildItem($childLsItem, null, ++$seq);
             }
         }
 
