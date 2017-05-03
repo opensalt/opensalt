@@ -114,8 +114,43 @@ class CaseImport
             if (property_exists($cfItem, 'notes')) {
                 $lsItem->setNotes($cfItem->notes);
             }
-            if (property_exists($cfItem, 'educationAlignment')) {
-                $lsItem->setEducationalAlignment($cfItem->educationAlignment);
+            if (property_exists($cfItem, 'educationLevel')) {
+                $importedGrades = $cfItem->educationLevel;
+                if (is_string($importedGrades)) {
+                    $importedGrades = str_replace(' ', '', $importedGrades);
+                    $importedGrades = explode(',', $importedGrades);
+                } elseif (!is_array($cfItem->educationLevel)) {
+                    // Skip invalid data
+                    continue;
+                }
+
+                $grades = [];
+                foreach ($importedGrades as $grade) {
+                    if ('HS' === $grade) {
+                        $grades[] = '09';
+                        $grades[] = '10';
+                        $grades[] = '11';
+                        $grades[] = '12';
+                    } else {
+                        switch ($grade) {
+                            case '0':
+                            case 'K':
+                                $grades[] = 'KG';
+                                break;
+                            default:
+                                if (is_numeric($grade)) {
+                                    if ($grade < 10) {
+                                        $grades[] = '0'.((int) $grade);
+                                    } else {
+                                        $grades[] = $grade;
+                                    }
+                                } else {
+                                    $grades[] = 'OT';
+                                }
+                        }
+                    }
+                }
+                $lsItem->setEducationalAlignment(implode(',', array_unique($grades)));
             }
             if (property_exists($cfItem, 'language')) {
                 $lsItem->setLanguage($cfItem->language);
