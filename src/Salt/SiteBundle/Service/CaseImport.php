@@ -126,28 +126,54 @@ class CaseImport
 
                 $grades = [];
                 foreach ($importedGrades as $grade) {
-                    if ('HS' === $grade) {
-                        $grades[] = '09';
-                        $grades[] = '10';
-                        $grades[] = '11';
-                        $grades[] = '12';
-                    } else {
-                        switch ($grade) {
-                            case '0':
-                            case 'K':
-                                $grades[] = 'KG';
-                                break;
-                            default:
-                                if (is_numeric($grade)) {
-                                    if ($grade < 10) {
-                                        $grades[] = '0'.((int) $grade);
-                                    } else {
-                                        $grades[] = $grade;
-                                    }
+                    switch ($grade) {
+                        case '0':
+                        case '00':
+                        case 'K':
+                            $grades[] = 'KG';
+                            break;
+                        case 'HS':
+                            $grades[] = '09';
+                            $grades[] = '10';
+                            $grades[] = '11';
+                            $grades[] = '12';
+                            break;
+                        default:
+                            if (is_numeric($grade)) {
+                                if ($grade < 10) {
+                                    $grades[] = '0'.((int) $grade);
+                                } elseif ($grade < 14) {
+                                    $grades[] = $grade;
                                 } else {
                                     $grades[] = 'OT';
                                 }
-                        }
+                            } else {
+                                if (in_array(
+                                    $grade,
+                                    [
+                                        'IT',
+                                        'PR',
+                                        'PK',
+                                        'TK',
+                                        'KG',
+                                        'AS',
+                                        'BA',
+                                        'PB',
+                                        'MD',
+                                        'PM',
+                                        'DO',
+                                        'PD',
+                                        'AE',
+                                        'PT',
+                                        'OT',
+                                    ],
+                                    true
+                                )) {
+                                    $grades[] = $grade;
+                                } else {
+                                    $grades[] = 'OT';
+                                }
+                            }
                     }
                 }
                 $lsItem->setEducationalAlignment(implode(',', array_unique($grades)));
