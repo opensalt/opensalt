@@ -105,6 +105,7 @@ gulp.task('scripts', function() {
         config.assetsDir+'/js/application.js',
         config.assetsDir+'/js/lsdoc/index.js',
         config.assetsDir+'/js/cftree/view.js',
+        config.assetsDir+'/js/security/login.js',
     ], 'site.js');
 });
 

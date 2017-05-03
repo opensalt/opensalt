@@ -30,7 +30,7 @@ class SecurityController extends Controller
 
         $redirect = $request->headers->get('referer');
 
-        $orgAdmins = $this->getDoctrine()->getRepository('SaltUserBundle:User')->findAdminUsersPerOrganization();
+        $orgAdmins = $this->getDoctrine()->getRepository('SaltUserBundle:User')->findAdmins();
 
         return [
             'last_username' => $lastUsername,
