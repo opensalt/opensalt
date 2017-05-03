@@ -213,20 +213,8 @@ nelmio_security:
         whitelist:
             - google.com
 
-nelmio_api_doc:
-    name: 'API documentation'
-    exclude_sections: []
-    default_sections_opened: true
-    sandbox:
-        enabled: false
-        request_format:
-            method: accept_header
-        body_format:
-            formats: [ json ]
-    swagger:
-        api_base_path: /api
-        swagger_version: '1.2'
-        api_version: '0.4'
-        info:
-            title: 'SALT'
-            description: 'Open source implementation of the IMS CFTF specification'
+al_swagger_ui:
+    static_resources:
+        resource_dir: "app/Resources/swagger-docs/"
+        resource_list_filename: api-docs.json
+    resource_list: al_swagger_ui_static_resource_list

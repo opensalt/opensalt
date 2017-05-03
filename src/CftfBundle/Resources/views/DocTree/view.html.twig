@@ -364,6 +364,7 @@
 {% endblock %}
 
 {% block javascripts %}
+{% autoescape 'js' %}
 <script>
 window.app = window.app||{};
 app.lsDocId = {{ lsDoc.id }};
@@ -397,7 +398,7 @@ app.path.lsdef_association_grouping_tree_delete = '{{ path('lsdef_association_gr
 // establish assocGroups
 app.allAssocGroups = {
     {% for ag in assocGroups %}
-    "{{ ag.id }}": {"id":"{{ ag.id }}", "title":"{{ ag.title|e('js') }}", "lsDocId":"{% if ag.lsDoc is not empty %}{{ ag.lsDoc.id }}{% endif %}"},
+    "{{ ag.id }}": {"id":"{{ ag.id }}", "title":"{{ ag.title }}", "lsDocId":"{% if ag.lsDoc is not empty %}{{ ag.lsDoc.id }}{% endif %}"},
     {% endfor %}
 };
 
@@ -443,9 +444,10 @@ app.associatedItems = {
 };
 
 // establish the tree for the lsdoc we're editing
-app.tree1 = {{ render_esi(path('doctree_render_document', {'id':lsDoc.id, '_format':'json'})) }};
+app.tree1 = {{ render_esi(path('doctree_render_document', {'id':lsDoc.id, '_format':'json'})) |raw }};
 $(document).ready(function() {
     app.initialize();
 });
 </script>
+{% endautoescape %}
 {% endblock %}

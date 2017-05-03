@@ -877,16 +877,20 @@ class LsItem implements CaseApiInterface
      *
      * @param LsItem $child
      * @param LsDefAssociationGrouping|null $assocGroup
+     * @param int|null $sequenceNumber
      *
-     * @return LsItem
+     * @return LsAssociation
      */
-    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null)
+    public function createChildItem(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null)
     {
         $association = new LsAssociation();
         $association->setLsDoc($child->getLsDoc());
         $association->setOrigin($child);
         $association->setType(LsAssociation::CHILD_OF);
         $association->setDestination($this);
+        if (null !== $sequenceNumber) {
+            $association->setSequenceNumber($sequenceNumber);
+        }
 
         // PW: set assocGroup if provided and non-null
         if ($assocGroup !== null) {
@@ -895,6 +899,21 @@ class LsItem implements CaseApiInterface
 
         $child->addAssociation($association);
         $this->addInverseAssociation($association);
+
+        return $association;
+    }
+
+    /**
+     * Add child
+     *
+     * @param LsItem $child
+     * @param LsDefAssociationGrouping|null $assocGroup
+     *
+     * @return LsItem
+     */
+    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null)
+    {
+        $this->createChildItem($child, $assocGroup);
 
         return $this;
     }

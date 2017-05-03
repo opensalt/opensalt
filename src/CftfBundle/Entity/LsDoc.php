@@ -765,6 +765,37 @@ class LsDoc implements CaseApiInterface
     }
 
     /**
+     * Add createChildItem
+     *
+     * @param LsItem $topLsItem
+     * @param LsDefAssociationGrouping|null $assocGroup
+     * @param int|null $sequenceNumber
+     *
+     * @return LsAssociation
+     */
+    public function createChildItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null)
+    {
+        $association = new LsAssociation();
+        $association->setLsDoc($this);
+        $association->setOriginLsItem($topLsItem);
+        $association->setType(LsAssociation::CHILD_OF);
+        $association->setDestinationLsDoc($this);
+        if (null !== $sequenceNumber) {
+            $association->setSequenceNumber($sequenceNumber);
+        }
+
+        // PW: set assocGroup if provided and non-null
+        if ($assocGroup !== null) {
+            $association->setGroup($assocGroup);
+        }
+
+        $topLsItem->addAssociation($association);
+        $this->addInverseAssociation($association);
+
+        return $association;
+    }
+
+    /**
      * Add topLsItem
      *
      * @param LsItem $topLsItem
@@ -774,19 +805,7 @@ class LsDoc implements CaseApiInterface
      */
     public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null)
     {
-        $association = new LsAssociation();
-        $association->setLsDoc($this);
-        $association->setOriginLsItem($topLsItem);
-        $association->setType(LsAssociation::CHILD_OF);
-        $association->setDestinationLsDoc($this);
-
-        // PW: set assocGroup if provided and non-null
-        if ($assocGroup !== null) {
-            $association->setGroup($assocGroup);
-        }
-
-        $topLsItem->addAssociation($association);
-        $this->addInverseAssociation($association);
+        $this->createChildItem($topLsItem, $assocGroup);
 
         return $this;
     }

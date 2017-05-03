@@ -2,6 +2,7 @@
 
 namespace GithubFilesBundle\Service;
 
+use Ramsey\Uuid\Uuid;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
@@ -192,11 +193,31 @@ class GithubImport
         $association->setLsDoc($lsDoc);
         $association->setOrigin($lsItem);
         if (is_string($elementAssociated)) {
-            $association->setDestinationNodeIdentifier($elementAssociated);
+            if (\Ramsey\Uuid\Uuid::isValid($elementAssociated)) {
+                $association->setDestinationNodeIdentifier($elementAssociated);
+            } elseif (!filter_var($elementAssociated, FILTER_VALIDATE_URL) === false) {
+                $association->setDestinationNodeUri($elementAssociated);
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $elementAssociated));
+            } else {
+                $encodedHumanCodingScheme = $this->encodeHumanCodingScheme($elementAssociated);
+                $association->setDestinationNodeUri($encodedHumanCodingScheme);
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $encodedHumanCodingScheme));
+            }
         } else {
             $association->setDestination($elementAssociated);
         }
         $this->getEntityManager()->persist($association);
+    }
+
+    /**
+     * @param string $humanCodingScheme
+     *
+     * @return string
+     */
+    protected function encodeHumanCodingScheme($humanCodingScheme): string
+    {
+        $prefix = 'data:text/x-ref-unresolved;base64,';
+        return $prefix.base64_encode($humanCodingScheme);
     }
 
     /**
