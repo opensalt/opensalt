@@ -192,7 +192,7 @@ class DocTreeController extends Controller
     protected function exportExternalDocument($url, ?LsDoc $lsDoc = null) {
         // Check the cache for the document
         $cache = $this->get('salt.cache.external_docs');
-        $cacheDoc = $cache->getItem($url);
+        $cacheDoc = $cache->getItem(rawurlencode($url));
         if ($cacheDoc->isHit()) {
             $s = $cacheDoc->get();
         } else {
