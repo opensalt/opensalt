@@ -37,7 +37,7 @@ function apxDocument(initializer) {
                 $agm.val(assocGroup);
             }
         }
-    }
+    };
     
     /** keep track of the currently-selected item for the document (which could be the doc itself)
      *  Input can be an item, an identifier, or an lsItemId; in the latter case, null represents the document */
@@ -121,10 +121,14 @@ function apxDocument(initializer) {
             self.doc.assocs = [];
             
             self.items = op(data, "CFItems");
-            if (empty(self.items)) self.items = [];
+            if (empty(self.items)) {
+                self.items = [];
+            }
 
             self.assocs = op(data, "CFAssociations");
-            if (empty(self.assocs)) self.assocs = [];
+            if (empty(self.assocs)) {
+                self.assocs = [];
+            }
 
             self.itemTypes = op(data, "CFDefinitions", "CFItemTypes");
             self.subjects = op(data, "CFDefinitions", "CFSubjects");
@@ -138,7 +142,7 @@ function apxDocument(initializer) {
                 self.assocGroups = [];
             } else {
                 for (var i = 0; i < self.assocGroups.length; ++i) {
-                    self.assocGroupHash[self.assocGroups[i].identifier] = self.assocGroups[i]
+                    self.assocGroupHash[self.assocGroups[i].identifier] = self.assocGroups[i];
                     self.assocGroupIdHash[self.assocGroups[i].id] = self.assocGroups[i];
                 }
             }

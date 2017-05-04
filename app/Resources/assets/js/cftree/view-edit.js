@@ -16,7 +16,7 @@ apx.edit.prepareDocEditModal = function() {
             function(responseText, textStatus, jqXHR){
                 $('#ls_doc_subjects').select2entity({dropdownParent: $('#editDocModal')});
             }
-        )
+        );
     }).on('hidden.bs.modal', function(e){
         $('#editDocModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
     });
@@ -62,7 +62,7 @@ apx.edit.prepareItemEditModal = function() {
                 });
                 $('#ls_item_itemType').select2entity({dropdownParent: $('#editItemModal')});
             }
-        )
+        );
     }).on('hidden.bs.modal', function(e){
         $('#editItemModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
     });
