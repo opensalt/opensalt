@@ -109,62 +109,10 @@ class LsAssociationController extends Controller
     }
 
     /**
-     * Creates a new LsAssociation entity -- tree-view version (PW).
-     *
-     * @Route("/treenew/{originLsItem}/{destinationLsItem}", name="lsassociation_tree_new_old")
-     * @Route("/treenew/{originLsItem}/{destinationLsItem}/{assocGroup}", name="lsassociation_tree_new_old_ag")
-     * @Method({"GET", "POST"})
-     * @Template()
-     *
-     * @param Request $request
-     * @param LsItem $originLsItem
-     * @param LsItem $destinationLsItem
-     * @param LsDefAssociationGrouping|null $assocGroup
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
-     */
-    public function treeNewActionOld(Request $request, LsItem $originLsItem, LsItem $destinationLsItem, ?LsDefAssociationGrouping $assocGroup = null)
-    {
-        $ajax = $request->isXmlHttpRequest();
-        $lsAssociation = new LsAssociation();
-        $lsAssociation->setOriginLsItem($originLsItem);
-        $lsAssociation->setDestinationLsItem($destinationLsItem);
-        // Add to the origin item's LsDoc
-        $lsAssociation->setLsDoc($originLsItem->getLsDoc());
-        // PW: set assocGroup if provided and non-null
-        if ($assocGroup !== null) {
-            $lsAssociation->setGroup($assocGroup);
-        }
-        $form = $this->createForm(LsAssociationTreeType::class, $lsAssociation, ['ajax'=>$ajax]);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsAssociation);
-            $em->flush();
-            if ($ajax) {
-                // return id of created association
-                return new Response($lsAssociation->getId(), Response::HTTP_CREATED);
-                //return new Response($this->generateUrl('doc_tree_item_view', ['id' => $destinationLsItem->getId()]), Response::HTTP_CREATED);
-            }
-            return $this->redirectToRoute('lsassociation_show', array('id' => $lsAssociation->getId()));
-        }
-        $ret = [
-            'lsAssociation' => $lsAssociation,
-            'form' => $form->createView(),
-        ];
-        if ($ajax && $form->isSubmitted() && !$form->isValid()) {
-            return $this->render('CftfBundle:LsAssociation:new.html.twig', $ret, new Response('', Response::HTTP_OK));
-        }
-        return $ret;
-    }
-
-
-    /**
      * Creates a new LsAssociation entity -- tree-view version, called via ajax (PW).
      *
      * @Route("/treenew/{lsDoc}", name="lsassociation_tree_new")
      * @Method("POST")
-     * @Template()
      *
      * @param Request $request
      * @param LsDoc $lsDoc  : the document we're adding the association to

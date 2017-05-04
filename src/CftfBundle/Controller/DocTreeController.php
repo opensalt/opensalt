@@ -24,75 +24,6 @@ use Util\Compare;
 class DocTreeController extends Controller
 {
     /**
-     * PW: legacy doctree viewAction; we can delete this fn once the new version has been tested
-     *
-     * @Route("/docx/{id}.{_format}", name="doc_tree_viewx", defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/docx/{id}/av.{_format}", name="doc_tree_view_avx", defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/docx/{id}/{assocGroup}.{_format}", name="doc_tree_view_agx", defaults={"_format"="html", "lsItemId"=null})
-     * @Method({"GET"})
-     * @Template()
-     */
-    public function viewxAction(LsDoc $lsDoc, $_format = 'html', $lsItemId = null, $assocGroup = null)
-    {
-
-        // get form field for selecting a document (for tree2)
-        $form = $this->createForm(LsDocListType::class, null, ['ajax' => false]);
-
-        $em = $this->getDoctrine()->getManager();
-
-        // Get all association groups (for all documents);
-        // we need groups for other documents if/when we show a document on the right side
-        $lsDefAssociationGroupings = $em->getRepository('CftfBundle:LsDefAssociationGrouping')->findAll();
-
-        // Get a list of all associations and process them...
-        $lsAssociations = $em->getRepository('CftfBundle:LsAssociation')->findBy(['lsDoc'=>$lsDoc]);
-        $assocItems = array();
-        foreach ($lsAssociations as $assoc) {
-            // for each assoc, we'll decide whether or not we need to include info about the origin and/or destination item
-
-            // if the assoc has a destination in the current SALT instance...
-            if (!empty($assoc->getDestinationLsItem())) {
-                // then if the destination item's document isn't the current document...
-                if ($assoc->getDestinationLsItem()->getLsDoc()->getId() != $lsDoc->getId()) {
-                    // we need to include info about the item
-                    $assocItems[$assoc->getDestinationLsItem()->getId()] = $assoc->getDestinationLsItem();
-                }
-            }
-
-            // if the assoc has an origin in the current SALT instance (it almost always will)...
-            if (!empty($assoc->getOriginLsItem())) {
-                // then if the Origin item's document isn't the current document...
-                if ($assoc->getOriginLsItem()->getLsDoc()->getId() != $lsDoc->getId()) {
-                    // we need to include info about the item
-                    $assocItems[$assoc->getOriginLsItem()->getId()] = $assoc->getOriginLsItem();
-                }
-            }
-        }
-
-        // get list of all documents
-        $resultlsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
-        $lsDocs = [];
-        $authChecker = $this->get('security.authorization_checker');
-        foreach ($resultlsDocs as $doc) {
-            if ($authChecker->isGranted('view', $doc)) {
-                $lsDocs[] = $doc;
-            }
-        }
-
-        return [
-            'lsDoc' => $lsDoc,
-            'lsItemId' => $lsItemId,
-            'assocGroup' => $assocGroup,
-            'docList' => $form->createView(),
-            'assocGroups' => $lsDefAssociationGroupings,
-            'lsAssociations' => $lsAssociations,
-            'assocItems' => $assocItems,
-            'lsDocs' => $lsDocs
-        ];
-    }
-
-///////////////////////////////////////////////
-    /**
      * @Route("/doc/{id}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
      * @Route("/doc/{id}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
      * @Route("/doc/{id}/{assocGroup}.{_format}", name="doc_tree_view_ag", defaults={"_format"="html", "lsItemId"=null})
@@ -333,26 +264,6 @@ class DocTreeController extends Controller
     {
         return ['lsItem'=>$lsItem];
     }
-
-
-    /**
-     * PW: legacy viewItemAction; we can delete this fn once the new version has been tested
-     *
-     * @Route("/itemx/{id}.{_format}", name="doc_tree_item_viewx", defaults={"_format"="html"})
-     * @Route("/itemx/{id}/{assocGroup}.{_format}", name="doc_tree_item_view_agx", defaults={"_format"="html"})
-     * @Method({"GET"})
-     *
-     * @param LsItem $lsItem
-     * @param string $assocGroup
-     * @param string $_format
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function viewItemActionx(LsItem $lsItem, $assocGroup = null, $_format = 'html')
-    {
-        return $this->forward('CftfBundle:DocTree:viewx', ['lsDoc' => $lsItem->getLsDoc(), 'html', 'lsItemId' => $lsItem->getid(), 'assocGroup' => $assocGroup]);
-    }
-
 
     /**
      * @Route("/item/{id}.{_format}", name="doc_tree_item_view", defaults={"_format"="html"})
