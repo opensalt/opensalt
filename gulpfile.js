@@ -110,7 +110,6 @@ gulp.task('scripts', function() {
         config.assetsDir+'/js/cftree/view-edit.js',
         config.assetsDir+'/js/cftree/view-modes.js',
         config.assetsDir+'/js/cftree/viewx.js',
-        config.assetsDir+'/js/security/login.js',
     ], 'site.js');
 });
 
