@@ -14,12 +14,12 @@
 {% endif %}
 {# Simplify origin and destination data #}
 "origin": {
-"doc": {{ lsAssociation.originLsItem.lsDocIdentifier |default("?") |json_encode |raw }},
+"doc": {% if lsAssociation.originLsItem is empty %} "-" {% else %} {{ lsAssociation.originLsItem.lsDocIdentifier |default("?") |json_encode |raw }} {% endif %},
 "item": {{ lsAssociation.originNodeIdentifier |json_encode |raw }}
 },
 "type": {{ (lsAssociation.type|slice(0,1)|lower~lsAssociation.type|slice(1))|replace({' ': ''}) |json_encode |raw }},
 "dest": {
-"doc": {% if lsAssociation.type == 'Exemplar' %} "-" {% else %} {{ lsAssociation.destinationLsItem.lsDocIdentifier |default(lsAssociation.destinationLsDoc.identifier |default("?")) |json_encode |raw }} {% endif %},
+"doc": {% if lsAssociation.type == 'Exemplar' %} "-" {% elseif lsAssociation.destinationLsItem is empty %} "-" {% else %} {{ lsAssociation.destinationLsItem.lsDocIdentifier |default(lsAssociation.destinationLsDoc.identifier |default("?")) |json_encode |raw }} {% endif %},
 "item": {% if lsAssociation.type == 'Exemplar' %} {{ lsAssociation.destinationNodeUri |json_encode |raw }} {% else %} {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }} {% endif %}
 },
 "mod": {{ lsAssociation.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}

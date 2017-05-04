@@ -158,8 +158,10 @@ class DocTreeController extends Controller
                 return new Response('Document not found.', Response::HTTP_NOT_FOUND);
             }
             return $this->exportAction($newDoc);
+        }
+
         // or an identifier...
-        } elseif ($identifier = $request->query->get('identifier')) {
+        if ($identifier = $request->query->get('identifier')) {
             // first see if it's referencing a document on this OpenSALT instantiation
             $newDoc = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findOneBy(['identifier'=>$identifier]);
             if (!empty($newDoc)) {
@@ -176,8 +178,10 @@ class DocTreeController extends Controller
 
             // if not found in externalDocs, error
             return new Response('Document not found.', Response::HTTP_NOT_FOUND);
+        }
+
         // or a url...
-        } elseif ($url = $request->query->get('url')) {
+        if ($url = $request->query->get('url')) {
             // try to load the url, noting that we shoudl save a record of it in externalDocs if found
             return $this->exportExternalDocument($url, $lsDoc);
         }
