@@ -314,7 +314,7 @@ class LsDoc implements CaseApiInterface
     /**
      * @var LsDocAttribute[]|ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDocAttribute", mappedBy="lsDoc", cascade={"ALL"}, indexBy="attribute")
+     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDocAttribute", mappedBy="lsDoc", cascade={"ALL"}, indexBy="attribute", orphanRemoval=true)
      *
      * @Serializer\Exclude()
      */
@@ -1044,7 +1044,12 @@ class LsDoc implements CaseApiInterface
      * @return LsDoc
      */
     public function setAttribute($name, $value) {
-        $this->attributes->set($name, new LsDocAttribute($this, $name, $value));
+    	// if attribute already exists, update it
+    	if ($this->attributes->containsKey($name)) {
+    		$this->attributes->get($name)->setValue($value);
+    	} else {
+	        $this->attributes->set($name, new LsDocAttribute($this, $name, $value));
+	    }
 
         return $this;
     }
@@ -1057,6 +1062,7 @@ class LsDoc implements CaseApiInterface
      * @return $this
      */
     public function removeAttribute($name) {
+        // TODO (PW): does this really remove the item? I did add "orphanRemoval=true" to the attributes field above
         $this->attributes->remove($name);
 
         return $this;
@@ -1077,6 +1083,105 @@ class LsDoc implements CaseApiInterface
         return null;
     }
 
+    /**
+     * Use attributes fields to save the identifiers, urls, and titles of a list of associated documents on different servers
+     * Note that this fn is protected; addExternalDoc and removeExternalDoc are the public functions
+     *
+     * @param array $externalDocs
+     *
+     * @return $this
+     */
+    protected function setExternalDocs($externalDocs) {
+    	// save all ed's passed in
+    	$i = 0;
+    	foreach ($externalDocs as $identifier => $ad) {
+    		$this->setAttribute("externalDoc$i", $identifier . "|" . $ad["autoLoad"] . "|" . $ad["url"] . "|" . $ad["title"]);
+    		// title may get cut off if it's very long, but that's OK.
+    		++$i;
+    	}
+    	
+    	// remove any remaining, now-extraneous ed's
+    	do {
+    		if (!empty($this->getAttribute("externalDoc$i"))) {
+	    		$this->removeAttribute("externalDoc$i");
+	    	}
+    		++$i;
+    	} while ($i < 1000);	// we should always break, but include this as a safety valve
+    	
+    	return $this;
+    }
+
+    /**
+     * Add an associated doc
+     *
+     * @param string $identifier
+     * @param string $autoLoad - "true" or "false"
+     * @param string $url
+     * @param string $title
+     *
+     * @return boolean
+     */
+    public function addExternalDoc($identifier, $autoLoad, $url, $title) {
+    	if (empty($identifier) || empty($autoLoad) || empty($url) || empty($title)) {
+    		return false;
+    	}
+    	
+		// get the doc's existing externalDocs; if this new doc isn't already there, add it
+    	$externalDocs = $this->getExternalDocs();
+		$externalDocs[$identifier] = [
+			"autoLoad" => $autoLoad,
+			"url" => $url,
+			"title" => $title
+		];
+		$this->setExternalDocs($externalDocs);
+
+		return true;
+    }
+    
+    public function setExternalDocAutoLoad($identifier, $autoLoad) {
+    	$externalDocs = $this->getExternalDocs();
+		if (empty($externalDocs[$identifier])) {
+			return false;
+		}
+		$externalDocs[$identifier]["autoLoad"] = $autoLoad;
+		$this->setExternalDocs($externalDocs);    	
+    }
+    
+    /**
+     * Remove an associated doc
+     */
+    public function removeExternalDoc($identifier) {
+    	$externalDocs = $this->getExternalDocs();
+		if (empty($externalDocs[$identifier])) {
+			unset($externalDocs[$identifier]);
+			$this->setExternalDocs($externalDocs);
+		}
+    }
+    
+    /**
+     * Get the list of associated documents for this document
+     *
+     * @return array (which could be empty)
+     */
+    public function getExternalDocs() {
+    	$externalDocs = [];
+    	for ($i = 0; $i < 1000; ++$i) {
+    		// look for next externalDoc
+    		$ed = $this->getAttribute("externalDoc$i");
+    		
+    		// if found, parse the ed, which should have the form "identifier|url|title"
+    		if (!empty($ed) && preg_match("/^(.+?)\|(true|false)\|(.+?)\|(.*)/", $ed, $matches)) {
+    			$externalDocs[$matches[1]] = [
+    				"autoLoad" => $matches[2],
+    				"url" => $matches[3],
+    				"title" => $matches[4]
+    			];
+    		}
+    	}
+
+    	return $externalDocs;
+    }
+    
     /**
      * @return string
      */

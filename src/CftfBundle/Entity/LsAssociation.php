@@ -328,8 +328,8 @@ class LsAssociation implements CaseApiInterface
     public static function allTypes(): array
     {
         return [
-            static::EXACT_MATCH_OF,
             static::RELATED_TO,
+            static::EXACT_MATCH_OF,
             static::PART_OF,
             static::REPLACED_BY,
             static::PRECEDES,
@@ -515,25 +515,25 @@ class LsAssociation implements CaseApiInterface
     /**
      * Set the Destination of the association
      *
-     * @param string|LsDoc|LsItem $origin
+     * @param string|LsDoc|LsItem $destination
      *
      * @return LsAssociation
      *
      * @throws \UnexpectedValueException
      */
-    public function setDestination($origin): LsAssociation
+    public function setDestination($destination): LsAssociation
     {
-        if (is_string($origin)) {
-            $this->setDestinationNodeUri($origin);
-            $this->setDestinationNodeIdentifier($origin);
-        } elseif ($origin instanceof LsDoc) {
-            $this->setDestinationLsDoc($origin);
-            $this->setDestinationNodeUri($origin->getUri());
-            $this->setDestinationNodeIdentifier($origin->getIdentifier());
-        } elseif ($origin instanceof LsItem) {
-            $this->setDestinationLsItem($origin);
-            $this->setDestinationNodeUri($origin->getUri());
-            $this->setDestinationNodeIdentifier($origin->getIdentifier());
+        if (is_string($destination)) {
+            $this->setDestinationNodeUri($destination);
+            $this->setDestinationNodeIdentifier($destination);
+        } elseif ($destination instanceof LsDoc) {
+            $this->setDestinationLsDoc($destination);
+            $this->setDestinationNodeUri($destination->getUri());
+            $this->setDestinationNodeIdentifier($destination->getIdentifier());
+        } elseif ($destination instanceof LsItem) {
+            $this->setDestinationLsItem($destination);
+            $this->setDestinationNodeUri($destination->getUri());
+            $this->setDestinationNodeIdentifier($destination->getIdentifier());
         } else {
             throw new \UnexpectedValueException('The value must be a URI, an LsDoc, or an LsItem');
         }
