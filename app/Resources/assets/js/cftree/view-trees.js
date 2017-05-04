@@ -1,3 +1,4 @@
+/* global apx */
 window.apx = window.apx||{};
 
 /** Prepare menus for selecting documents for the left- and right-side trees */
