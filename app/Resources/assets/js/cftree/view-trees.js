@@ -158,6 +158,40 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
     
 };
 
+/** Define a function that will "synch" association destinations as documents get loaded when the application is starting up */
+apx.unknownAssocsShowing = null;;
+apx.checkUnknownAssociationDestinationsInterval = setInterval(function() {
+    // if unknownAssocsShowing hasn't been set yet, just return
+    if (apx.unknownAssocsShowing === null) {
+        return;
+    }
+    
+    // go through any current unknownAssocsShowing
+	for (var id in apx.unknownAssocsShowing) {
+	    var assoc = apx.unknownAssocsShowing[id];
+	    // if we know about this association's destination item now
+	    if (!empty(apx.allItemsHash[assoc.dest.item])) {
+	        var title = apx.treeDoc1.associationDestItemTitle(assoc);
+	        $("[data-association-id=" + id + "] .itemDetailsAssociationTitle").html(title);
+	    }
+	}
+	
+	// if all documents have been loaded, clear the interval
+	var allLoaded = true;
+	for (var identifier in apx.allDocs) {
+	    if (apx.allDocs[identifier] == "loading") {
+	        allLoaded = false;
+	        break;
+	    }
+	}
+	if (allLoaded) {
+	    console.log("canceling checkUnknownAssociationDestinations");
+	    clearInterval(apx.checkUnknownAssociationDestinationsInterval);
+	}
+	
+}, 1000);
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // LEFT-SIDE TREE
 apx.tree1Doc = null;
@@ -367,7 +401,14 @@ apx.treeDocLoadCallback1 = function() {
             }
         });
         // end of fancytree widget initialization
-
+		
+		// if we're not showing mainDoc on the left, set a background color to indicate that
+		if (apx.treeDoc1 != apx.mainDoc) {
+			$("#tree1Section").addClass("otherDoc");
+		} else {
+			$("#tree1Section").removeClass("otherDoc");
+		}
+		
 		// restore checkbox state
 		apx.treeDoc1.treeCheckboxRestoreCheckboxes(1);
 

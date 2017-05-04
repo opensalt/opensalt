@@ -27,6 +27,11 @@
     border-width:0;
 }
 
+#tree1Section.otherDoc .fancytree-container {
+    background-color:#ffd;
+}
+
+
 #tree2SectionControls {
     display:none;
     margin-top: 15px;
@@ -242,7 +247,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 }
 
 .lsassociation-other-doc {
-    background-color:#ffc;
+    background-color:#ffd;
 }
 
 .lsAssociationItemDisplay {

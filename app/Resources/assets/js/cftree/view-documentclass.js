@@ -338,7 +338,7 @@ function apxDocument(initializer) {
                         }
                         
                         self.assocGroupHash[ag.identifier] = ag;
-                        self.assocGroupIdHHash[ag.id] = ag;
+                        self.assocGroupIdHash[ag.id] = ag;
                     }
                     
                     // now record the id as assoc.groupId
@@ -483,11 +483,39 @@ function apxDocument(initializer) {
 
             // sort children of parent
             parent.children.sort(function(a,b) {
-                var leA = a.seq * 1;
-                var leB = b.seq * 1;
-                if (isNaN(leA)) leA = 100000;
-                if (isNaN(leB)) leB = 100000;
-                return leA - leB;
+                // try to sort by a.seq
+                var seqA = a.seq * 1;
+                var seqB = b.seq * 1;
+                if (isNaN(seqA)) seqA = 100000;
+                if (isNaN(seqB)) seqB = 100000;
+                // if seqA != seqB, sort by seq
+                if (seqA != seqB) {
+                    return seqA - seqB;
+                }
+                
+                // else try to sort by the item's listEnumeration field
+                var leA = 100000;
+                var leB = 100000;
+                if (!empty(a.ref) && !empty(a.ref.le)) {
+                    leA = a.ref.le*1;
+                }
+                if (!empty(b.ref) && !empty(b.ref.le)) {
+                    leB = b.ref.le*1;
+                }
+                if (leA != leB) {
+                    return leA - leB;
+                }
+                
+                // else try to sort by the item's human coding scheme
+                var hcsA = op(a, "ref", "hcs");
+                var hcsB = op(a, "ref", "hcs");
+                if (empty(hcsA) && empty(hcsB)) return 0;
+                if (empty(hcsB)) return -1;
+                if (empty(hcsA)) return 1;
+                if (hcsA < hcsB) return -1;
+                if (hcsB < hcsA) return 1;
+                
+                return 0;
             });
         }
         
@@ -913,9 +941,9 @@ function apxDocument(initializer) {
         }
         console.log("openAssociationItem", assoc);
         if (!empty(assoc)) {
-            // for exemplar destinations, open url in new window
-            if (assocItem == "dest" && assoc.type == "exemplar") {
-                window.open(assoc.dest.item);
+            // when the specified "item" is a url (this should be the case for exemplars, and possibly other items), open url in new window
+            if (assoc[assocItem].item.search(/^http(s)?:/) == 0) {
+                window.open(assoc[assocItem].item);
                 // return false to signal that we opened in another window
                 return false;
         
@@ -931,9 +959,6 @@ function apxDocument(initializer) {
                     apx.treeDoc1.setCurrentItem(destItem);
                     apx.pushHistoryState();
                     apx.treeDoc1.activateCurrentItem();
-                    if (fromAssocView && false) {
-                        setTimeout(function() { apx.viewMode.showTreeView("avTable"); }, 10);
-                    }
                 }
                 // return true to signal that we did something in this window
                 return true;
@@ -1127,10 +1152,9 @@ function apxDocument(initializer) {
     };
 
     /** Show the currentItem on the right side */
-    self.showCurrentItemTimeout = null;
     self.showCurrentItem = function() {
-        // reset showCurrentItemTimeout
-        self.showCurrentItemTimeout = null;
+        // clear apx.unknownAssocsShowing
+        apx.unknownAssocsShowing = {};
     
         console.log("showCurrentItem");
         var item = self.currentItem;
@@ -1307,8 +1331,12 @@ function apxDocument(initializer) {
                     
                         // open type section
                         var title = self.getAssociationTypePretty(a);
+                        var icon = "";
+                        if (a.type != "isChildOf") {
+                            icon = '<img class="association-panel-icon" src="/assets/img/association-icon.png">';
+                        }
                         html += '<section class="panel panel-default panel-component item-component">'
-                            + '<div class="panel-heading"><img class="association-panel-icon" src="/assets/img/association-icon.png">' + title + '</div>'
+                            + '<div class="panel-heading">' + icon + title + '</div>'
                             + '<div class="panel-body"><div><div class="list-group">'
                             ;
                             
@@ -1343,67 +1371,11 @@ function apxDocument(initializer) {
                         html += '<span class="label label-default">' + groupName + '</span>';
                     }
                 
-                    var title = "Item " + a.dest.item;
-                
-                    // if the assoc is an exemplar, title is the item
-                    if (a.type == "exemplar") {
-                        title = a.dest.item;
-                    
-                    // else look for a title in the dest part of the association
-                    } else if (!empty(a.dest.title)) {
-                        // we should get this for documents loaded from other servers
-                        title = a.dest.title;
-                
-                    // else if we have a dest.doc listed
-                    } else if (a.dest.doc != "?") {
-                        // look for document in allDocs
-                        var doc = apx.allDocs[a.dest.doc];
-                    
-                        // if we tried to load this document and failed, note that
-                        if (doc == "loaderror") {
-                            title += " (document could not be loaded)";
-
-                        // else if we're still in the process of loading that doc...
-                        } else if (doc == "loading") {
-                            // note this and try showing the item again in a few seconds
-                            title += " (loading document...)";
-                            if (self.showCurrentItemTimeout == null) {
-                                self.showCurrentItemTimeout = setTimeout(self.showCurrentItem, 1000);
-                            }
-                    
-                        // else if we have the doc
-                        } else if (typeof(doc) == "object") {
-                            var destItem = doc.itemHash[a.dest.item];
-                            if (empty(destItem)) {
-                                // in theory, this shouldn't happen
-                                title += " (item not found in document)";
-                            
-                            } else {
-                                title = self.getItemTitle(destItem, true);
-                            
-                                // if item comes from another doc, note that
-                                if (doc != self) {
-                                    var docTitle = doc.doc.title;
-                                    if (docTitle.length > 30) {
-                                        docTitle = docTitle.substr(0, 35);
-                                        docTitle = docTitle.replace(/\w+$/, "");
-                                        docTitle += "…";
-                                    }
-                                    title += ' <span class="label label-default">' + docTitle + '</span>';
-                                }
-                            }
-                        }
-
-                    // if we don't know what the document is at this time, try to reload after 1 second; we might be loading an external document
-                    } else {
-                        if (self.showCurrentItemTimeout == null) {
-                            self.showCurrentItemTimeout = setTimeout(self.showCurrentItem, 1000);
-                        }
-                    }
-                    
                     html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
                         + removeBtn
-                        + title
+                        + '<span class="itemDetailsAssociationTitle">'
+                        + self.associationDestItemTitle(a)
+                        + '</span>'
                         + '</a>'
                         ;
                 }
@@ -1446,7 +1418,75 @@ function apxDocument(initializer) {
             $("#itemOptions").show();
             $(".lsItemDetailsMoreInfoLink").show();
         }
+    };
+    
+    /** Compose the title for the destination of an association item in the item details view */
+    self.associationDestItemTitle = function(a) {
+        var title = a.dest.item;
+        var doc = null;
+    
+        // if the assoc is an exemplar, title is the item
+        if (a.type == "exemplar") {
+            title = a.dest.item;
+        
+        // else look for a title in the dest part of the association
+        } else if (!empty(a.dest.title)) {
+            // we should get this for documents loaded from other servers
+            title = a.dest.title;
+        
+        // else see if the "item" is actually document
+        } else if (!empty(apx.allDocs[a.dest.item])) {
+            title = "Document: " + apx.allDocs[a.dest.item].doc.title;
+        
+        // else if we know about this item via allItemsHash...    
+        } else if (!empty(apx.allItemsHash[a.dest.item])) {
+            var destItem = apx.allItemsHash[a.dest.item];
+            if (empty(destItem)) {
+                // in theory, this shouldn't happen
+                title += " (item not found)";
+            
+            } else {
+                title = self.getItemTitle(destItem, true);
+                doc = destItem.doc;
+            }
+        
+        // else we don't know what to show...
+        } else {
+            // so add the association to apx.unknownAssocsShowing
+            apx.unknownAssocsShowing[a.id] = a;
+        
+            if (a.dest.doc != "?") {
+                // look for document in allDocs
+                doc = apx.allDocs[a.dest.doc];
+        
+                // if we tried to load this document and failed, note that
+                if (doc == "loaderror") {
+                    title += " (document could not be loaded)";
 
+                // else if we know we're still in the process of loading that doc, note that
+                } else if (doc == "loading") {
+                    title += " (loading document...)";
+        
+                // else we have the doc -- this shouldn't normally happen, because if we know about the doc, 
+                // we should have found the item in apx.allItemsHash above
+                } else if (typeof(doc) == "object") {
+                    title += " (item not found in document)";
+                }
+            }
+        }
+
+        // if item comes from another doc, note that
+        if (!empty(doc) && typeof(doc) == "object" && doc != self) {
+            var docTitle = doc.doc.title;
+            if (docTitle.length > 30) {
+                docTitle = docTitle.substr(0, 35);
+                docTitle = docTitle.replace(/\w+$/, "");
+                docTitle += "…";
+            }
+            title += ' <span class="label label-default">' + docTitle + '</span>';
+        }
+        
+        return title;
     };
 
     self.toggleItemCreationButtons = function() {
