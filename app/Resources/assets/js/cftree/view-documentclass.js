@@ -507,8 +507,10 @@ function apxDocument(initializer) {
                 }
                 
                 // else try to sort by the item's human coding scheme
+                
                 var hcsA = op(a, "ref", "hcs");
-                var hcsB = op(a, "ref", "hcs");
+                var hcsB = op(b, "ref", "hcs");
+                
                 if (empty(hcsA) && empty(hcsB)) return 0;
                 if (empty(hcsB)) return -1;
                 if (empty(hcsA)) return 1;
@@ -1261,7 +1263,7 @@ function apxDocument(initializer) {
 
             for (key in attributes = {
                         'uri': 'CASE Statement URL',
-                        'li': 'List Enumeration in Source',
+                        'le': 'List Enumeration in Source',
                         'cku': 'Concept Keywords URI',
                         'lang': 'Language',
                         'licenceUri': 'Licence URI',
@@ -1429,11 +1431,6 @@ function apxDocument(initializer) {
         if (a.type == "exemplar") {
             title = a.dest.item;
         
-        // else look for a title in the dest part of the association
-        } else if (!empty(a.dest.title)) {
-            // we should get this for documents loaded from other servers
-            title = a.dest.title;
-        
         // else see if the "item" is actually document
         } else if (!empty(apx.allDocs[a.dest.item])) {
             title = "Document: " + apx.allDocs[a.dest.item].doc.title;
@@ -1449,6 +1446,11 @@ function apxDocument(initializer) {
                 title = self.getItemTitle(destItem, true);
                 doc = destItem.doc;
             }
+        
+        // else look for a title in the dest part of the association
+        } else if (!empty(a.dest.title)) {
+            // we should get this for documents loaded from other servers
+            title = a.dest.title;
         
         // else we don't know what to show...
         } else {
