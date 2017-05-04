@@ -157,8 +157,8 @@ class LsAssociationController extends Controller
         }
         return $ret;
     }
-    
-    
+
+
     /**
      * Creates a new LsAssociation entity -- tree-view version, called via ajax (PW).
      *
@@ -175,36 +175,36 @@ class LsAssociationController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $lsAssociation = new LsAssociation();
-        
-        $lsAssociation->setType($request->request->get("type"));
+
+        $lsAssociation->setType($request->request->get('type'));
 
         // Add to the provided LsDoc
         $lsAssociation->setLsDoc($lsDoc);
-        
+
         // deal with origin and dest items, which can be specified by id or by identifier
         // if externalDoc is specified for either one, mark this document as "autoLoad": "true" in the lsDoc's externalDocuments
         $repo = $em->getRepository(LsItem::class);
-        
-        $origin = $request->request->get("origin");
-        if (!empty($origin["id"])) {
-            $origin = $repo->findOneBy(['id'=>$origin["id"]]);
+
+        $origin = $request->request->get('origin');
+        if (!empty($origin['id'])) {
+            $origin = $repo->findOneBy(['id'=>$origin['id']]);
         } else {
-            if (!empty($origin["externalDoc"])) {
-                $lsDoc->setExternalDocAutoLoad($origin["externalDoc"], "true");
+            if (!empty($origin['externalDoc'])) {
+                $lsDoc->setExternalDocAutoLoad($origin['externalDoc'], 'true');
                 $em->persist($lsDoc);
             }
-            $origin = $origin["identifier"];
+            $origin = $origin['identifier'];
         }
 
-        $dest = $request->request->get("dest");
-        if (!empty($dest["id"])) {
-            $dest = $repo->findOneBy(['id'=>$dest["id"]]);
+        $dest = $request->request->get('dest');
+        if (!empty($dest['id'])) {
+            $dest = $repo->findOneBy(['id'=>$dest['id']]);
         } else {
-            if (!empty($dest["externalDoc"])) {
-                $lsDoc->setExternalDocAutoLoad($dest["externalDoc"], "true");
+            if (!empty($dest['externalDoc'])) {
+                $lsDoc->setExternalDocAutoLoad($dest['externalDoc'], 'true');
                 $em->persist($lsDoc);
             }
-            $dest = $dest["identifier"];
+            $dest = $dest['identifier'];
         }
 
         // setOrigin and setDestination will take care of setting things appropriately depending on whether an identifier or item are supplied
@@ -212,14 +212,14 @@ class LsAssociationController extends Controller
         $lsAssociation->setDestination($dest);
 
         // set assocGroup if provided
-        $assocGroup = $request->request->get("assocGroup");
+        $assocGroup = $request->request->get('assocGroup');
         if (!empty($assocGroup)) {
             $repo = $em->getRepository(LsDefAssociationGrouping::class);
             $assocGroup = $repo->findOneBy(['id'=>$assocGroup]);
             $lsAssociation->setGroup($assocGroup);
         }
 
-        $em->persist($lsAssociation);       
+        $em->persist($lsAssociation);
         $em->flush();
 
         // return id of created association
@@ -252,10 +252,10 @@ class LsAssociationController extends Controller
         $em = $this->getDoctrine()->getManager();
         $em->persist($lsAssociation);
         $em->flush();
-        
+
         $rv = [
-            "id" => $lsAssociation->getId(),
-            "identifier" => $lsAssociation->getIdentifier()
+            'id' => $lsAssociation->getId(),
+            'identifier' => $lsAssociation->getIdentifier()
         ];
 
         $response = new Response(json_encode($rv));

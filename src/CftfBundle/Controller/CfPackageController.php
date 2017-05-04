@@ -24,7 +24,7 @@ class CfPackageController extends Controller
      */
     public function exportAction(LsDoc $lsDoc, $_format = 'json')
     {
-    	$repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
+        $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
         $items = $repo->findAllItems($lsDoc);
         $associations = $repo->findAllAssociations($lsDoc);
         // PW: this used to use findAllAssociationsForCapturedNodes, but that wouldn't export crosswalk associations
