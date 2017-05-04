@@ -48,6 +48,20 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
     }
 
     /**
+     * Find all admin user per organization.
+     *
+     * @return array
+     */
+    public function findAdmins(){
+        $qb = $this->createQueryBuilder('u');
+        $qb->select('u')
+            ->where('u.roles LIKE :roles')
+            ->groupBy('u.org')
+            ->setParameter('roles', '%"ROLE_ADMIN"%');
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
      * Creates a user
      *
      * @param string $username

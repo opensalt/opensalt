@@ -20,7 +20,9 @@ parameters:
     github_client_id: '%env(GITHUB_CLIENT_ID)%'
     github_client_secret: '%env(GITHUB_CLIENT_SECRET)%'
     brand_logo_url: '%env(BRAND_LOGO_URL)%'
+    brand_logo_style: '%env(BRAND_LOGO_STYLE)%'
     brand_link_url: '%env(BRAND_LINK_URL)%'
+    brand_link_style: '%env(BRAND_LINK_STYLE)%'
 
 framework:
     #esi:             ~
@@ -72,7 +74,9 @@ twig:
     globals:
       github_client_id: "%github_client_id%"
       brand_logo_url: "%brand_logo_url%"
+      brand_logo_style: "%brand_logo_style%"
       brand_link_url: "%brand_link_url%"
+      brand_link_style: "%brand_link_style%"
 
 # Assetic Configuration
 assetic:
@@ -145,6 +149,8 @@ doctrine:
             default:
                 naming_strategy: doctrine.orm.naming_strategy.underscore
                 auto_mapping: true
+                metadata_cache_driver: apc
+                query_cache_driver: apc
                 second_level_cache:
                     enabled: false
                     log_enabled: true
