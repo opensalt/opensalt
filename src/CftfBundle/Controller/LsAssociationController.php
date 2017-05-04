@@ -13,7 +13,6 @@ use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Form\Type\LsAssociationType;
-use CftfBundle\Form\Type\LsAssociationTreeType;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

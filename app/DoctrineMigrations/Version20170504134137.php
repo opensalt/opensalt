@@ -28,6 +28,6 @@ class Version20170504134137 extends AbstractMigration
      */
     public function down(Schema $schema)
     {
-        $this->addSql("DROP TABLE cache_items");
+        $this->addSql('DROP TABLE cache_items');
     }
 }
