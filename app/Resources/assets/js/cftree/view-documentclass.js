@@ -871,6 +871,7 @@ function apxDocument(initializer) {
                     "inverse": true,
                     "id": a.id + "-R",
                     "identifier": a.identifier + "-R",
+                    "groupId": a.groupId,
                     "assocDoc": self.doc.identifier,
                     "type": a.type,
                     "origin": a.dest,   // switch origin and dest
