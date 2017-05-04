@@ -88,32 +88,32 @@ class LsItemController extends Controller
             $em = $this->getDoctrine()->getManager();
             $em->persist($lsItem);
             $em->flush();
-            
+
             // retrieve isChildOf assoc id for the new item
             $assoc = $this->getDoctrine()->getRepository('CftfBundle:LsAssociation')->findOneBy(['originLsItem'=>$lsItem]);
 
             if ($ajax) {
                 // if ajax call, return the item as json
                 $ret = [
-                    "id" => $lsItem->getId(),
-                    "identifier" => $lsItem->getIdentifier(),
-                    "fullStatement" => $lsItem->getFullStatement(),
-                    "humanCodingScheme" => $lsItem->getHumanCodingScheme(),
-                    "listEnumInSource" => $lsItem->getListEnumInSource(),
-                    "abbreviatedStatement" => $lsItem->getAbbreviatedStatement(),
-                    "conceptKeywords" => $lsItem->getConceptKeywords(),
-                    "conceptKeywordsUri" => $lsItem->getConceptKeywordsUri(),
-                    "notes" => $lsItem->getNotes(),
-                    "language" => $lsItem->getLanguage(),
-                    "educationalAlignment" => $lsItem->getEducationalAlignment(),
-                    "itemType" => $lsItem->getItemType(),
-                    "changedAt" => $lsItem->getChangedAt(),
-                    "extra" => [
-                        "id" => $assoc->getId(),
-                        "identifier" => $assoc->getIdentifier()
+                    'id' => $lsItem->getId(),
+                    'identifier' => $lsItem->getIdentifier(),
+                    'fullStatement' => $lsItem->getFullStatement(),
+                    'humanCodingScheme' => $lsItem->getHumanCodingScheme(),
+                    'listEnumInSource' => $lsItem->getListEnumInSource(),
+                    'abbreviatedStatement' => $lsItem->getAbbreviatedStatement(),
+                    'conceptKeywords' => $lsItem->getConceptKeywords(),
+                    'conceptKeywordsUri' => $lsItem->getConceptKeywordsUri(),
+                    'notes' => $lsItem->getNotes(),
+                    'language' => $lsItem->getLanguage(),
+                    'educationalAlignment' => $lsItem->getEducationalAlignment(),
+                    'itemType' => $lsItem->getItemType(),
+                    'changedAt' => $lsItem->getChangedAt(),
+                    'extra' => [
+                        'id' => $assoc->getId(),
+                        'identifier' => $assoc->getIdentifier()
                     ]
                 ];
-                $response = new Response($this->renderView("CftfBundle:DocTree:export_item.json.twig", ['lsItem' => $ret]));
+                $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
                 $response->headers->set('Content-Type', 'text/json');
                 $response->headers->set('Pragma', 'no-cache');
 
@@ -192,22 +192,22 @@ class LsItemController extends Controller
             if ($ajax) {
                 // if ajax call, return the item as json
                 $ret = [
-                    "id" => $lsItem->getId(),
-                    "identifier" => $lsItem->getIdentifier(),
-                    "fullStatement" => $lsItem->getFullStatement(),
-                    "humanCodingScheme" => $lsItem->getHumanCodingScheme(),
-                    "listEnumInSource" => $lsItem->getListEnumInSource(),
-                    "abbreviatedStatement" => $lsItem->getAbbreviatedStatement(),
-                    "conceptKeywords" => $lsItem->getConceptKeywords(),
-                    "conceptKeywordsUri" => $lsItem->getConceptKeywordsUri(),
-                    "notes" => $lsItem->getNotes(),
-                    "language" => $lsItem->getLanguage(),
-                    "educationalAlignment" => $lsItem->getEducationalAlignment(),
-                    "itemType" => $lsItem->getItemType(),
-                    "changedAt" => $lsItem->getChangedAt(),
-                    "extra" => null
+                    'id' => $lsItem->getId(),
+                    'identifier' => $lsItem->getIdentifier(),
+                    'fullStatement' => $lsItem->getFullStatement(),
+                    'humanCodingScheme' => $lsItem->getHumanCodingScheme(),
+                    'listEnumInSource' => $lsItem->getListEnumInSource(),
+                    'abbreviatedStatement' => $lsItem->getAbbreviatedStatement(),
+                    'conceptKeywords' => $lsItem->getConceptKeywords(),
+                    'conceptKeywordsUri' => $lsItem->getConceptKeywordsUri(),
+                    'notes' => $lsItem->getNotes(),
+                    'language' => $lsItem->getLanguage(),
+                    'educationalAlignment' => $lsItem->getEducationalAlignment(),
+                    'itemType' => $lsItem->getItemType(),
+                    'changedAt' => $lsItem->getChangedAt(),
+                    'extra' => null
                 ];
-                $response = new Response($this->renderView("CftfBundle:DocTree:export_item.json.twig", ['lsItem' => $ret]));
+                $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
                 $response->headers->set('Content-Type', 'text/json');
                 $response->headers->set('Pragma', 'no-cache');
 

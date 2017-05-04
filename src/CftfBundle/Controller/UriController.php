@@ -37,12 +37,12 @@ class UriController extends Controller
             $json = true;
             $localUri = preg_replace('/\.json$/', '', $localUri);
         }
-        
+
         // if this is an ajax call, assume the json version is wanted
         if ($request->isXmlHttpRequest()) {
             $json = true;
         }
-        
+
         // PW: we need to do this check after the json check above
         if (Uuid::isValid($localUri)) {
             // If the uri is just a UUID then assume it is a local one
