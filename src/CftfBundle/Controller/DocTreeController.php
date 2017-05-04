@@ -185,22 +185,51 @@ class DocTreeController extends Controller
         return new Response('Document not found.', Response::HTTP_NOT_FOUND);
     }
 
-    protected function exportExternalDocument($url, $lsDoc) {
-        // We could store, and check here, a global table of external documents that we could index by urls, instead of using document-specific associated docs. But it's not completely clear that would be an improvement.
-        // TODO: We could "cache" external documents by simply saving a copy of the document files on this OpenSALT server. This way, if the document ever becomes unavailable from the external server, we would still be able to reference it. We could then decide whether to try to refresh the "cache" every time the file is accessed; or we could refresh if the cached version is more than 30 (or 5, or 60, or 1440, etc.) minutes old
-        // PW: the methods used below may not be the best/most elegant way to check for the existence of and/or load the external file...
+    protected function exportExternalDocument($url, ?LsDoc $lsDoc = null) {
+        // Check the cache for the document
+        $cache = $this->get('salt.cache.external_docs');
+        $cache->createTable();
+        $cacheDoc = $cache->getItem($url);
+        if ($cacheDoc->isHit()) {
+            $s = $cacheDoc->get();
+        } else {
+            // first check to see if this url returns a valid document (function taken from notes of php file_exists)
+            $client = $this->get('csa_guzzle.client.json');
+            $extDoc = $client->request(
+                'GET',
+                $url,
+                [
+                    'timeout' => 60,
+                    'headers' => [
+                        'Accept' => 'application/json',
+                    ],
+                    'http_errors' => false,
+                ]
+            );
+            if ($extDoc->getStatusCode() === 404) {
+                return new Response(
+                    'Document not found.',
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+            if ($extDoc->getStatusCode() !== 200) {
+                return new Response(
+                    $extDoc->getReasonPhrase(),
+                    $extDoc->getStatusCode()
+                );
+            }
 
-        // first check to see if this url returns a valid document (function taken from notes of php file_exists)
-        $file_headers = @get_headers($url);
-        if ($file_headers[0] == 'HTTP/1.1 404 Not Found') {
-            return new Response('Document not found.', Response::HTTP_NOT_FOUND);
+            // file exists, so get it
+            $s = $extDoc->getBody()->getContents();
+
+            // Save document in cache for 30 minutes (arbitrary time period)
+            $cacheDoc->set($s);
+            $cacheDoc->expiresAfter(new \DateInterval('PT30M'));
+            $cache->save($cacheDoc);
         }
-
-        // file exists, so get it
-        $s = file_get_contents($url);
         if (!empty($s)) {
             // if $lsDoc is not empty, get the document's identifier and title and save to the $lsDoc's externalDocs
-            if (!empty($lsDoc)) {
+            if (null !== $lsDoc) {
                 // This might not be the most elegant way to get  way to get the doc's identifier and id, but it should work
                 $identifier = '';
                 if (preg_match("/\"identifier\"\s*:\s*\"(.+?)\"/", $s, $matches)) {
