@@ -1,6 +1,8 @@
 /* global apx */
 window.apx = window.apx||{};
 
+/* global apxDocument */
+
 ///////////////////////////////////////////////////////////////////////////////
 // UTILITY FUNCTIONS
 
@@ -23,12 +25,12 @@ function empty(val) {
  *
  *  @returns {*}
  */
-function object_property() {
+function objectProperty() {
     var o = arguments[0];
     // go through keys in the arguments
     for (var i = 1; i < arguments.length; ++i) {
         // if o is empty or is not an object, we can't get any property, so return undefined
-        if (empty(o) || typeof(o) != "object") {
+        if (empty(o) || typeof(o) !== "object") {
             return undefined;
         }
         // get the next level down, which might be another object to check a property of (in which case we'll loop again)
@@ -39,7 +41,7 @@ function object_property() {
     return o;
 }
 // shortcut
-var op = object_property;
+var op = objectProperty;
 
 //////////////////////////////////////////////////
 // INITIALIZE WEB APP
@@ -62,10 +64,10 @@ apx.initialize = function() {
     $("#rightSideCreateAssociationsBtn").on('click', function() { apx.setRightSideMode("addAssociation"); });
 
     // Tree checkboxes/menus
-    $("#treeSideLeft .treeCheckboxControlBtn").on('click', function(e) { apx.treeDoc1.treeCheckboxToggleAll(null, 1); e.stopPropagation(); });
-    $("#treeSideLeft .treeCheckboxMenuItem").on('click', function() { apx.treeDoc1.treeCheckboxMenuItemSelected($(this), 1); });
-    $("#treeSideRight .treeCheckboxControlBtn").on('click', function(e) { apx.treeDoc2.treeCheckboxToggleAll(null, 2); e.stopPropagation(); });
-    $("#treeSideRight .treeCheckboxMenuItem").on('click', function() { apx.treeDoc2.treeCheckboxMenuItemSelected($(this), 2); });
+    $("#treeSideLeft").find(".treeCheckboxControlBtn").on('click', function(e) { apx.treeDoc1.treeCheckboxToggleAll(null, 1); e.stopPropagation(); });
+    $("#treeSideLeft").find(".treeCheckboxMenuItem").on('click', function() { apx.treeDoc1.treeCheckboxMenuItemSelected($(this), 1); });
+    $("#treeSideRight").find(".treeCheckboxControlBtn").on('click', function(e) { apx.treeDoc2.treeCheckboxToggleAll(null, 2); e.stopPropagation(); });
+    $("#treeSideRight").find(".treeCheckboxMenuItem").on('click', function() { apx.treeDoc2.treeCheckboxMenuItemSelected($(this), 2); });
     
     // popovers on export modal
     $('#exportModal').find('[data-toggle="popover"]').popover();
@@ -111,7 +113,7 @@ apx.initialize = function() {
                 var ed = apx.mainDoc.externalDocs[identifier];
                 // and start loading now any externalDocs that have the "autoLoad" flag set to "true"
                 // we have to do this because associations to items in these docs don't specify the doc id
-                if (ed.autoLoad == "true") {
+                if (ed.autoLoad === "true") {
                     console.log("loading doc " + ed.title);
                     new apxDocument({"identifier": identifier}).load();
                 }
@@ -181,7 +183,7 @@ apx.initialize = function() {
             apx.spinner.hideModal();
         });
     };
-}
+};
 
 
 //////////////////////////////////////////////////////

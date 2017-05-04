@@ -1,6 +1,8 @@
 /* global apx */
 window.apx = window.apx||{};
 
+/* global empty */
+
 //////////////////////////////////////////////////////
 // EDIT THE DOCUMENT OR AN ITEM
 apx.edit = {};
@@ -141,7 +143,7 @@ apx.edit.prepareAddNewChildModal = function() {
                 });
                 $('#ls_item_itemType').select2entity({dropdownParent: $('#addNewChildModal')});
             }
-        )
+        );
     }).on('hidden.bs.modal', function(e){
         $('#addNewChildModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
     });
@@ -307,7 +309,7 @@ apx.edit.deleteItems = function(items) {
                 ++completed;
             }
         }
-    };
+    }
 
     // if items isn't an array, use current item
     if (!$.isArray(items)) {
@@ -320,7 +322,7 @@ apx.edit.deleteItems = function(items) {
         if (items[0].ftNodeData.children.length > 0) {
             modalId = '#deleteItemAndChildrenModal';
         } else {
-            modalId = '#deleteOneItemModal'
+            modalId = '#deleteOneItemModal';
         }
     } else {
         // fill count of deleted items in to deleteMultipleItemsModalCount

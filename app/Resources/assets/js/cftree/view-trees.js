@@ -1,6 +1,8 @@
 /* global apx */
 window.apx = window.apx||{};
 
+/* global empty */
+
 /** Prepare menus for selecting documents for the left- and right-side trees */
 apx.prepareDocumentMenus = function() {
     // The original menu will be rendered into div #ls_doc_list and select #ls_doc_list_lsDoc, on the right side
@@ -21,14 +23,14 @@ apx.prepareDocumentMenus = function() {
     }
     
     // now get the div and update the id's
-    $rightDiv = $("#ls_doc_list");
+    var $rightDiv = $("#ls_doc_list");
     $rightDiv.addClass("ls_doc_list");
     $rightDiv.find("[type=hidden]").remove();
     $rightDiv.attr("id", "ls_doc_list_right");
     $rightDiv.find("select").attr("id", "ls_doc_list_lsDoc_right");
     
     // clone the div for the left side, update the id's there, and insert it in place
-    $leftDiv = $rightDiv.clone();
+    var $leftDiv = $rightDiv.clone();
     $leftDiv.attr("id", "ls_doc_list_left");
     $leftDiv.find("select").attr("id", "ls_doc_list_lsDoc_left");
     $("#tree1SelectorDiv .row").append($leftDiv);
@@ -38,8 +40,8 @@ apx.prepareDocumentMenus = function() {
     $("#ls_doc_list_lsDoc_right").on('change', function() { apx.docSelectedForTree(this, 2); });
 
     // change tree buttons
-    $(".changeTree1DocumentBtn").on('click', function() { apx.tree1ChangeButtonClicked() });
-    $(".changeTree2DocumentBtn").on('click', function() { apx.tree2ChangeButtonClicked() });
+    $(".changeTree1DocumentBtn").on('click', function() { apx.tree1ChangeButtonClicked(); });
+    $(".changeTree2DocumentBtn").on('click', function() { apx.tree2ChangeButtonClicked(); });
     
     // prepare the modal for loading an external document
     var $modal = $('#loadExternalDocumentModal');
@@ -108,7 +110,9 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
     // destroy previus ft if there
     try {
         apx["treeDoc" + side]["ft" + side].fancytree("destroy");
-    } catch(e) { }
+    } catch(e) {
+        // Ignore error
+    }
     $('#viewmode_tree' + side).html("");
     
     // check to see if we already have the document info; if so we don't need to reload
@@ -146,7 +150,7 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
     apx["treeDoc" + side] = new apxDocument(o);
 
     // load the document
-    apx.spinner.showModal("Loading document")
+    apx.spinner.showModal("Loading document");
     apx["treeDoc" + side].load(function() {
         apx["treeDocLoadCallback" + side]();
         apx.spinner.hideModal();

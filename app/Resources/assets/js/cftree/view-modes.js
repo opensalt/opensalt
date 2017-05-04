@@ -1,6 +1,8 @@
 /* global apx */
 window.apx = window.apx||{};
 
+/* global empty */
+
 /////////////////////////////////////////////////////
 // TREE VIEW / ASSOCIATIONS VIEW MODES
 apx.viewMode = {};
@@ -97,7 +99,45 @@ apx.viewMode.showAssocView = function(context) {
             gft[0] = true;
         }
         apx.viewMode.avFilters.groups = gft;
-    
+
+        function avGetItemCell(a, key) {
+            var title;
+            var doc = apx.allDocs[a[key].doc];
+
+            // for the dest of an exemplar, we just use .item
+            if (key === "dest" && a.type === "exemplar") {
+                title = a[key].item;
+
+                // else look for a title in the dest part of the association
+            } else if (!empty(a.dest.title)) {
+                // we should get this for documents loaded from other servers
+                title = a.dest.title;
+
+                // if we found a loaded document
+            } else if (typeof(doc) === "object") {
+                var item = doc.itemHash[a[key].item];
+                if (!empty(item)) {
+                    title = doc.getItemTitle(item, true);
+                    if (doc !== apx.mainDoc) {
+                        title += " <span style='color:red'>[" + doc.doc.title + "]</span>";
+                    }
+                } else {
+                    title = "Document: " + doc.doc.title;
+                }
+
+                // hopefully this won't happen...
+            } else {
+                title = "Document: " + a[key].doc + "; Item: " + a[key].item;
+            }
+
+            var html = '<div data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="' + key + '" class="assocViewTitle">'
+                + title
+                + '</div>'
+            ;
+
+            return html;
+        }
+
         // compose datatables data array
         var dataSet = [];
         for (var i = 0; i < apx.mainDoc.assocs.length; ++i) {
@@ -110,20 +150,32 @@ apx.viewMode.showAssocView = function(context) {
         
             // skip types if filters dictate
             if (assoc.type == "isChildOf") {
-                if (!apx.viewMode.avFilters.avShowChild) continue;
+                if (!apx.viewMode.avFilters.avShowChild) {
+                    continue;
+                }
             } else if (assoc.type == "exactMatchOf") {
-                if (!apx.viewMode.avFilters.avShowExact) continue;
+                if (!apx.viewMode.avFilters.avShowExact) {
+                    continue;
+                }
             } else if (assoc.type == "exemplar") {
-                if (!apx.viewMode.avFilters.avShowExemplar) continue;
+                if (!apx.viewMode.avFilters.avShowExemplar) {
+                    continue;
+                }
             } else {
-                if (!apx.viewMode.avFilters.avShowOtherTypes) continue;
+                if (!apx.viewMode.avFilters.avShowOtherTypes) {
+                    continue;
+                }
             }
         
             // skip groups if filters dictate
             if ("groupId" in assoc) {
-                if (!apx.viewMode.avFilters.groups[assoc.groupId]) continue;
+                if (!apx.viewMode.avFilters.groups[assoc.groupId]) {
+                    continue;
+                }
             } else {
-                if (!apx.viewMode.avFilters.groups[0]) continue;
+                if (!apx.viewMode.avFilters.groups[0]) {
+                    continue;
+                }
             }
             
             // determine groupForLinks
@@ -132,44 +184,6 @@ apx.viewMode.showAssocView = function(context) {
                 groupForLinks = assoc.groupId;
             }
             
-            function avGetItemCell(a, key) {
-                var title;
-                var doc = apx.allDocs[a[key].doc];
-                
-                // for the dest of an exemplar, we just use .item
-                if (key == "dest" && a.type == "exemplar") {
-                    title = a[key].item;
-                
-                // else look for a title in the dest part of the association
-                } else if (!empty(a.dest.title)) {
-                    // we should get this for documents loaded from other servers
-                    title = a.dest.title;
-
-                // if we found a loaded document
-                } else if (typeof(doc) == "object") {
-                    var item = doc.itemHash[a[key].item];
-                    if (!empty(item)) {
-                        title = doc.getItemTitle(item, true);
-                        if (doc != apx.mainDoc) {
-                            title += " <span style='color:red'>[" + doc.doc.title + "]</span>"; 
-                        }
-                    } else {
-                        title = "Document: " + doc.doc.title;
-                    }
-                
-                // hopefully this won't happen...
-                } else {
-                    title = "Document: " + a[key].doc + "; Item: " + a[key].item;
-                }
-                
-                html = '<div data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="' + key + '" class="assocViewTitle">'
-                    + title
-                    + '</div>'
-                    ;
-                
-                return html;
-            }
-        
             // get text to show in origin and destination column
             var origin = avGetItemCell(assoc, "origin");
             var dest = avGetItemCell(assoc, "dest");
@@ -201,7 +215,7 @@ apx.viewMode.showAssocView = function(context) {
         ];
         // add group if we have any
         if (apx.mainDoc.assocGroups.length > 0) {
-            columns.push({"title": "Association Group", "className": "avGroupCell"})
+            columns.push({"title": "Association Group", "className": "avGroupCell"});
         }
 
         // populate the table

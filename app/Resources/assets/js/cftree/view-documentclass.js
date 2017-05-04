@@ -1,6 +1,9 @@
 /* global apx */
 window.apx = window.apx||{};
 
+/* global empty */
+/* global op */
+
 ///////////////////////////////////////////////////////////////////////////////
 apx.allDocs = {};
 apx.allItemsHash = {};
@@ -64,7 +67,7 @@ function apxDocument(initializer) {
         
         // to check to see if the document is currently selected, use
         // (d.currentItem == d.doc)
-    }
+    };
     
     /** Load the document via an ajax call */
     self.load = function(callbackFn) {
