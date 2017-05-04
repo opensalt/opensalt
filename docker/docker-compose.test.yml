@@ -12,11 +12,17 @@ services:
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
       SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_HOST: "${MYSQL_HOST:-db}"
       GITHUB_CLIENT_ID:
       GITHUB_CLIENT_SECRET:
       DB_USE_RDS_CERT:
       BRAND_LOGO_URL:
+      BRAND_LOGO_STYLE:
       BRAND_LINK_URL:
+      BRAND_LINK_STYLE:
     volumes_from:
       - app
     working_dir: /var/www/html
