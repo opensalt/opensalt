@@ -35,7 +35,7 @@
                             {% elseif association.destinationLsDoc is not empty %}
                                 {% set doc = association.destinationLsDoc %}
                                 {{ groupLabel|raw }}
-                                <a href="{{ path('doc_tree_view', {'id':doc.id}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
+                                <a href="{{ path('doc_tree_view', {'slug':doc.slug}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
                                     Document: {{ doc.title }}
                                     {{ block('end_of_item_a') }}
                                 </a>
@@ -59,7 +59,7 @@
                         {% elseif association.destinationLsDoc is defined %}
                             {% set doc = association %}
                             {{ groupLabel|raw }}
-                            <a href="{{ path('doc_tree_view', {'id':doc.id}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
+                            <a href="{{ path('doc_tree_view', {'slug':doc.slug}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
                                 Document: {{ doc.title }}
                                 {{ block('end_of_item_a') }}
                             </a>
@@ -78,7 +78,7 @@
                         {% elseif association.isLsDoc is defined %}
                             {% set doc = association %}
                             {{ groupLabel|raw }}
-                            <a href="{{ path('doc_tree_view', {'id':doc.id}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
+                            <a href="{{ path('doc_tree_view', {'slug':doc.slug}) }}" data-doc-id="{{ doc.id }}" class="list-group-item lsdoc clearfix">
                                 Document: {{ doc.title }}
                                 {{ block('end_of_item_a') }}
                             </a>

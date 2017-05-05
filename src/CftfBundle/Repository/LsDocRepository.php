@@ -12,6 +12,23 @@ use Util\Compare;
  */
 class LsDocRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * @param string $slug
+     *
+     * @return null|object
+     */
+    public function findBySlug($slug)
+    {
+        if (preg_match('/^\d+$/', $slug)) {
+            return $this->find($slug);
+        }
+
+        return $this->findOneBy(['urlName' => $slug]);
+    }
+
+    /**
+     * @return array
+     */
     public function findAllDocuments()
     {
         return $this->findAll();

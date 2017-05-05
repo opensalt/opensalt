@@ -108,7 +108,7 @@ class UriController extends Controller
                 return $this->forward('CftfBundle:CfPackage:export', ['id' => $doc->getId(), '_format' => 'json']);
             }
             //return $this->forward('CftfBundle:Editor:viewDoc', ['id' => $doc->getId(), '_format' => 'html']);
-            return $this->redirectToRoute('doc_tree_view', ['id' => $doc->getId()]);
+            return $this->redirectToRoute('doc_tree_view', ['slug' => $doc->getSlug()]);
         }
     }
 
@@ -132,7 +132,7 @@ class UriController extends Controller
             if ($hasOrigin instanceof LsItem) {
                 return $this->redirectToRoute('doc_tree_item_view', ['id' => $hasOrigin->getId()]);
             } elseif ($hasOrigin instanceof LsDoc) {
-                return $this->redirectToRoute('doc_tree_view', ['id' => $hasOrigin->getId()]);
+                return $this->redirectToRoute('doc_tree_view', ['slug' => $hasOrigin->getSlug()]);
             }
 
             // TODO: Show a view focused on the association

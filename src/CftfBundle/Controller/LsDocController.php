@@ -78,7 +78,7 @@ class LsDocController extends Controller
             $em->persist($lsDoc);
             $em->flush();
 
-            return $this->redirectToRoute('doc_tree_view', array('id' => $lsDoc->getId()));
+            return $this->redirectToRoute('doc_tree_view', array('slug' => $lsDoc->getSlug()));
         }
 
         return [

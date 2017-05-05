@@ -8,6 +8,7 @@ use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Form\Type\LsDocListType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -24,9 +25,14 @@ use Util\Compare;
 class DocTreeController extends Controller
 {
     /**
-     * @Route("/doc/{id}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{id}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{id}/{assocGroup}.{_format}", name="doc_tree_view_ag", defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{slug}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{slug}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{slug}/{assocGroup}.{_format}", name="doc_tree_view_ag", defaults={"_format"="html", "lsItemId"=null})
+     * @ParamConverter("lsDoc", class="CftfBundle:LsDoc", options={
+     *     "repository_method" = "findBySlug",
+     *     "mapping": {"slug": "slug"},
+     *     "map_method_signature" = true
+     * })
      * @Method({"GET"})
      * @Template()
      */
@@ -56,7 +62,7 @@ class DocTreeController extends Controller
             // for each assoc, we'll decide whether or not we need to include info about the origin and/or destination item
 
             // if the assoc has a destination in the current SALT instance...
-            if (!empty($assoc->getDestinationLsItem())) {
+            if (null !== $assoc->getDestinationLsItem()) {
                 // then if the destination item's document isn't the current document...
                 if ($assoc->getDestinationLsItem()->getLsDoc()->getId() != $lsDoc->getId()) {
                     // we need to include info about the item
@@ -65,7 +71,7 @@ class DocTreeController extends Controller
             }
 
             // if the assoc has an origin in the current SALT instance (it almost always will)...
-            if (!empty($assoc->getOriginLsItem())) {
+            if (null !== $assoc->getOriginLsItem()) {
                 // then if the Origin item's document isn't the current document...
                 if ($assoc->getOriginLsItem()->getLsDoc()->getId() != $lsDoc->getId()) {
                     // we need to include info about the item
@@ -390,7 +396,7 @@ class DocTreeController extends Controller
         if ($request->isXmlHttpRequest()) {
             $ajax = true;
         }
-        $lsDocId = $lsItem->getLsDoc()->getId();
+        $lsDocSlug = $lsItem->getLsDoc()->getSlug();
 
         $em = $this->getDoctrine()->getManager();
 
@@ -403,9 +409,9 @@ class DocTreeController extends Controller
         }
 
         if ($ajax) {
-            return new Response($this->generateUrl('doc_tree_view', ['id' => $lsDocId]), Response::HTTP_ACCEPTED);
+            return new Response($this->generateUrl('doc_tree_view', ['slug' => $lsDocSlug]), Response::HTTP_ACCEPTED);
         } else {
-            return $this->redirectToRoute('doc_tree_view', ['id' => $lsDocId]);
+            return $this->redirectToRoute('doc_tree_view', ['slug' => $lsDocSlug]);
         }
     }
 

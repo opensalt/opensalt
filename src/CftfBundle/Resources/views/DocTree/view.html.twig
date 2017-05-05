@@ -383,7 +383,7 @@ apx.inverseAssocTypes = {{ inverseAssocTypes |json_encode |raw }};
 
 // establish paths
 apx.path = apx.path||{};
-apx.path.lsDoc = '{{ path('doc_tree_view', {'id':'ID'}) }}';
+apx.path.lsDoc = '{{ path('doc_tree_view', {'slug':'ID'}) }}';
 apx.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';
 apx.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
 apx.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';

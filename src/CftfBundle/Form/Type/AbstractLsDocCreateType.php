@@ -20,8 +20,13 @@ abstract class AbstractLsDocCreateType extends AbstractType
         $builder
             ->add('title')
             ->add('creator')
-            ->add('officialUri')
+            ->add('officialUri', null, [
+                'label' => 'Official URI',
+            ])
             ->add('publisher')
+            ->add('urlName', null, [
+                'label' => 'URL Name',
+            ])
             ;
 
         $this->addOwnership($builder);
@@ -29,8 +34,8 @@ abstract class AbstractLsDocCreateType extends AbstractType
         $builder
             ->add('version')
             ->add('description')
-            ->add('subject')
-            ->add('subjectUri')
+            //->add('subject')
+            //->add('subjectUri')
             ->add('subjects', Select2EntityType::class, [
                 'multiple' => true,
                 'remote_route' => 'lsdef_subject_index_json',

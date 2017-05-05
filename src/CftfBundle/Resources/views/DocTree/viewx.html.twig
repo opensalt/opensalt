@@ -375,7 +375,7 @@ app.lsDocId = {{ lsDoc.id }};
 {% endif %}
 // establish paths
 app.path = app.path||{};
-app.path.lsDoc = '{{ path('doc_tree_viewx', {'id':'ID'}) }}';
+app.path.lsDoc = '{{ path('doc_tree_viewx', {'slug':'ID'}) }}';
 app.path.lsItem = '{{ path('doc_tree_item_viewx', {'id':'ID'}) }}';
 app.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
 app.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';

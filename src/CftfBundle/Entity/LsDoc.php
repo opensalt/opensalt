@@ -151,6 +151,25 @@ class LsDoc implements CaseApiInterface
     /**
      * @var string
      *
+     * @ORM\Column(name="url_name", type="string", length=255, nullable=true, unique=true)
+     *
+     * @Assert\Length(max=10)
+     * @Assert\NotBlank()
+     * @Assert\Regex(
+     *     pattern="/^\d+$/",
+     *     match=false,
+     *     message="The URL Name cannot be a number."
+     * )
+     * @Assert\Regex(
+     *     pattern="/^[a-zA-Z0-9.-]+$/",
+     *     message="The URL Name can only use alpha-numeric characters plus a period (.) or dash (-)."
+     * )
+     */
+    private $urlName;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="version", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
@@ -1347,5 +1366,37 @@ class LsDoc implements CaseApiInterface
         $this->associationGroupings = $associationGroupings;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrlName(): ?string
+    {
+        return $this->urlName;
+    }
+
+    /**
+     * @param null|string $urlName
+     *
+     * @return $this
+     */
+    public function setUrlName(?string $urlName=null): LsDoc
+    {
+        $this->urlName = $urlName;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSlug(): string
+    {
+        if (null !== $this->urlName) {
+            return $this->getUrlName();
+        }
+
+        return $this->getId();
     }
 }

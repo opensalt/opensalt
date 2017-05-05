@@ -11,9 +11,9 @@
 
     <div class="form-horizontal">
         <div class="form-group">
-            <label class="col-sm-6 control-label"><a href="{{ path('doc_tree_view', {'id':lsDoc.id}) }}" target="blank">{{ url('doc_tree_view', {'id':lsDoc.id}) }}</a></label>
+            <label class="col-sm-6 control-label"><a href="{{ path('doc_tree_view', {'slug':lsDoc.slug}) }}" target="blank">{{ url('doc_tree_view', {'slug':lsDoc.slug}) }}</a></label>
             <div class="col-sm-6">
-                <input type="text" class="form-control" value="{{ url('doc_tree_view', {'id':lsDoc.id}) }}">
+                <input type="text" class="form-control" value="{{ url('doc_tree_view', {'slug':lsDoc.slug}) }}">
             </div>
         </div>
     </div>
