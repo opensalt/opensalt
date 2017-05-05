@@ -15,12 +15,14 @@
 {# Simplify origin and destination data #}
 "origin": {
 "doc": {{ lsAssociation.originLsItem.lsDocIdentifier |default("?") |json_encode |raw }},
-"item": {{ lsAssociation.originNodeIdentifier |json_encode |raw }}
+"item": {{ lsAssociation.originNodeIdentifier |json_encode |raw }},
+"uri": {{ lsAssociation.originNodeUri |json_encode |raw }}
 },
 "type": {{ (lsAssociation.type|slice(0,1)|lower~lsAssociation.type|slice(1))|replace({' ': ''}) |json_encode |raw }},
 "dest": {
 "doc": {% if lsAssociation.type == 'Exemplar' %} "-" {% else %} {{ lsAssociation.destinationLsItem.lsDocIdentifier |default(lsAssociation.destinationLsDoc.identifier |default("?")) |json_encode |raw }} {% endif %},
-"item": {% if lsAssociation.type == 'Exemplar' %} {{ lsAssociation.destinationNodeUri |json_encode |raw }} {% else %} {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }} {% endif %}
+"item": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
+"uri": {{ lsAssociation.destinationNodeUri |json_encode |raw }}
 },
 "mod": {{ lsAssociation.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
 }

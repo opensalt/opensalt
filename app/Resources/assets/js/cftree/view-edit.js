@@ -162,7 +162,7 @@ apx.edit.prepareAddNewChildModal = function() {
             
             // and create and add the isChildOf association and its inverse
             var atts = {
-                "id": item.newAssoc.id,
+                "id": item.newAssoc.assocId,
                 "identifier": item.newAssoc.identifier,
                 "originItem": item,
                 "type": "isChildOf",
@@ -377,7 +377,7 @@ apx.edit.prepareExemplarModal = function() {
                 "type": "exemplar",
                 "dest": {
                     "doc": "-",
-                    "item": ajaxData.exemplarUrl
+                    "uri": ajaxData.exemplarUrl
                 }
                 // Note that exemplars are currently not added to association groups
                 //, "groupId": apx.mainDoc.currentAssocGroup
@@ -515,12 +515,14 @@ apx.edit.prepareAssociateModal = function() {
                     "id": assocId,
                     "origin": {
                         "doc": this.origin.doc.doc.identifier,
-                        "item": this.origin.identifier
+                        "item": this.origin.identifier,
+                        "uri": this.origin.uri
                     },
                     "type": type,
                     "dest": {
                         "doc": this.dest.doc.doc.identifier,
-                        "item": this.dest.identifier
+                        "item": this.dest.identifier,
+                        "uri": this.dest.identifier
                     },
                     "groupId": this.assocGroup
                 };

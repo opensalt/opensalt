@@ -109,7 +109,7 @@ class LsItemController extends Controller
                     'itemType' => $lsItem->getItemType(),
                     'changedAt' => $lsItem->getChangedAt(),
                     'extra' => [
-                        'id' => $assoc->getId(),
+                        'assocId' => $assoc->getId(),
                         'identifier' => $assoc->getIdentifier()
                     ]
                 ];

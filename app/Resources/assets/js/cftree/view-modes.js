@@ -101,33 +101,60 @@ apx.viewMode.showAssocView = function(context) {
         apx.viewMode.avFilters.groups = gft;
 
         function avGetItemCell(a, key) {
-            var title;
-            var doc = apx.allDocs[a[key].doc];
-
-            // for the dest of an exemplar, we just use .item
-            if (key === "dest" && a.type === "exemplar") {
-                title = a[key].item;
-
-                // else look for a title in the dest part of the association
-            } else if (!empty(a.dest.title)) {
+            // by default, title is the uri
+            var title = a[key].uri;
+            var doc = null;
+    
+            // for the dest of an exemplar, we just use .uri
+            if (a.type == "exemplar") {
+                title = a[key].uri;
+        
+            // else see if the "item" is actually a document
+            } else if (!empty(apx.allDocs[a[key].item]) && typeof(apx.allDocs[a[key].item]) != "string") {
+                title = "Document: " + apx.allDocs[a[key].item].doc.title;
+        
+            // else if we know about this item via allItemsHash...    
+            } else if (!empty(apx.allItemsHash[a[key].item])) {
+                var destItem = apx.allItemsHash[a[key].item];
+                title = apx.mainDoc.getItemTitle(destItem, true);
+                doc = destItem.doc;
+        
+            // else look for a title in the dest part of the association
+            } else if (!empty(a[key].title)) {
                 // we should get this for documents loaded from other servers
-                title = a.dest.title;
-
-                // if we found a loaded document
-            } else if (typeof(doc) === "object") {
-                var item = doc.itemHash[a[key].item];
-                if (!empty(item)) {
-                    title = doc.getItemTitle(item, true);
-                    if (doc !== apx.mainDoc) {
-                        title += " <span style='color:red'>[" + doc.doc.title + "]</span>";
-                    }
-                } else {
-                    title = "Document: " + doc.doc.title;
-                }
-
-                // hopefully this won't happen...
+                title = a[key].title;
+        
+            // else we don't (currently at least) know about this item...
             } else {
-                title = "Document: " + a[key].doc + "; Item: " + a[key].item;
+                if (a[key].doc != "?") {
+                    // look for document in allDocs
+                    doc = apx.allDocs[a[key].doc];
+        
+                    // if we tried to load this document and failed, note that
+                    if (doc == "loaderror") {
+                        title += " (document could not be loaded)";
+
+                    // else if we know we're still in the process of loading that doc, note that
+                    } else if (doc == "loading") {
+                        title += " (loading document...)";
+        
+                    // else we have the doc -- this shouldn't normally happen, because if we know about the doc, 
+                    // we should have found the item in apx.allItemsHash above
+                    } else if (typeof(doc) == "object") {
+                        title += " (item not found in document)";
+                    }
+                }
+            }
+
+            // if item comes from another doc, note that
+            if (!empty(doc) && typeof(doc) == "object" && doc != apx.mainDoc) {
+                var docTitle = doc.doc.title;
+                if (docTitle.length > 30) {
+                    docTitle = docTitle.substr(0, 35);
+                    docTitle = docTitle.replace(/\w+$/, "");
+                    docTitle += "…";
+                }
+                title += ' <span style="color:red">' + docTitle + '</span>';
             }
 
             var html = '<div data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="' + key + '" class="assocViewTitle">'

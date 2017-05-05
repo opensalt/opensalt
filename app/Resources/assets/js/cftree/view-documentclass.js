@@ -313,17 +313,17 @@ function apxDocument(initializer) {
             // if we get a CFAssociationGroupingURI, that should have a "title" and "identifier" for the group
             if (!empty(assoc.CFAssociationGroupingURI)) {
                 var ag;
-                var agIdentifier = assoc.CFAssociationGroupingURI;
+                var ago = assoc.CFAssociationGroupingURI;
                 // if we at least have an identifier...
-                if (!empty(agIdentifier)) {
-                    ag = self.assocGroupHash[agIdentifier];
+                if (!empty(ago) && typeof(ago) == "object" && !empty(ago.identifier)) {
+                    ag = self.assocGroupHash[ago.identifier];
                     
                     // if the group didn't already exist, create it now
                     if (empty(ag)) {
                         ag = {
-                            "identifier": agIdentifier,
-                            "id": assoc.CFAssociationGroupingURI.id,
-                            "title": assoc.CFAssociationGroupingURI.title
+                            "identifier": ago.identifier,
+                            "id": ago.id,
+                            "title": ago.title
                         };
                         
                         // get a new id if necessary
@@ -337,6 +337,7 @@ function apxDocument(initializer) {
                             ag.title = "Association Group " + (ag.id*1);
                         }
                         
+                        self.assocGroups.push(ag);
                         self.assocGroupHash[ag.identifier] = ag;
                         self.assocGroupIdHash[ag.id] = ag;
                     }
@@ -823,19 +824,22 @@ function apxDocument(initializer) {
         if (!empty(atts.originItem)) {
             assoc.origin = {
                 "doc": self.doc.identifier,
-                "item": atts.originItem.identifier
+                "item": atts.originItem.identifier,
+                "uri": atts.originItem.identifier
             };
         }
         if (!empty(atts.destItem)) {
             if (atts.destItem == self.doc) {
                 assoc.dest = {
                     "doc": self.doc.identifier,
-                    "item": self.doc.identifier
+                    "item": self.doc.identifier,
+                    "uri": self.doc.identifier
                 };
             } else {
                 assoc.dest = {
                     "doc": self.doc.identifier,
-                    "item": atts.destItem.identifier
+                    "item": atts.destItem.identifier,
+                    "uri": atts.destItem.identifier
                 };
             }
         }
@@ -1425,39 +1429,33 @@ function apxDocument(initializer) {
     
     /** Compose the title for the destination of an association item in the item details view */
     self.associationDestItemTitle = function(a) {
-        var title = a.dest.item;
+        // by default, title is the uri
+        var title = a.dest.uri;
         var doc = null;
     
-        // if the assoc is an exemplar, title is the item
+        // if the assoc is an exemplar, title is always the uri
         if (a.type == "exemplar") {
-            title = a.dest.item;
+            title = a.dest.uri;
         
-        // else see if the "item" is actually document
-        } else if (!empty(apx.allDocs[a.dest.item])) {
+        // else see if the "item" is actually a document
+        } else if (!empty(apx.allDocs[a.dest.item]) && typeof(apx.allDocs[a.dest.item]) != "string") {
             title = "Document: " + apx.allDocs[a.dest.item].doc.title;
         
         // else if we know about this item via allItemsHash...    
         } else if (!empty(apx.allItemsHash[a.dest.item])) {
-            var destItem = apx.allItemsHash[a.dest.item];
-            if (empty(destItem)) {
-                // in theory, this shouldn't happen
-                title += " (item not found)";
-            
-            } else {
-                title = self.getItemTitle(destItem, true);
-                doc = destItem.doc;
-            }
+            title = self.getItemTitle(destItem, true);
+            doc = destItem.doc;
         
         // else look for a title in the dest part of the association
         } else if (!empty(a.dest.title)) {
             // we should get this for documents loaded from other servers
             title = a.dest.title;
         
-        // else we don't know what to show...
+        // else we don't (currently at least) know about this item...
         } else {
-            // so add the association to apx.unknownAssocsShowing
+            // so add the association to apx.unknownAssocsShowing; if info about the item is loaded later, it'll get filled in
             apx.unknownAssocsShowing[a.id] = a;
-        
+            
             if (a.dest.doc != "?") {
                 // look for document in allDocs
                 doc = apx.allDocs[a.dest.doc];
