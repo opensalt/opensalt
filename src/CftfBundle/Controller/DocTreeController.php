@@ -111,9 +111,14 @@ class DocTreeController extends Controller
         $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAllItems($lsDoc);
         $associations = $this->getDoctrine()->getRepository('CftfBundle:LsAssociation')->findBy(['lsDoc'=>$lsDoc]);
         $assocGroups = $this->getDoctrine()->getRepository('CftfBundle:LsDefAssociationGrouping')->findBy(['lsDoc'=>$lsDoc]);
+        $externalDocs = array_merge(
+            $lsDoc->getExternalDocs(),
+            $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAssociatedDocs($lsDoc)
+        );
+
         $docAttributes = [
             'baseDoc' => $lsDoc->getAttribute('baseDoc'),
-            'externalDocs' => $lsDoc->getExternalDocs()
+            'externalDocs' => $externalDocs,
         ];
 
         $itemTypes = [];

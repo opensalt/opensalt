@@ -385,4 +385,88 @@ xENDx;
 
         return $results;
     }
+
+    /**
+     * @param LsDoc $lsDoc
+     *
+     * @return array
+     */
+    public function findAssociatedDocs(LsDoc $lsDoc): array
+    {
+        $docs = [];
+
+        $qb = $this->createQueryBuilder('d');
+        $qb->select('d.identifier, d.uri, d.title')
+            ->distinct()
+            ->join('d.lsItems', 'i')
+            ->join('i.associations', 'a')
+            ->join('a.destinationLsItem', 'i2')
+            ->where('i2.lsDoc = :doc')
+            ->setParameter('doc', $lsDoc)
+        ;
+        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+        foreach ($results as $doc) {
+            $docs[$doc['identifier']] = [
+                'autoLoad' => "true",
+                'url' => $doc['uri'],
+                'title' => $doc['title'],
+            ];
+        }
+
+        $qb = $this->createQueryBuilder('d');
+        $qb->select('d.identifier, d.uri, d.title')
+            ->distinct()
+            ->join('d.lsItems', 'i')
+            ->join('i.associations', 'a')
+            ->join('a.originLsItem', 'i2')
+            ->where('i2.lsDoc = :doc')
+            ->setParameter('doc', $lsDoc)
+        ;
+        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+        foreach ($results as $doc) {
+            $docs[$doc['identifier']] = [
+                'autoLoad' => "true",
+                'url' => $doc['uri'],
+                'title' => $doc['title'],
+            ];
+        }
+
+        $qb = $this->createQueryBuilder('d');
+        $qb->select('d.identifier, d.uri, d.title')
+            ->distinct()
+            ->join('d.lsItems', 'i')
+            ->join('i.associations', 'a')
+            ->join('a.destinationLsDoc', 'd2')
+            ->where('d2.id = :doc')
+            ->setParameter('doc', $lsDoc)
+        ;
+        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+        foreach ($results as $doc) {
+            $docs[$doc['identifier']] = [
+                'autoLoad' => "true",
+                'url' => $doc['uri'],
+                'title' => $doc['title'],
+            ];
+        }
+
+        $qb = $this->createQueryBuilder('d');
+        $qb->select('d.identifier, d.uri, d.title')
+            ->distinct()
+            ->join('d.lsItems', 'i')
+            ->join('i.associations', 'a')
+            ->join('a.originLsDoc', 'd2')
+            ->where('d2.id = :doc')
+            ->setParameter('doc', $lsDoc)
+        ;
+        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+        foreach ($results as $doc) {
+            $docs[$doc['identifier']] = [
+                'autoLoad' => "true",
+                'url' => $doc['uri'],
+                'title' => $doc['title'],
+            ];
+        }
+
+        return $docs;
+    }
 }
