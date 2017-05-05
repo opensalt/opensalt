@@ -1443,6 +1443,7 @@ function apxDocument(initializer) {
         
         // else if we know about this item via allItemsHash...    
         } else if (!empty(apx.allItemsHash[a.dest.item])) {
+            var destItem = apx.allItemsHash[a.dest.item];
             title = self.getItemTitle(destItem, true);
             doc = destItem.doc;
         
