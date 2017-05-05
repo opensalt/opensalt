@@ -29,7 +29,7 @@ class DocTreeController extends Controller
      * @Route("/doc/{slug}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
      * @Route("/doc/{slug}/{assocGroup}.{_format}", name="doc_tree_view_ag", defaults={"_format"="html", "lsItemId"=null})
      * @ParamConverter("lsDoc", class="CftfBundle:LsDoc", options={
-     *     "repository_method" = "findBySlug",
+     *     "repository_method" = "findOneBySlug",
      *     "mapping": {"slug": "slug"},
      *     "map_method_signature" = true
      * })

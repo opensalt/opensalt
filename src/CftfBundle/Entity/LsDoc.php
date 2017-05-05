@@ -21,6 +21,7 @@ use Util\Compare;
  * @ORM\Table(name="ls_doc")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsDocRepository")
  * @UniqueEntity("uri")
+ * @UniqueEntity("urlName")
  *
  * @Serializer\VirtualProperty(
  *     "uri",
@@ -154,7 +155,6 @@ class LsDoc implements CaseApiInterface
      * @ORM\Column(name="url_name", type="string", length=255, nullable=true, unique=true)
      *
      * @Assert\Length(max=10)
-     * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern="/^\d+$/",
      *     match=false,

@@ -17,7 +17,7 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      *
      * @return null|object
      */
-    public function findBySlug($slug)
+    public function findOneBySlug($slug)
     {
         if (preg_match('/^\d+$/', $slug)) {
             return $this->find($slug);
