@@ -714,6 +714,12 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
             } else {
                 // here we want the key to be the item's lsItemId
                 key = siblings[i].data.ref.id;
+
+                // skip the item if it doesn't have an id (e.g. "orphaned items")
+                if (empty(key)) {
+                    continue;
+                }
+
                 o.updateChildOf = {
                     "assocId": siblings[i].data.childOfAssocId,
                     "sequenceNumber": (i + 1)
@@ -798,6 +804,11 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
     var siblings = draggedNodes[0].parent.children;
     for (var i = 0; i < siblings.length; ++i) {
         var item = siblings[i].data.ref;
+        
+        // skip the item if it doesn't have an id (e.g. "orphaned items")
+        if (empty(item.id)) {
+            continue;
+        }
 
         // if this isn't a draggedNode...
         if (!(item.id in lsItems)) {

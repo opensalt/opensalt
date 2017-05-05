@@ -390,9 +390,10 @@ function apxDocument(initializer) {
     
     /** Create a fancytree data structure for the given assocGroup **/
     self.createTree = function(assocGroup, treeSide) {
-        // for treeSide1, make sure previously-saved ftNodeDatas are cleared from all items
-        if (treeSide == 1) {
-            for (var i = 0; i < self.items.length; ++i) {
+        // Go through all items
+        for (var i = 0; i < self.items.length; ++i) {
+            // for treeSide1, make sure previously-saved ftNodeDatas are cleared from all items
+            if (treeSide == 1) {
                 self.items[i].ftNodeData = null;
             }
         }
@@ -410,6 +411,30 @@ function apxDocument(initializer) {
             "ref":self.doc
         };
         
+        /** Function to get the appropriate title for a tree item */
+        function treeItemTitle(item) {
+            // start with the standard title for the item
+            var title = self.getItemTitle(item);
+
+            // if the item has an association other than isChildOf *in apx.mainDoc*, show an indicator to that effect
+            var associationDisplay = "none";
+            var ci2 = apx.mainDoc.itemHash[item.identifier];
+            if (!empty(ci2)) {
+                for (var j = 0; j < ci2.assocs.length; ++j) {
+                    var a = ci2.assocs[j];
+                    if (a.type != "isChildOf") {
+                        associationDisplay = "block";
+                        break;
+                    }
+                }
+            }
+    
+            // if we don't show it now, it's there in case we add an association later
+            title = '<div class="treeHasAssociation" style="display:' + associationDisplay + '"><img src="/assets/img/association-icon.png" title="This item is the origin for one or more associations."></div>' + title;
+    
+            return title;
+        }
+
         /** recursive function to find isChildOf associations of a parent */
         function findChildren(parent) {
             // go through all associations
@@ -437,24 +462,8 @@ function apxDocument(initializer) {
                     // look for the child in itemHash (we should always find it)
                     var childItem = self.itemHash[a.origin.item];
                     if (!empty(childItem)) {
-                        // assuming we find the child item, create the title from the child's data
-                        child.title = self.getItemTitle(childItem);
-                        
-                        // if the item has an association other than isChildOf *in apx.mainDoc*, show an indicator to that effect
-                        var associationDisplay = "none";
-                        var ci2 = apx.mainDoc.itemHash[a.origin.item];
-                        if (!empty(ci2)) {
-                            for (var j = 0; j < ci2.assocs.length; ++j) {
-                                var a = ci2.assocs[j];
-                                if (a.type != "isChildOf") {
-                                    associationDisplay = "block";
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        // if we don't show it now, it's there in case we add an association later
-                        child.title = '<div class="treeHasAssociation" style="display:' + associationDisplay + '"><img src="/assets/img/association-icon.png" title="This item is the origin for one or more associations."></div>' + child.title;
+                        // set the title
+                        child.title = treeItemTitle(childItem)
                         
                         // and add the item's reference
                         child.ref = childItem;
@@ -525,6 +534,74 @@ function apxDocument(initializer) {
         // find the document's children (and its children's children, and so on)
         findChildren(t);
         
+        // If we're showing the default association group look for any orphaned items
+        if (empty(assocGroup)) {
+            // flag all items as "orphaned"; we'll clear these flags below
+            for (var i = 0; i < self.items.length; ++i) {
+                self.items[i].orphaned = true;
+            }
+            
+            // now go through all associations and clear orphaned flag for non-orphaned items
+            for (var i = 0; i < self.assocs.length; ++i) {
+                var a = self.assocs[i];
+                // if this is an isChildOf...
+                if (a.type == "isChildOf" && a.inverse !== true) {
+                    // if the origin (child) item exists...
+                    var childItem = self.itemHash[a.origin.item];
+                    if (!empty(childItem)) {
+                        // then if the parent (destination) item exists...
+                        var parentItem = self.itemHash[a.dest.item];
+                        if (!empty(parentItem)) {
+                            // then the child isn't an orphan!
+                            delete childItem.orphaned;
+                        }
+                    }
+                }
+                
+            }
+            
+            // go back through the items and find the orphans
+            var orphans = [];
+            for (var i = 0; i < self.items.length; ++i) {
+                var item = self.items[i];
+                if (item.orphaned == true) {
+                    orphans.push(item);
+                }
+            }
+            
+            // if we found any, push them onto the tree
+            if (orphans.length > 0) {
+                var orphanParent = {
+                    "title": "– Orphaned Items –",
+                    "key": "orphans",
+                    "children": [],
+                    "folder": true,
+                    "seq": 100000,
+                    "ref": {
+                        "nodeType": "item",
+                        "item": "orphanParent",
+                        "doc": self
+                    }
+                };
+                for (var i = 0; i < orphans.length; ++i) {
+                    var orphan = orphans[i];
+                    var child = {
+                        "title": treeItemTitle(orphan),
+                        "key": orphan.identifier,
+                        "children": [],
+                        "seq": i,
+                        "ref": orphan
+                    };
+                    // then link the ft node to the childItem if we're rendering the left side
+                    if (treeSide == 1) {
+                        orphan.ftNodeData = child;
+                    }
+                    orphanParent.children.push(child)
+                }
+                t.children.push(orphanParent);
+            }
+        }
+                
         // for fancytree we need an array with the single document item
         return [t];
     };
