@@ -41,6 +41,7 @@ apx.edit.prepareDocEditModal = function() {
                */
 
         }).fail(function(jqXHR, textStatus, errorThrown){
+            apx.spinner.hideModal();
             $editDocModal.find('.modal-body').html(jqXHR.responseText);
             $('#ls_doc_subjects').select2entity({dropdownParent: $('#editDocModal')});
         });
