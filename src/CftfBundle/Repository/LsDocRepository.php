@@ -424,7 +424,7 @@ xENDx;
         $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
         foreach ($results as $doc) {
             $docs[$doc['identifier']] = [
-                'autoLoad' => "true",
+                'autoLoad' => 'true',
                 'url' => $doc['uri'],
                 'title' => $doc['title'],
             ];
@@ -442,7 +442,7 @@ xENDx;
         $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
         foreach ($results as $doc) {
             $docs[$doc['identifier']] = [
-                'autoLoad' => "true",
+                'autoLoad' => 'true',
                 'url' => $doc['uri'],
                 'title' => $doc['title'],
             ];
@@ -460,7 +460,7 @@ xENDx;
         $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
         foreach ($results as $doc) {
             $docs[$doc['identifier']] = [
-                'autoLoad' => "true",
+                'autoLoad' => 'true',
                 'url' => $doc['uri'],
                 'title' => $doc['title'],
             ];
@@ -478,7 +478,7 @@ xENDx;
         $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
         foreach ($results as $doc) {
             $docs[$doc['identifier']] = [
-                'autoLoad' => "true",
+                'autoLoad' => 'true',
                 'url' => $doc['uri'],
                 'title' => $doc['title'],
             ];
