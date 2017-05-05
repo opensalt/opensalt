@@ -1,0 +1,44 @@
+{% block body %}
+{
+{# Leave out CFDocumentURI; we have that elsewhere in the package #}
+{# Include id #}
+"id": {{ lsItem.id |json_encode |raw }},
+"identifier": {{ lsItem.identifier |json_encode |raw }},
+{# Leave out uri; we can construct that from the CFDocumentURI and the identifier #}
+"fstmt": {{ lsItem.fullStatement |json_encode |raw }},
+{% if lsItem.humanCodingScheme is not null %}
+"hcs": {{ lsItem.humanCodingScheme |json_encode |raw }},
+{% endif %}
+{% if lsItem.listEnumInSource is not null %}
+"le": {{ lsItem.listEnumInSource |json_encode |raw }},
+{% endif %}
+{% if lsItem.abbreviatedStatement is not null %}
+"astmt": {{ lsItem.abbreviatedStatement |json_encode |raw }},
+{% endif %}
+{% if lsItem.conceptKeywords is not null %}
+"ck": {{ lsItem.conceptKeywords |json_encode |raw }},
+"cku": {{ lsItem.conceptKeywordsUri|local_uri |json_encode |raw }},
+{% endif %}
+{% if lsItem.notes is not null %}
+"notes": {{ lsItem.notes |json_encode |raw }},
+{% endif %}
+{% if lsItem.language is not null %}
+"lang": {{ lsItem.language |json_encode |raw }},
+{% endif %}
+{% if lsItem.educationalAlignment is not null %}
+"el": {{ lsItem.educationalAlignment |json_encode |raw }},
+{% endif %}
+{% if lsItem.itemType is not null %}
+"itp": {{ lsItem.itemType.code |json_encode |raw }},
+{# Leave out CFItemTypeURI; we can get that from the document data if needed #}
+{% endif %}
+{# Leave out licence information; we can get that from the document data if needed #}
+{# When a new item is created, the id of the isChildOf association will be passed as "extra" #}
+{% if lsItem.extra is not empty and lsItem.extra.assocId is defined and lsItem.extra.assocId is not empty %}
+"newAssoc": {{ lsItem.extra |json_encode |raw }},
+{% endif %}
+{# Leave out CFItemTypeURI; we can get that from the document data if needed #}
+"mod": {{ lsItem.changedAt|date('c') |replace({'+00:00':''}) |json_encode |raw }}
+{# Leave out CFItemAssociationURI; associations are in the package #}
+}
+{% endblock %}

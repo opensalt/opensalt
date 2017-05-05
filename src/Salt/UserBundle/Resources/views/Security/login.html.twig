@@ -68,3 +68,11 @@
         </div>
     </div>
 {% endblock %}
+
+{% block javascripts %}
+<script>
+    $(function() {
+        $('#js-help-table-admin-users').DataTable();
+    });
+</script>
+{% endblock %}

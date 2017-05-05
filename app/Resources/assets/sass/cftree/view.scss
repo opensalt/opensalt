@@ -27,6 +27,11 @@
     border-width:0;
 }
 
+#tree1Section.otherDoc .fancytree-container {
+    background-color:#ffd;
+}
+
+
 #tree2SectionControls {
     display:none;
     margin-top: 15px;
@@ -47,7 +52,7 @@
 }
 
 #tree2SectionControls .filterClear {
-    right:150px;
+    // right:150px;
 }
 
 #tree2Section {
@@ -61,7 +66,7 @@
     cursor:pointer;
 }
 
-#viewmode_tree {
+#viewmode_tree1 {
     margin-top:3px;     /* makes it aligned with panel on right */
 }
 
@@ -69,7 +74,7 @@
     margin-top:10px;
 }
 
-#viewmode_tree ul, #viewmode_tree2 ul {
+#viewmode_tree1 ul, #viewmode_tree2 ul {
     border-width:0;
     font-size:15px;
     line-height:22px;
@@ -86,7 +91,7 @@ span.fancytree-title {
 }
 
 #docTitle {
-    padding: 3px 15px;
+    padding: 10px 15px;
     margin-bottom: 20px;
     border:3px solid #E6793A;
     background-color:#f9ddcd;
@@ -99,15 +104,18 @@ span.fancytree-title {
 #displayBtnGroup {
     float:right;
     margin-left:5px;
-    margin-top:-2px;
+    margin-top:-5px;
+    margin-right:-10px;
 }
 
 #displayBtnGroup .btn {
-    width:80px;
+    width: 80px;
+    line-height: 1.2em;
+    padding: 5px 0;
 }
 
 #docStatus {
-    padding: 3px 15px 4px 15px;
+    padding: 10px 15px;
     margin-bottom: 20px;
     list-style: none;
     border-radius: 4px;
@@ -226,10 +234,20 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 .instructions {
     padding:5px;
     border-radius:4px;
+    margin-bottom:10px;
+    min-height: 32px;
 }
 
 .list-group {
     margin-bottom:10px;
+}
+
+.list-group-item.lsassociation {
+    cursor:pointer;
+}
+
+.lsassociation-other-doc {
+    background-color:#ffd;
 }
 
 .lsAssociationItemDisplay {
@@ -237,6 +255,26 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     color:#fff;
     border-radius:4px;
     padding:10px;
+}
+
+.lsAssociationDirectionSwitched {
+    transform: rotate(180deg);
+}
+
+.association-panel-icon {
+    height:16px;
+    float:right;
+}
+
+.treeHasAssociation {
+    position: absolute;
+    right: 5px;
+}
+
+.treeHasAssociation img {
+    height: 10px;
+    background-color: #fff;
+    vertical-align:baseline;
 }
 
 /* make tooltips wider, slightly bigger font size, and aligned left */
@@ -350,7 +388,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
         background-image: url(/assets/img/folder.png);
     }
 
-    .fancytree-folder span.fancytree-icon, .fancytree-folder span.fancytree-icon:hover
+    .fancytree-force-folder, .fancytree-force-folder:hover
     {
         background-image: url(/assets/img/folder.png) !important;
     }
@@ -399,6 +437,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow:hidden;
+    cursor:pointer;
 }
 
 .avTitleCell {
@@ -407,6 +446,10 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 
 .avTypeCell, .avGroupCell {
     text-align:center;
+}
+
+.avTypeCell {
+    white-space:nowrap;
 }
 
 .avRemoveAssoc {

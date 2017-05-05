@@ -1,6 +1,6 @@
 {% extends '::layout.html.twig' %}
 
-{% block title %}{{ lsDoc.title }}{% endblock %}
+{% block title %}OLD VERSION: {{ lsDoc.title }}{% endblock %}
 
 {% block body %}
 <div class="row">
@@ -12,8 +12,8 @@
         <div id="docTitle">
             <div id="displayBtnGroup" class="form-group">
                 <div class="btn-group" role="group" aria-label="...">
-                    <button id="displayTreeBtn" type="button" class="btn btn-primary btn-xs">Tree<br />View</button>
-                    <button id="displayAssocBtn" type="button" class="btn btn-default btn-xs">Association<br />View</button>
+                    <button id="displayTreeBtn" type="button" class="btn btn-primary btn-xs">Tree View</button>
+                    <button id="displayAssocBtn" type="button" class="btn btn-default btn-xs">Associations</button>
                 </div>
             </div>
             {{ lsDoc.title }}
@@ -28,25 +28,15 @@
 
 <div class="row" id="treeView">
     <div id="treeSideLeft" class="col-sm-6 treeSide">
-		{% if is_granted('edit', lsDoc) %}
-		<div id="tree1InitialInstructions" class="bg-info instructions" style="display:none">Select a Competency Framework Document to view on the left side.</div>
-		<div id="tree1SectionThisDocInstructions" class="bg-info instructions"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Browse, edit, reorder, and create new items here.<!--  Click “Change Document” to view items from a different document on the left side. --></div>
-		<div id="tree1SectionOtherDocInstructions" class="bg-info instructions" style="display:none"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Drag and drop from right to left to <b>create associations</b>.</div>
-
-		<div id="tree1SelectorDiv" class="container-fluid" style="display:none"><div class="row">
-			<!-- document menu will be inserted here -->
-		</div></div>
-		{% endif %}
-
         <div class="assocGroupFilter form-group form-inline" style="display:none">
             <b>Association group:</b>&nbsp;
             <select class="assocGroupSelect form-control"></select>
         </div>
 
-        <div id="tree1SectionControls" class="form-group" style="clear:both">
+        <div class="form-group" style="clear:both">
             {% if is_granted('edit', lsDoc) %}
             <div class="input-group" style="clear:both">
-                <span id="tree1SectionBulkControls" class="input-group-btn">
+                <span class="input-group-btn">
                     <button type="button" class="treeCheckboxControlBtn btn btn-default">
                         <input class="treeCheckboxControl" type="checkbox">
                     </button>
@@ -54,7 +44,7 @@
                     <button type="button" class="treeCheckboxMenuBtn btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="display:none">Action <span class="caret"></span></button>
                     <ul class="dropdown-menu">
                         <li><a class="treeCheckboxMenuItem" data-cmd="delete">Delete</a></li>
-                        <!-- <li><a class="treeCheckboxMenuItem" data-cmd="edit">Edit</a></li> -->
+                        <li><a class="treeCheckboxMenuItem" data-cmd="edit">Edit</a></li>
                         <li><a class="treeCheckboxMenuItem" data-cmd="makeFolders">Make Items Parents</a></li>
                         <li><a class="treeCheckboxMenuItem" data-cmd="hideCheckboxes">Hide Checkboxes</a></li>
                     </ul>
@@ -68,18 +58,8 @@
         </div>
 
         <section id="tree1Section">
-            <div id="viewmode_tree1" class="treeDiv"></div>
+            <div class="treeDiv" id="viewmode_tree"></div>
         </section>
-        
-        <div id="noItemsInstructions" class="bg-info instructions" style="display:none">This document does not currently contain any statements/items.
-            <ul>
-            {% if is_granted('edit', lsDoc) %}
-                <li>To <b>create statements/items</b> click the “Add New Child Item” button at right.</li>
-                <li>To <b>create “crosswalk” associations</b> between two different documents, start by clicking “Change Document” above, then choose a different document to view here.</li>
-            {% endif %}
-                <li>To <b>view existing crosswalk associations</b>, click the “Association View” button above.</li>
-            </ul>
-        </div>
     </div>
 
     <div id="treeSideRight" class="col-sm-6 treeSide">
@@ -95,59 +75,89 @@
 
         <section id="itemSection" class="panel panel-default docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">
             <div id="items" class="panel-body">
-                <div id="itemInfo">
+                <div id="documentInfo">
                     <h4 class="itemTitle">
-                    	<img class="itemTitleIcon" src="/assets/img/item.png" />
-						<span class="itemTitleSpan"></span>
+                        <img class="itemTitleIcon" src="/assets/img/doc.png">
+                        <span class="itemTitleSpan">
+                            {% if lsDoc.version is not empty %}
+                            <span style="float:right" class="lessImportant">Version {{ lsDoc.version }}</span>
+                            {% endif %}
+                            {{lsDoc.title}}
+                        </span>
                     </h4>
-					<div class="lsItemDetails">
-						<ul class="list-group lsItemDetailsMain"></ul>
-						
-						<div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
+                    <ul class="list-group">
+                        {% for field, name in {
+                        'officialUri': 'Official URL',
+                        'creator': 'Creator',
+                        'description': 'Description',
+                        'subjects': 'Subject',
+                        'language': 'Language',
+                        'adoptionStatus': 'Adoption Status',
+                        'note': 'Notes'
+                        } %}
+                        {% if attribute(lsDoc, field) is not empty %}
+                        <li class="list-group-item">
+                            <strong>{{ name }}:</strong>
+                            {% set value = attribute(lsDoc, field) %}
+                            {% if field == 'creator' %}
+                            {{ value }}
+                            {% if lsDoc.publisher is not empty %}
+                            <span class="lessImportant">Publisher: {{ lsDoc.publisher }}</span>
+                            {% endif %}
+                            {% elseif field == 'adoptionStatus' %}
+                            {{ value }}
+                            {% if lsDoc.statusStart is not empty %}
+                            <span class="lessImportant">From {{ lsDoc.statusStart|date("m/d/Y") }}</span>
+                            {% endif %}
+                            {% if lsDoc.statusEnd is not empty %}
+                            <span class="lessImportant">Until {{ lsDoc.statusEnd|date("m/d/Y") }}</span>
+                            {% endif %}
+                            </span>
+                            {% elseif field == 'subjects' %}
+                            {% for subject in value %}
+                            {%- if not loop.first %}, {% endif %}{{ subject.title }}
+                            {%- endfor %}
+                            {% elseif field == 'uri' %}
+                            <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                            {% else %}
+                            {{ value }}
+                            {% endif %}
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
 
-						{% if is_granted('edit', lsDoc) %}
-						<div class="itemOptions" id="itemOptions">
-							<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal" data-alt-document-disabled="true">Edit</button>
-							<button type="button" id="deleteItemBtn" class="btn btn-default btn-sm" data-toggle="modal" data-alt-document-disabled="true">Delete</button>
-							<button type="button" id="toggleFolderBtn" class="btn btn-default btn-sm" data-toggle="modal" data-alt-document-disabled="true">Make This Item a Parent</button>
-							<button type="button" id="addChildBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add a New Child Item</button>
-							<button type="button" id="addExemplarBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addExemplarModal">Add an Exemplar</button>
-						</div>
-						{% endif %}
+                    <div class="itemOptions">
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
+                        {# use first version if we need to edit the adoptionStatus #}
+                        {% if is_granted('edit', lsDoc) %}
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal">Edit</button>
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#manageAssocGroupsModal">Manage Association Groups</button>
+                        {% endif %}
+                        {% if is_granted('manage_editors', lsDoc) %}
+                        <a href="{{ path('framework_acl_edit', {'id':lsDoc.id}) }}" class="btn btn-default btn-sm">Manage Access</a>
+                        {% endif %}
 
-						<div class="itemOptions" id="documentOptions">
-							<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
-							{# use first version if we need to edit the adoptionStatus #}
-							{% if is_granted('edit', lsDoc) %}
-							<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal" data-alt-document-disabled="true">Edit</button>
-							<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#manageAssocGroupsModal" data-alt-document-disabled="true">Manage Association Groups</button>
-							{% endif %}
-							{% if is_granted('manage_editors', lsDoc) %}
-							<a href="{{ path('framework_acl_edit', {'id':lsDoc.id}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
-							{% endif %}
+                        {% if is_granted('edit', lsDoc) %}
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">Add New Child Item</button>
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addExemplarModal">Add an Exemplar</button>
+                        {% endif %}
 
-							{% if is_granted('edit', lsDoc) %}
-							<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add New Child Item</button>
-							{% endif %}
+                        {% if is_granted('create', lsDoc) %}
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal">Import Children</button>
+                        {% endif %}
+                    </div>
 
-							{% if is_granted('create', lsDoc) %}
-							<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal" data-alt-document-disabled="true">Import Children</button>
-							{% endif %}
-						</div>
-					</div>	<!-- lsItemDetails -->
-					<div class="lsItemAssociations"></div>
-					
-					<div id="associationRemoveBtn" style="display:none">
-						{% if is_granted('edit', lsDoc) %}
-							<span class="pull-right" style="margin-left:5px"><span role="button" class="btn btn-xs btn-default btn-remove-association"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Remove</span></span></span>
-						{% endif %}
-					</div>
-                </div>	<!-- itemInfo -->
+                </div>
+                <div class="itemInfo" id="itemInfoTemplate" style="display:none">
+                    <h4 class="itemTitle"></h4>
+                    <div class="itemDetails"></div>
+                </div>
             </div>
         </section>
 
         <section id="tree2Section">
-            <div id="tree2InitialInstructions" class="bg-info instructions">Select a Competency Framework Document to view on the right side.</div>
+            <div id="tree2InitialInstructions" class="bg-info instructions">Start by selecting another Competency Framework Document here.</div>
             <div id="tree2SectionCopyInstructions" class="bg-info instructions" style="display:none"><button type="button" class="changeTree2DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Drag and drop from right to left to <b>copy items</b>.</div>
             <div id="tree2SectionRelationshipInstructions" class="bg-info instructions" style="display:none"><button type="button" class="changeTree2DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Drag and drop from right to left to <b>create associations</b>.</div>
 
@@ -172,8 +182,9 @@
                             <li><a class="treeCheckboxMenuItem" data-cmd="hideCheckboxes">Hide Checkboxes</a></li>
                         </ul>
                     </span>
-                    <span class="filterClear glyphicon glyphicon-remove-circle"></span>
                     <input type="text" class="form-control treeFilter" placeholder="Search...">
+                    <span class="filterClear glyphicon glyphicon-remove-circle"></span>
+                    <span class="input-group-btn"></span>
                 </div>
             </div>
 
@@ -189,7 +200,7 @@
             <div class="assocViewTableTypeFilters">
                 <div class="assocViewTableTypeFiltersHeader">Association Types:</div>
                 <label class="avTypeFilter"><input type="checkbox" data-filter="avShowChild"> Is Child Of</label><br>
-                <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExact" checked> Exact Match Of</label><br>
+                <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExact"> Exact Match Of</label><br>
                 <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExemplar" checked> Exemplar</label><br>
                 <label class="avTypeFilter"><input type="checkbox" data-filter="avShowOtherTypes" checked> Other Types</label><br>
             </div>
@@ -216,18 +227,6 @@
 {% block modalButtons %}{% endblock %}
 {% block modalBody %}
 {% embed 'CftfBundle:LsDoc:_exportComponent.html.twig' with {'view':'editor'} %}
-{% endembed %}
-{% endblock %}
-{% endembed %}
-
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'loadExternalDocument',
-'modalTitle':'Load External Document',
-'closeButton': 'Cancel',
-'saveButton': 'Load Document'
-} %}
-{% block modalBody %}
-{% embed 'CftfBundle:DocTree:_loadExternalDocumentComponent.html.twig' with {'view':'editor'} %}
 {% endembed %}
 {% endblock %}
 {% endembed %}
@@ -262,10 +261,6 @@
 'closeButton': 'Cancel',
 'saveButton': 'Associate'
 } %}
-{% block modalBody %}
-{% embed 'CftfBundle:LsAssociation:_newAssociationComponent.html.twig' with {'view':'editor'} %}
-{% endembed %}
-{% endblock %}
 {% endembed %}
 
 {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
@@ -369,46 +364,88 @@
 {% endblock %}
 
 {% block javascripts %}
-{% autoescape 'js' %}
 <script>
-window.apx = window.apx||{};
-
-// loaded docid and initial lsItem and assocGroup to show
-apx.lsDocId = {{ lsDoc.id }};
-apx.initialLsItemId = {{ lsItemId |default(null) |json_encode |raw }};
-apx.initialAssocGroup = {{ assocGroup |default(null) |json_encode |raw}};
-
-apx.assocTypes = {{ assocTypes |json_encode |raw }};
-apx.inverseAssocTypes = {{ inverseAssocTypes |json_encode |raw }};
-
+window.app = window.app||{};
+app.lsDocId = {{ lsDoc.id }};
+{% if lsItemId is not empty %}
+    app.initialLsItemId = {{ lsItemId }};
+{% endif %}
+{% if assocGroup is not empty %}
+    app.initialAssocGroup = {{ assocGroup }};
+{% endif %}
 // establish paths
-apx.path = apx.path||{};
-apx.path.lsDoc = '{{ path('doc_tree_view', {'slug':'ID'}) }}';
-apx.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';
-apx.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
-apx.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
-apx.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
-apx.path.lsitem_edit = '{{ path('lsitem_edit', {'id':'ID'}) }}';
-apx.path.lsitem_tree_delete = '{{ path('lsitem_tree_delete', {'id':'ID', 'includingChildren':'CHILDREN'}) }}';
-apx.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC', 'parent':'PARENT'}) }}';
-apx.path.lsitem_copy_item = '{{ path('lsitem_copy_item', {'id':'ID'}) }}';
-apx.path.lsassociation_tree_new = '{{ path('lsassociation_tree_new', {'lsDoc': lsDoc.id}) }}';
-apx.path.lsassociation_remove = '{{ path('lsassociation_remove', {'id':'ID'}) }}';
-apx.path.lsassociation_tree_new_exemplar = '{{ path('lsassociation_tree_new_exemplar', {'originLsItem':'ORIGIN_ID'}) }}';
-apx.path.doctree_render_document = '{{ path('doctree_render_document', {'id':'ID', '_format':'json'}) }}';
-apx.path.doctree_update_items = '{{ path('doctree_update_items', {'id':'ID', '_format':'json'}) }}';
-apx.path.lsdef_association_grouping_new = '{{ path('lsdef_association_grouping_new') }}';
-apx.path.lsdef_association_grouping_edit = '{{ path('lsdef_association_grouping_edit', {'id':'ID'}) }}';
-apx.path.lsdef_association_grouping_tree_delete = '{{ path('lsdef_association_grouping_tree_delete', {'id':'ID'}) }}';
+app.path = app.path||{};
+app.path.lsDoc = '{{ path('doc_tree_viewx', {'slug':'ID'}) }}';
+app.path.lsItem = '{{ path('doc_tree_item_viewx', {'id':'ID'}) }}';
+app.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
+app.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
+app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
+app.path.lsitem_edit = '{{ path('lsitem_edit', {'id':'ID'}) }}';
+app.path.lsitem_tree_delete = '{{ path('lsitem_tree_delete', {'id':'ID', 'includingChildren':'CHILDREN'}) }}';
+app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC', 'parent':'PARENT'}) }}';
+app.path.lsitem_copy_item = '{{ path('lsitem_copy_item', {'id':'ID'}) }}';
+app.path.lsassociation_tree_new = '{{ path('lsassociation_tree_new_old', {'originLsItem':'ORIGIN_ID', 'destinationLsItem':'DESTINATION_ID'}) }}';
+app.path.lsassociation_remove = '{{ path('lsassociation_remove', {'id':'ID'}) }}';
+app.path.lsassociation_tree_new_exemplar = '{{ path('lsassociation_tree_new_exemplar', {'originLsItem':'ORIGIN_ID'}) }}';
+app.path.doctree_render_document = '{{ path('doctree_render_document', {'id':'ID', '_format':'json'}) }}';
+app.path.doctree_update_items = '{{ path('doctree_update_items', {'id':'ID', '_format':'json'}) }}';
+app.path.lsdef_association_grouping_new = '{{ path('lsdef_association_grouping_new') }}';
+app.path.lsdef_association_grouping_edit = '{{ path('lsdef_association_grouping_edit', {'id':'ID'}) }}';
+app.path.lsdef_association_grouping_tree_delete = '{{ path('lsdef_association_grouping_tree_delete', {'id':'ID'}) }}';
+//////////////////////////////////////////////////////
+// INITIALIZATION
+// establish assocGroups
+app.allAssocGroups = {
+    {% for ag in assocGroups %}
+    "{{ ag.id }}": {"id":"{{ ag.id }}", "title":"{{ ag.title|e('js') }}", "lsDocId":"{% if ag.lsDoc is not empty %}{{ ag.lsDoc.id }}{% endif %}"},
+    {% endfor %}
+};
 
-apx.path.doctree_cfpackage_export = '{{ path('doctree_cfpackage_export', {'id':'ID'}) }}';
-apx.path.doctree_retrieve_document = '{{ path('doctree_retrieve_document', {'id':'ID'}) }}';
+app.docAssocs = {
+    {% for assoc in lsAssociations %}
+    "{{ assoc.id }}": {
+        "t": "{{ assoc.type }}",
+        {% if assoc.originLsItem is not empty %}
+            "o": "{{ assoc.originLsItem.id }}",
+        {% elseif assoc.originNodeUri is not empty %}
+            "ou": "{{ assoc.originNodeUri }}",
+        {% elseif assoc.originNodeIdentifier is not empty %}
+            "oi": "{{ assoc.originNodeIdentifier }}",
+        {% endif %}
+        {% if assoc.destinationLsItem is not empty %}
+            "d": "{{ assoc.destinationLsItem.id }}",
+        {% elseif assoc.destinationNodeUri is not empty %}
+            "du": "{{ assoc.destinationNodeUri }}",
+        {% elseif assoc.destinationNodeIdentifier is not empty %}
+            "di": "{{ assoc.destinationNodeIdentifier }}",
+        {% endif %}
+        {% if assoc.group is not empty %}"g": "{{ assoc.group.id }}"{% endif %}
+    },
+    {% endfor %}
+};
 
-//////////////////////////////////
+app.associatedItems = {
+    {% for assocItem in assocItems %}
+    "{{ assocItem.id }}": {
+        {% if assocItem.abbreviatedStatement is not empty %}
+            "stmt": "{{ assocItem.abbreviatedStatement }}",
+        {% elseif assocItem.fullStatement is not empty %}
+            "stmt": "{{ assocItem.fullStatement }}",
+        {% endif %}
+        {% if assocItem.humanCodingScheme is not empty %}
+            "hcs": "{{ assocItem.humanCodingScheme }}",
+        {% endif %}
+        {% if assocItem.lsDoc is not empty %}
+            "doc": "{{ assocItem.lsDoc.id }}",
+        {% endif %}
+    },  
+    {% endfor %}
+};
+
+// establish the tree for the lsdoc we're editing
+app.tree1 = {{ render_esi(path('doctree_render_document', {'id':lsDoc.id, '_format':'json'})) }};
 $(document).ready(function() {
-    apx.initialize();
+    app.initialize();
 });
-
 </script>
-{% endautoescape %}
 {% endblock %}

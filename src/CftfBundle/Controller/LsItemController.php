@@ -89,8 +89,35 @@ class LsItemController extends Controller
             $em->persist($lsItem);
             $em->flush();
 
+            // retrieve isChildOf assoc id for the new item
+            $assoc = $this->getDoctrine()->getRepository('CftfBundle:LsAssociation')->findOneBy(['originLsItem'=>$lsItem]);
+
             if ($ajax) {
-                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_CREATED);
+                // if ajax call, return the item as json
+                $ret = [
+                    'id' => $lsItem->getId(),
+                    'identifier' => $lsItem->getIdentifier(),
+                    'fullStatement' => $lsItem->getFullStatement(),
+                    'humanCodingScheme' => $lsItem->getHumanCodingScheme(),
+                    'listEnumInSource' => $lsItem->getListEnumInSource(),
+                    'abbreviatedStatement' => $lsItem->getAbbreviatedStatement(),
+                    'conceptKeywords' => $lsItem->getConceptKeywords(),
+                    'conceptKeywordsUri' => $lsItem->getConceptKeywordsUri(),
+                    'notes' => $lsItem->getNotes(),
+                    'language' => $lsItem->getLanguage(),
+                    'educationalAlignment' => $lsItem->getEducationalAlignment(),
+                    'itemType' => $lsItem->getItemType(),
+                    'changedAt' => $lsItem->getChangedAt(),
+                    'extra' => [
+                        'assocId' => $assoc->getId(),
+                        'identifier' => $assoc->getIdentifier()
+                    ]
+                ];
+                $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
+                $response->headers->set('Content-Type', 'text/json');
+                $response->headers->set('Pragma', 'no-cache');
+
+                return $response;
             }
 
             return $this->redirectToRoute('lsitem_show', array('id' => $lsItem->getId()));
@@ -163,7 +190,28 @@ class LsItemController extends Controller
             $em->flush();
 
             if ($ajax) {
-                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
+                // if ajax call, return the item as json
+                $ret = [
+                    'id' => $lsItem->getId(),
+                    'identifier' => $lsItem->getIdentifier(),
+                    'fullStatement' => $lsItem->getFullStatement(),
+                    'humanCodingScheme' => $lsItem->getHumanCodingScheme(),
+                    'listEnumInSource' => $lsItem->getListEnumInSource(),
+                    'abbreviatedStatement' => $lsItem->getAbbreviatedStatement(),
+                    'conceptKeywords' => $lsItem->getConceptKeywords(),
+                    'conceptKeywordsUri' => $lsItem->getConceptKeywordsUri(),
+                    'notes' => $lsItem->getNotes(),
+                    'language' => $lsItem->getLanguage(),
+                    'educationalAlignment' => $lsItem->getEducationalAlignment(),
+                    'itemType' => $lsItem->getItemType(),
+                    'changedAt' => $lsItem->getChangedAt(),
+                    'extra' => null
+                ];
+                $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
+                $response->headers->set('Content-Type', 'text/json');
+                $response->headers->set('Pragma', 'no-cache');
+
+                return $response;
             }
 
             return $this->redirectToRoute('lsitem_edit', ['id' => $lsItem->getId()]);
