@@ -42,4 +42,14 @@ class LsDefSubject extends AbstractLsDefinition implements CaseApiInterface
         $this->hierarchyCode = $hierarchyCode;
         return $this;
     }
+
+    /**
+     * String to represent this subject
+     *
+     * @return string
+     */
+    public function __toString() : string
+    {
+        return $this->getTitle();
+    }
 }
