@@ -413,7 +413,7 @@ xENDx;
         $docs = [];
 
         $qb = $this->createQueryBuilder('d');
-        $qb->select('d.identifier, d.uri, d.title')
+        $qb->select('partial d.{id,identifier,uri,title}')
             ->distinct()
             ->join('d.lsItems', 'i')
             ->join('i.associations', 'a')
@@ -431,7 +431,7 @@ xENDx;
         }
 
         $qb = $this->createQueryBuilder('d');
-        $qb->select('d.identifier, d.uri, d.title')
+        $qb->select('partial d.{id,identifier,uri,title}')
             ->distinct()
             ->join('d.lsItems', 'i')
             ->join('i.associations', 'a')
@@ -449,7 +449,7 @@ xENDx;
         }
 
         $qb = $this->createQueryBuilder('d');
-        $qb->select('d.identifier, d.uri, d.title')
+        $qb->select('partial d.{id,identifier,uri,title}')
             ->distinct()
             ->join('d.lsItems', 'i')
             ->join('i.associations', 'a')
@@ -467,7 +467,7 @@ xENDx;
         }
 
         $qb = $this->createQueryBuilder('d');
-        $qb->select('d.identifier, d.uri, d.title')
+        $qb->select('partial d.{id,identifier,uri,title}')
             ->distinct()
             ->join('d.lsItems', 'i')
             ->join('i.associations', 'a')
@@ -485,5 +485,53 @@ xENDx;
         }
 
         return $docs;
+    }
+
+    /**
+     * Get a list of all items for an LsDoc
+     *
+     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
+     * @return array array of LsItems hydrated as an array
+     */
+    public function findItemsForExportDoc(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT i, t
+            FROM CftfBundle:LsItem i INDEX BY i.id
+            LEFT JOIN i.itemType t
+            WHERE i.lsDoc = :lsDocId
+            ORDER BY i.rank ASC, i.listEnumInSource ASC, i.humanCodingScheme
+        ');
+        $query->setParameter('lsDocId', $lsDoc->getId());
+
+        $results = $query->getResult($format);
+
+        return $results;
+    }
+
+    /**
+     * Get a list of all items for an LsDoc
+     *
+     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     *
+     * @return array array of LsItems hydrated as an array
+     */
+    public function findAssociationsForExportDoc(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT a, g, partial oi.{id,identifier,lsDocIdentifier}, partial di.{id,identifier,lsDocIdentifier}
+            FROM CftfBundle:LsAssociation a INDEX BY a.id
+            LEFT JOIN a.group g
+            LEFT JOIN a.originLsItem oi
+            LEFT JOIN a.destinationLsItem di
+            WHERE a.lsDoc = :lsDocId
+            ORDER BY a.sequenceNumber ASC
+        ');
+        $query->setParameter('lsDocId', $lsDoc->getId());
+
+        $results = $query->getResult($format);
+
+        return $results;
     }
 }

@@ -114,8 +114,8 @@ class DocTreeController extends Controller
      */
     public function exportAction(LsDoc $lsDoc)
     {
-        $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAllItems($lsDoc);
-        $associations = $this->getDoctrine()->getRepository('CftfBundle:LsAssociation')->findBy(['lsDoc'=>$lsDoc]);
+        $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findItemsForExportDoc($lsDoc);
+        $associations = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAssociationsForExportDoc($lsDoc);
         $assocGroups = $this->getDoctrine()->getRepository('CftfBundle:LsDefAssociationGrouping')->findBy(['lsDoc'=>$lsDoc]);
         $externalDocs = array_merge(
             $lsDoc->getExternalDocs(),

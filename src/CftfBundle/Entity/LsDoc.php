@@ -22,6 +22,7 @@ use Util\Compare;
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsDocRepository")
  * @UniqueEntity("uri")
  * @UniqueEntity("urlName")
+ * @UniqueEntity("identifier")
  *
  * @Serializer\VirtualProperty(
  *     "uri",
@@ -94,7 +95,7 @@ class LsDoc implements CaseApiInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=false)
+     * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=true)
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
@@ -1121,7 +1122,7 @@ class LsDoc implements CaseApiInterface
 
         // remove any remaining, now-extraneous ed's
         do {
-            if (!empty($this->getAttribute("externalDoc$i"))) {
+            if ($this->attributes->containsKey("externalDoc$i")) {
                 $this->removeAttribute("externalDoc$i");
             }
             ++$i;
@@ -1184,17 +1185,19 @@ class LsDoc implements CaseApiInterface
      */
     public function getExternalDocs() {
         $externalDocs = [];
-        for ($i = 0; $i < 1000; ++$i) {
-            // look for next externalDoc
-            $ed = $this->getAttribute("externalDoc$i");
 
-            // if found, parse the ed, which should have the form "identifier|url|title"
-            if (!empty($ed) && preg_match("/^(.+?)\|(true|false)\|(.+?)\|(.*)/", $ed, $matches)) {
-                $externalDocs[$matches[1]] = [
-                    'autoLoad' => $matches[2],
-                    'url' => $matches[3],
-                    'title' => $matches[4]
-                ];
+        $attrKeys = $this->attributes->getKeys();
+        foreach ($attrKeys as $key) {
+            if (0 === strpos($key, 'externalDoc')) {
+                $ed = $this->getAttribute($key);
+
+                if (null !== $ed && preg_match("/^(.+?)\|(true|false)\|(.+?)\|(.*)/", $ed, $matches)) {
+                    $externalDocs[$matches[1]] = [
+                        'autoLoad' => $matches[2],
+                        'url' => $matches[3],
+                        'title' => $matches[4]
+                    ];
+                }
             }
         }
 
