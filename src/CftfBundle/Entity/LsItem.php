@@ -76,7 +76,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     "cfItemAssociationsUri",
  *     exp="service('salt.api.v1p1.utils').getApiUrl(object, 'api_v1p1_cfitemassociations')",
  *     options={
- *         @Serializer\SerializedName("CFItemAssociationsURI"),
+ *         @Serializer\SerializedName("CFItemAssociationURI"),
  *         @Serializer\Expose()
  *     }
  * )
