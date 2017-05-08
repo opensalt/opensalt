@@ -196,6 +196,8 @@ class LsDoc implements CaseApiInterface
      * @ORM\Column(name="subject", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Exclude()
      */
     private $subject;
 
@@ -221,7 +223,7 @@ class LsDoc implements CaseApiInterface
      *      inverseJoinColumns={@ORM\JoinColumn(name="subject_id", referencedColumnName="id")}
      * )
      *
-     * @Serializer\Exclude()
+     * @Serializer\Expose()
      * @Serializer\SerializedName("subject")
      * @Serializer\Type("array<string>")
      */
