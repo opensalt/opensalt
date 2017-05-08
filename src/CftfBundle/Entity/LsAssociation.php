@@ -287,6 +287,7 @@ class LsAssociation implements CaseApiInterface
      * @ORM\Column(name="seq", type="bigint", nullable=true)
      *
      * @Serializer\Expose()
+     * @Serializer\SerializedName("sequenceNumber")
      */
     private $sequenceNumber;
 
