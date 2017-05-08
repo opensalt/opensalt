@@ -129,7 +129,7 @@ doctrine:
                 password: "%database_password%"
                 options:  "%pdo_options%"
                 charset:  UTF8
-                schema_filter: ~^(?!(auth_session|LearningStandards))~
+                schema_filter: ~^(?!(auth_session|cache_items|LearningStandards))~
                 server_version: 5.7
                 mapping_types:
                     json: string
