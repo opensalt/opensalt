@@ -143,7 +143,7 @@ class GithubImport
         // We don't use is_child_of because that it alaready used to create parents relations before. :)
         // checking each association field
         foreach ($fieldsAndTypes as $fieldName => $assocType){
-            if ($cfAssociations = $content[$position][$lsItemKeys[$fieldName]]) {
+            if ( array_key_exists($fieldName, $lsItemKeys) && $cfAssociations = $content[$position][$lsItemKeys[$fieldName]]) {
                 foreach (explode(',', $cfAssociations) as $cfAssociation) {
                     $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate, $assocType);
                 }
