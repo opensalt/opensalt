@@ -41,6 +41,15 @@ use Util\Compare;
  *         @Serializer\Expose()
  *     }
  * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "subjectUri",
+ *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     options={
+ *         @Serializer\SerializedName("subjectURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
  */
 class LsDoc implements CaseApiInterface
 {
@@ -209,8 +218,7 @@ class LsDoc implements CaseApiInterface
      * @Assert\Url()
      * @Assert\Length(max=300)
      *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("subjectURI")
+     * @Serializer\Exclude()
      */
     private $subjectUri;
 

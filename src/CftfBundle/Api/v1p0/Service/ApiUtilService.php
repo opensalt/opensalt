@@ -56,6 +56,16 @@ class ApiUtilService
      */
     public function getApiUrl(?CaseApiInterface $obj, ?string $route = null)
     {
+        // Only get one URI
+        if (is_array($obj)) {
+            $obj = current($obj);
+        }
+
+        // If no object then don't return a route
+        if (null === $obj) {
+            return null;
+        }
+
         $uri = $obj->getUri();
 
         if (empty($uri)) {
@@ -68,7 +78,7 @@ class ApiUtilService
 
         $id = $obj->getIdentifier();
 
-        if (empty($route)) {
+        if (null === $route) {
             $class = get_class($obj);
             $class = str_replace('Proxies\\__CG__\\', '', $class);
             if (!in_array($class, static::$classMap)) {
