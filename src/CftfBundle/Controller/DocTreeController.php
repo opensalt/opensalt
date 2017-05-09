@@ -321,7 +321,7 @@ class DocTreeController extends Controller
      */
     public function viewItemAction(LsItem $lsItem, $assocGroup = null, $_format = 'html')
     {
-        return $this->forward('CftfBundle:DocTree:view', ['lsDoc' => $lsItem->getLsDoc(), 'html', 'lsItemId' => $lsItem->getid(), 'assocGroup' => $assocGroup]);
+        return $this->forward('CftfBundle:DocTree:view', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getid(), 'assocGroup' => $assocGroup]);
     }
 
 
