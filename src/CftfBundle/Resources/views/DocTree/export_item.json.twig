@@ -29,7 +29,7 @@
 "el": {{ lsItem.educationalAlignment |json_encode |raw }},
 {% endif %}
 {% if lsItem.itemType is not null %}
-"itp": {{ lsItem.itemType.code |json_encode |raw }},
+"itp": {{ lsItem.itemType.title |json_encode |raw }},
 {# Leave out CFItemTypeURI; we can get that from the document data if needed #}
 {% endif %}
 {# Leave out licence information; we can get that from the document data if needed #}
