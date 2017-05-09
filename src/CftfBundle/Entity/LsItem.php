@@ -73,6 +73,24 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  *
  * @Serializer\VirtualProperty(
+ *     "statusStartDate",
+ *     exp="object.getLsDoc().getStatusStart()",
+ *     options={
+ *         @Serializer\SerializedName("statusStartDate"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "statusStartDate",
+ *     exp="object.getLsDoc().getStatusEnd()",
+ *     options={
+ *         @Serializer\SerializedName("statusEndDate"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
  *     "cfItemAssociationsUri",
  *     exp="service('salt.api.v1p1.utils').getApiUrl(object, 'api_v1p1_cfitemassociations')",
  *     options={
