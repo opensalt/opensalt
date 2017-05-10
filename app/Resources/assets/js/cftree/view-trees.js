@@ -289,6 +289,11 @@ apx.treeDocLoadCallback1 = function() {
 
                 // this function seems to need to be defined for the dnd functionality to work
                 dragStart: function(node, data) {
+                    // don't allow dragging when we can't edit
+                    if (!apx.enableEdit) {
+                        return false;
+                    }
+
                     // don't allow the document to be dragged
                     if (apx.treeDoc1.isDocNode(node)) {
                         return false;
@@ -614,12 +619,12 @@ apx.treeDocLoadCallback2 = function() {
             },
             
             click: function() {
-				// if we're in copy mode and treeDoc2 is an external doc, stop the user right here; no copying allowed from external docs at this time
-				if (apx.rightSideMode == "copyItem" && apx.treeDoc2.isExternalDoc()) {
-					alert("You cannot currently copy an item from a document on another server.");
-					return false;
-				}
-			},
+                // if we're in copy mode and treeDoc2 is an external doc, stop the user right here; no copying allowed from external docs at this time
+                if (apx.rightSideMode === "copyItem" && apx.treeDoc2.isExternalDoc()) {
+                    alert("You cannot currently copy an item from a document on another server.");
+                    return false;
+                }
+            },
 
             // drag-and-drop functionality - https://github.com/mar10/fancytree/wiki/ExtDnd
             dnd: {
@@ -644,11 +649,7 @@ apx.treeDocLoadCallback2 = function() {
                     $(node.span).find(".fancytree-title").tooltip('show');
 
                     // don't allow the document to be dragged
-                    if (apx.treeDoc2.isDocNode(node)) {
-                        return false;
-                    } else {
-                        return true;
-                    }
+                    return !apx.treeDoc2.isDocNode(node);
                 },
 
                 initHelper: function(node, data) {
@@ -691,8 +692,8 @@ apx.treeDocLoadCallback2 = function() {
             }
         });
 
-		// restore checkbox state
-		apx.treeDoc2.treeCheckboxRestoreCheckboxes(2);
+        // restore checkbox state
+        apx.treeDoc2.treeCheckboxRestoreCheckboxes(2);
     };
     // end of ftRender function
 

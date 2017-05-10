@@ -373,6 +373,8 @@
 <script>
 window.apx = window.apx||{};
 
+apx.enableEdit = {{ (is_granted('edit', lsDoc)?"true":"false") |e('js') }};
+
 // loaded docid and initial lsItem and assocGroup to show
 apx.lsDocId = {{ lsDoc.id }};
 apx.initialLsItemId = {{ lsItemId |default(null) |json_encode |raw }};
