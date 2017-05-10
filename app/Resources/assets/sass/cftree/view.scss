@@ -18,13 +18,20 @@
     position:relative;
 }
 
+.treeSide {
+    height: calc(100vh - 238px);
+    overflow: auto;
+}
+
 #tree1Section {
-    max-height:85vh;
+    height: calc(100% - 140px);
     overflow:auto;
     padding:3px;
-    margin-bottom:20px;
     // padding:10px;
     border-width:0;
+}
+.assocGroupFilter[style="display:none"] ~ #tree1Section {
+    height: calc(100% - 91px);
 }
 
 #tree1Section.otherDoc .fancytree-container {
@@ -58,7 +65,6 @@
 #tree2Section {
     display:none;
     border-width:0;
-    max-height:85vh;
     overflow:auto;
 }
 
