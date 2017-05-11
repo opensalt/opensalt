@@ -6,9 +6,10 @@ use Ramsey\Uuid\Uuid;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
+use Salt\UserBundle\Entity\ImportationLog;
+use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
  * Class GithubImport.
@@ -50,7 +51,7 @@ class GithubImport
      * @param string $fileContent
      * @param string $frameworkToAssociate
      */
-    public function parseCSVGithubDocument($lsItemKeys, $fileContent, $lsDocId, $frameworkToAssociate)
+    public function parseCSVGithubDocument($lsItemKeys, $fileContent, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
     {
         $csvContent = str_getcsv($fileContent, "\n");
         $headers = [];
@@ -74,7 +75,7 @@ class GithubImport
             $content[] = $tempContent;
         }
 
-        $this->saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate);
+        $this->saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog);
     }
 
     /**
@@ -84,10 +85,29 @@ class GithubImport
      * @param array $lsItemKeys
      * @param array $content
      */
-    public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate)
+    public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
     {
         $em = $this->getEntityManager();
         $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find($lsDocId);
+
+        if (count($missingFieldsLog) > 0){
+            foreach ($missingFieldsLog as $messageError) {
+                $errorLog = new ImportationLog();
+                $errorLog->setLsDoc($lsDoc);
+                $errorLog->setMessage($messageError);
+
+                $em->persist($errorLog);
+                $em->flush();
+            }
+        }else{
+            $successLog = new ImportationLog();
+            $successLog->setLsDoc($lsDoc);
+            $successLog->setType("info");
+            $successLog->setMessage('Items sucessful imported.');
+
+            $em->persist($successLog);
+            $em->flush();
+        }
 
         $lsItems = [];
         $humanCodingValues = [];

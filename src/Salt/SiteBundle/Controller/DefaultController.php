@@ -52,4 +52,29 @@ class DefaultController extends Controller
             'message' => 'Success'
         ]);
     }
+
+    /**
+     * @Route("/salt/importation_logs/mark_as_read", name="_importation_logs_mark_as_read")
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function markAsReadAction(Request $request)
+    {
+        $response = new JsonResponse();
+        $em = $this->getDoctrine()->getManager();
+
+        $lsDocId = $request->request->get('lsDocId');
+        $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find(44);
+        foreach ($lsDoc->getImportationLogs() as $log){
+            $log->markAsRead();
+            $em->persist($log);
+            $em->flush();
+        }
+
+        return $response->setData([
+            'message' => 'Logs marked as read successfully!'
+        ]);
+    }
 }

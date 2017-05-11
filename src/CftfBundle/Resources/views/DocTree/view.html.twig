@@ -203,6 +203,27 @@
     </div>
 </div>
 
+<div class="modal fade" id="seeImportationLogs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myModalLabel">Importation Logs</h4>
+			</div>
+			<div class="modal-body">
+                <button class="btn btn-link" id="mark-logs-as-read">Mark all as read</button>
+                <div class="list-group">
+                    {% for importationLog in lsDoc.importationLogs %}
+                        {% if importationLog.read == false %}
+                        <a href="#" class="list-group-item list-group-item-{{ importationLog.type }}">{{ importationLog.message }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+			</div>
+		</div>
+	</div>
+</div>
+
 {% embed 'CftfBundle:DocTree:wizard.html.twig' with {
     'lsDocId':lsDoc.id
 }%}

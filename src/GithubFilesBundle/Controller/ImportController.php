@@ -7,6 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Salt\UserBundle\Entity\ImportationLog;
 
 /**
  * Class ImportController
@@ -29,10 +30,10 @@ class ImportController extends Controller
         $fileContent = $request->request->get('content');
         $lsDocId = $request->request->get('lsDocId');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
-        $missingFieldsLog= $request->request->get('missingFieldsLog');
+        $missingFieldsLog = $request->request->get('missingFieldsLog');
 
         $githubImporter = $this->get('cftf_import.github');
-        $githubImporter->parseCSVGithubDocument($lsItemKeys, base64_decode($fileContent), $lsDocId, $frameworkToAssociate);
+        $githubImporter->parseCSVGithubDocument($lsItemKeys, base64_decode($fileContent), $lsDocId, $frameworkToAssociate, $missingFieldsLog);
 
         return $response->setData([
             'message' => 'Success',
