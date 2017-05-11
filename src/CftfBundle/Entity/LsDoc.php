@@ -44,7 +44,7 @@ use Util\Compare;
  *
  * @Serializer\VirtualProperty(
  *     "subjectUri",
- *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     exp="(object.getSubjects().count()===0)?null:service('salt.api.v1p1.utils').getLinkUri(object.getSubjects()[0])",
  *     options={
  *         @Serializer\SerializedName("subjectURI"),
  *         @Serializer\Expose()
