@@ -2,14 +2,22 @@
 
 namespace Salt\SiteBundle\Controller;
 
+use CftfBundle\Entity\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\CsvEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class DefaultController extends Controller
 {
+
+    private $smartLevel = [];
+
     /**
      * @Route("/about", name="site_about")
      * @Template()
@@ -51,5 +59,59 @@ class DefaultController extends Controller
         return $response->setData([
             'message' => 'Success'
         ]);
+    }
+
+    /**
+     * @Route("/salt/case/export/{docId}", name="export_cvs_file")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function exportExcelAction($docId, Request $request)
+    {
+        $repo = $this->getDoctrine()->getManager()->getRepository(LsDoc::class);
+        $cfDoc = $repo->findOneBy(['id' => $docId]);
+
+        $items = $repo->findAllChildrenArray($cfDoc);
+        $haveParents = $repo->findAllItemsWithParentsArray($cfDoc);
+        $topChildren = $repo->findTopChildrenIds($cfDoc);
+        $associations = $repo->findAllAssociations($cfDoc);
+
+        foreach ($topChildren as $id) {
+            $this->smartLevel[$id] = '1';
+            $item = $items[$id];
+
+            if (count($item['children']) > 0) {
+                $this->getSmartLevel($item['children'], $id, $items);
+            }
+        }
+
+        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+        $caseExporter = $this->get('cftf_export.case');
+        $caseExporter->exportCaseFile($cfDoc, $items, $this->smartLevel, $phpExcelObject, $associations);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="case.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+        $writer->save('php://output');
+
+        return new Response('success', 200);
+    }
+
+    public function getSmartLevel($items, $parentId, $itemsArray) {
+        $j = 1;
+
+        foreach ($items as $item) {
+            $item = $itemsArray[$item['id']];
+            $this->smartLevel[$item['id']] = $this->smartLevel[$parentId] . '.' . $j;
+
+            if (count($item['children']) > 0) {
+                $this->getSmartLevel($item['children'], $item['id'], $itemsArray);
+            }
+
+            $j++;
+        }
     }
 }
