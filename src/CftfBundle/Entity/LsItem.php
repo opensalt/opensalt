@@ -82,7 +82,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  *
  * @Serializer\VirtualProperty(
- *     "statusStartDate",
+ *     "statusEndDate",
  *     exp="object.getLsDoc().getStatusEnd()",
  *     options={
  *         @Serializer\SerializedName("statusEndDate"),
