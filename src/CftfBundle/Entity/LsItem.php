@@ -91,6 +91,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  *
  * @Serializer\VirtualProperty(
+ *     "alternativeLabel",
+ *     exp="object.getItemType()?object.getItemType().getTitle():null",
+ *     options={
+ *         @Serializer\SerializedName("alternativeLabel"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
  *     "cfItemAssociationsUri",
  *     exp="service('salt.api.v1p1.utils').getApiUrl(object, 'api_v1p1_cfitemassociations')",
  *     options={
