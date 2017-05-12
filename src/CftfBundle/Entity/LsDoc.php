@@ -44,9 +44,18 @@ use Util\Compare;
  *
  * @Serializer\VirtualProperty(
  *     "subjectUri",
- *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     exp="(object.getSubjects().count()===0)?null:service('salt.api.v1p1.utils').getLinkUri(object.getSubjects()[0])",
  *     options={
  *         @Serializer\SerializedName("subjectURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "licenseUri",
+ *     exp="service('salt.api.v1p1.utils').getLinkUri(object.getLicence())",
+ *     options={
+ *         @Serializer\SerializedName("licenseURI"),
  *         @Serializer\Expose()
  *     }
  * )
@@ -285,6 +294,16 @@ class LsDoc implements CaseApiInterface
     private $statusEnd;
 
     /**
+     * @var LsDefLicence
+     *
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDefLicence")
+     * @ORM\JoinColumn(name="licence_id", referencedColumnName="id", nullable=true)
+     *
+     * @Serializer\Exclude()
+     */
+    private $licence;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="note", type="text", nullable=true)
@@ -293,6 +312,15 @@ class LsDoc implements CaseApiInterface
      * @Serializer\SerializedName("notes")
      */
     private $note;
+
+    /**
+     * @var array
+     *
+     * @ORM\Column(name="extra", type="json_array", nullable=true)
+     *
+     * @Serializer\Exclude()
+     */
+    private $extra;
 
     /**
      * @var \DateTime
@@ -400,7 +428,7 @@ class LsDoc implements CaseApiInterface
     /**
      * @return bool
      */
-    public function isLsDoc()
+    public function isLsDoc(): bool
     {
         return true;
     }
@@ -438,7 +466,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -450,7 +478,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setUri($uri)
+    public function setUri($uri): LsDoc
     {
         $this->uri = $uri;
 
@@ -474,7 +502,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setIdentifier($identifier = null)
+    public function setIdentifier($identifier = null): LsDoc
     {
         if (null !== $identifier) {
             // If the identifier is in the form of a UUID then lower case it
@@ -508,7 +536,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setOfficialUri($officialUri)
+    public function setOfficialUri($officialUri): LsDoc
     {
         $this->officialUri = $officialUri;
 
@@ -532,7 +560,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setCreator($creator)
+    public function setCreator($creator): LsDoc
     {
         $this->creator = $creator;
 
@@ -556,7 +584,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setPublisher($publisher)
+    public function setPublisher($publisher): LsDoc
     {
         $this->publisher = $publisher;
 
@@ -580,7 +608,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setTitle($title)
+    public function setTitle($title): LsDoc
     {
         $this->title = substr($title, 0, 120);
 
@@ -604,7 +632,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setVersion($version)
+    public function setVersion($version): LsDoc
     {
         $this->version = $version;
 
@@ -628,7 +656,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setDescription($description)
+    public function setDescription($description): LsDoc
     {
         $this->description = substr($description, 0, 300);
 
@@ -652,7 +680,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setSubject($subject)
+    public function setSubject($subject): LsDoc
     {
         $this->subject = $subject;
 
@@ -676,7 +704,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setSubjectUri($subjectUri)
+    public function setSubjectUri($subjectUri): LsDoc
     {
         $this->subjectUri = $subjectUri;
 
@@ -700,7 +728,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setAdoptionStatus($adoptionStatus)
+    public function setAdoptionStatus($adoptionStatus): LsDoc
     {
         // Check that adoptionStatus is valid
         if (in_array($adoptionStatus, static::getStatuses(), true)) {
@@ -729,7 +757,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setStatusStart($statusStart)
+    public function setStatusStart($statusStart): LsDoc
     {
         $this->statusStart = $statusStart;
 
@@ -741,7 +769,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return \DateTime
      */
-    public function getStatusStart()
+    public function getStatusStart(): ?\DateTime
     {
         return $this->statusStart;
     }
@@ -753,7 +781,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setStatusEnd($statusEnd)
+    public function setStatusEnd($statusEnd): LsDoc
     {
         $this->statusEnd = $statusEnd;
 
@@ -765,7 +793,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return \DateTime
      */
-    public function getStatusEnd()
+    public function getStatusEnd(): ?\DateTime
     {
         return $this->statusEnd;
     }
@@ -777,7 +805,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setNote($note)
+    public function setNote($note): LsDoc
     {
         $this->note = $note;
 
@@ -833,7 +861,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null)
+    public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null): LsDoc
     {
         $this->createChildItem($topLsItem, $assocGroup);
 
@@ -912,7 +940,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function addLsItem(LsItem $lsItem)
+    public function addLsItem(LsItem $lsItem): LsDoc
     {
         $this->lsItems[] = $lsItem;
 
@@ -946,7 +974,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt($updatedAt): LsDoc
     {
         $this->updatedAt = $updatedAt;
 
@@ -970,7 +998,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function addAssociation(\CftfBundle\Entity\LsAssociation $association)
+    public function addAssociation(\CftfBundle\Entity\LsAssociation $association): LsDoc
     {
         $this->associations[] = $association;
 
@@ -1004,7 +1032,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function addInverseAssociation(\CftfBundle\Entity\LsAssociation $inverseAssociation)
+    public function addInverseAssociation(\CftfBundle\Entity\LsAssociation $inverseAssociation): LsDoc
     {
         $this->inverseAssociations[] = $inverseAssociation;
 
@@ -1038,7 +1066,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function addDocAssociation(\CftfBundle\Entity\LsAssociation $docAssociation)
+    public function addDocAssociation(\CftfBundle\Entity\LsAssociation $docAssociation): LsDoc
     {
         $this->docAssociations[] = $docAssociation;
 
@@ -1073,7 +1101,8 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setAttribute($name, $value) {
+    public function setAttribute($name, $value): LsDoc
+    {
         // if attribute already exists, update it
         if ($this->attributes->containsKey($name)) {
             $this->attributes->get($name)->setValue($value);
@@ -1091,7 +1120,8 @@ class LsDoc implements CaseApiInterface
      *
      * @return $this
      */
-    public function removeAttribute($name) {
+    public function removeAttribute($name): LsDoc
+    {
         // TODO (PW): does this really remove the item? I did add "orphanRemoval=true" to the attributes field above
         $this->attributes->remove($name);
 
@@ -1105,7 +1135,8 @@ class LsDoc implements CaseApiInterface
      *
      * @return string|null
      */
-    public function getAttribute($name) {
+    public function getAttribute($name): ?string
+    {
         if ($this->attributes->containsKey($name)) {
             return $this->attributes->get($name)->getValue();
         }
@@ -1121,7 +1152,8 @@ class LsDoc implements CaseApiInterface
      *
      * @return $this
      */
-    protected function setExternalDocs($externalDocs) {
+    protected function setExternalDocs($externalDocs): LsDoc
+    {
         // save all ed's passed in
         $i = 0;
         foreach ($externalDocs as $identifier => $ad) {
@@ -1151,7 +1183,8 @@ class LsDoc implements CaseApiInterface
      *
      * @return bool
      */
-    public function addExternalDoc($identifier, $autoLoad, $url, $title) {
+    public function addExternalDoc($identifier, $autoLoad, $url, $title): bool
+    {
         if (empty($identifier) || empty($autoLoad) || empty($url) || empty($title)) {
             return false;
         }
@@ -1168,7 +1201,8 @@ class LsDoc implements CaseApiInterface
         return true;
     }
 
-    public function setExternalDocAutoLoad($identifier, $autoLoad) {
+    public function setExternalDocAutoLoad($identifier, $autoLoad)
+    {
         $externalDocs = $this->getExternalDocs();
         if (empty($externalDocs[$identifier])) {
             return false;
@@ -1180,7 +1214,8 @@ class LsDoc implements CaseApiInterface
     /**
      * Remove an associated doc
      */
-    public function removeExternalDoc($identifier) {
+    public function removeExternalDoc($identifier)
+    {
         $externalDocs = $this->getExternalDocs();
         if (empty($externalDocs[$identifier])) {
             unset($externalDocs[$identifier]);
@@ -1193,7 +1228,8 @@ class LsDoc implements CaseApiInterface
      *
      * @return array (which could be empty)
      */
-    public function getExternalDocs() {
+    public function getExternalDocs()
+    {
         $externalDocs = [];
 
         $attrKeys = $this->attributes->getKeys();
@@ -1217,7 +1253,8 @@ class LsDoc implements CaseApiInterface
     /**
      * @return string
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
@@ -1226,8 +1263,10 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setLanguage($language) {
+    public function setLanguage($language): LsDoc
+    {
         $this->language = $language;
+
         return $this;
     }
 
@@ -1236,14 +1275,16 @@ class LsDoc implements CaseApiInterface
      *
      * @return bool
      */
-    public function canEdit() {
+    public function canEdit(): bool
+    {
         return is_null($this->adoptionStatus) || in_array($this->adoptionStatus, static::getEditableStatuses(), true);
     }
 
     /**
      * @return LsDefSubject[]|ArrayCollection
      */
-    public function getSubjects() {
+    public function getSubjects()
+    {
         return $this->subjects;
     }
 
@@ -1252,8 +1293,10 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setSubjects($subjects) {
+    public function setSubjects($subjects): LsDoc
+    {
         $this->subjects = $subjects;
+
         return $this;
     }
 
@@ -1262,8 +1305,10 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function addSubject(LsDefSubject $subject) {
+    public function addSubject(LsDefSubject $subject): LsDoc
+    {
         $this->subjects[] = $subject;
+
         return $this;
     }
 
@@ -1272,7 +1317,8 @@ class LsDoc implements CaseApiInterface
      *
      * @return \Salt\UserBundle\Entity\Organization
      */
-    public function getOrg() {
+    public function getOrg()
+    {
         return $this->org;
     }
 
@@ -1283,7 +1329,8 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setOrg(Organization $org = null) {
+    public function setOrg(Organization $org = null): LsDoc
+    {
         $this->org = $org;
 
         return $this;
@@ -1294,18 +1341,20 @@ class LsDoc implements CaseApiInterface
      *
      * @return \Salt\UserBundle\Entity\User
      */
-    public function getUser() {
+    public function getUser(): ?User
+    {
         return $this->user;
     }
 
     /**
      * Set the user owner for the framework
      *
-     * @param \Salt\UserBundle\Entity\User $user
+     * @param \Salt\UserBundle\Entity\User|null $user
      *
      * @return LsDoc
      */
-    public function setUser(User $user = null) {
+    public function setUser(?User $user = null): LsDoc
+    {
         $this->user = $user;
 
         return $this;
@@ -1316,18 +1365,20 @@ class LsDoc implements CaseApiInterface
      *
      * @return Organization|User
      */
-    public function getOwner() {
+    public function getOwner()
+    {
         if (null !== $this->org) {
             return $this->org;
-        } else {
-            return $this->user;
         }
+
+        return $this->user;
     }
 
     /**
      * @return Collection|UserDocAcl[]
      */
-    public function getDocAcls() {
+    public function getDocAcls()
+    {
         return $this->docAcls;
     }
 
@@ -1336,18 +1387,21 @@ class LsDoc implements CaseApiInterface
      *
      * @return string
      */
-    public function getOwnedBy(): ?string {
+    public function getOwnedBy(): ?string
+    {
         if (!empty($this->ownedBy)) {
             return $this->ownedBy;
-        } else {
-            if ($this->getOrg()) {
-                return 'organization';
-            } elseif ($this->getUser()) {
-                return 'user';
-            } else {
-                return null;
-            }
         }
+
+        if ($this->getOrg()) {
+            return 'organization';
+        }
+
+        if ($this->getUser()) {
+            return 'user';
+        }
+
+        return null;
     }
 
     /**
@@ -1355,7 +1409,8 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setOwnedBy($ownedBy) {
+    public function setOwnedBy($ownedBy): LsDoc
+    {
         $this->ownedBy = $ownedBy;
 
         return $this;
@@ -1374,7 +1429,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setAssociationGroupings($associationGroupings)
+    public function setAssociationGroupings($associationGroupings): LsDoc
     {
         $this->associationGroupings = $associationGroupings;
 
@@ -1394,7 +1449,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return $this
      */
-    public function setUrlName(?string $urlName=null): LsDoc
+    public function setUrlName(?string $urlName = null): LsDoc
     {
         $this->urlName = $urlName;
 
@@ -1411,5 +1466,81 @@ class LsDoc implements CaseApiInterface
         }
 
         return $this->getId();
+    }
+
+    /**
+     * @return array
+     */
+    public function getExtra(): array
+    {
+        return $this->extra;
+    }
+
+    /**
+     * @param string $property
+     * @param string $default
+     *
+     * @return mixed
+     */
+    public function getExtraProperty($property, $default = null)
+    {
+        if (is_null($this->extra)) {
+            return $default;
+        }
+
+        if (!array_key_exists($property, $this->extra)) {
+            return $default;
+        }
+
+        return $this->extra[$property];
+    }
+
+    /**
+     * @param array $extra
+     *
+     * @return LsDoc
+     */
+    public function setExtra(array $extra): LsDoc
+    {
+        $this->extra = $extra;
+
+        return $this;
+    }
+
+    /**
+     * @param string $property
+     * @param mixed $value
+     *
+     * @return LsDoc
+     */
+    public function setExtraProperty($property, $value): LsDoc
+    {
+        if (is_null($this->extra)) {
+            $this->extra = [];
+        }
+
+        $this->extra[$property] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return LsDefLicence|null
+     */
+    public function getLicence(): ?LsDefLicence
+    {
+        return $this->licence;
+    }
+
+    /**
+     * @param LsDefLicence $licence
+     *
+     * @return LsDoc
+     */
+    public function setLicence($licence): LsDoc
+    {
+        $this->licence = $licence;
+
+        return $this;
     }
 }

@@ -355,6 +355,76 @@ xENDx;
     }
 
     /**
+     * Get a list of all concepts used in a document
+     *
+     * @param LsDoc $lsDoc
+     * @param int $format
+     *
+     * @return array array of LsDefItemTypes
+     */
+    public function findAllUsedConcepts(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT c
+            FROM CftfBundle:LsDefConcept c, CftfBundle:LsItem i
+            WHERE i.lsDoc = :lsDocId
+              AND c MEMBER OF i.concepts
+        ');
+        $query->setParameter('lsDocId', $lsDoc->getId());
+
+        $results = $query->getResult($format);
+
+        return $results;
+    }
+
+    /**
+     * Get a list of all licences used in a document
+     *
+     * @param LsDoc $lsDoc
+     * @param int $format
+     *
+     * @return array array of LsDefItemTypes
+     */
+    public function findAllUsedLicences(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT DISTINCT l
+            FROM CftfBundle:LsDefLicence l, CftfBundle:LsItem i, CftfBundle:LsDoc d
+            WHERE (i.lsDoc = :lsDocId AND i.licence = l)
+               OR (d.id = :lsDocId AND d.licence = l)
+        ');
+        $query->setParameter('lsDocId', $lsDoc->getId());
+
+        $results = $query->getResult($format);
+
+        return $results;
+    }
+
+    /**
+     * Get a list of all licences used in a document
+     *
+     * @param LsDoc $lsDoc
+     * @param int $format
+     *
+     * @return array array of LsDefItemTypes
+     */
+    public function findAllUsedRubrics(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT DISTINCT r
+            FROM CftfBundle:CfRubric r
+            JOIN r.criteria c
+            JOIN c.item i
+            WHERE i.lsDoc = :lsDocId
+        ');
+        $query->setParameter('lsDocId', $lsDoc->getId());
+
+        $results = $query->getResult($format);
+
+        return $results;
+    }
+
+    /**
      * Get a list of all association groups used in an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc

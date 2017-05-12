@@ -3,6 +3,9 @@
 namespace CftfBundle\Api\v1p0\Service;
 
 use CftfBundle\Entity\CaseApiInterface;
+use CftfBundle\Entity\CfRubric;
+use CftfBundle\Entity\CfRubricCriterion;
+use CftfBundle\Entity\CfRubricCriterionLevel;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Entity\LsDefConcept;
@@ -30,6 +33,9 @@ class ApiUtilService
         LsDefConcept::class => 'api_v1p1_cfconcept',
         LsDefLicence::class => 'api_v1p1_cflicense',
         LsDefSubject::class => 'api_v1p1_cfsubject',
+        CfRubric::class => 'api_v1p1_cfrubric',
+        CfRubricCriterion::class => 'api_v1p1_cfrubriccriterion',
+        CfRubricCriterionLevel::class => 'api_v1p1_cfrubriccriterionlevel',
     ];
 
     /**

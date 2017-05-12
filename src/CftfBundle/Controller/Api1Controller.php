@@ -5,6 +5,9 @@ namespace CftfBundle\Controller;
 use CftfBundle\Api\v1p0\DTO\ImsxCodeMinor;
 use CftfBundle\Api\v1p0\DTO\ImsxCodeMinorField;
 use CftfBundle\Api\v1p0\DTO\ImsxStatusInfo;
+use CftfBundle\Entity\CfRubric;
+use CftfBundle\Entity\CfRubricCriterion;
+use CftfBundle\Entity\CfRubricCriterionLevel;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Entity\LsDefConcept;
@@ -198,14 +201,18 @@ class Api1Controller extends Controller
             'CFItems' => array_values($repo->findAllItems($doc, Query::HYDRATE_OBJECT)),
             'CFAssociations' => array_values($repo->findAllAssociations($doc, Query::HYDRATE_OBJECT)),
             'CFDefinitions' => [
-                'CFConcepts' => [],
+                'CFConcepts' => $repo->findAllUsedConcepts($doc, Query::HYDRATE_OBJECT),
                 'CFSubjects' => $doc->getSubjects(),
-                'CFLicenses' => [],
+                'CFLicenses' => $repo->findAllUsedLicences($doc, Query::HYDRATE_OBJECT),
                 'CFItemTypes' => $repo->findAllUsedItemTypes($doc, Query::HYDRATE_OBJECT),
                 'CFAssociationGroupings' => $repo->findAllUsedAssociationGroups($doc, Query::HYDRATE_OBJECT),
-            ],
-            'CFRubrics' => [],
+            ]
         ];
+
+        $rubrics = $repo->findAllUsedRubrics($doc, Query::HYDRATE_OBJECT);
+        if (0 < count($rubrics)) {
+            $pkg['CFDefinitions']['CFRubrics'] = $rubrics;
+        }
 
         $response->setContent($this->get('serializer')->serialize($pkg, $_format));
 
@@ -218,7 +225,25 @@ class Api1Controller extends Controller
      */
     public function getCfRubricAction(Request $request, $id, $_format)
     {
-        return $this->generate404($id, $_format);
+        return $this->generateObjectResponse(CfRubric::class, $request, $id, $_format);
+    }
+
+    /**
+     * @Route("/CFRubricCriteria/{id}.{_format}", name="api_v1p1_cfrubriccriterion", defaults={"_format"="json"})
+     * @Method("GET")
+     */
+    public function getCfRubricCriterionAction(Request $request, $id, $_format)
+    {
+        return $this->generateObjectResponse(CfRubricCriterion::class, $request, $id, $_format);
+    }
+
+    /**
+     * @Route("/CFRubricCriterionLevels/{id}.{_format}", name="api_v1p1_cfrubriccriterionlevel", defaults={"_format"="json"})
+     * @Method("GET")
+     */
+    public function getCfRubricCriterionLevelAction(Request $request, $id, $_format)
+    {
+        return $this->generateObjectResponse(CfRubricCriterionLevel::class, $request, $id, $_format);
     }
 
     /**
