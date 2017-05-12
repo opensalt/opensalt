@@ -63,7 +63,7 @@ class DocTreeController extends Controller
                 $lsDocs[] = $doc;
             }
         }
-        
+
         return [
             'lsDoc' => $lsDoc,
             'lsDocId' => $lsDoc->getId(),
@@ -72,7 +72,7 @@ class DocTreeController extends Controller
             'editorRights' => $authChecker->isGranted('edit', $lsDoc),
             'manageEditorsRights' => $authChecker->isGranted('manage_editors', $lsDoc),
             'createRights' => $authChecker->isGranted('create', $lsDoc),
-            
+
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,
             'docList' => $form->createView(),
@@ -86,7 +86,6 @@ class DocTreeController extends Controller
     /**
      * @Route("/remote", name="doc_tree_remote_view")
      * @Method({"GET"})
-     * @Template()
      */
     public function viewRemoteAction()
     {
@@ -105,7 +104,7 @@ class DocTreeController extends Controller
             'editorRights' => false,
             'manageEditorsRights' => false,
             'createRights' => false,
-            
+
             'lsItemId' => null,
             'assocGroup' => null,
             'docList' => '',

@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Controller;
 
+use CftfBundle\Form\Type\RemoteCftfServerType;
 use CftfBundle\Form\Type\LsDocCreateType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -46,6 +47,86 @@ class LsDocController extends Controller
         return [
             'lsDocs' => $lsDocs,
         ];
+    }
+
+    /**
+     * Show frameworks from a remote system
+     *
+     * @Route("/remote", name="lsdoc_remote_index")
+     * @Method({"GET", "POST"})
+     * @Template()
+     *
+     * @return array
+     */
+    public function remoteIndexAction(Request $request)
+    {
+        $form = $this->createForm(RemoteCftfServerType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $hostname = $data['hostname'];
+            try {
+                $remoteResponse = $this->loadDocumentsFromServer('https://'.$hostname);
+            } catch (\Exception $e) {
+                try {
+                    $remoteResponse = $this->loadDocumentsFromServer('http://'.$hostname);
+                } catch (\Exception $e) {
+                    $remoteResponse = null;
+                }
+            }
+        }
+
+        try {
+            $docJson = $remoteResponse->getBody()->getContents();
+            $docs = json_decode($docJson, true);
+            $docs = $docs['CFDocuments'];
+            foreach ($docs as $key => $doc) {
+                if (empty($doc['creator'])) {
+                    $docs[$key]['creator'] = 'Unknown';
+                }
+                if (empty($doc['title'])) {
+                    $docs[$key]['title'] = 'Unknown';
+                }
+            }
+            usort(
+                $docs,
+                function ($a, $b) {
+                    if ($a['creator'] !== $b['creator']) {
+                        return ($a['creator'] <=> $b['creator']);
+                    }
+
+                    return ($a['title'] <=> $b['title']);
+                }
+            );
+        } catch (\Exception $e) {
+            $docs = null;
+        }
+
+        dump($docs);
+
+        return [
+            'form' => $form->createView(),
+            'docs' => $docs,
+        ];
+    }
+
+    protected function loadDocumentsFromServer(string $urlPrefix)
+    {
+        $client = $this->get('csa_guzzle.client.json');
+
+        $list = $client->request(
+            'GET',
+            $urlPrefix.'/ims/case/v1p0/CFDocuments',
+            [
+                'timeout' => 60,
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+            ]
+        );
+
+        return $list;
     }
 
     /**
