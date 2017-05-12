@@ -10,7 +10,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class Organization
+ * Class ImportationLog
  *
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\ImportationLogRepository")
  * @ORM\Table(name="importation_logs")
