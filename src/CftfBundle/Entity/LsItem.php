@@ -64,6 +64,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  *
  * @Serializer\VirtualProperty(
+ *     "conceptKeywordsUri",
+ *     exp="(object.getConcepts().count()===0)?null:service('salt.api.v1p1.utils').getLinkUri(object.getConcepts()[0])",
+ *     options={
+ *         @Serializer\SerializedName("conceptKeywordsURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
  *     "educationLevel",
  *     exp="service('salt.api.v1p1.utils').splitByComma(object.getEducationalAlignment())",
  *     options={
@@ -245,8 +254,7 @@ class LsItem implements CaseApiInterface
      * @Assert\Length(max=300)
      * @Assert\Url()
      *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("conceptKeywordsURI")
+     * @Serializer\Exclude()
      */
     private $conceptKeywordsUri;
 
@@ -329,6 +337,7 @@ class LsItem implements CaseApiInterface
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("statusStartDate")
+     * @Serializer\AccessType("public_method")
      */
     private $statusStart;
 
@@ -341,6 +350,7 @@ class LsItem implements CaseApiInterface
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("statusEndDate")
+     * @Serializer\AccessType("public_method")
      */
     private $statusEnd;
 

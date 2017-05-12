@@ -40,8 +40,9 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\CfRubricCriterion", mappedBy="rubric")
      *
-     * @Serializer\SerializedName("CFRubricCriteria")
-     * @Serializer\Type("array<CfRubricCriterion>")
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("CFRubricCriteria"),
+     * @Serializer\Type("array<CftfBundle\Entity\CfRubricCriterion>"),
      */
     private $criteria;
 
@@ -118,7 +119,7 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
     /**
      * @Serializer\VirtualProperty()
      * @Serializer\SerializedName("CFRubricCriterionLevels")
-     * @Serializer\Type("array<CfRubricCriterionLevel>")
+     * @Serializer\Type("array<CftfBundle\Entity\CfRubricCriterionLevel>")
      *
      * @return CfRubricCriterionLevel[]|array
      */
@@ -128,7 +129,7 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
 
         $criteria = $this->getCriteria();
 
-        foreach ($criteriaLevels as $criterion) {
+        foreach ($criteria as $criterion) {
             $levels = $criterion->getLevels();
             foreach ($levels as $level) {
                 $criteriaLevels[] = $level;

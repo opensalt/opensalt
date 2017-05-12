@@ -74,6 +74,8 @@ class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\CfRubricCriterion", inversedBy="levels")
      * @ORM\JoinColumn(name="criterion_id", referencedColumnName="id")
+     *
+     * @Serializer\Exclude()
      */
     private $criterion;
 

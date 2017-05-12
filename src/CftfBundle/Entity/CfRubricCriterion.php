@@ -19,7 +19,7 @@ use JMS\Serializer\Annotation as Serializer;
  *     "itemUri",
  *     exp="service('salt.api.v1p1.utils').getApiUrl(object.getItem())",
  *     options={
- *         @Serializer\SerializedName("itemUri"),
+ *         @Serializer\SerializedName("CFItemURI"),
  *         @Serializer\Expose()
  *     }
  * )
@@ -58,6 +58,8 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsItem", inversedBy="criteria")
      * @ORM\JoinColumn(name="ls_item_id", referencedColumnName="id")
+     *
+     * @Serializer\Exclude()
      */
     private $item;
 
@@ -84,6 +86,8 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\CfRubric", inversedBy="criteria")
      * @ORM\JoinColumn(name="rubric_id", referencedColumnName="id")
+     *
+     * @Serializer\Exclude()
      */
     private $rubric;
 
@@ -91,6 +95,8 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      * @var Collection|CfRubricCriterionLevel[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\CfRubricCriterionLevel", mappedBy="criterion")
+     *
+     * @Serializer\Exclude()
      */
     private $levels;
 
