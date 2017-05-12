@@ -104,22 +104,23 @@ apx.initialize = function() {
     apx.mainDoc.load(function() {
         apx.spinner.hideModal();
         
-        // Prepare menus for choosing documents on each side (we have to do this after we've gotten mainDoc.externalDocs)
+        // Prepare menus for choosing documents on each side (we have to do this after we've gotten mainDoc.associatedDocs)
         apx.prepareDocumentMenus();
     
-        // go through each provided "externalDoc"
-        if (!empty(apx.mainDoc.externalDocs)) {
-            for (var identifier in apx.mainDoc.externalDocs) {
-                var ed = apx.mainDoc.externalDocs[identifier];
-                // and start loading now any externalDocs that have the "autoLoad" flag set to "true"
+        // go through each provided "associatedDoc"
+        if (!empty(apx.mainDoc.associatedDocs)) {
+            for (var identifier in apx.mainDoc.associatedDocs) {
+                var ed = apx.mainDoc.associatedDocs[identifier];
+                // and start loading now any associatedDocs that have the "autoLoad" flag set to "true" (unless we've already loaded it)
                 // we have to do this because associations to items in these docs don't specify the doc id
-                if (ed.autoLoad === "true") {
+                if (ed.autoLoad === "true" && !(identifier in apx.allDocs)) {
                     console.log("loading doc " + ed.title);
+                    apx.allDocs[identifier] = "loading";
                     new apxDocument({"identifier": identifier}).load();
                 }
             }
         } else {
-            apx.mainDoc.externalDocs = {};
+            apx.mainDoc.associatedDocs = {};
         }
         
         // find any other docs referenced by associations in mainDoc

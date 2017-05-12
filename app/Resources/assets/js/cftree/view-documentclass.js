@@ -111,8 +111,8 @@ function apxDocument(initializer) {
             // "baseDoc" -- normally "self", but if this is a "pure cross-walk" document, this will be a different document identifier
             self.baseDoc = data.baseDoc;
             
-            // external documents referenced by this document
-            self.externalDocs = data.externalDocs;
+            // documents referenced by associations in this document
+            self.associatedDocs = data.associatedDocs;
 
             // note that doc is a document
             self.doc.nodeType = "document";
@@ -368,7 +368,7 @@ function apxDocument(initializer) {
                 apx.allDocs[a.origin.doc] = "loading";
                 new apxDocument({"identifier": a.origin.doc}).load();
             }
-            if (a.dest.doc != "-" && a.dest.doc != "?" && !(a.dest.doc in apx.allDocs)) {
+            if (a.dest.doc != a.origin.doc && a.dest.doc != "-" && a.dest.doc != "?" && !(a.dest.doc in apx.allDocs)) {
                 apx.allDocs[a.dest.doc] = "loading";
                 new apxDocument({"identifier": a.dest.doc}).load();
             }
@@ -631,8 +631,8 @@ function apxDocument(initializer) {
     
     /** Determine if this is an "external" doc -- loaded from a different server */
     self.isExternalDoc = function() {
-        // it's an external doc if it's in the apx.mainDoc.externalDocs array
-        if (!empty(apx.mainDoc.externalDocs) && !empty(apx.mainDoc.externalDocs[self.doc.identifier])) {
+        // it's an external doc if it's in the apx.mainDoc.associatedDocs array and its url doesn't start with "local"
+        if (!empty(apx.mainDoc.associatedDocs) && !empty(apx.mainDoc.associatedDocs[self.doc.identifier]) && apx.mainDoc.associatedDocs[self.doc.identifier].url.search(/local/) != 0) {
             return true;
         } else {
             return false;
