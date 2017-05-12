@@ -295,6 +295,11 @@ apx.treeDocLoadCallback1 = function() {
                     if (!apx.enableEdit) {
                         return false;
                     }
+                    
+                    // and don't allow drag if edit.moveEnabled is false
+                    if (apx.edit.moveEnabled != true) {
+                        return false;
+                    }
 
                     // don't allow the document to be dragged
                     if (apx.treeDoc1.isDocNode(node)) {

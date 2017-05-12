@@ -90,6 +90,9 @@ apx.initialize = function() {
     $("#displayTreeBtn").on('click', function() { apx.viewMode.showTreeView("button"); });
     $("#displayAssocBtn").on('click', function() { apx.viewMode.showAssocView("button"); });
     
+    // implement enableMoveCheckbox
+    $("#enableMoveCheckbox").on('click', function() { apx.edit.enableMove(this); });
+    
     // make sure initialAssocGroup is a number if it's not null
     if (!empty(apx.initialAssocGroup)) {
         apx.initialAssocGroup *= 1;
