@@ -750,6 +750,10 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
     }, 10);    // end of anonymous setTimeout function
 };
 
+apx.moveEnabled = false;
+apx.edit.enableMove = function(cb) {
+    apx.edit.moveEnabled = $(cb).is(':checked');
+};
 
 /** Move already-existing items in the tree structure */
 apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
