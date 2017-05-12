@@ -29,7 +29,8 @@ class LsDefSubject extends AbstractLsDefinition implements CaseApiInterface
     /**
      * @return string
      */
-    public function getHierarchyCode() {
+    public function getHierarchyCode()
+    {
         return $this->hierarchyCode;
     }
 
@@ -38,8 +39,10 @@ class LsDefSubject extends AbstractLsDefinition implements CaseApiInterface
      *
      * @return LsDefSubject
      */
-    public function setHierarchyCode($hierarchyCode) {
+    public function setHierarchyCode($hierarchyCode): LsDefSubject
+    {
         $this->hierarchyCode = $hierarchyCode;
+
         return $this;
     }
 
@@ -48,7 +51,7 @@ class LsDefSubject extends AbstractLsDefinition implements CaseApiInterface
      *
      * @return string
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->getTitle();
     }
