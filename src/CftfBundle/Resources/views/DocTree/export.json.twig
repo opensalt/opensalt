@@ -4,7 +4,7 @@
 {# include doc id separately, so we can use the standard CfPackage twig file to include the document data #}
 ,"lsDocId": {{ lsDoc.id |json_encode |raw }}
 ,"baseDoc": {{ docAttributes.baseDoc |default("self") |json_encode |raw }}
-,"externalDocs": {{ docAttributes.externalDocs |default(null) |json_encode |raw }}
+,"associatedDocs": {{ docAttributes.associatedDocs |default(null) |json_encode |raw }}
 ,"CFDocument":
 {% include 'CftfBundle:CfPackage:export_document.json.twig' with { 'lsDoc':lsDoc } %}
 {% if items is not empty -%}

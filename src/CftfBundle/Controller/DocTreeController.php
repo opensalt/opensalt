@@ -117,14 +117,14 @@ class DocTreeController extends Controller
         $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findItemsForExportDoc($lsDoc);
         $associations = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAssociationsForExportDoc($lsDoc);
         $assocGroups = $this->getDoctrine()->getRepository('CftfBundle:LsDefAssociationGrouping')->findBy(['lsDoc'=>$lsDoc]);
-        $externalDocs = array_merge(
+        $associatedDocs = array_merge(
             $lsDoc->getExternalDocs(),
             $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAssociatedDocs($lsDoc)
         );
 
         $docAttributes = [
             'baseDoc' => $lsDoc->getAttribute('baseDoc'),
-            'externalDocs' => $externalDocs,
+            'associatedDocs' => $associatedDocs,
         ];
 
         $itemTypes = [];
@@ -193,7 +193,7 @@ class DocTreeController extends Controller
 
         // or a url...
         if ($url = $request->query->get('url')) {
-            // try to load the url, noting that we shoudl save a record of it in externalDocs if found
+            // try to load the url, noting that we should save a record of it in externalDocs if found
             return $this->exportExternalDocument($url, $lsDoc);
         }
 

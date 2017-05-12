@@ -14,11 +14,14 @@ apx.prepareDocumentMenus = function() {
     // add item to menu for loading from another server
     $("#ls_doc_list_lsDoc").append('<optgroup class="externalDocsOptGroup" label="EXTERNAL DOCUMENTS"><option value="url">Load an “external” document by url…</option></optgroup>');
 
-    // go through each provided "externalDoc" and add it to the "externalDocsOptGroup" option group
-    if (!empty(apx.mainDoc.externalDocs)) {
-        for (var identifier in apx.mainDoc.externalDocs) {
-            var ed = apx.mainDoc.externalDocs[identifier];
-            apx.addDocToMenus(identifier, ed.url, ed.title);
+    // go through each provided "associatedDoc" and add it to the "externalDocsOptGroup" option group if it's an external doc
+    if (!empty(apx.mainDoc.associatedDocs)) {
+        for (var identifier in apx.mainDoc.associatedDocs) {
+            var ad = apx.mainDoc.associatedDocs[identifier];
+            // non-external docs have urls that start with "local"
+            if (ad.url.search(/local/) != 0) {
+                apx.addDocToMenus(identifier, ad.url, ad.title);
+            }
         }
     }
     
@@ -58,14 +61,14 @@ apx.prepareDocumentMenus = function() {
 
 /** Add a document loaded from an external server to the document select menus */
 apx.addDocToMenus = function(identifier, url, title) {
-    // add to mainDoc.externalDocs if necessary
-    if (empty(apx.mainDoc.externalDocs[identifier])) {
-        apx.mainDoc.externalDocs[identifier] = {"url": url, "title": title, "autoLoad": "false"};
+    // add to mainDoc.associatedDocs if necessary
+    if (empty(apx.mainDoc.associatedDocs[identifier])) {
+        apx.mainDoc.associatedDocs[identifier] = {"url": url, "title": title, "autoLoad": "false"};
     }
     
     // and add to menus if necessary
     if ($(".externalDocsOptGroup [value=" + identifier + "]").length == 0) {
-        $(".externalDocsOptGroup").prepend('<option value="' + identifier + '">' + apx.mainDoc.externalDocs[identifier].title + ' (' + identifier + ')</option>');
+        $(".externalDocsOptGroup").prepend('<option value="' + identifier + '">' + apx.mainDoc.associatedDocs[identifier].title + ' (' + identifier + ')</option>');
     }
 };
 
@@ -119,13 +122,12 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
     for (var identifier in apx.allDocs) {
         var d = apx.allDocs[identifier];
         
-        // if this document errored when loading, show an error and return
+        // if this document errored when loading, continue through the loop; if this is what the user is trying to load now, let them retry
         if (d == "loaderror") {
-            alert("That document cannot be loaded.");
-            return;
+            continue;
         }
         
-        // if any documents are still autoloading, make the user wait
+        // if *any* documents are still autoloading, make the user wait, because the document they're requesting here might be the one that's loading
         if (d == "loading") {
             apx.spinner.showModal("Loading document");
             setTimeout(function() { apx.docSelectedForTree(menuOrUrl, side); }, 1000);
@@ -133,7 +135,8 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
         }
 
         apx.spinner.hideModal();
-
+        
+        // if we found the document that was requested here...
         if ((initializationKey == "identifier" && identifier == lsDocId)
             || (initializationKey == "id" && !d.isExternalDoc() && d.doc.id == lsDocId)) {
             // set treeDoc1 or treeDoc2
@@ -167,28 +170,27 @@ apx.checkUnknownAssociationDestinationsInterval = setInterval(function() {
     }
     
     // go through any current unknownAssocsShowing
-	for (var id in apx.unknownAssocsShowing) {
-	    var assoc = apx.unknownAssocsShowing[id];
-	    // if we know about this association's destination item now
-	    if (!empty(apx.allItemsHash[assoc.dest.item])) {
-	        var title = apx.treeDoc1.associationDestItemTitle(assoc);
-	        $("[data-association-id=" + id + "] .itemDetailsAssociationTitle").html(title);
-	    }
-	}
-	
-	// if all documents have been loaded, clear the interval
-	var allLoaded = true;
-	for (var identifier in apx.allDocs) {
-	    if (apx.allDocs[identifier] == "loading") {
-	        allLoaded = false;
-	        break;
-	    }
-	}
-	if (allLoaded) {
-	    console.log("canceling checkUnknownAssociationDestinations");
-	    clearInterval(apx.checkUnknownAssociationDestinationsInterval);
-	}
-	
+    for (var id in apx.unknownAssocsShowing) {
+        var assoc = apx.unknownAssocsShowing[id];
+        // if we know about this association's destination item now
+        if (!empty(apx.allItemsHash[assoc.dest.item])) {
+            var title = apx.treeDoc1.associationDestItemTitle(assoc);
+            $("[data-association-id=" + id + "] .itemDetailsAssociationTitle").html(title);
+        }
+    }
+    
+    // if all documents have been loaded, clear the interval
+    var allLoaded = true;
+    for (var identifier in apx.allDocs) {
+        if (apx.allDocs[identifier] == "loading") {
+            allLoaded = false;
+            break;
+        }
+    }
+    if (allLoaded) {
+        clearInterval(apx.checkUnknownAssociationDestinationsInterval);
+    }
+    
 }, 1000);
 
 
@@ -213,8 +215,8 @@ apx.tree1ChangeButtonClicked = function() {
     $("#tree1SectionThisDocInstructions").hide();
     $("#tree1SectionOtherDocInstructions").hide();
 
-	// make sure the noItemsInstructions div is hidden
-	$("#noItemsInstructions").hide();
+    // make sure the noItemsInstructions div is hidden
+    $("#noItemsInstructions").hide();
 };
 
 
@@ -406,16 +408,16 @@ apx.treeDocLoadCallback1 = function() {
             }
         });
         // end of fancytree widget initialization
-		
-		// if we're not showing mainDoc on the left, set a background color to indicate that
-		if (apx.treeDoc1 != apx.mainDoc) {
-			$("#tree1Section").addClass("otherDoc");
-		} else {
-			$("#tree1Section").removeClass("otherDoc");
-		}
-		
-		// restore checkbox state
-		apx.treeDoc1.treeCheckboxRestoreCheckboxes(1);
+        
+        // if we're not showing mainDoc on the left, set a background color to indicate that
+        if (apx.treeDoc1 != apx.mainDoc) {
+            $("#tree1Section").addClass("otherDoc");
+        } else {
+            $("#tree1Section").removeClass("otherDoc");
+        }
+        
+        // restore checkbox state
+        apx.treeDoc1.treeCheckboxRestoreCheckboxes(1);
 
         // if this document is also showing on the right side, re-render there too
         if (apx.treeDoc1 == apx.treeDoc2 && !empty(apx.treeDoc2.ftRender2)) {
@@ -480,12 +482,12 @@ apx.treeDocLoadCallback1 = function() {
     // call setRightSideMode
     apx.setRightSideMode("itemDetails");
 
-	// if this is the mainDoc and it contains no items, show the noItemsInstructions
-	if (apx.treeDoc1 == apx.mainDoc && apx.mainDoc.items.length == 0) {
-		$("#noItemsInstructions").show();
-	} else {
-		$("#noItemsInstructions").hide();
-	}
+    // if this is the mainDoc and it contains no items, show the noItemsInstructions
+    if (apx.treeDoc1 == apx.mainDoc && apx.mainDoc.items.length == 0) {
+        $("#noItemsInstructions").show();
+    } else {
+        $("#noItemsInstructions").hide();
+    }
 };
 
 /** Toggle more item details in item details display */
