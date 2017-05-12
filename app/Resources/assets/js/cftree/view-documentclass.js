@@ -113,6 +113,9 @@ function apxDocument(initializer) {
             
             // documents referenced by associations in this document
             self.associatedDocs = data.associatedDocs;
+            if (empty(self.associatedDocs)) {
+                self.associatedDocs = {};
+            }
 
             // note that doc is a document
             self.doc.nodeType = "document";
@@ -627,6 +630,11 @@ function apxDocument(initializer) {
             }
         }
         findExpandedFolders(self.getFt(side).getNodeByKey(self.doc.identifier));
+    };
+    
+    /** Determine if this document was loaded from a url (as opposed to loaded via an id) */
+    self.loadedFromUrl = function() {
+        return !empty(self.initializer.url);
     };
     
     /** Determine if this is an "external" doc -- loaded from a different server */
@@ -1506,8 +1514,18 @@ function apxDocument(initializer) {
     
     /** Compose the title for the destination of an association item in the item details view */
     self.associationDestItemTitle = function(a) {
-        // by default, title is the uri
-        var title = a.dest.uri;
+        // set default title
+        var title;
+        if (!empty(a.dest.uri)) {
+            title = a.dest.uri;
+        } else if (!empty(a.dest.item)) {
+            title = a.dest.item;
+        } else if (!empty(a.dest.title)) {
+            title = a.dest.title;
+        } else {
+            title = "Destination";
+        }
+
         var doc = null;
     
         // if the assoc is an exemplar, title is always the uri
@@ -1523,11 +1541,6 @@ function apxDocument(initializer) {
             var destItem = apx.allItemsHash[a.dest.item];
             title = self.getItemTitle(destItem, true);
             doc = destItem.doc;
-        
-        // else look for a title in the dest part of the association
-        } else if (!empty(a.dest.title)) {
-            // we should get this for documents loaded from other servers
-            title = a.dest.title;
         
         // else we don't (currently at least) know about this item...
         } else {
