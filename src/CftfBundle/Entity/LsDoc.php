@@ -388,7 +388,7 @@ class LsDoc implements CaseApiInterface
 
     /**
      * @var ImportationLog[]|Collection
-     * @ORM\OneToMany(targetEntity="Salt\UserBundle\Entity\ImportationLog", mappedBy="lsDocId", indexBy="user", fetch="EXTRA_LAZY")
+     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\ImportationLog", mappedBy="lsDoc", indexBy="lsDoc", fetch="EXTRA_LAZY")
      *
      * @Serializer\Exclude()
      */

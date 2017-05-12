@@ -215,7 +215,7 @@
                 <div class="list-group">
                     {% for importationLog in lsDoc.importationLogs %}
                         {% if importationLog.read == false %}
-                        <a href="#" class="list-group-item list-group-item-{{ importationLog.type }}">{{ importationLog.message }}</a>
+                        <a href="#" class="list-group-item list-group-item-{{ importationLog.messageType }}">{{ importationLog.message }}</a>
                         {% endif %}
                     {% endfor %}
                 </div>

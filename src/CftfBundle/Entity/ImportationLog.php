@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\UserBundle\Entity;
+namespace CftfBundle\Entity;
 
 use CftfBundle\Entity\LsDoc;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Class Organization
  *
- * @ORM\Entity(repositoryClass="Salt\UserBundle\Repository\ImportationLogRepository")
+ * @ORM\Entity(repositoryClass="CftfBundle\Repository\ImportationLogRepository")
  * @ORM\Table(name="importation_logs")
  * @UniqueEntity("id")
  */
@@ -30,7 +30,7 @@ class ImportationLog
     /**
      * @var LsDoc
      *
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="lsDoc")
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="importationLogs")
      * @ORM\JoinColumn(name="ls_doc_id", referencedColumnName="id", nullable=false)
      *
      * @Assert\NotBlank()
@@ -49,9 +49,9 @@ class ImportationLog
     /**
      * @var string
      *
-     * @ORM\Column(name="type", type="string", nullable=false)
+     * @ORM\Column(name="message_type", type="string", nullable=false)
      */
-    protected $type = '';
+    protected $messageType;
 
     /**
      * @var bool
@@ -65,38 +65,83 @@ class ImportationLog
      *
      * @return User
      */
+
+    public function __construct()
+    {
+        $this->messageType = "warning";
+    }
+
+    /**
+     * Set LsDoc
+     *
+     * @param LsDoc $lsDoc
+     *
+     * @return ImportationLog
+     */
     public function setLsDoc($lsDoc) {
         $this->lsDoc = $lsDoc;
 
         return $this;
     }
 
+     /** Set message
+     *
+     * @param string $message
+     *
+     * @return ImportationLog
+     */
     public function setMessage($message) {
         $this->message = $message;
 
         return $this;
     }
 
+    /**
+     * Get read
+     *
+     * @return bool
+     */
     public function getRead(){
         return $this->read;
     }
 
+    /**
+     * Get message
+     *
+     * @return string
+     */
     public function getMessage(){
         return $this->message;
     }
 
+     /** Set read as true
+     *
+     * @return ImportationLog
+     */
     public function markAsRead(){
         $this->read = true;
 
         return $this;
     }
 
-    public function getType(){
-        return $this->type;
+    /**
+     * Get messageType
+     *
+     * @return string
+     */
+    public function getMessageType(){
+        return $this->messageType;
     }
 
-    public function setType($newType){
-        $this->type = $newType;
+    /**
+     * Set messageType
+     *
+     * @param string $messageType
+     *
+     * @return ImportationLog
+     */
+    public function setMessageType($messageType){
+        $this->messageType = $messageType;
 
          return $this;
     }

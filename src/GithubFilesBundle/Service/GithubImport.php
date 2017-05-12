@@ -7,7 +7,7 @@ use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
 use JMS\DiExtraBundle\Annotation as DI;
-use Salt\UserBundle\Entity\ImportationLog;
+use CftfBundle\Entity\ImportationLog;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
@@ -95,6 +95,7 @@ class GithubImport
                 $errorLog = new ImportationLog();
                 $errorLog->setLsDoc($lsDoc);
                 $errorLog->setMessage($messageError);
+                $errorLog->setMessageType("warning");
 
                 $em->persist($errorLog);
                 $em->flush();
@@ -102,8 +103,8 @@ class GithubImport
         }else{
             $successLog = new ImportationLog();
             $successLog->setLsDoc($lsDoc);
-            $successLog->setType("info");
             $successLog->setMessage('Items sucessful imported.');
+            $successLog->setMessageType("info");
 
             $em->persist($successLog);
             $em->flush();

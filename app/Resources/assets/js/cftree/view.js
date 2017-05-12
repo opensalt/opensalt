@@ -2721,7 +2721,7 @@ app.showAssocView = function(context) {
 
 app.markLogsAsRead = function() {
     $('.modal#seeImportationLogs button.btn-link#mark-logs-as-read').on('click', function(){
-        $.get( '/app_dev.php/salt/importation_logs/mark_as_read', {lsDocId: app.lsDocId})
+        $.get( '/salt/importation_logs/mark_as_read', {lsDocId: app.lsDocId})
             .done(function(data){
                 $('.modal#seeImportationLogs .modal-body .list-group').fadeOut();
                 $(this).attr('disabled', 'disabled');

@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\UserBundle\Repository;
+namespace CftfBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Salt\UserBundle\Entity\ImportationLog;

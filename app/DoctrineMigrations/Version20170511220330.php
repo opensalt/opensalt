@@ -17,7 +17,7 @@ class Version20170511220330 extends AbstractMigration
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql("ALTER TABLE importation_logs ADD type VARCHAR(30) NOT NULL DEFAULT 'warning'");
+        $this->addSql("ALTER TABLE importation_logs ADD message_type VARCHAR(30) NULL");
 
     }
 
@@ -28,7 +28,7 @@ class Version20170511220330 extends AbstractMigration
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE importation_logs DROP type');
+        $this->addSql('ALTER TABLE importation_logs DROP message_type');
 
     }
 }
