@@ -63,47 +63,50 @@ class LsDocController extends Controller
         $form = $this->createForm(RemoteCftfServerType::class);
         $form->handleRequest($request);
 
+        $docs = null;
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $hostname = $data['hostname'];
             try {
-                $remoteResponse = $this->loadDocumentsFromServer('https://'.$hostname);
+                $remoteResponse = $this->loadDocumentsFromServer(
+                    'https://'.$hostname
+                );
             } catch (\Exception $e) {
                 try {
-                    $remoteResponse = $this->loadDocumentsFromServer('http://'.$hostname);
+                    $remoteResponse = $this->loadDocumentsFromServer(
+                        'http://'.$hostname
+                    );
                 } catch (\Exception $e) {
                     $remoteResponse = null;
                 }
             }
-        }
 
-        try {
-            $docJson = $remoteResponse->getBody()->getContents();
-            $docs = json_decode($docJson, true);
-            $docs = $docs['CFDocuments'];
-            foreach ($docs as $key => $doc) {
-                if (empty($doc['creator'])) {
-                    $docs[$key]['creator'] = 'Unknown';
-                }
-                if (empty($doc['title'])) {
-                    $docs[$key]['title'] = 'Unknown';
-                }
-            }
-            usort(
-                $docs,
-                function ($a, $b) {
-                    if ($a['creator'] !== $b['creator']) {
-                        return ($a['creator'] <=> $b['creator']);
+            try {
+                $docJson = $remoteResponse->getBody()->getContents();
+                $docs = json_decode($docJson, true);
+                $docs = $docs['CFDocuments'];
+                foreach ($docs as $key => $doc) {
+                    if (empty($doc['creator'])) {
+                        $docs[$key]['creator'] = 'Unknown';
                     }
-
-                    return ($a['title'] <=> $b['title']);
+                    if (empty($doc['title'])) {
+                        $docs[$key]['title'] = 'Unknown';
+                    }
                 }
-            );
-        } catch (\Exception $e) {
-            $docs = null;
-        }
+                usort(
+                    $docs,
+                    function ($a, $b) {
+                        if ($a['creator'] !== $b['creator']) {
+                            return ($a['creator'] <=> $b['creator']);
+                        }
 
-        dump($docs);
+                        return ($a['title'] <=> $b['title']);
+                    }
+                );
+            } catch (\Exception $e) {
+                $docs = null;
+            }
+        }
 
         return [
             'form' => $form->createView(),
