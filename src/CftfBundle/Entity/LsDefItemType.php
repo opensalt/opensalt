@@ -49,7 +49,7 @@ class LsDefItemType extends AbstractLsDefinition implements CaseApiInterface
      *
      * @return LsDefItemType
      */
-    public function setCode($code) : LsDefItemType
+    public function setCode($code): LsDefItemType
     {
         $this->code = $code;
 
@@ -69,7 +69,7 @@ class LsDefItemType extends AbstractLsDefinition implements CaseApiInterface
      *
      * @return LsDefItemType
      */
-    public function setHierarchyCode($hierarchyCode) : LsDefItemType
+    public function setHierarchyCode($hierarchyCode): LsDefItemType
     {
         $this->hierarchyCode = $hierarchyCode;
 
@@ -81,7 +81,7 @@ class LsDefItemType extends AbstractLsDefinition implements CaseApiInterface
      *
      * @return string
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->getTitle();
     }

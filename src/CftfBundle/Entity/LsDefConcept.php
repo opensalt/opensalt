@@ -48,7 +48,7 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
      *
      * @return LsDefConcept
      */
-    public function setHierarchyCode($hierarchyCode) : LsDefConcept
+    public function setHierarchyCode($hierarchyCode): LsDefConcept
     {
         $this->hierarchyCode = $hierarchyCode;
 
@@ -68,7 +68,7 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
      *
      * @return LsDefConcept
      */
-    public function setKeywords($keywords) : LsDefConcept
+    public function setKeywords($keywords): LsDefConcept
     {
         $this->keywords = $keywords;
 
@@ -80,7 +80,7 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
      *
      * @return string
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->getTitle();
     }
