@@ -1,25 +1,25 @@
 {% extends '::layout.html.twig' %}
 
-{% block title %}{{ lsDoc.title }}{% endblock %}
+{% block title %}{{ lsDocTitle }}{% endblock %}
 
 {% block body %}
 <div class="row">
-    {% if lsDoc.adoptionStatus != "" %}
+    {% if lsDoc is not empty and lsDoc.adoptionStatus != "" %}
     <div class="col-sm-10">
     {% else %}
     <div class="col-sm-12">
     {% endif %}
-        <div id="docTitle">
+        <div id="docTitleWrapper">
             <div id="displayBtnGroup" class="form-group">
                 <div class="btn-group" role="group" aria-label="...">
                     <button id="displayTreeBtn" type="button" class="btn btn-primary btn-xs">Tree<br />View</button>
                     <button id="displayAssocBtn" type="button" class="btn btn-default btn-xs">Association<br />View</button>
                 </div>
             </div>
-            {{ lsDoc.title }}
+            <span id="docTitle">{{ lsDocTitle }}</span>
         </div>
     </div>
-    {% if lsDoc.adoptionStatus != "" %}
+    {% if lsDoc is not empty and lsDoc.adoptionStatus != "" %}
     <div class="col-sm-2">
         <div id="docStatus" class="docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">{{ lsDoc.adoptionStatus }}</div>
     </div>
@@ -28,7 +28,7 @@
 
 <div class="row" id="treeView">
     <div id="treeSideLeft" class="col-sm-6 treeSide">
-        {% if is_granted('edit', lsDoc) %}
+        {% if editorRights %}
             <div id="tree1InitialInstructions" class="bg-info instructions" style="display:none">Select a Competency Framework Document to view on the left side.</div>
             <div id="tree1SectionThisDocInstructions" class="bg-info instructions"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Browse, edit, reorder, and create new items here.<br /><label style="font-weight:normal; padding:5px 0 0 20px"><input type="checkbox" id="enableMoveCheckbox"> Enable drag-and-drop reordering</label></div>
             <div id="tree1SectionOtherDocInstructions" class="bg-info instructions" style="display:none"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Drag and drop from right to left to <b>create associations</b>.</div>
@@ -44,7 +44,7 @@
         </div>
 
         <div id="tree1SectionControls" class="form-group" style="clear:both">
-            {% if is_granted('edit', lsDoc) %}
+            {% if editorRights %}
                 <div class="input-group" style="clear:both">
                     <span id="tree1SectionBulkControls" class="input-group-btn">
                         <button type="button" class="treeCheckboxControlBtn btn btn-default">
@@ -62,7 +62,7 @@
             {% endif %}
                     <span class="filterClear glyphicon glyphicon-remove-circle"></span>
                     <input type="text" class="form-control treeFilter" id="filterOnTree" placeholder="Search...">
-            {% if is_granted('edit', lsDoc) %}
+            {% if editorRights %}
                 </div>
             {% endif %}
         </div>
@@ -73,7 +73,7 @@
         
         <div id="noItemsInstructions" class="bg-info instructions" style="display:none">This document does not currently contain any statements/items.
             <ul>
-            {% if is_granted('edit', lsDoc) %}
+            {% if editorRights %}
                 <li>To <b>create statements/items</b> click the “Add New Child Item” button at right.</li>
                 <li>To <b>create “crosswalk” associations</b> between two different documents, start by clicking “Change Document” above, then choose a different document to view here.</li>
             {% endif %}
@@ -83,7 +83,7 @@
     </div>
 
     <div id="treeSideRight" class="col-sm-6 treeSide">
-        {% if is_granted('edit', lsDoc) %}
+        {% if editorRights %}
         <div class="form-group">
             <div class="btn-group" role="group" aria-label="...">
                 <button id="rightSideItemDetailsBtn" type="button" class="btn btn-primary">Item Details</button>
@@ -93,7 +93,7 @@
         </div>
         {% endif %}
 
-        <section id="itemSection" class="panel panel-default docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">
+        <section id="itemSection" class="panel panel-default">
             <div id="items" class="panel-body">
                 <div id="itemInfo">
                     <h4 class="itemTitle">
@@ -105,7 +105,7 @@
 
                         <div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
 
-                        {% if is_granted('edit', lsDoc) %}
+                        {% if editorRights %}
                             <div class="itemOptions" id="itemOptions">
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal" data-alt-document-disabled="true">Edit</button>
                                 <button type="button" id="deleteItemBtn" class="btn btn-default btn-sm" data-toggle="modal" data-alt-document-disabled="true">Delete</button>
@@ -118,19 +118,19 @@
                         <div class="itemOptions" id="documentOptions">
                             <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
                             {# use first version if we need to edit the adoptionStatus #}
-                            {% if is_granted('edit', lsDoc) %}
+                            {% if editorRights %}
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal" data-alt-document-disabled="true">Edit</button>
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#manageAssocGroupsModal" data-alt-document-disabled="true">Manage Association Groups</button>
                             {% endif %}
-                            {% if is_granted('manage_editors', lsDoc) %}
-                                <a href="{{ path('framework_acl_edit', {'id':lsDoc.id}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
+                            {% if manageEditorsRights %}
+                                <a href="{{ path('framework_acl_edit', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
                             {% endif %}
 
-                            {% if is_granted('edit', lsDoc) %}
+                            {% if editorRights %}
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add New Child Item</button>
                             {% endif %}
 
-                            {% if is_granted('create', lsDoc) %}
+                            {% if createRights %}
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal" data-alt-document-disabled="true">Import Children</button>
                             {% endif %}
                         </div>
@@ -138,7 +138,7 @@
                     <div class="lsItemAssociations"></div>
 
                     <div id="associationRemoveBtn" style="display:none">
-                        {% if is_granted('edit', lsDoc) %}
+                        {% if editorRights %}
                             <span class="pull-right" style="margin-left:5px"><span role="button" class="btn btn-xs btn-default btn-remove-association"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Remove</span></span></span>
                         {% endif %}
                     </div>
@@ -146,6 +146,7 @@
             </div>
         </section>
 
+    {% if editorRights %}
         <section id="tree2Section">
             <div id="tree2InitialInstructions" class="bg-info instructions">Select a Competency Framework Document to view on the right side.</div>
             <div id="tree2SectionCopyInstructions" class="bg-info instructions" style="display:none"><button type="button" class="changeTree2DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Drag and drop from right to left to <b>copy items</b>.</div>
@@ -179,6 +180,7 @@
 
             <div id="viewmode_tree2" class="treeDiv"></div>
         </section>
+    {% endif %}
     </div>
 </div>
 
@@ -203,167 +205,170 @@
     </div>
 </div>
 
-{% embed 'CftfBundle:DocTree:wizard.html.twig' with {
-    'lsDocId':lsDoc.id
-}%}
-{% endembed %}
+{% if lsDoc is not empty %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'export',
+    'modalTitle':'Export Document',
+    'closeButton': 'Done'
+    } %}
+    {% block modalButtons %}{% endblock %}
+    {% block modalBody %}
+    {% embed 'CftfBundle:LsDoc:_exportComponent.html.twig' with {'view':'editor'} %}
+    {% endembed %}
+    {% endblock %}
+    {% endembed %}
+{% endif %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'export',
-'modalTitle':'Export Document',
-'closeButton': 'Done'
-} %}
-{% block modalButtons %}{% endblock %}
-{% block modalBody %}
-{% embed 'CftfBundle:LsDoc:_exportComponent.html.twig' with {'view':'editor'} %}
-{% endembed %}
-{% endblock %}
-{% endembed %}
+{% if editorRights %}
+    {% embed 'CftfBundle:DocTree:wizard.html.twig' with {
+        'lsDocId':lsDocId
+    }%}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'loadExternalDocument',
-'modalTitle':'Load External Document',
-'closeButton': 'Cancel',
-'saveButton': 'Load Document'
-} %}
-{% block modalBody %}
-{% embed 'CftfBundle:DocTree:_loadExternalDocumentComponent.html.twig' with {'view':'editor'} %}
-{% endembed %}
-{% endblock %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'loadExternalDocument',
+    'modalTitle':'Load External Document',
+    'closeButton': 'Cancel',
+    'saveButton': 'Load Document'
+    } %}
+    {% block modalBody %}
+    {% embed 'CftfBundle:DocTree:_loadExternalDocumentComponent.html.twig' with {'view':'editor'} %}
+    {% endembed %}
+    {% endblock %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'editDoc',
-'modalTitle':'Edit Document',
-'closeButton': 'Cancel',
-'saveButton': 'Save Changes'
-} %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'editDoc',
+    'modalTitle':'Edit Document',
+    'closeButton': 'Cancel',
+    'saveButton': 'Save Changes'
+    } %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'addNewChild',
-'modalTitle':'Add New Child Item',
-'closeButton': 'Cancel',
-'saveButton': 'Create'
-} %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'addNewChild',
+    'modalTitle':'Add New Child Item',
+    'closeButton': 'Cancel',
+    'saveButton': 'Create'
+    } %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'editItem',
-'modalTitle':'Edit Item',
-'closeButton': 'Cancel',
-'saveButton': 'Save Changes'
-} %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'editItem',
+    'modalTitle':'Edit Item',
+    'closeButton': 'Cancel',
+    'saveButton': 'Save Changes'
+    } %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'associate',
-'modalTitle':'Create Association',
-'closeButton': 'Cancel',
-'saveButton': 'Associate'
-} %}
-{% block modalBody %}
-{% embed 'CftfBundle:LsAssociation:_newAssociationComponent.html.twig' with {'view':'editor'} %}
-{% endembed %}
-{% endblock %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'associate',
+    'modalTitle':'Create Association',
+    'closeButton': 'Cancel',
+    'saveButton': 'Associate'
+    } %}
+    {% block modalBody %}
+    {% embed 'CftfBundle:LsAssociation:_newAssociationComponent.html.twig' with {'view':'editor'} %}
+    {% endembed %}
+    {% endblock %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'addExemplar',
-'modalTitle':'Add an Exemplar',
-'closeButton': 'Cancel',
-'saveButton': 'Add Exemplar'
-} %}
-{% block modalBody %}
-{% embed 'CftfBundle:LsDoc:_addExemplarComponent.html.twig' with {'view':'editor'} %}
-{% endembed %}
-{% endblock %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'addExemplar',
+    'modalTitle':'Add an Exemplar',
+    'closeButton': 'Cancel',
+    'saveButton': 'Add Exemplar'
+    } %}
+    {% block modalBody %}
+    {% embed 'CftfBundle:LsDoc:_addExemplarComponent.html.twig' with {'view':'editor'} %}
+    {% endembed %}
+    {% endblock %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'deleteOneItem',
-'modalTitle':'Delete Item',
-'saveButton': 'Delete',
-'closeButton': 'Cancel'
-} %}
-{% block modalBody %}
-<p>Are you sure you want to delete this item?</p>
-{% endblock %}
-{% block modalButtons %}
-<button type="button" class="btn btn-danger btn-delete">Delete</button>
-{% endblock %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'deleteOneItem',
+    'modalTitle':'Delete Item',
+    'saveButton': 'Delete',
+    'closeButton': 'Cancel'
+    } %}
+    {% block modalBody %}
+    <p>Are you sure you want to delete this item?</p>
+    {% endblock %}
+    {% block modalButtons %}
+    <button type="button" class="btn btn-danger btn-delete">Delete</button>
+    {% endblock %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'deleteItemAndChildren',
-'modalTitle':'Delete Item and Children',
-'saveButton': 'Delete',
-'closeButton': 'Cancel'
-} %}
-{% block modalBody %}
-<p><strong class="text-danger">Warning: </strong> This item has children.</p>
-<p>Are you sure you want to delete this item <strong>and</strong> all its children?</p>
-{% endblock %}
-{% block modalButtons %}
-<button type="button" class="btn btn-danger btn-delete">Delete</button>
-{% endblock %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'deleteItemAndChildren',
+    'modalTitle':'Delete Item and Children',
+    'saveButton': 'Delete',
+    'closeButton': 'Cancel'
+    } %}
+    {% block modalBody %}
+    <p><strong class="text-danger">Warning: </strong> This item has children.</p>
+    <p>Are you sure you want to delete this item <strong>and</strong> all its children?</p>
+    {% endblock %}
+    {% block modalButtons %}
+    <button type="button" class="btn btn-danger btn-delete">Delete</button>
+    {% endblock %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'deleteMultipleItems',
-'modalTitle':'Delete Items',
-'saveButton': 'Delete',
-'closeButton': 'Cancel'
-} %}
-{% block modalBody %}
-<p>Are you sure you want to delete the <strong id="deleteMultipleItemsModalCount"></strong> selected items?</p>
-{% endblock %}
-{% block modalButtons %}
-<button type="button" class="btn btn-danger btn-delete">Delete</button>
-{% endblock %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'deleteMultipleItems',
+    'modalTitle':'Delete Items',
+    'saveButton': 'Delete',
+    'closeButton': 'Cancel'
+    } %}
+    {% block modalBody %}
+    <p>Are you sure you want to delete the <strong id="deleteMultipleItemsModalCount"></strong> selected items?</p>
+    {% endblock %}
+    {% block modalButtons %}
+    <button type="button" class="btn btn-danger btn-delete">Delete</button>
+    {% endblock %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'manageAssocGroups',
-'modalTitle':'Manage Association Groups',
-'closeButton': 'Done'
-} %}
-{% block modalButtons %}{% endblock %}
-{% block modalBody %}
-{% embed 'CftfBundle:LsDoc:_manageAssociationGroups.html.twig' with {'view':'editor'} %} {% endembed %}
-{% endblock %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'manageAssocGroups',
+    'modalTitle':'Manage Association Groups',
+    'closeButton': 'Done'
+    } %}
+    {% block modalButtons %}{% endblock %}
+    {% block modalBody %}
+    {% embed 'CftfBundle:LsDoc:_manageAssociationGroups.html.twig' with {'view':'editor'} %} {% endembed %}
+    {% endblock %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'editAssocGroup',
-'modalTitle':'Edit Association Group',
-'closeButton': 'Cancel',
-'saveButton': 'Save Changes'
-} %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'editAssocGroup',
+    'modalTitle':'Edit Association Group',
+    'closeButton': 'Cancel',
+    'saveButton': 'Save Changes'
+    } %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'addAssocGroup',
-'modalTitle':'Add New Association Group',
-'closeButton': 'Cancel',
-'saveButton': 'Create'
-} %}
-{% endembed %}
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'addAssocGroup',
+    'modalTitle':'Add New Association Group',
+    'closeButton': 'Cancel',
+    'saveButton': 'Create'
+    } %}
+    {% endembed %}
 
-{% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
-'modalName':'deleteAssocGroup',
-'modalTitle':'Delete Association Group',
-'saveButton': 'Delete',
-'closeButton': 'Cancel'
-} %}
-{% block modalBody %}
-<p>Are you sure you want to delete this association group?</p>
-{% endblock %}
-{% block modalButtons %}
-<button type="button" class="btn btn-danger btn-delete">Delete</button>
-{% endblock %}
-{% endembed %}
-
+    {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+    'modalName':'deleteAssocGroup',
+    'modalTitle':'Delete Association Group',
+    'saveButton': 'Delete',
+    'closeButton': 'Cancel'
+    } %}
+    {% block modalBody %}
+    <p>Are you sure you want to delete this association group?</p>
+    {% endblock %}
+    {% block modalButtons %}
+    <button type="button" class="btn btn-danger btn-delete">Delete</button>
+    {% endblock %}
+    {% endembed %}
+{% endif %}
 
 <div id="modalSpinner"><div id="modalSpinnerCover"></div><div id="modalSpinnerMessage"></div></div>
 {% endblock %}
@@ -373,10 +378,10 @@
 <script>
 window.apx = window.apx||{};
 
-apx.enableEdit = {{ (is_granted('edit', lsDoc)?"true":"false") |e('js') }};
+apx.enableEdit = {{ (editorRights?"true":"false") |e('js') }};
 
 // loaded docid and initial lsItem and assocGroup to show
-apx.lsDocId = {{ lsDoc.id }};
+apx.lsDocId = {{ lsDocId |json_encode |raw }};
 apx.initialLsItemId = {{ lsItemId |default(null) |json_encode |raw }};
 apx.initialAssocGroup = {{ assocGroup |default(null) |json_encode |raw}};
 
@@ -394,7 +399,7 @@ apx.path.lsitem_edit = '{{ path('lsitem_edit', {'id':'ID'}) }}';
 apx.path.lsitem_tree_delete = '{{ path('lsitem_tree_delete', {'id':'ID', 'includingChildren':'CHILDREN'}) }}';
 apx.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC', 'parent':'PARENT'}) }}';
 apx.path.lsitem_copy_item = '{{ path('lsitem_copy_item', {'id':'ID'}) }}';
-apx.path.lsassociation_tree_new = '{{ path('lsassociation_tree_new', {'lsDoc': lsDoc.id}) }}';
+apx.path.lsassociation_tree_new = '{{ path('lsassociation_tree_new', {'lsDoc': lsDocId}) }}';
 apx.path.lsassociation_remove = '{{ path('lsassociation_remove', {'id':'ID'}) }}';
 apx.path.lsassociation_tree_new_exemplar = '{{ path('lsassociation_tree_new_exemplar', {'originLsItem':'ORIGIN_ID'}) }}';
 apx.path.doctree_render_document = '{{ path('doctree_render_document', {'id':'ID', '_format':'json'}) }}';

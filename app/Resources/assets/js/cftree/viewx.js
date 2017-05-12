@@ -100,30 +100,36 @@ apx.initialize = function() {
 
     ///////////////////////////////////////////////////////////////////////////////
     // MAINDOC
-    apx.mainDoc = new apxDocument({"id": apx.lsDocId});
-
+    // lsDocId could be an integer, in which case it's a SALT database ID; or we could be loading by url
+    if (apx.lsDocId == 'url') {
+        // if we're loading by url, the url should be in the search string, i.e. "url=http://example.com"
+        apx.mainDoc = new apxDocument({"url": location.search.substr(5)});
+    } else {
+        apx.mainDoc = new apxDocument({"id": apx.lsDocId});
+    }
+    
     // establish and load the main document -- apx.mainDoc
     apx.spinner.showModal("Loading document");
     apx.mainDoc.load(function() {
         apx.spinner.hideModal();
         
+        // fill in document title, in case we loaded from url
+        $("#docTitle").html(apx.mainDoc.doc.title);
+        window.document.title = apx.mainDoc.doc.title;
+        
         // Prepare menus for choosing documents on each side (we have to do this after we've gotten mainDoc.associatedDocs)
         apx.prepareDocumentMenus();
     
         // go through each provided "associatedDoc"
-        if (!empty(apx.mainDoc.associatedDocs)) {
-            for (var identifier in apx.mainDoc.associatedDocs) {
-                var ed = apx.mainDoc.associatedDocs[identifier];
-                // and start loading now any associatedDocs that have the "autoLoad" flag set to "true" (unless we've already loaded it)
-                // we have to do this because associations to items in these docs don't specify the doc id
-                if (ed.autoLoad === "true" && !(identifier in apx.allDocs)) {
-                    console.log("loading doc " + ed.title);
-                    apx.allDocs[identifier] = "loading";
-                    new apxDocument({"identifier": identifier}).load();
-                }
+        for (var identifier in apx.mainDoc.associatedDocs) {
+            var ed = apx.mainDoc.associatedDocs[identifier];
+            // and start loading now any associatedDocs that have the "autoLoad" flag set to "true" (unless we've already loaded it)
+            // we have to do this because associations to items in these docs don't specify the doc id
+            if (ed.autoLoad === "true" && !(identifier in apx.allDocs)) {
+                console.log("loading doc " + ed.title);
+                apx.allDocs[identifier] = "loading";
+                new apxDocument({"identifier": identifier}).load();
             }
-        } else {
-            apx.mainDoc.associatedDocs = {};
         }
         
         // find any other docs referenced by associations in mainDoc
@@ -250,6 +256,11 @@ window.onpopstate = function(event) {
 
 /** Function to update the history state */
 apx.pushHistoryState = function() {
+    // no history if we loaded the mainDoc from a url
+    if (apx.mainDoc.loadedFromUrl()) {
+        return;
+    }
+    
     // if we just called this after the user clicked back or forward, though, don't push a new state
     if (apx.popStateActivate != true) {
         // For now, at least, if we're not showing the mainDoc on the left side, don't push a new state

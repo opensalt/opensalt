@@ -38,7 +38,6 @@ class DocTreeController extends Controller
      */
     public function viewAction(LsDoc $lsDoc, $_format = 'html', $lsItemId = null, $assocGroup = null)
     {
-
         // get form field for selecting a document (for tree2)
         $form = $this->createForm(LsDocListType::class, null, ['ajax' => false]);
 
@@ -55,31 +54,6 @@ class DocTreeController extends Controller
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
         }
 
-        // Get a list of all associations and process them...
-        $lsAssociations = $em->getRepository('CftfBundle:LsAssociation')->findBy(['lsDoc'=>$lsDoc]);
-        $assocItems = array();
-        foreach ($lsAssociations as $assoc) {
-            // for each assoc, we'll decide whether or not we need to include info about the origin and/or destination item
-
-            // if the assoc has a destination in the current SALT instance...
-            if (null !== $assoc->getDestinationLsItem()) {
-                // then if the destination item's document isn't the current document...
-                if ($assoc->getDestinationLsItem()->getLsDoc()->getId() != $lsDoc->getId()) {
-                    // we need to include info about the item
-                    $assocItems[$assoc->getDestinationLsItem()->getId()] = $assoc->getDestinationLsItem();
-                }
-            }
-
-            // if the assoc has an origin in the current SALT instance (it almost always will)...
-            if (null !== $assoc->getOriginLsItem()) {
-                // then if the Origin item's document isn't the current document...
-                if ($assoc->getOriginLsItem()->getLsDoc()->getId() != $lsDoc->getId()) {
-                    // we need to include info about the item
-                    $assocItems[$assoc->getOriginLsItem()->getId()] = $assoc->getOriginLsItem();
-                }
-            }
-        }
-
         // get list of all documents
         $resultlsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
         $lsDocs = [];
@@ -89,19 +63,59 @@ class DocTreeController extends Controller
                 $lsDocs[] = $doc;
             }
         }
-
+        
         return [
             'lsDoc' => $lsDoc,
+            'lsDocId' => $lsDoc->getId(),
+            'lsDocTitle' => $lsDoc->getTitle(),
+
+            'editorRights' => $authChecker->isGranted('edit', $lsDoc),
+            'manageEditorsRights' => $authChecker->isGranted('manage_editors', $lsDoc),
+            'createRights' => $authChecker->isGranted('create', $lsDoc),
+            
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,
             'docList' => $form->createView(),
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => $lsDefAssociationGroupings,
-            'lsAssociations' => $lsAssociations,
-            'assocItems' => $assocItems,
             'lsDocs' => $lsDocs
         ];
+    }
+
+    /**
+     * @Route("/remote", name="doc_tree_remote_view")
+     * @Method({"GET"})
+     * @Template()
+     */
+    public function viewRemoteAction()
+    {
+        $assocTypes = [];
+        $inverseAssocTypes = [];
+        foreach (LsAssociation::allTypes() as $type) {
+            $assocTypes[] = $type;
+            $inverseAssocTypes[] = LsAssociation::inverseName($type);
+        }
+
+        $arr = [
+            'lsDoc' => '',
+            'lsDocId' => 'url',
+            'lsDocTitle' => 'Remote Framework',
+
+            'editorRights' => false,
+            'manageEditorsRights' => false,
+            'createRights' => false,
+            
+            'lsItemId' => null,
+            'assocGroup' => null,
+            'docList' => '',
+            'assocTypes' => $assocTypes,
+            'inverseAssocTypes' => $inverseAssocTypes,
+            'assocGroups' => [],
+            'lsDocs' => []
+        ];
+
+        return new Response($this->renderView('CftfBundle:DocTree:view.html.twig', $arr));
     }
 
 ///////////////////////////////////////////////
@@ -156,9 +170,10 @@ class DocTreeController extends Controller
      * Retrieve a CFPackage from the given document identifier, then use exportAction to export it
      *
      * @Route("/retrievedocument/{id}", name="doctree_retrieve_document")
+     * @Route("/retrievedocument/url", name="doctree_retrieve_document_by_url", defaults={"id"=null})
      * @Method("GET")
      */
-    public function retrieveDocumentAction(Request $request, LsDoc $lsDoc)
+    public function retrieveDocumentAction(Request $request, ?LsDoc $lsDoc = null)
     {
         // $request could contain an id...
         if ($id = $request->query->get('id')) {
