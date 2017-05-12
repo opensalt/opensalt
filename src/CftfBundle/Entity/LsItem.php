@@ -251,6 +251,21 @@ class LsItem implements CaseApiInterface
     private $conceptKeywordsUri;
 
     /**
+     * @var LsDefConcept[]|ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="CftfBundle\Entity\LsDefConcept")
+     * @ORM\JoinTable(name="ls_item_concept",
+     *      joinColumns={@ORM\JoinColumn(name="ls_item_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="concept_id", referencedColumnName="id")}
+     * )
+     *
+     * @Serializer\Exclude()
+     * @Serializer\SerializedName("conceptKeywords")
+     * @Serializer\Type("array<string>")
+     */
+    private $concepts;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="notes", type="text", nullable=true)
@@ -296,12 +311,58 @@ class LsItem implements CaseApiInterface
     /**
      * @var string
      *
+     * @ORM\Column(name="alternative_label", type="string", length=255, nullable=true)
+     *
+     * @Assert\Length(max=255)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("alternativeLabel")
+     */
+    private $alternativeLabel;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="status_start", type="date", nullable=true)
+     *
+     * @Assert\Date()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("statusStartDate")
+     */
+    private $statusStart;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="status_end", type="date", nullable=true)
+     *
+     * @Assert\Date()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("statusEndDate")
+     */
+    private $statusEnd;
+
+    /**
+     * @var LsDefLicence
+     *
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDefLicence")
+     * @ORM\JoinColumn(name="licence_id", referencedColumnName="id", nullable=true)
+     *
+     * @Serializer\Exclude()
+     */
+    private $licence;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="licence_uri", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
      * @Assert\Url()
      *
-     * @Serializer\Expose()
+     * @Serializer\Exclude()
      * @Serializer\SerializedName("CFLicenseURI")
      */
     private $licenceUri;
@@ -356,6 +417,15 @@ class LsItem implements CaseApiInterface
      */
     private $inverseAssociations;
 
+    /**
+     * @var Collection|CfRubricCriterion[]
+     *
+     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\CfRubricCriterion", mappedBy="item")
+     *
+     * @Serializer\Exclude()
+     */
+    private $criteria;
+
 
     /**
      * LsItem constructor.
@@ -369,7 +439,9 @@ class LsItem implements CaseApiInterface
             if ($identifier instanceof Uuid) {
                 $identifier = strtolower($identifier->toString());
             } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
-                $identifier = strtolower(Uuid::fromString($identifier)->toString());
+                $identifier = strtolower(
+                    Uuid::fromString($identifier)->toString()
+                );
             } else {
                 $identifier = Uuid::uuid4()->toString();
             }
@@ -383,8 +455,15 @@ class LsItem implements CaseApiInterface
         $this->lsItemParent = new ArrayCollection();
         $this->associations = new ArrayCollection();
         $this->inverseAssociations = new ArrayCollection();
+        $this->updatedAt = new \DateTime();
+        $this->changedAt = $this->updatedAt;
     }
 
+    /**
+     * Representation of this item as a string
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->uri;
@@ -420,7 +499,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null)
+    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null): LsItem
     {
         $newItem = clone $this;
 
@@ -435,7 +514,7 @@ class LsItem implements CaseApiInterface
 
         // PW: set assocGroup if provided and non-null
         // TODO: should the assocGroup be on both associations, or just the first association, or just the inverse association??
-        if ($assocGroup !== null) {
+        if (null !== $assocGroup) {
             $exactMatch->setGroup($assocGroup);
         }
 
@@ -450,7 +529,7 @@ class LsItem implements CaseApiInterface
         return $newItem;
     }
 
-    public function isLsItem()
+    public function isLsItem(): bool
     {
         return true;
     }
@@ -475,7 +554,7 @@ class LsItem implements CaseApiInterface
         foreach ($typeList as $type) {
             $groups[$type] = new ArrayCollection();
             $assocName = LsAssociation::inverseName($type);
-            if (empty($assocName)) {
+            if (null === $assocName) {
                 $assocName = 'Inverse '.$type;
             }
             $groups[$assocName] = new ArrayCollection();
@@ -499,7 +578,7 @@ class LsItem implements CaseApiInterface
             }
             */
             $assocName = LsAssociation::inverseName($association->getType());
-            if (empty($assocName)) {
+            if (null === $assocName) {
                 $assocName = 'Inverse '.$association->getType();
             }
 
@@ -509,7 +588,12 @@ class LsItem implements CaseApiInterface
         return $groups;
     }
 
-    public function getDisplayIdentifier()
+    /**
+     * Get a representation of the item
+     *
+     * @return string
+     */
+    public function getDisplayIdentifier(): string
     {
         if ($this->humanCodingScheme) {
             return $this->getHumanCodingScheme();
@@ -530,15 +614,18 @@ class LsItem implements CaseApiInterface
         return $uri;
     }
 
-    public function getShortStatement()
+    /**
+     * Get a short version of the statement
+     *
+     * @return string
+     */
+    public function getShortStatement(): string
     {
         if ($this->abbreviatedStatement) {
             return $this->getAbbreviatedStatement();
         }
 
-        $statement = substr($this->getFullStatement(), 0, 50);
-
-        return $statement;
+        return substr($this->getFullStatement(), 0, 50);
     }
 
     /**
@@ -546,7 +633,7 @@ class LsItem implements CaseApiInterface
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -558,7 +645,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setUri($uri)
+    public function setUri(?string $uri): LsItem
     {
         $this->uri = $uri;
 
@@ -570,7 +657,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getUri()
+    public function getUri(): ?string
     {
         return $this->uri;
     }
@@ -582,7 +669,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setLsDocUri($lsDocUri)
+    public function setLsDocUri(?string $lsDocUri): LsItem
     {
         $this->lsDocUri = $lsDocUri;
 
@@ -594,7 +681,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getLsDocUri()
+    public function getLsDocUri(): ?string
     {
         return $this->lsDocUri;
     }
@@ -606,7 +693,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setHumanCodingScheme($humanCodingScheme)
+    public function setHumanCodingScheme(?string $humanCodingScheme): LsItem
     {
         $this->humanCodingScheme = $humanCodingScheme;
 
@@ -618,7 +705,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getHumanCodingScheme()
+    public function getHumanCodingScheme(): ?string
     {
         return $this->humanCodingScheme;
     }
@@ -630,7 +717,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setIdentifier($identifier = null)
+    public function setIdentifier(?string $identifier = null): LsItem
     {
         if (null !== $identifier) {
             // If the identifier is in the form of a UUID then lower case it
@@ -652,7 +739,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getIdentifier()
+    public function getIdentifier(): ?string
     {
         return $this->identifier;
     }
@@ -664,7 +751,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setListEnumInSource($listEnumInSource)
+    public function setListEnumInSource(?string $listEnumInSource): LsItem
     {
         $this->listEnumInSource = $listEnumInSource;
 
@@ -676,7 +763,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getListEnumInSource()
+    public function getListEnumInSource(): ?string
     {
         return $this->listEnumInSource;
     }
@@ -688,7 +775,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setFullStatement($fullStatement)
+    public function setFullStatement(?string $fullStatement): LsItem
     {
         $this->fullStatement = $fullStatement;
 
@@ -700,7 +787,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getFullStatement()
+    public function getFullStatement(): ?string
     {
         return $this->fullStatement;
     }
@@ -712,7 +799,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setAbbreviatedStatement($abbreviatedStatement)
+    public function setAbbreviatedStatement(?string $abbreviatedStatement): LsItem
     {
         $this->abbreviatedStatement = $abbreviatedStatement;
 
@@ -724,7 +811,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getAbbreviatedStatement()
+    public function getAbbreviatedStatement(): ?string
     {
         return $this->abbreviatedStatement;
     }
@@ -736,7 +823,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setConceptKeywords($conceptKeywords)
+    public function setConceptKeywords(?string $conceptKeywords): LsItem
     {
         $this->conceptKeywords = $conceptKeywords;
 
@@ -748,7 +835,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getConceptKeywords()
+    public function getConceptKeywords(): ?string
     {
         return $this->conceptKeywords;
     }
@@ -760,7 +847,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setConceptKeywordsUri($conceptKeywordsUri)
+    public function setConceptKeywordsUri(?string $conceptKeywordsUri): LsItem
     {
         $this->conceptKeywordsUri = $conceptKeywordsUri;
 
@@ -772,7 +859,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getConceptKeywordsUri()
+    public function getConceptKeywordsUri(): ?string
     {
         return $this->conceptKeywordsUri;
     }
@@ -784,7 +871,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setNotes($notes)
+    public function setNotes(?string $notes): LsItem
     {
         $this->notes = $notes;
 
@@ -796,7 +883,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getNotes()
+    public function getNotes(): ?string
     {
         return $this->notes;
     }
@@ -808,7 +895,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setEducationalAlignment($educationalAlignment)
+    public function setEducationalAlignment(?string $educationalAlignment): LsItem
     {
         $this->educationalAlignment = $educationalAlignment;
 
@@ -820,7 +907,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getEducationalAlignment()
+    public function getEducationalAlignment(): ?string
     {
         return $this->educationalAlignment;
     }
@@ -830,7 +917,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getType()
+    public function getType(): ?string
     {
         $itemType = $this->itemType;
         if (null !== $itemType) {
@@ -847,7 +934,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setLicenceUri($licenceUri)
+    public function setLicenceUri(?string $licenceUri): LsItem
     {
         $this->licenceUri = $licenceUri;
 
@@ -859,7 +946,7 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getLicenceUri()
+    public function getLicenceUri(): ?string
     {
         return $this->licenceUri;
     }
@@ -871,7 +958,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setChangedAt($changedAt)
+    public function setChangedAt(\DateTime $changedAt): LsItem
     {
         $this->changedAt = $changedAt;
 
@@ -883,7 +970,7 @@ class LsItem implements CaseApiInterface
      *
      * @return \DateTime
      */
-    public function getChangedAt()
+    public function getChangedAt(): \DateTime
     {
         return $this->changedAt;
     }
@@ -897,7 +984,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsAssociation
      */
-    public function createChildItem(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null)
+    public function createChildItem(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): LsAssociation
     {
         $association = new LsAssociation();
         $association->setLsDoc($child->getLsDoc());
@@ -927,7 +1014,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null)
+    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null): LsItem
     {
         $this->createChildItem($child, $assocGroup);
 
@@ -939,7 +1026,7 @@ class LsItem implements CaseApiInterface
      *
      * @return \Doctrine\Common\Collections\Collection|LsItem[]
      */
-    public function getChildren()
+    public function getChildren(): Collection
     {
         $children = new ArrayCollection();
 
@@ -959,11 +1046,13 @@ class LsItem implements CaseApiInterface
      *
      * @return array|int[]
      */
-    public function getChildIds()
+    public function getChildIds(): array
     {
-        $ids = $this->getChildren()->map(function (LsItem $item) {
-            return $item->getId();
-        });
+        $ids = $this->getChildren()->map(
+            function (LsItem $item) {
+                return $item->getId();
+            }
+        );
 
         return $ids->toArray();
     }
@@ -975,7 +1064,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setLsDoc(\CftfBundle\Entity\LsDoc $lsDoc = null)
+    public function setLsDoc(\CftfBundle\Entity\LsDoc $lsDoc = null): LsItem
     {
         $this->lsDoc = $lsDoc;
         $this->lsDocUri = $lsDoc->getUri();
@@ -989,7 +1078,7 @@ class LsItem implements CaseApiInterface
      *
      * @return \CftfBundle\Entity\LsDoc
      */
-    public function getLsDoc()
+    public function getLsDoc(): LsDoc
     {
         return $this->lsDoc;
     }
@@ -999,14 +1088,15 @@ class LsItem implements CaseApiInterface
      *
      * @return \Doctrine\Common\Collections\Collection|LsItem[]
      */
-    public function getLsItemParent()
+    public function getLsItemParent(): Collection
     {
         $parents = new ArrayCollection();
         $associations = $this->getAssociations();
         foreach ($associations as $association) {
             /** @var LsAssociation $association */
             if ($association->getType() === LsAssociation::CHILD_OF
-                && $association->getDestinationLsItem() !== null) {
+                && $association->getDestinationLsItem() !== null
+            ) {
                 $parents->add($association->getDestinationLsItem());
             }
         }
@@ -1021,14 +1111,14 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt(\DateTime $updatedAt): LsItem
     {
         $this->updatedAt = $updatedAt;
 
         $this->lsDoc->setUpdatedAt($updatedAt);
 
         $parents = $this->getLsItemParent();
-        foreach ($parents as $parent){
+        foreach ($parents as $parent) {
             $parent->setUpdatedAt($updatedAt);
         }
 
@@ -1040,7 +1130,7 @@ class LsItem implements CaseApiInterface
      *
      * @return \DateTime
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
     }
@@ -1052,7 +1142,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function addAssociation(\CftfBundle\Entity\LsAssociation $association)
+    public function addAssociation(\CftfBundle\Entity\LsAssociation $association): LsItem
     {
         $this->associations[] = $association;
 
@@ -1064,9 +1154,11 @@ class LsItem implements CaseApiInterface
      *
      * @param \CftfBundle\Entity\LsAssociation $association
      */
-    public function removeAssociation(\CftfBundle\Entity\LsAssociation $association)
+    public function removeAssociation(\CftfBundle\Entity\LsAssociation $association): LsItem
     {
         $this->associations->removeElement($association);
+
+        return $this;
     }
 
     /**
@@ -1074,7 +1166,7 @@ class LsItem implements CaseApiInterface
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getAssociations()
+    public function getAssociations(): Collection
     {
         return $this->associations;
     }
@@ -1086,7 +1178,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function addInverseAssociation(\CftfBundle\Entity\LsAssociation $inverseAssociation)
+    public function addInverseAssociation(\CftfBundle\Entity\LsAssociation $inverseAssociation): LsItem
     {
         $this->inverseAssociations[] = $inverseAssociation;
 
@@ -1098,9 +1190,11 @@ class LsItem implements CaseApiInterface
      *
      * @param \CftfBundle\Entity\LsAssociation $inverseAssociation
      */
-    public function removeInverseAssociation(\CftfBundle\Entity\LsAssociation $inverseAssociation)
+    public function removeInverseAssociation(\CftfBundle\Entity\LsAssociation $inverseAssociation): LsItem
     {
         $this->inverseAssociations->removeElement($inverseAssociation);
+
+        return $this;
     }
 
     /**
@@ -1108,7 +1202,7 @@ class LsItem implements CaseApiInterface
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getInverseAssociations()
+    public function getInverseAssociations(): Collection
     {
         return $this->inverseAssociations;
     }
@@ -1118,7 +1212,7 @@ class LsItem implements CaseApiInterface
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getTopItemOf()
+    public function getTopItemOf(): Collection
     {
         $topItemOf = new ArrayCollection();
 
@@ -1126,7 +1220,8 @@ class LsItem implements CaseApiInterface
         foreach ($associations as $association) {
             /** @var LsAssociation $association */
             if ($association->getType() === LsAssociation::CHILD_OF
-                && $association->getDestinationLsDoc() !== null) {
+                && $association->getDestinationLsDoc() !== null
+            ) {
                 $topItemOf->add($association->getDestinationLsDoc());
             }
         }
@@ -1137,17 +1232,16 @@ class LsItem implements CaseApiInterface
     /**
      * @return LsItem|null
      */
-    public function getParentItem()
+    public function getParentItem(): ?LsItem
     {
-        $lsItem = $this->getLsItemParent()->first();
-
-        return $lsItem;
+        return $this->getLsItemParent()->first();
     }
 
     /**
      * @return string
      */
-    public function getLsDocIdentifier() {
+    public function getLsDocIdentifier(): ?string
+    {
         return $this->lsDocIdentifier;
     }
 
@@ -1156,15 +1250,18 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setLsDocIdentifier($lsDocIdentifier) {
+    public function setLsDocIdentifier(?string $lsDocIdentifier): LsItem
+    {
         $this->lsDocIdentifier = $lsDocIdentifier;
+
         return $this;
     }
 
     /**
      * @return int
      */
-    public function getRank() {
+    public function getRank(): ?int
+    {
         return $this->rank;
     }
 
@@ -1173,15 +1270,18 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setRank($rank) {
+    public function setRank(?int $rank): LsItem
+    {
         $this->rank = $rank;
+
         return $this;
     }
 
     /**
      * @return array
      */
-    public function getExtra() {
+    public function getExtra(): ?array
+    {
         return $this->extra;
     }
 
@@ -1191,7 +1291,8 @@ class LsItem implements CaseApiInterface
      *
      * @return mixed
      */
-    public function getExtraProperty($property, $default = null) {
+    public function getExtraProperty(string $property, $default = null)
+    {
         if (is_null($this->extra)) {
             return $default;
         }
@@ -1208,8 +1309,10 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setExtra($extra) {
+    public function setExtra(?array $extra): LsItem
+    {
         $this->extra = $extra;
+
         return $this;
     }
 
@@ -1219,12 +1322,14 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setExtraProperty($property, $value) {
+    public function setExtraProperty(string $property, $value): LsItem
+    {
         if (is_null($this->extra)) {
             $this->extra = [];
         }
 
         $this->extra[$property] = $value;
+
         return $this;
     }
 
@@ -1237,7 +1342,7 @@ class LsItem implements CaseApiInterface
      *
      * @return LsAssociation inserted association (in case the caller needs to get the id later)
      */
-    public function addParent($parent, $sequenceNumber = null, ?LsDefAssociationGrouping $assocGroup = null)
+    public function addParent($parent, ?int $sequenceNumber = null, ?LsDefAssociationGrouping $assocGroup = null): LsAssociation
     {
         $association = new LsAssociation();
         $association->setLsDoc($this->getLsDoc());
@@ -1265,7 +1370,8 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getLanguage() {
+    public function getLanguage(): ?string
+    {
         return $this->language;
     }
 
@@ -1276,8 +1382,10 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setLanguage($language) {
+    public function setLanguage($language): LsItem
+    {
         $this->language = $language;
+
         return $this;
     }
 
@@ -1288,7 +1396,8 @@ class LsItem implements CaseApiInterface
      *
      * @return string
      */
-    public function getLabel($indent = "\u{00a0}\u{00a0}\u{00a0}\u{00a0}") {
+    public function getLabel($indent = "\u{00a0}\u{00a0}\u{00a0}\u{00a0}"): string
+    {
         $pfx = '';
         $parent = $this->getLsItemParent();
         while (!$parent->isEmpty()) {
@@ -1309,14 +1418,16 @@ class LsItem implements CaseApiInterface
      *
      * @return bool
      */
-    public function canEdit() {
+    public function canEdit(): bool
+    {
         return $this->lsDoc->canEdit();
     }
 
     /**
      * @return LsDefItemType
      */
-    public function getItemType() {
+    public function getItemType(): ?LsDefItemType
+    {
         return $this->itemType;
     }
 
@@ -1325,8 +1436,154 @@ class LsItem implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function setItemType($itemType) {
+    public function setItemType($itemType): LsItem
+    {
         $this->itemType = $itemType;
+
+        return $this;
+    }
+
+    /**
+     * @return LsDefConcept[]|ArrayCollection
+     */
+    public function getConcepts()
+    {
+        return $this->concepts;
+    }
+
+    /**
+     * @param LsDefConcept[]|ArrayCollection $concepts
+     *
+     * @return LsItem
+     */
+    public function setConcepts($concepts): LsItem
+    {
+        $this->concepts = $concepts;
+
+        return $this;
+    }
+
+    /**
+     * @param LsDefConcept $concept
+     *
+     * @return LsItem
+     */
+    public function addConcept(LsDefConcept $concept): LsItem
+    {
+        $this->concepts[] = $concept;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAlternativeLabel(): ?string
+    {
+        if (null === $this->alternativeLabel) {
+            return $this->getItemType();
+        }
+
+        return $this->alternativeLabel;
+    }
+
+    /**
+     * @param string $alternativeLabel
+     *
+     * @return LsItem
+     */
+    public function setAlternativeLabel(?string $alternativeLabel): LsItem
+    {
+        $this->alternativeLabel = $alternativeLabel;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getStatusStart(): ?\DateTime
+    {
+        if (null === $this->statusStart) {
+            return $this->lsDoc->getStatusStart();
+        }
+
+        return $this->statusStart;
+    }
+
+    /**
+     * @param \DateTime $statusStart
+     *
+     * @return LsItem
+     */
+    public function setStatusStart(?\DateTime $statusStart): LsItem
+    {
+        $this->statusStart = $statusStart;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getStatusEnd(): ?\DateTime
+    {
+        if (null === $this->statusEnd) {
+            return $this->lsDoc->getStatusEnd();
+        }
+
+        return $this->statusEnd;
+    }
+
+    /**
+     * @param \DateTime $statusEnd
+     *
+     * @return LsItem
+     */
+    public function setStatusEnd(?\DateTime $statusEnd): LsItem
+    {
+        $this->statusEnd = $statusEnd;
+
+        return $this;
+    }
+
+    /**
+     * @return LsDefLicence|null
+     */
+    public function getLicence(): ?LsDefLicence
+    {
+        return $this->licence;
+    }
+
+    /**
+     * @param LsDefLicence $licence
+     *
+     * @return LsItem
+     */
+    public function setLicence(?LsDefLicence $licence): LsItem
+    {
+        $this->licence = $licence;
+
+        return $this;
+    }
+
+    /**
+     * @return CfRubricCriterion[]|Collection
+     */
+    public function getCriteria()
+    {
+        return $this->criteria;
+    }
+
+    /**
+     * @param CfRubricCriterion[]|Collection $criteria
+     *
+     * @return LsItem
+     */
+    public function setCriteria($criteria): LsItem
+    {
+        $this->criteria = $criteria;
+
         return $this;
     }
 }
