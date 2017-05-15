@@ -81,30 +81,32 @@ class LsDocController extends Controller
                 }
             }
 
-            try {
-                $docJson = $remoteResponse->getBody()->getContents();
-                $docs = json_decode($docJson, true);
-                $docs = $docs['CFDocuments'];
-                foreach ($docs as $key => $doc) {
-                    if (empty($doc['creator'])) {
-                        $docs[$key]['creator'] = 'Unknown';
-                    }
-                    if (empty($doc['title'])) {
-                        $docs[$key]['title'] = 'Unknown';
-                    }
-                }
-                usort(
-                    $docs,
-                    function ($a, $b) {
-                        if ($a['creator'] !== $b['creator']) {
-                            return ($a['creator'] <=> $b['creator']);
+            if (null !== $remoteResponse) {
+                try {
+                    $docJson = $remoteResponse->getBody()->getContents();
+                    $docs = json_decode($docJson, true);
+                    $docs = $docs['CFDocuments'];
+                    foreach ($docs as $key => $doc) {
+                        if (empty($doc['creator'])) {
+                            $docs[$key]['creator'] = 'Unknown';
                         }
-
-                        return ($a['title'] <=> $b['title']);
+                        if (empty($doc['title'])) {
+                            $docs[$key]['title'] = 'Unknown';
+                        }
                     }
-                );
-            } catch (\Exception $e) {
-                $docs = null;
+                    usort(
+                        $docs,
+                        function ($a, $b) {
+                            if ($a['creator'] !== $b['creator']) {
+                                return ($a['creator'] <=> $b['creator']);
+                            }
+
+                            return ($a['title'] <=> $b['title']);
+                        }
+                    );
+                } catch (\Exception $e) {
+                    $docs = null;
+                }
             }
         }
 
