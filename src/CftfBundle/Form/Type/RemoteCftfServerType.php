@@ -11,6 +11,7 @@ class RemoteCftfServerType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->setMethod('GET')
             ->add('hostname', TextType::class, [
                 'label' => 'Hostname of CASE server',
             ])
