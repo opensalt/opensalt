@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Form\Type\LsDocType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -77,6 +78,11 @@ class LsDocController extends Controller
                         'http://'.$hostname
                     );
                 } catch (\Exception $e) {
+                    $form->get('hostname')->addError(
+                        new FormError(
+                            "Could not access CASE API on {$hostname}."
+                        )
+                    );
                     $remoteResponse = null;
                 }
             }
