@@ -213,6 +213,7 @@ nelmio_security:
         enabled: false
     clickjacking:
         paths:
+            '^/cftree/doc/': ALLOW
             '^/.*': DENY
         content_types: []
     external_redirects:
