@@ -23,7 +23,7 @@ class Version20170510163859 extends AbstractMigration
             message_text VARCHAR(250) NOT NULL,
             message_type VARCHAR(30) NOT NULL,
             is_read TINYINT NOT NULL DEFAULT 0,
-            PRIMARY KEY(id, ls_doc_id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
+            PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
 
         $this->addSql('ALTER TABLE import_logs ADD CONSTRAINT FK_F9C9DBACA4353F8C FOREIGN KEY (ls_doc_id) REFERENCES ls_doc (id)');
 
