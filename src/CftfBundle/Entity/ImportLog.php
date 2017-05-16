@@ -2,9 +2,6 @@
 
 namespace CftfBundle\Entity;
 
-use CftfBundle\Entity\LsDoc;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -63,10 +60,9 @@ class ImportLog
     /**
      * Constructor
      */
-
     public function __construct()
     {
-        $this->messageType = "warning";
+        $this->messageType = 'warning';
     }
 
     /**
@@ -82,7 +78,8 @@ class ImportLog
         return $this;
     }
 
-     /** Set message
+    /**
+     * Set message
      *
      * @param string $message
      *
@@ -112,7 +109,8 @@ class ImportLog
         return $this->message;
     }
 
-     /** Set read as true
+    /**
+     * Set read as true
      *
      * @return ImportLog
      */
@@ -144,4 +142,3 @@ class ImportLog
          return $this;
     }
 }
-
