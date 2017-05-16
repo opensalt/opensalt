@@ -304,4 +304,4 @@ apx.markLogsAsRead = function() {
                 $('#seeImportLogs').modal('toggle');
             });
     });
-}
+};
