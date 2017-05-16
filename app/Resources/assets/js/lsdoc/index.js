@@ -210,7 +210,8 @@ var Import = (function() {
             content: window.btoa(unescape(encodeURIComponent(file))),
             cfItemKeys: cfItemKeys,
             lsDocId: $('#lsDocId').val(),
-            frameworkToAssociate: $('#js-framework-to-association').val()
+            frameworkToAssociate: $('#js-framework-to-association').val(),
+            missingFieldsLog: CfItem.getErrorsLog()
         };
 
         $.ajax({
@@ -314,6 +315,8 @@ var SaltLocal = (function(){
 
 var CfItem = (function(){
 
+    var missingFieldsErrorMessages = [];
+
     var fields = [
         'identifier',
         'fullStatement',
@@ -373,17 +376,27 @@ var CfItem = (function(){
     function missingField(field) {
         var alert = '<div class="alert alert-warning js-alert-missing-fields" role="alert">';
         alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
+        alert += '<div class="js-error-message-missing-field">';
         alert += '<strong>Missing field "'+Util.titleize(field)+'"</strong>, if you did not list a column '+field+' in your CSV ignore this message! ';
         alert += 'if you meant to, please take a look at the import template and try again!';
-        alert += '<div>';
+        alert += '</div>';
+        alert += '</div>';
+
+        missingFieldsErrorMessages.push($(alert).find(".js-error-message-missing-field").text());
+        console.info($(alert).find(".js-error-message-missing-field").text());
 
         $('.missing-fields').append(alert);
+    }
+
+    function getErrorsLog(){
+        return missingFieldsErrorMessages;
     }
 
     return {
         fields: fields,
         validDropdowns: validDropdowns,
-        missingField: missingField
+        missingField: missingField,
+        getErrorsLog: getErrorsLog
     };
 })();
 
