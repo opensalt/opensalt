@@ -2,14 +2,14 @@
 
 namespace GithubFilesBundle\Service;
 
-use Ramsey\Uuid\Uuid;
+use CftfBundle\Entity\ImportLog;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
-use JMS\DiExtraBundle\Annotation as DI;
-use CftfBundle\Entity\ImportationLog;
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\ObjectManager;
+use JMS\DiExtraBundle\Annotation as DI;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Class GithubImport.
@@ -50,6 +50,7 @@ class GithubImport
      * @param array $lsItemKeys
      * @param string $fileContent
      * @param string $frameworkToAssociate
+     * @param array $missingFieldsLog
      */
     public function parseCSVGithubDocument($lsItemKeys, $fileContent, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
     {
@@ -84,6 +85,7 @@ class GithubImport
      * @param array $lsDocKeys
      * @param array $lsItemKeys
      * @param array $content
+     * @param array $missingFieldsLog
      */
     public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
     {
@@ -92,22 +94,20 @@ class GithubImport
 
         if (count($missingFieldsLog) > 0){
             foreach ($missingFieldsLog as $messageError) {
-                $errorLog = new ImportationLog();
+                $errorLog = new ImportLog();
                 $errorLog->setLsDoc($lsDoc);
                 $errorLog->setMessage($messageError);
                 $errorLog->setMessageType("warning");
 
                 $em->persist($errorLog);
-                $em->flush();
             }
         }else{
-            $successLog = new ImportationLog();
+            $successLog = new ImportLog();
             $successLog->setLsDoc($lsDoc);
             $successLog->setMessage('Items sucessful imported.');
             $successLog->setMessageType("info");
 
             $em->persist($successLog);
-            $em->flush();
         }
 
         $lsItems = [];

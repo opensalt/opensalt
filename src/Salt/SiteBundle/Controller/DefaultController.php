@@ -54,7 +54,7 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/salt/importation_logs/mark_as_read", name="_importation_logs_mark_as_read")
+     * @Route("/salt/import_logs/mark_as_read", name="mark_import_logs_as_read")
      *
      * @param Request $request
      *
@@ -65,13 +65,13 @@ class DefaultController extends Controller
         $response = new JsonResponse();
         $em = $this->getDoctrine()->getManager();
 
-        $lsDocId = $request->request->get('lsDocId');
-        $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find(44);
-        foreach ($lsDoc->getImportationLogs() as $log){
+        $lsDocId = $request->query->get('lsDocId');
+        $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find($lsDocId);
+
+        foreach ($lsDoc->getImportLogs() as $log){
             $log->markAsRead();
-            $em->persist($log);
-            $em->flush();
         }
+        $em->flush();
 
         return $response->setData([
             'message' => 'Logs marked as read successfully!'

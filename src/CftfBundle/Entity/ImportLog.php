@@ -10,13 +10,13 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class ImportationLog
+ * Class ImportLog
  *
- * @ORM\Entity(repositoryClass="CftfBundle\Repository\ImportationLogRepository")
- * @ORM\Table(name="importation_logs")
+ * @ORM\Entity(repositoryClass="CftfBundle\Repository\ImportLogRepository")
+ * @ORM\Table(name="import_logs")
  * @UniqueEntity("id")
  */
-class ImportationLog
+class ImportLog
 {
     /**
      * @var int
@@ -30,7 +30,7 @@ class ImportationLog
     /**
      * @var LsDoc
      *
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="importationLogs")
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="importLogs")
      * @ORM\JoinColumn(name="ls_doc_id", referencedColumnName="id", nullable=false)
      *
      * @Assert\NotBlank()
@@ -61,9 +61,7 @@ class ImportationLog
     protected $read = false;
 
     /**
-     * @param CftfBundle\Entity\LsDoc $lsDoc
-     *
-     * @return User
+     * Constructor
      */
 
     public function __construct()
@@ -76,7 +74,7 @@ class ImportationLog
      *
      * @param LsDoc $lsDoc
      *
-     * @return ImportationLog
+     * @return ImportLog
      */
     public function setLsDoc($lsDoc) {
         $this->lsDoc = $lsDoc;
@@ -88,7 +86,7 @@ class ImportationLog
      *
      * @param string $message
      *
-     * @return ImportationLog
+     * @return ImportLog
      */
     public function setMessage($message) {
         $this->message = $message;
@@ -116,7 +114,7 @@ class ImportationLog
 
      /** Set read as true
      *
-     * @return ImportationLog
+     * @return ImportLog
      */
     public function markAsRead(){
         $this->read = true;
@@ -138,7 +136,7 @@ class ImportationLog
      *
      * @param string $messageType
      *
-     * @return ImportationLog
+     * @return ImportLog
      */
     public function setMessageType($messageType){
         $this->messageType = $messageType;

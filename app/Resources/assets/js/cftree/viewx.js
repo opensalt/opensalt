@@ -296,12 +296,12 @@ apx.pushHistoryState = function() {
 };
 
 apx.markLogsAsRead = function() {
-    $('.modal#seeImportationLogs button.btn-link#mark-logs-as-read').on('click', function(){
-        $.get( '/salt/importation_logs/mark_as_read', {lsDocId: apx.lsDocId})
+    $('.modal#seeImportLogs button.btn-link#mark-logs-as-read').on('click', function(){
+        $.get( '/salt/import_logs/mark_as_read', {lsDocId: apx.lsDocId})
             .done(function(data){
-                $('.modal#seeImportationLogs .modal-body .list-group').fadeOut();
+                $('.modal#seeImportLogs .modal-body .list-group').fadeOut();
                 $(this).attr('disabled', 'disabled');
-                $('#seeImportationLogs').modal('toggle');
+                $('#seeImportLogs').modal('toggle');
             });
     });
 }
