@@ -72,7 +72,7 @@ class ImportLog
      *
      * @return ImportLog
      */
-    public function setLsDoc($lsDoc)
+    public function setLsDoc($lsDoc): ImportLog
     {
         $this->lsDoc = $lsDoc;
 
@@ -86,7 +86,7 @@ class ImportLog
      *
      * @return ImportLog
      */
-    public function setMessage($message)
+    public function setMessage($message): ImportLog
     {
         $this->message = $message;
 
@@ -98,7 +98,7 @@ class ImportLog
      *
      * @return bool
      */
-    public function getRead()
+    public function isRead(): bool
     {
         return $this->read;
     }
@@ -108,7 +108,7 @@ class ImportLog
      *
      * @return string
      */
-    public function getMessage()
+    public function getMessage(): ?string
     {
         return $this->message;
     }
@@ -118,7 +118,7 @@ class ImportLog
      *
      * @return ImportLog
      */
-    public function markAsRead()
+    public function markAsRead(): ImportLog
     {
         $this->read = true;
 
@@ -130,7 +130,7 @@ class ImportLog
      *
      * @return string
      */
-    public function getMessageType()
+    public function getMessageType(): ?string
     {
         return $this->messageType;
     }
@@ -142,7 +142,7 @@ class ImportLog
      *
      * @return ImportLog
      */
-    public function setMessageType($messageType)
+    public function setMessageType($messageType): ImportLog
     {
         $this->messageType = $messageType;
 
