@@ -2,13 +2,14 @@
 
 namespace GithubFilesBundle\Service;
 
-use Ramsey\Uuid\Uuid;
+use CftfBundle\Entity\ImportLog;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Class GithubImport.
@@ -49,8 +50,9 @@ class GithubImport
      * @param array $lsItemKeys
      * @param string $fileContent
      * @param string $frameworkToAssociate
+     * @param array $missingFieldsLog
      */
-    public function parseCSVGithubDocument($lsItemKeys, $fileContent, $lsDocId, $frameworkToAssociate)
+    public function parseCSVGithubDocument($lsItemKeys, $fileContent, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
     {
         $csvContent = str_getcsv($fileContent, "\n");
         $headers = [];
@@ -74,7 +76,7 @@ class GithubImport
             $content[] = $tempContent;
         }
 
-        $this->saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate);
+        $this->saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog);
     }
 
     /**
@@ -83,11 +85,30 @@ class GithubImport
      * @param array $lsDocKeys
      * @param array $lsItemKeys
      * @param array $content
+     * @param array $missingFieldsLog
      */
-    public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate)
+    public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
     {
         $em = $this->getEntityManager();
         $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find($lsDocId);
+
+        if (count($missingFieldsLog) > 0){
+            foreach ($missingFieldsLog as $messageError) {
+                $errorLog = new ImportLog();
+                $errorLog->setLsDoc($lsDoc);
+                $errorLog->setMessage($messageError);
+                $errorLog->setMessageType('warning');
+
+                $em->persist($errorLog);
+            }
+        }else{
+            $successLog = new ImportLog();
+            $successLog->setLsDoc($lsDoc);
+            $successLog->setMessage('Items sucessful imported.');
+            $successLog->setMessageType('info');
+
+            $em->persist($successLog);
+        }
 
         $lsItems = [];
         $humanCodingValues = [];
@@ -143,7 +164,7 @@ class GithubImport
         // We don't use is_child_of because that it alaready used to create parents relations before. :)
         // checking each association field
         foreach ($fieldsAndTypes as $fieldName => $assocType){
-            if ($cfAssociations = $content[$position][$lsItemKeys[$fieldName]]) {
+            if (array_key_exists($fieldName, $lsItemKeys) && $cfAssociations = $content[$position][$lsItemKeys[$fieldName]]) {
                 foreach (explode(',', $cfAssociations) as $cfAssociation) {
                     $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate, $assocType);
                 }

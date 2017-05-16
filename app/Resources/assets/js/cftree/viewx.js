@@ -57,7 +57,9 @@ apx.initialize = function() {
     // prepare assocGroup modals/functions
     apx.edit.prepareAddAssocGroupModal();
     apx.edit.initializeManageAssocGroupButtons();
-    
+
+    apx.markLogsAsRead();
+
     // right-side buttongroup
     $("#rightSideItemDetailsBtn").on('click', function() { apx.setRightSideMode("itemDetails"); });
     $("#rightSideCopyItemsBtn").on('click', function() { apx.setRightSideMode("copyItem"); });
@@ -68,7 +70,7 @@ apx.initialize = function() {
     $("#treeSideLeft").find(".treeCheckboxMenuItem").on('click', function() { apx.treeDoc1.treeCheckboxMenuItemSelected($(this), 1); });
     $("#treeSideRight").find(".treeCheckboxControlBtn").on('click', function(e) { apx.treeDoc2.treeCheckboxToggleAll(null, 2); e.stopPropagation(); });
     $("#treeSideRight").find(".treeCheckboxMenuItem").on('click', function() { apx.treeDoc2.treeCheckboxMenuItemSelected($(this), 2); });
-    
+
     // popovers on export modal
     $('#exportModal').find('[data-toggle="popover"]').popover();
 
@@ -85,14 +87,14 @@ apx.initialize = function() {
 
     // enable toggleFolder button
     $("#toggleFolderBtn").on('click', function() { apx.treeDoc1.toggleFolders(); } );
-    
+
     // doc view/tree view buttongroup
     $("#displayTreeBtn").on('click', function() { apx.viewMode.showTreeView("button"); });
     $("#displayAssocBtn").on('click', function() { apx.viewMode.showAssocView("button"); });
-    
+
     // implement enableMoveCheckbox
     $("#enableMoveCheckbox").on('click', function() { apx.edit.enableMove(this); });
-    
+
     // make sure initialAssocGroup is a number if it's not null
     if (!empty(apx.initialAssocGroup)) {
         apx.initialAssocGroup *= 1;
@@ -119,7 +121,7 @@ apx.initialize = function() {
         
         // Prepare menus for choosing documents on each side (we have to do this after we've gotten mainDoc.associatedDocs)
         apx.prepareDocumentMenus();
-    
+
         // go through each provided "associatedDoc"
         for (var identifier in apx.mainDoc.associatedDocs) {
             var ed = apx.mainDoc.associatedDocs[identifier];
@@ -131,10 +133,10 @@ apx.initialize = function() {
                 new apxDocument({"identifier": identifier}).load();
             }
         }
-        
+
         // find any other docs referenced by associations in mainDoc
         apx.mainDoc.findAssociatedDocs();
-        
+
         // if we got an initialLsItemId, set it (the document will be selected by default)
         if (!empty(apx.initialLsItemId)) {
             var item = apx.mainDoc.itemIdHash[apx.initialLsItemId];
@@ -144,13 +146,13 @@ apx.initialize = function() {
                 // If an item is initially selected, get appropriate initialAssocGroup
                 // first get all assocGroups for isChildOf relationships for this item
                 var assocGroups = apx.mainDoc.getAssocGroupsForItem(apx.mainDoc.currentItem, "isChildOf");
-                
+
                 // if initialAssocGroup is empty (null, meaning the default group) OR it isn't one of the available isChildOf relationships for this item...
                 if (empty(apx.initialAssocGroup) || $.inArray(apx.initialAssocGroup, assocGroups) == -1) {
                     // then if the item has no isChildOf relationship or has an isChildOf relationship for the default group, use default
                     if (assocGroups.length == 0 || $.inArray(null, assocGroups) > -1) {
                         apx.initialAssocGroup = null;
-                        
+
                     // else use the first-listed assocGroup
                     } else {
                         apx.initialAssocGroup = assocGroups[0];
@@ -158,14 +160,14 @@ apx.initialize = function() {
                 }
             }
         }
-        
+
         // set the initialAssocGroup
         apx.mainDoc.setCurrentAssocGroup(apx.initialAssocGroup);
-        
+
         // Now, by default we show mainDoc's item tree on the left side, so initialize treeDoc1 now
         apx.treeDoc1 = apx.mainDoc;
         apx.treeDocLoadCallback1();
-        
+
         // if the url ends with "av", toggle to association view
         if (window.location.href.search(/\/av$/) > -1) {
             apx.viewMode.showAssocView("pageLoaded");
@@ -235,11 +237,11 @@ window.onpopstate = function(event) {
         assocGroup = event.state.assocGroup;
         view = event.state.view;
     }
-    
+
     // now if we're moving to assocView, show it
     if (view == "assoc") {
         apx.viewMode.showAssocView("history");
-    
+
     // else show the relevant item
     } else {
         apx.viewMode.showTreeView("history");
@@ -267,12 +269,12 @@ apx.pushHistoryState = function() {
         if (apx.mainDoc !== apx.treeDoc1) {
             return;
         }
-        
+
         var path;
         var state = {
             "view": apx.viewMode.currentView
         };
-        
+
         // if currentItem is the document...
         if (apx.treeDoc1.currentItem == apx.treeDoc1.doc) {
             path = apx.path.lsDoc.replace('ID', apx.lsDocId);
@@ -281,7 +283,7 @@ apx.pushHistoryState = function() {
                 path += "/av";
             }
             state.lsItemId = null;
-        
+
         // else the currentItem is an item
         } else {
             path = apx.path.lsItem.replace('ID', apx.treeDoc1.currentItem.id);

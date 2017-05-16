@@ -387,6 +387,14 @@ class LsDoc implements CaseApiInterface
     protected $docAcls;
 
     /**
+     * @var ImportLog[]|Collection
+     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\ImportLog", mappedBy="lsDoc", indexBy="lsDoc", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
+     */
+    protected $importLogs;
+
+    /**
      * @var LsDefAssociationGrouping[]|Collection
      * @ORM\OneToMany(targetEntity="LsDefAssociationGrouping", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
      *
@@ -1380,6 +1388,13 @@ class LsDoc implements CaseApiInterface
     public function getDocAcls()
     {
         return $this->docAcls;
+    }
+
+    /**
+     * @return Collection|ImportLogs[]
+     */
+    public function getImportLogs() {
+        return $this->importLogs;
     }
 
     /**
