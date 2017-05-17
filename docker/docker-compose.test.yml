@@ -44,3 +44,5 @@ services:
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
+    volumes:
+      - ./mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf
