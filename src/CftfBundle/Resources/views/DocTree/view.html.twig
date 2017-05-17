@@ -215,11 +215,13 @@
             <div class="modal-body">
                 <button class="btn btn-link" id="mark-logs-as-read">Mark all as read</button>
                 <div class="list-group">
-                    {% for importLog in lsDoc.importLogs %}
-                    {% if importLog.read == false %}
-                    <a href="#" class="list-group-item list-group-item-{{ importLog.messageType }}">{{ importLog.message }}</a>
+                    {% if lsDoc is not empty %}
+                        {% for importLog in lsDoc.importLogs %}
+                            {% if importLog.read == false %}
+                                <a href="#" class="list-group-item list-group-item-{{ importLog.messageType }}">{{ importLog.message }}</a>
+                            {% endif %}
+                        {% endfor %}
                     {% endif %}
-                    {% endfor %}
                 </div>
             </div>
         </div>
