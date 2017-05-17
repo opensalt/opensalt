@@ -76,13 +76,15 @@ class DefaultController extends Controller
         $topChildren = $repo->findTopChildrenIds($cfDoc);
         $associations = $repo->findAllAssociations($cfDoc);
 
+        $i = 1;
         foreach ($topChildren as $id) {
-            $this->smartLevel[$id] = '1';
+            $this->smartLevel[$id] = $i;
             $item = $items[$id];
 
             if (count($item['children']) > 0) {
                 $this->getSmartLevel($item['children'], $id, $items);
             }
+            $i++;
         }
 
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
