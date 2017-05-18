@@ -67,7 +67,6 @@ class DefaultController extends Controller
     public function exportExcelAction(LsDoc $lsDoc)
     {
         $repo = $this->getDoctrine()->getManager()->getRepository(LsDoc::class);
-        $response = new Response();
 
         $items = $repo->findAllChildrenArray($lsDoc);
         $topChildren = $repo->findTopChildrenIds($lsDoc);
