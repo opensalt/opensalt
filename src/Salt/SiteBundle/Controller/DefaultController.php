@@ -9,13 +9,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Encoder\CsvEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class DefaultController extends Controller
 {
-
     private $smartLevel = [];
 
     /**
@@ -42,7 +38,9 @@ class DefaultController extends Controller
 
     /**
      * @Route("/salt/case/import", name="import_case_file")
+     *
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function importAction(Request $request)
@@ -59,9 +57,53 @@ class DefaultController extends Controller
         ]);
     }
 
-    /*
-     * @Route("/salt/import_logs/mark_as_read", name="mark_import_logs_as_read")
+    /**
+     * @Route("/salt/case/export/{id}", name="export_case_file")
+     *
      * @param Request $request
+     *
+     * @return Response
+     */
+    public function exportExcelAction(LsDoc $lsDoc)
+    {
+        $repo = $this->getDoctrine()->getManager()->getRepository(LsDoc::class);
+        $response = new Response();
+
+        $items = $repo->findAllChildrenArray($lsDoc);
+        $topChildren = $repo->findTopChildrenIds($lsDoc);
+        $associations = $repo->findAllAssociations($lsDoc);
+
+        $i = 1;
+        foreach ($topChildren as $id) {
+            $this->smartLevel[$id] = $i;
+            $item = $items[$id];
+
+            if (count($item['children']) > 0) {
+                $this->getSmartLevelAction($item['children'], $id, $items);
+            }
+            ++$i;
+        }
+
+        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+        $caseExporter = $this->get('cftf_export.case');
+        $caseExporter->exportCaseFile($lsDoc, $items, $this->smartLevel, $associations, $phpExcelObject);
+
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', 'attachment;filename="case.xlsx"');
+        $response->headers->set('Cache-Control', ' max-age=0');
+
+        return $response;
+    }
+
+    /**
+     * @Route("/salt/import_logs/mark_as_read", name="mark_import_logs_as_read")
+     *
+     * @param Request $request
+     *
      * @return JsonResponse
      */
     public function markAsReadAction(Request $request)
@@ -82,57 +124,18 @@ class DefaultController extends Controller
         ]);
     }
 
-    /*
-     * @Route("/salt/case/export/{docId}", name="export_cvs_file")
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function exportExcelAction($docId, Request $request)
-    {
-        $repo = $this->getDoctrine()->getManager()->getRepository(LsDoc::class);
-        $cfDoc = $repo->findOneBy(['id' => $docId]);
-
-        $items = $repo->findAllChildrenArray($cfDoc);
-        $haveParents = $repo->findAllItemsWithParentsArray($cfDoc);
-        $topChildren = $repo->findTopChildrenIds($cfDoc);
-        $associations = $repo->findAllAssociations($cfDoc);
-
-        foreach ($topChildren as $id) {
-            $this->smartLevel[$id] = '1';
-            $item = $items[$id];
-
-            if (count($item['children']) > 0) {
-                $this->getSmartLevel($item['children'], $id, $items);
-            }
-        }
-
-        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
-
-        $caseExporter = $this->get('cftf_export.case');
-        $caseExporter->exportCaseFile($cfDoc, $items, $this->smartLevel, $phpExcelObject, $associations);
-
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="case.xlsx"');
-        header('Cache-Control: max-age=0');
-
-        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
-        $writer->save('php://output');
-
-        return new Response('success', 200);
-    }
-
-    public function getSmartLevel($items, $parentId, $itemsArray) {
+    public function getSmartLevelAction($items, $parentId, $itemsArray) {
         $j = 1;
 
         foreach ($items as $item) {
             $item = $itemsArray[$item['id']];
-            $this->smartLevel[$item['id']] = $this->smartLevel[$parentId] . '.' . $j;
+            $this->smartLevel[$item['id']] = $this->smartLevel[$parentId].'.'.$j;
 
             if (count($item['children']) > 0) {
-                $this->getSmartLevel($item['children'], $item['id'], $itemsArray);
+                $this->getSmartLevelAction($item['children'], $item['id'], $itemsArray);
             }
 
-            $j++;
+            ++$j;
         }
     }
 }

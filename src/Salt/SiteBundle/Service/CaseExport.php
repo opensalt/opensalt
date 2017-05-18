@@ -3,8 +3,6 @@
 namespace Salt\SiteBundle\Service;
 
 use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
-use CftfBundle\Entity\LsAssociation;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -51,7 +49,7 @@ class CaseExport
      * @param array $smartLevel
      * @param PHPExcelObject $phpExcelObject
      */
-    public function exportCaseFile($cfDoc, $items, $smartLevel, $phpExcelObject, $associations)
+    public function exportCaseFile(LsDoc $cfDoc, array $items, array $smartLevel, array $associations, $phpExcelObject)
     {
         $phpExcelObject->getProperties()
             ->setCreator('OpenSALT')
@@ -111,19 +109,46 @@ class CaseExport
 
         $j = 2;
         foreach ($items as $item) {
-            $activeSheet
-                ->setCellValue('A'.$j, $item['identifier'])
-                ->setCellValue('B'.$j, $item['fullStatement'])
-                ->setCellValue('C'.$j, $item['humanCodingScheme'])
-                ->setCellValue('D'.$j, $smartLevel[$item['id']])
-                ->setCellValue('E'.$j, $item['listEnumInSource'])
-                ->setCellValue('F'.$j, $item['abbreviatedStatement'])
-                ->setCellValue('G'.$j, $item['conceptKeywords'])
-                ->setCellValue('H'.$j, $item['notes'])
-                ->setCellValue('I'.$j, $item['language'])
-                ->setCellValue('J'.$j, $item['educationalAlignment'])
-                ->setCellValue('M'.$j, $item['updatedAt']);
-            $j++;
+            if (array_key_exists('identifier', $item)) {
+                $activeSheet->setCellValue('A'.$j, $item['identifier']);
+            }
+            if (array_key_exists('fullStatement', $item)) {
+                $activeSheet->setCellValue('B'.$j, $item['fullStatement']);
+            }
+            if (array_key_exists('humanCodingScheme', $item)) {
+                $activeSheet->setCellValue('C'.$j, $item['humanCodingScheme']);
+            }
+            if (array_key_exists($item['id'], $smartLevel)) {
+                $activeSheet->setCellValue('D'.$j, $smartLevel[$item['id']]);
+            }
+            if (array_key_exists('listEnumInSource', $item)) {
+                $activeSheet->setCellValue('E'.$j, $item['listEnumInSource']);
+            }
+            if (array_key_exists('abbreviatedStatement', $item)) {
+                $activeSheet->setCellValue('F'.$j, $item['abbreviatedStatement']);
+            }
+            if (array_key_exists('conceptKeywords', $item)) {
+                $activeSheet->setCellValue('G'.$j, $item['conceptKeywords']);
+            }
+            if (array_key_exists('notes', $item)) {
+                $activeSheet->setCellValue('H'.$j, $item['notes']);
+            }
+            if (array_key_exists('language', $item)) {
+                $activeSheet->setCellValue('I'.$j, $item['language']);
+            }
+            if (array_key_exists('educationalAlignment', $item)) {
+                $activeSheet->setCellValue('J'.$j, $item['educationalAlignment']);
+            }
+            if (array_key_exists('itemType', $item)) {
+                $activeSheet->setCellValue('K'.$j, $item['itemType']);
+            }
+            if (array_key_exists('license', $item)) {
+                $activeSheet->setCellValue('L'.$j, $item['license']);
+            }
+            if (array_key_exists('updatedAt', $item)) {
+                $activeSheet->setCellValue('M'.$j, $item['updatedAt']);
+            }
+            ++$j;
         }
 
         $phpExcelObject->createSheet();
@@ -143,16 +168,31 @@ class CaseExport
 
         $j = 2;
         foreach ($associations as $association) {
-            $activeSheet
-                ->setCellValue('A'.$j, $association['lsDocIdentifier'])
-                ->setCellValue('B'.$j, $association['lsDocUri'])
-                ->setCellValue('C'.$j, $association['originNodeIdentifier'])
-                ->setCellValue('D'.$j, $association['destinationNodeIdentifier'])
-                ->setCellValue('E'.$j, $association['type'])
-                ->setCellValue('F'.$j, $association['group'])
-                ->setCellValue('G'.$j, $association['groupName'])
-                ->setCellValue('H'.$j, $association['updatedAt']);
-            $j++;
+            if (array_key_exists('lsDocIdentifier', $association)) {
+                $activeSheet->setCellValue('A'.$j, $association['lsDocIdentifier']);
+            }
+            if (array_key_exists('lsDocUri', $association)) {
+                $activeSheet->setCellValue('B'.$j, $association['lsDocUri']);
+            }
+            if (array_key_exists('originNodeIdentifier', $association)) {
+                $activeSheet->setCellValue('C'.$j, $association['originNodeIdentifier']);
+            }
+            if (array_key_exists('destinationNodeIdentifier', $association)) {
+                $activeSheet->setCellValue('D'.$j, $association['destinationNodeIdentifier']);
+            }
+            if (array_key_exists('type', $association)) {
+                $activeSheet->setCellValue('E'.$j, $association['type']);
+            }
+            if (array_key_exists('group', $association)) {
+                $activeSheet->setCellValue('F'.$j, $association['group']);
+            }
+            if (array_key_exists('groupName', $association)) {
+                $activeSheet->setCellValue('G'.$j, $association['groupName']);
+            }
+            if (array_key_exists('updatedAt', $association)) {
+                $activeSheet->setCellValue('H'.$j, $association['updatedAt']);
+            }
+            ++$j;
         }
     }
 }
