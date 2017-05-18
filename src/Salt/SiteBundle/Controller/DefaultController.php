@@ -60,7 +60,7 @@ class DefaultController extends Controller
     /**
      * @Route("/salt/case/export/{id}", name="export_case_file")
      *
-     * @param Request $request
+     * @param LsDoc $lsDoc
      *
      * @return Response
      */
@@ -79,7 +79,7 @@ class DefaultController extends Controller
             $item = $items[$id];
 
             if (count($item['children']) > 0) {
-                $this->getSmartLevelAction($item['children'], $id, $items);
+                $this->getSmartLevel($item['children'], $id, $items);
             }
             ++$i;
         }
@@ -87,14 +87,14 @@ class DefaultController extends Controller
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
         $caseExporter = $this->get('cftf_export.case');
-        $caseExporter->exportCaseFile($lsDoc, $items, $this->smartLevel, $associations, $phpExcelObject);
+        $caseExporter->exportCaseFile($lsDoc, $items, $associations, $this->smartLevel, $phpExcelObject);
 
         $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
         $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         $response->headers->set('Content-Disposition', 'attachment;filename="case.xlsx"');
-        $response->headers->set('Cache-Control', ' max-age=0');
+        $response->headers->set('Cache-Control', 'max-age=0');
 
         return $response;
     }
@@ -124,7 +124,8 @@ class DefaultController extends Controller
         ]);
     }
 
-    public function getSmartLevelAction($items, $parentId, $itemsArray) {
+    protected function getSmartLevel($items, $parentId, $itemsArray)
+    {
         $j = 1;
 
         foreach ($items as $item) {
@@ -132,7 +133,7 @@ class DefaultController extends Controller
             $this->smartLevel[$item['id']] = $this->smartLevel[$parentId].'.'.$j;
 
             if (count($item['children']) > 0) {
-                $this->getSmartLevelAction($item['children'], $item['id'], $itemsArray);
+                $this->getSmartLevel($item['children'], $item['id'], $itemsArray);
             }
 
             ++$j;

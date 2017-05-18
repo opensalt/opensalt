@@ -46,10 +46,11 @@ class CaseExport
      *
      * @param LsDoc $cfDoc
      * @param array $items
+     * @param array $associations
      * @param array $smartLevel
-     * @param PHPExcelObject $phpExcelObject
+     * @param PHPExcel $phpExcelObject
      */
-    public function exportCaseFile(LsDoc $cfDoc, array $items, array $smartLevel, array $associations, $phpExcelObject)
+    public function exportCaseFile(LsDoc $cfDoc, array $items, array $associations, array $smartLevel, \PHPExcel $phpExcelObject)
     {
         $phpExcelObject->getProperties()
             ->setCreator('OpenSALT')
