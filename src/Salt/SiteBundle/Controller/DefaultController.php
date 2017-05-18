@@ -2,14 +2,18 @@
 
 namespace Salt\SiteBundle\Controller;
 
+use CftfBundle\Entity\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class DefaultController extends Controller
 {
+    private $smartLevel = [];
+
     /**
      * @Route("/about", name="site_about")
      * @Template()
@@ -54,6 +58,47 @@ class DefaultController extends Controller
     }
 
     /**
+     * @Route("/salt/case/export/{id}", name="export_case_file")
+     *
+     * @param LsDoc $lsDoc
+     *
+     * @return Response
+     */
+    public function exportExcelAction(LsDoc $lsDoc)
+    {
+        $repo = $this->getDoctrine()->getManager()->getRepository(LsDoc::class);
+
+        $items = $repo->findAllChildrenArray($lsDoc);
+        $topChildren = $repo->findTopChildrenIds($lsDoc);
+        $associations = $repo->findAllAssociations($lsDoc);
+
+        $i = 1;
+        foreach ($topChildren as $id) {
+            $this->smartLevel[$id] = $i;
+            $item = $items[$id];
+
+            if (count($item['children']) > 0) {
+                $this->getSmartLevel($item['children'], $id, $items);
+            }
+            ++$i;
+        }
+
+        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+        $caseExporter = $this->get('cftf_export.case');
+        $caseExporter->exportCaseFile($lsDoc, $items, $associations, $this->smartLevel, $phpExcelObject);
+
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', 'attachment;filename="case.xlsx"');
+        $response->headers->set('Cache-Control', 'max-age=0');
+
+        return $response;
+    }
+
+    /**
      * @Route("/salt/import_logs/mark_as_read", name="mark_import_logs_as_read")
      *
      * @param Request $request
@@ -76,5 +121,21 @@ class DefaultController extends Controller
         return $response->setData([
             'message' => 'Logs marked as read successfully!'
         ]);
+    }
+
+    protected function getSmartLevel($items, $parentId, $itemsArray)
+    {
+        $j = 1;
+
+        foreach ($items as $item) {
+            $item = $itemsArray[$item['id']];
+            $this->smartLevel[$item['id']] = $this->smartLevel[$parentId].'.'.$j;
+
+            if (count($item['children']) > 0) {
+                $this->getSmartLevel($item['children'], $item['id'], $itemsArray);
+            }
+
+            ++$j;
+        }
     }
 }
