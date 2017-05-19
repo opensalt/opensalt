@@ -177,32 +177,13 @@ class DocTreeController extends Controller
         // $request could contain an id...
         if ($id = $request->query->get('id')) {
             // in this case it has to be a document on this OpenSALT instantiation
-            $newDoc = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findOneBy(['id'=>$id]);
-            if (empty($newDoc)) {
-                // if document not found, error
-                return new Response('Document not found.', Response::HTTP_NOT_FOUND);
-            }
-            return $this->exportAction($newDoc);
+            return $this->respondWithDocumentById($id);
         }
 
         // or an identifier...
-        if ($identifier = $request->query->get('identifier')) {
+        if (null !== $lsDoc && $identifier = $request->query->get('identifier')) {
             // first see if it's referencing a document on this OpenSALT instantiation
-            $newDoc = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findOneBy(['identifier'=>$identifier]);
-            if (!empty($newDoc)) {
-                return $this->exportAction($newDoc);
-            }
-
-            // otherwise look in this doc's externalDocs
-            // We could store, and check here, a global table of external documents that we could index by identifiers, instead of using document-specific associated docs. But it's not completely clear that would be an improvement.
-            $externalDocs = $lsDoc->getExternalDocs();
-            if (!empty($externalDocs[$identifier])) {
-                // if we found it, load it, noting that we don't have to save a record of it in externalDocs (since it's already there)
-                return $this->exportExternalDocument($externalDocs[$identifier]['url'], null);
-            }
-
-            // if not found in externalDocs, error
-            return new Response('Document not found.', Response::HTTP_NOT_FOUND);
+            return $this->respondWithDocumentByIdentifier($identifier, $lsDoc);
         }
 
         // or a url...
@@ -378,7 +359,6 @@ class DocTreeController extends Controller
                 }
             }
         }
-
 
         Compare::sortArrayByFields($orphaned, ['rank', 'listEnumInSource', 'humanCodingScheme']);
 
@@ -638,5 +618,50 @@ class DocTreeController extends Controller
         $lsItem->setUpdatedAt(new \DateTime());
 
         $rv[$lsItemId]['sequenceNumber'] = $updates['newChildOf']['sequenceNumber'];
+    }
+
+    /**
+     * Create a response with a CFDocument
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
+    protected function respondWithDocumentById(int $id)
+    {
+        // in this case it has to be a document on this OpenSALT instantiation
+        $newDoc = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->find($id);
+        if (empty($newDoc)) {
+            // if document not found, error
+            return new Response('Document not found.', Response::HTTP_NOT_FOUND);
+        }
+        return $this->exportAction($newDoc);
+    }
+
+    /**
+     * Create a response with a CFDocument
+     *
+     * @param string $identifier
+     * @param LsDoc $lsDoc
+     *
+     * @return Response
+     */
+    protected function respondWithDocumentByIdentifier(string $identifier, LsDoc $lsDoc)
+    {
+        $newDoc = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findOneBy(['identifier'=>$identifier]);
+        if (null !== $newDoc) {
+            return $this->exportAction($newDoc);
+        }
+
+        // otherwise look in this doc's externalDocs
+        // We could store, and check here, a global table of external documents that we could index by identifiers, instead of using document-specific associated docs. But it's not completely clear that would be an improvement.
+        $externalDocs = $lsDoc->getExternalDocs();
+        if (!empty($externalDocs[$identifier])) {
+            // if we found it, load it, noting that we don't have to save a record of it in externalDocs (since it's already there)
+            return $this->exportExternalDocument($externalDocs[$identifier]['url'], null);
+        }
+
+        // if not found in externalDocs, error
+        return new Response('Document not found.', Response::HTTP_NOT_FOUND);
     }
 }
