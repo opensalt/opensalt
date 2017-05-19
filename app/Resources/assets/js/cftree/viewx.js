@@ -103,7 +103,7 @@ apx.initialize = function() {
     ///////////////////////////////////////////////////////////////////////////////
     // MAINDOC
     // lsDocId could be an integer, in which case it's a SALT database ID; or we could be loading by url
-    if (apx.lsDocId == 'url') {
+    if (apx.lsDocId === 'url') {
         // if we're loading by url, the url should be in the search string, i.e. "url=http://example.com"
         apx.mainDoc = new apxDocument({"url": decodeURIComponent(location.search.substr(5))});
     } else {
