@@ -278,6 +278,7 @@ class LsDoc implements CaseApiInterface
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("statusStartDate")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private $statusStart;
 
@@ -290,6 +291,7 @@ class LsDoc implements CaseApiInterface
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("statusEndDate")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private $statusEnd;
 

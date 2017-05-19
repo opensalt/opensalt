@@ -338,6 +338,7 @@ class LsItem implements CaseApiInterface
      * @Serializer\Expose()
      * @Serializer\SerializedName("statusStartDate")
      * @Serializer\AccessType("public_method")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private $statusStart;
 
@@ -351,6 +352,7 @@ class LsItem implements CaseApiInterface
      * @Serializer\Expose()
      * @Serializer\SerializedName("statusEndDate")
      * @Serializer\AccessType("public_method")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private $statusEnd;
 

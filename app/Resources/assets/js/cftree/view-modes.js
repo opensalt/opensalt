@@ -101,8 +101,17 @@ apx.viewMode.showAssocView = function(context) {
         apx.viewMode.avFilters.groups = gft;
 
         function avGetItemCell(a, key) {
-            // by default, title is the uri
-            var title = a[key].uri;
+            // set default title
+            var title;
+            if (!empty(a[key].uri)) {
+                title = a[key].uri;
+            } else if (!empty(a[key].item)) {
+                title = a[key].item;
+            } else if (!empty(a[key].title)) {
+                title = a[key].title;
+            } else {
+                title = key;
+            }
             var doc = null;
     
             // for the dest of an exemplar, we just use .uri
@@ -118,11 +127,6 @@ apx.viewMode.showAssocView = function(context) {
                 var destItem = apx.allItemsHash[a[key].item];
                 title = apx.mainDoc.getItemTitle(destItem, true);
                 doc = destItem.doc;
-        
-            // else look for a title in the dest part of the association
-            } else if (!empty(a[key].title)) {
-                // we should get this for documents loaded from other servers
-                title = a[key].title;
         
             // else we don't (currently at least) know about this item...
             } else {

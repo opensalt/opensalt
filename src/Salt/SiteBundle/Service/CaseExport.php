@@ -158,7 +158,7 @@ class CaseExport
             'H' => 'notes',
             'I' => 'language',
             'J' => 'educationalAlignment',
-            'K' => 'itemType',
+            'K' => ['itemType', 'title'],
             'L' => 'license',
             'M' => 'updatedAt',
         ];
@@ -200,11 +200,19 @@ class CaseExport
      * @param string $x
      * @param int $y
      * @param array $row
-     * @param string $field
+     * @param string|array $field
      */
-    protected function addCellIfExists(\PHPExcel_Worksheet $sheet, string $x, int $y, array $row, string $field): void
+    protected function addCellIfExists(\PHPExcel_Worksheet $sheet, string $x, int $y, array $row, $field): void
     {
-        if (array_key_exists($field, $row)) {
+        if (is_array($field)) {
+            if (array_key_exists($field[0], $row) && null !== $row[$field[0]]) {
+                $row = $row[$field[0]];
+                $field = $field[1];
+            } else {
+                return;
+            }
+        }
+        if (array_key_exists($field, $row) && null !== $row[$field]) {
             $sheet->setCellValue($x.$y, $row[$field]);
         }
     }

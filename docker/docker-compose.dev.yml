@@ -51,6 +51,7 @@ services:
     image: percona:${MYSQL_VERSION}
     volumes:
       - ./data/mysql:/var/lib/mysql
+      - ./mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:

@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Controller;
 
+use CftfBundle\Form\Type\RemoteCftfServerType;
 use CftfBundle\Form\Type\LsDocCreateType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -9,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Form\Type\LsDocType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -33,7 +35,10 @@ class LsDocController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $results = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
+        $results = $em->getRepository('CftfBundle:LsDoc')->findBy(
+            [],
+            ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']
+        );
 
         $lsDocs = [];
         $authChecker = $this->get('security.authorization_checker');
@@ -46,6 +51,58 @@ class LsDocController extends Controller
         return [
             'lsDocs' => $lsDocs,
         ];
+    }
+
+    /**
+     * Show frameworks from a remote system
+     *
+     * @Route("/remote", name="lsdoc_remote_index")
+     * @Method({"GET", "POST"})
+     * @Template()
+     *
+     * @return array
+     */
+    public function remoteIndexAction(Request $request)
+    {
+        $form = $this->createForm(RemoteCftfServerType::class);
+        $form->handleRequest($request);
+
+        $docs = null;
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $docs = $this->loadDocumentListFromHost($form->getData()['hostname']);
+            } catch (\Exception $e) {
+                $form->get('hostname')->addError(new FormError($e->getMessage()));
+            }
+        }
+
+        return [
+            'form' => $form->createView(),
+            'docs' => $docs,
+        ];
+    }
+
+    /**
+     * @param string $urlPrefix
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    protected function loadDocumentsFromServer(string $urlPrefix)
+    {
+        $client = $this->get('csa_guzzle.client.json');
+
+        $list = $client->request(
+            'GET',
+            $urlPrefix.'/ims/case/v1p0/CFDocuments',
+            [
+                'timeout' => 60,
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+            ]
+        );
+
+        return $list;
     }
 
     /**
@@ -78,7 +135,10 @@ class LsDocController extends Controller
             $em->persist($lsDoc);
             $em->flush();
 
-            return $this->redirectToRoute('doc_tree_view', array('slug' => $lsDoc->getSlug()));
+            return $this->redirectToRoute(
+                'doc_tree_view',
+                array('slug' => $lsDoc->getSlug())
+            );
         }
 
         return [
@@ -133,7 +193,11 @@ class LsDocController extends Controller
         $ajax = $request->isXmlHttpRequest();
 
         $deleteForm = $this->createDeleteForm($lsDoc);
-        $editForm = $this->createForm(LsDocType::class, $lsDoc, ['ajax' => $ajax]);
+        $editForm = $this->createForm(
+            LsDocType::class,
+            $lsDoc,
+            ['ajax' => $ajax]
+        );
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -145,7 +209,10 @@ class LsDocController extends Controller
                 return new Response('OK', Response::HTTP_ACCEPTED);
             }
 
-            return $this->redirectToRoute('lsdoc_edit', array('id' => $lsDoc->getId()));
+            return $this->redirectToRoute(
+                'lsdoc_edit',
+                array('id' => $lsDoc->getId())
+            );
         }
 
         $ret = [
@@ -155,7 +222,11 @@ class LsDocController extends Controller
         ];
 
         if ($ajax && $editForm->isSubmitted() && !$editForm->isValid()) {
-            return $this->render('CftfBundle:LsDoc:edit.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
+            return $this->render(
+                'CftfBundle:LsDoc:edit.html.twig',
+                $ret,
+                new Response('', Response::HTTP_UNPROCESSABLE_ENTITY)
+            );
         }
 
         return $ret;
@@ -179,7 +250,10 @@ class LsDocController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->deleteDocument($lsDoc);
+            $this->getDoctrine()
+                ->getManager()
+                ->getRepository(LsDoc::class)
+                ->deleteDocument($lsDoc);
         }
 
         return $this->redirectToRoute('lsdoc_index');
@@ -200,12 +274,68 @@ class LsDocController extends Controller
      */
     public function exportAction(LsDoc $lsDoc, $_format = 'json')
     {
-        $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAllChildrenArray($lsDoc);
+        $items = $this->getDoctrine()
+            ->getRepository('CftfBundle:LsDoc')
+            ->findAllChildrenArray($lsDoc);
 
         return [
             'lsDoc' => $lsDoc,
             'items' => $items,
         ];
+    }
+
+    /**
+     * Load the document list from a remote host
+     *
+     * @param string $hostname
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    protected function loadDocumentListFromHost(string $hostname): array
+    {
+        try {
+            $remoteResponse = $this->loadDocumentsFromServer(
+                'https://'.$hostname
+            );
+        } catch (\Exception $e) {
+            try {
+                $remoteResponse = $this->loadDocumentsFromServer(
+                    'http://'.$hostname
+                );
+            } catch (\Exception $e) {
+                throw new \Exception("Could not access CASE API on {$hostname}.");
+            }
+        }
+
+        try {
+            $docJson = $remoteResponse->getBody()->getContents();
+            $docs = json_decode($docJson, true);
+            $docs = $docs['CFDocuments'];
+            foreach ($docs as $key => $doc) {
+                if (empty($doc['creator'])) {
+                    $docs[$key]['creator'] = 'Unknown';
+                }
+                if (empty($doc['title'])) {
+                    $docs[$key]['title'] = 'Unknown';
+                }
+            }
+            usort(
+                $docs,
+                function ($a, $b) {
+                    if ($a['creator'] !== $b['creator']) {
+                        return $a['creator'] <=> $b['creator'];
+                    }
+
+                    return $a['title'] <=> $b['title'];
+                }
+            );
+        } catch (\Exception $e) {
+            $docs = null;
+        }
+
+        return $docs;
     }
 
     /**
@@ -218,9 +348,13 @@ class LsDocController extends Controller
     private function createDeleteForm(LsDoc $lsDoc)
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsdoc_delete', array('id' => $lsDoc->getId())))
+            ->setAction(
+                $this->generateUrl(
+                    'lsdoc_delete',
+                    array('id' => $lsDoc->getId())
+                )
+            )
             ->setMethod('DELETE')
-            ->getForm()
-            ;
+            ->getForm();
     }
 }
