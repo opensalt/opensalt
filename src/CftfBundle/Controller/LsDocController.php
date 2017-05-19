@@ -4,7 +4,6 @@ namespace CftfBundle\Controller;
 
 use CftfBundle\Form\Type\RemoteCftfServerType;
 use CftfBundle\Form\Type\LsDocCreateType;
-use Psr\Http\Message\ResponseInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -291,6 +290,7 @@ class LsDocController extends Controller
      * @param string $hostname
      *
      * @return array
+     *
      * @throws \Exception
      */
     protected function loadDocumentListFromHost(string $hostname): array
@@ -325,10 +325,10 @@ class LsDocController extends Controller
                 $docs,
                 function ($a, $b) {
                     if ($a['creator'] !== $b['creator']) {
-                        return ($a['creator'] <=> $b['creator']);
+                        return $a['creator'] <=> $b['creator'];
                     }
 
-                    return ($a['title'] <=> $b['title']);
+                    return $a['title'] <=> $b['title'];
                 }
             );
         } catch (\Exception $e) {
