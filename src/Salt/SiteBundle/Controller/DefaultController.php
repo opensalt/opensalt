@@ -72,28 +72,29 @@ class DefaultController extends Controller
         $topChildren = $repo->findTopChildrenIds($lsDoc);
         $associations = $repo->findAllAssociations($lsDoc);
 
-        $i = 1;
+        $i = 0;
         foreach ($topChildren as $id) {
-            $this->smartLevel[$id] = $i;
+            $this->smartLevel[$id] = ++$i;
             $item = $items[$id];
 
             if (count($item['children']) > 0) {
                 $this->getSmartLevel($item['children'], $id, $items);
             }
-            ++$i;
         }
 
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
-        $caseExporter = $this->get('cftf_export.case');
-        $caseExporter->exportCaseFile($lsDoc, $items, $associations, $this->smartLevel, $phpExcelObject);
+        $this->get('cftf_export.case')->exportCaseFile($lsDoc, $items, $associations, $this->smartLevel, $phpExcelObject);
 
-        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
-        $response = $this->get('phpexcel')->createStreamedResponse($writer);
-
-        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        $response->headers->set('Content-Disposition', 'attachment;filename="case.xlsx"');
-        $response->headers->set('Cache-Control', 'max-age=0');
+        $response = $this->get('phpexcel')->createStreamedResponse(
+            $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007'),
+            200,
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment;filename="case.xlsx"',
+                'Cache-Control' => 'max-age=0',
+            ]
+        );
 
         return $response;
     }
