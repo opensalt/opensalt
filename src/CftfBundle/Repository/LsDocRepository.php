@@ -247,6 +247,14 @@ DELETE FROM salt_user_doc_acl
 xENDx;
         $conn->prepare($stmt)->execute($params);
 
+        $progressCallback('Deleting document attributes');
+        $stmt = <<<'xENDx'
+DELETE FROM ls_doc_attribute
+ WHERE ls_doc_id = :lsDocId
+;
+xENDx;
+        $conn->prepare($stmt)->execute($params);
+
         $progressCallback('Deleting document');
         $stmt = <<<'xENDx'
 DELETE FROM ls_doc

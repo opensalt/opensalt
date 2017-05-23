@@ -180,7 +180,7 @@ class LsItem implements CaseApiInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=false)
+     * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=true)
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=50)
