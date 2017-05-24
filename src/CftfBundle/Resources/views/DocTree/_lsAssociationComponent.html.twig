@@ -40,10 +40,8 @@
                                     {{ block('end_of_item_a') }}
                                 </a>
                             {% elseif association.destinationNodeUri is not empty %}
-                                {% set uri = association.destinationNodeUri %}
-                                {% if uri starts with 'data:text/x-ref-unresolved' %}
-                                    {% set uri = association.humanCodingSchemeFromDestinationNodeUri %}
-                                {% endif %}
+                                {% set uriData = association.splitDestinationDataUri %}
+                                {% set uri = uriData.value %}
                                 {{ groupLabel|raw }}
                                 <span data-association-id="{{ association.id }}" class="list-group-item lsassociation lsitem-uri clearfix">
                                     {{ uri|local_remote_uri }}

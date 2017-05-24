@@ -28,8 +28,7 @@ class ImportAsnCommand extends ContainerAwareCommand
         $asnImport = $this->getContainer()->get('cftf_import.asn');
 
         try {
-            $asnDoc = $asnImport->getAsnDocument($asnId);
-            $asnImport->parseAsnDocument($asnDoc, $creator);
+            $asnImport->generateFrameworkFromAsn($asnId);
 
             $output->writeln('Done.');
         } catch (\Exception $e) {

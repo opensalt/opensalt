@@ -635,6 +635,7 @@ class DocTreeController extends Controller
             // if document not found, error
             return new Response('Document not found.', Response::HTTP_NOT_FOUND);
         }
+
         return $this->exportAction($newDoc);
     }
 

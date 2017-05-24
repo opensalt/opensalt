@@ -1518,6 +1518,18 @@ function apxDocument(initializer) {
         var title;
         if (!empty(a.dest.uri)) {
             title = a.dest.uri;
+
+            if (0 === title.lastIndexOf("data:text/x-", 0)) {
+                // If the destination is a data URI then try to handle it nicer
+                var uri = title.substring(12);
+                var data = uri.split(',', 2);
+
+                if (/;base64[;,]/.test(data[0])) {
+                    title = atob(data[1]);
+                } else {
+                    title = decodeURIComponent(data[1]);
+                }
+            }
         } else if (!empty(a.dest.item)) {
             title = a.dest.item;
         } else if (!empty(a.dest.title)) {
@@ -1529,11 +1541,11 @@ function apxDocument(initializer) {
         var doc = null;
     
         // if the assoc is an exemplar, title is always the uri
-        if (a.type == "exemplar") {
+        if (a.type === "exemplar") {
             title = a.dest.uri;
         
         // else see if the "item" is actually a document
-        } else if (!empty(apx.allDocs[a.dest.item]) && typeof(apx.allDocs[a.dest.item]) != "string") {
+        } else if (!empty(apx.allDocs[a.dest.item]) && typeof(apx.allDocs[a.dest.item]) !== "string") {
             title = "Document: " + apx.allDocs[a.dest.item].doc.title;
         
         // else if we know about this item via allItemsHash...    
@@ -1547,28 +1559,28 @@ function apxDocument(initializer) {
             // so add the association to apx.unknownAssocsShowing; if info about the item is loaded later, it'll get filled in
             apx.unknownAssocsShowing[a.id] = a;
             
-            if (a.dest.doc != "?") {
+            if (a.dest.doc !== "?") {
                 // look for document in allDocs
                 doc = apx.allDocs[a.dest.doc];
         
                 // if we tried to load this document and failed, note that
-                if (doc == "loaderror") {
+                if (doc === "loaderror") {
                     title += " (document could not be loaded)";
 
                 // else if we know we're still in the process of loading that doc, note that
-                } else if (doc == "loading") {
+                } else if (doc === "loading") {
                     title += " (loading document...)";
         
                 // else we have the doc -- this shouldn't normally happen, because if we know about the doc, 
                 // we should have found the item in apx.allItemsHash above
-                } else if (typeof(doc) == "object") {
+                } else if (typeof(doc) === "object") {
                     title += " (item not found in document)";
                 }
             }
         }
 
         // if item comes from another doc, note that
-        if (!empty(doc) && typeof(doc) == "object" && doc != self) {
+        if (!empty(doc) && typeof(doc) === "object" && doc !== self) {
             var docTitle = doc.doc.title;
             if (docTitle.length > 30) {
                 docTitle = docTitle.substr(0, 35);
