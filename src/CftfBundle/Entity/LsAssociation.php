@@ -456,7 +456,7 @@ class LsAssociation implements CaseApiInterface
     /**
      * Set the Origination of the association
      *
-     * @param string|LsDoc|LsItem $origin
+     * @param string|IdentifiableInterface $origin
      * @param string|null $identifier
      *
      * @return LsAssociation
@@ -532,7 +532,7 @@ class LsAssociation implements CaseApiInterface
     /**
      * Set the Destination of the association
      *
-     * @param string|LsDoc|LsItem $destination
+     * @param string|IdentifiableInterface $destination
      * @param string|null $identifier
      *
      * @return LsAssociation
