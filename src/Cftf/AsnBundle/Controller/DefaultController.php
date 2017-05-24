@@ -25,7 +25,11 @@ class DefaultController extends Controller
         $fileUrl = $request->request->get('fileUrl');
 
         $asnImport = $this->get('cftf_import.asn');
-        $asnImport->generateFrameworkFromAsn($fileUrl);
+        $lsDoc = $asnImport->generateFrameworkFromAsn($fileUrl);
+
+        $user = $this->getUser();
+        $lsDoc->setOrg($user->getOrg());
+        $this->getDoctrine()->getManager()->flush();
 
         return $response->setData([
             'message' => 'Framework imported successfully!',
