@@ -62,7 +62,7 @@ class AsnImport
      *
      * @return LsDoc
      */
-    public function parseAsnDocument($asnDoc, $creator = null): LsDoc
+    public function parseAsnDocument(string $asnDoc, ?string $creator = null): LsDoc
     {
         $em = $this->getEntityManager();
 
@@ -213,14 +213,15 @@ class AsnImport
 
     /**
      * @param string $asnLocator
+     * @param string|null $creator
      *
      * @return LsDoc
      */
-    public function generateFrameworkFromAsn(string $asnLocator): LsDoc
+    public function generateFrameworkFromAsn(string $asnLocator, ?string $creator = null): LsDoc
     {
         $asnDoc = $this->fetchAsnDocument($asnLocator);
 
-        return $this->parseAsnDocument($asnDoc);
+        return $this->parseAsnDocument($asnDoc, $creator);
     }
 
     /**
