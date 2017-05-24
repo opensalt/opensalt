@@ -22,7 +22,7 @@ use Ramsey\Uuid\Uuid;
  *     }
  * )
  */
-class AbstractLsBase
+class AbstractLsBase implements IdentifiableInterface
 {
     /**
      * @var int
@@ -38,7 +38,7 @@ class AbstractLsBase
     /**
      * @var string
      *
-     * @ORM\Column(name="identifier", type="string", length=300, nullable=false)
+     * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=true)
      *
      * @Serializer\Expose()
      */
@@ -47,7 +47,7 @@ class AbstractLsBase
     /**
      * @var string
      *
-     * @ORM\Column(name="uri", type="string", length=300, nullable=true)
+     * @ORM\Column(name="uri", type="string", length=300, nullable=true, unique=true)
      *
      * @Serializer\Exclude()
      */
@@ -60,7 +60,7 @@ class AbstractLsBase
      *
      * @Serializer\Exclude()
      */
-    private $extra;
+    private $extra = [];
 
     /**
      * @var \DateTime
@@ -76,10 +76,20 @@ class AbstractLsBase
 
     /**
      * Constructor
+     *
+     * @param string|Uuid|null $identifier
      */
-    public function __construct()
+    public function __construct($identifier = null)
     {
-        $this->identifier = Uuid::uuid4()->toString();
+        if ($identifier instanceof Uuid) {
+            $identifier = strtolower($identifier->toString());
+        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+            $identifier = strtolower(Uuid::fromString($identifier)->toString());
+        } else {
+            $identifier = Uuid::uuid1()->toString();
+        }
+
+        $this->identifier = $identifier;
         $this->uri = 'local:'.$this->identifier;
     }
 
@@ -96,12 +106,21 @@ class AbstractLsBase
     /**
      * Set identifier
      *
-     * @param string $identifier
+     * @param Uuid|string $identifier
      *
-     * @return self
+     * @return static
      */
-    public function setIdentifier($identifier)
+    public function setIdentifier($identifier = null)
     {
+        // If the identifier is in the form of a UUID then lower case it
+        if ($identifier instanceof Uuid) {
+            $identifier = strtolower($identifier->serialize());
+        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+            $identifier = strtolower(Uuid::fromString($identifier)->toString());
+        } else {
+            $identifier = null;
+        }
+
         $this->identifier = $identifier;
 
         return $this;
@@ -112,7 +131,7 @@ class AbstractLsBase
      *
      * @return string
      */
-    public function getIdentifier()
+    public function getIdentifier(): ?string
     {
         return $this->identifier;
     }
@@ -122,9 +141,9 @@ class AbstractLsBase
      *
      * @param string $uri
      *
-     * @return self
+     * @return static
      */
-    public function setUri($uri)
+    public function setUri(?string $uri)
     {
         $this->uri = $uri;
 
@@ -136,7 +155,7 @@ class AbstractLsBase
      *
      * @return string
      */
-    public function getUri()
+    public function getUri(): ?string
     {
         return $this->uri;
     }
@@ -146,7 +165,7 @@ class AbstractLsBase
      *
      * @param \DateTime $updatedAt
      *
-     * @return self
+     * @return static
      */
     public function setUpdatedAt($updatedAt)
     {
@@ -168,16 +187,18 @@ class AbstractLsBase
     /**
      * @return array
      */
-    public function getExtra() {
+    public function getExtra()
+    {
         return $this->extra;
     }
 
     /**
      * @param array $extra
      *
-     * @return self
+     * @return static
      */
-    public function setExtra($extra) {
+    public function setExtra($extra)
+    {
         $this->extra = $extra;
 
         return $this;
@@ -188,30 +209,21 @@ class AbstractLsBase
      *
      * @return mixed
      */
-    public function getExtraProperty($property) {
-        if (is_null($this->extra)) {
-            return null;
-        }
-
-        if (!array_key_exists($property, $this->extra)) {
-            return null;
-        }
-
-        return $this->extra[$property];
+    public function getExtraProperty($property)
+    {
+        return $this->extra[$property] ?? null;
     }
 
     /**
      * @param string $property
      * @param mixed $value
      *
-     * @return self
+     * @return static
      */
-    public function setExtraProperty($property, $value) {
-        if (is_null($this->extra)) {
-            $this->extra = [];
-        }
-
+    public function setExtraProperty($property, $value)
+    {
         $this->extra[$property] = $value;
+
         return $this;
     }
 }

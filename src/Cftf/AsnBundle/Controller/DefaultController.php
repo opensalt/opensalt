@@ -25,11 +25,10 @@ class DefaultController extends Controller
         $fileUrl = $request->request->get('fileUrl');
 
         $asnImport = $this->get('cftf_import.asn');
-        $asnDoc = $asnImport->getAsnDocument($fileUrl);
-        $asnImport->parseAsnDocument($asnDoc);
+        $asnImport->generateFrameworkFromAsn($fileUrl);
 
-        return $response->setData(array(
-            'message' => 'Framework imported successfully!'
-        ));
+        return $response->setData([
+            'message' => 'Framework imported successfully!',
+        ]);
     }
 }

@@ -5,6 +5,7 @@ namespace CftfBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -305,10 +306,20 @@ class LsAssociation implements CaseApiInterface
 
     /**
      * Constructor
+     *
+     * @param string|Uuid|null $identifier
      */
-    public function __construct()
+    public function __construct($identifier = null)
     {
-        $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
+        if ($identifier instanceof Uuid) {
+            $identifier = strtolower($identifier->toString());
+        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+            $identifier = strtolower(Uuid::fromString($identifier)->toString());
+        } else {
+            $identifier = Uuid::uuid1()->toString();
+        }
+
+        $this->identifier = $identifier;
         $this->uri = 'local:'.$this->identifier;
         $this->updatedAt = new \DateTime();
     }
@@ -445,25 +456,26 @@ class LsAssociation implements CaseApiInterface
     /**
      * Set the Origination of the association
      *
-     * @param string|LsDoc|LsItem $origin
+     * @param string|IdentifiableInterface $origin
+     * @param string|null $identifier
      *
      * @return LsAssociation
      *
      * @throws \UnexpectedValueException
      */
-    public function setOrigin($origin): LsAssociation
+    public function setOrigin($origin, ?string $identifier = null): LsAssociation
     {
         if (is_string($origin)) {
             $this->setOriginNodeUri($origin);
-            $this->setOriginNodeIdentifier($origin);
-        } elseif ($origin instanceof LsDoc) {
-            $this->setOriginLsDoc($origin);
+            $this->setOriginNodeIdentifier($identifier ?? $origin);
+        } elseif ($origin instanceof IdentifiableInterface) {
+            if ($origin instanceof LsDoc) {
+                $this->setOriginLsDoc($origin);
+            } elseif ($origin instanceof LsItem) {
+                $this->setOriginLsItem($origin);
+            }
             $this->setOriginNodeUri($origin->getUri());
-            $this->setOriginNodeIdentifier($origin->getIdentifier());
-        } elseif ($origin instanceof LsItem) {
-            $this->setOriginLsItem($origin);
-            $this->setOriginNodeUri($origin->getUri());
-            $this->setOriginNodeIdentifier($origin->getIdentifier());
+            $this->setOriginNodeIdentifier($identifier ?? $origin->getIdentifier());
         } else {
             throw new \UnexpectedValueException('The value must be a URI, an LsDoc, or an LsItem');
         }
@@ -480,9 +492,13 @@ class LsAssociation implements CaseApiInterface
     {
         if ($this->getOriginLsDoc()) {
             return $this->getOriginLsDoc();
-        } elseif ($this->getOriginLsItem()) {
+        }
+
+        if ($this->getOriginLsItem()) {
             return $this->getOriginLsItem();
-        } elseif ($this->getOriginNodeUri()) {
+        }
+
+        if ($this->getOriginNodeUri()) {
             return $this->getOriginNodeUri();
         }
 
@@ -516,25 +532,26 @@ class LsAssociation implements CaseApiInterface
     /**
      * Set the Destination of the association
      *
-     * @param string|LsDoc|LsItem $destination
+     * @param string|IdentifiableInterface $destination
+     * @param string|null $identifier
      *
      * @return LsAssociation
      *
      * @throws \UnexpectedValueException
      */
-    public function setDestination($destination): LsAssociation
+    public function setDestination($destination, ?string $identifier = null): LsAssociation
     {
         if (is_string($destination)) {
             $this->setDestinationNodeUri($destination);
-            $this->setDestinationNodeIdentifier($destination);
-        } elseif ($destination instanceof LsDoc) {
-            $this->setDestinationLsDoc($destination);
+            $this->setDestinationNodeIdentifier($identifier ?? $destination);
+        } elseif ($destination instanceof IdentifiableInterface) {
+            if ($destination instanceof LsDoc) {
+                $this->setDestinationLsDoc($destination);
+            } elseif ($destination instanceof LsItem) {
+                $this->setDestinationLsItem($destination);
+            }
             $this->setDestinationNodeUri($destination->getUri());
-            $this->setDestinationNodeIdentifier($destination->getIdentifier());
-        } elseif ($destination instanceof LsItem) {
-            $this->setDestinationLsItem($destination);
-            $this->setDestinationNodeUri($destination->getUri());
-            $this->setDestinationNodeIdentifier($destination->getIdentifier());
+            $this->setDestinationNodeIdentifier($identifier ?? $destination->getIdentifier());
         } else {
             throw new \UnexpectedValueException('The value must be a URI, an LsDoc, or an LsItem');
         }
@@ -551,9 +568,13 @@ class LsAssociation implements CaseApiInterface
     {
         if ($this->getDestinationLsDoc()) {
             return $this->getDestinationLsDoc();
-        } elseif ($this->getDestinationLsItem()) {
+        }
+
+        if ($this->getDestinationLsItem()) {
             return $this->getDestinationLsItem();
-        } elseif ($this->getDestinationNodeUri()) {
+        }
+
+        if ($this->getDestinationNodeUri()) {
             return $this->getDestinationNodeUri();
         }
 
@@ -591,7 +612,39 @@ class LsAssociation implements CaseApiInterface
      */
     public function getHumanCodingSchemeFromDestinationNodeUri()
     {
-        return base64_decode(explode(',', $this->destinationNodeUri)[1]);
+        return $this->splitDestinationDataUri()['value'];
+    }
+
+    /**
+     * Get an array with the information from a data URI
+     *
+     * @return array
+     */
+    public function splitDestinationDataUri()
+    {
+        if (0 !== strncmp($this->destinationNodeUri, 'data:text/x-', 12)) {
+            // Not a known data URI format, return the entire uri as the value
+            return ['value' => $this->destinationNodeUri];
+        }
+
+        $uri = substr($this->destinationNodeUri, 12);
+        [$dataString, $encodedValue] = explode(',', $uri, 2);
+
+        [$textType, $metadataString] = explode(';', $dataString, 2);
+
+        $metadata = ['textType' => $textType];
+        foreach (explode(';', $metadataString) as $param) {
+            [$name, $value] = explode('=', $param, 2);
+            $metadata[$name] = $value ?? true;
+        }
+
+        if ($metadata['base64'] ?? false) {
+            $metadata['value'] = base64_decode($encodedValue);
+        } else {
+            $metadata['value'] = rawurldecode($encodedValue);
+        }
+
+        return $metadata;
     }
 
     /**

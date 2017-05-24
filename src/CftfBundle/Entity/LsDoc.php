@@ -60,7 +60,7 @@ use Util\Compare;
  *     }
  * )
  */
-class LsDoc implements CaseApiInterface
+class LsDoc implements CaseApiInterface, IdentifiableInterface
 {
     const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
     const ADOPTION_STATUS_DRAFT = 'Draft';
@@ -414,10 +414,20 @@ class LsDoc implements CaseApiInterface
 
     /**
      * Constructor
+     *
+     * @param string|Uuid|null $identifier
      */
-    public function __construct()
+    public function __construct($identifier = null)
     {
-        $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
+        if ($identifier instanceof Uuid) {
+            $identifier = strtolower($identifier->toString());
+        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+            $identifier = strtolower(Uuid::fromString($identifier)->toString());
+        } else {
+            $identifier = Uuid::uuid1()->toString();
+        }
+
+        $this->identifier = $identifier;
         $this->uri = 'local:'.$this->identifier;
         $this->lsItems = new ArrayCollection();
         $this->docAssociations = new ArrayCollection();
@@ -500,7 +510,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return string
      */
-    public function getUri()
+    public function getUri(): ?string
     {
         return $this->uri;
     }
@@ -534,7 +544,7 @@ class LsDoc implements CaseApiInterface
      *
      * @return string
      */
-    public function getIdentifier()
+    public function getIdentifier(): ?string
     {
         return $this->identifier;
     }
@@ -1559,5 +1569,31 @@ class LsDoc implements CaseApiInterface
         $this->licence = $licence;
 
         return $this;
+    }
+
+    /**
+     * @param Uuid|string|null $identifier
+     *
+     * @return LsItem
+     */
+    public function createItem($identifier = null): LsItem
+    {
+        $item = new LsItem($identifier);
+        $item->setLsDoc($this);
+
+        return $item;
+    }
+
+    /**
+     * @param Uuid|string|null $identifier
+     *
+     * @return LsAssociation
+     */
+    public function createAssociation($identifier = null): LsAssociation
+    {
+        $association = new LsAssociation($identifier);
+        $association->setLsDoc($this);
+
+        return $association;
     }
 }

@@ -108,7 +108,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     }
  * )
  */
-class LsItem implements CaseApiInterface
+class LsItem implements CaseApiInterface, IdentifiableInterface
 {
     /**
      * @var int
@@ -446,19 +446,12 @@ class LsItem implements CaseApiInterface
      */
     public function __construct($identifier = null)
     {
-        if (null !== $identifier) {
-            // If the identifier is in the form of a UUID then lower case it
-            if ($identifier instanceof Uuid) {
-                $identifier = strtolower($identifier->toString());
-            } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
-                $identifier = strtolower(
-                    Uuid::fromString($identifier)->toString()
-                );
-            } else {
-                $identifier = Uuid::uuid4()->toString();
-            }
+        if ($identifier instanceof Uuid) {
+            $identifier = strtolower($identifier->toString());
+        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+            $identifier = strtolower(Uuid::fromString($identifier)->toString());
         } else {
-            $identifier = Uuid::uuid4()->toString();
+            $identifier = Uuid::uuid1()->toString();
         }
 
         $this->identifier = $identifier;
