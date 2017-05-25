@@ -17,6 +17,10 @@ class DefaultController extends Controller
 {
     /**
      * @Route("/cf/asn/import", name="import_from_asn")
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
      */
     public function importAsnAction(Request $request)
     {
