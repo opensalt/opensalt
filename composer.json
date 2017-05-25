@@ -36,7 +36,7 @@
 
         "fxp/composer-asset-plugin": "^1.2",
 
-        "symfony/symfony": "3.2.*",
+        "symfony/symfony": "3.3.*",
         "doctrine/orm": "^2.5",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-cache-bundle": "^1.2",
