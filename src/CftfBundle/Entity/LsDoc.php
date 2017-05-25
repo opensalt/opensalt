@@ -1038,7 +1038,7 @@ class LsDoc implements CaseApiInterface, IdentifiableInterface
     /**
      * Get associations
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return \Doctrine\Common\Collections\Collection|LsAssociation[]
      */
     public function getAssociations()
     {

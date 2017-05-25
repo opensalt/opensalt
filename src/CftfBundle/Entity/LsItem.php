@@ -487,7 +487,7 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
         $this->inverseAssociations = new ArrayCollection();
 
         // Generate a new identifier
-        $identifier = Uuid::uuid4()->toString();
+        $identifier = Uuid::uuid1()->toString();
         $this->identifier = $identifier;
         $this->uri = 'local:'.$this->identifier;
 
@@ -528,6 +528,39 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
 
         foreach ($this->getChildren() as $child) {
             $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup);
+            $newItem->addChild($newChild, $assocGroup);
+        }
+
+        return $newItem;
+    }
+
+    /**
+     * Create a duplicate of the lsItem into a new document
+     *
+     * @param LsDoc $newLsDoc
+     * @param LsDefAssociationGrouping|null $assocGroup
+     *
+     * @return LsItem
+     */
+    public function duplicateToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null): LsItem
+    {
+        $newItem = clone $this;
+        $newItem->setLsDoc($newLsDoc);
+
+        foreach ($this->getAssociations() as $association) {
+            if (LsAssociation::CHILD_OF === $association->getType()) {
+                continue;
+            }
+
+            $newAssoc = $newLsDoc->createAssociation();
+            $newAssoc->setOrigin($newItem);
+            $newAssoc->setType($association->getType());
+            $newAssoc->setDestination($association->getDestination(), $association->getDestinationNodeIdentifier());
+            $newItem->addAssociation($newAssoc);
+        }
+
+        foreach ($this->getChildren() as $child) {
+            $newChild = $child->duplicateToLsDoc($newLsDoc, $assocGroup);
             $newItem->addChild($newChild, $assocGroup);
         }
 
@@ -1169,7 +1202,7 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
     /**
      * Get associations
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return \Doctrine\Common\Collections\Collection|LsAssociation[]
      */
     public function getAssociations(): Collection
     {

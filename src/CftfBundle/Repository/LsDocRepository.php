@@ -267,6 +267,46 @@ xENDx;
     }
 
     /**
+     * @param LsDoc $oldDoc
+     * @param LsDoc $newDoc
+     * @param \Closure|null $progressCallback
+     */
+    public function copyDocumentToItem(LsDoc $oldDoc, LsDoc $newDoc, \Closure $progressCallback = null)
+    {
+        $em = $this->getEntityManager();
+
+        if (null === $progressCallback) {
+            $progressCallback = function ($message = '') {
+            };
+        }
+
+        $progressCallback('Creating new item');
+        $lsItem = $newDoc->createItem();
+        $lsItem->setFullStatement($oldDoc->getTitle());
+        $lsItem->setNotes($oldDoc->getNote());
+        $newDoc->addTopLsItem($lsItem);
+        $em->persist($lsItem);
+
+        foreach ($oldDoc->getAssociations() as $oldAssoc) {
+            $newAssoc = $newDoc->createAssociation();
+            $newAssoc->setOriginLsItem($lsItem);
+            $newAssoc->setType($oldAssoc->getType());
+            $newAssoc->setDestination($oldAssoc->getDestination(), $oldAssoc->getDestinationNodeIdentifier());
+            $lsItem->addAssociation($newAssoc);
+            $em->persist($newAssoc);
+        }
+
+        foreach ($oldDoc->getTopLsItems() as $oldItem) {
+            $newItem = $oldItem->duplicateToLsDoc($newDoc);
+            $lsItem->addChild($newItem);
+        }
+
+        $em->flush();
+
+        $progressCallback('Done');
+    }
+
+    /**
      * Get a list of all items for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
