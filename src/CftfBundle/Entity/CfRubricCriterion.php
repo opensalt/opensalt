@@ -96,7 +96,9 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\CfRubricCriterionLevel", mappedBy="criterion")
      *
-     * @Serializer\Exclude()
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("CFRubricCriterionLevels")
+     * @Serializer\Type("array<CftfBundle\Entity\CfRubricCriterionLevel>")
      */
     private $levels;
 
