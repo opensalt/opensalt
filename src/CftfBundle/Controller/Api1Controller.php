@@ -286,9 +286,9 @@ class Api1Controller extends Controller
     {
         // Object not found
         if ($this->isUuidValid($identifier)) {
-            $errField = new ImsxCodeMinorField('sourceId', ImsxCodeMinorField::CODE_MINOR_UNKNOWN_OBJECT);
+            $errField = new ImsxCodeMinorField('sourcedId', ImsxCodeMinorField::CODE_MINOR_UNKNOWN_OBJECT);
         } else {
-            $errField = new ImsxCodeMinorField('sourceId', ImsxCodeMinorField::CODE_MINOR_INVALID_UUID);
+            $errField = new ImsxCodeMinorField('sourcedId', ImsxCodeMinorField::CODE_MINOR_INVALID_UUID);
         }
         $errMinor = new ImsxCodeMinor([$errField]);
         $err = new ImsxStatusInfo(
