@@ -111,7 +111,7 @@ class ApiUtilService
      */
     public function splitByComma(?string $csv)
     {
-        if (empty($csv)) {
+        if (null === $csv) {
             return null;
         }
 
@@ -122,6 +122,26 @@ class ApiUtilService
         }
 
         return $values;
+    }
+
+    /**
+     * @param iterable|null $objs
+     *
+     * @return array
+     */
+    public function getLinkUriList(?iterable $objs)
+    {
+        if (null === $objs) {
+            return null;
+        }
+
+        $list = [];
+
+        foreach ($objs as $obj) {
+            $list[] = $this->getLinkUri($obj);
+        }
+
+        return $list;
     }
 
     /**
