@@ -285,7 +285,7 @@ class Api1Controller extends Controller
     protected function generate404(string $identifier, string $_format)
     {
         // Object not found
-        if (Uuid::isValid($identifier)) {
+        if ($this->isUuidValid($identifier)) {
             $errField = new ImsxCodeMinorField('sourceId', ImsxCodeMinorField::CODE_MINOR_UNKNOWN_OBJECT);
         } else {
             $errField = new ImsxCodeMinorField('sourceId', ImsxCodeMinorField::CODE_MINOR_INVALID_UUID);
@@ -336,5 +336,18 @@ class Api1Controller extends Controller
         $response->setContent($result);
 
         return $response;
+    }
+
+    protected function isUuidValid(?string $uuid) {
+        if (!Uuid::isValid($uuid)) {
+            return false;
+        }
+
+        if (!preg_match('/[a-f0-9]{8}-[a-f0-9]{4}-[12345][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}/', $uuid)) {
+            // Only allow Variant 1 UUIDs for CASE Compliance test
+            return false;
+        }
+
+        return true;
     }
 }
