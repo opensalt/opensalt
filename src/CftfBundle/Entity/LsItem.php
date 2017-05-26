@@ -82,24 +82,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  *
  * @Serializer\VirtualProperty(
- *     "cfItemAssociationsUri",
- *     exp="service('salt.api.v1p1.utils').getApiUrl(object, 'api_v1p1_cfitemassociations')",
- *     options={
- *         @Serializer\SerializedName("CFItemAssociationURI"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "license",
- *     exp="object.getLicence()?object.getLicence().getTitle():null",
- *     options={
- *         @Serializer\SerializedName("license"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
  *     "licenseUri",
  *     exp="service('salt.api.v1p1.utils').getLinkUri(object.getLicence())",
  *     options={

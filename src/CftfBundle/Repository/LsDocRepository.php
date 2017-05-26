@@ -15,7 +15,7 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param string $slug
      *
-     * @return null|object
+     * @return object|null|LsDoc
      */
     public function findOneBySlug($slug)
     {
@@ -27,11 +27,17 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
-     * @return array
+     * @param CfDocQuery|null $query
+     *
+     * @return array|LsDoc[]
      */
-    public function findAllDocuments()
+    public function findAllDocuments(?CfDocQuery $query): array
     {
-        return $this->findAll();
+        if (null === $query) {
+            $query = new CfDocQuery();
+        }
+
+        return $this->findBy([], ['id' => 'asc'], $query->getLimit(), $query->getOffset());
     }
 
     /**

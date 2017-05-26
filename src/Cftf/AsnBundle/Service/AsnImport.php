@@ -49,7 +49,7 @@ class AsnImport
     /**
      * @return EntityManager
      */
-    protected function getEntityManager()
+    protected function getEntityManager(): EntityManager
     {
         return $this->em;
     }
@@ -139,7 +139,7 @@ class AsnImport
      *
      * @return LsItem
      */
-    public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard)
+    public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard): LsItem
     {
         $em = $this->getEntityManager();
         $lsItem = $lsDoc->createItem();
@@ -231,7 +231,7 @@ class AsnImport
      *
      * @throws \Exception
      */
-    public function fetchAsnDocument(string $asnLocator)
+    public function fetchAsnDocument(string $asnLocator): string
     {
         $asnId = '';
         $asnHost = '';
@@ -276,7 +276,7 @@ class AsnImport
      *
      * @throws \Exception
      */
-    public function requestAsnDocument(string $url)
+    public function requestAsnDocument(string $url): string
     {
         $jsonClient = $this->jsonClient;
 
@@ -304,7 +304,7 @@ class AsnImport
      *
      * @return array
      */
-    protected function getLevels($levelList)
+    protected function getLevels($levelList): array
     {
         $levels = [];
 
@@ -340,7 +340,7 @@ class AsnImport
      *
      * @return LsDefItemType
      */
-    protected function addItemType(string $label)
+    protected function addItemType(string $label): LsDefItemType
     {
         $itemType = new LsDefItemType();
         $itemType->setTitle($label);
@@ -357,7 +357,7 @@ class AsnImport
      * @param IdentifiableInterface $origin
      * @param AsnValue[] $matches
      */
-    protected function addExactMatches(LsDoc $lsDoc, IdentifiableInterface $origin, $matches)
+    protected function addExactMatches(LsDoc $lsDoc, IdentifiableInterface $origin, iterable $matches): void
     {
         foreach ($matches as $match) {
             $this->addExactMatch($lsDoc, $origin, $match);
@@ -367,11 +367,11 @@ class AsnImport
     /**
      * @param LsDoc $lsDoc
      * @param IdentifiableInterface $origin
-     * @param mixed $match
+     * @param ASNValue $match
      *
      * @return LsAssociation
      */
-    protected function addExactMatch(LsDoc $lsDoc, IdentifiableInterface $origin, $match): LsAssociation
+    protected function addExactMatch(LsDoc $lsDoc, IdentifiableInterface $origin, AsnValue $match): LsAssociation
     {
         $assoc = $lsDoc->createAssociation();
         $assoc->setType(LsAssociation::EXACT_MATCH_OF);

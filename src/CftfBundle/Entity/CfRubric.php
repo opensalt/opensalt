@@ -115,27 +115,4 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
 
         return $this;
     }
-
-    /**
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("CFRubricCriterionLevels")
-     * @Serializer\Type("array<CftfBundle\Entity\CfRubricCriterionLevel>")
-     *
-     * @return CfRubricCriterionLevel[]|array
-     */
-    public function getCriteriaLevels(): array
-    {
-        $criteriaLevels = [];
-
-        $criteria = $this->getCriteria();
-
-        foreach ($criteria as $criterion) {
-            $levels = $criterion->getLevels();
-            foreach ($levels as $level) {
-                $criteriaLevels[] = $level;
-            }
-        }
-
-        return $criteriaLevels;
-    }
 }

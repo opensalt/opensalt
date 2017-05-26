@@ -44,7 +44,7 @@ use Util\Compare;
  *
  * @Serializer\VirtualProperty(
  *     "subjectUri",
- *     exp="(object.getSubjects().count()===0)?null:service('salt.api.v1p1.utils').getLinkUri(object.getSubjects()[0])",
+ *     exp="(object.getSubjects().count()===0)?null:service('salt.api.v1p1.utils').getLinkUriList(object.getSubjects())",
  *     options={
  *         @Serializer\SerializedName("subjectURI"),
  *         @Serializer\Expose()
@@ -240,7 +240,7 @@ class LsDoc implements CaseApiInterface, IdentifiableInterface
      *      inverseJoinColumns={@ORM\JoinColumn(name="subject_id", referencedColumnName="id")}
      * )
      *
-     * @Serializer\Expose()
+     * @Serializer\Expose("object.getSubjects().count()>0")
      * @Serializer\SerializedName("subject")
      * @Serializer\Type("array<string>")
      */

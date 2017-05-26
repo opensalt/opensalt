@@ -16,6 +16,7 @@ use CftfBundle\Entity\LsDefLicence;
 use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
+use CftfBundle\Repository\CfDocQuery;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -37,17 +38,21 @@ class Api1Controller extends Controller
      */
     public function getAllCfDocumentsAction(Request $request, $_format)
     {
-        /*
         $limit = $request->query->get('limit', 100);
         $offset = $request->query->get('offset', 0);
+        /*
         $sort = $request->query->get('sort', '');
         $orderBy = $request->query->get('orderBy', 'asc');
         $filter = $request->query->get('filter', '');
         $fields = $request->query->get('fields', []);
         */
 
+        $query = new CfDocQuery();
+        $query->limit = $limit;
+        $query->offset = $offset;
+
         $repo = $this->getDoctrine()->getRepository(LsDoc::class);
-        $results = $repo->findAllDocuments();
+        $results = $repo->findAllDocuments($query);
 
         $docs = [];
         $lastModified = new \DateTime('now - 10 years');
@@ -285,10 +290,10 @@ class Api1Controller extends Controller
     protected function generate404(string $identifier, string $_format)
     {
         // Object not found
-        if (Uuid::isValid($identifier)) {
-            $errField = new ImsxCodeMinorField('sourceId', ImsxCodeMinorField::CODE_MINOR_UNKNOWN_OBJECT);
+        if ($this->isUuidValid($identifier)) {
+            $errField = new ImsxCodeMinorField('sourcedId', ImsxCodeMinorField::CODE_MINOR_UNKNOWN_OBJECT);
         } else {
-            $errField = new ImsxCodeMinorField('sourceId', ImsxCodeMinorField::CODE_MINOR_INVALID_UUID);
+            $errField = new ImsxCodeMinorField('sourcedId', ImsxCodeMinorField::CODE_MINOR_INVALID_UUID);
         }
         $errMinor = new ImsxCodeMinor([$errField]);
         $err = new ImsxStatusInfo(
@@ -319,12 +324,7 @@ class Api1Controller extends Controller
             return $this->generate404($id, $_format);
         }
 
-        $response = new Response();
-        $response->setEtag(md5($doc->getUpdatedAt()->format('U')));
-        $response->setLastModified($doc->getUpdatedAt());
-        $response->setMaxAge(60);
-        $response->setSharedMaxAge(60);
-        $response->setPublic();
+        $response = $this->generateBaseReponse($doc->getUpdatedAt());
 
         if ($response->isNotModified($request)) {
             return $response;
@@ -336,5 +336,18 @@ class Api1Controller extends Controller
         $response->setContent($result);
 
         return $response;
+    }
+
+    protected function isUuidValid(?string $uuid) {
+        if (!Uuid::isValid($uuid)) {
+            return false;
+        }
+
+        if (!preg_match('/[a-f0-9]{8}-[a-f0-9]{4}-[12345][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}/', $uuid)) {
+            // Only allow Variant 1 UUIDs for CASE Compliance test
+            return false;
+        }
+
+        return true;
     }
 }
