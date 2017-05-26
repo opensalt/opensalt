@@ -15,7 +15,7 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param string $slug
      *
-     * @return null|object
+     * @return object|null|LsDoc
      */
     public function findOneBySlug($slug)
     {
@@ -27,7 +27,7 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
-     * @return array
+     * @return array|LsDoc[]
      */
     public function findAllDocuments()
     {
