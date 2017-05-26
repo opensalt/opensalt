@@ -16,6 +16,7 @@ use CftfBundle\Entity\LsDefLicence;
 use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
+use CftfBundle\Repository\CfDocQuery;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -37,17 +38,21 @@ class Api1Controller extends Controller
      */
     public function getAllCfDocumentsAction(Request $request, $_format)
     {
-        /*
         $limit = $request->query->get('limit', 100);
         $offset = $request->query->get('offset', 0);
+        /*
         $sort = $request->query->get('sort', '');
         $orderBy = $request->query->get('orderBy', 'asc');
         $filter = $request->query->get('filter', '');
         $fields = $request->query->get('fields', []);
         */
 
+        $query = new CfDocQuery();
+        $query->limit = $limit;
+        $query->offset = $offset;
+
         $repo = $this->getDoctrine()->getRepository(LsDoc::class);
-        $results = $repo->findAllDocuments();
+        $results = $repo->findAllDocuments($query);
 
         $docs = [];
         $lastModified = new \DateTime('now - 10 years');
