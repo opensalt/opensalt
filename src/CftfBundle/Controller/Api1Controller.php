@@ -324,12 +324,7 @@ class Api1Controller extends Controller
             return $this->generate404($id, $_format);
         }
 
-        $response = new Response();
-        $response->setEtag(md5($doc->getUpdatedAt()->format('U')));
-        $response->setLastModified($doc->getUpdatedAt());
-        $response->setMaxAge(60);
-        $response->setSharedMaxAge(60);
-        $response->setPublic();
+        $response = $this->generateBaseReponse($doc->getUpdatedAt());
 
         if ($response->isNotModified($request)) {
             return $response;
