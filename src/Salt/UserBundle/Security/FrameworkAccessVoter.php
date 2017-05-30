@@ -147,6 +147,6 @@ class FrameworkAccessVoter extends Voter
 
     private function canDeleteFramework(LsDoc $subject, TokenInterface $token)
     {
-        return false;
+        return $this->canEditFramework($subject, $token);
     }
 }
