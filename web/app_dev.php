@@ -21,21 +21,15 @@ if (isset($_SERVER['HTTP_CLIENT_IP'])
 }
  */
 
-/**
- * @var Composer\Autoload\ClassLoader $loader
- */
-$loader = require __DIR__.'/../app/autoload.php';
+/** @var \Composer\Autoload\ClassLoader $loader */
+$loader = require __DIR__.'/../vendor/autoload.php';
 Debug::enable();
 
-Request::setTrustedProxies(['127.0.0.1']);
-if ($_SERVER['REMOTE_ADDR'] === '127.0.0.1') {
-    if (!empty($_SERVER['HTTP_X_REAL_IP'])) {
-        Request::setTrustedHeaderName(Request::HEADER_CLIENT_IP, 'X-Real-IP');
-    }
-}
-
 $kernel = new AppKernel('dev', true);
-$kernel->loadClassCache();
+Request::setTrustedProxies(['127.0.0.1'], Request::HEADER_X_FORWARDED_ALL);
+if (PHP_VERSION_ID < 70000) {
+    $kernel->loadClassCache();
+}
 $request = Request::createFromGlobals();
 $response = $kernel->handle($request);
 $response->send();
