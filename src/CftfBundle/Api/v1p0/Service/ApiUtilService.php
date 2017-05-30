@@ -57,6 +57,7 @@ class ApiUtilService
 
     /**
      * @param mixed $obj
+     * @param string|null $route
      *
      * @return null|string
      */
@@ -146,10 +147,11 @@ class ApiUtilService
 
     /**
      * @param mixed $obj
+     * @param null|string $route
      *
      * @return array|null
      */
-    public function getLinkUri(?CaseApiInterface $obj)
+    public function getLinkUri(?CaseApiInterface $obj, ?string $route = null)
     {
         if (null === $obj) {
             return null;
@@ -175,7 +177,7 @@ class ApiUtilService
         return [
             'title' => $title,
             'identifier' => $obj->getIdentifier(),
-            'uri' => $this->getApiUrl($obj),
+            'uri' => $this->getApiUrl($obj, $route),
         ];
     }
 
