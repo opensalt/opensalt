@@ -409,7 +409,7 @@ function apxDocument(initializer) {
             "active": true,
             "folder": true,
             "expanded": true,
-            "hideCheckbox": true,   // tree should not have a checkbox
+            "checkbox": false,   // tree should not have a checkbox
             "unselectable": true,   // tree should not be selectable
             "ref":self.doc
         };
@@ -1136,7 +1136,7 @@ function apxDocument(initializer) {
     self.treeCheckboxToggleCheckboxes = function(val, side) {
         var $cb = self["ft" + side].closest(".treeSide").find(".treeCheckboxControl");
         if (val == true) {
-            self["ft" + side].fancytree("getTree").rootNode.hideCheckbox = true;
+            self["ft" + side].fancytree("getTree").rootNode.checkbox = true;
             self["ft" + side].fancytree("option", "checkbox", true);
             self["ft" + side].fancytree("option", "selectMode", 2);
 
