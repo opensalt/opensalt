@@ -66,6 +66,8 @@ class Api1Controller extends Controller
             }
         }
 
+        $this->get('logger')->info('CASE API: getAllCfDocuments', []);
+
         $response = $this->generateBaseReponse($lastModified);
         if ($response->isNotModified($request)) {
             return $response;
@@ -131,6 +133,7 @@ class Api1Controller extends Controller
             ->findOneBy(['identifier' => $id]);
 
         if (empty($item)) {
+            $this->get('logger')->info('CASE API: item associations (item) not found', ['id' => $id]);
             return $this->generate404($id, $_format);
         }
 
@@ -139,6 +142,7 @@ class Api1Controller extends Controller
             ->findAllAssociationsFor($id);
 
         if (null === $results) {
+            $this->get('logger')->info('CASE API: item associations (associations) not found', ['id' => $id]);
             return $this->generate404($id, $_format);
         }
 
@@ -151,6 +155,8 @@ class Api1Controller extends Controller
                 $lastModified = $association->getUpdatedAt();
             }
         }
+
+        $this->get('logger')->info('CASE API: item associations returned', ['id' => $id]);
 
         $response = $this->generateBaseReponse($lastModified);
         if ($response->isNotModified($request)) {
@@ -205,8 +211,11 @@ class Api1Controller extends Controller
         $doc = $repo->findOneBy(['identifier' => $id]);
 
         if (null === $doc) {
+            $this->get('logger')->info('CASE API: package not found', ['id' => $id]);
             return $this->generate404($id, $_format);
         }
+
+        $this->get('logger')->info('CASE API: package returned', ['id' => $id]);
 
         $response = $this->generateBaseReponse($doc->getUpdatedAt());
         if ($response->isNotModified($request)) {
@@ -304,8 +313,10 @@ class Api1Controller extends Controller
         // Object not found
         if ($this->isUuidValid($identifier)) {
             $errField = new ImsxCodeMinorField('sourcedId', ImsxCodeMinorField::CODE_MINOR_UNKNOWN_OBJECT);
+            $errText = 'Not Found';
         } else {
             $errField = new ImsxCodeMinorField('sourcedId', ImsxCodeMinorField::CODE_MINOR_INVALID_UUID);
+            $errText = 'Invalid UUID';
         }
         $errMinor = new ImsxCodeMinor([$errField]);
         $err = new ImsxStatusInfo(
@@ -319,6 +330,7 @@ class Api1Controller extends Controller
             $serializer->serialize($err, $_format),
             404
         );
+        $response->setStatusCode(404, $errText);
 
         $response->setMaxAge(60);
         $response->setSharedMaxAge(60);
@@ -333,8 +345,11 @@ class Api1Controller extends Controller
         $doc = $repo->findOneBy(['identifier' => $id]);
 
         if (empty($doc)) {
+            $this->get('logger')->info('CASE API: Object not found', ['type' => $type, 'id' => $id]);
             return $this->generate404($id, $_format);
         }
+
+        $this->get('logger')->info('CASE API: Returned object', ['type' => $type, 'id' => $id]);
 
         $response = $this->generateBaseReponse($doc->getUpdatedAt());
 
