@@ -4,10 +4,10 @@ namespace CftfBundle\Repository;
 
 class CfDocQuery
 {
-    /** @var  int */
+    /** @var int */
     public $limit;
 
-    /** @var  int */
+    /** @var int */
     public $offset;
 
     /**
