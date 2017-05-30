@@ -126,8 +126,17 @@ class Api1Controller extends Controller
      */
     public function getCfItemAssociationsAction(Request $request, $id, $_format)
     {
-        $repo = $this->getDoctrine()->getRepository(LsAssociation::class);
-        $results = $repo->findAllAssociationsFor($id);
+        $item = $this->getDoctrine()
+            ->getRepository(LsItem::class)
+            ->findOneBy(['identifier' => $id]);
+
+        if (empty($item)) {
+            return $this->generate404($id, $_format);
+        }
+
+        $results = $this->getDoctrine()
+            ->getRepository(LsAssociation::class)
+            ->findAllAssociationsFor($id);
 
         if (null === $results) {
             return $this->generate404($id, $_format);
@@ -148,7 +157,10 @@ class Api1Controller extends Controller
             return $response;
         }
 
-        $response->setContent($this->get('serializer')->serialize(['CFAssociations' => $associations], $_format));
+        $response->setContent($this->get('serializer')->serialize([
+            'CFItem' => $item,
+            'CFAssociations' => $associations,
+        ], $_format));
         $response->headers->set('X-Total-Count', count($associations));
 
         return $response;
