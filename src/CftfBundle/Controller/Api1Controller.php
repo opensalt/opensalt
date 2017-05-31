@@ -18,6 +18,7 @@ use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Repository\CfDocQuery;
 use Doctrine\ORM\Query;
+use JMS\Serializer\SerializationContext;
 use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -73,7 +74,11 @@ class Api1Controller extends Controller
             return $response;
         }
 
-        $response->setContent($this->get('serializer')->serialize(['CFDocuments' => $docs], $_format));
+        $response->setContent($this->get('serializer')->serialize(
+            ['CFDocuments' => $docs],
+            $_format,
+            SerializationContext::create()->setGroups(['Default', 'CfDocuments'])
+        ));
         $response->headers->set('X-Total-Count', count($docs));
 
         return $response;
@@ -163,10 +168,14 @@ class Api1Controller extends Controller
             return $response;
         }
 
-        $response->setContent($this->get('serializer')->serialize([
-            'CFItem' => $item,
-            'CFAssociations' => $associations,
-        ], $_format));
+        $response->setContent($this->get('serializer')->serialize(
+            [
+                'CFItem' => $item,
+                'CFAssociations' => $associations,
+            ],
+            $_format,
+            SerializationContext::create()->setGroups(['Default', 'CfItemAssociations'])
+        ));
         $response->headers->set('X-Total-Count', count($associations));
 
         return $response;
@@ -240,7 +249,11 @@ class Api1Controller extends Controller
             $pkg['CFDefinitions']['CFRubrics'] = $rubrics;
         }
 
-        $response->setContent($this->get('serializer')->serialize($pkg, $_format));
+        $response->setContent($this->get('serializer')->serialize(
+            $pkg,
+            $_format,
+            SerializationContext::create()->setGroups(['Default', 'CfPackage'])
+        ));
 
         return $response;
     }
@@ -358,7 +371,14 @@ class Api1Controller extends Controller
         }
 
         $serializer = $this->get('serializer');
-        $result = $serializer->serialize($doc, $_format);
+        $result = $serializer->serialize(
+            $doc,
+            $_format,
+            SerializationContext::create()->setGroups([
+                'Default',
+                preg_replace('/.*\\\\/', '', $type),
+            ])
+        );
 
         $response->setContent($result);
 
