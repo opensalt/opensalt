@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "09cacce4fc0a2667cc2594fb23c70942",
+    "content-hash": "9dc7a1d1b716906889718e20075418d6",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -6265,20 +6265,21 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.33.2",
+            "version": "v2.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "dd6ca96227917e1e85b41c7c3cc6507b411e0927"
+                "reference": "85e8372c451510165c04bf781295f9d922fa524b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/dd6ca96227917e1e85b41c7c3cc6507b411e0927",
-                "reference": "dd6ca96227917e1e85b41c7c3cc6507b411e0927",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/85e8372c451510165c04bf781295f9d922fa524b",
+                "reference": "85e8372c451510165c04bf781295f9d922fa524b",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.2.7"
+                "php": "^7.0",
+                "symfony/polyfill-mbstring": "~1.0"
             },
             "require-dev": {
                 "psr/container": "^1.0",
@@ -6288,7 +6289,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.33-dev"
+                    "dev-master": "2.3-dev"
                 }
             },
             "autoload": {
@@ -6323,7 +6324,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2017-04-20T17:39:48+00:00"
+            "time": "2017-04-21T00:13:02+00:00"
         },
         {
             "name": "ua-parser/uap-php",
@@ -7196,41 +7197,6 @@
                 "source": "https://github.com/PCGGenEd/faker-context/tree/master"
             },
             "time": "2017-02-27 23:01:35"
-        },
-        {
-            "name": "emuse/behat-html-formatter",
-            "version": "v0.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dutchiexl/BehatHtmlFormatterPlugin.git",
-                "reference": "c7a51a1013c0ee6fdc4a00e93842d5f9c8bc98ec"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dutchiexl/BehatHtmlFormatterPlugin/zipball/c7a51a1013c0ee6fdc4a00e93842d5f9c8bc98ec",
-                "reference": "c7a51a1013c0ee6fdc4a00e93842d5f9c8bc98ec",
-                "shasum": ""
-            },
-            "require": {
-                "behat/behat": "~3.0",
-                "php": ">=5.3.0",
-                "twig/twig": "~1.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "emuse\\BehatHTMLFormatter\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "authors": [
-                {
-                    "name": "Neal Vanmeert",
-                    "email": "neal@emuse.be"
-                }
-            ],
-            "description": "This will create a html formatter for Behat.",
-            "time": "2015-05-27T15:09:34+00:00"
         },
         {
             "name": "escapestudios/symfony2-coding-standard",

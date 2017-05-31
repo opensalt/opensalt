@@ -47,8 +47,10 @@ class CaseImport
      * Import a CASE file
      *
      * @param \stdClass $fileContent JSON content
+     *
+     * @return LsDoc
      */
-    public function importCaseFile(\stdClass $fileContent)
+    public function importCaseFile(\stdClass $fileContent): LsDoc
     {
         $em = $this->getEntityManager();
         $lsDoc = new LsDoc();
@@ -229,5 +231,7 @@ class CaseImport
         }
 
         $em->flush();
+
+        return $lsDoc;
     }
 }

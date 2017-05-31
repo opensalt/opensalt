@@ -3,7 +3,9 @@
 namespace Salt\SiteBundle\Controller;
 
 use CftfBundle\Entity\LsDoc;
+use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +23,7 @@ class DefaultController extends Controller
     public function aboutAction()
     {
         $rootDir = $this->getParameter('kernel.root_dir');
-        $webDir = realpath($rootDir.'/../web');
+        $webDir = dirname($rootDir).'/web';
 
         if (file_exists($webDir.'/version.txt')) {
             $fullVersion = trim(file_get_contents($webDir.'/version.txt'));
@@ -38,6 +40,7 @@ class DefaultController extends Controller
 
     /**
      * @Route("/salt/case/import", name="import_case_file")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      *
@@ -50,7 +53,11 @@ class DefaultController extends Controller
         $fileContent = json_decode($content);
 
         $caseImporter = $this->get('cftf_import.case');
-        $caseImporter->importCaseFile($fileContent);
+        $doc = $caseImporter->importCaseFile($fileContent);
+        $user = $this->getUser();
+        if ($user instanceof User) {
+            $doc->setOrg($user->getOrg());
+        }
 
         return $response->setData([
             'message' => 'Success'
@@ -114,7 +121,10 @@ class DefaultController extends Controller
         $lsDocId = $request->query->get('lsDocId');
         $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find($lsDocId);
 
-        foreach ($lsDoc->getImportLogs() as $log){
+        // do not allow if the user cannot edit the document
+        $this->denyAccessUnlessGranted('edit', $lsDoc);
+
+        foreach ($lsDoc->getImportLogs() as $log) {
             $log->markAsRead();
         }
         $em->flush();
