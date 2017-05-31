@@ -153,7 +153,7 @@ class LsDocController extends Controller
      * @Route("/{id}.{_format}", defaults={"_format"="html"}, name="lsdoc_show")
      * @Method("GET")
      * @Template()
-     * @Security("is_granted('view', 'lsdoc')")
+     * @Security("is_granted('view', lsDoc)")
      *
      * @param LsDoc $lsDoc
      * @param string $_format
@@ -265,7 +265,7 @@ class LsDocController extends Controller
      * @Route("/{id}/export.{_format}", requirements={"_format"="(json|html|null)"}, defaults={"_format"="json"}, name="lsdoc_export")
      * @Method("GET")
      * @Template()
-     * @Security("is_granted('view', 'lsdoc')")
+     * @Security("is_granted('view', lsDoc)")
      *
      * @param LsDoc $lsDoc
      * @param string $_format
