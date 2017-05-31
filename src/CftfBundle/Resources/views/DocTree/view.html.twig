@@ -3,7 +3,13 @@
 {% block title %}{{ lsDocTitle }}{% endblock %}
 
 {% block body %}
-<div class="row">
+<!-- initially hide header and footer; we'll show them right away if we're not in "chooser mode" -->
+<style>
+header, footer {
+    display:none;
+}
+</style>
+<div class="row" id="docTitleRow" style="display:none">
     {% if lsDoc is not empty and lsDoc.adoptionStatus != "" %}
     <div class="col-sm-10">
     {% else %}
@@ -26,16 +32,18 @@
     {% endif %}
 </div>
 
-<div class="row" id="treeView">
+<div class="row" id="treeView" style="display:none">
     <div id="treeSideLeft" class="col-sm-6 treeSide">
         {% if editorRights %}
-            <div id="tree1InitialInstructions" class="bg-info instructions" style="display:none">Select a Competency Framework Document to view on the left side.</div>
-            <div id="tree1SectionThisDocInstructions" class="bg-info instructions"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Browse, edit, reorder, and create new items here.<br /><label style="font-weight:normal; padding:5px 0 0 20px"><input type="checkbox" id="enableMoveCheckbox"> Enable drag-and-drop reordering</label></div>
-            <div id="tree1SectionOtherDocInstructions" class="bg-info instructions" style="display:none"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Drag and drop from right to left to <b>create associations</b>.</div>
+            <div id="tree1Instructions">
+                <div id="tree1InitialInstructions" class="bg-info instructions" style="display:none">Select a Competency Framework Document to view on the left side.</div>
+                <div id="tree1SectionThisDocInstructions" class="bg-info instructions"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Browse, edit, reorder, and create new items here.<br /><label style="font-weight:normal; padding:5px 0 0 20px"><input type="checkbox" id="enableMoveCheckbox"> Enable drag-and-drop reordering</label></div>
+                <div id="tree1SectionOtherDocInstructions" class="bg-info instructions" style="display:none"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Drag and drop from right to left to <b>create associations</b>.</div>
 
-            <div id="tree1SelectorDiv" class="container-fluid" style="display:none"><div class="row">
-            <!-- document menu will be inserted here -->
-            </div></div>
+                <div id="tree1SelectorDiv" class="container-fluid" style="display:none"><div class="row">
+                <!-- document menu will be inserted here -->
+                </div></div>
+            </div>
         {% endif %}
 
         <div class="assocGroupFilter form-group form-inline" style="display:none">
@@ -82,9 +90,11 @@
         </div>
     </div>
 
+    <div id="chooserModeTreeSideRightBackground"></div>
+
     <div id="treeSideRight" class="col-sm-6 treeSide">
         {% if editorRights %}
-        <div class="form-group">
+        <div class="form-group" id="treeRightSideMode">
             <div class="btn-group" role="group" aria-label="...">
                 <button id="rightSideItemDetailsBtn" type="button" class="btn btn-primary">Item Details</button>
                 <button id="rightSideCopyItemsBtn" type="button" class="btn btn-default">Copy Items</button>
@@ -96,6 +106,10 @@
         <section id="itemSection" class="panel panel-default">
             <div id="items" class="panel-body">
                 <div id="itemInfo">
+                    <div id="chooserModeButtons">
+                        <button id="chooserModeItemDetailsChooseBtn" class="btn btn-primary btn-sm">Choose</button>
+                        <span id="chooserModeItemDetailsCloseDetailsBtn" class="glyphicon glyphicon-remove" title="Close details"></span>
+                    </div>
                     <h4 class="itemTitle">
                         <img class="itemTitleIcon" src="/assets/img/item.png" />
                         <span class="itemTitleSpan"></span>
@@ -104,7 +118,8 @@
                         <ul class="list-group lsItemDetailsMain"></ul>
 
                         <div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
-
+                        
+                        <div id="itemOptionsWrapper">
                         {% if editorRights %}
                             <div class="itemOptions" id="itemOptions">
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal" data-alt-document-disabled="true">Edit</button>
@@ -115,24 +130,25 @@
                             </div>
                         {% endif %}
 
-                        <div class="itemOptions" id="documentOptions">
-                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
-                            {# use first version if we need to edit the adoptionStatus #}
-                            {% if editorRights %}
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal" data-alt-document-disabled="true">Edit</button>
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#manageAssocGroupsModal" data-alt-document-disabled="true">Manage Association Groups</button>
-                            {% endif %}
-                            {% if manageEditorsRights %}
-                                <a href="{{ path('framework_acl_edit', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
-                            {% endif %}
+                            <div class="itemOptions" id="documentOptions">
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
+                                {# use first version if we need to edit the adoptionStatus #}
+                                {% if editorRights %}
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal" data-alt-document-disabled="true">Edit</button>
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#manageAssocGroupsModal" data-alt-document-disabled="true">Manage Association Groups</button>
+                                {% endif %}
+                                {% if manageEditorsRights %}
+                                    <a href="{{ path('framework_acl_edit', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
+                                {% endif %}
 
-                            {% if editorRights %}
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add New Child Item</button>
-                            {% endif %}
+                                {% if editorRights %}
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add New Child Item</button>
+                                {% endif %}
 
-                            {% if createRights %}
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal" data-alt-document-disabled="true">Import Children</button>
-                            {% endif %}
+                                {% if createRights %}
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal" data-alt-document-disabled="true">Import Children</button>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>  <!-- lsItemDetails -->
                     <div class="lsItemAssociations"></div>

@@ -262,9 +262,12 @@ apx.treeDocLoadCallback1 = function() {
                     // push history state...
                     apx.pushHistoryState();
                 }
-
-                // hide tree2 and show the item details section; this will call showCurrentItem
-                apx.setRightSideMode("itemDetails");
+				
+				// if we're in chooser mode, show this item's buttons (this won't have any effect if we're not in chooser mode)
+				apx.chooserMode.enableTreeItemButtons(data.node);
+				
+				// hide tree2 and show the item details section; this will call showCurrentItem
+				apx.setRightSideMode("itemDetails");
             },
 
             // if user doubleclicks on a node, open the node, then simulate clicking the "Edit" button for it

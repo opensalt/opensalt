@@ -99,13 +99,30 @@ apx.initialize = function() {
     if (!empty(apx.initialAssocGroup)) {
         apx.initialAssocGroup *= 1;
     }
+    
+    // parse query string
+    apx.query = {};
+    var arr = document.location.search.substr(1).split("&");
+    for (var i = 0; i < arr.length; ++i) {
+        var line = arr[i].split("=");
+        apx.query[line[0]] = line[1];
+    }
+    
+    // if we're in chooserMode, initialize
+    if (apx.chooserMode.active()) {
+        apx.chooserMode.initialize();
+    } else {
+        // else show docTitleRow, header, and footer
+        $("header, #docTitleRow, footer").show();
+    }
 
     ///////////////////////////////////////////////////////////////////////////////
     // MAINDOC
+    
     // lsDocId could be an integer, in which case it's a SALT database ID; or we could be loading by url
     if (apx.lsDocId === 'url') {
         // if we're loading by url, the url should be in the search string, i.e. "url=http://example.com"
-        apx.mainDoc = new apxDocument({"url": decodeURIComponent(location.search.substr(5))});
+        apx.mainDoc = new apxDocument({"url": decodeURIComponent(apx.query.url)});
     } else {
         apx.mainDoc = new apxDocument({"id": apx.lsDocId});
     }
@@ -114,6 +131,9 @@ apx.initialize = function() {
     apx.spinner.showModal("Loading document");
     apx.mainDoc.load(function() {
         apx.spinner.hideModal();
+        
+        // show the treeView div now that the document has been loaded
+        $("#treeView").show();
         
         // fill in document title, in case we loaded from url
         $("#docTitle").html(apx.mainDoc.doc.title);
@@ -258,8 +278,8 @@ window.onpopstate = function(event) {
 
 /** Function to update the history state */
 apx.pushHistoryState = function() {
-    // no history if we loaded the mainDoc from a url
-    if (apx.mainDoc.loadedFromUrl()) {
+    // no history if we loaded the mainDoc from a url, or if we're in chooser mode
+    if (apx.mainDoc.loadedFromUrl() || apx.query.mode == "chooser") {
         return;
     }
     
