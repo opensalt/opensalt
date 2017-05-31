@@ -418,23 +418,29 @@ function apxDocument(initializer) {
         function treeItemTitle(item) {
             // start with the standard title for the item
             var title = self.getItemTitle(item);
+            
+            // if we're in chooser mode...
+            if (apx.query.mode == "chooser") {
+                title = apx.chooserMode.treeItemButtons() + title;
 
-            // if the item has an association other than isChildOf *in apx.mainDoc*, show an indicator to that effect
-            var associationDisplay = "none";
-            var ci2 = apx.mainDoc.itemHash[item.identifier];
-            if (!empty(ci2)) {
-                for (var j = 0; j < ci2.assocs.length; ++j) {
-                    var a = ci2.assocs[j];
-                    if (a.type != "isChildOf") {
-                        associationDisplay = "block";
-                        break;
+            } else {
+                // if the item has an association other than isChildOf *in apx.mainDoc*, show an indicator to that effect
+                var associationDisplay = "none";
+                var ci2 = apx.mainDoc.itemHash[item.identifier];
+                if (!empty(ci2)) {
+                    for (var j = 0; j < ci2.assocs.length; ++j) {
+                        var a = ci2.assocs[j];
+                        if (a.type != "isChildOf") {
+                            associationDisplay = "block";
+                            break;
+                        }
                     }
                 }
+    
+                // if we don't show it now, it's there in case we add an association later
+                title = '<div class="treeHasAssociation" style="display:' + associationDisplay + '"><img src="/assets/img/association-icon.png" title="This item is the origin for one or more associations."></div>' + title;
             }
-    
-            // if we don't show it now, it's there in case we add an association later
-            title = '<div class="treeHasAssociation" style="display:' + associationDisplay + '"><img src="/assets/img/association-icon.png" title="This item is the origin for one or more associations."></div>' + title;
-    
+                
             return title;
         }
 

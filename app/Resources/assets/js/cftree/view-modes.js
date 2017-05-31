@@ -336,3 +336,146 @@ apx.viewMode.showAssocView = function(context) {
     $("#treeView").hide();
     $("#assocView").show();
 };
+
+////////////////////////////////////////////////
+// "CHOOSER" MODE
+
+apx.chooserMode = {};
+apx.chooserMode.active = function() {
+    // we're in chooser mode if "mode=chooser" is in the query string
+    return (apx.query.mode == "chooser");
+};
+
+apx.chooserMode.initialize = function() {
+    // hide header, footer, docTitleRow, instructions, and some other things
+    $("header").hide();
+    $("footer").hide();
+    $("#docTitleRow").hide();
+    $("#tree1Instructions").hide();
+    $("#treeRightSideMode").hide();
+    $("#itemOptionsWrapper").hide();
+    
+    // unless we have "associations=true" in the query string, hide associations from the item details
+    if (apx.query.associations != "true") {
+        $(".lsItemAssociations").hide();
+    }
+    
+    // set treeSideLeft to class col-sm-12 instead of col-sm-6
+    $("#treeSideLeft").removeClass("col-sm-6").addClass("chooserModeDocTree");
+    
+    // for treeSideRight, remove class col-sm6 and add class chooserModeItemDetails
+    $("#treeSideRight").removeClass("col-sm-6").addClass("chooserModeItemDetails");
+    
+    // click event on chooserModeTreeSideRightBackground
+    $("#chooserModeTreeSideRightBackground").on("click", function() { apx.chooserMode.hideDetails(); });
+    
+    // show and enable chooserModeButtons
+    $("#chooserModeButtons").show();
+    $("#chooserModeItemDetailsChooseBtn").on("click", function() { apx.chooserMode.choose(); });
+    $("#chooserModeItemDetailsCloseDetailsBtn").on("click", function() { apx.chooserMode.hideDetails(); });
+};
+
+/** Buttons to show next to each item's title in the fancytree */
+apx.chooserMode.treeItemButtons = function() {
+    return '<div class="treeItemButtons" style="display:none">'
+        + '<button class="chooserModeShowDetailsBtn btn btn-default btn-xs"><span class="glyphicon glyphicon-search" title="Show details"></span></button>'
+        + ' <button class="chooserModeChooseBtn btn btn-default btn-xs">Choose</button>'
+        + '</div>'
+        ;
+}
+
+/** Enable item chooser buttons; this will be called each time an item is activated in the fancytree */
+apx.chooserMode.enableTreeItemButtons = function(node) {
+    if (apx.query.mode == "chooser") {
+        // hide and disable all buttons
+        $(".treeItemButtons").hide().find("button").off("click");
+        // then show and enable this item's buttons
+        $(node.li).find(".treeItemButtons").first().show();
+        $(node.li).find(".treeItemButtons").first().find(".chooserModeShowDetailsBtn").on("click", function() { apx.chooserMode.showDetails(); });
+        $(node.li).find(".treeItemButtons").first().find(".chooserModeChooseBtn").on("click", function() { apx.chooserMode.choose(); });
+    }
+};
+
+/** User clicked to show details for an item */
+apx.chooserMode.showDetails = function() {
+    $("#chooserModeTreeSideRightBackground").show();
+    $("#treeSideRight").animate({"right": "10px"}, 200);
+
+    // remove stray tooltips
+    setTimeout(function() { $(".tooltip").remove(); }, 100);
+};
+
+/** Hide details */
+apx.chooserMode.hideDetails = function() {
+    $("#chooserModeTreeSideRightBackground").hide();
+    $("#treeSideRight").animate({"right": "-600px"}, 200);
+};
+
+/** Item is chosen... */
+apx.chooserMode.choose = function() {
+    // compose data to send back about chosen item
+    var i = apx.mainDoc.currentItem;
+    var data = {
+        "item": {
+            "identifier": i.identifier,
+            "saltId": i.id,
+            "fullStatement": i.fstmt,
+            "abbreviatedStatement": i.astmt,
+            "humanCodingScheme": i.hcs,
+            "listEnumInSource": i.le,
+            "conceptKeywords": i.ck,
+            "conceptKeywordsURI": i.cku,
+            "notes": i.notes,
+            "language": i.lang,
+            "educationalAlignment": i.el,
+            "itemType": i.itp,
+            "lastChangeDateTime": i.mod
+        }
+    };
+    
+    // append a token if provided
+    if (!empty(apx.query.choosercallbacktoken)) {
+        data.token = apx.query.choosercallbacktoken;
+    }
+    
+    console.log(data);
+    
+    apx.spinner.showModal("Item chosen");
+    
+    // if a callback url is given in the query string, send the chosen item back to that url
+    if (!empty(apx.query.choosercallbackurl)) {
+        var url = apx.query.choosercallbackurl + "?data=" + encodeURIComponent(JSON.stringify(data));
+        window.location = url;
+        /*
+        $.ajax({
+            url: apx.query.choosercallbackurl,
+            method: 'GET',
+            data: data
+        }).done(function(data, textStatus, jqXHR) {
+            console.log("OpenSALT item chooser callback function executed.");
+            apx.spinner.hideModal();
+            
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            apx.spinner.hideModal();
+            console.log(errorThrown);
+            alert("Error submitting chosen item.");
+        });
+        */
+        
+        return;
+    
+    // else if a callback function is given, try to call it
+    } else if (!empty(apx.query.choosercallbackfn)) {
+        try {
+            apx.query.choosercallbackfn(data);
+        } catch(e) {
+            apx.spinner.hideModal();
+            console.log(e);
+            alert("Callback function “" + apx.query.choosercallbackfn + "” did not execute.");
+        }
+        return;
+    }
+    
+    apx.spinner.hideModal();
+    alert("Item chosen: " + itemData.fullStatement + "\n\nTo send items to a callback URL or function, provide a “choosercallbackurl” or “choosercallbackfn” in the query string.");
+};

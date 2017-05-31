@@ -482,3 +482,53 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 .assocViewTableGroupFilters {
     display:none;
 }
+
+// "Chooser mode"
+#chooserModeTreeSideRightBackground {
+    position:fixed;
+    left:0;
+    top:0;
+    height:100vh;
+    width:100vw;
+    background-color:#ccc;
+    opacity:0.8;
+    display:none;
+}
+
+.chooserModeDocTree {
+    max-width:800px;
+    margin:0 auto !important;
+    border-right:0 !important;
+    padding:10px;
+    height: auto !important;
+}
+
+.chooserModeItemDetails {
+    position:fixed;
+    z-index:10;
+    right:-600px;
+    top:10px;
+    width:80vw;
+    max-width:600px;
+    border-left:0 !important;
+    height:auto !important;
+}
+
+#chooserModeButtons {
+    display:none;
+    text-align:right;
+    margin-right:-10px;
+    margin-top:-5px;
+}
+
+#chooserModeItemDetailsCloseDetailsBtn {
+    cursor:pointer;
+    margin-left:5px;
+}
+
+.treeItemButtons {
+    position:absolute;
+    right:5px;
+    padding: 4px 0 4px 6px;
+    margin-top: -5px;
+}
