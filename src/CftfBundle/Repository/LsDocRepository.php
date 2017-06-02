@@ -297,6 +297,32 @@ xENDx;
      * @param LsDoc $newDoc
      * @param \Closure|null $progressCallback
      */
+    public function makeDerivative(LsDoc $oldLsDoc): LsDoc
+    {
+        $em = $this->getEntityManager();
+        $newLsDoc = new LsDoc();
+        $newLsDoc->setTitle($oldLsDoc->getTitle() . " - Derivated");
+        $newLsDoc->setCreator($oldLsDoc->getCreator());
+        $newLsDoc->setVersion($oldLsDoc->getVersion());
+        $newLsDoc->setDescription($oldLsDoc->getDescription());
+        $newLsDoc->setSubject($oldLsDoc->getSubject());
+        $newLsDoc->setNote($oldLsDoc->getNote());
+        $newLsDoc->setLanguage($oldLsDoc->getLanguage());
+        $newLsDoc->setOrg($oldLsDoc->getOrg());
+        $newLsDoc->setUser($oldLsDoc->getUser());
+        $newLsDoc->setOwnedBy($oldLsDoc->getOwnedBy());
+        $newLsDoc->setAssociationGroupings($oldLsDoc->getAssociationGroupings());
+        $newLsDoc->setLicence($oldLsDoc->getLicence());
+
+        $em->flush();
+        return $newLsDoc;
+    }
+
+    /**
+     * @param LsDoc $oldDoc
+     * @param LsDoc $newDoc
+     * @param \Closure|null $progressCallback
+     */
     public function copyDocumentToItem(LsDoc $oldDoc, LsDoc $newDoc, \Closure $progressCallback = null)
     {
         $em = $this->getEntityManager();

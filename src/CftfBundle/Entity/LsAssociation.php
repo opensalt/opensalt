@@ -333,6 +333,25 @@ class LsAssociation implements CaseApiInterface
     }
 
     /**
+     * Get all types collectted by camel case.
+     *
+     * @return array
+     */
+    public static function allTypesCamelCase(){
+        $typesCamelCase = [
+            'isPartOf' =>                     static::PART_OF,
+            'exemplar' =>                     static::EXEMPLAR,
+            'isPeerOf' =>                     static::IS_PEER_OF,
+            'precedes' =>                     static::PRECEDES,
+            'isRelatedTo' =>                  static::RELATED_TO,
+            'replacedBy' =>                   static::REPLACED_BY,
+            'hasSkillLevel' =>                static::SKILL_LEVEL,
+            'cfAssociationGroupIdentifier' => static::RELATED_TO,
+        ];
+        return $typesCamelCase;
+    }
+
+    /**
      * Get an array of all association types available
      *
      * @return array
@@ -576,6 +595,10 @@ class LsAssociation implements CaseApiInterface
 
         if ($this->getDestinationNodeUri()) {
             return $this->getDestinationNodeUri();
+        }
+
+        if ($this->getDestinationNodeIdentifier()) {
+            return $this->getDestinationNodeIdentifier();
         }
 
         return null;

@@ -130,25 +130,26 @@ header, footer {
                             </div>
                         {% endif %}
 
-                            <div class="itemOptions" id="documentOptions">
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
-                                {# use first version if we need to edit the adoptionStatus #}
-                                {% if editorRights %}
-                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal" data-alt-document-disabled="true">Edit</button>
-                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#manageAssocGroupsModal" data-alt-document-disabled="true">Manage Association Groups</button>
-                                {% endif %}
-                                {% if manageEditorsRights %}
-                                    <a href="{{ path('framework_acl_edit', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
-                                {% endif %}
+                        <div class="itemOptions" id="documentOptions">
+                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
+                            {# use first version if we need to edit the adoptionStatus #}
+                            {% if editorRights %}
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal" data-alt-document-disabled="true">Edit</button>
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#manageAssocGroupsModal" data-alt-document-disabled="true">Manage Association Groups</button>
+                            {% endif %}
+                            {% if manageEditorsRights %}
+                                <a href="{{ path('framework_acl_edit', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
+                            {% endif %}
 
-                                {% if editorRights %}
-                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add New Child Item</button>
-                                {% endif %}
+                            {% if editorRights %}
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add New Child Item</button>
+                            {% endif %}
 
-                                {% if createRights %}
-                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal" data-alt-document-disabled="true">Import Children</button>
-                                {% endif %}
-                            </div>
+                            {% if createRights %}
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal" data-alt-document-disabled="true">Import Children</button>
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#updateFrameworkModal" data-alt-document-disabled="true">Update Framework</button>
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#seeImportLogs" data-alt-document-disabled="true">Import Logs</button>
+                            {% endif %}
                         </div>
                     </div>  <!-- lsItemDetails -->
                     <div class="lsItemAssociations"></div>
@@ -221,28 +222,30 @@ header, footer {
     </div>
 </div>
 
-<div class="modal fade" id="seeImportLogs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Importation Logs</h4>
-            </div>
-            <div class="modal-body">
-                <button class="btn btn-link" id="mark-logs-as-read">Mark all as read</button>
-                <div class="list-group">
-                    {% if lsDoc is not empty %}
-                        {% for importLog in lsDoc.importLogs %}
-                            {% if importLog.read == false %}
-                                <a href="#" class="list-group-item list-group-item-{{ importLog.messageType }}">{{ importLog.message }}</a>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
+{% if createRights %}
+    <div class="modal fade" id="seeImportLogs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Import Logs</h4>
+                </div>
+                <div class="modal-body">
+                    <button class="btn btn-link" id="mark-logs-as-read">Mark all as read</button>
+                    <div class="list-group">
+                        {% if lsDoc is not empty %}
+                            {% for importLog in lsDoc.importLogs %}
+                                {% if importLog.read == false %}
+                                    <a href="#" class="list-group-item list-group-item-{{ importLog.messageType }}">{{ importLog.message }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+{% endif %}
 
 {% if lsDoc is not empty %}
     {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
@@ -259,6 +262,10 @@ header, footer {
 {% endif %}
 
 {% if editorRights %}
+    {% embed 'CftfBundle:DocTree:updateFrameworkModal.html.twig' with {
+        'lsDocId':lsDocId
+    }%}
+    {% endembed %}
     {% embed 'CftfBundle:DocTree:wizard.html.twig' with {
         'lsDocId':lsDocId
     }%}
