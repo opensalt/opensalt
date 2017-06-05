@@ -26,7 +26,7 @@ use Util\Compare;
  *
  * @Serializer\VirtualProperty(
  *     "uri",
- *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     exp="service('salt.api.v1p0.utils').getApiUrl(object)",
  *     options={
  *         @Serializer\SerializedName("uri"),
  *         @Serializer\Expose()
@@ -35,7 +35,7 @@ use Util\Compare;
  *
  * @Serializer\VirtualProperty(
  *     "cfPackageUri",
- *     exp="service('salt.api.v1p1.utils').getLinkUri(object, 'api_v1p1_cfpackage')",
+ *     exp="service('salt.api.v1p0.utils').getLinkUri(object, 'api_v1p0_cfpackage')",
  *     options={
  *         @Serializer\SerializedName("CFPackageURI"),
  *         @Serializer\Expose()
@@ -44,7 +44,7 @@ use Util\Compare;
  *
  * @Serializer\VirtualProperty(
  *     "subjectUri",
- *     exp="(object.getSubjects().count()===0)?null:service('salt.api.v1p1.utils').getLinkUriList(object.getSubjects())",
+ *     exp="(object.getSubjects().count()===0)?null:service('salt.api.v1p0.utils').getLinkUriList(object.getSubjects())",
  *     options={
  *         @Serializer\SerializedName("subjectURI"),
  *         @Serializer\Expose()
@@ -53,7 +53,7 @@ use Util\Compare;
  *
  * @Serializer\VirtualProperty(
  *     "licenseUri",
- *     exp="service('salt.api.v1p1.utils').getLinkUri(object.getLicence())",
+ *     exp="service('salt.api.v1p0.utils').getLinkUri(object.getLicence())",
  *     options={
  *         @Serializer\SerializedName("licenseURI"),
  *         @Serializer\Expose()

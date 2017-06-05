@@ -15,7 +15,7 @@ use Ramsey\Uuid\Uuid;
  * @Serializer\ExclusionPolicy("all")
  * @Serializer\VirtualProperty(
  *     "uri",
- *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     exp="service('salt.api.v1p0.utils').getApiUrl(object)",
  *     options={
  *         @Serializer\SerializedName("uri"),
  *         @Serializer\Expose()

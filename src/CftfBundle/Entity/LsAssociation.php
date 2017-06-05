@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "uri",
- *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     exp="service('salt.api.v1p0.utils').getApiUrl(object)",
  *     options={
  *         @Serializer\SerializedName("uri"),
  *         @Serializer\Expose()
@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "cfDocumentUri",
- *     exp="service('salt.api.v1p1.utils').getLinkUri(object.getLsDoc())",
+ *     exp="service('salt.api.v1p0.utils').getLinkUri(object.getLsDoc())",
  *     options={
  *         @Serializer\SerializedName("CFDocumentURI"),
  *         @Serializer\Expose()
@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "cfAssociationGroupingUri",
- *     exp="service('salt.api.v1p1.utils').getLinkUri(object.getGroup())",
+ *     exp="service('salt.api.v1p0.utils').getLinkUri(object.getGroup())",
  *     options={
  *         @Serializer\SerializedName("CFAssociationGroupingURI"),
  *         @Serializer\Expose()
@@ -43,7 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "originNodeUri",
- *     exp="service('salt.api.v1p1.utils').getNodeLinkUri('origin', object)",
+ *     exp="service('salt.api.v1p0.utils').getNodeLinkUri('origin', object)",
  *     options={
  *         @Serializer\SerializedName("originNodeURI"),
  *         @Serializer\Expose()
@@ -52,7 +52,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "associationType",
- *     exp="service('salt.api.v1p1.utils').formatAssociationType(object.getType())",
+ *     exp="service('salt.api.v1p0.utils').formatAssociationType(object.getType())",
  *     options={
  *         @Serializer\SerializedName("associationType"),
  *         @Serializer\Expose()
@@ -61,7 +61,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "destinationNodeUri",
- *     exp="service('salt.api.v1p1.utils').getNodeLinkUri('destination', object)",
+ *     exp="service('salt.api.v1p0.utils').getNodeLinkUri('destination', object)",
  *     options={
  *         @Serializer\SerializedName("destinationNodeURI"),
  *         @Serializer\Expose()

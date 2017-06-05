@@ -20,22 +20,22 @@ use Symfony\Bundle\FrameworkBundle\Routing\Router;
 /**
  * Class ApiService
  *
- * @DI\Service("salt.api.v1p1.utils")
+ * @DI\Service("salt.api.v1p0.utils")
  */
 class ApiUtilService
 {
     public static $classMap = [
-        LsDoc::class => 'api_v1p1_cfdocument',
-        LsItem::class => 'api_v1p1_cfitem',
-        LsDefItemType::class => 'api_v1p1_cfitemtype',
-        LsAssociation::class => 'api_v1p1_cfassociation',
-        LsDefAssociationGrouping::class => 'api_v1p1_cfassociationgrouping',
-        LsDefConcept::class => 'api_v1p1_cfconcept',
-        LsDefLicence::class => 'api_v1p1_cflicense',
-        LsDefSubject::class => 'api_v1p1_cfsubject',
-        CfRubric::class => 'api_v1p1_cfrubric',
-        CfRubricCriterion::class => 'api_v1p1_cfrubriccriterion',
-        CfRubricCriterionLevel::class => 'api_v1p1_cfrubriccriterionlevel',
+        LsDoc::class => 'api_v1p0_cfdocument',
+        LsItem::class => 'api_v1p0_cfitem',
+        LsDefItemType::class => 'api_v1p0_cfitemtype',
+        LsAssociation::class => 'api_v1p0_cfassociation',
+        LsDefAssociationGrouping::class => 'api_v1p0_cfassociationgrouping',
+        LsDefConcept::class => 'api_v1p0_cfconcept',
+        LsDefLicence::class => 'api_v1p0_cflicense',
+        LsDefSubject::class => 'api_v1p0_cfsubject',
+        CfRubric::class => 'api_v1p0_cfrubric',
+        CfRubricCriterion::class => 'api_v1p0_cfrubriccriterion',
+        CfRubricCriterionLevel::class => 'api_v1p0_cfrubriccriterionlevel',
     ];
 
     /**

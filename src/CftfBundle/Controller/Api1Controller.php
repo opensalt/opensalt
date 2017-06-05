@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\Response;
 class Api1Controller extends Controller
 {
     /**
-     * @Route("/CFDocuments.{_format}", name="api_v1p1_cfdocuments", defaults={"_format"="json"})
+     * @Route("/CFDocuments.{_format}", name="api_v1p0_cfdocuments", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getAllCfDocumentsAction(Request $request, $_format)
@@ -85,7 +85,7 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFDocuments/{id}.{_format}", name="api_v1p1_cfdocument", defaults={"_format"="json"})
+     * @Route("/CFDocuments/{id}.{_format}", name="api_v1p0_cfdocument", defaults={"_format"="json"})
      * @Method("GET")
      *
      * @param Request $request
@@ -100,7 +100,7 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFAssociationGroupings/{id}.{_format}", name="api_v1p1_cfassociationgrouping", defaults={"_format"="json"})
+     * @Route("/CFAssociationGroupings/{id}.{_format}", name="api_v1p0_cfassociationgrouping", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfAssociationGroupingAction(Request $request, $id, $_format)
@@ -109,7 +109,7 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFConcepts/{id}.{_format}", name="api_v1p1_cfconcept", defaults={"_format"="json"})
+     * @Route("/CFConcepts/{id}.{_format}", name="api_v1p0_cfconcept", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfConceptAction(Request $request, $id, $_format)
@@ -118,7 +118,7 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFItems/{id}.{_format}", name="api_v1p1_cfitem", defaults={"_format"="json"})
+     * @Route("/CFItems/{id}.{_format}", name="api_v1p0_cfitem", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfItemAction(Request $request, $id, $_format)
@@ -127,8 +127,8 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFItemAssociations/{id}.{_format}", name="api_v1p1_cfitemassociations", defaults={"_format"="json"})
-     * @Route("/CFItems/{id}/associations.{_format}", name="api_v1p1_cfitemassociations2", defaults={"_format"="json"})
+     * @Route("/CFItemAssociations/{id}.{_format}", name="api_v1p0_cfitemassociations", defaults={"_format"="json"})
+     * @Route("/CFItems/{id}/associations.{_format}", name="api_v1p0_cfitemassociations2", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfItemAssociationsAction(Request $request, $id, $_format)
@@ -182,7 +182,7 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFAssociations/{id}.{_format}", name="api_v1p1_cfassociation", defaults={"_format"="json"})
+     * @Route("/CFAssociations/{id}.{_format}", name="api_v1p0_cfassociation", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfAssociationAction(Request $request, $id, $_format)
@@ -192,7 +192,7 @@ class Api1Controller extends Controller
 
 
     /**
-     * @Route("/CFItemTypes/{id}.{_format}", name="api_v1p1_cfitemtype", defaults={"_format"="json"})
+     * @Route("/CFItemTypes/{id}.{_format}", name="api_v1p0_cfitemtype", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfItemTypeAction(Request $request, $id, $_format)
@@ -201,7 +201,7 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFLicenses/{id}.{_format}", name="api_v1p1_cflicense", defaults={"_format"="json"})
+     * @Route("/CFLicenses/{id}.{_format}", name="api_v1p0_cflicense", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfLicenseAction(Request $request, $id, $_format)
@@ -210,7 +210,7 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFPackages/{id}.{_format}", name="api_v1p1_cfpackage", defaults={"_format"="json"})
+     * @Route("/CFPackages/{id}.{_format}", name="api_v1p0_cfpackage", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfPackageAction(Request $request, $id, $_format)
@@ -259,7 +259,7 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFRubrics/{id}.{_format}", name="api_v1p1_cfrubric", defaults={"_format"="json"})
+     * @Route("/CFRubrics/{id}.{_format}", name="api_v1p0_cfrubric", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfRubricAction(Request $request, $id, $_format)
@@ -268,7 +268,7 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFRubricCriteria/{id}.{_format}", name="api_v1p1_cfrubriccriterion", defaults={"_format"="json"})
+     * @Route("/CFRubricCriteria/{id}.{_format}", name="api_v1p0_cfrubriccriterion", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfRubricCriterionAction(Request $request, $id, $_format)
@@ -277,7 +277,7 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFRubricCriterionLevels/{id}.{_format}", name="api_v1p1_cfrubriccriterionlevel", defaults={"_format"="json"})
+     * @Route("/CFRubricCriterionLevels/{id}.{_format}", name="api_v1p0_cfrubriccriterionlevel", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfRubricCriterionLevelAction(Request $request, $id, $_format)
@@ -286,7 +286,7 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFSubjects/{id}.{_format}", name="api_v1p1_cfsubject", defaults={"_format"="json"})
+     * @Route("/CFSubjects/{id}.{_format}", name="api_v1p0_cfsubject", defaults={"_format"="json"})
      * @Method("GET")
      */
     public function getCfSubjectAction(Request $request, $id, $_format)
