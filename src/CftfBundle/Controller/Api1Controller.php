@@ -146,13 +146,8 @@ class Api1Controller extends Controller
             ->getRepository(LsAssociation::class)
             ->findAllAssociationsFor($id);
 
-        if (null === $results) {
-            $this->get('logger')->info('CASE API: item associations (associations) not found', ['id' => $id]);
-            return $this->generate404($id, $_format);
-        }
-
         $associations = [];
-        $lastModified = new \DateTime('now - 10 years');
+        $lastModified = $item->getUpdatedAt();
         foreach ($results as $association) {
             /* @var LsAssociation $association */
             $associations[] = $association;
@@ -385,7 +380,8 @@ class Api1Controller extends Controller
         return $response;
     }
 
-    protected function isUuidValid(?string $uuid) {
+    protected function isUuidValid(string $uuid): bool
+    {
         if (!Uuid::isValid($uuid)) {
             return false;
         }
