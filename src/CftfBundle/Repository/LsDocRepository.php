@@ -2,9 +2,11 @@
 
 namespace CftfBundle\Repository;
 
+use CftfBundle\Entity\CaseApiInterface;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\Query;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Util\Compare;
 
 /**
@@ -12,6 +14,24 @@ use Util\Compare;
  */
 class LsDocRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * Finds an object for the API by ['id'=>identifier, 'class'=>class]
+     * @param array $id
+     *
+     * @return CaseApiInterface
+     * @throws NotFoundHttpException
+     */
+    public function apiFindOneByClassIdentifier(array $id): CaseApiInterface
+    {
+        /** @var CaseApiInterface $obj */
+        $obj = $this->_em->getRepository($id['class'])->findOneBy(['identifier' => $id['id']]);
+        if (null === $obj) {
+            throw new NotFoundHttpException(sprintf('%s object not found.', $id['class']));
+        }
+
+        return $obj;
+    }
+
     /**
      * @param string $slug
      *

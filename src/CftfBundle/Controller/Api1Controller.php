@@ -2,25 +2,15 @@
 
 namespace CftfBundle\Controller;
 
-use CftfBundle\Api\v1p0\DTO\ImsxCodeMinor;
-use CftfBundle\Api\v1p0\DTO\ImsxCodeMinorField;
-use CftfBundle\Api\v1p0\DTO\ImsxStatusInfo;
-use CftfBundle\Entity\CfRubric;
-use CftfBundle\Entity\CfRubricCriterion;
-use CftfBundle\Entity\CfRubricCriterionLevel;
+use CftfBundle\Entity\CaseApiInterface;
 use CftfBundle\Entity\LsAssociation;
-use CftfBundle\Entity\LsDefAssociationGrouping;
-use CftfBundle\Entity\LsDefConcept;
-use CftfBundle\Entity\LsDefItemType;
-use CftfBundle\Entity\LsDefLicence;
-use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Repository\CfDocQuery;
 use Doctrine\ORM\Query;
 use JMS\Serializer\SerializationContext;
-use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,7 +27,7 @@ class Api1Controller extends Controller
      * @Route("/CFDocuments.{_format}", name="api_v1p0_cfdocuments", defaults={"_format"="json"})
      * @Method("GET")
      */
-    public function getAllCfDocumentsAction(Request $request, $_format)
+    public function getAllCfDocumentsAction(Request $request): Response
     {
         $limit = $request->query->get('limit', 100);
         $offset = $request->query->get('offset', 0);
@@ -76,7 +66,7 @@ class Api1Controller extends Controller
 
         $response->setContent($this->get('serializer')->serialize(
             ['CFDocuments' => $docs],
-            $_format,
+            $request->getRequestFormat('json'),
             SerializationContext::create()->setGroups(['Default', 'CfDocuments'])
         ));
         $response->headers->set('X-Total-Count', count($docs));
@@ -85,139 +75,15 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFDocuments/{id}.{_format}", name="api_v1p0_cfdocument", defaults={"_format"="json"})
-     * @Method("GET")
-     *
-     * @param Request $request
-     * @param string $id
-     * @param string $_format
-     *
-     * @return Response
-     */
-    public function getCfDocumentAction(Request $request, $id, $_format)
-    {
-        return $this->generateObjectResponse(LsDoc::class, $request, $id, $_format);
-    }
-
-    /**
-     * @Route("/CFAssociationGroupings/{id}.{_format}", name="api_v1p0_cfassociationgrouping", defaults={"_format"="json"})
-     * @Method("GET")
-     */
-    public function getCfAssociationGroupingAction(Request $request, $id, $_format)
-    {
-        return $this->generateObjectResponse(LsDefAssociationGrouping::class, $request, $id, $_format);
-    }
-
-    /**
-     * @Route("/CFConcepts/{id}.{_format}", name="api_v1p0_cfconcept", defaults={"_format"="json"})
-     * @Method("GET")
-     */
-    public function getCfConceptAction(Request $request, $id, $_format)
-    {
-        return $this->generateObjectResponse(LsDefConcept::class, $request, $id, $_format);
-    }
-
-    /**
-     * @Route("/CFItems/{id}.{_format}", name="api_v1p0_cfitem", defaults={"_format"="json"})
-     * @Method("GET")
-     */
-    public function getCfItemAction(Request $request, $id, $_format)
-    {
-        return $this->generateObjectResponse(LsItem::class, $request, $id, $_format);
-    }
-
-    /**
-     * @Route("/CFItemAssociations/{id}.{_format}", name="api_v1p0_cfitemassociations", defaults={"_format"="json"})
-     * @Route("/CFItems/{id}/associations.{_format}", name="api_v1p0_cfitemassociations2", defaults={"_format"="json"})
-     * @Method("GET")
-     */
-    public function getCfItemAssociationsAction(Request $request, $id, $_format)
-    {
-        $item = $this->getDoctrine()
-            ->getRepository(LsItem::class)
-            ->findOneBy(['identifier' => $id]);
-
-        if (empty($item)) {
-            $this->get('logger')->info('CASE API: item associations (item) not found', ['id' => $id]);
-            return $this->generate404($id, $_format);
-        }
-
-        $results = $this->getDoctrine()
-            ->getRepository(LsAssociation::class)
-            ->findAllAssociationsFor($id);
-
-        $associations = [];
-        $lastModified = $item->getUpdatedAt();
-        foreach ($results as $association) {
-            /* @var LsAssociation $association */
-            $associations[] = $association;
-            if ($association->getUpdatedAt() > $lastModified) {
-                $lastModified = $association->getUpdatedAt();
-            }
-        }
-
-        $this->get('logger')->info('CASE API: item associations returned', ['id' => $id]);
-
-        $response = $this->generateBaseReponse($lastModified);
-        if ($response->isNotModified($request)) {
-            return $response;
-        }
-
-        $response->setContent($this->get('serializer')->serialize(
-            [
-                'CFItem' => $item,
-                'CFAssociations' => $associations,
-            ],
-            $_format,
-            SerializationContext::create()->setGroups(['Default', 'CfItemAssociations'])
-        ));
-        $response->headers->set('X-Total-Count', count($associations));
-
-        return $response;
-    }
-
-    /**
-     * @Route("/CFAssociations/{id}.{_format}", name="api_v1p0_cfassociation", defaults={"_format"="json"})
-     * @Method("GET")
-     */
-    public function getCfAssociationAction(Request $request, $id, $_format)
-    {
-        return $this->generateObjectResponse(LsAssociation::class, $request, $id, $_format);
-    }
-
-
-    /**
-     * @Route("/CFItemTypes/{id}.{_format}", name="api_v1p0_cfitemtype", defaults={"_format"="json"})
-     * @Method("GET")
-     */
-    public function getCfItemTypeAction(Request $request, $id, $_format)
-    {
-        return $this->generateObjectResponse(LsDefItemType::class, $request, $id, $_format);
-    }
-
-    /**
-     * @Route("/CFLicenses/{id}.{_format}", name="api_v1p0_cflicense", defaults={"_format"="json"})
-     * @Method("GET")
-     */
-    public function getCfLicenseAction(Request $request, $id, $_format)
-    {
-        return $this->generateObjectResponse(LsDefLicence::class, $request, $id, $_format);
-    }
-
-    /**
      * @Route("/CFPackages/{id}.{_format}", name="api_v1p0_cfpackage", defaults={"_format"="json"})
      * @Method("GET")
+     * @ParamConverter("obj", class="CftfBundle:LsDoc", options={"repository_method"="findOneByIdentifier"})
      */
-    public function getCfPackageAction(Request $request, $id, $_format)
+    public function getCfPackageAction(Request $request, LsDoc $obj): Response
     {
         $repo = $this->getDoctrine()->getRepository(LsDoc::class);
-        /* @var LsDoc $doc */
-        $doc = $repo->findOneBy(['identifier' => $id]);
-
-        if (null === $doc) {
-            $this->get('logger')->info('CASE API: package not found', ['id' => $id]);
-            return $this->generate404($id, $_format);
-        }
+        $doc = $obj;
+        $id = $obj->getIdentifier();
 
         $this->get('logger')->info('CASE API: package returned', ['id' => $id]);
 
@@ -246,7 +112,7 @@ class Api1Controller extends Controller
 
         $response->setContent($this->get('serializer')->serialize(
             $pkg,
-            $_format,
+            $request->getRequestFormat('json'),
             SerializationContext::create()->setGroups(['Default', 'CfPackage'])
         ));
 
@@ -254,39 +120,74 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @Route("/CFRubrics/{id}.{_format}", name="api_v1p0_cfrubric", defaults={"_format"="json"})
+     * @Route("/CFItemAssociations/{id}.{_format}", name="api_v1p0_cfitemassociations", defaults={"_format"="json"})
+     * @Route("/CFItems/{id}/associations.{_format}", name="api_v1p0_cfitemassociations2", defaults={"_format"="json"})
      * @Method("GET")
+     * @ParamConverter("obj", class="CftfBundle:LsItem", options={"repository_method"="findOneByIdentifier"})
      */
-    public function getCfRubricAction(Request $request, $id, $_format)
+    public function getCfItemAssociationsAction(Request $request, LsItem $obj): Response
     {
-        return $this->generateObjectResponse(CfRubric::class, $request, $id, $_format);
+        $item = $obj;
+        $id = $obj->getIdentifier();
+
+        $results = $this->getDoctrine()
+            ->getRepository(LsAssociation::class)
+            ->findAllAssociationsFor($id);
+
+        $associations = [];
+        $lastModified = $item->getUpdatedAt();
+        foreach ($results as $association) {
+            /* @var LsAssociation $association */
+            $associations[] = $association;
+            if ($association->getUpdatedAt() > $lastModified) {
+                $lastModified = $association->getUpdatedAt();
+            }
+        }
+
+        $this->get('logger')->info('CASE API: item associations returned', ['id' => $id]);
+
+        $response = $this->generateBaseReponse($lastModified);
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
+
+        $response->setContent($this->get('serializer')->serialize(
+            [
+                'CFItem' => $item,
+                'CFAssociations' => $associations,
+            ],
+            $request->getRequestFormat('json'),
+            SerializationContext::create()->setGroups(['Default', 'CfItemAssociations'])
+        ));
+        $response->headers->set('X-Total-Count', count($associations));
+
+        return $response;
     }
 
     /**
-     * @Route("/CFRubricCriteria/{id}.{_format}", name="api_v1p0_cfrubriccriterion", defaults={"_format"="json"})
+     * @Route("/CFAssociationGroupings/{id}.{_format}", name="api_v1p0_cfassociationgrouping", defaults={"class"="CftfBundle:LsDefAssociationGrouping", "_format"="json"})
+     * @Route("/CFAssociations/{id}.{_format}", name="api_v1p0_cfassociation", defaults={"class"="CftfBundle:LsAssociation", "_format"="json"})
+     * @Route("/CFConcepts/{id}.{_format}", name="api_v1p0_cfconcept", defaults={"class"="CftfBundle:LsDefConcept", "_format"="json"})
+     * @Route("/CFDocuments/{id}.{_format}", name="api_v1p0_cfdocument", defaults={"class"="CftfBundle:LsDoc", "_format"="json"})
+     * @Route("/CFItems/{id}.{_format}", name="api_v1p0_cfitem", defaults={"class"="CftfBundle:LsItem", "_format"="json"})
+     * @Route("/CFItemTypes/{id}.{_format}", name="api_v1p0_cfitemtype", defaults={"class"="CftfBundle:LsDefItemType", "_format"="json"})
+     * @Route("/CFLicenses/{id}.{_format}", name="api_v1p0_cflicense", defaults={"class"="CftfBundle:LsDefLicence", "_format"="json"})
+     * @Route("/CFRubrics/{id}.{_format}", name="api_v1p0_cfrubric", defaults={"class"="CftfBundle:CfRubric", "_format"="json"})
+     * @Route("/CFRubricCriteria/{id}.{_format}", name="api_v1p0_cfrubriccriterion", defaults={"class"="CftfBundle:CfRubricCriterion", "_format"="json"})
+     * @Route("/CFRubricCriterionLevels/{id}.{_format}", name="api_v1p0_cfrubriccriterionlevel", defaults={"class"="CftfBundle:CfRubricCriterionLevel", "_format"="json"})
+     * @Route("/CFSubjects/{id}.{_format}", name="api_v1p0_cfsubject", defaults={"class"="CftfBundle:LsDefSubject", "_format"="json"})
      * @Method("GET")
+     * @ParamConverter("obj", class="CftfBundle:LsDoc", options={"id"={"id", "class"}, "repository_method"="apiFindOneByClassIdentifier"})
+     *
+     * @param Request $request
+     * @param CaseApiInterface $obj
+     * @param string $_format
+     *
+     * @return Response
      */
-    public function getCfRubricCriterionAction(Request $request, $id, $_format)
+    public function getObjectAction(Request $request, CaseApiInterface $obj): Response
     {
-        return $this->generateObjectResponse(CfRubricCriterion::class, $request, $id, $_format);
-    }
-
-    /**
-     * @Route("/CFRubricCriterionLevels/{id}.{_format}", name="api_v1p0_cfrubriccriterionlevel", defaults={"_format"="json"})
-     * @Method("GET")
-     */
-    public function getCfRubricCriterionLevelAction(Request $request, $id, $_format)
-    {
-        return $this->generateObjectResponse(CfRubricCriterionLevel::class, $request, $id, $_format);
-    }
-
-    /**
-     * @Route("/CFSubjects/{id}.{_format}", name="api_v1p0_cfsubject", defaults={"_format"="json"})
-     * @Method("GET")
-     */
-    public function getCfSubjectAction(Request $request, $id, $_format)
-    {
-        return $this->generateObjectResponse(LsDefSubject::class, $request, $id, $_format);
+        return $this->generateObjectResponse($request, $obj);
     }
 
     /**
@@ -297,7 +198,7 @@ class Api1Controller extends Controller
      *
      * @return Response
      */
-    protected function generateBaseReponse(\DateTime $lastModified)
+    protected function generateBaseReponse(\DateTime $lastModified): Response
     {
         $response = new Response();
 
@@ -311,55 +212,18 @@ class Api1Controller extends Controller
     }
 
     /**
-     * @param string $identifier
-     * @param string $_format
+     * Generate a response for a single object
+     *
+     * @param Request $request
+     * @param CaseApiInterface $obj
      *
      * @return Response
      */
-    protected function generate404(string $identifier, string $_format)
+    protected function generateObjectResponse(Request $request, CaseApiInterface $obj): Response
     {
-        // Object not found
-        if ($this->isUuidValid($identifier)) {
-            $errField = new ImsxCodeMinorField('sourcedId', ImsxCodeMinorField::CODE_MINOR_UNKNOWN_OBJECT);
-            $errText = 'Not Found';
-        } else {
-            $errField = new ImsxCodeMinorField('sourcedId', ImsxCodeMinorField::CODE_MINOR_INVALID_UUID);
-            $errText = 'Invalid UUID';
-        }
-        $errMinor = new ImsxCodeMinor([$errField]);
-        $err = new ImsxStatusInfo(
-            ImsxStatusInfo::CODE_MAJOR_FAILURE,
-            ImsxStatusInfo::SEVERITY_ERROR,
-            $errMinor
-        );
+        $this->get('logger')->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
 
-        $serializer = $this->get('serializer');
-        $response = new Response(
-            $serializer->serialize($err, $_format),
-            404
-        );
-        $response->setStatusCode(404, $errText);
-
-        $response->setMaxAge(60);
-        $response->setSharedMaxAge(60);
-        $response->setPublic();
-
-        return $response;
-    }
-
-    protected function generateObjectResponse(string $type, Request $request, $id, $_format)
-    {
-        $repo = $this->getDoctrine()->getRepository($type);
-        $doc = $repo->findOneBy(['identifier' => $id]);
-
-        if (empty($doc)) {
-            $this->get('logger')->info('CASE API: Object not found', ['type' => $type, 'id' => $id]);
-            return $this->generate404($id, $_format);
-        }
-
-        $this->get('logger')->info('CASE API: Returned object', ['type' => $type, 'id' => $id]);
-
-        $response = $this->generateBaseReponse($doc->getUpdatedAt());
+        $response = $this->generateBaseReponse($obj->getUpdatedAt());
 
         if ($response->isNotModified($request)) {
             return $response;
@@ -367,30 +231,16 @@ class Api1Controller extends Controller
 
         $serializer = $this->get('serializer');
         $result = $serializer->serialize(
-            $doc,
-            $_format,
+            $obj,
+            $request->getRequestFormat('json'),
             SerializationContext::create()->setGroups([
                 'Default',
-                preg_replace('/.*\\\\/', '', $type),
+                preg_replace('/.*\\\\/', '', get_class($obj)),
             ])
         );
 
         $response->setContent($result);
 
         return $response;
-    }
-
-    protected function isUuidValid(string $uuid): bool
-    {
-        if (!Uuid::isValid($uuid)) {
-            return false;
-        }
-
-        if (!preg_match('/[a-f0-9]{8}-[a-f0-9]{4}-[12345][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}/', $uuid)) {
-            // Only allow Variant 1 UUIDs for CASE Compliance test
-            return false;
-        }
-
-        return true;
     }
 }
