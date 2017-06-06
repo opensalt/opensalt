@@ -7,6 +7,7 @@ use CftfBundle\Api\v1p0\DTO\ImsxCodeMinorField;
 use CftfBundle\Api\v1p0\DTO\ImsxStatusInfo;
 use JMS\DiExtraBundle\Annotation as DI;
 use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -23,18 +24,23 @@ class ApiExceptionListener
     /** @var SerializerInterface */
     private $serializer;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     /**
      * ApiExceptionListener constructor.
      *
      * @param SerializerInterface $serializer
      *
      * @DI\InjectParams({
-     *     "serializer" = @DI\Inject("serializer")
+     *     "serializer" = @DI\Inject("serializer"),
+     *     "logger" = @DI\Inject("logger")
      * })
      */
-    public function __construct(SerializerInterface $serializer)
+    public function __construct(SerializerInterface $serializer, LoggerInterface $logger)
     {
         $this->serializer = $serializer;
+        $this->logger = $logger;
     }
 
     /**
@@ -83,6 +89,8 @@ class ApiExceptionListener
             ImsxStatusInfo::SEVERITY_ERROR,
             $errMinor
         );
+
+        $this->logger->info('CASE API: Not Found', ['identifier' => $identifier]);
 
         $response = new Response(
             $this->serializer->serialize($err, $_format),
