@@ -628,14 +628,16 @@ class LsAssociation implements CaseApiInterface
         }
 
         $uri = substr($this->destinationNodeUri, 12);
-        [$dataString, $encodedValue] = explode(',', $uri, 2);
+        [$dataString, $encodedValue] = array_pad(explode(',', $uri, 2), 2, null);
 
-        [$textType, $metadataString] = explode(';', $dataString, 2);
+        [$textType, $metadataString] = array_pad(explode(';', $dataString, 2), 2, null);
 
         $metadata = ['textType' => $textType];
         foreach (explode(';', $metadataString) as $param) {
-            [$name, $value] = explode('=', $param, 2);
-            $metadata[$name] = $value ?? true;
+            [$name, $value] = array_pad(explode('=', $param, 2), 2, null);
+            if (null !== $name && '' !== $name) {
+                $metadata[$name] = $value ?? true;
+            }
         }
 
         if ($metadata['base64'] ?? false) {
