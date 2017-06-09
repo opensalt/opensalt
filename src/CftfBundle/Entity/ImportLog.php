@@ -46,7 +46,7 @@ class ImportLog
     /**
      * @var string
      *
-     * @ORM\Column(name="message_type", type="string", nullable=false)
+     * @ORM\Column(name="message_type", type="string", length=30, nullable=false)
      */
     protected $messageType;
 

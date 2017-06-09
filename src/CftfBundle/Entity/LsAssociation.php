@@ -3,7 +3,6 @@
 namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -68,7 +67,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     }
  * )
  */
-class LsAssociation implements CaseApiInterface
+class LsAssociation extends AbstractLsBase implements CaseApiInterface
 {
     public const CHILD_OF = 'Is Child Of';
 
@@ -94,17 +93,6 @@ class LsAssociation implements CaseApiInterface
     public const INVERSE_IS_PEER_OF = 'Is Peer Of';
 
     public const INVERSE_EXEMPLAR = 'Exemplar For';
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     *
-     * @Serializer\Exclude()
-     */
-    private $id;
 
     /**
      * @var string
@@ -136,28 +124,6 @@ class LsAssociation implements CaseApiInterface
      * @Serializer\Exclude()
      */
     private $lsDoc;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="identifier", type="string", length=300, nullable=false)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("identifier")
-     */
-    private $identifier;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="uri", type="string", length=300, nullable=true)
-     *
-     * @Serializer\Exclude()
-     */
-    private $uri;
 
     /**
      * @var LsDefAssociationGrouping
@@ -292,17 +258,6 @@ class LsAssociation implements CaseApiInterface
      */
     private $sequenceNumber;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
-     * @Gedmo\Timestampable(on="update")
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("lastChangeDateTime")
-     */
-    private $updatedAt;
-
 
     /**
      * Constructor
@@ -311,25 +266,15 @@ class LsAssociation implements CaseApiInterface
      */
     public function __construct($identifier = null)
     {
-        if ($identifier instanceof Uuid) {
-            $identifier = strtolower($identifier->toString());
-        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
-            $identifier = strtolower(Uuid::fromString($identifier)->toString());
-        } else {
-            $identifier = Uuid::uuid1()->toString();
-        }
-
-        $this->identifier = $identifier;
-        $this->uri = 'local:'.$this->identifier;
-        $this->updatedAt = new \DateTime();
+        parent::__construct($identifier);
     }
 
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->uri;
+        return $this->getUri();
     }
 
     /**
@@ -420,40 +365,6 @@ class LsAssociation implements CaseApiInterface
     }
 
     /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set uri
-     *
-     * @param string $uri
-     *
-     * @return LsAssociation
-     */
-    public function setUri($uri): LsAssociation
-    {
-        $this->uri = $uri;
-
-        return $this;
-    }
-
-    /**
-     * Get uri
-     *
-     * @return string
-     */
-    public function getUri(): string
-    {
-        return $this->uri;
-    }
-
-    /**
      * Set the Origination of the association
      *
      * @param string|IdentifiableInterface $origin
@@ -512,7 +423,7 @@ class LsAssociation implements CaseApiInterface
      *
      * @return LsAssociation
      */
-    public function setOriginNodeUri($originNodeUri): LsAssociation
+    public function setOriginNodeUri(string $originNodeUri): LsAssociation
     {
         $this->originNodeUri = $originNodeUri;
 
@@ -588,7 +499,7 @@ class LsAssociation implements CaseApiInterface
      *
      * @return LsAssociation
      */
-    public function setDestinationNodeUri($destinationNodeUri): LsAssociation
+    public function setDestinationNodeUri(string $destinationNodeUri): LsAssociation
     {
         $this->destinationNodeUri = $destinationNodeUri;
 
@@ -671,30 +582,6 @@ class LsAssociation implements CaseApiInterface
     public function getType()
     {
         return $this->type;
-    }
-
-    /**
-     * Set updatedAt
-     *
-     * @param \DateTime $updatedAt
-     *
-     * @return LsAssociation
-     */
-    public function setUpdatedAt($updatedAt): LsAssociation
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    /**
-     * Get updatedAt
-     *
-     * @return \DateTime
-     */
-    public function getUpdatedAt()
-    {
-        return $this->updatedAt;
     }
 
     /**
@@ -838,11 +725,11 @@ class LsAssociation implements CaseApiInterface
     /**
      * Set lsDoc
      *
-     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     * @param LsDoc $lsDoc
      *
      * @return LsAssociation
      */
-    public function setLsDoc(?LsDoc $lsDoc = null): LsAssociation
+    public function setLsDoc(LsDoc $lsDoc): LsAssociation
     {
         $this->lsDoc = $lsDoc;
         $this->setLsDocUri($lsDoc->getUri());
@@ -876,11 +763,13 @@ class LsAssociation implements CaseApiInterface
     /**
      * @return string|null
      */
-    public function getGroupName()
+    public function getGroupName(): ?string
     {
         if ($this->groupName) {
             return $this->groupName;
-        } elseif ($this->group) {
+        }
+
+        if ($this->group) {
             return $this->group->getTitle();
         }
 
@@ -903,26 +792,6 @@ class LsAssociation implements CaseApiInterface
     public function setLsDocIdentifier($lsDocIdentifier): LsAssociation
     {
         $this->lsDocIdentifier = $lsDocIdentifier;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getIdentifier()
-    {
-        return $this->identifier;
-    }
-
-    /**
-     * @param string $identifier
-     *
-     * @return LsAssociation
-     */
-    public function setIdentifier($identifier): LsAssociation
-    {
-        $this->identifier = $identifier;
 
         return $this;
     }
@@ -974,7 +843,9 @@ class LsAssociation implements CaseApiInterface
     {
         if ($this->groupUri) {
             return $this->groupUri;
-        } elseif ($this->group) {
+        }
+
+        if ($this->group) {
             return $this->group->getUri();
         }
 
@@ -1036,7 +907,7 @@ class LsAssociation implements CaseApiInterface
      *
      * @return LsAssociation
      */
-    public function setGroup(?LsDefAssociationGrouping $group)
+    public function setGroup(?LsDefAssociationGrouping $group): LsAssociation
     {
         $this->group = $group;
 
