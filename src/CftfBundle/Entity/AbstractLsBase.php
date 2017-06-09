@@ -135,6 +135,7 @@ class AbstractLsBase implements IdentifiableInterface
      * @param Uuid|string $identifier
      *
      * @return static
+     *
      * @throws \InvalidArgumentException
      */
     public function setIdentifier($identifier)

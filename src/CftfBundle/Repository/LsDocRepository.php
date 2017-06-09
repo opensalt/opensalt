@@ -16,9 +16,11 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
 {
     /**
      * Finds an object for the API by ['id'=>identifier, 'class'=>class]
+     *
      * @param array $id
      *
      * @return CaseApiInterface
+     *
      * @throws NotFoundHttpException
      */
     public function apiFindOneByClassIdentifier(array $id): CaseApiInterface
