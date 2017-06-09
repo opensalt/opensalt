@@ -1,8 +1,8 @@
 {
-    "name": "pcgus/cftool",
+    "name": "opensalt/opensalt",
     "license": "MIT",
     "type": "project",
-    "description": "Standards Alignment Tool",
+    "description": "A competency framework managment system that works with the CASE format",
     "autoload": {
         "psr-4": {
             "Cftf\\": "src/Cftf/",
@@ -23,23 +23,29 @@
         }
     },
     "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/PCGGenEd/faker-context"
+        }
     ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
         "php": "^7.1.0",
+        "roave/security-advisories" :"dev-master",
 
         "fxp/composer-asset-plugin": "^1.2",
 
-        "symfony/symfony": "3.2.*",
+        "symfony/symfony": "3.3.*",
         "doctrine/orm": "^2.5",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-cache-bundle": "^1.2",
         "symfony/swiftmailer-bundle": "^2.3",
-        "symfony/monolog-bundle": "^3.0",
+        "symfony/monolog-bundle": "^3.1",
         "symfony/polyfill-apcu": "^1.0",
         "sensio/distribution-bundle": "^5.0",
         "sensio/framework-extra-bundle": "^3.0.2",
+        "twig/twig": "^2.0",
         "incenteev/composer-parameter-handler": "^2.0",
 
         "twig/extensions": "^1.3",
@@ -58,6 +64,7 @@
         "ramsey/uuid-doctrine": "^1.2",
 
         "csa/guzzle-bundle": "^2.1",
+            "namshi/cuzzle": "*",
 
         "nelmio/security-bundle": "^2.0",
         "hwi/oauth-bundle": "^0.5.1",
@@ -66,7 +73,7 @@
 
         "phpoffice/phpexcel": "^1.8.1",
 
-        "nelmio/api-doc-bundle": "^2.13",
+        "activelamp/swagger-ui-bundle": "dev-master",
 
         "bower-asset/jquery": "^2.2.4",
         "bower-asset/jquery-ui": "^1.12.0",
@@ -78,7 +85,7 @@
         "bower-asset/normalize.css": "^3.0.3",
         "npm-asset/jquery-contextmenu": "^2.2.4",
         "bower-asset/bootstrap-multiselect": "^0.9.13",
-	"bower-asset/twbs-pagination": "^1.4.1",
+        "bower-asset/twbs-pagination": "^1.4.1",
 
         "bower-asset/select2": "^4.0.3",
         "bower-asset/select2-bootstrap-theme": "dev-master",
@@ -92,28 +99,44 @@
         "milo/github-api": "^1.4",
         "league/oauth2-github": "^0.2.2",
 
-	"matthimatiker/opcache-bundle": "^0.4"
+        "matthimatiker/opcache-bundle": "^0.4",
+        
+        "bower-asset/datatables.net": "^1.10.15",
+        "bower-asset/datatables.net-bs": "^1.10.15",
+        "bower-asset/datatables.net-fixedheader": "^3.1.2",
+        "bower-asset/datatables.net-fixedheader-bs": "^3.1.2",
+        "bower-asset/datatables.net-scroller": "^1.4.2",
+        "bower-asset/datatables.net-scroller-bs": "^1.4.2",
+        "bower-asset/datatables.net-select": "^1.2.2",
+        "bower-asset/datatables.net-select-bs": "^1.2.2",
+        "liuggio/excelbundle": "^2.1"
     },
     "require-dev": {
-        "sensio/generator-bundle": "^3.0",
-        "symfony/phpunit-bridge": "^3.0",
+        "sensio/generator-bundle": "^3.1",
+        "symfony/phpunit-bridge": "^3.2",
 
-        "behat/behat": "^3.1",
-        "behat/symfony2-extension": "^2.1",
-        "emuse/behat-html-formatter": "^0.1.0",
-        "behat/mink": "^1.7",
-        "behat/mink-extension": "^2.2",
-        "behat/mink-browserkit-driver": "^1.3",
+        "behat/behat": "~3.1",
+            "behat/symfony2-extension": "^2.1",
+            "behat/mink": "~1.7",
+            "behat/mink-extension": "~2.2",
+            "behat/mink-goutte-driver": "~1.2",
+            "behat/mink-browserkit-driver": "^1.3",
+            "behat/mink-selenium2-driver": "^1.3",
+            "sensiolabs/behat-page-object-extension": "~2.0",
+                "bossa/phpspec2-expect": "*",
+            "denheck/faker-context": "dev-master",
+                "fzaninotto/faker": "~1.6",
 
-        "phpunit/phpunit": "^5.7.4",
+        "phpunit/phpunit": "~5.7",
 
-        "phpspec/phpspec": "^3.2.2",
-        "phpspec/nyan-formatters": "^2.0.0",
-        "ciaranmcnulty/phpspec-typehintedmethods": "^2.0.0",
+        "phpspec/phpspec": "~3.2",
+            "rmiller/behat-spec": "*",
+            "phpspec/nyan-formatters": "~2.0",
+            "ciaranmcnulty/phpspec-typehintedmethods": "~2.0",
 
-        "squizlabs/php_codesniffer": "^2.6",
-        "escapestudios/symfony2-coding-standard": "^2.9",
-        "friendsofphp/php-cs-fixer": "^1.11"
+        "squizlabs/php_codesniffer": "~2.8",
+        "escapestudios/symfony2-coding-standard": "~2.10",
+        "friendsofphp/php-cs-fixer": "~1.13"
     },
     "scripts": {
         "symfony-scripts": [
@@ -125,15 +148,15 @@
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::prepareDeploymentTarget"
         ],
         "post-install-cmd": [
-	    "@symfony-scripts"
-	],
+            "@symfony-scripts"
+        ],
         "post-update-cmd": [
-	    "@symfony-scripts"
+            "@symfony-scripts"
         ]
     },
     "config": {
         "bin-dir": "vendor/bin",
-	"optimize-autoloader": true
+        "optimize-autoloader": true
     },
     "extra": {
         "symfony-app-dir": "app",
@@ -146,7 +169,8 @@
             "file": "app/config/parameters.yml"
         },
         "branch-alias": {
-            "dev-master": "0.1-dev"
+            "dev-master": "1.0.x-dev",
+            "dev-develop": "1.1.x-dev"
         }
     }
 }

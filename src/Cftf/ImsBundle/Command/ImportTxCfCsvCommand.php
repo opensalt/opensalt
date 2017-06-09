@@ -11,7 +11,6 @@ namespace Cftf\ImsBundle\Command;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Entity\LsDefItemType;
-use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityManager;
@@ -33,34 +32,20 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $error = false;
+
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         $dirname = $input->getArgument('dirname');
 
         $itemsKeyedBy = 'Identifier';
 
-        $subjects = $this->fetchFile($dirname.'/CFSubject.csv', 'URI');
+        //$subjects = $this->fetchFile($dirname.'/CFSubject.csv', 'URI');
         $docs = $this->fetchFile($dirname.'/CFDocument.csv', 'PackageURI');
         $itemTypes = $this->fetchFile($dirname.'/CFItemType.csv', 'URI');
         $items = $this->fetchFile($dirname.'/CFItem.csv', $itemsKeyedBy);
         $associationGroups = $this->fetchFile($dirname.'/CFAssociationGrouping.csv', 'URI');
         $associations = $this->fetchFile($dirname.'/CFAssociation.csv', 'URI');
-
-
-        /*
-        $lsSubjects = [];
-        foreach ($subjects as $key => $rec) {
-            $lsSubject = new LsDefSubject();
-            $lsSubject->setExtraProperty('_source', json_encode($rec));
-            $lsSubject->setDescription($rec['Description']);
-            $lsSubject->setHierarchyCode($rec['HierarchyCode']);
-            $lsSubject->setTitle($rec['Title']);
-
-            $em->persist($lsSubject);
-
-            $lsSubjects[$key] = $lsSubject;
-        }
-        */
 
         /** @var LsDoc[] $lsDocs */
         $lsDocs = [];
@@ -152,23 +137,23 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
         /** @var LsDefAssociationGrouping[] $lsAssocGroups */
         $lsAssocGroups = [];
         foreach ($associationGroups as $key => $rec) {
-            $lsAssocGroup = new LsDefAssociationGrouping();
-            $lsAssocGroup->setExtraProperty('_source', json_encode($rec));
-            $lsAssocGroup->setTitle($rec['Title']);
-            $lsAssocGroup->setDescription($rec['Description']);
+            $groupRec = [
+                'def' => [
+                    'title' => $rec['Title'],
+                    'description' => $rec['Description'],
+                    'extraProperty' => json_encode($rec),
+                ],
+                'instances' => [],
+            ];
 
-            $em->persist($lsAssocGroup);
-
-            $lsAssocGroups[$key] = $lsAssocGroup;
+            $lsAssocGroups[$key] = $groupRec;
         }
 
-        /** @var LsAssociation[] $lsAssociations */
-        $lsAssociations = [];
         foreach ($associations as $key => $rec) {
             $lsAssoc = new LsAssociation();
-            $assocGroup = $lsAssocGroups[$rec['CFAssociationGroupingURI']];
-            $lsAssoc->setGroup($assocGroup);
             $lsAssoc->setLsDoc($lsDocs[$rec['PackageURI']]);
+            $assocGroup = $this->findAssociationGroup($lsAssocGroups, $lsAssoc->getLsDoc(), $rec['CFAssociationGroupingURI']);
+            $lsAssoc->setGroup($assocGroup);
             if (!empty($lsItems[$rec['OriginNode'.$itemsKeyedBy]])) {
                 $lsAssoc->setOrigin($lsItems[$rec['OriginNode'.$itemsKeyedBy]]);
                 $lsItems[$rec['OriginNode'.$itemsKeyedBy]]->addAssociation($lsAssoc);
@@ -182,7 +167,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
                 $output->writeln("<error>Unknown Origin Identifier: {$rec['OriginNode'.$itemsKeyedBy]}</error>");
 
                 // Exit with an error
-                return 1;
+                $error = 1;
             }
             switch ($rec['AssociationType']) {
                 case 'is Child of':
@@ -206,7 +191,7 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
                     $output->writeln("<error>Unknown Association Type: {$rec['AssociationType']}</error>");
 
                     // Exit with an error
-                    return 1;
+                    $error = true;
                     break;
             }
             if (!empty($lsItems[$rec['DestinationNode'.$itemsKeyedBy]])) {
@@ -222,12 +207,10 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
                 $output->writeln("<error>Unknown Destination Identifier: {$rec['DestinationNode'.$itemsKeyedBy]}</error>");
 
                 // Exit with an error
-                return 1;
+                $error = true;
             }
 
             $em->persist($lsAssoc);
-
-            $lsAssociations[$key] = $lsAssoc;
         }
 
         // Add items that do not have a parent as a child to the doc
@@ -236,6 +219,10 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
             if ($lsItem->getLsItemParent()->isEmpty()) {
                 $lsItem->getLsDoc()->addTopLsItem($lsItem);
             }
+        }
+
+        if ($error) {
+            return 1;
         }
 
         $em->flush();
@@ -266,5 +253,40 @@ class ImportTxCfCsvCommand extends ContainerAwareCommand
         fclose($fd);
 
         return $recs;
+    }
+
+    /**
+     * Get or create an association group for the LsDoc
+     *
+     * @param array $lsAssocGroups
+     * @param LsDoc $lsDoc
+     * @param string $key
+     *
+     * @return LsDefAssociationGrouping|null
+     */
+    private function findAssociationGroup(array &$lsAssocGroups, LsDoc $lsDoc, $key)
+    {
+        if (!array_key_exists($key, $lsAssocGroups)) {
+            return null;
+        }
+
+        $groupInfo = $lsAssocGroups[$key];
+        if (array_key_exists($lsDoc->getId(), $groupInfo['instances'])) {
+            return $groupInfo['instances'][$lsDoc->getId()];
+        }
+
+        $lsAssocGroup = new LsDefAssociationGrouping();
+        $lsAssocGroup->setLsDoc($lsDoc);
+        $lsAssocGroup->setExtraProperty('_source', $groupInfo['def']['extraProperty']);
+        $lsAssocGroup->setTitle($groupInfo['def']['title']);
+        $lsAssocGroup->setDescription($groupInfo['def']['description']);
+
+        /** @var EntityManager $em */
+        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $em->persist($lsAssocGroup);
+
+        $lsAssocGroups[$key]['instances'][$lsDoc->getId()] = $lsAssocGroup;
+
+        return $lsAssocGroup;
     }
 }

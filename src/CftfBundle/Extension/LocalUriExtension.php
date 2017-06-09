@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Routing\Router;
 /**
  * Class LocalUriExtension.
  *
- * @DI\Service()
+ * @DI\Service("salt.twig.local_uri")
  * @DI\Tag("twig.extension")
  */
 class LocalUriExtension extends \Twig_Extension

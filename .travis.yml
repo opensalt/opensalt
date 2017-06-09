@@ -43,7 +43,6 @@ install:
   - echo ${TRAVIS_BUILD_NUMBER} > BUILD_NUMBER
   - echo $(date -u +%Y%m%d.%H%M).${COMMIT} > BUILD_MD
   - echo $(cat VERSION).$(cat BUILD_NUMBER)+$(cat BUILD_MD) > web/version.txt
-  - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml pull composer gulp
   - ./bin/build.sh
 
 # Create docker image with the running code
@@ -62,7 +61,7 @@ script:
 
 #$TRAVIS_TEST_RESULT has build result 0==success
 after_success:
-  - ./ci/travis/push_app.sh
+  - if [ "$OPENSALT_HEROKU_DEPLOY" != "true" ]; then ./ci/travis/push_app.sh; fi
 #  - if [ "$TRAVIS_BRANCH" == "master" ]; then /bin/true; fi
 
 after_failure:
@@ -75,6 +74,19 @@ after_failure:
 
 after_script:
   - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml down -v
+
+before_deploy:
+  - ./deploying/heroku/config_deploy.sh
+
+deploy:
+  provider: heroku
+  api_key: "${OPENSALT_HEROKU_TOKEN}"
+  app: "${OPENSALT_HEROKU_APP}"
+  on:
+    repo: "${TRAVIS_REPO_SLUG}"
+    condition: $OPENSALT_HEROKU_DEPLOY = "true"
+    branch: master
+  run: "php bin/console-real doctrine:migrations:migrate --no-interaction"
 
 notifications:
   hipchat:

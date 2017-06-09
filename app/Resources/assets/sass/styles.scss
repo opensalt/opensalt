@@ -1,14 +1,41 @@
+// use flex to force the footer to go to the bottom of the page
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main.content {
+    flex: 1;
+}
+
 header .navbar-default {
-    border-top:1px solid #444;
+    border-width:0px;
+    background-color:#78C9E9;
+}
+
+.navbar-brand {
+    padding:5px;
+    background-color:#fff;
+    border-radius:4px;
+    margin:10px 15px 10px -5px !important;
+    height:inherit;
+}
+
+.navbar-brand img {
+    height:60px;
 }
 
 footer .navbar-default {
-    border-radius:0;
-    border-color: #000;
-    border-width: 0 0 1px 0;
+    border-radius:4px 4px 0 0;
+    border-width: 0;
     min-height: auto;
-    margin-top:30px;
-    background-color:#fff;
+    margin-bottom:0px;
+    background-color:#78C9E9;
+}
+
+.navbar-default .navbar-nav > li > a, .navbar-default .navbar-nav > li > a:hover {
+    color:#fff;
 }
 
 footer .navbar-nav > li > a {
@@ -42,14 +69,8 @@ table.tree {
 .list-group-item {
     word-wrap: break-word;
 }
-.wizard-body-framework .panel{
-    margin-top: 7px;
-    margin-bottom: 0px;
-}
-.wizard-body-framework .panel .panel-body{
-    padding: 7px;
-}
-.wizard-body-framework .row .col-xs-6{
-    padding-left: 7px;
-    padding-right: 7px;
+
+.modal-body.fields-body-framework {
+    max-height: 400px;
+    overflow-y: auto;
 }

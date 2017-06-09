@@ -5,7 +5,7 @@ namespace CftfBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
@@ -20,27 +20,59 @@ use Util\Compare;
  * @ORM\Table(name="ls_doc")
  * @ORM\Entity(repositoryClass="CftfBundle\Repository\LsDocRepository")
  * @UniqueEntity("uri")
+ * @UniqueEntity("urlName")
+ * @UniqueEntity("identifier")
+ *
+ * @Serializer\VirtualProperty(
+ *     "uri",
+ *     exp="service('salt.api.v1p0.utils').getApiUrl(object)",
+ *     options={
+ *         @Serializer\SerializedName("uri"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "cfPackageUri",
+ *     exp="service('salt.api.v1p0.utils').getLinkUri(object, 'api_v1p0_cfpackage')",
+ *     options={
+ *         @Serializer\SerializedName("CFPackageURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "subjectUri",
+ *     exp="(object.getSubjects().count()===0)?null:service('salt.api.v1p0.utils').getLinkUriList(object.getSubjects())",
+ *     options={
+ *         @Serializer\SerializedName("subjectURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "licenseUri",
+ *     exp="service('salt.api.v1p0.utils').getLinkUri(object.getLicence())",
+ *     options={
+ *         @Serializer\SerializedName("licenseURI"),
+ *         @Serializer\Expose()
+ *     }
+ * )
  */
-class LsDoc
+class LsDoc extends AbstractLsBase implements CaseApiInterface
 {
+    const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
     const ADOPTION_STATUS_DRAFT = 'Draft';
     const ADOPTION_STATUS_ADOPTED = 'Adopted';
     const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
-    private $id;
 
     /**
      * @var Organization
      *
      * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\Organization", inversedBy="frameworks")
      * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     protected $org;
 
@@ -49,28 +81,10 @@ class LsDoc
      *
      * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\User", inversedBy="frameworks")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
     protected $user;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="uri", type="string", length=300, nullable=true, unique=true)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     */
-    private $uri;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=false)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     */
-    private $identifier;
 
     /**
      * @var string
@@ -79,6 +93,9 @@ class LsDoc
      *
      * @Assert\Length(max=300)
      * @Assert\Url()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("officialSourceURL")
      */
     private $officialUri;
 
@@ -89,6 +106,8 @@ class LsDoc
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
      */
     private $creator;
 
@@ -98,6 +117,8 @@ class LsDoc
      * @ORM\Column(name="publisher", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
      */
     private $publisher;
 
@@ -114,9 +135,29 @@ class LsDoc
     /**
      * @var string
      *
+     * @ORM\Column(name="url_name", type="string", length=255, nullable=true, unique=true)
+     *
+     * @Assert\Length(max=10)
+     * @Assert\Regex(
+     *     pattern="/^\d+$/",
+     *     match=false,
+     *     message="The URL Name cannot be a number."
+     * )
+     * @Assert\Regex(
+     *     pattern="/^[a-zA-Z0-9.-]+$/",
+     *     message="The URL Name can only use alpha-numeric characters plus a period (.) or dash (-)."
+     * )
+     */
+    private $urlName;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="version", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
      */
     private $version;
 
@@ -126,6 +167,8 @@ class LsDoc
      * @ORM\Column(name="description", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
      */
     private $description;
 
@@ -135,6 +178,8 @@ class LsDoc
      * @ORM\Column(name="subject", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Exclude()
      */
     private $subject;
 
@@ -145,6 +190,8 @@ class LsDoc
      *
      * @Assert\Url()
      * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $subjectUri;
 
@@ -156,6 +203,10 @@ class LsDoc
      *      joinColumns={@ORM\JoinColumn(name="ls_doc_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="subject_id", referencedColumnName="id")}
      * )
+     *
+     * @Serializer\Expose("object.getSubjects().count()>0")
+     * @Serializer\SerializedName("subject")
+     * @Serializer\Type("array<string>")
      */
     private $subjects;
 
@@ -165,6 +216,8 @@ class LsDoc
      * @ORM\Column(name="language", type="string", length=10, nullable=true)
      *
      * @Assert\Length(max=10)
+     *
+     * @Serializer\Expose(if="object.getLanguage() != ''")
      */
     private $language;
 
@@ -174,6 +227,9 @@ class LsDoc
      * @ORM\Column(name="adoption_status", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("adoptionStatus")
      */
     private $adoptionStatus;
 
@@ -183,6 +239,10 @@ class LsDoc
      * @ORM\Column(name="status_start", type="date", nullable=true)
      *
      * @Assert\Date()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("statusStartDate")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private $statusStart;
 
@@ -192,28 +252,39 @@ class LsDoc
      * @ORM\Column(name="status_end", type="date", nullable=true)
      *
      * @Assert\Date()
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("statusEndDate")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private $statusEnd;
+
+    /**
+     * @var LsDefLicence
+     *
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDefLicence")
+     * @ORM\JoinColumn(name="licence_id", referencedColumnName="id", nullable=true)
+     *
+     * @Serializer\Exclude()
+     */
+    private $licence;
 
     /**
      * @var string
      *
      * @ORM\Column(name="note", type="text", nullable=true)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("notes")
      */
     private $note;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
-     * @Gedmo\Timestampable(on="update")
-     */
-    private $updatedAt;
 
     /**
      * @var Collection|LsItem[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsItem", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
      */
     private $lsItems;
 
@@ -221,6 +292,8 @@ class LsDoc
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
      */
     private $docAssociations;
 
@@ -228,6 +301,8 @@ class LsDoc
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="originLsDoc", indexBy="id", cascade={"persist"})
+     *
+     * @Serializer\Exclude()
      */
     private $associations;
 
@@ -235,35 +310,61 @@ class LsDoc
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="destinationLsDoc", indexBy="id", cascade={"persist"})
+     *
+     * @Serializer\Exclude()
      */
     private $inverseAssociations;
 
     /**
      * @var LsDocAttribute[]|ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDocAttribute", mappedBy="lsDoc", cascade={"ALL"}, indexBy="attribute")
+     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDocAttribute", mappedBy="lsDoc", cascade={"ALL"}, indexBy="attribute", orphanRemoval=true)
+     *
+     * @Serializer\Exclude()
      */
     private $attributes;
 
     /**
      * @var UserDocAcl[]|Collection
      * @ORM\OneToMany(targetEntity="Salt\UserBundle\Entity\UserDocAcl", mappedBy="lsDoc", indexBy="user", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
      */
     protected $docAcls;
 
     /**
+     * @var ImportLog[]|Collection
+     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\ImportLog", mappedBy="lsDoc", indexBy="lsDoc", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
+     */
+    protected $importLogs;
+
+    /**
+     * @var LsDefAssociationGrouping[]|Collection
+     * @ORM\OneToMany(targetEntity="LsDefAssociationGrouping", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Exclude()
+     */
+    protected $associationGroupings;
+
+    /**
      * @var string
+     *
+     * @Serializer\Exclude()
      */
     protected $ownedBy;
 
 
     /**
      * Constructor
+     *
+     * @param string|Uuid|null $identifier
      */
-    public function __construct()
+    public function __construct($identifier = null)
     {
-        $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
-        $this->uri = 'local:'.$this->identifier;
+        parent::__construct($identifier);
+
         $this->lsItems = new ArrayCollection();
         $this->docAssociations = new ArrayCollection();
         $this->associations = new ArrayCollection();
@@ -272,82 +373,48 @@ class LsDoc
         $this->subjects = new ArrayCollection();
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
-        return $this->uri;
+        return $this->getUri();
     }
 
-    public function isLsDoc()
+    /**
+     * @return bool
+     */
+    public function isLsDoc(): bool
     {
         return true;
     }
 
     /**
-     * Get id
+     * Get the list of Adoption Statuses
      *
-     * @return int
+     * @return array
      */
-    public function getId()
+    public static function getStatuses(): array
     {
-        return $this->id;
+        return [
+            static::ADOPTION_STATUS_PRIVATE_DRAFT,
+            static::ADOPTION_STATUS_DRAFT,
+            static::ADOPTION_STATUS_ADOPTED,
+            static::ADOPTION_STATUS_DEPRECATED,
+        ];
     }
 
     /**
-     * Set uri
+     * Get the list of Adoption Statuses where editing is allowed
      *
-     * @param string $uri
-     *
-     * @return LsDoc
+     * @return array
      */
-    public function setUri($uri)
+    public static function getEditableStatuses(): array
     {
-        $this->uri = $uri;
-
-        return $this;
-    }
-
-    /**
-     * Get uri
-     *
-     * @return string
-     */
-    public function getUri()
-    {
-        return $this->uri;
-    }
-
-    /**
-     * Set identifier
-     *
-     * @param string $identifier
-     *
-     * @return LsDoc
-     */
-    public function setIdentifier($identifier = null)
-    {
-        if (null !== $identifier) {
-            // If the identifier is in the form of a UUID then lower case it
-            if ($identifier instanceof Uuid) {
-                $identifier = strtolower($identifier->serialize());
-            } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
-                $identifier = Uuid::fromString($identifier);
-                $identifier = strtolower($identifier->serialize());
-            }
-        }
-
-        $this->identifier = $identifier;
-
-        return $this;
-    }
-
-    /**
-     * Get identifier
-     *
-     * @return string
-     */
-    public function getIdentifier()
-    {
-        return $this->identifier;
+        return [
+            static::ADOPTION_STATUS_PRIVATE_DRAFT,
+            static::ADOPTION_STATUS_DRAFT,
+        ];
     }
 
     /**
@@ -357,7 +424,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setOfficialUri($officialUri)
+    public function setOfficialUri($officialUri): LsDoc
     {
         $this->officialUri = $officialUri;
 
@@ -381,7 +448,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setCreator($creator)
+    public function setCreator($creator): LsDoc
     {
         $this->creator = $creator;
 
@@ -405,7 +472,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setPublisher($publisher)
+    public function setPublisher($publisher): LsDoc
     {
         $this->publisher = $publisher;
 
@@ -429,7 +496,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setTitle($title)
+    public function setTitle($title): LsDoc
     {
         $this->title = substr($title, 0, 120);
 
@@ -453,7 +520,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setVersion($version)
+    public function setVersion($version): LsDoc
     {
         $this->version = $version;
 
@@ -477,7 +544,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setDescription($description)
+    public function setDescription($description): LsDoc
     {
         $this->description = substr($description, 0, 300);
 
@@ -501,7 +568,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setSubject($subject)
+    public function setSubject($subject): LsDoc
     {
         $this->subject = $subject;
 
@@ -525,7 +592,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setSubjectUri($subjectUri)
+    public function setSubjectUri($subjectUri): LsDoc
     {
         $this->subjectUri = $subjectUri;
 
@@ -549,21 +616,16 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setAdoptionStatus($adoptionStatus)
+    public function setAdoptionStatus($adoptionStatus): LsDoc
     {
         // Check that adoptionStatus is valid
-        switch ($adoptionStatus) {
-            case self::ADOPTION_STATUS_DRAFT:
-            case self::ADOPTION_STATUS_ADOPTED:
-            case self::ADOPTION_STATUS_DEPRECATED:
-                break;
+        if (in_array($adoptionStatus, static::getStatuses(), true)) {
+            $this->adoptionStatus = $adoptionStatus;
 
-            default:
-                throw new \InvalidArgumentException('Invalid Adoptions Status of '.$adoptionStatus);
+            return $this;
         }
-        $this->adoptionStatus = $adoptionStatus;
 
-        return $this;
+        throw new \InvalidArgumentException('Invalid Adoptions Status of '.$adoptionStatus);
     }
 
     /**
@@ -583,7 +645,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setStatusStart($statusStart)
+    public function setStatusStart($statusStart): LsDoc
     {
         $this->statusStart = $statusStart;
 
@@ -595,7 +657,7 @@ class LsDoc
      *
      * @return \DateTime
      */
-    public function getStatusStart()
+    public function getStatusStart(): ?\DateTime
     {
         return $this->statusStart;
     }
@@ -607,7 +669,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setStatusEnd($statusEnd)
+    public function setStatusEnd($statusEnd): LsDoc
     {
         $this->statusEnd = $statusEnd;
 
@@ -619,7 +681,7 @@ class LsDoc
      *
      * @return \DateTime
      */
-    public function getStatusEnd()
+    public function getStatusEnd(): ?\DateTime
     {
         return $this->statusEnd;
     }
@@ -631,7 +693,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setNote($note)
+    public function setNote($note): LsDoc
     {
         $this->note = $note;
 
@@ -649,22 +711,47 @@ class LsDoc
     }
 
     /**
-     * Add topLsItem
+     * Add createChildItem
      *
      * @param LsItem $topLsItem
+     * @param LsDefAssociationGrouping|null $assocGroup
+     * @param int|null $sequenceNumber
      *
-     * @return LsDoc
+     * @return LsAssociation
      */
-    public function addTopLsItem(LsItem $topLsItem)
+    public function createChildItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null)
     {
         $association = new LsAssociation();
         $association->setLsDoc($this);
         $association->setOriginLsItem($topLsItem);
         $association->setType(LsAssociation::CHILD_OF);
         $association->setDestinationLsDoc($this);
+        if (null !== $sequenceNumber) {
+            $association->setSequenceNumber($sequenceNumber);
+        }
+
+        // PW: set assocGroup if provided and non-null
+        if ($assocGroup !== null) {
+            $association->setGroup($assocGroup);
+        }
 
         $topLsItem->addAssociation($association);
         $this->addInverseAssociation($association);
+
+        return $association;
+    }
+
+    /**
+     * Add topLsItem
+     *
+     * @param LsItem $topLsItem
+     * @param LsDefAssociationGrouping|null $assocGroup
+     *
+     * @return LsDoc
+     */
+    public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null): LsDoc
+    {
+        $this->createChildItem($topLsItem, $assocGroup);
 
         return $this;
     }
@@ -689,10 +776,10 @@ class LsDoc
         }
 
         $iterator = $topAssociations->getIterator();
-        $iterator->uasort(function($a, $b) {
+        $iterator->uasort(function (LsItem $a, LsItem $b) {
             // rank
             if (!empty($a->getRank()) && !empty($b->getRank())) {
-                if ($a->getRank() != $b->getRank()) {
+                if ($a->getRank() !== $b->getRank()) {
                     return ($a < $b) ? -1 : 1;
                 } // else fall through to next check
             } elseif (!empty($a->getRank()) || !empty($b->getRank())) {
@@ -741,7 +828,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function addLsItem(LsItem $lsItem)
+    public function addLsItem(LsItem $lsItem): LsDoc
     {
         $this->lsItems[] = $lsItem;
 
@@ -769,37 +856,13 @@ class LsDoc
     }
 
     /**
-     * Set updatedAt
-     *
-     * @param \DateTime $updatedAt
-     *
-     * @return LsDoc
-     */
-    public function setUpdatedAt($updatedAt)
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    /**
-     * Get updatedAt
-     *
-     * @return \DateTime
-     */
-    public function getUpdatedAt()
-    {
-        return $this->updatedAt;
-    }
-
-    /**
      * Add association
      *
      * @param \CftfBundle\Entity\LsAssociation $association
      *
      * @return LsDoc
      */
-    public function addAssociation(\CftfBundle\Entity\LsAssociation $association)
+    public function addAssociation(\CftfBundle\Entity\LsAssociation $association): LsDoc
     {
         $this->associations[] = $association;
 
@@ -819,7 +882,7 @@ class LsDoc
     /**
      * Get associations
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return \Doctrine\Common\Collections\Collection|LsAssociation[]
      */
     public function getAssociations()
     {
@@ -833,7 +896,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function addInverseAssociation(\CftfBundle\Entity\LsAssociation $inverseAssociation)
+    public function addInverseAssociation(\CftfBundle\Entity\LsAssociation $inverseAssociation): LsDoc
     {
         $this->inverseAssociations[] = $inverseAssociation;
 
@@ -867,7 +930,7 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function addDocAssociation(\CftfBundle\Entity\LsAssociation $docAssociation)
+    public function addDocAssociation(\CftfBundle\Entity\LsAssociation $docAssociation): LsDoc
     {
         $this->docAssociations[] = $docAssociation;
 
@@ -902,8 +965,14 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setAttribute($name, $value) {
-        $this->attributes->set($name, new LsDocAttribute($this, $name, $value));
+    public function setAttribute($name, $value): LsDoc
+    {
+        // if attribute already exists, update it
+        if ($this->attributes->containsKey($name)) {
+            $this->attributes->get($name)->setValue($value);
+        } else {
+            $this->attributes->set($name, new LsDocAttribute($this, $name, $value));
+        }
 
         return $this;
     }
@@ -915,7 +984,9 @@ class LsDoc
      *
      * @return $this
      */
-    public function removeAttribute($name) {
+    public function removeAttribute($name): LsDoc
+    {
+        // TODO (PW): does this really remove the item? I did add "orphanRemoval=true" to the attributes field above
         $this->attributes->remove($name);
 
         return $this;
@@ -928,7 +999,8 @@ class LsDoc
      *
      * @return string|null
      */
-    public function getAttribute($name) {
+    public function getAttribute($name): ?string
+    {
         if ($this->attributes->containsKey($name)) {
             return $this->attributes->get($name)->getValue();
         }
@@ -937,9 +1009,116 @@ class LsDoc
     }
 
     /**
+     * Use attributes fields to save the identifiers, urls, and titles of a list of associated documents on different servers
+     * Note that this fn is protected; addExternalDoc and removeExternalDoc are the public functions
+     *
+     * @param array $externalDocs
+     *
+     * @return $this
+     */
+    protected function setExternalDocs($externalDocs): LsDoc
+    {
+        // save all ed's passed in
+        $i = 0;
+        foreach ($externalDocs as $identifier => $ad) {
+            $this->setAttribute("externalDoc$i", $identifier.'|'.$ad['autoLoad'].'|'.$ad['url'].'|'.$ad['title']);
+            // title may get cut off if it's very long, but that's OK.
+            ++$i;
+        }
+
+        // remove any remaining, now-extraneous ed's
+        do {
+            if ($this->attributes->containsKey("externalDoc$i")) {
+                $this->removeAttribute("externalDoc$i");
+            }
+            ++$i;
+        } while ($i < 1000);    // we should always break, but include this as a safety valve
+
+        return $this;
+    }
+
+    /**
+     * Add an associated doc
+     *
+     * @param string $identifier
+     * @param string $autoLoad - "true" or "false"
+     * @param string $url
+     * @param string $title
+     *
+     * @return bool
+     */
+    public function addExternalDoc($identifier, $autoLoad, $url, $title): bool
+    {
+        if (empty($identifier) || empty($autoLoad) || empty($url) || empty($title)) {
+            return false;
+        }
+
+        // get the doc's existing externalDocs; if this new doc isn't already there, add it
+        $externalDocs = $this->getExternalDocs();
+        $externalDocs[$identifier] = [
+            'autoLoad' => $autoLoad,
+            'url' => $url,
+            'title' => $title
+        ];
+        $this->setExternalDocs($externalDocs);
+
+        return true;
+    }
+
+    public function setExternalDocAutoLoad($identifier, $autoLoad)
+    {
+        $externalDocs = $this->getExternalDocs();
+        if (empty($externalDocs[$identifier])) {
+            return false;
+        }
+        $externalDocs[$identifier]['autoLoad'] = $autoLoad;
+        $this->setExternalDocs($externalDocs);
+    }
+
+    /**
+     * Remove an associated doc
+     */
+    public function removeExternalDoc($identifier)
+    {
+        $externalDocs = $this->getExternalDocs();
+        if (empty($externalDocs[$identifier])) {
+            unset($externalDocs[$identifier]);
+            $this->setExternalDocs($externalDocs);
+        }
+    }
+
+    /**
+     * Get the list of associated documents for this document
+     *
+     * @return array (which could be empty)
+     */
+    public function getExternalDocs()
+    {
+        $externalDocs = [];
+
+        $attrKeys = $this->attributes->getKeys();
+        foreach ($attrKeys as $key) {
+            if (0 === strpos($key, 'externalDoc')) {
+                $ed = $this->getAttribute($key);
+
+                if (null !== $ed && preg_match("/^(.+?)\|(true|false)\|(.+?)\|(.*)/", $ed, $matches)) {
+                    $externalDocs[$matches[1]] = [
+                        'autoLoad' => $matches[2],
+                        'url' => $matches[3],
+                        'title' => $matches[4]
+                    ];
+                }
+            }
+        }
+
+        return $externalDocs;
+    }
+
+    /**
      * @return string
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
@@ -948,8 +1127,10 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setLanguage($language) {
+    public function setLanguage($language): LsDoc
+    {
         $this->language = $language;
+
         return $this;
     }
 
@@ -958,14 +1139,16 @@ class LsDoc
      *
      * @return bool
      */
-    public function canEdit() {
-        return is_null($this->adoptionStatus) || self::ADOPTION_STATUS_DRAFT === $this->adoptionStatus;
+    public function canEdit(): bool
+    {
+        return is_null($this->adoptionStatus) || in_array($this->adoptionStatus, static::getEditableStatuses(), true);
     }
 
     /**
      * @return LsDefSubject[]|ArrayCollection
      */
-    public function getSubjects() {
+    public function getSubjects()
+    {
         return $this->subjects;
     }
 
@@ -974,8 +1157,10 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setSubjects($subjects) {
+    public function setSubjects($subjects): LsDoc
+    {
         $this->subjects = $subjects;
+
         return $this;
     }
 
@@ -984,8 +1169,10 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function addSubject(LsDefSubject $subject) {
+    public function addSubject(LsDefSubject $subject): LsDoc
+    {
         $this->subjects[] = $subject;
+
         return $this;
     }
 
@@ -994,7 +1181,8 @@ class LsDoc
      *
      * @return \Salt\UserBundle\Entity\Organization
      */
-    public function getOrg() {
+    public function getOrg()
+    {
         return $this->org;
     }
 
@@ -1005,7 +1193,8 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setOrg(Organization $org = null) {
+    public function setOrg(Organization $org = null): LsDoc
+    {
         $this->org = $org;
 
         return $this;
@@ -1016,18 +1205,20 @@ class LsDoc
      *
      * @return \Salt\UserBundle\Entity\User
      */
-    public function getUser() {
+    public function getUser(): ?User
+    {
         return $this->user;
     }
 
     /**
      * Set the user owner for the framework
      *
-     * @param \Salt\UserBundle\Entity\User $user
+     * @param \Salt\UserBundle\Entity\User|null $user
      *
      * @return LsDoc
      */
-    public function setUser(User $user = null) {
+    public function setUser(?User $user = null): LsDoc
+    {
         $this->user = $user;
 
         return $this;
@@ -1038,19 +1229,28 @@ class LsDoc
      *
      * @return Organization|User
      */
-    public function getOwner() {
+    public function getOwner()
+    {
         if (null !== $this->org) {
             return $this->org;
-        } else {
-            return $this->user;
         }
+
+        return $this->user;
     }
 
     /**
      * @return Collection|UserDocAcl[]
      */
-    public function getDocAcls() {
+    public function getDocAcls()
+    {
         return $this->docAcls;
+    }
+
+    /**
+     * @return Collection|ImportLogs[]
+     */
+    public function getImportLogs() {
+        return $this->importLogs;
     }
 
     /**
@@ -1058,18 +1258,21 @@ class LsDoc
      *
      * @return string
      */
-    public function getOwnedBy(): ?string {
+    public function getOwnedBy(): ?string
+    {
         if (!empty($this->ownedBy)) {
             return $this->ownedBy;
-        } else {
-            if ($this->getOrg()) {
-                return 'organization';
-            } elseif ($this->getUser()) {
-                return 'user';
-            } else {
-                return null;
-            }
         }
+
+        if ($this->getOrg()) {
+            return 'organization';
+        }
+
+        if ($this->getUser()) {
+            return 'user';
+        }
+
+        return null;
     }
 
     /**
@@ -1077,9 +1280,108 @@ class LsDoc
      *
      * @return LsDoc
      */
-    public function setOwnedBy($ownedBy) {
+    public function setOwnedBy($ownedBy): LsDoc
+    {
         $this->ownedBy = $ownedBy;
 
         return $this;
+    }
+
+    /**
+     * @return LsDefAssociationGrouping[]|Collection
+     */
+    public function getAssociationGroupings()
+    {
+        return $this->associationGroupings;
+    }
+
+    /**
+     * @param LsDefAssociationGrouping[]|Collection $associationGroupings
+     *
+     * @return LsDoc
+     */
+    public function setAssociationGroupings($associationGroupings): LsDoc
+    {
+        $this->associationGroupings = $associationGroupings;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrlName(): ?string
+    {
+        return $this->urlName;
+    }
+
+    /**
+     * @param null|string $urlName
+     *
+     * @return $this
+     */
+    public function setUrlName(?string $urlName = null): LsDoc
+    {
+        $this->urlName = $urlName;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSlug(): string
+    {
+        if (null !== $this->urlName) {
+            return $this->getUrlName();
+        }
+
+        return $this->getId();
+    }
+
+    /**
+     * @return LsDefLicence|null
+     */
+    public function getLicence(): ?LsDefLicence
+    {
+        return $this->licence;
+    }
+
+    /**
+     * @param LsDefLicence $licence
+     *
+     * @return LsDoc
+     */
+    public function setLicence($licence): LsDoc
+    {
+        $this->licence = $licence;
+
+        return $this;
+    }
+
+    /**
+     * @param Uuid|string|null $identifier
+     *
+     * @return LsItem
+     */
+    public function createItem($identifier = null): LsItem
+    {
+        $item = new LsItem($identifier);
+        $item->setLsDoc($this);
+
+        return $item;
+    }
+
+    /**
+     * @param Uuid|string|null $identifier
+     *
+     * @return LsAssociation
+     */
+    public function createAssociation($identifier = null): LsAssociation
+    {
+        $association = new LsAssociation($identifier);
+        $association->setLsDoc($this);
+
+        return $association;
     }
 }

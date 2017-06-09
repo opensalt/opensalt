@@ -38,6 +38,46 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
+     * @param string $key
+     *
+     * @return array
+     */
+    public function findAllByIdentifierOrHumanCodingSchemeByValue($key)
+    {
+        $qry = $this->createQueryBuilder('i');
+        $qry->select('i')
+            ->where($qry->expr()->orX(
+                $qry->expr()->eq('i.humanCodingScheme', ':humanCodingScheme'),
+                $qry->expr()->eq('i.identifier', ':identifier')
+            ))
+            ->setParameter('humanCodingScheme', $key)
+            ->setParameter('identifier', $key)
+            ;
+        return $qry->getQuery()->getResult();
+    }
+
+    /**
+     * @param string $lsDocId
+     * @param string $key
+     *
+     * @return array
+     */
+    public function findByAllIdentifierOrHumanCodingSchemeByLsDoc($lsDocId, $key)
+    {
+        $qry = $this->createQueryBuilder('i');
+        $qry->select('i')
+            ->where($qry->expr()->orX(
+                $qry->expr()->eq('i.humanCodingScheme', ':humanCodingScheme'),
+                $qry->expr()->eq('i.identifier', ':identifier')
+            ), 'i.lsDoc = :lsDocId')
+            ->setParameter('humanCodingScheme', $key)
+            ->setParameter('identifier', $key)
+            ->setParameter('lsDocId', $lsDocId)
+            ;
+        return $qry->getQuery()->getResult();
+    }
+
+    /**
      * @param LsDoc $lsDoc
      *
      * @return \Doctrine\ORM\QueryBuilder

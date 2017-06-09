@@ -32,7 +32,7 @@ class AppKernel extends Kernel
             new Csa\Bundle\GuzzleBundle\CsaGuzzleBundle(),
 
             new Nelmio\SecurityBundle\NelmioSecurityBundle(),
-            new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
+            new ActiveLAMP\Bundle\SwaggerUIBundle\ALSwaggerUIBundle(),
 
             new CftfBundle\CftfBundle(),
             new Cftf\AsnBundle\CftfAsnBundle(),
@@ -43,6 +43,7 @@ class AppKernel extends Kernel
             new Salt\UserBundle\SaltUserBundle(),
             new GithubFilesBundle\GithubFilesBundle(),
             new Salt\SiteBundle\SaltSiteBundle(),
+            new Liuggio\ExcelBundle\LiuggioExcelBundle(),
         ];
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {

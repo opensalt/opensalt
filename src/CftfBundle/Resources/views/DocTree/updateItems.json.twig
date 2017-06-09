@@ -1,11 +1,6 @@
-{
-    {% for topItem in topItems %}
+[
+    {% for returnedItem in returnedItems %}
         {% if not loop.first %}, {% endif %}
-        {% set item = items[topItem.lsItemId] %}
-        {{ topItem.copyFromId|json_encode|raw }}: {% include 'CftfBundle:DocTree:render_update_item_child.json.twig' with { 'lsItem':item, 'items':items } %}
+        {{ returnedItem|json_encode|raw }}
     {% endfor %}
-}
-
-
-
-
+]

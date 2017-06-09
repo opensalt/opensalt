@@ -1,8 +1,8 @@
 imports:
     - { resource: parameters.yml }
+    - { resource: pdo-options.php }
     - { resource: security.yml }
     - { resource: services.yml }
-    - { resource: pdo-options.php }
     - { resource: "@CftfBundle/Resources/config/services.yml" }
     - { resource: "@CftfAsnBundle/Resources/config/services.yml" }
     - { resource: "@CftfImsBundle/Resources/config/services.yml" }
@@ -19,6 +19,10 @@ parameters:
     locale: en
     github_client_id: '%env(GITHUB_CLIENT_ID)%'
     github_client_secret: '%env(GITHUB_CLIENT_SECRET)%'
+    brand_logo_url: '%env(BRAND_LOGO_URL)%'
+    brand_logo_style: '%env(BRAND_LOGO_STYLE)%'
+    brand_link_url: '%env(BRAND_LINK_URL)%'
+    brand_link_style: '%env(BRAND_LINK_STYLE)%'
 
 framework:
     #esi:             ~
@@ -36,7 +40,6 @@ framework:
         #assets_version: SomeVersionScheme
     default_locale:  "%locale%"
     trusted_hosts:   ~
-    trusted_proxies: ~
     session:
         # handler_id set to null will use default session handler from php.ini
         handler_id:  session.handler.pdo
@@ -44,7 +47,7 @@ framework:
         #save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
         name: session
         cookie_lifetime: 0
-        cookie_secure: '%secure_cookie%'
+        #cookie_secure: true
         cookie_httponly: true
         gc_maxlifetime: 3600
         gc_probability: 25
@@ -69,6 +72,10 @@ twig:
         - 'TetranzSelect2EntityBundle:Form:fields.html.twig'
     globals:
       github_client_id: "%github_client_id%"
+      brand_logo_url: "%brand_logo_url%"
+      brand_logo_style: "%brand_logo_style%"
+      brand_link_url: "%brand_link_url%"
+      brand_link_style: "%brand_link_style%"
 
 # Assetic Configuration
 assetic:
@@ -121,7 +128,7 @@ doctrine:
                 password: "%database_password%"
                 options:  "%pdo_options%"
                 charset:  UTF8
-                schema_filter: ~^(?!(auth_session|LearningStandards))~
+                schema_filter: ~^(?!(auth_session|cache_items|LearningStandards))~
                 server_version: 5.7
                 mapping_types:
                     json: string
@@ -141,6 +148,8 @@ doctrine:
             default:
                 naming_strategy: doctrine.orm.naming_strategy.underscore
                 auto_mapping: true
+                #metadata_cache_driver: apc
+                #query_cache_driver: apc
                 second_level_cache:
                     enabled: false
                     log_enabled: true
@@ -170,6 +179,12 @@ jms_di_extra:
         #bundles: []
         directories: ["%kernel.root_dir%/../src"]
 
+jms_serializer:
+    handlers:
+        datetime:
+            default_format: "c" #ISO8601
+            default_timezone: "UTC"
+
 csa_guzzle:
     profiler: '%kernel.debug%'
     logger: true
@@ -197,26 +212,15 @@ nelmio_security:
         enabled: false
     clickjacking:
         paths:
+            '^/cftree/doc/': ALLOW
             '^/.*': DENY
         content_types: []
     external_redirects:
         whitelist:
             - google.com
 
-nelmio_api_doc:
-    name: 'API documentation'
-    exclude_sections: []
-    default_sections_opened: true
-    sandbox:
-        enabled: false
-        request_format:
-            method: accept_header
-        body_format:
-            formats: [ json ]
-    swagger:
-        api_base_path: /api
-        swagger_version: '1.2'
-        api_version: '0.4'
-        info:
-            title: 'SALT'
-            description: 'Open source implementation of the IMS CFTF specification'
+al_swagger_ui:
+    static_resources:
+        resource_dir: "app/Resources/swagger-docs/"
+        resource_list_filename: api-docs.json
+    resource_list: al_swagger_ui_static_resource_list

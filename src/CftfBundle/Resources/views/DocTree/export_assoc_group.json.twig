@@ -1,0 +1,8 @@
+{% block body %}
+{
+"id": {{ assocGroup.id |json_encode |raw }},
+"identifier": {{ assocGroup.identifier |json_encode |raw }},
+"title": {{ assocGroup.title |json_encode |raw }},
+"description": {{ assocGroup.description |json_encode |raw }}
+}
+{% endblock %}

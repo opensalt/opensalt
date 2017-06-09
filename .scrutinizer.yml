@@ -2,3 +2,8 @@ filter:
     paths: ["src/*"]
     excluded_paths:
         - "src/*Bundle/Tests/"
+
+checks:
+    php:
+        code_rating: true
+        duplication: false

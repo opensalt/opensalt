@@ -24,43 +24,17 @@ class ImportAsnCommand extends ContainerAwareCommand
     {
         $asnId = $input->getArgument('asnId');
         $creator = $input->getOption('creator');
-        $jsonClient = $this->getContainer()->get('csa_guzzle.client.json');
-
-        foreach ([
-                     'http://asn.jesandco.org/resources/',
-                     'http://asn.desire2learn.com/resources/',
-                 ] as $urlPrefix) {
-            $asnResponse = $jsonClient->request(
-                'GET',
-                $urlPrefix.$asnId.'_full.json',
-                [
-                    'timeout' => 60,
-                    'headers' => [
-                        'Accept' => 'application/json',
-                    ],
-                    'http_errors' => false,
-                ]
-            );
-
-            if ($asnResponse->getStatusCode() === 200) {
-                break;
-            }
-
-            $output->writeln("Failed URL: {$urlPrefix}{$asnId}_full.json");
-            $output->writeln('  Response: '.$asnResponse->getReasonPhrase());
-        }
-
-        if ($asnResponse->getStatusCode() !== 200) {
-            $output->writeln('Error getting document from ASN.');
-        }
-
-        //$asnDoc = file_get_contents('/var/www/html/tmp/D10003FB.json');
-        $asnDoc = $asnResponse->getBody()->getContents();
 
         $asnImport = $this->getContainer()->get('cftf_import.asn');
-        $asnImport->parseAsnDocument($asnDoc, $creator);
 
-        $output->writeln('Done.');
+        try {
+            $asnImport->generateFrameworkFromAsn($asnId, $creator);
+
+            $output->writeln('Done.');
+        } catch (\Exception $e) {
+            $output->writeln('<error>Error importing document from ASN.</error>');
+
+            return 1; // Fail out of command
+        }
     }
-
 }

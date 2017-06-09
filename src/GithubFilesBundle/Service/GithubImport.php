@@ -2,10 +2,14 @@
 
 namespace GithubFilesBundle\Service;
 
+use CftfBundle\Entity\ImportLog;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
-use Doctrine\ORM\EntityManager;
+use CftfBundle\Entity\LsAssociation;
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Class GithubImport.
@@ -15,28 +19,28 @@ use JMS\DiExtraBundle\Annotation as DI;
 class GithubImport
 {
     /**
-     * @var EntityManager
+     * @var ManagerRegistry
      */
-    private $em;
+    private $managerRegistry;
 
     /**
-     * @param EntityManager $em
+     * @param ManagerRegistry $managerRegistry
      *
      * @DI\InjectParams({
-     *     "em" = @DI\Inject("doctrine.orm.entity_manager"),
+     *     "managerRegistry" = @DI\Inject("doctrine"),
      * })
      */
-    public function __construct(EntityManager $em)
+    public function __construct(ManagerRegistry $managerRegistry)
     {
-        $this->em = $em;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
-     * @return EntityManager
+     * @return ObjectManager
      */
     protected function getEntityManager()
     {
-        return $this->em;
+        return $this->managerRegistry->getManagerForClass(LsDoc::class);
     }
 
     /**
@@ -45,8 +49,10 @@ class GithubImport
      * @param array $lsDocKeys
      * @param array $lsItemKeys
      * @param string $fileContent
+     * @param string $frameworkToAssociate
+     * @param array $missingFieldsLog
      */
-    public function parseCSVGithubDocument($lsDocKeys, $lsItemKeys, $fileContent)
+    public function parseCSVGithubDocument($lsItemKeys, $fileContent, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
     {
         $csvContent = str_getcsv($fileContent, "\n");
         $headers = [];
@@ -62,13 +68,15 @@ class GithubImport
             }
 
             foreach ($headers as $h => $col) {
-                $tempContent[$col] = $row[$h];
+                if ($h < count($row)) {
+                    $tempContent[$col] = $row[$h];
+                }
             }
 
             $content[] = $tempContent;
         }
 
-        $this->saveCSVGithubDocument($lsDocKeys, $lsItemKeys, $content);
+        $this->saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog);
     }
 
     /**
@@ -77,135 +85,184 @@ class GithubImport
      * @param array $lsDocKeys
      * @param array $lsItemKeys
      * @param array $content
+     * @param array $missingFieldsLog
      */
-    public function saveCSVGithubDocument($lsDocKeys, $lsItemKeys, $content)
+    public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
     {
         $em = $this->getEntityManager();
-        $lsDoc = new LsDoc();
+        $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find($lsDocId);
 
-        if (empty($this->getValue($lsDocKeys['creator'], $content[0]))) {
-            $lsDoc->setCreator('Imported from GitHub');
-        } else {
-            $lsDoc->setCreator($this->getValue($lsDocKeys['creator'], $content[0]));
+        if (count($missingFieldsLog) > 0){
+            foreach ($missingFieldsLog as $messageError) {
+                $errorLog = new ImportLog();
+                $errorLog->setLsDoc($lsDoc);
+                $errorLog->setMessage($messageError);
+                $errorLog->setMessageType('warning');
+
+                $em->persist($errorLog);
+            }
+        }else{
+            $successLog = new ImportLog();
+            $successLog->setLsDoc($lsDoc);
+            $successLog->setMessage('Items sucessful imported.');
+            $successLog->setMessageType('info');
+
+            $em->persist($successLog);
         }
 
-        $lsDoc->setTitle($this->getValue($lsDocKeys['title'], $content[0]));
-        $lsDoc->setOfficialUri($this->getValue($lsDocKeys['officialSourceURL'], $content[0]));
-        $lsDoc->setPublisher($this->getValue($lsDocKeys['publisher'], $content[0]));
-        $lsDoc->setDescription($this->getValue($lsDocKeys['description'], $content[0]));
-        $lsDoc->setVersion($this->getValue($lsDocKeys['version'], $content[0]));
-        $lsDoc->setSubject($this->getValue($lsDocKeys['subject'], $content[0]));
-        $lsDoc->setLanguage($this->getValue($lsDocKeys['language'], $content[0]));
-        $lsDoc->setNote($this->getValue($lsDocKeys['notes'], $content[0]));
-
-        $groups = [];
-        $lastGroupBy = "__default";
-        $listGroupBy = [];
-        $groupBy = "";
-
-        for ($i = 1, $iMax = count($content); $i < $iMax; ++$i) {
-            $row = $content[$i];
-            $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $row, false);
-            if( strlen($lsItemKeys['groupBy']) > 0 ){
-                $groupBy = $this->getValue($lsItemKeys['groupBy'], $row);
-                if( $groupBy == $lastGroupBy ){
-                    $listGroupBy[$groupBy]->addChild($lsItem);
-                }else{
-                    if (array_key_exists($groupBy, $listGroupBy) ){
-                        $listGroupBy[$groupBy]->addChild($lsItem);
-                    }else{
-                        $listGroupBy[$groupBy] = $lsItem;
-                        $lsDoc->addTopLsItem($lsItem);
-                    }
-                }
-                $lastGroupBy = $groupBy;
-            }else{
-                if( array_key_exists($row['P2 Label'], $groups) ){
-                    if( array_key_exists($row['P3 Label'], $groups[$row['P2 Label']]) ){
-                        if( array_key_exists($row['P4 Label'], $groups[$row['P2 Label']][$row['P3 Label']]) ){
-                            if( array_key_exists($row['P5 Label'], $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']]) ){
-                                if( array_key_exists($row['P6 Label'], $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']]) ){
-                                    $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']][$row['P6 Label']]['instance__']->addChild($lsItem);
-                                }else{
-                                    $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']][$row['P6 Label']]['instance__'] = $lsItem;
-                                    $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']]['instance__']->addChild($lsItem);
-                                }
-                            }else{
-                                $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']][$row['P5 Label']]['instance__'] = $lsItem;
-                                $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']]['instance__']->addChild($lsItem);
-                            }
-                        }else{
-                            $groups[$row['P2 Label']][$row['P3 Label']][$row['P4 Label']]['instance__'] = $lsItem;
-                            $groups[$row['P2 Label']][$row['P3 Label']]['instance__']->addChild($lsItem);
-                        }
-                    }else{
-                        $groups[$row['P2 Label']][$row['P3 Label']]['instance__'] = $lsItem;
-                        $groups[$row['P2 Label']]['instance__']->addChild($lsItem);
-                    }
-                }else{
-                    $groups[$row['P2 Label']]['instance__'] = $lsItem;
-                    $lsDoc->addTopLsItem($lsItem);
-                }
+        $lsItems = [];
+        $humanCodingValues = [];
+        for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
+            $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $content[$i]);
+            $lsItems[$i] = $lsItem;
+            if ($lsItem->getHumanCodingScheme()) {
+                $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
             }
         }
 
-        $em->persist($lsDoc);
+        for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
+            $lsItem = $lsItems[$i];
+
+            if ($humanCoding = $lsItem->getHumanCodingScheme()) {
+                $parent = $content[$i][$lsItemKeys['isChildOf']];
+                if (empty($parent)) {
+                    $parent = substr($humanCoding, 0, strrpos($humanCoding, '.'));
+                }
+
+                if (array_key_exists($parent, $humanCodingValues)) {
+                    $lsItems[$humanCodingValues[$parent]]->addChild($lsItem);
+                } else {
+                    $lsDoc->addTopLsItem($lsItem);
+                }
+            }
+            $this->saveAssociations($i, $content, $lsItemKeys, $lsItem, $lsDoc, $frameworkToAssociate);
+        }
+
         $em->flush();
+    }
+
+    /**
+     * @param int       $position
+     * @param array     $content
+     * @param array     $lsItemKeys
+     * @param LsItem    $lsItem
+     * @param LsDoc     $lsDoc
+     * @param string    $frameworkToAssociate
+     */
+    public function saveAssociations($position, $content, $lsItemKeys, LsItem $lsItem, LsDoc $lsDoc, $frameworkToAssociate)
+    {
+        $fieldsAndTypes = [
+            'isPartOf' =>                     LsAssociation::PART_OF,
+            'exemplar' =>                     LsAssociation::EXEMPLAR,
+            'isPeerOf' =>                     LsAssociation::IS_PEER_OF,
+            'precedes' =>                     LsAssociation::PRECEDES,
+            'isRelatedTo' =>                  LsAssociation::RELATED_TO,
+            'replacedBy' =>                   LsAssociation::REPLACED_BY,
+            'hasSkillLevel' =>                LsAssociation::SKILL_LEVEL,
+            'cfAssociationGroupIdentifier' => LsAssociation::RELATED_TO
+        ];
+        // We don't use is_child_of because that it alaready used to create parents relations before. :)
+        // checking each association field
+        foreach ($fieldsAndTypes as $fieldName => $assocType){
+            if (array_key_exists($fieldName, $lsItemKeys) && $cfAssociations = $content[$position][$lsItemKeys[$fieldName]]) {
+                foreach (explode(',', $cfAssociations) as $cfAssociation) {
+                    $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate, $assocType);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param LsDoc   $lsDoc
+     * @param LsItem  $lsItem
+     * @param string  $cfAssociation
+     * @param string  $frameworkToAssociate
+     * @param string  $assocType
+     */
+    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, $assocType)
+    {
+        $em = $this->getEntityManager();
+        if (strlen(trim($cfAssociation)) > 0) {
+            if ($frameworkToAssociate === 'all') {
+                $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
+                    ->findAllByIdentifierOrHumanCodingSchemeByValue($cfAssociation);
+            } else {
+                $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
+                    ->findByAllIdentifierOrHumanCodingSchemeByLsDoc($frameworkToAssociate, $cfAssociation);
+            }
+
+            if (count($itemsAssociated) > 0) {
+                foreach ($itemsAssociated as $itemAssociated) {
+                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType);
+                }
+            } else {
+                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType);
+            }
+        }
+    }
+
+    /**
+     * @param LsDoc $lsDoc
+     * @param LsItem $lsItem
+     * @param string|LsItem $elementAssociated
+     * @param string $assocType
+     */
+    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, $assocType)
+    {
+        $association = new LsAssociation();
+        $association->setType($assocType);
+        $association->setLsDoc($lsDoc);
+        $association->setOrigin($lsItem);
+        if (is_string($elementAssociated)) {
+            if (\Ramsey\Uuid\Uuid::isValid($elementAssociated)) {
+                $association->setDestinationNodeIdentifier($elementAssociated);
+            } elseif (!filter_var($elementAssociated, FILTER_VALIDATE_URL) === false) {
+                $association->setDestinationNodeUri($elementAssociated);
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $elementAssociated));
+            } else {
+                $encodedHumanCodingScheme = $this->encodeHumanCodingScheme($elementAssociated);
+                $association->setDestinationNodeUri($encodedHumanCodingScheme);
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $encodedHumanCodingScheme));
+            }
+        } else {
+            $association->setDestination($elementAssociated);
+        }
+        $this->getEntityManager()->persist($association);
+    }
+
+    /**
+     * @param string $humanCodingScheme
+     *
+     * @return string
+     */
+    protected function encodeHumanCodingScheme($humanCodingScheme): string
+    {
+        $prefix = 'data:text/x-ref-unresolved;base64,';
+        return $prefix.base64_encode($humanCodingScheme);
     }
 
     /**
      * @param LsDoc $lsDoc
      * @param array $lsItemKeys
-     * @param string $data
-     *
-     * @return LsItem
+     * @param array $data
      */
-    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data, $isTop)
+    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data)
     {
         $lsItem = new LsItem();
         $em = $this->getEntityManager();
 
-        $fullStatement = $this->getValue($lsItemKeys['fullStatement'], $data);
-        $humanCodingScheme = $this->getValue($lsItemKeys['humanCodingScheme'], $data);
-
         $lsItem->setLsDoc($lsDoc);
-        if( $isTop ){
-            $fullStatement = $this->getValue($lsItemKeys['groupBy'], $data);
-            $humanCodingScheme = "";
-        }
-        $lsItem->setFullStatement($fullStatement);
-        $lsItem->setHumanCodingScheme($humanCodingScheme);
-        $lsItem->setAbbreviatedStatement($this->getValue($lsItemKeys['abbreviatedStatement'], $data));
-        $lsItem->setListEnumInSource($this->getValue($lsItemKeys['listEnumeration'], $data));
-        $lsItem->setConceptKeywords($this->getValue($lsItemKeys['conceptKeywords'], $data));
-        $lsItem->setConceptKeywordsUri($this->getValue($lsItemKeys['conceptKeywordsUri'], $data));
-        $lsItem->setLanguage($this->getValue($lsItemKeys['language'], $data));
-        $lsItem->setLicenceUri($this->getValue($lsItemKeys['license'], $data));
-        $lsItem->setNotes($this->getValue($lsItemKeys['notes'], $data));
+        $lsItem->setIdentifier($data[$lsItemKeys['identifier']]);
+        $lsItem->setFullStatement($data[$lsItemKeys['fullStatement']]);
+        $lsItem->setHumanCodingScheme($data[$lsItemKeys['humanCodingScheme']]);
+        $lsItem->setAbbreviatedStatement($data[$lsItemKeys['abbreviatedStatement']]);
+        $lsItem->setConceptKeywords($data[$lsItemKeys['conceptKeywords']]);
+        $lsItem->setLanguage($data[$lsItemKeys['language']]);
+        $lsItem->setLicenceUri($data[$lsItemKeys['license']]);
+        $lsItem->setNotes($data[$lsItemKeys['notes']]);
 
         $em->persist($lsItem);
 
         return $lsItem;
-    }
-
-    /**
-     * @param string $key
-     * @param string $row
-     *
-     * @return string
-     */
-    private function getValue($key, $row)
-    {
-        if (empty($key)) {
-            return '';
-        } else {
-            $res = strtok($key, ',');;
-
-            if (strlen($res) !== strlen($key)) {
-                return $res;
-            }
-        }
-
-        return $row[$key];
     }
 }

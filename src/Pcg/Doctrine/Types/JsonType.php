@@ -19,19 +19,6 @@ class JsonType extends JsonArrayType
     }
 
     /**
-     * Convert the value of the field into a PHP data type
-     *
-     * @param mixed $value
-     * @param AbstractPlatform $platform
-     *
-     * @return array|mixed|null
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
-    {
-        return $value === null ? null : parent::convertToPHPValue($value, $platform);
-    }
-
-    /**
      * Name of the db type
      *
      * @return string
@@ -39,5 +26,17 @@ class JsonType extends JsonArrayType
     public function getName()
     {
         return 'json';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    {
+        if ([] === $value) {
+            return null;
+        }
+
+        return parent::convertToDatabaseValue($value, $platform);
     }
 }

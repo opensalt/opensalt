@@ -7,7 +7,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 /**
  * Class CfPackageController
@@ -25,8 +24,10 @@ class CfPackageController extends Controller
      */
     public function exportAction(LsDoc $lsDoc, $_format = 'json')
     {
-        $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAllItems($lsDoc);
-        $associations = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAllAssociationsForCapturedNodes($lsDoc);
+        $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
+        $items = $repo->findAllItems($lsDoc);
+        $associations = $repo->findAllAssociations($lsDoc);
+        // PW: this used to use findAllAssociationsForCapturedNodes, but that wouldn't export crosswalk associations
 
         $itemTypes = [];
         foreach ($items as $item) {
@@ -46,13 +47,13 @@ class CfPackageController extends Controller
             'associationGroupings' => [],
         ];
         $response = new Response($this->renderView("CftfBundle:CfPackage:export.$_format.twig", $arr));
-        
-        if ($_format == "json") {
+
+        if ($_format == 'json') {
             $response->headers->set('Content-Type', 'text/json');
-            $response->headers->set('Content-Disposition', 'attachment; filename=opensalt-framework-' . $lsDoc->getIdentifier() . '.json');
+            $response->headers->set('Content-Disposition', 'attachment; filename=opensalt-framework-'.$lsDoc->getIdentifier().'.json');
             $response->headers->set('Pragma', 'no-cache');
         }
-        
+
         return $response;
     }
 }

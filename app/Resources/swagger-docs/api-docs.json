@@ -1,0 +1,1221 @@
+{
+    "swagger" : "2.0",
+    "info" : {
+        "version" : "1.0",
+        "title" : "Competencies and Academic Standards Exchange (CASE) Service OpenAPI (JSON) Definition",
+        "description" : "The Competencies and Academic Standards Exchange (CASE) Service enables the exchange of data between a Competency Records Service Provider and the consumers of the associated data. This service has been described using the IMS Model Driven Specification development approach: this being the Platform Specific Model (PSM) of the service.",
+        "termsOfService" : "Permission is granted to all parties to use excerpts from this document as needed in producing requests for proposals. The limited permissions granted above are perpetual and will not be revoked by IMS or its successors or assigns. THIS API DEFINITION IS BEING OFFERED WITHOUT ANY WARRANTY WHATSOEVER, AND IN PARTICULAR, ANY WARRANTY OF NONINFRINGEMENT IS EXPRESSLY DISCLAIMED. ANY USE OF THIS SPECIFICATION SHALL BE MADE ENTIRELY AT THE IMPLEMENTERS OWN RISK, AND NEITHER THE  CONSORTIUM, NOR ANY OF ITS MEMBERS OR SUBMITTERS, SHALL HAVE ANY LIABILITY WHATSOEVER TO ANY IMPLEMENTER OR THIRD PARTY FOR ANY DAMAGES OF ANY NATURE WHATSOEVER,  DIRECTLY OR INDIRECTLY, ARISING FROM THE USE OF THIS API DEFINITION.",
+        "contact" : {
+            "name" : "Lisa Mattson (COO), IMS Global ",
+            "url" : "http://www.imsglobal.org",
+            "email" : "lmattson@imsglobal.org"
+        },
+        "license" : {
+            "name" : "IMS Global",
+            "url" : "https://www.imsglobal.org/license.html"
+        }
+    },
+    "basePath" : "/ims/case/v1p0",
+    "schemes" : [ "https" ],
+    "tags" : [],
+    "paths" : {
+        "/CFAssociationGroupings/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFAssociationGrouping",
+                "summary" : "The REST read request message for the getCFAssociationGrouping() API call.",
+                "tags" : [ "DefinitionsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Association Grouping.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The GUID that identifies the Competency Framework AssociationGrouping that is to be read from the service provider.",
+                        "required" : true,
+                        "type" : "string"
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFAssociationGrouping.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "StatusInfo Error Report",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        },
+        "/CFConcepts/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFConcept",
+                "summary" : "The REST read request message for the getCFConcept() API call.",
+                "tags" : [ "DefinitionsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Concept.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The GUID that identifies the Competency Framework Concept that is to be read from the service provider.",
+                        "required" : true,
+                        "type" : "string"
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFConcept.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "StatusInfo Error Report",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        },
+        "/CFDocuments" : {
+            "get" : {
+                "operationId" : "getAllCFDocuments",
+                "summary" : "The REST read request message for the getAllCFDocuments() API call.",
+                "tags" : [ "DocumentsManager" ],
+                "description" : "This is a request to the Service Provider to provide all of the Competency Framework Documents. ",
+                "parameters" : [
+                    {
+                        "name" : "limit",
+                        "in" : "query",
+                        "description" : "This is used as part of the data pagination mechanism to control the download rate of data. The 'limit' defines the download segmentation value i.e. the maximum number of records to be contained in the response. The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "type" : "integer",
+                        "format" : "int32",
+                        "allowEmptyValue" : false,
+                        "default" : 100,
+                        "minimum" : 1
+                    },
+                    {
+                        "name" : "offset",
+                        "in" : "query",
+                        "description" : "This is used as part of the data pagination mechanism to control the download rate of data. The 'offset' is the number of the first record to be supplied in the segmented response message. The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "type" : "integer",
+                        "format" : "int32",
+                        "allowEmptyValue" : false,
+                        "default" : 0,
+                        "minimum" : 0
+                    },
+                    {
+                        "name" : "sort",
+                        "in" : "query",
+                        "description" : "This is used as part of the sorting mechanism to be use by the service provider. The 'sort' identifies the sort criteria to be used for the records in the response message. Use with the orderBy parameter. The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "type" : "string",
+                        "allowEmptyValue" : false
+                    },
+                    {
+                        "name" : "orderBy",
+                        "in" : "query",
+                        "description" : "This is used as part of the sorting mechanism to be use by the service provider. This defines the form of ordering for response to the sorted request i.e. ascending (asc) or descending (desc). The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "type" : "string",
+                        "enum" : [ "asc","desc" ],
+                        "allowEmptyValue" : false
+                    },
+                    {
+                        "name" : "filter",
+                        "in" : "query",
+                        "description" : "This is used for the data filtering mechanism to be applied by the service provider. It defines the filtering rules to be applied when identifying the records to be supplied in the response message. The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "type" : "string",
+                        "allowEmptyValue" : false
+                    },
+                    {
+                        "name" : "fields",
+                        "in" : "query",
+                        "description" : "This is used as part of the field selection mechanism to be applied by the service provider. This identifies the range of fields that should be supplied in the response message. The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "type" : "array",
+                        "items" : {
+                            "type" : "string"
+                        },
+                        "collectionFormat" : "csv",
+                        "allowEmptyValue" : false
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFDocumentSet.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "StatusInfo Error Report",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        },
+        "/CFDocuments/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFDocument",
+                "summary" : "The REST read request message for the getCFDocument() API call.",
+                "tags" : [ "DocumentsManager" ],
+                "description" : "This is a request to the service provider to provide the information for the specific Competency Framework Document. If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The GUID that identifies the Competency Framework Document that is to be read from the service provider.",
+                        "required" : true,
+                        "type" : "string"
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFDocument.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "StatusInfo Error Report",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        },
+        "/CFItemAssociations/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFItemAssociations",
+                "summary" : "The REST read request message for the getCFItemAssociations() API call.",
+                "tags" : [ "AssociationsManager" ],
+                "description" : "This is a request to the Service Provider to provide the all of the Competency Associations for the specified CFItem.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The GUID that identifies the CFItem for which ALL associations are to be supplied.",
+                        "required" : true,
+                        "type" : "string"
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFAssociationSet.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "StatusInfo Error Report",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        },
+        "/CFItemTypes/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFItemType",
+                "summary" : "The REST read request message for the getCFItemType() API call.",
+                "tags" : [ "DefinitionsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Item Type.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The GUID that identifies the Competency Framework ItemType that is to be read from the service provider.",
+                        "required" : true,
+                        "type" : "string"
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFItemType.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "StatusInfo Error Report",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        },
+        "/CFItems/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFItem",
+                "summary" : "The REST read request message for the getCFItem() API call.",
+                "tags" : [ "ItemsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Item.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The GUID that identifies the Competency Framework Item that is to be read from the service provider.",
+                        "required" : true,
+                        "type" : "string"
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFItem.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "StatusInfo Error Report",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        },
+        "/CFLicenses/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFLicense",
+                "summary" : "The REST read request message for the getCFLicense() API call.",
+                "tags" : [ "DefinitionsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework License.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The GUID that identifies the Competency Framework License that is to be read from the service provider.",
+                        "required" : true,
+                        "type" : "string"
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFLicense.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "StatusInfo Error Report",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        },
+        "/CFPackages/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFPackage",
+                "summary" : "The REST read request message for the getCFPackage() API call.",
+                "tags" : [ "PackagesManager" ],
+                "description" : "This is a request to the service provider to provide the information for the specific Competency Framework Package. If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The GUID that identifies the Competency Framework Document that is to be read from the service provider and supplied with all of its component artefacts.",
+                        "required" : true,
+                        "type" : "string"
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFPackage.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "StatusInfo Error Report",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        },
+        "/CFRubrics/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFRubric",
+                "summary" : "The REST read request message for the getCFRubric() API call.",
+                "tags" : [ "RubricsManager" ],
+                "description" : "This is a request to the service provider to provide the information for the specific Competency Framework Rubric. If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The GUID that identifies the Competency Framework Rubric that is to be read from the service provider.",
+                        "required" : true,
+                        "type" : "string"
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFRubric.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "StatusInfo Error Report",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        },
+        "/CFSubjects/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFSubject",
+                "summary" : "The REST read request message for the getCFSubject() API call.",
+                "tags" : [ "DefinitionsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Subject.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The GUID that identifies the Competency Framework Subject that is to be read from the service provider.",
+                        "required" : true,
+                        "type" : "string"
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFSubjectSet.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "StatusInfo Error Report",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions" : {
+        "CFAssociation.Type" : {
+            "description" : "This is the container for the data about the relationship between two CFDocuments or between two CFItems.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "associationType" : {
+                    "type" : "string",
+                    "enum" : [ "isChildOf","isPeerOf","isPartOf","exactMatchOf","precedes","isRelatedTo","replacedBy","exemplar","hasSkillLevel" ]
+                },
+                "CFDocumentURI" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "sequenceNumber" : {
+                    "description" : "Model Primitive Datatype = Integer",
+                    "type" : "integer",
+                    "format" : "int32"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "originNodeURI" : {
+                    "$ref" : "#/definitions/LinkURI.Type"
+                },
+                "destinationNodeURI" : {
+                    "$ref" : "#/definitions/LinkURI.Type"
+                },
+                "CFAssociationGroupingURI" : {
+                    "$ref" : "#/definitions/LinkURI.Type"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                }
+            },
+            "required" : [ "identifier","associationType","uri","originNodeURI","destinationNodeURI","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFAssociationGrouping.Type" : {
+            "description" : "This is the container for information about a set of associations that have been labelled as a group (the nature of the group being defined by this container).",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "title" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "description" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                }
+            },
+            "required" : [ "identifier","uri","title","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFAssociationSet.Type" : {
+            "description" : "This is the container for a collection of CFAssociations. There must be at least one CFAssociation. Note that the association can be between CFDocuments or between CFItems.",
+            "type" : "object",
+            "properties" : {
+                "CFAssociations" : {
+                    "type" : "array",
+                    "minItems" : 1,
+                    "items" : {
+                        "$ref" : "#/definitions/CFAssociation.Type"
+                    }
+                }
+            },
+            "required" : [ "CFAssociations" ],
+            "additionalProperties" : false
+        },
+        "CFConcept.Type" : {
+            "description" : "The container for the definition of a concept which is addressed by the competency frammework.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "title" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "keywords" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "hierarchyCode" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "description" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                }
+            },
+            "required" : [ "identifier","uri","title","hierarchyCode","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFDefinition.Type" : {
+            "description" : "The container for the set of definitions used for the competency framework i.e. the set of CFSubjects, CFConcepts, CFItemTypes, CFAssociationGroupings and CFLicenses.",
+            "type" : "object",
+            "properties" : {
+                "CFConcepts" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFConcept.Type"
+                    }
+                },
+                "CFSubjects" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFSubject.Type"
+                    }
+                },
+                "CFLicenses" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFLicense.Type"
+                    }
+                },
+                "CFItemTypes" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFItemType.Type"
+                    }
+                },
+                "CFAssociationGroupings" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFAssociationGrouping.Type"
+                    }
+                }
+            },
+            "additionalProperties" : false
+        },
+        "CFDocument.Type" : {
+            "description" : "The container for the data about a competency framework document (CFDocument). A CFDocument is the root for the creation of a learning standard/competency.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "creator" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "title" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                },
+                "officialSourceURL" : {
+                    "$ref" : "#/definitions/URL.Type"
+                },
+                "publisher" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "description" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "subject" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "type" : "string"
+                    }
+                },
+                "subjectURI" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/LinkURI.Type"
+                    }
+                },
+                "language" : {
+                    "description" : "Model Primitive Datatype = Language",
+                    "type" : "string"
+                },
+                "version" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "adoptionStatus" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "statusStartDate" : {
+                    "description" : "Model Primitive Datatype = Date",
+                    "type" : "string",
+                    "format" : "date"
+                },
+                "statusEndDate" : {
+                    "description" : "Model Primitive Datatype = Date",
+                    "type" : "string",
+                    "format" : "date"
+                },
+                "licenseURI" : {
+                    "$ref" : "#/definitions/LinkURI.Type"
+                },
+                "notes" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "CFPackageURI" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                }
+            },
+            "required" : [ "identifier","uri","creator","title","lastChangeDateTime","CFPackageURI" ],
+            "additionalProperties" : false
+        },
+        "CFDocumentSet.Type" : {
+            "description" : "This is the container for a collection of CFDocuments. There must be at least one CFDocument.",
+            "type" : "object",
+            "properties" : {
+                "CFDocuments" : {
+                    "type" : "array",
+                    "minItems" : 1,
+                    "items" : {
+                        "$ref" : "#/definitions/CFDocument.Type"
+                    }
+                }
+            },
+            "required" : [ "CFDocuments" ],
+            "additionalProperties" : false
+        },
+        "CFItem.Type" : {
+            "description" : "This is the container for the CFItem data. This is the content that either describes a specific competency (learning objective) or describes a grouping of competencies within the taxonomy of a Competency Framework Document. ",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "CFDocumentURI" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "fullStatement" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "alternativeLabel" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "CFItemType" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "humanCodingScheme" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "listEnumeration" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "abbreviatedStatement" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "conceptKeywords" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "type" : "string"
+                    }
+                },
+                "conceptKeywordsURI" : {
+                    "$ref" : "#/definitions/LinkURI.Type"
+                },
+                "notes" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "language" : {
+                    "description" : "Model Primitive Datatype = Language",
+                    "type" : "string"
+                },
+                "educationLevel" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "type" : "string"
+                    }
+                },
+                "CFItemTypeURI" : {
+                    "$ref" : "#/definitions/LinkURI.Type"
+                },
+                "licenseURI" : {
+                    "$ref" : "#/definitions/LinkURI.Type"
+                },
+                "statusStartDate" : {
+                    "description" : "Model Primitive Datatype = Date",
+                    "type" : "string",
+                    "format" : "date"
+                },
+                "statusEndDate" : {
+                    "description" : "Model Primitive Datatype = Date",
+                    "type" : "string",
+                    "format" : "date"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                }
+            },
+            "required" : [ "identifier","CFDocumentURI","fullStatement","uri","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFItemType.Type" : {
+            "description" : "The container for the ItemType information use within the competency framework.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "title" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "description" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "hierarchyCode" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "typeCode" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                }
+            },
+            "required" : [ "identifier","uri","title","description","hierarchyCode","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFLicense.Type" : {
+            "description" : "The container for the information about a license used within the competency framework.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "title" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "description" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "licenseText" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                }
+            },
+            "required" : [ "identifier","uri","title","licenseText","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFPackage.Type" : {
+            "description" : "This is the container for all of the data for a Competency Framework Package i.e. the root CFDocument and ALL of the corresponding components i.e. the CFItems, CFAssociations and CFDefinitions.",
+            "type" : "object",
+            "properties" : {
+                "CFDocument" : {
+                    "$ref" : "#/definitions/CFDocument.Type"
+                },
+                "CFItems" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFItem.Type"
+                    }
+                },
+                "CFAssociations" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFAssociation.Type"
+                    }
+                },
+                "CFDefinitions" : {
+                    "$ref" : "#/definitions/CFDefinition.Type"
+                },
+                "CFRubrics" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFRubric.Type"
+                    }
+                }
+            },
+            "required" : [ "CFDocument" ],
+            "additionalProperties" : false
+        },
+        "CFRubric.Type" : {
+            "description" : "The container for the definition of a rubric which is addressed by the competency framework. This includes the set of associated CFRubricCriteria and CFRubricCriterionLevels.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "title" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "description" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                },
+                "CFRubricCriteria" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFRubricCriterion.Type"
+                    }
+                }
+            },
+            "required" : [ "identifier","uri","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFRubricCriterion.Type" : {
+            "description" : "The container for the definition of a rubric criterion which is addressed by the competency framework.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "category" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "description" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "CFItemURI" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "weight" : {
+                    "description" : "Model Primitive Datatype = Float",
+                    "type" : "number",
+                    "format" : "float"
+                },
+                "position" : {
+                    "description" : "Model Primitive Datatype = Integer",
+                    "type" : "integer",
+                    "format" : "int32"
+                },
+                "rubricId" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                },
+                "CFRubricCriterionLevels" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFRubricCriterionLevel.Type"
+                    }
+                }
+            },
+            "required" : [ "identifier","uri","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFRubricCriterionLevel.Type" : {
+            "description" : "The container for the definition of a criterion level which is addressed by the competency framework.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "description" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "quality" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "score" : {
+                    "description" : "Model Primitive Datatype = Float",
+                    "type" : "number",
+                    "format" : "float"
+                },
+                "feedback" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "position" : {
+                    "description" : "Model Primitive Datatype = Integer",
+                    "type" : "integer",
+                    "format" : "int32"
+                },
+                "rubricCriterionId" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                }
+            },
+            "required" : [ "identifier","uri","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFSubject.Type" : {
+            "description" : "The container for the definition of a topic or academic subject which is addressed by the competency framework.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "title" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "hierarchyCode" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "description" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                }
+            },
+            "required" : [ "identifier","uri","title","hierarchyCode","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFSubjectSet.Type" : {
+            "description" : "...tbd (Class description)...",
+            "type" : "object",
+            "properties" : {
+                "CFSubjects" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFSubject.Type"
+                    }
+                }
+            },
+            "additionalProperties" : false
+        },
+        "GUID.Type" : {
+            "description" : "The data-type for establishing a Globally Unique Identifier (GUID). The form of the GUID is a Universally Unique Identifier (UUID) of 16 hexadecimal characters (lower case) in the format 8-4-4-4-12.",
+            "type" : "string",
+            "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+        },
+        "LinkURI.Type" : {
+            "description" : "A container for the information that is used to achieve the link data reference.",
+            "type" : "object",
+            "properties" : {
+                "title" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "identifier" : {
+                    "$ref" : "#/definitions/GUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                }
+            },
+            "required" : [ "title","identifier","uri" ],
+            "additionalProperties" : false
+        },
+        "URL.Type" : {
+            "description" : "The data-type for establishing a Uniform Resource Locator (URL) as defined by W3C.",
+            "type" : "string",
+            "format" : "uri"
+        },
+        "imsx_CodeMinor.Type" : {
+            "description" : "This is the container for the set of code minor status codes reported in the responses from the Service Provider.",
+            "type" : "object",
+            "properties" : {
+                "imsx_codeMinorField" : {
+                    "type" : "array",
+                    "minItems" : 1,
+                    "items" : {
+                        "$ref" : "#/definitions/imsx_CodeMinorField.Type"
+                    }
+                }
+            },
+            "required" : [ "imsx_codeMinorField" ],
+            "additionalProperties" : false
+        },
+        "imsx_CodeMinorField.Type" : {
+            "description" : "This is the container for a single code minor status code.",
+            "type" : "object",
+            "properties" : {
+                "imsx_codeMinorFieldName" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "imsx_codeMinorFieldValue" : {
+                    "type" : "string",
+                    "enum" : [ "fullsuccess","invalid_sort_field","invalid_selection_field","forbidden","unauthorisedrequest","internal_server_error","unknownobject","server_busy","invaliduuid" ]
+                }
+            },
+            "required" : [ "imsx_codeMinorFieldName","imsx_codeMinorFieldValue" ],
+            "additionalProperties" : false
+        },
+        "imsx_StatusInfo.Type" : {
+            "description" : "This is the container for the status code and associated information returned within the HTTP messages received from the Service Provider. For the CASE service this object will only be returned to provide information about a failed request i.e. it will NOT be in the payload for a successful request. See Appendix B for further information on the interpretation of the information contained within this class",
+            "type" : "object",
+            "properties" : {
+                "imsx_codeMajor" : {
+                    "type" : "string",
+                    "enum" : [ "success","processing","failure","unsupported" ]
+                },
+                "imsx_severity" : {
+                    "type" : "string",
+                    "enum" : [ "status","warning","error" ]
+                },
+                "imsx_description" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "imsx_codeMinor" : {
+                    "$ref" : "#/definitions/imsx_CodeMinor.Type"
+                }
+            },
+            "required" : [ "imsx_codeMajor","imsx_severity" ],
+            "additionalProperties" : false
+        }
+    },
+    "consumes" : [ "application/json" ],
+    "produces" : [ "application/json" ]
+}

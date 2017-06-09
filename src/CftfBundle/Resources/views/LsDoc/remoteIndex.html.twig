@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <ul class="list-inline pull-right">
+            <li>
+                <input class="btn btn-primary" type="submit" value="Load from Remote CASE Server" />
+            </li>
+        </ul>
+    {{ form_end(form) }}
+
+    <div id="competencyTree">
+        {% set lastCreator = '' %}
+        <ul id="comptencyTreeData" style="display:none;">
+            {% for framework in docs %}
+                {% if framework.creator != lastCreator %}
+                    {% if not loop.first %}</ul></li>{% endif %}
+                    <li class="folder">{{ framework.creator }}<ul>
+                    {% set lastCreator = framework.creator %}
+                {% endif %}
+                <li class="salt-framework-link"><a href="{{ path('doc_tree_remote_view', {'url':framework.CFPackageURI}) |raw }}">{{ framework.title }}</a></li>
+                {% if loop.last == true and framework.creator != '' %}
+                    </ul></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $(function(){
+            $('#competencyTree').fancytree({
+                activate: function(event, data){
+                    var node = data.node;
+                    if (!$.isEmptyObject(node.data)) {
+                        if (undefined !== node.data.href)
+                            window.location.href = node.data.href;
+                    }
+                },
+                dblclick: function(event, data) {
+                    // ignore double clicks
+                    return false;
+                },
+                click: function(event, data) {
+                    if (data.node.isFolder() && data.targetType !== 'expander') {
+                        data.node.toggleExpanded();
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
+

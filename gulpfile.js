@@ -11,8 +11,8 @@ var config = {
     renameCss: false,
     renameJs: false,
     cleanCss: true,
-    uglifyJs: true,
-    dropConsole: true,
+    uglifyJs: false,
+    dropConsole: false,
     vendorDir: 'vendor',
     bowerDir: 'vendor/bower-asset',
     npmDir: 'vendor/npm-asset'
@@ -84,18 +84,31 @@ gulp.task('styles', function() {
 
 gulp.task('scripts', function() {
     app.addScript([
+        config.bowerDir+'/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js',
+    ], 'modernizr.js');
+    app.addScript([
         config.bowerDir+'/html5-boilerplate/dist/js/plugins.js',
         config.bowerDir+'/jquery/dist/jquery.js',
         config.bowerDir+'/jquery-ui/jquery-ui.js',
         config.bowerDir+'/bootstrap-sass/assets/javascripts/bootstrap.js',
         config.bowerDir+'/fancytree/dist/jquery.fancytree-all.js',
+        config.bowerDir+'/datatables.net/js/jquery.dataTables.js',
+        config.bowerDir+'/datatables.net-bs/js/dataTables.bootstrap.js',
+        config.bowerDir+'/datatables.net-fixedheader/js/dataTables.fixedHeader.js',
+        config.bowerDir+'/datatables.net-scroller/js/dataTables.scroller.js',
+        config.bowerDir+'/datatables.net-select/js/dataTables.select.js',
         config.bowerDir+'/ui-contextmenu/jquery.ui-contextmenu.js',
         config.bowerDir+'/bootstrap-multiselect/dist/js/bootstrap-multiselect.js',
         config.bowerDir+'/select2/dist/js/select2.full.js',
+        config.vendorDir+'/tetranz/select2entity-bundle/Tetranz/Select2EntityBundle/Resources/public/js/select2entity.js',
         config.bowerDir+'/twbs-pagination/jquery.twbsPagination.js',
         config.assetsDir+'/js/application.js',
         config.assetsDir+'/js/lsdoc/index.js',
-        config.assetsDir+'/js/cftree/view.js',
+        config.assetsDir+'/js/cftree/view-documentclass.js',
+        config.assetsDir+'/js/cftree/view-trees.js',
+        config.assetsDir+'/js/cftree/view-edit.js',
+        config.assetsDir+'/js/cftree/view-modes.js',
+        config.assetsDir+'/js/cftree/viewx.js',
     ], 'site.js');
 });
 

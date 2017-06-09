@@ -3,7 +3,9 @@
 namespace CftfBundle\Form\Type;
 
 use CftfBundle\Entity\LsDefGrade;
+use CftfBundle\Entity\LsDefItemType;
 use CftfBundle\Form\DataTransformer\EducationAlignmentTransformer;
+use CftfBundle\Form\DataTransformer\ItemTypeTransformer;
 use CftfBundle\Repository\LsDefGradeRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityRepository;
@@ -101,20 +103,16 @@ class LsItemType extends AbstractType
             ->add('itemType', Select2EntityType::class, [
                 'multiple' => false,
                 'remote_route' => 'lsdef_item_type_index_json',
-                'class' => 'CftfBundle:LsDefItemType',
+                'class' => LsDefItemType::class,
                 'primary_key' => 'id',
                 'text_property' => 'title',
+                'transformer' => ItemTypeTransformer::class,
                 'minimum_input_length' => 0,
-                'page_limit' => 50,
+                'page_limit' => 1000,
+                'scroll' => true,
                 'allow_clear' => true,
                 'delay' => 250,
                 'placeholder' => 'Select Item Type',
-                'allow_add' => [
-                    'enable' => true,
-                    'new_tag_text' => '(NEW) ',
-                    'new_tag_prefix' => '___',
-                    'tag_separators' => ',',
-                ],
             ])
             ->add('licenceUri')
             ->add('notes')

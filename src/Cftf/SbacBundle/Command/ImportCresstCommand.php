@@ -264,11 +264,9 @@ class ImportCresstCommand extends ContainerAwareCommand
 
                     if (empty($lsItems[strtoupper($dest)])) {
                         switch (true) {
-                            case preg_match('/^.-DOK/', strtoupper($dest)):
-                                // Mark as external DOK for now, TODO: Link to DOK document
-                                // Using RFC4198 identifier, "cfr" => "CF Reference"
-                                $destItemUri = 'urn:fdc:edplancms.com:2016:cfr:DOK:'.rawurlencode($dest);
-                                break;
+                            case '#N/A' === $dest:
+                                // Skip items marked as N/A
+                                continue 2;
 
                             case false !== strpos($dest, '|'):
                                 // Mark external match to legacy code for now
@@ -282,9 +280,11 @@ class ImportCresstCommand extends ContainerAwareCommand
                                 $destItemUri = 'urn:fdc:edplancms.com:2016:cfr:CCSS-M:'.rawurlencode($dest);
                                 break;
 
-                            case '#N/A' === $dest:
-                                // Skip items marked as N/A
-                                continue 2;
+                            case 1 === preg_match('/^.-DOK/', strtoupper($dest)):
+                                // Mark as external DOK for now, TODO: Link to DOK document
+                                // Using RFC4198 identifier, "cfr" => "CF Reference"
+                                $destItemUri = 'urn:fdc:edplancms.com:2016:cfr:DOK:'.rawurlencode($dest);
+                                break;
 
                             default:
                                 $output->writeln('<error>Unknown destination for association</error>');

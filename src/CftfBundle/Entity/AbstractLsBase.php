@@ -4,14 +4,26 @@ namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * AbstractLsBase
  *
  * @ORM\MappedSuperclass()
+ *
+ * @Serializer\ExclusionPolicy("all")
+ * @Serializer\VirtualProperty(
+ *     "uri",
+ *     exp="service('salt.api.v1p0.utils').getApiUrl(object)",
+ *     options={
+ *         @Serializer\SerializedName("uri"),
+ *         @Serializer\Expose()
+ *     }
+ * )
  */
-class AbstractLsBase
+class AbstractLsBase implements IdentifiableInterface
 {
     /**
      * @var int
@@ -19,20 +31,32 @@ class AbstractLsBase
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Exclude()
      */
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="identifier", type="string", length=300, nullable=false)
+     * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=true)
+     *
+     * @Assert\NotBlank()
+     * @Assert\Length(max=300)
+     *
+     * @Serializer\Expose()
      */
     private $identifier;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="uri", type="string", length=300, nullable=true)
+     * @ORM\Column(name="uri", type="string", length=300, nullable=true, unique=true)
+     *
+     * @Assert\NotBlank()
+     * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
      */
     private $uri;
 
@@ -40,25 +64,59 @@ class AbstractLsBase
      * @var array
      *
      * @ORM\Column(name="extra", type="json", nullable=true)
+     *
+     * @Serializer\Exclude()
      */
-    private $extra;
+    private $extra = [];
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      *
      * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Gedmo\Timestampable(on="update")
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("lastChangeDateTime")
      */
     private $updatedAt;
 
 
     /**
      * Constructor
+     *
+     * @param string|Uuid|null $identifier
      */
-    public function __construct()
+    public function __construct($identifier = null)
     {
-        $this->identifier = Uuid::uuid4()->toString();
+        if ($identifier instanceof Uuid) {
+            $identifier = strtolower($identifier->toString());
+        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+            $identifier = strtolower(Uuid::fromString($identifier)->toString());
+        } else {
+            $identifier = Uuid::uuid1()->toString();
+        }
+
+        $this->identifier = $identifier;
         $this->uri = 'local:'.$this->identifier;
+
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    /**
+     * Clone the object
+     */
+    public function __clone()
+    {
+        // Clear values for new item
+        $this->id = null;
+
+        // Generate a new identifier
+        $identifier = Uuid::uuid1()->toString();
+        $this->identifier = $identifier;
+        $this->uri = 'local:'.$this->identifier;
+
+        // Set last change/update to now
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     /**
@@ -66,7 +124,7 @@ class AbstractLsBase
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -74,12 +132,22 @@ class AbstractLsBase
     /**
      * Set identifier
      *
-     * @param string $identifier
+     * @param Uuid|string $identifier
      *
-     * @return self
+     * @return static
+     * @throws \InvalidArgumentException
      */
     public function setIdentifier($identifier)
     {
+        // If the identifier is in the form of a UUID then lower case it
+        if ($identifier instanceof Uuid) {
+            $identifier = strtolower($identifier->serialize());
+        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+            $identifier = strtolower(Uuid::fromString($identifier)->toString());
+        } else {
+            throw new \InvalidArgumentException('The identifier must be a UUID.');
+        }
+
         $this->identifier = $identifier;
 
         return $this;
@@ -90,7 +158,7 @@ class AbstractLsBase
      *
      * @return string
      */
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return $this->identifier;
     }
@@ -100,9 +168,9 @@ class AbstractLsBase
      *
      * @param string $uri
      *
-     * @return self
+     * @return static
      */
-    public function setUri($uri)
+    public function setUri(string $uri)
     {
         $this->uri = $uri;
 
@@ -114,7 +182,7 @@ class AbstractLsBase
      *
      * @return string
      */
-    public function getUri()
+    public function getUri(): string
     {
         return $this->uri;
     }
@@ -122,11 +190,11 @@ class AbstractLsBase
     /**
      * Set updatedAt
      *
-     * @param \DateTime $updatedAt
+     * @param \DateTimeInterface $updatedAt
      *
-     * @return self
+     * @return static
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt(\DateTimeInterface $updatedAt)
     {
         $this->updatedAt = $updatedAt;
 
@@ -136,9 +204,9 @@ class AbstractLsBase
     /**
      * Get updatedAt
      *
-     * @return \DateTime
+     * @return \DateTimeInterface
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt(): \DateTimeInterface
     {
         return $this->updatedAt;
     }
@@ -146,16 +214,18 @@ class AbstractLsBase
     /**
      * @return array
      */
-    public function getExtra() {
+    public function getExtra(): array
+    {
         return $this->extra;
     }
 
     /**
      * @param array $extra
      *
-     * @return self
+     * @return static
      */
-    public function setExtra($extra) {
+    public function setExtra(array $extra)
+    {
         $this->extra = $extra;
 
         return $this;
@@ -166,30 +236,21 @@ class AbstractLsBase
      *
      * @return mixed
      */
-    public function getExtraProperty($property) {
-        if (is_null($this->extra)) {
-            return null;
-        }
-
-        if (!array_key_exists($property, $this->extra)) {
-            return null;
-        }
-
-        return $this->extra[$property];
+    public function getExtraProperty(string $property)
+    {
+        return $this->extra[$property] ?? null;
     }
 
     /**
      * @param string $property
      * @param mixed $value
      *
-     * @return self
+     * @return static
      */
-    public function setExtraProperty($property, $value) {
-        if (is_null($this->extra)) {
-            $this->extra = [];
-        }
-
+    public function setExtraProperty(string $property, $value)
+    {
         $this->extra[$property] = $value;
+
         return $this;
     }
 }
