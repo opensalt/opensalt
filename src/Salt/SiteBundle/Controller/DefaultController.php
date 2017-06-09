@@ -2,15 +2,14 @@
 
 namespace Salt\SiteBundle\Controller;
 
+use CftfBundle\Entity\ImportLog;
 use CftfBundle\Entity\LsDoc;
-<<<<<<< HEAD
 use Salt\UserBundle\Entity\User;
-=======
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefItemType;
 use CftfBundle\Entity\LsDefAssociationGrouping;
->>>>>>> Importing spreadsheet file
+use Doctrine\Common\Persistence\ObjectManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -123,8 +122,11 @@ class DefaultController extends Controller
         $em = $this->getDoctrine()->getManager();
         $file = $request->files->get('file');
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject($file->getRealPath());
+        /** @var LsItem[] $items */
         $items = [];
-        $smartLevels = array();
+        $itemSmartLevels = [];
+        /** @var LsItem[] $smartLevels */
+        $smartLevels = [];
         $parents = [];
 
         $sheet = $phpExcelObject->getSheetByName('CF Doc');
@@ -135,26 +137,27 @@ class DefaultController extends Controller
         for ($i = 2; $i <= $lastRow; $i++) {
             $lsItem = $this->saveItem($sheet, $lsDoc, $i, $em);
             $items[$lsItem->getIdentifier()] = $lsItem;
-            if (!empty($sheet->getCellByColumnAndRow(3, $i)->getValue())) {
-                $smartLevels[(string) $sheet->getCellByColumnAndRow(3, $i)->getValue()] = $lsItem->getIdentifier();
+            $smartLevel = (string) $sheet->getCellByColumnAndRow(3, $i)->getValue();
+            if (!empty($smartLevel)) {
+                $smartLevels[$smartLevel] = $lsItem;
+                $itemSmartLevels[$lsItem->getIdentifier()] = $smartLevel;
             }
         }
 
-        for ($i = 2; $i <= $lastRow; $i++) {
-            if ($smartLevelSheet = $sheet->getCellByColumnAndRow(3, $i)->getValue()) {
-                $lsItem = $items[$sheet->getCellByColumnAndRow(0, $i)->getValue()];
-                if (strrpos($smartLevelSheet, '.') == false) {
-                    $parentSmart = $smartLevelSheet;
-                } else {
-                    $parentSmart = substr($smartLevelSheet, 0, strrpos($smartLevelSheet, '.'));
-                }
-                $parent = $items[$smartLevels[$parentSmart]];
-                $parent->addChild($lsItem);
+        foreach ($items as $item) {
+            $smartLevel = $itemSmartLevels[$item->getIdentifier()];
+            $levels = explode('.', $smartLevel);
+            $seq = array_pop($levels);
+            $parentLevel = implode('.', $levels);
 
-                if (!array_key_exists($parent->getIdentifier(), $parents)) {
-                    $parents[$parent->getIdentifier()] = $i;
-                    $lsDoc->addTopLsItem($parent);
-                }
+            if (!is_numeric($seq)) {
+                $seq = null;
+            }
+
+            if (array_key_exists($parentLevel, $smartLevels)) {
+                $smartLevels[$parentLevel]->addChild($item, null, $seq);
+            } else {
+                $lsDoc->createChildItem($item, null, $seq);
             }
         }
 
@@ -165,6 +168,7 @@ class DefaultController extends Controller
         }
 
         $em->flush();
+
         return new Response('OK', Response::HTTP_OK);
     }
 
@@ -196,7 +200,7 @@ class DefaultController extends Controller
         ]);
     }
 
-    private function saveDoc($sheet, $em)
+    private function saveDoc(\PHPExcel_Worksheet $sheet, ObjectManager $em): LsDoc
     {
         $lsDoc = new LsDoc();
         $lsDoc->setIdentifier($sheet->getCellByColumnAndRow(0, 2)->getValue());
@@ -216,25 +220,40 @@ class DefaultController extends Controller
         $lsDoc->setNote($sheet->getCellByColumnAndRow(14, 2)->getValue());
 
         $em->persist($lsDoc);
+
         return $lsDoc;
     }
 
-    private function saveItem($sheet, $lsDoc, $row, $em)
+    private function saveItem(\PHPExcel_Worksheet $sheet, LsDoc $lsDoc, int $row, ObjectManager $em): LsItem
     {
-        $lsItem = new LsItem();
-        $itemType = $em->getRepository('CftfBundle:LsDefItemType')
-            ->findOneByTitle($sheet->getCellByColumnAndRow(10, $row)->getValue());
+        static $itemTypes = [];
 
-        if (is_null($itemType)) {
-            $itemType = new LsDefItemType();
-            $itemType->setTitle($sheet->getCellByColumnAndRow(10, $row)->getValue());
-            $itemType->setCode($sheet->getCellByColumnAndRow(10, $row)->getValue());
-            $itemType->setHierarchyCode($sheet->getCellByColumnAndRow(3, $row)->getValue());
-            $em->persist($itemType);
+        $identifier = $sheet->getCellByColumnAndRow(0, $row)->getValue();
+        if (empty($identifier)) {
+            $identifier = null;
         }
+        $lsItem = $lsDoc->createItem($identifier);
 
-        $lsItem->setLsDoc($lsDoc);
-        $lsItem->setIdentifier($sheet->getCellByColumnAndRow(0, $row)->getValue());
+        $itemTypeTitle = $sheet->getCellByColumnAndRow(10, $row)->getValue();
+
+        if (in_array($itemTypeTitle, $itemTypes, true)) {
+            $itemType = $itemTypes[$itemTypeTitle];
+        } else {
+            $itemType = $em->getRepository('CftfBundle:LsDefItemType')
+                ->findOneByTitle($itemTypeTitle);
+
+            if (is_null($itemType)) {
+                $itemType = new LsDefItemType();
+                $itemType->setTitle($itemTypeTitle);
+                $itemType->setCode($itemTypeTitle);
+                $itemType->setHierarchyCode($sheet->getCellByColumnAndRow(3, $row)->getValue());
+                $em->persist($itemType);
+            }
+
+            $itemTypes[$itemTypeTitle] = $itemType;
+        }
+        $lsItem->setItemType($itemType);
+
         $lsItem->setFullStatement($sheet->getCellByColumnAndRow(1, $row)->getValue());
         $lsItem->setHumanCodingScheme($sheet->getCellByColumnAndRow(2, $row)->getValue());
         $lsItem->setListEnumInSource($sheet->getCellByColumnAndRow(4, $row)->getValue());
@@ -243,49 +262,74 @@ class DefaultController extends Controller
         $lsItem->setNotes($sheet->getCellByColumnAndRow(7, $row)->getValue());
         $lsItem->setLanguage($sheet->getCellByColumnAndRow(8, $row)->getValue());
         $lsItem->setEducationalAlignment($sheet->getCellByColumnAndRow(9, $row)->getValue());
-        $lsItem->setItemType($itemType);
 
         $em->persist($lsItem);
 
         return $lsItem;
     }
 
-    private function saveAssociation($sheet, $lsDoc, $row, $em, $items)
+    private function saveAssociation(\PHPExcel_Worksheet $sheet, LsDoc $lsDoc, int $row, ObjectManager $em, array $items): ?LsAssociation
     {
-        $lsAssociation = new LsAssociation();
+        $fieldNames = [
+            0 => 'identifier',
+            1 => 'uri',
+            2 => 'originNodeIdentifier',
+            3 => 'destinationNodeIdentifier',
+            4 => 'associationType',
+            5 => 'associationGroupIdentifier',
+            6 => 'associationGroupName',
+            7 => 'lastChangeDateTime',
+        ];
 
-        $lsAssociation->setLsDoc($lsDoc);
-        $lsAssociation->setIdentifier($sheet->getCellByColumnAndRow(0, $row)->getValue());
-        $lsAssociation->setUri($sheet->getCellByColumnAndRow(1, $row)->getValue());
-
-        if (array_key_exists((string) $sheet->getCellByColumnAndRow(2, $row)->getValue(), $items)) {
-            $lsAssociation->setOrigin($items[$sheet->getCellByColumnAndRow(2, $row)->getValue()]);
-        } else {
-            $lsAssociation->setOriginNodeIdentifier($sheet->getCellByColumnAndRow(2, $row)->getValue());
-            $lsAssociation->setOriginNodeUri($sheet->getCellByColumnAndRow(3, $row)->getValue());
+        $fields = [];
+        foreach ($fieldNames as $col => $name) {
+            $fields[$name] = $sheet->getCellByColumnAndRow($col, $row)->getValue();
         }
 
-        if (array_key_exists((string) $sheet->getCellByColumnAndRow(4, $row)->getValue(), $items)) {
-            $lsAssociation->setDestination($items[$sheet->getCellByColumnAndRow(4, $row)->getValue()]);
-        } else {
-            $lsAssociation->setDestinationNodeIdentifier($sheet->getCellByColumnAndRow(4, $row)->getValue());
-            $lsAssociation->setDestinationNodeUri($sheet->getCellByColumnAndRow(5, $row)->getValue());
+        if (empty($fields['identifier'])) {
+            $fields['identifier'] = null;
         }
 
-        $associationType = ucfirst(preg_replace('/([A-Z])/', ' $1', (string) $sheet->getCellByColumnAndRow(4, $row)->getValue()));
-        /* if (in_array($associationType, LsAssociation::allTypes())) { */
-        $lsAssociation->setType($associationType);
-        /* } */
+        $lsAssociation = $lsDoc->createAssociation($fields['identifier']);
 
-        if (!empty($sheet->getCellByColumnAndRow(5, $row)->getValue())) {
+        $lsAssociation->setUri($fields['uri']);
+
+        if (array_key_exists((string) $fields['originNodeIdentifier'], $items)) {
+            $lsAssociation->setOrigin($items[$fields['originNodeIdentifier']]);
+        } else {
+            $ref = 'data:text/x-ref-unresolved,'.$fields['originNodeIdentifier'];
+            $lsAssociation->setOrigin($ref, $fields['originNodeIdentifier']);
+        }
+
+        if (array_key_exists((string) $fields['destinationNodeIdentifier'], $items)) {
+            $lsAssociation->setDestination($items[$fields['destinationNodeIdentifier']]);
+        } else {
+            $ref = 'data:text/x-ref-unresolved,'.$fields['destinationNodeIdentifier'];
+            $lsAssociation->setDestination($ref, $fields['destinationNodeIdentifier']);
+        }
+
+        $associationType = ucfirst(preg_replace('/([A-Z])/', ' $1', (string) $fields['associationType']));
+        if (in_array($associationType, LsAssociation::allTypes(), true)) {
+            $lsAssociation->setType($associationType);
+        } else {
+            $log = new ImportLog();
+            $log->setLsDoc($lsDoc);
+            $log->setMessageType('error');
+            $log->setMessage("Invalid Association Type ({$associationType} on row {$row}.");
+
+            return null;
+        }
+
+        if (!empty($fields['associationGroupIdentifier'])) {
             $lsDefAssocGroup = new LsDefAssociationGrouping();
             $lsDefAssocGroup->setLsDoc($lsDoc);
-            $lsDefAssocGroup->setTitle($sheet->getCellByColumnAndRow(7, $row)->getValue());
+            $lsDefAssocGroup->setTitle($fields['associationGroupName']);
             $lsAssociation->setGroup($lsDefAssocGroup);
             $em->persist($lsDefAssocGroup);
         }
 
         $em->persist($lsAssociation);
+
         return $lsAssociation;
     }
 
