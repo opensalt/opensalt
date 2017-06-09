@@ -293,19 +293,35 @@ var Import = (function() {
         });
     }
 
+    function excelImporter(file) {
+        console.info(file);
+        // $.ajax({
+        //     url: 'php/upload.php',
+        //     data: file,
+        //     cache: false,
+        //     contentType: false,
+        //     processData: false,
+        //     type: 'POST',
+        //     success: function(data){
+        //         console.log(data);
+        //     }
+        // });
+    }
+
     return {
         csv: csvImporter,
         json: jsonImporter,
         send: sendData,
         fromAsn: asnStructure,
-        case: caseImporter
+        case: caseImporter,
+        excel: excelImporter
     };
 })();
 
 var SaltLocal = (function(){
 
-    function handleFileSelect(fileType) {
-        var files;
+    function handleFileSelect(fileType, input) {
+        var files = document.getElementById(input).files;
         var json = '', f;
 
         if (fileType === 'update' || fileType === 'derivative'){
@@ -320,18 +336,26 @@ var SaltLocal = (function(){
                             'bytes', '- lastModified:', f.lastModified ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
 
                 var reader = new FileReader();
-                if (f.type === 'text/csv' || f.type === 'application/json') {
+                if (isTypeValid(f.type)) {
                     reader.onload = (function(theFile) {
                         return function(e) {
                             var file = e.target.result;
-                            if (fileType === 'local') {
-                                Import.csv(file);
-                            } else if (fileType === 'case') {
-                                Import.case(file);
-                            } else if (fileType === 'derivative') {
-                                UpdateFramework.derivative(file);
-                            } else if (fileType === 'update') {
-                                UpdateFramework.update(file);
+                            switch (fileType) {
+                                case 'local':
+                                    Import.csv(file);
+                                break;
+                                case 'case':
+                                    Import.case(file);
+                                break;
+                                case 'excel':
+                                    Import.excel(file);
+                                break;
+                                case 'derivative':
+                                    UpdateFramework.derivative(file);
+                                break;
+                                case 'update':
+                                    UpdateFramework.update(file);
+                                break;
                             }
                         };
                     })(f);
@@ -346,8 +370,41 @@ var SaltLocal = (function(){
         }
     }
 
+    function handleExcelFile() {
+        var files = document.getElementById('excel-url').files;
+        var file;
+        var data = new FormData();
+
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            var file = files[0];
+            if (isTypeValid(file.type)) {
+                data.append('file', file);
+                $.ajax({
+                    url: '/app_dev.php/salt/excel/import',
+                    data: data,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    type: 'POST',
+                    success: function(response){
+                        console.log(response);
+                    }
+                });
+            }
+        }
+    }
+
+    function isTypeValid(type) {
+        var types = ['text/csv', 'application/json', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+        if (types.indexOf(type) >= 0) {
+            return true;
+        }
+        return false;
+    }
+
     return {
-        handleFile: handleFileSelect
+        handleFile: handleFileSelect,
+        handleExcelFile: handleExcelFile
     };
 })();
 
