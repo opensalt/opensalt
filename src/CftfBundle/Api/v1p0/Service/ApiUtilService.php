@@ -39,18 +39,18 @@ class ApiUtilService
     ];
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\Routing\Router
+     * @var Router
      */
     private $router;
 
     /**
-     * @param \Symfony\Bundle\FrameworkBundle\Routing\Router $router
+     * @param Router $router
      *
      * @DI\InjectParams({
      *     "router" = @DI\Inject("router")
      * })
      */
-    public function __construct($router)
+    public function __construct(Router $router)
     {
         $this->router = $router;
     }
