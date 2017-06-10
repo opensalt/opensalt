@@ -2,17 +2,17 @@
 
 namespace CftfBundle\Controller;
 
-use CftfBundle\Entity\LsItem;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use CftfBundle\Entity\LsDoc;
+use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Form\Type\LsAssociationType;
-use CftfBundle\Form\Type\LsAssociationTreeType;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -108,62 +108,69 @@ class LsAssociationController extends Controller
     }
 
     /**
-     * Creates a new LsAssociation entity -- tree-view version (PW).
+     * Creates a new LsAssociation entity -- tree-view version, called via ajax (PW).
      *
-     * @Route("/treenew/{originLsItem}/{destinationLsItem}", name="lsassociation_tree_new")
-     * @Route("/treenew/{originLsItem}/{destinationLsItem}/{assocGroup}", name="lsassociation_tree_new_ag")
-     * @Method({"GET", "POST"})
-     * @Template()
+     * @Route("/treenew/{lsDoc}", name="lsassociation_tree_new")
+     * @Method("POST")
      *
      * @param Request $request
-     * @param LsItem $originLsItem
-     * @param LsItem $destinationLsItem
-     * @param LsDefAssociationGrouping|null $assocGroup
+     * @param LsDoc $lsDoc  : the document we're adding the association to
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return Response
      */
-    public function treeNewAction(Request $request, LsItem $originLsItem, LsItem $destinationLsItem, ?LsDefAssociationGrouping $assocGroup = null)
+    public function treeNewAction(Request $request, LsDoc $lsDoc)
     {
-        $ajax = $request->isXmlHttpRequest();
-
+        $em = $this->getDoctrine()->getManager();
         $lsAssociation = new LsAssociation();
-        $lsAssociation->setOriginLsItem($originLsItem);
-        $lsAssociation->setDestinationLsItem($destinationLsItem);
-        // Add to the origin item's LsDoc
-        $lsAssociation->setLsDoc($originLsItem->getLsDoc());
 
-        // PW: set assocGroup if provided and non-null
-        if ($assocGroup !== null) {
+        $lsAssociation->setType($request->request->get('type'));
+
+        // Add to the provided LsDoc
+        $lsAssociation->setLsDoc($lsDoc);
+
+        // deal with origin and dest items, which can be specified by id or by identifier
+        // if externalDoc is specified for either one, mark this document as "autoLoad": "true" in the lsDoc's externalDocuments
+        $repo = $em->getRepository(LsItem::class);
+
+        $origin = $request->request->get('origin');
+        if (!empty($origin['id'])) {
+            $origin = $repo->findOneBy(['id'=>$origin['id']]);
+        } else {
+            if (!empty($origin['externalDoc'])) {
+                $lsDoc->setExternalDocAutoLoad($origin['externalDoc'], 'true');
+                $em->persist($lsDoc);
+            }
+            $origin = $origin['identifier'];
+        }
+
+        $dest = $request->request->get('dest');
+        if (!empty($dest['id'])) {
+            $dest = $repo->findOneBy(['id'=>$dest['id']]);
+        } else {
+            if (!empty($dest['externalDoc'])) {
+                $lsDoc->setExternalDocAutoLoad($dest['externalDoc'], 'true');
+                $em->persist($lsDoc);
+            }
+            $dest = $dest['identifier'];
+        }
+
+        // setOrigin and setDestination will take care of setting things appropriately depending on whether an identifier or item are supplied
+        $lsAssociation->setOrigin($origin);
+        $lsAssociation->setDestination($dest);
+
+        // set assocGroup if provided
+        $assocGroup = $request->request->get('assocGroup');
+        if (!empty($assocGroup)) {
+            $repo = $em->getRepository(LsDefAssociationGrouping::class);
+            $assocGroup = $repo->findOneBy(['id'=>$assocGroup]);
             $lsAssociation->setGroup($assocGroup);
         }
 
-        $form = $this->createForm(LsAssociationTreeType::class, $lsAssociation, ['ajax'=>$ajax]);
-        $form->handleRequest($request);
+        $em->persist($lsAssociation);
+        $em->flush();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsAssociation);
-            $em->flush();
-
-            if ($ajax) {
-                // return id of created association
-                return new Response($lsAssociation->getId(), Response::HTTP_CREATED);
-                //return new Response($this->generateUrl('doc_tree_item_view', ['id' => $destinationLsItem->getId()]), Response::HTTP_CREATED);
-            }
-
-            return $this->redirectToRoute('lsassociation_show', array('id' => $lsAssociation->getId()));
-        }
-
-        $ret = [
-            'lsAssociation' => $lsAssociation,
-            'form' => $form->createView(),
-        ];
-
-        if ($ajax && $form->isSubmitted() && !$form->isValid()) {
-            return $this->render('CftfBundle:LsAssociation:new.html.twig', $ret, new Response('', Response::HTTP_OK));
-        }
-
-        return $ret;
+        // return id of created association
+        return new Response($lsAssociation->getId(), Response::HTTP_CREATED);
     }
 
     /**
@@ -193,7 +200,15 @@ class LsAssociationController extends Controller
         $em->persist($lsAssociation);
         $em->flush();
 
-        return new Response($this->generateUrl('doc_tree_item_view', ['id' => $originLsItem->getId()]), Response::HTTP_CREATED);
+        $rv = [
+            'id' => $lsAssociation->getId(),
+            'identifier' => $lsAssociation->getIdentifier()
+        ];
+
+        $response = new Response(json_encode($rv));
+        $response->headers->set('Content-Type', 'text/json');
+        $response->headers->set('Pragma', 'no-cache');
+        return $response;
     }
 
     /**

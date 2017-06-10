@@ -104,7 +104,11 @@ gulp.task('scripts', function() {
         config.bowerDir+'/twbs-pagination/jquery.twbsPagination.js',
         config.assetsDir+'/js/application.js',
         config.assetsDir+'/js/lsdoc/index.js',
-        config.assetsDir+'/js/cftree/view.js',
+        config.assetsDir+'/js/cftree/view-documentclass.js',
+        config.assetsDir+'/js/cftree/view-trees.js',
+        config.assetsDir+'/js/cftree/view-edit.js',
+        config.assetsDir+'/js/cftree/view-modes.js',
+        config.assetsDir+'/js/cftree/viewx.js',
     ], 'site.js');
 });
 

@@ -9,6 +9,10 @@ span.fancytree-drag-helper-img,
     background-image: url("/img/fancytree/icons.gif");
 }
 
+span.fancytree-node {
+    position: relative;
+}
+
 #competencyTree {
     ul.fancytree-container {
         border: none;

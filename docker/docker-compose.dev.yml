@@ -21,7 +21,12 @@ services:
       GITHUB_CLIENT_SECRET:
       DB_USE_RDS_CERT:
       BRAND_LOGO_URL:
+      BRAND_LOGO_STYLE:
       BRAND_LINK_URL:
+      BRAND_LINK_STYLE:
+      ALLOW_LOCAL_DEV: "true"
+      ALLOW_EXTERNAL_DEV_IPS:
+      DEV_COOKIE:
     volumes:
       - &project_root "..:/var/www/html"
     working_dir: /var/www/html
@@ -49,6 +54,7 @@ services:
     image: percona:${MYSQL_VERSION}
     volumes:
       - ./data/mysql:/var/lib/mysql
+      - ./mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:

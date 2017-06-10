@@ -5,6 +5,7 @@ namespace Cftf\AsnBundle\Service;
 use Cftf\AsnBundle\Entity\AsnDocument;
 use Cftf\AsnBundle\Entity\AsnStandard;
 use Cftf\AsnBundle\Entity\AsnValue;
+use CftfBundle\Entity\IdentifiableInterface;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefItemType;
 use CftfBundle\Entity\LsDefSubject;
@@ -48,7 +49,7 @@ class AsnImport
     /**
      * @return EntityManager
      */
-    protected function getEntityManager()
+    protected function getEntityManager(): EntityManager
     {
         return $this->em;
     }
@@ -58,8 +59,10 @@ class AsnImport
      *
      * @param string $asnDoc
      * @param string|null $creator
+     *
+     * @return LsDoc
      */
-    public function parseAsnDocument($asnDoc, $creator = null)
+    public function parseAsnDocument(string $asnDoc, ?string $creator = null): LsDoc
     {
         $em = $this->getEntityManager();
 
@@ -68,10 +71,6 @@ class AsnImport
         // Ignoring doc metadata that might be provided
         $sd = $doc->getStandardDocument();
         $lsDoc = new LsDoc();
-
-        $lsDocIdentifier = Uuid::uuid5(Uuid::NAMESPACE_URL, $sd->getIdentifier()->first()->value)->toString();
-        $lsDoc->setIdentifier($lsDocIdentifier);
-        $lsDoc->setUri('local:'.$lsDocIdentifier);
 
         $map = [
             // LsDoc field from AsnStandardDocument field
@@ -97,14 +96,9 @@ class AsnImport
 
                 $s = $em->getRepository('CftfBundle:LsDefSubject')->findOneBy(['title' => $subject]);
                 if (null === $s) {
-                    $uuid = Uuid::uuid5('cacee394-85b7-11e6-9d43-005056a32dda', $subject)->toString();
                     $s = new LsDefSubject();
-                    $s->setIdentifier($uuid);
-                    $s->setUri('local:'.$uuid);
                     $s->setTitle($subject);
                     $s->setHierarchyCode('1');
-
-                    $subjects[$subject] = $s;
 
                     $em->persist($s);
                 }
@@ -121,24 +115,21 @@ class AsnImport
 
         $em->persist($lsDoc);
 
-        $lsAssociation = new LsAssociation();
-        $lsAssociation->setLsDoc($lsDoc);
-        $lsAssociation->setOrigin($lsDoc);
-        $lsAssociation->setType(LsAssociation::EXACT_MATCH_OF);
-        $lsAssociation->setDestinationNodeIdentifier($sd->getIdentifier()->first()->value);
+        $this->addExactMatch($lsDoc, $lsDoc, $sd->getIdentifier()->first());
 
-        $em->persist($lsAssociation);
-
+        $seq = 0;
         foreach ($sd->getHasChild() as $val) {
             /** @var AsnStandard $child */
             $child = $doc->getStandards()->get($val->getValue());
             if ($child) {
                 $lsItem = $this->parseAsnStandard($doc, $lsDoc, $child);
-                $lsDoc->addTopLsItem($lsItem);
+                $lsDoc->createChildItem($lsItem, null, ++$seq);
             }
         }
 
         $em->flush();
+
+        return $lsDoc;
     }
 
     /**
@@ -148,16 +139,10 @@ class AsnImport
      *
      * @return LsItem
      */
-    public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard)
+    public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard): LsItem
     {
         $em = $this->getEntityManager();
-        $lsItem = new LsItem();
-        $lsItem->setIdentifier(null);
-        $lsItem->setLsDoc($lsDoc);
-
-        $lsItemIdentifier = Uuid::uuid5(Uuid::NAMESPACE_URL, $asnStandard->getIdentifier()->first()->value)->toString();
-        $lsItem->setIdentifier($lsItemIdentifier);
-        $lsItem->setUri('local:'.$lsItemIdentifier);
+        $lsItem = $lsDoc->createItem();
 
         $em->persist($lsItem);
 
@@ -211,24 +196,32 @@ class AsnImport
             $this->addExactMatches($lsDoc, $lsItem, $matches);
         }
 
-        $lsAssociation = new LsAssociation();
-        $lsAssociation->setLsDoc($lsDoc);
-        $lsAssociation->setOrigin($lsItem);
-        $lsAssociation->setType(LsAssociation::EXACT_MATCH_OF);
-        $lsAssociation->setDestinationNodeIdentifier($asnStandard->getIdentifier()->first()->value);
+        $this->addExactMatch($lsDoc, $lsItem, $asnStandard->getIdentifier()->first());
 
-        $em->persist($lsAssociation);
-
+        $seq = 0;
         if ($children = $asnStandard->getHasChild()) {
             foreach ($children as $val) {
                 /** @var AsnStandard $child */
                 $child = $doc->getStandards()->get($val->getValue());
                 $childLsItem = $this->parseAsnStandard($doc, $lsDoc, $child);
-                $lsItem->addChild($childLsItem);
+                $lsItem->createChildItem($childLsItem, null, ++$seq);
             }
         }
 
         return $lsItem;
+    }
+
+    /**
+     * @param string $asnLocator
+     * @param string|null $creator
+     *
+     * @return LsDoc
+     */
+    public function generateFrameworkFromAsn(string $asnLocator, ?string $creator = null): LsDoc
+    {
+        $asnDoc = $this->fetchAsnDocument($asnLocator);
+
+        return $this->parseAsnDocument($asnDoc, $creator);
     }
 
     /**
@@ -238,12 +231,12 @@ class AsnImport
      *
      * @throws \Exception
      */
-    public function getAsnDocument(string $asnLocator)
+    public function fetchAsnDocument(string $asnLocator): string
     {
         $asnId = '';
         $asnHost = '';
 
-        if (preg_match('/(D\d+)/', $asnLocator, $matches)) {
+        if (preg_match('/(D[\dA-F]+)/', $asnLocator, $matches)) {
             $asnId = $matches[1];
         }
 
@@ -283,7 +276,7 @@ class AsnImport
      *
      * @throws \Exception
      */
-    public function requestAsnDocument(string $url)
+    public function requestAsnDocument(string $url): string
     {
         $jsonClient = $this->jsonClient;
 
@@ -311,7 +304,7 @@ class AsnImport
      *
      * @return array
      */
-    protected function getLevels($levelList)
+    protected function getLevels($levelList): array
     {
         $levels = [];
 
@@ -347,7 +340,7 @@ class AsnImport
      *
      * @return LsDefItemType
      */
-    protected function addItemType(string $label)
+    protected function addItemType(string $label): LsDefItemType
     {
         $itemType = new LsDefItemType();
         $itemType->setTitle($label);
@@ -361,22 +354,57 @@ class AsnImport
 
     /**
      * @param LsDoc $lsDoc
-     * @param LsItem $lsItem
+     * @param IdentifiableInterface $origin
      * @param AsnValue[] $matches
      */
-    protected function addExactMatches(LsDoc $lsDoc, LsItem $lsItem, $matches)
+    protected function addExactMatches(LsDoc $lsDoc, IdentifiableInterface $origin, iterable $matches): void
     {
         foreach ($matches as $match) {
-            $assoc = new LsAssociation();
-            $assoc->setLsDoc($lsDoc);
-            $assoc->setType(LsAssociation::EXACT_MATCH_OF);
-            $assoc->setOriginLsItem($lsItem);
-            $assoc->setDestinationNodeUri($match->value);
-            $assoc->setDestinationNodeIdentifier($match->value);
-
-            $lsItem->addAssociation($assoc);
-
-            $this->em->persist($assoc);
+            $this->addExactMatch($lsDoc, $origin, $match);
         }
+    }
+
+    /**
+     * @param LsDoc $lsDoc
+     * @param IdentifiableInterface $origin
+     * @param ASNValue $match
+     *
+     * @return LsAssociation
+     */
+    protected function addExactMatch(LsDoc $lsDoc, IdentifiableInterface $origin, AsnValue $match): LsAssociation
+    {
+        $assoc = $lsDoc->createAssociation();
+        $assoc->setType(LsAssociation::EXACT_MATCH_OF);
+        $assoc->setOrigin($origin);
+        if ($origin instanceof LsItem) {
+            $origin->addAssociation($assoc);
+        }
+
+        $value = $match->value;
+        if (Uuid::isValid($value)) {
+            $uriType = ';type=uuid';
+            $identifier = $value;
+        } elseif (false !== filter_var($value, FILTER_VALIDATE_URL)) {
+            $uriType = ';type=url';
+            $identifier = Uuid::uuid5(Uuid::NAMESPACE_URL, $value)->toString();
+        } elseif (false !== preg_match('/^urn:guid:/', $value)) {
+            // ASN uses "urn:guid:<uuid>" which is not really valid
+            // Turn the value into a UUID for the identifier and mark as a guid
+            $value = preg_replace('/^urn:guid:/', '', $value);
+            $uriType = ';type=guid';
+            $identifier = Uuid::fromString($value)->toString();
+        } else {
+            $uriType = '';
+            $nsId = 'cd9d92fe-20fd-552f-9ee2-6df3f98a62de'; // Uuid::uuid5(NIL, 'data:text/x-ref;src=ASN')
+            $identifier = Uuid::uuid5($nsId, $value)->toString();
+        }
+        $assoc->setDestination(
+            "data:text/x-ref;src=ASN{$uriType},".rawurlencode($value),
+            $identifier
+        );
+
+        $this->em->persist($assoc);
+
+        return $assoc;
     }
 }

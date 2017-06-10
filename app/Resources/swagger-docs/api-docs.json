@@ -39,36 +39,12 @@
                         "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
                         "schema" : {
                             "$ref" : "#/definitions/CFAssociationGrouping.Type"
-                        }
-                    },
-                   "401" : {
-                        "description" : "The request was no correctly authorised. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and for a REST binding a HTTP code of '401'. The 'codeMinor' field value is 'unauthorisedrequest'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "403" : {
-                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'forbidden'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "404" : {
-                        "description" : "The supplied identifier is unknown in the Service Provider and so the object could not be changed. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'unknownobject' or 'invaliduuid'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "429" : {
-                        "description" : "The server is receiving too many requests. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'serverbusy'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "500" : {
-                        "description" : "This should be used only if there is catastrophic error and there is not a more appropriate code. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'internal_server_error'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
                         }
                     },
                     "default" : {
@@ -99,37 +75,13 @@
                     "200" : {
                         "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFAssociationGrouping.Type"
-                        }
-                    },
-                   "401" : {
-                        "description" : "The request was no correctly authorised. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and for a REST binding a HTTP code of '401'. The 'codeMinor' field value is 'unauthorisedrequest'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "403" : {
-                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'forbidden'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "404" : {
-                        "description" : "The supplied identifier is unknown in the Service Provider and so the object could not be changed. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'unknownobject' or 'invaliduuid'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "429" : {
-                        "description" : "The server is receiving too many requests. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'serverbusy'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "500" : {
-                        "description" : "This should be used only if there is catastrophic error and there is not a more appropriate code. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'internal_server_error'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                            "$ref" : "#/definitions/CFConcept.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
                         }
                     },
                     "default" : {
@@ -212,43 +164,13 @@
                     "200" : {
                         "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFAssociationGrouping.Type"
+                            "$ref" : "#/definitions/CFDocumentSet.Type"
                         },
                         "headers" : {
                             "X-Total-Count" : {
                                 "description" : "The total number of resources that are available",
                                 "type" : "integer"
                             }
-                        }
-                    },
-                    "400" : {
-                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'invalid_selection_field'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "401" : {
-                        "description" : "The request was no correctly authorised. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and for a REST binding a HTTP code of '401'. The 'codeMinor' field value is 'unauthorisedrequest'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "403" : {
-                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'forbidden'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "429" : {
-                        "description" : "The server is receiving too many requests. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'serverbusy'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "500" : {
-                        "description" : "This should be used only if there is catastrophic error and there is not a more appropriate code. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'internal_server_error'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
@@ -279,37 +201,13 @@
                     "200" : {
                         "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFAssociationGrouping.Type"
-                        }
-                    },
-                   "401" : {
-                        "description" : "The request was no correctly authorised. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and for a REST binding a HTTP code of '401'. The 'codeMinor' field value is 'unauthorisedrequest'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "403" : {
-                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'forbidden'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "404" : {
-                        "description" : "The supplied identifier is unknown in the Service Provider and so the object could not be changed. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'unknownobject' or 'invaliduuid'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "429" : {
-                        "description" : "The server is receiving too many requests. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'serverbusy'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "500" : {
-                        "description" : "This should be used only if there is catastrophic error and there is not a more appropriate code. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'internal_server_error'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                            "$ref" : "#/definitions/CFDocument.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
                         }
                     },
                     "default" : {
@@ -340,37 +238,13 @@
                     "200" : {
                         "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFAssociationGrouping.Type"
-                        }
-                    },
-                   "401" : {
-                        "description" : "The request was no correctly authorised. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and for a REST binding a HTTP code of '401'. The 'codeMinor' field value is 'unauthorisedrequest'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "403" : {
-                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'forbidden'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "404" : {
-                        "description" : "The supplied identifier is unknown in the Service Provider and so the object could not be changed. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'unknownobject' or 'invaliduuid'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "429" : {
-                        "description" : "The server is receiving too many requests. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'serverbusy'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "500" : {
-                        "description" : "This should be used only if there is catastrophic error and there is not a more appropriate code. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'internal_server_error'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                            "$ref" : "#/definitions/CFAssociationSet.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
                         }
                     },
                     "default" : {
@@ -401,37 +275,13 @@
                     "200" : {
                         "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFAssociationGrouping.Type"
-                        }
-                    },
-                   "401" : {
-                        "description" : "The request was no correctly authorised. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and for a REST binding a HTTP code of '401'. The 'codeMinor' field value is 'unauthorisedrequest'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "403" : {
-                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'forbidden'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "404" : {
-                        "description" : "The supplied identifier is unknown in the Service Provider and so the object could not be changed. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'unknownobject' or 'invaliduuid'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "429" : {
-                        "description" : "The server is receiving too many requests. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'serverbusy'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "500" : {
-                        "description" : "This should be used only if there is catastrophic error and there is not a more appropriate code. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'internal_server_error'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                            "$ref" : "#/definitions/CFItemType.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
                         }
                     },
                     "default" : {
@@ -462,37 +312,13 @@
                     "200" : {
                         "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFAssociationGrouping.Type"
-                        }
-                    },
-                   "401" : {
-                        "description" : "The request was no correctly authorised. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and for a REST binding a HTTP code of '401'. The 'codeMinor' field value is 'unauthorisedrequest'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "403" : {
-                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'forbidden'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "404" : {
-                        "description" : "The supplied identifier is unknown in the Service Provider and so the object could not be changed. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'unknownobject' or 'invaliduuid'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "429" : {
-                        "description" : "The server is receiving too many requests. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'serverbusy'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "500" : {
-                        "description" : "This should be used only if there is catastrophic error and there is not a more appropriate code. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'internal_server_error'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                            "$ref" : "#/definitions/CFItem.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
                         }
                     },
                     "default" : {
@@ -523,37 +349,13 @@
                     "200" : {
                         "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFAssociationGrouping.Type"
-                        }
-                    },
-                   "401" : {
-                        "description" : "The request was no correctly authorised. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and for a REST binding a HTTP code of '401'. The 'codeMinor' field value is 'unauthorisedrequest'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "403" : {
-                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'forbidden'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "404" : {
-                        "description" : "The supplied identifier is unknown in the Service Provider and so the object could not be changed. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'unknownobject' or 'invaliduuid'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "429" : {
-                        "description" : "The server is receiving too many requests. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'serverbusy'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "500" : {
-                        "description" : "This should be used only if there is catastrophic error and there is not a more appropriate code. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'internal_server_error'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                            "$ref" : "#/definitions/CFLicense.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
                         }
                     },
                     "default" : {
@@ -584,37 +386,13 @@
                     "200" : {
                         "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFAssociationGrouping.Type"
-                        }
-                    },
-                   "401" : {
-                        "description" : "The request was no correctly authorised. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and for a REST binding a HTTP code of '401'. The 'codeMinor' field value is 'unauthorisedrequest'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "403" : {
-                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'forbidden'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "404" : {
-                        "description" : "The supplied identifier is unknown in the Service Provider and so the object could not be changed. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'unknownobject' or 'invaliduuid'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "429" : {
-                        "description" : "The server is receiving too many requests. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'serverbusy'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "500" : {
-                        "description" : "This should be used only if there is catastrophic error and there is not a more appropriate code. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'internal_server_error'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                            "$ref" : "#/definitions/CFPackage.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
                         }
                     },
                     "default" : {
@@ -645,37 +423,13 @@
                     "200" : {
                         "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFAssociationGrouping.Type"
-                        }
-                    },
-                   "401" : {
-                        "description" : "The request was no correctly authorised. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and for a REST binding a HTTP code of '401'. The 'codeMinor' field value is 'unauthorisedrequest'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "403" : {
-                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'forbidden'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "404" : {
-                        "description" : "The supplied identifier is unknown in the Service Provider and so the object could not be changed. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'unknownobject' or 'invaliduuid'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "429" : {
-                        "description" : "The server is receiving too many requests. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'serverbusy'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "500" : {
-                        "description" : "This should be used only if there is catastrophic error and there is not a more appropriate code. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'internal_server_error'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                            "$ref" : "#/definitions/CFRubric.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
                         }
                     },
                     "default" : {
@@ -706,37 +460,13 @@
                     "200" : {
                         "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFAssociationGrouping.Type"
-                        }
-                    },
-                   "401" : {
-                        "description" : "The request was no correctly authorised. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and for a REST binding a HTTP code of '401'. The 'codeMinor' field value is 'unauthorisedrequest'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "403" : {
-                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'forbidden'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "404" : {
-                        "description" : "The supplied identifier is unknown in the Service Provider and so the object could not be changed. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'unknownobject' or 'invaliduuid'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "429" : {
-                        "description" : "The server is receiving too many requests. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'serverbusy'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
-                        }
-                    },
-                    "500" : {
-                        "description" : "This should be used only if there is catastrophic error and there is not a more appropriate code. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The 'codeMinor' field value is 'internal_server_error'.",
-                        "schema" : {
-                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                            "$ref" : "#/definitions/CFSubjectSet.Type"
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available",
+                                "type" : "integer"
+                            }
                         }
                     },
                     "default" : {
@@ -766,12 +496,6 @@
                     "type" : "string",
                     "format" : "uri"
                 },
-                "originNodeIdentifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
-                },
-                "destinationNodeIdentifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
-                },
                 "sequenceNumber" : {
                     "description" : "Model Primitive Datatype = Integer",
                     "type" : "integer",
@@ -788,9 +512,6 @@
                 "destinationNodeURI" : {
                     "$ref" : "#/definitions/LinkURI.Type"
                 },
-                "CFAssociationGroupingIdentifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
-                },
                 "CFAssociationGroupingURI" : {
                     "$ref" : "#/definitions/LinkURI.Type"
                 },
@@ -800,7 +521,7 @@
                     "format" : "date-time"
                 }
             },
-            "required" : [ "identifier","associationType","originNodeIdentifier","destinationNodeIdentifier","uri","originNodeURI","destinationNodeURI","lastChangeDateTime" ],
+            "required" : [ "identifier","associationType","uri","originNodeURI","destinationNodeURI","lastChangeDateTime" ],
             "additionalProperties" : false
         },
         "CFAssociationGrouping.Type" : {
@@ -971,7 +692,11 @@
                     }
                 },
                 "subjectURI" : {
-                    "$ref" : "#/definitions/LinkURI.Type"
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/LinkURI.Type"
+                    }
                 },
                 "language" : {
                     "description" : "Model Primitive Datatype = Language",
@@ -1097,10 +822,6 @@
                 "CFItemTypeURI" : {
                     "$ref" : "#/definitions/LinkURI.Type"
                 },
-                "license" : {
-                    "description" : "Model Primitive Datatype = NormalizedString",
-                    "type" : "string"
-                },
                 "licenseURI" : {
                     "$ref" : "#/definitions/LinkURI.Type"
                 },
@@ -1118,14 +839,9 @@
                     "description" : "Model Primitive Datatype = DateTime",
                     "type" : "string",
                     "format" : "date-time"
-                },
-                "CFItemAssociationURI" : {
-                    "description" : "Model Primitive Datatype = AnyURI",
-                    "type" : "string",
-                    "format" : "uri"
                 }
             },
-            "required" : [ "identifier","CFDocumentURI","fullStatement","uri","lastChangeDateTime","CFItemAssociationURI" ],
+            "required" : [ "identifier","CFDocumentURI","fullStatement","uri","lastChangeDateTime" ],
             "additionalProperties" : false
         },
         "CFItemType.Type" : {
@@ -1263,13 +979,6 @@
                     "items" : {
                         "$ref" : "#/definitions/CFRubricCriterion.Type"
                     }
-                },
-                "CFRubricCriterionLevels" : {
-                    "type" : "array",
-                    "minItems" : 0,
-                    "items" : {
-                        "$ref" : "#/definitions/CFRubricCriterionLevel.Type"
-                    }
                 }
             },
             "required" : [ "identifier","uri","lastChangeDateTime" ],
@@ -1317,9 +1026,16 @@
                     "description" : "Model Primitive Datatype = DateTime",
                     "type" : "string",
                     "format" : "date-time"
+                },
+                "CFRubricCriterionLevels" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFRubricCriterionLevel.Type"
+                    }
                 }
             },
-            "required" : [ "identifier","lastChangeDateTime" ],
+            "required" : [ "identifier","uri","lastChangeDateTime" ],
             "additionalProperties" : false
         },
         "CFRubricCriterionLevel.Type" : {
@@ -1401,10 +1117,24 @@
             "required" : [ "identifier","uri","title","hierarchyCode","lastChangeDateTime" ],
             "additionalProperties" : false
         },
+        "CFSubjectSet.Type" : {
+            "description" : "...tbd (Class description)...",
+            "type" : "object",
+            "properties" : {
+                "CFSubjects" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFSubject.Type"
+                    }
+                }
+            },
+            "additionalProperties" : false
+        },
         "GUID.Type" : {
             "description" : "The data-type for establishing a Globally Unique Identifier (GUID). The form of the GUID is a Universally Unique Identifier (UUID) of 16 hexadecimal characters (lower case) in the format 8-4-4-4-12.",
             "type" : "string",
-            "pattern" : "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+            "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
         },
         "LinkURI.Type" : {
             "description" : "A container for the information that is used to achieve the link data reference.",

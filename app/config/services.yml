@@ -27,3 +27,10 @@ services:
             - 'mysql:host=%database_host%;port=%database_port%;dbname=%database_name%'
             - { db_username: '%database_user%', db_password: '%database_password%', db_table: 'auth_session', db_id_col: 'id', db_connection_options: "%pdo_options%" }
 
+    salt.cache.external_docs:
+        class: Symfony\Component\Cache\Adapter\PdoAdapter
+        public: true
+        arguments:
+            - '@doctrine.dbal.default_connection'
+            - 'externalDoc-'
+            - 0

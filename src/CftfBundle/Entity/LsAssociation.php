@@ -3,8 +3,8 @@
 namespace CftfBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "uri",
- *     exp="service('salt.api.v1p1.utils').getApiUrl(object)",
+ *     exp="service('salt.api.v1p0.utils').getApiUrl(object)",
  *     options={
  *         @Serializer\SerializedName("uri"),
  *         @Serializer\Expose()
@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "cfDocumentUri",
- *     exp="service('salt.api.v1p1.utils').getApiUrl(object.getLsDoc())",
+ *     exp="service('salt.api.v1p0.utils').getLinkUri(object.getLsDoc())",
  *     options={
  *         @Serializer\SerializedName("CFDocumentURI"),
  *         @Serializer\Expose()
@@ -33,7 +33,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "cfAssociationGroupingUri",
- *     exp="service('salt.api.v1p1.utils').getLinkUri(object.getGroup())",
+ *     exp="service('salt.api.v1p0.utils').getLinkUri(object.getGroup())",
  *     options={
  *         @Serializer\SerializedName("CFAssociationGroupingURI"),
  *         @Serializer\Expose()
@@ -42,7 +42,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "originNodeUri",
- *     exp="service('salt.api.v1p1.utils').getNodeLinkUri('origin', object)",
+ *     exp="service('salt.api.v1p0.utils').getNodeLinkUri('origin', object)",
  *     options={
  *         @Serializer\SerializedName("originNodeURI"),
  *         @Serializer\Expose()
@@ -51,7 +51,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "associationType",
- *     exp="service('salt.api.v1p1.utils').formatAssociationType(object.getType())",
+ *     exp="service('salt.api.v1p0.utils').formatAssociationType(object.getType())",
  *     options={
  *         @Serializer\SerializedName("associationType"),
  *         @Serializer\Expose()
@@ -60,14 +60,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "destinationNodeUri",
- *     exp="service('salt.api.v1p1.utils').getNodeLinkUri('destination', object)",
+ *     exp="service('salt.api.v1p0.utils').getNodeLinkUri('destination', object)",
  *     options={
  *         @Serializer\SerializedName("destinationNodeURI"),
  *         @Serializer\Expose()
  *     }
  * )
  */
-class LsAssociation implements CaseApiInterface
+class LsAssociation extends AbstractLsBase implements CaseApiInterface
 {
     public const CHILD_OF = 'Is Child Of';
 
@@ -93,17 +93,6 @@ class LsAssociation implements CaseApiInterface
     public const INVERSE_IS_PEER_OF = 'Is Peer Of';
 
     public const INVERSE_EXEMPLAR = 'Exemplar For';
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     *
-     * @Serializer\Exclude()
-     */
-    private $id;
 
     /**
      * @var string
@@ -135,28 +124,6 @@ class LsAssociation implements CaseApiInterface
      * @Serializer\Exclude()
      */
     private $lsDoc;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="identifier", type="string", length=300, nullable=false)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("identifier")
-     */
-    private $identifier;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="uri", type="string", length=300, nullable=true)
-     *
-     * @Serializer\Exclude()
-     */
-    private $uri;
 
     /**
      * @var LsDefAssociationGrouping
@@ -287,37 +254,27 @@ class LsAssociation implements CaseApiInterface
      * @ORM\Column(name="seq", type="bigint", nullable=true)
      *
      * @Serializer\Expose()
+     * @Serializer\SerializedName("sequenceNumber")
      */
     private $sequenceNumber;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
-     * @Gedmo\Timestampable(on="update")
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("lastChangeDateTime")
-     */
-    private $updatedAt;
 
 
     /**
      * Constructor
+     *
+     * @param string|Uuid|null $identifier
      */
-    public function __construct()
+    public function __construct($identifier = null)
     {
-        $this->identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
-        $this->uri = 'local:'.$this->identifier;
-        $this->updatedAt = new \DateTime();
+        parent::__construct($identifier);
     }
 
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->uri;
+        return $this->getUri();
     }
 
     /**
@@ -328,8 +285,8 @@ class LsAssociation implements CaseApiInterface
     public static function allTypes(): array
     {
         return [
-            static::EXACT_MATCH_OF,
             static::RELATED_TO,
+            static::EXACT_MATCH_OF,
             static::PART_OF,
             static::REPLACED_BY,
             static::PRECEDES,
@@ -408,61 +365,28 @@ class LsAssociation implements CaseApiInterface
     }
 
     /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set uri
-     *
-     * @param string $uri
-     *
-     * @return LsAssociation
-     */
-    public function setUri($uri): LsAssociation
-    {
-        $this->uri = $uri;
-
-        return $this;
-    }
-
-    /**
-     * Get uri
-     *
-     * @return string
-     */
-    public function getUri(): string
-    {
-        return $this->uri;
-    }
-
-    /**
      * Set the Origination of the association
      *
-     * @param string|LsDoc|LsItem $origin
+     * @param string|IdentifiableInterface $origin
+     * @param string|null $identifier
      *
      * @return LsAssociation
      *
      * @throws \UnexpectedValueException
      */
-    public function setOrigin($origin): LsAssociation
+    public function setOrigin($origin, ?string $identifier = null): LsAssociation
     {
         if (is_string($origin)) {
             $this->setOriginNodeUri($origin);
-            $this->setOriginNodeIdentifier($origin);
-        } elseif ($origin instanceof LsDoc) {
-            $this->setOriginLsDoc($origin);
+            $this->setOriginNodeIdentifier($identifier ?? $origin);
+        } elseif ($origin instanceof IdentifiableInterface) {
+            if ($origin instanceof LsDoc) {
+                $this->setOriginLsDoc($origin);
+            } elseif ($origin instanceof LsItem) {
+                $this->setOriginLsItem($origin);
+            }
             $this->setOriginNodeUri($origin->getUri());
-            $this->setOriginNodeIdentifier($origin->getIdentifier());
-        } elseif ($origin instanceof LsItem) {
-            $this->setOriginLsItem($origin);
-            $this->setOriginNodeUri($origin->getUri());
-            $this->setOriginNodeIdentifier($origin->getIdentifier());
+            $this->setOriginNodeIdentifier($identifier ?? $origin->getIdentifier());
         } else {
             throw new \UnexpectedValueException('The value must be a URI, an LsDoc, or an LsItem');
         }
@@ -479,9 +403,13 @@ class LsAssociation implements CaseApiInterface
     {
         if ($this->getOriginLsDoc()) {
             return $this->getOriginLsDoc();
-        } elseif ($this->getOriginLsItem()) {
+        }
+
+        if ($this->getOriginLsItem()) {
             return $this->getOriginLsItem();
-        } elseif ($this->getOriginNodeUri()) {
+        }
+
+        if ($this->getOriginNodeUri()) {
             return $this->getOriginNodeUri();
         }
 
@@ -495,7 +423,7 @@ class LsAssociation implements CaseApiInterface
      *
      * @return LsAssociation
      */
-    public function setOriginNodeUri($originNodeUri): LsAssociation
+    public function setOriginNodeUri(string $originNodeUri): LsAssociation
     {
         $this->originNodeUri = $originNodeUri;
 
@@ -515,25 +443,26 @@ class LsAssociation implements CaseApiInterface
     /**
      * Set the Destination of the association
      *
-     * @param string|LsDoc|LsItem $origin
+     * @param string|IdentifiableInterface $destination
+     * @param string|null $identifier
      *
      * @return LsAssociation
      *
      * @throws \UnexpectedValueException
      */
-    public function setDestination($origin): LsAssociation
+    public function setDestination($destination, ?string $identifier = null): LsAssociation
     {
-        if (is_string($origin)) {
-            $this->setDestinationNodeUri($origin);
-            $this->setDestinationNodeIdentifier($origin);
-        } elseif ($origin instanceof LsDoc) {
-            $this->setDestinationLsDoc($origin);
-            $this->setDestinationNodeUri($origin->getUri());
-            $this->setDestinationNodeIdentifier($origin->getIdentifier());
-        } elseif ($origin instanceof LsItem) {
-            $this->setDestinationLsItem($origin);
-            $this->setDestinationNodeUri($origin->getUri());
-            $this->setDestinationNodeIdentifier($origin->getIdentifier());
+        if (is_string($destination)) {
+            $this->setDestinationNodeUri($destination);
+            $this->setDestinationNodeIdentifier($identifier ?? $destination);
+        } elseif ($destination instanceof IdentifiableInterface) {
+            if ($destination instanceof LsDoc) {
+                $this->setDestinationLsDoc($destination);
+            } elseif ($destination instanceof LsItem) {
+                $this->setDestinationLsItem($destination);
+            }
+            $this->setDestinationNodeUri($destination->getUri());
+            $this->setDestinationNodeIdentifier($identifier ?? $destination->getIdentifier());
         } else {
             throw new \UnexpectedValueException('The value must be a URI, an LsDoc, or an LsItem');
         }
@@ -550,9 +479,13 @@ class LsAssociation implements CaseApiInterface
     {
         if ($this->getDestinationLsDoc()) {
             return $this->getDestinationLsDoc();
-        } elseif ($this->getDestinationLsItem()) {
+        }
+
+        if ($this->getDestinationLsItem()) {
             return $this->getDestinationLsItem();
-        } elseif ($this->getDestinationNodeUri()) {
+        }
+
+        if ($this->getDestinationNodeUri()) {
             return $this->getDestinationNodeUri();
         }
 
@@ -566,7 +499,7 @@ class LsAssociation implements CaseApiInterface
      *
      * @return LsAssociation
      */
-    public function setDestinationNodeUri($destinationNodeUri): LsAssociation
+    public function setDestinationNodeUri(string $destinationNodeUri): LsAssociation
     {
         $this->destinationNodeUri = $destinationNodeUri;
 
@@ -590,7 +523,41 @@ class LsAssociation implements CaseApiInterface
      */
     public function getHumanCodingSchemeFromDestinationNodeUri()
     {
-        return base64_decode(explode(',', $this->destinationNodeUri)[1]);
+        return $this->splitDestinationDataUri()['value'];
+    }
+
+    /**
+     * Get an array with the information from a data URI
+     *
+     * @return array
+     */
+    public function splitDestinationDataUri()
+    {
+        if (0 !== strncmp($this->destinationNodeUri, 'data:text/x-', 12)) {
+            // Not a known data URI format, return the entire uri as the value
+            return ['value' => $this->destinationNodeUri];
+        }
+
+        $uri = substr($this->destinationNodeUri, 12);
+        [$dataString, $encodedValue] = array_pad(explode(',', $uri, 2), 2, null);
+
+        [$textType, $metadataString] = array_pad(explode(';', $dataString, 2), 2, null);
+
+        $metadata = ['textType' => $textType];
+        foreach (explode(';', $metadataString) as $param) {
+            [$name, $value] = array_pad(explode('=', $param, 2), 2, null);
+            if (null !== $name && '' !== $name) {
+                $metadata[$name] = $value ?? true;
+            }
+        }
+
+        if ($metadata['base64'] ?? false) {
+            $metadata['value'] = base64_decode($encodedValue);
+        } else {
+            $metadata['value'] = rawurldecode($encodedValue);
+        }
+
+        return $metadata;
     }
 
     /**
@@ -615,30 +582,6 @@ class LsAssociation implements CaseApiInterface
     public function getType()
     {
         return $this->type;
-    }
-
-    /**
-     * Set updatedAt
-     *
-     * @param \DateTime $updatedAt
-     *
-     * @return LsAssociation
-     */
-    public function setUpdatedAt($updatedAt): LsAssociation
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    /**
-     * Get updatedAt
-     *
-     * @return \DateTime
-     */
-    public function getUpdatedAt()
-    {
-        return $this->updatedAt;
     }
 
     /**
@@ -782,11 +725,11 @@ class LsAssociation implements CaseApiInterface
     /**
      * Set lsDoc
      *
-     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     * @param LsDoc $lsDoc
      *
      * @return LsAssociation
      */
-    public function setLsDoc(?LsDoc $lsDoc = null): LsAssociation
+    public function setLsDoc(LsDoc $lsDoc): LsAssociation
     {
         $this->lsDoc = $lsDoc;
         $this->setLsDocUri($lsDoc->getUri());
@@ -820,11 +763,13 @@ class LsAssociation implements CaseApiInterface
     /**
      * @return string|null
      */
-    public function getGroupName()
+    public function getGroupName(): ?string
     {
         if ($this->groupName) {
             return $this->groupName;
-        } elseif ($this->group) {
+        }
+
+        if ($this->group) {
             return $this->group->getTitle();
         }
 
@@ -847,26 +792,6 @@ class LsAssociation implements CaseApiInterface
     public function setLsDocIdentifier($lsDocIdentifier): LsAssociation
     {
         $this->lsDocIdentifier = $lsDocIdentifier;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getIdentifier()
-    {
-        return $this->identifier;
-    }
-
-    /**
-     * @param string $identifier
-     *
-     * @return LsAssociation
-     */
-    public function setIdentifier($identifier): LsAssociation
-    {
-        $this->identifier = $identifier;
 
         return $this;
     }
@@ -918,7 +843,9 @@ class LsAssociation implements CaseApiInterface
     {
         if ($this->groupUri) {
             return $this->groupUri;
-        } elseif ($this->group) {
+        }
+
+        if ($this->group) {
             return $this->group->getUri();
         }
 
@@ -980,7 +907,7 @@ class LsAssociation implements CaseApiInterface
      *
      * @return LsAssociation
      */
-    public function setGroup(?LsDefAssociationGrouping $group)
+    public function setGroup(?LsDefAssociationGrouping $group): LsAssociation
     {
         $this->group = $group;
 

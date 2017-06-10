@@ -17,6 +17,10 @@ class DefaultController extends Controller
 {
     /**
      * @Route("/cf/asn/import", name="import_from_asn")
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
      */
     public function importAsnAction(Request $request)
     {
@@ -25,11 +29,14 @@ class DefaultController extends Controller
         $fileUrl = $request->request->get('fileUrl');
 
         $asnImport = $this->get('cftf_import.asn');
-        $asnDoc = $asnImport->getAsnDocument($fileUrl);
-        $asnImport->parseAsnDocument($asnDoc);
+        $lsDoc = $asnImport->generateFrameworkFromAsn($fileUrl);
 
-        return $response->setData(array(
-            'message' => 'Framework imported successfully!'
-        ));
+        $user = $this->getUser();
+        $lsDoc->setOrg($user->getOrg());
+        $this->getDoctrine()->getManager()->flush();
+
+        return $response->setData([
+            'message' => 'Framework imported successfully!',
+        ]);
     }
 }
