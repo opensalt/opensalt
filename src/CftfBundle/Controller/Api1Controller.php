@@ -234,30 +234,30 @@ class Api1Controller extends Controller
    *
    * @return Response
    */
-  protected function generateObjectResponse(Request $request, CaseApiInterface $obj): Response
-  {
-      $this->get('logger')->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
+    protected function generateObjectResponse(Request $request, CaseApiInterface $obj): Response
+    {
+        $this->get('logger')->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
 
-      $response = $this->generateBaseReponse($obj->getUpdatedAt());
+        $response = $this->generateBaseReponse($obj->getUpdatedAt());
 
-      if ($response->isNotModified($request)) {
-          return $response;
-      }
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
 
-      $serializer = $this->get('serializer');
-      $result = $serializer->serialize(
-          $obj,
-          $request->getRequestFormat('json'),
-          SerializationContext::create()->setGroups([
-              'Default',
-              preg_replace('/.*\\\\/', '', get_class($obj)),
-          ])
-      );
+        $serializer = $this->get('serializer');
+        $result = $serializer->serialize(
+            $obj,
+            $request->getRequestFormat('json'),
+            SerializationContext::create()->setGroups([
+                'Default',
+                preg_replace('/.*\\\\/', '', get_class($obj)),
+            ])
+        );
 
-      $response->setContent($result);
+        $response->setContent($result);
 
-      return $response;
-  }
+        return $response;
+    }
 
     /**
      * Generate a response for a collection of objects
