@@ -551,7 +551,7 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
                 $newExacAssoc->setOrigin($newChild);
                 $newExacAssoc->setType(LsAssociation::EXACT_MATCH_OF);
                 $newExacAssoc->setDestination($child);
-                $newChild->addAssociation($newExacAssoc);
+                $newChild->addAssociation($newExacAssoc, $assocGroup);
             }
         }
 

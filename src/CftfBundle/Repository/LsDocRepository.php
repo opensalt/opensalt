@@ -294,8 +294,6 @@ xENDx;
 
     /**
      * @param LsDoc $oldDoc
-     * @param LsDoc $newDoc
-     * @param \Closure|null $progressCallback
      */
     public function makeDerivative(LsDoc $oldLsDoc): LsDoc
     {
@@ -311,7 +309,9 @@ xENDx;
         $newLsDoc->setOrg($oldLsDoc->getOrg());
         $newLsDoc->setUser($oldLsDoc->getUser());
         $newLsDoc->setOwnedBy($oldLsDoc->getOwnedBy());
-        $newLsDoc->setAssociationGroupings($oldLsDoc->getAssociationGroupings());
+        foreach($oldLsDoc->getAssociationGroupings() as $assocGroup) {
+            $assocGroup->duplicateToLsDoc($newLsDoc);
+        }
         $newLsDoc->setLicence($oldLsDoc->getLicence());
 
         $em->flush();

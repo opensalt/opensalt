@@ -182,7 +182,7 @@ class LsDocController extends Controller
      *
      * @Route("/doc/{id}/update", name="lsdoc_update")
      * @Method("POST")
-     * @Security("is_granted('create', 'lsdoc')")
+     * @Security("is_granted('edit', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDoc $lsDoc
@@ -206,7 +206,7 @@ class LsDocController extends Controller
     /**
      * Update a framework given a CSV or external File on a derivative framework.
      *
-     * @Route("/doc/{id}/update/derivative", name="lsdoc_update_derivative")
+     * @Route("/doc/{id}/update/derive", name="lsdoc_update_derive")
      * @Method("POST")
      * @Security("is_granted('create', 'lsdoc')")
      *
@@ -214,14 +214,14 @@ class LsDocController extends Controller
      * @param LsDoc $lsDoc
      *
      */
-    public function updateDerivativeAction(Request $request, LsDoc $lsDoc)
+    public function updateDeriveAction(Request $request, LsDoc $lsDoc)
     {
         $response = new JsonResponse();
         $fileContent = $request->request->get('content');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
         $frameworkUpdater = $this->get('framework_updater.local');
 
-        $newCfDocDerivated = $frameworkUpdater->derivative($lsDoc, base64_decode($fileContent), $frameworkToAssociate);
+        $newCfDocDerivated = $frameworkUpdater->derive($lsDoc, base64_decode($fileContent), $frameworkToAssociate);
 
         return $response->setData([
             'message' => 'Success',

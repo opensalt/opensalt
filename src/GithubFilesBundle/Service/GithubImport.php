@@ -151,7 +151,7 @@ class GithubImport
      */
     public function saveAssociations($position, $content, $lsItemKeys, LsItem $lsItem, LsDoc $lsDoc, $frameworkToAssociate)
     {
-        $fieldsAndTypes = LsAssociation::allTypesCamelCase();
+        $fieldsAndTypes = LsAssociation::allTypesForImportFromCSV();
         // We don't use is_child_of because that it alaready used to create parents relations before. :)
         // checking each association field
         foreach ($fieldsAndTypes as $fieldName => $assocType){

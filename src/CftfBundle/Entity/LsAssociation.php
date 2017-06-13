@@ -337,8 +337,8 @@ class LsAssociation implements CaseApiInterface
      *
      * @return array
      */
-    public static function allTypesCamelCase(){
-        $typesCamelCase = [
+    public static function allTypesForImportFromCSV(){
+        return [
             'isPartOf' =>                     static::PART_OF,
             'exemplar' =>                     static::EXEMPLAR,
             'isPeerOf' =>                     static::IS_PEER_OF,
@@ -348,7 +348,6 @@ class LsAssociation implements CaseApiInterface
             'hasSkillLevel' =>                static::SKILL_LEVEL,
             'cfAssociationGroupIdentifier' => static::RELATED_TO,
         ];
-        return $typesCamelCase;
     }
 
     /**
@@ -595,10 +594,6 @@ class LsAssociation implements CaseApiInterface
 
         if ($this->getDestinationNodeUri()) {
             return $this->getDestinationNodeUri();
-        }
-
-        if ($this->getDestinationNodeIdentifier()) {
-            return $this->getDestinationNodeIdentifier();
         }
 
         return null;

@@ -88,7 +88,7 @@ class FrameworkUpdater
      * @param string $fileContent
      * @param string $frameworkToAssociate
      */
-    public function derivative($lsDoc, $fileContent, $frameworkToAssociate)
+    public function derive($lsDoc, $fileContent, $frameworkToAssociate)
     {
         $em = $this->getEntityManager();
         $contentTransformed = $this->transformContent($fileContent);
@@ -124,7 +124,7 @@ class FrameworkUpdater
      */
     private function updateAssociations(LsItem $lsItem, array $rowContent, $em)
     {
-        $associationTypes = LsAssociation::allTypesCamelCase();
+        $associationTypes = LsAssociation::allTypesForImportFromCSV();
         $cfItemKeys = $this->cfItemKeys;
         $assocNotMatched = [];
 

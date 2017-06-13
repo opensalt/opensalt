@@ -44,4 +44,18 @@ class LsDefAssociationGrouping extends AbstractLsDefinition implements CaseApiIn
 
         return $this;
     }
+
+    /**
+     * Create a duplicate of the lsDefAssociationGrouping into a new document
+     *
+     * @param LsDoc $newLsDoc
+     *
+     * @return LsDefAssociationGrouping
+     */
+    public function duplicateToLsDoc(LsDoc $newLsDoc): LsDefAssociationGrouping
+    {
+        $newAssociationGrouping = clone $this;
+        $newAssociationGrouping->setLsDoc($newLsDoc);
+        return $newAssociationGrouping;
+    }
 }
