@@ -267,6 +267,14 @@ DELETE FROM ls_doc_subject
 xENDx;
         $conn->prepare($stmt)->execute($params);
 
+        $progressCallback('Deleting document import logs');
+        $stmt = <<<'xENDx'
+DELETE FROM import_logs
+ WHERE ls_doc_id = :lsDocId
+;
+xENDx;
+        $conn->prepare($stmt)->execute($params);
+
         $progressCallback('Deleting acls');
         $stmt = <<<'xENDx'
 DELETE FROM salt_user_doc_acl
