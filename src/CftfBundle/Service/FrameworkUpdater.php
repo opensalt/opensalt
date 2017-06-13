@@ -9,7 +9,6 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use GithubFilesBundle\Service\GithubImport;
 use JMS\DiExtraBundle\Annotation as DI;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Class FrameworkUpdater.
@@ -131,7 +130,7 @@ class FrameworkUpdater
         foreach ($associationTypes as $assoTypeKey => $assoTypeValue) {
             foreach (explode(',', $rowContent[$cfItemKeys[$assoTypeKey]]) as $associationSeparatedByComma) {
 
-                if ($associationSeparatedByComma === "") { continue; }
+                if ($associationSeparatedByComma === '') { continue; }
 
                 if (!array_key_exists($associationSeparatedByComma, $assocNotMatched)){
                     $assocNotMatched[$associationSeparatedByComma] = ['matched' => true, 'type' => $assoTypeValue];

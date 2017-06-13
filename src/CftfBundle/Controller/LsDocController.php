@@ -4,7 +4,6 @@ namespace CftfBundle\Controller;
 
 use CftfBundle\Form\Type\RemoteCftfServerType;
 use CftfBundle\Form\Type\LsDocCreateType;
-use CftfBundle\Service\FrameworkUpdater;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -186,7 +185,6 @@ class LsDocController extends Controller
      *
      * @param Request $request
      * @param LsDoc $lsDoc
-     *
      */
     public function updateAction(Request $request, LsDoc $lsDoc)
     {
@@ -212,7 +210,6 @@ class LsDocController extends Controller
      *
      * @param Request $request
      * @param LsDoc $lsDoc
-     *
      */
     public function updateDerivativeAction(Request $request, LsDoc $lsDoc)
     {

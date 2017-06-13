@@ -5,7 +5,8 @@ namespace Tests\CftfBundle\Entity;
 use CftfBundle\Entity\LsAssociation;
 use PHPUnit\Framework\TestCase;
 
-class LsAssociationTest extends TestCase {
+class LsAssociationTest extends TestCase
+{
     public function testSplitDestinationDataUri()
     {
         $uris = [
@@ -48,9 +49,9 @@ class LsAssociationTest extends TestCase {
             $this->assertEquals(
                 count($expected),
                 count($value),
-                "Field counts do not match - "
+                'Field counts do not match - '
                     .implode(',', array_keys($expected))
-                    ." expected, but found "
+                    .' expected, but found '
                     .implode(',', array_keys($value))
             );
         }
