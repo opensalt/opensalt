@@ -1,18 +1,3 @@
-$(document).on('ready', function(){
-    $('.github-tab').click(function(){
-        SaltGithub.getRepoList(1, 30);
-        listRepositories();
-    });
-
-    $('.import-framework').click(function(){
-        Import.fromAsn();
-    });
-
-    /* Framework Updater */
-    UpdateFramework.init();
-    /**********/
-});
-
 var SaltGithub = (function(){
 
     function getRepoList(page, perPage) {
@@ -510,3 +495,19 @@ function listRepositories(){
     $('.panel-title').html('Repositories list');
     $('#back').html('');
 }
+
+$(document).on('ready', function(){
+    $('.github-tab').click(function(){
+        SaltGithub.getRepoList(1, 30);
+        listRepositories();
+    });
+
+    $('.import-framework').click(function(){
+        Import.fromAsn();
+    });
+
+    /* Framework Updater */
+    UpdateFramework.init();
+    /**********/
+});
+
