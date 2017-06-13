@@ -48,6 +48,15 @@ class Api1Controller extends Controller
         $docs = [];
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $doc) {
+            // Limit test server to see only the testing framework (do not commit)
+            if ($_SERVER['REMOTE_ADDR'] === '138.197.66.237' &&
+                !in_array($doc->getIdentifier(), [
+                    'e8043775-c65f-407d-915d-c17edb524a70',
+                    '03a1c14c-85c4-44d4-8911-81eaee2a9aa9',
+                ], true)
+            ) {
+                continue;
+            }
             /** @var LsDoc $doc */
             if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus()) {
                 $docs[] = $doc;
@@ -107,7 +116,7 @@ class Api1Controller extends Controller
 
         $rubrics = $repo->findAllUsedRubrics($doc, Query::HYDRATE_OBJECT);
         if (0 < count($rubrics)) {
-            $pkg['CFDefinitions']['CFRubrics'] = $rubrics;
+            $pkg['CFRubrics'] = $rubrics;
         }
 
         $response->setContent($this->get('serializer')->serialize(
@@ -167,15 +176,12 @@ class Api1Controller extends Controller
     /**
      * @Route("/CFAssociationGroupings/{id}.{_format}", name="api_v1p0_cfassociationgrouping", defaults={"class"="CftfBundle:LsDefAssociationGrouping", "_format"="json"})
      * @Route("/CFAssociations/{id}.{_format}", name="api_v1p0_cfassociation", defaults={"class"="CftfBundle:LsAssociation", "_format"="json"})
-     * @Route("/CFConcepts/{id}.{_format}", name="api_v1p0_cfconcept", defaults={"class"="CftfBundle:LsDefConcept", "_format"="json"})
      * @Route("/CFDocuments/{id}.{_format}", name="api_v1p0_cfdocument", defaults={"class"="CftfBundle:LsDoc", "_format"="json"})
      * @Route("/CFItems/{id}.{_format}", name="api_v1p0_cfitem", defaults={"class"="CftfBundle:LsItem", "_format"="json"})
-     * @Route("/CFItemTypes/{id}.{_format}", name="api_v1p0_cfitemtype", defaults={"class"="CftfBundle:LsDefItemType", "_format"="json"})
      * @Route("/CFLicenses/{id}.{_format}", name="api_v1p0_cflicense", defaults={"class"="CftfBundle:LsDefLicence", "_format"="json"})
      * @Route("/CFRubrics/{id}.{_format}", name="api_v1p0_cfrubric", defaults={"class"="CftfBundle:CfRubric", "_format"="json"})
      * @Route("/CFRubricCriteria/{id}.{_format}", name="api_v1p0_cfrubriccriterion", defaults={"class"="CftfBundle:CfRubricCriterion", "_format"="json"})
      * @Route("/CFRubricCriterionLevels/{id}.{_format}", name="api_v1p0_cfrubriccriterionlevel", defaults={"class"="CftfBundle:CfRubricCriterionLevel", "_format"="json"})
-     * @Route("/CFSubjects/{id}.{_format}", name="api_v1p0_cfsubject", defaults={"class"="CftfBundle:LsDefSubject", "_format"="json"})
      * @Method("GET")
      * @ParamConverter("obj", class="CftfBundle:LsDoc", options={"id"={"id", "class"}, "repository_method"="apiFindOneByClassIdentifier"})
      *
@@ -191,14 +197,32 @@ class Api1Controller extends Controller
     }
 
     /**
-     * Generate a base response
+     * @Route("/CFConcepts/{id}.{_format}", name="api_v1p0_cfconcept", defaults={"class"="CftfBundle:LsDefConcept", "_format"="json"})
+     * @Route("/CFItemTypes/{id}.{_format}", name="api_v1p0_cfitemtype", defaults={"class"="CftfBundle:LsDefItemType", "_format"="json"})
+     * @Route("/CFSubjects/{id}.{_format}", name="api_v1p0_cfsubject", defaults={"class"="CftfBundle:LsDefSubject", "_format"="json"})
+     * @Method("GET")
+     * @ParamConverter("obj", class="CftfBundle:LsDoc", options={"id"={"id", "class"}, "repository_method"="apiFindOneByClassIdentifier"})
      *
-     * @param Response $response
-     * @param \DateTime $lastModified
+     * @param Request $request
+     * @param CaseApiInterface $obj
+     * @param string $_format
      *
      * @return Response
      */
-    protected function generateBaseReponse(\DateTime $lastModified): Response
+    public function getObjectCollectionAction(Request $request, CaseApiInterface $obj): Response
+    {
+        return $this->generateObjectCollectionResponse($request, $obj);
+    }
+
+    /**
+     * Generate a base response
+     *
+     * @param Response $response
+     * @param \DateTimeInterface $lastModified
+     *
+     * @return Response
+     */
+    protected function generateBaseReponse(\DateTimeInterface $lastModified): Response
     {
         $response = new Response();
 
@@ -232,6 +256,41 @@ class Api1Controller extends Controller
         $serializer = $this->get('serializer');
         $result = $serializer->serialize(
             $obj,
+            $request->getRequestFormat('json'),
+            SerializationContext::create()->setGroups([
+                'Default',
+                preg_replace('/.*\\\\/', '', get_class($obj)),
+            ])
+        );
+
+        $response->setContent($result);
+
+        return $response;
+    }
+
+    /**
+     * Generate a response for a collection of objects
+     *
+     * @param Request $request
+     * @param CaseApiInterface $obj
+     *
+     * @return Response
+     */
+    protected function generateObjectCollectionResponse(Request $request, CaseApiInterface $obj): Response
+    {
+        $this->get('logger')->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
+
+        $response = $this->generateBaseReponse(new \DateTime());
+
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
+
+        $collection = explode('/', $request->getPathInfo())[4];
+
+        $serializer = $this->get('serializer');
+        $result = $serializer->serialize(
+            [$collection => [$obj]],
             $request->getRequestFormat('json'),
             SerializationContext::create()->setGroups([
                 'Default',

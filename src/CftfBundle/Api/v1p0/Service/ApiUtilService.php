@@ -2,10 +2,10 @@
 
 namespace CftfBundle\Api\v1p0\Service;
 
-use CftfBundle\Entity\CaseApiInterface;
 use CftfBundle\Entity\CfRubric;
 use CftfBundle\Entity\CfRubricCriterion;
 use CftfBundle\Entity\CfRubricCriterionLevel;
+use CftfBundle\Entity\IdentifiableInterface;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Entity\LsDefConcept;
@@ -39,18 +39,18 @@ class ApiUtilService
     ];
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\Routing\Router
+     * @var Router
      */
     private $router;
 
     /**
-     * @param \Symfony\Bundle\FrameworkBundle\Routing\Router $router
+     * @param Router $router
      *
      * @DI\InjectParams({
      *     "router" = @DI\Inject("router")
      * })
      */
-    public function __construct($router)
+    public function __construct(Router $router)
     {
         $this->router = $router;
     }
@@ -61,7 +61,7 @@ class ApiUtilService
      *
      * @return null|string
      */
-    public function getApiUrl(?CaseApiInterface $obj, ?string $route = null)
+    public function getApiUrl(?IdentifiableInterface $obj, ?string $route = null): ?string
     {
         // Only get one URI
         if (is_array($obj)) {
@@ -88,7 +88,7 @@ class ApiUtilService
         if (null === $route) {
             $class = get_class($obj);
             $class = str_replace('Proxies\\__CG__\\', '', $class);
-            if (!in_array($class, static::$classMap)) {
+            if (!in_array($class, static::$classMap, true)) {
                 $route = static::$classMap[$class];
             }
         }
@@ -97,10 +97,10 @@ class ApiUtilService
             return null;
         }
 
-        return $this->router->generate($route, ['id' => $id], Router::ABSOLUTE_URL);
+        return $this->getApiUriForIdentifier($id, $route);
     }
 
-    public function getApiUriForIdentifier($id, $route)
+    public function getApiUriForIdentifier(string $id, string $route): string
     {
         return $this->router->generate($route, ['id' => $id], Router::ABSOLUTE_URL);
     }
@@ -110,7 +110,7 @@ class ApiUtilService
      *
      * @return array|null
      */
-    public function splitByComma(?string $csv)
+    public function splitByComma(?string $csv): ?array
     {
         if (null === $csv) {
             return null;
@@ -151,7 +151,7 @@ class ApiUtilService
      *
      * @return array|null
      */
-    public function getLinkUri(?CaseApiInterface $obj, ?string $route = null)
+    public function getLinkUri(?IdentifiableInterface $obj, ?string $route = null): ?array
     {
         if (null === $obj) {
             return null;
@@ -181,7 +181,7 @@ class ApiUtilService
         ];
     }
 
-    public function getNodeLinkUri($selector, LsAssociation $obj)
+    public function getNodeLinkUri($selector, LsAssociation $obj): ?array
     {
         if (null === $obj) {
             return null;
@@ -211,7 +211,7 @@ class ApiUtilService
         ];
     }
 
-    public function formatAssociationType($type)
+    public function formatAssociationType(string $type): string
     {
         return lcfirst(str_replace(' ', '', $type));
     }

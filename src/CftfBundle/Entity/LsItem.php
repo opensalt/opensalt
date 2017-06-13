@@ -90,31 +90,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     }
  * )
  */
-class LsItem implements CaseApiInterface, IdentifiableInterface
+class LsItem extends AbstractLsBase implements CaseApiInterface
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     *
-     * @Serializer\Exclude()
-     */
-    private $id;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="uri", type="string", length=300, nullable=true, unique=false)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
-     */
-    private $uri;
-
     /**
      * @var string
      *
@@ -158,19 +135,6 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
      * @Serializer\SerializedName("humanCodingScheme")
      */
     private $humanCodingScheme;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=true)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=50)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("identifier")
-     */
-    private $identifier;
 
     /**
      * @var string
@@ -362,7 +326,7 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
     private $licenceUri;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      *
      * @ORM\Column(name="changed_at", type="datetime", nullable=true)
      * @Gedmo\Timestampable(on="update")
@@ -372,26 +336,6 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
      * @Serializer\Exclude()
      */
     private $changedAt;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
-     * @Gedmo\Timestampable(on="update")
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("lastChangeDateTime")
-     */
-    private $updatedAt;
-
-    /**
-     * @var array
-     *
-     * @ORM\Column(name="extra", type="json_array", nullable=true)
-     *
-     * @Serializer\Exclude()
-     */
-    private $extra;
 
     /**
      * @var Collection|LsAssociation[]
@@ -428,22 +372,13 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
      */
     public function __construct($identifier = null)
     {
-        if ($identifier instanceof Uuid) {
-            $identifier = strtolower($identifier->toString());
-        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
-            $identifier = strtolower(Uuid::fromString($identifier)->toString());
-        } else {
-            $identifier = Uuid::uuid1()->toString();
-        }
+        parent::__construct($identifier);
 
-        $this->identifier = $identifier;
-        $this->uri = 'local:'.$this->identifier;
         $this->children = new ArrayCollection();
         $this->lsItemParent = new ArrayCollection();
         $this->associations = new ArrayCollection();
         $this->inverseAssociations = new ArrayCollection();
-        $this->updatedAt = new \DateTime();
-        $this->changedAt = $this->updatedAt;
+        $this->changedAt = $this->getUpdatedAt();
     }
 
     /**
@@ -453,7 +388,7 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
      */
     public function __toString()
     {
-        return $this->uri;
+        return $this->getUri();
     }
 
     /**
@@ -461,21 +396,15 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
      */
     public function __clone()
     {
+        parent::__clone();
+
         // Clear values for new item
-        $this->id = null;
         $this->children = new ArrayCollection();
         $this->lsItemParent = new ArrayCollection();
         $this->associations = new ArrayCollection();
         $this->inverseAssociations = new ArrayCollection();
 
-        // Generate a new identifier
-        $identifier = Uuid::uuid1()->toString();
-        $this->identifier = $identifier;
-        $this->uri = 'local:'.$this->identifier;
-
-        // Set last change/update to now
-        $this->updatedAt = new \DateTime();
-        $this->changedAt = $this->updatedAt;
+        $this->changedAt = $this->getUpdatedAt();
     }
 
     /**
@@ -658,40 +587,6 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
     }
 
     /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set uri
-     *
-     * @param string $uri
-     *
-     * @return LsItem
-     */
-    public function setUri(?string $uri): LsItem
-    {
-        $this->uri = $uri;
-
-        return $this;
-    }
-
-    /**
-     * Get uri
-     *
-     * @return string
-     */
-    public function getUri(): ?string
-    {
-        return $this->uri;
-    }
-
-    /**
      * Set lsDocUri
      *
      * @param string $lsDocUri
@@ -737,40 +632,6 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
     public function getHumanCodingScheme(): ?string
     {
         return $this->humanCodingScheme;
-    }
-
-    /**
-     * Set identifier
-     *
-     * @param string $identifier
-     *
-     * @return LsItem
-     */
-    public function setIdentifier(?string $identifier = null): LsItem
-    {
-        if (null !== $identifier) {
-            // If the identifier is in the form of a UUID then lower case it
-            if ($identifier instanceof Uuid) {
-                $identifier = strtolower($identifier->serialize());
-            } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
-                $identifier = Uuid::fromString($identifier);
-                $identifier = strtolower($identifier->serialize());
-            }
-        }
-
-        $this->identifier = $identifier;
-
-        return $this;
-    }
-
-    /**
-     * Get identifier
-     *
-     * @return string
-     */
-    public function getIdentifier(): ?string
-    {
-        return $this->identifier;
     }
 
     /**
@@ -983,11 +844,11 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
     /**
      * Set changedAt
      *
-     * @param \DateTime $changedAt
+     * @param \DateTimeInterface $changedAt
      *
      * @return LsItem
      */
-    public function setChangedAt(\DateTime $changedAt): LsItem
+    public function setChangedAt(\DateTimeInterface $changedAt): LsItem
     {
         $this->changedAt = $changedAt;
 
@@ -997,9 +858,9 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
     /**
      * Get changedAt
      *
-     * @return \DateTime
+     * @return \DateTimeInterface
      */
-    public function getChangedAt(): \DateTime
+    public function getChangedAt(): \DateTimeInterface
     {
         return $this->changedAt;
     }
@@ -1089,11 +950,11 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
     /**
      * Set lsDoc
      *
-     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     * @param LsDoc $lsDoc
      *
      * @return LsItem
      */
-    public function setLsDoc(\CftfBundle\Entity\LsDoc $lsDoc = null): LsItem
+    public function setLsDoc(LsDoc $lsDoc): LsItem
     {
         $this->lsDoc = $lsDoc;
         $this->lsDocUri = $lsDoc->getUri();
@@ -1105,7 +966,7 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
     /**
      * Get lsDoc
      *
-     * @return \CftfBundle\Entity\LsDoc
+     * @return LsDoc
      */
     public function getLsDoc(): LsDoc
     {
@@ -1131,37 +992,6 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
         }
 
         return $parents;
-    }
-
-    /**
-     * Set updatedAt
-     *
-     * @param \DateTime $updatedAt
-     *
-     * @return LsItem
-     */
-    public function setUpdatedAt(\DateTime $updatedAt): LsItem
-    {
-        $this->updatedAt = $updatedAt;
-
-        $this->lsDoc->setUpdatedAt($updatedAt);
-
-        $parents = $this->getLsItemParent();
-        foreach ($parents as $parent) {
-            $parent->setUpdatedAt($updatedAt);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get updatedAt
-     *
-     * @return \DateTime
-     */
-    public function getUpdatedAt(): \DateTime
-    {
-        return $this->updatedAt;
     }
 
     /**
@@ -1302,62 +1132,6 @@ class LsItem implements CaseApiInterface, IdentifiableInterface
     public function setRank(?int $rank): LsItem
     {
         $this->rank = $rank;
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getExtra(): ?array
-    {
-        return $this->extra;
-    }
-
-    /**
-     * @param string $property
-     * @param string $default
-     *
-     * @return mixed
-     */
-    public function getExtraProperty(string $property, $default = null)
-    {
-        if (is_null($this->extra)) {
-            return $default;
-        }
-
-        if (!array_key_exists($property, $this->extra)) {
-            return $default;
-        }
-
-        return $this->extra[$property];
-    }
-
-    /**
-     * @param array $extra
-     *
-     * @return LsItem
-     */
-    public function setExtra(?array $extra): LsItem
-    {
-        $this->extra = $extra;
-
-        return $this;
-    }
-
-    /**
-     * @param string $property
-     * @param mixed $value
-     *
-     * @return LsItem
-     */
-    public function setExtraProperty(string $property, $value): LsItem
-    {
-        if (is_null($this->extra)) {
-            $this->extra = [];
-        }
-
-        $this->extra[$property] = $value;
 
         return $this;
     }

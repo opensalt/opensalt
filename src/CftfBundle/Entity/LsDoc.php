@@ -5,7 +5,6 @@ namespace CftfBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 use Salt\UserBundle\Entity\Organization;
@@ -60,23 +59,12 @@ use Util\Compare;
  *     }
  * )
  */
-class LsDoc implements CaseApiInterface, IdentifiableInterface
+class LsDoc extends AbstractLsBase implements CaseApiInterface
 {
     const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
     const ADOPTION_STATUS_DRAFT = 'Draft';
     const ADOPTION_STATUS_ADOPTED = 'Adopted';
     const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     *
-     * @Serializer\Exclude()
-     */
-    private $id;
 
     /**
      * @var Organization
@@ -97,30 +85,6 @@ class LsDoc implements CaseApiInterface, IdentifiableInterface
      * @Serializer\Exclude()
      */
     protected $user;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="uri", type="string", length=300, nullable=true, unique=true)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
-     */
-    private $uri;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=true)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     *
-     * @Serializer\Expose()
-     */
-    private $identifier;
 
     /**
      * @var string
@@ -316,26 +280,6 @@ class LsDoc implements CaseApiInterface, IdentifiableInterface
     private $note;
 
     /**
-     * @var array
-     *
-     * @ORM\Column(name="extra", type="json_array", nullable=true)
-     *
-     * @Serializer\Exclude()
-     */
-    private $extra;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
-     * @Gedmo\Timestampable(on="update")
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("lastChangeDateTime")
-     */
-    private $updatedAt;
-
-    /**
      * @var Collection|LsItem[]
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsItem", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
@@ -419,16 +363,8 @@ class LsDoc implements CaseApiInterface, IdentifiableInterface
      */
     public function __construct($identifier = null)
     {
-        if ($identifier instanceof Uuid) {
-            $identifier = strtolower($identifier->toString());
-        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
-            $identifier = strtolower(Uuid::fromString($identifier)->toString());
-        } else {
-            $identifier = Uuid::uuid1()->toString();
-        }
+        parent::__construct($identifier);
 
-        $this->identifier = $identifier;
-        $this->uri = 'local:'.$this->identifier;
         $this->lsItems = new ArrayCollection();
         $this->docAssociations = new ArrayCollection();
         $this->associations = new ArrayCollection();
@@ -442,7 +378,7 @@ class LsDoc implements CaseApiInterface, IdentifiableInterface
      */
     public function __toString()
     {
-        return $this->uri;
+        return $this->getUri();
     }
 
     /**
@@ -479,74 +415,6 @@ class LsDoc implements CaseApiInterface, IdentifiableInterface
             static::ADOPTION_STATUS_PRIVATE_DRAFT,
             static::ADOPTION_STATUS_DRAFT,
         ];
-    }
-
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set uri
-     *
-     * @param string $uri
-     *
-     * @return LsDoc
-     */
-    public function setUri($uri): LsDoc
-    {
-        $this->uri = $uri;
-
-        return $this;
-    }
-
-    /**
-     * Get uri
-     *
-     * @return string
-     */
-    public function getUri(): ?string
-    {
-        return $this->uri;
-    }
-
-    /**
-     * Set identifier
-     *
-     * @param string $identifier
-     *
-     * @return LsDoc
-     */
-    public function setIdentifier($identifier = null): LsDoc
-    {
-        if (null !== $identifier) {
-            // If the identifier is in the form of a UUID then lower case it
-            if ($identifier instanceof Uuid) {
-                $identifier = strtolower($identifier->serialize());
-            } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
-                $identifier = Uuid::fromString($identifier);
-                $identifier = strtolower($identifier->serialize());
-            }
-        }
-
-        $this->identifier = $identifier;
-
-        return $this;
-    }
-
-    /**
-     * Get identifier
-     *
-     * @return string
-     */
-    public function getIdentifier(): ?string
-    {
-        return $this->identifier;
     }
 
     /**
@@ -985,30 +853,6 @@ class LsDoc implements CaseApiInterface, IdentifiableInterface
     public function getLsItems()
     {
         return $this->lsItems;
-    }
-
-    /**
-     * Set updatedAt
-     *
-     * @param \DateTime $updatedAt
-     *
-     * @return LsDoc
-     */
-    public function setUpdatedAt($updatedAt): LsDoc
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    /**
-     * Get updatedAt
-     *
-     * @return \DateTime
-     */
-    public function getUpdatedAt()
-    {
-        return $this->updatedAt;
     }
 
     /**
@@ -1493,62 +1337,6 @@ class LsDoc implements CaseApiInterface, IdentifiableInterface
         }
 
         return $this->getId();
-    }
-
-    /**
-     * @return array
-     */
-    public function getExtra(): array
-    {
-        return $this->extra;
-    }
-
-    /**
-     * @param string $property
-     * @param string $default
-     *
-     * @return mixed
-     */
-    public function getExtraProperty($property, $default = null)
-    {
-        if (is_null($this->extra)) {
-            return $default;
-        }
-
-        if (!array_key_exists($property, $this->extra)) {
-            return $default;
-        }
-
-        return $this->extra[$property];
-    }
-
-    /**
-     * @param array $extra
-     *
-     * @return LsDoc
-     */
-    public function setExtra(array $extra): LsDoc
-    {
-        $this->extra = $extra;
-
-        return $this;
-    }
-
-    /**
-     * @param string $property
-     * @param mixed $value
-     *
-     * @return LsDoc
-     */
-    public function setExtraProperty($property, $value): LsDoc
-    {
-        if (is_null($this->extra)) {
-            $this->extra = [];
-        }
-
-        $this->extra[$property] = $value;
-
-        return $this;
     }
 
     /**

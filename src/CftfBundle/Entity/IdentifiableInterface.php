@@ -8,12 +8,12 @@ namespace CftfBundle\Entity;
 interface IdentifiableInterface
 {
     /**
-     * @return null|string
+     * @return string
      */
-    public function getIdentifier(): ?string;
+    public function getIdentifier(): string;
 
     /**
-     * @return null|string
+     * @return string
      */
-    public function getUri(): ?string;
+    public function getUri(): string;
 }
