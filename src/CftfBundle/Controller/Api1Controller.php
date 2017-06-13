@@ -48,6 +48,15 @@ class Api1Controller extends Controller
         $docs = [];
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $doc) {
+            // Limit test server to see only the testing framework (do not commit)
+            if ($_SERVER['REMOTE_ADDR'] === '138.197.66.237' &&
+                !in_array($doc->getIdentifier(), [
+                    'e8043775-c65f-407d-915d-c17edb524a70',
+                    '03a1c14c-85c4-44d4-8911-81eaee2a9aa9',
+                ], true)
+            ) {
+                continue;
+            }
             /** @var LsDoc $doc */
             if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus()) {
                 $docs[] = $doc;
@@ -226,14 +235,14 @@ class Api1Controller extends Controller
         return $response;
     }
 
-  /**
-   * Generate a response for a single object
-   *
-   * @param Request $request
-   * @param CaseApiInterface $obj
-   *
-   * @return Response
-   */
+    /**
+     * Generate a response for a single object
+     *
+     * @param Request $request
+     * @param CaseApiInterface $obj
+     *
+     * @return Response
+     */
     protected function generateObjectResponse(Request $request, CaseApiInterface $obj): Response
     {
         $this->get('logger')->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
