@@ -126,18 +126,6 @@ class LsItemType extends AbstractType
             ])
             */
         ;
-        if (!$options['ajax']) {
-            $builder
-                ->add('children', EntityType::class, [
-                    'class' => 'CftfBundle:LsItem',
-                    'required' => false,
-                    'multiple' => true,
-                    'query_builder' => function (EntityRepository $er) {
-                        return $er->createQueryBuilder('i')
-                            ->orderBy('i.uri', 'ASC');
-                    },
-                ]);
-        }
 
         $builder->get('educationalAlignment')
             ->addModelTransformer(new EducationAlignmentTransformer($this->manager))
