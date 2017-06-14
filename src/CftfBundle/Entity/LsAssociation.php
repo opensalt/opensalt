@@ -291,7 +291,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
             'isRelatedTo' =>                  static::RELATED_TO,
             'replacedBy' =>                   static::REPLACED_BY,
             'hasSkillLevel' =>                static::SKILL_LEVEL,
-            'cfAssociationGroupIdentifier' => static::RELATED_TO,
         ];
     }
 

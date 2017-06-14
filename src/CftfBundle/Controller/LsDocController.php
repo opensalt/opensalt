@@ -181,7 +181,7 @@ class LsDocController extends Controller
      *
      * @Route("/doc/{id}/update", name="lsdoc_update")
      * @Method("POST")
-     * @Security("is_granted('edit', 'lsdoc')")
+     * @Security("is_granted('edit', lsDoc)")
      *
      * @param Request $request
      * @param LsDoc $lsDoc
@@ -204,14 +204,14 @@ class LsDocController extends Controller
     /**
      * Update a framework given a CSV or external File on a derivative framework.
      *
-     * @Route("/doc/{id}/update/derive", name="lsdoc_update_derive")
+     * @Route("/doc/{id}/derive", name="lsdoc_update_derive")
      * @Method("POST")
-     * @Security("is_granted('create', 'lsdoc')")
+     * @Security("is_granted('create', lsDoc)")
      *
      * @param Request $request
      * @param LsDoc $lsDoc
      */
-    public function updateDeriveAction(Request $request, LsDoc $lsDoc)
+    public function deriveAction(Request $request, LsDoc $lsDoc)
     {
         $response = new JsonResponse();
         $fileContent = $request->request->get('content');

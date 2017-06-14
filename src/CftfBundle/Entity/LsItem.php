@@ -453,7 +453,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      *
      * @return LsItem
      */
-    public function duplicateToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, bool $derivated = false): LsItem
+    public function duplicateToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null): LsItem
     {
         $newItem = clone $this;
         $newItem->setLsDoc($newLsDoc);
@@ -474,14 +474,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
             $newChild = $child->duplicateToLsDoc($newLsDoc, $assocGroup, $derivated);
 
             $newItem->addChild($newChild, $assocGroup);
-
-            if ($derivated) {
-                $newExacAssoc = $newLsDoc->createAssociation();
-                $newExacAssoc->setOrigin($newChild);
-                $newExacAssoc->setType(LsAssociation::EXACT_MATCH_OF);
-                $newExacAssoc->setDestination($child);
-                $newChild->addAssociation($newExacAssoc, $assocGroup);
-            }
         }
 
         return $newItem;

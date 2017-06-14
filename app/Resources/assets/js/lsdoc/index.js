@@ -126,7 +126,7 @@ var SaltGithub = (function(){
 
 var UpdateFramework = (function(){
     var frameworkToAssociateSelector = '#js-framework-to-association-on-update',
-        pathToUpdateFramework = "/cfdoc/doc/" + getCurrentCfDocId() + "/update";
+        pathToUpdateFramework = "/cfdoc/doc/" + getCurrentCfDocId();
 
     function init(){
         $('body').on('click', '.btn.btn--updater', function(){
@@ -154,7 +154,7 @@ var UpdateFramework = (function(){
     }
 
     function update(fileContent){
-        $.post(pathToUpdateFramework, getRequestParams(fileContent), function(){
+        $.post(pathToUpdateFramework + "/update", getRequestParams(fileContent), function(){
             location.reload();
         });
     }
@@ -367,7 +367,6 @@ var CfItem = (function(){
         'cfItemType',
         'license',
 
-        'cfAssociationGroupIdentifier',
         'isChildOf',
         'isPartOf',
         'replacedBy',

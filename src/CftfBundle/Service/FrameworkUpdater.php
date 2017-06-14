@@ -98,13 +98,7 @@ class FrameworkUpdater
         $em->persist($newCfDocDerivated);
 
         foreach($lsDoc->getTopLsItems() as $oldTopItem){
-            $newItem = $oldTopItem->duplicateToLsDoc($newCfDocDerivated, null, true);
-
-            $newAssoc = $newCfDocDerivated->createAssociation();
-            $newAssoc->setOrigin($newItem);
-            $newAssoc->setType(LsAssociation::EXACT_MATCH_OF);
-            $newAssoc->setDestination($oldTopItem);
-            $newItem->addAssociation($newAssoc);
+            $newItem = $oldTopItem->copyToLsDoc($newCfDocDerivated);
             $em->persist($newItem);
 
             $newCfDocDerivated->addTopLsItem($newItem);
