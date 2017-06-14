@@ -16,9 +16,11 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
 {
     /**
      * Finds an object for the API by ['id'=>identifier, 'class'=>class]
+     *
      * @param array $id
      *
      * @return CaseApiInterface
+     *
      * @throws NotFoundHttpException
      */
     public function apiFindOneByClassIdentifier(array $id): CaseApiInterface
@@ -299,7 +301,7 @@ xENDx;
     {
         $em = $this->getEntityManager();
         $newLsDoc = new LsDoc();
-        $newLsDoc->setTitle($oldLsDoc->getTitle() . " - Derivated");
+        $newLsDoc->setTitle($oldLsDoc->getTitle().' - Derivated');
         $newLsDoc->setCreator($oldLsDoc->getCreator());
         $newLsDoc->setVersion($oldLsDoc->getVersion());
         $newLsDoc->setDescription($oldLsDoc->getDescription());
