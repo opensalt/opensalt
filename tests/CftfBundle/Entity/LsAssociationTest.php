@@ -62,24 +62,5 @@ class LsAssociationTest extends TestCase
                 'value' => 'T.2.5',
             ]],
         ];
-
-        foreach ($uris as $uri => $expected) {
-            $assoc = new LsAssociation();
-            $assoc->setDestinationNodeUri($uri);
-
-            $value = $assoc->splitDestinationDataUri();
-
-            foreach ($expected as $field => $fieldValue) {
-                $this->assertEquals($fieldValue, $value[$field], "Value for {$field} '{$value[$field]}' does not match expected '{$fieldValue}''.");
-            }
-            $this->assertEquals(
-                count($expected),
-                count($value),
-                "Field counts do not match - "
-                    .implode(',', array_keys($expected))
-                    ." expected, but found "
-                    .implode(',', array_keys($value))
-            );
-        }
     }
 }
