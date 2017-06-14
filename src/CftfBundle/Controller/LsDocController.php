@@ -206,7 +206,7 @@ class LsDocController extends Controller
      *
      * @Route("/doc/{id}/derive", name="lsdoc_update_derive")
      * @Method("POST")
-     * @Security("is_granted('create', lsDoc)")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDoc $lsDoc
