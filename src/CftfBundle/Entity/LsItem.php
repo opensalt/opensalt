@@ -471,7 +471,8 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
         }
 
         foreach ($this->getChildren() as $child) {
-            $newChild = $child->duplicateToLsDoc($newLsDoc, $assocGroup);
+            $newChild = $child->duplicateToLsDoc($newLsDoc, $assocGroup, $derivated);
+
             $newItem->addChild($newChild, $assocGroup);
         }
 
