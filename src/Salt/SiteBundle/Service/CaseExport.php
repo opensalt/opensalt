@@ -178,8 +178,8 @@ class CaseExport
     protected function addAssociationRow(\PHPExcel_Worksheet $sheet, int $y, array $row): void
     {
         $columns = [
-            'A' => 'lsDocIdentifier',
-            'B' => 'lsDocUri',
+            'A' => 'identifier',
+            'B' => 'uri',
             'C' => 'originNodeIdentifier',
             'D' => 'destinationNodeIdentifier',
             'E' => 'type',
