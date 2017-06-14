@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * AbstractLsBase
@@ -40,6 +41,9 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=true)
      *
+     * @Assert\NotBlank()
+     * @Assert\Length(max=300)
+     *
      * @Serializer\Expose()
      */
     private $identifier;
@@ -48,6 +52,9 @@ class AbstractLsBase implements IdentifiableInterface
      * @var string
      *
      * @ORM\Column(name="uri", type="string", length=300, nullable=true, unique=true)
+     *
+     * @Assert\NotBlank()
+     * @Assert\Length(max=300)
      *
      * @Serializer\Exclude()
      */
@@ -63,7 +70,7 @@ class AbstractLsBase implements IdentifiableInterface
     private $extra = [];
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      *
      * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Gedmo\Timestampable(on="update")
@@ -91,6 +98,25 @@ class AbstractLsBase implements IdentifiableInterface
 
         $this->identifier = $identifier;
         $this->uri = 'local:'.$this->identifier;
+
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    /**
+     * Clone the object
+     */
+    public function __clone()
+    {
+        // Clear values for new item
+        $this->id = null;
+
+        // Generate a new identifier
+        $identifier = Uuid::uuid1()->toString();
+        $this->identifier = $identifier;
+        $this->uri = 'local:'.$this->identifier;
+
+        // Set last change/update to now
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     /**
@@ -98,7 +124,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -109,8 +135,10 @@ class AbstractLsBase implements IdentifiableInterface
      * @param Uuid|string $identifier
      *
      * @return static
+     *
+     * @throws \InvalidArgumentException
      */
-    public function setIdentifier($identifier = null)
+    public function setIdentifier($identifier)
     {
         // If the identifier is in the form of a UUID then lower case it
         if ($identifier instanceof Uuid) {
@@ -118,7 +146,7 @@ class AbstractLsBase implements IdentifiableInterface
         } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
             $identifier = strtolower(Uuid::fromString($identifier)->toString());
         } else {
-            $identifier = null;
+            throw new \InvalidArgumentException('The identifier must be a UUID.');
         }
 
         $this->identifier = $identifier;
@@ -131,7 +159,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @return string
      */
-    public function getIdentifier(): ?string
+    public function getIdentifier(): string
     {
         return $this->identifier;
     }
@@ -143,7 +171,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @return static
      */
-    public function setUri(?string $uri)
+    public function setUri(string $uri)
     {
         $this->uri = $uri;
 
@@ -155,7 +183,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @return string
      */
-    public function getUri(): ?string
+    public function getUri(): string
     {
         return $this->uri;
     }
@@ -163,11 +191,11 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * Set updatedAt
      *
-     * @param \DateTime $updatedAt
+     * @param \DateTimeInterface $updatedAt
      *
      * @return static
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt(\DateTimeInterface $updatedAt)
     {
         $this->updatedAt = $updatedAt;
 
@@ -177,9 +205,9 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * Get updatedAt
      *
-     * @return \DateTime
+     * @return \DateTimeInterface
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt(): \DateTimeInterface
     {
         return $this->updatedAt;
     }
@@ -187,7 +215,7 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * @return array
      */
-    public function getExtra()
+    public function getExtra(): array
     {
         return $this->extra;
     }
@@ -197,7 +225,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @return static
      */
-    public function setExtra($extra)
+    public function setExtra(array $extra)
     {
         $this->extra = $extra;
 
@@ -209,7 +237,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @return mixed
      */
-    public function getExtraProperty($property)
+    public function getExtraProperty(string $property)
     {
         return $this->extra[$property] ?? null;
     }
@@ -220,7 +248,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @return static
      */
-    public function setExtraProperty($property, $value)
+    public function setExtraProperty(string $property, $value)
     {
         $this->extra[$property] = $value;
 
