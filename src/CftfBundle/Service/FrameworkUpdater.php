@@ -23,6 +23,11 @@ class FrameworkUpdater
     private $managerRegistry;
 
     /**
+     * @var GithubImport
+     */
+    private $githubImport;
+
+    /**
      * @param ManagerRegistry $managerRegistry
      * @param GithubImport $githubImport
      *
@@ -40,7 +45,7 @@ class FrameworkUpdater
     /**
      * @return ObjectManager
      */
-    protected function getEntityManager()
+    protected function getEntityManager(): ObjectManager
     {
         return $this->managerRegistry->getManagerForClass(LsDoc::class);
     }
@@ -51,21 +56,20 @@ class FrameworkUpdater
      * @param LsDoc  $lsDoc
      * @param string $fileContent
      * @param string $frameworkToAssociate
+     * @param array $cfItemKeys
      */
-    public function update($lsDoc, $fileContent, $frameworkToAssociate, $cfItemKeys)
+    public function update(LsDoc $lsDoc, string $fileContent, string $frameworkToAssociate, array $cfItemKeys): void
     {
         $em = $this->getEntityManager();
-        $this->cfItemKeys = $cfItemKeys;
         $contentTransformed = $this->transformContent($fileContent);
-        $cfItems = [];
 
-        for ($i = 0, $iMax = count($contentTransformed); $i < $iMax; ++$i)
-        {
-            $cfItem = $em
-                ->getRepository('CftfBundle:LsItem')
-                    ->findOneByIdentifier($contentTransformed[$i]['Identifier']);
+        foreach (array_keys($contentTransformed) as $i) {
+            $cfItem = $em->getRepository('CftfBundle:LsItem')
+                ->findOneByIdentifier($contentTransformed[$i]['Identifier']);
 
-            if (!$cfItem){ continue; }
+            if (!$cfItem) {
+                continue;
+            }
             $cfItem->setLsDoc($lsDoc);
             $cfItem->setFullStatement($contentTransformed[$i][$cfItemKeys['fullStatement']]);
             $cfItem->setHumanCodingScheme($contentTransformed[$i][$cfItemKeys['humanCodingScheme']]);
@@ -74,9 +78,10 @@ class FrameworkUpdater
             $cfItem->setLanguage($contentTransformed[$i][$cfItemKeys['language']]);
             $cfItem->setLicenceUri($contentTransformed[$i][$cfItemKeys['license']]);
             $cfItem->setNotes($contentTransformed[$i][$cfItemKeys['notes']]);
-            $this->updateAssociations($cfItem, $contentTransformed[$i], $em);
-            $cfItems[] = $cfItem;
+
+            $this->updateAssociations($cfItem, $contentTransformed[$i], $cfItemKeys);
         }
+
         $em->flush();
     }
 
@@ -86,18 +91,18 @@ class FrameworkUpdater
      * @param LsDoc  $lsDoc
      * @param string $fileContent
      * @param string $frameworkToAssociate
+     *
+     * @return LsDoc
      */
-    public function derive($lsDoc, $fileContent, $frameworkToAssociate)
+    public function derive(LsDoc $lsDoc, $fileContent, $frameworkToAssociate): LsDoc
     {
         $em = $this->getEntityManager();
-        $contentTransformed = $this->transformContent($fileContent);
-        $cfItems = [];
 
         $newCfDocDerivated = $em->getRepository('CftfBundle:LsDoc')->makeDerivative($lsDoc);
 
         $em->persist($newCfDocDerivated);
 
-        foreach($lsDoc->getTopLsItems() as $oldTopItem){
+        foreach ($lsDoc->getTopLsItems() as $oldTopItem) {
             $newItem = $oldTopItem->copyToLsDoc($newCfDocDerivated);
             $em->persist($newItem);
 
@@ -114,24 +119,24 @@ class FrameworkUpdater
      *
      * @param LsItem $lsItem
      * @param array $rowContent
+     * @param array $cfItemKeys
      */
-    private function updateAssociations(LsItem $lsItem, array $rowContent, $em)
+    private function updateAssociations(LsItem $lsItem, array $rowContent, array $cfItemKeys): void
     {
         $associationTypes = LsAssociation::allTypesForImportFromCSV();
-        $cfItemKeys = $this->cfItemKeys;
         $assocNotMatched = [];
 
         foreach ($associationTypes as $assoTypeKey => $assoTypeValue) {
             foreach (explode(',', $rowContent[$cfItemKeys[$assoTypeKey]]) as $associationSeparatedByComma) {
+                if ($associationSeparatedByComma === '') {
+                    continue;
+                }
 
-                if ($associationSeparatedByComma === '') { continue; }
-
-                if (!array_key_exists($associationSeparatedByComma, $assocNotMatched)){
+                if (!array_key_exists($associationSeparatedByComma, $assocNotMatched)) {
                     $assocNotMatched[$associationSeparatedByComma] = ['matched' => true, 'type' => $assoTypeValue];
                 }
 
-                foreach ($lsItem->getAssociations() as $association){
-
+                foreach ($lsItem->getAssociations() as $association) {
                     $destination = $association->getDestination();
 
                     if (LsAssociation::INVERSE_EXACT_MATCH_OF === $association->getType()
@@ -139,27 +144,25 @@ class FrameworkUpdater
                         continue;
                     }
 
-                    if (is_string($destination)){
+                    if (is_string($destination)) {
                         if ($this->validatePresenceOnAssociation($destination, $associationSeparatedByComma)) {
                             $assocNotMatched[$associationSeparatedByComma]['matched'] = false;
                         } elseif ('data:text/x-ref-unresolved;base64,' === substr($destination, 0, 34)) {
-                            if ($this->validatePresenceOnAssociation($association->getHumanCodingSchemeFromDestinationNodeUri(),
-                                $associationSeparatedByComma)){
+                            if ($this->validatePresenceOnAssociation($association->getHumanCodingSchemeFromDestinationNodeUri(), $associationSeparatedByComma)) {
                                 $assocNotMatched[$associationSeparatedByComma]['matched'] = false;
                             }
                         }
                     } elseif ($destination instanceof LsItem) {
-                        if ($this->validatePresenceOnAssociation($destination->getHumanCodingScheme(),
-                            $associationSeparatedByComma)){
+                        if ($this->validatePresenceOnAssociation($destination->getHumanCodingScheme(), $associationSeparatedByComma)) {
                             $assocNotMatched[$associationSeparatedByComma] = ['matched' => false, 'type' => $assoTypeValue];
                         }
                     }
-
                 }
             }
         }
-        if (count($assocNotMatched) > 0){
-            foreach($assocNotMatched as $assocForMatch => $assocForMatchValues){
+
+        if (count($assocNotMatched) > 0) {
+            foreach ($assocNotMatched as $assocForMatch => $assocForMatchValues) {
                 if (!$assocForMatchValues['matched'] === false) {
                     $this->githubImport->addItemRelated($lsItem->getLsDoc(), $lsItem, $assocForMatch, 'all', $assocForMatchValues['type']);
                 }
@@ -174,8 +177,10 @@ class FrameworkUpdater
      *
      * @param string $associationValue
      * @param string $associationOnContent
+     *
+     * @return bool
      */
-    private function validatePresenceOnAssociation(string $associationValue, string $associationOnContent)
+    private function validatePresenceOnAssociation(string $associationValue, string $associationOnContent): bool
     {
         return $associationOnContent === $associationValue;
     }
@@ -187,7 +192,7 @@ class FrameworkUpdater
      *
      * @return array
      */
-    protected function transformContent($fileContent)
+    protected function transformContent($fileContent): array
     {
         $csvContent = str_getcsv($fileContent, "\n");
         $headers = [];
