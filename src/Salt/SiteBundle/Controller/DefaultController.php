@@ -134,7 +134,7 @@ class DefaultController extends Controller
 
         $sheet = $phpExcelObject->getSheetByName('CF Item');
         $lastRow = $sheet->getHighestRow();
-        for ($i = 2; $i <= $lastRow; $i++) {
+        for ($i = 2; $i <= $lastRow; ++$i) {
             $lsItem = $this->saveItem($sheet, $lsDoc, $i, $em);
             $items[$lsItem->getIdentifier()] = $lsItem;
             $smartLevel = (string) $sheet->getCellByColumnAndRow(3, $i)->getValue();
@@ -163,7 +163,7 @@ class DefaultController extends Controller
 
         $sheet = $phpExcelObject->getSheetByName('CF Association');
         $lastRow = $sheet->getHighestRow();
-        for ($i = 2; $i <= $lastRow; $i++) {
+        for ($i = 2; $i <= $lastRow; ++$i) {
             $this->saveAssociation($sheet, $lsDoc, $i, $em, $items);
         }
 
