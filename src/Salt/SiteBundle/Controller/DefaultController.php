@@ -206,17 +206,16 @@ class DefaultController extends Controller
         $lsDoc->setIdentifier($sheet->getCellByColumnAndRow(0, 2)->getValue());
         $lsDoc->setCreator($sheet->getCellByColumnAndRow(1, 2)->getValue());
         $lsDoc->setTitle($sheet->getCellByColumnAndRow(2, 2)->getValue());
-        /* $lsDoc->setUpdatedAt($sheet->getCellByColumnAndRow(3, 2)); */
         $lsDoc->setOfficialUri($sheet->getCellByColumnAndRow(4, 2)->getValue());
         $lsDoc->setPublisher($sheet->getCellByColumnAndRow(5, 2)->getValue());
         $lsDoc->setDescription($sheet->getCellByColumnAndRow(6, 2)->getValue());
         $lsDoc->setSubject($sheet->getCellByColumnAndRow(7, 2)->getValue());
         $lsDoc->setLanguage($sheet->getCellByColumnAndRow(8, 2)->getValue());
         $lsDoc->setVersion($sheet->getCellByColumnAndRow(9, 2)->getValue());
-        /* $lsDoc->setAdoptionStatus($sheet->getCellByColumnAndRow(10, 2)); */
-        /* $lsDoc->setStatusStart($sheet->getCellByColumnAndRow(11, 2)); */
-        /* $lsDoc->setStatusEnd($sheet->getCellByColumnAndRow(12, 2)); */
-        /* $lsDoc->setLicence($sheet->getCellByColumnAndRow(13, 2)); */
+        $lsDoc->setAdoptionStatus($sheet->getCellByColumnAndRow(10, 2)->getValue());
+        $lsDoc->setStatusStart($sheet->getCellByColumnAndRow(11, 2)->getValue());
+        $lsDoc->setStatusEnd($sheet->getCellByColumnAndRow(12, 2)->getValue());
+        $lsDoc->setLicence($sheet->getCellByColumnAndRow(13, 2)->getValue());
         $lsDoc->setNote($sheet->getCellByColumnAndRow(14, 2)->getValue());
 
         $em->persist($lsDoc);

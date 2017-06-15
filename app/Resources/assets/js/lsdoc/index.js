@@ -293,28 +293,12 @@ var Import = (function() {
         });
     }
 
-    function excelImporter(file) {
-        console.info(file);
-        // $.ajax({
-        //     url: 'php/upload.php',
-        //     data: file,
-        //     cache: false,
-        //     contentType: false,
-        //     processData: false,
-        //     type: 'POST',
-        //     success: function(data){
-        //         console.log(data);
-        //     }
-        // });
-    }
-
     return {
         csv: csvImporter,
         json: jsonImporter,
         send: sendData,
         fromAsn: asnStructure,
-        case: caseImporter,
-        excel: excelImporter
+        case: caseImporter
     };
 })();
 
@@ -347,9 +331,6 @@ var SaltLocal = (function(){
                                 case 'case':
                                     Import.case(file);
                                 break;
-                                case 'excel':
-                                    Import.excel(file);
-                                break;
                                 case 'derivative':
                                     UpdateFramework.derivative(file);
                                 break;
@@ -378,16 +359,28 @@ var SaltLocal = (function(){
         if (window.File && window.FileReader && window.FileList && window.Blob) {
             var file = files[0];
             if (isTypeValid(file.type)) {
+
+                $('.tab-content').addClass('hidden');
+                $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+                $('.file-loading').removeClass('hidden');
+                $('.case-error-msg').addClass('hidden');
+
                 data.append('file', file);
                 $.ajax({
-                    url: '/app_dev.php/salt/excel/import',
+                    url: '/salt/excel/import',
                     data: data,
                     cache: false,
                     contentType: false,
                     processData: false,
                     type: 'POST',
                     success: function(response){
-                        console.log(response);
+                        location.reload();
+                    },
+                    error: function(){
+                        $('.tab-content').removeClass('hidden');
+                        $('.case-error-msg').html('Error while importing the file');
+                        $('.case-error-msg').removeClass('hidden');
+                        $('.file-loading').addClass('hidden');
                     }
                 });
             }
