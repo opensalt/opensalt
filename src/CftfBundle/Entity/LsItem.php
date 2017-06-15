@@ -893,12 +893,13 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      *
      * @param LsItem $child
      * @param LsDefAssociationGrouping|null $assocGroup
+     * @param int|null $sequenceNumber
      *
      * @return LsItem
      */
-    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null): LsItem
+    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): LsItem
     {
-        $this->createChildItem($child, $assocGroup);
+        $this->createChildItem($child, $assocGroup, $sequenceNumber);
 
         return $this;
     }
