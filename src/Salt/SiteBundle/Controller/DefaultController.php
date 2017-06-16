@@ -127,7 +127,6 @@ class DefaultController extends Controller
         $itemSmartLevels = [];
         /** @var LsItem[] $smartLevels */
         $smartLevels = [];
-        $parents = [];
 
         $sheet = $phpExcelObject->getSheetByName('CF Doc');
         $lsDoc = $this->saveDoc($sheet, $em);
