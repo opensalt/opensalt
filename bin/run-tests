@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+cd $(dirname $0)/..
+
+./bin/phpspec run
+RET=$?
+
+./bin/behat
+RET2=$?
+if [ ! "$RET" == "0" ]; then
+  RET=$RET2
+  echo "ret2"
+fi
+
+./bin/phpunit -c app/
+RET2=$?
+if [ ! "$RET" == "0" ]; then
+  RET=$RET2
+  echo "ret2b"
+fi
+
+exit $RET
