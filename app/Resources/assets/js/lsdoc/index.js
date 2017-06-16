@@ -181,7 +181,7 @@ var Import = (function() {
                 column = columns[j];
                 if (column.length > 0) {
                     if (Util.simplify(field) === Util.simplify(column)) {
-                        cfItemKeys[field] = column;
+                        cfItemKeys[field] = column.replace(/"/g, '');
 
                         index = fields.indexOf(field);
                         if (index >= 0) {
