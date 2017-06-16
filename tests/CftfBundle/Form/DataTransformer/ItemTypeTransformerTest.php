@@ -19,6 +19,6 @@ class ItemTypeTransformerTest extends \PHPUnit_Framework_TestCase
         $transformed = $transformer->transform($itemType);
 
         $this->assertTrue(is_array($transformed));
-        $this->assertEquals(["" => "Testing"], $transformed);
+        $this->assertEquals(['' => 'Testing'], $transformed);
     }
 }
