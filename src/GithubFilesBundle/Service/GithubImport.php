@@ -265,7 +265,7 @@ class GithubImport
      *
      * @return        bool
      */
-    private function isValidItemContent(array $lineContent, array $lsItemKeys) : bool
+    private function isValidItemContent(array $lineContent, array $lsItemKeys): bool
     {
         return array_key_exists($lsItemKeys['fullStatement'], $lineContent) && $lineContent[$lsItemKeys['fullStatement']] !== '';
     }
@@ -281,7 +281,7 @@ class GithubImport
      *
      * @return        LsItem
      */
-    private function assignValuesToItem(LsItem $lsItem, LsDoc $lsDoc, array $lsItemKeys, array $lineContent, array $keys) : LsItem
+    private function assignValuesToItem(LsItem $lsItem, LsDoc $lsDoc, array $lsItemKeys, array $lineContent, array $keys): LsItem
     {
         $lsItem->setLsDoc($lsDoc);
         $lsItem->setFullStatement($lineContent[$lsItemKeys['fullStatement']]);
