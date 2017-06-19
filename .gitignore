@@ -1,6 +1,8 @@
 /app/config/parameters.yml
 /build/*
-/phpunit.xml
+/app/phpunit.xml
+/phpspec.yml
+/phpcs.xml
 /var/*
 !/var/cache
 /var/cache/*

@@ -1,14 +1,3 @@
-$(document).on('ready', function(){
-    $('.github-tab').click(function(){
-        SaltGithub.getRepoList(1, 30);
-        listRepositories();
-    });
-
-    $('.import-framework').click(function(){
-        Import.fromAsn();
-    });
-});
-
 var SaltGithub = (function(){
 
     function getRepoList(page, perPage) {
@@ -135,12 +124,50 @@ var SaltGithub = (function(){
     };
 })();
 
+var UpdateFramework = (function(){
+    var frameworkToAssociateSelector = '#js-framework-to-association-on-update',
+        pathToUpdateFramework = "/cfdoc/doc/" + getCurrentCfDocId();
+
+    function init(){
+        $('body').on('click', '.btn.btn--updater', function(){
+            SaltLocal.handleFile( $(this).data('update-action') );
+        });
+    }
+
+    function getRequestParams(fileContent){
+        fileData = Import.csv(fileContent, true);
+        return {
+            content: window.btoa(unescape(encodeURIComponent(fileContent))),
+            cfItemKeys: fileData.cfItemKeys,
+            frameworkToAssociate: $(frameworkToAssociateSelector).val(),
+        }
+    }
+
+    function getCurrentCfDocId(){
+        return $('#lsDocId').val();
+    }
+
+    function derivative(fileContent){
+        $.post(pathToUpdateFramework + "/derive", getRequestParams(fileContent), function(data){
+            window.location.href = "/cftree/doc/" + data.new_doc_id;
+        });
+    }
+
+    function update(fileContent){
+        $.post(pathToUpdateFramework + "/update", getRequestParams(fileContent), function(){
+            location.reload();
+        });
+    }
+
+    return { init: init, derivative: derivative, update: update }
+})();
+
 var Import = (function() {
 
     var file = "";
     var cfItemKeys = {};
 
-    function csvImporter(content) {
+    function csvImporter(content, disableRequest) {
         file = content;
 
         var fields = CfItem.fields;
@@ -154,7 +181,7 @@ var Import = (function() {
                 column = columns[j];
                 if (column.length > 0) {
                     if (Util.simplify(field) === Util.simplify(column)) {
-                        cfItemKeys[field] = column;
+                        cfItemKeys[field] = column.replace(/"/g, '');
 
                         index = fields.indexOf(field);
                         if (index >= 0) {
@@ -171,6 +198,9 @@ var Import = (function() {
                     }
                 }
             }
+        }
+        if (disableRequest){
+            return { cfItemKeys: cfItemKeys, fields: fields };
         }
 
         if (fields.length > 0) {
@@ -205,7 +235,6 @@ var Import = (function() {
     }
 
     function sendData() {
-        var columns = {};
         var dataRequest = {
             content: window.btoa(unescape(encodeURIComponent(file))),
             cfItemKeys: cfItemKeys,
@@ -275,10 +304,15 @@ var Import = (function() {
 
 var SaltLocal = (function(){
 
-    function handleFileSelect(fileType) {
-        // var files = evt.target.files; // FileList Object
-        var files = document.getElementById('file-url').files;
+    function handleFileSelect(fileType, input) {
+        var files = document.getElementById(input).files;
         var json = '', f;
+
+        if (fileType === 'update' || fileType === 'derivative'){
+            files = document.getElementById('file-for-update').files;
+        } else {
+            files = document.getElementById('file-url').files;
+        }
 
         if (window.File && window.FileReader && window.FileList && window.Blob) {
             for (var i=0; f = files[i]; i++) {
@@ -286,14 +320,23 @@ var SaltLocal = (function(){
                             'bytes', '- lastModified:', f.lastModified ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
 
                 var reader = new FileReader();
-                if (f.type === 'text/csv' || f.type === 'application/json') {
+                if (isTypeValid(f.type)) {
                     reader.onload = (function(theFile) {
                         return function(e) {
                             var file = e.target.result;
-                            if (fileType === 'local') {
-                                Import.csv(file, lsDocId);
-                            } else if (fileType === 'case') {
-                                Import.case(file);
+                            switch (fileType) {
+                                case 'local':
+                                    Import.csv(file);
+                                break;
+                                case 'case':
+                                    Import.case(file);
+                                break;
+                                case 'derivative':
+                                    UpdateFramework.derivative(file);
+                                break;
+                                case 'update':
+                                    UpdateFramework.update(file);
+                                break;
                             }
                         };
                     })(f);
@@ -308,8 +351,53 @@ var SaltLocal = (function(){
         }
     }
 
+    function handleExcelFile() {
+        var files = document.getElementById('excel-url').files;
+        var file;
+        var data = new FormData();
+
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            var file = files[0];
+            if (isTypeValid(file.type)) {
+
+                $('.tab-content').addClass('hidden');
+                $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+                $('.file-loading').removeClass('hidden');
+                $('.case-error-msg').addClass('hidden');
+
+                data.append('file', file);
+                $.ajax({
+                    url: '/salt/excel/import',
+                    data: data,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    type: 'POST',
+                    success: function(response){
+                        location.reload();
+                    },
+                    error: function(){
+                        $('.tab-content').removeClass('hidden');
+                        $('.case-error-msg').html('Error while importing the file');
+                        $('.case-error-msg').removeClass('hidden');
+                        $('.file-loading').addClass('hidden');
+                    }
+                });
+            }
+        }
+    }
+
+    function isTypeValid(type) {
+        var types = ['text/csv', 'application/json', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+        if (types.indexOf(type) >= 0) {
+            return true;
+        }
+        return false;
+    }
+
     return {
-        handleFile: handleFileSelect
+        handleFile: handleFileSelect,
+        handleExcelFile: handleExcelFile
     };
 })();
 
@@ -329,7 +417,6 @@ var CfItem = (function(){
         'cfItemType',
         'license',
 
-        'cfAssociationGroupIdentifier',
         'isChildOf',
         'isPartOf',
         'replacedBy',
@@ -457,3 +544,19 @@ function listRepositories(){
     $('.panel-title').html('Repositories list');
     $('#back').html('');
 }
+
+$(document).on('ready', function(){
+    $('.github-tab').click(function(){
+        SaltGithub.getRepoList(1, 30);
+        listRepositories();
+    });
+
+    $('.import-framework').click(function(){
+        Import.fromAsn();
+    });
+
+    /* Framework Updater */
+    UpdateFramework.init();
+    /**********/
+});
+

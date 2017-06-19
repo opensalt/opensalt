@@ -267,6 +267,14 @@ DELETE FROM ls_doc_subject
 xENDx;
         $conn->prepare($stmt)->execute($params);
 
+        $progressCallback('Deleting document import logs');
+        $stmt = <<<'xENDx'
+DELETE FROM import_logs
+ WHERE ls_doc_id = :lsDocId
+;
+xENDx;
+        $conn->prepare($stmt)->execute($params);
+
         $progressCallback('Deleting acls');
         $stmt = <<<'xENDx'
 DELETE FROM salt_user_doc_acl
@@ -292,6 +300,32 @@ xENDx;
         $conn->prepare($stmt)->execute($params);
 
         $progressCallback('Done');
+    }
+
+    /**
+     * @param LsDoc $oldDoc
+     */
+    public function makeDerivative(LsDoc $oldLsDoc): LsDoc
+    {
+        $em = $this->getEntityManager();
+        $newLsDoc = new LsDoc();
+        $newLsDoc->setTitle($oldLsDoc->getTitle().' - Derivated');
+        $newLsDoc->setCreator($oldLsDoc->getCreator());
+        $newLsDoc->setVersion($oldLsDoc->getVersion());
+        $newLsDoc->setDescription($oldLsDoc->getDescription());
+        $newLsDoc->setSubject($oldLsDoc->getSubject());
+        $newLsDoc->setNote($oldLsDoc->getNote());
+        $newLsDoc->setLanguage($oldLsDoc->getLanguage());
+        $newLsDoc->setOrg($oldLsDoc->getOrg());
+        $newLsDoc->setUser($oldLsDoc->getUser());
+        $newLsDoc->setOwnedBy($oldLsDoc->getOwnedBy());
+        foreach($oldLsDoc->getAssociationGroupings() as $assocGroup) {
+            $assocGroup->duplicateToLsDoc($newLsDoc);
+        }
+        $newLsDoc->setLicence($oldLsDoc->getLicence());
+
+        $em->flush();
+        return $newLsDoc;
     }
 
     /**

@@ -1,11 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#<?php /*
 
-DIR=$(dirname $0)
-
-which docker >/dev/null 2>&1
-
-if [ $? -eq 0 ]; then
-  exec $DIR/console-docker "$@"
-else
-  exec $DIR/console-real "$@"
+if [ ! -f /.dockerenv ]; then
+  exec $(dirname $0)/phpcli php ./bin/console-real "$@"
 fi
+
+exec php $(dirname $0)/console-real "$@"
+
+*/
+
+require __DIR__.'/console-real';
