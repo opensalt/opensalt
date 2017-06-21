@@ -1,9 +1,0 @@
-Identifier,Human Coding Scheme,EducationLevel,IsChildOf Text,IsChildOf,FullStatement,IsRelatedTo
-Math,M,05,,,Everything about math,
-Math.Fractions,M.F,05,Math,M,Fractions are rational numbers - this standard group explores those concepts,H.A.MATH.GM.3DF.C3DS.L1.1
-Math.Fractions.Cluster1,M.F.C1,05,Math.Fractions,M.F,Students understand operations on fractions.,"CCSS.Math.Content.HSF-IF.C.8a,CCSS.Math.Content.HSF-IF.C.8b"
-Math.Fractions.Cluster1.Standard1,M.F.C1.S1,05,Math.Fractions.Cluster1,M.F.C1,Students understand that fractions are closed under the four operations,"CCSS.ELA-Literacy.L.4.2d,CCSS.ELA-Literacy.L.4.1"
-Math.Fractions.Cluster1.Standard1a,M.F.C1.S1a,05,Math.Fractions.Cluster1.Standard1,M.F.C1.S1,Students can add or subtract fractions,CCSS.ELA-Literacy.RF.5.4c
-Math.Fractions.Cluster1.Standard1b,M.F.C1.S1b,05,Math.Fractions.Cluster1.Standard1,M.F.C1.S1,Students can multiply or divide fractions,CCSS.ELA-Literacy.RF.5.3
-Math.Fractions.Cluster2,M.F.C2,05,Math.Fractions,M.F,Students are able to distinguish between rational and irrational numbers,CCSS.ELA-LITERACY.L.4.3.a
-Math.Fractions.Cluster2.Standard1,M.F.C2.S1,05,Math.Fractions.Cluster2,M.F.C2,If a fraction repeats it is irrational,CCSS.ELA-LITERACY.RI.11-12.5
