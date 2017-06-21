@@ -127,8 +127,8 @@ class GithubImport
         }
 
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
-            if ($lsItems[$i] === null) { continue; }
             $lsItem = $lsItems[$i];
+            if (null === $lsItem || !array_key_exists('isChildOf', $lsItemKeys) || !array_key_exists($lsItemKeys['isChildOf'], $lsItemKeys)) { continue; }
 
             if ($humanCoding = $lsItem->getHumanCodingScheme()) {
                 $parent = $content[$i][$lsItemKeys['isChildOf']];
@@ -267,7 +267,7 @@ class GithubImport
      */
     private function isValidItemContent(array $lineContent, array $lsItemKeys): bool
     {
-        return array_key_exists($lsItemKeys['fullStatement'], $lineContent) && $lineContent[$lsItemKeys['fullStatement']] !== '';
+        return $lineContent[$lsItemKeys['fullStatement']] ?? false && $lineContent[$lsItemKeys['fullStatement']] !== '';
     }
 
     /**
@@ -289,7 +289,7 @@ class GithubImport
             $lsItem->setIdentifier($lineContent[$lsItemKeys['identifier']]);
         }
         foreach ($keys as $key) {
-            if (array_key_exists($key, $lsItemKeys) && array_key_exists($lsItemKeys[$key], $lineContent)) $lsItem->setNotes($lineContent[$lsItemKeys[$key]]);
+            if (array_key_exists($key, $lsItemKeys) && array_key_exists($lsItemKeys[$key], $lineContent)) $lsItem->{'license' === $key ? 'setLicenceUri' : 'set'.ucfirst($key)}($lineContent[$lsItemKeys[$key]]);
         }
 
         return $lsItem;
