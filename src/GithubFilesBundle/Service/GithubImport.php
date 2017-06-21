@@ -128,7 +128,7 @@ class GithubImport
 
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lsItem = $lsItems[$i];
-            if (null === $lsItem || !array_key_exists('isChildOf', $lsItemKeys) || !array_key_exists($lsItemKeys['isChildOf'], $lsItemKeys)) { continue; }
+            if (null === $lsItem || !array_key_exists('isChildOf', $lsItemKeys)) { continue; }
 
             if ($humanCoding = $lsItem->getHumanCodingScheme()) {
                 $parent = $content[$i][$lsItemKeys['isChildOf']];
