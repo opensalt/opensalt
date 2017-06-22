@@ -100,7 +100,8 @@
         "league/oauth2-github": "^0.2.2",
 
         "matthimatiker/opcache-bundle": "^0.4",
-        
+        "friendsofsymfony/comment-bundle": "^2.0.9",
+
         "bower-asset/datatables.net": "^1.10.15",
         "bower-asset/datatables.net-bs": "^1.10.15",
         "bower-asset/datatables.net-fixedheader": "^3.1.2",
