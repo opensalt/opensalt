@@ -103,6 +103,7 @@ class CresstCsv
             'grade',
             'fullDescription',
             'crosswalk',
+            'weight',
         ];
         $csvLine = \Util\CsvUtil::arrayToCsv($line);
         $csvLines[] = $csvLine;
@@ -117,6 +118,7 @@ class CresstCsv
             '',
             'English/Language Arts',
             '',
+            '1',
         ];
         $csvLine = \Util\CsvUtil::arrayToCsv($line);
         $csvLines[] = $csvLine;
@@ -131,9 +133,12 @@ class CresstCsv
             '',
             'Math',
             '',
+            '2',
         ];
         $csvLine = \Util\CsvUtil::arrayToCsv($line);
         $csvLines[] = $csvLine;
+
+        $i = 0;
 
         /** @var LsItem $item */
         foreach ($items as $item) {
@@ -178,6 +183,9 @@ class CresstCsv
                     $parentUuid = $parent->getParentItem()->getIdentifier();
 
                     $item->setAbbreviatedStatement($parent->getAbbreviatedStatement().': '.$item->getAbbreviatedStatement());
+                    if ('ELA' === $parts[0] && !empty($parts[3])) {
+                        $item->setAbbreviatedStatement($item->getAbbreviatedStatement().': '.str_replace('Target', 'Target ', $parts[3]));
+                    }
                 }
             } else {
                 if (0 === strpos($code, 'E')) {
@@ -197,7 +205,8 @@ class CresstCsv
                 'shortName' => $item->getAbbreviatedStatement(),
                 'grade' => $grade,
                 'fullDescription' => $item->getFullStatement(),
-                'crosswalk' => implode('~', $crosswalk),
+                'crosswalk' => implode('~', $crosswalk ?? []),
+                'weight' => ++$i,
             ];
 
             $csvLine = \Util\CsvUtil::arrayToCsv($line);
