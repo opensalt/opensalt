@@ -479,6 +479,26 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
         return $newItem;
     }
 
+    /**
+     * @param Uuid|string|null $identifier
+     *
+     * @return LsItem
+     */
+    public function createItem($identifier = null): LsItem
+    {
+        return $this->getLsDoc()->createItem($identifier);
+    }
+
+    /**
+     * @param Uuid|string|null $identifier
+     *
+     * @return LsAssociation
+     */
+    public function createAssociation($identifier = null): LsAssociation
+    {
+        return $this->getLsDoc()->createAssociation($identifier);
+    }
+
     public function isLsItem(): bool
     {
         return true;
@@ -1086,7 +1106,12 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      */
     public function getParentItem(): ?LsItem
     {
-        return $this->getLsItemParent()->first();
+        $first = $this->getLsItemParent()->first();
+        if ($first) {
+            return $first;
+        }
+
+        return null;
     }
 
     /**
