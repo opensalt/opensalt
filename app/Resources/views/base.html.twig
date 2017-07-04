@@ -27,7 +27,7 @@
         <meta name="application-name" content="OpenSALT">
         <meta name="theme-color" content="#ffffff">
         {#- <script src="{{ asset('js/modernizr.js'|asset_version) }}"></script> -#}
-        <script>list = document.getElementsByTagName("html")[0].classList;list.remove("no-js");list.add("js");</script>
+        <script>var x=document.getElementsByTagName("html")[0];x.className=x.className.replace(/(^|\s)no-js(\s|$)/,"$1js$2");</script>
     </head>
     <body class="{% block bodyclasses %}{% endblock %}">
         <div class="container">
