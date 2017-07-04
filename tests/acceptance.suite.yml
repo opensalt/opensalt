@@ -1,0 +1,17 @@
+actor: AcceptanceTester
+modules:
+    enabled:
+        - Symfony:
+            app_path: 'app'
+            var_path: 'var'
+            environment: 'prod'
+            part: SERVICES
+        - Doctrine2:
+            depends: Symfony
+            cleanup: false
+        - WebDriver:
+            url: 'http://nginx/'
+            browser: phantomjs
+            host: 'phantomjs'
+            port: 8643
+        - \Helper\Acceptance

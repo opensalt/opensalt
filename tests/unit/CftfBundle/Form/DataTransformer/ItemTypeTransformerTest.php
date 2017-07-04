@@ -1,12 +1,25 @@
 <?php
-
 namespace CftfBundle\Form\DataTransformer;
 
 use CftfBundle\Entity\LsDefItemType;
 use Doctrine\Common\Persistence\ObjectManager;
 
-class ItemTypeTransformerTest extends \PHPUnit_Framework_TestCase
+class ItemTypeTransformerTest extends \Codeception\Test\Unit
 {
+    /**
+     * @var \UnitTester
+     */
+    protected $tester;
+
+    protected function _before()
+    {
+    }
+
+    protected function _after()
+    {
+    }
+
+    // tests
     public function testTransformWithNewEntity()
     {
         $stub = $this->createMock(ObjectManager::class);

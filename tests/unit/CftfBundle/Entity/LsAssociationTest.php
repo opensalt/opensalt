@@ -1,12 +1,25 @@
 <?php
-
-namespace Tests\CftfBundle\Entity;
+namespace CftfBundle\Entity;
 
 use CftfBundle\Entity\LsAssociation;
-use PHPUnit\Framework\TestCase;
 
-class LsAssociationTest extends TestCase
+class LsAssociationTest extends \Codeception\Test\Unit
 {
+    /**
+     * @var \UnitTester
+     */
+    protected $tester;
+
+    protected function _before()
+    {
+    }
+
+    protected function _after()
+    {
+    }
+
+    // tests
+
     /**
      * @param string $uri Uri to be split
      * @param array $expectedResult What we expect the result to be

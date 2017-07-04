@@ -36,7 +36,7 @@
 
         "fxp/composer-asset-plugin": "^1.2",
 
-        "symfony/symfony": "3.3.*",
+        "symfony/symfony": ">=3.3.0 <=3.3.2 || >=3.3.4 <3.4",
         "doctrine/orm": "^2.5",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-cache-bundle": "^1.2",
@@ -115,22 +115,14 @@
         "sensio/generator-bundle": "^3.1",
         "symfony/phpunit-bridge": "^3.2",
 
-        "behat/behat": "~3.1",
-            "behat/symfony2-extension": "^2.1",
-            "behat/mink": "~1.7",
-            "behat/mink-extension": "~2.2",
-            "behat/mink-goutte-driver": "~1.2",
-            "behat/mink-browserkit-driver": "^1.3",
-            "behat/mink-selenium2-driver": "^1.3",
-            "sensiolabs/behat-page-object-extension": "~2.0",
-                "bossa/phpspec2-expect": "*",
-            "denheck/faker-context": "dev-master",
-                "fzaninotto/faker": "~1.6",
-
-        "phpunit/phpunit": "~5.7",
+        "codeception/codeception": "^2.3",
+            "codeception/specify": "~0.4",
+            "codeception/verify": "~0.3",
+            "flow/jsonpath": "~0.3",
+            "league/factory-muffin": "~3.0",
+            "league/factory-muffin-faker": "~2.0",
 
         "phpspec/phpspec": "~3.2",
-            "rmiller/behat-spec": "*",
             "phpspec/nyan-formatters": "~2.0",
             "ciaranmcnulty/phpspec-typehintedmethods": "~2.0",
 
