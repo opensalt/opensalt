@@ -78,7 +78,7 @@ header, footer {
         <section id="tree1Section">
             <div id="viewmode_tree1" class="treeDiv"></div>
         </section>
-        
+
         <div id="noItemsInstructions" class="bg-info instructions" style="display:none">This document does not currently contain any statements/items.
             <ul>
             {% if editorRights %}
@@ -118,7 +118,7 @@ header, footer {
                         <ul class="list-group lsItemDetailsMain"></ul>
 
                         <div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
-                        
+
                         <div id="itemOptionsWrapper">
                         {% if editorRights %}
                             <div class="itemOptions" id="itemOptions">
@@ -210,7 +210,14 @@ header, footer {
                 <label class="avTypeFilter"><input type="checkbox" data-filter="avShowChild"> Is Child Of</label><br>
                 <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExact" checked> Exact Match Of</label><br>
                 <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExemplar" checked> Exemplar</label><br>
+                <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsRelatedTo" checked> Is Related To</label><br>
+                <label class="avTypeFilter"><input type="checkbox" data-filter="avShowprecedes" checked> Precedes</label><br>
+                <label class="avTypeFilter"><input type="checkbox" data-filter="avShowisPeerOf" checked> Is Peer Of</label><br>
+                <label class="avTypeFilter"><input type="checkbox" data-filter="avShowisPartOf" checked> Is Part Of</label><br>
+                <label class="avTypeFilter"><input type="checkbox" data-filter="avShowhasSkillLevel" checked> Has Skill Level</label><br>
+                <label class="avTypeFilter"><input type="checkbox" data-filter="avShowreplacedBy" checked> Replaced By</label><br>
                 <label class="avTypeFilter"><input type="checkbox" data-filter="avShowOtherTypes" checked> Other Types</label><br>
+
             </div>
 
             <div class="assocViewTableGroupFilters">
