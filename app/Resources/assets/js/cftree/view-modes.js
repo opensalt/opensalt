@@ -44,7 +44,6 @@ apx.viewMode.avFilters = {
     "avShowhasSkillLevel": false,
     "avShowisPeerOf": false,
     "avShowisPartOf": false,
-    "avShowOtherTypes": false,
     "groups": []
 };
 apx.viewMode.assocViewStatus = "not_written";
@@ -222,10 +221,6 @@ apx.viewMode.showAssocView = function(context) {
                             if (!apx.viewMode.avFilters.avShowisPartOf) {
                                 continue;
                             }
-            } else {
-                if (!apx.viewMode.avFilters.avShowOtherTypes) {
-                    continue;
-                }
             }
 
             // skip groups if filters dictate
