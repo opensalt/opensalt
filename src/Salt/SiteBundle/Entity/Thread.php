@@ -1,9 +1,9 @@
 <?php
+
 // src/MyProject/MyBundle/Entity/Thread.php
 
 namespace Salt\SiteBundle\Entity;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\CommentBundle\Entity\Thread as BaseThread;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;

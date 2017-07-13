@@ -31,13 +31,14 @@ class Comment extends BaseComment implements SignedCommentInterface
      */
     protected $thread;
 
-	/**
+    /**
      * Author of the comment
      *
      * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\User")
+     *
      * @var User
      */
-	protected $author;
+    protected $author;
 
     public function setAuthor(UserInterface $author)
     {
