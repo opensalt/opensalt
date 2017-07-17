@@ -72,6 +72,13 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     protected $password;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=64, nullable=true)
+     */
+    protected $email;
+
+    /**
      * @var string[]
      *
      * @ORM\Column(name="roles", type="json_array", nullable=true)
@@ -152,6 +159,15 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         $this->plainPassword = $password;
 
         return $this;
+    }
+
+    /**
+     * Returns the email of the user
+     *
+     * @return string
+     */
+    public function getEmail() {
+        return $this->email;
     }
 
     /**

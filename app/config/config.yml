@@ -26,7 +26,7 @@ parameters:
 
 framework:
     #esi:             ~
-    #translator:      { fallbacks: ["%locale%"] }
+    translator:      ~
     secret:          "%secret%"
     router:
         resource: "%kernel.root_dir%/config/routing.yml"
@@ -81,7 +81,7 @@ twig:
 assetic:
     debug:          "%kernel.debug%"
     use_controller: false
-    bundles:        [ ]
+    bundles:        [ "FOSCommentBundle" ]
     #java: /usr/bin/java
     filters:
         cssrewrite: ~
@@ -224,3 +224,10 @@ al_swagger_ui:
         resource_dir: "app/Resources/swagger-docs/"
         resource_list_filename: api-docs.json
     resource_list: al_swagger_ui_static_resource_list
+
+fos_comment:
+    db_driver: orm
+    class:
+        model:
+            comment: Salt\SiteBundle\Entity\Comment
+            thread: Salt\SiteBundle\Entity\Thread
