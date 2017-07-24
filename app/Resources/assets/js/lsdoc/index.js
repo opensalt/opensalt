@@ -556,6 +556,75 @@ function listRepositories(){
     $('#back').html('');
 }
 
+var CommentSystem = (function(){
+    var commentItem = {
+        itemId: null,
+        itemType: 'document'
+    };
+
+    function init(nodeRef){
+	setItem(nodeRef);
+        $('.js-comments-container').comments({
+            profilePictureUrl: '',
+            enableAttachments: true,
+            enableUpvoting: false,
+            getComments: function(success, error) {
+                $.get('/comments/'+commentItem.itemId+'/'+commentItem.itemType, function(data){
+                    success(data);
+                });
+            },
+            postComment: function(commentJSON, success, error) {
+                $.ajax({
+                    type: 'post',
+                    url: '/comments',
+                    data: appendItemId(commentJSON),
+                    success: function(comment) {
+                        success(comment);
+                    },
+                    error: error
+                });
+            },
+            putComment: function(commentJSON, success, error) {
+                $.ajax({
+                    type: 'post',
+                    url: '/comments/' + commentJSON.id,
+                    data: appendItemId(commentJSON),
+                    success: function(comment) {
+                        success(comment)
+                    },
+                    error: error
+                });
+            },
+            deleteComment: function(commentJSON, success, error) {
+                $.ajax({
+                    type: 'post',
+                    url: '/comments/delete/' + commentJSON.id,
+                    success: success,
+                    error: error
+                });
+            }
+        });
+    }
+
+    function setItem(nodeRef){
+        console.log('nodeRef:', nodeRef);
+        if( nodeRef ){
+            commentItem.itemId = nodeRef.id;
+            commentItem.itemType = nodeRef.nodeType;
+        } else {
+            commentItem.itemId = $('.js-comments-container').data('lsdocid');
+        }
+    }
+
+    function appendItemId(data){
+        return $.extend(data, commentItem);
+    }
+
+    return {
+	init: init
+    }
+})();
+
 $(document).on('ready', function(){
     $('.github-tab').click(function(){
         SaltGithub.getRepoList(1, 30);
@@ -566,8 +635,6 @@ $(document).on('ready', function(){
         Import.fromAsn();
     });
 
-    /* Framework Updater */
     UpdateFramework.init();
-    /**********/
+    CommentSystem.init();
 });
-
