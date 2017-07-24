@@ -72,7 +72,8 @@ gulp.task('styles', function() {
         //  - bootstrap loaded via application.scss above
         //config.bowerDir+'/bootstrap-sass/assets/stylesheets/_bootstrap.scss',
         //config.bowerDir+'/bootstrap/dist/css/bootstrap.css',
-        //config.bowerDir+'/font-awesome/css/font-awesome.css',
+        config.vendorDir+'/fortawesome/font-awesome/css/font-awesome.css',
+        config.bowerDir+'/jquery-comments/css/jquery-comments.css',
         // -- all below now loaded from application.scss
         //config.bowerDir+'/fancytree/dist/skin-lion/ui.fancytree.css',
         //config.assetsDir+'/sass/layout.scss',
@@ -86,6 +87,9 @@ gulp.task('scripts', function() {
     app.addScript([
         config.bowerDir+'/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js',
     ], 'modernizr.js');
+    app.addScript([
+        config.bowerDir+'/jquery-comments/js/jquery-comments.min.js',
+    ], 'jquery-comments.min.js');
     app.addScript([
         config.bowerDir+'/html5-boilerplate/dist/js/plugins.js',
         config.bowerDir+'/jquery/dist/jquery.js',
@@ -114,7 +118,7 @@ gulp.task('scripts', function() {
 
 gulp.task('fonts', function() {
     app.copy([
-            //config.bowerDir+'/font-awesome/fonts/*',
+            config.vendorDir+'/fortawesome/font-awesome/fonts/*',
             config.bowerDir+'/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings*',
             config.vendorDir+'/mervick/material-design-icons/fonts/MaterialIcons*'
         ],
@@ -124,7 +128,7 @@ gulp.task('fonts', function() {
 
 gulp.task('images', function() {
     app.copy(
-        //config.bowerDir+'/font-awesome/fonts/*',
+        // config.vendorDir+'/fortawesome/font-awesome/fonts/*',
         config.bowerDir+'/fancytree/dist/skin-lion/icons.gif',
         'web/img/fancytree/'
     );

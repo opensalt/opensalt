@@ -6,11 +6,11 @@ window.apx = window.apx||{};
 /** Prepare menus for selecting documents for the left- and right-side trees */
 apx.prepareDocumentMenus = function() {
     // The original menu will be rendered into div #ls_doc_list and select #ls_doc_list_lsDoc, on the right side
-    
+
     // Mark this document in the menu
     var $opt = $("#ls_doc_list_lsDoc [value=" + apx.mainDoc.doc.id + "]");
     $opt.html($opt.html() + " (• DOCUMENT BEING EDITED •)");
-    
+
     // add item to menu for loading from another server
     $("#ls_doc_list_lsDoc").append('<optgroup class="externalDocsOptGroup" label="EXTERNAL DOCUMENTS"><option value="url">Load an “external” document by url…</option></optgroup>');
 
@@ -24,20 +24,20 @@ apx.prepareDocumentMenus = function() {
             }
         }
     }
-    
+
     // now get the div and update the id's
     var $rightDiv = $("#ls_doc_list");
     $rightDiv.addClass("ls_doc_list");
     $rightDiv.find("[type=hidden]").remove();
     $rightDiv.attr("id", "ls_doc_list_right");
     $rightDiv.find("select").attr("id", "ls_doc_list_lsDoc_right");
-    
+
     // clone the div for the left side, update the id's there, and insert it in place
     var $leftDiv = $rightDiv.clone();
     $leftDiv.attr("id", "ls_doc_list_left");
     $leftDiv.find("select").attr("id", "ls_doc_list_lsDoc_left");
     $("#tree1SelectorDiv .row").append($leftDiv);
-    
+
     // enable the select menus
     $("#ls_doc_list_lsDoc_left").on('change', function() { apx.docSelectedForTree(this, 1); });
     $("#ls_doc_list_lsDoc_right").on('change', function() { apx.docSelectedForTree(this, 2); });
@@ -45,7 +45,7 @@ apx.prepareDocumentMenus = function() {
     // change tree buttons
     $(".changeTree1DocumentBtn").on('click', function() { apx.tree1ChangeButtonClicked(); });
     $(".changeTree2DocumentBtn").on('click', function() { apx.tree2ChangeButtonClicked(); });
-    
+
     // prepare the modal for loading an external document
     var $modal = $('#loadExternalDocumentModal');
     $modal.find('.btn-save').on('shown.bs.modal', function(e){
@@ -65,7 +65,7 @@ apx.addDocToMenus = function(identifier, url, title) {
     if (empty(apx.mainDoc.associatedDocs[identifier])) {
         apx.mainDoc.associatedDocs[identifier] = {"url": url, "title": title, "autoLoad": "false"};
     }
-    
+
     // and add to menus if necessary
     if ($(".externalDocsOptGroup [value=" + identifier + "]").length == 0) {
         $(".externalDocsOptGroup").prepend('<option value="' + identifier + '">' + apx.mainDoc.associatedDocs[identifier].title + ' (' + identifier + ')</option>');
@@ -74,15 +74,15 @@ apx.addDocToMenus = function(identifier, url, title) {
 
 apx.docSelectedForTree = function(menuOrUrl, side) {
     var lsDocId, initializationKey;
-    
+
     // if menuOrUrl is a string, its a URL that the user entered
     if (typeof(menuOrUrl) == "string") {
         initializationKey = "url";
         lsDocId = menuOrUrl;
-        
+
         // retrieve stashed side
         side = apx.docSelectedForTreeSide;
-        
+
     } else {
         initializationKey = "id";
         // get the selected document id
@@ -92,11 +92,11 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
         if (lsDocId == "url") {
             $("#loadExternalDocumentModal").modal();
             $(menuOrUrl).val("");
-            
+
             // stash side so we can retrieve it if the user chooses a URL
             apx.docSelectedForTreeSide = side;
             return;
-    
+
         // if user selects the blank item in the menu, go back to the currently-loaded document
         } else if (lsDocId == "") {
             $(menuOrUrl).val(apx["treeDoc" + side].doc.id);
@@ -107,9 +107,9 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
             initializationKey = "identifier";
         }
     }
-    
+
     // if we get to here we should have an initializationKey and an lsDocId
-    
+
     // destroy previus ft if there
     try {
         apx["treeDoc" + side]["ft" + side].fancytree("destroy");
@@ -117,16 +117,16 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
         // Ignore error
     }
     $('#viewmode_tree' + side).html("");
-    
+
     // check to see if we already have the document info; if so we don't need to reload
     for (var identifier in apx.allDocs) {
         var d = apx.allDocs[identifier];
-        
+
         // if this document errored when loading, continue through the loop; if this is what the user is trying to load now, let them retry
         if (d == "loaderror") {
             continue;
         }
-        
+
         // if *any* documents are still autoloading, make the user wait, because the document they're requesting here might be the one that's loading
         if (d == "loading") {
             apx.spinner.showModal("Loading document");
@@ -135,7 +135,7 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
         }
 
         apx.spinner.hideModal();
-        
+
         // if we found the document that was requested here...
         if ((initializationKey == "identifier" && identifier == lsDocId)
             || (initializationKey == "id" && !d.isExternalDoc() && d.doc.id == lsDocId)) {
@@ -146,7 +146,7 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
             return;
         }
     }
-    
+
     // if we get to here, initialize and load the document
     var o = {};
     o[initializationKey] = lsDocId;
@@ -158,7 +158,7 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
         apx["treeDocLoadCallback" + side]();
         apx.spinner.hideModal();
     });
-    
+
 };
 
 /** Define a function that will "synch" association destinations as documents get loaded when the application is starting up */
@@ -168,7 +168,7 @@ apx.checkUnknownAssociationDestinationsInterval = setInterval(function() {
     if (apx.unknownAssocsShowing === null) {
         return;
     }
-    
+
     // go through any current unknownAssocsShowing
     for (var id in apx.unknownAssocsShowing) {
         var assoc = apx.unknownAssocsShowing[id];
@@ -178,7 +178,7 @@ apx.checkUnknownAssociationDestinationsInterval = setInterval(function() {
             $("[data-association-id=" + id + "] .itemDetailsAssociationTitle").html(title);
         }
     }
-    
+
     // if all documents have been loaded, clear the interval
     var allLoaded = true;
     for (var identifier in apx.allDocs) {
@@ -190,7 +190,7 @@ apx.checkUnknownAssociationDestinationsInterval = setInterval(function() {
     if (allLoaded) {
         clearInterval(apx.checkUnknownAssociationDestinationsInterval);
     }
-    
+
 }, 1000);
 
 
@@ -226,7 +226,7 @@ apx.treeDocLoadCallback1 = function() {
     apx.treeDoc1.ftRender1 = function() {
         // first process the tree, using treeDoc1's current association group
         var ftData = apx.treeDoc1.createTree(apx.treeDoc1.currentAssocGroup, 1);
-    
+
         // destroy the existing tree if necessary
         if ($('#viewmode_tree1').children().length > 0) {
             $('#viewmode_tree1').fancytree("destroy");
@@ -245,7 +245,7 @@ apx.treeDocLoadCallback1 = function() {
                 highlight: true,  // Highlight matches by wrapping inside <mark> tags
                 mode: "hide"  // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
             },
-        
+
             // function called after the node is rendered
             renderNode: function(event, data) {
                 apx.treeDoc1.initializeTooltip(data.node);
@@ -262,10 +262,13 @@ apx.treeDocLoadCallback1 = function() {
                     // push history state...
                     apx.pushHistoryState();
                 }
-				
+
+				// launching comment system depending of the item id.
+				CommentSystem.init(item);
+
 				// if we're in chooser mode, show this item's buttons (this won't have any effect if we're not in chooser mode)
 				apx.chooserMode.enableTreeItemButtons(data.node);
-				
+
 				// hide tree2 and show the item details section; this will call showCurrentItem
 				apx.setRightSideMode("itemDetails");
             },
@@ -281,7 +284,7 @@ apx.treeDocLoadCallback1 = function() {
                 // return false to cancel default processing (i.e. opening folders)
                 return false;
             },
-        
+
             expand: function() {
                 apx.treeDoc1.recordExpandedFolders(1);
             },
@@ -298,7 +301,7 @@ apx.treeDocLoadCallback1 = function() {
                     if (!apx.enableEdit) {
                         return false;
                     }
-                    
+
                     // and don't allow drag if edit.moveEnabled is false
                     if (apx.edit.moveEnabled != true) {
                         return false;
@@ -405,7 +408,7 @@ apx.treeDocLoadCallback1 = function() {
 
                             // then open the modal form to allow the user to choose the association type
                             $('#associateModal').modal();
-                        
+
                         // else if we're in copy mode; copy node(s) to new tree
                         } else if (apx.rightSideMode === "copyItem") {
                             // apx.edit.copyItem(draggedNode, droppedNode, data.hitMode);
@@ -416,14 +419,14 @@ apx.treeDocLoadCallback1 = function() {
             }
         });
         // end of fancytree widget initialization
-        
+
         // if we're not showing mainDoc on the left, set a background color to indicate that
         if (apx.treeDoc1 != apx.mainDoc) {
             $("#tree1Section").addClass("otherDoc");
         } else {
             $("#tree1Section").removeClass("otherDoc");
         }
-        
+
         // restore checkbox state
         apx.treeDoc1.treeCheckboxRestoreCheckboxes(1);
 
@@ -433,7 +436,7 @@ apx.treeDocLoadCallback1 = function() {
         }
     };
     // end of ftRender1 definition
-    
+
     ///////////////////////////////////
     // Things we need to do when a new doc is loaded for treeDoc1
 
@@ -448,7 +451,7 @@ apx.treeDocLoadCallback1 = function() {
 
     // initialize tree search bar
     apx.treeDoc1.initializeTreeFilter(1);
-    
+
     // show instructions and controls properly
     $("#tree1InitialInstructions").hide();
 
@@ -456,22 +459,22 @@ apx.treeDocLoadCallback1 = function() {
     if (apx.treeDoc1 == apx.mainDoc) {
         $("#tree1SectionThisDocInstructions").show();
         $("#tree1SectionOtherDocInstructions").hide();
-        
+
         // In the right-side control group, enable the "Copy Items" button
         $("#rightSideCopyItemsBtn").attr("disabled", false);
 
         // show the buttons (e.g. delete, create new) that aren't operable when viewing a different doc
         $("[data-alt-document-disabled]").show();
-        
+
         // show the tree1SectionBulkControls div
         $("#tree1SectionBulkControls").show();
 
         // activate the current (initial) item (which might be the document)
         apx.treeDoc1.activateCurrentItem();
-    
+
         // we also have to call showCurrentItem, because if the current item is the document it's already active
         apx.treeDoc1.showCurrentItem();
-    
+
     // else we're showing a different doc...
     } else {
         $("#tree1SectionOtherDocInstructions").show();
@@ -479,10 +482,10 @@ apx.treeDocLoadCallback1 = function() {
 
         // In the right-side control group, disable the "Copy Items" buttons
         $("#rightSideCopyItemsBtn").attr("disabled", true);
-        
+
         // hide the buttons (e.g. delete, create new) that aren't operable when viewing a different doc
         $("[data-alt-document-disabled]").hide();
-        
+
         // hide the tree1SectionBulkControls div; you can't use these controls when viewing a different doc
         $("#tree1SectionBulkControls").hide();
     }
@@ -532,7 +535,7 @@ apx.setRightSideMode = function(newMode) {
         $("#rightSideItemDetailsBtn").addClass("btn-primary").removeClass("btn-default");
         $("#rightSideCopyItemsBtn").removeClass("btn-primary").addClass("btn-default");
         $("#rightSideCreateAssociationsBtn").removeClass("btn-primary").addClass("btn-default");
-        
+
         // re-show the item details in case anything got updated
         apx.treeDoc1.showCurrentItem();
 
@@ -546,7 +549,7 @@ apx.setRightSideMode = function(newMode) {
         }
         $("#tree2Section").show();
         $("#itemSection").hide();
-        
+
         if (newMode == "addAssociation") {
             if (!empty(apx.treeDoc2)) {
                 $("#tree2SectionCopyInstructions").hide();
@@ -568,7 +571,7 @@ apx.setRightSideMode = function(newMode) {
             $("#rightSideCreateAssociationsBtn").removeClass("btn-primary").addClass("btn-default");
         }
     }
-    
+
     apx.rightSideMode = newMode;
 };
 
@@ -605,7 +608,7 @@ apx.treeDocLoadCallback2 = function() {
             $('#viewmode_tree2').fancytree("destroy");
         }
         $('#viewmode_tree2').html("").show();
-    
+
         // then initialize (or re-initialize) fancytree
         apx.treeDoc2.ft2 = $('#viewmode_tree2').fancytree({
             extensions: ['filter', 'dnd'],
@@ -627,7 +630,7 @@ apx.treeDocLoadCallback2 = function() {
             expand: function() {
                 apx.treeDoc2.recordExpandedFolders(2);
             },
-            
+
             click: function() {
                 // if we're in copy mode and treeDoc2 is an external doc, stop the user right here; no copying allowed from external docs at this time
                 if (apx.rightSideMode === "copyItem" && apx.treeDoc2.isExternalDoc()) {
@@ -719,7 +722,7 @@ apx.treeDocLoadCallback2 = function() {
 
     // set the currentAssocGroup
     apx.treeDoc2.setCurrentAssocGroup(null, 2);
-    
+
     // render the treeDoc2's assocGroup menu
     apx.treeDoc2.renderAssocGroupMenu($("#treeSideRight").find(".assocGroupSelect"), 2);
 
