@@ -162,6 +162,7 @@ header, footer {
                 </div>  <!-- itemInfo -->
             </div>
         </section>
+        <div class="js-comments-container" data-lsdocid="{{ lsDocId }}"></div>
 
     {% if editorRights %}
         <section id="tree2Section">
@@ -200,6 +201,7 @@ header, footer {
     {% endif %}
     </div>
 </div>
+
 
 <div class="row" id="assocView">
     <div class="col-sm-12">
@@ -420,6 +422,7 @@ header, footer {
 {% endblock %}
 
 {% block javascripts %}
+<script src="{{ asset('js/jquery-comments.min.js') }}"></script>
 {% autoescape 'js' %}
 <script>
 window.apx = window.apx||{};
