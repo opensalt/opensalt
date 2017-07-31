@@ -1,9 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Get to main project directory
 cd $(dirname $0)/..
-
-chmod 777 var/{cache,logs,sessions}
 
 ln -sf .env.dist docker/.env
 ln -sf docker/.env ./.env
@@ -16,11 +14,11 @@ ln -sf docker-compose.dev.yml docker/docker-compose.yml
 # Replace tokens with random values
 TOKEN1=$(openssl rand -base64 32)
 TOKEN2=$(openssl rand -base64 32)
-sed -i "s#ThisTokenIsNotSoSecretSoChangeIt#${TOKEN1}#" app/config/parameters.yml
-sed -i "s#ThisTokenIsNotSoSecretChangeIt#${TOKEN2}#" app/config/parameters.yml
+sed -i '' "s#ThisTokenIsNotSoSecretSoChangeIt#${TOKEN1}#" app/config/parameters.yml
+sed -i '' "s#ThisTokenIsNotSoSecretChangeIt#${TOKEN2}#" app/config/parameters.yml
 
 # Set secure_cookie to false to allow http connections
-sed -i "s#secure_cookie:.*#secure_cookie: false#" app/config/parameters.yml
+sed -i '' "s#secure_cookie:.*#secure_cookie: false#" app/config/parameters.yml
 
 # Run gulp to create css and js files
 ./bin/gulp
