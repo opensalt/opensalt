@@ -263,14 +263,14 @@ apx.treeDocLoadCallback1 = function() {
                     apx.pushHistoryState();
                 }
 
-				// launching comment system depending of the item id.
-				CommentSystem.init(item);
+                // launching comment system depending of the item id.
+                CommentSystem.init(item);
 
-				// if we're in chooser mode, show this item's buttons (this won't have any effect if we're not in chooser mode)
-				apx.chooserMode.enableTreeItemButtons(data.node);
+                // if we're in chooser mode, show this item's buttons (this won't have any effect if we're not in chooser mode)
+                apx.chooserMode.enableTreeItemButtons(data.node);
 
-				// hide tree2 and show the item details section; this will call showCurrentItem
-				apx.setRightSideMode("itemDetails");
+                // hide tree2 and show the item details section; this will call showCurrentItem
+                apx.setRightSideMode("itemDetails");
             },
 
             // if user doubleclicks on a node, open the node, then simulate clicking the "Edit" button for it

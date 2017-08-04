@@ -3,13 +3,14 @@
 namespace Salt\SiteBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Comment
  *
  * @ORM\Entity
- * @ORM\Table(name="comments")
+ * @ORM\Table(name="salt_comment")
  */
 class Comment
 {
@@ -52,31 +53,26 @@ class Comment
     private $fullname;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    private $createdByCurrentUser = false;
-
-    /**
      * @ORM\Column(type="integer")
      */
-    private $upvoteCount;
+    private $upvoteCount = 0;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    private $userHasUpvoted;
-
-    /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Serializer\SerializedName("created")
+     * @Gedmo\Timestampable(on="create")
      */
     private $createdAt;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Serializer\SerializedName("modified")
+     * @Gedmo\Timestampable(on="update")
      */
     private $updatedAt;
+
+    private $createdByCurrentUser;
+    private $userHasUpvoted;
 
     /**
      * Set id
