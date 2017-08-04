@@ -563,11 +563,10 @@ var CommentSystem = (function(){
     };
 
     function init(nodeRef){
-	setItem(nodeRef);
+        setItem(nodeRef);
         $('.js-comments-container').comments({
             profilePictureUrl: '',
             enableAttachments: true,
-            enableUpvoting: false,
             getComments: function(success, error) {
                 $.get('/comments/'+commentItem.itemId+'/'+commentItem.itemType, function(data){
                     success(data);
@@ -597,17 +596,45 @@ var CommentSystem = (function(){
             },
             deleteComment: function(commentJSON, success, error) {
                 $.ajax({
-                    type: 'post',
+                    type: 'delete',
                     url: '/comments/delete/' + commentJSON.id,
                     success: success,
                     error: error
                 });
+            },
+            upvoteComment: function(commentJSON, success, error) {
+                var commentURL = '/comments/' + commentJSON.id;
+
+                if (commentJSON.user_has_upvoted) {
+                    $.ajax({
+                        type: 'post',
+                        url: commentURL + '/upvote',
+                        data: {
+                            comment: commentJSON.id
+                        },
+                        success: function() {
+                            success(commentJSON);
+                        },
+                        error: error
+                    });
+                } else {
+                    $.ajax({
+                        type: 'post',
+                        url: commentURL + '/downvote',
+                        data: {
+                            comment: commentJSON.id
+                        },
+                        success: function() {
+                            success(commentJSON);
+                        },
+                        error: error
+                    });
+                }
             }
         });
     }
 
     function setItem(nodeRef){
-        console.log('nodeRef:', nodeRef);
         if( nodeRef ){
             commentItem.itemId = nodeRef.id;
             commentItem.itemType = nodeRef.nodeType;
@@ -621,7 +648,7 @@ var CommentSystem = (function(){
     }
 
     return {
-	init: init
+        init: init
     }
 })();
 

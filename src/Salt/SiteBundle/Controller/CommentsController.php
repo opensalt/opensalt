@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Salt\SiteBundle\Entity\Comment;
+use Salt\SiteBundle\Entity\CommentUpvote;
 
 class CommentsController extends Controller
 {
@@ -20,18 +21,14 @@ class CommentsController extends Controller
         $comment = new Comment();
         $user = $this->getUser();
 
-        $comment->setContent($request->request->get('content'));
+        $comment->setContent(trim($request->request->get('content')));
         $comment->setCommentId($request->request->get('id'));
         $comment->setParent(
-            empty($request->request->get('parent'))?0:$request->request->get('parent')
+            empty($request->request->get('parent'))?null:$request->request->get('parent')
         );
         $comment->setUserId($user->getId());
         $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
-        $comment->setUpvoteCount($request->request->get('upvote_count'));
-        $comment->setUserHasUpvoted(false);
-        $comment->setItem($request->request->get('itemType').$request->request->get('itemId'));
-        $comment->setCreatedAt(new \DateTime($request->request->get('created')));
-        $comment->setUpdatedAt(new \DateTime($request->request->get('modified')));
+        $comment->setItem($request->request->get('itemType').':'.$request->request->get('itemId'));
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($comment);
@@ -50,15 +47,13 @@ class CommentsController extends Controller
         $user = $this->getUser();
         $em = $this->getDoctrine()->getManager();
 
-        $comments = $em->getRepository('SaltSiteBundle:Comment')->findByItem($itemType.$itemId);
+        $comments = $em->getRepository('SaltSiteBundle:Comment')->findByItem($itemType.':'.$itemId);
 
         foreach ($comments as $comment){
-            if ($comment->getParent() == 0) {
-                $comment->setParent(null);
-            }
             if ($user) {
                 if ($comment->getUserId() == $user->getId()){
                     $comment->setCreatedByCurrentUser(true);
+                    $comment->setUserHasUpvoted(($comment->getUpvoteCount() > 0)?true:false);
                 }
             }
         }
@@ -85,12 +80,12 @@ class CommentsController extends Controller
 
     /**
      * @Route("/comments/delete/{id}")
-     * @Method("POST")
+     * @Method("DELETE")
      */
     public function deleteAction(Comment $comment)
     {
         if (!$comment) {
-            throw $this->createNotFoundException('Unable to find the comment');
+            return new Response(410);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -99,6 +94,71 @@ class CommentsController extends Controller
         $em->flush();
 
         return new Response(200);
+    }
+
+    /**
+     * @Route("/comments/{id}/upvote")
+     * @Method("POST")
+     */
+    public function upvoteAction(Comment $comment)
+    {
+        if (!$comment) {
+            return new Response(410);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+
+        $comment->setUpvoteCount(
+            $comment->getUpvoteCount() + 1
+        );
+
+        $commentUpvote = new CommentUpvote();
+        $commentUpvote->setCommentId($comment->getId());
+        $commentUpvote->setUserId($user->getId());
+
+        $em->persist($comment);
+        $em->persist($commentUpvote);
+
+        $em->flush();
+
+        $response = $this->apiResponse($comment);
+        return $response;
+    }
+
+    /**
+     * @Route("/comments/{id}/downvote")
+     * @Method("POST")
+     */
+    public function downvoteAction(Comment $comment)
+    {
+        if (!$comment) {
+            return new Response(410);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+
+        $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')->findOneBy(
+            array('userId' => $user->getId(), 'commentId' => $comment->getId())
+        );
+
+        if ($commentUpvote) {
+            $comment->setUpvoteCount(
+                $comment->getUpvoteCount() - 1
+            );
+
+            $em->persist($comment);
+            $em->remove($commentUpvote);
+
+            $em->flush();
+
+
+            $response = $this->apiResponse($comment);
+            return $response;
+        }
+
+        return new Response(404);
     }
 
     private function serialize($data)
