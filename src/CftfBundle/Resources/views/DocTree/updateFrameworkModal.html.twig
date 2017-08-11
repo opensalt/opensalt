@@ -8,7 +8,6 @@
             <div class="modal-body">
                 <ul class="nav nav-tabs" role="tablist">
                     <li class="active"><a href="#local" data-toggle="tab">Update by local file</a></li>
-                    <li class="github-tab"><a href="#loadExternalDocumentTabContent" data-toggle="tab">Load an external document</a></li>
                 </ul>
                 </br>
                 <div class="tab-content">
@@ -19,10 +18,6 @@
                                 <div class="alert alert-danger asn-error-msg hidden" role="alert"></div>
                             </div>
                         </div>
-                    </div>
-                    <div id="loadExternalDocumentTabContent" class="tab-pane">
-                    {% embed 'CftfBundle:DocTree:_loadExternalDocumentComponent.html.twig' with {'view':'editor'} %}
-                    {% endembed %}
                     </div>
                 </div>
             </div>
