@@ -50,7 +50,7 @@ class CommentUpvote
     /**
      * Get id
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {

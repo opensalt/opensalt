@@ -584,7 +584,7 @@ var CommentSystem = (function(){
             },
             putComment: function(commentJSON, success, error) {
                 $.ajax({
-                    type: 'update',
+                    type: 'put',
                     url: '/comments/' + commentJSON.id,
                     data: appendItemId(commentJSON),
                     success: function(comment) {
