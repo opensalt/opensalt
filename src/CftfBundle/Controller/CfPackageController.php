@@ -31,13 +31,8 @@ class CfPackageController extends Controller
         if ('json' === $_format) {
             $pkg = $repo->getPackageArray($lsDoc);
 
-            $response = new Response();
+            $response = $this->generateBaseReponse($lsDoc->getUpdatedAt());
 
-            $response->setEtag(md5($lsDoc->getUpdatedAt()->format('U')));
-            $response->setLastModified($lsDoc->getUpdatedAt());
-            $response->setMaxAge(60);
-            $response->setSharedMaxAge(60);
-            $response->setPublic();
             if ($response->isNotModified($request)) {
                 return $response;
             }
@@ -55,8 +50,46 @@ class CfPackageController extends Controller
             return $response;
         }
 
-        $items = $repo->findAllItems($lsDoc);
-        $associations = $repo->findAllAssociations($lsDoc);
+        $arr = $this->generateSimplePackageArray($lsDoc);
+
+        return new Response($this->renderView("CftfBundle:CfPackage:export.$_format.twig", $arr));
+    }
+
+    /**
+     * Generate a base response
+     *
+     * @param \DateTimeInterface $lastModified
+     *
+     * @return Response
+     */
+    protected function generateBaseReponse(\DateTimeInterface $lastModified): Response
+    {
+        $response = new Response();
+
+        $response->setEtag(md5($lastModified->format('U')));
+        $response->setLastModified($lastModified);
+        $response->setMaxAge(60);
+        $response->setSharedMaxAge(60);
+        $response->setPublic();
+
+        return $response;
+    }
+
+    /**
+     * Generate an array representing the package
+     *
+     * Note that this array does not match the API output
+     *
+     * @param LsDoc $doc
+     *
+     * @return array
+     */
+    protected function generateSimplePackageArray(LsDoc $doc): array
+    {
+        $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
+
+        $items = $repo->findAllItems($doc);
+        $associations = $repo->findAllAssociations($doc);
         // PW: this used to use findAllAssociationsForCapturedNodes, but that wouldn't export crosswalk associations
 
         $itemTypes = [];
@@ -67,15 +100,16 @@ class CfPackageController extends Controller
         }
 
         $arr = [
-            'lsDoc' => $lsDoc,
+            'lsDoc' => $doc,
             'items' => $items,
             'associations' => $associations,
             'itemTypes' => $itemTypes,
-            'subjects' => $lsDoc->getSubjects(),
+            'subjects' => $doc->getSubjects(),
             'concepts' => [],
             'licences' => [],
             'associationGroupings' => [],
         ];
-        return new Response($this->renderView("CftfBundle:CfPackage:export.$_format.twig", $arr));
+
+        return $arr;
     }
 }
