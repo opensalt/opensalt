@@ -22,11 +22,6 @@ class Comment
     private $id;
 
     /**
-     * @ORM\Column(type="string")
-     */
-    private $commentId;
-
-    /**
      * @ORM\Column(type="integer", nullable=true)
      */
     private $parent;
@@ -37,10 +32,10 @@ class Comment
     private $content;
 
     /**
-     * @ORM\Column(type="integer")
      * @Serializer\Exclude()
+     * @ORM\ManyToOne(targetEntity="\Salt\UserBundle\Entity\User")
      */
-    private $userId;
+    private $user;
 
     /**
      * @ORM\Column(type="string")
@@ -89,7 +84,7 @@ class Comment
     /**
      * Set id
      *
-     * @param integer $id
+     * @param int $id
      *
      * @return Comment
      */
@@ -111,33 +106,9 @@ class Comment
     }
 
     /**
-     * Set commentId
-     *
-     * @param string $commentId
-     *
-     * @return Comment
-     */
-    public function setCommentId($commentId)
-    {
-        $this->commentId = $commentId;
-
-        return $this;
-    }
-
-    /**
-     * Get commentId
-     *
-     * @return string
-     */
-    public function getCommentId()
-    {
-        return $this->commentId;
-    }
-
-    /**
      * Set parent
      *
-     * @param integer $parent
+     * @param int $parent
      *
      * @return Comment
      */
@@ -183,33 +154,33 @@ class Comment
     }
 
     /**
-     * Set userId
+     * Set user
      *
-     * @param integer $userId
+     * @param \Salt\UserBundle\Entity\User $userId
      *
      * @return Comment
      */
-    public function setUserId($userId)
+    public function setUser(\Salt\UserBundle\Entity\User $user)
     {
-        $this->userId = $userId;
+        $this->user = $user;
 
         return $this;
     }
 
     /**
-     * Get userId
+     * Get user
      *
-     * @return integer
+     * @return \Salt\UserBundle\Entity\User
      */
-    public function getUserId()
+    public function getUser()
     {
-        return $this->userId;
+        return $this->user;
     }
 
     /**
      * Set item
      *
-     * @param integer $item
+     * @param int $item
      *
      * @return Comment
      */
@@ -325,7 +296,7 @@ class Comment
     /**
      * Set userHasUpvoted
      *
-     * @param boolean $userHasUpvoted
+     * @param bool $userHasUpvoted
      *
      * @return Comment
      */
@@ -339,9 +310,9 @@ class Comment
     /**
      * Get userHasUpvoted
      *
-     * @return boolean
+     * @return bool
      */
-    public function getUserHasUpvoted()
+    public function hasUserUpvoted()
     {
         return $this->userHasUpvoted;
     }

@@ -20,23 +20,25 @@ class CommentsController extends Controller
     {
         $comment = new Comment();
         $user = $this->getUser();
+        $em = $this->getDoctrine()->getManager();
 
         $itemId = $request->request->get('itemId');
         $itemType = $request->request->get('itemType');
-        $types = array('document', 'item');
+        $parentId = $request->request->get('parent');
 
-        if (filter_var($itemId, FILTER_VALIDATE_INT) && in_array($itemType, $types)) {
-
+        if ($this->existItem($itemId, $itemType)) {
             $comment->setContent(trim($request->request->get('content')));
-            $comment->setCommentId($request->request->get('id'));
-            $comment->setParent(
-                empty($request->request->get('parent'))?null:$request->request->get('parent')
-            );
-            $comment->setUserId($user->getId());
+            $comment->setUser($user);
             $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
             $comment->setItem($itemType.':'.$itemId);
 
-            $em = $this->getDoctrine()->getManager();
+            if (!empty($parentId) && filter_var($parentId, FILTER_VALIDATE_INT)) {
+                $parent = $em->getRepository('SaltSiteBundle:Comment')->findById($parentId);
+                $comment->setParent(($parent)?$parentId:null);
+            } else {
+                $comment->setParent(null);
+            }
+
             $em->persist($comment);
             $em->flush();
 
@@ -44,7 +46,7 @@ class CommentsController extends Controller
             return $response;
         }
 
-        return new Response("Item not found", 404);
+        return new Response('Item not found', 404);
     }
 
     /**
@@ -60,16 +62,15 @@ class CommentsController extends Controller
 
         foreach ($comments as $comment){
             if ($user) {
-                if ($comment->getUserId() == $user->getId()){
+                if ($comment->getUser()->getId() == $user->getId()){
                     $comment->setCreatedByCurrentUser(true);
                 }
 
                 $upvotes = $comment->getUpvotes();
 
                 foreach ($upvotes as $upvote) {
-                    $upvoteUser = $upvote->getUser();
-                    if ($upvoteUser->getId() == $user->getId()) {
-                        $comment->setUserHasUpvoted(($comment->getUpvoteCount() > 0)?true:false);
+                    if ($upvote->getUser()->getId() == $user->getId()) {
+                        $comment->setUserHasUpvoted(true);
                     }
                 }
             }
@@ -81,7 +82,7 @@ class CommentsController extends Controller
 
     /**
      * @Route("/comments/{id}")
-     * @Method("UPDATE")
+     * @Method("PUT")
      */
     public function updateAction(Comment $comment, Request $request)
     {
@@ -102,7 +103,7 @@ class CommentsController extends Controller
     public function deleteAction(Comment $comment)
     {
         if (!$comment) {
-            return new Response(410);
+            return new Response('Gone', 410);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -110,7 +111,7 @@ class CommentsController extends Controller
         $em->remove($comment);
         $em->flush();
 
-        return new Response(200);
+        return new Response('Ok', 200);
     }
 
     /**
@@ -120,7 +121,7 @@ class CommentsController extends Controller
     public function upvoteAction(Comment $comment)
     {
         if (!$comment) {
-            return new Response("Gone", 410);
+            return new Response('Gone', 410);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -144,7 +145,7 @@ class CommentsController extends Controller
     public function downvoteAction(Comment $comment)
     {
         if (!$comment) {
-            return new Response("Gone", 410);
+            return new Response('Gone', 410);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -162,7 +163,31 @@ class CommentsController extends Controller
             return $response;
         }
 
-        return new Response("Item not found", 404);
+        return new Response('Item not found', 404);
+    }
+
+    private function existItem($itemId, $itemType)
+    {
+        if (filter_var($itemId, FILTER_VALIDATE_INT)) {
+            $em = $this->getDoctrine()->getManager();
+
+            switch ($itemType) {
+                case 'document':
+                    $item = $em->getRepository('CftfBundle:LsDoc')->findOneById($itemId);
+                    break;
+                case 'item':
+                    $item = $em->getRepository('CftfBundle:LsItem')->findOneById($itemId);
+                    break;
+                default:
+                    return false;
+            }
+
+            if ($item) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function serialize($data)
