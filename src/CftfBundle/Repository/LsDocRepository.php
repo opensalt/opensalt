@@ -369,6 +369,36 @@ xENDx;
     }
 
     /**
+     * Get an array representing the entire CF package
+     *
+     * @param LsDoc $doc
+     *
+     * @return array
+     */
+    public function getPackageArray(LsDoc $doc): array
+    {
+        $pkg = [
+            'CFDocument' => $doc,
+            'CFItems' => array_values($this->findAllItems($doc, Query::HYDRATE_OBJECT)),
+            'CFAssociations' => array_values($this->findAllAssociations($doc, Query::HYDRATE_OBJECT)),
+            'CFDefinitions' => [
+                'CFConcepts' => $this->findAllUsedConcepts($doc, Query::HYDRATE_OBJECT),
+                'CFSubjects' => $doc->getSubjects(),
+                'CFLicenses' => $this->findAllUsedLicences($doc, Query::HYDRATE_OBJECT),
+                'CFItemTypes' => $this->findAllUsedItemTypes($doc, Query::HYDRATE_OBJECT),
+                'CFAssociationGroupings' => $this->findAllUsedAssociationGroups($doc, Query::HYDRATE_OBJECT),
+            ]
+        ];
+
+        $rubrics = $this->findAllUsedRubrics($doc, Query::HYDRATE_OBJECT);
+        if (0 < count($rubrics)) {
+            $pkg['CFRubrics'] = $rubrics;
+        }
+
+        return $pkg;
+    }
+
+    /**
      * Get a list of all items for an LsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $lsDoc
