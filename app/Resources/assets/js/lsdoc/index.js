@@ -555,7 +555,6 @@ var CommentSystem = (function(){
         setItem(nodeRef);
         $('.js-comments-container').comments({
             profilePictureUrl: '',
-            enableAttachments: true,
             getComments: function(success, error) {
                 $.get('/comments/'+commentItem.itemId+'/'+commentItem.itemType, function(data){
                     success(data);
@@ -574,7 +573,7 @@ var CommentSystem = (function(){
             },
             putComment: function(commentJSON, success, error) {
                 $.ajax({
-                    type: 'post',
+                    type: 'update',
                     url: '/comments/' + commentJSON.id,
                     data: appendItemId(commentJSON),
                     success: function(comment) {
@@ -592,12 +591,12 @@ var CommentSystem = (function(){
                 });
             },
             upvoteComment: function(commentJSON, success, error) {
-                var commentURL = '/comments/' + commentJSON.id;
+                var commentURL = '/comments/' + commentJSON.id + '/upvote';
 
                 if (commentJSON.user_has_upvoted) {
                     $.ajax({
                         type: 'post',
-                        url: commentURL + '/upvote',
+                        url: commentURL,
                         data: {
                             comment: commentJSON.id
                         },
@@ -608,8 +607,8 @@ var CommentSystem = (function(){
                     });
                 } else {
                     $.ajax({
-                        type: 'post',
-                        url: commentURL + '/downvote',
+                        type: 'delete',
+                        url: commentURL,
                         data: {
                             comment: commentJSON.id
                         },

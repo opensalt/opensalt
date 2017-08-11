@@ -53,9 +53,13 @@ class Comment
     private $fullname;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\OneToMany(targetEntity="CommentUpvote", mappedBy="comment")
+     * @Serializer\Accessor(getter="getUpvoteCount")
+     * @Serializer\ReadOnly
+     * @Serializer\Type("int")
+     * @Serializer\SerializedName("upvote_count")
      */
-    private $upvoteCount = 0;
+    private $upvotes;
 
     /**
      * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
@@ -73,6 +77,14 @@ class Comment
 
     private $createdByCurrentUser;
     private $userHasUpvoted;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->upvotes = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     /**
      * Set id
@@ -267,17 +279,37 @@ class Comment
     }
 
     /**
-     * Set upvoteCount
+     * Add upvote
      *
-     * @param integer $upvoteCount
+     * @param \Salt\SiteBundle\Entity\CommentUpvote $upvote
      *
      * @return Comment
      */
-    public function setUpvoteCount($upvoteCount)
+    public function addUpvote(\Salt\SiteBundle\Entity\CommentUpvote $upvote)
     {
-        $this->upvoteCount = $upvoteCount;
+        $this->upvotes[] = $upvote;
 
         return $this;
+    }
+
+    /**
+     * Remove upvote
+     *
+     * @param \Salt\SiteBundle\Entity\CommentUpvote $upvote
+     */
+    public function removeUpvote(\Salt\SiteBundle\Entity\CommentUpvote $upvote)
+    {
+        $this->upvotes->removeElement($upvote);
+    }
+
+    /**
+     * Get upvotes
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getUpvotes()
+    {
+        return $this->upvotes;
     }
 
     /**
@@ -287,7 +319,7 @@ class Comment
      */
     public function getUpvoteCount()
     {
-        return $this->upvoteCount;
+        return $this->upvotes->count();
     }
 
     /**

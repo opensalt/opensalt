@@ -21,21 +21,30 @@ class CommentsController extends Controller
         $comment = new Comment();
         $user = $this->getUser();
 
-        $comment->setContent(trim($request->request->get('content')));
-        $comment->setCommentId($request->request->get('id'));
-        $comment->setParent(
-            empty($request->request->get('parent'))?null:$request->request->get('parent')
-        );
-        $comment->setUserId($user->getId());
-        $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
-        $comment->setItem($request->request->get('itemType').':'.$request->request->get('itemId'));
+        $itemId = $request->request->get('itemId');
+        $itemType = $request->request->get('itemType');
+        $types = array('document', 'item');
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($comment);
-        $em->flush();
+        if (filter_var($itemId, FILTER_VALIDATE_INT) && in_array($itemType, $types)) {
 
-        $response = $this->apiResponse($comment);
-        return $response;
+            $comment->setContent(trim($request->request->get('content')));
+            $comment->setCommentId($request->request->get('id'));
+            $comment->setParent(
+                empty($request->request->get('parent'))?null:$request->request->get('parent')
+            );
+            $comment->setUserId($user->getId());
+            $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
+            $comment->setItem($itemType.':'.$itemId);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($comment);
+            $em->flush();
+
+            $response = $this->apiResponse($comment);
+            return $response;
+        }
+
+        return new Response("Item not found", 404);
     }
 
     /**
@@ -53,7 +62,15 @@ class CommentsController extends Controller
             if ($user) {
                 if ($comment->getUserId() == $user->getId()){
                     $comment->setCreatedByCurrentUser(true);
-                    $comment->setUserHasUpvoted(($comment->getUpvoteCount() > 0)?true:false);
+                }
+
+                $upvotes = $comment->getUpvotes();
+
+                foreach ($upvotes as $upvote) {
+                    $upvoteUser = $upvote->getUser();
+                    if ($upvoteUser->getId() == $user->getId()) {
+                        $comment->setUserHasUpvoted(($comment->getUpvoteCount() > 0)?true:false);
+                    }
                 }
             }
         }
@@ -64,7 +81,7 @@ class CommentsController extends Controller
 
     /**
      * @Route("/comments/{id}")
-     * @Method("POST")
+     * @Method("UPDATE")
      */
     public function updateAction(Comment $comment, Request $request)
     {
@@ -103,23 +120,17 @@ class CommentsController extends Controller
     public function upvoteAction(Comment $comment)
     {
         if (!$comment) {
-            return new Response(410);
+            return new Response("Gone", 410);
         }
 
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
 
-        $comment->setUpvoteCount(
-            $comment->getUpvoteCount() + 1
-        );
-
         $commentUpvote = new CommentUpvote();
-        $commentUpvote->setCommentId($comment->getId());
-        $commentUpvote->setUserId($user->getId());
+        $commentUpvote->setComment($comment);
+        $commentUpvote->setUser($user);
 
-        $em->persist($comment);
         $em->persist($commentUpvote);
-
         $em->flush();
 
         $response = $this->apiResponse($comment);
@@ -127,38 +138,31 @@ class CommentsController extends Controller
     }
 
     /**
-     * @Route("/comments/{id}/downvote")
-     * @Method("POST")
+     * @Route("/comments/{id}/upvote")
+     * @Method("DELETE")
      */
     public function downvoteAction(Comment $comment)
     {
         if (!$comment) {
-            return new Response(410);
+            return new Response("Gone", 410);
         }
 
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
 
         $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')->findOneBy(
-            array('userId' => $user->getId(), 'commentId' => $comment->getId())
+            array('user' => $user, 'comment' => $comment)
         );
 
         if ($commentUpvote) {
-            $comment->setUpvoteCount(
-                $comment->getUpvoteCount() - 1
-            );
-
-            $em->persist($comment);
             $em->remove($commentUpvote);
-
             $em->flush();
-
 
             $response = $this->apiResponse($comment);
             return $response;
         }
 
-        return new Response(404);
+        return new Response("Item not found", 404);
     }
 
     private function serialize($data)
