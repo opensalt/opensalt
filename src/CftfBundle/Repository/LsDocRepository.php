@@ -372,6 +372,7 @@ xENDx;
      * Get an array representing the entire CF package
      *
      * @param LsDoc $doc
+     *
      * @return array
      */
     public function getPackageArray(LsDoc $doc): array
