@@ -5,12 +5,14 @@ namespace Salt\SiteBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * CommentUpvote
  *
  * @ORM\Entity
- * @ORM\Table(name="salt_comment_upvote")
+ * @ORM\Table(name="salt_comment_upvote", uniqueConstraints={@ORM\UniqueConstraint(name="comment_user", columns={"comment_id", "user_id"})})
+ * @UniqueEntity(fields={"comment", "user"})
  */
 class CommentUpvote
 {
@@ -22,14 +24,14 @@ class CommentUpvote
     private $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\ManyToOne(targetEntity="Comment", inversedBy="upvotes")
      */
-    private $commentId;
+    private $comment;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\ManyToOne(targetEntity="\Salt\UserBundle\Entity\User")
      */
-    private $userId;
+    private $user;
 
     /**
      * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
@@ -56,51 +58,51 @@ class CommentUpvote
     }
 
     /**
-     * Set commentId
+     * Set user
      *
-     * @param integer $commentId
+     * @param \Salt\UserBundle\Entity\User $user
      *
      * @return CommentUpvote
      */
-    public function setCommentId($commentId)
+    public function setUser(\Salt\UserBundle\Entity\User $user)
     {
-        $this->commentId = $commentId;
+        $this->user = $user;
 
         return $this;
     }
 
     /**
-     * Get commentId
+     * Get user
      *
-     * @return integer
+     * @return \Salt\UserBundle\Entity\User
      */
-    public function getCommentId()
+    public function getUser()
     {
-        return $this->commentId;
+        return $this->user;
     }
 
     /**
-     * Set userId
+     * Set comment
      *
-     * @param integer $userId
+     * @param \Salt\SiteBundle\Entity\Comment $comment
      *
      * @return CommentUpvote
      */
-    public function setUserId($userId)
+    public function setComment(\Salt\SiteBundle\Entity\Comment $comment = null)
     {
-        $this->userId = $userId;
+        $this->comment = $comment;
 
         return $this;
     }
 
     /**
-     * Get userId
+     * Get comment
      *
-     * @return integer
+     * @return \Salt\SiteBundle\Entity\Comment
      */
-    public function getUserId()
+    public function getComment()
     {
-        return $this->userId;
+        return $this->comment;
     }
 
     /**
