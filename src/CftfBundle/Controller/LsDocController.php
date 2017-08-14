@@ -346,6 +346,9 @@ class LsDocController extends Controller
      */
     protected function loadDocumentListFromHost(string $hostname): array
     {
+        // Remove any scheme or path from the passed value
+        $hostname = preg_replace('#^(?:https?://)?([^/]+)(?:/.*)#', '$1', $hostname);
+
         try {
             $remoteResponse = $this->loadDocumentsFromServer(
                 'https://'.$hostname
