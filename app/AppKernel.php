@@ -44,6 +44,8 @@ class AppKernel extends Kernel
             new GithubFilesBundle\GithubFilesBundle(),
             new Salt\SiteBundle\SaltSiteBundle(),
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
+            new FOS\RestBundle\FOSRestBundle(),
+            new FOS\CommentBundle\FOSCommentBundle(),
         ];
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {

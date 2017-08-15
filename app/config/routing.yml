@@ -51,6 +51,12 @@ al_swagger_ui_static_resources:
     resource: "@ALSwaggerUIBundle/Resources/config/static_resources_routing.yml"
     prefix: /api/swagger
 
+fos_comment_api:
+    type: rest
+    resource: "@FOSCommentBundle/Resources/config/routing.yml"
+    prefix: /api
+    defaults: { _format: html }
+
 logout:
     path: /logout
 

@@ -66,6 +66,7 @@ app.copy = function(srcFiles, outputDir) {
 gulp.task('styles', function() {
     app.addStyle([
         config.assetsDir+'/sass/application.scss',
+        config.vendorDir+'/friendsofsymfony/comment-bundle/FOS/CommentBundle/Resources/public/css/comments.css',
         // - normalize and h5bp resets are part of custom _bootstrap.scss
         //config.bowerDir+'/normalize.css/normalize.css',
         //config.bowerDir+'/html5-boilerplate/dist/css/main.css',
@@ -86,6 +87,9 @@ gulp.task('scripts', function() {
     app.addScript([
         config.bowerDir+'/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js',
     ], 'modernizr.js');
+    app.addScript([
+        config.vendorDir+'/friendsofsymfony/comment-bundle/FOS/CommentBundle/Resources/public/js/comments.js',
+    ], 'comments.js');
     app.addScript([
         config.bowerDir+'/html5-boilerplate/dist/js/plugins.js',
         config.bowerDir+'/jquery/dist/jquery.js',
