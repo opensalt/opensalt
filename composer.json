@@ -110,7 +110,8 @@
         "bower-asset/datatables.net-select": "^1.2.2",
         "bower-asset/datatables.net-select-bs": "^1.2.2",
         "liuggio/excelbundle": "^2.1",
-        "bower-asset/jquery-comments": "^1.2"
+        "bower-asset/jquery-comments": "^1.2",
+        "qandidate/toggle-bundle": "~0.1"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.1",

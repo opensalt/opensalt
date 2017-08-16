@@ -162,7 +162,9 @@ header, footer {
                 </div>  <!-- itemInfo -->
             </div>
         </section>
-        <div class="js-comments-container" data-lsdocid="{{ lsDocId }}"></div>
+        {% if 'comments' is active feature %}
+            <div class="js-comments-container" data-lsdocid="{{ lsDocId }}"></div>
+        {% endif %}
 
     {% if editorRights %}
         <section id="tree2Section">
@@ -422,7 +424,11 @@ header, footer {
 {% endblock %}
 
 {% block javascripts %}
-<script src="{{ asset('js/jquery-comments.min.js'|asset_version) }}"></script>
+
+{% if 'comments' is active feature %}
+    <script src="{{ asset('js/jquery-comments.min.js'|asset_version) }}"></script>
+{% endif %}
+
 {% autoescape 'js' %}
 <script>
 window.apx = window.apx||{};
