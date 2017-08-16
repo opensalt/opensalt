@@ -107,6 +107,7 @@ class FrameworkAclController extends Controller
             $dto->lsDoc = $lsDoc;
             $dto->access = UserDocAcl::DENY;
             $command = new AddAclUserCommand();
+
             try {
                 $acl = $command->perform($dto, $em);
                 $em->flush($acl);
@@ -145,6 +146,7 @@ class FrameworkAclController extends Controller
             $dto->lsDoc = $lsDoc;
             $dto->access = UserDocAcl::ALLOW;
             $command = new AddAclUsernameCommand();
+
             try {
                 $acl = $command->perform($dto, $em);
                 $em->flush($acl);
