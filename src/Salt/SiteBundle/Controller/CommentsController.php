@@ -26,28 +26,32 @@ class CommentsController extends Controller
         $user = $this->getUser();
         $em = $this->getDoctrine()->getManager();
 
-        $itemId = $request->request->get('itemId');
-        $itemType = $request->request->get('itemType');
-        $parentId = $request->request->get('parent');
+        if ($user) {
+            $itemId = $request->request->get('itemId');
+            $itemType = $request->request->get('itemType');
+            $parentId = $request->request->get('parent');
 
-        if ($this->existItem($itemId, $itemType)) {
-            $comment->setContent(trim($request->request->get('content')));
-            $comment->setUser($user);
-            $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
-            $comment->setItem($itemType.':'.$itemId);
+            if ($this->existItem($itemId, $itemType)) {
+                $comment->setContent(trim($request->request->get('content')));
+                $comment->setUser($user);
+                $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
+                $comment->setItem($itemType.':'.$itemId);
 
-            if (!empty($parentId) && filter_var($parentId, FILTER_VALIDATE_INT)) {
-                $parent = $em->getRepository('SaltSiteBundle:Comment')->findById($parentId);
-                $comment->setParent(($parent)?$parentId:null);
-            } else {
-                $comment->setParent(null);
+                if (!empty($parentId) && filter_var($parentId, FILTER_VALIDATE_INT)) {
+                    $parent = $em->getRepository('SaltSiteBundle:Comment')->findById($parentId);
+                    $comment->setParent(($parent)?$parentId:null);
+                } else {
+                    $comment->setParent(null);
+                }
+
+                $em->persist($comment);
+                $em->flush();
+
+                $response = $this->apiResponse($comment);
+                return $response;
             }
-
-            $em->persist($comment);
-            $em->flush();
-
-            $response = $this->apiResponse($comment);
-            return $response;
+        } else {
+            return new Response('you should login first to perform this action', 401);
         }
 
         return new Response('Item not found', 404);
@@ -92,13 +96,18 @@ class CommentsController extends Controller
     public function updateAction(Comment $comment, Request $request)
     {
         $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
 
-        $comment->setContent($request->request->get('content'));
-        $em->persist($comment);
-        $em->flush($comment);
+        if ($user) {
+            $comment->setContent($request->request->get('content'));
+            $em->persist($comment);
+            $em->flush($comment);
 
-        $response = $this->apiResponse($comment);
-        return $response;
+            $response = $this->apiResponse($comment);
+            return $response;
+        } else {
+            return new Response('you should login first to perform this action', 401);
+        }
     }
 
     /**
@@ -112,11 +121,16 @@ class CommentsController extends Controller
         }
 
         $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
 
-        $em->remove($comment);
-        $em->flush();
+        if ($user) {
+            $em->remove($comment);
+            $em->flush();
 
-        return new Response('Ok', 200);
+            return new Response('Ok', 200);
+        } else {
+            return new Response('you should login first to perform this action', 401);
+        }
     }
 
     /**
@@ -132,15 +146,19 @@ class CommentsController extends Controller
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
 
-        $commentUpvote = new CommentUpvote();
-        $commentUpvote->setComment($comment);
-        $commentUpvote->setUser($user);
+        if ($user) {
+            $commentUpvote = new CommentUpvote();
+            $commentUpvote->setComment($comment);
+            $commentUpvote->setUser($user);
 
-        $em->persist($commentUpvote);
-        $em->flush();
+            $em->persist($commentUpvote);
+            $em->flush();
 
-        $response = $this->apiResponse($comment);
-        return $response;
+            $response = $this->apiResponse($comment);
+            return $response;
+        } else {
+            return new Response('you should login first to perform this action', 401);
+        }
     }
 
     /**
@@ -156,16 +174,20 @@ class CommentsController extends Controller
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
 
-        $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')->findOneBy(
-            array('user' => $user, 'comment' => $comment)
-        );
+        if ($user) {
+            $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')->findOneBy(
+                array('user' => $user, 'comment' => $comment)
+            );
 
-        if ($commentUpvote) {
-            $em->remove($commentUpvote);
-            $em->flush();
+            if ($commentUpvote) {
+                $em->remove($commentUpvote);
+                $em->flush();
 
-            $response = $this->apiResponse($comment);
-            return $response;
+                $response = $this->apiResponse($comment);
+                return $response;
+            }
+        } else {
+            return new Response('you should login first to perform this action', 401);
         }
 
         return new Response('Item not found', 404);

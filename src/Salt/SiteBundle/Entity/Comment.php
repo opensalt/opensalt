@@ -156,7 +156,7 @@ class Comment
     /**
      * Set user
      *
-     * @param \Salt\UserBundle\Entity\User $userId
+     * @param \Salt\UserBundle\Entity\User $user
      *
      * @return Comment
      */
