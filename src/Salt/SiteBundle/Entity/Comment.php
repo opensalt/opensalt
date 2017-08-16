@@ -98,7 +98,7 @@ class Comment
     /**
      * Get id
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -122,7 +122,7 @@ class Comment
     /**
      * Get parent
      *
-     * @return integer
+     * @return int
      */
     public function getParent()
     {
@@ -194,7 +194,7 @@ class Comment
     /**
      * Get item
      *
-     * @return integer
+     * @return int
      */
     public function getItem()
     {
@@ -286,7 +286,7 @@ class Comment
     /**
      * Get upvoteCount
      *
-     * @return integer
+     * @return int
      */
     public function getUpvoteCount()
     {

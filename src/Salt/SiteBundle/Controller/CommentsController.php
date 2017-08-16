@@ -9,7 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Salt\SiteBundle\Entity\Comment;
 use Salt\SiteBundle\Entity\CommentUpvote;
+use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 
+/**
+ * @Toggle("comments")
+ */
 class CommentsController extends Controller
 {
     /**
@@ -71,6 +75,7 @@ class CommentsController extends Controller
                 foreach ($upvotes as $upvote) {
                     if ($upvote->getUser()->getId() == $user->getId()) {
                         $comment->setUserHasUpvoted(true);
+                        break;
                     }
                 }
             }
