@@ -392,7 +392,11 @@ var SaltLocal = (function(){
         if (types.indexOf(type) >= 0) {
             return true;
         }
-        return false;
+
+        // Disable type checking for now as it is finicky
+        // Windows Chome ends up having '' as the value for .json files
+        // and has 'application/vnd.ms-excel' for .csv files
+        return true;
     }
 
     return {
