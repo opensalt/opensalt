@@ -26,7 +26,7 @@ Branding configuration
 
 OpenSALT can have some branding associated with it
 
- - BRAND_LOGO_URL - URL to the logo shown to the right of the OpenSALT logo
- - BRAND_LINK_URL - URL that the brand logo will use when clicked
+ - BRAND_LOGO_URL - *(optional)* URL to the logo shown to the right of the OpenSALT logo
+ - BRAND_LINK_URL - *(optional)* URL that the brand logo will use when clicked
  - BRAND_LOGO_STYLE - *(optional)* An embedded style that will be added to the **img** tag of the logo
  - BRAND_LINK_STYLE - *(optional)* An embedded style that will be added ot the **a** tag wrapping the logo
