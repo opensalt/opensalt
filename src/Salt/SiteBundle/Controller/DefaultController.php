@@ -211,7 +211,9 @@ class DefaultController extends Controller
         $lsDoc->setSubject($sheet->getCellByColumnAndRow(7, 2)->getValue());
         $lsDoc->setLanguage($sheet->getCellByColumnAndRow(8, 2)->getValue());
         $lsDoc->setVersion($sheet->getCellByColumnAndRow(9, 2)->getValue());
-        $lsDoc->setAdoptionStatus($sheet->getCellByColumnAndRow(10, 2)->getValue());
+        if (!empty($sheet->getCellByColumnAndRow(10, 2)->getValue())) {
+            $lsDoc->setAdoptionStatus($sheet->getCellByColumnAndRow(10, 2)->getValue());
+        }
         $lsDoc->setStatusStart($sheet->getCellByColumnAndRow(11, 2)->getValue());
         $lsDoc->setStatusEnd($sheet->getCellByColumnAndRow(12, 2)->getValue());
         $lsDoc->setLicence($sheet->getCellByColumnAndRow(13, 2)->getValue());
@@ -240,7 +242,7 @@ class DefaultController extends Controller
             $itemType = $em->getRepository('CftfBundle:LsDefItemType')
                 ->findOneByTitle($itemTypeTitle);
 
-            if (is_null($itemType)) {
+            if (is_null($itemType) && !empty($itemTypeTitle)) {
                 $itemType = new LsDefItemType();
                 $itemType->setTitle($itemTypeTitle);
                 $itemType->setCode($itemTypeTitle);
