@@ -13,7 +13,12 @@ disabled:
     - binary_operator_spaces
     #- blank_line_after_namespace
     #- blank_line_after_opening_tag
+    - blank_line_before_break
+    - blank_line_before_continue
+    #- blank_line_before_declare
     - blank_line_before_return
+    #- blank_line_before_throw
+    #- blank_line_before_try
     - braces
     #- cast_spaces
     #- class_definition
@@ -30,6 +35,7 @@ disabled:
     #- lowercase_cast
     - lowercase_constants
     #- lowercase_keywords
+    #- magic_constant_casing
     #- method_argument_space
     - method_separation
     #- method_visibility_required
@@ -60,13 +66,14 @@ disabled:
     #- no_trailing_whitespace
     #- no_trailing_whitespace_in_comment
     #- no_unneeded_control_parentheses
-    #- no_unreachable_default_argument_value
+    ##- no_unreachable_default_argument_value
     #- no_unused_imports
     #- no_whitespace_before_comma_in_array
     #- no_whitespace_in_blank_line
     #- normalize_index_brace
     #- object_operator_without_whitespace
     #- php_unit_fqcn_annotation
+    #- phpdoc_align
     #- phpdoc_annotation_without_dot
     #- phpdoc_indent
     #- phpdoc_inline_tag
@@ -74,13 +81,17 @@ disabled:
     #- phpdoc_no_access
     #- phpdoc_no_empty_return
     #- phpdoc_no_package
+    #- phpdoc_no_useless_inheritdoc
+    #- phpdoc_return_self_reference
     #- phpdoc_scalar
     #- phpdoc_separation
     #- phpdoc_single_line_var_spacing
+    #- phpdoc_summary
     #- phpdoc_to_comment
     #- phpdoc_trim
     #- phpdoc_type_to_var
     #- phpdoc_types
+    #- phpdoc_var_without_name
     #- pre_increment
     #- print_to_echo
     #- property_visibility_required
@@ -89,7 +100,7 @@ disabled:
     #- self_accessor
     #- short_scalar_cast
     #- silenced_deprecation_error
-    #- simplified_null_return
+    ##- simplified_null_return
     #- single_blank_line_at_eof
     #- single_blank_line_before_namespace
     #- single_class_element_per_statement
@@ -113,3 +124,4 @@ disabled:
 finder:
   not-path:
     - "features"
+

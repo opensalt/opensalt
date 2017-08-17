@@ -1,12 +1,13 @@
 {%- set authClass = is_granted('ROLE_USER') ? 'auth' : 'no-auth' -%}
 <!DOCTYPE html>
-<html class="no-js {{ authClass }}">
+<html lang="{{ app.request.locale}}" xml:lang="{{ app.request.locale }}" xmlns= "http://www.w3.org/1999/xhtml" class="no-js {{ authClass }}">
     <head>
         <meta charset="utf-8" />
         {% block xuacompatible %}
             <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         {% endblock %}
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta http-equiv="Content-Language" content="{{ app.request.locale }}">
         {% block viewport %}
             <meta name="viewport" content="width=device-width, initial-scale=1">
         {% endblock %}
