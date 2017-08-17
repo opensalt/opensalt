@@ -320,7 +320,7 @@ var SaltLocal = (function(){
                             'bytes', '- lastModified:', f.lastModified ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
 
                 var reader = new FileReader();
-                if (isTypeValid(f.type)) {
+                if (isTypeValid(f.name)) {
                     reader.onload = (function(theFile) {
                         return function(e) {
                             var file = e.target.result;
@@ -343,7 +343,10 @@ var SaltLocal = (function(){
 
                     reader.readAsText(f);
                 } else {
-                    console.error('file type not allowed - ' + f.type);
+                    $('.tab-content').removeClass('hidden');
+                    $('.case-error-msg').html('File type not allowed');
+                    $('.case-error-msg').removeClass('hidden');
+                    $('.file-loading').addClass('hidden');
                 }
             }
         } else {
@@ -358,7 +361,7 @@ var SaltLocal = (function(){
 
         if (window.File && window.FileReader && window.FileList && window.Blob) {
             var file = files[0];
-            if (isTypeValid(file.type)) {
+            if (isTypeValid(file.name)) {
 
                 $('.tab-content').addClass('hidden');
                 $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
@@ -383,20 +386,24 @@ var SaltLocal = (function(){
                         $('.file-loading').addClass('hidden');
                     }
                 });
+            } else {
+                $('.tab-content').removeClass('hidden');
+                $('.case-error-msg').html('File type not allowed');
+                $('.case-error-msg').removeClass('hidden');
+                $('.file-loading').addClass('hidden');
             }
         }
     }
 
-    function isTypeValid(type) {
-        var types = ['text/csv', 'application/json', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
-        if (types.indexOf(type) >= 0) {
+    function isTypeValid(file) {
+        var types = ['xls', 'xlsx', 'json', 'csv'];
+        var filename = file.split('.').pop();
+
+        if (types.indexOf(filename) >= 0) {
             return true;
         }
 
-        // Disable type checking for now as it is finicky
-        // Windows Chome ends up having '' as the value for .json files
-        // and has 'application/vnd.ms-excel' for .csv files
-        return true;
+        return false;
     }
 
     return {
