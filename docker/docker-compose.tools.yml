@@ -8,10 +8,6 @@ services:
     #  context: ./php
     image: opensalt/php:7.1-cli
     environment:
-      SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
-      SYMFONY__MYSQL__USER: "${MYSQL_USER}"
-      SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
@@ -27,10 +23,6 @@ services:
     #  context: ./composer
     image: opensalt/composer:1.4-7.1
     environment:
-      SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
-      SYMFONY__MYSQL__USER: "${MYSQL_USER}"
-      SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
