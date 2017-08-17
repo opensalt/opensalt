@@ -65,6 +65,7 @@ class OAuthServiceController extends Controller
         // Check given state against previously stored one to mitigate CSRF attack
         } elseif (empty($state) || ($state !== $session->get('oauth2state'))) {
             $session->remove('oauth2state');
+
             throw new \UnexpectedValueException('Invalid state.');
         } else {
             $em = $this->getDoctrine()->getManager();
