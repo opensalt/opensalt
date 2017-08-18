@@ -4,9 +4,9 @@ use Doctrine\ORM\EntityManager;
 use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
 
-
 /**
  * Inherited Methods
+ *
  * @method void wantToTest($text)
  * @method void wantTo($text)
  * @method void execute($callable)
@@ -19,7 +19,7 @@ use Salt\UserBundle\Entity\User;
  * @method \Codeception\Lib\Friend haveFriend($name, $actorClass = NULL)
  *
  * @SuppressWarnings(PHPMD)
-*/
+ */
 class AcceptanceTester extends \Codeception\Actor
 {
     use _generated\AcceptanceTesterActions;
@@ -27,46 +27,46 @@ class AcceptanceTester extends \Codeception\Actor
     private $users = [];
     private $lastUser = null;
 
-   /**
-    * Define custom actions here
-    */
+     /**
+      * Define custom actions here
+      */
 
-    /**
-     * @Given I am on the homepage
-     */
+     /**
+      * @Given I am on the homepage
+      */
      public function iAmOnTheHomepage()
      {
         $this->amOnPage('/');
      }
 
-    /**
-     * @Then I should see :arg1
-     */
+     /**
+      * @Then I should see :arg1
+      */
      public function iShouldSee($arg1)
      {
         $this->see($arg1);
      }
 
-    /**
-     * @Then I should see :arg1 in the :arg2 element
-     */
+     /**
+      * @Then I should see :arg1 in the :arg2 element
+      */
      public function iShouldSeeInTheElement($arg1, $arg2)
      {
         $this->see($arg1, $arg2);
      }
 
-    /**
-     * @When I follow :arg1
-     */
+     /**
+      * @When I follow :arg1
+      */
      public function iFollow($arg1)
      {
         $this->click($arg1);
      }
 
 
-    /**
-     * @Given a user exists with role :role
-     */
+     /**
+      * @Given a user exists with role :role
+      */
      public function aUserExistsWithRole($role)
      {
         /** @var EntityManager $em */
@@ -118,25 +118,25 @@ class AcceptanceTester extends \Codeception\Actor
          $this->users[] = $this->lastUser;
      }
 
-    /**
-     * @When I fill in :field with the username
-     */
+     /**
+      * @When I fill in :field with the username
+      */
      public function iFillInWithTheUsername($field)
      {
         $this->fillField($field, $this->lastUser['user']);
      }
 
-    /**
-     * @When I fill in :field with the password
-     */
+     /**
+      * @When I fill in :field with the password
+      */
      public function iFillInWithThePassword($field)
      {
         $this->fillField($field, $this->lastUser['pass']);
      }
 
-    /**
-     * @When I press :arg1
-     */
+     /**
+      * @When I press :arg1
+      */
      public function iPress($link)
      {
         $this->click($link);

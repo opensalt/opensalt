@@ -1,7 +1,6 @@
 <?php
-namespace CftfBundle\Entity;
 
-use CftfBundle\Entity\LsAssociation;
+namespace CftfBundle\Entity;
 
 class LsAssociationTest extends \Codeception\Test\Unit
 {
