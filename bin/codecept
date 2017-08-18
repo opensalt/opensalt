@@ -5,7 +5,7 @@ cd $(dirname $0)/..
 docker-compose -f docker/docker-compose.yml -f docker/docker-compose.behat.yml up -d phantomjs
 sleep 2
 
-./bin/phpcli ./vendor/bin/codecept "$@"
+./bin/phpcli ./bin/codecept-wrapper "$@"
 RET=$?
 
 docker-compose -f docker/docker-compose.yml -f docker/docker-compose.behat.yml stop phantomjs
