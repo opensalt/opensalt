@@ -7,6 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Salt\SiteBundle\Entity\Comment;
 use Salt\SiteBundle\Entity\CommentUpvote;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
@@ -18,7 +19,10 @@ class CommentsController extends Controller
 {
     /**
      * @Route("/comments", name="create_comment")
+     *
      * @Method("POST")
+     *
+     * @Security("is_granted('comment')")
      */
     public function newAction(Request $request)
     {
@@ -26,32 +30,28 @@ class CommentsController extends Controller
         $user = $this->getUser();
         $em = $this->getDoctrine()->getManager();
 
-        if ($user) {
-            $itemId = $request->request->get('itemId');
-            $itemType = $request->request->get('itemType');
-            $parentId = $request->request->get('parent');
+        $itemId = $request->request->get('itemId');
+        $itemType = $request->request->get('itemType');
+        $parentId = $request->request->get('parent');
 
-            if ($this->existItem($itemId, $itemType)) {
-                $comment->setContent(trim($request->request->get('content')));
-                $comment->setUser($user);
-                $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
-                $comment->setItem($itemType.':'.$itemId);
+        if ($this->existItem($itemId, $itemType)) {
+            $comment->setContent(trim($request->request->get('content')));
+            $comment->setUser($user);
+            $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
+            $comment->setItem($itemType.':'.$itemId);
 
-                if (!empty($parentId) && filter_var($parentId, FILTER_VALIDATE_INT)) {
-                    $parent = $em->getRepository('SaltSiteBundle:Comment')->findById($parentId);
-                    $comment->setParent(($parent)?$parentId:null);
-                } else {
-                    $comment->setParent(null);
-                }
-
-                $em->persist($comment);
-                $em->flush();
-
-                $response = $this->apiResponse($comment);
-                return $response;
+            if (!empty($parentId) && filter_var($parentId, FILTER_VALIDATE_INT)) {
+                $parent = $em->getRepository('SaltSiteBundle:Comment')->findById($parentId);
+                $comment->setParent(($parent)?$parentId:null);
+            } else {
+                $comment->setParent(null);
             }
-        } else {
-            return new Response('you should login first to perform this action', 401);
+
+            $em->persist($comment);
+            $em->flush();
+
+            $response = $this->apiResponse($comment);
+            return $response;
         }
 
         return new Response('Item not found', 404);
@@ -59,7 +59,10 @@ class CommentsController extends Controller
 
     /**
      * @Route("/comments/{itemId}/{itemType}", name="get_comments")
+     *
      * @Method("GET")
+     *
+     * @Security("is_granted('view_comment')")
      */
     public function listAction($itemId, $itemType)
     {
@@ -69,18 +72,16 @@ class CommentsController extends Controller
         $comments = $em->getRepository('SaltSiteBundle:Comment')->findByItem($itemType.':'.$itemId);
 
         foreach ($comments as $comment){
-            if ($user) {
-                if ($comment->getUser()->getId() == $user->getId()){
-                    $comment->setCreatedByCurrentUser(true);
-                }
+            if ($comment->getUser()->getId() == $user->getId()){
+                $comment->setCreatedByCurrentUser(true);
+            }
 
-                $upvotes = $comment->getUpvotes();
+            $upvotes = $comment->getUpvotes();
 
-                foreach ($upvotes as $upvote) {
-                    if ($upvote->getUser()->getId() == $user->getId()) {
-                        $comment->setUserHasUpvoted(true);
-                        break;
-                    }
+            foreach ($upvotes as $upvote) {
+                if ($upvote->getUser()->getId() == $user->getId()) {
+                    $comment->setUserHasUpvoted(true);
+                    break;
                 }
             }
         }
@@ -91,103 +92,87 @@ class CommentsController extends Controller
 
     /**
      * @Route("/comments/{id}")
+     *
      * @Method("PUT")
+     *
+     * @Security("is_granted('comment')")
      */
     public function updateAction(Comment $comment, Request $request)
     {
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
 
-        if ($user) {
-            $comment->setContent($request->request->get('content'));
-            $em->persist($comment);
-            $em->flush($comment);
+        $comment->setContent($request->request->get('content'));
+        $em->persist($comment);
+        $em->flush($comment);
 
-            $response = $this->apiResponse($comment);
-            return $response;
-        } else {
-            return new Response('you should login first to perform this action', 401);
-        }
+        $response = $this->apiResponse($comment);
+        return $response;
     }
 
     /**
      * @Route("/comments/delete/{id}")
+     *
      * @Method("DELETE")
+     *
+     * @Security("is_granted('comment')")
      */
     public function deleteAction(Comment $comment)
     {
-        if (!$comment) {
-            return new Response('Gone', 410);
-        }
-
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
 
-        if ($user) {
-            $em->remove($comment);
-            $em->flush();
+        $em->remove($comment);
+        $em->flush();
 
-            return new Response('Ok', 200);
-        } else {
-            return new Response('you should login first to perform this action', 401);
-        }
+        return new Response('Ok', 200);
     }
 
     /**
      * @Route("/comments/{id}/upvote")
+     *
      * @Method("POST")
+     *
+     * @Security("is_granted('comment')")
      */
     public function upvoteAction(Comment $comment)
     {
-        if (!$comment) {
-            return new Response('Gone', 410);
-        }
-
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
 
-        if ($user) {
-            $commentUpvote = new CommentUpvote();
-            $commentUpvote->setComment($comment);
-            $commentUpvote->setUser($user);
+        $commentUpvote = new CommentUpvote();
+        $commentUpvote->setComment($comment);
+        $commentUpvote->setUser($user);
 
-            $em->persist($commentUpvote);
+        $em->persist($commentUpvote);
+        $em->flush();
+
+        $response = $this->apiResponse($comment);
+        return $response;
+    }
+
+    /**
+     * @Route("/comments/{id}/upvote")
+     *
+     * @Method("DELETE")
+     *
+     * @Security("is_granted('comment')")
+     */
+    public function downvoteAction(Comment $comment)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+
+        $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')->findOneBy(
+            array('user' => $user, 'comment' => $comment)
+        );
+
+        if ($commentUpvote) {
+            $em->remove($commentUpvote);
             $em->flush();
 
             $response = $this->apiResponse($comment);
             return $response;
-        } else {
-            return new Response('you should login first to perform this action', 401);
-        }
-    }
-
-    /**
-     * @Route("/comments/{id}/upvote")
-     * @Method("DELETE")
-     */
-    public function downvoteAction(Comment $comment)
-    {
-        if (!$comment) {
-            return new Response('Gone', 410);
-        }
-
-        $em = $this->getDoctrine()->getManager();
-        $user = $this->getUser();
-
-        if ($user) {
-            $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')->findOneBy(
-                array('user' => $user, 'comment' => $comment)
-            );
-
-            if ($commentUpvote) {
-                $em->remove($commentUpvote);
-                $em->flush();
-
-                $response = $this->apiResponse($comment);
-                return $response;
-            }
-        } else {
-            return new Response('you should login first to perform this action', 401);
         }
 
         return new Response('Item not found', 404);

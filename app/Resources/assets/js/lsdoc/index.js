@@ -556,8 +556,16 @@ var CommentSystem = (function(){
         $('.js-comments-container').comments({
             profilePictureUrl: '',
             getComments: function(success, error) {
-                $.get('/comments/'+commentItem.itemId+'/'+commentItem.itemType, function(data){
-                    success(data);
+                $.ajax({
+                    type: 'get',
+                    url: '/comments/'+commentItem.itemId+'/'+commentItem.itemType,
+                    success: function(data) {
+                        if (typeof data !== 'object') {
+                            data = [];
+                        }
+                        success(data);
+                    },
+                    error: error
                 });
             },
             postComment: function(commentJSON, success, error) {
@@ -566,7 +574,11 @@ var CommentSystem = (function(){
                     url: '/comments',
                     data: appendItemId(commentJSON),
                     success: function(comment) {
-                        success(comment);
+                        if (typeof comment == 'object') {
+                            success(comment);
+                        } else {
+                            window.location.href = '/login';
+                        }
                     },
                     error: error
                 });
@@ -577,7 +589,11 @@ var CommentSystem = (function(){
                     url: '/comments/' + commentJSON.id,
                     data: appendItemId(commentJSON),
                     success: function(comment) {
-                        success(comment)
+                        if (typeof comment == 'object') {
+                            success(comment);
+                        } else {
+                            window.location.href = '/login';
+                        }
                     },
                     error: error
                 });
@@ -600,8 +616,12 @@ var CommentSystem = (function(){
                         data: {
                             comment: commentJSON.id
                         },
-                        success: function() {
-                            success(commentJSON);
+                        success: function(comment) {
+                            if (typeof comment == 'object') {
+                                success(comment);
+                            } else {
+                                window.location.href = '/login';
+                            };
                         },
                         error: error
                     });
@@ -612,8 +632,12 @@ var CommentSystem = (function(){
                         data: {
                             comment: commentJSON.id
                         },
-                        success: function() {
-                            success(commentJSON);
+                        success: function(comment) {
+                            if (typeof comment == 'object') {
+                                success(comment);
+                            } else {
+                                window.location.href = '/login';
+                            };
                         },
                         error: error
                     });
