@@ -38,6 +38,8 @@ security:
             #stateless: true
             provider: local_db_provider
 
+            entry_point: salt.authentication.json_form_entry_point
+
             # activate different ways to authenticate
 
             # http://symfony.com/doc/current/book/security.html#a-configuring-how-your-users-will-authenticate
