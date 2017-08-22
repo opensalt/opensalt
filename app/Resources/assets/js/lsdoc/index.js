@@ -585,9 +585,10 @@ var CommentSystem = (function(){
                     url: '/comments',
                     data: appendItemId(commentJSON),
                     success: function(comment) {
-                        if (typeof comment == 'object') {
-                            success(comment);
-                        } else {
+                        success(comment);
+                    },
+                    statusCode: {
+                        401: function() {
                             window.location.href = '/login';
                         }
                     },
@@ -600,9 +601,10 @@ var CommentSystem = (function(){
                     url: '/comments/' + commentJSON.id,
                     data: appendItemId(commentJSON),
                     success: function(comment) {
-                        if (typeof comment == 'object') {
-                            success(comment);
-                        } else {
+                        success(comment);
+                    },
+                    statusCode: {
+                        401: function() {
                             window.location.href = '/login';
                         }
                     },
@@ -614,6 +616,11 @@ var CommentSystem = (function(){
                     type: 'delete',
                     url: '/comments/delete/' + commentJSON.id,
                     success: success,
+                    statusCode: {
+                        401: function() {
+                            window.location.href = '/login';
+                        }
+                    },
                     error: error
                 });
             },
@@ -628,11 +635,12 @@ var CommentSystem = (function(){
                             comment: commentJSON.id
                         },
                         success: function(comment) {
-                            if (typeof comment == 'object') {
-                                success(comment);
-                            } else {
+                            success(comment);
+                        },
+                        statusCode: {
+                            401: function() {
                                 window.location.href = '/login';
-                            };
+                            }
                         },
                         error: error
                     });
@@ -644,11 +652,12 @@ var CommentSystem = (function(){
                             comment: commentJSON.id
                         },
                         success: function(comment) {
-                            if (typeof comment == 'object') {
-                                success(comment);
-                            } else {
+                            success(comment);
+                        },
+                        statusCode: {
+                            401: function() {
                                 window.location.href = '/login';
-                            };
+                            }
                         },
                         error: error
                     });
