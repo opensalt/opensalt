@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Salt\SiteBundle\Entity\Comment;
@@ -24,10 +25,9 @@ class CommentsController extends Controller
      *
      * @Security("is_granted('comment')")
      */
-    public function newAction(Request $request)
+    public function newAction(Request $request, UserInterface $user)
     {
         $comment = new Comment();
-        $user = $this->getUser();
         $em = $this->getDoctrine()->getManager();
 
         $itemId = $request->request->get('itemId');
@@ -64,24 +64,24 @@ class CommentsController extends Controller
      *
      * @Security("is_granted('view_comment')")
      */
-    public function listAction($itemId, $itemType)
+    public function listAction($itemId, $itemType, UserInterface $user = null)
     {
-        $user = $this->getUser();
         $em = $this->getDoctrine()->getManager();
-
         $comments = $em->getRepository('SaltSiteBundle:Comment')->findByItem($itemType.':'.$itemId);
 
-        foreach ($comments as $comment){
-            if ($comment->getUser()->getId() == $user->getId()){
-                $comment->setCreatedByCurrentUser(true);
-            }
+        if ($user) {
+            foreach ($comments as $comment){
+                if ($comment->getUser()->getId() == $user->getId()){
+                    $comment->setCreatedByCurrentUser(true);
+                }
 
-            $upvotes = $comment->getUpvotes();
+                $upvotes = $comment->getUpvotes();
 
-            foreach ($upvotes as $upvote) {
-                if ($upvote->getUser()->getId() == $user->getId()) {
-                    $comment->setUserHasUpvoted(true);
-                    break;
+                foreach ($upvotes as $upvote) {
+                    if ($upvote->getUser()->getId() == $user->getId()) {
+                        $comment->setUserHasUpvoted(true);
+                        break;
+                    }
                 }
             }
         }
@@ -97,10 +97,9 @@ class CommentsController extends Controller
      *
      * @Security("is_granted('comment')")
      */
-    public function updateAction(Comment $comment, Request $request)
+    public function updateAction(Comment $comment, Request $request, UserInterface $user)
     {
         $em = $this->getDoctrine()->getManager();
-        $user = $this->getUser();
 
         $comment->setContent($request->request->get('content'));
         $em->persist($comment);
@@ -117,10 +116,9 @@ class CommentsController extends Controller
      *
      * @Security("is_granted('comment')")
      */
-    public function deleteAction(Comment $comment)
+    public function deleteAction(Comment $comment, UserInterface $user)
     {
         $em = $this->getDoctrine()->getManager();
-        $user = $this->getUser();
 
         $em->remove($comment);
         $em->flush();
@@ -135,10 +133,9 @@ class CommentsController extends Controller
      *
      * @Security("is_granted('comment')")
      */
-    public function upvoteAction(Comment $comment)
+    public function upvoteAction(Comment $comment, UserInterface $user)
     {
         $em = $this->getDoctrine()->getManager();
-        $user = $this->getUser();
 
         $commentUpvote = new CommentUpvote();
         $commentUpvote->setComment($comment);
@@ -158,10 +155,9 @@ class CommentsController extends Controller
      *
      * @Security("is_granted('comment')")
      */
-    public function downvoteAction(Comment $comment)
+    public function downvoteAction(Comment $comment, UserInterface $user)
     {
         $em = $this->getDoctrine()->getManager();
-        $user = $this->getUser();
 
         $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')->findOneBy(
             array('user' => $user, 'comment' => $comment)
