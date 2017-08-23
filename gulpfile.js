@@ -72,8 +72,7 @@ gulp.task('styles', function() {
         //  - bootstrap loaded via application.scss above
         //config.bowerDir+'/bootstrap-sass/assets/stylesheets/_bootstrap.scss',
         //config.bowerDir+'/bootstrap/dist/css/bootstrap.css',
-        config.vendorDir+'/fortawesome/font-awesome/css/font-awesome.css',
-        config.bowerDir+'/jquery-comments/css/jquery-comments.css',
+        config.vendorDir+'/fortawesome/font-awesome/css/font-awesome.css'
         // -- all below now loaded from application.scss
         //config.bowerDir+'/fancytree/dist/skin-lion/ui.fancytree.css',
         //config.assetsDir+'/sass/layout.scss',
@@ -81,6 +80,9 @@ gulp.task('styles', function() {
         //config.assetsDir+'/sass/overrides.scss',
         //config.vendorDir+'/mervick/material-design-icons/scss/material-icons.scss'
     ], 'main.css');
+    app.addStyle([
+        config.bowerDir+'/jquery-comments/css/jquery-comments.css'
+    ], 'comments.css');
 });
 
 gulp.task('scripts', function() {
@@ -89,7 +91,8 @@ gulp.task('scripts', function() {
     ], 'modernizr.js');
     app.addScript([
         config.bowerDir+'/jquery-comments/js/jquery-comments.min.js',
-    ], 'jquery-comments.min.js');
+        config.assetsDir+'/js/lsdoc/comments.js',
+    ], 'comments.js');
     app.addScript([
         config.bowerDir+'/html5-boilerplate/dist/js/plugins.js',
         config.bowerDir+'/jquery/dist/jquery.js',
