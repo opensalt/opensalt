@@ -22,7 +22,10 @@ class Comment
     private $id;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\ManyToOne(targetEntity="\Salt\SiteBundle\Entity\Comment")
+     * @Serializer\Accessor(getter="getParentId")
+     * @Serializer\ReadOnly
+     * @Serializer\Type("int")
      */
     private $parent;
 
@@ -82,20 +85,6 @@ class Comment
     }
 
     /**
-     * Set id
-     *
-     * @param int $id
-     *
-     * @return Comment
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    /**
      * Get id
      *
      * @return int
@@ -112,7 +101,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setParent($parent)
+    public function setParent(\Salt\SiteBundle\Entity\Comment $parent = null)
     {
         $this->parent = $parent;
 
@@ -122,11 +111,25 @@ class Comment
     /**
      * Get parent
      *
-     * @return int
+     * @return \Salt\SiteBundle\Entity\Comment
      */
     public function getParent()
     {
         return $this->parent;
+    }
+
+    /**
+     * Get the id of a parent
+     *
+     * @return int
+     */
+    public function getParentId()
+    {
+        if (!is_null($this->parent)) {
+            return $this->parent->getId();
+        }
+
+        return null;
     }
 
     /**
@@ -228,7 +231,7 @@ class Comment
     /**
      * Set createdByCurrentUser
      *
-     * @param string $createdByCurrentUser
+     * @param bool $createdByCurrentUser
      *
      * @return Comment
      */
@@ -242,9 +245,9 @@ class Comment
     /**
      * Get createdByCurrentUser
      *
-     * @return string
+     * @return bool
      */
-    public function getCreatedByCurrentUser()
+    public function isCreatedByCurrentUser()
     {
         return $this->createdByCurrentUser;
     }

@@ -426,7 +426,7 @@ header, footer {
 {% block javascripts %}
 
 {% if 'comments' is active feature %}
-    <script src="{{ asset('js/jquery-comments.min.js'|asset_version) }}"></script>
+    <script src="{{ asset('js/comments.js'|asset_version) }}"></script>
 {% endif %}
 
 {% autoescape 'js' %}
