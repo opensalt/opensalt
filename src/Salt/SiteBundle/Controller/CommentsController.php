@@ -5,7 +5,7 @@ namespace Salt\SiteBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -39,10 +39,11 @@ class CommentsController extends Controller
             $comment->setUser($user);
             $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
             $comment->setItem($itemType.':'.$itemId);
+            $comment->setCreatedByCurrentUser(true);
 
             if (!empty($parentId) && filter_var($parentId, FILTER_VALIDATE_INT)) {
-                $parent = $em->getRepository('SaltSiteBundle:Comment')->findById($parentId);
-                $comment->setParent(($parent)?$parentId:null);
+                $parent = $em->getRepository('SaltSiteBundle:Comment')->find($parentId);
+                $comment->setParent($parent);
             } else {
                 $comment->setParent(null);
             }
@@ -54,7 +55,7 @@ class CommentsController extends Controller
             return $response;
         }
 
-        return new Response('Item not found', 404);
+        return $this->apiResponse('Item not found', 404);
     }
 
     /**
@@ -101,12 +102,16 @@ class CommentsController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $comment->setContent($request->request->get('content'));
-        $em->persist($comment);
-        $em->flush($comment);
+        if ($comment->getUser() == $user) {
+            $comment->setContent($request->request->get('content'));
+            $em->persist($comment);
+            $em->flush($comment);
 
-        $response = $this->apiResponse($comment);
-        return $response;
+            $response = $this->apiResponse($comment);
+            return $response;
+        }
+
+        return $this->apiResponse('Unauthorized', 401);
     }
 
     /**
@@ -118,12 +123,16 @@ class CommentsController extends Controller
      */
     public function deleteAction(Comment $comment, UserInterface $user)
     {
-        $em = $this->getDoctrine()->getManager();
+        if ($comment->getUser() == $user) {
+            $em = $this->getDoctrine()->getManager();
 
-        $em->remove($comment);
-        $em->flush();
+            $em->remove($comment);
+            $em->flush();
 
-        return new Response('Ok', 200);
+            return $this->apiResponse('Ok', 200);
+        }
+
+        return $this->apiResponse('Unauthorized', 401);
     }
 
     /**
@@ -171,7 +180,7 @@ class CommentsController extends Controller
             return $response;
         }
 
-        return new Response('Item not found', 404);
+        return $this->apiResponse('Item not found', 404);
     }
 
     private function existItem($itemId, $itemType)
@@ -181,10 +190,10 @@ class CommentsController extends Controller
 
             switch ($itemType) {
                 case 'document':
-                    $item = $em->getRepository('CftfBundle:LsDoc')->findOneById($itemId);
+                    $item = $em->getRepository('CftfBundle:LsDoc')->find($itemId);
                     break;
                 case 'item':
-                    $item = $em->getRepository('CftfBundle:LsItem')->findOneById($itemId);
+                    $item = $em->getRepository('CftfBundle:LsItem')->find($itemId);
                     break;
                 default:
                     return false;
@@ -207,9 +216,8 @@ class CommentsController extends Controller
     private function apiResponse($data, $statusCode = 200)
     {
         $json = $this->serialize($data);
+        $response = JsonResponse::fromJsonString($json, $statusCode);
 
-        return new Response($json, $statusCode, [
-            'Content-Type' => 'application/json'
-        ]);
+        return $response;
     }
 }
