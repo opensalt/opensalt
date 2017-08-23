@@ -2,6 +2,13 @@
 
 {% block title %}{{ lsDocTitle }}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {% if 'comments' is active feature %}
+        <link rel="stylesheet" href="{{ asset('css/comments.css'|asset_version) }}" />
+    {% endif %}
+{% endblock %}
+
 {% block body %}
 <!-- initially hide header and footer; we'll show them right away if we're not in "chooser mode" -->
 <style>
