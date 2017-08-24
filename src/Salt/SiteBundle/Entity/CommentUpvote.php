@@ -5,6 +5,7 @@ namespace Salt\SiteBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
+use Salt\UserBundle\Entity\User;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
@@ -17,6 +18,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 class CommentUpvote
 {
     /**
+     * @var int
+     *
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @ORM\Column(type="integer")
@@ -24,16 +27,22 @@ class CommentUpvote
     private $id;
 
     /**
+     * @var Comment
+     *
      * @ORM\ManyToOne(targetEntity="Comment", inversedBy="upvotes")
      */
     private $comment;
 
     /**
+     * @var User
+     *
      * @ORM\ManyToOne(targetEntity="\Salt\UserBundle\Entity\User")
      */
     private $user;
 
     /**
+     * @var \DateTime
+     *
      * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Serializer\SerializedName("created")
      * @Gedmo\Timestampable(on="create")
@@ -41,6 +50,8 @@ class CommentUpvote
     private $createdAt;
 
     /**
+     * @var \DateTime
+     *
      * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Serializer\SerializedName("modified")
      * @Gedmo\Timestampable(on="update")
@@ -52,7 +63,7 @@ class CommentUpvote
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -60,11 +71,11 @@ class CommentUpvote
     /**
      * Set user
      *
-     * @param \Salt\UserBundle\Entity\User $user
+     * @param User $user
      *
      * @return CommentUpvote
      */
-    public function setUser(\Salt\UserBundle\Entity\User $user)
+    public function setUser(User $user): CommentUpvote
     {
         $this->user = $user;
 
@@ -74,9 +85,9 @@ class CommentUpvote
     /**
      * Get user
      *
-     * @return \Salt\UserBundle\Entity\User
+     * @return User
      */
-    public function getUser()
+    public function getUser(): User
     {
         return $this->user;
     }
@@ -84,11 +95,11 @@ class CommentUpvote
     /**
      * Set comment
      *
-     * @param \Salt\SiteBundle\Entity\Comment $comment
+     * @param Comment $comment
      *
      * @return CommentUpvote
      */
-    public function setComment(\Salt\SiteBundle\Entity\Comment $comment = null)
+    public function setComment(Comment $comment = null): CommentUpvote
     {
         $this->comment = $comment;
 
@@ -98,9 +109,9 @@ class CommentUpvote
     /**
      * Get comment
      *
-     * @return \Salt\SiteBundle\Entity\Comment
+     * @return Comment
      */
-    public function getComment()
+    public function getComment(): Comment
     {
         return $this->comment;
     }
@@ -112,7 +123,7 @@ class CommentUpvote
      *
      * @return CommentUpvote
      */
-    public function setCreatedAt($createdAt)
+    public function setCreatedAt(\DateTime $createdAt): CommentUpvote
     {
         $this->createdAt = $createdAt;
 
@@ -124,7 +135,7 @@ class CommentUpvote
      *
      * @return \DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
@@ -136,7 +147,7 @@ class CommentUpvote
      *
      * @return CommentUpvote
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt(\DateTime $updatedAt): CommentUpvote
     {
         $this->updatedAt = $updatedAt;
 
@@ -148,7 +159,7 @@ class CommentUpvote
      *
      * @return \DateTime
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
     }
