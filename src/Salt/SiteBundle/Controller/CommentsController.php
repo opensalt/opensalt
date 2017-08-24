@@ -2,6 +2,8 @@
 
 namespace Salt\SiteBundle\Controller;
 
+use Salt\UserBundle\Entity\User;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -58,31 +60,20 @@ class CommentsController extends Controller
     }
 
     /**
-     * @Route("/comments/{itemId}/{itemType}", name="get_comments")
-     *
+     * @Route("/comments/{itemType}/{itemId}", name="get_comments")
      * @Method("GET")
-     *
+     * @ParamConverter("comments", class="SaltSiteBundle:Comment", options={"id": {"itemType", "itemId"}, "repository_method" = "findByTypeItem"})
      * @Security("is_granted('view_comment')")
+     *
+     * @param array|Comment[] $comments
+     * @param UserInterface|null $user
+     * @return mixed
      */
-    public function listAction($itemId, $itemType, UserInterface $user = null)
+    public function listAction(array $comments, UserInterface $user = null)
     {
-        $em = $this->getDoctrine()->getManager();
-        $comments = $em->getRepository('SaltSiteBundle:Comment')->findByItem($itemType.':'.$itemId);
-
-        if ($user) {
-            foreach ($comments as $comment){
-                if ($comment->getUser()->getId() == $user->getId()){
-                    $comment->setCreatedByCurrentUser(true);
-                }
-
-                $upvotes = $comment->getUpvotes();
-
-                foreach ($upvotes as $upvote) {
-                    if ($upvote->getUser()->getId() == $user->getId()) {
-                        $comment->setUserHasUpvoted(true);
-                        break;
-                    }
-                }
+        if ($user instanceof User) {
+            foreach ($comments as $comment) {
+                $comment->updateStatusForUser($user);
             }
         }
 

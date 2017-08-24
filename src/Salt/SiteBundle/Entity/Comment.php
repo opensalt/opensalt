@@ -2,14 +2,16 @@
 
 namespace Salt\SiteBundle\Entity;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
+use Salt\UserBundle\Entity\User;
 
 /**
  * Comment
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="CommentRepository")
  * @ORM\Table(name="salt_comment")
  */
 class Comment
@@ -235,9 +237,25 @@ class Comment
      *
      * @return Comment
      */
-    public function setCreatedByCurrentUser($createdByCurrentUser)
+    public function setCreatedByCurrentUser(bool $createdByCurrentUser)
     {
         $this->createdByCurrentUser = $createdByCurrentUser;
+
+        return $this;
+    }
+
+    public function updateStatusForUser(User $user): Comment
+    {
+        if ($this->getUser()->getId() === $user->getId()) {
+            $this->setCreatedByCurrentUser(true);
+        }
+
+        foreach ($this->getUpvotes() as $upvote) {
+            if ($upvote->getUser()->getId() === $user->getId()) {
+                $this->setUserHasUpvoted(true);
+                break;
+            }
+        }
 
         return $this;
     }
@@ -247,7 +265,7 @@ class Comment
      *
      * @return bool
      */
-    public function isCreatedByCurrentUser()
+    public function isCreatedByCurrentUser(): bool
     {
         return $this->createdByCurrentUser;
     }
@@ -281,7 +299,7 @@ class Comment
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getUpvotes()
+    public function getUpvotes(): Collection
     {
         return $this->upvotes;
     }
@@ -291,7 +309,7 @@ class Comment
      *
      * @return int
      */
-    public function getUpvoteCount()
+    public function getUpvoteCount(): int
     {
         return $this->upvotes->count();
     }
@@ -303,7 +321,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setUserHasUpvoted($userHasUpvoted)
+    public function setUserHasUpvoted(bool $userHasUpvoted): Comment
     {
         $this->userHasUpvoted = $userHasUpvoted;
 
@@ -315,7 +333,7 @@ class Comment
      *
      * @return bool
      */
-    public function hasUserUpvoted()
+    public function hasUserUpvoted(): bool
     {
         return $this->userHasUpvoted;
     }
