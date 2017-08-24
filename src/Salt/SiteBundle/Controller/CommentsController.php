@@ -21,37 +21,21 @@ use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 class CommentsController extends Controller
 {
     /**
-     * @Route("/comments", name="create_comment")
+     * @Route("/comments/{itemType}/{itemId}", name="create_comment")
      *
      * @Method("POST")
      *
      * @Security("is_granted('comment')")
      */
-    public function newAction(Request $request, UserInterface $user)
+    public function newAction(Request $request, $itemType, $itemId, UserInterface $user)
     {
-        $comment = new Comment();
         $em = $this->getDoctrine()->getManager();
 
-        $itemId = $request->request->get('itemId');
-        $itemType = $request->request->get('itemType');
         $parentId = $request->request->get('parent');
+        $content = $request->request->get('content');
 
-        if ($this->existItem($itemId, $itemType)) {
-            $comment->setContent(trim($request->request->get('content')));
-            $comment->setUser($user);
-            $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
-            $comment->setItem($itemType.':'.$itemId);
-            $comment->setCreatedByCurrentUser(true);
-
-            if (!empty($parentId) && filter_var($parentId, FILTER_VALIDATE_INT)) {
-                $parent = $em->getRepository('SaltSiteBundle:Comment')->find($parentId);
-                $comment->setParent($parent);
-            } else {
-                $comment->setParent(null);
-            }
-
-            $em->persist($comment);
-            $em->flush();
+        if ($user instanceof User && $this->existItem($itemId, $itemType)) {
+            $comment = $em->getRepository('SaltSiteBundle:Comment')->addComment($itemType, $itemId, $user, $content, $parentId);
 
             return $this->apiResponse($comment);
         }
