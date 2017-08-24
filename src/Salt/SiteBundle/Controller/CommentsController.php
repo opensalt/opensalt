@@ -2,6 +2,10 @@
 
 namespace Salt\SiteBundle\Controller;
 
+use CftfBundle\Entity\LsDoc;
+use CftfBundle\Entity\LsItem;
+use Salt\UserBundle\Entity\User;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,7 +14,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Salt\SiteBundle\Entity\Comment;
-use Salt\SiteBundle\Entity\CommentUpvote;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 
 /**
@@ -19,76 +22,49 @@ use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 class CommentsController extends Controller
 {
     /**
-     * @Route("/comments", name="create_comment")
+     * @Route("/comments/document/{id}", name="create_doc_comment")
      *
      * @Method("POST")
      *
      * @Security("is_granted('comment')")
      */
-    public function newAction(Request $request, UserInterface $user)
+    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user)
     {
-        $comment = new Comment();
-        $em = $this->getDoctrine()->getManager();
-
-        $itemId = $request->request->get('itemId');
-        $itemType = $request->request->get('itemType');
-        $parentId = $request->request->get('parent');
-
-        if ($this->existItem($itemId, $itemType)) {
-            $comment->setContent(trim($request->request->get('content')));
-            $comment->setUser($user);
-            $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
-            $comment->setItem($itemType.':'.$itemId);
-            $comment->setCreatedByCurrentUser(true);
-
-            if (!empty($parentId) && filter_var($parentId, FILTER_VALIDATE_INT)) {
-                $parent = $em->getRepository('SaltSiteBundle:Comment')->find($parentId);
-                $comment->setParent($parent);
-            } else {
-                $comment->setParent(null);
-            }
-
-            $em->persist($comment);
-            $em->flush();
-
-            $response = $this->apiResponse($comment);
-            return $response;
-        }
-
-        return $this->apiResponse('Item not found', 404);
+        return $this->addComment($request, 'document', $doc->getId(), $user);
     }
 
     /**
-     * @Route("/comments/{itemId}/{itemType}", name="get_comments")
+     * @Route("/comments/item/{id}", name="create_item_comment")
      *
-     * @Method("GET")
+     * @Method("POST")
      *
-     * @Security("is_granted('view_comment')")
+     * @Security("is_granted('comment')")
      */
-    public function listAction($itemId, $itemType, UserInterface $user = null)
+    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user)
     {
-        $em = $this->getDoctrine()->getManager();
-        $comments = $em->getRepository('SaltSiteBundle:Comment')->findByItem($itemType.':'.$itemId);
+        return $this->addComment($request, 'item', $item->getId(), $user);
+    }
 
-        if ($user) {
-            foreach ($comments as $comment){
-                if ($comment->getUser()->getId() == $user->getId()){
-                    $comment->setCreatedByCurrentUser(true);
-                }
-
-                $upvotes = $comment->getUpvotes();
-
-                foreach ($upvotes as $upvote) {
-                    if ($upvote->getUser()->getId() == $user->getId()) {
-                        $comment->setUserHasUpvoted(true);
-                        break;
-                    }
-                }
+    /**
+     * @Route("/comments/{itemType}/{itemId}", name="get_comments")
+     * @Method("GET")
+     * @ParamConverter("comments", class="SaltSiteBundle:Comment", options={"id": {"itemType", "itemId"}, "repository_method" = "findByTypeItem"})
+     * @Security("is_granted('comment_view')")
+     *
+     * @param array|Comment[] $comments
+     * @param UserInterface|null $user
+     *
+     * @return mixed
+     */
+    public function listAction(array $comments, UserInterface $user = null)
+    {
+        if ($user instanceof User) {
+            foreach ($comments as $comment) {
+                $comment->updateStatusForUser($user);
             }
         }
 
-        $response = $this->apiResponse($comments);
-        return $response;
+        return $this->apiResponse($comments);
     }
 
     /**
@@ -96,22 +72,16 @@ class CommentsController extends Controller
      *
      * @Method("PUT")
      *
-     * @Security("is_granted('comment')")
+     * @Security("is_granted('comment_update', comment)")
      */
     public function updateAction(Comment $comment, Request $request, UserInterface $user)
     {
         $em = $this->getDoctrine()->getManager();
+        $comment->setContent($request->request->get('content'));
+        $em->persist($comment);
+        $em->flush();
 
-        if ($comment->getUser() == $user) {
-            $comment->setContent($request->request->get('content'));
-            $em->persist($comment);
-            $em->flush($comment);
-
-            $response = $this->apiResponse($comment);
-            return $response;
-        }
-
-        return $this->apiResponse('Unauthorized', 401);
+        return $this->apiResponse($comment);
     }
 
     /**
@@ -119,20 +89,15 @@ class CommentsController extends Controller
      *
      * @Method("DELETE")
      *
-     * @Security("is_granted('comment')")
+     * @Security("is_granted('comment_delete', comment)")
      */
     public function deleteAction(Comment $comment, UserInterface $user)
     {
-        if ($comment->getUser() == $user) {
-            $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($comment);
+        $em->flush();
 
-            $em->remove($comment);
-            $em->flush();
-
-            return $this->apiResponse('Ok', 200);
-        }
-
-        return $this->apiResponse('Unauthorized', 401);
+        return $this->apiResponse('Ok', 200);
     }
 
     /**
@@ -144,17 +109,10 @@ class CommentsController extends Controller
      */
     public function upvoteAction(Comment $comment, UserInterface $user)
     {
-        $em = $this->getDoctrine()->getManager();
+        $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
+        $repo->addUpvoteForUser($comment, $user);
 
-        $commentUpvote = new CommentUpvote();
-        $commentUpvote->setComment($comment);
-        $commentUpvote->setUser($user);
-
-        $em->persist($commentUpvote);
-        $em->flush();
-
-        $response = $this->apiResponse($comment);
-        return $response;
+        return $this->apiResponse($comment);
     }
 
     /**
@@ -166,45 +124,34 @@ class CommentsController extends Controller
      */
     public function downvoteAction(Comment $comment, UserInterface $user)
     {
-        $em = $this->getDoctrine()->getManager();
+        $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
 
-        $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')->findOneBy(
-            array('user' => $user, 'comment' => $comment)
-        );
-
-        if ($commentUpvote) {
-            $em->remove($commentUpvote);
-            $em->flush();
-
-            $response = $this->apiResponse($comment);
-            return $response;
+        if ($repo->removeUpvoteForUser($comment, $user)) {
+            return $this->apiResponse($comment);
         }
 
         return $this->apiResponse('Item not found', 404);
     }
 
-    private function existItem($itemId, $itemType)
+    /**
+     * Add a comment
+     *
+     * @param Request $request
+     * @param string $itemType
+     * @param int $itemId
+     * @param UserInterface $user
+     *
+     * @return JsonResponse
+     */
+    private function addComment(Request $request, string $itemType, $itemId, UserInterface $user)
     {
-        if (filter_var($itemId, FILTER_VALIDATE_INT)) {
-            $em = $this->getDoctrine()->getManager();
+        $parentId = $request->request->get('parent');
+        $content = $request->request->get('content');
 
-            switch ($itemType) {
-                case 'document':
-                    $item = $em->getRepository('CftfBundle:LsDoc')->find($itemId);
-                    break;
-                case 'item':
-                    $item = $em->getRepository('CftfBundle:LsItem')->find($itemId);
-                    break;
-                default:
-                    return false;
-            }
+        $em = $this->getDoctrine()->getManager();
+        $comment = $em->getRepository('SaltSiteBundle:Comment')->addComment($itemType, $itemId, $user, $content, $parentId);
 
-            if ($item) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->apiResponse($comment);
     }
 
     private function serialize($data)
@@ -213,11 +160,10 @@ class CommentsController extends Controller
             ->serialize($data, 'json');
     }
 
-    private function apiResponse($data, $statusCode = 200)
+    private function apiResponse($data, $statusCode = 200): JsonResponse
     {
         $json = $this->serialize($data);
-        $response = JsonResponse::fromJsonString($json, $statusCode);
 
-        return $response;
+        return JsonResponse::fromJsonString($json, $statusCode);
     }
 }

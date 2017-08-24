@@ -3,6 +3,7 @@
 namespace Salt\UserBundle\Security;
 
 use JMS\DiExtraBundle\Annotation as DI;
+use Salt\SiteBundle\Entity\Comment;
 use Salt\UserBundle\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -16,7 +17,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 class CommentVoter extends Voter
 {
     const COMMENT = 'comment';
-    const VIEW = 'view_comment';
+    const VIEW = 'comment_view';
+    const UPDATE = 'comment_update';
+    const DELETE = 'comment_delete';
 
     /**
      * Determines if the attribute and subject are supported by this voter.
@@ -28,11 +31,20 @@ class CommentVoter extends Voter
      */
     protected function supports($attribute, $subject)
     {
-        if (!in_array($attribute, [self::COMMENT, self::VIEW], true)) {
-            return false;
+        switch ($attribute) {
+            case self::UPDATE:
+            case self::DELETE:
+                if ($subject instanceof Comment) {
+                    return true;
+                }
+                break;
+
+            case self::COMMENT:
+            case self::VIEW:
+                return true;
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -54,6 +66,9 @@ class CommentVoter extends Voter
                 return $this->canComment($user);
             case self::VIEW:
                 return $this->canView($user);
+            case self::UPDATE:
+            case self::DELETE:
+                return $this->canUpdate($user, $subject);
         }
 
         return false;
@@ -85,5 +100,20 @@ class CommentVoter extends Voter
     private function canView($user)
     {
         return true;
+    }
+
+    /**
+     * @param User $user
+     * @param Comment $comment
+     *
+     * @return bool
+     */
+    private function canUpdate($user, $comment)
+    {
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        return $comment->getUser()->getId() === $user->getId();
     }
 }
