@@ -63,7 +63,7 @@ class CommentsController extends Controller
      * @Route("/comments/{itemType}/{itemId}", name="get_comments")
      * @Method("GET")
      * @ParamConverter("comments", class="SaltSiteBundle:Comment", options={"id": {"itemType", "itemId"}, "repository_method" = "findByTypeItem"})
-     * @Security("is_granted('view_comment')")
+     * @Security("is_granted('comment_view')")
      *
      * @param array|Comment[] $comments
      * @param UserInterface|null $user
@@ -85,21 +85,16 @@ class CommentsController extends Controller
      *
      * @Method("PUT")
      *
-     * @Security("is_granted('comment')")
+     * @Security("is_granted('comment_update', comment)")
      */
     public function updateAction(Comment $comment, Request $request, UserInterface $user)
     {
         $em = $this->getDoctrine()->getManager();
+        $comment->setContent($request->request->get('content'));
+        $em->persist($comment);
+        $em->flush();
 
-        if ($comment->getUser() == $user) {
-            $comment->setContent($request->request->get('content'));
-            $em->persist($comment);
-            $em->flush($comment);
-
-            return $this->apiResponse($comment);
-        }
-
-        return $this->apiResponse('Unauthorized', 401);
+        return $this->apiResponse($comment);
     }
 
     /**
