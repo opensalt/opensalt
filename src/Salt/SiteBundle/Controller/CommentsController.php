@@ -14,7 +14,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Salt\SiteBundle\Entity\Comment;
-use Salt\SiteBundle\Entity\CommentUpvote;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 
 /**
