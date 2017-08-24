@@ -11,7 +11,7 @@ var CommentSystem = (function(){
             getComments: function(success, error) {
                 $.ajax({
                     type: 'get',
-                    url: '/comments/'+commentItem.itemId+'/'+commentItem.itemType,
+                    url: '/comments/'+commentItem.itemType+'/'+commentItem.itemId,
                     success: function(data) {
                         if (typeof data !== 'object') {
                             data = [];
