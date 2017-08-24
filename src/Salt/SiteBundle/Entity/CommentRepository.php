@@ -38,6 +38,36 @@ class CommentRepository extends EntityRepository
 
         return $comment;
     }
+
+    public function addUpvoteForUser(Comment $comment, User $user): CommentUpvote
+    {
+        $commentUpvote = new CommentUpvote();
+        $commentUpvote->setComment($comment);
+        $commentUpvote->setUser($user);
+
+        $this->getEntityManager()->persist($commentUpvote);
+        $this->getEntityManager()->flush($commentUpvote);
+
+        return $commentUpvote;
+    }
+
+    public function removeUpvoteForUser(Comment $comment, User $user): bool
+    {
+        $em = $this->getEntityManager();
+
+        $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')
+            ->findOneBy(['user' => $user, 'comment' => $comment]);
+
+        if ($commentUpvote) {
+            $em->remove($commentUpvote);
+            $em->flush($commentUpvote);
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * @param array $id
      *

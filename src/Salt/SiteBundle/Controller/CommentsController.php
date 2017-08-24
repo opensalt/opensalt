@@ -110,14 +110,8 @@ class CommentsController extends Controller
      */
     public function upvoteAction(Comment $comment, UserInterface $user)
     {
-        $em = $this->getDoctrine()->getManager();
-
-        $commentUpvote = new CommentUpvote();
-        $commentUpvote->setComment($comment);
-        $commentUpvote->setUser($user);
-
-        $em->persist($commentUpvote);
-        $em->flush();
+        $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
+        $repo->addUpvoteForUser($comment, $user);
 
         return $this->apiResponse($comment);
     }
@@ -131,16 +125,9 @@ class CommentsController extends Controller
      */
     public function downvoteAction(Comment $comment, UserInterface $user)
     {
-        $em = $this->getDoctrine()->getManager();
+        $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
 
-        $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')->findOneBy(
-            array('user' => $user, 'comment' => $comment)
-        );
-
-        if ($commentUpvote) {
-            $em->remove($commentUpvote);
-            $em->flush();
-
+        if ($repo->removeUpvoteForUser($comment, $user)) {
             return $this->apiResponse($comment);
         }
 
