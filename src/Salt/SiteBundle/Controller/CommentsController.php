@@ -2,6 +2,8 @@
 
 namespace Salt\SiteBundle\Controller;
 
+use CftfBundle\Entity\LsDoc;
+use CftfBundle\Entity\LsItem;
 use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -21,26 +23,27 @@ use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 class CommentsController extends Controller
 {
     /**
-     * @Route("/comments/{itemType}/{itemId}", name="create_comment")
+     * @Route("/comments/document/{id}", name="create_doc_comment")
      *
      * @Method("POST")
      *
      * @Security("is_granted('comment')")
      */
-    public function newAction(Request $request, $itemType, $itemId, UserInterface $user)
+    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user)
     {
-        $em = $this->getDoctrine()->getManager();
+        return $this->addComment($request, 'document', $doc->getId(), $user);
+    }
 
-        $parentId = $request->request->get('parent');
-        $content = $request->request->get('content');
-
-        if ($user instanceof User && $this->existItem($itemId, $itemType)) {
-            $comment = $em->getRepository('SaltSiteBundle:Comment')->addComment($itemType, $itemId, $user, $content, $parentId);
-
-            return $this->apiResponse($comment);
-        }
-
-        return $this->apiResponse('Item not found', 404);
+    /**
+     * @Route("/comments/item/{id}", name="create_item_comment")
+     *
+     * @Method("POST")
+     *
+     * @Security("is_granted('comment')")
+     */
+    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user)
+    {
+        return $this->addComment($request, 'item', $item->getId(), $user);
     }
 
     /**
@@ -144,28 +147,25 @@ class CommentsController extends Controller
         return $this->apiResponse('Item not found', 404);
     }
 
-    private function existItem($itemId, $itemType)
+    /**
+     * Add a comment
+     *
+     * @param Request $request
+     * @param string $itemType
+     * @param int $itemId
+     * @param UserInterface $user
+     *
+     * @return JsonResponse
+     */
+    private function addComment(Request $request, string $itemType, $itemId, UserInterface $user)
     {
-        if (filter_var($itemId, FILTER_VALIDATE_INT)) {
-            $em = $this->getDoctrine()->getManager();
+        $parentId = $request->request->get('parent');
+        $content = $request->request->get('content');
 
-            switch ($itemType) {
-                case 'document':
-                    $item = $em->getRepository('CftfBundle:LsDoc')->find($itemId);
-                    break;
-                case 'item':
-                    $item = $em->getRepository('CftfBundle:LsItem')->find($itemId);
-                    break;
-                default:
-                    return false;
-            }
+        $em = $this->getDoctrine()->getManager();
+        $comment = $em->getRepository('SaltSiteBundle:Comment')->addComment($itemType, $itemId, $user, $content, $parentId);
 
-            if ($item) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->apiResponse($comment);
     }
 
     private function serialize($data)
@@ -174,7 +174,7 @@ class CommentsController extends Controller
             ->serialize($data, 'json');
     }
 
-    private function apiResponse($data, $statusCode = 200)
+    private function apiResponse($data, $statusCode = 200): JsonResponse
     {
         $json = $this->serialize($data);
 
