@@ -102,20 +102,15 @@ class CommentsController extends Controller
      *
      * @Method("DELETE")
      *
-     * @Security("is_granted('comment')")
+     * @Security("is_granted('comment_delete', comment)")
      */
     public function deleteAction(Comment $comment, UserInterface $user)
     {
-        if ($comment->getUser() == $user) {
-            $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($comment);
+        $em->flush();
 
-            $em->remove($comment);
-            $em->flush();
-
-            return $this->apiResponse('Ok', 200);
-        }
-
-        return $this->apiResponse('Unauthorized', 401);
+        return $this->apiResponse('Ok', 200);
     }
 
     /**

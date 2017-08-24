@@ -19,6 +19,7 @@ class CommentVoter extends Voter
     const COMMENT = 'comment';
     const VIEW = 'comment_view';
     const UPDATE = 'comment_update';
+    const DELETE = 'comment_delete';
 
     /**
      * Determines if the attribute and subject are supported by this voter.
@@ -30,15 +31,20 @@ class CommentVoter extends Voter
      */
     protected function supports($attribute, $subject)
     {
-        if (!in_array($attribute, [self::COMMENT, self::VIEW, self::UPDATE], true)) {
-            return false;
+        switch ($attribute) {
+            case self::UPDATE:
+            case self::DELETE:
+                if ($subject instanceof Comment) {
+                    return true;
+                }
+                break;
+
+            case self::COMMENT:
+            case self::VIEW:
+                return true;
         }
 
-        if (self::UPDATE === $attribute && ! $subject instanceof Comment) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     /**
@@ -58,9 +64,12 @@ class CommentVoter extends Voter
         switch ($attribute) {
             case self::COMMENT:
                 return $this->canComment($user);
+
             case self::VIEW:
                 return $this->canView($user);
+
             case self::UPDATE:
+            case self::DELETE:
                 return $this->canUpdate($user, $subject);
         }
 
