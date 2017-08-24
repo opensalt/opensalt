@@ -51,8 +51,7 @@ class CommentsController extends Controller
             $em->persist($comment);
             $em->flush();
 
-            $response = $this->apiResponse($comment);
-            return $response;
+            return $this->apiResponse($comment);
         }
 
         return $this->apiResponse('Item not found', 404);
@@ -87,8 +86,7 @@ class CommentsController extends Controller
             }
         }
 
-        $response = $this->apiResponse($comments);
-        return $response;
+        return $this->apiResponse($comments);
     }
 
     /**
@@ -107,8 +105,7 @@ class CommentsController extends Controller
             $em->persist($comment);
             $em->flush($comment);
 
-            $response = $this->apiResponse($comment);
-            return $response;
+            return $this->apiResponse($comment);
         }
 
         return $this->apiResponse('Unauthorized', 401);
@@ -153,8 +150,7 @@ class CommentsController extends Controller
         $em->persist($commentUpvote);
         $em->flush();
 
-        $response = $this->apiResponse($comment);
-        return $response;
+        return $this->apiResponse($comment);
     }
 
     /**
@@ -176,8 +172,7 @@ class CommentsController extends Controller
             $em->remove($commentUpvote);
             $em->flush();
 
-            $response = $this->apiResponse($comment);
-            return $response;
+            return $this->apiResponse($comment);
         }
 
         return $this->apiResponse('Item not found', 404);
@@ -216,8 +211,7 @@ class CommentsController extends Controller
     private function apiResponse($data, $statusCode = 200)
     {
         $json = $this->serialize($data);
-        $response = JsonResponse::fromJsonString($json, $statusCode);
 
-        return $response;
+        return JsonResponse::fromJsonString($json, $statusCode);
     }
 }
