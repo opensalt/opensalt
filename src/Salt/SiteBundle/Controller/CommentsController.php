@@ -51,6 +51,7 @@ class CommentsController extends Controller
      *
      * @param array|Comment[] $comments
      * @param UserInterface|null $user
+     *
      * @return mixed
      */
     public function listAction(array $comments, UserInterface $user = null)
