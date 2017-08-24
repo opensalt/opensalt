@@ -17,6 +17,8 @@ use Salt\UserBundle\Entity\User;
 class Comment
 {
     /**
+     * @var int
+     *
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @ORM\Column(type="integer")
@@ -24,7 +26,10 @@ class Comment
     private $id;
 
     /**
+     * @var Comment
+     *
      * @ORM\ManyToOne(targetEntity="\Salt\SiteBundle\Entity\Comment")
+     *
      * @Serializer\Accessor(getter="getParentId")
      * @Serializer\ReadOnly
      * @Serializer\Type("int")
@@ -32,28 +37,40 @@ class Comment
     private $parent;
 
     /**
+     * @var string
+     *
      * @ORM\Column(type="string")
      */
     private $content;
 
     /**
-     * @Serializer\Exclude()
+     * @var User
+     *
      * @ORM\ManyToOne(targetEntity="\Salt\UserBundle\Entity\User")
+     *
+     * @Serializer\Exclude()
      */
     private $user;
 
     /**
+     * @var string
+     *
      * @ORM\Column(type="string")
      */
     private $item;
 
     /**
+     * @var string
+     *
      * @ORM\Column(type="string")
      */
     private $fullname;
 
     /**
+     * @var CommentUpvote[]|Collection
+     *
      * @ORM\OneToMany(targetEntity="CommentUpvote", mappedBy="comment")
+     *
      * @Serializer\Accessor(getter="getUpvoteCount")
      * @Serializer\ReadOnly
      * @Serializer\Type("int")
@@ -62,6 +79,8 @@ class Comment
     private $upvotes;
 
     /**
+     * @var \DateTime
+     *
      * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Serializer\SerializedName("created")
      * @Gedmo\Timestampable(on="create")
@@ -69,13 +88,22 @@ class Comment
     private $createdAt;
 
     /**
+     * @var \DateTime
+     *
      * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
      * @Serializer\SerializedName("modified")
      * @Gedmo\Timestampable(on="update")
      */
     private $updatedAt;
 
+    /**
+     * @var bool
+     */
     private $createdByCurrentUser;
+
+    /**
+     * @var bool
+     */
     private $userHasUpvoted;
 
     /**
@@ -91,7 +119,7 @@ class Comment
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -103,7 +131,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setParent(\Salt\SiteBundle\Entity\Comment $parent = null)
+    public function setParent(Comment $parent = null): Comment
     {
         $this->parent = $parent;
 
@@ -113,9 +141,9 @@ class Comment
     /**
      * Get parent
      *
-     * @return \Salt\SiteBundle\Entity\Comment
+     * @return Comment|null
      */
-    public function getParent()
+    public function getParent(): ?Comment
     {
         return $this->parent;
     }
@@ -123,11 +151,11 @@ class Comment
     /**
      * Get the id of a parent
      *
-     * @return int
+     * @return int|null
      */
-    public function getParentId()
+    public function getParentId(): ?int
     {
-        if (!is_null($this->parent)) {
+        if (null !== $this->parent) {
             return $this->parent->getId();
         }
 
@@ -141,7 +169,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setContent($content)
+    public function setContent($content): Comment
     {
         $this->content = $content;
 
@@ -153,7 +181,7 @@ class Comment
      *
      * @return string
      */
-    public function getContent()
+    public function getContent(): string
     {
         return $this->content;
     }
@@ -161,11 +189,11 @@ class Comment
     /**
      * Set user
      *
-     * @param \Salt\UserBundle\Entity\User $user
+     * @param User $user
      *
      * @return Comment
      */
-    public function setUser(\Salt\UserBundle\Entity\User $user)
+    public function setUser(User $user): Comment
     {
         $this->user = $user;
 
@@ -175,9 +203,9 @@ class Comment
     /**
      * Get user
      *
-     * @return \Salt\UserBundle\Entity\User
+     * @return User
      */
-    public function getUser()
+    public function getUser(): User
     {
         return $this->user;
     }
@@ -185,11 +213,11 @@ class Comment
     /**
      * Set item
      *
-     * @param int $item
+     * @param string $item
      *
      * @return Comment
      */
-    public function setItem($item)
+    public function setItem(string $item): Comment
     {
         $this->item = $item;
 
@@ -199,9 +227,9 @@ class Comment
     /**
      * Get item
      *
-     * @return int
+     * @return string
      */
-    public function getItem()
+    public function getItem(): string
     {
         return $this->item;
     }
@@ -213,7 +241,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setFullname($fullname)
+    public function setFullname($fullname): Comment
     {
         $this->fullname = $fullname;
 
@@ -225,7 +253,7 @@ class Comment
      *
      * @return string
      */
-    public function getFullname()
+    public function getFullname(): string
     {
         return $this->fullname;
     }
@@ -237,7 +265,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setCreatedByCurrentUser(bool $createdByCurrentUser)
+    public function setCreatedByCurrentUser(bool $createdByCurrentUser): Comment
     {
         $this->createdByCurrentUser = $createdByCurrentUser;
 
@@ -273,11 +301,11 @@ class Comment
     /**
      * Add upvote
      *
-     * @param \Salt\SiteBundle\Entity\CommentUpvote $upvote
+     * @param CommentUpvote $upvote
      *
      * @return Comment
      */
-    public function addUpvote(\Salt\SiteBundle\Entity\CommentUpvote $upvote)
+    public function addUpvote(CommentUpvote $upvote): Comment
     {
         $this->upvotes[] = $upvote;
 
@@ -287,17 +315,19 @@ class Comment
     /**
      * Remove upvote
      *
-     * @param \Salt\SiteBundle\Entity\CommentUpvote $upvote
+     * @param CommentUpvote $upvote
      */
-    public function removeUpvote(\Salt\SiteBundle\Entity\CommentUpvote $upvote)
+    public function removeUpvote(CommentUpvote $upvote): Comment
     {
         $this->upvotes->removeElement($upvote);
+
+        return $this;
     }
 
     /**
      * Get upvotes
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
     public function getUpvotes(): Collection
     {
@@ -345,7 +375,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setCreatedAt($createdAt)
+    public function setCreatedAt(\DateTime $createdAt): Comment
     {
         $this->createdAt = $createdAt;
 
@@ -357,7 +387,7 @@ class Comment
      *
      * @return \DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
@@ -369,7 +399,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt(\DateTime $updatedAt): Comment
     {
         $this->updatedAt = $updatedAt;
 
@@ -381,7 +411,7 @@ class Comment
      *
      * @return \DateTime
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
     }
