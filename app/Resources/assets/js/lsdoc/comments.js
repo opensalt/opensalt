@@ -24,7 +24,7 @@ var CommentSystem = (function(){
             postComment: function(commentJSON, success, error) {
                 $.ajax({
                     type: 'post',
-                    url: '/comments',
+                    url: '/comments/'+commentItem.itemType+'/'+commentItem.itemId,
                     data: appendItemId(commentJSON),
                     success: function(comment) {
                         success(comment);
