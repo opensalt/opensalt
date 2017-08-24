@@ -64,10 +64,8 @@ class CommentVoter extends Voter
         switch ($attribute) {
             case self::COMMENT:
                 return $this->canComment($user);
-
             case self::VIEW:
                 return $this->canView($user);
-
             case self::UPDATE:
             case self::DELETE:
                 return $this->canUpdate($user, $subject);
@@ -107,11 +105,12 @@ class CommentVoter extends Voter
     /**
      * @param User $user
      * @param Comment $comment
+     *
      * @return bool
      */
     private function canUpdate($user, $comment)
     {
-        if (! $user instanceof User) {
+        if (!$user instanceof User) {
             return false;
         }
 

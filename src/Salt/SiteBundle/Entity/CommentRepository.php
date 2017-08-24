@@ -18,6 +18,7 @@ class CommentRepository extends EntityRepository
      * @param User $user
      * @param string $content
      * @param int $parentId
+     *
      * @return Comment
      */
     public function addComment($itemType, $itemId, User $user, string $content, $parentId = null)
@@ -39,6 +40,7 @@ class CommentRepository extends EntityRepository
     }
     /**
      * @param array $id
+     *
      * @return array|Comment[]
      */
     public function findByTypeItem(array $id): array
