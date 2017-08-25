@@ -1,5 +1,3 @@
 suites:
   default:
     namespace: CftfBundle
-extensions:
-  RMiller\BehatSpecExtension\PhpSpecExtension: ~
