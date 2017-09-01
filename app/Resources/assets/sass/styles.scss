@@ -1,16 +1,18 @@
-// use flex to force the footer to go to the bottom of the page
-.container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+html,body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
-main.content {
-    flex: 1;
+.container--main {
+    box-sizing: border-box;
+    min-height: 100%;
+    padding: 0 0 36px;
+    position: relative;;
 }
 
 header .navbar-default {
-    border-width:0px;
+    border-width:0;
     background-color:#78C9E9;
 }
 
@@ -24,6 +26,21 @@ header .navbar-default {
 
 .navbar-brand img {
     height:60px;
+}
+
+/* hack for IE11 to at least have the logo centred */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    img[src*=".svg?"] {
+        width: 100%;
+    }
+}
+
+footer {
+    bottom: 0;
+    height: 36px;
+    left: 0;
+    position: absolute;
+    width: 100%
 }
 
 footer .navbar-default {
