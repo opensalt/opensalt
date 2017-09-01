@@ -1358,7 +1358,7 @@ function apxDocument(initializer) {
             }
 
             for (key in attributes = {
-                        'uri': 'CASE Statement URL',
+                        'uri': 'CASE Item URI',
                         'le': 'List Enumeration in Source',
                         'cku': 'Concept Keywords URI',
                         'lang': 'Language',
