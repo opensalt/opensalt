@@ -3,7 +3,7 @@ Feature: A user can sign into the application
   As an anonymous user
   I need to sign in and become an authenticated user
 
-  @javascript
+  @login
   Scenario Outline: An anonymous user lands on the front page
     Given I am logged out
     And a user exists with role "<role>"
@@ -17,7 +17,7 @@ Feature: A user can sign into the application
     When I fill in the username
     And I fill in the password
     And I press "Login"
-    Then I should see "Signed in as"
+    Then I should see "Signed in as" in the header
 
     Examples:
       | role |
