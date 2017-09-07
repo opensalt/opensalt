@@ -15,3 +15,12 @@ modules:
             host: 'phantomjs'
             port: 8643
         - \Helper\Acceptance
+
+paths:
+    envs: tests/_envs
+
+gherkin:
+    contexts:
+        default:
+            - AcceptanceTester
+            - "Context\\Login"

@@ -1,0 +1,7 @@
+# `firefox` environment config goes here
+modules:
+    config:
+        WebDriver:
+            browser: firefox
+            host: firefox
+            port: 4444
