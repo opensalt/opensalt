@@ -1,5 +1,6 @@
 <?php
 
+use Behat\Behat\Context\Context;
 use Doctrine\ORM\EntityManager;
 use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
@@ -20,7 +21,7 @@ use Salt\UserBundle\Entity\User;
  *
  * @SuppressWarnings(PHPMD)
  */
-class AcceptanceTester extends \Codeception\Actor
+class AcceptanceTester extends \Codeception\Actor implements Context
 {
     use _generated\AcceptanceTesterActions;
 
