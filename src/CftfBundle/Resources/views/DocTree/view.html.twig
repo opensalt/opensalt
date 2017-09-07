@@ -170,6 +170,9 @@ header, footer {
             </div>
         </section>
         {% if 'comments' is active feature %}
+            {% if not is_granted('comment') %}
+                <p>To comment please login first</p>
+            {% endif %}
             <div class="js-comments-container" data-lsdocid="{{ lsDocId }}"></div>
         {% endif %}
 

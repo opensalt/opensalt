@@ -1,4 +1,7 @@
 actor: UnitTester
 modules:
     enabled:
+        - Doctrine2:
+            depends: Symfony
+            cleanup: true
         - \Helper\Unit

@@ -81,7 +81,8 @@ gulp.task('styles', function() {
         //config.vendorDir+'/mervick/material-design-icons/scss/material-icons.scss'
     ], 'main.css');
     app.addStyle([
-        config.bowerDir+'/jquery-comments/css/jquery-comments.css'
+        config.bowerDir+'/jquery-comments/css/jquery-comments.css',
+        config.assetsDir+'/sass/comments.scss'
     ], 'comments.css');
 });
 

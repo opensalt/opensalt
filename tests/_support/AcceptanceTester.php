@@ -3,6 +3,7 @@
 use Doctrine\ORM\EntityManager;
 use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
+use CftfBundle\Entity\LsDoc;
 
 /**
  * Inherited Methods
@@ -26,6 +27,7 @@ class AcceptanceTester extends \Codeception\Actor
 
     private $users = [];
     private $lastUser = null;
+    private $lsDoc = null;
 
      /**
       * Define custom actions here
@@ -142,4 +144,41 @@ class AcceptanceTester extends \Codeception\Actor
         $this->click($link);
      }
 
+     public function loginAs($role, $usernameField, $passwordField)
+     {
+        $this->click('Sign in');
+        $this->aUserExistsWithRole($role);
+        $this->iFillInWithTheUsername($usernameField);
+        $this->iFillInWithThePassword($passwordField);
+        $this->click('Login');
+     }
+
+     public function getLastFrameworkId()
+     {
+        /** @var EntityManager $em */
+        $em = $this->grabService('doctrine.orm.default_entity_manager');
+
+        $lsDocRepo = $em->getRepository(LsDoc::class);
+        $lsDoc = $lsDocRepo->createQueryBuilder('d')
+            ->orderBy('d.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$lsDoc) {
+            $lsDoc = new LsDoc();
+            $lsDoc->setTitle('test framework');
+            $lsDoc->setCreator('test creator');
+
+            $em->persist($lsDoc);
+            $em->flush($lsDoc);
+        }
+
+        $this->lsDocId = $lsDoc->getId();
+     }
+
+     public function getDocId()
+     {
+         return $this->lsDocId;
+     }
 }
