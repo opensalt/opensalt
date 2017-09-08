@@ -1,8 +1,20 @@
 <?php
 
 
+use Codeception\Exception\Skip;
+
 class CommentCest
 {
+    public function _before(AcceptanceTester $I)
+    {
+        $toggles = $I->grabService('qandidate.toggle.manager');
+        $context = $I->grabService('qandidate.toggle.context_factory');
+
+        if (!$toggles->active('comments', $context->createContext())) {
+            throw new Skip();
+        }
+    }
+
     // tests
     public function seeCommentsSectionAsAnAnonymousUser(AcceptanceTester $I)
     {
