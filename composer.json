@@ -29,6 +29,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/PCGGenEd/faker-context"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/opensalt/qandidate-toggle-bundle"
         }
     ],
     "minimum-stability": "dev",
@@ -114,7 +118,7 @@
         "bower-asset/datatables.net-select-bs": "^1.2.2",
         "liuggio/excelbundle": "^2.1",
         "bower-asset/jquery-comments": "^1.2",
-        "qandidate/toggle-bundle": "~0.1"
+        "qandidate/toggle-bundle": "dev-symfony-3.3.8-env-vars"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.1",

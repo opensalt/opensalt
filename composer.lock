@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "72cfdbf2f445e45b7e5a09744ad0459b",
+    "content-hash": "53382d4b361befd22ad1970304272335",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -4923,16 +4923,16 @@
         },
         {
             "name": "qandidate/toggle-bundle",
-            "version": "0.7.0",
+            "version": "dev-symfony-3.3.8-env-vars",
             "source": {
                 "type": "git",
-                "url": "https://github.com/qandidate-labs/qandidate-toggle-bundle.git",
-                "reference": "d15c4a222821b7a75ea4c34adaf3ac3180832b82"
+                "url": "https://github.com/opensalt/qandidate-toggle-bundle.git",
+                "reference": "dec69411e9fba828d7fb64d6732f70176d77253d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/qandidate-labs/qandidate-toggle-bundle/zipball/d15c4a222821b7a75ea4c34adaf3ac3180832b82",
-                "reference": "d15c4a222821b7a75ea4c34adaf3ac3180832b82",
+                "url": "https://api.github.com/repos/opensalt/qandidate-toggle-bundle/zipball/dec69411e9fba828d7fb64d6732f70176d77253d",
+                "reference": "dec69411e9fba828d7fb64d6732f70176d77253d",
                 "shasum": ""
             },
             "require": {
@@ -4963,7 +4963,6 @@
                     "Qandidate\\Bundle\\ToggleBundle\\": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4978,7 +4977,10 @@
                 }
             ],
             "description": "This Bundle provides the integration with qandidate/toggle. It provides the services and configuration you need to implement feature toggles in your Symfony application.",
-            "time": "2017-07-24T08:26:46+00:00"
+            "support": {
+                "source": "https://github.com/opensalt/qandidate-toggle-bundle/tree/symfony-3.3.8-env-vars"
+            },
+            "time": "2017-09-08 23:15:00"
         },
         {
             "name": "ramsey/uuid",
@@ -9079,7 +9081,8 @@
     "stability-flags": {
         "roave/security-advisories": 20,
         "activelamp/swagger-ui-bundle": 20,
-        "bower-asset/select2-bootstrap-theme": 20
+        "bower-asset/select2-bootstrap-theme": 20,
+        "qandidate/toggle-bundle": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
