@@ -2,8 +2,6 @@
 
 use Behat\Behat\Context\Context;
 use Doctrine\ORM\EntityManager;
-use Salt\UserBundle\Entity\Organization;
-use Salt\UserBundle\Entity\User;
 use CftfBundle\Entity\LsDoc;
 
 /**
