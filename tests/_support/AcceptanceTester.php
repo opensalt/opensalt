@@ -1,8 +1,6 @@
 <?php
 
-use Doctrine\ORM\EntityManager;
-use Salt\UserBundle\Entity\Organization;
-use Salt\UserBundle\Entity\User;
+use Behat\Behat\Context\Context;
 
 /**
  * Inherited Methods
@@ -20,126 +18,67 @@ use Salt\UserBundle\Entity\User;
  *
  * @SuppressWarnings(PHPMD)
  */
-class AcceptanceTester extends \Codeception\Actor
+class AcceptanceTester extends \Codeception\Actor implements Context
 {
     use _generated\AcceptanceTesterActions;
 
-    private $users = [];
-    private $lastUser = null;
-
-     /**
-      * Define custom actions here
-      */
-
-     /**
-      * @Given I am on the homepage
-      */
-     public function iAmOnTheHomepage()
-     {
+    /**
+     * @Given I am on the homepage
+     */
+    public function iAmOnTheHomepage(): AcceptanceTester
+    {
         $this->amOnPage('/');
-     }
 
-     /**
-      * @Then I should see :arg1
-      */
-     public function iShouldSee($arg1)
-     {
+        return $this;
+    }
+
+    /**
+     * @Then I should see :arg1
+     */
+    public function iShouldSee(string $arg1): AcceptanceTester
+    {
         $this->see($arg1);
-     }
 
-     /**
-      * @Then I should see :arg1 in the :arg2 element
-      */
-     public function iShouldSeeInTheElement($arg1, $arg2)
-     {
+        return $this;
+    }
+
+    /**
+     * @Then I should see :arg1 in the header
+     */
+    public function iShouldSeeInTheHeader(string $arg1): AcceptanceTester
+    {
+        $this->see($arg1, 'header');
+
+        return $this;
+    }
+
+    /**
+     * @Then I should see :arg1 in the :arg2 element
+     */
+    public function iShouldSeeInTheElement(string $arg1, string $arg2): AcceptanceTester
+    {
         $this->see($arg1, $arg2);
-     }
 
-     /**
-      * @When I follow :arg1
-      */
-     public function iFollow($arg1)
-     {
+        return $this;
+    }
+
+    /**
+     * @When I follow :arg1
+     */
+    public function iFollow(string $arg1): AcceptanceTester
+    {
         $this->click($arg1);
-     }
 
+        return $this;
+    }
 
-     /**
-      * @Given a user exists with role :role
-      */
-     public function aUserExistsWithRole($role)
-     {
-        /** @var EntityManager $em */
-        $em = $this->grabService('doctrine.orm.default_entity_manager');
-
-        /** @var \Faker\Generator $faker */
-        $faker = \Faker\Factory::create();
-
-        $role = preg_replace('/[^A-Z]/', '_', strtoupper($role));
-        $password = $faker->password;
-
-        $userRepo = $em->getRepository(User::class);
-        $user = $userRepo->createQueryBuilder('u')
-            ->where('u.username like :prefix')
-            ->setParameter(':prefix', 'TEST:'.$role.':%')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        if ($user) {
-            $username = $user->getUsername();
-            $userRepo->setUserPassword($username, $password);
-        } else {
-            $orgRepo = $em->getRepository(Organization::class);
-            $org = $orgRepo->createQueryBuilder('o')
-                ->where('o.name like :prefix')
-                ->setParameter(':prefix', 'TEST:%')
-                ->setMaxResults(1)
-                ->getQuery()
-                ->getOneOrNullResult();
-            if (!$org) {
-                $org = $orgRepo->addNewOrganization(
-                    'TEST:'.$faker->company
-                );
-            }
-
-            $username = 'TEST:'.$role.':'.$faker->userName;
-            $userRepo->addNewUser($username, $org, $password, $role);
-
-            $user = $userRepo->createQueryBuilder('u')
-                ->where('u.username like :prefix')
-                ->setParameter(':prefix', 'TEST:'.$role.':%')
-                ->setMaxResults(1)
-                ->getQuery()
-                ->getOneOrNullResult();
-        }
-
-         $this->lastUser = ['user' => $username, 'pass' => $password];
-         $this->users[] = $this->lastUser;
-     }
-
-     /**
-      * @When I fill in :field with the username
-      */
-     public function iFillInWithTheUsername($field)
-     {
-        $this->fillField($field, $this->lastUser['user']);
-     }
-
-     /**
-      * @When I fill in :field with the password
-      */
-     public function iFillInWithThePassword($field)
-     {
-        $this->fillField($field, $this->lastUser['pass']);
-     }
-
-     /**
-      * @When I press :arg1
-      */
-     public function iPress($link)
-     {
+    /**
+     * @When I press :arg1
+     */
+    public function iPress(string $link): AcceptanceTester
+    {
         $this->click($link);
-     }
 
+        return $this;
+    }
 }
