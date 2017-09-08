@@ -3,14 +3,6 @@
 
 class CommentCest
 {
-    public function _before(AcceptanceTester $I)
-{
-}
-
-    public function _after(AcceptanceTester $I)
-    {
-    }
-
     // tests
     public function seeCommentsSectionAsAnAnonymousUser(AcceptanceTester $I)
     {
@@ -23,16 +15,18 @@ class CommentCest
     public function seeCommentsSectionAsAnAuthenticatedUser(AcceptanceTester $I)
     {
         $I->getLastFrameworkId();
+        $loginPage = new \Page\Login($I);
+        $loginPage->loginAsRole('Editor');
         $I->amOnPage('/cftree/doc/'.$I->getDocId());
-        $I->loginAs('ROLE_EDITOR', 'Username', 'Password');
         $I->seeElement('.commenting-field');
     }
 
     public function commentAsAnAuthenticatedUser(AcceptanceTester $I)
     {
         $I->getLastFrameworkId();
+        $loginPage = new \Page\Login($I);
+        $loginPage->loginAsRole('Editor');
         $I->amOnPage('/cftree/doc/'.$I->getDocId());
-        $I->loginAs('ROLE_EDITOR', 'Username', 'Password');
         $I->click('.textarea');
         $I->fillField('.textarea', 'acceptance comment');
         $I->click('.send');
@@ -52,8 +46,9 @@ class CommentCest
     public function upvoteAsAnAuthenticatedUser(AcceptanceTester $I)
     {
         $I->getLastFrameworkId();
+        $loginPage = new \Page\Login($I);
+        $loginPage->loginAsRole('Editor');
         $I->amOnPage('/cftree/doc/'.$I->getDocId());
-        $I->loginAs('ROLE_EDITOR', 'Username', 'Password');
         $upvotes = $I->grabTextFrom('.upvote');
         $I->click('.upvote');
         $I->wait(2);
