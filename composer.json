@@ -20,7 +20,10 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        }
+        },
+        "classmap": [
+            "tests/_behat/Context.php"
+        ]
     },
     "repositories": [
         {
@@ -123,6 +126,7 @@
             "flow/jsonpath": "~0.3",
             "league/factory-muffin": "~3.0",
             "league/factory-muffin-faker": "~2.0",
+            "phpunit/phpunit": "~5.7",
 
         "phpspec/phpspec": "~3.2",
             "phpspec/nyan-formatters": "~2.0",
