@@ -124,4 +124,5 @@ disabled:
 finder:
   not-path:
     - "features"
+    - "tests"
 
