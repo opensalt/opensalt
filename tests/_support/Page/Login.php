@@ -47,7 +47,7 @@ class Login implements Context
         $this
             ->logout()
             ->aUserExistsWithRole($role)
-            ->loginWithPassword($this->I->getLastUser(), $this->I->getLastPassword());
+            ->loginWithPassword($this->I->getLastUsername(), $this->I->getLastPassword());
 
         return $this;
     }
@@ -74,7 +74,7 @@ class Login implements Context
      */
     public function iFillInTheUsername(): Login
     {
-        $this->I->fillField(self::$usernameField, $this->I->getLastUser());
+        $this->I->fillField(self::$usernameField, $this->I->getLastUsername());
 
         return $this;
     }

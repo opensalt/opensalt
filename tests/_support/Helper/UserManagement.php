@@ -13,9 +13,14 @@ class UserManagement extends \Codeception\Module
     protected static $users = [];
     protected static $lastUser = null;
 
-    public function getLastUser(): string
+    public function getLastUser(): User
     {
         return self::$lastUser['user'];
+    }
+
+    public function getLastUsername(): string
+    {
+        return $this->getLastUser()->getUsername();
     }
 
     public function getLastPassword(): string
@@ -76,7 +81,7 @@ class UserManagement extends \Codeception\Module
             $this->assertNotEmpty($user, 'User could not be created.');
         }
 
-        self::$lastUser = ['user' => $username, 'pass' => $password];
+        self::$lastUser = ['user' => $user, 'pass' => $password];
         self::$users[] = self::$lastUser;
 
         return $this;
