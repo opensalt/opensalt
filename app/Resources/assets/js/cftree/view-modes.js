@@ -39,11 +39,11 @@ apx.viewMode.avFilters = {
     "avShowExact": false,
     "avShowExemplar": true,
     "avShowIsRelatedTo": true,
-    "avShowprecedes": true,
-    "avShowreplacedBy": false,
-    "avShowhasSkillLevel": false,
-    "avShowisPeerOf": false,
-    "avShowisPartOf": false,
+    "avShowPrecedes": true,
+    "avShowReplacedBy": false,
+    "avShowHasSkillLevel": false,
+    "avShowIsPeerOf": false,
+    "avShowIsPartOf": false,
     "groups": []
 };
 apx.viewMode.assocViewStatus = "not_written";
@@ -185,42 +185,52 @@ apx.viewMode.showAssocView = function(context) {
             }
 
             // skip types if filters dictate
-            if (assoc.type == "isChildOf") {
-                if (!apx.viewMode.avFilters.avShowChild) {
-                    continue;
-                }
-            } else if (assoc.type == "exactMatchOf") {
-                if (!apx.viewMode.avFilters.avShowExact) {
-                    continue;
-                }
-            } else if (assoc.type == "exemplar") {
-                if (!apx.viewMode.avFilters.avShowExemplar) {
-                    continue;
-                }
-              } else if (assoc.type == "isRelatedTo") {
-                if (!apx.viewMode.avFilters.avShowIsRelatedTo) {
-                    continue;
-                  }
-                } else if (assoc.type == "precedes") {
-                    if (!apx.viewMode.avFilters.avShowprecedes) {
+            switch (assoc.type) {
+                case "isChildOf":
+                    if (!apx.viewMode.avFilters.avShowChild) {
                         continue;
                     }
-                  } else if (assoc.type == "replacedBy") {
-                      if (!apx.viewMode.avFilters.avShowreplacedBy) {
-                          continue;
-                      }
-                    } else if (assoc.type == "hasSkillLevel") {
-                        if (!apx.viewMode.avFilters.avShowhasSkillLevel) {
-                            continue;
-                        }
-                      } else if (assoc.type == "isPeerOf") {
-                          if (!apx.viewMode.avFilters.avShowisPeerOf) {
-                              continue;
-                          }
-                        } else if (assoc.type == "isPartOf") {
-                            if (!apx.viewMode.avFilters.avShowisPartOf) {
-                                continue;
-                            }
+                    break;
+                case "exactMatchOf":
+                    if (!apx.viewMode.avFilters.avShowExact) {
+                        continue;
+                    }
+                    break;
+                case "exemplar":
+                    if (!apx.viewMode.avFilters.avShowExemplar) {
+                        continue;
+                    }
+                    break;
+                case "isRelatedTo":
+                    if (!apx.viewMode.avFilters.avShowIsRelatedTo) {
+                        continue;
+                    }
+                    break;
+                case "precedes":
+                    if (!apx.viewMode.avFilters.avShowPrecedes) {
+                        continue;
+                    }
+                    break;
+                case "replacedBy":
+                    if (!apx.viewMode.avFilters.avShowReplacedBy) {
+                        continue;
+                    }
+                    break;
+                case "hasSkillLevel":
+                    if (!apx.viewMode.avFilters.avShowHasSkillLevel) {
+                        continue;
+                    }
+                    break;
+                case "isPeerOf":
+                    if (!apx.viewMode.avFilters.avShowIsPeerOf) {
+                        continue;
+                    }
+                    break;
+                case "isPartOf":
+                    if (!apx.viewMode.avFilters.avShowIsPartOf) {
+                        continue;
+                    }
+                    break;
             }
 
             // skip groups if filters dictate
