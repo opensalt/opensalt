@@ -2,7 +2,6 @@
 
 use Codeception\Exception\Skip;
 use Codeception\Util\Locator;
-use \Facebook\WebDriver\WebDriverElement;
 
 class CommentCest
 {
@@ -56,7 +55,7 @@ class CommentCest
         $I->getLastFrameworkId();
         $I->amOnPage('/cftree/doc/'.$I->getDocId());
         $I->click(Locator::firstElement('.upvote'));
-        $I->waitForJS("return $.active == 0;", 2);
+        $I->waitForJS('return $.active == 0;', 2);
         $I->seeCurrentUrlEquals('/login');
     }
 

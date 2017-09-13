@@ -3,7 +3,7 @@
 use Behat\Behat\Context\Context;
 use Doctrine\ORM\EntityManager;
 use CftfBundle\Entity\LsDoc;
-use \Facebook\WebDriver\WebDriverElement;
+use Facebook\WebDriver\WebDriverElement;
 
 /**
  * Inherited Methods
