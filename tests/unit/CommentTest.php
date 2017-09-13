@@ -3,8 +3,6 @@
 use Doctrine\ORM\EntityManager;
 use Salt\SiteBundle\Entity\Comment;
 use Salt\SiteBundle\Entity\CommentUpvote;
-use Salt\UserBundle\Entity\Organization;
-use Salt\UserBundle\Entity\User;
 
 class CommentTest extends \Codeception\Test\Unit
 {
