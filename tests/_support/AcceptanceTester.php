@@ -3,6 +3,7 @@
 use Behat\Behat\Context\Context;
 use Doctrine\ORM\EntityManager;
 use CftfBundle\Entity\LsDoc;
+use \Facebook\WebDriver\WebDriverElement;
 
 /**
  * Inherited Methods
@@ -113,5 +114,15 @@ class AcceptanceTester extends \Codeception\Actor implements Context
     public function getDocId()
     {
         return $this->lsDocId;
+    }
+
+    public function createAComment($content)
+    {
+        $this->click('.jquery-comments .commenting-field .textarea-wrapper .textarea');
+        $this->fillField('.textarea', $content);
+        $this->click('.jquery-comments .commenting-field .textarea-wrapper .control-row .send');
+        $this->waitForElementChange('.comment-wrapper .wrapper .content', function(WebDriverElement $el) {
+            return $el->isDisplayed();
+        }, 2);
     }
 }

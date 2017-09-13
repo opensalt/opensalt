@@ -2,6 +2,7 @@
 
 use Salt\SiteBundle\Entity\Comment;
 use Salt\SiteBundle\Entity\CommentUpvote;
+use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
 
 class CommentTest extends \Codeception\Test\Unit
@@ -11,23 +12,18 @@ class CommentTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
-    {
-    }
-
-    protected function _after()
-    {
-    }
-
     // tests
     public function testAddComment()
     {
+        $this->tester->ensureUserExistsWithRole('Editor');
+        $user = $this->tester->getLastUser();
         $comment = new Comment();
 
         $comment->setItem('document:123');
         $comment->setContent('unit test comment');
         $comment->setParent(null);
         $comment->setFullname('codeception');
+        $comment->setUser($user);
 
         $em = $this->getModule('Doctrine2')->em;
         $em->persist($comment);
@@ -38,7 +34,7 @@ class CommentTest extends \Codeception\Test\Unit
 
     public function testUpdateComment()
     {
-        $commentId = $this->createComment();
+        $commentId = $this->createComment('new comment');
 
         $em = $this->getModule('Doctrine2')->em;
 
@@ -54,7 +50,7 @@ class CommentTest extends \Codeception\Test\Unit
 
     public function testDeleteComment()
     {
-        $commentId = $this->createComment();
+        $commentId = $this->createComment('deleted comment');
 
         $em = $this->getModule('Doctrine2')->em;
         $commentsCount = count($this->tester->grabEntitiesFromRepository(Comment::class));
@@ -67,40 +63,57 @@ class CommentTest extends \Codeception\Test\Unit
         $this->assertEquals($commentsCount - 1, $newCommentsCount);
     }
 
-    /* public function testUpvoteComment() */
-    /* { */
-    /*     $commentId = $this->createComment(); */
-    /*     $em = $this->getModule('Doctrine2')->em; */
-
-    /*     $comment = $em->find(Comment::class, $commentId); */
-
-    /*     $this->tester->haveFakeRepository(Comment::class, array('addUpvoteForUser' => $this->addUpvoteForUser())); */
-    /*     $comment->addUpvoteForUser($comment, $user); */
-    /* } */
-
-    public function createComment()
+    public function testUpvoteComment()
     {
-        $commentId = $this->tester->haveInRepository(Comment::class,
-            [
-                'item' => 'document:1111',
-                'content' => 'content',
-                'parent' => null,
-                'fullname' => 'codeception'
-            ]
-        );
+        $em = $this->getModule('Doctrine2')->em;
+        $commentId = $this->createComment('upvoted comment');
+        $comment = $em->find(Comment::class, $commentId);
 
-        return $commentId;
-    }
+        $upvotes = $comment->getUpvoteCount();
+        $user = $this->tester->getLastUser();
 
-    public function addUpvoteForUser(Comment $comment, User $user, $em)
-    {
         $commentUpvote = new CommentUpvote();
         $commentUpvote->setComment($comment);
         $commentUpvote->setUser($user);
 
         $em->persist($commentUpvote);
-        $em->flush($commentUpvote);
+        $em->flush();
 
-        return $commentUpvote;
+        $upvotesCount = $comment->getUpvoteCount();
+
+        $this->assertEquals($upvotes + 1, $upvotesCount);
+    }
+
+    public function testDownvoteComment()
+    {
+        $comment = $this->createComment('upvoted comment');
+        $upvotes = $comment->getUpvoteCount();
+        $user = $this->tester->getLastUser();
+
+        $comment->addUpvoteForUser($comment, $user);
+        $upvotes = $comment->getUpvoteCount();
+
+        $comment->removeUpvoteForUser($comment, $user);
+        $upvotesCount = $comment->getUpvoteCount();
+
+        $this->assertEquals($upvotes - 1, $upvotesCount);
+    }
+
+    private function createComment($content)
+    {
+        $this->tester->ensureUserExistsWithRole('Editor');
+        $user = $this->tester->getLastUser();
+
+        $commentId = $this->tester->haveInRepository(Comment::class,
+            [
+                'item' => 'document:1111',
+                'content' => $content,
+                'parent' => null,
+                'fullname' => 'codeception',
+                'user' => $user
+            ]
+        );
+
+        return $commentId;
     }
 }

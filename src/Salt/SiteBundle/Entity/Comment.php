@@ -47,6 +47,7 @@ class Comment
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="\Salt\UserBundle\Entity\User")
+     * @ORM\JoinColumn(nullable=false)
      *
      * @Serializer\Exclude()
      */

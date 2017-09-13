@@ -30,6 +30,7 @@ class CommentUpvote
      * @var Comment
      *
      * @ORM\ManyToOne(targetEntity="Comment", inversedBy="upvotes")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $comment;
 
@@ -37,6 +38,7 @@ class CommentUpvote
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="\Salt\UserBundle\Entity\User")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $user;
 

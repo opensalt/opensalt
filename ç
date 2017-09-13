@@ -2,7 +2,6 @@
 
 use Codeception\Exception\Skip;
 use Codeception\Util\Locator;
-use \Facebook\WebDriver\WebDriverElement;
 
 class CommentCest
 {
@@ -13,13 +12,6 @@ class CommentCest
 
         if (!$toggles->active('comments', $context->createContext())) {
             throw new Skip();
-        } else {
-            $I->getLastFrameworkId();
-            $loginPage = new \Page\Login($I);
-            $loginPage->loginAsRole('Editor');
-            $I->amOnPage('/cftree/doc/'.$I->getDocId());
-            $I->createAComment('default test comment');
-            $loginPage->logout();
         }
     }
 
@@ -47,7 +39,10 @@ class CommentCest
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage('/cftree/doc/'.$I->getDocId());
-        $I->createAComment('acceptance comment');
+        $I->click('.jquery-comments .commenting-field .textarea-wrapper .textarea');
+        $I->fillField('.textarea', 'acceptance comment');
+        $I->click('.jquery-comments .commenting-field .textarea-wrapper .control-row .send');
+        $I->wait(2);
         $I->see('acceptance comment', '.comment-wrapper .wrapper .content');
     }
 
@@ -56,7 +51,7 @@ class CommentCest
         $I->getLastFrameworkId();
         $I->amOnPage('/cftree/doc/'.$I->getDocId());
         $I->click(Locator::firstElement('.upvote'));
-        $I->waitForJS("return $.active == 0;", 2);
+        $I->wait(2);
         $I->seeCurrentUrlEquals('/login');
     }
 
@@ -68,23 +63,11 @@ class CommentCest
         $I->amOnPage('/cftree/doc/'.$I->getDocId());
         $upvotes = $I->grabTextFrom(Locator::firstElement('.upvote'));
         $I->click(Locator::firstElement('.upvote'));
-        $I->waitForJS('return $.active == 0', 2);
+        $I->wait(2);
         $I->see($upvotes + 1, Locator::firstElement('.upvote'));
     }
 
-    public function downvoteAsAnAuthenticatedUser(AcceptanceTester $I)
+    public function downvoteAsAnAnonymousUser(AcceptanceTester $I)
     {
-        $I->getLastFrameworkId();
-        $loginPage = new \Page\Login($I);
-        $loginPage->loginAsRole('Editor');
-        $I->amOnPage('/cftree/doc/'.$I->getDocId());
-        $I->createAComment('downvote comment');
-        $I->waitForJS('return $.active == 0', 2);
-        $I->click(Locator::firstElement('.upvote'));
-        $I->waitForJS('return $.active == 0', 2);
-        $upvotes = $I->grabTextFrom(Locator::firstElement('.upvote'));
-        $I->click(Locator::firstElement('.upvote'));
-        $I->waitForJS('return $.active == 0', 2);
-        $I->see($upvotes - 1, Locator::firstElement('.upvote'));
     }
 }
