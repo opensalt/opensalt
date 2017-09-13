@@ -1,5 +1,6 @@
 <?php
 
+use Doctrine\ORM\EntityManager;
 use Salt\SiteBundle\Entity\Comment;
 use Salt\SiteBundle\Entity\CommentUpvote;
 use Salt\UserBundle\Entity\Organization;
@@ -65,38 +66,52 @@ class CommentTest extends \Codeception\Test\Unit
 
     public function testUpvoteComment()
     {
+        /** @var EntityManager $em */
         $em = $this->getModule('Doctrine2')->em;
         $commentId = $this->createComment('upvoted comment');
         $comment = $em->find(Comment::class, $commentId);
-
         $upvotes = $comment->getUpvoteCount();
+
+        $this->tester->ensureUserExistsWithRole('Editor');
         $user = $this->tester->getLastUser();
 
         $commentUpvote = new CommentUpvote();
         $commentUpvote->setComment($comment);
         $commentUpvote->setUser($user);
-
         $em->persist($commentUpvote);
         $em->flush();
 
+        $em->detach($comment);
+        $comment = $em->find(Comment::class, $commentId);
         $upvotesCount = $comment->getUpvoteCount();
-
         $this->assertEquals($upvotes + 1, $upvotesCount);
     }
 
     public function testDownvoteComment()
     {
-        $comment = $this->createComment('upvoted comment');
+        /** @var EntityManager $em */
+        $em = $this->getModule('Doctrine2')->em;
+        $commentRepo = $em->getRepository(Comment::class);
+        $commentId = $this->createComment('upvoted comment');
+        $comment = $commentRepo->find($commentId);
+
         $upvotes = $comment->getUpvoteCount();
+        $this->tester->ensureUserExistsWithRole('Editor');
         $user = $this->tester->getLastUser();
 
-        $comment->addUpvoteForUser($comment, $user);
-        $upvotes = $comment->getUpvoteCount();
-
-        $comment->removeUpvoteForUser($comment, $user);
+        // Add an upvote
+        $commentRepo->addUpvoteForUser($comment, $user);
+        $em->detach($comment);
+        $comment = $commentRepo->find($commentId);
         $upvotesCount = $comment->getUpvoteCount();
+        $this->assertEquals($upvotes + 1, $upvotesCount);
 
-        $this->assertEquals($upvotes - 1, $upvotesCount);
+        // Remove the upvote
+        $commentRepo->removeUpvoteForUser($comment, $user);
+        $em->detach($comment);
+        $comment = $commentRepo->find($commentId);
+        $upvotesCount = $comment->getUpvoteCount();
+        $this->assertEquals($upvotes, $upvotesCount);
     }
 
     private function createComment($content)
