@@ -72,7 +72,6 @@ class CommentTest extends \Codeception\Test\Unit
         $comment = $em->find(Comment::class, $commentId);
         $upvotes = $comment->getUpvoteCount();
 
-        $this->tester->ensureUserExistsWithRole('Editor');
         $user = $this->tester->getLastUser();
 
         $commentUpvote = new CommentUpvote();
@@ -96,7 +95,6 @@ class CommentTest extends \Codeception\Test\Unit
         $comment = $commentRepo->find($commentId);
 
         $upvotes = $comment->getUpvoteCount();
-        $this->tester->ensureUserExistsWithRole('Editor');
         $user = $this->tester->getLastUser();
 
         // Add an upvote
