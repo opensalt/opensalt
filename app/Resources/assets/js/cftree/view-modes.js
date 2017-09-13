@@ -13,7 +13,7 @@ apx.viewMode.lastViewButtonPushed = "tree";
 
 apx.viewMode.showTreeView = function(context) {
     apx.viewMode.currentView = "tree";
-    
+
     // if the user clicked the button to show this view, or clicked an item from the associations table
     if (context == "button" || context == "avTable") {
         // if the user clicked the button and the last view button pushed wasn't tree...
@@ -24,11 +24,11 @@ apx.viewMode.showTreeView = function(context) {
         // set viewMode.lastViewButtonPushed to "tree" (so if we got back to the tree view via clicking on an item from the assoc table, we "simulate" clicking the tree view button)
         apx.viewMode.lastViewButtonPushed = "tree";
     }
-    
+
     // set buttons appropriately
     $("#displayAssocBtn").removeClass("btn-primary").addClass("btn-default").blur();
     $("#displayTreeBtn").addClass("btn-primary").removeClass("btn-default").blur();
-    
+
     // hide the assocView and show the treeView
     $("#assocView").hide();
     $("#treeView").show();
@@ -36,9 +36,14 @@ apx.viewMode.showTreeView = function(context) {
 
 apx.viewMode.avFilters = {
     "avShowChild": false,
-    "avShowExact": true,
+    "avShowExact": false,
     "avShowExemplar": true,
-    "avShowOtherTypes": true,
+    "avShowIsRelatedTo": true,
+    "avShowPrecedes": true,
+    "avShowReplacedBy": false,
+    "avShowHasSkillLevel": false,
+    "avShowIsPeerOf": false,
+    "avShowIsPartOf": false,
     "groups": []
 };
 apx.viewMode.assocViewStatus = "not_written";
@@ -52,7 +57,7 @@ apx.viewMode.showAssocView = function(context) {
         }
     }
     apx.spinner.hideModal();
-    
+
     apx.viewMode.currentView = "assoc";
 
     // currentItem is always the doc in assocView
@@ -62,25 +67,25 @@ apx.viewMode.showAssocView = function(context) {
     if (context == "refresh") {
         // set viewMode.assocViewStatus to "stale" so we make sure to reload it
         apx.viewMode.assocViewStatus = "stale";
-    
+
     // else if the user clicked the button to load this view
     } else if (context == "button") {
         // unless the user has now clicked the Associations button twice in a row, push a history state
         if (apx.viewMode.lastViewButtonPushed != "assoc") {
             apx.pushHistoryState();
         }
-        
+
         // note that this was the last button pushed
         apx.viewMode.lastViewButtonPushed = "assoc";
     }
-    
+
     // if viewMode.assocViewStatus isn't "current", re-write the table
     if (apx.viewMode.assocViewStatus != "current") {
         // destroy previous table if we already created it
         if (apx.viewMode.assocViewStatus != "not_written") {
             $("#assocViewTable").DataTable().destroy();
         }
-    
+
         // make sure viewMode.avFilters.groups is set up to use included groups
         var gft = [];
         for (var i = 0; i < apx.mainDoc.assocGroups.length; ++i) {
@@ -113,27 +118,27 @@ apx.viewMode.showAssocView = function(context) {
                 title = key;
             }
             var doc = null;
-    
+
             // for the dest of an exemplar, we just use .uri
             if (a.type == "exemplar") {
                 title = a[key].uri;
-        
+
             // else see if the "item" is actually a document
             } else if (!empty(apx.allDocs[a[key].item]) && typeof(apx.allDocs[a[key].item]) != "string") {
                 title = "Document: " + apx.allDocs[a[key].item].doc.title;
-        
-            // else if we know about this item via allItemsHash...    
+
+            // else if we know about this item via allItemsHash...
             } else if (!empty(apx.allItemsHash[a[key].item])) {
                 var destItem = apx.allItemsHash[a[key].item];
                 title = apx.mainDoc.getItemTitle(destItem, true);
                 doc = destItem.doc;
-        
+
             // else we don't (currently at least) know about this item...
             } else {
                 if (a[key].doc != "?") {
                     // look for document in allDocs
                     doc = apx.allDocs[a[key].doc];
-        
+
                     // if we tried to load this document and failed, note that
                     if (doc == "loaderror") {
                         title += " (document could not be loaded)";
@@ -141,8 +146,8 @@ apx.viewMode.showAssocView = function(context) {
                     // else if we know we're still in the process of loading that doc, note that
                     } else if (doc == "loading") {
                         title += " (loading document...)";
-        
-                    // else we have the doc -- this shouldn't normally happen, because if we know about the doc, 
+
+                    // else we have the doc -- this shouldn't normally happen, because if we know about the doc,
                     // we should have found the item in apx.allItemsHash above
                     } else if (typeof(doc) == "object") {
                         title += " (item not found in document)";
@@ -173,31 +178,61 @@ apx.viewMode.showAssocView = function(context) {
         var dataSet = [];
         for (var i = 0; i < apx.mainDoc.assocs.length; ++i) {
             var assoc = apx.mainDoc.assocs[i];
-            
+
             // skip associations (probably inverse associations) from other docs
             if (assoc.assocDoc != apx.mainDoc.doc.identifier) {
                 continue;
             }
-        
+
             // skip types if filters dictate
-            if (assoc.type == "isChildOf") {
-                if (!apx.viewMode.avFilters.avShowChild) {
-                    continue;
-                }
-            } else if (assoc.type == "exactMatchOf") {
-                if (!apx.viewMode.avFilters.avShowExact) {
-                    continue;
-                }
-            } else if (assoc.type == "exemplar") {
-                if (!apx.viewMode.avFilters.avShowExemplar) {
-                    continue;
-                }
-            } else {
-                if (!apx.viewMode.avFilters.avShowOtherTypes) {
-                    continue;
-                }
+            switch (assoc.type) {
+                case "isChildOf":
+                    if (!apx.viewMode.avFilters.avShowChild) {
+                        continue;
+                    }
+                    break;
+                case "exactMatchOf":
+                    if (!apx.viewMode.avFilters.avShowExact) {
+                        continue;
+                    }
+                    break;
+                case "exemplar":
+                    if (!apx.viewMode.avFilters.avShowExemplar) {
+                        continue;
+                    }
+                    break;
+                case "isRelatedTo":
+                    if (!apx.viewMode.avFilters.avShowIsRelatedTo) {
+                        continue;
+                    }
+                    break;
+                case "precedes":
+                    if (!apx.viewMode.avFilters.avShowPrecedes) {
+                        continue;
+                    }
+                    break;
+                case "replacedBy":
+                    if (!apx.viewMode.avFilters.avShowReplacedBy) {
+                        continue;
+                    }
+                    break;
+                case "hasSkillLevel":
+                    if (!apx.viewMode.avFilters.avShowHasSkillLevel) {
+                        continue;
+                    }
+                    break;
+                case "isPeerOf":
+                    if (!apx.viewMode.avFilters.avShowIsPeerOf) {
+                        continue;
+                    }
+                    break;
+                case "isPartOf":
+                    if (!apx.viewMode.avFilters.avShowIsPartOf) {
+                        continue;
+                    }
+                    break;
             }
-        
+
             // skip groups if filters dictate
             if ("groupId" in assoc) {
                 if (!apx.viewMode.avFilters.groups[assoc.groupId]) {
@@ -208,20 +243,20 @@ apx.viewMode.showAssocView = function(context) {
                     continue;
                 }
             }
-            
+
             // determine groupForLinks
             var groupForLinks = "default";
             if ("groupId" in assoc) {
                 groupForLinks = assoc.groupId;
             }
-            
+
             // get text to show in origin and destination column
             var origin = avGetItemCell(assoc, "origin");
             var dest = avGetItemCell(assoc, "dest");
-        
+
             // get type cell, with remove association button (only for editors)
             var type = apx.mainDoc.getAssociationTypePretty(assoc) + $("#associationRemoveBtn").html();
-        
+
             // construct array for row
             var arr = [origin, type, dest];
 
@@ -233,11 +268,11 @@ apx.viewMode.showAssocView = function(context) {
                     arr.push("– Default –");
                 }
             }
-        
+
             // push row array onto dataSet array
             dataSet.push(arr);
         }
-    
+
         // set up columns
         var columns = [
             { "title": "Origin", "className": "avTitleCell" },
@@ -271,7 +306,7 @@ apx.viewMode.showAssocView = function(context) {
                     // TODO: save this value in localStorage?
                 });
         }
-    
+
         // enable group filters if we have any groups
         if (apx.mainDoc.assocGroups.length > 0) {
             $gf = $("#assocViewTable_wrapper .assocViewTableGroupFilters");
@@ -288,20 +323,20 @@ apx.viewMode.showAssocView = function(context) {
             }
             $gf.css("display", "inline-block");
         }
-    
+
         // enable remove buttons
         $("#assocViewTable_wrapper .btn-remove-association").on('click', function(e) {
             e.preventDefault();
             var assocId = $(this).closest("tr").find("[data-association-id]").attr("data-association-id");
             console.log("delete " + assocId);
-            
+
             apx.edit.deleteAssociation(assocId, function() {
                 // refresh the table after deleting the association
                 apx.viewMode.showAssocView("refresh");
             });
             return false;
         });
-    
+
         // tooltips for items with titles
         $(".assocViewTitle").each(function() {
             var content = $(this).html();
@@ -313,9 +348,9 @@ apx.viewMode.showAssocView = function(context) {
                 "container": "body"
             });
         });
-        
+
         // click on items to open them
-        $(".assocViewTitle").on('click', function(e) { 
+        $(".assocViewTitle").on('click', function(e) {
             // if openAssociationItem returns true, it means that we opened an item in this document
             if (apx.mainDoc.openAssociationItem(this, true)) {
                 // so switch to tree view mode
@@ -324,10 +359,10 @@ apx.viewMode.showAssocView = function(context) {
         });
 
         apx.viewMode.assocViewStatus = "current";
-        
+
     // end of code for writing table
     }
-        
+
     // set mode toggle buttons appropriately
     $("#displayTreeBtn").removeClass("btn-primary").addClass("btn-default").blur();
     $("#displayAssocBtn").addClass("btn-primary").removeClass("btn-default").blur();
@@ -354,21 +389,21 @@ apx.chooserMode.initialize = function() {
     $("#tree1Instructions").hide();
     $("#treeRightSideMode").hide();
     $("#itemOptionsWrapper").hide();
-    
+
     // unless we have "associations=true" in the query string, hide associations from the item details
     if (apx.query.associations != "true") {
         $(".lsItemAssociations").hide();
     }
-    
+
     // set treeSideLeft to class col-sm-12 instead of col-sm-6
     $("#treeSideLeft").removeClass("col-sm-6").addClass("chooserModeDocTree");
-    
+
     // for treeSideRight, remove class col-sm6 and add class chooserModeItemDetails
     $("#treeSideRight").removeClass("col-sm-6").addClass("chooserModeItemDetails");
-    
+
     // click event on chooserModeTreeSideRightBackground
     $("#chooserModeTreeSideRightBackground").on("click", function() { apx.chooserMode.hideDetails(); });
-    
+
     // show and enable chooserModeButtons
     $("#chooserModeButtons").show();
     $("#chooserModeItemDetailsChooseBtn").on("click", function() { apx.chooserMode.choose(); });
@@ -432,16 +467,16 @@ apx.chooserMode.choose = function() {
             "lastChangeDateTime": i.mod
         }
     };
-    
+
     // append a token if provided
     if (!empty(apx.query.choosercallbacktoken)) {
         data.token = apx.query.choosercallbacktoken;
     }
-    
+
     console.log(data);
-    
+
     apx.spinner.showModal("Item chosen");
-    
+
     // if a callback url is given in the query string, send the chosen item back to that url
     if (!empty(apx.query.choosercallbackurl)) {
         var url = apx.query.choosercallbackurl + "?data=" + encodeURIComponent(JSON.stringify(data));
@@ -454,16 +489,16 @@ apx.chooserMode.choose = function() {
         }).done(function(data, textStatus, jqXHR) {
             console.log("OpenSALT item chooser callback function executed.");
             apx.spinner.hideModal();
-            
+
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();
             console.log(errorThrown);
             alert("Error submitting chosen item.");
         });
         */
-        
+
         return;
-    
+
     // else if a callback function is given, try to call it
     } else if (!empty(apx.query.choosercallbackfn)) {
         try {
@@ -475,7 +510,7 @@ apx.chooserMode.choose = function() {
         }
         return;
     }
-    
+
     apx.spinner.hideModal();
     alert("Item chosen: " + itemData.fullStatement + "\n\nTo send items to a callback URL or function, provide a “choosercallbackurl” or “choosercallbackfn” in the query string.");
 };
