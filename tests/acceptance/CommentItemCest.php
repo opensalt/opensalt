@@ -3,8 +3,10 @@
 use Codeception\Exception\Skip;
 use Codeception\Util\Locator;
 
-class CommentCest
+class CommentItemCest
 {
+    static public $itemPath = '/cftree/item/';
+
     public function _before(AcceptanceTester $I)
     {
         $toggles = $I->grabService('qandidate.toggle.manager');
@@ -12,13 +14,6 @@ class CommentCest
 
         if (!$toggles->active('comments', $context->createContext())) {
             throw new Skip();
-        } else {
-            $I->getLastFrameworkId();
-            $loginPage = new \Page\Login($I);
-            $loginPage->loginAsRole('Editor');
-            $I->amOnPage('/cftree/doc/'.$I->getDocId());
-            $I->createAComment('default test comment');
-            $loginPage->logout();
         }
     }
 
@@ -26,7 +21,7 @@ class CommentCest
     public function seeCommentsSectionAsAnAnonymousUser(AcceptanceTester $I)
     {
         $I->getLastFrameworkId();
-        $I->amOnPage('/cftree/doc/'.$I->getDocId());
+        $I->amOnPage(self::$itemPath.$I->getItemId());
         $I->seeElement('.jquery-comments');
         $I->see('To comment please login first');
     }
@@ -36,7 +31,7 @@ class CommentCest
         $I->getLastFrameworkId();
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Editor');
-        $I->amOnPage('/cftree/doc/'.$I->getDocId());
+        $I->amOnPage(self::$itemPath.$I->getItemId());
         $I->seeElement('.commenting-field');
     }
 
@@ -45,15 +40,15 @@ class CommentCest
         $I->getLastFrameworkId();
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Editor');
-        $I->amOnPage('/cftree/doc/'.$I->getDocId());
-        $I->createAComment('acceptance comment');
-        $I->see('acceptance comment', '.comment-wrapper .wrapper .content');
+        $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->createAComment('acceptance item comment '.sq($I->getItemId()));
+        $I->see('acceptance item comment '.sq($I->getItemId()), '.comment-wrapper .wrapper .content');
     }
 
     public function upvoteOrDownvoteAsAnAnonymousUser(AcceptanceTester $I)
     {
         $I->getLastFrameworkId();
-        $I->amOnPage('/cftree/doc/'.$I->getDocId());
+        $I->amOnPage(self::$itemPath.$I->getItemId());
         $I->click(Locator::firstElement('.upvote'));
         $I->waitForJS('return $.active == 0;', 2);
         $I->seeCurrentUrlEquals('/login');
@@ -64,7 +59,7 @@ class CommentCest
         $I->getLastFrameworkId();
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Editor');
-        $I->amOnPage('/cftree/doc/'.$I->getDocId());
+        $I->amOnPage(self::$itemPath.$I->getItemId());
         $upvotes = $I->grabTextFrom(Locator::firstElement('.upvote'));
         $I->click(Locator::firstElement('.upvote'));
         $I->waitForJS('return $.active == 0', 2);
@@ -76,8 +71,8 @@ class CommentCest
         $I->getLastFrameworkId();
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Editor');
-        $I->amOnPage('/cftree/doc/'.$I->getDocId());
-        $I->createAComment('downvote comment');
+        $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->createAComment('downvote comment '.sq($I->getItemId()));
         $I->waitForJS('return $.active == 0', 2);
         $I->click(Locator::firstElement('.upvote'));
         $I->waitForJS('return $.active == 0', 2);

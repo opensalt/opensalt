@@ -1,6 +1,7 @@
 <?php
 
 use Behat\Behat\Context\Context;
+use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityManager;
 use CftfBundle\Entity\LsDoc;
 use Facebook\WebDriver\WebDriverElement;
@@ -26,6 +27,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
     use _generated\AcceptanceTesterActions;
 
     private $lsDocId = null;
+    private $lsItemId = null;
 
     /**
      * @Given I am on the homepage
@@ -101,19 +103,64 @@ class AcceptanceTester extends \Codeception\Actor implements Context
 
         if (!$lsDoc) {
             $lsDoc = new LsDoc();
-            $lsDoc->setTitle('test framework');
-            $lsDoc->setCreator('test creator');
+            $lsDoc->setTitle(sq('test framework'));
+            $lsDoc->setCreator(sq('test creator'));
 
             $em->persist($lsDoc);
             $em->flush($lsDoc);
         }
 
         $this->lsDocId = $lsDoc->getId();
+
+        return $this->lsDocId;
     }
 
     public function getDocId()
     {
+        if (null === $this->lsDocId) {
+            return $this->getLastFrameworkId();
+        }
+
         return $this->lsDocId;
+    }
+
+    public function getLastItemId()
+    {
+        /** @var EntityManager $em */
+        $em = $this->grabService('doctrine.orm.default_entity_manager');
+
+        $lsItemRepo = $em->getRepository(LsItem::class);
+        $lsItem = $lsItemRepo->createQueryBuilder('d')
+            ->orderBy('d.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$lsItem) {
+            $lsDocRepo = $em->getRepository(LsDoc::class);
+            $doc = $lsDocRepo->find($this->getLastFrameworkId());
+
+            /** @var LsItem $lsItem */
+            $lsItem = $doc->createItem();
+            $lsItem->setFullStatement(sq('test item'));
+            $doc->createChildItem($lsItem);
+
+            $em->persist($lsItem);
+            $em->flush();
+        }
+
+        $this->lsItemId = $lsItem->getId();
+
+        return $this->lsItemId;
+    }
+
+    public function getItemId()
+    {
+        if (null === $this->lsItemId) {
+            return $this->getLastItemId();
+        }
+
+        return $this->lsItemId;
     }
 
     public function createAComment($content)
