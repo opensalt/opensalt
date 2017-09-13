@@ -23,6 +23,7 @@ services:
       ALLOW_LOCAL_DEV: "true"
       ALLOW_EXTERNAL_DEV_IPS:
       DEV_COOKIE:
+      COMMENTS_FEATURE:
     volumes:
       - &project_root "..:/var/www/html"
     working_dir: /var/www/html
