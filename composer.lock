@@ -319,16 +319,16 @@
         },
         {
             "name": "bower-asset/datatables.net-fixedheader",
-            "version": "3.1.2",
+            "version": "3.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataTables/Dist-DataTables-FixedHeader.git",
-                "reference": "39bb578f2c4881c98aecb3e2e7cedcfdfaba2c5c"
+                "reference": "55f5e6f2dbb131d67f43fd41a1e9e32ffed667ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-FixedHeader/zipball/39bb578f2c4881c98aecb3e2e7cedcfdfaba2c5c",
-                "reference": "39bb578f2c4881c98aecb3e2e7cedcfdfaba2c5c",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-FixedHeader/zipball/55f5e6f2dbb131d67f43fd41a1e9e32ffed667ab",
+                "reference": "55f5e6f2dbb131d67f43fd41a1e9e32ffed667ab",
                 "shasum": ""
             },
             "require": {
@@ -357,20 +357,21 @@
                 "jQuery",
                 "sticky",
                 "table"
-            ]
+            ],
+            "time": "2017-09-12T14:15:18+00:00"
         },
         {
             "name": "bower-asset/datatables.net-fixedheader-bs",
-            "version": "3.1.2",
+            "version": "3.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataTables/Dist-DataTables-FixedHeader-Bootstrap.git",
-                "reference": "bf97d7384dcb9954b78d14fb9ec345ffd2f43130"
+                "reference": "7506e40d8e4e7eebe31f7109c7b3ffb36cca4951"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-FixedHeader-Bootstrap/zipball/bf97d7384dcb9954b78d14fb9ec345ffd2f43130",
-                "reference": "bf97d7384dcb9954b78d14fb9ec345ffd2f43130",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-FixedHeader-Bootstrap/zipball/7506e40d8e4e7eebe31f7109c7b3ffb36cca4951",
+                "reference": "7506e40d8e4e7eebe31f7109c7b3ffb36cca4951",
                 "shasum": ""
             },
             "require": {
@@ -392,7 +393,7 @@
             "license": [
                 "MIT"
             ],
-            "description": "FixedHeader for DataTables with styling for [Bootstrap](http://getbootstrap.com/)",
+            "description": "FixedHeader for DataTables with styling for [Bootstrap 3](http://getbootstrap.com/)",
             "keywords": [
                 "Bootstrap",
                 "DataTables",
@@ -400,20 +401,21 @@
                 "jQuery",
                 "sticky",
                 "table"
-            ]
+            ],
+            "time": "2017-09-12T14:15:51+00:00"
         },
         {
             "name": "bower-asset/datatables.net-scroller",
-            "version": "1.4.2",
+            "version": "1.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataTables/Dist-DataTables-Scroller.git",
-                "reference": "504b09f264cc61b1e91c3da01b8db73330feb63a"
+                "reference": "ea3b7e0e6779db4ac7c11c2f795fe471226bacb4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Scroller/zipball/504b09f264cc61b1e91c3da01b8db73330feb63a",
-                "reference": "504b09f264cc61b1e91c3da01b8db73330feb63a",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Scroller/zipball/ea3b7e0e6779db4ac7c11c2f795fe471226bacb4",
+                "reference": "ea3b7e0e6779db4ac7c11c2f795fe471226bacb4",
                 "shasum": ""
             },
             "require": {
@@ -441,20 +443,21 @@
                 "jQuery",
                 "table",
                 "virtual scrolling"
-            ]
+            ],
+            "time": "2017-09-12T14:55:20+00:00"
         },
         {
             "name": "bower-asset/datatables.net-scroller-bs",
-            "version": "1.4.2",
+            "version": "1.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataTables/Dist-DataTables-Scroller-Bootstrap.git",
-                "reference": "4e769ea6d84bc4ec2f833211598588691db1cf30"
+                "reference": "756439bbafe4a2ee09f825e81b543ca5afcd7a38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Scroller-Bootstrap/zipball/4e769ea6d84bc4ec2f833211598588691db1cf30",
-                "reference": "4e769ea6d84bc4ec2f833211598588691db1cf30",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Scroller-Bootstrap/zipball/756439bbafe4a2ee09f825e81b543ca5afcd7a38",
+                "reference": "756439bbafe4a2ee09f825e81b543ca5afcd7a38",
                 "shasum": ""
             },
             "require": {
@@ -476,27 +479,28 @@
             "license": [
                 "MIT"
             ],
-            "description": "Scroller for DataTables with styling for [Bootstrap](http://getbootstrap.com/)",
+            "description": "Scroller for DataTables with styling for [Bootstrap 3](http://getbootstrap.com/)",
             "keywords": [
                 "Bootstrap",
                 "DataTables",
                 "jQuery",
                 "table",
                 "virtual scrolling"
-            ]
+            ],
+            "time": "2017-09-12T14:56:14+00:00"
         },
         {
             "name": "bower-asset/datatables.net-select",
-            "version": "1.2.2",
+            "version": "1.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataTables/Dist-DataTables-Select.git",
-                "reference": "01fcacdd392d7b8d06722b1ef237a00eb46425c1"
+                "reference": "52ab730cc765803df9a08117bc0b6a572e6f451d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Select/zipball/01fcacdd392d7b8d06722b1ef237a00eb46425c1",
-                "reference": "01fcacdd392d7b8d06722b1ef237a00eb46425c1",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Select/zipball/52ab730cc765803df9a08117bc0b6a572e6f451d",
+                "reference": "52ab730cc765803df9a08117bc0b6a572e6f451d",
                 "shasum": ""
             },
             "require": {
@@ -525,20 +529,21 @@
                 "select",
                 "selection",
                 "table"
-            ]
+            ],
+            "time": "2017-09-12T15:05:10+00:00"
         },
         {
             "name": "bower-asset/datatables.net-select-bs",
-            "version": "1.2.2",
+            "version": "1.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataTables/Dist-DataTables-Select-Bootstrap.git",
-                "reference": "418dd236be15c4cff7c08a1b595d570c529da2a3"
+                "reference": "3bb3373dd1dd5bb1799a8f4e3f99a40ef1a15b8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Select-Bootstrap/zipball/418dd236be15c4cff7c08a1b595d570c529da2a3",
-                "reference": "418dd236be15c4cff7c08a1b595d570c529da2a3",
+                "url": "https://api.github.com/repos/DataTables/Dist-DataTables-Select-Bootstrap/zipball/3bb3373dd1dd5bb1799a8f4e3f99a40ef1a15b8a",
+                "reference": "3bb3373dd1dd5bb1799a8f4e3f99a40ef1a15b8a",
                 "shasum": ""
             },
             "require": {
@@ -560,7 +565,7 @@
             "license": [
                 "MIT"
             ],
-            "description": "Select for DataTables with styling for [Bootstrap](http://getbootstrap.com/)",
+            "description": "Select for DataTables with styling for [Bootstrap 3](http://getbootstrap.com/)",
             "keywords": [
                 "Bootstrap",
                 "DataTables",
@@ -568,7 +573,8 @@
                 "select",
                 "selection",
                 "table"
-            ]
+            ],
+            "time": "2017-09-12T15:05:43+00:00"
         },
         {
             "name": "bower-asset/fancytree",
@@ -930,16 +936,16 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.0.7",
+            "version": "1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "b17e6153cb7f33c7e44eb59578dc12eee5dc8e12"
+                "reference": "9dd73a03951357922d8aee6cc084500de93e2343"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/b17e6153cb7f33c7e44eb59578dc12eee5dc8e12",
-                "reference": "b17e6153cb7f33c7e44eb59578dc12eee5dc8e12",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/9dd73a03951357922d8aee6cc084500de93e2343",
+                "reference": "9dd73a03951357922d8aee6cc084500de93e2343",
                 "shasum": ""
             },
             "require": {
@@ -985,7 +991,7 @@
                 "ssl",
                 "tls"
             ],
-            "time": "2017-03-06T11:59:08+00:00"
+            "time": "2017-09-11T07:24:36+00:00"
         },
         {
             "name": "csa/guzzle-bundle",
@@ -1633,28 +1639,28 @@
         },
         {
             "name": "doctrine/doctrine-fixtures-bundle",
-            "version": "2.3.0",
+            "version": "v2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineFixturesBundle.git",
-                "reference": "0f1a2f91b349e10f5c343f75ab71d23aace5b029"
+                "reference": "7bb198c044b798b54e6be37c7929339aa645c3bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineFixturesBundle/zipball/0f1a2f91b349e10f5c343f75ab71d23aace5b029",
-                "reference": "0f1a2f91b349e10f5c343f75ab71d23aace5b029",
+                "url": "https://api.github.com/repos/doctrine/DoctrineFixturesBundle/zipball/7bb198c044b798b54e6be37c7929339aa645c3bf",
+                "reference": "7bb198c044b798b54e6be37c7929339aa645c3bf",
                 "shasum": ""
             },
             "require": {
                 "doctrine/data-fixtures": "~1.0",
                 "doctrine/doctrine-bundle": "~1.0",
                 "php": ">=5.3.2",
-                "symfony/doctrine-bridge": "~2.3|~3.0"
+                "symfony/doctrine-bridge": "~2.7|~3.0|~4.0"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.2.x-dev"
+                    "dev-master": "2.4.x-dev"
                 }
             },
             "autoload": {
@@ -1686,7 +1692,7 @@
                 "Fixture",
                 "persistence"
             ],
-            "time": "2015-11-04T21:23:23+00:00"
+            "time": "2017-09-10T23:22:01+00:00"
         },
         {
             "name": "doctrine/doctrine-migrations-bundle",
@@ -5126,12 +5132,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "3c88e062f6b3a510770efc654ce9e14d633bd8a8"
+                "reference": "140175d0d4a71950b045fb87cc7d979340b9f16e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/3c88e062f6b3a510770efc654ce9e14d633bd8a8",
-                "reference": "3c88e062f6b3a510770efc654ce9e14d633bd8a8",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/140175d0d4a71950b045fb87cc7d979340b9f16e",
+                "reference": "140175d0d4a71950b045fb87cc7d979340b9f16e",
                 "shasum": ""
             },
             "conflict": {
@@ -5159,7 +5165,7 @@
                 "dompdf/dompdf": ">=0.6,<0.6.2",
                 "drupal/core": ">=8,<8.3.7",
                 "drupal/drupal": ">=8,<8.3.7",
-                "ezsystems/ezpublish-legacy": ">=5.4,<5.4.10|>=5.3,<5.3.12.1",
+                "ezsystems/ezpublish-legacy": ">=2017.8,<2017.8.1.1|>=5.4,<5.4.10.1|>=5.3,<5.3.12.2",
                 "firebase/php-jwt": "<2",
                 "friendsofsymfony/rest-bundle": ">=1.2,<1.2.2",
                 "friendsofsymfony/user-bundle": ">=1.2,<1.3.5",
@@ -5256,7 +5262,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2017-09-06T14:29:44+00:00"
+            "time": "2017-09-11T12:05:25+00:00"
         },
         {
             "name": "sensio/distribution-bundle",
@@ -6182,16 +6188,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "v3.3.8",
+            "version": "v3.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "645d24a119bc7b8326bb01e7b5b696bc3be337ec"
+                "reference": "a9d2f68ae9946000e2bcc3403d218ec0124f992a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/645d24a119bc7b8326bb01e7b5b696bc3be337ec",
-                "reference": "645d24a119bc7b8326bb01e7b5b696bc3be337ec",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/a9d2f68ae9946000e2bcc3403d218ec0124f992a",
+                "reference": "a9d2f68ae9946000e2bcc3403d218ec0124f992a",
                 "shasum": ""
             },
             "require": {
@@ -6204,6 +6210,7 @@
                 "psr/link": "^1.0",
                 "psr/log": "~1.0",
                 "psr/simple-cache": "^1.0",
+                "symfony/polyfill-apcu": "~1.1",
                 "symfony/polyfill-intl-icu": "~1.0",
                 "symfony/polyfill-mbstring": "~1.0",
                 "symfony/polyfill-php56": "~1.0",
@@ -6287,7 +6294,6 @@
                 "predis/predis": "~1.0",
                 "sensio/framework-extra-bundle": "^3.0.2",
                 "symfony/phpunit-bridge": "~3.2",
-                "symfony/polyfill-apcu": "~1.1",
                 "symfony/security-acl": "~2.8|~3.0"
             },
             "type": "library",
@@ -6331,7 +6337,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2017-08-28T22:35:20+00:00"
+            "time": "2017-09-11T16:13:42+00:00"
         },
         {
             "name": "tetranz/select2entity-bundle",
@@ -6608,16 +6614,16 @@
         },
         {
             "name": "zendframework/zend-diactoros",
-            "version": "1.5.0",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-diactoros.git",
-                "reference": "1d23172f9dc1687a97c195a777b0199f14f7b26e"
+                "reference": "2faa791b66bac33ca40031d8bce03b7dc8143490"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/1d23172f9dc1687a97c195a777b0199f14f7b26e",
-                "reference": "1d23172f9dc1687a97c195a777b0199f14f7b26e",
+                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/2faa791b66bac33ca40031d8bce03b7dc8143490",
+                "reference": "2faa791b66bac33ca40031d8bce03b7dc8143490",
                 "shasum": ""
             },
             "require": {
@@ -6636,8 +6642,8 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.5-dev",
-                    "dev-develop": "1.6-dev"
+                    "dev-master": "1.6-dev",
+                    "dev-develop": "1.7-dev"
                 }
             },
             "autoload": {
@@ -6656,7 +6662,7 @@
                 "psr",
                 "psr-7"
             ],
-            "time": "2017-08-22T20:38:56+00:00"
+            "time": "2017-09-13T14:47:08+00:00"
         },
         {
             "name": "zendframework/zend-eventmanager",
@@ -7134,16 +7140,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v1.13.2",
+            "version": "v1.13.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfPHP/PHP-CS-Fixer.git",
-                "reference": "106313aa0d501782260e48ac04a1c671b5d418ea"
+                "reference": "387e4c86c9dc0e1e4c475291fc114ec45b98e624"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/106313aa0d501782260e48ac04a1c671b5d418ea",
-                "reference": "106313aa0d501782260e48ac04a1c671b5d418ea",
+                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/387e4c86c9dc0e1e4c475291fc114ec45b98e624",
+                "reference": "387e4c86c9dc0e1e4c475291fc114ec45b98e624",
                 "shasum": ""
             },
             "require": {
@@ -7188,7 +7194,7 @@
                 }
             ],
             "description": "A tool to automatically fix PHP code style",
-            "time": "2017-08-19T11:43:55+00:00"
+            "time": "2017-09-11T14:11:16+00:00"
         },
         {
             "name": "fzaninotto/faker",
@@ -7397,16 +7403,16 @@
         },
         {
             "name": "phpdocumentor/reflection-common",
-            "version": "1.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionCommon.git",
-                "reference": "144c307535e82c8fdcaacbcfc1d6d8eeb896687c"
+                "reference": "21bdeb5f65d7ebf9f43b1b25d404f87deab5bfb6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionCommon/zipball/144c307535e82c8fdcaacbcfc1d6d8eeb896687c",
-                "reference": "144c307535e82c8fdcaacbcfc1d6d8eeb896687c",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionCommon/zipball/21bdeb5f65d7ebf9f43b1b25d404f87deab5bfb6",
+                "reference": "21bdeb5f65d7ebf9f43b1b25d404f87deab5bfb6",
                 "shasum": ""
             },
             "require": {
@@ -7447,7 +7453,7 @@
                 "reflection",
                 "static analysis"
             ],
-            "time": "2015-12-27T11:43:31+00:00"
+            "time": "2017-09-11T18:02:19+00:00"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -8858,16 +8864,16 @@
         },
         {
             "name": "symfony/phpunit-bridge",
-            "version": "v3.3.8",
+            "version": "v3.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/phpunit-bridge.git",
-                "reference": "13db89f6617d512df9ba6b6416fbc2cbbb5c9784"
+                "reference": "27d159bd9bd14a3bd9d3e136081c321a0d621c03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/13db89f6617d512df9ba6b6416fbc2cbbb5c9784",
-                "reference": "13db89f6617d512df9ba6b6416fbc2cbbb5c9784",
+                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/27d159bd9bd14a3bd9d3e136081c321a0d621c03",
+                "reference": "27d159bd9bd14a3bd9d3e136081c321a0d621c03",
                 "shasum": ""
             },
             "require": {
@@ -8916,7 +8922,7 @@
             ],
             "description": "Symfony PHPUnit Bridge",
             "homepage": "https://symfony.com",
-            "time": "2017-08-28T11:33:29+00:00"
+            "time": "2017-09-05T11:23:06+00:00"
         },
         {
             "name": "webmozart/assert",
