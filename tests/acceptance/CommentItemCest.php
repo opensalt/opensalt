@@ -42,6 +42,13 @@ class CommentItemCest
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$itemPath.$I->getItemId());
         $I->createAComment('acceptance item comment '.sq($I->getItemId()));
+        $I->waitForJS('return $.active == 0;', 2);
+        $I->see('acceptance item comment '.sq($I->getItemId()), '.comment-wrapper .wrapper .content');
+
+        // Verify a different user can see the comment
+        $loginPage->logout();
+        $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForJS('return $.active == 0;', 2);
         $I->see('acceptance item comment '.sq($I->getItemId()), '.comment-wrapper .wrapper .content');
     }
 

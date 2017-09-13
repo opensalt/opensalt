@@ -42,6 +42,13 @@ class CommentDocCest
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->createAComment('acceptance doc comment '.sq($I->getDocId()));
+        $I->waitForJS('return $.active == 0;', 2);
+        $I->see('acceptance doc comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+
+        // Verify a different user can see the comment
+        $loginPage->logout();
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForJS('return $.active == 0;', 2);
         $I->see('acceptance doc comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
     }
 
