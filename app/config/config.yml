@@ -35,6 +35,7 @@ parameters:
     brand_logo_style: '%env(BRAND_LOGO_STYLE)%'
     brand_link_url: '%env(BRAND_LINK_URL)%'
     brand_link_style: '%env(BRAND_LINK_STYLE)%'
+    comments_feature: '%env(COMMENTS_FEATURE)%'
 
 framework:
     #esi:             ~
@@ -236,3 +237,10 @@ al_swagger_ui:
         resource_dir: "app/Resources/swagger-docs/"
         resource_list_filename: api-docs.json
     resource_list: al_swagger_ui_static_resource_list
+
+qandidate_toggle:
+    persistence: config
+    toggles:
+        comments:
+            name: comments
+            status: '%comments_feature%'

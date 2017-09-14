@@ -3,10 +3,6 @@
 namespace Page;
 
 use Behat\Behat\Context\Context;
-use Doctrine\ORM\EntityManager;
-use Salt\UserBundle\Entity\User;
-use Salt\UserBundle\Entity\Organization;
-use Salt\UserBundle\Repository\UserRepository;
 
 class Login implements Context
 {
@@ -18,9 +14,6 @@ class Login implements Context
     public static $usernameField = '#username';
     public static $passwordField = '#password';
     public static $loginButton = 'button.btn-primary[type=submit]';
-
-    protected static $users = [];
-    protected static $lastUser = null;
 
     /**
      * @var \AcceptanceTester
@@ -54,7 +47,7 @@ class Login implements Context
         $this
             ->logout()
             ->aUserExistsWithRole($role)
-            ->loginWithPassword(self::$lastUser['username'], self::$lastUser['password']);
+            ->loginWithPassword($this->I->getLastUsername(), $this->I->getLastPassword());
 
         return $this;
     }
@@ -69,7 +62,7 @@ class Login implements Context
         $I->click(self::$loginButton);
 
         $I->dontSee('Unrecognized username or password');
-        $I->seeLink('Logout');
+        $I->iShouldSeeInTheHeader('Signed in as');
 
         $I->iAmOnTheHomepage();
 
@@ -81,7 +74,7 @@ class Login implements Context
      */
     public function iFillInTheUsername(): Login
     {
-        $this->I->fillField(self::$usernameField, self::$lastUser['user']);
+        $this->I->fillField(self::$usernameField, $this->I->getLastUsername());
 
         return $this;
     }
@@ -91,7 +84,7 @@ class Login implements Context
      */
     public function iFillInThePassword(): Login
     {
-        $this->I->fillField(self::$passwordField, self::$lastUser['pass']);
+        $this->I->fillField(self::$passwordField, $this->I->getLastPassword());
 
         return $this;
     }
@@ -101,58 +94,7 @@ class Login implements Context
      */
     public function aUserExistsWithRole(string $role): Login
     {
-        /** @var EntityManager $em */
-        $em = $this->I->grabService('doctrine.orm.default_entity_manager');
-
-        /** @var \Faker\Generator $faker */
-        $faker = \Faker\Factory::create();
-
-        $role = preg_replace('/[^A-Z]/', '_', strtoupper($role));
-        $password = $faker->password;
-
-        /** @var UserRepository $userRepo */
-        $userRepo = $em->getRepository(User::class);
-        $user = $userRepo->createQueryBuilder('u')
-            ->where('u.username like :prefix')
-            ->setParameter(':prefix', 'TEST:'.$role.':%')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        if ($user) {
-            $username = $user->getUsername();
-            $userRepo->setUserPassword($username, $password);
-        } else {
-            $orgRepo = $em->getRepository(Organization::class);
-            $org = $orgRepo->createQueryBuilder('o')
-                ->where('o.name like :prefix')
-                ->setParameter(':prefix', 'TEST:%')
-                ->setMaxResults(1)
-                ->getQuery()
-                ->getOneOrNullResult();
-            if (!$org) {
-                $org = $orgRepo->addNewOrganization(
-                    'TEST:'.$faker->company
-                );
-            }
-
-            $username = 'TEST:'.$role.':'.$faker->userName;
-            $userRepo->addNewUser($username, $org, $password, $role);
-
-            $user = $userRepo->createQueryBuilder('u')
-                ->where('u.username = :username')
-                ->setParameter(':username', $username)
-                ->setMaxResults(1)
-                ->getQuery()
-                ->getOneOrNullResult();
-
-            $this->I->assertNotEmpty($user, 'User could not be created.');
-        }
-
-        $this->I->comment('I find the username and password');
-
-        self::$lastUser = ['user' => $username, 'pass' => $password];
-        self::$users[] = self::$lastUser;
+        $this->I->ensureUserExistsWithRole($role);
 
         return $this;
     }

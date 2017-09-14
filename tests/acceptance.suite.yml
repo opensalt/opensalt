@@ -15,7 +15,9 @@ modules:
             host: 'phantomjs'
             port: 8643
         - \Helper\Acceptance
+        - \Helper\UserManagement
         - Asserts
+        - Sequence
 
 paths:
     envs: tests/_envs

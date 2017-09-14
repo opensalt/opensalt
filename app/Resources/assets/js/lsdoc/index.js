@@ -566,8 +566,5 @@ $(document).on('ready', function(){
         Import.fromAsn();
     });
 
-    /* Framework Updater */
     UpdateFramework.init();
-    /**********/
 });
-

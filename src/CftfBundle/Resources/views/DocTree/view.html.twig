@@ -2,6 +2,13 @@
 
 {% block title %}{{ lsDocTitle }}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {% if 'comments' is active feature %}
+        <link rel="stylesheet" href="{{ asset('css/comments.css'|asset_version) }}" />
+    {% endif %}
+{% endblock %}
+
 {% block body %}
 <!-- initially hide header and footer; we'll show them right away if we're not in "chooser mode" -->
 <style>
@@ -162,6 +169,12 @@ header, footer {
                 </div>  <!-- itemInfo -->
             </div>
         </section>
+        {% if 'comments' is active feature %}
+            {% if not is_granted('comment') %}
+                <p>To comment please login first</p>
+            {% endif %}
+            <div class="js-comments-container" data-lsdocid="{{ lsDocId }}"></div>
+        {% endif %}
 
     {% if editorRights %}
         <section id="tree2Section">
@@ -200,6 +213,7 @@ header, footer {
     {% endif %}
     </div>
 </div>
+
 
 <div class="row" id="assocView">
     <div class="col-sm-12">
@@ -425,6 +439,11 @@ header, footer {
 {% endblock %}
 
 {% block javascripts %}
+
+{% if 'comments' is active feature %}
+    <script src="{{ asset('js/comments.js'|asset_version) }}"></script>
+{% endif %}
+
 {% autoescape 'js' %}
 <script>
 window.apx = window.apx||{};
