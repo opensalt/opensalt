@@ -264,7 +264,9 @@ apx.treeDocLoadCallback1 = function() {
                 }
 
                 // launching comment system depending of the item id.
-                CommentSystem.init(item);
+                if ('undefined' !== typeof(CommentSystem)) {
+                    CommentSystem.init(item);
+                }
 
                 // if we're in chooser mode, show this item's buttons (this won't have any effect if we're not in chooser mode)
                 apx.chooserMode.enableTreeItemButtons(data.node);
