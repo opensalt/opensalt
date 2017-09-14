@@ -27,3 +27,5 @@ gherkin:
         default:
             - AcceptanceTester
             - "Page\\Login"
+            - "Page\\Framework"
+            - "Page\\Item"
