@@ -26,6 +26,14 @@ class CommentDocCest
         $I->see('To comment please login first');
     }
 
+    public function dontSeeCommentsFormAsAnAnonymousUser(AcceptanceTester $I)
+    {
+        $I->getLastFrameworkId();
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->dontSeeElement('.jquery-comments .commenting-field');
+        $I->see('To comment please login first');
+    }
+
     public function seeCommentsSectionAsAnAuthenticatedUser(AcceptanceTester $I)
     {
         $I->getLastFrameworkId();
