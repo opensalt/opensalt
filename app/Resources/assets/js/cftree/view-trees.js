@@ -533,6 +533,7 @@ apx.setRightSideMode = function(newMode) {
         $("#tree2SectionControls").hide();
         $("#tree2Section").hide();
         $("#itemSection").show();
+        $(".js-comments-container").show();
 
         $("#rightSideItemDetailsBtn").addClass("btn-primary").removeClass("btn-default");
         $("#rightSideCopyItemsBtn").removeClass("btn-primary").addClass("btn-default");
@@ -551,6 +552,7 @@ apx.setRightSideMode = function(newMode) {
         }
         $("#tree2Section").show();
         $("#itemSection").hide();
+        $(".js-comments-container").hide();
 
         if (newMode == "addAssociation") {
             if (!empty(apx.treeDoc2)) {
