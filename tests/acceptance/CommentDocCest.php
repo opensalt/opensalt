@@ -96,4 +96,26 @@ class CommentDocCest
         $I->waitForJS('return $.active == 0', 2);
         $I->see($upvotes - 1, Locator::firstElement('.upvote'));
     }
+
+    public function dontSeeCommentsInCopyItemsTab(AcceptanceTester $I)
+    {
+        $I->getLastFrameworkId();
+        $loginPage = new \Page\Login($I);
+        $loginPage->loginAsRole('Super User');
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->click('#rightSideCopyItemsBtn');
+        $I->waitForElement('#tree2Section');
+        $I->dontSeeElement('js-comments-container');
+    }
+
+    public function dontSeeCommentsInCreateAssociationsTab(AcceptanceTester $I)
+    {
+        $I->getLastFrameworkId();
+        $loginPage = new \Page\Login($I);
+        $loginPage->loginAsRole('Super User');
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->click('#rightSideCreateAssociationsBtn');
+        $I->waitForElement('#tree2Section');
+        $I->dontSeeElement('js-comments-container');
+    }
 }
