@@ -16,6 +16,7 @@ modules:
             port: 8643
         - \Helper\Acceptance
         - \Helper\UserManagement
+        - \Helper\Guzzle
         - Asserts
         - Sequence
 
