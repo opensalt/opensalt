@@ -52,6 +52,8 @@ class Guzzle extends \Codeception\Module
             'sink' => $savedFile,
         ]);
 
+        $this->assertEquals(200, $response->getStatusCode(), "Download of {$url} failed.");
+
         return $savedFile;
     }
 }
