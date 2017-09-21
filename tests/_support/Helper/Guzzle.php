@@ -3,11 +3,14 @@
 namespace Helper;
 
 use Codeception\Module\WebDriver;
+use Codeception\TestInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 
 class Guzzle extends \Codeception\Module
 {
+    private $files = [];
+
     /**
      * @return WebDriver
      */
@@ -45,6 +48,7 @@ class Guzzle extends \Codeception\Module
         */
 
         $savedFile = tempnam('/tmp', 'download');
+        $this->files[] = $savedFile;
 
         $response = $client->get($url, [
             'headers' => $headers,
@@ -55,5 +59,14 @@ class Guzzle extends \Codeception\Module
         $this->assertEquals(200, $response->getStatusCode(), "Download of {$url} failed.");
 
         return $savedFile;
+    }
+
+    public function _after(TestInterface $test)
+    {
+        parent::_after($test);
+
+        foreach ($this->files as $file) {
+            @unlink($file);
+        }
     }
 }
