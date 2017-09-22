@@ -80,6 +80,10 @@ class ApiUtilService
         }
 
         if (!preg_match('/^local:/', $uri)) {
+            if ('api_v1p0_cfpackage' === $route) {
+                // Since we don't store the CF Package URI patch it
+                $uri = str_replace('CFDocuments', 'CFPackages', $uri);
+            }
             return $uri;
         }
 

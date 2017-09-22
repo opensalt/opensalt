@@ -22,7 +22,7 @@ class Guzzle extends \Codeception\Module
     public function download(string $url): string
     {
         $baseUrl = $this->getWebDriver()->_getUrl();
-        //$session = $this->getWebDriver()->grabCookie('session');
+        $session = $this->getWebDriver()->grabCookie('session');
 
         $domain = null;
         if (preg_match('#^(?:[a-z]+)://([^/]+)/#', $baseUrl, $matches)) {
@@ -41,18 +41,16 @@ class Guzzle extends \Codeception\Module
             'Accept' => 'application/json',
         ];
 
-        /*
-        $cookies = new CookieJar([
+        $cookies = CookieJar::fromArray([
             'session' => $session,
         ], $domain);
-        */
 
-        $savedFile = tempnam('/tmp', 'download');
+        $savedFile = tempnam(codecept_output_dir(), 'download');
         $this->files[] = $savedFile;
 
         $response = $client->get($url, [
             'headers' => $headers,
-            //'cookies' => $cookies,
+            'cookies' => $cookies,
             'sink' => $savedFile,
         ]);
 
