@@ -8,3 +8,4 @@ Feature: The framework can be downloaded
     Given I am on a framework page
     When I download the framework CASE file
     Then I should see content in the CASE file
+
