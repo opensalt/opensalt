@@ -1,0 +1,15 @@
+version: '2.1'
+services:
+  phantomjs:
+    image: wernight/phantomjs:2
+    command: [ "phantomjs", "--webdriver=8643" ]
+    volumes:
+      - "../tests:/var/www/html/tests"
+
+  chrome:
+    image: yukinying/chrome-headless-browser-selenium
+    shm_size: 1024M
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - "../tests:/var/www/html/tests"

@@ -81,6 +81,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
 
     /**
      * @When I press :arg1
+     * @When I click :arg1
      */
     public function iPress(string $link): AcceptanceTester
     {
