@@ -3,6 +3,7 @@
 namespace Page;
 
 use Behat\Behat\Context\Context;
+use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
 
 class Framework implements Context
@@ -227,5 +228,94 @@ class Framework implements Context
         }
 
         return $diff;
+    }
+
+    /**
+     * @Given /^I upload the test smartlevel framework$/
+     */
+    public function iUploadTheTestSmartlevelFramework(): Framework
+    {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#file-url');
+
+        $data = file_get_contents(codecept_data_dir().'SmartLevelFramework.json');
+
+        $name = sq('SmartLevelFramework');
+        $docUuid = Uuid::uuid4()->toString();
+        $this->rememberedFramework = $name;
+
+        $origValues = [
+            'SmartLevel Test',
+            'd0000000-0000-0000-0000-000000000000',
+        ];
+        $replacements = [
+            $name,
+            $docUuid,
+        ];
+
+        $decoded = json_decode($data, true);
+        foreach ($decoded['CFItems'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+        foreach ($decoded['CFAssociations'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+
+        $data = str_replace($origValues, $replacements, $data);
+
+        $this->uploadedFramework = $data;
+
+        $filename = tempnam(codecept_data_dir(), 'tmp_eef_');
+        unlink($filename);
+        file_put_contents($filename.'.json', $data);
+
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.json'));
+        $I->click('a.btn-import-case');
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        unlink($filename.'.json');
+
+        return $this;
+    }
+
+    /**
+     * @Given /^I download the framework excel file$/
+     */
+    public function iDownloadTheFrameworkExcelFile(): Framework
+    {
+        $I = $this->I;
+
+        $I->click('Export', '#itemInfo');
+        $I->waitForElementVisible('#exportModal a.btn-export-excel');
+        $url = $I->grabAttributeFrom('#exportModal a.btn-export-excel', 'href');
+
+        $this->filename = $I->download($url);
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I should have an excel file with smart levels$/
+     */
+    public function iShouldHaveAnExcelFileWithSmartLevels(): Framework
+    {
+        $reader = \PHPExcel_IOFactory::createReaderForFile($this->filename);
+        $ss = $reader->load($this->filename);
+
+        $sheet = $ss->getSheetByName('CF Item');
+
+        $row = 1;
+        while (!empty($sheet->getCell('A'.++$row)->getValue())) {
+            $item = $sheet->getCell('B'.$row)->getValue();
+            $smartLevel = $sheet->getCell('D'.$row)->getValue();
+
+            $item = str_replace('Item ', '', $item);
+            $this->I->assertSame($item, $smartLevel, 'Smart level does not match');
+        }
+
+        return $this;
     }
 }
