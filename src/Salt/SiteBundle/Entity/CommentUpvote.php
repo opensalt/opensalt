@@ -30,7 +30,7 @@ class CommentUpvote
      * @var Comment
      *
      * @ORM\ManyToOne(targetEntity="Comment", inversedBy="upvotes")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $comment;
 
