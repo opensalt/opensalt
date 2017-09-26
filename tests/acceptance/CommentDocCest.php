@@ -118,4 +118,51 @@ class CommentDocCest
         $I->waitForElement('#tree2Section');
         $I->dontSeeElement('js-comments-container');
     }
+
+    public function deleteComment(AcceptanceTester $I)
+    {
+        $I->getLastFrameworkId();
+        $loginPage = new \Page\Login($I);
+        $loginPage->loginAsRole('Editor');
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->createAComment('acceptance doc comment '.sq($I->getDocId()));
+        $I->waitForJS('return $.active == 0;', 2);
+        $I->see('acceptance doc comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+
+        $I->click('.comment-wrapper .wrapper .actions .edit');
+        $I->waitForJS('return $.active == 0;', 2);
+        $I->click('.jquery-comments .commenting-field .textarea-wrapper .control-row .delete');
+        $I->dontSee('acceptance doc comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+    }
+
+    public function deleteUpvotedDownvotedComment(AcceptanceTester $I)
+    {
+        $I->getLastFrameworkId();
+        $loginPage = new \Page\Login($I);
+        $loginPage->loginAsRole('Editor');
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->createAComment('acceptance doc comment '.sq($I->getDocId()));
+        $I->waitForJS('return $.active == 0;', 2);
+        $I->see('acceptance doc comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+
+        $loginPage->logout();
+        $loginPage->loginAsRole('Admin');
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForJS('return $.active == 0;', 2);
+        $upvotes = $I->grabTextFrom(Locator::firstElement('.upvote'));
+
+        $I->click(Locator::firstElement('.upvote'));
+        $I->waitForJS('return $.active == 0', 2);
+        $I->see($upvotes + 1, Locator::firstElement('.upvote'));
+
+        $loginPage->logout();
+        $loginPage->loginAsRole('Editor');
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForJS('return $.active == 0;', 2);
+
+        $I->click('.comment-wrapper .wrapper .actions .edit');
+        $I->waitForJS('return $.active == 0;', 2);
+        $I->click('.jquery-comments .commenting-field .textarea-wrapper .control-row .delete');
+        $I->dontSee('acceptance doc comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+    }
 }
