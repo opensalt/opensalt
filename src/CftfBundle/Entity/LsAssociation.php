@@ -88,7 +88,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     public const INVERSE_RELATED_TO = 'Related From';
     public const INVERSE_PART_OF = 'Has Part';
     public const INVERSE_REPLACED_BY = 'Replaces';
-    public const INVERSE_PRECEDES = 'Has Predecesor';
+    public const INVERSE_PRECEDES = 'Has Predecessor';
     public const INVERSE_SKILL_LEVEL = 'Skill Level For';
     public const INVERSE_IS_PEER_OF = 'Is Peer Of';
 
