@@ -293,6 +293,10 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @return $this
      */
     public function addRole($role) {
+        if ('ROLE_USER' != $role) {
+            return $this;
+        }
+
         if (!in_array($role, static::USER_ROLES, true)) {
             throw new \InvalidArgumentException(sprintf('The role "%s" is not valid', $role));
         }
