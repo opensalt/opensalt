@@ -5,6 +5,7 @@ namespace Salt\UserBundle\Security;
 use JMS\DiExtraBundle\Annotation as DI;
 use Salt\UserBundle\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
@@ -17,6 +18,22 @@ class FrameworkCreateVoter extends Voter
 {
     const CREATE = 'create';
     const FRAMEWORK = 'lsdoc';
+
+    private $decisionManager;
+
+    /**
+     * SuperUserVoter constructor.
+     *
+     * @param \Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface $decisionManager
+     *
+     * @DI\InjectParams({
+     *     "decisionManager" = @DI\Inject("security.access.decision_manager")
+     * })
+     */
+    public function __construct(AccessDecisionManagerInterface $decisionManager)
+    {
+        $this->decisionManager = $decisionManager;
+    }
 
     /**
      * Determines if the attribute and subject are supported by this voter.
@@ -56,7 +73,15 @@ class FrameworkCreateVoter extends Voter
             return false;
         }
 
-        // For now, all logged in users can edit anything
-        return true;
+        return $this->canCreateFramework($token);
+    }
+
+    private function canCreateFramework(TokenInterface $token)
+    {
+        if ($this->decisionManager->decide($token, ['ROLE_EDITOR'])) {
+            return true;
+        }
+
+        return false;
     }
 }
