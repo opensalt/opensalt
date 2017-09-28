@@ -73,7 +73,6 @@ class FrameworkCreateVoter extends Voter
             return false;
         }
 
-        // For now, all logged in users can edit anything
         return $this->canCreateFramework($token);
     }
 

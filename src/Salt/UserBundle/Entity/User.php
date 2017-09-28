@@ -293,7 +293,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @return $this
      */
     public function addRole($role) {
-        if ('ROLE_USER' != $role) {
+        if ('ROLE_USER' === $role) {
             return $this;
         }
 
