@@ -33,12 +33,12 @@ class SiteVersionListener
         $cache = new ApcuCache('opensalt');
         if (!$fullVersion = $cache->get('version')) {
             $rootDir = $this->rootDir;
-            $webDir = dirname($rootDir) . '/web';
+            $webDir = dirname($rootDir).'/web';
 
-            if (file_exists($webDir . '/version.txt')) {
-                $fullVersion = trim(file_get_contents($webDir . '/version.txt'));
-            } elseif (file_exists($rootDir . '/../VERSION')) {
-                $fullVersion = trim(file_get_contents($rootDir . '/../VERSION'));
+            if (file_exists($webDir.'/version.txt')) {
+                $fullVersion = trim(file_get_contents($webDir.'/version.txt'));
+            } elseif (file_exists($rootDir.'/../VERSION')) {
+                $fullVersion = trim(file_get_contents($rootDir.'/../VERSION'));
             } else {
                 $fullVersion = 'UNKNOWN';
             }
