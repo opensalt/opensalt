@@ -2,12 +2,7 @@ actor: ApiTester
 modules:
     enabled:
         - REST:
-            url: /ims/case/v1p0
-            depends: Symfony
-        - Doctrine2:
-            depends: Symfony
+            depends: PhpBrowser
+            url: 'http://nginx'
         - \Helper\Api
-    config:
-        - Symfony:
-            app_path: 'app'
-            var_path: 'var'
+
