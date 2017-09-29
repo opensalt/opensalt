@@ -33,6 +33,7 @@ class AppKernel extends Kernel
 
             new Nelmio\SecurityBundle\NelmioSecurityBundle(),
             new ActiveLAMP\Bundle\SwaggerUIBundle\ALSwaggerUIBundle(),
+            new Nelmio\CorsBundle\NelmioCorsBundle(),
 
             new CftfBundle\CftfBundle(),
             new Cftf\AsnBundle\CftfAsnBundle(),
