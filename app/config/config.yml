@@ -231,6 +231,11 @@ nelmio_security:
     external_redirects:
         whitelist:
             - google.com
+    # forces Microsoft/Chrome XSS-Protection with
+    # its block mode
+    xss_protection:
+        enabled: true
+        mode_block: true
 
 al_swagger_ui:
     static_resources:
