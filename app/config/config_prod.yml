@@ -1,9 +1,6 @@
 imports:
     - { resource: config.yml }
 
-parameters:
-    httpProtocol: https
-
 #framework:
 #    validation:
 #        cache: validator.mapping.cache.doctrine.apc
