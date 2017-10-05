@@ -2,55 +2,67 @@ salt_site:
     resource: "@SaltSiteBundle/Controller/"
     type:     annotation
     prefix:   /
+    schemes:  ['%httpProtocol%']
 
 github_files:
     resource: "@GithubFilesBundle/Controller/"
     type:     annotation
     prefix:   /
+    schemes:  ['%httpProtocol%']
 
 salt_user:
     resource: "@SaltUserBundle/Controller/"
     type:     annotation
     prefix:   /
+    schemes:  ['%httpProtocol%']
 
 cftf_util:
     resource: "@CftfUtilBundle/Controller/"
     type:     annotation
     prefix:   /
+    schemes:  ['%httpProtocol%']
 
 cftf_cms:
     resource: "@CftfCmsBundle/Controller/"
     type:     annotation
     prefix:   /
+    schemes:  ['%httpProtocol%']
 
 cftf_sbac:
     resource: "@CftfSbacBundle/Controller/"
     type:     annotation
     prefix:   /
+    schemes:  ['%httpProtocol%']
 
 cftf_ims:
     resource: "@CftfImsBundle/Controller/"
     type:     annotation
     prefix:   /
+    schemes:  ['%httpProtocol%']
 
 cftf_asn:
     resource: "@CftfAsnBundle/Controller/"
     type:     annotation
     prefix:   /
+    schemes:  ['%httpProtocol%']
 
 cftf:
     resource: "@CftfBundle/Controller/"
     type:     annotation
     prefix:   /
+    schemes:  ['%httpProtocol%']
 
 al_swagger_ui:
     resource: "@ALSwaggerUIBundle/Resources/config/routing.yml"
     prefix: /api/doc
+    schemes:  ['%httpProtocol%']
 
 al_swagger_ui_static_resources:
     resource: "@ALSwaggerUIBundle/Resources/config/static_resources_routing.yml"
     prefix: /api/swagger
+    schemes:  ['%httpProtocol%']
 
 logout:
     path: /logout
+    schemes:  ['%httpProtocol%']
 
