@@ -318,4 +318,57 @@ class Framework implements Context
 
         return $this;
     }
+
+    /**
+     * @Given /^I upload the utf8\-test CASE file$/
+     */
+    public function iUploadTheUtf8TestCASEFile()
+    {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#file-url');
+
+        $data = file_get_contents(codecept_data_dir().'Utf8TestFramework.json');
+
+        $name = sq('Utf8Framework');
+        $docUuid = Uuid::uuid4()->toString();
+        $this->rememberedFramework = $name;
+
+        $origValues = [
+            "UTF8 \u{1d451} Test",
+            'd0000000-0000-0000-0000-000000000000',
+        ];
+        $replacements = [
+            $name,
+            $docUuid,
+        ];
+
+        $decoded = json_decode($data, true);
+        foreach ($decoded['CFItems'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+        foreach ($decoded['CFAssociations'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+
+        foreach ($origValues as $i => $origValue) {
+            $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
+        }
+
+        $this->uploadedFramework = $data;
+
+        $filename = tempnam(codecept_data_dir(), 'tmp_eef_');
+        unlink($filename);
+        file_put_contents($filename.'.json', $data);
+
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.json'));
+        $I->click('a.btn-import-case');
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        unlink($filename.'.json');
+
+        return $this;
+    }
 }
