@@ -221,8 +221,8 @@ nelmio_security:
     #    names: ['*']
     #    secret: '%cookie_secret%'
     #    algorithm: rijndael-256
-    # forced_ssl:
-    #     enabled: false
+    forced_ssl:
+        enabled: false
 
     clickjacking:
         paths:
