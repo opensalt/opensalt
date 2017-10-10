@@ -353,9 +353,12 @@ class Framework implements Context
             $replacements[] = Uuid::uuid4()->toString();
         }
 
+        /*
         foreach ($origValues as $i => $origValue) {
             $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
         }
+        */
+        $data = str_replace($origValues, $replacements, $data);
 
         $this->uploadedFramework = $data;
 
