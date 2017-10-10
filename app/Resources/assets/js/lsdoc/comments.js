@@ -8,6 +8,7 @@ var CommentSystem = (function(){
         setItem(nodeRef);
         $('.js-comments-container').comments({
             profilePictureUrl: '',
+            enableDeletingCommentWithReplies: true,
             getComments: function(success, error) {
                 $.ajax({
                     type: 'get',

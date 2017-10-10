@@ -114,6 +114,7 @@ class DefaultController extends Controller
 
     /**
      * @Route("/salt/excel/import", name="import_excel_file")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @return Response
      */

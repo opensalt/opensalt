@@ -7,9 +7,8 @@ RET=$?
 
 ./bin/codecept run
 RET2=$?
-if [ ! "$RET" == "0" ]; then
+if [ "$RET" == "0" ]; then
   RET=$RET2
-  echo "ret2"
 fi
 
 exit $RET

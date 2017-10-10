@@ -29,6 +29,7 @@ class Comment
      * @var Comment
      *
      * @ORM\ManyToOne(targetEntity="\Salt\SiteBundle\Entity\Comment")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      *
      * @Serializer\Accessor(getter="getParentId")
      * @Serializer\ReadOnly
@@ -39,7 +40,7 @@ class Comment
     /**
      * @var string
      *
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="text")
      */
     private $content;
 

@@ -14,8 +14,10 @@ modules:
             browser: phantomjs
             host: 'phantomjs'
             port: 8643
+            window_size: 'maximize'
         - \Helper\Acceptance
         - \Helper\UserManagement
+        - \Helper\Guzzle
         - Asserts
         - Sequence
 
@@ -27,3 +29,5 @@ gherkin:
         default:
             - AcceptanceTester
             - "Page\\Login"
+            - "Page\\Framework"
+            - "Page\\Item"

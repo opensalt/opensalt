@@ -264,7 +264,9 @@ apx.treeDocLoadCallback1 = function() {
                 }
 
                 // launching comment system depending of the item id.
-                CommentSystem.init(item);
+                if ('undefined' !== typeof(CommentSystem)) {
+                    CommentSystem.init(item);
+                }
 
                 // if we're in chooser mode, show this item's buttons (this won't have any effect if we're not in chooser mode)
                 apx.chooserMode.enableTreeItemButtons(data.node);
@@ -531,6 +533,7 @@ apx.setRightSideMode = function(newMode) {
         $("#tree2SectionControls").hide();
         $("#tree2Section").hide();
         $("#itemSection").show();
+        $(".js-comments-container").show();
 
         $("#rightSideItemDetailsBtn").addClass("btn-primary").removeClass("btn-default");
         $("#rightSideCopyItemsBtn").removeClass("btn-primary").addClass("btn-default");
@@ -549,6 +552,7 @@ apx.setRightSideMode = function(newMode) {
         }
         $("#tree2Section").show();
         $("#itemSection").hide();
+        $(".js-comments-container").hide();
 
         if (newMode == "addAssociation") {
             if (!empty(apx.treeDoc2)) {

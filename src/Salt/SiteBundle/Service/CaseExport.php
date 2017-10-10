@@ -112,7 +112,11 @@ class CaseExport
         foreach ($items as $item) {
             $this->addItemRow($activeSheet, $j, $item);
             if (array_key_exists($item['id'], $smartLevel)) {
-                $activeSheet->setCellValue('D'.$j, $smartLevel[$item['id']]);
+                $activeSheet->setCellValueExplicit(
+                    'D'.$j,
+                    $smartLevel[$item['id']],
+                    \PHPExcel_Cell_DataType::TYPE_STRING
+                );
             }
             ++$j;
         }
