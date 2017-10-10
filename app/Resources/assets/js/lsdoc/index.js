@@ -137,10 +137,13 @@ var UpdateFramework = (function(){
     function getRequestParams(fileContent){
         fileData = Import.csv(fileContent, true);
         return {
-            content: window.btoa(unescape(encodeURIComponent(fileContent))),
+            content: window.btoa(encodeURIComponent(fileContent).replace(/%([0-9A-F]{2})/g,
+                function toSolidBytes(match, p1) {
+                    return String.fromCharCode('0x'+p1);
+                })),
             cfItemKeys: fileData.cfItemKeys,
-            frameworkToAssociate: $(frameworkToAssociateSelector).val(),
-        }
+            frameworkToAssociate: $(frameworkToAssociateSelector).val()
+        };
     }
 
     function getCurrentCfDocId(){
@@ -159,7 +162,7 @@ var UpdateFramework = (function(){
         });
     }
 
-    return { init: init, derivative: derivative, update: update }
+    return { init: init, derivative: derivative, update: update };
 })();
 
 var Import = (function() {
@@ -236,7 +239,10 @@ var Import = (function() {
 
     function sendData() {
         var dataRequest = {
-            content: window.btoa(unescape(encodeURIComponent(file))),
+            content: window.btoa(encodeURIComponent(file).replace(/%([0-9A-F]{2})/g,
+                function toSolidBytes(match, p1) {
+                    return String.fromCharCode('0x'+p1);
+                })),
             cfItemKeys: cfItemKeys,
             lsDocId: $('#lsDocId').val(),
             frameworkToAssociate: $('#js-framework-to-association').val(),
@@ -279,7 +285,10 @@ var Import = (function() {
             url: '/salt/case/import',
             type: 'post',
             data: {
-                fileContent: window.btoa(unescape(file))
+                fileContent: window.btoa(encodeURIComponent(file).replace(/%([0-9A-F]{2})/g,
+                    function toSolidBytes(match, p1) {
+                        return String.fromCharCode('0x'+p1);
+                    }))
             },
             success: function(response) {
                 location.reload();
