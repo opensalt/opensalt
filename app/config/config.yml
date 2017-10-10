@@ -223,6 +223,7 @@ nelmio_security:
     #    algorithm: rijndael-256
     forced_ssl:
         enabled: false
+
     clickjacking:
         paths:
             '^/cftree/doc/': ALLOW
@@ -231,6 +232,11 @@ nelmio_security:
     external_redirects:
         whitelist:
             - google.com
+            
+    # Forces Microsoft/Chrome XSS-Protection with its block mode.
+    xss_protection:
+        enabled: true
+        mode_block: true
 
 nelmio_cors:
     defaults:
