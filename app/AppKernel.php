@@ -47,7 +47,6 @@ class AppKernel extends Kernel
             new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
         ];
 
-
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {
             $bundles[] = new Symfony\Bundle\DebugBundle\DebugBundle();
             $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
