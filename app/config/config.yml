@@ -233,15 +233,6 @@ nelmio_security:
         whitelist:
             - google.com
             
-    # Force ssl.
-    # forced_ssl: ~
-        # uncomment to whitelist certain URLs from having ssl forced.
-        # enabled: true
-        # whitelist:
-        #     - ^/unsecure/
-    # Recommended security setting for cookies when ssl is turned on.
-    # session:
-        # cookie_secure: true
     # Forces Microsoft/Chrome XSS-Protection with its block mode.
     xss_protection:
         enabled: true
