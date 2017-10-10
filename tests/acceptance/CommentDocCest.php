@@ -165,4 +165,35 @@ class CommentDocCest
         $I->click('.jquery-comments .commenting-field .textarea-wrapper .control-row .delete');
         $I->dontSee('acceptance doc comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
     }
+
+    public function deleteRepliedComment(AcceptanceTester $I)
+    {
+        $I->getLastFrameworkId();
+        $loginPage = new \Page\Login($I);
+        $loginPage->loginAsRole('Editor');
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->createAComment('acceptance doc replied comment '.sq($I->getDocId()));
+        $I->waitForJS('return $.active == 0;', 2);
+        $I->see('acceptance doc replied comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+
+        $loginPage->logout();
+        $loginPage->loginAsRole('Admin');
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForJS('return $.active == 0;', 2);
+
+        $I->click(Locator::firstElement('.reply'));
+        $I->fillField('.jquery-comments .data-container .main .comment .child-comments .commenting-field .textarea-wrapper .textarea', 'reply');
+        $I->click('.jquery-comments .data-container .main .comment .child-comments .commenting-field .textarea-wrapper .control-row .send');
+        $I->waitForJS('return $.active == 0;', 2);
+
+        $loginPage->logout();
+        $loginPage->loginAsRole('Editor');
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForJS('return $.active == 0;', 2);
+
+        $I->click('.comment-wrapper .wrapper .actions .edit');
+        $I->waitForJS('return $.active == 0;', 2);
+        $I->click('.jquery-comments .commenting-field .textarea-wrapper .control-row .delete');
+        $I->dontSee('acceptance doc replied comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+    }
 }
