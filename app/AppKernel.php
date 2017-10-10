@@ -31,7 +31,7 @@ class AppKernel extends Kernel
 
             new Csa\Bundle\GuzzleBundle\CsaGuzzleBundle(),
 
-            // new Nelmio\SecurityBundle\NelmioSecurityBundle(),
+            new Nelmio\SecurityBundle\NelmioSecurityBundle(),
             new ActiveLAMP\Bundle\SwaggerUIBundle\ALSwaggerUIBundle(),
 
             new CftfBundle\CftfBundle(),
@@ -47,12 +47,6 @@ class AppKernel extends Kernel
             new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
         ];
 
-        // Load Nelmios security bundle only on test and prod.
-        if (in_array($this->getEnvironment(), array('test', 'prod'), true)) {
-            $bundles = [
-                new Nelmio\SecurityBundle\NelmioSecurityBundle(),
-            ];
-        }
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {
             $bundles[] = new Symfony\Bundle\DebugBundle\DebugBundle();
