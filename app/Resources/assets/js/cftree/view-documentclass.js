@@ -1125,17 +1125,22 @@ function apxDocument(initializer) {
             if ($filter.length > 0) {
                 searchEntered = ($filter.val() != "");
             }
-
-            self.getFt(side).visit(function(node) {
-                // if the node isn't unselectable
-                if (node.unselectable != true) {
-                    // if either (we're not filtering) or (the node matches the filter) or (val is false),
-                    if (searchEntered == false || node.match == true || val == false) {
-                        // set selected to val
-                        node.setSelected(val);
+            
+            // PW 10/11/2017: Only check the top-level items (issues #116 and #204)
+            var topChildren = self.getFt(side).rootNode.children[0].children;
+            if (!empty(topChildren)) {
+                for (var i = 0; i < topChildren.length; ++i) {
+                    var node = topChildren[i];
+                    // don't select unselectable nodes; also don't select the "Orphaned Items" node
+                    if (node.unselectable != true && node.key != "orphans") {
+                        // if either (we're not filtering) or (the node matches the filter) or (val is false),
+                        if (searchEntered == false || node.match == true || val == false) {
+                            // set selected to val
+                            node.setSelected(val);
+                        }
                     }
                 }
-            });
+            }
         }
     };
 
