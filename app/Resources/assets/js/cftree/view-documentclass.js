@@ -236,7 +236,6 @@ function apxDocument(initializer) {
     }
     
     self.loadError = function(data) {
-        alert("Error loading document.");
         console.log("error loading document", self.initializer);
         if (!empty(data)) {
             console.log("data returned:", data);
