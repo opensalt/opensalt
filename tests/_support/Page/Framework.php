@@ -357,7 +357,11 @@ class Framework implements Context
     {
         $I = $this->I;
 
-        $I->click('//span[text()="Imported from ASN"]/../..');
+        try {
+            $I->click('//span[text()="Imported from ASN"]/../..');
+        } catch (\Exception $e) {
+            // It is okay if there are none
+        }
         $this->importedAsnList = $I->grabMultiple('//span[text()="Imported from ASN"]/../../ul/li/span/span[@class="fancytree-title"]');
 
         return $this;
