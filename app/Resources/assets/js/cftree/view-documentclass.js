@@ -420,7 +420,7 @@ function apxDocument(initializer) {
             
             // if we're in chooser mode...
             if (apx.query.mode == "chooser") {
-                title = apx.chooserMode.treeItemButtons() + title;
+                // don't include the link indicator
 
             } else {
                 // if the item has an association other than isChildOf *in apx.mainDoc*, show an indicator to that effect
@@ -1229,7 +1229,8 @@ function apxDocument(initializer) {
                 if ($that.val().trim().length > 0) {
                     $tree.filterNodes($that.val(), {
                         autoExpand: true,
-                        leavesOnly: false
+                        leavesOnly: false,
+                        highlight: false
                     });
                     console.log("Show filterClear");
                     $that.parent().find(".filterClear").show();
