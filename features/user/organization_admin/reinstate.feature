@@ -1,10 +1,10 @@
-Feature: Edit an existing User
+Feature: Reinstate an existing User
   In order to a edit a user
   As an organization admin
   I need to have access to the user profile page
 
-  @admin @user @delete
-  Scenario: 1011-1415 Deleting a user in User List
+  @incomplete @admin @user @reinstate
+  Scenario: 1011-1417 Reinstate a user in User List
     Given I log in as a user with role "Admin"
     And I am on the User list page
     And I click the "Add a new user" button

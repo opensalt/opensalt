@@ -3,7 +3,7 @@ Feature: View User
   As an organization admin
   I need to have access to the user profile page
 
-  @admin @user @view-user
+  @incomplete @admin @user @view-user
   Scenario: 1011-0945 Viewing user profile page
     Given I log in as a user with role "Admin"
     And I am on the User list page

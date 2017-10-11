@@ -3,7 +3,7 @@ Feature: Edit an existing User
   As an organization admin
   I need to have access to the user profile page
 
-  @admin @user @edit-user
+  @incomplete @admin @user @edit-user
   Scenario: 1011-1058 Deleting a user in User List
     Given I log in as a user with role "Admin"
     And I am on the User list page

@@ -1,10 +1,10 @@
-Feature: Edit an existing User
-  In order to a edit a user
+Feature: Add new User
+  In order to a add a user
   As an organization admin
   I need to have access to the user profile page
 
-  @admin @user @add-user
-  Scenario: 1011-1415 Deleting a user in User List
+  @incomplete @admin @user @add-user
+  Scenario: 1011-1415 Adding new user
     Given I log in as a user with role "Admin"
     And I am on the User list page
     And I click the "Add a new user" button

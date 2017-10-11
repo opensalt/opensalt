@@ -3,7 +3,7 @@ Feature: Password Management
   As an organization admin
   I need to put in a new password
 
-  @admin @user @password
+  @incomplete @admin @user @password
   Scenario: 1011-0905 Changing my Password
     Given I log in as a user with role "Admin"
     And I am on the homepage
