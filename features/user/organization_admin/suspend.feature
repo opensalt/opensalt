@@ -4,7 +4,7 @@ Feature: Edit an existing User
   I need to have access to the user profile page
 
   @admin @user @delete
-  Scenario Outline: Scenario: 1011-1415 Deleting a user in User List
+  Scenario Outline: 1011-1415 Deleting a user in User List
     Given I log in as a user with role "Admin"
     And I am on the User list page
     And I find user "<user>"
