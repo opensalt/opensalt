@@ -3,7 +3,6 @@
 namespace Page;
 
 use Behat\Behat\Context\Context;
-use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
 
 class Framework implements Context
@@ -13,6 +12,8 @@ class Framework implements Context
     protected $filename;
     protected $rememberedFramework;
     protected $uploadedFramework;
+    protected $importedAsnDoc;
+    protected $importedAsnList;
 
     /**
      * @var \AcceptanceTester
@@ -315,6 +316,49 @@ class Framework implements Context
             $item = str_replace('Item ', '', $item);
             $this->I->assertSame($item, $smartLevel, 'Smart level does not match');
         }
+
+        return $this;
+    }
+
+    /**
+     * @Given /^I fill in an ASN document identifier$/
+     */
+    public function iFillInAnASNDocumentIdentifier(): Framework
+    {
+        $asnDocs = file(codecept_data_dir('SampleASNDocList.txt'));
+        $this->importedAsnDoc = trim($asnDocs[random_int(0, count($asnDocs) -1)]);
+
+        $this->I->fillField('#asn-url', $this->importedAsnDoc);
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see the ASN framework loaded$/
+     */
+    public function iShouldSeeTheASNFrameworkLoaded(): Framework
+    {
+        $I = $this->I;
+
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        $I->click('//span[text()="Imported from ASN"]/../..');
+        $docList = $I->grabMultiple('//span[text()="Imported from ASN"]/../../ul/li/span/span[@class="fancytree-title"]');
+
+        $I->assertEquals(count($this->importedAsnList)+1, count($docList), 'Count of imported ASN documents did not increase by 1');
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I count frameworks imported from ASN$/
+     */
+    public function iCountFrameworksImportedFromASN(): Framework
+    {
+        $I = $this->I;
+
+        $I->click('//span[text()="Imported from ASN"]/../..');
+        $this->importedAsnList = $I->grabMultiple('//span[text()="Imported from ASN"]/../../ul/li/span/span[@class="fancytree-title"]');
 
         return $this;
     }
