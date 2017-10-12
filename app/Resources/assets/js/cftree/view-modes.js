@@ -382,6 +382,9 @@ apx.chooserMode.active = function() {
 };
 
 apx.chooserMode.initialize = function() {
+	// add some margin to the body
+	$("body").css("margin", "0 15px");
+	
     // hide header, footer, docTitleRow, instructions, and some other things
     $("header").hide();
     $("footer").hide();
@@ -410,24 +413,41 @@ apx.chooserMode.initialize = function() {
     $("#chooserModeItemDetailsCloseDetailsBtn").on("click", function() { apx.chooserMode.hideDetails(); });
 };
 
-/** Buttons to show next to each item's title in the fancytree */
-apx.chooserMode.treeItemButtons = function() {
-    return '<div class="treeItemButtons" style="display:none">'
-        + '<button class="chooserModeShowDetailsBtn btn btn-default btn-xs"><span class="glyphicon glyphicon-search" title="Show details"></span></button>'
-        + ' <button class="chooserModeChooseBtn btn btn-default btn-xs">Choose</button>'
-        + '</div>'
-        ;
-}
-
 /** Enable item chooser buttons; this will be called each time an item is activated in the fancytree */
-apx.chooserMode.enableTreeItemButtons = function(node) {
+apx.chooserMode.itemClicked = function(node) {
     if (apx.query.mode == "chooser") {
-        // hide and disable all buttons
-        $(".treeItemButtons").hide().find("button").off("click");
-        // then show and enable this item's buttons
-        $(node.li).find(".treeItemButtons").first().show();
-        $(node.li).find(".treeItemButtons").first().find(".chooserModeShowDetailsBtn").on("click", function() { apx.chooserMode.showDetails(); });
-        $(node.li).find(".treeItemButtons").first().find(".chooserModeChooseBtn").on("click", function() { apx.chooserMode.choose(); });
+    	// remove previously-shown interface if there
+    	$("#chooserModeShowForChoosing").remove();
+    	
+    	// add new interface
+    	var html = '<div id="chooserModeShowForChoosing" style="position:fixed; z-index:10; top:5px; right:1px; border:2px solid #444; border-radius:5px; background-color:#eee; padding:10px; width:350px;">';
+    	html += '<span id="chooserModeShowForChoosingClose" class="glyphicon glyphicon-remove" title="Close" style="float:right; margin-left:10px; cursor:pointer;"></span>'
+    	// full item title
+    	html += apx.mainDoc.getItemTitle(node.data.ref, true);
+    	html += '<div style="text-align:right; margin-top:10px">'
+    	// buttons
+    	html += '<button class="chooserModeShowDetailsBtn btn btn-default btn-sm">Show Details</button>';
+    	html += '&nbsp;&nbsp;';
+    	html += '<button class="chooserModeChooseBtn btn btn-primary btn-sm">Choose</button>';
+    	html += '</div>';
+    	html += '</div>';
+    	$('body').append(html);
+    	
+    	// enable buggons
+    	$("#chooserModeShowForChoosing").click(function() {
+    		console.log("clicked");
+    		$("#chooserModeShowForChoosing").remove();
+    	});
+    	
+    	$(".chooserModeShowDetailsBtn").on("click", function() {
+        	console.log("details button clicked");
+        	apx.chooserMode.showDetails();
+        });
+        
+        $(".chooserModeChooseBtn").on("click", function() {
+        	console.log("chooser button clicked");
+        	apx.chooserMode.choose();
+        });
     }
 };
 

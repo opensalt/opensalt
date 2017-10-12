@@ -571,7 +571,7 @@ $(document).on('ready', function(){
         listRepositories();
     });
 
-    $('.import-framework').click(function(){
+    $('.btn-import-asn').click(function(){
         Import.fromAsn();
     });
 

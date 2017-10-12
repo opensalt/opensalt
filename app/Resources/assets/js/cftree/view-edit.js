@@ -855,6 +855,9 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
 };
 
 apx.edit.updateItemsAjaxDone = function(data) {
+    // remove stray tooltips
+    setTimeout(function() { $(".tooltip").remove(); }, 1000);
+
     var copiedItem = false;
     for (var i = 0; i < data.length; ++i) {
         var o = data[i];
@@ -934,9 +937,6 @@ apx.edit.updateItemsAjaxDone = function(data) {
     if (!copiedItem) {
         apx.treeDoc1.activateCurrentItem();
     }
-
-    // remove stray tooltips
-    setTimeout(function() { $(".tooltip").remove(); }, 1000);
 }
 
 

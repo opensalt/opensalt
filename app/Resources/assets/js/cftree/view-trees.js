@@ -250,6 +250,12 @@ apx.treeDocLoadCallback1 = function() {
             renderNode: function(event, data) {
                 apx.treeDoc1.initializeTooltip(data.node);
             },
+            
+            click: function(event, data) {
+                // if we're in chooser mode, show display to allow this item to be chosen
+                // (this won't have any effect if we're not in chooser mode)
+                apx.chooserMode.itemClicked(data.node);
+            },
 
             // when item is activated (user clicks on it or activateKey() is called), show details for the item
             activate: function(event, data) {
@@ -267,9 +273,6 @@ apx.treeDocLoadCallback1 = function() {
                 if ('undefined' !== typeof(CommentSystem)) {
                     CommentSystem.init(item);
                 }
-
-                // if we're in chooser mode, show this item's buttons (this won't have any effect if we're not in chooser mode)
-                apx.chooserMode.enableTreeItemButtons(data.node);
 
                 // hide tree2 and show the item details section; this will call showCurrentItem
                 apx.setRightSideMode("itemDetails");
