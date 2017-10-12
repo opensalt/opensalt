@@ -3,7 +3,7 @@ Feature: The framework can be uploaded
   As an editor
   I need to upload a CASE file of the framework
 
-  @smoke @editor @case-file @json
+  @smoke @editor @framework @case-file @json
   Scenario: A CASE file can be uploaded and downloaded
     Given I log in as a user with role "Editor"
     And I am on the homepage
