@@ -292,14 +292,14 @@ apx.treeDocLoadCallback1 = function() {
 
             expand: function(event, data) {
                 apx.treeDoc1.recordExpandedFolders(1);
-                data.node.sortChildren((a, b) => {
-                    const idx1 = a.data.ref.hcs.lastIndexOf('.');
+                data.node.sortChildren(function(a, b) {
+                    var idx1 = a.data.ref.hcs.lastIndexOf('.');
                     var temp = a.data.ref.hcs.substr(idx1 + 1);
-                    const str1 = (isNaN(temp))?temp:parseInt(temp, 10);
+                    var str1 = (isNaN(temp))?temp:parseInt(temp, 10);
 
-                    const idx2 = b.data.ref.hcs.lastIndexOf('.');
+                    var idx2 = b.data.ref.hcs.lastIndexOf('.');
                     temp = b.data.ref.hcs.substr(idx2 + 1);
-                    const str2 = (isNaN(temp))?temp:parseInt(temp, 10);
+                    var str2 = (isNaN(temp))?temp:parseInt(temp, 10);
 
                     if (str1 < str2) return -1;
                     if (str1 > str2) return 1;
