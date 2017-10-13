@@ -4,7 +4,7 @@ Feature: The framework is viewable by an anonymous user
   I need to see a framework
 
   @smoke @anonymous
-  Scenario: An anonymous can see a framework
+  Scenario: An anonymous user can see a framework
     Given I am on a framework page
     Then I should see the framework tree
     And I should see the framework information

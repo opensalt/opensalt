@@ -1536,7 +1536,9 @@ function apxDocument(initializer) {
                 var data = uri.split(',', 2);
 
                 if (/;base64[;,]/.test(data[0])) {
-                    title = atob(data[1]);
+                    title = decodeURIComponent(atob(data[1]).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
                 } else {
                     title = decodeURIComponent(data[1]);
                 }
