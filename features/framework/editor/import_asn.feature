@@ -3,8 +3,8 @@ Feature: An ASN document can be imported
   As an editor
   I need to import an ASN document
 
-  @smoke @editor @asn-import @asn-import-104
-  Scenario: A CASE file can be uploaded and downloaded
+  @smoke @editor @asn-import @framework
+  Scenario: 1013-1210 A CASE file can be uploaded and downloaded
     Given I log in as a user with role "Editor"
     And I am on the homepage
     Then I count frameworks imported from ASN

@@ -4,7 +4,7 @@ Feature: The framework can be uploaded
   I need to upload a CASE file of the framework
 
   @smoke @editor @framework @case-file @json
-  Scenario: A CASE file can be uploaded and downloaded
+  Scenario: 1013-1201 A CASE file can be uploaded and downloaded
     Given I log in as a user with role "Editor"
     And I am on the homepage
     When I click "Import framework"
