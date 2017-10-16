@@ -3,7 +3,7 @@ Feature: The framework can be uploaded as Excel
   As an editor
   I need to upload a Excel file of the framework
 
-  @smoke @editor @framework @case-file @excel
+  @incomplete @smoke @editor @framework @case-file @excel
   Scenario: 1013-1214 A Excel file can be uploaded and downloaded
     Given I log in as a user with role "Editor"
     And I am on the homepage

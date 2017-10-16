@@ -3,7 +3,7 @@ Feature: The framework is editable
   As an editor user
   I need to edit a framework
 
-  @smoke @anonymous @view-framework
+  @incomplete @smoke @anonymous @view-framework
   Scenario Outline: 1013-1444 An editor user can edit a framework
     Given I log in as a user with role "Editor"
     Then I am on a "Draft" framework page
