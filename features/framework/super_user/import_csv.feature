@@ -1,11 +1,11 @@
 Feature: The framework can be uploaded as CSV
   In order to copy a framework from csv file
-  As an editor
+  As an Super-User
   I need to upload a CSV file of the framework
 
-  @incomplete @smoke @editor @framework @case-file @csv
-  Scenario: 1013-1215 A CSV file can be uploaded and downloaded
-    Given I log in as a user with role "Editor"
+  @incomplete @smoke @super-user @framework @case-file @csv
+  Scenario: 1016-1328 A CSV file can be uploaded and downloaded
+    Given I log in as a user with role "Super-User"
     And I am on the homepage
     When I click "Import framework"
     Then I should see the import dialogue

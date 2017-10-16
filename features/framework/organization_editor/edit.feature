@@ -1,10 +1,10 @@
 Feature: The framework is editable
   In order to confirm the framework can be edited
-  As an editor user
+  As an organization-editor
   I need to edit a framework
 
-  @incomplete @smoke @anonymous @view-framework
-  Scenario Outline: 1013-1444 An editor user can edit a framework
+  @incomplete @smoke @organization-editor @view-framework
+  Scenario Outline: 1013-1444 An organization editor can edit a framework
     Given I log in as a user with role "Editor"
     Then I am on a "Draft" framework page
     And I edit the "<field>" to "<data>"
