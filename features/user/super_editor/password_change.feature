@@ -4,7 +4,7 @@ Feature: Password Management
   I need to put in a new password
 
   @incomplete @super-editor @user @password
-  Scenario: 1011-0905 Changing my Password
+  Scenario: 1016-1301 Changing my Password
     Given I log in as a user with role "Super-Editor"
     And I am on the homepage
     When I click "Signed in as" Role

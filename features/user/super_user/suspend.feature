@@ -4,7 +4,7 @@ Feature: Suspend an existing User
   I need to have access to the user profile page
 
   @incomplete @super-user @user @suspend
-  Scenario Outline: 1016-1249 Suspend a user in User List
+  Scenario Outline: 1016-1315 Suspend a user in User List
     Given I log in as a user with role "Super-User"
     And I am on the User list page
     And I find user "<user>"

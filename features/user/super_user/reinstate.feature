@@ -4,7 +4,7 @@ Feature: Reinstate an existing User
   I need to have access to the user profile page
 
   @incomplete @super-user @user @reinstate
-  Scenario: 1016-1248 Reinstate a user in User List
+  Scenario: 1016-1314 Reinstate a user in User List
     Given I log in as a user with role "Super-User"
     And I am on the User list page
     And I click the "Add a new user" button

@@ -4,7 +4,7 @@ Feature: Edit an existing User
   I need to have access to the user profile page
 
   @incomplete @super-user @user @edit-user
-  Scenario Outline: 1011-1058 Edit a user in User List
+  Scenario Outline: 1016-1312 Edit a user in User List
     Given I log in as a user with role "Super-User"
     And I am on the User list page
     And I click on "edit" button for user "<user>"
