@@ -3,7 +3,7 @@ Feature: Editing a association management
   As an editor user
   I need to see a all of the fields
 
-  @incomplete @smoke @editor @framework @edit-association
+  @incomplete @smoke @editor @association @edit-association
   Scenario Outline: 1016-0933 An editor user can edit a association group
     Given I log in as a user with role "Editor"
     Then I create a "Draft" framework

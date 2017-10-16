@@ -3,18 +3,18 @@ Feature: Adding, viewing and deleting a association management
   As an editor user
   I need to see a all of the fields
 
-  @incomplete @smoke @editor @framework @add-association
+  @incomplete @smoke @editor @association @add-association
   Scenario: 1016-0930 An editor user can add a association group
     Given I log in as a user with role "Editor"
     Then I create a "Draft" framework
     And I add "Group 1" Manange Assiation Groups
 
-  @incomplete @smoke @editor @framework @viewing-association
+  @incomplete @smoke @editor @association @viewing-association
   Scenario: 1016-0931 An editor user can see a association group
     Given I log in as a user with role "Editor"
     And I should see "Group 1" Manange Assiation Groups
 
-  @incomplete @smoke @editor @framework @deleting-association
+  @incomplete @smoke @editor @association @deleting-association
   Scenario: 1016-0932 An editor user can delete a association group
     Given I log in as a user with role "Editor"
     Then I delete Manange Assiation Groups for "Group 1" framework
