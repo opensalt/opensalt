@@ -3,19 +3,19 @@ Feature: Adding, viewing and deleting a item
   As an editor user
   I need to see a all of the fields
 
-  @incomplete @smoke @editor @framework @add-item
-  Scenario: 1016-0929 An editor user can add a association group
+  @incomplete @smoke @editor @item @add-item
+  Scenario: 1016-0929 An editor user can add a item
     Given I log in as a user with role "Editor"
     Then I create a "Draft" framework
     And I add "ELA" Item
 
-  @incomplete @smoke @editor @framework @viewing-item
-  Scenario: 1016-0928 An editor user can see a association group
+  @incomplete @smoke @editor @item @viewing-item
+  Scenario: 1016-0928 An editor user can see a item
     Given I log in as a user with role "Editor"
     And I should see "ELA" Item
 
-  @incomplete @smoke @editor @framework @deleting-item
-  Scenario: 1016-0927 An editor user can delete a association group
+  @incomplete @smoke @editor @item @deleting-item
+  Scenario: 1016-0927 An editor user can delete a item
     Given I log in as a user with role "Editor"
     Then I delete "ELA" Item
     And I should not see "ELA" Item

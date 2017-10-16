@@ -3,8 +3,8 @@ Feature: Editing a item
   As an editor user
   I need to see a all of the fields
 
-  @incomplete @smoke @editor @framework @edit-item
-  Scenario Outline: 1016-0926 An editor user can edit a association group
+  @incomplete @smoke @editor @item @edit-item
+  Scenario Outline: 1016-0945 An editor user can edit a item
     Given I log in as a user with role "Editor"
     Then I create a "Draft" framework
     And I add "ELA" Item
