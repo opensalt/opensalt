@@ -11,10 +11,10 @@ modules:
             cleanup: false
         - WebDriver:
             url: 'http://nginx/'
-            browser: phantomjs
-            host: 'phantomjs'
-            port: 8643
-            window_size: 'maximize'
+            browser: chrome
+            host: chrome
+            restart: true
+            window_size: 1500x1100
         - \Helper\Acceptance
         - \Helper\UserManagement
         - \Helper\Guzzle

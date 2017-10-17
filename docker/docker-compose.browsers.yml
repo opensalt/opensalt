@@ -7,9 +7,15 @@ services:
       - "../tests:/var/www/html/tests"
 
   chrome:
-    image: yukinying/chrome-headless-browser-selenium
-    shm_size: 1024M
-    cap_add:
-      - SYS_ADMIN
+    image: selenium/standalone-chrome:3.5
     volumes:
       - "../tests:/var/www/html/tests"
+
+  firefox:
+    image: selenium/standalone-firefox:3.5
+    volumes:
+      - "../tests:/var/www/html/tests"
+
+  wait:
+    image: jwilder/dockerize
+
