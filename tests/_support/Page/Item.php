@@ -27,6 +27,8 @@ class Item implements Context
 
         $I->getLastItemId();
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementVisible('#modalSpinner');
+        $I->waitForElementNotVisible('#modalSpinner');
 
         return $this;
     }

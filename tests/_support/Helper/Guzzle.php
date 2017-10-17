@@ -33,7 +33,7 @@ class Guzzle extends \Codeception\Module
 
         $client = new Client([
             'base_uri' => $baseUrl,
-            'timeout' => 10,
+            'timeout' => 30,
         ]);
 
         $headers = [
