@@ -376,8 +376,8 @@ class Framework implements Context
         return $this;
     }
   
-    /*
-     * @Given /^I fill in an ASN document identifier$/
+    /**
+     * @When /^I fill in an ASN document identifier$/
      */
     public function iFillInAnASNDocumentIdentifier(): Framework
     {
