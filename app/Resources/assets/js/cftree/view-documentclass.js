@@ -1488,7 +1488,7 @@ function apxDocument(initializer) {
                     html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
                         + removeBtn
                         + '<span class="itemDetailsAssociationTitle">'
-                        + self.associationDestItemTitle(a)
+                        + $.sanitize(self.associationDestItemTitle(a))
                         + '</span>'
                         + '</a>'
                         ;
