@@ -250,7 +250,7 @@ apx.treeDocLoadCallback1 = function() {
             renderNode: function(event, data) {
                 apx.treeDoc1.initializeTooltip(data.node);
             },
-            
+
             click: function(event, data) {
                 // if we're in chooser mode, show display to allow this item to be chosen
                 // (this won't have any effect if we're not in chooser mode)
