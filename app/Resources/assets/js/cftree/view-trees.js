@@ -250,7 +250,7 @@ apx.treeDocLoadCallback1 = function() {
             renderNode: function(event, data) {
                 apx.treeDoc1.initializeTooltip(data.node);
             },
-            
+
             click: function(event, data) {
                 // if we're in chooser mode, show display to allow this item to be chosen
                 // (this won't have any effect if we're not in chooser mode)
@@ -290,21 +290,8 @@ apx.treeDocLoadCallback1 = function() {
                 return false;
             },
 
-            expand: function(event, data) {
+            expand: function() {
                 apx.treeDoc1.recordExpandedFolders(1);
-                data.node.sortChildren(function(a, b) {
-                    var idx1 = a.data.ref.hcs.lastIndexOf('.');
-                    var temp = a.data.ref.hcs.substr(idx1 + 1);
-                    var str1 = (isNaN(temp))?temp:parseInt(temp, 10);
-
-                    var idx2 = b.data.ref.hcs.lastIndexOf('.');
-                    temp = b.data.ref.hcs.substr(idx2 + 1);
-                    var str2 = (isNaN(temp))?temp:parseInt(temp, 10);
-
-                    if (str1 < str2) return -1;
-                    if (str1 > str2) return 1;
-                    return 0;
-                });
             },
 
             // drag-and-drop functionality - https://github.com/mar10/fancytree/wiki/ExtDnd
