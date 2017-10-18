@@ -236,7 +236,6 @@ function apxDocument(initializer) {
     }
     
     self.loadError = function(data) {
-        alert("Error loading document.");
         console.log("error loading document", self.initializer);
         if (!empty(data)) {
             console.log("data returned:", data);
@@ -421,7 +420,7 @@ function apxDocument(initializer) {
             
             // if we're in chooser mode...
             if (apx.query.mode == "chooser") {
-                title = apx.chooserMode.treeItemButtons() + title;
+                // don't include the link indicator
 
             } else {
                 // if the item has an association other than isChildOf *in apx.mainDoc*, show an indicator to that effect
@@ -1125,17 +1124,22 @@ function apxDocument(initializer) {
             if ($filter.length > 0) {
                 searchEntered = ($filter.val() != "");
             }
-
-            self.getFt(side).visit(function(node) {
-                // if the node isn't unselectable
-                if (node.unselectable != true) {
-                    // if either (we're not filtering) or (the node matches the filter) or (val is false),
-                    if (searchEntered == false || node.match == true || val == false) {
-                        // set selected to val
-                        node.setSelected(val);
+            
+            // PW 10/11/2017: Only check the top-level items (issues #116 and #204)
+            var topChildren = self.getFt(side).rootNode.children[0].children;
+            if (!empty(topChildren)) {
+                for (var i = 0; i < topChildren.length; ++i) {
+                    var node = topChildren[i];
+                    // don't select unselectable nodes; also don't select the "Orphaned Items" node
+                    if (node.unselectable != true && node.key != "orphans") {
+                        // if either (we're not filtering) or (the node matches the filter) or (val is false),
+                        if (searchEntered == false || node.match == true || val == false) {
+                            // set selected to val
+                            node.setSelected(val);
+                        }
                     }
                 }
-            });
+            }
         }
     };
 
@@ -1225,7 +1229,8 @@ function apxDocument(initializer) {
                 if ($that.val().trim().length > 0) {
                     $tree.filterNodes($that.val(), {
                         autoExpand: true,
-                        leavesOnly: false
+                        leavesOnly: false,
+                        highlight: false
                     });
                     console.log("Show filterClear");
                     $that.parent().find(".filterClear").show();
@@ -1531,7 +1536,9 @@ function apxDocument(initializer) {
                 var data = uri.split(',', 2);
 
                 if (/;base64[;,]/.test(data[0])) {
-                    title = atob(data[1]);
+                    title = decodeURIComponent(atob(data[1]).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
                 } else {
                     title = decodeURIComponent(data[1]);
                 }

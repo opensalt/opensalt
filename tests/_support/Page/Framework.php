@@ -3,7 +3,6 @@
 namespace Page;
 
 use Behat\Behat\Context\Context;
-use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
 
 class Framework implements Context
@@ -13,6 +12,8 @@ class Framework implements Context
     protected $filename;
     protected $rememberedFramework;
     protected $uploadedFramework;
+    protected $importedAsnDoc;
+    protected $importedAsnList;
 
     /**
      * @var \AcceptanceTester
@@ -33,6 +34,7 @@ class Framework implements Context
 
         $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForElementNotVisible('#modalSpinner');
 
         return $this;
     }
@@ -315,6 +317,109 @@ class Framework implements Context
             $item = str_replace('Item ', '', $item);
             $this->I->assertSame($item, $smartLevel, 'Smart level does not match');
         }
+
+        return $this;
+    }
+
+    /**
+     * @Given /^I upload the utf8\-test CASE file$/
+     */
+    public function iUploadTheUtf8TestCASEFile()
+    {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#file-url');
+
+        $data = file_get_contents(codecept_data_dir().'Utf8TestFramework.json');
+
+        $name = sq('Utf8Framework');
+        $docUuid = Uuid::uuid4()->toString();
+        $this->rememberedFramework = $name;
+
+        $origValues = [
+            "UTF8 \u{1d451} Test",
+            'd0000000-0000-0000-0000-000000000000',
+        ];
+        $replacements = [
+            $name,
+            $docUuid,
+        ];
+
+        $decoded = json_decode($data, true);
+        foreach ($decoded['CFItems'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+        foreach ($decoded['CFAssociations'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+
+        /*
+        foreach ($origValues as $i => $origValue) {
+            $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
+        }
+        */
+        $data = str_replace($origValues, $replacements, $data);
+
+        $this->uploadedFramework = $data;
+
+        $filename = tempnam(codecept_data_dir(), 'tmp_eef_');
+        unlink($filename);
+        file_put_contents($filename.'.json', $data);
+
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.json'));
+        $I->click('a.btn-import-case');
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        unlink($filename.'.json');
+
+        return $this;
+    }
+  
+    /**
+     * @When /^I fill in an ASN document identifier$/
+     */
+    public function iFillInAnASNDocumentIdentifier(): Framework
+    {
+        $asnDocs = file(codecept_data_dir('SampleASNDocList.txt'));
+        $this->importedAsnDoc = trim($asnDocs[random_int(0, count($asnDocs) -1)]);
+
+        $this->I->fillField('#asn-url', $this->importedAsnDoc);
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see the ASN framework loaded$/
+     */
+    public function iShouldSeeTheASNFrameworkLoaded(): Framework
+    {
+        $I = $this->I;
+
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        $I->click('//span[text()="Imported from ASN"]/../..');
+        $docList = $I->grabMultiple('//span[text()="Imported from ASN"]/../../ul/li/span/span[@class="fancytree-title"]');
+
+        $I->assertEquals(count($this->importedAsnList)+1, count($docList), 'Count of imported ASN documents did not increase by 1');
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I count frameworks imported from ASN$/
+     */
+    public function iCountFrameworksImportedFromASN(): Framework
+    {
+        $I = $this->I;
+
+        try {
+            $I->click('//span[text()="Imported from ASN"]/../..');
+        } catch (\Exception $e) {
+            // It is okay if there are none
+        }
+        $this->importedAsnList = $I->grabMultiple('//span[text()="Imported from ASN"]/../../ul/li/span/span[@class="fancytree-title"]');
 
         return $this;
     }
