@@ -429,6 +429,8 @@ function apxDocument(initializer) {
         function treeItemTitle(item) {
             // start with the standard title for the item
             var title = self.getItemTitle(item);
+            // sanitize the title
+            title = $.sanitize(title);
             
             // if we're in chooser mode...
             if (apx.query.mode == "chooser") {
