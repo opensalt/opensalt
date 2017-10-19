@@ -6,11 +6,32 @@ window.apx = window.apx||{};
 
 var
     mk = require('markdown-it-katex'),
-    md = require('markdown-it')({
+    md = require('markdown-it')('default', {
         breaks: true,
+        linkify: true
+    }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
+    mdInline = require('markdown-it')('default', {
+        breaks: false,
         linkify: true
     }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"})
 ;
+
+function escapeHtml(string) {
+    var entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        '=': '&#x3D;'
+    };
+
+    return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+        return entityMap[s];
+    });
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 apx.allDocs = {};
@@ -93,7 +114,7 @@ function apxDocument(initializer) {
             method: 'GET',
             data: ajaxData
         }).done(function(data, textStatus, jqXHR) {
-            if (empty(data) || typeof(data) != "object" || empty(data.CFDocument)) {
+            if (empty(data) || typeof(data) !== "object" || empty(data.CFDocument)) {
                 self.loadError(data);
                 return;
             }
@@ -720,27 +741,52 @@ function apxDocument(initializer) {
         } else {
             return self.doc.uriBase + item.identifier;
         }
-    }
+    };
+
+    self.getItemTitleBlock = function(item, requireFullStatement) {
+        var title = self.getItemStatement(item, requireFullStatement);
+
+        title = md.render(title);
+
+        if (item !== self.doc) {
+            // add humanCodingScheme to the start if we have one
+            if (!empty(item.hcs)) {
+                title = '<span class="item-humanCodingScheme">' + escapeHtml(item.hcs) + '</span> ' + title;
+            }
+        }
+
+        return title;
+    };
 
     self.getItemTitle = function(item, requireFullStatement) {
-        // for the document, use title
-        if (item == self.doc) {
-            title = item.title;
+        var title = self.getItemStatement(item, requireFullStatement);
 
+        title = mdInline.renderInline(title);
+
+        if (item !== self.doc) {
+            // add humanCodingScheme to the start if we have one
+            if (!empty(item.hcs)) {
+                title = '<span class="item-humanCodingScheme">' + escapeHtml(item.hcs) + '</span> ' + title;
+            }
+        }
+
+        return title;
+    };
+
+    self.getItemStatement = function(item, requireFullStatement) {
+        var title = '';
+
+        // for the document, use title
+        if (item === self.doc) {
+            title = item.title;
         // else it's an item
         } else {
             // by default we'll use the fullStatement, which is a required field for CF items
-            var title = item.fstmt;
+            title = item.fstmt;
 
             // use abbreviatedStatement if we have one and requireFullStatement isn't true
-            if (!empty(item.astmt) && requireFullStatement != true) {
+            if (!empty(item.astmt) && requireFullStatement !== true) {
                 title = item.astmt;
-            }
-
-            // add humanCodingScheme to the start if we have one
-            if (!empty(item.hcs)) {
-                //title = '<span class="item-humanCodingScheme">' + item.hcs + '</span> ' + title;
-                title = '**' + item.hcs + '** ' + title;
             }
         }
 
@@ -864,12 +910,12 @@ function apxDocument(initializer) {
 
         var content;
         if (self.isDocNode(node)) {
-            content = "Document: " + node.title;
+            content = "Document: " + md.render(node.title);
         } else {
             if (empty(node.data.ref)) {
-                content = "Item: " + node.title;    // this shouldn't happen
+                content = "Item: " + md.render(node.title);    // this shouldn't happen
             } else {
-                content = md.renderInline(self.getItemTitle(node.data.ref, true));
+                content = self.getItemTitleBlock(node.data.ref, true);
             }
         }
 
@@ -878,7 +924,7 @@ function apxDocument(initializer) {
             // "content": content,  // this is for popover
             "title": content,   // this is for tooltip
             "delay": { "show": 200, "hide": 100 },
-            "placement": "bottom",
+            "placement": "top",
             "html": true,
             "container": "body"
             // "trigger": "hover"   // this is for popover
@@ -1276,11 +1322,11 @@ function apxDocument(initializer) {
         // if this is a document node...
         if (item.nodeType == "document") {
             // show title and appropriate icon
-            var title = item.title;
+            var title = md.render(item.title);
             if (!empty(item.version)) {
-                title = '<span style="float:right" class="lessImportant">Version ' + item.version + '</span>' + title;
+                title = '<span style="float:right" class="lessImportant">Version ' + escapeHtml(item.version) + '</span>' + title;
             }
-            $jq.find(".itemTitleSpan").html(md.renderInline(title));
+            $jq.find(".itemTitleSpan").html(title);
             $jq.find(".itemTitleIcon").attr("src", "/assets/img/doc.png");
 
             /////////////////////////////////////
@@ -1300,31 +1346,31 @@ function apxDocument(initializer) {
                 if (!empty(item[key])) {
                     val = item[key];
                     // TODO: check these exceptions
-                    if (key == 'creator' && !empty(item.publisher)) {
-                        val += '<span class="lessImportant">Publisher: ' + item.publisher + '</span>';
-                    } else if (key == 'adoptionStatus') {
+                    if (key === 'creator' && !empty(item.publisher)) {
+                        val += '<span class="lessImportant">Publisher: ' + escapeHtml(item.publisher) + '</span>';
+                    } else if (key === 'adoptionStatus') {
                         if (!empty(item.statusStart)) {
-                            val += '<span class="lessImportant">From: ' + item.statusStart + '</span>';
+                            val += '<span class="lessImportant">From: ' + escapeHtml(item.statusStart) + '</span>';
                         }
                         if (!empty(item.statusEnd)) {
-                            val += '<span class="lessImportant">Until: ' + item.statusEnd + '</span>';
+                            val += '<span class="lessImportant">Until: ' + escapeHtml(item.statusEnd) + '</span>';
                         }
-                    } else if (key == 'subjects') {
+                    } else if (key === 'subjects') {
                         val = "";
                         for (var subject in val) {
-                            if (val != "") val += ", ";
-                            val += subject.title;
+                            if (val !== "") val += ", ";
+                            val += escapeHtml(subject.title);
                         }
-                    } else if (key == 'officialSourceURL') {
+                    } else if (key === 'officialSourceURL') {
                         val = '<a href="' + val + '" target="_blank">' + val + '</a>';
-                    } else if (key == 'uri') {
+                    } else if (key === 'uri') {
                         val = self.getItemUri(item);
                         val = '<a href="' + val + '" target="_blank">' + val + '</a>';
                     }
 
                     html += '<li class="list-group-item">'
                         + '<strong>' + attributes[key] + ':</strong> '
-                        + val
+                        + escapeHtml(val)
                         + '</li>'
                         ;
                 }
@@ -1342,7 +1388,7 @@ function apxDocument(initializer) {
         // else it's an lsItem
         } else {
             // show title and appropriate icon
-            $jq.find(".itemTitleSpan").html(md.renderInline(self.getItemTitle(item)));
+            $jq.find(".itemTitleSpan").html(self.getItemTitle(item));
             if (item.setToParent === true || (!empty(item.ftNodeData) && item.ftNodeData.children.length > 0)) {
                 $jq.find(".itemTitleIcon").attr("src", "/assets/img/folder.png");
             } else {
@@ -1361,12 +1407,20 @@ function apxDocument(initializer) {
                     }) {
                 if (!empty(item[key])) {
                     val = item[key];
-                    // TODO: deal with ck, el, itp
-                    html += '<li class="list-group-item">'
-                        + '<strong>' + attributes[key] + ':</strong> '
-                        + md.renderInline(val)
-                        + '</li>'
+                    if (key === 'fstmt' || key === 'notes') {
+                        html += '<li class="list-group-item">'
+                            + '<strong>' + attributes[key] + ':</strong> '
+                            + md.render(val)
+                            + '</li>'
                         ;
+                    } else {
+                        // TODO: deal with ck, el, itp
+                        html += '<li class="list-group-item">'
+                            + '<strong>' + attributes[key] + ':</strong> '
+                            + escapeHtml(val)
+                            + '</li>'
+                            ;
+                    }
                 }
             }
 
@@ -1378,19 +1432,25 @@ function apxDocument(initializer) {
                         'licenceUri': 'Licence URI',
                         'mod': 'Last Changed'
                     }) {
-                if (!empty(item[key]) || key == "uri") {
+                if (!empty(item[key]) || key === "uri") {
                     val = item[key];
 
                     // TODO: deal with cku, licenceUri
                     // for uri, get it from the apxDocument
-                    if (key == "uri") {
+                    if (key === "uri") {
                         val = self.getItemUri(item);
-                    }
-                    html += '<li class="list-group-item lsItemDetailsExtras">'
-                        + '<strong>' + attributes[key] + ':</strong> '
-                        + md.renderInline(val)
-                        + '</li>'
+                        html += '<li class="list-group-item lsItemDetailsExtras">'
+                            + '<strong>' + attributes[key] + ':</strong> '
+                            + mdInline.renderInline(val)
+                            + '</li>'
                         ;
+                    } else {
+                        html += '<li class="list-group-item lsItemDetailsExtras">'
+                            + '<strong>' + attributes[key] + ':</strong> '
+                            + escapeHtml(val)
+                            + '</li>'
+                        ;
+                    }
                 }
             }
             $jq.find("ul").html(html);
@@ -1446,7 +1506,7 @@ function apxDocument(initializer) {
                             icon = '<img class="association-panel-icon" src="/assets/img/association-icon.png">';
                         }
                         html += '<section class="panel panel-default panel-component item-component">'
-                            + '<div class="panel-heading">' + icon + md.renderInline(title) + '</div>'
+                            + '<div class="panel-heading">' + icon + title + '</div>'
                             + '<div class="panel-body"><div><div class="list-group">'
                             ;
 
@@ -1484,7 +1544,7 @@ function apxDocument(initializer) {
                     html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
                         + removeBtn
                         + '<span class="itemDetailsAssociationTitle">'
-                        + md.renderInline(self.associationDestItemTitle(a))
+                        + self.associationDestItemTitle(a)
                         + '</span>'
                         + '</a>'
                         ;

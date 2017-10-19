@@ -249,7 +249,7 @@ apx.treeDocLoadCallback1 = function() {
             /*
             renderTitle: function(event, data) {
                 console.log(event, data);
-                title = md.renderInline(apx.treeDoc1.getItemTitle(data.node.data.ref, true));
+                title = mdInline.renderInline(apx.treeDoc1.getItemTitle(data.node.data.ref, true));
                 return title;
             },
             */
@@ -257,6 +257,24 @@ apx.treeDocLoadCallback1 = function() {
             // function called after the node is rendered
             renderNode: function(event, data) {
                 apx.treeDoc1.initializeTooltip(data.node);
+                var $span = $(data.node.span),
+                    $title = $span.find('> span.fancytree-title'),
+                    ref = data.node.data.ref
+                ;
+                var title = '';
+                if (ref.title) {
+                    title = mdInline.renderInline(ref.title);
+                } else if (ref.astmt) {
+                    title = mdInline.renderInline(ref.astmt);
+                } else if (ref.fstmt) {
+                    title = mdInline.renderInline(ref.fstmt);
+                }
+
+                if (ref.hcs) {
+                    title = '<span class="item-humanCodingScheme">' + escapeHtml(ref.hcs) + '</span> ' + title;
+                }
+
+                $title.html(title);
             },
             
             click: function(event, data) {

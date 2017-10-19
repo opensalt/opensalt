@@ -11,6 +11,8 @@ span.fancytree-drag-helper-img,
 
 span.fancytree-node {
     position: relative;
+    height: 25px;
+    overflow-y: hidden;
 }
 
 #competencyTree {
