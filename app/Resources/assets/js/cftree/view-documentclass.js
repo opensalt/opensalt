@@ -242,7 +242,6 @@ function apxDocument(initializer) {
     }
 
     self.loadError = function(data) {
-        alert("Error loading document.");
         console.log("error loading document", self.initializer);
         if (!empty(data)) {
             console.log("data returned:", data);
@@ -428,6 +427,7 @@ function apxDocument(initializer) {
 
             // if we're in chooser mode...
             if (apx.query.mode == "chooser") {
+                // don't include the link indicator
                 title = apx.chooserMode.treeItemButtons() + title;
 
             } else {
@@ -1151,7 +1151,7 @@ function apxDocument(initializer) {
                         }
                     }
                 }
-            };
+            }
         }
     };
 
@@ -1241,7 +1241,8 @@ function apxDocument(initializer) {
                 if ($that.val().trim().length > 0) {
                     $tree.filterNodes($that.val(), {
                         autoExpand: true,
-                        leavesOnly: false
+                        leavesOnly: false,
+                        highlight: false
                     });
                     console.log("Show filterClear");
                     $that.parent().find(".filterClear").show();
@@ -1552,7 +1553,9 @@ function apxDocument(initializer) {
                 var data = uri.split(',', 2);
 
                 if (/;base64[;,]/.test(data[0])) {
-                    title = atob(data[1]);
+                    title = decodeURIComponent(atob(data[1]).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
                 } else {
                     title = decodeURIComponent(data[1]);
                 }
