@@ -1366,7 +1366,6 @@ function apxDocument(initializer) {
                     }) {
                 if (!empty(item[key])) {
                     val = $.sanitize(item[key]);
-                    // val = $.sanitize(val);
                     // TODO: deal with ck, el, itp
                     html += '<li class="list-group-item">'
                         + '<strong>' + attributes[key] + ':</strong> '
