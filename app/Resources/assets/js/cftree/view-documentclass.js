@@ -428,7 +428,6 @@ function apxDocument(initializer) {
             // if we're in chooser mode...
             if (apx.query.mode == "chooser") {
                 // don't include the link indicator
-                title = apx.chooserMode.treeItemButtons() + title;
 
             } else {
                 // if the item has an association other than isChildOf *in apx.mainDoc*, show an indicator to that effect
