@@ -423,7 +423,6 @@ function apxDocument(initializer) {
         function treeItemTitle(item) {
             // start with the standard title for the item
             var title = self.getItemTitle(item);
-            title = $.sanitize(title);
 
             // if we're in chooser mode...
             if (apx.query.mode == "chooser") {
@@ -730,20 +729,23 @@ function apxDocument(initializer) {
         // for the document, use title
         if (item == self.doc) {
             title = item.title;
+            title = $.sanitize(title);
 
         // else it's an item
         } else {
             // by default we'll use the fullStatement, which is a required field for CF items
             var title = item.fstmt;
+            title = $.sanitize(title);
 
             // use abbreviatedStatement if we have one and requireFullStatement isn't true
             if (!empty(item.astmt) && requireFullStatement != true) {
                 title = item.astmt;
+                title = $.sanitize(title);
             }
 
             // add humanCodingScheme to the start if we have one
             if (!empty(item.hcs)) {
-                title = '<span class="item-humanCodingScheme">' + item.hcs + '</span> ' + title;
+                title = '<span class="item-humanCodingScheme">' + $.sanitize(item.hcs) + '</span> ' + title;
             }
         }
 
