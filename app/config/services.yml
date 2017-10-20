@@ -20,6 +20,12 @@ services:
 #        tags:
 #            - { name: twig.extension }
 
+    sanitize.twig.extension:
+        class: CftfBundle\Twig\CftfExtension
+        arguments: ["%kernel.root_dir%"]
+        tags:
+            - { name: twig.extension }
+
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
         public:    false

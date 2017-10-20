@@ -19,11 +19,11 @@
         {% for lsDefItemType in lsDefItemTypes %}
             <tr>
                 <td><a href="{{ path('lsdef_item_type_show', { 'id': lsDefItemType.id }) }}">{{ lsDefItemType.id }}</a></td>
-                <td>{{ lsDefItemType.title }}</td>
-                <td>{{ lsDefItemType.description }}</td>
-                <td>{{ lsDefItemType.code }}</td>
-                <td>{{ lsDefItemType.hierarchyCode }}</td>
-                <td>{% if lsDefItemType.updatedAt %}{{ lsDefItemType.updatedAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>{{ lsDefItemType.title|sanitize }}</td>
+                <td>{{ lsDefItemType.description|sanitize }}</td>
+                <td>{{ lsDefItemType.code|sanitize }}</td>
+                <td>{{ lsDefItemType.hierarchyCode|sanitize }}</td>
+                <td>{% if lsDefItemType.updatedAt %}{{ lsDefItemType.updatedAt|date('Y-m-d H:i:s')|sanitize }}{% endif %}</td>
                 <td>
                     <ul class="list-inline">
                         <li>
