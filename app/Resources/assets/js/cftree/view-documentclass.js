@@ -8,12 +8,23 @@ window.apx = window.apx||{};
 apx.allDocs = {};
 apx.allItemsHash = {};
 
+var entityMap = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '/': '&#x2F;',
+  '`': '&#x60;',
+  '=': '&#x3D;'
+};
+
 // a simple jquery plugin to sanitize data
 (function($) {
-    $.sanitize = function(input) {
-        var output = input.replace(/<script[^>]*?>.*?<\/script>/gi, '').
-            replace(/<[\/\!]*?[^<>]*?>/gi, '');
-        return output;
+    $.sanitize = function(string) {
+        return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+          return entityMap[s];
+        });
     };
 })(jQuery);
 
