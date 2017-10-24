@@ -1363,15 +1363,26 @@ function apxDocument(initializer) {
                             val += escapeHtml(subject.title);
                         }
                     } else if (key === 'officialSourceURL') {
-                        val = '<a href="' + val + '" target="_blank">' + val + '</a>';
+                        val = mdInline.renderInline(val);
+
+                        // add target=_blank
+                        var $val = $('<div>' + val + '</div>');
+                        $('a', $val).attr('target', '_blank');
+                        val = $val.html();
                     } else if (key === 'uri') {
-                        val = self.getItemUri(item);
-                        val = '<a href="' + val + '" target="_blank">' + val + '</a>';
+                        val = mdInline.renderInline(self.getItemUri(item));
+
+                        // add target=_blank
+                        var $val = $('<div>' + val + '</div>');
+                        $('a', $val).attr('target', '_blank');
+                        val = $val.html();
+                    } else {
+                        val = escapeHtml(val);
                     }
 
                     html += '<li class="list-group-item">'
                         + '<strong>' + attributes[key] + ':</strong> '
-                        + escapeHtml(val)
+                        + val
                         + '</li>'
                         ;
                 }

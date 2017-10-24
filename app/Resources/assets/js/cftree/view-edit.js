@@ -162,7 +162,12 @@ apx.edit.prepareAddNewChildModal = function() {
 
         return path;
     }
-    
+
+    var statementMde,
+        notesMde,
+        mdeRenderer =  function(plainText) {
+        return md.render(plainText);
+    };
     var $addNewChildModal = $('#addNewChildModal');
     $addNewChildModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
     $addNewChildModal.on('shown.bs.modal', function(e){
@@ -177,13 +182,33 @@ apx.edit.prepareAddNewChildModal = function() {
                     numberDisplayed: 20
                 });
                 $('#ls_item_itemType').select2entity({dropdownParent: $('#addNewChildModal')});
+                statementMde = new SimpleMDE({
+                    element: $('#ls_item_fullStatement')[0],
+                    toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
+                    previewRender: mdeRenderer
+                });
+                notesMde = new SimpleMDE({
+                    element: $('#ls_item_notes')[0],
+                    toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
+                    previewRender: mdeRenderer
+                });
             }
         );
     }).on('hidden.bs.modal', function(e){
         $('#addNewChildModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
+        if (null !== statementMde) {
+            statementMde.toTextArea();
+            statementMde = null;
+            notesMde.toTextArea();
+            notesMde = null;
+        }
     });
     $addNewChildModal.find('.btn-save').on('click', function(e) {
         apx.spinner.showModal("Creating item");
+        statementMde.toTextArea();
+        statementMde = null;
+        notesMde.toTextArea();
+        notesMde = null;
         $.ajax({
             url: getPath(),
             method: 'POST',
@@ -226,6 +251,16 @@ apx.edit.prepareAddNewChildModal = function() {
                 numberDisplayed: 20
             });
             $('#ls_item_itemType').select2entity({dropdownParent: $('#addNewChildModal')});
+            statementMde = new SimpleMDE({
+                element: $('#ls_item_fullStatement')[0],
+                toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
+                previewRender: mdeRenderer
+            });
+            notesMde = new SimpleMDE({
+                element: $('#ls_item_notes')[0],
+                toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
+                previewRender: mdeRenderer
+            });
         });
     });
 };
