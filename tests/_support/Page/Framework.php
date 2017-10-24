@@ -158,7 +158,7 @@ class Framework implements Context
         $I->waitForElementVisible("//span[text()='{$frameworkName}']");
         $I->click("//span[text()='{$frameworkName}']/../..");
 
-        $I->waitForElementVisible('#itemSection h4.itemTitle');
+        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
 
         return $this;
     }

@@ -21,6 +21,7 @@ class DocTreeCest
 
         $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
         $I->see('ACT Holistic Framework, Math');
         $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
         $I->waitForJS('return $.active == 0;', 1);

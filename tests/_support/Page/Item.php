@@ -39,6 +39,8 @@ class Item implements Context
     {
         $I = $this->I;
 
+        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
+
         $I->seeElement('#treeSideRight h4.itemTitle span.itemTitleSpan');
 
         return $this;
