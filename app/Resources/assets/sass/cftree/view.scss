@@ -172,9 +172,24 @@ span.fancytree-title {
 }
 
 .itemTitleSpan {
-    display:inline-block;
-    width:89%;
-    vertical-align:top;
+    width: 89%;
+    vertical-align: top;
+
+    line-height: 1.1em;
+    max-height: 48.12px; /* 2*1.1em + 5px */
+    max-height: calc(2.2em + 5px);
+    padding-top: 5px;
+    overflow-y: hidden;
+    text-overflow: ellipsis;
+
+    @supports not (-webkit-line-clamp: 2) {
+        display: inline-block;
+    }
+    @supports (-webkit-line-clamp: 2) {
+        display: -webkit-inline-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
 }
 
 .lessImportant {

@@ -27,7 +27,9 @@ var apxScripts = [
 
 var concat = require('concat-files');
 concat(apxScripts, assetsDir+'/js/apx.js', function(err) {
-    if (err) throw err;
+    if (err) {
+      throw err;
+    }
     console.log('concat apx.js done');
 });
 
@@ -42,6 +44,7 @@ var mainScripts = [
     bowerDir+'/select2/dist/js/select2.full.js',
     vendorDir+'/tetranz/select2entity-bundle/Tetranz/Select2EntityBundle/Resources/public/js/select2entity.js',
     bowerDir+'/twbs-pagination/jquery.twbsPagination.js',
+    npmDir+'/simplemde/dist/simplemde.min.js',
     assetsDir+'/js/application.js',
     assetsDir+'/js/lsdoc/index.js',
     assetsDir+'/js/apx.js'
@@ -139,7 +142,8 @@ config.resolve.alias = {
   'jquery': path.resolve(__dirname, bowerDir+'/jquery/dist/jquery.js'),
   'jquery-ui': path.resolve(__dirname, bowerDir+'/jquery-ui/jquery-ui.js'),
   'datatables.net': path.resolve(__dirname, bowerDir+'/datatables.net/js/jquery.dataTables.js'),
-  'jquery-ui/ui/widgets/menu': path.resolve(__dirname, bowerDir+'/jquery-ui/ui/widgets/menu.js')
+  'jquery-ui/ui/widgets/menu': path.resolve(__dirname, bowerDir+'/jquery-ui/ui/widgets/menu.js'),
+  'simplemde': path.resolve(__dirname, npmDir+'/simplemde/dist/simplemde.min.js'),
 };
 config.resolve.modules = [
   "node_modules",

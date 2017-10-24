@@ -13,7 +13,8 @@ var
     mdInline = require('markdown-it')('default', {
         breaks: false,
         linkify: true
-    }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"})
+    }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
+    SimpleMDE = require('simplemde')
 ;
 
 function escapeHtml(string) {
@@ -1408,7 +1409,7 @@ function apxDocument(initializer) {
                 if (!empty(item[key])) {
                     val = item[key];
                     if (key === 'fstmt' || key === 'notes') {
-                        html += '<li class="list-group-item">'
+                        html += '<li class="list-group-item markdown-body">'
                             + '<strong>' + attributes[key] + ':</strong> '
                             + md.render(val)
                             + '</li>'
@@ -1667,7 +1668,7 @@ function apxDocument(initializer) {
                 docTitle = docTitle.replace(/\w+$/, "");
                 docTitle += "…";
             }
-            title += ' <span class="label label-default">' + docTitle + '</span>';
+            title += ' <span class="label label-default">' + escapeHtml(docTitle) + '</span>';
         }
 
         return title;
