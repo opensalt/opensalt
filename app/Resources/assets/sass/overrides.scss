@@ -11,6 +11,8 @@ span.fancytree-drag-helper-img,
 
 span.fancytree-node {
     position: relative;
+    height: 25px;
+    overflow: hidden;
 }
 
 #competencyTree {
@@ -51,4 +53,14 @@ span.fancytree-node {
     ul.fancytree-container {
         overflow: hidden;
     }
+}
+
+/* Markdown */
+.CodeMirror, .CodeMirror-scroll {
+    min-height: 150px;
+}
+
+.markdown-body {
+  font-size: inherit;
+  line-height: inherit;
 }

@@ -110,6 +110,7 @@ gulp.task('scripts', function() {
         config.bowerDir+'/select2/dist/js/select2.full.js',
         config.vendorDir+'/tetranz/select2entity-bundle/Tetranz/Select2EntityBundle/Resources/public/js/select2entity.js',
         config.bowerDir+'/twbs-pagination/jquery.twbsPagination.js',
+        config.npmDir+'/markdown-it/dist/markdown-it.js',
         config.assetsDir+'/js/application.js',
         config.assetsDir+'/js/lsdoc/index.js',
         config.assetsDir+'/js/cftree/view-documentclass.js',

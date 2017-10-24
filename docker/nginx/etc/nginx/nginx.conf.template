@@ -143,6 +143,7 @@ http {
     ## reinstate in case it has been somehow disabled for this
     ## particular server instance.
     ## https://www.owasp.org/index.php/List_of_useful_HTTP_headers.
+    proxy_hide_header X-XSS-Protection
     add_header X-XSS-Protection '1; mode=block';
 
     ## Enable clickjacking protection in modern browsers. Available in

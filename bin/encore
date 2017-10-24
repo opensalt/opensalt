@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd $(dirname $0)/..
+
+docker run --rm -u $(id -u):$(id -g) -v $(pwd):/build/app opensalt/encore "$@"

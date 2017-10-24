@@ -127,36 +127,37 @@ header, footer {
                         <div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
 
                         <div id="itemOptionsWrapper">
-                        {% if editorRights %}
-                            <div class="itemOptions" id="itemOptions">
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal" data-alt-document-disabled="true">Edit</button>
-                                <button type="button" id="deleteItemBtn" class="btn btn-default btn-sm" data-toggle="modal" data-alt-document-disabled="true">Delete</button>
-                                <button type="button" id="toggleFolderBtn" class="btn btn-default btn-sm" data-toggle="modal" data-alt-document-disabled="true">Make This Item a Parent</button>
-                                <button type="button" id="addChildBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add a New Child Item</button>
-                                <button type="button" id="addExemplarBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addExemplarModal">Add an Exemplar</button>
+                            {% if editorRights %}
+                                <div class="itemOptions" id="itemOptions">
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal" data-alt-document-disabled="true">Edit</button>
+                                    <button type="button" id="deleteItemBtn" class="btn btn-default btn-sm" data-toggle="modal" data-alt-document-disabled="true">Delete</button>
+                                    <button type="button" id="toggleFolderBtn" class="btn btn-default btn-sm" data-toggle="modal" data-alt-document-disabled="true">Make This Item a Parent</button>
+                                    <button type="button" id="addChildBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add a New Child Item</button>
+                                    <button type="button" id="addExemplarBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addExemplarModal">Add an Exemplar</button>
+                                </div>
+                            {% endif %}
+
+                            <div class="itemOptions" id="documentOptions">
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
+                                {# use first version if we need to edit the adoptionStatus #}
+                                {% if editorRights %}
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal" data-alt-document-disabled="true">Edit</button>
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#manageAssocGroupsModal" data-alt-document-disabled="true">Manage Association Groups</button>
+                                {% endif %}
+                                {% if manageEditorsRights %}
+                                    <a href="{{ path('framework_acl_edit', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
+                                {% endif %}
+
+                                {% if editorRights %}
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add New Child Item</button>
+                                {% endif %}
+
+                                {% if createRights %}
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal" data-alt-document-disabled="true">Import Children</button>
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#updateFrameworkModal" data-alt-document-disabled="true">Update Framework</button>
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#seeImportLogs" data-alt-document-disabled="true">Import Logs</button>
+                                {% endif %}
                             </div>
-                        {% endif %}
-
-                        <div class="itemOptions" id="documentOptions">
-                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
-                            {# use first version if we need to edit the adoptionStatus #}
-                            {% if editorRights %}
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal" data-alt-document-disabled="true">Edit</button>
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#manageAssocGroupsModal" data-alt-document-disabled="true">Manage Association Groups</button>
-                            {% endif %}
-                            {% if manageEditorsRights %}
-                                <a href="{{ path('framework_acl_edit', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
-                            {% endif %}
-
-                            {% if editorRights %}
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add New Child Item</button>
-                            {% endif %}
-
-                            {% if createRights %}
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal" data-alt-document-disabled="true">Import Children</button>
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#updateFrameworkModal" data-alt-document-disabled="true">Update Framework</button>
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#seeImportLogs" data-alt-document-disabled="true">Import Logs</button>
-                            {% endif %}
                         </div>
                     </div>  <!-- lsItemDetails -->
                     <div class="lsItemAssociations"></div>
