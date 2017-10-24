@@ -8,26 +8,6 @@ window.apx = window.apx||{};
 apx.allDocs = {};
 apx.allItemsHash = {};
 
-var entityMap = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-  '/': '&#x2F;',
-  '`': '&#x60;',
-  '=': '&#x3D;'
-};
-
-// a simple jquery plugin to sanitize data
-(function($) {
-    $.sanitize = function(string) {
-        return String(string).replace(/[&<>"'`=\/]/g, function (s) {
-          return entityMap[s];
-        });
-    };
-})(jQuery);
-
 /**
  * Class for representing/manipulating/using a document
  *
@@ -738,23 +718,20 @@ function apxDocument(initializer) {
         // for the document, use title
         if (item == self.doc) {
             title = item.title;
-            title = $.sanitize(title);
 
         // else it's an item
         } else {
             // by default we'll use the fullStatement, which is a required field for CF items
             var title = item.fstmt;
-            title = $.sanitize(title);
 
             // use abbreviatedStatement if we have one and requireFullStatement isn't true
             if (!empty(item.astmt) && requireFullStatement != true) {
                 title = item.astmt;
-                title = $.sanitize(title);
             }
 
             // add humanCodingScheme to the start if we have one
             if (!empty(item.hcs)) {
-                title = '<span class="item-humanCodingScheme">' + $.sanitize(item.hcs) + '</span> ' + title;
+                title = '<span class="item-humanCodingScheme">' + item.hcs + '</span> ' + title;
             }
         }
 
@@ -1356,9 +1333,7 @@ function apxDocument(initializer) {
         // else it's an lsItem
         } else {
             // show title and appropriate icon
-            // sanitize the title value and set to title
-            title = $.sanitize(self.getItemTitle(item));
-            $jq.find(".itemTitleSpan").html(title);
+            $jq.find(".itemTitleSpan").html(self.getItemTitle(item));
             if (item.setToParent === true || (!empty(item.ftNodeData) && item.ftNodeData.children.length > 0)) {
                 $jq.find(".itemTitleIcon").attr("src", "/assets/img/folder.png");
             } else {
@@ -1376,7 +1351,7 @@ function apxDocument(initializer) {
                         'notes': 'Notes'
                     }) {
                 if (!empty(item[key])) {
-                    val = $.sanitize(item[key]);
+                    val = item[key];
                     // TODO: deal with ck, el, itp
                     html += '<li class="list-group-item">'
                         + '<strong>' + attributes[key] + ':</strong> '
@@ -1400,10 +1375,8 @@ function apxDocument(initializer) {
                     // TODO: deal with cku, licenceUri
                     // for uri, get it from the apxDocument
                     if (key == "uri") {
-                        val = $.sanitize(self.getItemUri(item));
+                        val = self.getItemUri(item);
                         val = '<a href="' + val + '" target="_blank">' + val + '</a>';
-                    } else {
-                        val = $.sanitize(val);
                     }
                     html += '<li class="list-group-item lsItemDetailsExtras">'
                         + '<strong>' + attributes[key] + ':</strong> '
@@ -1503,7 +1476,7 @@ function apxDocument(initializer) {
                     html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
                         + removeBtn
                         + '<span class="itemDetailsAssociationTitle">'
-                        + $.sanitize(self.associationDestItemTitle(a))
+                        + self.associationDestItemTitle(a)
                         + '</span>'
                         + '</a>'
                         ;
