@@ -2,4 +2,13 @@
 
 cd $(dirname $0)/..
 
+mkdir -p -m 0777 build/js
+
+#rm -f ./app/Resources/assets/js/apx.js
+#cat ./app/Resources/assets/js/cftree/{view-documentclass,view-trees,view-edit,view-modes,viewx,apxglobal}.js > ./app/Resources/assets/js/apx.js
+rm -f ./build/js/apx.js
+cat ./app/Resources/assets/js/cftree/{view-documentclass,view-trees,view-edit,view-modes,viewx,apxglobal}.js > ./build/js/apx.js
+
+rm -rf ./web/build/*
+
 docker run --rm -u $(id -u):$(id -g) -v $(pwd):/build/app opensalt/encore "$@"

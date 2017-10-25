@@ -25,6 +25,7 @@ var apxScripts = [
     assetsDir+'/js/cftree/apxglobal.js'
 ];
 
+/*
 var concat = require('concat-files');
 concat(apxScripts, assetsDir+'/js/apx.js', function(err) {
     if (err) {
@@ -32,6 +33,7 @@ concat(apxScripts, assetsDir+'/js/apx.js', function(err) {
     }
     console.log('concat apx.js done');
 });
+*/
 
 var mainScripts = [
     bowerDir+'/datatables.net/js/jquery.dataTables.js',
@@ -47,7 +49,7 @@ var mainScripts = [
     npmDir+'/simplemde/dist/simplemde.min.js',
     assetsDir+'/js/application.js',
     assetsDir+'/js/lsdoc/index.js',
-    assetsDir+'/js/apx.js'
+    './build/js/apx.js'
 ];
 
 Encore
