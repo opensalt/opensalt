@@ -34,7 +34,7 @@ class Framework implements Context
 
         $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath.$I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner');
+        $I->waitForElementNotVisible('#modalSpinner', 120);
 
         return $this;
     }
@@ -46,6 +46,7 @@ class Framework implements Context
     {
         $I = $this->I;
 
+        $I->waitForElementVisible('#treeSideLeft span.fancytree-node', 120);
         $I->seeElement('#treeSideLeft span.fancytree-node');
 
         return $this;
@@ -158,6 +159,7 @@ class Framework implements Context
         $I->waitForElementVisible("//span[text()='{$frameworkName}']");
         $I->click("//span[text()='{$frameworkName}']/../..");
 
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
 
         return $this;
