@@ -65,6 +65,11 @@ after_success:
 
 after_failure:
   - echo "Tests FAILED"
+  - echo "--------------------------------------------------------------------"
+  - docker-compose -f docker/docker-compose.yml logs phpfpm
+  - echo "--------------------------------------------------------------------"
+  - for f in tests/_output/*.html; do echo $f; cat $f; echo; done
+  - echo "--------------------------------------------------------------------"
 
 #before_deploy:
 #deploy:
