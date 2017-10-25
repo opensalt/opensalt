@@ -483,10 +483,17 @@ apx.path.doctree_cfpackage_export = '{{ path('doctree_cfpackage_export', {'id':'
 apx.path.doctree_retrieve_document = '{{ path('doctree_retrieve_document', {'id':'ID'}) }}';
 
 //////////////////////////////////
-$(document).ready(function() {
+function initialize() {
+    if (!$.isFunction(apx.initialize)) {
+        setTimeout(initialize(), 100);
+        return;
+    }
     apx.initialize();
-});
+}
 
+$(function(){
+    initialize();
+});
 </script>
 {% endautoescape %}
 {% endblock %}
