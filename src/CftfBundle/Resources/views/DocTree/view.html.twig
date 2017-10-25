@@ -485,7 +485,7 @@ apx.path.doctree_retrieve_document = '{{ path('doctree_retrieve_document', {'id'
 //////////////////////////////////
 function initialize() {
     if (!$.isFunction(apx.initialize)) {
-        setTimeout(initialize(), 100);
+        setTimeout(initialize, 100);
         return;
     }
     apx.initialize();

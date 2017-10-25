@@ -447,7 +447,7 @@ app.tree1 = {{ render_esi(path('doctree_render_document', {'id':lsDoc.id, '_form
 
 function initialize() {
     if (!$.isFunction(app.initialize)) {
-        setTimeout(initialize(), 100);
+        setTimeout(initialize, 100);
         return;
     }
     app.initialize();
