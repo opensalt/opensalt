@@ -65,12 +65,7 @@ after_success:
 
 after_failure:
   - echo "Tests FAILED"
-  - echo "--------------------------------------------------------------------"
-  - docker-compose -f docker/docker-compose.yml logs phpfpm
-  - echo "--------------------------------------------------------------------"
-  - cp docker/errors/Dockerfile tests/_output/
-  - cd tests/_output ; docker build -t opensalt/app:errors-${TRAVIS_BUILD_NUMBER} . ; cd ../..
-  - docker push opensalt/app:errors-${TRAVIS_BUILD_NUMBER}
+  - ./ci/travis/send_errors.sh
 
 
 #before_deploy:
