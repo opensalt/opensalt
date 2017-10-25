@@ -10,4 +10,4 @@ extensions:
         - Codeception\Extension\RunFailed
         - Codeception\Extension\Recorder:
             delete_successful: false # do not keep screenshots of successful tests
-        #- Codeception\Extension\Logger
+        - Codeception\Extension\Logger
