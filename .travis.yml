@@ -68,8 +68,10 @@ after_failure:
   - echo "--------------------------------------------------------------------"
   - docker-compose -f docker/docker-compose.yml logs phpfpm
   - echo "--------------------------------------------------------------------"
-  - for f in tests/_output/*.html; do echo $f; cat $f; echo; done
-  - echo "--------------------------------------------------------------------"
+  - cp docker/errors/Dockerfile tests/_output/
+  - cd tests/_output ; docker build -t opensalt/app:errors-${TRAVIS_BUILD_NUMBER} . ; cd ../..
+  - docker push opensalt/app:errors-${TRAVIS_BUILD_NUMBER}
+
 
 #before_deploy:
 #deploy:
