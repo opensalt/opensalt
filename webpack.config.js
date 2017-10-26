@@ -16,6 +16,7 @@ var sharedScripts = [
     assetsDir+'/js/site.js'
 ];
 
+/*
 var apxScripts = [
     assetsDir+'/js/cftree/view-documentclass.js',
     assetsDir+'/js/cftree/view-trees.js',
@@ -25,7 +26,6 @@ var apxScripts = [
     assetsDir+'/js/cftree/apxglobal.js'
 ];
 
-/*
 var concat = require('concat-files');
 concat(apxScripts, assetsDir+'/js/apx.js', function(err) {
     if (err) {
@@ -90,7 +90,18 @@ Encore
     .enableSourceMaps(!Encore.isProduction())
     .enableVersioning()
     .configureBabel(function(babelConfig) {
-      babelConfig.compact = true;
+        babelConfig.compact = true;
+        babelConfig.presets.push([
+            'env',
+            {
+                modules: false,
+                targets: {
+                    browsers: '> 1%',
+                    uglify: true
+                },
+                useBuiltIns: true
+            }
+        ]);
     })
     .addLoader({
         test: /\.s[ac]ss$/,

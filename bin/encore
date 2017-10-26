@@ -3,11 +3,14 @@
 cd $(dirname $0)/..
 
 mkdir -p -m 0777 build/js
-
-#rm -f ./app/Resources/assets/js/apx.js
-#cat ./app/Resources/assets/js/cftree/{view-documentclass,view-trees,view-edit,view-modes,viewx,apxglobal}.js > ./app/Resources/assets/js/apx.js
 rm -f ./build/js/apx.js
-cat ./app/Resources/assets/js/cftree/{view-documentclass,view-trees,view-edit,view-modes,viewx,apxglobal}.js > ./build/js/apx.js
+
+cat ./app/Resources/assets/js/cftree/view-documentclass.js > ./build/js/apx.js
+cat ./app/Resources/assets/js/cftree/view-trees.js >> ./build/js/apx.js
+cat ./app/Resources/assets/js/cftree/view-edit.js >> ./build/js/apx.js
+cat ./app/Resources/assets/js/cftree/view-modes.js >> ./build/js/apx.js
+cat ./app/Resources/assets/js/cftree/viewx.js >> ./build/js/apx.js
+cat ./app/Resources/assets/js/cftree/apxglobal.js >> ./build/js/apx.js
 
 rm -rf ./web/build/*
 
