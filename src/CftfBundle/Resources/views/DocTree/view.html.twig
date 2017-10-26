@@ -5,7 +5,7 @@
 {% block stylesheets %}
     {{ parent() }}
     {% if 'comments' is active feature %}
-        <link rel="stylesheet" href="{{ asset('css/comments.css'|asset_version) }}" />
+        <link rel="stylesheet" href="{{ asset('build/commentscss.css', 'encore') }}" />
     {% endif %}
 {% endblock %}
 
@@ -440,9 +440,8 @@ header, footer {
 {% endblock %}
 
 {% block javascripts %}
-
 {% if 'comments' is active feature %}
-    <script src="{{ asset('js/comments.js'|asset_version) }}"></script>
+    <script src="{{ asset('build/comments.js', 'encore') }}"></script>
 {% endif %}
 
 {% autoescape 'js' %}
