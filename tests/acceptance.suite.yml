@@ -15,6 +15,9 @@ modules:
             host: chrome
             restart: true
             window_size: 1500x1100
+            log_js_errors: true
+            wait: 5
+            request_timeout: 120
         - \Helper\Acceptance
         - \Helper\UserManagement
         - \Helper\Guzzle
