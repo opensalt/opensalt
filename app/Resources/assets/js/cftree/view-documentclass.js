@@ -6,11 +6,16 @@ window.apx = window.apx||{};
 
 var
     mk = require('markdown-it-katex'),
-    md = require('markdown-it')('default', {
+    markdown = require('markdown-it'),
+    md = markdown('default', {
         breaks: true,
-        linkify: true
+        linkify: false
     }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
-    mdInline = require('markdown-it')('default', {
+    mdInline = markdown('default', {
+        breaks: false,
+        linkify: false
+    }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
+    mdInlineLinked = markdown('default', {
         breaks: false,
         linkify: true
     }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
@@ -1363,14 +1368,14 @@ function apxDocument(initializer) {
                             val += escapeHtml(subject.title);
                         }
                     } else if (key === 'officialSourceURL') {
-                        val = mdInline.renderInline(val);
+                        val = mdInlineLinked.renderInline(val);
 
                         // add target=_blank
                         var $val = $('<div>' + val + '</div>');
                         $('a', $val).attr('target', '_blank');
                         val = $val.html();
                     } else if (key === 'uri') {
-                        val = mdInline.renderInline(self.getItemUri(item));
+                        val = mdInlineLinked.renderInline(self.getItemUri(item));
 
                         // add target=_blank
                         var $val = $('<div>' + val + '</div>');
@@ -1453,7 +1458,7 @@ function apxDocument(initializer) {
                         val = self.getItemUri(item);
                         html += '<li class="list-group-item lsItemDetailsExtras">'
                             + '<strong>' + attributes[key] + ':</strong> '
-                            + mdInline.renderInline(val)
+                            + mdInlineLinked.renderInline(val)
                             + '</li>'
                         ;
                     } else {
