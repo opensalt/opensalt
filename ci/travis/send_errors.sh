@@ -12,7 +12,7 @@ cd tests/_output
 docker build . -t opensalt/app:errors-${TRAVIS_BUILD_NUMBER}
 cd ../..
 
-docker tag opensalt/app:$COMMIT opensalt/app:travis-${TRAVIS_BUILD_NUMBER}
+docker tag opensalt/app:$COMMIT opensalt/app:fail-${TRAVIS_BUILD_NUMBER}
 
 docker login -u $DOCKER_USER -p $DOCKER_PASS
 docker push opensalt/app:errors-${TRAVIS_BUILD_NUMBER}
