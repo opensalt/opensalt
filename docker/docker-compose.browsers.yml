@@ -7,12 +7,12 @@ services:
       - "../tests:/var/www/html/tests"
 
   chrome:
-    image: selenium/standalone-chrome:3.5
+    image: selenium/standalone-chrome:3.6
     volumes:
       - "../tests:/var/www/html/tests"
 
   firefox:
-    image: selenium/standalone-firefox:3.5
+    image: selenium/standalone-firefox:3.6
     volumes:
       - "../tests:/var/www/html/tests"
 

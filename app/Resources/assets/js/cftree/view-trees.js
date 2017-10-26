@@ -246,9 +246,35 @@ apx.treeDocLoadCallback1 = function() {
                 mode: "hide"  // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
             },
 
+            /*
+            renderTitle: function(event, data) {
+                console.log(event, data);
+                title = mdInline.renderInline(apx.treeDoc1.getItemTitle(data.node.data.ref, true));
+                return title;
+            },
+            */
+
             // function called after the node is rendered
             renderNode: function(event, data) {
                 apx.treeDoc1.initializeTooltip(data.node);
+                var $span = $(data.node.span),
+                    $title = $span.find('> span.fancytree-title'),
+                    ref = data.node.data.ref
+                ;
+                var title = '';
+                if (ref.title) {
+                    title = mdInline.renderInline(ref.title);
+                } else if (ref.astmt) {
+                    title = mdInline.renderInline(ref.astmt);
+                } else if (ref.fstmt) {
+                    title = mdInline.renderInline(ref.fstmt);
+                }
+
+                if (ref.hcs) {
+                    title = '<span class="item-humanCodingScheme">' + escapeHtml(ref.hcs) + '</span> ' + title;
+                }
+
+                $title.html(title);
             },
             
             click: function(event, data) {

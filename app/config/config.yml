@@ -75,6 +75,9 @@ framework:
     #translator: { fallbacks: ['%locale%'] }
     assets:
         version: '170481'
+        packages:
+          encore:
+            json_manifest_path: '%kernel.project_dir%/web/build/manifest.json'
 
 # Twig Configuration
 twig:

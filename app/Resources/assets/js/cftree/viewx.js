@@ -13,7 +13,7 @@ window.apx = window.apx||{};
  */
 function empty(val) {
     // note that we need === because (0 == "") evaluates to true
-    return (undefined == val || null === val || "" === val);
+    return ('undefined' === typeof(val) || null === val || "" === val);
 }
 
 /** Get the value of an object property,

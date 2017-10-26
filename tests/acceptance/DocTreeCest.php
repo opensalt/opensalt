@@ -1,5 +1,7 @@
 <?php
 
+use Ramsey\Uuid\Uuid;
+
 class DocTreeCest
 {
     static public $docPath = '/cftree/doc/';
@@ -15,13 +17,48 @@ class DocTreeCest
         $I->waitForElementVisible('.modal');
         $I->see('Import CASE file');
         $I->click('//*[@href="#case"]');
-        $I->attachFile('#file-url', 'Ordering.json');
+
+        $data = file_get_contents(codecept_data_dir().'Ordering.json');
+
+        $name = sq('OrderingTestFramework');
+        $docUuid = Uuid::uuid4()->toString();
+        $this->rememberedFramework = $name;
+
+        $origValues = [
+            'ACT Holistic Framework, Math',
+            'a33fc64e-5c40-11e7-82c4-3d54268aa9ee',
+        ];
+        $replacements = [
+            $name,
+            $docUuid,
+        ];
+
+        $decoded = json_decode($data, true);
+        foreach ($decoded['CFItems'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+        foreach ($decoded['CFAssociations'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+
+        $data = str_replace($origValues, $replacements, $data);
+
+        $filename = tempnam(codecept_data_dir(), 'tmp_eef_');
+        unlink($filename);
+        file_put_contents($filename.'.json', $data);
+
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.json'));
+
         $I->click('.btn-import-case');
         $I->waitForJS('return $.active == 0;', 10);
 
         $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath.$I->getDocId());
-        $I->see('ACT Holistic Framework, Math');
+        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
+        $I->see($name);
         $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
         $I->waitForJS('return $.active == 0;', 1);
         $css = $I->grabMultiple('.item-humanCodingScheme');

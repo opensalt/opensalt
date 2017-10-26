@@ -577,3 +577,8 @@ $(document).on('ready', function(){
 
     UpdateFramework.init();
 });
+
+// Used from page-level javascript
+global.SaltLocal = SaltLocal;
+global.SaltGithub = SaltGithub;
+global.listRepositories = listRepositories;
