@@ -22,6 +22,7 @@ class CommentItemCest
     {
         $I->getLastFrameworkId();
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->seeElement('.jquery-comments');
         $I->see('To comment please login first');
     }
@@ -30,6 +31,7 @@ class CommentItemCest
     {
         $I->getLastFrameworkId();
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->dontSeeElement('.jquery-comments .commenting-field');
         $I->see('To comment please login first');
     }
@@ -40,6 +42,7 @@ class CommentItemCest
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->seeElement('.commenting-field');
     }
 
@@ -49,6 +52,7 @@ class CommentItemCest
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->createAComment('acceptance item comment '.sq($I->getItemId()));
         $I->waitForJS('return $.active == 0;', 2);
         $I->see('acceptance item comment '.sq($I->getItemId()), '.comment-wrapper .wrapper .content');
@@ -56,6 +60,7 @@ class CommentItemCest
         // Verify a different user can see the comment
         $loginPage->logout();
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->waitForJS('return $.active == 0;', 2);
         $I->see('acceptance item comment '.sq($I->getItemId()), '.comment-wrapper .wrapper .content');
     }
@@ -64,6 +69,7 @@ class CommentItemCest
     {
         $I->getLastFrameworkId();
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->click(Locator::firstElement('.upvote'));
         $I->waitForJS('return $.active == 0;', 2);
         $I->seeCurrentUrlEquals('/login');
@@ -75,6 +81,7 @@ class CommentItemCest
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $upvotes = $I->grabTextFrom(Locator::firstElement('.upvote'));
         $I->click(Locator::firstElement('.upvote'));
         $I->waitForJS('return $.active == 0', 2);
@@ -87,6 +94,7 @@ class CommentItemCest
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->createAComment('downvote comment '.sq($I->getItemId()));
         $I->waitForJS('return $.active == 0', 2);
         $I->click(Locator::firstElement('.upvote'));
@@ -103,6 +111,7 @@ class CommentItemCest
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Super User');
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->click('#rightSideCopyItemsBtn');
         $I->waitForElement('#tree2Section');
         $I->dontSeeElement('js-comments-container');
@@ -114,6 +123,7 @@ class CommentItemCest
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Super User');
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->click('#rightSideCreateAssociationsBtn');
         $I->waitForElement('#tree2Section');
         $I->dontSeeElement('js-comments-container');
@@ -125,6 +135,7 @@ class CommentItemCest
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->createAComment('acceptance doc comment '.sq($I->getItemId()));
         $I->waitForJS('return $.active == 0;', 2);
         $I->see('acceptance doc comment '.sq($I->getItemId()), '.comment-wrapper .wrapper .content');
@@ -141,6 +152,7 @@ class CommentItemCest
         $loginPage = new \Page\Login($I);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->createAComment('acceptance doc comment '.sq($I->getItemId()));
         $I->waitForJS('return $.active == 0;', 2);
         $I->see('acceptance doc comment '.sq($I->getItemId()), '.comment-wrapper .wrapper .content');
@@ -148,6 +160,7 @@ class CommentItemCest
         $loginPage->logout();
         $loginPage->loginAsRole('Admin');
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->waitForJS('return $.active == 0;', 2);
         $upvotes = $I->grabTextFrom(Locator::firstElement('.upvote'));
 
@@ -158,6 +171,7 @@ class CommentItemCest
         $loginPage->logout();
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->waitForJS('return $.active == 0;', 2);
 
         $I->click('.comment-wrapper .wrapper .actions .edit');
