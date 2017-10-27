@@ -614,7 +614,7 @@ function apxDocument(initializer) {
             // if we found any, push them onto the tree
             if (orphans.length > 0) {
                 var orphanParent = {
-                    "title": "– Orphaned Items –",
+                    "title": "*Orphaned Items*",
                     "key": "orphans",
                     "children": [],
                     "folder": true,
@@ -622,6 +622,7 @@ function apxDocument(initializer) {
                     "ref": {
                         "nodeType": "item",
                         "item": "orphanParent",
+                        "title": "*Orphaned Items*",
                         "doc": self
                     }
                 };
@@ -782,11 +783,11 @@ function apxDocument(initializer) {
     self.getItemStatement = function(item, requireFullStatement) {
         var title = '';
 
-        // for the document, use title
-        if (item === self.doc) {
+        if (item === self.doc && !empty(item.title)) {
+            // for the document, use title
             title = item.title;
-        // else it's an item
-        } else {
+        } else if (!empty(item.fstmt)) {
+            // else it's an item
             // by default we'll use the fullStatement, which is a required field for CF items
             title = item.fstmt;
 
@@ -794,6 +795,9 @@ function apxDocument(initializer) {
             if (!empty(item.astmt) && requireFullStatement !== true) {
                 title = item.astmt;
             }
+        } else if (!empty(item.item) && 'orphanParent' === item.item) {
+            // else it's an orphan
+            title = '*Orphaned Items*';
         }
 
         return title;
