@@ -9,6 +9,9 @@
 /tests/api.suite.yml
 /tests/functional.suite.yml
 /tests/unit.suite.yml
+!/tests/_envs
+/tests/_envs/*
+!/tests/_envs/*.dist.yml
 /var/*
 !/var/cache
 /var/cache/*
