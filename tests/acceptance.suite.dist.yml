@@ -31,6 +31,6 @@ gherkin:
     contexts:
         default:
             - AcceptanceTester
-            - "Page\\Login"
+            - "Context\\Login"
             - "Page\\Framework"
             - "Page\\Item"

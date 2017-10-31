@@ -3,6 +3,7 @@
 namespace Helper;
 
 use Codeception\Module\Symfony;
+use Codeception\TestInterface;
 use Doctrine\ORM\EntityManager;
 use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
@@ -11,7 +12,25 @@ use Salt\UserBundle\Repository\UserRepository;
 class UserManagement extends \Codeception\Module
 {
     protected static $users = [];
-    protected static $lastUser = null;
+    protected static $lastUser;
+    protected static $remote = false;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function _beforeSuite($settings = []): void
+    {
+        self::$remote = (false !== strpos($settings['current_environment'] ?? '', 'remoteTarget'));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function _after(TestInterface $test): void
+    {
+        self::$users = [];
+        self::$lastUser = null;
+    }
 
     public function getLastUser(): User
     {
@@ -29,6 +48,37 @@ class UserManagement extends \Codeception\Module
     }
 
     public function ensureUserExistsWithRole(string $role): UserManagement
+    {
+        if (!self::$remote) {
+            return $this->ensureUserExistsWithRoleLocal($role);
+        }
+
+        return $this->ensureUserExistsWithRoleRemote($role);
+    }
+
+    protected function ensureUserExistsWithRoleRemote(string $role): UserManagement
+    {
+        $role = preg_replace('/[^a-z]/', '-', strtolower($role));
+
+        if (false !== ($fh = fopen(__DIR__.'/../../_data/RemoteUsers.csv', 'rb'))) {
+            while (false !== ($user = fgetcsv($fh, 1000, ','))) {
+                if ($role === $user[0]) {
+                    fclose($fh);
+
+                    self::$lastUser = ['user' => $user[1], 'pass' => $user[2]];
+                    self::$users[] = self::$lastUser;
+
+                    return $this;
+                }
+            }
+        }
+
+        throw new \InvalidArgumentException(
+            sprintf('Could not find user with role: "%s"', $role)
+        );
+    }
+
+    protected function ensureUserExistsWithRoleLocal(string $role): UserManagement
     {
         /** @var Symfony $symfony */
         $symfony = $this->getModule('Symfony');

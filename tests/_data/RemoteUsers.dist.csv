@@ -1,0 +1,5 @@
+Role,Username,Password
+editor,editor@somewhere.com,secret
+admin,editor@somewhere.com,secret
+super-editor,editor@somewhere.com,secret
+super-user,editor@somewhere.com,secret
