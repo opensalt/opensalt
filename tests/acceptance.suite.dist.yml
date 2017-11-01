@@ -21,6 +21,7 @@ modules:
         - \Helper\Acceptance
         - \Helper\UserManagement
         - \Helper\Guzzle
+        - \Helper\Toggles
         - Asserts
         - Sequence
 

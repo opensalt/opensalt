@@ -60,7 +60,7 @@ class UserManagement extends \Codeception\Module
     {
         $role = preg_replace('/[^a-z]/', '-', strtolower($role));
 
-        if (false !== ($fh = fopen(__DIR__.'/../../_data/RemoteUsers.csv', 'rb'))) {
+        if (false !== ($fh = fopen(codecept_data_dir('RemoteUsers.csv'), 'rb'))) {
             while (false !== ($user = fgetcsv($fh, 1000, ','))) {
                 if ($role === $user[0]) {
                     fclose($fh);

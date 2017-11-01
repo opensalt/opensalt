@@ -2,3 +2,4 @@ modules:
     config:
         WebDriver:
             url: 'http://nginx'
+

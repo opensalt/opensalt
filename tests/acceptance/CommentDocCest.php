@@ -1,6 +1,5 @@
 <?php
 
-use Codeception\Exception\Skip;
 use Codeception\Scenario;
 use Codeception\Util\Locator;
 use Context\Login;
@@ -11,12 +10,7 @@ class CommentDocCest
 
     public function _before(AcceptanceTester $I)
     {
-        $toggles = $I->grabService('qandidate.toggle.manager');
-        $context = $I->grabService('qandidate.toggle.context_factory');
-
-        if (!$toggles->active('comments', $context->createContext())) {
-            throw new Skip();
-        }
+        $I->assertFeatureEnabled('comments');
     }
 
     // tests
