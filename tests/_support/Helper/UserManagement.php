@@ -39,7 +39,7 @@ class UserManagement extends \Codeception\Module
 
     public function getLastUsername(): string
     {
-        return $this->getLastUser()->getUsername();
+        return self::$lastUser['username'];
     }
 
     public function getLastPassword(): string
@@ -65,7 +65,7 @@ class UserManagement extends \Codeception\Module
                 if ($role === $user[0]) {
                     fclose($fh);
 
-                    self::$lastUser = ['user' => $user[1], 'pass' => $user[2]];
+                    self::$lastUser = ['user' => null, 'username' => $user[1], 'pass' => $user[2]];
                     self::$users[] = self::$lastUser;
 
                     return $this;
@@ -94,6 +94,7 @@ class UserManagement extends \Codeception\Module
 
         /** @var UserRepository $userRepo */
         $userRepo = $em->getRepository(User::class);
+        /** @var User $user */
         $user = $userRepo->createQueryBuilder('u')
             ->where('u.username like :prefix')
             ->setParameter(':prefix', 'TEST:'.$role.':%')
@@ -131,7 +132,7 @@ class UserManagement extends \Codeception\Module
             $this->assertNotEmpty($user, 'User could not be created.');
         }
 
-        self::$lastUser = ['user' => $user, 'pass' => $password];
+        self::$lastUser = ['user' => $user, 'username' => $user->getUsername(), 'pass' => $password];
         self::$users[] = self::$lastUser;
 
         return $this;

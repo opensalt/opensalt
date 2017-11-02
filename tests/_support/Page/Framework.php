@@ -32,6 +32,7 @@ class Framework implements Context
     {
         $I = $this->I;
 
+        $I->iAmOnTheHomepage();
         $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);

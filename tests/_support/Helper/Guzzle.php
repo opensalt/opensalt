@@ -25,11 +25,11 @@ class Guzzle extends \Codeception\Module
         $session = $this->getWebDriver()->grabCookie('session');
 
         $domain = null;
-        if (preg_match('#^(?:[a-z]+)://([^/]+)/#', $baseUrl, $matches)) {
+        if (preg_match('#^(?:https?)://([^/]+)/?#', $baseUrl, $matches)) {
             $domain = $matches[1];
         }
 
-        $this->assertNotEmpty($domain, 'Could not find domain from WebDriver');
+        $this->assertNotEmpty($domain, sprintf('Could not find domain from WebDriver [%s]', $baseUrl));
 
         $client = new Client([
             'base_uri' => $baseUrl,
@@ -70,11 +70,11 @@ class Guzzle extends \Codeception\Module
         $session = $this->getWebDriver()->grabCookie('session');
 
         $domain = null;
-        if (preg_match('#^(?:[a-z]+)://([^/]+)/#', $baseUrl, $matches)) {
+        if (preg_match('#^(?:https?)://([^/]+)/?#', $baseUrl, $matches)) {
             $domain = $matches[1];
         }
 
-        $this->assertNotEmpty($domain, 'Could not find domain from WebDriver');
+        $this->assertNotEmpty($domain, sprintf('Could not find domain from WebDriver [%s]', $baseUrl));
 
         $client = new Client([
             'base_uri' => $baseUrl,
@@ -106,11 +106,11 @@ class Guzzle extends \Codeception\Module
         $session = $this->getWebDriver()->grabCookie('session');
 
         $domain = null;
-        if (preg_match('#^(?:[a-z]+)://([^/]+)/#', $baseUrl, $matches)) {
+        if (preg_match('#^(?:https?)://([^/]+)/?#', $baseUrl, $matches)) {
             $domain = $matches[1];
         }
 
-        $this->assertNotEmpty($domain, 'Could not find domain from WebDriver');
+        $this->assertNotEmpty($domain, sprintf('Could not find domain from WebDriver [%s]', $baseUrl));
 
         $client = new Client([
             'base_uri' => $baseUrl,
