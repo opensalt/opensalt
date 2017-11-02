@@ -64,7 +64,10 @@ class Comment
     /**
      * @var string
      *
-     * @ORM\Column(type="string")
+     * @Serializer\Accessor(getter="getFullname")
+     * @Serializer\ReadOnly
+     * @Serializer\Type("string")
+     * @Serializer\SerializedName("fullname")
      */
     private $fullname;
 
@@ -237,27 +240,14 @@ class Comment
     }
 
     /**
-     * Set fullname
-     *
-     * @param string $fullname
-     *
-     * @return Comment
-     */
-    public function setFullname($fullname): Comment
-    {
-        $this->fullname = $fullname;
-
-        return $this;
-    }
-
-    /**
      * Get fullname
      *
      * @return string
      */
     public function getFullname(): string
     {
-        return $this->fullname;
+        $displayName = preg_replace('/@.*/', '', $this->getUser()->getUsername());
+        return $displayName;
     }
 
     /**
