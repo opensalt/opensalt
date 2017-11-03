@@ -13,6 +13,12 @@ use Salt\UserBundle\Entity\User;
  *
  * @ORM\Entity(repositoryClass="CommentRepository")
  * @ORM\Table(name="salt_comment")
+ *
+ * @Serializer\VirtualProperty(
+ *     "fullname",
+ *     exp="object.getFullname()",
+ *     options={@Serializer\SerializedName("fullname")}
+ *  )
  */
 class Comment
 {
@@ -60,13 +66,6 @@ class Comment
      * @ORM\Column(type="string")
      */
     private $item;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string")
-     */
-    private $fullname;
 
     /**
      * @var CommentUpvote[]|Collection
@@ -237,27 +236,14 @@ class Comment
     }
 
     /**
-     * Set fullname
-     *
-     * @param string $fullname
-     *
-     * @return Comment
-     */
-    public function setFullname($fullname): Comment
-    {
-        $this->fullname = $fullname;
-
-        return $this;
-    }
-
-    /**
      * Get fullname
      *
      * @return string
      */
     public function getFullname(): string
     {
-        return $this->fullname;
+        $displayName = preg_replace('/@.*/', '', $this->getUser()->getUsername());
+        return $displayName;
     }
 
     /**

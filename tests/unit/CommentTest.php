@@ -21,7 +21,6 @@ class CommentTest extends \Codeception\Test\Unit
         $comment->setItem('document:123');
         $comment->setContent('unit test comment');
         $comment->setParent(null);
-        $comment->setFullname('codeception');
         $comment->setUser($user);
 
         $em = $this->getModule('Doctrine2')->em;
@@ -145,7 +144,6 @@ class CommentTest extends \Codeception\Test\Unit
             with desktop publishing software like Aldus PageMaker including versions of
             Lorem Ipsum.");
         $comment->setParent(null);
-        $comment->setFullname('codeception');
         $comment->setUser($user);
 
         $em = $this->getModule('Doctrine2')->em;

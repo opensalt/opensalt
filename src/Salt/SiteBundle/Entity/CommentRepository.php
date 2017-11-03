@@ -26,7 +26,6 @@ class CommentRepository extends EntityRepository
         $comment = new Comment();
         $comment->setContent(trim($content));
         $comment->setUser($user);
-        $comment->setFullname($user->getUsername().' - '.$user->getOrg()->getName());
         $comment->setItem($itemType.':'.$itemId);
         $comment->setCreatedByCurrentUser(true);
 
