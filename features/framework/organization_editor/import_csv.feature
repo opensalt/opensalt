@@ -10,8 +10,8 @@ Feature: The framework can be uploaded as CSV
     When I click "Import framework"
     Then I should see the import dialogue
     When I click "Import Spreadsheet file"
-    And I upload the csv file
+    And I upload the ccsso_ela_item file
     And I go to the uploaded framework
     And I download the framework csv file
-    Then the downloaded framework should match the uploaded one
+    Then the downloaded csv framework should match the uploaded one
 
