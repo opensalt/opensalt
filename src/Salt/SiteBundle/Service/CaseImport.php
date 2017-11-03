@@ -205,6 +205,11 @@ class CaseImport
                     $lsAssociation->setType($associationType);
                 }
             }
+
+            if (property_exists($cfAssociation, 'sequenceNumber')) {
+                $lsAssociation->setSequenceNumber($cfAssociation->sequenceNumber);
+            }
+
             if (property_exists($cfAssociation, 'groupName')) {
                 $lsAssociation->setGroupName($cfAssociation->groupName);
             }
