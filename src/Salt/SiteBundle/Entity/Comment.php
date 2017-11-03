@@ -13,6 +13,12 @@ use Salt\UserBundle\Entity\User;
  *
  * @ORM\Entity(repositoryClass="CommentRepository")
  * @ORM\Table(name="salt_comment")
+ *
+ * @Serializer\VirtualProperty(
+ *     "fullname",
+ *     exp="object.getFullname()",
+ *     options={@Serializer\SerializedName("fullname")}
+ *  )
  */
 class Comment
 {
@@ -60,16 +66,6 @@ class Comment
      * @ORM\Column(type="string")
      */
     private $item;
-
-    /**
-     * @var string
-     *
-     * @Serializer\Accessor(getter="getFullname")
-     * @Serializer\ReadOnly
-     * @Serializer\Type("string")
-     * @Serializer\SerializedName("fullname")
-     */
-    private $fullname;
 
     /**
      * @var CommentUpvote[]|Collection
