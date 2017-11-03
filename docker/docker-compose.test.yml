@@ -35,10 +35,11 @@ services:
 
   db:
     image: percona:${MYSQL_VERSION}
+    volumes:
+      - "${PROJ_DIR:-..}/docker/mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro"
+      - "${PROJ_DIR:-..}/docker/mysql/charset.cnf:/etc/mysql/conf.d/charset.cnf:ro"
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
-    volumes:
-      - ./mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf

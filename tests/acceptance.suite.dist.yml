@@ -11,13 +11,17 @@ modules:
             cleanup: false
         - WebDriver:
             url: 'http://nginx/'
-            browser: phantomjs
-            host: 'phantomjs'
-            port: 8643
-            window_size: 'maximize'
+            browser: chrome
+            host: chrome
+            restart: true
+            window_size: 1500x1100
+            log_js_errors: true
+            wait: 5
+            request_timeout: 120
         - \Helper\Acceptance
         - \Helper\UserManagement
         - \Helper\Guzzle
+        - \Helper\Toggles
         - Asserts
         - Sequence
 
@@ -28,6 +32,6 @@ gherkin:
     contexts:
         default:
             - AcceptanceTester
-            - "Page\\Login"
+            - "Context\\Login"
             - "Page\\Framework"
             - "Page\\Item"

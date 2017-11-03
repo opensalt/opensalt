@@ -2,13 +2,13 @@
 
 cd $(dirname $0)/..
 
-docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml up -d phantomjs
+docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml up -d chrome
 sleep 2
 
 ./bin/phpcli ./bin/codecept-wrapper "$@"
 RET=$?
 
-docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml stop phantomjs
-docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml rm -f -v phantomjs
+docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml stop chrome
+docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml rm -f -v chrome
 
 exit $RET

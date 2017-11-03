@@ -1,10 +1,8 @@
 #!/bin/sh
 
-cd $(dirname $0)/../docker
+cd $(dirname $0)/..
 
-if [ "x$@" = "x" ]; then
-	rm -f ../app/Resources/assets/rev-manifest.json
-fi
+echo "Gulp is no longer used, instead please use: "
+echo "    "$(dirname $0)"/encore production"
 
-docker-compose -f docker-compose.yml -f docker-compose.tools.yml pull gulp \
-  && docker-compose -f docker-compose.yml -f docker-compose.tools.yml run --rm -u $(id -u):$(id -g) gulp "$@"
+./bin/encore production

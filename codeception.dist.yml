@@ -8,3 +8,6 @@ actor_suffix: Tester
 extensions:
     enabled:
         - Codeception\Extension\RunFailed
+        - Codeception\Extension\Recorder:
+            delete_successful: true # do not keep screenshots of successful tests
+        - Codeception\Extension\Logger

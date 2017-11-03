@@ -32,8 +32,10 @@ class Framework implements Context
     {
         $I = $this->I;
 
+        $I->iAmOnTheHomepage();
         $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
 
         return $this;
     }
@@ -45,6 +47,7 @@ class Framework implements Context
     {
         $I = $this->I;
 
+        $I->waitForElementVisible('#treeSideLeft span.fancytree-node', 120);
         $I->seeElement('#treeSideLeft span.fancytree-node');
 
         return $this;
@@ -157,7 +160,8 @@ class Framework implements Context
         $I->waitForElementVisible("//span[text()='{$frameworkName}']");
         $I->click("//span[text()='{$frameworkName}']/../..");
 
-        $I->waitForElementVisible('#itemSection h4.itemTitle');
+        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
 
         return $this;
     }
@@ -375,9 +379,65 @@ class Framework implements Context
 
         return $this;
     }
-  
-    /*
-     * @Given /^I fill in an ASN document identifier$/
+
+    /**
+     * @Given /^I upload the markdown CASE file$/
+     */
+    public function iUploadTheMarkdownCASEFile()
+    {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#file-url');
+
+        $data = file_get_contents(codecept_data_dir().'MarkdownFramework.json');
+
+        $name = sq('MarkdownFramework');
+        $docUuid = Uuid::uuid4()->toString();
+        $this->rememberedFramework = $name;
+
+        $origValues = [
+            "Test Markdown Framework",
+            'd0000000-0000-0000-0000-000000000000',
+        ];
+        $replacements = [
+            $name,
+            $docUuid,
+        ];
+
+        $decoded = json_decode($data, true);
+        foreach ($decoded['CFItems'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+        foreach ($decoded['CFAssociations'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+
+        /*
+        foreach ($origValues as $i => $origValue) {
+            $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
+        }
+        */
+        $data = str_replace($origValues, $replacements, $data);
+
+        $this->uploadedFramework = $data;
+
+        $filename = tempnam(codecept_data_dir(), 'tmp_mdf_');
+        unlink($filename);
+        file_put_contents($filename.'.json', $data);
+
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.json'));
+        $I->click('a.btn-import-case');
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        unlink($filename.'.json');
+
+        return $this;
+    }
+
+    /**
+     * @When /^I fill in an ASN document identifier$/
      */
     public function iFillInAnASNDocumentIdentifier(): Framework
     {
@@ -421,5 +481,27 @@ class Framework implements Context
         $this->importedAsnList = $I->grabMultiple('//span[text()="Imported from ASN"]/../../ul/li/span/span[@class="fancytree-title"]');
 
         return $this;
+    }
+
+    /**
+     * @Then /^I should see math in the framework$/
+     */
+    public function iShouldSeeMathInTheFramework()
+    {
+        $I = $this->I;
+
+        $I->click('//span[text()="MD.Math"]/../../..');
+        $I->seeElement('.lsItemDetails .katex');
+    }
+
+    /**
+     * @Given /^I should see a table in the framework$/
+     */
+    public function iShouldSeeTablesInTheFramework()
+    {
+        $I = $this->I;
+
+        $I->click('//span[text()="MD.Table"]/../../..');
+        $I->seeElement('.lsItemDetails table');
     }
 }

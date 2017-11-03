@@ -6,11 +6,13 @@ span.fancytree-checkbox,
 span.fancytree-radio,
 span.fancytree-drag-helper-img,
 #fancytree-drop-marker {
-    background-image: url("/img/fancytree/icons.gif");
+    background-image: url("../../../../vendor/bower-asset/fancytree/dist/skin-lion/icons.gif");
 }
 
 span.fancytree-node {
     position: relative;
+    height: 25px;
+    overflow: hidden;
 }
 
 #competencyTree {
@@ -51,4 +53,21 @@ span.fancytree-node {
     ul.fancytree-container {
         overflow: hidden;
     }
+}
+
+/* Markdown */
+.CodeMirror, .CodeMirror-scroll {
+    min-height: 150px;
+}
+
+.markdown-body {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Tooltips */
+.tooltip {
+  max-height: 300px;
+  max-width: 300px;
+  overflow: hidden;
 }

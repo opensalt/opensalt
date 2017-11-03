@@ -27,6 +27,7 @@ class Item implements Context
 
         $I->getLastItemId();
         $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner');
 
         return $this;
     }
@@ -37,6 +38,8 @@ class Item implements Context
     public function iShouldSeeTheItemInformation(): Item
     {
         $I = $this->I;
+
+        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
 
         $I->seeElement('#treeSideRight h4.itemTitle span.itemTitleSpan');
 
