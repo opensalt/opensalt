@@ -1,5 +1,7 @@
 <?php
 
+use Codeception\Scenario;
+use Context\Login;
 use Ramsey\Uuid\Uuid;
 
 class DocTreeCest
@@ -7,9 +9,9 @@ class DocTreeCest
     static public $docPath = '/cftree/doc/';
 
     // tests
-    public function verifyOrder(AcceptanceTester $I)
+    public function verifyOrder(AcceptanceTester $I, Scenario $scenario)
     {
-        $loginPage = new \Page\Login($I);
+        $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Admin');
         $I->amOnPage('/cfdoc');
         $I->see('Import framework');

@@ -4,17 +4,17 @@ services:
     image: wernight/phantomjs:2
     command: [ "phantomjs", "--webdriver=8643" ]
     volumes:
-      - "../tests:/var/www/html/tests"
+      - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
 
   chrome:
     image: selenium/standalone-chrome:3.6
     volumes:
-      - "../tests:/var/www/html/tests"
+      - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
 
   firefox:
     image: selenium/standalone-firefox:3.6
     volumes:
-      - "../tests:/var/www/html/tests"
+      - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
 
   wait:
     image: jwilder/dockerize

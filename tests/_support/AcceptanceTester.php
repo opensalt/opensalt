@@ -1,9 +1,6 @@
 <?php
 
 use Behat\Behat\Context\Context;
-use CftfBundle\Entity\LsItem;
-use Doctrine\ORM\EntityManager;
-use CftfBundle\Entity\LsDoc;
 use Facebook\WebDriver\WebDriverElement;
 
 /**
@@ -25,6 +22,9 @@ use Facebook\WebDriver\WebDriverElement;
 class AcceptanceTester extends \Codeception\Actor implements Context
 {
     use _generated\AcceptanceTesterActions;
+
+    static protected $documentsApi = '/ims/case/v1p0/CFDocuments';
+    static protected $packagesApi = '/ims/case/v1p0/CFPackages/';
 
     private $lsDocId = null;
     private $lsItemId = null;
@@ -90,30 +90,44 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         return $this;
     }
 
-    public function getLastFrameworkId()
+    public function getLastFrameworkId(): string
     {
-        /** @var EntityManager $em */
-        $em = $this->grabService('doctrine.orm.default_entity_manager');
+        $documents = $this->fetchJson(self::$documentsApi);
+        $documents = $documents['CFDocuments'] ?? [];
 
-        $lsDocRepo = $em->getRepository(LsDoc::class);
-        $lsDoc = $lsDocRepo->createQueryBuilder('d')
-            ->orderBy('d.id', 'DESC')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+        if (0 === count($documents)) {
+            /* @todo Create a framework if none found */
 
-        if (!$lsDoc) {
-            $lsDoc = new LsDoc();
-            $lsDoc->setTitle(sq('test framework'));
-            $lsDoc->setCreator(sq('test creator'));
-
-            $em->persist($lsDoc);
-            $em->flush($lsDoc);
+            throw new LogicException('No framework could be found');
         }
 
-        $this->lsDocId = $lsDoc->getId();
+        $lastDoc = $documents[0];
+        foreach ($documents as $document) {
+            if (($document['adoptionStatus'] ?? 'Draft') !== 'Draft') {
+                continue;
+            }
 
-        return $this->lsDocId;
+            if ($lastDoc['lastChangeDateTime'] < $document['lastChangeDateTime']) {
+                $lastDoc = $document;
+            }
+        }
+
+        $docPage = $this->fetchRedirect('/uri/'.$lastDoc['identifier']);
+        if (null === $docPage) {
+            $docPage = $this->fetchRedirect('/uri/'.$lastDoc['uri']);
+        }
+        if (null === $docPage) {
+            /* @todo Create a framework if none found */
+
+            throw new LogicException('No framework could be found');
+        }
+
+        if (1 === preg_match('#/cftree/doc/(.*)#', $docPage, $matches)) {
+            $this->lsDocId = $matches[1];
+            return $this->lsDocId;
+        }
+
+        throw new LogicException('Framework id could not be found');
     }
 
     public function getDocId()
@@ -127,32 +141,60 @@ class AcceptanceTester extends \Codeception\Actor implements Context
 
     public function getLastItemId()
     {
-        /** @var EntityManager $em */
-        $em = $this->grabService('doctrine.orm.default_entity_manager');
+        $documents = $this->fetchJson(self::$documentsApi);
+        $documents = $documents['CFDocuments'] ?? [];
+        if (0 === count($documents)) {
+            /* @todo Create a framework if none found */
 
-        $lsItemRepo = $em->getRepository(LsItem::class);
-        $lsItem = $lsItemRepo->createQueryBuilder('d')
-            ->orderBy('d.id', 'DESC')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        if (!$lsItem) {
-            $lsDocRepo = $em->getRepository(LsDoc::class);
-            $doc = $lsDocRepo->find($this->getLastFrameworkId());
-
-            /** @var LsItem $lsItem */
-            $lsItem = $doc->createItem();
-            $lsItem->setFullStatement(sq('test item'));
-            $doc->createChildItem($lsItem);
-
-            $em->persist($lsItem);
-            $em->flush();
+            throw new LogicException('No framework could be found');
         }
 
-        $this->lsItemId = $lsItem->getId();
+        $lastDoc = $documents[0];
+        foreach ($documents as $document) {
+            if (($document['adoptionStatus'] ?? 'Draft') !== 'Draft') {
+                continue;
+            }
 
-        return $this->lsItemId;
+            if ($lastDoc['lastChangeDateTime'] < $document['lastChangeDateTime']) {
+                $lastDoc = $document;
+            }
+        }
+
+        $framework = $this->fetchJson(self::$packagesApi.$lastDoc['identifier']);
+        $items = $framework['CFItems'] ?? [];
+        if (0 === count($items)) {
+            /* @todo Create an item if none found */
+
+            throw new LogicException('No item could be found in the last document');
+        }
+
+        $lastItem = $items[0];
+        foreach ($items as $item) {
+            if (($item['adoptionStatus'] ?? 'Draft') !== 'Draft') {
+                continue;
+            }
+
+            if ($lastItem['lastChangeDateTime'] < $item['lastChangeDateTime']) {
+                $lastItem = $item;
+            }
+        }
+
+        $itemPage = $this->fetchRedirect('/uri/'.$lastItem['identifier']);
+        if (null === $itemPage) {
+            $itemPage = $this->fetchRedirect('/uri/'.$lastItem['uri']);
+        }
+        if (null === $itemPage) {
+            /* @todo Create a item if none found */
+
+            throw new LogicException('No item could be found');
+        }
+
+        if (1 === preg_match('#/cftree/item/(.*)#', $itemPage, $matches)) {
+            $this->lsItemId = $matches[1];
+            return $this->lsItemId;
+        }
+
+        throw new LogicException('Item id could not be found');
     }
 
     public function getItemId()

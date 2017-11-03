@@ -14,7 +14,7 @@ services:
       MYSQL_HOST: "${MYSQL_HOST:-db}"
       DB_USE_RDS_CERT:
     volumes:
-      - &project_root "..:/var/www/html"
+      - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html
     command: [ /bin/true ]
 
@@ -30,9 +30,9 @@ services:
       DB_USE_RDS_CERT:
     volumes:
       - *project_root
-      - ./data/composer/slash:/composer
-      - ./data/composer/root-user:/root/composer
-      - ./data/composer/passwd.tmp:/etc/passwd
+      - "${PROJ_DIR:-..}/docker/data/composer/slash:/composer"
+      - "${PROJ_DIR:-..}/docker/data/composer/root-user:/root/composer"
+      - "${PROJ_DIR:-..}/docker/data/composer/passwd.tmp:/etc/passwd"
     working_dir: /var/www/html
     command: [ "-q" ]
 
@@ -41,6 +41,6 @@ services:
     #  context: ./gulp
     image: opensalt/gulp:latest
     volumes:
-      - "..:/build/app"
+      - "${PROJ_DIR:-..}:/build/app"
 
 #volumes:

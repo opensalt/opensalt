@@ -1,7 +1,8 @@
 <?php
 
-use Codeception\Exception\Skip;
+use Codeception\Scenario;
 use Codeception\Util\Locator;
+use Context\Login;
 
 class CommentDocCest
 {
@@ -9,12 +10,7 @@ class CommentDocCest
 
     public function _before(AcceptanceTester $I)
     {
-        $toggles = $I->grabService('qandidate.toggle.manager');
-        $context = $I->grabService('qandidate.toggle.context_factory');
-
-        if (!$toggles->active('comments', $context->createContext())) {
-            throw new Skip();
-        }
+        $I->assertFeatureEnabled('comments');
     }
 
     // tests
@@ -36,20 +32,20 @@ class CommentDocCest
         $I->see('To comment please login first');
     }
 
-    public function seeCommentsSectionAsAnAuthenticatedUser(AcceptanceTester $I)
+    public function seeCommentsSectionAsAnAuthenticatedUser(AcceptanceTester $I, Scenario $scenario)
     {
         $I->getLastFrameworkId();
-        $loginPage = new \Page\Login($I);
+        $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->seeElement('.commenting-field');
     }
 
-    public function commentAsAnAuthenticatedUser(AcceptanceTester $I)
+    public function commentAsAnAuthenticatedUser(AcceptanceTester $I, Scenario $scenario)
     {
         $I->getLastFrameworkId();
-        $loginPage = new \Page\Login($I);
+        $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
@@ -75,10 +71,10 @@ class CommentDocCest
         $I->seeCurrentUrlEquals('/login');
     }
 
-    public function upvoteAsAnAuthenticatedUser(AcceptanceTester $I)
+    public function upvoteAsAnAuthenticatedUser(AcceptanceTester $I, Scenario $scenario)
     {
         $I->getLastFrameworkId();
-        $loginPage = new \Page\Login($I);
+        $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
@@ -88,10 +84,10 @@ class CommentDocCest
         $I->see($upvotes + 1, Locator::firstElement('.upvote'));
     }
 
-    public function downvoteAsAnAuthenticatedUser(AcceptanceTester $I)
+    public function downvoteAsAnAuthenticatedUser(AcceptanceTester $I, Scenario $scenario)
     {
         $I->getLastFrameworkId();
-        $loginPage = new \Page\Login($I);
+        $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
@@ -105,10 +101,10 @@ class CommentDocCest
         $I->see($upvotes - 1, Locator::firstElement('.upvote'));
     }
 
-    public function dontSeeCommentsInCopyItemsTab(AcceptanceTester $I)
+    public function dontSeeCommentsInCopyItemsTab(AcceptanceTester $I, Scenario $scenario)
     {
         $I->getLastFrameworkId();
-        $loginPage = new \Page\Login($I);
+        $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Super User');
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
@@ -117,10 +113,10 @@ class CommentDocCest
         $I->dontSeeElement('js-comments-container');
     }
 
-    public function dontSeeCommentsInCreateAssociationsTab(AcceptanceTester $I)
+    public function dontSeeCommentsInCreateAssociationsTab(AcceptanceTester $I, Scenario $scenario)
     {
         $I->getLastFrameworkId();
-        $loginPage = new \Page\Login($I);
+        $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Super User');
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
@@ -129,10 +125,10 @@ class CommentDocCest
         $I->dontSeeElement('js-comments-container');
     }
 
-    public function deleteComment(AcceptanceTester $I)
+    public function deleteComment(AcceptanceTester $I, Scenario $scenario)
     {
         $I->getLastFrameworkId();
-        $loginPage = new \Page\Login($I);
+        $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
@@ -146,10 +142,10 @@ class CommentDocCest
         $I->dontSee('acceptance doc comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
     }
 
-    public function deleteUpvotedDownvotedComment(AcceptanceTester $I)
+    public function deleteUpvotedDownvotedComment(AcceptanceTester $I, Scenario $scenario)
     {
         $I->getLastFrameworkId();
-        $loginPage = new \Page\Login($I);
+        $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
@@ -180,10 +176,10 @@ class CommentDocCest
         $I->dontSee('acceptance doc comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
     }
 
-    public function deleteRepliedComment(AcceptanceTester $I)
+    public function deleteRepliedComment(AcceptanceTester $I, Scenario $scenario)
     {
         $I->getLastFrameworkId();
-        $loginPage = new \Page\Login($I);
+        $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
