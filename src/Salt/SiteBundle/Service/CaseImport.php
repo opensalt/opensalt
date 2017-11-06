@@ -85,6 +85,15 @@ class CaseImport
         if (property_exists($fileContent->CFDocument, 'language')) {
             $lsDoc->setLanguage($fileContent->CFDocument->language);
         }
+        if (property_exists($fileContent->CFDocument, 'adoptionStatus')) {
+            $lsDoc->setAdoptionStatus($fileContent->CFDocument->adoptionStatus);
+        }
+        if (property_exists($fileContent->CFDocument, 'statusStartDate')) {
+            $lsDoc->setStatusStart(new \DateTime($fileContent->CFDocument->statusStartDate));
+        }
+        if (property_exists($fileContent->CFDocument, 'statusEndDate')) {
+            $lsDoc->setStatusEnd(new \DateTime($fileContent->CFDocument->statusEndDate));
+        }
 
         $em->persist($lsDoc);
 
