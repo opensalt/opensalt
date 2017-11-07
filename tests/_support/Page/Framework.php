@@ -437,6 +437,62 @@ class Framework implements Context
     }
 
     /**
+     * @Given /^I upload the sequence number CASE file$/
+     */
+    public function iUploadTheSequenceNumberCASEFile()
+    {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#file-url');
+
+        $data = file_get_contents(codecept_data_dir().'SequenceNumberFramework.json');
+
+        $name = sq('SeqNumFramework');
+        $docUuid = Uuid::uuid4()->toString();
+        $this->rememberedFramework = $name;
+
+        $origValues = [
+            "Sequence Number Test",
+            'd0000000-0000-0000-0000-000000000000',
+        ];
+        $replacements = [
+            $name,
+            $docUuid,
+        ];
+
+        $decoded = json_decode($data, true);
+        foreach ($decoded['CFItems'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+        foreach ($decoded['CFAssociations'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+
+        /*
+        foreach ($origValues as $i => $origValue) {
+            $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
+        }
+        */
+        $data = str_replace($origValues, $replacements, $data);
+
+        $this->uploadedFramework = $data;
+
+        $filename = tempnam(codecept_data_dir(), 'tmp_mdf_');
+        unlink($filename);
+        file_put_contents($filename.'.json', $data);
+
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.json'));
+        $I->click('a.btn-import-case');
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        unlink($filename.'.json');
+
+        return $this;
+    }
+
+    /**
      * @When /^I fill in an ASN document identifier$/
      */
     public function iFillInAnASNDocumentIdentifier(): Framework
@@ -503,5 +559,17 @@ class Framework implements Context
 
         $I->click('//span[text()="MD.Table"]/../../..');
         $I->seeElement('.lsItemDetails table');
+    }
+
+    /**
+     * @Then /^I should see "([^"]*)" as the first item in the tree's HCS value$/
+     */
+    public function iShouldSeeAsTheFirstItem(string $hcsValue)
+    {
+        $I = $this->I;
+
+        $level1HcsList = $I->grabMultiple('.item-humanCodingScheme');
+
+        $I->assertEquals($hcsValue, current($level1HcsList));
     }
 }
