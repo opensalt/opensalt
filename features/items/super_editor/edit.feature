@@ -6,7 +6,7 @@ Feature: Editing a item
   @incomplete @smoke @editor @item @edit-item
   Scenario Outline: 1016-0945 An editor user can edit a item
     Given I log in as a user with role "Editor"
-    Then I create a "Draft" framework
+    When I create a framework
     And I add "ELA" Item
     Then I edit the "<fullStatement>"
     And  I edit the "<notes">
