@@ -3,11 +3,11 @@ Feature: The framework is editable
   As an super editor
   I need to edit a framework
 
-  @incomplete @smoke @super-editor @view-framework
-  Scenario Outline: 1016-1326 An super editor can edit a framework
+  @smoke @super-editor @view-framework
+  Scenario: 1016-1326 An super editor can edit a framework
     Given I log in as a user with role "Super-Editor"
     When I create a framework
-    And I edit the fields
+    And I edit the field in framework
       | Title           | New Title           |
       | Creator         | New Creator         |
       | Official URI    | http://opensalt.com |

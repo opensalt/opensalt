@@ -631,9 +631,9 @@ class Framework implements Context
     }
 
   /**
-   * @Given /^I edit the field$/
+   * @Given /^I edit the field in framework$/
    */
-  public function iEditTheField($field, $data) {
+  public function iEditTheFieldInFramework($field, $data) {
     $I = $this->I;
     $map = [
       'Title' => '#ls_doc_title',
@@ -658,7 +658,6 @@ class Framework implements Context
       'Note' =>   'note',
     ];
 
-
     if (in_array($field, ['Language', 'Adoption Status'])){
       $I->selectOption($map[$field], array('value' => $data));
     }
@@ -670,9 +669,9 @@ class Framework implements Context
   }
 
   /**
-   * @Given /^I edit the fields$/
+   * @Given /^I edit the fields in a framework$/
    */
-  public function iEditTheFields(TableNode $table) {
+  public function iEditTheFieldsInFramework(TableNode $table) {
     $I = $this->I;
 
     $I->waitForElementVisible('//*[@id="documentOptions"]/button[2]');
@@ -681,7 +680,7 @@ class Framework implements Context
 
     $rows = $table->getRows();
     foreach ($rows as $row) {
-      $this->iEditTheField($row[0], $row[1]);
+      $this->iEditTheFieldInFramework($row[0], $row[1]);
     }
 
     $I->click('(//button[text()="Save Changes"])[1]');

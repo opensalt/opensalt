@@ -3,11 +3,11 @@ Feature: The framework is editable
   As an Super-User
   I need to edit a framework
 
-  @incomplete @smoke @super-user @view-framework
+  @smoke @super-user @view-framework
   Scenario: 1016-1326 An Super-User can edit a framework
     Given I log in as a user with role "Super-User"
     When I create a framework
-    And I edit the fields
+    And I edit the fields in a framework
       | Title           | New Title           |
       | Creator         | New Creator         |
       | Official URI    | http://opensalt.com |
