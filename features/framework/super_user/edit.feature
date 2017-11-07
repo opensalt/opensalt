@@ -3,7 +3,7 @@ Feature: The framework is editable
   As an Super-User
   I need to edit a framework
 
-  @incomplete @smoke @super-user @view-framework @123
+  @incomplete @smoke @super-user @view-framework
   Scenario: 1016-1326 An Super-User can edit a framework
     Given I log in as a user with role "Super-User"
     When I create a framework
@@ -15,9 +15,8 @@ Feature: The framework is editable
       | Version         | 2.0                 |
       | Description     | New Description     |
       | Adoption Status | Private Draft       |
-      | Language        | French              |
+      | Language        | fr                  |
       | Note            | New Note            |
-    And I press "Save Changes"
 
     Then I should see the framework data
     And I delete the framework

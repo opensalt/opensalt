@@ -602,12 +602,13 @@ class Framework implements Context
     public function iShouldSeeFramework() {
       $I = $this->I;
 
+      $I->waitForElementVisible('.itemTitleSpan');
 
       $I->see('Official URL:');
       $I->see($this->frameworkData['officialUri']);
       $I->see('CASE Framework URL:');
       $I->see('Creator:');
-      $I->see($this->creatorName);
+      $I->see($this->frameworkData['creator']);
       $I->see('Publisher:');
       $I->see($this->frameworkData['publisher']);
       $I->see('Language:');
@@ -639,10 +640,10 @@ class Framework implements Context
       'Creator' => '#ls_doc_creator',
       'Official URI' => '#ls_doc_officialUri',
       'Publisher' => '#ls_doc_publisher',
-      'Version' => '#ls_doc_publisher',
-      'Description' => '#ls_doc_publisher',
-      'Language' => '#ls_doc[language]',
-      'Adoption Status' => '#ls_doc[adoptionStatus]',
+      'Version' => '#ls_doc_version',
+      'Description' => '#ls_doc_description',
+      'Language' => 'ls_doc[language]',
+      'Adoption Status' => 'ls_doc[adoptionStatus]',
       'Note' => '#ls_doc_note',
     ];
     $dataMap = [
@@ -674,8 +675,8 @@ class Framework implements Context
   public function iEditTheFields(TableNode $table) {
     $I = $this->I;
 
-    $I->waitForElementVisible('//*[@id="itemOptions"]/button[1]');
-    $I->click('//*[@id="itemOptions"]/button[1]');
+    $I->waitForElementVisible('//*[@id="documentOptions"]/button[2]');
+    $I->click('//*[@id="documentOptions"]/button[2]');
     $I->waitForElementVisible('#ls_doc_title');
 
     $rows = $table->getRows();
