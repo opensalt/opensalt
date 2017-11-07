@@ -50,6 +50,26 @@ class AcceptanceTester extends \Codeception\Actor implements Context
     }
 
     /**
+     * @Then I should not see the button :arg1
+     */
+    public function iShouldNotSeeTheButton(string $arg1): AcceptanceTester
+    {
+        $this->cantSee($arg1, 'button');
+
+        return $this;
+    }
+
+    /**
+     * @Then I should see the button :arg1
+     */
+    public function iShouldSeeTheButton(string $arg1): AcceptanceTester
+    {
+        $this->see($arg1, 'button');
+
+        return $this;
+    }
+
+    /**
      * @Then I should see :arg1 in the header
      */
     public function iShouldSeeInTheHeader(string $arg1): AcceptanceTester

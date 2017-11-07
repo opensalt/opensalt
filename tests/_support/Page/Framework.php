@@ -504,4 +504,72 @@ class Framework implements Context
         $I->click('//span[text()="MD.Table"]/../../..');
         $I->seeElement('.lsItemDetails table');
     }
+
+    /**
+     * @Given /^I upload the adopted CASE file$/
+     */
+    public function iUploadTheAdoptedCASEFile()
+    {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#file-url');
+
+        $data = file_get_contents(codecept_data_dir().'AdoptedTestFramework.json');
+
+        $name = sq('AdoptedFramework');
+        $docUuid = Uuid::uuid4()->toString();
+        $this->rememberedFramework = $name;
+
+        $origValues = [
+            "Adopted Test",
+            'd0000000-0000-0000-0000-000000000000',
+        ];
+        $replacements = [
+            $name,
+            $docUuid,
+        ];
+
+        $decoded = json_decode($data, true);
+        foreach ($decoded['CFItems'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+        foreach ($decoded['CFAssociations'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+
+        /*
+        foreach ($origValues as $i => $origValue) {
+            $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
+        }
+        */
+        $data = str_replace($origValues, $replacements, $data);
+
+        $this->uploadedFramework = $data;
+
+        $filename = tempnam(codecept_data_dir(), 'tmp_mdf_');
+        unlink($filename);
+        file_put_contents($filename.'.json', $data);
+
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.json'));
+        $I->click('a.btn-import-case');
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        unlink($filename.'.json');
+
+        return $this;
+    }
+
+    /**
+     * @When /^I click the first item in the framework$/
+     */
+    public function iClickTheFirstItemInTheFramework()
+    {
+        $I = $this->I;
+
+        $I->click('//div[@id="viewmode_tree1"]/ul/li/ul/li[1]');
+
+        return $this;
+    }
 }
