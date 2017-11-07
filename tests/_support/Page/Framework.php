@@ -11,8 +11,8 @@ class Framework implements Context
     static public $docPath = '/cftree/doc/';
     static public $lsdocPath = '/cfdoc/';
 
-    static public $frameworkTitle = '#ls_doc_create_title';
-    static public $frameworkCreatorField = '#ls_doc_create_creator';
+    static public $fwTitle = '#ls_doc_create_title';
+    static public $fwCreatorField = '#ls_doc_create_creator';
 //    static public $frameworkCreatorValue = 'PCG QA Testing';
 
     protected $filename;
@@ -564,8 +564,8 @@ class Framework implements Context
 
        $I = $this->I;
 
-       $I->fillField(self::$frameworkTitle, $framework);
-       $I->fillField(self::$frameworkCreatorField, $this->creatorName);
+       $I->fillField(self::$fwTitle, $framework);
+       $I->fillField(self::$fwCreatorField, $this->creatorName);
        $I->fillField('#ls_doc_create_officialUri', $this->frameworkData['officialUri']);
        $I->fillField('#ls_doc_create_publisher', $this->frameworkData['publisher']);
 //       $I->fillField('#ls_doc_create_urlName','OpenSALT');
