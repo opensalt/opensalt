@@ -70,6 +70,9 @@ class DocTreeController extends Controller
             'lsDocTitle' => $lsDoc->getTitle(),
 
             'editorRights' => $authChecker->isGranted('edit', $lsDoc),
+            'isDraft' => $lsDoc->isDraft(),
+            'isAdopted' => $lsDoc->isAdopted(),
+            'isDeprecated' => $lsDoc->isDeprecated(),
             'manageEditorsRights' => $authChecker->isGranted('manage_editors', $lsDoc),
             'createRights' => $authChecker->isGranted('create', $lsDoc),
 
