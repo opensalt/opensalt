@@ -35,3 +35,5 @@ gherkin:
             - "Context\\Login"
             - "Page\\Framework"
             - "Page\\Item"
+            - "Page\\Exemplar"
+            - "Page\\Organization"
