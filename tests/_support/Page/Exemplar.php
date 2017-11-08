@@ -27,9 +27,6 @@ class Exemplar implements Context {
   public function iAddExemplar($exemplar = 'Test Exemplar') {
     $I = $this->I;
 
-    /** @var \Faker\Generator $faker */
-    $faker = \Faker\Factory::create();
-
     $url = 'http://google.com';
 
     $this->exemplarData = [
