@@ -120,7 +120,7 @@ class GithubImport
                 $lsItems[$i] = null;
                 continue;
             }
-            if( $lsItem !== null){
+            if($lsItem !== null){
                 $lsItems[$i] = $lsItem;
                 if ($lsItem->getHumanCodingScheme()) {
                     $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
@@ -128,7 +128,7 @@ class GithubImport
             }
         }
 
-        if( count($lsItems) < 1){return;}
+        if(count($lsItems) < 1){return;}
 
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lsItem = $lsItems[$i];
@@ -250,7 +250,7 @@ class GithubImport
      */
     public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data, $em)
     {
-        if( $em->getRepository('CftfBundle:LsItem')->findOneBy(array('identifier' => $data[$lsItemKeys['identifier']])) === null){
+        if($em->getRepository('CftfBundle:LsItem')->findOneBy(array('identifier' => $data[$lsItemKeys['identifier']])) === null){
             $lsItem = new LsItem();
             $em = $this->getEntityManager();
             $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
