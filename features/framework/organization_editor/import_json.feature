@@ -3,7 +3,7 @@ Feature: The framework can be uploaded
   As an organization-editor
   I need to upload a CASE file of the framework
 
-  @incomplete @smoke @organization-editor @framework @case-file @json
+  @smoke @organization-editor @framework @case-file @json
   Scenario: 1013-1201 A CASE file can be uploaded and downloaded
     Given I log in as a user with role "Editor"
     And I am on the homepage

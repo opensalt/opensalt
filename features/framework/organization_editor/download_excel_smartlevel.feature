@@ -3,7 +3,7 @@ Feature: The excel export contains smart level values
   As an organization-editor
   I need to export an excel file
 
-  @smoke @organization-editor @case-file @smartlevel @framework
+  @organization-editor @case-file @smartlevel @framework
   Scenario: 1016-1340 A CASE file contains smart levels
     Given I log in as a user with role "Editor"
     And I am on the homepage

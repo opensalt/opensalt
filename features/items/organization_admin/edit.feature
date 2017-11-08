@@ -1,11 +1,11 @@
 Feature: Editing a item
   In order to confirm the application can edit item
-  As an super editor
+  As an organization admin
   I need to see a all of the fields
 
-  @smoke @super-editor @item @edit-item
-  Scenario: 1016-0945 An super editor can edit a item
-    Given I log in as a user with role "Super-Editor"
+  @organization-admin @item @edit-item
+  Scenario: 1107-0941 An organization admin can edit a item
+    Given I log in as a user with role "Admin"
     When I create a framework
     And I add a Item
 

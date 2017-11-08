@@ -3,7 +3,7 @@ Feature: An ASN document can be imported
   As an organization-editor
   I need to import an ASN document
 
-  @incomplete @smoke @organization-editor @asn-import @framework
+  @smoke @organization-editor @asn-import @framework
   Scenario: 1013-1210 A CASE file can be uploaded and downloaded
     Given I log in as a user with role "Editor"
     And I am on the homepage

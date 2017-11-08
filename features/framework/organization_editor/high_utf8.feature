@@ -3,7 +3,7 @@ Feature: A framework with high UTF8 characters can be loaded
   As an organization-editor
   I need to upload a CASE file of the framework
 
-  @smoke @organization-editor @case-file @utf8 @framework
+  @organization-editor @case-file @utf8 @framework
   Scenario: A CASE file can contain non BMP UTF8 characters
     Given I log in as a user with role "Editor"
     And I am on the homepage
