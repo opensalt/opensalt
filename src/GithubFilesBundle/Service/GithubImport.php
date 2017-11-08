@@ -115,16 +115,20 @@ class GithubImport
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lineContent = $content[$i];
             if ($this->isValidItemContent($lineContent, $lsItemKeys)){
-                $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $lineContent);
+                $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $lineContent, $em);
             } else {
                 $lsItems[$i] = null;
                 continue;
             }
-            $lsItems[$i] = $lsItem;
-            if ($lsItem->getHumanCodingScheme()) {
-                $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
+            if( $lsItem !== null){
+                $lsItems[$i] = $lsItem;
+                if ($lsItem->getHumanCodingScheme()) {
+                    $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
+                }
             }
         }
+
+        if( count($lsItems) < 1){return;}
 
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lsItem = $lsItems[$i];
@@ -244,17 +248,19 @@ class GithubImport
      * @param array $lsItemKeys
      * @param array $data
      */
-    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data)
+    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data, $em)
     {
-        $lsItem = new LsItem();
-        $em = $this->getEntityManager();
-        $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
+        if( $em->getRepository('CftfBundle:LsItem')->findOneBy(array('identifier' => $data[$lsItemKeys['identifier']])) === null){
+            $lsItem = new LsItem();
+            $em = $this->getEntityManager();
+            $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
 
-        $lsItem = $this->assignValuesToItem($lsItem, $lsDoc, $lsItemKeys, $data, $itemAttributes);
+            $lsItem = $this->assignValuesToItem($lsItem, $lsDoc, $lsItemKeys, $data, $itemAttributes);
 
-        $em->persist($lsItem);
+            $em->persist($lsItem);
 
-        return $lsItem;
+            return $lsItem;
+        }
     }
 
     /**
