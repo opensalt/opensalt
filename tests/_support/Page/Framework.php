@@ -540,7 +540,7 @@ class Framework implements Context
     /**
      * @When /^I create a "([^"]*)" framework$/
      */
-    public function iCreateAFramework($framework = 'Test') {
+    public function iCreateAFramework($framework = 'Test Framework') {
        /** @var \Faker\Generator $faker */
        $faker = \Faker\Factory::create();
 
