@@ -10,6 +10,7 @@ $salt-view-font-path: "" !default;
 #treeSideLeft {
     border-right:3px solid #f5f5f5;
     margin-right:-3px;
+    position:relative;
 }
 
 #treeSideRight {
@@ -549,4 +550,11 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     right:5px;
     padding: 4px 0 4px 6px;
     margin-top: -5px;
+}
+
+.toggle-container {
+    position: absolute;
+    top: 50%;
+    right: 1%;
+    cursor: pointer;
 }

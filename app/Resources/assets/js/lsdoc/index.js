@@ -421,6 +421,22 @@ var SaltLocal = (function(){
     };
 })();
 
+document.getElementById("hide").onclick = function() {toggleDiv()};
+
+function toggleDiv() {
+    var x = document.getElementById("treeSideRight");
+   
+    if (x.style.display === "none") {
+        x.style.display = "block";
+        document.getElementById("treeSideLeft").setAttribute("style","width:50%");
+        document.getElementById("hide").setAttribute("class", "fa fa-chevron-circle-right");
+    } else {
+        x.style.display = "none";
+        document.getElementById("treeSideLeft").setAttribute("style","width:100%");
+        document.getElementById("hide").setAttribute("class", "fa fa-chevron-circle-left");
+           }
+}
+
 var CfItem = (function(){
 
     var missingFieldsErrorMessages = [];
@@ -582,3 +598,11 @@ $(document).on('ready', function(){
 global.SaltLocal = SaltLocal;
 global.SaltGithub = SaltGithub;
 global.listRepositories = listRepositories;
+
+
+$('#ls_doc_create_statusStart').datepicker({
+    changeMonth: true,
+    changeYear: true,
+    showButtonPanel: true,
+    dateFormat: "m/d/yy"
+});

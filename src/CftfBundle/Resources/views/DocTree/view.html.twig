@@ -44,15 +44,22 @@ header, footer {
         {% if editorRights %}
             <div id="tree1Instructions">
                 <div id="tree1InitialInstructions" class="bg-info instructions" style="display:none">Select a Competency Framework Document to view on the left side.</div>
-                <div id="tree1SectionThisDocInstructions" class="bg-info instructions"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Browse, edit, reorder, and create new items here.<br /><label style="font-weight:normal; padding:5px 0 0 20px"><input type="checkbox" id="enableMoveCheckbox"> Enable drag-and-drop reordering</label></div>
+                <div id="tree1SectionThisDocInstructions" class="bg-info instructions"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Browse, edit, reorder, and create new items here.<br /><label style="font-weight:normal; padding:5px 0 0 20px"><input type="checkbox" id="enableMoveCheckbox"> Enable drag-and-drop reordering</label>
+
+                </div>
+
                 <div id="tree1SectionOtherDocInstructions" class="bg-info instructions" style="display:none"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Drag and drop from right to left to <b>create associations</b>.</div>
 
+
+
                 <div id="tree1SelectorDiv" class="container-fluid" style="display:none"><div class="row">
+
                 <!-- document menu will be inserted here -->
                 </div></div>
+
             </div>
         {% endif %}
-
+        <div class="toggle-container"> <i class="fa fa-chevron-circle-right" aria-hidden="true" id="hide"></i></div>
         <div class="assocGroupFilter form-group form-inline" style="display:none">
             <b>Association group:</b>&nbsp;
             <select class="assocGroupSelect form-control"></select>
@@ -96,6 +103,7 @@ header, footer {
             </ul>
         </div>
     </div>
+
 
     <div id="chooserModeTreeSideRightBackground"></div>
 
