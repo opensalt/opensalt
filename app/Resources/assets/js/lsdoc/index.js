@@ -600,9 +600,3 @@ global.SaltGithub = SaltGithub;
 global.listRepositories = listRepositories;
 
 
-$('#ls_doc_create_statusStart').datepicker({
-    changeMonth: true,
-    changeYear: true,
-    showButtonPanel: true,
-    dateFormat: "m/d/yy"
-});
