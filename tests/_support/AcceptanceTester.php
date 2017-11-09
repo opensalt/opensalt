@@ -235,4 +235,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
             return $el->isDisplayed();
         }, 2);
     }
+
+  public function iAmOnAFrameworkPage() {
+  }
 }

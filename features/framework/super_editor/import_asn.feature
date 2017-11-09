@@ -1,11 +1,11 @@
 Feature: An ASN document can be imported
   In order to load an ASN framework as a starting point
-  As an editor
+  As an super editor
   I need to import an ASN document
 
-  @smoke @editor @asn-import @asn-import-104
-  Scenario: A CASE file can be uploaded and downloaded
-    Given I log in as a user with role "Editor"
+  @super-editor @asn-import @framework
+  Scenario: 1016-1327 A CASE file can be uploaded and downloaded
+    Given I log in as a user with role "Super-Editor"
     And I am on the homepage
     Then I count frameworks imported from ASN
     When I click "Import framework"

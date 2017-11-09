@@ -1,10 +1,10 @@
 Feature: The excel export contains smart level values
   In order to manipulate frameworks
-  As an editor
+  As an organization-editor
   I need to export an excel file
 
-  @smoke @editor @case-file @case-file-103
-  Scenario: A CASE file contains smart levels
+  @organization-editor @case-file @smartlevel @framework
+  Scenario: 1016-1340 A CASE file contains smart levels
     Given I log in as a user with role "Editor"
     And I am on the homepage
     When I click "Import framework"
