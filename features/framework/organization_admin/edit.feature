@@ -7,7 +7,7 @@ Feature: The framework is editable
   Scenario: 1016-1344 An organization-admin can edit a framework
     Given I log in as a user with role "Admin"
     When I create a framework
-    And I edit the field in framework
+    And I edit the fields in a framework
       | Title           | New Title           |
       | Creator         | New Creator         |
       | Official URI    | http://opensalt.com |
