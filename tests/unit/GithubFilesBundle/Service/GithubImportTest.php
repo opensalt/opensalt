@@ -63,7 +63,6 @@ EOT;
             )
         );
         $this->tester->ensureUserExistsWithRole('Editor');
-        $user = $this->tester->getLastUser();
         $this->em = $this->getModule('Doctrine2')->em;
         $this->lsDoc = new LsDoc();
         $this->lsDoc->setTitle('LsDoc Tested');
