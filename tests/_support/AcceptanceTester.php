@@ -110,7 +110,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         return $this;
     }
 
-    public function getLastFrameworkId(): string
+    public function getLastFrameworkTitle(): string
     {
         $documents = $this->fetchJson(self::$documentsApi);
         $documents = $documents['CFDocuments'] ?? [];
@@ -131,23 +131,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
                 $lastDoc = $document;
             }
         }
-
-        $docPage = $this->fetchRedirect('/uri/'.$lastDoc['identifier']);
-        if (null === $docPage) {
-            $docPage = $this->fetchRedirect('/uri/'.$lastDoc['uri']);
-        }
-        if (null === $docPage) {
-            /* @todo Create a framework if none found */
-
-            throw new LogicException('No framework could be found');
-        }
-
-        if (1 === preg_match('#/cftree/doc/(.*)#', $docPage, $matches)) {
-            $this->lsDocId = $matches[1];
-            return $this->lsDocId;
-        }
-
-        throw new LogicException('Framework id could not be found');
+        return $lastDoc['title'];
     }
 
     public function getDocId()
@@ -157,6 +141,45 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         }
 
         return $this->lsDocId;
+    }
+    public function getLastFrameworkId(): string
+    {
+      $documents = $this->fetchJson(self::$documentsApi);
+      $documents = $documents['CFDocuments'] ?? [];
+
+      if (0 === count($documents)) {
+        /* @todo Create a framework if none found */
+
+        throw new LogicException('No framework could be found');
+      }
+
+      $lastDoc = $documents[0];
+      foreach ($documents as $document) {
+        if (($document['adoptionStatus'] ?? 'Draft') !== 'Draft') {
+          continue;
+        }
+
+        if ($lastDoc['lastChangeDateTime'] < $document['lastChangeDateTime']) {
+          $lastDoc = $document;
+        }
+      }
+
+      $docPage = $this->fetchRedirect('/uri/'.$lastDoc['identifier']);
+      if (null === $docPage) {
+        $docPage = $this->fetchRedirect('/uri/'.$lastDoc['uri']);
+      }
+      if (null === $docPage) {
+        /* @todo Create a framework if none found */
+
+        throw new LogicException('No framework could be found');
+      }
+
+      if (1 === preg_match('#/cftree/doc/(.*)#', $docPage, $matches)) {
+        $this->lsDocId = $matches[1];
+        return $this->lsDocId;
+      }
+
+      throw new LogicException('Framework id could not be found');
     }
 
     public function getLastItemId()

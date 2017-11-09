@@ -197,4 +197,23 @@ class Item implements Context
     $I->click('//*[@id="editItemModal"]/div/div/div[3]/button[2]');
     return $this;
   }
+
+  /**
+   * @Then /^I copy a Item$/
+   */
+  public function iCopyAItem() {
+    $I = $this->I;
+
+    $this->iAmOnAnItemPage();
+    $I->waitForElementVisible('#rightSideCopyItemsBtn');
+    $I->click('Make This Item a Parent');
+    $I->click('#rightSideCopyItemsBtn');
+    $I->see('Select a Competency Framework Document to view on the right side.');
+    $I->selectOption('#ls_doc_list_lsDoc_right', array('text' => $I->getLastFrameworkTitle().' (• DOCUMENT BEING EDITED •)'));
+    $I->waitForElementVisible('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]');
+    $I->dragAndDrop('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
+    $I->see($this->itemData['humanCodingScheme'], '#viewmode_tree1');
+
+  }
+
 }
