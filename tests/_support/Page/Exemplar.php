@@ -38,6 +38,7 @@ class Exemplar implements Context {
     $I->waitForElementNotVisible('#modalSpinner');
 
     $I->click('//*[@id="addExemplarBtn"]');
+    $I->waitForElementNotVisible('.modal-body');
     $I->fillField('#addExemplarFormUrl', $this->exemplarData['url']);
     $I->fillField('#addExemplarFormDescription', $exemplar);
     $I->click('//*[@id="addExemplarModal"]/div/div/div[3]/button[2]');
