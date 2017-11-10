@@ -4,6 +4,7 @@ namespace Page;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
+use Codeception\Util\Locator;
 use PhpSpec\Exception\Example\PendingException;
 
 class Item implements Context
@@ -12,6 +13,7 @@ class Item implements Context
 
     protected $rememberedItem;
     protected $itemData = [];
+    protected $enum = 0;
 
     /**
      * @var \AcceptanceTester
@@ -54,19 +56,20 @@ class Item implements Context
   /**
    * @Given /^I add "([^"]*)" Item$/
    * @Given /^I add a Item$/
+   * @Given /^I add a another Item$/
    */
   public function iAddItem($item = 'Test Item') {
     /** @var \Faker\Generator $faker */
     $faker = \Faker\Factory::create();
-
+    $this->enum ++;
     $uri = $faker->url;
     $licUri = $faker->url;
     $note = $faker->paragraph;
     $fullStatement = $faker->paragraph;
-    $enum = $faker->randomNumber();
+    $enum = $this->enum;
     $keywords = $faker->word;
-    $statement = $faker->title;
-    $item = sq($item);
+    $statement = $faker->name;
+    $item = $item . ' ' . $enum;
     $this->rememberedItem = $item;
 
     $this->itemData = [
@@ -262,5 +265,27 @@ class Item implements Context
     $I = $this->I;
 
     $I->dontSee( '//text()[. = "Is Related To"]');  }
+
+
+  /**
+   * @Then /^I reorder the item$/
+   */
+  public function iReorderTheItem() {
+    $I = $this->I;
+
+    $I->checkOption('#enableMoveCheckbox');
+    $I->dragAndDrop('(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[2]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
+  }
+
+  /**
+   * @Given /^I see the item moved$/
+   */
+  public function iSeeTheItemMoved() {
+    $I = $this->I;
+
+    $I->iAmOnAFrameworkPage();
+    $I->see($this->itemData['abbreviatedStatement'], Locator::firstElement('//div[@id="viewmode_tree1"]/ul/li/ul/li/span'));
+
+  }
 
 }
