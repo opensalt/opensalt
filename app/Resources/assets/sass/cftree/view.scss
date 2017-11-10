@@ -8,9 +8,9 @@ $salt-view-font-path: "" !default;
 }
 
 #treeSideLeft {
-    border-right:3px solid #f5f5f5;
+   // border-right:3px solid #f5f5f5;
     margin-right:-3px;
-    position:relative;
+    Float:left;
 }
 
 #treeSideRight {
@@ -24,6 +24,18 @@ $salt-view-font-path: "" !default;
 .treeSide {
     height: calc(100vh - 243px);
     overflow: auto;
+}
+
+.treeSideLeft {
+    height: calc(100vh - 243px);
+    overflow: auto;
+    width:96%;
+}
+
+.treeSideRight {
+    height: calc(100vh - 243px);
+    overflow: none;
+    width:4%;
 }
 
 #tree1Section {

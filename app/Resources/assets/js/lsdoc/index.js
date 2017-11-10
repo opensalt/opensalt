@@ -424,14 +424,14 @@ var SaltLocal = (function(){
 document.getElementById("hide").onclick = function() {toggleDiv()};
 
 function toggleDiv() {
-    var x = document.getElementById("treeSideRight");
+    var RightWindow = document.getElementById("treeSideRight");
    
-    if (x.style.display === "none") {
-        x.style.display = "block";
+    if (RightWindow.style.display === "none") {
+        RightWindow.style.display = "block";
         document.getElementById("treeSideLeft").setAttribute("style","width:50%");
         document.getElementById("hide").setAttribute("class", "fa fa-chevron-circle-right");
     } else {
-        x.style.display = "none";
+        RightWindow.style.display = "none";
         document.getElementById("treeSideLeft").setAttribute("style","width:100%");
         document.getElementById("hide").setAttribute("class", "fa fa-chevron-circle-left");
            }
