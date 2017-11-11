@@ -1,11 +1,11 @@
 Feature: Coping a item
   In order to confirm the application can copy item
-  As an super editor
+  As an or organization admin
   I need to see a all of the item in another framework
 
-  @super-editor @item @copy-item
-  Scenario: 1016-0926 An super-editor user can edit a item
-    Given I log in as a user with role "Super-Editor"
+  @organization-admin @item @copy-item
+  Scenario: 1016-0926 An organization-admin user can edit a item
+    Given I log in as a user with role "Admin"
     Then I create a framework
     And I add a Item
 

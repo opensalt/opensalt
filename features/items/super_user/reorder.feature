@@ -1,11 +1,11 @@
 Feature: Reorder a item
   In order to confirm the application can reorder items
-  As an super-editor user
+  As an super-user
   I need to see reorder section
 
-  @super-editor @item @edit-item @1110-1036
-  Scenario: 1110-1036 An editor user can reorder a item
-    Given I log in as a user with role "Super-Editor"
+  @super-user @item @edit-item @1110-1021
+  Scenario: 1110-1021 An super-user user can reorder a item
+    Given I log in as a user with role "Super-User"
     Then I create a framework
     And I add a Item
     And I add a another Item

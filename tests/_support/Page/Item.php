@@ -4,6 +4,7 @@ namespace Page;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
+use Codeception\Util\Locator;
 use PhpSpec\Exception\Example\PendingException;
 
 class Item implements Context
@@ -12,6 +13,7 @@ class Item implements Context
 
     protected $rememberedItem;
     protected $itemData = [];
+    protected $enum = 0;
 
     /**
      * @var \AcceptanceTester
@@ -54,19 +56,20 @@ class Item implements Context
   /**
    * @Given /^I add "([^"]*)" Item$/
    * @Given /^I add a Item$/
+   * @Given /^I add a another Item$/
    */
   public function iAddItem($item = 'Test Item') {
     /** @var \Faker\Generator $faker */
     $faker = \Faker\Factory::create();
-
+    $this->enum ++;
     $uri = $faker->url;
     $licUri = $faker->url;
     $note = $faker->paragraph;
     $fullStatement = $faker->paragraph;
-    $enum = $faker->randomNumber();
+    $enum = $this->enum;
     $keywords = $faker->word;
-    $statement = $faker->title;
-    $item = sq($item);
+    $statement = $faker->name;
+    $item = $item . ' ' . $enum;
     $this->rememberedItem = $item;
 
     $this->itemData = [
@@ -197,4 +200,92 @@ class Item implements Context
     $I->click('//*[@id="editItemModal"]/div/div/div[3]/button[2]');
     return $this;
   }
+
+  /**
+   * @Then /^I copy a Item$/
+   */
+  public function iCopyAItem() {
+    $I = $this->I;
+
+    $this->iAmOnAnItemPage();
+    $I->waitForElementVisible('#rightSideCopyItemsBtn');
+    $I->click('Make This Item a Parent');
+    $I->click('#rightSideCopyItemsBtn');
+    $I->see('Select a Competency Framework Document to view on the right side.');
+    $I->selectOption('#ls_doc_list_lsDoc_right', array('text' => $I->getLastFrameworkTitle().' (• DOCUMENT BEING EDITED •)'));
+    $I->waitForElementVisible('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]');
+    $I->dragAndDrop('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
+    $I->see($this->itemData['humanCodingScheme'], '#viewmode_tree1');
+
+  }
+
+  /**
+   * @Given /^I add a Association$/
+   */
+  public function iAddAAssociation() {
+    $I = $this->I;
+
+    $this->iAmOnAnItemPage();
+    $I->waitForElementVisible('#rightSideCopyItemsBtn');
+    $I->click('Create Association');
+    $I->see('Select a Competency Framework Document to view on the right side.');
+    $I->selectOption('#ls_doc_list_lsDoc_right', array('text' => $I->getLastFrameworkTitle().' (• DOCUMENT BEING EDITED •)'));
+    $I->waitForElementVisible('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]');
+    $I->dragAndDrop('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
+    $I->waitForElementVisible('#lsAssociationSwitchDirection');
+    $I->click('Associate');
+  }
+
+  /**
+   * @Given /^I should see the Association$/
+   */
+  public function iShouldSeeTheAssociation() {
+    $I = $this->I;
+
+    $this->iAmOnAnItemPage();
+    $I->see($this->itemData['humanCodingScheme'], '//*[@id="itemInfo"]/div[3]/section[1]/div[2]/div/div/a/span[2]/span');
+
+  }
+
+  /**
+   * @Then /^I delete the Association$/
+   */
+  public function iDeleteTheAssociation() {
+    $I = $this->I;
+
+    $I->amOnPage(self::$itemPath.$I->getItemId());
+    $I->waitForElementVisible('#deleteItemBtn');
+    $I->click( '//*[@id="itemInfo"]/div[3]/section[1]/div[2]/div/div/a/span[1]/span/span[1]');
+    $I->acceptPopup();  }
+
+  /**
+   * @Given /^I should not see the Association$/
+   */
+  public function iShouldNotSeeTheAssociation() {
+    $I = $this->I;
+
+    $I->dontSee( '//text()[. = "Is Related To"]');  }
+
+
+  /**
+   * @Then /^I reorder the item$/
+   */
+  public function iReorderTheItem() {
+    $I = $this->I;
+
+    $I->checkOption('#enableMoveCheckbox');
+    $I->dragAndDrop('(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[2]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
+  }
+
+  /**
+   * @Given /^I see the item moved$/
+   */
+  public function iSeeTheItemMoved() {
+    $I = $this->I;
+
+    $I->iAmOnAFrameworkPage();
+    $I->see($this->itemData['abbreviatedStatement'], Locator::firstElement('//div[@id="viewmode_tree1"]/ul/li/ul/li/span'));
+
+  }
+
 }
