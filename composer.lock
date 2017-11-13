@@ -578,16 +578,16 @@
         },
         {
             "name": "bower-asset/fancytree",
-            "version": "v2.26.0",
+            "version": "v2.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mar10/fancytree.git",
-                "reference": "33d3dca19e356a8684ea3928f881482f41b062c9"
+                "reference": "f32a5ba982cea551d0568648aacf1acb7b5cb8e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mar10/fancytree/zipball/33d3dca19e356a8684ea3928f881482f41b062c9",
-                "reference": "33d3dca19e356a8684ea3928f881482f41b062c9",
+                "url": "https://api.github.com/repos/mar10/fancytree/zipball/f32a5ba982cea551d0568648aacf1acb7b5cb8e4",
+                "reference": "f32a5ba982cea551d0568648aacf1acb7b5cb8e4",
                 "shasum": ""
             },
             "require": {
@@ -628,8 +628,7 @@
                 "tabletree",
                 "tree",
                 "treegrid"
-            ],
-            "time": "2017-11-04T17:53:03+00:00"
+            ]
         },
         {
             "name": "bower-asset/html5-boilerplate",
