@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bf427310af8ea7bfe5d7d5d2a3827da5",
+    "content-hash": "f8c44c47e06ffef0dbe5307f0be402c9",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -940,16 +940,16 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.0.8",
+            "version": "1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "9dd73a03951357922d8aee6cc084500de93e2343"
+                "reference": "36344aeffdc37711335563e6108cda86566432a6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/9dd73a03951357922d8aee6cc084500de93e2343",
-                "reference": "9dd73a03951357922d8aee6cc084500de93e2343",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/36344aeffdc37711335563e6108cda86566432a6",
+                "reference": "36344aeffdc37711335563e6108cda86566432a6",
                 "shasum": ""
             },
             "require": {
@@ -995,7 +995,7 @@
                 "ssl",
                 "tls"
             ],
-            "time": "2017-09-11T07:24:36+00:00"
+            "time": "2017-11-13T15:51:25+00:00"
         },
         {
             "name": "csa/guzzle-bundle",
@@ -4239,12 +4239,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codemirror/CodeMirror.git",
-                "reference": "a29e048d20e5a256dd48bc49e1afae6f9d1a252a"
+                "reference": "b881f2520461c7fc98ca1673071d0eb74ddd7c39"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/a29e048d20e5a256dd48bc49e1afae6f9d1a252a",
-                "reference": "a29e048d20e5a256dd48bc49e1afae6f9d1a252a",
+                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/b881f2520461c7fc98ca1673071d0eb74ddd7c39",
+                "reference": "b881f2520461c7fc98ca1673071d0eb74ddd7c39",
                 "shasum": ""
             },
             "require-dev": {
@@ -4287,7 +4287,7 @@
                 "Editor",
                 "JavaScript"
             ],
-            "time": "2017-11-10 16:07:49"
+            "time": "2017-11-13 08:40:40"
         },
         {
             "name": "npm-asset/codemirror-spell-checker",
@@ -7128,16 +7128,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "v3.3.11",
+            "version": "v3.3.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "97e753fa58c6ab8751e5f77995d1ed7737a99f1b"
+                "reference": "1452970fc29131776505f684bd81d7a33cbaada4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/97e753fa58c6ab8751e5f77995d1ed7737a99f1b",
-                "reference": "97e753fa58c6ab8751e5f77995d1ed7737a99f1b",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/1452970fc29131776505f684bd81d7a33cbaada4",
+                "reference": "1452970fc29131776505f684bd81d7a33cbaada4",
                 "shasum": ""
             },
             "require": {
@@ -7278,7 +7278,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2017-11-10T20:08:30+00:00"
+            "time": "2017-11-13T19:37:31+00:00"
         },
         {
             "name": "tetranz/select2entity-bundle",
@@ -9807,7 +9807,7 @@
         },
         {
             "name": "symfony/phpunit-bridge",
-            "version": "v3.3.11",
+            "version": "v3.3.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/phpunit-bridge.git",
