@@ -16,9 +16,11 @@ apx.edit.prepareDocEditModal = function() {
             apx.path.lsdoc_edit.replace('ID', apx.lsDocId),
             null,
             function(responseText, textStatus, jqXHR){
-                $('#ls_doc_subjects').select2entity({dropdownParent: $('#editDocModal')});
+                $('#ls_doc_subjects').select2entity({dropdownParent: $('#ls_doc_subjects').closest('div')});
             }
         );
+    }).on('hide.bs.modal', function(e){
+        $('#ls_doc_subjects').select2('destroy');
     }).on('hidden.bs.modal', function(e){
         $('#editDocModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
     });
@@ -43,7 +45,6 @@ apx.edit.prepareDocEditModal = function() {
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();
             $editDocModal.find('.modal-body').html(jqXHR.responseText);
-            $('#ls_doc_subjects').select2entity({dropdownParent: $('#editDocModal')});
         });
     });
 };
@@ -67,7 +68,7 @@ apx.edit.prepareItemEditModal = function() {
                     },
                     numberDisplayed: 20
                 });
-                $('#ls_item_itemType').select2entity({dropdownParent: $('#editItemModal')});
+                $('#ls_item_itemType').select2entity({dropdownParent: $('#ls_item_itemType').closest('div')});
                 statementMde = new SimpleMDE({
                     element: $('#ls_item_fullStatement')[0],
                     toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
@@ -80,6 +81,8 @@ apx.edit.prepareItemEditModal = function() {
                 });
             }
         );
+    }).on('hide.bs.modal', function(e){
+        $('#ls_item_itemType').select2('destroy');
     }).on('hidden.bs.modal', function(e){
         $('#editItemModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
         if (null !== statementMde) {
@@ -130,7 +133,6 @@ apx.edit.prepareItemEditModal = function() {
                 },
                 numberDisplayed: 20
             });
-            $('#ls_item_itemType').select2entity({dropdownParent: $('#editItemModal')});
             statementMde = new SimpleMDE({
                 element: $('#ls_item_fullStatement')[0],
                 toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
@@ -181,7 +183,7 @@ apx.edit.prepareAddNewChildModal = function() {
                     },
                     numberDisplayed: 20
                 });
-                $('#ls_item_itemType').select2entity({dropdownParent: $('#addNewChildModal')});
+                $('#ls_item_itemType').select2entity({dropdownParent: $('#ls_item_itemType').closest('div')});
                 statementMde = new SimpleMDE({
                     element: $('#ls_item_fullStatement')[0],
                     toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
@@ -194,6 +196,8 @@ apx.edit.prepareAddNewChildModal = function() {
                 });
             }
         );
+    }).on('hide.bs.modal', function(e){
+        $('#ls_item_itemType').select2('destroy');
     }).on('hidden.bs.modal', function(e){
         $('#addNewChildModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
         if (null !== statementMde) {
@@ -250,7 +254,6 @@ apx.edit.prepareAddNewChildModal = function() {
                 },
                 numberDisplayed: 20
             });
-            $('#ls_item_itemType').select2entity({dropdownParent: $('#addNewChildModal')});
             statementMde = new SimpleMDE({
                 element: $('#ls_item_fullStatement')[0],
                 toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
