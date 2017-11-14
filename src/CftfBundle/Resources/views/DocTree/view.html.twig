@@ -40,7 +40,7 @@ header, footer {
 </div>
 
 <div class="row" id="treeView" style="display:none">
-    <div id="treeSideLeft" class="col-sm-6 treeSide">
+    <div id="treeSideLeft" class="col-sm-6 treeSide borderLeft">
 
         <div id="treeSideLeft" class="treeSideLeft" >
             {% if editorRights %}
@@ -106,7 +106,7 @@ header, footer {
             </div>
         </div>
         <div id="treeSideLeft" class="treeSideRight" >
-            <div class="toggle-container"> <i class="fa fa-chevron-circle-right" aria-hidden="true" id="hide"></i></div>
+            <div class="toggle-container-left"> <i class="fa fa-chevron-circle-right" aria-hidden="true" id="toggleRight"></i></div>
         </div>
 
 
@@ -115,7 +115,10 @@ header, footer {
 
     <div id="chooserModeTreeSideRightBackground"></div>
 
-    <div id="treeSideRight" class="col-sm-6 treeSide">
+    <div id="treeSideRight" class="col-sm-6 treeSide borderRight">
+        <div id="treeSideRight" class="rightTreeSideLeft" >
+            <div class="toggle-container-right"> <i class="fa fa-chevron-circle-left" aria-hidden="true" id="toggleLeft"></i></div></div>
+        <div id="treeSideRight" class="rightTreeSideRight" >
         {% if editorRights %}
         <div class="form-group" id="treeRightSideMode">
             <div class="btn-group" role="group" aria-label="...">
@@ -228,7 +231,8 @@ header, footer {
             <div id="viewmode_tree2" class="treeDiv"></div>
         </section>
     {% endif %}
-    </div>
+    </div></div>
+
 </div>
 
 

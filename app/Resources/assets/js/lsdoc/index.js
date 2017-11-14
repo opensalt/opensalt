@@ -421,20 +421,36 @@ var SaltLocal = (function(){
     };
 })();
 
-document.getElementById("hide").onclick = function() {toggleDiv()};
+document.getElementById("toggleRight").onclick = function() {toggleDivRight()};
 
-function toggleDiv() {
+function toggleDivRight() {
     var RightWindow = document.getElementById("treeSideRight");
    
     if (RightWindow.style.display === "none") {
         RightWindow.style.display = "block";
         document.getElementById("treeSideLeft").setAttribute("style","width:50%");
-        document.getElementById("hide").setAttribute("class", "fa fa-chevron-circle-right");
+        document.getElementById("toggleRight").setAttribute("class", "fa fa-chevron-circle-right");
     } else {
         RightWindow.style.display = "none";
         document.getElementById("treeSideLeft").setAttribute("style","width:100%");
-        document.getElementById("hide").setAttribute("class", "fa fa-chevron-circle-left");
+        document.getElementById("toggleRight").setAttribute("class", "fa fa-chevron-circle-left");
            }
+}
+
+document.getElementById("toggleLeft").onclick = function() {toggleDivLeft()};
+
+function toggleDivLeft() {
+    var LeftWindow = document.getElementById("treeSideLeft");
+
+    if (LeftWindow.style.display === "none") {
+        LeftWindow.style.display = "block";
+        document.getElementById("treeSideRight").setAttribute("style","width:50%");
+        document.getElementById("toggleLeft").setAttribute("class", "fa fa-chevron-circle-left");
+    } else {
+        LeftWindow.style.display = "none";
+        document.getElementById("treeSideRight").setAttribute("style","width:100%");
+        document.getElementById("toggleLeft").setAttribute("class", "fa fa-chevron-circle-right");
+    }
 }
 
 var CfItem = (function(){

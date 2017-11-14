@@ -14,6 +14,15 @@ $salt-view-font-path: "" !default;
 }
 
 #treeSideRight {
+  //  border-left:3px solid #f5f5f5;
+    Float:left;
+}
+
+.borderLeft{
+    border-right:3px solid #f5f5f5;
+}
+
+.borderRight{
     border-left:3px solid #f5f5f5;
 }
 
@@ -29,13 +38,25 @@ $salt-view-font-path: "" !default;
 .treeSideLeft {
     height: calc(100vh - 243px);
     overflow: auto;
-    width:96%;
+    width:97%;
 }
 
 .treeSideRight {
     height: calc(100vh - 243px);
     overflow: none;
-    width:4%;
+    width:3%;
+}
+
+.rightTreeSideLeft {
+    height: calc(100vh - 243px);
+    overflow: none;
+    width:3%;
+}
+
+.rightTreeSideRight {
+    height: calc(100vh - 243px);
+    overflow: auto;
+    width:97%;
 }
 
 #tree1Section {
@@ -564,9 +585,16 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     margin-top: -5px;
 }
 
-.toggle-container {
+.toggle-container-left {
     position: absolute;
     top: 50%;
     right: 1%;
+    cursor: pointer;
+}
+
+.toggle-container-right {
+    position: absolute;
+    top: 50%;
+    left: 1%;
     cursor: pointer;
 }
