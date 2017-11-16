@@ -3,7 +3,7 @@ Feature: A framework marked as "Adopted" should not allow edits
   As an editor
   I should not be able to edit items in an "Adopted" framework
 
-  @smoke @editor @case-file @adopted @1106-1103
+  @editor @case-file @adopted @1106-1103
   Scenario: "Adopted" frameworks should not allow editing
     Given I log in as a user with role "Admin"
     And I am on the homepage
