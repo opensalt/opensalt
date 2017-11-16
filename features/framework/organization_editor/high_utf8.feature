@@ -3,8 +3,8 @@ Feature: A framework with high UTF8 characters can be loaded
   As an organization-editor
   I need to upload a CASE file of the framework
 
-  @organization-editor @case-file @utf8 @framework
-  Scenario: A CASE file can contain non BMP UTF8 characters
+  @organization-editor @case-file @utf8 @framework @1116-1621
+  Scenario: 1116-1621 A CASE file can contain non BMP UTF8 characters
     Given I log in as a user with role "Editor"
     And I am on the homepage
     When I click "Import framework"
@@ -14,4 +14,5 @@ Feature: A framework with high UTF8 characters can be loaded
     And I go to the uploaded framework
     And I download the framework CASE file
     Then the downloaded framework should match the uploaded one
+    And I delete the framework
 

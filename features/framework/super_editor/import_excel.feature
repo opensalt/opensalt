@@ -3,7 +3,7 @@ Feature: The framework can be uploaded as Excel
   As an super editor
   I need to upload a Excel file of the framework
 
-  @incomplete @super-editor @framework @case-file @excel
+  @incomplete @super-editor @framework @case-file @excel @1016-1329
   Scenario: 1016-1329 A Excel file can be uploaded and downloaded
     Given I log in as a user with role "Super-Editor"
     And I am on the homepage

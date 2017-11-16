@@ -3,7 +3,7 @@ Feature: Adding, viewing and deleting a exemplars
   As an super-user
   I need to see a all of the fields
 
-  @super-user @exemplar @add-exemplar
+  @super-user @exemplar @add-exemplar @1016-0950
   Scenario: 1016-0950 An super-user can add a exemplar
     Given I log in as a user with role "Super-User"
     Then I create a framework

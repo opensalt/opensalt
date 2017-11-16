@@ -3,7 +3,7 @@ Feature: The framework is editable
   As an organization-editor
   I need to edit a framework
 
-  @organization-editor @view-framework
+  @organization-editor @view-framework @1013-1444
   Scenario: 1013-1444 An organization editor can edit a framework
     Given I log in as a user with role "Editor"
     When I create a framework

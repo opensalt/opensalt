@@ -14,4 +14,4 @@ Feature: The framework can be uploaded as Excel
     And I go to the uploaded framework
     And I download the framework excel file
     Then the downloaded excel framework should match the uploaded one
-
+    And I delete the framework

@@ -3,7 +3,7 @@ Feature: An ASN document can be imported
   As an organization-admin
   I need to import an ASN document
 
-  @organization-admin @asn-import @framework
+  @organization-admin @asn-import @framework @1016-1345
   Scenario: 1016-1345 A CASE file can be uploaded and downloaded
     Given I log in as a user with role "Admin"
     And I am on the homepage
@@ -14,3 +14,4 @@ Feature: An ASN document can be imported
     And I fill in an ASN document identifier
     And I click "Import Framework"
     Then I should see the ASN framework loaded
+    And I delete the framework

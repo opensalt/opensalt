@@ -3,7 +3,7 @@ Feature: Search a item
   As an editor user
   I need to see the search from
 
-  @incomplete @smoke @editor @item @search-item
+  @incomplete @editor @item @search-item @1016-1018
   Scenario: 1016-1018 An editor user can edit a item
     Given I log in as a user with role "Editor"
     Then I upload a excel framework

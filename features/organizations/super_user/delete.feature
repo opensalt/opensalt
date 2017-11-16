@@ -3,7 +3,7 @@ Feature: Delete Organization
   As an Super-User
   I need to have access to the Organization list page
 
-  @incomplete @super-user @org @delete-org @1011-1726
+  @super-user @org @delete-org @1011-1726
   Scenario: 1011-1726 Super-User Deleting a Organization in Organization List
     Given I log in as a user with role "Super-User"
     And  I add a Organization

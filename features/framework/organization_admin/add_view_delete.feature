@@ -3,7 +3,7 @@ Feature: Adding, viewing and deleting a framework
   As an organization-admin
   I need to see a all of the fields
 
-  @organization-admin @framework @add-framework
+  @organization-admin @framework @add-framework @1016-1340
   Scenario: 1016-1340 An organization-admin can add a framework
     Given I log in as a user with role "Admin"
     Then I should see "Create a new Framework" button

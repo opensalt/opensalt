@@ -3,8 +3,8 @@ Feature: The framework is viewable by an anonymous user
   As an anonymous user
   I need to see a framework
 
-  @smoke @anonymous @view-framework
-  Scenario: An anonymous user can see a framework
+  @smoke @anonymous @view-framework @0901-0001
+  Scenario: 0901-0001 An anonymous user can see a framework
     Given I am on a framework page
     Then I should see the framework tree
     And I should see the framework information

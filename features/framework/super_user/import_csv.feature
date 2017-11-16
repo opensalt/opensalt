@@ -14,4 +14,4 @@ Feature: The framework can be uploaded as CSV
     And I go to the uploaded framework
     And I download the framework csv file
     Then the downloaded csv framework should match the uploaded one
-
+    And I delete the framework
