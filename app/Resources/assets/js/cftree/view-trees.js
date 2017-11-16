@@ -249,7 +249,7 @@ apx.treeDocLoadCallback1 = function() {
             /*
             renderTitle: function(event, data) {
                 console.log(event, data);
-                title = mdInline.renderInline(apx.treeDoc1.getItemTitle(data.node.data.ref, true));
+                title = render.inline(apx.treeDoc1.getItemTitle(data.node.data.ref, true));
                 return title;
             },
             */
@@ -263,15 +263,15 @@ apx.treeDocLoadCallback1 = function() {
                 ;
                 var title = '';
                 if (ref.title) {
-                    title = mdInline.renderInline(ref.title);
+                    title = render.inline(ref.title);
                 } else if (ref.astmt) {
-                    title = mdInline.renderInline(ref.astmt);
+                    title = render.inline(ref.astmt);
                 } else if (ref.fstmt) {
-                    title = mdInline.renderInline(ref.fstmt);
+                    title = render.inline(ref.fstmt);
                 }
 
                 if (ref.hcs) {
-                    title = '<span class="item-humanCodingScheme">' + escapeHtml(ref.hcs) + '</span> ' + title;
+                    title = '<span class="item-humanCodingScheme">' + render.escaped(ref.hcs) + '</span> ' + title;
                 }
 
                 $title.html(title);
