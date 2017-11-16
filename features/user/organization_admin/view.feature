@@ -3,12 +3,10 @@ Feature: View User
   As an organization admin
   I need to have access to the user profile page
 
-  @incomplete @admin @user @view-user
+  @admin @user @view-user @1011-0945
   Scenario: 1011-0945 Viewing user profile page
     Given I log in as a user with role "Admin"
-    And I am on the User list page
-    And I click on "show" button for "3"
-    Then I should see the following:
-      | TEST:Rau, O'Keefe and Hane |
-      | TEST:EDITOR:eloise86       |
-      | Editor                     |
+    And I add a new user
+
+    Then I view the user
+    And I delete the User

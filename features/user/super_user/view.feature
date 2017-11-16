@@ -3,12 +3,10 @@ Feature: View User
   As an super-user
   I need to have access to the user profile page
 
-  @incomplete @super-user @user @view-user
+  @super-user @user @view-user @1016-1316
   Scenario: 1016-1316 Viewing user profile page
-    Given I log in as a user with role "Super-User"
-    And I am on the User list page
-    And I click on "show" button for "3"
-    Then I should see the following:
-      | TEST:Rau, O'Keefe and Hane |
-      | TEST:EDITOR:eloise86       |
-      | Editor                     |
+    Given I log in as a user with role "Super User"
+    And I add a new user with "Super User" role
+
+    Then I view the user
+    And I delete the User

@@ -3,15 +3,12 @@ Feature: Edit an existing User
   As an organization admin
   I need to have access to the user profile page
 
-  @incomplete @admin @user @edit-user
-  Scenario Outline: 1011-1058 Edit a user in User List
+  @admin @user @edit-user @1011-1058
+  Scenario: 1011-1058 Edit a user in User List
     Given I log in as a user with role "Admin"
-    And I am on the User list page
-    And I click on "edit" button for user "<user>"
-    And I fill in username with "<userNew>"
-    And I click on "Save" button
-    Then I should see "<userNew>" in user list
+    And I add a new user
 
-    Examples:
-      | user   | userNew  |
-      | Tester | Tester 2 |
+    Then I edit a user profile
+      | newuser@somewhere.com |
+
+    And  I delete the User

@@ -38,3 +38,4 @@ gherkin:
             - "Page\\Item"
             - "Page\\Exemplar"
             - "Page\\Organization"
+            - "Page\\User"

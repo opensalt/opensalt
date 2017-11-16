@@ -3,14 +3,10 @@ Feature: Suspend an existing User
   As an organization admin
   I need to have access to the user profile page
 
-  @incomplete @admin @user @suspend
-  Scenario Outline: 1011-1416 Suspend a user in User List
+  @admin @user @suspend @1011-1416
+  Scenario: 1011-1416 Suspend a user in User List
     Given I log in as a user with role "Admin"
-    And I am on the User list page
-    And I find user "<user>"
-    And I Suspend "<user>"
-    Then I should see "<user>" can be unsuspended
+    And I add a new user
 
-    Examples:
-      | user     |
-      | Tester 1 |
+    Then I suspend the user
+    And I delete the User
