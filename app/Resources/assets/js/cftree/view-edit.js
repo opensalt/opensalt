@@ -16,9 +16,11 @@ apx.edit.prepareDocEditModal = function() {
             apx.path.lsdoc_edit.replace('ID', apx.lsDocId),
             null,
             function(responseText, textStatus, jqXHR){
-                $('#ls_doc_subjects').select2entity({dropdownParent: $('#editDocModal')});
+                $('#ls_doc_subjects').select2entity({dropdownParent: $('#ls_doc_subjects').closest('div')});
             }
         );
+    }).on('hide.bs.modal', function(e){
+        $('#ls_doc_subjects').select2('destroy');
     }).on('hidden.bs.modal', function(e){
         $('#editDocModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
     });
@@ -43,7 +45,6 @@ apx.edit.prepareDocEditModal = function() {
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();
             $editDocModal.find('.modal-body').html(jqXHR.responseText);
-            $('#ls_doc_subjects').select2entity({dropdownParent: $('#editDocModal')});
         });
     });
 };
@@ -51,9 +52,6 @@ apx.edit.prepareDocEditModal = function() {
 /** Edit an item */
 apx.edit.prepareItemEditModal = function() {
     var $editItemModal = $('#editItemModal');
-    var mdeRenderer =  function(plainText) {
-        return md.render(plainText);
-    };
     var statementMde, notesMde;
     $editItemModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
     $editItemModal.on('shown.bs.modal', function(e){
@@ -67,19 +65,13 @@ apx.edit.prepareItemEditModal = function() {
                     },
                     numberDisplayed: 20
                 });
-                $('#ls_item_itemType').select2entity({dropdownParent: $('#editItemModal')});
-                statementMde = new SimpleMDE({
-                    element: $('#ls_item_fullStatement')[0],
-                    toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
-                    previewRender: mdeRenderer
-                });
-                notesMde = new SimpleMDE({
-                    element: $('#ls_item_notes')[0],
-                    toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
-                    previewRender: mdeRenderer
-                });
+                $('#ls_item_itemType').select2entity({dropdownParent: $('#ls_item_itemType').closest('div')});
+                statementMde = render.mde($('#ls_item_fullStatement')[0]);
+                notesMde = render.mde($('#ls_item_notes')[0]);
             }
         );
+    }).on('hide.bs.modal', function(e){
+        $('#ls_item_itemType').select2('destroy');
     }).on('hidden.bs.modal', function(e){
         $('#editItemModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
         if (null !== statementMde) {
@@ -130,17 +122,8 @@ apx.edit.prepareItemEditModal = function() {
                 },
                 numberDisplayed: 20
             });
-            $('#ls_item_itemType').select2entity({dropdownParent: $('#editItemModal')});
-            statementMde = new SimpleMDE({
-                element: $('#ls_item_fullStatement')[0],
-                toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
-                previewRender: mdeRenderer
-            });
-            notesMde = new SimpleMDE({
-                element: $('#ls_item_notes')[0],
-                toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
-                previewRender: mdeRenderer
-            });
+            statementMde = render.mde($('#ls_item_fullStatement')[0]);
+            notesMde = render.mde($('#ls_item_notes')[0]);
         });
     });
 };
@@ -164,10 +147,8 @@ apx.edit.prepareAddNewChildModal = function() {
     }
 
     var statementMde,
-        notesMde,
-        mdeRenderer =  function(plainText) {
-        return md.render(plainText);
-    };
+        notesMde
+    ;
     var $addNewChildModal = $('#addNewChildModal');
     $addNewChildModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
     $addNewChildModal.on('shown.bs.modal', function(e){
@@ -181,19 +162,13 @@ apx.edit.prepareAddNewChildModal = function() {
                     },
                     numberDisplayed: 20
                 });
-                $('#ls_item_itemType').select2entity({dropdownParent: $('#addNewChildModal')});
-                statementMde = new SimpleMDE({
-                    element: $('#ls_item_fullStatement')[0],
-                    toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
-                    previewRender: mdeRenderer
-                });
-                notesMde = new SimpleMDE({
-                    element: $('#ls_item_notes')[0],
-                    toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
-                    previewRender: mdeRenderer
-                });
+                $('#ls_item_itemType').select2entity({dropdownParent: $('#ls_item_itemType').closest('div')});
+                statementMde = render.mde($('#ls_item_fullStatement')[0]);
+                notesMde = render.mde($('#ls_item_notes')[0]);
             }
         );
+    }).on('hide.bs.modal', function(e){
+        $('#ls_item_itemType').select2('destroy');
     }).on('hidden.bs.modal', function(e){
         $('#addNewChildModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
         if (null !== statementMde) {
@@ -250,17 +225,8 @@ apx.edit.prepareAddNewChildModal = function() {
                 },
                 numberDisplayed: 20
             });
-            $('#ls_item_itemType').select2entity({dropdownParent: $('#addNewChildModal')});
-            statementMde = new SimpleMDE({
-                element: $('#ls_item_fullStatement')[0],
-                toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
-                previewRender: mdeRenderer
-            });
-            notesMde = new SimpleMDE({
-                element: $('#ls_item_notes')[0],
-                toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'table', 'horizontal-rule', '|', 'preview', 'side-by-side', 'fullscreen'],
-                previewRender: mdeRenderer
-            });
+            statementMde = render.mde($('#ls_item_fullStatement')[0]);
+            notesMde = render.mde($('#ls_item_notes')[0]);
         });
     });
 };

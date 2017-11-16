@@ -15,4 +15,5 @@ cat ./app/Resources/assets/js/cftree/view-documentclass.js \
 
 rm -rf ./web/build/*
 
-docker run --rm -u $(id -u):$(id -g) -v $(pwd):/build/app opensalt/encore "$@"
+docker pull opensalt/encore:latest
+docker run --rm -u $(id -u):$(id -g) -v $(pwd):/build/app opensalt/encore:latest "$@"

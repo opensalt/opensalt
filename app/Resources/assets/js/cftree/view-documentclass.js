@@ -4,40 +4,99 @@ window.apx = window.apx||{};
 /* global empty */
 /* global op */
 
-var
-    mk = require('markdown-it-katex'),
-    markdown = require('markdown-it'),
-    md = markdown('default', {
-        breaks: true,
-        linkify: false
-    }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
-    mdInline = markdown('default', {
-        breaks: false,
-        linkify: false
-    }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
-    mdInlineLinked = markdown('default', {
-        breaks: false,
-        linkify: true
-    }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
-    SimpleMDE = require('simplemde')
-;
+var render = (function(){
+    var
+        mk = require('markdown-it-katex'),
+        markdown = require('markdown-it'),
+        md = markdown('default', {
+            html: true,
+            breaks: true,
+            linkify: false
+        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
+        mdInline = markdown('default', {
+            html: false,
+            breaks: false,
+            linkify: false
+        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
+        mdInlineLinked = markdown('default', {
+            html: false,
+            breaks: false,
+            linkify: true
+        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"})
+    ;
 
-function escapeHtml(string) {
-    var entityMap = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;',
-        '/': '&#x2F;',
-        '`': '&#x60;',
-        '=': '&#x3D;'
+    function sanitizerBlock(dirty) {
+        var sanitizeHtml = require('sanitize-html');
+
+        return sanitizeHtml(dirty, {
+            allowedTags: [
+                'ul', 'ol', 'li',
+                'u', 'b', 'i',
+                'br', 'p'
+            ],
+            allowedAttributes: {
+                'ol': [ 'type' ]
+            }
+        });
+    }
+
+    function sanitizerInline(dirty) {
+        var sanitizeHtml = require('sanitize-html');
+
+        return sanitizeHtml(dirty, {
+            allowedTags: [ ],
+            allowedAttributes: { }
+        });
+    }
+
+    var render = {
+        block: function (value) {
+            return md.render(sanitizerBlock(value));
+        },
+
+        inline: function (value) {
+            return mdInline.renderInline(sanitizerInline(value));
+        },
+
+        inlineLinked: function (value) {
+            return mdInlineLinked.renderInline(sanitizerInline(value));
+        },
+
+        escaped: function(value) {
+            var entityMap = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;',
+                '/': '&#x2F;',
+                '`': '&#x60;',
+                '=': '&#x3D;'
+            };
+
+            return String(value).replace(/[&<>"'`=\/]/g, function (s) {
+                return entityMap[s];
+            });
+        }
     };
 
-    return String(string).replace(/[&<>"'`=\/]/g, function (s) {
-        return entityMap[s];
-    });
-}
+    render.mde = function (element) {
+        var SimpleMDE = require('simplemde');
+        return new SimpleMDE({
+            element: element,
+            toolbar: [
+                'bold', 'italic', 'heading', '|',
+                'quote', 'unordered-list', 'ordered-list', '|',
+                'table', 'horizontal-rule', '|',
+                'preview', 'side-by-side', 'fullscreen'
+            ],
+            previewRender: render.block
+        });
+    };
+
+    return render;
+})();
+
 
 ///////////////////////////////////////////////////////////////////////////////
 apx.allDocs = {};
@@ -753,12 +812,12 @@ function apxDocument(initializer) {
     self.getItemTitleBlock = function(item, requireFullStatement) {
         var title = self.getItemStatement(item, requireFullStatement);
 
-        title = md.render(title);
+        title = render.block(title);
 
         if (item !== self.doc) {
             // add humanCodingScheme to the start if we have one
             if (!empty(item.hcs)) {
-                title = '<span class="item-humanCodingScheme">' + escapeHtml(item.hcs) + '</span> ' + title;
+                title = '<span class="item-humanCodingScheme">' + render.escaped(item.hcs) + '</span> ' + title;
             }
         }
 
@@ -768,12 +827,12 @@ function apxDocument(initializer) {
     self.getItemTitle = function(item, requireFullStatement) {
         var title = self.getItemStatement(item, requireFullStatement);
 
-        title = mdInline.renderInline(title);
+        title = render.inline(title);
 
         if (item !== self.doc) {
             // add humanCodingScheme to the start if we have one
             if (!empty(item.hcs)) {
-                title = '<span class="item-humanCodingScheme">' + escapeHtml(item.hcs) + '</span> ' + title;
+                title = '<span class="item-humanCodingScheme">' + render.escaped(item.hcs) + '</span> ' + title;
             }
         }
 
@@ -920,10 +979,10 @@ function apxDocument(initializer) {
 
         var content;
         if (self.isDocNode(node)) {
-            content = "Document: " + md.render(node.title);
+            content = "Document: " + render.block(node.title);
         } else {
             if (empty(node.data.ref)) {
-                content = "Item: " + md.render(node.title);    // this shouldn't happen
+                content = "Item: " + render.block(node.title);    // this shouldn't happen
             } else {
                 content = self.getItemTitleBlock(node.data.ref, true);
             }
@@ -1332,9 +1391,9 @@ function apxDocument(initializer) {
         // if this is a document node...
         if (item.nodeType == "document") {
             // show title and appropriate icon
-            var title = md.render(item.title);
+            var title = render.block(item.title);
             if (!empty(item.version)) {
-                title = '<span style="float:right" class="lessImportant">Version ' + escapeHtml(item.version) + '</span>' + title;
+                title = '<span style="float:right" class="lessImportant">Version ' + render.escaped(item.version) + '</span>' + title;
             }
             $jq.find(".itemTitleSpan").html(title);
             $jq.find(".itemTitleIcon").attr("src", "/assets/img/doc.png");
@@ -1357,36 +1416,36 @@ function apxDocument(initializer) {
                     val = item[key];
                     // TODO: check these exceptions
                     if (key === 'creator' && !empty(item.publisher)) {
-                        val += '<span class="lessImportant">Publisher: ' + escapeHtml(item.publisher) + '</span>';
+                        val += '<span class="lessImportant">Publisher: ' + render.escaped(item.publisher) + '</span>';
                     } else if (key === 'adoptionStatus') {
                         if (!empty(item.statusStart)) {
-                            val += '<span class="lessImportant">From: ' + escapeHtml(item.statusStart) + '</span>';
+                            val += '<span class="lessImportant">From: ' + render.escaped(item.statusStart) + '</span>';
                         }
                         if (!empty(item.statusEnd)) {
-                            val += '<span class="lessImportant">Until: ' + escapeHtml(item.statusEnd) + '</span>';
+                            val += '<span class="lessImportant">Until: ' + render.escaped(item.statusEnd) + '</span>';
                         }
                     } else if (key === 'subjects') {
                         val = "";
                         for (var subject in val) {
                             if (val !== "") val += ", ";
-                            val += escapeHtml(subject.title);
+                            val += render.escaped(subject.title);
                         }
                     } else if (key === 'officialSourceURL') {
-                        val = mdInlineLinked.renderInline(val);
+                        val = render.inlineLinked(val);
 
                         // add target=_blank
                         var $val = $('<div>' + val + '</div>');
                         $('a', $val).attr('target', '_blank');
                         val = $val.html();
                     } else if (key === 'uri') {
-                        val = mdInlineLinked.renderInline(self.getItemUri(item));
+                        val = render.inlineLinked(self.getItemUri(item));
 
                         // add target=_blank
                         var $val = $('<div>' + val + '</div>');
                         $('a', $val).attr('target', '_blank');
                         val = $val.html();
                     } else {
-                        val = escapeHtml(val);
+                        val = render.escaped(val);
                     }
 
                     html += '<li class="list-group-item">'
@@ -1431,14 +1490,14 @@ function apxDocument(initializer) {
                     if (key === 'fstmt' || key === 'notes') {
                         html += '<li class="list-group-item markdown-body">'
                             + '<strong>' + attributes[key] + ':</strong> '
-                            + md.render(val)
+                            + render.block(val)
                             + '</li>'
                         ;
                     } else {
                         // TODO: deal with ck, el, itp
                         html += '<li class="list-group-item">'
                             + '<strong>' + attributes[key] + ':</strong> '
-                            + escapeHtml(val)
+                            + render.escaped(val)
                             + '</li>'
                             ;
                     }
@@ -1462,13 +1521,13 @@ function apxDocument(initializer) {
                         val = self.getItemUri(item);
                         html += '<li class="list-group-item lsItemDetailsExtras">'
                             + '<strong>' + attributes[key] + ':</strong> '
-                            + mdInlineLinked.renderInline(val)
+                            + render.inlineLinked(val)
                             + '</li>'
                         ;
                     } else {
                         html += '<li class="list-group-item lsItemDetailsExtras">'
                             + '<strong>' + attributes[key] + ':</strong> '
-                            + escapeHtml(val)
+                            + render.escaped(val)
                             + '</li>'
                         ;
                     }
@@ -1688,7 +1747,7 @@ function apxDocument(initializer) {
                 docTitle = docTitle.replace(/\w+$/, "");
                 docTitle += "…";
             }
-            title += ' <span class="label label-default">' + escapeHtml(docTitle) + '</span>';
+            title += ' <span class="label label-default">' + render.escaped(docTitle) + '</span>';
         }
 
         return title;
