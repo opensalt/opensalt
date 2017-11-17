@@ -157,9 +157,18 @@ class User implements Context {
   public function iChangeMyPassword() {
     $I = $this->I;
     $password = $this->I->getLastPassword();
+
     $I->amOnPage('/user/change-password');
     $I->see('Change Password');
     $I->fillField('#change_password_oldPassword', $password);
+    $I->fillField('#change_password_newPassword_first', '123456');
+    $I->fillField('#change_password_newPassword_second', '123456');
+    $I->click('/html/body/div[1]/main/div[2]/div/div[2]/form/ul/li[1]/input');
+    $I->see('Your password has been changed.');
+
+    $I->amOnPage('/user/change-password');
+    $I->see('Change Password');
+    $I->fillField('#change_password_oldPassword', '123456');
     $I->fillField('#change_password_newPassword_first', $password);
     $I->fillField('#change_password_newPassword_second', $password);
     $I->click('/html/body/div[1]/main/div[2]/div/div[2]/form/ul/li[1]/input');
