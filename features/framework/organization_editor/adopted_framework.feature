@@ -26,4 +26,8 @@ Feature: A framework marked as "Adopted" should not allow edits
     And I should not see the button "Delete"
     And I should not see the button "Add a New Child Item"
     And I should see the button "Add an Exemplar"
+
+    Then I edit the fields in a framework
+      | Adoption Status | Deprecated |
+
     And I delete the framework

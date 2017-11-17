@@ -142,6 +142,10 @@ class AcceptanceTester extends \Codeception\Actor implements Context
 
         return $this->lsDocId;
     }
+
+    public function setDocId($id){
+      $this->lsDocId = $id;
+    }
     public function getLastFrameworkId(): string
     {
       $documents = $this->fetchJson(self::$documentsApi);
