@@ -829,4 +829,23 @@ class Framework implements Context
 
         $I->assertEquals($hcsValue, current($level1HcsList));
     }
+
+  /**
+   * @Then /^I search for "([^"]*)" in the framework$/
+   */
+  public function iSearchForInTheFramework($item) {
+    $I = $this->I;
+
+    $I->fillField('#filterOnTree', $item);
+    $I->wait(1);
+  }
+
+  /**
+   * @Given /^I should not see "([^"]*)" in results$/
+   */
+  public function iShouldNotSeeInResults($item) {
+    $I = $this->I;
+
+    $I->dontSee($item);
+  }
 }

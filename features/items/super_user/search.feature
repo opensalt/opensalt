@@ -1,13 +1,13 @@
 Feature: Search a item
   In order to confirm the application can copy item
-  As an super editor user
+  As an super user
   I need to see the search from
 
-  @super-editor @item @search-item @1016-1018
-  Scenario: 1016-1018 An super editor user can edit a item
-    Given I log in as a user with role "Super-Editor"
+  @super-user @item @search-item @1016-1022
+  Scenario: 1016-1022 An super user can edit a item
+    Given I log in as a user with role "Super-User"
     And I create a framework
-    And I add "3" Items
+    And I add "7" Items
     And I add "Something" Item
 
     Then I search for "Something" in the framework
