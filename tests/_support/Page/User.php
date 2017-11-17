@@ -175,4 +175,29 @@ class User implements Context {
     $I->see('Your password has been changed.');
   }
 
+
+  /**
+   * @Then /^I edit the new user$/
+   */
+  public function iEditTheNewUser() {
+    $I = $this->I;
+
+    $username = $this->userName;
+    $I->amOnPage('/admin/user/');
+    $I->click("//td[text()='{$username}']/..//a[text()='edit']");
+
+  }
+
+  /**
+   * @Then /^I show the new user$/
+   */
+  public function iShowTheNewUser() {
+    $I = $this->I;
+
+    $username = $this->userName;
+    $I->amOnPage('/admin/user/');
+    $I->click("//td[text()='{$username}']/..//a[text()='show']");
+
+  }
+
 }
