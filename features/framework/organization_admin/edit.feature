@@ -14,7 +14,7 @@ Feature: The framework is editable
       | Publisher       | New Publisher       |
       | Version         | 2.0                 |
       | Description     | New Description     |
-      | Adoption Status | Private Draft       |
+      | Adoption Status | Deprecated          |
       | Language        | fr                  |
       | Note            | New Note            |
 
