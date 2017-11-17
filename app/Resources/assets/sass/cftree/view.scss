@@ -6,7 +6,14 @@ $salt-view-font-path: "" !default;
         max-width:1500px;
     }
 }
-   
+
+@media (min-width:330px) {
+    #ls_doc_list_left label.col-sm-2.control-label {
+width:18%;
+    }
+}
+
+
 main{
   padding: 8px;
 }
