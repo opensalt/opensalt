@@ -103,4 +103,26 @@ class Organization implements Context {
 
   }
 
+  /**
+   * @Then /^I edit the new Organization$/
+   */
+  public function iEditTheNewOrganization() {
+    $I = $this->I;
+
+    $org = $this->orgName;
+    $I->amOnPage('/admin/user/');
+    $I->click("//td[text()='{$org}']/..//a[text()='edit']");
+  }
+
+  /**
+   * @Then /^I show the new Organization$/
+   */
+  public function iShowTheNewOrganization() {
+    $I = $this->I;
+
+    $org = $this->orgName;
+    $I->amOnPage('/admin/user/');
+    $I->click("//td[text()='{$org}']/..//a[text()='show']");
+  }
+
 }
