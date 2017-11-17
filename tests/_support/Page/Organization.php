@@ -42,9 +42,10 @@ class Organization implements Context {
    */
   public function iDeleteTheOrganization() {
     $I = $this->I;
+    $org = $this->orgName;
 
     $I->amOnPage('/admin/organization/');
-    $I->click('/html/body/div[1]/main/table/tbody/tr[1]/td[3]/ul/li[1]/a');
+    $I->click("//td[text()='{$org}']/..//a[text()='show']");
     $I->see($this->orgName);
     $I->click('Delete');
 
@@ -87,15 +88,17 @@ class Organization implements Context {
    */
   public function iEditTheNameInOrganization(TableNode $table) {
     $I = $this->I;
+    $org = $this->orgName;
 
     $I->amOnPage('/admin/organization/');
-    $I->click('/html/body/div[1]/main/table/tbody/tr[1]/td[3]/ul/li[2]/a');
+    $I->click("//td[text()='{$org}']/..//a[text()='edit']");
     $I->seeInField('#salt_userbundle_organization_name', $this->orgName);
     $rows = $table->getRows();
     foreach ($rows as $row) {
       $I->fillField('#salt_userbundle_organization_name', $row[0]);
       $I->click('Save');
       $I->see($row[0]);
+      $this->orgName = $row[0];
     }
 
   }
