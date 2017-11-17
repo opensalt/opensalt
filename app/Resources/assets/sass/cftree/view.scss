@@ -8,7 +8,7 @@ $salt-view-font-path: "" !default;
 }
 
 @media (min-width:330px) {
-    #ls_doc_list_left label.col-sm-2.control-label {
+    #ls_doc_list_left label.col-sm-2.control-label, #ls_doc_list_right label.col-sm-2.control-label {
 width:18%;
     }
 }
