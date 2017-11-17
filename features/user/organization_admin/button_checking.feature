@@ -3,28 +3,28 @@ Feature: Back to the list
   As an organization admin
   I need to have access to the user profile page
 
-  @organization-admin @user @1117-1533
-  Scenario: 1117-1533 Back to the Users list from the Add an Organization page
+  @organization-admin @user @1117-1333
+  Scenario: 1117-1333 Back to the Users list from the Add a User page
     Given I log in as a user with role "Admin"
-    And I am on the Organizations list page
-    And I click the "Add a new organizationr" button
+    And I am on the User list page
+    And I click the "Add a new user" button
     And I click the "Back to the list" button
-    Then I am on the Organizations list page
+    Then I am on the User list page
 
-  @organization-admin @user @1117-1535
-  Scenario: 1117-1535 Back to the Users list from the Organization edit page
+  @organization-admin @user @1117-1335
+  Scenario: 1117-1335 Back to the Users list from the User edit page
     Given I log in as a user with role "Admin"
-    And I add a Organization
+    And I add a new user
 
-    Then I edit the new Organization
+    Then I edit the new user
     And I click the "Back to the list" button
-    Then I am on the Organizations list page
+    Then I am on the User list page
 
-  @organization-admin @user @1117-1543
-  Scenario: 1117-1543  Back to the Users list from the Organization page
+  @organization-admin @user @1117-1343
+  Scenario: 1117-1343  Back to the Users list from the User page
     Given I log in as a user with role "Admin"
-    And I add a Organization
+    And I add a new user
 
-    Then I show the new Organization
+    Then I show the new user
     And I click the "Back to the list" button
-    Then I am on the Organizations list page
+    Then I am on the User list page
