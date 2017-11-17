@@ -623,11 +623,8 @@ $('#dragbar').mousedown(function(e){
     e.preventDefault();
 
     dragging = true;
-    var maxWidthToAllow=$("#treeView").width()-300;
-    if(e.pageX >= maxWidthToAllow){
-        $(document).unbind('mousemove');
-        dragging = false;
-    }
+
+
 });
 
 $(document).mouseup(function(e){
@@ -635,7 +632,13 @@ $(document).mouseup(function(e){
     {
         $('#treeSideLeft').css("width",e.pageX+2);
         //$('#treeSideRight').css("left",e.pageX+2);
-        $('#treeSideRight').width($("#treeView").width()-$("#treeSideLeft").width());
+        var maxWidthToAllow=$("#treeView").width()-300;
+        if(e.pageX >= maxWidthToAllow){
+            $('#treeSideLeft').width(maxWidthToAllow);
+        }
+
+            $('#treeSideRight').width($("#treeView").width() - $("#treeSideLeft").width());
+
 
         $(document).unbind('mousemove');
         dragging = false;

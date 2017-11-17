@@ -39,15 +39,15 @@ body{
 
 .treeSideLeftInner {
     height: calc(100vh - 243px);
-    overflow: auto;
-    width:calc(100% - 27px);
+    overflow: hidden;
+    width:calc(100% - 33px);
     float:left;
 }
 
 .treeSideRightInner {
     height: calc(100vh - 243px);
     overflow: auto;
-    width:20px;
+    width:23px;
     float:left;
 }
 
@@ -303,7 +303,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 }
 
 .instructions {
-    padding:5px;
+    padding:7px;
     border-radius:4px;
     margin-bottom:10px;
     min-height: 32px;
@@ -605,7 +605,7 @@ span.fancytree-node{
 .toggle-container-left {
     position: absolute;
     top: 50%;
-   // right: 1%;
+  padding-left: 2px;
     cursor: pointer;
 }
 
