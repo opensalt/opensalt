@@ -429,6 +429,7 @@ function toggleDivRight() {
     if (RightWindow.style.display === "none") {
         RightWindow.style.display = "block";
         document.getElementById("treeSideLeft").setAttribute("style","width:50%");
+        document.getElementById("treeSideRight").setAttribute("style","width:50%");
         document.getElementById("toggleRight").setAttribute("class", "fa fa-chevron-circle-right");
     } else {
         RightWindow.style.display = "none";
@@ -445,6 +446,7 @@ function toggleDivLeft() {
     if (LeftWindow.style.display === "none") {
         LeftWindow.style.display = "block";
         document.getElementById("treeSideRight").setAttribute("style","width:50%");
+        document.getElementById("treeSideLeft").setAttribute("style","width:50%");
         document.getElementById("toggleLeft").setAttribute("class", "fa fa-chevron-circle-left");
     } else {
         LeftWindow.style.display = "none";
@@ -615,4 +617,33 @@ global.SaltLocal = SaltLocal;
 global.SaltGithub = SaltGithub;
 global.listRepositories = listRepositories;
 
+
+var dragging = false;
+$('#dragbar').mousedown(function(e){
+    e.preventDefault();
+
+    dragging = true;
+    var maxWidthToAllow=$("#treeView").width()-300;
+    if(e.pageX >= maxWidthToAllow){
+        $(document).unbind('mousemove');
+        dragging = false;
+    }
+});
+
+$(document).mouseup(function(e){
+    if (dragging)
+    {
+        $('#treeSideLeft').css("width",e.pageX+2);
+        //$('#treeSideRight').css("left",e.pageX+2);
+        $('#treeSideRight').width($("#treeView").width()-$("#treeSideLeft").width());
+
+        $(document).unbind('mousemove');
+        dragging = false;
+    }
+});
+
+$(window).resize(function(){
+    $('#treeSideRight').width($("#treeView").width()-$("#treeSideLeft").width());
+    $('#treeSideLeft').height($("#treeView").height());
+});
 
