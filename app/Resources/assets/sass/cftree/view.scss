@@ -6,6 +6,7 @@ $salt-view-font-path: "" !default;
         max-width:1500px;
     }
 }
+   
 main{
   padding: 8px;
 }
@@ -143,7 +144,7 @@ ul.fancytree-container {
 span.fancytree-title {
     white-space: pre-wrap;
     word-break: normal;
-    max-width:90%;
+    max-width:78%;
 }
 
 #docTitleWrapper {
@@ -624,4 +625,3 @@ span.fancytree-node{
     width: 5px;
     cursor: col-resize;
 }
-

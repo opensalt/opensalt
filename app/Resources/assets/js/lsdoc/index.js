@@ -621,10 +621,7 @@ global.listRepositories = listRepositories;
 var dragging = false;
 $('#dragbar').mousedown(function(e){
     e.preventDefault();
-
     dragging = true;
-
-
 });
 
 $(document).mouseup(function(e){
@@ -632,14 +629,11 @@ $(document).mouseup(function(e){
     {
         $('#treeSideLeft').css("width",e.pageX+2);
         //$('#treeSideRight').css("left",e.pageX+2);
-        var maxWidthToAllow=$("#treeView").width()-300;
+        var maxWidthToAllow=$("#treeView").width()-330;
         if(e.pageX >= maxWidthToAllow){
             $('#treeSideLeft').width(maxWidthToAllow);
         }
-
-            $('#treeSideRight').width($("#treeView").width() - $("#treeSideLeft").width());
-
-
+        $('#treeSideRight').width($("#treeView").width() - $("#treeSideLeft").width());
         $(document).unbind('mousemove');
         dragging = false;
     }
