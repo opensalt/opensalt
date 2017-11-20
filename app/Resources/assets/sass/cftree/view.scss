@@ -149,9 +149,11 @@ ul.fancytree-container {
 }
 
 span.fancytree-title {
-    white-space: pre-wrap;
-    word-break: normal;
-    max-width:78%;
+    //white-space: pre-wrap;
+    //word-break: normal;
+    max-width:80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #docTitleWrapper {
@@ -498,9 +500,9 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     }
 }
 
-span.fancytree-node{
-    height:auto !important;
-}
+//span.fancytree-node{
+//    height:auto !important;
+//}
 #assocView {
     display:none;
 }
