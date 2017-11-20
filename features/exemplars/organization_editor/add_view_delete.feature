@@ -3,7 +3,7 @@ Feature: Adding, viewing and deleting a exemplars
   As an organization_editor
   I need to see a all of the fields
 
-  @organization-editor @exemplar @add-exemplar
+  @organization-editor @exemplar @add-exemplar @1017-0940
   Scenario: 1017-0940 An organization_editor can add a exemplar
     Given I log in as a user with role "Editor"
     Then I create a framework

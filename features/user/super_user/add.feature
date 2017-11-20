@@ -3,14 +3,9 @@ Feature: Add new User
   As an organization admin
   I need to have access to the user profile page
 
-  @incomplete @super-user @user @add-user
+  @super-user @user @add-user @1016-1245
   Scenario: 1016-1245 Adding new user
     Given I log in as a user with role "Super User"
-    And I am on the User list page
-    And I click the "Add a new user" button
-    And I fill in the username
-    And I fill in the password
-    And I check "Editor" role
-    And I select "Unknown" Org
-    And I click the "Add" button
-    Then I should see username in the User list
+    Then I add a new user with "Super User" role
+
+    Then I delete the User

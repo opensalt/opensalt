@@ -288,4 +288,14 @@ class Item implements Context
 
   }
 
+  /**
+   * @Given /^I add "([^"]*)" Items$/
+   */
+  public function iAddItems($count) {
+
+    for ($i = 0; $i < $count; $i++){
+      $this->iAddItem();
+    }
+  }
+
 }

@@ -3,7 +3,7 @@ Feature: Adding, viewing and deleting a item
   As an super editor user
   I need to see a all of the fields
 
-  @smoke @editor @item @add-item
+  @editor @item @add-item @1016-0929
   Scenario: 1016-0929 An super editor user can add a item
     Given I log in as a user with role "Super-Editor"
     When I create a framework

@@ -3,8 +3,8 @@ Feature: The framework is editable
   As an super editor
   I need to edit a framework
 
-  @smoke @super-editor @view-framework
-  Scenario: 1016-1326 An super editor can edit a framework
+  @smoke @super-editor @view-framework @1116-1326
+  Scenario: 1116-1326 An super editor can edit a framework
     Given I log in as a user with role "Super-Editor"
     When I create a framework
     And I edit the fields in a framework
@@ -14,7 +14,7 @@ Feature: The framework is editable
       | Publisher       | New Publisher       |
       | Version         | 2.0                 |
       | Description     | New Description     |
-      | Adoption Status | Private Draft       |
+      | Adoption Status | Deprecated          |
       | Language        | fr                  |
       | Note            | New Note            |
 

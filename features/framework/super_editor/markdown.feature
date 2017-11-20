@@ -3,7 +3,7 @@ Feature: A framework with markdown can be loaded
   As an super editor
   I need to be able to use markdown in the full statement
 
-  @smoke @super-editor @case-file @case-file-104
+  @super-editor @case-file @1107-0825
   Scenario: 1107-0825 A CASE file can contain markdown syntax
     Given I log in as a user with role "Super-Editor"
     And I am on the homepage

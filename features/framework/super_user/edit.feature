@@ -3,7 +3,7 @@ Feature: The framework is editable
   As an Super-User
   I need to edit a framework
 
-  @smoke @super-user @view-framework
+  @super-user @view-framework @1016-1326
   Scenario: 1016-1326 An Super-User can edit a framework
     Given I log in as a user with role "Super-User"
     When I create a framework
@@ -14,7 +14,7 @@ Feature: The framework is editable
       | Publisher       | New Publisher       |
       | Version         | 2.0                 |
       | Description     | New Description     |
-      | Adoption Status | Private Draft       |
+      | Adoption Status | Deprecated          |
       | Language        | fr                  |
       | Note            | New Note            |
 

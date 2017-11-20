@@ -3,7 +3,7 @@ Feature: A CASE framework with sequence numbers can be loaded
   As an editor
   I need to be able to load sequence numbers from CASE files
 
-  @smoke @editor @case-file @1103-1626
+  @editor @case-file @1103-1626
   Scenario: A CASE file can contain sequence numbers
     Given I log in as a user with role "Editor"
     And I am on the homepage
@@ -14,3 +14,4 @@ Feature: A CASE framework with sequence numbers can be loaded
     And I go to the uploaded framework
     Then I should see "SNT.2" as the first item in the tree's HCS value
 
+    And I delete the framework

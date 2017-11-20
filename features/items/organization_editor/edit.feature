@@ -3,7 +3,7 @@ Feature: Editing a item
   As an organization editor
   I need to see a all of the fields
 
-  @organization-editor @item @edit-item
+  @organization-editor @item @edit-item @1107-0945
   Scenario: 1107-0945 An organization editor can edit a item
     Given I log in as a user with role "Editor"
     When I create a framework

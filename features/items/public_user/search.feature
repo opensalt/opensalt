@@ -3,7 +3,7 @@ Feature: Search a item
   As an anonymous
   I need to see the search from
 
-  @incomplete @smoke @anonymous @item @search-item
+  @incomplete @anonymous @item @search-item @1016-1018
   Scenario: 1016-1018 An anonymous user can edit a item
     Given I log in as a user with role "Editor"
     Then I create a "Draft" framework
