@@ -20,12 +20,19 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        }
+        },
+        "classmap": [
+            "tests/_behat/Context.php"
+        ]
     },
     "repositories": [
         {
             "type": "vcs",
             "url": "https://github.com/PCGGenEd/faker-context"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/opensalt/qandidate-toggle-bundle"
         }
     ],
     "minimum-stability": "dev",
@@ -36,7 +43,7 @@
 
         "fxp/composer-asset-plugin": "^1.2",
 
-        "symfony/symfony": "3.3.*",
+        "symfony/symfony": ">=3.3.0 <=3.3.2 || >=3.3.4 <3.4",
         "doctrine/orm": "^2.5",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-cache-bundle": "^1.2",
@@ -70,6 +77,7 @@
         "hwi/oauth-bundle": "^0.5.1",
 
         "nilportugues/jsonapi-bundle": "^1.5.2",
+        "nelmio/cors-bundle": "~1.5.3",
 
         "phpoffice/phpexcel": "^1.8.1",
 
@@ -77,7 +85,7 @@
 
         "bower-asset/jquery": "^2.2.4",
         "bower-asset/jquery-ui": "^1.12.0",
-        "bower-asset/fancytree": "^2.19.0",
+        "bower-asset/fancytree": "2.24.0",
         "bower-asset/ui-contextmenu": "^1.12.0",
         "bower-asset/bootstrap-sass": "^3.3.6",
         "bower-asset/html5-boilerplate": "^5.3.0",
@@ -90,6 +98,11 @@
         "bower-asset/select2": "^4.0.3",
         "bower-asset/select2-bootstrap-theme": "dev-master",
         "tetranz/select2entity-bundle": "2.*",
+
+        "npm-asset/markdown-it": "~8.4",
+        "npm-asset/markdown-it-katex": "~2.0",
+        "npm-asset/github-markdown-css": "~2.8",
+        "npm-asset/simplemde": "~1.11",
 
         "npm-asset/iso639-js": "^1.1",
 
@@ -109,28 +122,23 @@
         "bower-asset/datatables.net-scroller-bs": "^1.4.2",
         "bower-asset/datatables.net-select": "^1.2.2",
         "bower-asset/datatables.net-select-bs": "^1.2.2",
-        "liuggio/excelbundle": "^2.1"
+        "liuggio/excelbundle": "^2.1",
+        "bower-asset/jquery-comments": "^1.2",
+        "qandidate/toggle-bundle": "dev-symfony-3.3.8-env-vars"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.1",
         "symfony/phpunit-bridge": "^3.2",
 
-        "behat/behat": "~3.1",
-            "behat/symfony2-extension": "^2.1",
-            "behat/mink": "~1.7",
-            "behat/mink-extension": "~2.2",
-            "behat/mink-goutte-driver": "~1.2",
-            "behat/mink-browserkit-driver": "^1.3",
-            "behat/mink-selenium2-driver": "^1.3",
-            "sensiolabs/behat-page-object-extension": "~2.0",
-                "bossa/phpspec2-expect": "*",
-            "denheck/faker-context": "dev-master",
-                "fzaninotto/faker": "~1.6",
-
-        "phpunit/phpunit": "~5.7",
+        "codeception/codeception": "^2.3",
+            "codeception/specify": "~0.4",
+            "codeception/verify": "~0.3",
+            "flow/jsonpath": "~0.3",
+            "league/factory-muffin": "~3.0",
+            "league/factory-muffin-faker": "~2.0",
+            "phpunit/phpunit": "~5.7",
 
         "phpspec/phpspec": "~3.2",
-            "rmiller/behat-spec": "*",
             "phpspec/nyan-formatters": "~2.0",
             "ciaranmcnulty/phpspec-typehintedmethods": "~2.0",
 
@@ -169,8 +177,8 @@
             "file": "app/config/parameters.yml"
         },
         "branch-alias": {
-            "dev-master": "1.0.x-dev",
-            "dev-develop": "1.1.x-dev"
+            "dev-master": "1.1.x-dev",
+            "dev-develop": "1.2.x-dev"
         }
     }
 }

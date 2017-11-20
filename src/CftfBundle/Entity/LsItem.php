@@ -471,11 +471,32 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
         }
 
         foreach ($this->getChildren() as $child) {
-            $newChild = $child->duplicateToLsDoc($newLsDoc, $assocGroup);
+            $newChild = $child->duplicateToLsDoc($newLsDoc, $assocGroup, $derivated);
+
             $newItem->addChild($newChild, $assocGroup);
         }
 
         return $newItem;
+    }
+
+    /**
+     * @param Uuid|string|null $identifier
+     *
+     * @return LsItem
+     */
+    public function createItem($identifier = null): LsItem
+    {
+        return $this->getLsDoc()->createItem($identifier);
+    }
+
+    /**
+     * @param Uuid|string|null $identifier
+     *
+     * @return LsAssociation
+     */
+    public function createAssociation($identifier = null): LsAssociation
+    {
+        return $this->getLsDoc()->createAssociation($identifier);
     }
 
     public function isLsItem(): bool
@@ -892,12 +913,13 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      *
      * @param LsItem $child
      * @param LsDefAssociationGrouping|null $assocGroup
+     * @param int|null $sequenceNumber
      *
      * @return LsItem
      */
-    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null): LsItem
+    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): LsItem
     {
-        $this->createChildItem($child, $assocGroup);
+        $this->createChildItem($child, $assocGroup, $sequenceNumber);
 
         return $this;
     }
@@ -1084,7 +1106,12 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      */
     public function getParentItem(): ?LsItem
     {
-        return $this->getLsItemParent()->first();
+        $first = $this->getLsItemParent()->first();
+        if ($first) {
+            return $first;
+        }
+
+        return null;
     }
 
     /**

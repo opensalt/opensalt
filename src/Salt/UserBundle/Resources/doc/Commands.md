@@ -5,6 +5,12 @@ A set of commands can be run from the command line in order to manage
 local users in the system.  If arguments are missing then the command
 will prompt for the values.
 
+- **salt:org:add**
+
+  This command will create an organization in the database.
+
+  `./bin/console salt:org:add [--no-interaction] [<organization name>]`
+
 - **salt:user:add**
 
   This command will create a local user in the database.

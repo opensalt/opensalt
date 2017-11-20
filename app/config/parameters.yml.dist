@@ -4,24 +4,33 @@
 parameters:
     locale: en
 
-    database_host: '%mysql.host%'
-    database_port: 3306
-    database_name: '%mysql.database%'
-    database_user: '%mysql.user%'
-    database_password: '%mysql.password%'
+    # The SYMFONY__ environment variables are deprecated
+    env(SYMFONY__MYSQL__HOST): ~
+    env(SYMFONY__MYSQL__DATABASE): ~
+    env(SYMFONY__MYSQL__USER): ~
+    env(SYMFONY__MYSQL__PASSWORD): ~
 
-    mailer_transport:  smtp
-    mailer_host:       127.0.0.1
-    mailer_user:       ~
-    mailer_password:   ~
+    env(MYSQL_HOST): '%env(SYMFONY__MYSQL__HOST)%'
+    env(MYSQL_PORT): 3306
+    env(MYSQL_DATABASE): '%env(SYMFONY__MYSQL__DATABASE)%'
+    env(MYSQL_USER): '%env(SYMFONY__MYSQL__USER)%'
+    env(MYSQL_PASSWORD): '%env(SYMFONY__MYSQL__PASSWORD)%'
+
+    env(MAILER_TRANSPORT): smtp
+    env(MAILER_HOST): 127.0.0.1
+    env(MAILER_USER): ~
+    env(MAILER_PASSWORD): ~
 
     # A secret key that's used to generate certain security-related tokens
-    secret:            ThisTokenIsNotSoSecretSoChangeIt
-    cookie_secret:     ThisTokenIsNotSoSecretChangeIt
+    env(SECRET): ThisTokenIsNotSoSecretSoChangeIt
+    env(COOKIE_SECRET): ThisTokenIsNotSoSecretChangeIt
 
-    local_uri_host: http://localhost:3000/
+    env(LOCAL_URI_HOST): 'http://127.0.0.1:3000/'
+
     env(GITHUB_CLIENT_ID): ~
     env(GITHUB_CLIENT_SECRET): ~
+    # to enable the comments feature you should pass 'always-active' instead of 'inactive'
+    env(COMMENTS_FEATURE): inactive
 
     env(BRAND_LOGO_URL): ~
     env(BRAND_LOGO_STYLE): ~

@@ -33,6 +33,7 @@ class AppKernel extends Kernel
 
             new Nelmio\SecurityBundle\NelmioSecurityBundle(),
             new ActiveLAMP\Bundle\SwaggerUIBundle\ALSwaggerUIBundle(),
+            new Nelmio\CorsBundle\NelmioCorsBundle(),
 
             new CftfBundle\CftfBundle(),
             new Cftf\AsnBundle\CftfAsnBundle(),
@@ -44,6 +45,7 @@ class AppKernel extends Kernel
             new GithubFilesBundle\GithubFilesBundle(),
             new Salt\SiteBundle\SaltSiteBundle(),
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
+            new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
         ];
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {

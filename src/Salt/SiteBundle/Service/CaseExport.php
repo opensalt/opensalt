@@ -112,7 +112,11 @@ class CaseExport
         foreach ($items as $item) {
             $this->addItemRow($activeSheet, $j, $item);
             if (array_key_exists($item['id'], $smartLevel)) {
-                $activeSheet->setCellValue('D'.$j, $smartLevel[$item['id']]);
+                $activeSheet->setCellValueExplicit(
+                    'D'.$j,
+                    $smartLevel[$item['id']],
+                    \PHPExcel_Cell_DataType::TYPE_STRING
+                );
             }
             ++$j;
         }
@@ -126,11 +130,13 @@ class CaseExport
             ->setCellValue('A1', 'identifier')
             ->setCellValue('B1', 'uri')
             ->setCellValue('C1', 'originNodeIdentifier')
-            ->setCellValue('D1', 'destinationNodeIdentifier')
-            ->setCellValue('E1', 'associationType')
-            ->setCellValue('F1', 'associationGroupIdentifier')
-            ->setCellValue('G1', 'associationGroupName')
-            ->setCellValue('H1', 'lastChangeDateTime');
+            ->setCellValue('D1', 'originNodeUri')
+            ->setCellValue('E1', 'destinationNodeIdentifier')
+            ->setCellValue('F1', 'destinationNodeUri')
+            ->setCellValue('G1', 'associationType')
+            ->setCellValue('H1', 'associationGroupIdentifier')
+            ->setCellValue('I1', 'associationGroupName')
+            ->setCellValue('J1', 'lastChangeDateTime');
 
         $j = 2;
         foreach ($associations as $association) {
@@ -178,14 +184,16 @@ class CaseExport
     protected function addAssociationRow(\PHPExcel_Worksheet $sheet, int $y, array $row): void
     {
         $columns = [
-            'A' => 'lsDocIdentifier',
-            'B' => 'lsDocUri',
+            'A' => 'identifier',
+            'B' => 'uri',
             'C' => 'originNodeIdentifier',
-            'D' => 'destinationNodeIdentifier',
-            'E' => 'type',
-            'F' => 'group',
-            'G' => 'groupName',
-            'H' => 'updatedAt',
+            'D' => 'originNodeUri',
+            'E' => 'destinationNodeIdentifier',
+            'F' => 'destinationNodeUri',
+            'G' => 'type',
+            'H' => 'group',
+            'I' => 'groupName',
+            'J' => 'updatedAt',
         ];
 
         foreach ($columns as $column => $field) {

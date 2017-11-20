@@ -8,10 +8,6 @@ services:
     depends_on:
       - db
     environment:
-      SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
-      SYMFONY__MYSQL__USER: "${MYSQL_USER}"
-      SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
@@ -27,14 +23,15 @@ services:
       ALLOW_LOCAL_DEV: "true"
       ALLOW_EXTERNAL_DEV_IPS:
       DEV_COOKIE:
+      COMMENTS_FEATURE:
     volumes:
-      - &project_root "..:/var/www/html"
+      - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html
 
   nginx:
     #build:
     #  context: ./nginx
-    image: opensalt/nginx:1.11-alpine
+    image: opensalt/nginx:1.13-alpine
     depends_on:
       - phpfpm
     environment:
@@ -53,8 +50,9 @@ services:
   db:
     image: percona:${MYSQL_VERSION}
     volumes:
-      - ./data/mysql:/var/lib/mysql
-      - ./mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro
+      - "${PROJ_DIR:-..}/docker/data/mysql:/var/lib/mysql"
+      - "${PROJ_DIR:-..}/docker/mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro"
+      - "${PROJ_DIR:-..}/docker/mysql/charset.cnf:/etc/mysql/conf.d/charset.cnf:ro"
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:

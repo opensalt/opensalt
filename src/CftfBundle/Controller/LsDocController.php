@@ -11,6 +11,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Form\Type\LsDocType;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -176,6 +177,56 @@ class LsDocController extends Controller
     }
 
     /**
+     * Update a framework given a CSV or external File.
+     *
+     * @Route("/doc/{id}/update", name="lsdoc_update")
+     * @Method("POST")
+     * @Security("is_granted('edit', lsDoc)")
+     *
+     * @param Request $request
+     * @param LsDoc $lsDoc
+     */
+    public function updateAction(Request $request, LsDoc $lsDoc)
+    {
+        $response = new JsonResponse();
+        $fileContent = $request->request->get('content');
+        $cfItemKeys = $request->request->get('cfItemKeys');
+        $frameworkToAssociate = $request->request->get('frameworkToAssociate');
+        $frameworkUpdater = $this->get('framework_updater.local');
+
+        $frameworkUpdater->update($lsDoc, base64_decode($fileContent), $frameworkToAssociate, $cfItemKeys);
+
+        return $response->setData([
+            'message' => 'Success',
+        ]);
+    }
+
+    /**
+     * Update a framework given a CSV or external File on a derivative framework.
+     *
+     * @Route("/doc/{id}/derive", name="lsdoc_update_derive")
+     * @Method("POST")
+     * @Security("is_granted('create', 'lsdoc')")
+     *
+     * @param Request $request
+     * @param LsDoc $lsDoc
+     */
+    public function deriveAction(Request $request, LsDoc $lsDoc)
+    {
+        $response = new JsonResponse();
+        $fileContent = $request->request->get('content');
+        $frameworkToAssociate = $request->request->get('frameworkToAssociate');
+        $frameworkUpdater = $this->get('framework_updater.local');
+
+        $newCfDocDerivated = $frameworkUpdater->derive($lsDoc, base64_decode($fileContent), $frameworkToAssociate);
+
+        return $response->setData([
+            'message' => 'Success',
+            'new_doc_id' => $newCfDocDerivated->getId()
+        ]);
+    }
+
+    /**
      * Displays a form to edit an existing LsDoc entity.
      *
      * @Route("/{id}/edit", name="lsdoc_edit")
@@ -295,6 +346,9 @@ class LsDocController extends Controller
      */
     protected function loadDocumentListFromHost(string $hostname): array
     {
+        // Remove any scheme or path from the passed value
+        $hostname = preg_replace('#^(?:https?://)?([^/]+)(?:/.*)#', '$1', $hostname);
+
         try {
             $remoteResponse = $this->loadDocumentsFromServer(
                 'https://'.$hostname

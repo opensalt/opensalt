@@ -1,0 +1,21 @@
+version: '2.1'
+services:
+  phantomjs:
+    image: wernight/phantomjs:2
+    command: [ "phantomjs", "--webdriver=8643" ]
+    volumes:
+      - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
+
+  chrome:
+    image: selenium/standalone-chrome:3.6
+    volumes:
+      - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
+
+  firefox:
+    image: selenium/standalone-firefox:3.6
+    volumes:
+      - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
+
+  wait:
+    image: jwilder/dockerize
+

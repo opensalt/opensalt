@@ -1,0 +1,19 @@
+#!/bin/sh
+
+cd $(dirname $0)/..
+
+mkdir -p -m 0777 build/js
+rm -f ./build/js/apx.js
+
+cat ./app/Resources/assets/js/cftree/view-documentclass.js \
+    ./app/Resources/assets/js/cftree/view-trees.js \
+    ./app/Resources/assets/js/cftree/view-edit.js \
+    ./app/Resources/assets/js/cftree/view-modes.js \
+    ./app/Resources/assets/js/cftree/viewx.js \
+    ./app/Resources/assets/js/cftree/apxglobal.js \
+	> ./build/js/apx.js
+
+rm -rf ./web/build/*
+
+docker pull opensalt/encore:latest
+docker run --rm -u $(id -u):$(id -g) -v $(pwd):/build/app opensalt/encore:latest "$@"

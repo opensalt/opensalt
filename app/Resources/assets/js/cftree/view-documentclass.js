@@ -4,6 +4,100 @@ window.apx = window.apx||{};
 /* global empty */
 /* global op */
 
+var render = (function(){
+    var
+        mk = require('markdown-it-katex'),
+        markdown = require('markdown-it'),
+        md = markdown('default', {
+            html: true,
+            breaks: true,
+            linkify: false
+        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
+        mdInline = markdown('default', {
+            html: false,
+            breaks: false,
+            linkify: false
+        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
+        mdInlineLinked = markdown('default', {
+            html: false,
+            breaks: false,
+            linkify: true
+        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"})
+    ;
+
+    function sanitizerBlock(dirty) {
+        var sanitizeHtml = require('sanitize-html');
+
+        return sanitizeHtml(dirty, {
+            allowedTags: [
+                'ul', 'ol', 'li',
+                'u', 'b', 'i',
+                'br', 'p'
+            ],
+            allowedAttributes: {
+                'ol': [ 'type' ]
+            }
+        });
+    }
+
+    function sanitizerInline(dirty) {
+        var sanitizeHtml = require('sanitize-html');
+
+        return sanitizeHtml(dirty, {
+            allowedTags: [ ],
+            allowedAttributes: { }
+        });
+    }
+
+    var render = {
+        block: function (value) {
+            return md.render(sanitizerBlock(value));
+        },
+
+        inline: function (value) {
+            return mdInline.renderInline(sanitizerInline(value));
+        },
+
+        inlineLinked: function (value) {
+            return mdInlineLinked.renderInline(sanitizerInline(value));
+        },
+
+        escaped: function(value) {
+            var entityMap = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;',
+                '/': '&#x2F;',
+                '`': '&#x60;',
+                '=': '&#x3D;'
+            };
+
+            return String(value).replace(/[&<>"'`=\/]/g, function (s) {
+                return entityMap[s];
+            });
+        }
+    };
+
+    render.mde = function (element) {
+        var SimpleMDE = require('simplemde');
+        return new SimpleMDE({
+            element: element,
+            toolbar: [
+                'bold', 'italic', 'heading', '|',
+                'quote', 'unordered-list', 'ordered-list', '|',
+                'table', 'horizontal-rule', '|',
+                'preview', 'side-by-side', 'fullscreen'
+            ],
+            previewRender: render.block
+        });
+    };
+
+    return render;
+})();
+
+
 ///////////////////////////////////////////////////////////////////////////////
 apx.allDocs = {};
 apx.allItemsHash = {};
@@ -15,10 +109,10 @@ apx.allItemsHash = {};
  */
 function apxDocument(initializer) {
     var self = this;
-    
+
     // record the initializer for use when the document is loaded
     self.initializer = initializer;
-    
+
     // keep track of the current association group chosen for the document, which could be different on sides 1 (left) and 2 (right)
     self.currentAssocGroup = null;
     self.currentAssocGroup2 = null;
@@ -41,76 +135,71 @@ function apxDocument(initializer) {
             }
         }
     };
-    
+
     /** keep track of the currently-selected item for the document (which could be the doc itself)
      *  Input can be an item, an identifier, or an lsItemId; in the latter case, null represents the document */
     self.currentItem = null;
     self.setCurrentItem = function(o) {
         self.currentItem = null;
-        
+
         if (!empty(o.item)) {
             self.currentItem = o.item;
-            
         } else if (!empty(o.identifier)) {
             if (o.identifier == self.doc.identifier) {
                 self.currentItem = self.doc;
             } else {
                 self.currentItem = self.itemHash[o.identifier];
             }
-            
         } else if (!empty(o.lsItemId)) {
             self.currentItem = self.itemIdHash[o.lsItemId];
-            
         } else {
             self.currentItem = self.doc;
         }
-        
+
         // to check to see if the document is currently selected, use
         // (d.currentItem == d.doc)
     };
-    
+
     /** Load the document via an ajax call */
     self.load = function(callbackFn) {
         var path = apx.path.doctree_retrieve_document.replace('ID', apx.lsDocId);
         var ajaxData = {};
         if (!empty(self.initializer.id)) {
             ajaxData.id = self.initializer.id;
-            
         } else if (!empty(self.initializer.identifier)) {
             ajaxData.identifier = self.initializer.identifier;
-            
         } else if (!empty(self.initializer.url)) {
             ajaxData.url = self.initializer.url;
         }
-        
+
         console.log("loading document", self.initializer);
-        
+
         $.ajax({
             url: path,
             method: 'GET',
             data: ajaxData
         }).done(function(data, textStatus, jqXHR) {
-            if (empty(data) || typeof(data) != "object" || empty(data.CFDocument)) {
+            if (empty(data) || typeof(data) !== "object" || empty(data.CFDocument)) {
                 self.loadError(data);
                 return;
             }
-            
+
             // extract the pieces of the returned document
-            
+
             // CFDocument comes in standard CASE format
             self.doc = data.CFDocument;
 
             // store this apxDocument in apx.allDocs
             apx.allDocs[self.doc.identifier] = self;
-            
+
             // some SALT-specific top-level things...
-            
+
             // document id
             self.doc.id = data.lsDocId;
-            
+
             // "baseDoc" -- normally "self", but if this is a "pure cross-walk" document, this will be a different document identifier
             self.baseDoc = data.baseDoc;
-            
+
             // documents referenced by associations in this document
             self.associatedDocs = data.associatedDocs;
             if (empty(self.associatedDocs)) {
@@ -119,13 +208,13 @@ function apxDocument(initializer) {
 
             // note that doc is a document
             self.doc.nodeType = "document";
-            
+
             // extract uriBase from doc.uri
             self.doc.uriBase = self.doc.uri.replace(/\/[^\/]+$/, "/");
-            
+
             // add an assocs array for the document
             self.doc.assocs = [];
-            
+
             self.items = op(data, "CFItems");
             if (empty(self.items)) {
                 self.items = [];
@@ -152,13 +241,13 @@ function apxDocument(initializer) {
                     self.assocGroupIdHash[self.assocGroups[i].id] = self.assocGroups[i];
                 }
             }
-            
+
             // if we didn't get a "condensed" file (via the doctree's export function)...
             if (data.condensed != true) {
                 // then convert package data for items and assocs
                 self.convertPackageData();
             }
-            
+
             // process items
             // create hashes so we can reference items via their id's or identifiers
             self.itemHash = {};
@@ -171,7 +260,7 @@ function apxDocument(initializer) {
 
             // add the document to the itemHash; this makes some other things more convenient
             self.itemHash[self.doc.identifier] = self.doc;
-            
+
             // process associations
             // create hashes for assocs too, and tie assocs to their items
             self.assocHash = {};
@@ -183,13 +272,13 @@ function apxDocument(initializer) {
                 if (!empty(a.id)) {
                     self.assocIdHash[a.id] = a;
                 }
-                
+
                 // tie assoc to item
                 if (!empty(a.origin.item)) {
                     // if we already know about this item, add it to the item's assocs array
                     if (!empty(self.itemHash[a.origin.item])) {
                         self.itemHash[a.origin.item].assocs.push(a);
-                    
+
                     // else...
                     } else {
                         // create an "assocsOnly" item to hold the assoc, so we can easily look it up later
@@ -206,7 +295,7 @@ function apxDocument(initializer) {
                 // Construct inverse (e.g. "isParentOf") associations
                 self.addInverseAssociation(a);
             }
-            
+
             // when doc first loads, doc is selected
             self.setCurrentItem({"identifier": self.doc.identifier});
 
@@ -214,7 +303,7 @@ function apxDocument(initializer) {
             if (!empty(self.initializer.url)) {
                 apx.addDocToMenus(self.doc.identifier, self.initializer.url, self.doc.title);
             }
-            
+
             // if this isn't mainDoc,
             if (self != apx.mainDoc) {
                 // check to see if this doc is a reference (origin or dest) for any of mainDoc's
@@ -224,7 +313,7 @@ function apxDocument(initializer) {
             if (!empty(callbackFn)) {
                 callbackFn();
             }
-            
+
             // if we're showing the association view, refresh it now, in case we just finished loading a document referred to in an association
             if (apx.viewMode.currentView == "assoc") {
                 apx.viewMode.showAssocView("refresh");
@@ -234,23 +323,22 @@ function apxDocument(initializer) {
             self.loadError();
         });
     }
-    
+
     self.loadError = function(data) {
-        alert("Error loading document.");
         console.log("error loading document", self.initializer);
         if (!empty(data)) {
             console.log("data returned:", data);
         }
-    
+
         // if the document was initialized via an identifier, note that we got an error loading the doc
         // TODO: we need to be able to keep track of documents opened via urls here too...
         if (!empty(self.initializer.identifier)) {
             apx.allDocs[self.initializer.identifier] = "loaderror";
         }
-        
+
         apx.spinner.hideModal();
     };
-    
+
     /** Convert a original package file from the standard CASE format into the condensed format we work with in the OpenSALT code */
     self.convertPackageData = function() {
         function changeKey(item, oldKey, newKey) {
@@ -259,7 +347,7 @@ function apxDocument(initializer) {
                 delete item[oldKey];
             }
         }
-        
+
         // TODO: we may need to do some converting for assocGroups
         // if we have any assocGroups where we don't have an id, create an arbitrary id to use in the client
         // use negative id's (?)
@@ -272,7 +360,7 @@ function apxDocument(initializer) {
                 self.assocGroupIdHash[ag.id] = ag;
             }
         }
-        
+
         // items: some field names are abbreviated
         for (var i = 0; i < self.items.length; ++i) {
             var item = self.items[i];
@@ -290,29 +378,29 @@ function apxDocument(initializer) {
             // things that remain the same: identifier, notes
             // the condensed format will also include an id field
         }
-        
+
         // CFAssociations: define a function for converting origin and dest data
         function assocTarget(assoc, oldKey, newKey) {
             // we don't know the document
             assoc[newKey] = {"doc": "?"};
-            
+
             // put the "identifier" in "item"
             if (!empty(assoc[oldKey].identifier)) {
                 assoc[newKey].item = assoc[oldKey].identifier;
             }
-            
+
             // add the title if we got it (we should)
             if (!empty(assoc[oldKey].title)) {
                 assoc[newKey].title = assoc[oldKey].title;
             }
-            
+
             delete assoc[oldKey];
         }
-        
+
         // then go through each association
         for (var i = 0; i < self.assocs.length; ++i) {
             var assoc = self.assocs[i];
-            
+
             // if we get a CFAssociationGroupingURI, that should have a "title" and "identifier" for the group
             if (!empty(assoc.CFAssociationGroupingURI)) {
                 var ag;
@@ -320,7 +408,7 @@ function apxDocument(initializer) {
                 // if we at least have an identifier...
                 if (!empty(ago) && typeof(ago) == "object" && !empty(ago.identifier)) {
                     ag = self.assocGroupHash[ago.identifier];
-                    
+
                     // if the group didn't already exist, create it now
                     if (empty(ag)) {
                         ag = {
@@ -328,27 +416,27 @@ function apxDocument(initializer) {
                             "id": ago.id,
                             "title": ago.title
                         };
-                        
+
                         // get a new id if necessary
                         if (empty(ag.id)) {
                             --lastNewId;
                             ag.id = lastNewId;
                         }
-                        
+
                         // generate a title if necessary
                         if (empty(ag.title)) {
                             ag.title = "Association Group " + (ag.id*1);
                         }
-                        
+
                         self.assocGroups.push(ag);
                         self.assocGroupHash[ag.identifier] = ag;
                         self.assocGroupIdHash[ag.id] = ag;
                     }
-                    
+
                     // now record the id as assoc.groupId
                     assoc.groupId = ag.id;
                 }
-                
+
                 delete assoc.CFAssociationGroupingURI;
             }
             changeKey(assoc, "associationType", "type");
@@ -356,13 +444,13 @@ function apxDocument(initializer) {
             changeKey(assoc, "lastChangeDateTime", "mod");
             assocTarget(assoc, "originNodeURI", "origin");
             assocTarget(assoc, "destinationNodeURI", "dest");
-            
+
             // things that remain the same: identifier
             // the condensed format will also include an id field
             // TODO: it would be good to put the sequenceNumber field in OpenSALT exports
         }
     };
-    
+
     /** Find, and try to load, any docs referenced by associations in this doc */
     self.findAssociatedDocs = function() {
         for (var i = 0; i < self.assocs.length; ++i) {
@@ -377,7 +465,7 @@ function apxDocument(initializer) {
             }
         }
     };
-    
+
     /** If the mainDoc has any associations that reference items in this doc, update the assoc items */
     self.updateMainDocAssocs = function() {
         for (var i = 0; i < apx.mainDoc.assocs.length; ++i) {
@@ -390,7 +478,7 @@ function apxDocument(initializer) {
             }
         }
     };
-    
+
     /** Create a fancytree data structure for the given assocGroup **/
     self.createTree = function(assocGroup, treeSide) {
         // Go through all items
@@ -400,7 +488,7 @@ function apxDocument(initializer) {
                 self.items[i].ftNodeData = null;
             }
         }
-        
+
         // start with the document
         var t = {
             "title": self.doc.title,
@@ -413,15 +501,15 @@ function apxDocument(initializer) {
             "unselectable": true,   // tree should not be selectable
             "ref":self.doc
         };
-        
+
         /** Function to get the appropriate title for a tree item */
         function treeItemTitle(item) {
             // start with the standard title for the item
             var title = self.getItemTitle(item);
-            
+
             // if we're in chooser mode...
             if (apx.query.mode == "chooser") {
-                title = apx.chooserMode.treeItemButtons() + title;
+                // don't include the link indicator
 
             } else {
                 // if the item has an association other than isChildOf *in apx.mainDoc*, show an indicator to that effect
@@ -436,11 +524,11 @@ function apxDocument(initializer) {
                         }
                     }
                 }
-    
+
                 // if we don't show it now, it's there in case we add an association later
                 title = '<div class="treeHasAssociation" style="display:' + associationDisplay + '"><img src="/assets/img/association-icon.png" title="This item is the origin for one or more associations."></div>' + title;
             }
-                
+
             return title;
         }
 
@@ -450,7 +538,7 @@ function apxDocument(initializer) {
             for (var i = 0; i < self.assocs.length; ++i) {
                 var a = self.assocs[i];
                 // note that a.origin.item and a.dest.item will be identifiers (guids)
-                
+
                 // if we find a child of the parent that matches the assocGroup
                 // if the association is in the "default group", a.groupId will be undefined; we want to use == so that it matches null
                 if (a.type == "isChildOf" && a.inverse !== true && a.dest.item == parent.key && a.groupId == assocGroup) {
@@ -467,13 +555,13 @@ function apxDocument(initializer) {
                             "doc": self
                         }
                     };
-                    
+
                     // look for the child in itemHash (we should always find it)
                     var childItem = self.itemHash[a.origin.item];
                     if (!empty(childItem)) {
                         // set the title
                         child.title = treeItemTitle(childItem)
-                        
+
                         // and add the item's reference
                         child.ref = childItem;
 
@@ -482,18 +570,18 @@ function apxDocument(initializer) {
                             childItem.ftNodeData = child;
                         }
                     }
-                    
+
                     // push child onto children array
                     parent.children.push(child);
-                    
+
                     // recurse to find this child's children
                     findChildren(child);
-                    
+
                     // if the child has children...
                     if (child.children.length > 0) {
                         // make the child node a folder in fancytree
                         child.folder = true;
-                        
+
                         // expand the folder if it's the currentItem, or if it was expanded previously
                         child.expanded = (childItem == self.currentItem || op(self.expandedFolders[treeSide], assocGroup, child.key) === true);
                     }
@@ -511,7 +599,7 @@ function apxDocument(initializer) {
                 if (seqA != seqB) {
                     return seqA - seqB;
                 }
-                
+
                 // else try to sort by the item's listEnumeration field
                 var leA = 100000;
                 var leB = 100000;
@@ -521,35 +609,39 @@ function apxDocument(initializer) {
                 if (!empty(b.ref) && !empty(b.ref.le)) {
                     leB = b.ref.le*1;
                 }
+
+                if (isNaN(leA)) leA = 100000;
+                if (isNaN(leB)) leB = 100000;
+
                 if (leA != leB) {
                     return leA - leB;
                 }
-                
+
                 // else try to sort by the item's human coding scheme
-                
+
                 var hcsA = op(a, "ref", "hcs");
                 var hcsB = op(b, "ref", "hcs");
-                
+
                 if (empty(hcsA) && empty(hcsB)) return 0;
                 if (empty(hcsB)) return -1;
                 if (empty(hcsA)) return 1;
-                if (hcsA < hcsB) return -1;
-                if (hcsB < hcsA) return 1;
-                
-                return 0;
+
+                var lang = (document.documentElement.lang != "") ? document.documentElement.lang : undefined;
+
+                return hcsA.localeCompare(hcsB, lang, { numeric: true, sensitivity: 'base' });
             });
         }
-        
+
         // find the document's children (and its children's children, and so on)
         findChildren(t);
-        
+
         // If we're showing the default association group look for any orphaned items
         if (empty(assocGroup)) {
             // flag all items as "orphaned"; we'll clear these flags below
             for (var i = 0; i < self.items.length; ++i) {
                 self.items[i].orphaned = true;
             }
-            
+
             // now go through all associations and clear orphaned flag for non-orphaned items
             for (var i = 0; i < self.assocs.length; ++i) {
                 var a = self.assocs[i];
@@ -566,9 +658,9 @@ function apxDocument(initializer) {
                         }
                     }
                 }
-                
+
             }
-            
+
             // go back through the items and find the orphans
             var orphans = [];
             for (var i = 0; i < self.items.length; ++i) {
@@ -577,11 +669,11 @@ function apxDocument(initializer) {
                     orphans.push(item);
                 }
             }
-            
+
             // if we found any, push them onto the tree
             if (orphans.length > 0) {
                 var orphanParent = {
-                    "title": "– Orphaned Items –",
+                    "title": "*Orphaned Items*",
                     "key": "orphans",
                     "children": [],
                     "folder": true,
@@ -589,6 +681,7 @@ function apxDocument(initializer) {
                     "ref": {
                         "nodeType": "item",
                         "item": "orphanParent",
+                        "title": "*Orphaned Items*",
                         "doc": self
                     }
                 };
@@ -610,11 +703,11 @@ function apxDocument(initializer) {
                 t.children.push(orphanParent);
             }
         }
-                
+
         // for fancytree we need an array with the single document item
         return [t];
     };
-    
+
     /** Record folders currently expanded in this document's tree, for each side and each assocGroup */
     self.expandedFolders = {1: {}, 2: {}};
     self.recordExpandedFolders = function(side) {
@@ -637,12 +730,12 @@ function apxDocument(initializer) {
         }
         findExpandedFolders(self.getFt(side).getNodeByKey(self.doc.identifier));
     };
-    
+
     /** Determine if this document was loaded from a url (as opposed to loaded via an id) */
     self.loadedFromUrl = function() {
         return !empty(self.initializer.url);
     };
-    
+
     /** Determine if this is an "external" doc -- loaded from a different server */
     self.isExternalDoc = function() {
         // it's an external doc if it's in the apx.mainDoc.associatedDocs array and its url doesn't start with "local"
@@ -652,21 +745,21 @@ function apxDocument(initializer) {
             return false;
         }
     };
-    
+
     // Not sure if we need this; plan is to always use the identifier (guid) as the key...
     self.getDocKey = function() {
         if (empty(self.doc)) return null;
         // use the document guid (identifier) as the key for the document
         return self.doc.identifier;
     };
-    
+
     /** Retrieve an array of associations for the item, optionally checking only associations of type assocType and/or only group assocGroup */
     self.getAssocsForItem = function(item, assocType, assocGroup, inverse) {
         // if the assoc isn't inversed, a.inverse will === undefined; so if we got a "inverse" parameter of false or null, change it to undefined
         if (inverse === false || inverse === null) {
             inverse = undefined;
         }
-        
+
         var assocs = [];
         for (var i = 0; i < item.assocs.length; ++i) {
             var a = item.assocs[i];
@@ -678,7 +771,7 @@ function apxDocument(initializer) {
         }
         return assocs;
     }
-    
+
     /** Retrieve the association groups for the item, optionally checking only associations of type assocType */
     self.getAssocGroupsForItem = function(item, assocType) {
         var assocGroups = [];
@@ -697,49 +790,78 @@ function apxDocument(initializer) {
         }
         return assocGroups;
     }
-    
+
     /** get the fancyTree object for this document on the given side */
     self.getFt = function(side) {
         return self["ft" + side].fancytree("getTree");
     }
-    
+
     /** get the fancyTree node for an item on the given side */
     self.getFtNode = function(item, side) {
         return self.getFt(side).getNodeByKey(item.identifier);
     }
-    
+
     self.getItemUri = function(item) {
         if (empty(self.doc.uriBase) || empty(item) || empty(item.identifier)) {
             return "?";
         } else {
             return self.doc.uriBase + item.identifier;
         }
-    }
+    };
 
-    self.getItemTitle = function(item, requireFullStatement) {
-        // for the document, use title
-        if (item == self.doc) {
-            title = item.title;
-        
-        // else it's an item
-        } else {
-            // by default we'll use the fullStatement, which is a required field for CF items
-            var title = item.fstmt;
+    self.getItemTitleBlock = function(item, requireFullStatement) {
+        var title = self.getItemStatement(item, requireFullStatement);
 
-            // use abbreviatedStatement if we have one and requireFullStatement isn't true
-            if (!empty(item.astmt) && requireFullStatement != true) {
-                title = item.astmt;
-            }
-    
+        title = render.block(title);
+
+        if (item !== self.doc) {
             // add humanCodingScheme to the start if we have one
             if (!empty(item.hcs)) {
-                title = '<span class="item-humanCodingScheme">' + item.hcs + '</span> ' + title;
+                title = '<span class="item-humanCodingScheme">' + render.escaped(item.hcs) + '</span> ' + title;
             }
         }
-            
+
         return title;
     };
-    
+
+    self.getItemTitle = function(item, requireFullStatement) {
+        var title = self.getItemStatement(item, requireFullStatement);
+
+        title = render.inline(title);
+
+        if (item !== self.doc) {
+            // add humanCodingScheme to the start if we have one
+            if (!empty(item.hcs)) {
+                title = '<span class="item-humanCodingScheme">' + render.escaped(item.hcs) + '</span> ' + title;
+            }
+        }
+
+        return title;
+    };
+
+    self.getItemStatement = function(item, requireFullStatement) {
+        var title = '';
+
+        if (item === self.doc && !empty(item.title)) {
+            // for the document, use title
+            title = item.title;
+        } else if (!empty(item.fstmt)) {
+            // else it's an item
+            // by default we'll use the fullStatement, which is a required field for CF items
+            title = item.fstmt;
+
+            // use abbreviatedStatement if we have one and requireFullStatement isn't true
+            if (!empty(item.astmt) && requireFullStatement !== true) {
+                title = item.astmt;
+            }
+        } else if (!empty(item.item) && 'orphanParent' === item.item) {
+            // else it's an orphan
+            title = '*Orphaned Items*';
+        }
+
+        return title;
+    };
+
     self.getAssociationTypePretty = function(a) {
         var s = a.type[0].toUpperCase() + a.type.substr(1).replace(/([A-Z])/g, " $1");
         if (a.inverse == true) {
@@ -758,11 +880,11 @@ function apxDocument(initializer) {
         }
         return s;
     };
-    
+
     self.getAssociationTypeCondensed = function(a) {
         return a.type[0].toLowerCase() + a.type.substr(1).replace(/ /g, "");    // convert type to camel case
     };
-    
+
     /** render the association group menu for this document */
     self.$assocGroupMenu = null;
     self.$assocGroupMenu2 = null;
@@ -770,30 +892,30 @@ function apxDocument(initializer) {
         if (empty(side)) {
             side = 1;
         }
-        
+
         // record the menu for this document/side, so that we can set the menu properly in setCurrentAssocGroup
         if (side == 1) {
             self.$assocGroupMenu = $menu;
         } else {
             self.$assocGroupMenu2 = $menu;
         }
-        
+
         // clear options out of the menu
         $menu.html('');
-        
+
         // if we have any groups, build and show the menu
         if (self.assocGroups.length > 0) {
             // default group
             $menu.append('<option value="default">– Default Group –</option>');
-            
+
             // other groups
             for (var i = 0; i < self.assocGroups.length; ++i) {
                 $menu.append('<option value="' + self.assocGroups[i].id + '">' + self.assocGroups[i].title + '</option>');
             }
-            
+
             // show the menu
             $menu.closest(".assocGroupFilter").show();
-            
+
             // and select the current group
             if (side == 1) {
                 if (self.currentAssocGroup == null) {
@@ -808,7 +930,7 @@ function apxDocument(initializer) {
                     $menu.val(self.currentAssocGroup2 + "");
                 }
             }
-        
+
         // otherwise hide the menu
         } else {
             $menu.closest(".assocGroupFilter").hide();
@@ -824,21 +946,21 @@ function apxDocument(initializer) {
         } else {
             self.setCurrentAssocGroup(val*1, side);
         }
-        
+
         // render the fancytree on the appropriate side
         self["ftRender" + side]();
-        
+
         // if this is the left side...
         if (side == 1) {
             // select the document
             apx.treeDoc1.setCurrentItem({"item": self.doc});
-        
+
             // activate the item
             apx.treeDoc1.activateCurrentItem();
 
             // we also have to call showCurrentItem, because if the current item is the document it's already active
             apx.treeDoc1.showCurrentItem();
-        
+
             // push history state
             apx.pushHistoryState();
         }
@@ -846,7 +968,7 @@ function apxDocument(initializer) {
 
     // UTILITIES FOR FANCYTREE ELEMENTS (LEFT OR RIGHT SIDE)
     // to get an item from a node (getItemFromNode), just use node.data.ref;
-    
+
     self.isDocNode = function(node) {
         return (op(node, "data", "ref", "nodeType") == "document");
     }
@@ -857,12 +979,12 @@ function apxDocument(initializer) {
 
         var content;
         if (self.isDocNode(node)) {
-            content = "Document: " + node.title;
+            content = "Document: " + render.block(node.title);
         } else {
             if (empty(node.data.ref)) {
-                content = "Item: " + node.title;    // this shouldn't happen
+                content = "Item: " + render.block(node.title);    // this shouldn't happen
             } else {
-                content = self.getItemTitle(node.data.ref, true);
+                content = self.getItemTitleBlock(node.data.ref, true);
             }
         }
 
@@ -871,25 +993,25 @@ function apxDocument(initializer) {
             // "content": content,  // this is for popover
             "title": content,   // this is for tooltip
             "delay": { "show": 200, "hide": 100 },
-            "placement": "bottom",
+            "placement": "top",
             "html": true,
             "container": "body"
             // "trigger": "hover"   // this is for popover
         });
     };
-    
+
     self.addAssociation = function(atts) {
         var assoc = {
             "id": atts.id,
             "type": atts.type,
             "inverse": atts.inverse
         };
-        
+
         if (empty(atts.assocDoc)) {
             atts.assocDoc = self.doc.identifier;
         }
         assoc.assocDoc = atts.assocDoc;
-        
+
         if (!empty(atts.identifier)) {
             assoc.identifier = atts.identifier; // this isn't really needed
         }
@@ -897,12 +1019,12 @@ function apxDocument(initializer) {
         if (!empty(atts.seq)) {
             assoc.seq = atts.seq;
         }
-        
+
         if (!empty(atts.groupId)) {
             // note that if groupId is null (meaning default group), we don't store it; this is on purpose
             assoc.groupId = atts.groupId;
         }
-        
+
         // if we got origin and/or dest already pre-formatted, just store them
         if (!empty(atts.origin)) {
             assoc.origin = atts.origin;
@@ -910,7 +1032,7 @@ function apxDocument(initializer) {
         if (!empty(atts.dest)) {
             assoc.dest = atts.dest;
         }
-        
+
         // otherwise we should have got an originItem and/or destItem
         if (!empty(atts.originItem)) {
             assoc.origin = {
@@ -934,18 +1056,18 @@ function apxDocument(initializer) {
                 };
             }
         }
-        
+
         // push onto assocs array
         self.assocs.push(assoc);
-        
+
         // add to assocIdHash
         self.assocIdHash[assoc.id] = assoc;
-        
+
         // add to assocHash if we got an identifier
         if (!empty(assoc.identifier)) {
             self.assocHash[assoc.identifier] = assoc;
         }
-        
+
         // add to the origin's item record in this document, creating an "assocsOnly" record if necessary
         if (empty(self.itemHash[assoc.origin.item])) {
             self.itemHash[assoc.origin.item] = {
@@ -954,10 +1076,10 @@ function apxDocument(initializer) {
             }
         }
         self.itemHash[assoc.origin.item].assocs.push(assoc);
-        
+
         return assoc;
     };
-    
+
     self.addInverseAssociation = function(a) {
         if (a.type != "exemplar" && !empty(a.dest.item)) {
             var destItem = apx.allItemsHash[a.dest.item];
@@ -975,7 +1097,7 @@ function apxDocument(initializer) {
             }
         }
     };
-    
+
     self.deleteAssociation = function(assocId) {
         var assoc = self.assocIdHash[assocId];
         // if the assoc exists...
@@ -993,7 +1115,7 @@ function apxDocument(initializer) {
                     break;
                 }
             }
-            
+
             // and remove it from the originItem's assocs array
             var item = self.itemHash[assoc.origin.item];
             if (!empty(item)) {
@@ -1004,7 +1126,7 @@ function apxDocument(initializer) {
                     }
                 }
             }
-            
+
             // also try to remove its inverse association
             assocId += "";
             if (assocId.indexOf("-R") > -1) {
@@ -1014,12 +1136,12 @@ function apxDocument(initializer) {
             }
         }
     };
-    
+
     self.openAssociationItem = function(el, fromAssocView) {
         var assocId = $(el).attr("data-association-id");
         var assocIdentifier = $(el).attr("data-association-identifier");
         var assocItem = $(el).attr("data-association-item");
-        
+
         // try to find the assoc, in either mainDoc or treeDoc1
         var assoc;
         // look via the assocIdentifier
@@ -1044,7 +1166,7 @@ function apxDocument(initializer) {
                 window.open(assoc[assocItem].item);
                 // return false to signal that we opened in another window
                 return false;
-        
+
             // if the item is in the treeDoc1, redirect to the item
             } else if (assoc[assocItem].doc == apx.treeDoc1.doc.identifier) {
                 var destItem = apx.treeDoc1.itemHash[assoc[assocItem].item];
@@ -1060,7 +1182,7 @@ function apxDocument(initializer) {
                 }
                 // return true to signal that we did something in this window
                 return true;
-        
+
             // else try to open the item in a new window
             } else {
                 var doc = apx.allDocs[assoc[assocItem].doc];
@@ -1095,14 +1217,14 @@ function apxDocument(initializer) {
 
         // add assocs array for the item
         item.assocs = [];
-        
+
         // add to allItemsHash (if it's not already there -- it shouldn't be)
         if (empty(apx.allItemsHash[item.identifier])) {
             apx.allItemsHash[item.identifier] = item;
         } else {
             console.log("item already existed in allItemsHash", item);
         }
-        
+
         return item;
     };
 
@@ -1126,16 +1248,21 @@ function apxDocument(initializer) {
                 searchEntered = ($filter.val() != "");
             }
 
-            self.getFt(side).visit(function(node) {
-                // if the node isn't unselectable
-                if (node.unselectable != true) {
-                    // if either (we're not filtering) or (the node matches the filter) or (val is false),
-                    if (searchEntered == false || node.match == true || val == false) {
-                        // set selected to val
-                        node.setSelected(val);
+            // PW 10/11/2017: Only check the top-level items (issues #116 and #204)
+            var topChildren = self.getFt(side).rootNode.children[0].children;
+            if (!empty(topChildren)) {
+                for (var i = 0; i < topChildren.length; ++i) {
+                    var node = topChildren[i];
+                    // don't select unselectable nodes; also don't select the "Orphaned Items" node
+                    if (node.unselectable != true && node.key != "orphans") {
+                        // if either (we're not filtering) or (the node matches the filter) or (val is false),
+                        if (searchEntered == false || node.match == true || val == false) {
+                            // set selected to val
+                            node.setSelected(val);
+                        }
                     }
                 }
-            });
+            }
         }
     };
 
@@ -1217,7 +1344,7 @@ function apxDocument(initializer) {
         })();
 
         $treeside = self["ft" + side].closest(".treeSide");
-        
+
         $treeside.find(".treeFilter").off().on('keyup', function() {
             var $that = $(this);
             $tree = self.getFt(side);
@@ -1225,7 +1352,8 @@ function apxDocument(initializer) {
                 if ($that.val().trim().length > 0) {
                     $tree.filterNodes($that.val(), {
                         autoExpand: true,
-                        leavesOnly: false
+                        leavesOnly: false,
+                        highlight: false
                     });
                     console.log("Show filterClear");
                     $that.parent().find(".filterClear").show();
@@ -1253,19 +1381,19 @@ function apxDocument(initializer) {
     self.showCurrentItem = function() {
         // clear apx.unknownAssocsShowing
         apx.unknownAssocsShowing = {};
-    
+
         console.log("showCurrentItem");
         var item = self.currentItem;
         // console.log("showItem", item);
-    
+
         var $jq = $("#itemInfo");
 
         // if this is a document node...
         if (item.nodeType == "document") {
             // show title and appropriate icon
-            var title = item.title;
+            var title = render.block(item.title);
             if (!empty(item.version)) {
-                title = '<span style="float:right" class="lessImportant">Version ' + item.version + '</span>' + title;
+                title = '<span style="float:right" class="lessImportant">Version ' + render.escaped(item.version) + '</span>' + title;
             }
             $jq.find(".itemTitleSpan").html(title);
             $jq.find(".itemTitleIcon").attr("src", "/assets/img/doc.png");
@@ -1287,28 +1415,39 @@ function apxDocument(initializer) {
                 if (!empty(item[key])) {
                     val = item[key];
                     // TODO: check these exceptions
-                    if (key == 'creator' && !empty(item.publisher)) { 
-                        val += '<span class="lessImportant">Publisher: ' + item.publisher + '</span>';
-                    } else if (key == 'adoptionStatus') {
-                        if (!empty(item.statusStart)) { 
-                            val += '<span class="lessImportant">From: ' + item.statusStart + '</span>';
+                    if (key === 'creator' && !empty(item.publisher)) {
+                        val += '<span class="lessImportant">Publisher: ' + render.escaped(item.publisher) + '</span>';
+                    } else if (key === 'adoptionStatus') {
+                        if (!empty(item.statusStart)) {
+                            val += '<span class="lessImportant">From: ' + render.escaped(item.statusStart) + '</span>';
                         }
-                        if (!empty(item.statusEnd)) { 
-                            val += '<span class="lessImportant">Until: ' + item.statusEnd + '</span>';
+                        if (!empty(item.statusEnd)) {
+                            val += '<span class="lessImportant">Until: ' + render.escaped(item.statusEnd) + '</span>';
                         }
-                    } else if (key == 'subjects') {
+                    } else if (key === 'subjects') {
                         val = "";
                         for (var subject in val) {
-                            if (val != "") val += ", ";
-                            val += subject.title;
+                            if (val !== "") val += ", ";
+                            val += render.escaped(subject.title);
                         }
-                    } else if (key == 'officialSourceURL') {
-                        val = '<a href="' + val + '" target="_blank">' + val + '</a>';
-                    } else if (key == 'uri') {
-                        val = self.getItemUri(item);
-                        val = '<a href="' + val + '" target="_blank">' + val + '</a>';
+                    } else if (key === 'officialSourceURL') {
+                        val = render.inlineLinked(val);
+
+                        // add target=_blank
+                        var $val = $('<div>' + val + '</div>');
+                        $('a', $val).attr('target', '_blank');
+                        val = $val.html();
+                    } else if (key === 'uri') {
+                        val = render.inlineLinked(self.getItemUri(item));
+
+                        // add target=_blank
+                        var $val = $('<div>' + val + '</div>');
+                        $('a', $val).attr('target', '_blank');
+                        val = $val.html();
+                    } else {
+                        val = render.escaped(val);
                     }
-                
+
                     html += '<li class="list-group-item">'
                         + '<strong>' + attributes[key] + ':</strong> '
                         + val
@@ -1317,7 +1456,7 @@ function apxDocument(initializer) {
                 }
             }
             $jq.find("ul").html(html);
-        
+
             // kill any existing associations from the dom
             $(".lsItemAssociations").html("");
 
@@ -1348,44 +1487,57 @@ function apxDocument(initializer) {
                     }) {
                 if (!empty(item[key])) {
                     val = item[key];
-                    // TODO: deal with ck, el, itp
-                    html += '<li class="list-group-item">'
-                        + '<strong>' + attributes[key] + ':</strong> '
-                        + val
-                        + '</li>'
+                    if (key === 'fstmt' || key === 'notes') {
+                        html += '<li class="list-group-item markdown-body">'
+                            + '<strong>' + attributes[key] + ':</strong> '
+                            + render.block(val)
+                            + '</li>'
                         ;
+                    } else {
+                        // TODO: deal with ck, el, itp
+                        html += '<li class="list-group-item">'
+                            + '<strong>' + attributes[key] + ':</strong> '
+                            + render.escaped(val)
+                            + '</li>'
+                            ;
+                    }
                 }
             }
 
             for (key in attributes = {
-                        'uri': 'CASE Statement URL',
+                        'uri': 'CASE Item URI',
                         'le': 'List Enumeration in Source',
                         'cku': 'Concept Keywords URI',
                         'lang': 'Language',
                         'licenceUri': 'Licence URI',
                         'mod': 'Last Changed'
                     }) {
-                if (!empty(item[key]) || key == "uri") {
+                if (!empty(item[key]) || key === "uri") {
                     val = item[key];
-                
+
                     // TODO: deal with cku, licenceUri
                     // for uri, get it from the apxDocument
-                    if (key == "uri") {
+                    if (key === "uri") {
                         val = self.getItemUri(item);
-                        val = '<a href="' + val + '" target="_blank">' + val + '</a>';
-                    }
-                    html += '<li class="list-group-item lsItemDetailsExtras">'
-                        + '<strong>' + attributes[key] + ':</strong> '
-                        + val
-                        + '</li>'
+                        html += '<li class="list-group-item lsItemDetailsExtras">'
+                            + '<strong>' + attributes[key] + ':</strong> '
+                            + render.inlineLinked(val)
+                            + '</li>'
                         ;
+                    } else {
+                        html += '<li class="list-group-item lsItemDetailsExtras">'
+                            + '<strong>' + attributes[key] + ':</strong> '
+                            + render.escaped(val)
+                            + '</li>'
+                        ;
+                    }
                 }
             }
             $jq.find("ul").html(html);
-        
+
             /////////////////////////////////////
             // Show associations
-            
+
             // first create an array with a combination of the this item's associations from this document,
             // along with any associations with this item as the origin in mainDoc (if mainDoc != self)
             var assocs = [];
@@ -1400,7 +1552,7 @@ function apxDocument(initializer) {
                     }
                 }
             }
-            
+
             // now if we have any assocs go through them...
             var html = "";
             if (assocs.length > 0) {
@@ -1415,7 +1567,7 @@ function apxDocument(initializer) {
                     if (a.type > b.type) return 1;
                     return 0;   // shouldn't get to here
                 });
-            
+
                 // to simplify the list, we only use one association type header for each type
                 var lastType = "";
                 var lastInverse = -1;
@@ -1426,7 +1578,7 @@ function apxDocument(initializer) {
                         if (lastType != "") {
                             html += '</div></div></div></section>';
                         }
-                    
+
                         // open type section
                         var title = self.getAssociationTypePretty(a);
                         var icon = "";
@@ -1437,13 +1589,13 @@ function apxDocument(initializer) {
                             + '<div class="panel-heading">' + icon + title + '</div>'
                             + '<div class="panel-body"><div><div class="list-group">'
                             ;
-                            
+
                         lastType = a.type;
                         lastInverse = a.inverse;
                     }
-                
+
                     // now the associated item
-                    
+
                     // determine if the origin item is a member of the edited doc or an other doc
                     var originDoc = "edited";
                     var removeBtn = $("#associationRemoveBtn").html()   // remove association button (only for editors)
@@ -1452,7 +1604,7 @@ function apxDocument(initializer) {
                         // if it's another doc, no remove btn
                         removeBtn = "";
                     }
-                
+
                     // assocGroup if assigned -- either in self or mainDoc
                     if (!empty(a.groupId)) {
                         var groupName = "Group " + a.groupId;
@@ -1460,7 +1612,7 @@ function apxDocument(initializer) {
                             if (!empty(apx.mainDoc.assocGroupIdHash[a.groupId])) {
                                 groupName = self.assocGroupIdHash[a.groupId].title;
                             }
-                        
+
                         } else {
                             if (!empty(self.assocGroupIdHash[a.groupId])) {
                                 groupName = self.assocGroupIdHash[a.groupId].title;
@@ -1468,7 +1620,7 @@ function apxDocument(initializer) {
                         }
                         html += '<span class="label label-default">' + groupName + '</span>';
                     }
-                
+
                     html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
                         + removeBtn
                         + '<span class="itemDetailsAssociationTitle">'
@@ -1482,7 +1634,7 @@ function apxDocument(initializer) {
             }
             // End of code composing associations
             $(".lsItemAssociations").html(html);
-        
+
             // hide enable hidden fields if necessary and restore last more info link state
             if (!self.moreInfoShowing) {
                 $jq.find(".lsItemDetailsExtras").hide();
@@ -1491,33 +1643,33 @@ function apxDocument(initializer) {
 
             // make sure make folder and create new item buttons are set appropriately
             self.toggleItemCreationButtons();
-        
+
             // enable association links
             $jq.find("[data-association-identifier]").on('click', function(e) { apx.treeDoc1.openAssociationItem(this, false); });
-        
+
             // enable remove association button(s)
-            $jq.find(".btn-remove-association").on('click', function(e) { 
+            $jq.find(".btn-remove-association").on('click', function(e) {
                 e.preventDefault();
-            
+
                 // get the assocId from the association link
                 var $target = $(e.target);
                 var $item = $target.parents('.lsassociation');
                 var assocId = $item.attr('data-association-id');
-            
+
                 // call edit.deleteAssociation; on callback, re-show the current item
                 apx.edit.deleteAssociation(assocId, function() {
                     apx.treeDoc1.showCurrentItem();
                 });
                 return false;
             });
-                
+
             // hide documentOptions and show itemOptions and the more info link
             $("#documentOptions").hide();
             $("#itemOptions").show();
             $(".lsItemDetailsMoreInfoLink").show();
         }
     };
-    
+
     /** Compose the title for the destination of an association item in the item details view */
     self.associationDestItemTitle = function(a) {
         // set default title
@@ -1531,7 +1683,9 @@ function apxDocument(initializer) {
                 var data = uri.split(',', 2);
 
                 if (/;base64[;,]/.test(data[0])) {
-                    title = atob(data[1]);
+                    title = decodeURIComponent(atob(data[1]).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
                 } else {
                     title = decodeURIComponent(data[1]);
                 }
@@ -1545,30 +1699,30 @@ function apxDocument(initializer) {
         }
 
         var doc = null;
-    
+
         // if the assoc is an exemplar, title is always the uri
         if (a.type === "exemplar") {
             title = a.dest.uri;
-        
+
         // else see if the "item" is actually a document
         } else if (!empty(apx.allDocs[a.dest.item]) && typeof(apx.allDocs[a.dest.item]) !== "string") {
             title = "Document: " + apx.allDocs[a.dest.item].doc.title;
-        
-        // else if we know about this item via allItemsHash...    
+
+        // else if we know about this item via allItemsHash...
         } else if (!empty(apx.allItemsHash[a.dest.item])) {
             var destItem = apx.allItemsHash[a.dest.item];
             title = self.getItemTitle(destItem, true);
             doc = destItem.doc;
-        
+
         // else we don't (currently at least) know about this item...
         } else {
             // so add the association to apx.unknownAssocsShowing; if info about the item is loaded later, it'll get filled in
             apx.unknownAssocsShowing[a.id] = a;
-            
+
             if (a.dest.doc !== "?") {
                 // look for document in allDocs
                 doc = apx.allDocs[a.dest.doc];
-        
+
                 // if we tried to load this document and failed, note that
                 if (doc === "loaderror") {
                     title += " (document could not be loaded)";
@@ -1576,8 +1730,8 @@ function apxDocument(initializer) {
                 // else if we know we're still in the process of loading that doc, note that
                 } else if (doc === "loading") {
                     title += " (loading document...)";
-        
-                // else we have the doc -- this shouldn't normally happen, because if we know about the doc, 
+
+                // else we have the doc -- this shouldn't normally happen, because if we know about the doc,
                 // we should have found the item in apx.allItemsHash above
                 } else if (typeof(doc) === "object") {
                     title += " (item not found in document)";
@@ -1593,9 +1747,9 @@ function apxDocument(initializer) {
                 docTitle = docTitle.replace(/\w+$/, "");
                 docTitle += "…";
             }
-            title += ' <span class="label label-default">' + docTitle + '</span>';
+            title += ' <span class="label label-default">' + render.escaped(docTitle) + '</span>';
         }
-        
+
         return title;
     };
 
@@ -1604,7 +1758,7 @@ function apxDocument(initializer) {
         if (apx.treeDoc1 != apx.mainDoc) {
             return;
         }
-        
+
         var $jq = $("#itemInfo");
         var item = self.currentItem;
         // if item already has children
@@ -1643,21 +1797,21 @@ function apxDocument(initializer) {
             if (item.ftNodeData.children.length > 0) {
                 continue;
             }
-        
+
             if (val == "toggle") {
                 item.setToParent = !(item.setToParent == true);
             } else {
                 item.setToParent = val;
             }
             var ftNode = self.getFtNode(item, 1);
-            ftNode.folder = item.setToParent;        
+            ftNode.folder = item.setToParent;
             ftNode.render();
             if (item.setToParent == true) {
                 $(ftNode.li).find(".fancytree-icon").addClass("fancytree-force-folder");
             } else {
                 $(ftNode.li).find(".fancytree-icon").removeClass("fancytree-force-folder");
             }
-        
+
             // if this is the currentItem, update the icon
             if (item == self.currentItem) {
                 var src;

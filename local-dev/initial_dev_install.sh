@@ -29,12 +29,12 @@ docker-compose up -d
 cd ..
 
 # Do database migrations
-./bin/console-docker doctrine:migrations:migrate --no-interaction
+./bin/console doctrine:migrations:migrate --no-interaction
 
 # Make bundle assets available
-./bin/console-docker assets:install web --symlink --relative
+./bin/console assets:install web --symlink --relative
 
 # Add an initial super user
-./bin/console-docker salt:user:add admin Unknown --password=secret --role=super-user
+./bin/console salt:user:add admin Unknown --password=secret --role=super-user
 
 echo 'You should now be able to connect to http://127.0.0.1:3000'

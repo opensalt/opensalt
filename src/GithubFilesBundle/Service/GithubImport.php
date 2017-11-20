@@ -113,15 +113,26 @@ class GithubImport
         $lsItems = [];
         $humanCodingValues = [];
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
-            $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $content[$i]);
-            $lsItems[$i] = $lsItem;
-            if ($lsItem->getHumanCodingScheme()) {
-                $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
+            $lineContent = $content[$i];
+            if ($this->isValidItemContent($lineContent, $lsItemKeys)){
+                $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $lineContent, $em);
+            } else {
+                $lsItems[$i] = null;
+                continue;
+            }
+            if($lsItem !== null){
+                $lsItems[$i] = $lsItem;
+                if ($lsItem->getHumanCodingScheme()) {
+                    $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
+                }
             }
         }
 
+        if(count($lsItems) < 1){return;}
+
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lsItem = $lsItems[$i];
+            if (null === $lsItem || !array_key_exists('isChildOf', $lsItemKeys)) { continue; }
 
             if ($humanCoding = $lsItem->getHumanCodingScheme()) {
                 $parent = $content[$i][$lsItemKeys['isChildOf']];
@@ -151,20 +162,11 @@ class GithubImport
      */
     public function saveAssociations($position, $content, $lsItemKeys, LsItem $lsItem, LsDoc $lsDoc, $frameworkToAssociate)
     {
-        $fieldsAndTypes = [
-            'isPartOf' =>                     LsAssociation::PART_OF,
-            'exemplar' =>                     LsAssociation::EXEMPLAR,
-            'isPeerOf' =>                     LsAssociation::IS_PEER_OF,
-            'precedes' =>                     LsAssociation::PRECEDES,
-            'isRelatedTo' =>                  LsAssociation::RELATED_TO,
-            'replacedBy' =>                   LsAssociation::REPLACED_BY,
-            'hasSkillLevel' =>                LsAssociation::SKILL_LEVEL,
-            'cfAssociationGroupIdentifier' => LsAssociation::RELATED_TO
-        ];
+        $fieldsAndTypes = LsAssociation::allTypesForImportFromCSV();
         // We don't use is_child_of because that it alaready used to create parents relations before. :)
         // checking each association field
         foreach ($fieldsAndTypes as $fieldName => $assocType){
-            if (array_key_exists($fieldName, $lsItemKeys) && $cfAssociations = $content[$position][$lsItemKeys[$fieldName]]) {
+            if (array_key_exists($fieldName, $lsItemKeys) && $cfAssociations = $content[$position][trim($lsItemKeys[$fieldName])]) {
                 foreach (explode(',', $cfAssociations) as $cfAssociation) {
                     $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate, $assocType);
                 }
@@ -246,22 +248,55 @@ class GithubImport
      * @param array $lsItemKeys
      * @param array $data
      */
-    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data)
+    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data, $em)
     {
-        $lsItem = new LsItem();
-        $em = $this->getEntityManager();
+        if($em->getRepository('CftfBundle:LsItem')->findOneBy(array('identifier' => $data[$lsItemKeys['identifier']])) === null){
+            $lsItem = new LsItem();
+            $em = $this->getEntityManager();
+            $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
 
+            $lsItem = $this->assignValuesToItem($lsItem, $lsDoc, $lsItemKeys, $data, $itemAttributes);
+
+            $em->persist($lsItem);
+
+            return $lsItem;
+        }
+    }
+
+    /**
+     * It returns true|false is a line from content has the requried columns
+     *
+     * @param array   $lineContent
+     * @param array   $lsItemKeys
+     *
+     * @return        bool
+     */
+    private function isValidItemContent(array $lineContent, array $lsItemKeys): bool
+    {
+        return $lineContent[$lsItemKeys['fullStatement']] ?? false && $lineContent[$lsItemKeys['fullStatement']] !== '';
+    }
+
+    /**
+     * assign values relatd with the key to a Item
+     *
+     * @param LsItem  $lsItem
+     * @param array   $lsItemKeys
+     * @param array   $lineContent
+     * @param array   $keys
+     * @param LsDoc   $lsDoc
+     *
+     * @return        LsItem
+     */
+    private function assignValuesToItem(LsItem $lsItem, LsDoc $lsDoc, array $lsItemKeys, array $lineContent, array $keys): LsItem
+    {
         $lsItem->setLsDoc($lsDoc);
-        $lsItem->setIdentifier($data[$lsItemKeys['identifier']]);
-        $lsItem->setFullStatement($data[$lsItemKeys['fullStatement']]);
-        $lsItem->setHumanCodingScheme($data[$lsItemKeys['humanCodingScheme']]);
-        $lsItem->setAbbreviatedStatement($data[$lsItemKeys['abbreviatedStatement']]);
-        $lsItem->setConceptKeywords($data[$lsItemKeys['conceptKeywords']]);
-        $lsItem->setLanguage($data[$lsItemKeys['language']]);
-        $lsItem->setLicenceUri($data[$lsItemKeys['license']]);
-        $lsItem->setNotes($data[$lsItemKeys['notes']]);
-
-        $em->persist($lsItem);
+        $lsItem->setFullStatement($lineContent[$lsItemKeys['fullStatement']]);
+        if (array_key_exists($lsItemKeys['identifier'], $lineContent) && \Ramsey\Uuid\Uuid::isValid($lineContent[$lsItemKeys['identifier']])) {
+            $lsItem->setIdentifier($lineContent[$lsItemKeys['identifier']]);
+        }
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $lsItemKeys) && array_key_exists($lsItemKeys[$key], $lineContent)) $lsItem->{'license' === $key ? 'setLicenceUri' : 'set'.ucfirst($key)}($lineContent[$lsItemKeys[$key]]);
+        }
 
         return $lsItem;
     }

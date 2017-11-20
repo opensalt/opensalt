@@ -52,7 +52,7 @@ class ItemTypeTransformer implements DataTransformerInterface
      *
      * @return array
      */
-    public function transform($entity)
+    public function transform($entity): array
     {
         $data = array();
         if (empty($entity)) {

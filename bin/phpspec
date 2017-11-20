@@ -1,5 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#<?php /*
 
-cd $(dirname $0)/..
+if [ ! -f /.dockerenv ]; then
+  exec $(dirname $0)/phpcli ./vendor/bin/phpspec "$@"
+fi
 
-./bin/phpcli ./vendor/bin/phpspec "$@"
+exec php $(dirname $0)/../vendor/bin/phpspec "$@"
+
+*/
+require 'vendor/bin/phpspec';

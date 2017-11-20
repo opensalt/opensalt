@@ -16,9 +16,11 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
 {
     /**
      * Finds an object for the API by ['id'=>identifier, 'class'=>class]
+     *
      * @param array $id
      *
      * @return CaseApiInterface
+     *
      * @throws NotFoundHttpException
      */
     public function apiFindOneByClassIdentifier(array $id): CaseApiInterface
@@ -265,6 +267,14 @@ DELETE FROM ls_doc_subject
 xENDx;
         $conn->prepare($stmt)->execute($params);
 
+        $progressCallback('Deleting document import logs');
+        $stmt = <<<'xENDx'
+DELETE FROM import_logs
+ WHERE ls_doc_id = :lsDocId
+;
+xENDx;
+        $conn->prepare($stmt)->execute($params);
+
         $progressCallback('Deleting acls');
         $stmt = <<<'xENDx'
 DELETE FROM salt_user_doc_acl
@@ -290,6 +300,32 @@ xENDx;
         $conn->prepare($stmt)->execute($params);
 
         $progressCallback('Done');
+    }
+
+    /**
+     * @param LsDoc $oldDoc
+     */
+    public function makeDerivative(LsDoc $oldLsDoc): LsDoc
+    {
+        $em = $this->getEntityManager();
+        $newLsDoc = new LsDoc();
+        $newLsDoc->setTitle($oldLsDoc->getTitle().' - Derivated');
+        $newLsDoc->setCreator($oldLsDoc->getCreator());
+        $newLsDoc->setVersion($oldLsDoc->getVersion());
+        $newLsDoc->setDescription($oldLsDoc->getDescription());
+        $newLsDoc->setSubject($oldLsDoc->getSubject());
+        $newLsDoc->setNote($oldLsDoc->getNote());
+        $newLsDoc->setLanguage($oldLsDoc->getLanguage());
+        $newLsDoc->setOrg($oldLsDoc->getOrg());
+        $newLsDoc->setUser($oldLsDoc->getUser());
+        $newLsDoc->setOwnedBy($oldLsDoc->getOwnedBy());
+        foreach($oldLsDoc->getAssociationGroupings() as $assocGroup) {
+            $assocGroup->duplicateToLsDoc($newLsDoc);
+        }
+        $newLsDoc->setLicence($oldLsDoc->getLicence());
+
+        $em->flush();
+        return $newLsDoc;
     }
 
     /**
@@ -330,6 +366,36 @@ xENDx;
         $em->flush();
 
         $progressCallback('Done');
+    }
+
+    /**
+     * Get an array representing the entire CF package
+     *
+     * @param LsDoc $doc
+     *
+     * @return array
+     */
+    public function getPackageArray(LsDoc $doc): array
+    {
+        $pkg = [
+            'CFDocument' => $doc,
+            'CFItems' => array_values($this->findAllItems($doc, Query::HYDRATE_OBJECT)),
+            'CFAssociations' => array_values($this->findAllAssociations($doc, Query::HYDRATE_OBJECT)),
+            'CFDefinitions' => [
+                'CFConcepts' => $this->findAllUsedConcepts($doc, Query::HYDRATE_OBJECT),
+                'CFSubjects' => $doc->getSubjects(),
+                'CFLicenses' => $this->findAllUsedLicences($doc, Query::HYDRATE_OBJECT),
+                'CFItemTypes' => $this->findAllUsedItemTypes($doc, Query::HYDRATE_OBJECT),
+                'CFAssociationGroupings' => $this->findAllUsedAssociationGroups($doc, Query::HYDRATE_OBJECT),
+            ]
+        ];
+
+        $rubrics = $this->findAllUsedRubrics($doc, Query::HYDRATE_OBJECT);
+        if (0 < count($rubrics)) {
+            $pkg['CFRubrics'] = $rubrics;
+        }
+
+        return $pkg;
     }
 
     /**

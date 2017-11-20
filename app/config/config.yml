@@ -17,12 +17,25 @@ imports:
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: en
+    database_host: '%env(MYSQL_HOST)%'
+    database_port: '%env(MYSQL_PORT)%'
+    database_name: '%env(MYSQL_DATABASE)%'
+    database_user: '%env(MYSQL_USER)%'
+    database_password: '%env(MYSQL_PASSWORD)%'
+    mailer_transport: '%env(MAILER_TRANSPORT)%'
+    mailer_host: '%env(MAILER_HOST)%'
+    mailer_user: '%env(MAILER_USER)%'
+    mailer_password: '%env(MAILER_PASSWORD)%'
+    secret: '%env(SECRET)%'
+    cookie_secret: '%env(COOKIE_SECRET)%'
+    local_uri_host: '%env(LOCAL_URI_HOST)%'
     github_client_id: '%env(GITHUB_CLIENT_ID)%'
     github_client_secret: '%env(GITHUB_CLIENT_SECRET)%'
     brand_logo_url: '%env(BRAND_LOGO_URL)%'
     brand_logo_style: '%env(BRAND_LOGO_STYLE)%'
     brand_link_url: '%env(BRAND_LINK_URL)%'
     brand_link_style: '%env(BRAND_LINK_STYLE)%'
+    comments_feature: '%env(COMMENTS_FEATURE)%'
 
 framework:
     #esi:             ~
@@ -62,6 +75,9 @@ framework:
     #translator: { fallbacks: ['%locale%'] }
     assets:
         version: '170481'
+        packages:
+          encore:
+            json_manifest_path: '%kernel.project_dir%/web/build/manifest.json'
 
 # Twig Configuration
 twig:
@@ -127,11 +143,14 @@ doctrine:
                 user:     "%database_user%"
                 password: "%database_password%"
                 options:  "%pdo_options%"
-                charset:  UTF8
+                charset:  utf8mb4
                 schema_filter: ~^(?!(auth_session|cache_items|LearningStandards))~
                 server_version: 5.7
                 mapping_types:
                     json: string
+                default_table_options:
+                    charset: utf8mb4
+                    collate: utf8mb4_unicode_ci
         types:
             uuid: Ramsey\Uuid\Doctrine\UuidType
             uuid_binary: Ramsey\Uuid\Doctrine\UuidBinaryType
@@ -210,6 +229,7 @@ nelmio_security:
     #    algorithm: rijndael-256
     forced_ssl:
         enabled: false
+
     clickjacking:
         paths:
             '^/cftree/doc/': ALLOW
@@ -218,9 +238,53 @@ nelmio_security:
     external_redirects:
         whitelist:
             - google.com
+            
+    # Forces Microsoft/Chrome XSS-Protection with its block mode.
+    xss_protection:
+        enabled: true
+        mode_block: true
+
+nelmio_cors:
+    defaults:
+        allow_credentials: false
+        allow_origin: []
+        allow_headers: []
+        allow_methods: []
+        expose_headers: []
+        max_age: 0
+        hosts: []
+        origin_regex: false
+        forced_allow_origin_value: ~
+    paths:
+        '^/ims/case/v1p0/':
+            forced_allow_origin_value: '*'
+            allow_origin: ['*']
+            allow_headers:
+                - 'Accept-Encoding'
+                - 'If-Modified-Since'
+                #- 'If-None-Match'
+                - 'Content-Type'
+                - 'Content-Range'
+                - 'Content-Disposition'
+                - 'Content-Description'
+                - 'X-Requested-With'
+                #- '*'
+            allow_methods: ['GET']
+            expose_headers:
+                - 'X-Total-Count'
+                - 'X-OpenSALT'
+                #- '*'
+            max_age: 60
 
 al_swagger_ui:
     static_resources:
         resource_dir: "app/Resources/swagger-docs/"
         resource_list_filename: api-docs.json
     resource_list: al_swagger_ui_static_resource_list
+
+qandidate_toggle:
+    persistence: config
+    toggles:
+        comments:
+            name: comments
+            status: '%comments_feature%'

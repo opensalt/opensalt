@@ -7,7 +7,6 @@ use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Repository\CfDocQuery;
-use Doctrine\ORM\Query;
 use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -92,23 +91,7 @@ class Api1Controller extends Controller
             return $response;
         }
 
-        $pkg = [
-            'CFDocument' => $doc,
-            'CFItems' => array_values($repo->findAllItems($doc, Query::HYDRATE_OBJECT)),
-            'CFAssociations' => array_values($repo->findAllAssociations($doc, Query::HYDRATE_OBJECT)),
-            'CFDefinitions' => [
-                'CFConcepts' => $repo->findAllUsedConcepts($doc, Query::HYDRATE_OBJECT),
-                'CFSubjects' => $doc->getSubjects(),
-                'CFLicenses' => $repo->findAllUsedLicences($doc, Query::HYDRATE_OBJECT),
-                'CFItemTypes' => $repo->findAllUsedItemTypes($doc, Query::HYDRATE_OBJECT),
-                'CFAssociationGroupings' => $repo->findAllUsedAssociationGroups($doc, Query::HYDRATE_OBJECT),
-            ]
-        ];
-
-        $rubrics = $repo->findAllUsedRubrics($doc, Query::HYDRATE_OBJECT);
-        if (0 < count($rubrics)) {
-            $pkg['CFRubrics'] = $rubrics;
-        }
+        $pkg = $repo->getPackageArray($doc);
 
         $response->setContent($this->get('serializer')->serialize(
             $pkg,
@@ -226,38 +209,38 @@ class Api1Controller extends Controller
         return $response;
     }
 
-  /**
-   * Generate a response for a single object
-   *
-   * @param Request $request
-   * @param CaseApiInterface $obj
-   *
-   * @return Response
-   */
-  protected function generateObjectResponse(Request $request, CaseApiInterface $obj): Response
-  {
-      $this->get('logger')->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
+    /**
+     * Generate a response for a single object
+     *
+     * @param Request $request
+     * @param CaseApiInterface $obj
+     *
+     * @return Response
+     */
+    protected function generateObjectResponse(Request $request, CaseApiInterface $obj): Response
+    {
+        $this->get('logger')->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
 
-      $response = $this->generateBaseReponse($obj->getUpdatedAt());
+        $response = $this->generateBaseReponse($obj->getUpdatedAt());
 
-      if ($response->isNotModified($request)) {
-          return $response;
-      }
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
 
-      $serializer = $this->get('serializer');
-      $result = $serializer->serialize(
-          $obj,
-          $request->getRequestFormat('json'),
-          SerializationContext::create()->setGroups([
-              'Default',
-              preg_replace('/.*\\\\/', '', get_class($obj)),
-          ])
-      );
+        $serializer = $this->get('serializer');
+        $result = $serializer->serialize(
+            $obj,
+            $request->getRequestFormat('json'),
+            SerializationContext::create()->setGroups([
+                'Default',
+                preg_replace('/.*\\\\/', '', get_class($obj)),
+            ])
+        );
 
-      $response->setContent($result);
+        $response->setContent($result);
 
-      return $response;
-  }
+        return $response;
+    }
 
     /**
      * Generate a response for a collection of objects

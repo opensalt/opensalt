@@ -1,0 +1,42 @@
+version: '2.1'
+services:
+  phpfpm:
+    image: opensalt/php:7.1-fpm
+    depends_on:
+      - db
+    environment:
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_HOST: "${MYSQL_HOST:-db}"
+      GITHUB_CLIENT_ID:
+      GITHUB_CLIENT_SECRET:
+      DB_USE_RDS_CERT:
+      BRAND_LOGO_URL:
+      BRAND_LOGO_STYLE:
+      BRAND_LINK_URL:
+      BRAND_LINK_STYLE:
+    volumes:
+      - &project_root "${PROJ_DIR:-..}:/var/www/html"
+    working_dir: /var/www/html
+
+  nginx:
+    image: opensalt/nginx:1.13-alpine
+    depends_on:
+      - phpfpm
+    environment:
+      UPSTREAM_HOST: phpfpm:9000
+    volumes:
+      - *project_root
+    working_dir: /var/www/html
+
+  db:
+    image: percona:${MYSQL_VERSION}
+    volumes:
+      - "${PROJ_DIR:-..}/docker/mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro"
+      - "${PROJ_DIR:-..}/docker/mysql/charset.cnf:/etc/mysql/conf.d/charset.cnf:ro"
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:

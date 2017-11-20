@@ -1,0 +1,7 @@
+# `chrome` environment config goes here
+modules:
+    config:
+        WebDriver:
+            browser: chrome
+            host: chrome
+            port: 4444

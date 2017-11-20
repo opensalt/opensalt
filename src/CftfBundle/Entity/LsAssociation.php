@@ -88,7 +88,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     public const INVERSE_RELATED_TO = 'Related From';
     public const INVERSE_PART_OF = 'Has Part';
     public const INVERSE_REPLACED_BY = 'Replaces';
-    public const INVERSE_PRECEDES = 'Has Predecesor';
+    public const INVERSE_PRECEDES = 'Has Predecessor';
     public const INVERSE_SKILL_LEVEL = 'Skill Level For';
     public const INVERSE_IS_PEER_OF = 'Is Peer Of';
 
@@ -275,6 +275,23 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     public function __toString(): string
     {
         return $this->getUri();
+    }
+
+    /**
+     * Get all types collectted by camel case.
+     *
+     * @return array
+     */
+    public static function allTypesForImportFromCSV(){
+        return [
+            'isPartOf' =>                     static::PART_OF,
+            'exemplar' =>                     static::EXEMPLAR,
+            'isPeerOf' =>                     static::IS_PEER_OF,
+            'precedes' =>                     static::PRECEDES,
+            'isRelatedTo' =>                  static::RELATED_TO,
+            'replacedBy' =>                   static::REPLACED_BY,
+            'hasSkillLevel' =>                static::SKILL_LEVEL,
+        ];
     }
 
     /**

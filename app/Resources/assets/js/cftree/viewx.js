@@ -13,7 +13,7 @@ window.apx = window.apx||{};
  */
 function empty(val) {
     // note that we need === because (0 == "") evaluates to true
-    return (undefined == val || null === val || "" === val);
+    return ('undefined' === typeof(val) || null === val || "" === val);
 }
 
 /** Get the value of an object property,
@@ -265,14 +265,16 @@ window.onpopstate = function(event) {
     // else show the relevant item
     } else {
         apx.viewMode.showTreeView("history");
-        // restore assocGroup if necessary
-        if (assocGroup != apx.treeDoc1.currentAssocGroup) {
-            apx.treeDoc1.setCurrentAssocGroup(assocGroup);
-            apx.treeDoc1.ftRender();
+        if ('undefined' !== typeof apx.treeDoc1) {
+            // restore assocGroup if necessary
+            if (assocGroup != apx.treeDoc1.currentAssocGroup) {
+                apx.treeDoc1.setCurrentAssocGroup(assocGroup);
+                apx.treeDoc1.ftRender();
+            }
+            // set and activate the current item
+            apx.treeDoc1.setCurrentItem({"lsItemId": lsItemId});
+            apx.treeDoc1.activateCurrentItem();
         }
-        // set and activate the current item
-        apx.treeDoc1.setCurrentItem({"lsItemId": lsItemId});
-        apx.treeDoc1.activateCurrentItem();
     }
 };
 

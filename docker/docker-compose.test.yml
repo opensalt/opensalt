@@ -8,10 +8,6 @@ services:
     depends_on:
       - db
     environment:
-      SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
-      SYMFONY__MYSQL__USER: "${MYSQL_USER}"
-      SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
@@ -28,7 +24,7 @@ services:
     working_dir: /var/www/html
 
   nginx:
-    image: opensalt/nginx:1.11-alpine
+    image: opensalt/nginx:1.13-alpine
     depends_on:
       - phpfpm
     environment:
@@ -39,10 +35,11 @@ services:
 
   db:
     image: percona:${MYSQL_VERSION}
+    volumes:
+      - "${PROJ_DIR:-..}/docker/mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro"
+      - "${PROJ_DIR:-..}/docker/mysql/charset.cnf:/etc/mysql/conf.d/charset.cnf:ro"
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
-    volumes:
-      - ./mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf

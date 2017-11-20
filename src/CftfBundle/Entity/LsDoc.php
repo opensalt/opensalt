@@ -371,6 +371,8 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
         $this->inverseAssociations = new ArrayCollection();
         $this->attributes = new ArrayCollection();
         $this->subjects = new ArrayCollection();
+        $this->docAcls = new ArrayCollection();
+        $this->importLogs = new ArrayCollection();
     }
 
     /**
@@ -415,6 +417,25 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
             static::ADOPTION_STATUS_PRIVATE_DRAFT,
             static::ADOPTION_STATUS_DRAFT,
         ];
+    }
+
+    public function isDraft(): bool
+    {
+        if (null === $this->adoptionStatus || '' === $this->adoptionStatus) {
+            return true;
+        }
+
+        return in_array($this->adoptionStatus, static::getEditableStatuses(), true);
+    }
+
+    public function isAdopted(): bool
+    {
+        return $this->adoptionStatus === static::ADOPTION_STATUS_ADOPTED;
+    }
+
+    public function isDeprecated(): bool
+    {
+        return $this->adoptionStatus === static::ADOPTION_STATUS_DEPRECATED;
     }
 
     /**
@@ -1241,15 +1262,16 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
     /**
      * @return Collection|UserDocAcl[]
      */
-    public function getDocAcls()
+    public function getDocAcls(): iterable
     {
         return $this->docAcls;
     }
 
     /**
-     * @return Collection|ImportLogs[]
+     * @return Collection|ImportLog[]
      */
-    public function getImportLogs() {
+    public function getImportLogs(): iterable
+    {
         return $this->importLogs;
     }
 

@@ -10,6 +10,7 @@
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="#asn" data-toggle="tab">Import from ASN</a></li>
                             <li><a href="#case" data-toggle="tab">Import CASE file</a></li>
+                            <li><a href="#excel" data-toggle="tab">Import Spreadsheet file</a></li>
                         </ul>
                         <br>
                         <div class="tab-content">
@@ -17,13 +18,19 @@
                                 <input id="asn-url" placeholder="ASN url" type="text" class="form-control">
                                 <br/>
                                 <div class="alert alert-danger asn-error-msg hidden" role="alert"></div>
-                                <button type="button" class="btn btn-primary import-framework">Import Framework</button>
+                                <button type="button" class="btn btn-primary btn-import-framework btn-import-asn">Import Framework</button>
                             </div>
                             <div class="tab-pane fade" id="case">
                                 <input id="file-url" type="file" class="form-control">
                                 <br/>
                                 <div class="alert alert-danger case-error-msg hidden" role="alert"></div>
-                                <a type="button" class="btn btn-primary" onclick="SaltLocal.handleFile('case');">Import Framework</a>
+                                <a type="button" class="btn btn-primary btn-import btn-import-case" onclick="SaltLocal.handleFile('case', 'file-url');">Import Framework</a>
+                            </div>
+                            <div class="tab-pane fade" id="excel">
+                                <input id="excel-url" type="file" class="form-control" accept=".xls,.xlsx,.json,.csv">
+                                <br/>
+                                <div class="alert alert-danger case-error-msg hidden" role="alert"></div>
+                                <a type="button" class="btn btn-primary btn-import btn-import-excel" onclick="SaltLocal.handleExcelFile();">Import Framework</a>
                             </div>
                         </div>
                     </div>

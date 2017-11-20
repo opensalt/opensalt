@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd $(dirname $0)/..
+
+SYMFONY_DEPRECATIONS_HELPER=disabled ./vendor/bin/codecept "$@"
