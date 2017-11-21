@@ -81,7 +81,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     /**
      * @var bool
      *
-     * @ORM\Column(name="locked", type="boolean", nullable=false)
+     * @ORM\Column(name="locked", type="boolean", nullable=false, options={"default": 0})
      */
     protected $locked = false;
 

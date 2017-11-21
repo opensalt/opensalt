@@ -3,31 +3,10 @@
 namespace Pcg\Doctrine\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\JsonArrayType;
+use Doctrine\DBAL\Types\JsonType as DbalJsonType;
 
-class JsonType extends JsonArrayType
+class JsonType extends DbalJsonType
 {
-    /**
-     * @param array $fieldDeclaration
-     * @param AbstractPlatform $platform
-     *
-     * @return string
-     */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
-    {
-        return 'json';
-    }
-
-    /**
-     * Name of the db type
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return 'json';
-    }
-
     /**
      * {@inheritdoc}
      */

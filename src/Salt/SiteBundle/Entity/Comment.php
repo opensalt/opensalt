@@ -35,7 +35,7 @@ class Comment
      * @var Comment
      *
      * @ORM\ManyToOne(targetEntity="\Salt\SiteBundle\Entity\Comment")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      *
      * @Serializer\Accessor(getter="getParentId")
      * @Serializer\ReadOnly
@@ -82,7 +82,7 @@ class Comment
     /**
      * @var \DateTime
      *
-     * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
+     * @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"})
      * @Serializer\SerializedName("created")
      * @Gedmo\Timestampable(on="create")
      */
@@ -91,7 +91,7 @@ class Comment
     /**
      * @var \DateTime
      *
-     * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
+     * @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"})
      * @Serializer\SerializedName("modified")
      * @Gedmo\Timestampable(on="update")
      */
