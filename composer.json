@@ -10,7 +10,8 @@
             "GithubFilesBundle\\": "src/GithubFilesBundle/",
             "Pcg\\": "src/Pcg/",
             "Salt\\": "src/Salt/",
-            "Util\\": "src/Util/"
+            "Util\\": "src/Util/",
+            "App\\": "src/App/"
         },
         "classmap": [
             "app/AppKernel.php",
