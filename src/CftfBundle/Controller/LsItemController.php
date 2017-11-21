@@ -114,7 +114,7 @@ class LsItemController extends Controller
                     ]
                 ];
                 $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
-                $response->headers->set('Content-Type', 'text/json');
+                $response->headers->set('Content-Type', 'application/json');
                 $response->headers->set('Pragma', 'no-cache');
 
                 return $response;
@@ -208,7 +208,7 @@ class LsItemController extends Controller
                     'extra' => null
                 ];
                 $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
-                $response->headers->set('Content-Type', 'text/json');
+                $response->headers->set('Content-Type', 'application/json');
                 $response->headers->set('Pragma', 'no-cache');
 
                 return $response;

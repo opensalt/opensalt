@@ -128,8 +128,23 @@ class DocTreeController extends Controller
      * @Route("/docexport/{id}.json", name="doctree_cfpackage_export")
      * @Method("GET")
      */
-    public function exportAction(LsDoc $lsDoc)
+    public function exportAction(Request $request, LsDoc $lsDoc)
     {
+        $response = new Response();
+
+        $lastModified = $lsDoc->getUpdatedAt();
+        $response->setEtag(md5($lastModified->format('U')));
+        $response->setLastModified($lastModified);
+        $response->setMaxAge(0);
+        $response->setSharedMaxAge(0);
+        $response->setExpires(\DateTime::createFromFormat('U', $lastModified->format('U'))->sub(new \DateInterval('PT1S')));
+        $response->setPublic();
+        $response->headers->addCacheControlDirective('must-revalidate');
+
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
+
         $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findItemsForExportDoc($lsDoc);
         $associations = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAssociationsForExportDoc($lsDoc);
         $assocGroups = $this->getDoctrine()->getRepository('CftfBundle:LsDefAssociationGrouping')->findBy(['lsDoc'=>$lsDoc]);
@@ -161,9 +176,9 @@ class DocTreeController extends Controller
             'licences' => [],
             'assocGroups' => $assocGroups,
         ];
-        $response = new Response($this->renderView('CftfBundle:DocTree:export.json.twig', $arr));
-        $response->headers->set('Content-Type', 'text/json');
-        $response->headers->set('Pragma', 'no-cache');
+
+        $response->setContent($this->renderView('CftfBundle:DocTree:export.json.twig', $arr));
+        $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }
@@ -180,13 +195,13 @@ class DocTreeController extends Controller
         // $request could contain an id...
         if ($id = $request->query->get('id')) {
             // in this case it has to be a document on this OpenSALT instantiation
-            return $this->respondWithDocumentById($id);
+            return $this->respondWithDocumentById($request, $id);
         }
 
         // or an identifier...
         if (null !== $lsDoc && $identifier = $request->query->get('identifier')) {
             // first see if it's referencing a document on this OpenSALT instantiation
-            return $this->respondWithDocumentByIdentifier($identifier, $lsDoc);
+            return $this->respondWithDocumentByIdentifier($request, $identifier, $lsDoc);
         }
 
         // or a url...
@@ -275,7 +290,7 @@ class DocTreeController extends Controller
 
             // now return the file
             $response = new Response($s);
-            $response->headers->set('Content-Type', 'text/json');
+            $response->headers->set('Content-Type', 'application/json');
             $response->headers->set('Pragma', 'no-cache');
 
             return $response;
@@ -630,7 +645,7 @@ class DocTreeController extends Controller
      *
      * @return Response
      */
-    protected function respondWithDocumentById(int $id)
+    protected function respondWithDocumentById(Request $request, int $id)
     {
         // in this case it has to be a document on this OpenSALT instantiation
         $newDoc = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->find($id);
@@ -639,7 +654,7 @@ class DocTreeController extends Controller
             return new Response('Document not found.', Response::HTTP_NOT_FOUND);
         }
 
-        return $this->exportAction($newDoc);
+        return $this->exportAction($request, $newDoc);
     }
 
     /**
@@ -650,11 +665,11 @@ class DocTreeController extends Controller
      *
      * @return Response
      */
-    protected function respondWithDocumentByIdentifier(string $identifier, LsDoc $lsDoc)
+    protected function respondWithDocumentByIdentifier(Request $request, string $identifier, LsDoc $lsDoc)
     {
         $newDoc = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findOneBy(['identifier'=>$identifier]);
         if (null !== $newDoc) {
-            return $this->exportAction($newDoc);
+            return $this->exportAction($request, $newDoc);
         }
 
         // otherwise look in this doc's externalDocs

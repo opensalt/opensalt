@@ -206,7 +206,7 @@ class LsAssociationController extends Controller
         ];
 
         $response = new Response(json_encode($rv));
-        $response->headers->set('Content-Type', 'text/json');
+        $response->headers->set('Content-Type', 'application/json');
         $response->headers->set('Pragma', 'no-cache');
         return $response;
     }
