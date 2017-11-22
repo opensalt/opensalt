@@ -68,7 +68,7 @@ class ExportCsvEvaluationDumpCommand extends ContainerAwareCommand
         ];
 
         $line = array_values($line);
-        fwrite($fd, \Util\CsvUtil::arrayToCsv($line)."\n");
+        fwrite($fd, \App\Util\CsvUtil::arrayToCsv($line)."\n");
 
         if (!empty($item['children'])) {
             $children = $item['children'];

@@ -12,7 +12,7 @@ use Salt\UserBundle\Entity\User;
 use Salt\UserBundle\Entity\UserDocAcl;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
-use Util\Compare;
+use App\Util\Compare;
 
 /**
  * LsDoc

@@ -7,7 +7,7 @@ use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\Query;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Util\Compare;
+use App\Util\Compare;
 
 /**
  * LsDocRepository

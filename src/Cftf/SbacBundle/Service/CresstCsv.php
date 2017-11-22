@@ -105,7 +105,7 @@ class CresstCsv
             'crosswalk',
             'weight',
         ];
-        $csvLine = \Util\CsvUtil::arrayToCsv($line);
+        $csvLine = \App\Util\CsvUtil::arrayToCsv($line);
         $csvLines[] = $csvLine;
 
         // "Virtual" top level node for ELA
@@ -120,7 +120,7 @@ class CresstCsv
             '',
             '1',
         ];
-        $csvLine = \Util\CsvUtil::arrayToCsv($line);
+        $csvLine = \App\Util\CsvUtil::arrayToCsv($line);
         $csvLines[] = $csvLine;
 
         // "Virtual" top level node for Math
@@ -135,7 +135,7 @@ class CresstCsv
             '',
             '2',
         ];
-        $csvLine = \Util\CsvUtil::arrayToCsv($line);
+        $csvLine = \App\Util\CsvUtil::arrayToCsv($line);
         $csvLines[] = $csvLine;
 
         $i = 0;
@@ -209,7 +209,7 @@ class CresstCsv
                 'weight' => ++$i,
             ];
 
-            $csvLine = \Util\CsvUtil::arrayToCsv($line);
+            $csvLine = \App\Util\CsvUtil::arrayToCsv($line);
             $csvLines[] = $csvLine;
         }
 
