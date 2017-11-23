@@ -42,6 +42,7 @@ class AbstractLsBase implements IdentifiableInterface
      * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=true)
      *
      * @Assert\NotBlank()
+     * @Assert\Uuid(strict=false)
      * @Assert\Length(max=300)
      *
      * @Serializer\Expose()

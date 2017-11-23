@@ -227,6 +227,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      * @ORM\Column(name="adoption_status", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
+     * @Assert\Choice(callback = "getStatuses")
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("adoptionStatus")
@@ -350,6 +351,8 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
 
     /**
      * @var string
+     *
+     * @Assert\Choice({"organization", "user"})
      *
      * @Serializer\Exclude()
      */
@@ -1296,18 +1299,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
         }
 
         return null;
-    }
-
-    /**
-     * @param string $ownedBy
-     *
-     * @return LsDoc
-     */
-    public function setOwnedBy($ownedBy): LsDoc
-    {
-        $this->ownedBy = $ownedBy;
-
-        return $this;
     }
 
     /**

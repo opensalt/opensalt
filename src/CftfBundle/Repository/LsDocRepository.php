@@ -318,7 +318,6 @@ xENDx;
         $newLsDoc->setLanguage($oldLsDoc->getLanguage());
         $newLsDoc->setOrg($oldLsDoc->getOrg());
         $newLsDoc->setUser($oldLsDoc->getUser());
-        $newLsDoc->setOwnedBy($oldLsDoc->getOwnedBy());
         foreach($oldLsDoc->getAssociationGroupings() as $assocGroup) {
             $assocGroup->duplicateToLsDoc($newLsDoc);
         }
