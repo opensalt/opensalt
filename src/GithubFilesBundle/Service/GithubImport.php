@@ -111,6 +111,7 @@ class GithubImport
         }
 
         $lsItems = [];
+        $sequenceNumbers = [];
         $humanCodingValues = [];
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lineContent = $content[$i];
@@ -120,10 +121,17 @@ class GithubImport
                 $lsItems[$i] = null;
                 continue;
             }
+
             if($lsItem !== null){
                 $lsItems[$i] = $lsItem;
                 if ($lsItem->getHumanCodingScheme()) {
                     $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
+                }
+
+                if (array_key_exists('sequenceNumber', $lsItemKeys)) {
+                    $sequenceNumbers[$i] = $content[$i][trim($lsItemKeys['sequenceNumber'])];
+                } else {
+                    $sequenceNumbers[$i] = null;
                 }
             }
         }
@@ -142,6 +150,7 @@ class GithubImport
 
                 if (array_key_exists($parent, $humanCodingValues)) {
                     $lsItems[$humanCodingValues[$parent]]->addChild($lsItem);
+                    $this->saveAssociation($lsDoc, $lsItem, $frameworkToAssociate, 'Is Child Of', $sequenceNumbers[$i]);
                 } else {
                     $lsDoc->addTopLsItem($lsItem);
                 }
@@ -165,10 +174,11 @@ class GithubImport
         $fieldsAndTypes = LsAssociation::allTypesForImportFromCSV();
         // We don't use is_child_of because that it alaready used to create parents relations before. :)
         // checking each association field
+        $sequenceNumber = $content[$position][trim($lsItemKeys['sequenceNumber'])];
         foreach ($fieldsAndTypes as $fieldName => $assocType){
             if (array_key_exists($fieldName, $lsItemKeys) && $cfAssociations = $content[$position][trim($lsItemKeys[$fieldName])]) {
                 foreach (explode(',', $cfAssociations) as $cfAssociation) {
-                    $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate, $assocType);
+                    $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate, $assocType, $sequenceNumber);
                 }
             }
         }
@@ -181,7 +191,7 @@ class GithubImport
      * @param string  $frameworkToAssociate
      * @param string  $assocType
      */
-    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, $assocType)
+    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, $assocType, $sequenceNumber)
     {
         $em = $this->getEntityManager();
         if (strlen(trim($cfAssociation)) > 0) {
@@ -195,10 +205,10 @@ class GithubImport
 
             if (count($itemsAssociated) > 0) {
                 foreach ($itemsAssociated as $itemAssociated) {
-                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType);
+                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType, $sequenceNumber);
                 }
             } else {
-                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType);
+                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType, $sequenceNumber);
             }
         }
     }
@@ -209,12 +219,13 @@ class GithubImport
      * @param string|LsItem $elementAssociated
      * @param string $assocType
      */
-    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, $assocType)
+    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, $assocType, $sequenceNumber)
     {
         $association = new LsAssociation();
         $association->setType($assocType);
         $association->setLsDoc($lsDoc);
         $association->setOrigin($lsItem);
+        $association->setSequenceNumber((int)$sequenceNumber);
         if (is_string($elementAssociated)) {
             if (\Ramsey\Uuid\Uuid::isValid($elementAssociated)) {
                 $association->setDestinationNodeIdentifier($elementAssociated);

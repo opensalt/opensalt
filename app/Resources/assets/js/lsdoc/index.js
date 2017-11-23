@@ -436,7 +436,6 @@ var CfItem = (function(){
         'educationLevel',
         'cfItemType',
         'license',
-
         'isChildOf',
         'isPartOf',
         'replacedBy',
@@ -444,7 +443,8 @@ var CfItem = (function(){
         'precedes',
         'isPeerOf',
         'hasSkillLevel',
-        'isRelatedTo'
+        'isRelatedTo',
+        'sequenceNumber'
     ];
 
     function generateDropdowns(arrData, type){
