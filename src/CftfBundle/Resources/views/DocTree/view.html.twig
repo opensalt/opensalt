@@ -5,7 +5,7 @@
 {% block stylesheets %}
     {{ parent() }}
     {% if 'comments' is active feature %}
-        <link rel="stylesheet" href="{{ asset('build/commentscss.css', 'encore') }}" />
+        <link rel="stylesheet" href="{{ asset('build/commentscss.css', 'encore') }}"/>
     {% endif %}
 {% endblock %}
 
@@ -13,7 +13,7 @@
 <!-- initially hide header and footer; we'll show them right away if we're not in "chooser mode" -->
 <style>
     header, footer {
-        display:none;
+        display: none;
     }
 </style>
 <div class="row" id="docTitleRow" style="display:none">
@@ -25,8 +25,9 @@
             <div id="docTitleWrapper">
                 <div id="displayBtnGroup" class="form-group">
                     <div class="btn-group" role="group" aria-label="...">
-                        <button id="displayTreeBtn" type="button" class="btn btn-primary btn-xs">Tree<br />View</button>
-                        <button id="displayAssocBtn" type="button" class="btn btn-default btn-xs">Association<br />View</button>
+                        <button id="displayTreeBtn" type="button" class="btn btn-primary btn-xs">Tree<br/>View</button>
+                        <button id="displayAssocBtn" type="button" class="btn btn-default btn-xs">Association<br/>View
+                        </button>
                     </div>
                 </div>
                 <span id="docTitle">{{ lsDocTitle }}</span>
@@ -34,32 +35,39 @@
         </div>
         {% if lsDoc is not empty and lsDoc.adoptionStatus != "" %}
             <div class="col-sm-2">
-                <div id="docStatus" class="docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">{{ lsDoc.adoptionStatus }}</div>
+                <div id="docStatus"
+                     class="docStatus-{{ lsDoc.adoptionStatus|default('Draft') }}">{{ lsDoc.adoptionStatus }}</div>
             </div>
         {% endif %}
     </div>
 
-
     <div class="row" id="treeView" style="display:none">
         <div id="treeSideLeft" class="treeSide borderLeft">
 
-            <div class="treeSideLeftInner" >
+            <div class="treeSideLeftInner">
                 {% if editorRights %}
                     <div id="tree1Instructions">
-                        <div id="tree1InitialInstructions" class="bg-info instructions" style="display:none">Select a Competency Framework Document to view on the left side.</div>
-                        <div id="tree1SectionThisDocInstructions" class="bg-info instructions"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Browse, edit, reorder, and create new items here.<br /><label style="font-weight:normal; padding:5px 0 0 20px"><input type="checkbox" id="enableMoveCheckbox"> Enable drag-and-drop reordering</label>
-
+                        <div id="tree1InitialInstructions" class="bg-info instructions" style="display:none">Select a
+                            Competency Framework Document to view on the left side.
                         </div>
-
-                        <div id="tree1SectionOtherDocInstructions" class="bg-info instructions" style="display:none"><button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Drag and drop from right to left to <b>create associations</b>.</div>
-
-
-
-                        <div id="tree1SelectorDiv" class="container-fluid" style="display:none"><div class="row">
-
+                        <div id="tree1SectionThisDocInstructions" class="bg-info instructions">
+                            <button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">
+                                Change Document
+                            </button>
+                            Browse, edit, reorder, and create new items here.<br/>
+                            <label style="font-weight:normal; padding:5px 0 0 20px"><input type="checkbox" id="enableMoveCheckbox">Enable drag-and-drop reordering</label>
+                        </div>
+                        <div id="tree1SectionOtherDocInstructions" class="bg-info instructions" style="display:none">
+                            <button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">
+                                Change Document
+                            </button>
+                            Drag and drop from right to left to <b>create associations</b>.
+                        </div>
+                        <div id="tree1SelectorDiv" class="container-fluid" style="display:none">
+                            <div class="row">
                                 <!-- document menu will be inserted here -->
-                            </div></div>
-
+                            </div>
+                        </div>
                     </div>
                 {% endif %}
 
@@ -71,19 +79,21 @@
                 <div id="tree1SectionControls" class="form-group" style="clear:both">
                     {% if editorRights  and isDraft %}
                     <div class="input-group" style="clear:both">
-                    <span id="tree1SectionBulkControls" class="input-group-btn">
-                        <button type="button" class="treeCheckboxControlBtn btn btn-default">
-                            <input class="treeCheckboxControl" type="checkbox">
-                        </button>
+					<span id="tree1SectionBulkControls" class="input-group-btn">
+						<button type="button" class="treeCheckboxControlBtn btn btn-default">
+							<input class="treeCheckboxControl" type="checkbox">
+						</button>
 
-                        <button type="button" class="treeCheckboxMenuBtn btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="display:none">Action <span class="caret"></span></button>
-                        <ul class="dropdown-menu">
-                            <li><a class="treeCheckboxMenuItem" data-cmd="delete">Delete</a></li>
+						<button type="button" class="treeCheckboxMenuBtn btn btn-default dropdown-toggle"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="display:none">Action <span
+                                    class="caret"></span></button>
+						<ul class="dropdown-menu">
+							<li><a class="treeCheckboxMenuItem" data-cmd="delete">Delete</a></li>
                             <!-- <li><a class="treeCheckboxMenuItem" data-cmd="edit">Edit</a></li> -->
-                            <li><a class="treeCheckboxMenuItem" data-cmd="makeFolders">Make Items Parents</a></li>
-                            <li><a class="treeCheckboxMenuItem" data-cmd="hideCheckboxes">Hide Checkboxes</a></li>
-                        </ul>
-                    </span>
+							<li><a class="treeCheckboxMenuItem" data-cmd="makeFolders">Make Items Parents</a></li>
+							<li><a class="treeCheckboxMenuItem" data-cmd="hideCheckboxes">Hide Checkboxes</a></li>
+						</ul>
+					</span>
                         {% endif %}
                         <span class="filterClear glyphicon glyphicon-remove-circle"></span>
                         <input type="text" class="form-control treeFilter" id="filterOnTree" placeholder="Search...">
@@ -96,50 +106,63 @@
                     <div id="viewmode_tree1" class="treeDiv"></div>
                 </section>
 
-                <div id="noItemsInstructions" class="bg-info instructions" style="display:none">This document does not currently contain any statements/items.
+                <div id="noItemsInstructions" class="bg-info instructions" style="display:none">This document does not
+                    currently contain any statements/items.
                     <ul>
                         {% if editorRights %}
-                            <li>To <b>create statements/items</b> click the â€œAdd New Child Itemâ€� button at right.</li>
-                            <li>To <b>create â€œcrosswalkâ€� associations</b> between two different documents, start by clicking â€œChange Documentâ€� above, then choose a different document to view here.</li>
+                            <li>To <b>create statements/items</b> click the â€œAdd New Child Itemâ€� button at right.
+                            </li>
+                            <li>To <b>create â€œcrosswalkâ€� associations</b> between two different documents, start by
+                                clicking â€œChange Documentâ€� above, then choose a different document to view here.
+                            </li>
                         {% endif %}
-                        <li>To <b>view existing crosswalk associations</b>, click the â€œAssociation Viewâ€� button above.</li>
+                        <li>To <b>view existing crosswalk associations</b>, click the â€œAssociation Viewâ€� button
+                            above.
+                        </li>
                     </ul>
                 </div>
             </div>
-            <div class="treeSideRightInner" >
-                <div class="toggle-container-left"> <i class="fa fa-chevron-circle-right" aria-hidden="true" id="toggleRight"></i></div>
+            <div class="treeSideRightInner">
+                <div class="toggle-container-left">
+                    <i class="fa fa-chevron-circle-right" aria-hidden="true" id="toggleRight"></i>
+                </div>
             </div>
             <div id="dragbar"></div>
-
-
-            <div id="noItemsInstructions" class="bg-info instructions" style="display:none">This document does not currently contain any statements/items.
+            <div id="noItemsInstructions" class="bg-info instructions" style="display:none">This document does not
+                currently contain any statements/items.
                 <ul>
                     {% if editorRights and isDraft %}
                         <li>To <b>create statements/items</b> click the "Add New Child Item" button at right.</li>
-                        <li>To <b>create "crosswalk" associations</b> between two different documents, start by clicking "Change Document" above, then choose a different document to view here.</li>
+                        <li>To <b>create "crosswalk" associations</b> between two different documents, start by clicking
+                            "Change Document" above, then choose a different document to view here.
+                        </li>
                     {% endif %}
                     <li>To <b>view existing crosswalk associations</b>, click the "Association View" button above.</li>
                 </ul>
             </div>
-
         </div>
-
 
         <div id="chooserModeTreeSideRightBackground"></div>
 
         <div id="treeSideRight" class="treeSide borderRight">
-            <div class="rightTreeSideLeftInner" >
-                <div class="toggle-container-right"> <i class="fa fa-chevron-circle-left" aria-hidden="true" id="toggleLeft"></i></div></div>
-            <div class="rightTreeSideRightInner" >
+            <div class="rightTreeSideLeftInner">
+                <div class="toggle-container-right">
+                    <i class="fa fa-chevron-circle-left" aria-hidden="true" id="toggleLeft"></i></div>
+            </div>
+            <div class="rightTreeSideRightInner">
                 {% if editorRights %}
                     <div class="form-group" id="treeRightSideMode">
                         <div class="btn-group" role="group" aria-label="...">
-                            <button id="rightSideItemDetailsBtn" type="button" class="btn btn-primary">Item Details</button>
+                            <button id="rightSideItemDetailsBtn" type="button" class="btn btn-primary">Item Details
+                            </button>
                             {% if isDraft %}
-                                <button id="rightSideCopyItemsBtn" type="button" class="btn btn-default">Copy Items</button>
+                                <button id="rightSideCopyItemsBtn" type="button" class="btn btn-default">Copy Items
+                                </button>
                             {% endif %}
                             {% if not isDeprecated %}
-                                <button id="rightSideCreateAssociationsBtn" type="button" class="btn btn-default">Create Associations</button>
+                                <button id="rightSideCreateAssociationsBtn" type="button" class="btn btn-default">Create
+                                    Associations
+                                </button>
                             {% endif %}
                         </div>
                     </div>
@@ -149,11 +172,13 @@
                     <div id="items" class="panel-body">
                         <div id="itemInfo">
                             <div id="chooserModeButtons">
-                                <button id="chooserModeItemDetailsChooseBtn" class="btn btn-primary btn-sm">Choose</button>
-                                <span id="chooserModeItemDetailsCloseDetailsBtn" class="glyphicon glyphicon-remove" title="Close details"></span>
+                                <button id="chooserModeItemDetailsChooseBtn" class="btn btn-primary btn-sm">Choose
+                                </button>
+                                <span id="chooserModeItemDetailsCloseDetailsBtn" class="glyphicon glyphicon-remove"
+                                      title="Close details"></span>
                             </div>
                             <h4 class="itemTitle">
-                                <img class="itemTitleIcon" src="/assets/img/item.png" />
+                                <img class="itemTitleIcon" src="/assets/img/item.png"/>
                                 <span class="itemTitleSpan"></span>
                             </h4>
                             <div class="lsItemDetails">
@@ -165,41 +190,76 @@
                                     {% if editorRights %}
                                         <div class="itemOptions" id="itemOptions">
                                             {% if isDraft %}
-                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal" data-alt-document-disabled="true">Edit</button>
-                                                <button type="button" id="deleteItemBtn" class="btn btn-default btn-sm" data-toggle="modal" data-alt-document-disabled="true">Delete</button>
-                                                <button type="button" id="toggleFolderBtn" class="btn btn-default btn-sm" data-toggle="modal" data-alt-document-disabled="true">Make This Item a Parent</button>
-                                                <button type="button" id="addChildBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add a New Child Item</button>
+                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
+                                                        data-target="#editItemModal" data-alt-document-disabled="true">
+                                                    Edit
+                                                </button>
+                                                <button type="button" id="deleteItemBtn" class="btn btn-default btn-sm"
+                                                        data-toggle="modal" data-alt-document-disabled="true">Delete
+                                                </button>
+                                                <button type="button" id="toggleFolderBtn"
+                                                        class="btn btn-default btn-sm" data-toggle="modal"
+                                                        data-alt-document-disabled="true">Make This Item a Parent
+                                                </button>
+                                                <button type="button" id="addChildBtn" class="btn btn-default btn-sm"
+                                                        data-toggle="modal" data-target="#addNewChildModal"
+                                                        data-alt-document-disabled="true">Add a New Child Item
+                                                </button>
                                             {% endif %}
                                             {% if not isDeprecated %}
-                                                <button type="button" id="addExemplarBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addExemplarModal">Add an Exemplar</button>
+                                                <button type="button" id="addExemplarBtn" class="btn btn-default btn-sm"
+                                                        data-toggle="modal" data-target="#addExemplarModal">Add an
+                                                    Exemplar
+                                                </button>
                                             {% endif %}
                                         </div>
                                     {% endif %}
 
                                     <div class="itemOptions" id="documentOptions">
-                                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#exportModal">Export</button>
+                                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
+                                                data-target="#exportModal">Export
+                                        </button>
                                         {# use first version if we need to edit the adoptionStatus #}
                                         {% if editorRights %}
-                                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal" data-alt-document-disabled="true">Edit</button>
+                                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
+                                                    data-target="#editDocModal" data-alt-document-disabled="true">Edit
+                                            </button>
                                             {% if isDraft %}
-                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#manageAssocGroupsModal" data-alt-document-disabled="true">Manage Association Groups</button>
+                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
+                                                        data-target="#manageAssocGroupsModal"
+                                                        data-alt-document-disabled="true">Manage Association Groups
+                                                </button>
                                             {% endif %}
                                         {% endif %}
                                         {% if manageEditorsRights %}
-                                            <a href="{{ path('framework_acl_edit', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
+                                            <a href="{{ path('framework_acl_edit', {'id':lsDocId}) }}"
+                                               class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage
+                                                Access</a>
                                         {% endif %}
 
                                         {% if editorRights and isDraft %}
-                                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">Add New Child Item</button>
+                                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
+                                                    data-target="#addNewChildModal" data-alt-document-disabled="true">
+                                                Add New Child Item
+                                            </button>
                                         {% endif %}
 
                                         {% if createRights %}
                                             {% if isDraft %}
-                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal" data-alt-document-disabled="true">Import Children</button>
-                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#updateFrameworkModal" data-alt-document-disabled="true">Update Framework</button>
+                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
+                                                        data-target="#addChildrenModal"
+                                                        data-alt-document-disabled="true">Import Children
+                                                </button>
+                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
+                                                        data-target="#updateFrameworkModal"
+                                                        data-alt-document-disabled="true">Update Framework
+                                                </button>
                                             {% endif %}
                                             {% if lsDoc.importLogs is not empty %}
-                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#seeImportLogs" data-alt-document-disabled="true">Import Logs</button>
+                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
+                                                        data-target="#seeImportLogs" data-alt-document-disabled="true">
+                                                    Import Logs
+                                                </button>
                                             {% endif %}
                                         {% endif %}
                                     </div>
@@ -209,7 +269,10 @@
 
                             <div id="associationRemoveBtn" style="display:none">
                                 {% if editorRights and not isDeprecated %}
-                                    <span class="pull-right" style="margin-left:5px"><span role="button" class="btn btn-xs btn-default btn-remove-association"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Remove</span></span></span>
+                                    <span class="pull-right" style="margin-left:5px"><span role="button"
+                                                                                           class="btn btn-xs btn-default btn-remove-association"><span
+                                                    class="glyphicon glyphicon-remove" aria-hidden="true"></span><span
+                                                    class="sr-only">Remove</span></span></span>
                                 {% endif %}
                             </div>
                         </div>  <!-- itemInfo -->
@@ -224,13 +287,28 @@
 
                 {% if editorRights %}
                     <section id="tree2Section">
-                        <div id="tree2InitialInstructions" class="bg-info instructions">Select a Competency Framework Document to view on the right side.</div>
-                        <div id="tree2SectionCopyInstructions" class="bg-info instructions" style="display:none"><button type="button" class="changeTree2DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Drag and drop from right to left to <b>copy items</b>.</div>
-                        <div id="tree2SectionRelationshipInstructions" class="bg-info instructions" style="display:none"><button type="button" class="changeTree2DocumentBtn btn btn-primary btn-xs pull-right">Change Document</button>Drag and drop from right to left to <b>create associations</b>.</div>
+                        <div id="tree2InitialInstructions" class="bg-info instructions">Select a Competency Framework
+                            Document to view on the right side.
+                        </div>
+                        <div id="tree2SectionCopyInstructions" class="bg-info instructions" style="display:none">
+                            <button type="button" class="changeTree2DocumentBtn btn btn-primary btn-xs pull-right">
+                                Change Document
+                            </button>
+                            Drag and drop from right to left to <b>copy items</b>.
+                        </div>
+                        <div id="tree2SectionRelationshipInstructions" class="bg-info instructions"
+                             style="display:none">
+                            <button type="button" class="changeTree2DocumentBtn btn btn-primary btn-xs pull-right">
+                                Change Document
+                            </button>
+                            Drag and drop from right to left to <b>create associations</b>.
+                        </div>
 
-                        <div id="tree2SelectorDiv" class="container-fluid"><div class="row">
+                        <div id="tree2SelectorDiv" class="container-fluid">
+                            <div class="row">
                                 {{ form_widget(docList) }}
-                            </div></div>
+                            </div>
+                        </div>
 
                         <div class="assocGroupFilter form-group form-inline" style="display:none; margin-top:15px">
                             <b>Association group:</b>&nbsp;
@@ -239,16 +317,18 @@
 
                         <div id="tree2SectionControls" class="form-group">
                             <div class="input-group">
-                    <span class="input-group-btn">
-                        <button type="button" class="treeCheckboxControlBtn btn btn-default">
-                            <input class="treeCheckboxControl" type="checkbox">
-                        </button>
+					<span class="input-group-btn">
+						<button type="button" class="treeCheckboxControlBtn btn btn-default">
+							<input class="treeCheckboxControl" type="checkbox">
+						</button>
 
-                        <button type="button" class="treeCheckboxMenuBtn btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="display:none">Action <span class="caret"></span></button>
-                        <ul class="dropdown-menu">
-                            <li><a class="treeCheckboxMenuItem" data-cmd="hideCheckboxes">Hide Checkboxes</a></li>
-                        </ul>
-                    </span>
+						<button type="button" class="treeCheckboxMenuBtn btn btn-default dropdown-toggle"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="display:none">Action <span
+                                    class="caret"></span></button>
+						<ul class="dropdown-menu">
+							<li><a class="treeCheckboxMenuItem" data-cmd="hideCheckboxes">Hide Checkboxes</a></li>
+						</ul>
+					</span>
                                 <span class="filterClear glyphicon glyphicon-remove-circle"></span>
                                 <input type="text" class="form-control treeFilter" placeholder="Search...">
                             </div>
@@ -257,7 +337,8 @@
                         <div id="viewmode_tree2" class="treeDiv"></div>
                     </section>
                 {% endif %}
-            </div></div>
+            </div>
+        </div>
 
     </div>
 
@@ -268,15 +349,21 @@
             <div id="assocViewTableFilters" style="display:none">
                 <div class="assocViewTableTypeFilters">
                     <div class="assocViewTableTypeFiltersHeader">Association Types:</div>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowChild"> Is Child Of</label><br>
+                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowChild"> Is Child
+                        Of</label><br>
                     <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExact" checked> Exact Match Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExemplar" checked> Exemplar</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsRelatedTo" checked> Is Related To</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowPrecedes" checked> Precedes</label><br>
+                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExemplar" checked>
+                        Exemplar</label><br>
+                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsRelatedTo" checked> Is
+                        Related To</label><br>
+                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowPrecedes" checked>
+                        Precedes</label><br>
                     <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsPeerOf" checked> Is Peer Of</label><br>
                     <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsPartOf" checked> Is Part Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowHasSkillLevel" checked> Has Skill Level</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowReplacedBy" checked> Replaced By</label><br>
+                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowHasSkillLevel" checked> Has
+                        Skill Level</label><br>
+                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowReplacedBy" checked> Replaced
+                        By</label><br>
                 </div>
 
                 <div class="assocViewTableGroupFilters">
@@ -293,7 +380,8 @@
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="myModalLabel">Import Logs</h4>
                     </div>
                     <div class="modal-body">
@@ -302,7 +390,8 @@
                             {% if lsDoc is not empty %}
                                 {% for importLog in lsDoc.importLogs %}
                                     {% if importLog.read == false %}
-                                        <a href="#" class="list-group-item list-group-item-{{ importLog.messageType }}">{{ importLog.message }}</a>
+                                        <a href="#"
+                                           class="list-group-item list-group-item-{{ importLog.messageType }}">{{ importLog.message }}</a>
                                     {% endif %}
                                 {% endfor %}
                             {% endif %}
@@ -330,11 +419,11 @@
     {% if editorRights %}
         {% embed 'CftfBundle:DocTree:updateFrameworkModal.html.twig' with {
         'lsDocId':lsDocId
-        }%}
+        } %}
         {% endembed %}
         {% embed 'CftfBundle:DocTree:wizard.html.twig' with {
         'lsDocId':lsDocId
-        }%}
+        } %}
         {% endembed %}
 
         {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
@@ -433,7 +522,8 @@
         'closeButton': 'Cancel'
         } %}
             {% block modalBody %}
-                <p>Are you sure you want to delete the <strong id="deleteMultipleItemsModalCount"></strong> selected items?</p>
+                <p>Are you sure you want to delete the <strong id="deleteMultipleItemsModalCount"></strong> selected
+                    items?</p>
             {% endblock %}
             {% block modalButtons %}
                 <button type="button" class="btn btn-danger btn-delete">Delete</button>
@@ -482,7 +572,10 @@
         {% endembed %}
     {% endif %}
 
-    <div id="modalSpinner"><div id="modalSpinnerCover"></div><div id="modalSpinnerMessage"></div></div>
+    <div id="modalSpinner">
+        <div id="modalSpinnerCover"></div>
+        <div id="modalSpinnerMessage"></div>
+    </div>
     {% endblock %}
 
     {% block javascripts %}
@@ -492,20 +585,20 @@
 
         {% autoescape 'js' %}
         <script>
-            window.apx = window.apx||{};
+            window.apx = window.apx || {};
 
             apx.enableEdit = {{ (editorRights?"true":"false") |e('js') }};
 
             // loaded docid and initial lsItem and assocGroup to show
             apx.lsDocId = {{ lsDocId |json_encode |raw }};
             apx.initialLsItemId = {{ lsItemId |default(null) |json_encode |raw }};
-            apx.initialAssocGroup = {{ assocGroup |default(null) |json_encode |raw}};
+            apx.initialAssocGroup = {{ assocGroup |default(null) |json_encode |raw }};
 
             apx.assocTypes = {{ assocTypes |json_encode |raw }};
             apx.inverseAssocTypes = {{ inverseAssocTypes |json_encode |raw }};
 
             // establish paths
-            apx.path = apx.path||{};
+            apx.path = apx.path || {};
             apx.path.lsDoc = '{{ path('doc_tree_view', {'slug':'ID'}) }}';
             apx.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';
             apx.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
@@ -536,7 +629,7 @@
                 apx.initialize();
             }
 
-            $(function(){
+            $(function () {
                 initialize();
             });
         </script>
