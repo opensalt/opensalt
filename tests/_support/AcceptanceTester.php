@@ -50,6 +50,26 @@ class AcceptanceTester extends \Codeception\Actor implements Context
     }
 
     /**
+     * @Then I should not see the button :arg1
+     */
+    public function iShouldNotSeeTheButton(string $arg1): AcceptanceTester
+    {
+        $this->cantSee($arg1, 'button');
+
+        return $this;
+    }
+
+    /**
+     * @Then I should see the button :arg1
+     */
+    public function iShouldSeeTheButton(string $arg1): AcceptanceTester
+    {
+        $this->see($arg1, 'button');
+
+        return $this;
+    }
+
+    /**
      * @Then I should see :arg1 in the header
      */
     public function iShouldSeeInTheHeader(string $arg1): AcceptanceTester
@@ -90,7 +110,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         return $this;
     }
 
-    public function getLastFrameworkId(): string
+    public function getLastFrameworkTitle(): string
     {
         $documents = $this->fetchJson(self::$documentsApi);
         $documents = $documents['CFDocuments'] ?? [];
@@ -111,23 +131,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
                 $lastDoc = $document;
             }
         }
-
-        $docPage = $this->fetchRedirect('/uri/'.$lastDoc['identifier']);
-        if (null === $docPage) {
-            $docPage = $this->fetchRedirect('/uri/'.$lastDoc['uri']);
-        }
-        if (null === $docPage) {
-            /* @todo Create a framework if none found */
-
-            throw new LogicException('No framework could be found');
-        }
-
-        if (1 === preg_match('#/cftree/doc/(.*)#', $docPage, $matches)) {
-            $this->lsDocId = $matches[1];
-            return $this->lsDocId;
-        }
-
-        throw new LogicException('Framework id could not be found');
+        return $lastDoc['title'];
     }
 
     public function getDocId()
@@ -137,6 +141,49 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         }
 
         return $this->lsDocId;
+    }
+
+    public function setDocId($id){
+      $this->lsDocId = $id;
+    }
+    public function getLastFrameworkId(): string
+    {
+      $documents = $this->fetchJson(self::$documentsApi);
+      $documents = $documents['CFDocuments'] ?? [];
+
+      if (0 === count($documents)) {
+        /* @todo Create a framework if none found */
+
+        throw new LogicException('No framework could be found');
+      }
+
+      $lastDoc = $documents[0];
+      foreach ($documents as $document) {
+        if (($document['adoptionStatus'] ?? 'Draft') !== 'Draft') {
+          continue;
+        }
+
+        if ($lastDoc['lastChangeDateTime'] < $document['lastChangeDateTime']) {
+          $lastDoc = $document;
+        }
+      }
+
+      $docPage = $this->fetchRedirect('/uri/'.$lastDoc['identifier']);
+      if (null === $docPage) {
+        $docPage = $this->fetchRedirect('/uri/'.$lastDoc['uri']);
+      }
+      if (null === $docPage) {
+        /* @todo Create a framework if none found */
+
+        throw new LogicException('No framework could be found');
+      }
+
+      if (1 === preg_match('#/cftree/doc/(.*)#', $docPage, $matches)) {
+        $this->lsDocId = $matches[1];
+        return $this->lsDocId;
+      }
+
+      throw new LogicException('Framework id could not be found');
     }
 
     public function getLastItemId()
@@ -215,4 +262,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
             return $el->isDisplayed();
         }, 2);
     }
+
+  public function iAmOnAFrameworkPage() {
+  }
 }

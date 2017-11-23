@@ -18,6 +18,7 @@ modules:
             log_js_errors: true
             wait: 5
             request_timeout: 120
+            pageload_timeout: 120
         - \Helper\Acceptance
         - \Helper\UserManagement
         - \Helper\Guzzle
@@ -35,3 +36,6 @@ gherkin:
             - "Context\\Login"
             - "Page\\Framework"
             - "Page\\Item"
+            - "Page\\Exemplar"
+            - "Page\\Organization"
+            - "Page\\User"

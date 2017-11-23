@@ -419,6 +419,25 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
         ];
     }
 
+    public function isDraft(): bool
+    {
+        if (null === $this->adoptionStatus || '' === $this->adoptionStatus) {
+            return true;
+        }
+
+        return in_array($this->adoptionStatus, static::getEditableStatuses(), true);
+    }
+
+    public function isAdopted(): bool
+    {
+        return $this->adoptionStatus === static::ADOPTION_STATUS_ADOPTED;
+    }
+
+    public function isDeprecated(): bool
+    {
+        return $this->adoptionStatus === static::ADOPTION_STATUS_DEPRECATED;
+    }
+
     /**
      * Set officialUri
      *

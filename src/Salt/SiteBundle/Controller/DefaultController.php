@@ -64,6 +64,7 @@ class DefaultController extends Controller
         if ($user instanceof User) {
             $doc->setOrg($user->getOrg());
         }
+        $this->getDoctrine()->getManager()->flush();
 
         return $response->setData([
             'message' => 'Success'

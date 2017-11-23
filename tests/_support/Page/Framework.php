@@ -3,17 +3,26 @@
 namespace Page;
 
 use Behat\Behat\Context\Context;
+use Behat\Gherkin\Node\TableNode;
+use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
-
 class Framework implements Context
 {
     static public $docPath = '/cftree/doc/';
+    static public $lsdocPath = '/cfdoc/';
+
+    static public $fwTitle = '#ls_doc_create_title';
+    static public $fwCreatorField = '#ls_doc_create_creator';
+//    static public $frameworkCreatorValue = 'PCG QA Testing';
 
     protected $filename;
     protected $rememberedFramework;
     protected $uploadedFramework;
     protected $importedAsnDoc;
     protected $importedAsnList;
+    protected $creatorName = 'OpenSALT Testing';
+    protected $frameworkData = [];
+    protected $id;
 
     /**
      * @var \AcceptanceTester
@@ -126,6 +135,7 @@ class Framework implements Context
         $uuid = Uuid::uuid4()->toString();
 
         $this->rememberedFramework = $name;
+        $this->creatorName = 'OpenSALT Testing';
 
         $data = str_replace([
             'Test Framework External Empty',
@@ -148,13 +158,15 @@ class Framework implements Context
 
     /**
      * @Given /^I go to the uploaded framework$/
+     * @Given /^I go to the created framework$/
      */
     public function iGoToTheUploadedFramework(): Framework
     {
         $I = $this->I;
+        $creatorName = $this->creatorName;
 
         $I->iAmOnTheHomepage();
-        $I->click('//span[text()="OpenSALT Testing"]/../..');
+        $I->click("//span[text()='{$creatorName}']/../..");
 
         $frameworkName = $this->rememberedFramework;
         $I->waitForElementVisible("//span[text()='{$frameworkName}']");
@@ -162,6 +174,7 @@ class Framework implements Context
 
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
+        $I->setDocId($I->grabValueFrom('#lsDocId'));
 
         return $this;
     }
@@ -249,6 +262,7 @@ class Framework implements Context
         $name = sq('SmartLevelFramework');
         $docUuid = Uuid::uuid4()->toString();
         $this->rememberedFramework = $name;
+        $this->creatorName = 'OpenSALT Testing';
 
         $origValues = [
             'SmartLevel Test',
@@ -338,6 +352,7 @@ class Framework implements Context
         $name = sq('Utf8Framework');
         $docUuid = Uuid::uuid4()->toString();
         $this->rememberedFramework = $name;
+        $this->creatorName = 'OpenSALT Testing';
 
         $origValues = [
             "UTF8 \u{1d451} Test",
@@ -394,9 +409,66 @@ class Framework implements Context
         $name = sq('MarkdownFramework');
         $docUuid = Uuid::uuid4()->toString();
         $this->rememberedFramework = $name;
+        $this->creatorName = 'OpenSALT Testing';
 
         $origValues = [
             "Test Markdown Framework",
+            'd0000000-0000-0000-0000-000000000000',
+        ];
+        $replacements = [
+            $name,
+            $docUuid,
+        ];
+
+        $decoded = json_decode($data, true);
+        foreach ($decoded['CFItems'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+        foreach ($decoded['CFAssociations'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+
+        /*
+        foreach ($origValues as $i => $origValue) {
+            $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
+        }
+        */
+        $data = str_replace($origValues, $replacements, $data);
+
+        $this->uploadedFramework = $data;
+
+        $filename = tempnam(codecept_data_dir(), 'tmp_mdf_');
+        unlink($filename);
+        file_put_contents($filename.'.json', $data);
+
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.json'));
+        $I->click('a.btn-import-case');
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        unlink($filename.'.json');
+
+        return $this;
+    }
+
+    /**
+     * @Given /^I upload the sequence number CASE file$/
+     */
+    public function iUploadTheSequenceNumberCASEFile()
+    {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#file-url');
+
+        $data = file_get_contents(codecept_data_dir().'SequenceNumberFramework.json');
+
+        $name = sq('SeqNumFramework');
+        $docUuid = Uuid::uuid4()->toString();
+        $this->rememberedFramework = $name;
+
+        $origValues = [
+            "Sequence Number Test",
             'd0000000-0000-0000-0000-000000000000',
         ];
         $replacements = [
@@ -504,4 +576,286 @@ class Framework implements Context
         $I->click('//span[text()="MD.Table"]/../../..');
         $I->seeElement('.lsItemDetails table');
     }
+
+    /**
+     * @Then /^I should see "([^"]*)" button$/
+     */
+    public function iShouldSeeButton($buttonText) {
+      $I = $this->I;
+
+      $I->see($buttonText);
+    }
+
+    /**
+     * @Given /^I click the "([^"]*)" button$/
+     */
+    public function iClickTheButton($button) {
+       $I = $this->I;
+
+       $I->click($button);
+    }
+
+    /**
+     * @When /^I create a "([^"]*)" framework$/
+     */
+    public function iCreateAFramework($framework = 'Test Framework') {
+       /** @var \Faker\Generator $faker */
+       $faker = \Faker\Factory::create();
+
+       $description = $faker->sentence;
+
+       $note = $faker->paragraph;
+       $framework = sq($framework);
+       $this->rememberedFramework = $framework;
+
+       $this->frameworkData = [
+         'title' => $framework,
+         'creator' => $this->creatorName,
+         'officialUri' => 'http://opensalt.net',
+         'publisher' => 'PCG',
+         'version' => '1.0',
+         'description' => $description,
+         'language' => 'en',
+         'adoptionStatus' => 'Draft',
+         'note' => $note,
+       ];
+
+       $I = $this->I;
+
+       $I->fillField(self::$fwTitle, $framework);
+       $I->fillField(self::$fwCreatorField, $this->creatorName);
+       $I->fillField('#ls_doc_create_officialUri', $this->frameworkData['officialUri']);
+       $I->fillField('#ls_doc_create_publisher', $this->frameworkData['publisher']);
+//       $I->fillField('#ls_doc_create_urlName','OpenSALT');
+       $I->fillField('#ls_doc_create_version', $this->frameworkData['version']);
+       $I->fillField('#ls_doc_create_description', $description);
+//       $I->selectOption('.select2-search__field', array('text' => 'Math')); //Subject field
+       $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
+       $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
+       $I->fillField('#ls_doc_create_note', $note);
+
+       $I->click('Create');
+
+       $I->see($framework, '#docTitle');
+       $I->setDocId($I->grabValueFrom('#lsDocId'));
+
+    }
+
+    /**
+     * @When /^I create a framework$/
+     */
+    public function iCreateAFramework1() {
+      $I = $this->I;
+
+      $I->see('Create a new Framework');
+      $I->click('Create a new Framework');
+      $I->see('LsDoc creation');
+      $this->iCreateAFramework();
+
+    }
+
+    /**
+     * @Given /^I should see the framework$/
+     * @Given /^I should see the framework data$/
+     */
+    public function iShouldSeeFramework() {
+      $I = $this->I;
+
+      $I->waitForElementVisible('.itemTitleSpan');
+
+      $I->see('Official URL:');
+      $I->see($this->frameworkData['officialUri']);
+      $I->see('CASE Framework URL:');
+      $I->see('Creator:');
+      $I->see($this->frameworkData['creator']);
+      $I->see('Publisher:');
+      $I->see($this->frameworkData['publisher']);
+      $I->see('Language:');
+      $I->see($this->frameworkData['language']);
+      $I->see('Adoption Status:');
+      $I->see($this->frameworkData['adoptionStatus']);
+    }
+
+    /**
+     * @Given /^I delete the framework$/
+     */
+    public function iDeleteFramework() {
+      $I = $this->I;
+
+      $I->amOnPage(self::$lsdocPath.$I->getDocId());
+
+      $I->click('Delete');
+
+
+    }
+
+  /**
+   * @Given /^I edit the field in framework$/
+   */
+  public function iEditTheFieldInFramework($field, $data) {
+    $I = $this->I;
+    $map = [
+      'Title' => '#ls_doc_title',
+      'Creator' => '#ls_doc_creator',
+      'Official URI' => '#ls_doc_officialUri',
+      'Publisher' => '#ls_doc_publisher',
+      'Version' => '#ls_doc_version',
+      'Description' => '#ls_doc_description',
+      'Language' => 'ls_doc[language]',
+      'Adoption Status' => 'ls_doc[adoptionStatus]',
+      'Note' => '#ls_doc_note',
+    ];
+    $dataMap = [
+      'Title' => 'title',
+      'Creator' => 'creator',
+      'Official URI' => 'officialUri',
+      'Publisher' => 'publisher',
+      'Version' => 'version',
+      'Description' => 'description',
+      'Language' => 'language',
+      'Adoption Status' => 'adoptionStatus',
+      'Note' =>   'note',
+    ];
+
+    if (in_array($field, ['Language', 'Adoption Status'])){
+      $I->selectOption($map[$field], array('value' => $data));
+    }
+    else {
+      $I->fillField($map[$field], $data);
+    }
+
+    $this->frameworkData[$dataMap[$field]] = $data;
+  }
+
+  public function iGoToTheFrameworkDocument(){
+    $I = $this->I;
+
+    $I->amOnPage(self::$docPath.$I->getDocId());
+
+  }
+  /**
+   * @Given /^I edit the fields in a framework$/
+   */
+  public function iEditTheFieldsInFramework(TableNode $table) {
+    $I = $this->I;
+
+    $this->iGoToTheFrameworkDocument();
+    $I->waitForElementVisible('//*[@id="documentOptions"]/button[2]');
+    $I->click('//*[@id="documentOptions"]/button[2]');
+    $I->waitForElementVisible('#ls_doc_title');
+
+    $rows = $table->getRows();
+    foreach ($rows as $row) {
+      $this->iEditTheFieldInFramework($row[0], $row[1]);
+    }
+
+    $I->click('(//button[text()="Save Changes"])[1]');
+    return $this;
+  }
+
+  /**
+   * @Given /^I upload an excel file$/
+   */
+  public function iUploadAnExcelFile() {
+    throw new PendingException();
+  }
+
+    /**
+     * @Given /^I upload the adopted CASE file$/
+     */
+    public function iUploadTheAdoptedCASEFile()
+    {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#file-url');
+
+        $data = file_get_contents(codecept_data_dir().'AdoptedTestFramework.json');
+
+        $name = sq('AdoptedFramework');
+        $docUuid = Uuid::uuid4()->toString();
+        $this->rememberedFramework = $name;
+
+        $origValues = [
+            "Adopted Test",
+            'd0000000-0000-0000-0000-000000000000',
+        ];
+        $replacements = [
+            $name,
+            $docUuid,
+        ];
+
+        $decoded = json_decode($data, true);
+        foreach ($decoded['CFItems'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+        foreach ($decoded['CFAssociations'] as $item) {
+            $origValues[] = $item['identifier'];
+            $replacements[] = Uuid::uuid4()->toString();
+        }
+
+        /*
+        foreach ($origValues as $i => $origValue) {
+            $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
+        }
+        */
+        $data = str_replace($origValues, $replacements, $data);
+
+        $this->uploadedFramework = $data;
+
+        $filename = tempnam(codecept_data_dir(), 'tmp_mdf_');
+        unlink($filename);
+        file_put_contents($filename.'.json', $data);
+
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.json'));
+        $I->click('a.btn-import-case');
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        unlink($filename.'.json');
+
+        return $this;
+    }
+
+    /**
+     * @When /^I click the first item in the framework$/
+     */
+    public function iClickTheFirstItemInTheFramework()
+    {
+        $I = $this->I;
+
+        $I->click('//div[@id="viewmode_tree1"]/ul/li/ul/li[1]');
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see "([^"]*)" as the first item in the tree's HCS value$/
+     */
+    public function iShouldSeeAsTheFirstItem(string $hcsValue)
+    {
+        $I = $this->I;
+
+        $level1HcsList = $I->grabMultiple('.item-humanCodingScheme');
+
+        $I->assertEquals($hcsValue, current($level1HcsList));
+    }
+
+  /**
+   * @Then /^I search for "([^"]*)" in the framework$/
+   */
+  public function iSearchForInTheFramework($item) {
+    $I = $this->I;
+
+    $I->fillField('#filterOnTree', $item);
+    $I->wait(1);
+  }
+
+  /**
+   * @Given /^I should not see "([^"]*)" in results$/
+   */
+  public function iShouldNotSeeInResults($item) {
+    $I = $this->I;
+
+    $I->dontSee($item);
+  }
 }
