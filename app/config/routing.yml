@@ -1,3 +1,8 @@
+app:
+    resource: "../../src/App/Controller/"
+    type:     annotation
+    prefix:   /
+
 salt_site:
     resource: "@SaltSiteBundle/Controller/"
     type:     annotation
@@ -30,11 +35,6 @@ cftf_sbac:
 
 cftf_ims:
     resource: "@CftfImsBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
-cftf_asn:
-    resource: "@CftfAsnBundle/Controller/"
     type:     annotation
     prefix:   /
 

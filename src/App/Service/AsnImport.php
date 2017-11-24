@@ -1,10 +1,10 @@
 <?php
 
-namespace Cftf\AsnBundle\Service;
+namespace App\Service;
 
-use Cftf\AsnBundle\Entity\AsnDocument;
-use Cftf\AsnBundle\Entity\AsnStandard;
-use Cftf\AsnBundle\Entity\AsnValue;
+use App\Entity\Asn\AsnDocument;
+use App\Entity\Asn\AsnStandard;
+use App\Entity\Asn\AsnValue;
 use CftfBundle\Entity\IdentifiableInterface;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefItemType;
@@ -34,13 +34,14 @@ class AsnImport
 
     /**
      * @param EntityManager $em
+     * @param ClientInterface $jsonClient
      *
      * @DI\InjectParams({
      *     "em" = @DI\Inject("doctrine.orm.entity_manager"),
      *     "jsonClient" = @DI\Inject("csa_guzzle.client.json"),
      * })
      */
-    public function __construct(EntityManager $em, $jsonClient)
+    public function __construct(EntityManager $em, ClientInterface $jsonClient)
     {
         $this->em = $em;
         $this->jsonClient = $jsonClient;

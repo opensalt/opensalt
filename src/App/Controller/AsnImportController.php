@@ -1,19 +1,23 @@
 <?php
 
-namespace Cftf\AsnBundle\Controller;
+namespace App\Controller;
 
+use App\Service\AsnImport;
+use Doctrine\Common\Persistence\ObjectManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Class DefaultController
+ * Class AsnImportController
  *
  * @Security("is_granted('create', 'lsdoc')")
  */
-class DefaultController extends Controller
+class AsnImportController extends AbstractController
 {
     /**
      * @Route("/cf/asn/import", name="import_from_asn")
@@ -22,18 +26,16 @@ class DefaultController extends Controller
      *
      * @return JsonResponse
      */
-    public function importAsnAction(Request $request)
+    public function importAsnAction(Request $request, UserInterface $user, AsnImport $asnImport, ObjectManager $om)
     {
         $response = new JsonResponse();
 
         $fileUrl = $request->request->get('fileUrl');
 
-        $asnImport = $this->get('cftf_import.asn');
         $lsDoc = $asnImport->generateFrameworkFromAsn($fileUrl);
 
-        $user = $this->getUser();
         $lsDoc->setOrg($user->getOrg());
-        $this->getDoctrine()->getManager()->flush();
+        $om->flush();
 
         return $response->setData([
             'message' => 'Framework imported successfully!',

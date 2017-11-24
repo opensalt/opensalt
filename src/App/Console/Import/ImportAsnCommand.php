@@ -1,6 +1,6 @@
 <?php
 
-namespace Cftf\AsnBundle\Command;
+namespace App\Console\Import;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;

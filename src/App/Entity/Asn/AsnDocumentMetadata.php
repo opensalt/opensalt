@@ -1,6 +1,6 @@
 <?php
 
-namespace Cftf\AsnBundle\Entity;
+namespace App\Entity\Asn;
 
 class AsnDocumentMetadata extends AsnBase
 {

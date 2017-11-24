@@ -24,10 +24,10 @@ services:
     App\:
         resource: '../../src/App/{Console,Command,Form,EventSubscriber,Twig,Security,Service}'
 
-    #App\Controller\:
-    #    resource: '../../src/Controller'
-    #    public: true
-    #    tags: ['controller.service_arguments']
+    App\Controller\:
+        resource: '../../src/App/Controller'
+        public: true
+        tags: ['controller.service_arguments']
 
 
     session.handler.pdo:
