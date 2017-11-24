@@ -4,7 +4,7 @@ namespace Application\Migrations;
 
 use CftfBundle\DataFixtures\ORM\LoadDefGradesFixture;
 use Doctrine\DBAL\Schema\Schema;
-use Pcg\Doctrine\Migration\AbstractFixturesMigration;
+use App\Doctrine\Migration\AbstractFixturesMigration;
 
 /**
  * Auto-generated Migration: Please modify to your needs!

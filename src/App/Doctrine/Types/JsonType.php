@@ -1,6 +1,6 @@
 <?php
 
-namespace Pcg\Doctrine\Types;
+namespace App\Doctrine\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\JsonType as DbalJsonType;

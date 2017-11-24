@@ -150,7 +150,7 @@ doctrine:
         types:
             uuid: Ramsey\Uuid\Doctrine\UuidType
             uuid_binary: Ramsey\Uuid\Doctrine\UuidBinaryType
-            json: Pcg\Doctrine\Types\JsonType
+            json: App\Doctrine\Types\JsonType
         #mapping_types:
         #    json: string
         #    uuid: char(36)

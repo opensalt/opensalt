@@ -1,6 +1,6 @@
 <?php
 
-namespace Pcg\Doctrine\Migration;
+namespace App\Doctrine\Migration;
 
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;

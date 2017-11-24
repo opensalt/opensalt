@@ -14,15 +14,15 @@ services:
 #        tags:
 #            - { name: kernel.event_subscriber }
 
-#    twig_asset_version_extension:
-#        class: Pcg\Twig\Extension\AssetVersionExtension
-#        arguments: ["%kernel.root_dir%"]
-#        tags:
-#            - { name: twig.extension }
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+        #public: false
 
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-        resource: '../../src/{Command,Form,EventSubscriber,Twig,Security,Service}'
+        resource: '../../src/App/{Console,Command,Form,EventSubscriber,Twig,Security,Service}'
 
     #App\Controller\:
     #    resource: '../../src/Controller'
