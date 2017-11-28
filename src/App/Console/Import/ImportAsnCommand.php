@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportAsnCommand extends ContainerAwareCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('import:asn')
@@ -20,7 +20,7 @@ class ImportAsnCommand extends ContainerAwareCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
         $asnId = $input->getArgument('asnId');
         $creator = $input->getOption('creator');
@@ -36,5 +36,7 @@ class ImportAsnCommand extends ContainerAwareCommand
 
             return 1; // Fail out of command
         }
+
+        return 0;
     }
 }
