@@ -20,7 +20,7 @@ Installation
 
 1. Install Docker from [here](https://www.docker.com/products/docker)
    and Docker Compose from [here](https://docs.docker.com/compose/install/)
-  - [Docker for Mac notes](./DOCKER_FOR_MAC.md)
+  - [Docker for Mac notes](./docs/DOCKER_FOR_MAC.md)
 
   > **Note: the rest of the following can be automated by running `./local-dev/initial_dev_install.sh`**
 
