@@ -647,16 +647,3 @@ $(window).resize(function(){
     $('#treeSideLeft').height($("#treeView").height());
 });
 
-window.onload = function() {
-    if(document.getElementById("ls_doc_create_statusStart")){
-        document.getElementById('ls_doc_create_statusStart').type = 'text';
-        $('#ls_doc_create_statusStart').datepicker({
-            format: 'dd/mm/yyyy'
-        });
-    }
-    if(document.getElementById("ls_doc_create_statusEnd")){
-        $('#ls_doc_create_statusEnd').datepicker({
-            format: 'dd/mm/yyyy'
-        });
-    }
-};
