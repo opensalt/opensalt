@@ -623,24 +623,23 @@ global.SaltGithub = SaltGithub;
 global.listRepositories = listRepositories;
 
 
-var dragging = false;
 $('#dragbar').mousedown(function(e){
     e.preventDefault();
-    dragging = true;
-});
 
-$(document).mouseup(function(e){
-    if (dragging)
-    {
+    var dragBar = function (e) {
         var maxWidthToAllow=$("#treeView").width()-330;
-        if(e.pageX >= maxWidthToAllow){
-            $('#treeSideLeft').css("width",maxWidthToAllow);
-        }
-        else {
-            $('#treeSideLeft').css("width",e.pageX+2);
+        if (e.pageX >= maxWidthToAllow) {
+            $('#treeSideLeft').css("width", maxWidthToAllow);
+        } else {
+            $('#treeSideLeft').css("width", e.pageX+2);
         }
         $('#treeSideRight').width($("#treeView").width() - $("#treeSideLeft").width());
-    }
+    };
+    $(document).on('mousemove', dragBar);
+
+    $(document).one('mouseup', function(e){
+        $(document).off('mousemove', dragBar);
+    });
 });
 
 $(window).resize(function(){

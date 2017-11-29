@@ -50,13 +50,17 @@
                         <div id="tree1InitialInstructions" class="bg-info instructions" style="display:none">Select a
                             Competency Framework Document to view on the left side.
                         </div>
-                        <div id="tree1SectionThisDocInstructions" class="bg-info instructions">
-                            <button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">
-                                Change Document
-                            </button>
-                            Browse, edit, reorder, and create new items here.<br/>
-                            <label style="font-weight:normal; padding:5px 0 0 20px"><input type="checkbox" id="enableMoveCheckbox">Enable drag-and-drop reordering</label>
-                        </div>
+                        {% if isDraft %}
+                            <div id="tree1SectionThisDocInstructions" class="bg-info instructions">
+                                <button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">
+                                    Change Document
+                                </button>
+                                Browse, edit, reorder, and create new items here.<br/><label
+                                        style="font-weight:normal; padding:5px 0 0 20px"><input type="checkbox"
+                                                                                                id="enableMoveCheckbox">
+                                    Enable drag-and-drop reordering</label></div>
+                        {% endif %}
+
                         <div id="tree1SectionOtherDocInstructions" class="bg-info instructions" style="display:none">
                             <button type="button" class="changeTree1DocumentBtn btn btn-primary btn-xs pull-right">
                                 Change Document
@@ -109,7 +113,7 @@
                 <div id="noItemsInstructions" class="bg-info instructions" style="display:none">This document does not
                     currently contain any statements/items.
                     <ul>
-                        {% if editorRights %}
+                        {% if editorRights and isDraft %}
                             <li>To <b>create statements/items</b> click the â€œAdd New Child Itemâ€� button at right.
                             </li>
                             <li>To <b>create â€œcrosswalkâ€� associations</b> between two different documents, start by
@@ -128,18 +132,6 @@
                 </div>
             </div>
             <div id="dragbar"></div>
-            <div id="noItemsInstructions" class="bg-info instructions" style="display:none">This document does not
-                currently contain any statements/items.
-                <ul>
-                    {% if editorRights and isDraft %}
-                        <li>To <b>create statements/items</b> click the "Add New Child Item" button at right.</li>
-                        <li>To <b>create "crosswalk" associations</b> between two different documents, start by clicking
-                            "Change Document" above, then choose a different document to view here.
-                        </li>
-                    {% endif %}
-                    <li>To <b>view existing crosswalk associations</b>, click the "Association View" button above.</li>
-                </ul>
-            </div>
         </div>
 
         <div id="chooserModeTreeSideRightBackground"></div>
