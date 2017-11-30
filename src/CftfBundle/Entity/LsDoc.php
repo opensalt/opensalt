@@ -1302,6 +1302,18 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
+     * @param string $ownedBy
+     *
+     * @return LsDoc
+     */
+    public function setOwnedBy($ownedBy): LsDoc
+    {
+        $this->ownedBy = $ownedBy;
+
+        return $this;
+    }
+
+    /**
      * @return LsDefAssociationGrouping[]|Collection
      */
     public function getAssociationGroupings()
