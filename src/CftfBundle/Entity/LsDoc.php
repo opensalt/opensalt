@@ -72,6 +72,8 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\Organization", inversedBy="frameworks")
      * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=true)
      *
+     * @Assert\Type(Organization::class)
+     *
      * @Serializer\Exclude()
      */
     protected $org;
@@ -81,6 +83,8 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\User", inversedBy="frameworks")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
+     *
+     * @Assert\Type(User::class)
      *
      * @Serializer\Exclude()
      */
@@ -204,6 +208,10 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      *      inverseJoinColumns={@ORM\JoinColumn(name="subject_id", referencedColumnName="id")}
      * )
      *
+     * @Assert\All({
+     *     @Assert\Type(LsDefSubject::class)
+     * })
+     *
      * @Serializer\Expose("object.getSubjects().count()>0")
      * @Serializer\SerializedName("subject")
      * @Serializer\Type("array<string>")
@@ -285,6 +293,10 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsItem", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
      *
+     * @Assert\All({
+     *     @Assert\Type(LsItem::class)
+     * })
+     *
      * @Serializer\Exclude()
      */
     private $lsItems;
@@ -294,12 +306,20 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
      *
+     * @Assert\All({
+     *     @Assert\Type(LsAssociation::class)
+     * })
+     *
      * @Serializer\Exclude()
      */
     private $docAssociations;
 
     /**
      * @var Collection|LsAssociation[]
+     *
+     * @Assert\All({
+     *     @Assert\Type(LsAssociation::class)
+     * })
      *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="originLsDoc", indexBy="id", cascade={"persist"})
      *
@@ -310,6 +330,10 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
     /**
      * @var Collection|LsAssociation[]
      *
+     * @Assert\All({
+     *     @Assert\Type(LsAssociation::class)
+     * })
+     *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsAssociation", mappedBy="destinationLsDoc", indexBy="id", cascade={"persist"})
      *
      * @Serializer\Exclude()
@@ -319,6 +343,10 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
     /**
      * @var LsDocAttribute[]|ArrayCollection
      *
+     * @Assert\All({
+     *     @Assert\Type(LsDocAttribute::class)
+     * })
+     *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDocAttribute", mappedBy="lsDoc", cascade={"ALL"}, indexBy="attribute", orphanRemoval=true)
      *
      * @Serializer\Exclude()
@@ -327,7 +355,12 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
 
     /**
      * @var UserDocAcl[]|Collection
+     *
      * @ORM\OneToMany(targetEntity="Salt\UserBundle\Entity\UserDocAcl", mappedBy="lsDoc", indexBy="user", fetch="EXTRA_LAZY")
+     *
+     * @Assert\All({
+     *     @Assert\Type(UserDocAcl::class)
+     * })
      *
      * @Serializer\Exclude()
      */
@@ -335,7 +368,12 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
 
     /**
      * @var ImportLog[]|Collection
+     *
      * @ORM\OneToMany(targetEntity="CftfBundle\Entity\ImportLog", mappedBy="lsDoc", indexBy="lsDoc", fetch="EXTRA_LAZY")
+     *
+     * @Assert\All({
+     *     @Assert\Type(ImportLog::class)
+     * })
      *
      * @Serializer\Exclude()
      */
@@ -343,7 +381,12 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
 
     /**
      * @var LsDefAssociationGrouping[]|Collection
+     *
      * @ORM\OneToMany(targetEntity="LsDefAssociationGrouping", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
+     *
+     * @Assert\All({
+     *     @Assert\Type(LsDefAssociationGrouping::class)
+     * })
      *
      * @Serializer\Exclude()
      */
@@ -1218,7 +1261,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function setOrg(Organization $org = null): LsDoc
+    public function setOrg(?Organization $org = null): LsDoc
     {
         $this->org = $org;
 
@@ -1305,9 +1348,14 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      * @param string $ownedBy
      *
      * @return LsDoc
+     * @throws \InvalidArgumentException
      */
-    public function setOwnedBy($ownedBy): LsDoc
+    public function setOwnedBy(?string $ownedBy): LsDoc
     {
+        if (!in_array($ownedBy, [null, 'organization', 'user'], true)) {
+            throw new \InvalidArgumentException('Owner must be "organization" or "user" (or empty)');
+        }
+
         $this->ownedBy = $ownedBy;
 
         return $this;
