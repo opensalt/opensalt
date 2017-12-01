@@ -22,13 +22,33 @@ services:
 
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-        resource: '../../src/App/{Console,Command,Form,EventSubscriber,Twig,Security,Service}'
+        resource: '../../src/App/{Console,Handler,Form,EventSubscriber,Twig,Security,Service}'
 
     App\Controller\:
         resource: '../../src/App/Controller'
         public: true
         tags: ['controller.service_arguments']
 
+    # Autowiring commands
+    CftfBundle\Command\:
+        resource: '../../src/CftfBundle/Command'
+        tags: ['console.command']
+
+    Salt\UserBundle\Command\:
+        resource: '../../src/Salt/UserBundle/Command'
+        tags: ['console.command']
+
+    Cftf\UtilBundle\Command\:
+        resource: '../../src/Cftf/UtilBundle/Command'
+        tags: ['console.command']
+
+    Cftf\SbacBundle\Command\:
+        resource: '../../src/Cftf/SbacBundle/Command'
+        tags: ['console.command']
+
+    Cftf\ImsBundle\Command\:
+        resource: '../../src/Cftf/ImsBundle/Command'
+        tags: ['console.command']
 
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
