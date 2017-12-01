@@ -13,6 +13,7 @@ use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\ClientInterface;
 use JMS\DiExtraBundle\Annotation as DI;
 use Ramsey\Uuid\Uuid;
@@ -41,7 +42,7 @@ class AsnImport
      *     "jsonClient" = @DI\Inject("csa_guzzle.client.json"),
      * })
      */
-    public function __construct(EntityManager $em, ClientInterface $jsonClient)
+    public function __construct(EntityManagerInterface $em, ClientInterface $jsonClient)
     {
         $this->em = $em;
         $this->jsonClient = $jsonClient;
