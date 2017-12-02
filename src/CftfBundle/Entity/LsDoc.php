@@ -770,9 +770,9 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      *
      * @return LsDoc
      */
-    public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null): LsDoc
+    public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber): LsDoc
     {
-        $this->createChildItem($topLsItem, $assocGroup);
+        $this->createChildItem($topLsItem, $assocGroup, $sequenceNumber);
 
         return $this;
     }

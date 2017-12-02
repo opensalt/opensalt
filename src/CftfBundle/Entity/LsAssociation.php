@@ -78,7 +78,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     public const PRECEDES = 'Precedes';
     public const SKILL_LEVEL = 'Has Skill Level';
     public const IS_PEER_OF = 'Is Peer Of';
-    public const SEQUENCE_NUMBER = 'Sequence Number';
 
     public const EXEMPLAR = 'Exemplar';
 
@@ -292,7 +291,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
             'isRelatedTo' =>                  static::RELATED_TO,
             'replacedBy' =>                   static::REPLACED_BY,
             'hasSkillLevel' =>                static::SKILL_LEVEL,
-            'sequenceNumber' =>               static::SEQUENCE_NUMBER,
         ];
     }
 

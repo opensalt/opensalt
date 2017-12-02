@@ -149,10 +149,9 @@ class GithubImport
                 }
 
                 if (array_key_exists($parent, $humanCodingValues)) {
-                    $lsItems[$humanCodingValues[$parent]]->addChild($lsItem);
-                    $this->saveAssociation($lsDoc, $lsItem, $frameworkToAssociate, 'Is Child Of', $sequenceNumbers[$i]);
+                    $lsItems[$humanCodingValues[$parent]]->addChild($lsItem, null, $sequenceNumbers[$i]);
                 } else {
-                    $lsDoc->addTopLsItem($lsItem);
+                    $lsDoc->addTopLsItem($lsItem, null, $sequenceNumbers[$i]);
                 }
             }
             $this->saveAssociations($i, $content, $lsItemKeys, $lsItem, $lsDoc, $frameworkToAssociate);
@@ -174,11 +173,10 @@ class GithubImport
         $fieldsAndTypes = LsAssociation::allTypesForImportFromCSV();
         // We don't use is_child_of because that it alaready used to create parents relations before. :)
         // checking each association field
-        $sequenceNumber = $content[$position][trim($lsItemKeys['sequenceNumber'])];
         foreach ($fieldsAndTypes as $fieldName => $assocType){
             if (array_key_exists($fieldName, $lsItemKeys) && $cfAssociations = $content[$position][trim($lsItemKeys[$fieldName])]) {
                 foreach (explode(',', $cfAssociations) as $cfAssociation) {
-                    $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate, $assocType, $sequenceNumber);
+                    $this->addItemRelated($lsDoc, $lsItem, $cfAssociation, $frameworkToAssociate, $assocType);
                 }
             }
         }
@@ -191,7 +189,7 @@ class GithubImport
      * @param string  $frameworkToAssociate
      * @param string  $assocType
      */
-    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, $assocType, $sequenceNumber)
+    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, $assocType)
     {
         $em = $this->getEntityManager();
         if (strlen(trim($cfAssociation)) > 0) {
@@ -205,10 +203,10 @@ class GithubImport
 
             if (count($itemsAssociated) > 0) {
                 foreach ($itemsAssociated as $itemAssociated) {
-                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType, $sequenceNumber);
+                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType, null);
                 }
             } else {
-                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType, $sequenceNumber);
+                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType, null);
             }
         }
     }
