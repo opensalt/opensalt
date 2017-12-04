@@ -111,6 +111,7 @@ class GithubImport
         }
 
         $lsItems = [];
+        $sequenceNumbers = [];
         $humanCodingValues = [];
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lineContent = $content[$i];
@@ -120,10 +121,21 @@ class GithubImport
                 $lsItems[$i] = null;
                 continue;
             }
+
             if($lsItem !== null){
                 $lsItems[$i] = $lsItem;
                 if ($lsItem->getHumanCodingScheme()) {
                     $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
+                }
+
+                if (array_key_exists('sequenceNumber', $lsItemKeys)) {
+                    $seq = $content[$i][trim($lsItemKeys['sequenceNumber'])];
+                    if (!is_numeric($seq)) {
+                        $seq = null;
+                    }
+                    $sequenceNumbers[$i] = $seq;
+                } else {
+                    $sequenceNumbers[$i] = null;
                 }
             }
         }
@@ -141,9 +153,9 @@ class GithubImport
                 }
 
                 if (array_key_exists($parent, $humanCodingValues)) {
-                    $lsItems[$humanCodingValues[$parent]]->addChild($lsItem);
+                    $lsItems[$humanCodingValues[$parent]]->addChild($lsItem, null, $sequenceNumbers[$i]);
                 } else {
-                    $lsDoc->addTopLsItem($lsItem);
+                    $lsDoc->addTopLsItem($lsItem, null, $sequenceNumbers[$i]);
                 }
             }
             $this->saveAssociations($i, $content, $lsItemKeys, $lsItem, $lsDoc, $frameworkToAssociate);
@@ -195,10 +207,10 @@ class GithubImport
 
             if (count($itemsAssociated) > 0) {
                 foreach ($itemsAssociated as $itemAssociated) {
-                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType);
+                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType, null);
                 }
             } else {
-                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType);
+                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType, null);
             }
         }
     }

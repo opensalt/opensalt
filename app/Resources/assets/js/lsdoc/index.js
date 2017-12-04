@@ -202,6 +202,7 @@ var Import = (function() {
                 }
             }
         }
+
         if (disableRequest){
             return { cfItemKeys: cfItemKeys, fields: fields };
         }
@@ -213,17 +214,18 @@ var Import = (function() {
 
             $('#import-div').addClass('hidden');
             $('#errors').removeClass('hidden');
-        } else {
-            $('#import-div').addClass('hidden');
-            $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
-            $('.file-loading').removeClass('hidden');
         }
+
+        $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+        $('.file-loading').removeClass('hidden');
 
         index = fields.indexOf('humanCodingScheme');
 
         if (index < 0) {
-            $('.file-loading').addClass('hidden');
             sendData();
+        } else {
+            $('.file-loading').addClass('hidden');
+            $('#import-div').removeClass('hidden');
         }
     }
 
@@ -436,7 +438,6 @@ var CfItem = (function(){
         'educationLevel',
         'cfItemType',
         'license',
-
         'isChildOf',
         'isPartOf',
         'replacedBy',
@@ -444,7 +445,8 @@ var CfItem = (function(){
         'precedes',
         'isPeerOf',
         'hasSkillLevel',
-        'isRelatedTo'
+        'isRelatedTo',
+        'sequenceNumber'
     ];
 
     function generateDropdowns(arrData, type){

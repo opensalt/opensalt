@@ -61,10 +61,10 @@ use Util\Compare;
  */
 class LsDoc extends AbstractLsBase implements CaseApiInterface
 {
-    const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
-    const ADOPTION_STATUS_DRAFT = 'Draft';
-    const ADOPTION_STATUS_ADOPTED = 'Adopted';
-    const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
+    public const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
+    public const ADOPTION_STATUS_DRAFT = 'Draft';
+    public const ADOPTION_STATUS_ADOPTED = 'Adopted';
+    public const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
 
     /**
      * @var Organization
@@ -767,12 +767,13 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      *
      * @param LsItem $topLsItem
      * @param LsDefAssociationGrouping|null $assocGroup
+     * @param int|null $sequenceNumber
      *
      * @return LsDoc
      */
-    public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null): LsDoc
+    public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): LsDoc
     {
-        $this->createChildItem($topLsItem, $assocGroup);
+        $this->createChildItem($topLsItem, $assocGroup, $sequenceNumber);
 
         return $this;
     }

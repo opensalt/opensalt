@@ -115,7 +115,7 @@ class UserManagement extends \Codeception\Module
                 ->getOneOrNullResult();
             if (!$org) {
                 $org = $orgRepo->addNewOrganization(
-                    'TEST:'.$faker->company
+                    'TEST:'.str_replace("'", '', $faker->company)
                 );
             }
 
