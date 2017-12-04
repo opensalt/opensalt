@@ -1,7 +1,6 @@
 <?php
 
 use Codeception\Scenario;
-use Codeception\Util\Locator;
 use Context\Login;
 use Ramsey\Uuid\Uuid;
 
@@ -11,7 +10,6 @@ class SequenceNumberCest
 
     public function importCSVSequenceNumber(AcceptanceTester $I, Scenario $scenario)
     {
-        $I->getLastFrameworkId();
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('super_user');
         $I->amOnPage(self::$docPath.$I->getDocId());
@@ -26,23 +24,18 @@ class SequenceNumberCest
         $docUuid = Uuid::uuid4()->toString();
         $this->rememberedFramework = $name;
 
-        $origValues = [
-            'ab223660-6eed-4fcd-8f44-df61e15198e5',
-            '3001b0a7-baec-4726-840c-8b65edb3cbd5',
-        ];
+        $origValues = [];
         $replacements = [];
-        $decoded = [];
 
         $lines = explode(PHP_EOL, $data);
         foreach ($lines as $i => $line) {
-            if ($i == 0) {
+            // skip header line
+            if ($i === 0) {
                 continue;
             }
 
-            $decoded[] = str_getcsv($line);
-        }
-
-        foreach ($decoded as $item) {
+            $decoded = str_getcsv($line);
+            $origValues[] = $decoded[0];
             $replacements[] = Uuid::uuid4()->toString();
         }
 
@@ -52,10 +45,12 @@ class SequenceNumberCest
         unlink($filename);
         file_put_contents($filename.'.csv', $data);
 
-        $I->attachFile('input#file-url', 'sequenceNumber.csv');
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.csv'));
         $I->selectOption('#js-framework-to-association', array('value' => $I->getDocId()));
         $I->click('.btn-import-csv');
         $I->waitForJS('return $.active == 0;', 10);
+        unlink($filename.'.csv');
+
         $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
