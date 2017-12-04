@@ -129,7 +129,11 @@ class GithubImport
                 }
 
                 if (array_key_exists('sequenceNumber', $lsItemKeys)) {
-                    $sequenceNumbers[$i] = $content[$i][trim($lsItemKeys['sequenceNumber'])];
+                    $seq = $content[$i][trim($lsItemKeys['sequenceNumber'])];
+                    if (!is_numeric($seq)) {
+                        $seq = null;
+                    }
+                    $sequenceNumbers[$i] = $seq;
                 } else {
                     $sequenceNumbers[$i] = null;
                 }
@@ -217,13 +221,12 @@ class GithubImport
      * @param string|LsItem $elementAssociated
      * @param string $assocType
      */
-    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, $assocType, $sequenceNumber)
+    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, $assocType)
     {
         $association = new LsAssociation();
         $association->setType($assocType);
         $association->setLsDoc($lsDoc);
         $association->setOrigin($lsItem);
-        $association->setSequenceNumber((int)$sequenceNumber);
         if (is_string($elementAssociated)) {
             if (\Ramsey\Uuid\Uuid::isValid($elementAssociated)) {
                 $association->setDestinationNodeIdentifier($elementAssociated);
