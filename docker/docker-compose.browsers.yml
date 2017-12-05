@@ -7,12 +7,14 @@ services:
       - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
 
   chrome:
-    image: selenium/standalone-chrome:3.6
+    image: selenium/standalone-chrome:3.8
     volumes:
       - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
+      - "/dev/shm:/dev/shm"
 
   firefox:
-    image: selenium/standalone-firefox:3.6
+    image: selenium/standalone-firefox:3.8
+    shm_size: '2gb'
     volumes:
       - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
 
