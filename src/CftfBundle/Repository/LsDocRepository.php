@@ -214,7 +214,7 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function deleteDocument(LsDoc $lsDoc, \Closure $progressCallback = null)
+    public function deleteDocument(LsDoc $lsDoc, \Closure $progressCallback = null): void
     {
         $conn = $this->getEntityManager()->getConnection();
 

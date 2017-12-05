@@ -1,7 +1,9 @@
 <?php
 
-namespace CftfBundle\Command;
+namespace App\Console\Framework;
 
+use App\Command\Framework\DeleteDocumentCommand;
+use App\Event\CommandEvent;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -55,7 +57,9 @@ class CfpackageDeleteCommand extends ContainerAwareCommand
             $progress->advance();
         };
 
-        $lsDocRepo->deleteDocument($lsDoc, $callback);
+        $command = new DeleteDocumentCommand($lsDoc, $callback);
+        $this->getContainer()->get('event_dispatcher')
+            ->dispatch(CommandEvent::class, new CommandEvent($command));
 
         $output->writeln('<info>Deleted.</info>');
     }

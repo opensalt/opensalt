@@ -2,6 +2,11 @@
 
 namespace CftfBundle\Controller;
 
+use App\Command\CommandInterface;
+use App\Command\Framework\AddDocumentCommand;
+use App\Command\Framework\DeleteDocumentCommand;
+use App\Command\Framework\UpdateDocumentCommand;
+use App\Event\CommandEvent;
 use CftfBundle\Form\Type\RemoteCftfServerType;
 use CftfBundle\Form\Type\LsDocCreateType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -125,21 +130,19 @@ class LsDocController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $user = $this->getUser();
-            if ($lsDoc->getOwnedBy() === 'user') {
-                $lsDoc->setUser($user);
-            } else {
-                $lsDoc->setOrg($user->getOrg());
+            try {
+                $command = new AddDocumentCommand($lsDoc);
+                $this->sendCommand($command);
+            } catch (\Exception $e) {
+                $form->addError(new FormError('Error adding new document: '. $e->getMessage()));
             }
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDoc);
-            $em->flush();
-
-            return $this->redirectToRoute(
-                'doc_tree_view',
-                array('slug' => $lsDoc->getSlug())
-            );
+            if (0 === count($form->getErrors())) {
+                return $this->redirectToRoute(
+                    'doc_tree_view',
+                    array('slug' => $lsDoc->getSlug())
+                );
+            }
         }
 
         return [
@@ -252,18 +255,23 @@ class LsDocController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDoc);
-            $em->flush();
-
-            if ($ajax) {
-                return new Response('OK', Response::HTTP_ACCEPTED);
+            try {
+                $command = new UpdateDocumentCommand($lsDoc);
+                $this->sendCommand($command);
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError('Error upating new document: '. $e->getMessage()));
             }
 
-            return $this->redirectToRoute(
-                'lsdoc_edit',
-                array('id' => $lsDoc->getId())
-            );
+            if (0 === count($editForm->getErrors())) {
+                if ($ajax) {
+                    return new Response('OK', Response::HTTP_ACCEPTED);
+                }
+
+                return $this->redirectToRoute(
+                    'lsdoc_edit',
+                    array('id' => $lsDoc->getId())
+                );
+            }
         }
 
         $ret = [
@@ -301,10 +309,8 @@ class LsDocController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()
-                ->getManager()
-                ->getRepository(LsDoc::class)
-                ->deleteDocument($lsDoc);
+            $command = new DeleteDocumentCommand($lsDoc);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('lsdoc_index');
@@ -333,6 +339,19 @@ class LsDocController extends Controller
             'lsDoc' => $lsDoc,
             'items' => $items,
         ];
+    }
+
+    /**
+     * Send a command to be handled
+     *
+     * @param CommandInterface $command
+     */
+    protected function sendCommand(CommandInterface $command): void
+    {
+        $this->get('event_dispatcher')->dispatch(
+            CommandEvent::class,
+            new CommandEvent($command)
+        );
     }
 
     /**
