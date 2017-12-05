@@ -30,5 +30,9 @@ class LsItemTest extends \Codeception\Test\Unit
         $em->flush();
 
         $this->tester->seeInRepository(LsItem::class, ['identifier' => $identifier]);
+        $em->clear();
+
+        $item = $em->getRepository(LsItem::class)->findOneBy(['identifier' => $identifier]);
+        $this->assertEquals($item->getAbbreviatedStatement(), '012345678901234567890123456789012345678901234567890123456789');
     }
 }
