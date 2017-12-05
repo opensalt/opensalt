@@ -285,7 +285,7 @@ class GithubImport
      */
     private function isValidItemContent(array $lineContent, array $lsItemKeys): bool
     {
-        return $lineContent[$lsItemKeys['fullStatement']] ?? false && $lineContent[$lsItemKeys['fullStatement']] !== '';
+        return ($lineContent[$lsItemKeys['fullStatement']] ?? '') !== '';
     }
 
     /**
@@ -305,6 +305,7 @@ class GithubImport
         $lsItem->setFullStatement($lineContent[$lsItemKeys['fullStatement']]);
         if (array_key_exists($lsItemKeys['identifier'], $lineContent) && \Ramsey\Uuid\Uuid::isValid($lineContent[$lsItemKeys['identifier']])) {
             $lsItem->setIdentifier($lineContent[$lsItemKeys['identifier']]);
+            $lsItem->setUri('local:'.$lineContent[$lsItemKeys['identifier']]);
         }
         foreach ($keys as $key) {
             if (array_key_exists($key, $lsItemKeys) && array_key_exists($lsItemKeys[$key], $lineContent)) $lsItem->{'license' === $key ? 'setLicenceUri' : 'set'.ucfirst($key)}($lineContent[$lsItemKeys[$key]]);
