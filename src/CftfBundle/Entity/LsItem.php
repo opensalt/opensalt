@@ -172,9 +172,9 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="abbreviated_statement", type="string", length=50, nullable=true)
+     * @ORM\Column(name="abbreviated_statement", type="string", length=60, nullable=true)
      *
-     * @Assert\Length(max=50)
+     * @Assert\Length(max=60)
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("abbreviatedStatement")
@@ -595,7 +595,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
             return $this->getAbbreviatedStatement();
         }
 
-        return substr($this->getFullStatement(), 0, 50);
+        return substr($this->getFullStatement(), 0, 60);
     }
 
     /**
