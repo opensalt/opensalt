@@ -74,7 +74,7 @@ class DocTreeController extends Controller
             'isAdopted' => $lsDoc->isAdopted(),
             'isDeprecated' => $lsDoc->isDeprecated(),
             'manageEditorsRights' => $authChecker->isGranted('manage_editors', $lsDoc),
-            'createRights' => $authChecker->isGranted('create', $lsDoc),
+            'createRights' => $authChecker->isGranted('create', 'lsdoc'),
 
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,

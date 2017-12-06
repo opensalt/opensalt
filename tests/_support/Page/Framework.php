@@ -740,8 +740,8 @@ class Framework implements Context
     $I = $this->I;
 
     $this->iGoToTheFrameworkDocument();
-    $I->waitForElementVisible('//*[@id="documentOptions"]/button[2]');
-    $I->click('//*[@id="documentOptions"]/button[2]');
+    $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+    $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
     $I->waitForElementVisible('#ls_doc_title');
 
     $rows = $table->getRows();
@@ -749,7 +749,8 @@ class Framework implements Context
       $this->iEditTheFieldInFramework($row[0], $row[1]);
     }
 
-    $I->click('(//button[text()="Save Changes"])[1]');
+    $I->click('//*[@id="editDocModal"]//button[text()="Save Changes"]');
+
     return $this;
   }
 
