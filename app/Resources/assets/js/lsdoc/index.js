@@ -250,11 +250,11 @@ var Import = (function() {
         };
 
         $.ajax({
-            url: '/cf/github/import',
+            url: '/app_dev.php/cf/github/import',
             type: 'post',
             data: dataRequest,
             success: function(response){
-                location.reload();
+                // location.reload();
             }
         });
     }

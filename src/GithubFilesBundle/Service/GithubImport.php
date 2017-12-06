@@ -89,6 +89,7 @@ class GithubImport
      */
     public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
     {
+        var_dump("saveCSVGithubDocument");
         $em = $this->getEntityManager();
         $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find($lsDocId);
 
@@ -140,10 +141,20 @@ class GithubImport
                     $parent = substr($humanCoding, 0, strrpos($humanCoding, '.'));
                 }
 
+                // check here
+                $isTopItem = true;
+                foreach ($lsDoc->getTopLsItems() as $topItem) {
+                    if ($topItem->getIdentifier() == $lsItem->getIdentifier()) {
+                        $isTopItem = false;
+                    }
+                }
+                
                 if (array_key_exists($parent, $humanCodingValues)) {
                     $lsItems[$humanCodingValues[$parent]]->addChild($lsItem);
                 } else {
-                    $lsDoc->addTopLsItem($lsItem);
+                    if ($isTopItem === false) {
+                        $lsDoc->addTopLsItem($lsItem);
+                    }
                 }
             }
             $this->saveAssociations($i, $content, $lsItemKeys, $lsItem, $lsDoc, $frameworkToAssociate);
@@ -184,6 +195,17 @@ class GithubImport
     public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, $assocType)
     {
         $em = $this->getEntityManager();
+
+        // foreach ($lsItem->getAssociations() as $association) {
+        //     if (TRUE) {
+        //         var_dump($cfAssociation);
+        //         var_dump($association->getDestination()->getIdentifier());
+        //         var_dump($association->getDestination()->getHumanCodingScheme());
+        //         var_dump("----------- addItemRelated -------------");
+        //         return;
+        //     }
+        // }
+
         if (strlen(trim($cfAssociation)) > 0) {
             if ($frameworkToAssociate === 'all') {
                 $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
@@ -192,6 +214,17 @@ class GithubImport
                 $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
                     ->findByAllIdentifierOrHumanCodingSchemeByLsDoc($frameworkToAssociate, $cfAssociation);
             }
+
+            // // var_dump($cfAssociation);
+            // // var_dump($association->getDestination()->getIdentifier());
+            // // var_dump($association->getDestination()->getHumanCodingScheme());
+            // // var_dump("----------- addItemRelated -------------");
+
+            // foreach ($lsItem->getAssociations() as $association) {
+            //     if (($association->getDestination()->getIdentifier() === $cfAssociation) || ($association->getDestination()->getHumanCodingScheme() === $cfAssociation)) {
+            //         return;
+            //     }
+            // }
 
             if (count($itemsAssociated) > 0) {
                 foreach ($itemsAssociated as $itemAssociated) {
@@ -250,7 +283,12 @@ class GithubImport
      */
     public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data, $em)
     {
-        if($em->getRepository('CftfBundle:LsItem')->findOneBy(array('identifier' => $data[$lsItemKeys['identifier']])) === null){
+        // Query the db for matching UUIDs.
+        $resultOfSearch = $em->getRepository('CftfBundle:LsItem')->findOneBy(array('identifier' => $data[$lsItemKeys['identifier']]));
+
+        // If not in the DB create a new lsItem.
+        if($resultOfSearch === null){
+
             $lsItem = new LsItem();
             $em = $this->getEntityManager();
             $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
@@ -260,6 +298,34 @@ class GithubImport
             $em->persist($lsItem);
 
             return $lsItem;
+        } else { // Update if in db and changed.
+            // log in the changelog
+
+            // Data from the csv
+            // var_dump($data);
+
+            $fullStatement = $resultOfSearch->getFullStatement();
+            // var_dump($fullStatement);
+            var_dump($data[$lsItemKeys['fullStatement']]);
+
+            if ($data[$lsItemKeys['fullStatement']] != $fullStatement) {
+                var_dump("Worked");
+
+                // $lsItem = new LsItem();
+                // $em = $this->getEntityManager();
+                
+                $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
+
+                $lsItem = $this->assignValuesToItem($resultOfSearch, $lsDoc, $lsItemKeys, $data, $itemAttributes);
+
+                $em->persist($lsItem);
+
+                return $lsItem;
+            } else {
+                return $resultOfSearch;
+            }
+
+            // return $lsItem;
         }
     }
 
