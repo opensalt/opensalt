@@ -19,14 +19,14 @@ body{
 }
 #treeSideLeft {
    // border-right:3px solid #f5f5f5;
-    Float:left;
+    float:left;
     width:50%;
     min-width: 300px;
 }
 
 #treeSideRight {
   //  border-left:3px solid #f5f5f5;
-    Float:left;
+    float:left;
     width:50%;
 }
 
@@ -86,12 +86,12 @@ body{
 #tree2SectionControls {
     display:none;
     margin-top: 15px;
-  padding-left:20px;
+    padding-left:20px;
 }
 
 #tree1SectionControls
 {
-  padding-left:20px;
+    padding-left:20px;
 }
 
 .filterClear {
@@ -606,7 +606,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 .toggle-container-left {
     position: absolute;
     top: 50%;
-  padding-left: 2px;
+    padding-left: 2px;
     cursor: pointer;
 }
 
