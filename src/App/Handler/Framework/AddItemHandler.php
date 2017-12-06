@@ -2,7 +2,7 @@
 
 namespace App\Handler\Framework;
 
-use App\Command\Framework\AddDocumentCommand;
+use App\Command\Framework\AddItemCommand;
 use App\Event\CommandEvent;
 use App\Service\FrameworkService;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -10,11 +10,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Class UpdateDocumentHandler
+ * Class AddItemHandler
  *
  * @DI\Service()
  */
-class UpdateDocumentHandler
+class AddItemHandler
 {
     /**
      * @var FrameworkService
@@ -27,7 +27,7 @@ class UpdateDocumentHandler
     private $validator;
 
     /**
-     * AddDocumentHandler constructor.
+     * AddItemHandler constructor.
      *
      * @DI\InjectParams({
      *     "validator" = @DI\Inject("validator"),
@@ -44,7 +44,7 @@ class UpdateDocumentHandler
     }
 
     /**
-     * @DI\Observe(App\Command\Framework\AddDocumentCommand::class)
+     * @DI\Observe(App\Command\Framework\AddItemCommand::class)
      *
      * @param CommandEvent $event
      * @param string $eventName
@@ -54,22 +54,27 @@ class UpdateDocumentHandler
      */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        /** @var AddDocumentCommand $command */
+        /** @var AddItemCommand $command */
         $command = $event->getCommand();
 
-        $doc = $command->getDoc();
-        $doc->setUpdatedAt(new \DateTime());
+        $item = $command->getItem();
 
-        $errors = $this->validator->validate($doc);
+        if ($command->getParent()) {
+            $command->getParent()->addChild($item, $command->getAssocGroup());
+        } else {
+            $command->getDoc()->addTopLsItem($item, $command->getAssocGroup());
+        }
+
+        $errors = $this->validator->validate($item);
         if (count($errors)) {
             $command->setValidationErrors($errors);
             $errorString = (string) $errors;
 
-            throw new \Exception("Error updating framework: {$errorString}");
+            throw new \Exception("Error creating item: {$errorString}");
         }
 
-        $this->framework->updateDocument($doc);
+        $this->framework->addItem($item);
 
-//        $dispatcher->dispatch(AddDocumentEvent::class, new UpdateDocumentEvent());
+//        $dispatcher->dispatch(AddItemEvent::class, new AddItemEvent());
     }
 }

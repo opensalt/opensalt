@@ -2,6 +2,11 @@
 
 namespace CftfBundle\Controller;
 
+use App\Command\CommandInterface;
+use App\Command\Framework\DeleteItemCommand;
+use App\Command\Framework\DeleteItemWithChildrenCommand;
+use App\Command\Framework\UpdateTreeItemsCommand;
+use App\Event\CommandEvent;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
@@ -401,30 +406,30 @@ class DocTreeController extends Controller
      * @param int $includingChildren
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @throws \InvalidArgumentException
      */
-    public function deleteAction(Request $request, LsItem $lsItem, $includingChildren = 0)
+    public function deleteItemAction(Request $request, LsItem $lsItem, int $includingChildren = 0): Response
     {
         $ajax = false;
         if ($request->isXmlHttpRequest()) {
             $ajax = true;
         }
+
         $lsDocSlug = $lsItem->getLsDoc()->getSlug();
 
-        $em = $this->getDoctrine()->getManager();
-
-        if ($includingChildren) {
-            $em->getRepository(LsItem::class)->removeItemAndChildren($lsItem);
-            $em->flush();
+        if (0 === $includingChildren) {
+            $command = new DeleteItemCommand($lsItem);
+            $this->sendCommand($command);
         } else {
-            $em->getRepository(LsItem::class)->removeItem($lsItem);
-            $em->flush();
+            $command = new DeleteItemWithChildrenCommand($lsItem);
+            $this->sendCommand($command);
         }
 
         if ($ajax) {
             return new Response($this->generateUrl('doc_tree_view', ['slug' => $lsDocSlug]), Response::HTTP_ACCEPTED);
-        } else {
-            return $this->redirectToRoute('doc_tree_view', ['slug' => $lsDocSlug]);
         }
+
+        return $this->redirectToRoute('doc_tree_view', ['slug' => $lsDocSlug]);
     }
 
     /**
@@ -444,47 +449,11 @@ class DocTreeController extends Controller
      *
      * @return array
      */
-    public function updateItemsAction(Request $request, LsDoc $lsDoc, $_format = 'json')
+    public function updateItemsAction(Request $request, LsDoc $lsDoc, $_format = 'json'): array
     {
-        $rv = [];
-
-        $em = $this->getDoctrine()->getManager();
-        $assocGroupRepo = $em->getRepository(LsDefAssociationGrouping::class);
-
-        $lsItems = $request->request->get('lsItems');
-        foreach ($lsItems as $lsItemId => $updates) {
-            $rv[$lsItemId] = [
-                'originalKey' => $updates['originalKey'],
-            ];
-
-            // set assocGroup if supplied; pass this in when necessary below
-            $assocGroup = null;
-            if (array_key_exists('assocGroup', $updates)) {
-                $assocGroup = $assocGroupRepo->find($updates['assocGroup']);
-            }
-
-            $lsItem = $this->getItemForUpdate($lsDoc, $updates, $lsItemId, $assocGroup);
-
-            // return the id and fullStatement of the item, whether it's new or it already existed
-            $rv[$lsItemId]['lsItemId'] = $lsItem->getId();
-            $rv[$lsItemId]['lsItemIdentifier'] = $lsItem->getIdentifier();
-            $rv[$lsItemId]['fullStatement'] = $lsItem->getFullStatement();
-
-            if (array_key_exists('deleteChildOf', $updates)) {
-                $this->deleteChildAssociations($lsItem, $updates, $lsItemId, $rv);
-            } elseif (array_key_exists('updateChildOf', $updates)) {
-                $this->updateChildOfAssociations($lsItem, $updates, $lsItemId, $rv);
-            }
-
-            // create new childOf association if specified
-            if (array_key_exists('newChildOf', $updates)) {
-                $this->addChildOfAssociations($lsItem, $updates, $lsItemId, $rv, $assocGroup);
-            }
-        }
-
-        // send new lsItem updatedAt??
-
-        $em->flush();
+        $command = new UpdateTreeItemsCommand($lsDoc, $request->request->get('lsItems'));
+        $this->sendCommand($command);
+        $rv = $command->getReturnValues();
 
         // get ids for new associations
         foreach ($rv as $lsItemId => $val) {
@@ -515,127 +484,6 @@ class DocTreeController extends Controller
         $em->flush();
 
         return new Response('OK', Response::HTTP_ACCEPTED);
-    }
-
-    /**
-     * Get the item to update, either the original or a copy based on the update array
-     *
-     * @param LsDoc $lsDoc
-     * @param array $updates
-     * @param int $lsItemId
-     * @param LsDefAssociationGrouping|null $assocGroup
-     *
-     * @return LsItem
-     */
-    protected function getItemForUpdate(LsDoc $lsDoc, array $updates, $lsItemId, ?LsDefAssociationGrouping $assocGroup = null): LsItem
-    {
-        $em = $this->getDoctrine()->getManager();
-        $lsItemRepo = $em->getRepository(LsItem::class);
-
-        // copy item if copyFromId is specified
-        if (array_key_exists('copyFromId', $updates)) {
-            $originalItem = $lsItemRepo->find($updates['copyFromId']);
-
-            $lsItem = $originalItem->copyToLsDoc($lsDoc, $assocGroup);
-            // if addCopyToTitle is set, add "Copy of " to fullStatement and abbreviatedStatement
-            if (array_key_exists('addCopyToTitle', $updates)) {
-                $title = 'Copy of '.$lsItem->getFullStatement();
-                $lsItem->setFullStatement($title);
-
-                $astmt = $lsItem->getAbbreviatedStatement();
-                if (!empty($astmt)) {
-                    $astmt = 'Copy of '.$astmt;
-                    $lsItem->setAbbreviatedStatement($astmt);
-                }
-            }
-
-            $em->persist($lsItem);
-            // flush here to generate ID for new lsItem
-            $em->flush();
-
-        } else {
-            // else get lsItem from the repository
-            $lsItem = $lsItemRepo->find($lsItemId);
-        }
-
-        return $lsItem;
-    }
-
-    /**
-     * Remove the appropriate childOf associations for the item based on the update array
-     *
-     * @param LsItem $lsItem
-     * @param array $updates
-     * @param int $lsItemId
-     * @param array $rv
-     */
-    protected function deleteChildAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv): void
-    {
-        $em = $this->getDoctrine()->getManager();
-        $assocRepo = $em->getRepository(LsAssociation::class);
-
-        // delete childOf association if specified
-        if ($updates['deleteChildOf']['assocId'] !== 'all') {
-            $assocRepo->removeAssociation($assocRepo->find($updates['deleteChildOf']['assocId']));
-            $lsItem->setUpdatedAt(new \DateTime());
-            $rv[$lsItemId]['deleteChildOf'] = $updates['deleteChildOf']['assocId'];
-        } else {
-            // if we got "all" for the assocId, it means that we're updating a new item for which the client didn't know an assocId.
-            // so in this case, it's OK to just delete any existing childof association and create a new one below
-            $assocRepo->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
-        }
-    }
-
-    /**
-     * Update the childOf associations based on the update array
-     *
-     * @param LsItem $lsItem
-     * @param array $updates
-     * @param int $lsItemId
-     * @param array $rv
-     */
-    protected function updateChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv): void
-    {
-        $em = $this->getDoctrine()->getManager();
-        $assocRepo = $em->getRepository(LsAssociation::class);
-
-        // update childOf association if specified
-        $assoc = $assocRepo->find($updates['updateChildOf']['assocId']);
-        if (!empty($assoc)) {
-            // as of now the only thing we update is sequenceNumber
-            if (array_key_exists('sequenceNumber', $updates['updateChildOf'])) {
-                $assoc->setSequenceNumber($updates['updateChildOf']['sequenceNumber']*1);
-            }
-            $rv[$lsItemId]['association'] = $assoc;
-            $rv[$lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
-        }
-        $lsItem->setUpdatedAt(new \DateTime());
-    }
-
-    /**
-     * Add new childOf associations based on the update array
-     *
-     * @param LsItem $lsItem
-     * @param array $updates
-     * @param int $lsItemId
-     * @param array $rv
-     */
-    protected function addChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv, ?LsDefAssociationGrouping $assocGroup = null): void
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        // parent could be a doc or item
-        if ($updates['newChildOf']['parentType'] === 'item') {
-            $lsItemRepo = $em->getRepository(LsItem::class);
-            $parentItem = $lsItemRepo->find($updates['newChildOf']['parentId']);
-        } else {
-            $docRepo = $em->getRepository(LsDoc::class);
-            $parentItem = $docRepo->find($updates['newChildOf']['parentId']);
-        }
-        $rv[$lsItemId]['association'] = $lsItem->addParent($parentItem, $updates['newChildOf']['sequenceNumber'], $assocGroup);
-        $lsItem->setUpdatedAt(new \DateTime());
-
-        $rv[$lsItemId]['sequenceNumber'] = $updates['newChildOf']['sequenceNumber'];
     }
 
     /**
@@ -682,5 +530,18 @@ class DocTreeController extends Controller
 
         // if not found in externalDocs, error
         return new Response('Document not found.', Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * Send a command to be handled
+     *
+     * @param CommandInterface $command
+     */
+    protected function sendCommand(CommandInterface $command): void
+    {
+        $this->get('event_dispatcher')->dispatch(
+            CommandEvent::class,
+            new CommandEvent($command)
+        );
     }
 }

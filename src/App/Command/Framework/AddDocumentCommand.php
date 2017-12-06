@@ -17,7 +17,7 @@ class AddDocumentCommand extends BaseCommand
     private $doc;
 
     /**
-     * AddDocumentCommand constructor.
+     * Constructor.
      *
      * @param LsDoc $doc
      */

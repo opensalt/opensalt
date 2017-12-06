@@ -206,7 +206,7 @@ class AsnImport
                 /** @var AsnStandard $child */
                 $child = $doc->getStandards()->get($val->getValue());
                 $childLsItem = $this->parseAsnStandard($doc, $lsDoc, $child);
-                $lsItem->createChildItem($childLsItem, null, ++$seq);
+                $lsItem->addChild($childLsItem, null, ++$seq);
             }
         }
 

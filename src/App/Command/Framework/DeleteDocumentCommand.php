@@ -22,7 +22,7 @@ class DeleteDocumentCommand extends BaseCommand
     private $callback;
 
     /**
-     * AddDocumentCommand constructor.
+     * constructor.
      *
      * @param LsDoc $doc
      * @param \Closure|null $progressCallback

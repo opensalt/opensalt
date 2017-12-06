@@ -2,7 +2,7 @@
 
 namespace App\Handler\Framework;
 
-use App\Command\Framework\AddDocumentCommand;
+use App\Command\Framework\DeleteAssociationCommand;
 use App\Event\CommandEvent;
 use App\Service\FrameworkService;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -10,11 +10,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Class UpdateDocumentHandler
+ * Class DeleteAssociationHandler
  *
  * @DI\Service()
  */
-class UpdateDocumentHandler
+class DeleteAssociationHandler
 {
     /**
      * @var FrameworkService
@@ -44,7 +44,7 @@ class UpdateDocumentHandler
     }
 
     /**
-     * @DI\Observe(App\Command\Framework\AddDocumentCommand::class)
+     * @DI\Observe(App\Command\Framework\DeleteAssociationCommand::class)
      *
      * @param CommandEvent $event
      * @param string $eventName
@@ -54,22 +54,21 @@ class UpdateDocumentHandler
      */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        /** @var AddDocumentCommand $command */
+        /** @var DeleteAssociationCommand $command */
         $command = $event->getCommand();
 
-        $doc = $command->getDoc();
-        $doc->setUpdatedAt(new \DateTime());
+        $association = $command->getAssociation();
 
-        $errors = $this->validator->validate($doc);
+        $errors = $this->validator->validate($association);
         if (count($errors)) {
             $command->setValidationErrors($errors);
             $errorString = (string) $errors;
 
-            throw new \Exception("Error updating framework: {$errorString}");
+            throw new \Exception("Error deleting association: {$errorString}");
         }
 
-        $this->framework->updateDocument($doc);
+        $this->framework->deleteAssociation($association);
 
-//        $dispatcher->dispatch(AddDocumentEvent::class, new UpdateDocumentEvent());
+//        $dispatcher->dispatch(DeleteAssociationEvent::class, new DeleteAssociationEvent());
     }
 }

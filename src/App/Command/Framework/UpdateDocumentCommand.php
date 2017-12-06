@@ -15,10 +15,6 @@ class UpdateDocumentCommand extends BaseCommand
      */
     private $doc;
 
-    /**
-     * UpdateDocumentCommand constructor.
-     * @param LsDoc $lsDoc
-     */
     public function __construct(LsDoc $doc)
     {
         $this->doc = $doc;

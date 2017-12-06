@@ -133,15 +133,13 @@ class LsDocController extends Controller
             try {
                 $command = new AddDocumentCommand($lsDoc);
                 $this->sendCommand($command);
-            } catch (\Exception $e) {
-                $form->addError(new FormError('Error adding new document: '. $e->getMessage()));
-            }
 
-            if (0 === count($form->getErrors())) {
                 return $this->redirectToRoute(
                     'doc_tree_view',
                     array('slug' => $lsDoc->getSlug())
                 );
+            } catch (\Exception $e) {
+                $form->addError(new FormError('Error adding new document: '. $e->getMessage()));
             }
         }
 
@@ -258,11 +256,7 @@ class LsDocController extends Controller
             try {
                 $command = new UpdateDocumentCommand($lsDoc);
                 $this->sendCommand($command);
-            } catch (\Exception $e) {
-                $editForm->addError(new FormError('Error upating new document: '. $e->getMessage()));
-            }
 
-            if (0 === count($editForm->getErrors())) {
                 if ($ajax) {
                     return new Response('OK', Response::HTTP_ACCEPTED);
                 }
@@ -271,6 +265,8 @@ class LsDocController extends Controller
                     'lsdoc_edit',
                     array('id' => $lsDoc->getId())
                 );
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError('Error upating new document: '. $e->getMessage()));
             }
         }
 

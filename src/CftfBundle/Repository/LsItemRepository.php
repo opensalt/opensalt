@@ -120,7 +120,7 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
         }
     }
 
-    public function removeItemAndChildren(LsItem $lsItem)
+    public function removeItemAndChildren(LsItem $lsItem): bool
     {
         $children = $lsItem->getChildren();
         foreach ($children as $child) {
@@ -130,7 +130,7 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
         return $this->removeItem($lsItem);
     }
 
-    public function removeItem(LsItem $lsItem)
+    public function removeItem(LsItem $lsItem): bool
     {
         $hasChildren = $lsItem->getChildren();
         if ($hasChildren->isEmpty()) {
