@@ -207,6 +207,7 @@
                                         </div>
                                     {% endif %}
 
+
                                     <div class="itemOptions" id="documentOptions">
                                         <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
                                                 data-target="#exportModal">Export
@@ -236,7 +237,7 @@
                                             </button>
                                         {% endif %}
 
-                                        {% if createRights %}
+                                        {% if editorRights %}
                                             {% if isDraft %}
                                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
                                                         data-target="#addChildrenModal"
@@ -246,9 +247,6 @@
                                                         data-target="#updateFrameworkModal"
                                                         data-alt-document-disabled="true">Update Framework
                                                 </button>
-                                                <a href="{{ path('export_comment', {'id':lsDocId}) }}" class="btn btn-default btn-sm"
-                                                        data-alt-document-disabled="true">Export Comment
-                                                </a>
                                             {% endif %}
                                             {% if lsDoc.importLogs is not empty %}
                                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
@@ -268,6 +266,7 @@
                                                                                            class="btn btn-xs btn-default btn-remove-association"><span
                                                     class="glyphicon glyphicon-remove" aria-hidden="true"></span><span
                                                     class="sr-only">Remove</span></span></span>
+
                                 {% endif %}
                             </div>
                         </div>  <!-- itemInfo -->
