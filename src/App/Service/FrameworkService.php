@@ -4,6 +4,11 @@ namespace App\Service;
 
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
+use CftfBundle\Entity\LsDefConcept;
+use CftfBundle\Entity\LsDefGrade;
+use CftfBundle\Entity\LsDefItemType;
+use CftfBundle\Entity\LsDefLicence;
+use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -265,6 +270,81 @@ class FrameworkService
         $this->em->remove($associationGroup);
     }
 
+    public function addConcept(LsDefConcept $concept): void
+    {
+        $this->em->persist($concept);
+    }
+
+    public function updateConcept(LsDefConcept $concept): void
+    {
+        // Intentionally empty for now
+    }
+
+    public function deleteConcept(LsDefConcept $concept): void
+    {
+        $this->em->remove($concept);
+    }
+
+    public function addGrade(LsDefGrade $grade): void
+    {
+        $this->em->persist($grade);
+    }
+
+    public function updateGrade(LsDefGrade $grade): void
+    {
+        // Intentionally empty for now
+    }
+
+    public function deleteGrade(LsDefGrade $grade): void
+    {
+        $this->em->remove($grade);
+    }
+
+    public function addItemType(LsDefItemType $itemType): void
+    {
+        $this->em->persist($itemType);
+    }
+
+    public function updateItemType(LsDefItemType $itemType): void
+    {
+        // Intentionally empty for now
+    }
+
+    public function deleteItemType(LsDefItemType $itemType): void
+    {
+        $this->em->remove($itemType);
+    }
+
+    public function addLicence(LsDefLicence $licence): void
+    {
+        $this->em->persist($licence);
+    }
+
+    public function updateLicence(LsDefLicence $licence): void
+    {
+        // Intentionally empty for now
+    }
+
+    public function deleteLicence(LsDefLicence $licence): void
+    {
+        $this->em->remove($licence);
+    }
+
+    public function addSubject(LsDefSubject $subject): void
+    {
+        $this->em->persist($subject);
+    }
+
+    public function updateSubject(LsDefSubject $subject): void
+    {
+        // Intentionally empty for now
+    }
+
+    public function deleteSubject(LsDefSubject $subject): void
+    {
+        $this->em->remove($subject);
+    }
+
     /**
      * Get the item to update, either the original or a copy based on the update array
      *
@@ -291,14 +371,16 @@ class FrameworkService
             return null;
         }
 
+        /** @var LsItem $lsItem */
         $lsItem = $originalItem->copyToLsDoc($lsDoc, $assocGroup);
+
         // if addCopyToTitle is set, add "Copy of " to fullStatement and abbreviatedStatement
         if (array_key_exists('addCopyToTitle', $updates)) {
             $title = 'Copy of ' . $lsItem->getFullStatement();
             $lsItem->setFullStatement($title);
 
             $abbreviatedStatement = $lsItem->getAbbreviatedStatement();
-            if (!empty($abbreviatedStatement)) {
+            if (null !== $abbreviatedStatement) {
                 $abbreviatedStatement = 'Copy of ' . $abbreviatedStatement;
                 $lsItem->setAbbreviatedStatement($abbreviatedStatement);
             }
@@ -306,7 +388,7 @@ class FrameworkService
 
         $this->em->persist($lsItem);
 
-        // @TODO: We really do not want to do flushes in this service
+        // @TODO: We really do not want to do flushes in this service -- how do we get an id?
         // flush here to generate ID for new lsItem
         $this->em->flush();
 

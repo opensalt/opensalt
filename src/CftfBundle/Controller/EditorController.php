@@ -9,6 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\Util\Compare;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Editor controller.
@@ -23,7 +24,7 @@ class EditorController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexAction()
+    public function indexAction(): Response
     {
         return $this->forward('CftfBundle:LsDoc:index', []);
     }
@@ -36,7 +37,7 @@ class EditorController extends Controller
      * @param \CftfBundle\Entity\LsDoc $lsDoc
      * @param string $_format
      *
-     * @return array
+     * @return array|Response
      */
     public function viewDocAction(LsDoc $lsDoc, $_format)
     {
@@ -78,7 +79,7 @@ class EditorController extends Controller
      *
      * @return array
      */
-    public function renderDocumentAction(LsDoc $lsDoc, $highlight = null, $_format = 'html')
+    public function renderDocumentAction(LsDoc $lsDoc, $highlight = null, $_format = 'html'): array
     {
         $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
 

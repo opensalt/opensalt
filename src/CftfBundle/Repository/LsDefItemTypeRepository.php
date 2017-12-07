@@ -26,7 +26,7 @@ class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
      *
      * @return array|LsDefItemType[]
      */
-    public function getSelect2List($search = null, $limit = 50, $page = 1)
+    public function getSelect2List($search = null, $limit = 50, $page = 1): array
     {
         // NOTE: indexing by title makes there only be one value per title
         // this should be changed to handle the doc or something
