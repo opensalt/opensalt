@@ -2,11 +2,10 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandInterface;
+use App\Command\CommandDispatcher;
 use App\Command\Framework\AddDocumentCommand;
 use App\Command\Framework\DeleteDocumentCommand;
 use App\Command\Framework\UpdateDocumentCommand;
-use App\Event\CommandEvent;
 use CftfBundle\Form\Type\RemoteCftfServerType;
 use CftfBundle\Form\Type\LsDocCreateType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -28,6 +27,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
  */
 class LsDocController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Lists all LsDoc entities.
      *
@@ -335,19 +336,6 @@ class LsDocController extends Controller
             'lsDoc' => $lsDoc,
             'items' => $items,
         ];
-    }
-
-    /**
-     * Send a command to be handled
-     *
-     * @param CommandInterface $command
-     */
-    protected function sendCommand(CommandInterface $command): void
-    {
-        $this->get('event_dispatcher')->dispatch(
-            CommandEvent::class,
-            new CommandEvent($command)
-        );
     }
 
     /**

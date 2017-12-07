@@ -96,7 +96,7 @@ class FrameworkService
 
     public function updateDocument(LsDoc $doc): void
     {
-        $this->em->persist($doc);
+        // Intentionally empty for now
     }
 
     public function addItem(LsItem $item): void
@@ -106,7 +106,7 @@ class FrameworkService
 
     public function updateItem(LsItem $item): void
     {
-        $this->em->persist($item);
+        // Intentionally empty for now
     }
 
     public function deleteItem(LsItem $item): void
@@ -198,7 +198,7 @@ class FrameworkService
 
     public function updateAssociation(LsAssociation $association): void
     {
-        $this->em->persist($association);
+        // Intentionally empty for now
     }
 
     public function updateTreeItems(LsDoc $doc, array $items): array
@@ -248,6 +248,21 @@ class FrameworkService
         }
 
         $lsItem->setUpdatedAt(new \DateTime());
+    }
+
+    public function addAssociationGroup(LsDefAssociationGrouping $associationGroup): void
+    {
+        $this->em->persist($associationGroup);
+    }
+
+    public function updateAssociationGroup(LsDefAssociationGrouping $associationGroup): void
+    {
+        // Intentionally empty for now
+    }
+
+    public function deleteAssociationGroup(LsDefAssociationGrouping $associationGroup): void
+    {
+        $this->em->remove($associationGroup);
     }
 
     /**

@@ -2,13 +2,12 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandInterface;
+use App\Command\CommandDispatcher;
 use App\Command\Framework\AddAssociationCommand;
 use App\Command\Framework\AddExemplarToItemCommand;
 use App\Command\Framework\AddTreeAssociationCommand;
 use App\Command\Framework\DeleteAssociationCommand;
 use App\Command\Framework\UpdateAssociationCommand;
-use App\Event\CommandEvent;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -32,6 +31,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class LsAssociationController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Lists all LsAssociation entities.
      *
@@ -325,18 +326,5 @@ class LsAssociationController extends Controller
             ->setMethod('DELETE')
             ->getForm()
             ;
-    }
-
-    /**
-     * Send a command to be handled
-     *
-     * @param CommandInterface $command
-     */
-    protected function sendCommand(CommandInterface $command): void
-    {
-        $this->get('event_dispatcher')->dispatch(
-            CommandEvent::class,
-            new CommandEvent($command)
-        );
     }
 }

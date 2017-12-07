@@ -2,12 +2,10 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandInterface;
+use App\Command\CommandDispatcher;
 use App\Command\Framework\AddItemCommand;
 use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\UpdateItemCommand;
-use App\Event\CommandEvent;
-use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsDefAssociationGrouping;
@@ -34,6 +32,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class LsItemController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Lists all LsItem entities.
      *
@@ -86,11 +86,6 @@ class LsItemController extends Controller
             try {
                 $command = new AddItemCommand($lsItem, $doc, $parent, $assocGroup);
                 $this->sendCommand($command);
-
-                $lsItem->setUpdatedAt(new \DateTime()); // Timestampable does not follow up the chain
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($lsItem);
-                $em->flush();
 
                 // retrieve isChildOf assoc id for the new item
                 $assoc = $this->getDoctrine()->getRepository('CftfBundle:LsAssociation')->findOneBy(['originLsItem' => $lsItem]);
@@ -419,18 +414,5 @@ class LsItemController extends Controller
         }
 
         return $ret;
-    }
-
-    /**
-     * Send a command to be handled
-     *
-     * @param CommandInterface $command
-     */
-    protected function sendCommand(CommandInterface $command): void
-    {
-        $this->get('event_dispatcher')->dispatch(
-            CommandEvent::class,
-            new CommandEvent($command)
-        );
     }
 }

@@ -2,11 +2,11 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandInterface;
+use App\Command\CommandDispatcher;
+use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateTreeItemsCommand;
-use App\Event\CommandEvent;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
@@ -29,6 +29,8 @@ use App\Util\Compare;
  */
 class DocTreeController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * @Route("/doc/{slug}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
      * @Route("/doc/{slug}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
@@ -446,6 +448,7 @@ class DocTreeController extends Controller
      *
      * @param Request $request
      * @param LsDoc $lsDoc
+     * @param string $_format
      *
      * @return array
      */
@@ -475,13 +478,13 @@ class DocTreeController extends Controller
      * @param Request $request
      * @param LsDefAssociationGrouping $lsDefAssociationGrouping
      *
-     * @return string
+     * @return Response
+     * @throws \InvalidArgumentException
      */
-    public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $lsDefAssociationGrouping)
+    public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $lsDefAssociationGrouping): Response
     {
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($lsDefAssociationGrouping);
-        $em->flush();
+        $command = new DeleteAssociationGroupCommand($lsDefAssociationGrouping);
+        $this->sendCommand($command);
 
         return new Response('OK', Response::HTTP_ACCEPTED);
     }
@@ -530,18 +533,5 @@ class DocTreeController extends Controller
 
         // if not found in externalDocs, error
         return new Response('Document not found.', Response::HTTP_NOT_FOUND);
-    }
-
-    /**
-     * Send a command to be handled
-     *
-     * @param CommandInterface $command
-     */
-    protected function sendCommand(CommandInterface $command): void
-    {
-        $this->get('event_dispatcher')->dispatch(
-            CommandEvent::class,
-            new CommandEvent($command)
-        );
     }
 }
