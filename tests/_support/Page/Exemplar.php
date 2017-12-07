@@ -10,6 +10,8 @@ class Exemplar implements Context {
 
   protected $exemplarData = [];
   static public $itemPath = '/cftree/item/';
+  static public $docPath = '/cftree/doc/';
+  static public $av = '/av';
   /**
    * @var \AcceptanceTester
    */
@@ -70,5 +72,25 @@ class Exemplar implements Context {
     $I->waitForElementVisible('#deleteItemBtn');
     $I->click( '//*[@id="itemInfo"]/div[3]/section[1]/div[2]/div/div/a/span[1]/span/span[1]');
     $I->acceptPopup();
+  }
+
+  /**
+   * @Given /^I delete exemplar in Association View$/
+   */
+  public function iDeleteExemplarInAssociationView() {
+    $I = $this->I;
+
+    $I->amOnPage(self::$docPath.$I->getDocId().self::$av);
+    $I->click("//*[@id='assocViewTable']//td/span/span");
+  }
+
+  /**
+   * @Given /^I should not see exemplar in Association View$/
+   */
+  public function iShouldNotSeeExemplarInAssociationView() {
+    $I = $this->I;
+
+    $I->amOnPage(self::$docPath.$I->getDocId().self::$av);
+    $I->dontSee('Exemplar', '.avTypeCell');
   }
 }
