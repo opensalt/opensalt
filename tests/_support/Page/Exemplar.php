@@ -81,7 +81,9 @@ class Exemplar implements Context {
     $I = $this->I;
 
     $I->amOnPage(self::$docPath.$I->getDocId().self::$av);
+    $I->waitForElementVisible('#assocViewTable_wrapper');
     $I->click("//*[@id='assocViewTable']//td/span/span");
+    $I->acceptPopup();
   }
 
   /**
@@ -91,6 +93,7 @@ class Exemplar implements Context {
     $I = $this->I;
 
     $I->amOnPage(self::$docPath.$I->getDocId().self::$av);
+    $I->waitForElementVisible('#assocViewTable_wrapper');
     $I->dontSee('Exemplar', '.avTypeCell');
   }
 }
