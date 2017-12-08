@@ -24,9 +24,6 @@ class AddUserCommand extends UserCommand
         $this->encryptedPassword = $encryptedPassword;
     }
 
-    /**
-     * @return string
-     */
     public function getEncryptedPassword(): string
     {
         return $this->encryptedPassword;
