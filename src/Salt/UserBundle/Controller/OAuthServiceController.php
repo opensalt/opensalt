@@ -6,12 +6,13 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * OAuth Service controller.
  *
- * @Route("login")
+ * @Route("/login")
  */
 class OAuthServiceController extends Controller
 {
@@ -27,7 +28,7 @@ class OAuthServiceController extends Controller
      *
      * @throws \UnexpectedValueException
      */
-    public function githubAction(Request $request)
+    public function githubAction(Request $request): Response
     {
         if ($this->container->hasParameter('github_redirect_uri')) {
             $redirectUri = $this->getParameter('github_redirect_uri');
@@ -63,24 +64,29 @@ class OAuthServiceController extends Controller
 
             return $this->redirect($authUrl);
         // Check given state against previously stored one to mitigate CSRF attack
-        } elseif (empty($state) || ($state !== $session->get('oauth2state'))) {
+        }
+
+        if (empty($state) || ($state !== $session->get('oauth2state'))) {
             $session->remove('oauth2state');
 
             throw new \UnexpectedValueException('Invalid state.');
-        } else {
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('SaltUserBundle:User')->find($currentUser->getId());
-
-            // Try to get an access token (using the authorization code grant)
-            $token = $provider->getAccessToken('authorization_code', [
-                'code' => $code,
-            ]);
-
-            // Set an access token per each user for fetch info.
-            $user->setGithubToken($token->getToken());
-            $em->flush();
-
-            return $this->redirectToRoute('lsdoc_index');
         }
+
+        // Try to get an access token (using the authorization code grant)
+        $token = $provider->getAccessToken('authorization_code', [
+            'code' => $code,
+        ]);
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('SaltUserBundle:User')->find($currentUser->getId());
+        if (null === $user) {
+            throw new \UnexpectedValueException('Invalid user.');
+        }
+
+        // Set an access token per each user for fetch info.
+        $user->setGithubToken($token->getToken());
+        $em->flush();
+
+        return $this->redirectToRoute('lsdoc_index');
     }
 }

@@ -49,6 +49,8 @@ class CommandHandlerRouter
 
     /**
      * @DI\Observe(App\Event\CommandEvent::class)
+     *
+     * @throws \Exception
      */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {

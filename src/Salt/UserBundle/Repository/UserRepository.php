@@ -11,6 +11,8 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * UserRepository
+ *
+ * @method array findByOrg(Organization $org)
  */
 class UserRepository extends EntityRepository implements UserLoaderInterface
 {
