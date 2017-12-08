@@ -236,7 +236,7 @@ class FrameworkService
         // return the id and fullStatement of the item, whether it's new or it already existed
         $rv[$itemId] = [
             'originalKey' => $updates['originalKey'],
-            'lsItemId' => $lsItem->getId(),
+            'lsItem' => $lsItem,
             'lsItemIdentifier' => $lsItem->getIdentifier(),
             'fullStatement' => $lsItem->getFullStatement(),
         ];
@@ -387,10 +387,6 @@ class FrameworkService
         }
 
         $this->em->persist($lsItem);
-
-        // @TODO: We really do not want to do flushes in this service -- how do we get an id?
-        // flush here to generate ID for new lsItem
-        $this->em->flush();
 
         return $lsItem;
     }

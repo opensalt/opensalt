@@ -458,11 +458,16 @@ class DocTreeController extends Controller
         $this->sendCommand($command);
         $rv = $command->getReturnValues();
 
-        // get ids for new associations
+        // get ids for new associations and items
         foreach ($rv as $lsItemId => $val) {
             if (!empty($rv[$lsItemId]['association'])) {
                 $rv[$lsItemId]['assocId'] = $rv[$lsItemId]['association']->getId();
                 unset($rv[$lsItemId]['association']);
+            }
+
+            if (!empty($rv[$lsItemId]['lsItem'])) {
+                $rv[$lsItemId]['lsItemId'] = $rv[$lsItemId]['lsItem']->getId();
+                unset($rv[$lsItemId]['lsItem']);
             }
         }
 
