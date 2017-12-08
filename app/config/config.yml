@@ -4,7 +4,6 @@ imports:
     - { resource: security.yml }
     - { resource: services.yml }
     - { resource: "@CftfBundle/Resources/config/services.yml" }
-    - { resource: "@CftfImsBundle/Resources/config/services.yml" }
     - { resource: "@CftfSbacBundle/Resources/config/services.yml" }
     - { resource: "@CftfCmsBundle/Resources/config/services.yml" }
     - { resource: "@CftfUtilBundle/Resources/config/services.yml" }

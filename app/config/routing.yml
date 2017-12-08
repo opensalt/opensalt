@@ -33,11 +33,6 @@ cftf_sbac:
     type:     annotation
     prefix:   /
 
-cftf_ims:
-    resource: "@CftfImsBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
 cftf:
     resource: "@CftfBundle/Controller/"
     type:     annotation

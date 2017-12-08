@@ -46,10 +46,6 @@ services:
         resource: '../../src/Cftf/SbacBundle/Command'
         tags: ['console.command']
 
-    Cftf\ImsBundle\Command\:
-        resource: '../../src/Cftf/ImsBundle/Command'
-        tags: ['console.command']
-
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
         public:    false
