@@ -5,8 +5,8 @@ namespace App\Command\Handler\User;
 use App\Command\Handler\BaseDoctrineHandler;
 
 /**
- * Class BaseUserHandler
+ * Class BaseCommentHandler
  */
-abstract class BaseUserHandler extends BaseDoctrineHandler
+abstract class BaseCommentHandler extends BaseDoctrineHandler
 {
 }

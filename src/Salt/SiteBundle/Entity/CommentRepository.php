@@ -33,7 +33,6 @@ class CommentRepository extends EntityRepository
         $comment->setParent($parent);
 
         $this->getEntityManager()->persist($comment);
-        $this->getEntityManager()->flush($comment);
 
         return $comment;
     }
@@ -45,7 +44,6 @@ class CommentRepository extends EntityRepository
         $commentUpvote->setUser($user);
 
         $this->getEntityManager()->persist($commentUpvote);
-        $this->getEntityManager()->flush($commentUpvote);
 
         return $commentUpvote;
     }
@@ -59,7 +57,6 @@ class CommentRepository extends EntityRepository
 
         if ($commentUpvote) {
             $em->remove($commentUpvote);
-            $em->flush($commentUpvote);
 
             return true;
         }
