@@ -18,11 +18,6 @@ salt_user:
     type:     annotation
     prefix:   /
 
-cftf_util:
-    resource: "@CftfUtilBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
 cftf_cms:
     resource: "@CftfCmsBundle/Controller/"
     type:     annotation

@@ -38,10 +38,6 @@ services:
         resource: '../../src/Salt/UserBundle/Command'
         tags: ['console.command']
 
-    Cftf\UtilBundle\Command\:
-        resource: '../../src/Cftf/UtilBundle/Command'
-        tags: ['console.command']
-
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
         public:    false

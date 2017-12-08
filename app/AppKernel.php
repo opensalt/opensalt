@@ -36,7 +36,6 @@ class AppKernel extends Kernel
 
             new CftfBundle\CftfBundle(),
             new Cftf\CmsBundle\CftfCmsBundle(),
-            new Cftf\UtilBundle\CftfUtilBundle(),
             new Salt\UserBundle\SaltUserBundle(),
             new GithubFilesBundle\GithubFilesBundle(),
             new Salt\SiteBundle\SaltSiteBundle(),

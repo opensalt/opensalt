@@ -5,7 +5,6 @@ imports:
     - { resource: services.yml }
     - { resource: "@CftfBundle/Resources/config/services.yml" }
     - { resource: "@CftfCmsBundle/Resources/config/services.yml" }
-    - { resource: "@CftfUtilBundle/Resources/config/services.yml" }
     - { resource: "@SaltUserBundle/Resources/config/services.yml" }
     - { resource: "@GithubFilesBundle/Resources/config/services.yml" }
     - { resource: "@SaltSiteBundle/Resources/config/services.yml" }
