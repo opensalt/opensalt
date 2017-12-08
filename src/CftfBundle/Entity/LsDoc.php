@@ -1307,17 +1307,17 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * @return Collection|UserDocAcl[]
+     * @return Collection|ArrayCollection|UserDocAcl[]
      */
-    public function getDocAcls(): iterable
+    public function getDocAcls(): Collection
     {
         return $this->docAcls;
     }
 
     /**
-     * @return Collection|ImportLog[]
+     * @return Collection|ArrayCollection|ImportLog[]
      */
-    public function getImportLogs(): iterable
+    public function getImportLogs(): Collection
     {
         return $this->importLogs;
     }

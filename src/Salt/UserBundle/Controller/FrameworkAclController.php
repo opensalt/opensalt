@@ -2,6 +2,8 @@
 
 namespace Salt\UserBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\User\DeleteFrameworkAclCommand;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -9,8 +11,8 @@ use Salt\UserBundle\Entity\User;
 use Salt\UserBundle\Entity\UserDocAcl;
 use Salt\UserBundle\Form\Type\AddAclUsernameType;
 use Salt\UserBundle\Form\Type\AddAclUserType;
-use Salt\UserBundle\Form\Command\AddAclUserCommand;
-use Salt\UserBundle\Form\Command\AddAclUsernameCommand;
+use App\Command\User\AddFrameworkUserAclCommand;
+use App\Command\User\AddFrameworkUsernameAclCommand;
 use Salt\UserBundle\Form\DTO\AddAclUserDTO;
 use Salt\UserBundle\Form\DTO\AddAclUsernameDTO;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -18,10 +20,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class FrameworkAclController
@@ -30,6 +33,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class FrameworkAclController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * @Route("/{id}/acl", name="framework_acl_edit")
      * @Method({"GET", "POST"})
@@ -43,13 +48,13 @@ class FrameworkAclController extends Controller
      */
     public function editAction(Request $request, LsDoc $lsDoc)
     {
-        $addAclUserDto = new AddAclUserDTO();
+        $addAclUserDto = new AddAclUserDTO($lsDoc, UserDocAcl::DENY);
         $addOrgUserForm = $this->createForm(AddAclUserType::class, $addAclUserDto, [
             'lsDoc' => $lsDoc,
             'action' => $this->generateUrl('framework_acl_edit', ['id' => $lsDoc->getId()]),
             'method' => 'POST',
         ]);
-        $addAclUsernameDto = new AddAclUsernameDTO();
+        $addAclUsernameDto = new AddAclUsernameDTO($lsDoc, UserDocAcl::ALLOW);
         $addUsernameForm = $this->createForm(AddAclUsernameType::class, $addAclUsernameDto);
 
         $addOrgUserForm->handleRequest($request);
@@ -72,13 +77,13 @@ class FrameworkAclController extends Controller
         $deleteForms = [];
         foreach ($acls as $acl) {
             /* @var UserDocAcl $acl */
-            $deleteForms[$acl->getUser()->getId()] = $this->createDeleteForm($lsDoc, $acl->getUser())->createView();
+            $aclUser = $acl->getUser();
+            $deleteForms[$aclUser->getId()] = $this->createDeleteForm($lsDoc, $aclUser)->createView();
         }
 
+        $orgUsers = [];
         if ('organization' === $lsDoc->getOwnedBy()) {
             $orgUsers = $lsDoc->getOrg()->getUsers();
-        } else {
-            $orgUsers = [];
         }
 
         return [
@@ -94,23 +99,18 @@ class FrameworkAclController extends Controller
 
     /**
      * @param LsDoc $lsDoc
-     * @param Form $addOrgUserForm
+     * @param FormInterface $addOrgUserForm
      *
-     * @return RedirectResponse|void
+     * @return RedirectResponse|null
      */
-    private function handleOrgUserAdd(LsDoc $lsDoc, Form $addOrgUserForm)
+    private function handleOrgUserAdd(LsDoc $lsDoc, FormInterface $addOrgUserForm): ?Response
     {
         if ($addOrgUserForm->isSubmitted() && $addOrgUserForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-
             $dto = $addOrgUserForm->getData();
-            $dto->lsDoc = $lsDoc;
-            $dto->access = UserDocAcl::DENY;
-            $command = new AddAclUserCommand();
+            $command = new AddFrameworkUserAclCommand($dto);
 
             try {
-                $acl = $command->perform($dto, $em);
-                $em->flush($acl);
+                $this->sendCommand($command);
 
                 return $this->redirectToRoute('framework_acl_edit', ['id' => $lsDoc->getId()]);
             } catch (UniqueConstraintViolationException $e) {
@@ -128,28 +128,23 @@ class FrameworkAclController extends Controller
             }
         }
 
-        return;
+        return null;
     }
 
     /**
      * @param LsDoc $lsDoc
-     * @param Form $addUsernameForm
+     * @param FormInterface $addUsernameForm
      *
-     * @return RedirectResponse|void
+     * @return RedirectResponse|null
      */
-    private function handleUsernameAdd(LsDoc $lsDoc, Form $addUsernameForm)
+    private function handleUsernameAdd(LsDoc $lsDoc, FormInterface $addUsernameForm): ?Response
     {
         if ($addUsernameForm->isSubmitted() && $addUsernameForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-
             $dto = $addUsernameForm->getData();
-            $dto->lsDoc = $lsDoc;
-            $dto->access = UserDocAcl::ALLOW;
-            $command = new AddAclUsernameCommand();
+            $command = new AddFrameworkUsernameAclCommand($dto);
 
             try {
-                $acl = $command->perform($dto, $em);
-                $em->flush($acl);
+                $this->sendCommand($command);
 
                 return $this->redirectToRoute('framework_acl_edit', ['id' => $lsDoc->getId()]);
             } catch (UniqueConstraintViolationException $e) {
@@ -168,7 +163,7 @@ class FrameworkAclController extends Controller
             }
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -182,19 +177,14 @@ class FrameworkAclController extends Controller
      *
      * @return RedirectResponse
      */
-    public function removeAclAction(Request $request, LsDoc $lsDoc, User $targetUser)
+    public function removeAclAction(Request $request, LsDoc $lsDoc, User $targetUser): Response
     {
         $form = $this->createDeleteForm($lsDoc, $targetUser);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $aclRepo = $em->getRepository('SaltUserBundle:UserDocAcl');
-            $acl = $aclRepo->findByDocUser($lsDoc, $targetUser);
-            if (!is_null($acl)) {
-                $em->remove($acl);
-                $em->flush($acl);
-            }
+            $command = new DeleteFrameworkAclCommand($lsDoc, $targetUser);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('framework_acl_edit', ['id' => $lsDoc->getId()]);
@@ -206,9 +196,9 @@ class FrameworkAclController extends Controller
      * @param \CftfBundle\Entity\LsDoc $lsDoc
      * @param User $targetUser The user entity
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\FormInterface The form
      */
-    private function createDeleteForm(LsDoc $lsDoc, User $targetUser)
+    private function createDeleteForm(LsDoc $lsDoc, User $targetUser): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('framework_acl_remove', ['id' => $lsDoc->getId(), 'targetUser' => $targetUser->getId()]))
