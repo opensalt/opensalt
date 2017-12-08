@@ -35,7 +35,6 @@ class AppKernel extends Kernel
             new Nelmio\CorsBundle\NelmioCorsBundle(),
 
             new CftfBundle\CftfBundle(),
-            new Cftf\SbacBundle\CftfSbacBundle(),
             new Cftf\CmsBundle\CftfCmsBundle(),
             new Cftf\UtilBundle\CftfUtilBundle(),
             new Salt\UserBundle\SaltUserBundle(),

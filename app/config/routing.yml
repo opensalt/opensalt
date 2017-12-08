@@ -28,11 +28,6 @@ cftf_cms:
     type:     annotation
     prefix:   /
 
-cftf_sbac:
-    resource: "@CftfSbacBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
 cftf:
     resource: "@CftfBundle/Controller/"
     type:     annotation
