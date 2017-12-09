@@ -19,9 +19,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 use Ramsey\Uuid\Uuid;
 
 /**
- * Class LocalUriExtension.
- *
- * @DI\Service("cftf_import.asn")
+ * @DI\Service()
  */
 class AsnImport
 {
@@ -129,8 +127,6 @@ class AsnImport
             }
         }
 
-        $em->flush();
-
         return $lsDoc;
     }
 
@@ -168,12 +164,7 @@ class AsnImport
         if ($asnStandard->statementLabel) {
             $label = $asnStandard->statementLabel->first()->value;
 
-            $itemType = $em->getRepository('CftfBundle:LsDefItemType')
-                ->findOneBy(['title' => $label])
-            ;
-            if (null === $itemType) {
-                $itemType = $this->addItemType($label);
-            }
+            $itemType = $this->findItemType($label);
 
             $lsItem->setItemType($itemType);
         }
@@ -349,7 +340,6 @@ class AsnImport
         $itemType->setCode($label);
         $itemType->setHierarchyCode('1');
         $this->em->persist($itemType);
-        $this->em->flush($itemType);
 
         return $itemType;
     }
@@ -408,5 +398,25 @@ class AsnImport
         $this->em->persist($assoc);
 
         return $assoc;
+    }
+
+    protected function findItemType(string $label): LsDefItemType
+    {
+        static $itemTypes = [];
+
+        if (in_array($label, $itemTypes)) {
+            return $itemTypes[$label];
+        }
+
+        $itemType = $this->getEntityManager()
+            ->getRepository('CftfBundle:LsDefItemType')
+            ->findOneBy(['title' => $label]);
+
+        if (null === $itemType) {
+            $itemType = $this->addItemType($label);
+            $itemTypes[$label] = $itemType;
+        }
+
+        return $itemType;
     }
 }

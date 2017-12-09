@@ -2,6 +2,8 @@
 
 namespace App\Console\Import;
 
+use App\Command\Import\ImportAsnFromUrlCommand;
+use App\Event\CommandEvent;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,12 +27,13 @@ class ImportAsnCommand extends ContainerAwareCommand
         $asnId = $input->getArgument('asnId');
         $creator = $input->getOption('creator');
 
-        $asnImport = $this->getContainer()->get('cftf_import.asn');
-
+        $output->writeln("<info>Starting import of {$asnId}</info>");
         try {
-            $asnImport->generateFrameworkFromAsn($asnId, $creator);
+            $command = new ImportAsnFromUrlCommand($asnId, $creator);
+            $this->getContainer()->get('event_dispatcher')
+                ->dispatch(CommandEvent::class, new CommandEvent($command));
 
-            $output->writeln('Done.');
+            $output->writeln('<info>Done.</info>');
         } catch (\Exception $e) {
             $output->writeln('<error>Error importing document from ASN.</error>');
 

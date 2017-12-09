@@ -2,10 +2,9 @@
 
 namespace App\Command\Logger;
 
-use App\Command\CommandInterface;
-use Symfony\Component\EventDispatcher\GenericEvent;
+use App\Command\BaseCommand;
 
-class LogCommandStartCommand extends GenericEvent implements CommandInterface
+class LogCommandStartCommand extends BaseCommand
 {
 
 }

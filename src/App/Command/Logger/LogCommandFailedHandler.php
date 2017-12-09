@@ -2,7 +2,6 @@
 
 namespace App\Command\Logger;
 
-use App\Command\Logger\LogCommandFailedCommand;
 use App\Event\CommandEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

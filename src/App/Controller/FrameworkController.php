@@ -2,9 +2,8 @@
 
 namespace App\Controller;
 
-use App\Command\CommandInterface;
+use App\Command\CommandDispatcher;
 use App\Command\Framework\AddDocumentCommand;
-use App\Event\CommandEvent;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Form\Type\LsDocCreateType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -16,12 +15,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FrameworkController extends Controller
 {
+    use CommandDispatcher;
+
     public function __construct(ContainerInterface $container = null)
     {
         // form.factory
         // event_dispatcher
         // twig
-        $this->container = $container;
+        $this->setContainer($container);
     }
 
     /**
@@ -57,18 +58,5 @@ class FrameworkController extends Controller
             'lsDoc' => $lsDoc,
             'form' => $form->createView(),
         ]);
-    }
-
-    /**
-     * Send a command to be handled
-     *
-     * @param CommandInterface $command
-     */
-    protected function sendCommand(CommandInterface $command): void
-    {
-        $this->get('event_dispatcher')->dispatch(
-            CommandEvent::class,
-            new CommandEvent($command)
-        );
     }
 }

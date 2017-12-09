@@ -4,7 +4,6 @@ namespace Salt\SiteBundle\Controller;
 
 use CftfBundle\Entity\ImportLog;
 use CftfBundle\Entity\LsDoc;
-use Salt\UserBundle\Entity\User;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefItemType;
@@ -42,33 +41,6 @@ class DefaultController extends Controller
         return [
             'salt_version' => $fullVersion,
         ];
-    }
-
-    /**
-     * @Route("/salt/case/import", name="import_case_file")
-     * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     *
-     * @return JsonResponse
-     */
-    public function importAction(Request $request)
-    {
-        $response = new JsonResponse();
-        $content = base64_decode($request->request->get('fileContent'));
-        $fileContent = json_decode($content);
-
-        $caseImporter = $this->get('cftf_import.case');
-        $doc = $caseImporter->importCaseFile($fileContent);
-        $user = $this->getUser();
-        if ($user instanceof User) {
-            $doc->setOrg($user->getOrg());
-        }
-        $this->getDoctrine()->getManager()->flush();
-
-        return $response->setData([
-            'message' => 'Success'
-        ]);
     }
 
     /**

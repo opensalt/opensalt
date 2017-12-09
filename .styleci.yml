@@ -23,6 +23,7 @@ disabled:
     #- cast_spaces
     #- class_definition
     #- concat_without_spaces
+    - const_separation
     #- declare_equal_normalize
     #- elseif
     #- encoding

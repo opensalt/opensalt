@@ -2,7 +2,6 @@
 
 namespace App\Command\Logger;
 
-use App\Command\Logger\LogCommandStartCommand;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

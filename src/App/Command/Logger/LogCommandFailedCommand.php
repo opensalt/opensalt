@@ -2,9 +2,9 @@
 
 namespace App\Command\Logger;
 
-use App\Command\CommandInterface;
+use App\Command\BaseCommand;
 
-class LogCommandFailedCommand implements CommandInterface
+class LogCommandFailedCommand extends BaseCommand
 {
 
 }
