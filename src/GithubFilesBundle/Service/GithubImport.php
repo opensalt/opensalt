@@ -89,7 +89,6 @@ class GithubImport
      */
     public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
     {
-        var_dump("saveCSVGithubDocument");
         $em = $this->getEntityManager();
         $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find($lsDocId);
 
@@ -111,6 +110,7 @@ class GithubImport
             $em->persist($successLog);
         }
 
+        // Build the lsItems array
         $lsItems = [];
         $humanCodingValues = [];
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
@@ -131,30 +131,29 @@ class GithubImport
 
         if(count($lsItems) < 1){return;}
 
+        // Build associations
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lsItem = $lsItems[$i];
             if (null === $lsItem || !array_key_exists('isChildOf', $lsItemKeys)) { continue; }
 
+            // Check if the lsItems UUID exists in the ls_association table and
+            // if it is do not create a new association. This allows content
+            // updates but doesn't double up the associations.
+            $thisItemsUUID = $content[$i]["Identifier"];
+            $associationExists = $em->getRepository('CftfBundle:LsAssociation')->findOneBy(['originNodeIdentifier' => $thisItemsUUID]);
+            if ($associationExists) { break; }
+
+            // check if the item returns a humancodingscheme
             if ($humanCoding = $lsItem->getHumanCodingScheme()) {
                 $parent = $content[$i][$lsItemKeys['isChildOf']];
                 if (empty($parent)) {
                     $parent = substr($humanCoding, 0, strrpos($humanCoding, '.'));
                 }
 
-                // check here
-                $isTopItem = true;
-                foreach ($lsDoc->getTopLsItems() as $topItem) {
-                    if ($topItem->getIdentifier() == $lsItem->getIdentifier()) {
-                        $isTopItem = false;
-                    }
-                }
-                
                 if (array_key_exists($parent, $humanCodingValues)) {
                     $lsItems[$humanCodingValues[$parent]]->addChild($lsItem);
                 } else {
-                    if ($isTopItem === false) {
-                        $lsDoc->addTopLsItem($lsItem);
-                    }
+                    $lsDoc->addTopLsItem($lsItem);
                 }
             }
             $this->saveAssociations($i, $content, $lsItemKeys, $lsItem, $lsDoc, $frameworkToAssociate);
@@ -196,16 +195,6 @@ class GithubImport
     {
         $em = $this->getEntityManager();
 
-        // foreach ($lsItem->getAssociations() as $association) {
-        //     if (TRUE) {
-        //         var_dump($cfAssociation);
-        //         var_dump($association->getDestination()->getIdentifier());
-        //         var_dump($association->getDestination()->getHumanCodingScheme());
-        //         var_dump("----------- addItemRelated -------------");
-        //         return;
-        //     }
-        // }
-
         if (strlen(trim($cfAssociation)) > 0) {
             if ($frameworkToAssociate === 'all') {
                 $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
@@ -214,17 +203,6 @@ class GithubImport
                 $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
                     ->findByAllIdentifierOrHumanCodingSchemeByLsDoc($frameworkToAssociate, $cfAssociation);
             }
-
-            // // var_dump($cfAssociation);
-            // // var_dump($association->getDestination()->getIdentifier());
-            // // var_dump($association->getDestination()->getHumanCodingScheme());
-            // // var_dump("----------- addItemRelated -------------");
-
-            // foreach ($lsItem->getAssociations() as $association) {
-            //     if (($association->getDestination()->getIdentifier() === $cfAssociation) || ($association->getDestination()->getHumanCodingScheme() === $cfAssociation)) {
-            //         return;
-            //     }
-            // }
 
             if (count($itemsAssociated) > 0) {
                 foreach ($itemsAssociated as $itemAssociated) {
@@ -299,21 +277,9 @@ class GithubImport
 
             return $lsItem;
         } else { // Update if in db and changed.
-            // log in the changelog
-
-            // Data from the csv
-            // var_dump($data);
-
             $fullStatement = $resultOfSearch->getFullStatement();
-            // var_dump($fullStatement);
-            var_dump($data[$lsItemKeys['fullStatement']]);
 
             if ($data[$lsItemKeys['fullStatement']] != $fullStatement) {
-                var_dump("Worked");
-
-                // $lsItem = new LsItem();
-                // $em = $this->getEntityManager();
-                
                 $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
 
                 $lsItem = $this->assignValuesToItem($resultOfSearch, $lsDoc, $lsItemKeys, $data, $itemAttributes);
@@ -324,8 +290,6 @@ class GithubImport
             } else {
                 return $resultOfSearch;
             }
-
-            // return $lsItem;
         }
     }
 
