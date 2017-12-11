@@ -252,7 +252,7 @@ var Import = (function() {
         };
 
         $.ajax({
-            url: '/app_dev.php/cf/github/import',
+            url: '/cf/github/import',
             type: 'post',
             data: dataRequest,
             success: function(response){
