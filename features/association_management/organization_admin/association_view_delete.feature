@@ -8,10 +8,10 @@ Feature: Deleting a association view
     Given I log in as a user with role "Admin"
     Then I create a framework
     And I add a Item
-    And I add exemplar
+    And I add an exemplar
     And I add a Association
 
-    Then I delete exemplar in Association View
-    And I should not see exemplar in Association View
+    Then I delete an exemplar in Association View
+    And I should not see an exemplar in Association View
 
     Then I delete the framework

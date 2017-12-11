@@ -300,9 +300,9 @@ class Item implements Context
 
 
   /**
-   * @Given /^I change the last item to a Parent Item$/
+   * @Given /^I move the last item to a Parent Item$/
    */
-  public function iChangeTheLastItemToAParentItem() {
+  public function iMoveTheLastItemToAParentItem() {
     $I = $this->I;
 
     $I->amOnPage(self::$itemPath.$I->getItemId());
@@ -311,16 +311,16 @@ class Item implements Context
     $I->click('Make This Item a Parent');
     $I->dragAndDrop('(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]', '//*[@id="ui-id-1"]/span');
   }
-  //*[@id="ui-id-2"]/span
+
   /**
-   * @Then /^I see that the Child item$/
+   * @Then /^I see the Child item of the Parent$/
    */
-  public function iSeeThatTheChildItem() {
+  public function iSeeTheChildItemOfTheParent() {
     $I = $this->I;
 
     $I->amOnPage(self::$itemPath.$I->getItemId());
-    $I->waitForElementVisible('#deleteItemBtn');
-    $I->seeElementInDOM('//img[@src="/assets/img/item.png"]');
+    $I->waitForElementVisible('//*[@id="itemInfo"]');
+    $I->seeElementInDOM('//img[@src="/assets/img/folder.png"]');
   }
 
 

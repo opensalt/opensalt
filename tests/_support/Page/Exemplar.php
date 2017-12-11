@@ -24,7 +24,7 @@ class Exemplar implements Context {
 
   /**
    * @Given /^I add "([^"]*)" exemplar$/
-   * @Given /^I add exemplar$/
+   * @Given /^I add an exemplar$/
    */
   public function iAddExemplar($exemplar = 'Test Exemplar') {
     $I = $this->I;
@@ -75,7 +75,7 @@ class Exemplar implements Context {
   }
 
   /**
-   * @Given /^I delete exemplar in Association View$/
+   * @Given /^I delete an exemplar in Association View$/
    */
   public function iDeleteExemplarInAssociationView() {
     $I = $this->I;
@@ -87,7 +87,7 @@ class Exemplar implements Context {
   }
 
   /**
-   * @Given /^I should not see exemplar in Association View$/
+   * @Given /^I should not see an exemplar in Association View$/
    */
   public function iShouldNotSeeExemplarInAssociationView() {
     $I = $this->I;
