@@ -151,9 +151,9 @@ class GithubImport
             // Check if the lsItems UUID exists in the ls_association table and
             // if it is do not create a new association. This allows content
             // updates but doesn't double up the associations.
-            $thisItemsUUID = $content[$i]["Identifier"];
+            $thisItemsUUID = $content[$i]['Identifier'];
             $associationExists = $em->getRepository('CftfBundle:LsAssociation')->findOneBy(['originNodeIdentifier' => $thisItemsUUID]);
-            $logDetails = date("Y/m/d h:i:s A ") . "The lsItem with the Human coding scheme of {$content[$i]["Human Coding Scheme"]} and UUID of {$thisItemsUUID} has been added.";
+            $logDetails = date('Y/m/d h:i:s A ')."The lsItem with the Human coding scheme of {$content[$i]['Human Coding Scheme']} and UUID of {$thisItemsUUID} has been added.";
 
             if (!$associationExists) {
                 // Log new items added.
@@ -307,7 +307,7 @@ class GithubImport
                 $em->persist($lsItem);
 
                 // Log if we make an update.
-                $logDetails = date("Y/m/d h:i:s A ") . "The lsItem with the Human coding scheme of {$data[$lsItemKeys['humanCodingScheme']]} has been updated.";
+                $logDetails = date('Y/m/d h:i:s A ')."The lsItem with the Human coding scheme of {$data[$lsItemKeys['humanCodingScheme']]} has been updated.";
                 $errorLog = new ImportLog();
                 $errorLog->setLsDoc($lsDoc);
                 $errorLog->setMessage($logDetails);
