@@ -254,7 +254,7 @@ var Import = (function() {
             type: 'post',
             data: dataRequest,
             success: function(response){
-                // location.reload();
+                location.reload();
             }
         });
     }
