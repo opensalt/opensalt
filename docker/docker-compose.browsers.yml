@@ -17,6 +17,8 @@ services:
     shm_size: '2gb'
     volumes:
       - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
+    environment:
+      SE_OPTS: "-enablePassThrough false"
 
   wait:
     image: jwilder/dockerize
