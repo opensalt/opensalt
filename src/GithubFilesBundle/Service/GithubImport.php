@@ -112,6 +112,7 @@ class GithubImport
 
         // Build the lsItems array
         $lsItems = [];
+        $sequenceNumbers = [];
         $humanCodingValues = [];
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lineContent = $content[$i];
@@ -121,10 +122,21 @@ class GithubImport
                 $lsItems[$i] = null;
                 continue;
             }
+
             if($lsItem !== null){
                 $lsItems[$i] = $lsItem;
                 if ($lsItem->getHumanCodingScheme()) {
                     $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
+                }
+
+                if (array_key_exists('sequenceNumber', $lsItemKeys)) {
+                    $seq = $content[$i][trim($lsItemKeys['sequenceNumber'])];
+                    if (!is_numeric($seq)) {
+                        $seq = null;
+                    }
+                    $sequenceNumbers[$i] = $seq;
+                } else {
+                    $sequenceNumbers[$i] = null;
                 }
             }
         }
@@ -159,9 +171,9 @@ class GithubImport
                     }
 
                     if (array_key_exists($parent, $humanCodingValues)) {
-                        $lsItems[$humanCodingValues[$parent]]->addChild($lsItem);
+                        $lsItems[$humanCodingValues[$parent]]->addChild($lsItem, null, $sequenceNumbers[$i]);
                     } else {
-                        $lsDoc->addTopLsItem($lsItem);
+                        $lsDoc->addTopLsItem($lsItem, null, $sequenceNumbers[$i]);
                     }
                 }
                 $this->saveAssociations($i, $content, $lsItemKeys, $lsItem, $lsDoc, $frameworkToAssociate);
@@ -215,10 +227,10 @@ class GithubImport
 
             if (count($itemsAssociated) > 0) {
                 foreach ($itemsAssociated as $itemAssociated) {
-                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType);
+                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType, null);
                 }
             } else {
-                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType);
+                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType, null);
             }
         }
     }
@@ -320,7 +332,7 @@ class GithubImport
      */
     private function isValidItemContent(array $lineContent, array $lsItemKeys): bool
     {
-        return $lineContent[$lsItemKeys['fullStatement']] ?? false && $lineContent[$lsItemKeys['fullStatement']] !== '';
+        return ($lineContent[$lsItemKeys['fullStatement']] ?? '') !== '';
     }
 
     /**
@@ -340,6 +352,7 @@ class GithubImport
         $lsItem->setFullStatement($lineContent[$lsItemKeys['fullStatement']]);
         if (array_key_exists($lsItemKeys['identifier'], $lineContent) && \Ramsey\Uuid\Uuid::isValid($lineContent[$lsItemKeys['identifier']])) {
             $lsItem->setIdentifier($lineContent[$lsItemKeys['identifier']]);
+            $lsItem->setUri('local:'.$lineContent[$lsItemKeys['identifier']]);
         }
         foreach ($keys as $key) {
             if (array_key_exists($key, $lsItemKeys) && array_key_exists($lsItemKeys[$key], $lineContent)) $lsItem->{'license' === $key ? 'setLicenceUri' : 'set'.ucfirst($key)}($lineContent[$lsItemKeys[$key]]);

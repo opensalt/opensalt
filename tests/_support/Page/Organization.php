@@ -28,7 +28,7 @@ class Organization implements Context
         $I = $this->I;
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
-        $name = $faker->company;
+        $name = str_replace("'", '', $faker->company);
         $this->orgName = $name;
 
         $I->click('a.dropdown-toggle');

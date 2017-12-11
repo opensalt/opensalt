@@ -35,44 +35,5 @@
                 </form>
             </div>
         </div>
-        <br>
-        <div class="row">
-            <div class="col-xs-4">
-            </div>
-            <div class="col-xs-4">
-                If you forget your password, please contact your organization admin, listed here:
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-xs-3">
-            </div>
-            <div class="col-xs-6">
-                <table class="table" id="js-help-table-admin-users">
-                    <thead>
-                        <tr>
-                            <td>Username</td>
-                            <td>Organization</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in org_admins %}
-                            <tr>
-                                <td>{{ user.username}}</td>
-                                <td>{{ user.org.name }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
-{% endblock %}
-
-{% block javascripts %}
-<script>
-    $(function() {
-        $('#js-help-table-admin-users').DataTable();
-    });
-</script>
 {% endblock %}
