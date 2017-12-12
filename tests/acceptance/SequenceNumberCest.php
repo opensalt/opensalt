@@ -48,7 +48,7 @@ class SequenceNumberCest
         $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.csv'));
         $I->selectOption('#js-framework-to-association', array('value' => $I->getDocId()));
         $I->click('.btn-import-csv');
-        $I->waitForJS('return $.active == 0;', 10);
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 10);
         unlink($filename.'.csv');
 
         $I->getLastFrameworkId();
