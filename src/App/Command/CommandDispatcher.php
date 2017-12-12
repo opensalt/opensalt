@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Event\CommandEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 trait CommandDispatcher
 {
@@ -13,6 +14,7 @@ trait CommandDispatcher
      */
     protected function sendCommand(CommandInterface $command): void
     {
+        /** @var EventDispatcherInterface $dispatcher */
         $dispatcher = $this->dispatcher ?? null;
 
         if (null === $dispatcher) {
