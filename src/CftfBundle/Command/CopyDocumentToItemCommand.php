@@ -2,6 +2,8 @@
 
 namespace CftfBundle\Command;
 
+use App\Command\Framework\CopyDocumentToItemCommand as CopyDocumentToItemEventCommand;
+use App\Event\CommandEvent;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -61,7 +63,9 @@ class CopyDocumentToItemCommand extends ContainerAwareCommand
             $progress->advance();
         };
 
-        $lsDocRepo->copyDocumentToItem($oldDoc, $newDoc, $callback);
+        $command = new CopyDocumentToItemEventCommand($oldDoc, $newDoc, $callback);
+        $this->getContainer()->get('event_dispatcher')
+            ->dispatch(CommandEvent::class, new CommandEvent($command));
 
         $output->writeln('<info>Duplicated.</info>');
     }

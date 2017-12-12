@@ -3,7 +3,6 @@
 namespace App\Handler;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityManager;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 

@@ -328,11 +328,11 @@ xENDx;
     }
 
     /**
-     * @param LsDoc $oldDoc
-     * @param LsDoc $newDoc
+     * @param LsDoc $fromDoc
+     * @param LsDoc $toDoc
      * @param \Closure|null $progressCallback
      */
-    public function copyDocumentToItem(LsDoc $oldDoc, LsDoc $newDoc, \Closure $progressCallback = null)
+    public function copyDocumentToItem(LsDoc $fromDoc, LsDoc $toDoc, \Closure $progressCallback = null)
     {
         $em = $this->getEntityManager();
 
@@ -341,28 +341,27 @@ xENDx;
             };
         }
 
-        $progressCallback('Creating new item');
-        $lsItem = $newDoc->createItem();
-        $lsItem->setFullStatement($oldDoc->getTitle());
-        $lsItem->setNotes($oldDoc->getNote());
-        $newDoc->addTopLsItem($lsItem);
-        $em->persist($lsItem);
+        $progressCallback('Adding framework as an item in another framework');
 
-        foreach ($oldDoc->getAssociations() as $oldAssoc) {
-            $newAssoc = $newDoc->createAssociation();
-            $newAssoc->setOriginLsItem($lsItem);
+        $item = $toDoc->createItem();
+        $item->setFullStatement($fromDoc->getTitle());
+        $item->setNotes($fromDoc->getNote());
+        $toDoc->addTopLsItem($item);
+        $em->persist($item);
+
+        foreach ($fromDoc->getAssociations() as $oldAssoc) {
+            $newAssoc = $toDoc->createAssociation();
+            $newAssoc->setOriginLsItem($item);
             $newAssoc->setType($oldAssoc->getType());
             $newAssoc->setDestination($oldAssoc->getDestination(), $oldAssoc->getDestinationNodeIdentifier());
-            $lsItem->addAssociation($newAssoc);
+            $item->addAssociation($newAssoc);
             $em->persist($newAssoc);
         }
 
-        foreach ($oldDoc->getTopLsItems() as $oldItem) {
-            $newItem = $oldItem->duplicateToLsDoc($newDoc);
-            $lsItem->addChild($newItem);
+        foreach ($fromDoc->getTopLsItems() as $oldItem) {
+            $newItem = $oldItem->duplicateToLsDoc($toDoc);
+            $item->addChild($newItem);
         }
-
-        $em->flush();
 
         $progressCallback('Done');
     }
