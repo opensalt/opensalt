@@ -1,11 +1,11 @@
 Feature: A framework with markdown can be loaded
   In order to add styling to statements
-  As an super editor
+  As an organization editor
   I need to be able to use markdown in the full statement
 
-  @super-editor @case-file @1107-0825
+  @organization-editor @case-file @markdown @1107-0825
   Scenario: 1107-0825 A CASE file can contain markdown syntax
-    Given I log in as a user with role "Super-Editor"
+    Given I log in as a user with role "Editor"
     And I am on the homepage
     When I click "Import framework"
     Then I should see the import dialogue

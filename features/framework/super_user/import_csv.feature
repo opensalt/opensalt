@@ -3,7 +3,7 @@ Feature: The framework can be uploaded as CSV
   As an Super-User
   I need to upload a CSV file of the framework
 
-  @incomplete @super-user @framework @case-file @csv @1016-1328
+  @incomplete @super-user @framework @case-file @csv @1016-1328 @duplicate
   Scenario: 1016-1328 A CSV file can be uploaded and downloaded
     Given I log in as a user with role "Super-User"
     And I am on the homepage

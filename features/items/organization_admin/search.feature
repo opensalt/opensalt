@@ -3,7 +3,7 @@ Feature: Search a item
   As an organization-admin
   I need to see the search from
 
-  @organization-admin @item @search-item @1016-1024
+  @organization-admin @item @search-item @1016-1024 @duplicate
   Scenario: 1016-1024 An organization-admin can edit a item
     Given I log in as a user with role "Admin"
     And I create a framework

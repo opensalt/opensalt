@@ -3,7 +3,7 @@ Feature: Search a item
   As an super editor user
   I need to see the search from
 
-  @super-editor @item @search-item @1016-1018
+  @super-editor @item @search-item @1016-1018 @duplicate
   Scenario: 1016-1018 An super editor user can edit a item
     Given I log in as a user with role "Super-Editor"
     And I create a framework
