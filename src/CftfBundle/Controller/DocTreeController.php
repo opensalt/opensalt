@@ -3,6 +3,7 @@
 namespace CftfBundle\Controller;
 
 use App\Command\CommandDispatcher;
+use App\Command\Framework\AddExternalDocCommand;
 use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\DeleteItemWithChildrenCommand;
@@ -269,6 +270,7 @@ class DocTreeController extends Controller
                 if (preg_match("/\"identifier\"\s*:\s*\"(.+?)\"/", $s, $matches)) {
                     $identifier = $matches[1];
                 }
+
                 $title = '';
                 if (preg_match("/\"title\"\s*:\s*\"([\s\S]+?)\"/", $s, $matches)) {
                     $title = $matches[1];
@@ -278,19 +280,20 @@ class DocTreeController extends Controller
                 if (!empty($identifier) && !empty($title)) {
                     // see if the doc is already there; if so, we don't want to change the "autoLoad" parameter, but we should still update the title/url if necessary
                     $externalDocs = $lsDoc->getExternalDocs();
+
+                    $autoLoad = 'false';
                     if (!empty($externalDocs[$identifier])) {
                         $autoLoad = $externalDocs[$identifier]['autoLoad'];
-                    } else {
-                        // if it's a newly-associated doc, assume here that it does not need to be "autoloaded"; that will be changed if/when we add an association with an item in the doc
-                        $autoLoad = 'false';
                     }
 
                     // if this is a new doc or anything has changed, save it
-                    if (empty($externalDocs[$identifier]) || $externalDocs[$identifier]['autoLoad'] != $autoLoad || $externalDocs[$identifier]['url'] != $url || $externalDocs[$identifier]['title'] != $title) {
-                        $lsDoc->addExternalDoc($identifier, $autoLoad, $url, $title);
-                        $em = $this->getDoctrine()->getManager();
-                        $em->persist($lsDoc);
-                        $em->flush();
+                    if (empty($externalDocs[$identifier])
+                        || $externalDocs[$identifier]['autoLoad'] !== $autoLoad
+                        || $externalDocs[$identifier]['url'] !== $url
+                        || $externalDocs[$identifier]['title'] !== $title
+                    ) {
+                        $command = new AddExternalDocCommand($lsDoc, $identifier, $autoLoad, $url, $title);
+                        $this->sendCommand($command);
                     }
                 }
             }
