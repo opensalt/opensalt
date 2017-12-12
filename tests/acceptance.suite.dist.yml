@@ -11,8 +11,8 @@ modules:
             cleanup: false
         - WebDriver:
             url: 'http://nginx/'
-            browser: chrome
-            host: chrome
+            browser: firefox
+            host: firefox
             restart: true
             window_size: 1500x1100
             log_js_errors: true
