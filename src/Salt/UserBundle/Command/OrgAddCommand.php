@@ -2,6 +2,8 @@
 
 namespace Salt\UserBundle\Command;
 
+use App\Command\User\AddOrganizationByNameCommand;
+use App\Event\CommandEvent;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -59,7 +61,10 @@ class OrgAddCommand extends ContainerAwareCommand
             return 1;
         }
 
-        $orgRepository->addNewOrganization($org);
+        $command = new AddOrganizationByNameCommand($org);
+        $this->getContainer()->get('event_dispatcher')
+            ->dispatch(CommandEvent::class, new CommandEvent($command));
+
         $output->writeln('The organization "%s" has been added.');
     }
 }

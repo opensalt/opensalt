@@ -117,6 +117,7 @@ class UserManagement extends \Codeception\Module
                 $org = $orgRepo->addNewOrganization(
                     'TEST:'.str_replace("'", '', $faker->company)
                 );
+                $em->flush($org);
             }
 
             $username = 'TEST:'.$role.':'.$faker->userName;

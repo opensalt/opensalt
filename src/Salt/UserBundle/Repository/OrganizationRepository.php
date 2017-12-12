@@ -24,7 +24,6 @@ class OrganizationRepository extends EntityRepository
         $org->setName($organizationName);
 
         $this->getEntityManager()->persist($org);
-        $this->getEntityManager()->flush($org);
 
         return $org;
     }
