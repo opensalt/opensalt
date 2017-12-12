@@ -7,6 +7,7 @@ use App\Command\Framework\AddDocumentCommand;
 use App\Command\Framework\DeleteDocumentCommand;
 use App\Command\Framework\DeriveDocumentCommand;
 use App\Command\Framework\UpdateDocumentCommand;
+use App\Command\Framework\UpdateFrameworkCommand;
 use CftfBundle\Form\Type\RemoteCftfServerType;
 use CftfBundle\Form\Type\LsDocCreateType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -195,9 +196,9 @@ class LsDocController extends Controller
         $fileContent = $request->request->get('content');
         $cfItemKeys = $request->request->get('cfItemKeys');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
-        $frameworkUpdater = $this->get('framework_updater.local');
 
-        $frameworkUpdater->update($lsDoc, base64_decode($fileContent), $frameworkToAssociate, $cfItemKeys);
+        $command = new UpdateFrameworkCommand($lsDoc, base64_decode($fileContent), $frameworkToAssociate, $cfItemKeys);
+        $this->sendCommand($command);
 
         return $response->setData([
             'message' => 'Success',

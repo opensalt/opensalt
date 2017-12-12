@@ -2,7 +2,6 @@
 
 namespace CftfBundle\Service;
 
-use App\Command\Framework\DeriveDocumentCommand;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
@@ -14,7 +13,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 /**
  * Class FrameworkUpdater.
  *
- * @DI\Service("framework_updater.local")
+ * @DI\Service()
  */
 class FrameworkUpdater
 {
@@ -82,8 +81,6 @@ class FrameworkUpdater
 
             $this->updateAssociations($cfItem, $contentTransformed[$i], $cfItemKeys);
         }
-
-        $em->flush();
     }
 
     /**
