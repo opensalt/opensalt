@@ -110,6 +110,7 @@ class GithubImport
             $em->persist($successLog);
         }
 
+        // Build the lsItems array
         $lsItems = [];
         $sequenceNumbers = [];
         $humanCodingValues = [];
@@ -142,23 +143,41 @@ class GithubImport
 
         if(count($lsItems) < 1){return;}
 
+        // Build associations
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lsItem = $lsItems[$i];
             if (null === $lsItem || !array_key_exists('isChildOf', $lsItemKeys)) { continue; }
 
-            if ($humanCoding = $lsItem->getHumanCodingScheme()) {
-                $parent = $content[$i][$lsItemKeys['isChildOf']];
-                if (empty($parent)) {
-                    $parent = substr($humanCoding, 0, strrpos($humanCoding, '.'));
-                }
+            // Check if the lsItems UUID exists in the ls_association table and
+            // if it is do not create a new association. This allows content
+            // updates but doesn't double up the associations.
+            $thisItemsUUID = $content[$i]['Identifier'];
+            $associationExists = $em->getRepository('CftfBundle:LsAssociation')->findOneBy(['originNodeIdentifier' => $thisItemsUUID]);
+            $logDetails = date('Y/m/d h:i:s A ')."The lsItem with the Human coding scheme of {$content[$i]['Human Coding Scheme']} and UUID of {$thisItemsUUID} has been added.";
 
-                if (array_key_exists($parent, $humanCodingValues)) {
-                    $lsItems[$humanCodingValues[$parent]]->addChild($lsItem, null, $sequenceNumbers[$i]);
-                } else {
-                    $lsDoc->addTopLsItem($lsItem, null, $sequenceNumbers[$i]);
+            if (!$associationExists) {
+                // Log new items added.
+                $errorLog = new ImportLog();
+                $errorLog->setLsDoc($lsDoc);
+                $errorLog->setMessage($logDetails);
+                $errorLog->setMessageType('warning');
+
+                $em->persist($errorLog);
+                // check if the item returns a humancodingscheme
+                if ($humanCoding = $lsItem->getHumanCodingScheme()) {
+                    $parent = $content[$i][$lsItemKeys['isChildOf']];
+                    if (empty($parent)) {
+                        $parent = substr($humanCoding, 0, strrpos($humanCoding, '.'));
+                    }
+
+                    if (array_key_exists($parent, $humanCodingValues)) {
+                        $lsItems[$humanCodingValues[$parent]]->addChild($lsItem, null, $sequenceNumbers[$i]);
+                    } else {
+                        $lsDoc->addTopLsItem($lsItem, null, $sequenceNumbers[$i]);
+                    }
                 }
+                $this->saveAssociations($i, $content, $lsItemKeys, $lsItem, $lsDoc, $frameworkToAssociate);
             }
-            $this->saveAssociations($i, $content, $lsItemKeys, $lsItem, $lsDoc, $frameworkToAssociate);
         }
 
         $em->flush();
@@ -196,6 +215,7 @@ class GithubImport
     public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, $assocType)
     {
         $em = $this->getEntityManager();
+
         if (strlen(trim($cfAssociation)) > 0) {
             if ($frameworkToAssociate === 'all') {
                 $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
@@ -262,7 +282,12 @@ class GithubImport
      */
     public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data, $em)
     {
-        if($em->getRepository('CftfBundle:LsItem')->findOneBy(array('identifier' => $data[$lsItemKeys['identifier']])) === null){
+        // Query the db for matching UUIDs.
+        $resultOfSearch = $em->getRepository('CftfBundle:LsItem')->findOneBy(array('identifier' => $data[$lsItemKeys['identifier']]));
+
+        // If not in the DB create a new lsItem.
+        if ($resultOfSearch === null) {
+
             $lsItem = new LsItem();
             $em = $this->getEntityManager();
             $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
@@ -272,6 +297,28 @@ class GithubImport
             $em->persist($lsItem);
 
             return $lsItem;
+        } else { // Update if in db and changed.
+            $fullStatement = $resultOfSearch->getFullStatement();
+            if ($data[$lsItemKeys['fullStatement']] != $fullStatement) {
+                $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
+
+                $lsItem = $this->assignValuesToItem($resultOfSearch, $lsDoc, $lsItemKeys, $data, $itemAttributes);
+
+                $em->persist($lsItem);
+
+                // Log if we make an update.
+                $logDetails = date('Y/m/d h:i:s A ')."The lsItem with the Human coding scheme of {$data[$lsItemKeys['humanCodingScheme']]} has been updated.";
+                $errorLog = new ImportLog();
+                $errorLog->setLsDoc($lsDoc);
+                $errorLog->setMessage($logDetails);
+                $errorLog->setMessageType('warning');
+
+                $em->persist($errorLog);
+
+                return $lsItem;
+            } else {
+                return $resultOfSearch;
+            }
         }
     }
 
