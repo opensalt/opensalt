@@ -3,7 +3,7 @@ Feature: The framework can be uploaded
   As an organization-admin
   I need to upload a CASE file of the framework
 
-  @organization-admin @framework @case-file @json @1016-1348
+  @organization-admin @framework @case-file @json @1016-1348 @duplicate
   Scenario: 1016-1348 A CASE file can be uploaded and downloaded
     Given I log in as a user with role "Admin"
     And I am on the homepage

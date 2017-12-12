@@ -1,14 +1,14 @@
 #!/bin/bash
-
+BROWSER=firefox
 cd $(dirname $0)/..
 
-docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml up -d chrome
+docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml up -d $BROWSER
 sleep 2
 
 ./bin/phpcli ./bin/codecept-wrapper "$@"
 RET=$?
 
-docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml stop chrome
-docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml rm -f -v chrome
+docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml stop $BROWSER
+docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml rm -f -v $BROWSER
 
 exit $RET

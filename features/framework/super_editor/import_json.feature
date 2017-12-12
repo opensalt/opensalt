@@ -3,7 +3,7 @@ Feature: The framework can be uploaded
   As an super editor
   I need to upload a CASE file of the framework
 
-  @super-editor @framework @case-file @json @1016-1330
+  @super-editor @framework @case-file @json @1016-1330 @duplicate
   Scenario: 1016-1330 A CASE file can be uploaded and downloaded
     Given I log in as a user with role "Super-Editor"
     And I am on the homepage

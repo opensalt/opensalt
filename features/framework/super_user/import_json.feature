@@ -3,7 +3,7 @@ Feature: The framework can be uploaded
   As an Super-User
   I need to upload a CASE file of the framework
 
-  @super-user @framework @case-file @json @1016-1330
+  @super-user @framework @case-file @json @1016-1330 @duplicate
   Scenario: 1016-1330 A CASE file can be uploaded and downloaded
     Given I log in as a user with role "Super-User"
     And I am on the homepage
