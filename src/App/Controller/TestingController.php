@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 
-class FrameworkController extends Controller
+class TestingController extends Controller
 {
     use CommandDispatcher;
 

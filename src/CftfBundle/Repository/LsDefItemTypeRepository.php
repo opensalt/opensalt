@@ -6,6 +6,8 @@ use CftfBundle\Entity\LsDefItemType;
 
 /**
  * LsDefItemTypeRepository
+ *
+ * @method null|LsDefItemType findOneByTitle(string $title)
  */
 class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
 {

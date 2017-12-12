@@ -1,16 +1,23 @@
 <?php
 
-namespace Salt\SiteBundle\Controller;
+namespace App\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class DevController extends Controller
 {
+    public function __construct(ContainerInterface $container = null)
+    {
+        // event_dispatcher
+        $this->setContainer($container);
+    }
+
     /**
      * @Route("/dev/cookie", name="dev_cookie")
      * @Security("has_role('ROLE_SUPER_USER')")

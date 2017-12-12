@@ -13,7 +13,13 @@ trait CommandDispatcher
      */
     protected function sendCommand(CommandInterface $command): void
     {
-        $this->get('event_dispatcher')->dispatch(
+        $dispatcher = $this->dispatcher ?? null;
+
+        if (null === $dispatcher) {
+           $dispatcher = $this->get('event_dispatcher');
+        }
+
+        $dispatcher->dispatch(
             CommandEvent::class,
             new CommandEvent($command)
         );

@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\SiteBundle\Service;
+namespace App\Service;
 
 use CftfBundle\Entity\LsDoc;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -8,11 +8,11 @@ use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
- * Class CaseExport
+ * Class ExcelExport
  *
- * @DI\Service("cftf_export.case")
+ * @DI\Service()
  */
-class CaseExport
+class ExcelExport
 {
     /**
      * @var ManagerRegistry
@@ -41,6 +41,49 @@ class CaseExport
         return $this->managerRegistry->getManagerForClass(LsDoc::class);
     }
 
+    public function exportExcelFile(LsDoc $doc): \PHPExcel
+    {
+        $repo = $this->getEntityManager()->getRepository(LsDoc::class);
+
+        $items = $repo->findAllChildrenArray($doc);
+        $topChildren = $repo->findTopChildrenIds($doc);
+        $associations = $repo->findAllAssociations($doc);
+
+        $smartLevel = [];
+
+        $i = 0;
+        foreach ($topChildren as $id) {
+            $smartLevel[$id] = ++$i;
+            $item = $items[$id];
+
+            if (count($item['children']) > 0) {
+                $this->getSmartLevel($item['children'], $id, $items, $smartLevel);
+            }
+        }
+
+        $phpExcelObject = new \PHPExcel();
+
+        $this->generateExcelFile($doc, $items, $associations, $smartLevel, $phpExcelObject);
+
+        return $phpExcelObject;
+    }
+
+    protected function getSmartLevel(array $items, $parentId, array $itemsArray, array &$smartLevel): void
+    {
+        $j = 1;
+
+        foreach ($items as $item) {
+            $item = $itemsArray[$item['id']];
+            $smartLevel[$item['id']] = $smartLevel[$parentId].'.'.$j;
+
+            if (count($item['children']) > 0) {
+                $this->getSmartLevel($item['children'], $item['id'], $itemsArray, $smartLevel);
+            }
+
+            ++$j;
+        }
+    }
+
     /**
      * Export a CASE file
      *
@@ -49,8 +92,10 @@ class CaseExport
      * @param array $associations
      * @param array $smartLevel
      * @param \PHPExcel $phpExcelObject
+     *
+     * @throws \PHPExcel_Exception
      */
-    public function exportCaseFile(LsDoc $cfDoc, array $items, array $associations, array $smartLevel, \PHPExcel $phpExcelObject)
+    public function generateExcelFile(LsDoc $cfDoc, array $items, array $associations, array $smartLevel, \PHPExcel $phpExcelObject): void
     {
         $phpExcelObject->getProperties()
             ->setCreator('OpenSALT')

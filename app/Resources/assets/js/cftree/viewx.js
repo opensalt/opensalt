@@ -330,7 +330,7 @@ apx.pushHistoryState = function() {
 
 apx.markLogsAsRead = function() {
     $('.modal#seeImportLogs button.btn-link#mark-logs-as-read').on('click', function(){
-        $.get( '/salt/import_logs/mark_as_read', {lsDocId: apx.lsDocId})
+        $.post('/cfdoc/'+apx.lsDocId+'/import_logs/mark_as_read')
             .done(function(data){
                 $('.modal#seeImportLogs .modal-body .list-group').fadeOut();
                 $(this).attr('disabled', 'disabled');
