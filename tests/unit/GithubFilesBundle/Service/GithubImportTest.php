@@ -86,21 +86,6 @@ EOT;
         }
     }
 
-    public function testDontSaveItemIfItExists(){
-        $githubImporter = new GithubImport($this->managerRegistry);
-        $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', null);
-
-        $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->repeatedItemOnCSV, $this->lsDoc->getId(), 'all', null);
-
-        $dataToSeeInDatabase = [
-            ['fullStatement' => 'RYcknN3uf9nFcah5bdEg7tuyPnRtxXBFvnQXAYCP8jyCsQ3NYrJEz2smDwkJsVydp9etRmC7zwySGWEgufaGgs4CwYtqEdvPY4jeQx73H3k8wY9hYa4RNwbUaph8hZYt'],
-            ['fullStatement' => 'aHq97MnW2sEAn5LgCByW7K8tVu6gBPqck6QmKHbfYu4m2FE42UWkDpmcyapeW6ghgxsVNRdWJKL2dxUKzUtsFdpaUYDFzM9CrYdXmaZkkUjc4uyCtF54rG2Ne5Jy7trF']
-        ];
-        foreach($dataToSeeInDatabase as $dataToSee){
-            $this->tester->dontSeeInRepository(LsItem::class, $dataToSee);
-        }
-    }
-
     public function testSaveItemAssociations(){
         $githubImporter = new GithubImport($this->managerRegistry);
         $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', null);
