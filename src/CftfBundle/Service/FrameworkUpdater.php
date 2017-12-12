@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Service;
 
+use App\Command\Framework\DeriveDocumentCommand;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
@@ -83,35 +84,6 @@ class FrameworkUpdater
         }
 
         $em->flush();
-    }
-
-    /**
-     * Update framework from a CSV in a new derivative framework
-     *
-     * @param LsDoc  $lsDoc
-     * @param string $fileContent
-     * @param string $frameworkToAssociate
-     *
-     * @return LsDoc
-     */
-    public function derive(LsDoc $lsDoc, $fileContent, $frameworkToAssociate): LsDoc
-    {
-        $em = $this->getEntityManager();
-
-        $newCfDocDerivated = $em->getRepository('CftfBundle:LsDoc')->makeDerivative($lsDoc);
-
-        $em->persist($newCfDocDerivated);
-
-        foreach ($lsDoc->getTopLsItems() as $oldTopItem) {
-            $newItem = $oldTopItem->copyToLsDoc($newCfDocDerivated);
-            $em->persist($newItem);
-
-            $newCfDocDerivated->addTopLsItem($newItem);
-        }
-
-        $em->flush();
-
-        return $newCfDocDerivated;
     }
 
     /**

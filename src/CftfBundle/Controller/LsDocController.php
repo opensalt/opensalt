@@ -5,6 +5,7 @@ namespace CftfBundle\Controller;
 use App\Command\CommandDispatcher;
 use App\Command\Framework\AddDocumentCommand;
 use App\Command\Framework\DeleteDocumentCommand;
+use App\Command\Framework\DeriveDocumentCommand;
 use App\Command\Framework\UpdateDocumentCommand;
 use CftfBundle\Form\Type\RemoteCftfServerType;
 use CftfBundle\Form\Type\LsDocCreateType;
@@ -212,19 +213,21 @@ class LsDocController extends Controller
      *
      * @param Request $request
      * @param LsDoc $lsDoc
+     *
+     * @return Response
      */
-    public function deriveAction(Request $request, LsDoc $lsDoc)
+    public function deriveAction(Request $request, LsDoc $lsDoc): Response
     {
-        $response = new JsonResponse();
         $fileContent = $request->request->get('content');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
-        $frameworkUpdater = $this->get('framework_updater.local');
 
-        $newCfDocDerivated = $frameworkUpdater->derive($lsDoc, base64_decode($fileContent), $frameworkToAssociate);
+        $command = new DeriveDocumentCommand($lsDoc, base64_decode($fileContent), $frameworkToAssociate);
+        $this->sendCommand($command);
+        $derivedDoc = $command->getDerivedDoc();
 
-        return $response->setData([
+        return new JsonResponse([
             'message' => 'Success',
-            'new_doc_id' => $newCfDocDerivated->getId()
+            'new_doc_id' => $derivedDoc->getId()
         ]);
     }
 

@@ -302,9 +302,6 @@ xENDx;
         $progressCallback('Done');
     }
 
-    /**
-     * @param LsDoc $oldDoc
-     */
     public function makeDerivative(LsDoc $oldLsDoc): LsDoc
     {
         $em = $this->getEntityManager();
@@ -323,7 +320,8 @@ xENDx;
         }
         $newLsDoc->setLicence($oldLsDoc->getLicence());
 
-        $em->flush();
+        $em->persist($newLsDoc);
+
         return $newLsDoc;
     }
 
