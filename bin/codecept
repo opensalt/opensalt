@@ -1,5 +1,18 @@
 #!/bin/bash
-BROWSER=firefox
+
+BROWSER=
+if [[ "$@" == "firefox" ]]; then
+  BROWSER="${BROWSER} firefox"
+fi
+
+if [[ "$@" == "chrome" ]]; then
+  BROWSER="${BROWSER} chrome"
+fi
+
+if [ "${BROWSER}x" == "x" ]; then
+  BROWSER=firefox
+fi
+
 cd $(dirname $0)/..
 
 docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml up -d $BROWSER
