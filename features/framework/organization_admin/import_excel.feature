@@ -3,7 +3,7 @@ Feature: The framework can be uploaded as Excel
   As an organization-admin
   I need to upload a Excel file of the framework
 
-  @incomplete @organization-admin @framework @case-file @excel
+  @incomplete @organization-admin @framework @case-file @excel @duplicate
   Scenario: 1016-1347 A Excel file can be uploaded and downloaded
     Given I log in as a user with role "Admin"
     And I am on the homepage

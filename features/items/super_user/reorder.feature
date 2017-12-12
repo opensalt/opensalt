@@ -3,7 +3,7 @@ Feature: Reorder a item
   As an super-user
   I need to see reorder section
 
-  @super-user @item @edit-item @1110-1021
+  @super-user @item @edit-item @1110-1021 @duplicate @skip-firefox
   Scenario: 1110-1021 An super-user user can reorder a item
     Given I log in as a user with role "Super-User"
     Then I create a framework

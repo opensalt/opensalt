@@ -8,7 +8,7 @@ Feature: Child Item
     Given I log in as a user with role "Admin"
     When I create a framework
     And I add "2" Items
-    And I click "Make This Item a Parent"
-    Then I see that the Child item is changed to Parent item
-    When I click "Make This Item a Child"
-    Then I see that the Parent Item is changed to Child Item
+    And I move the last item to a Parent Item
+
+    Then I see the Child item of the Parent
+    And I delete the framework

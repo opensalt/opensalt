@@ -3,7 +3,7 @@ Feature: Editing a item
   As an super editor
   I need to see a all of the fields
 
-  @super-editor @item @edit-item @1016-0945
+  @super-editor @item @edit-item @1016-0945 @duplicate
   Scenario: 1016-0945 An super editor can edit a item
     Given I log in as a user with role "Super-Editor"
     When I create a framework

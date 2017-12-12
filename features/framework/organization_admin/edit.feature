@@ -3,7 +3,7 @@ Feature: The framework is editable
   As an organization-admin
   I need to edit a framework
 
-  @organization-admin @view-framework @1016-1344 @12121
+  @organization-admin @view-framework @1016-1344 @12121 @duplicate
   Scenario: 1016-1344 An organization-admin can edit a framework
     Given I log in as a user with role "Admin"
     When I create a framework

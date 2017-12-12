@@ -3,7 +3,7 @@ Feature: Coping a item
   As an super user
   I need to see a all of the item in another framework
 
-  @super-user @item @copy-item @1016-0926
+  @super-user @item @copy-item @1016-0926 @duplicate
   Scenario: 1016-0926 An super-user user can edit a item
     Given I log in as a user with role "Super-User"
     Then I create a framework
