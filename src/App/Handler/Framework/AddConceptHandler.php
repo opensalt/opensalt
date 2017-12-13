@@ -31,7 +31,7 @@ class AddConceptHandler extends BaseFrameworkHandler
         $concept = $command->getConcept();
         $this->validate($command, $concept);
 
-        $this->framework->addConcept($concept);
+        $this->framework->persistConcept($concept);
 
 //        $dispatcher->dispatch(AddConceptEvent::class, new AddConceptEvent());
     }

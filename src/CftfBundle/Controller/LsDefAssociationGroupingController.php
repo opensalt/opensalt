@@ -39,10 +39,10 @@ class LsDefAssociationGroupingController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefAssociationGroupings = $em->getRepository('CftfBundle:LsDefAssociationGrouping')->findAll();
+        $associationGroupings = $em->getRepository('CftfBundle:LsDefAssociationGrouping')->findAll();
 
         return [
-            'lsDefAssociationGroupings' => $lsDefAssociationGroupings,
+            'lsDefAssociationGroupings' => $associationGroupings,
         ];
     }
 
@@ -61,21 +61,21 @@ class LsDefAssociationGroupingController extends Controller
     {
         $ajax = $request->isXmlHttpRequest();
 
-        $lsDefAssociationGrouping = new LsDefAssociationGrouping();
-        $form = $this->createForm(LsDefAssociationGroupingType::class, $lsDefAssociationGrouping);
+        $associationGrouping = new LsDefAssociationGrouping();
+        $form = $this->createForm(LsDefAssociationGroupingType::class, $associationGrouping);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $command = new AddAssociationGroupCommand($lsDefAssociationGrouping);
+                $command = new AddAssociationGroupCommand($associationGrouping);
                 $this->sendCommand($command);
 
                 // if ajax request, just return the created id
                 if ($ajax) {
-                    return new Response($lsDefAssociationGrouping->getId(), Response::HTTP_CREATED);
+                    return new Response($associationGrouping->getId(), Response::HTTP_CREATED);
                 }
 
-                return $this->redirectToRoute('lsdef_association_grouping_show', array('id' => $lsDefAssociationGrouping->getId()));
+                return $this->redirectToRoute('lsdef_association_grouping_show', array('id' => $associationGrouping->getId()));
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding new association group: '.$e->getMessage()));
             }
@@ -86,7 +86,7 @@ class LsDefAssociationGroupingController extends Controller
         }
 
         return [
-            'lsDefAssociationGrouping' => $lsDefAssociationGrouping,
+            'lsDefAssociationGrouping' => $associationGrouping,
             'form' => $form->createView(),
         ];
     }
@@ -98,16 +98,16 @@ class LsDefAssociationGroupingController extends Controller
      * @Method("GET")
      * @Template()
      *
-     * @param LsDefAssociationGrouping $lsDefAssociationGrouping
+     * @param LsDefAssociationGrouping $associationGrouping
      *
      * @return array
      */
-    public function showAction(LsDefAssociationGrouping $lsDefAssociationGrouping)
+    public function showAction(LsDefAssociationGrouping $associationGrouping)
     {
-        $deleteForm = $this->createDeleteForm($lsDefAssociationGrouping);
+        $deleteForm = $this->createDeleteForm($associationGrouping);
 
         return [
-            'lsDefAssociationGrouping' => $lsDefAssociationGrouping,
+            'lsDefAssociationGrouping' => $associationGrouping,
             'delete_form' => $deleteForm->createView(),
         ];
     }
@@ -120,29 +120,29 @@ class LsDefAssociationGroupingController extends Controller
      * @Template()
      *
      * @param Request $request
-     * @param LsDefAssociationGrouping $lsDefAssociationGrouping
+     * @param LsDefAssociationGrouping $associationGrouping
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function editAction(Request $request, LsDefAssociationGrouping $lsDefAssociationGrouping)
+    public function editAction(Request $request, LsDefAssociationGrouping $associationGrouping)
     {
-        $deleteForm = $this->createDeleteForm($lsDefAssociationGrouping);
-        $editForm = $this->createForm(LsDefAssociationGroupingType::class, $lsDefAssociationGrouping);
+        $deleteForm = $this->createDeleteForm($associationGrouping);
+        $editForm = $this->createForm(LsDefAssociationGroupingType::class, $associationGrouping);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             try {
-                $command = new UpdateAssociationGroupCommand($lsDefAssociationGrouping);
+                $command = new UpdateAssociationGroupCommand($associationGrouping);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_association_grouping_edit', array('id' => $lsDefAssociationGrouping->getId()));
+                return $this->redirectToRoute('lsdef_association_grouping_edit', array('id' => $associationGrouping->getId()));
             } catch (\Exception $e) {
                 $editForm->addError(new FormError('Error updating association group: '.$e->getMessage()));
             }
         }
 
         return [
-            'lsDefAssociationGrouping' => $lsDefAssociationGrouping,
+            'lsDefAssociationGrouping' => $associationGrouping,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         ];
@@ -155,17 +155,17 @@ class LsDefAssociationGroupingController extends Controller
      * @Method("DELETE")
      *
      * @param Request $request
-     * @param LsDefAssociationGrouping $lsDefAssociationGrouping
+     * @param LsDefAssociationGrouping $associationGrouping
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function deleteAction(Request $request, LsDefAssociationGrouping $lsDefAssociationGrouping)
+    public function deleteAction(Request $request, LsDefAssociationGrouping $associationGrouping)
     {
-        $form = $this->createDeleteForm($lsDefAssociationGrouping);
+        $form = $this->createDeleteForm($associationGrouping);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $command = new DeleteAssociationGroupCommand($lsDefAssociationGrouping);
+            $command = new DeleteAssociationGroupCommand($associationGrouping);
             $this->sendCommand($command);
         }
 
@@ -175,14 +175,14 @@ class LsDefAssociationGroupingController extends Controller
     /**
      * Creates a form to delete a LsDefAssociationGrouping entity.
      *
-     * @param LsDefAssociationGrouping $lsDefAssociationGrouping The LsDefAssociationGrouping entity
+     * @param LsDefAssociationGrouping $associationGrouping The LsDefAssociationGrouping entity
      *
      * @return \Symfony\Component\Form\FormInterface The form
      */
-    private function createDeleteForm(LsDefAssociationGrouping $lsDefAssociationGrouping): FormInterface
+    private function createDeleteForm(LsDefAssociationGrouping $associationGrouping): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsdef_association_grouping_delete', array('id' => $lsDefAssociationGrouping->getId())))
+            ->setAction($this->generateUrl('lsdef_association_grouping_delete', array('id' => $associationGrouping->getId())))
             ->setMethod('DELETE')
             ->getForm()
         ;

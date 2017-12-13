@@ -31,7 +31,7 @@ class AddAssociationGroupHandler extends BaseFrameworkHandler
         $associationGroup = $command->getAssociationGroup();
         $this->validate($command, $associationGroup);
 
-        $this->framework->addAssociationGroup($associationGroup);
+        $this->framework->persistAssociationGroup($associationGroup);
 
 //        $dispatcher->dispatch(AddAssociationGroupEvent::class, new AddAssociationGroupEvent());
     }

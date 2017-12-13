@@ -31,8 +31,8 @@ class DeriveDocumentHandler extends BaseDoctrineHandler
         $this->validate($command, $command);
 
         $doc = $command->getDoc();
-        $fileContent = $command->getFileContent();
-        $frameworkToAssociate = $command->getFrameworkToAssociate();
+        //$fileContent = $command->getFileContent();
+        //$frameworkToAssociate = $command->getFrameworkToAssociate();
 
         $derivativeDoc = $this->em->getRepository('CftfBundle:LsDoc')
             ->makeDerivative($doc);

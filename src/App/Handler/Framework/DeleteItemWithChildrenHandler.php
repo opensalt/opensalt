@@ -29,7 +29,7 @@ class DeleteItemWithChildrenHandler extends BaseFrameworkHandler
         $command = $event->getCommand();
 
         $item = $command->getItem();
-        $hasChildren = $item->getChildren();
+        //$hasChildren = $item->getChildren();
 
         $this->validate($command, $item);
 

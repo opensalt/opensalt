@@ -33,8 +33,6 @@ class UpdateItemHandler extends BaseFrameworkHandler
 
         $item->setUpdatedAt(new \DateTime()); // Timestampable does not follow up the chain
 
-        $this->framework->updateItem($item);
-
 //        $dispatcher->dispatch(UpdateItemEvent::class, new UpdateItemEvent());
     }
 }

@@ -31,8 +31,6 @@ class UpdateConceptHandler extends BaseFrameworkHandler
         $concept = $command->getConcept();
         $this->validate($command, $concept);
 
-        $this->framework->updateConcept($concept);
-
 //        $dispatcher->dispatch(UpdateConceptEvent::class, new UpdateConceptEvent());
     }
 }

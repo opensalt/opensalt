@@ -485,15 +485,15 @@ class DocTreeController extends Controller
      * @Method("POST")
      *
      * @param Request $request
-     * @param LsDefAssociationGrouping $lsDefAssociationGrouping
+     * @param LsDefAssociationGrouping $associationGrouping
      *
      * @return Response
      *
      * @throws \InvalidArgumentException
      */
-    public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $lsDefAssociationGrouping): Response
+    public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
-        $command = new DeleteAssociationGroupCommand($lsDefAssociationGrouping);
+        $command = new DeleteAssociationGroupCommand($associationGrouping);
         $this->sendCommand($command);
 
         return new Response('OK', Response::HTTP_ACCEPTED);

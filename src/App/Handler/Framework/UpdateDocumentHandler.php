@@ -33,8 +33,6 @@ class UpdateDocumentHandler extends BaseFrameworkHandler
 
         $doc->setUpdatedAt(new \DateTime());
 
-        $this->framework->updateDocument($doc);
-
 //        $dispatcher->dispatch(AddDocumentEvent::class, new UpdateDocumentEvent());
     }
 }

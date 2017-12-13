@@ -38,7 +38,7 @@ class AddItemHandler extends BaseFrameworkHandler
 
         $this->validate($command, $item);
 
-        $this->framework->addItem($item);
+        $this->framework->persistItem($item);
 
 //        $dispatcher->dispatch(AddItemEvent::class, new AddItemEvent());
     }

@@ -31,8 +31,6 @@ class UpdateSubjectHandler extends BaseFrameworkHandler
         $subject = $command->getSubject();
         $this->validate($command, $subject);
 
-        $this->framework->updateSubject($subject);
-
 //        $dispatcher->dispatch(UpdateSubjectEvent::class, new UpdateSubjectEvent());
     }
 }

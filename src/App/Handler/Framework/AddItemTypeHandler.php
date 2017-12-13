@@ -31,7 +31,7 @@ class AddItemTypeHandler extends BaseFrameworkHandler
         $itemType = $command->getItemType();
         $this->validate($command, $itemType);
 
-        $this->framework->addItemType($itemType);
+        $this->framework->persistItemType($itemType);
 
 //        $dispatcher->dispatch(AddItemTypeEvent::class, new AddItemTypeEvent());
     }

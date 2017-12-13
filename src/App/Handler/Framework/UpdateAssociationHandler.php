@@ -33,8 +33,6 @@ class UpdateAssociationHandler extends BaseFrameworkHandler
 
         $association->setUpdatedAt(new \DateTime());
 
-        $this->framework->updateAssociation($association);
-
 //        $dispatcher->dispatch(UpdateAssociationEvent::class, new UpdateAssociationEvent());
     }
 }

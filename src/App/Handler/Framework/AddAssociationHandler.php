@@ -31,7 +31,7 @@ class AddAssociationHandler extends BaseFrameworkHandler
         $association = $command->getAssociation();
         $this->validate($command, $association);
 
-        $this->framework->addAssociation($association);
+        $this->framework->persistAssociation($association);
 
 //        $dispatcher->dispatch(AddAssociationEvent::class, new AddAssociationEvent());
     }

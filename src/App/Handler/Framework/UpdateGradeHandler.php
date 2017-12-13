@@ -31,8 +31,6 @@ class UpdateGradeHandler extends BaseFrameworkHandler
         $grade = $command->getGrade();
         $this->validate($command, $grade);
 
-        $this->framework->updateGrade($grade);
-
 //        $dispatcher->dispatch(UpdateGradeEvent::class, new UpdateGradeEvent());
     }
 }

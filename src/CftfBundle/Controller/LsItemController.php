@@ -110,7 +110,7 @@ class LsItemController extends Controller
             'form' => $form->createView(),
         ];
 
-        if ($ajax && $form->isSubmitted() && !$form->isValid()) {
+        if ($ajax && $form->isSubmitted()) {
             return $this->render('CftfBundle:LsItem:new.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 

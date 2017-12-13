@@ -102,19 +102,9 @@ class FrameworkService
             ->deleteDocument($doc, $callback);
     }
 
-    public function updateDocument(LsDoc $doc): void
-    {
-        // Intentionally empty for now
-    }
-
-    public function addItem(LsItem $item): void
+    public function persistItem(LsItem $item): void
     {
         $this->em->persist($item);
-    }
-
-    public function updateItem(LsItem $item): void
-    {
-        // Intentionally empty for now
     }
 
     public function deleteItem(LsItem $item): void
@@ -127,7 +117,7 @@ class FrameworkService
         $this->em->getRepository(LsItem::class)->removeItemAndChildren($item);
     }
 
-    public function addAssociation(LsAssociation $association): void
+    public function persistAssociation(LsAssociation $association): void
     {
         $this->em->persist($association);
     }
@@ -204,11 +194,6 @@ class FrameworkService
         $this->em->remove($association);
     }
 
-    public function updateAssociation(LsAssociation $association): void
-    {
-        // Intentionally empty for now
-    }
-
     public function updateTreeItems(LsDoc $doc, array $items): array
     {
         $rv = [];
@@ -258,14 +243,9 @@ class FrameworkService
         $lsItem->setUpdatedAt(new \DateTime());
     }
 
-    public function addAssociationGroup(LsDefAssociationGrouping $associationGroup): void
+    public function persistAssociationGroup(LsDefAssociationGrouping $associationGroup): void
     {
         $this->em->persist($associationGroup);
-    }
-
-    public function updateAssociationGroup(LsDefAssociationGrouping $associationGroup): void
-    {
-        // Intentionally empty for now
     }
 
     public function deleteAssociationGroup(LsDefAssociationGrouping $associationGroup): void
@@ -273,14 +253,9 @@ class FrameworkService
         $this->em->remove($associationGroup);
     }
 
-    public function addConcept(LsDefConcept $concept): void
+    public function persistConcept(LsDefConcept $concept): void
     {
         $this->em->persist($concept);
-    }
-
-    public function updateConcept(LsDefConcept $concept): void
-    {
-        // Intentionally empty for now
     }
 
     public function deleteConcept(LsDefConcept $concept): void
@@ -288,14 +263,9 @@ class FrameworkService
         $this->em->remove($concept);
     }
 
-    public function addGrade(LsDefGrade $grade): void
+    public function persistGrade(LsDefGrade $grade): void
     {
         $this->em->persist($grade);
-    }
-
-    public function updateGrade(LsDefGrade $grade): void
-    {
-        // Intentionally empty for now
     }
 
     public function deleteGrade(LsDefGrade $grade): void
@@ -303,14 +273,9 @@ class FrameworkService
         $this->em->remove($grade);
     }
 
-    public function addItemType(LsDefItemType $itemType): void
+    public function persistItemType(LsDefItemType $itemType): void
     {
         $this->em->persist($itemType);
-    }
-
-    public function updateItemType(LsDefItemType $itemType): void
-    {
-        // Intentionally empty for now
     }
 
     public function deleteItemType(LsDefItemType $itemType): void
@@ -318,14 +283,9 @@ class FrameworkService
         $this->em->remove($itemType);
     }
 
-    public function addLicence(LsDefLicence $licence): void
+    public function persistLicence(LsDefLicence $licence): void
     {
         $this->em->persist($licence);
-    }
-
-    public function updateLicence(LsDefLicence $licence): void
-    {
-        // Intentionally empty for now
     }
 
     public function deleteLicence(LsDefLicence $licence): void
@@ -333,14 +293,9 @@ class FrameworkService
         $this->em->remove($licence);
     }
 
-    public function addSubject(LsDefSubject $subject): void
+    public function persistSubject(LsDefSubject $subject): void
     {
         $this->em->persist($subject);
-    }
-
-    public function updateSubject(LsDefSubject $subject): void
-    {
-        // Intentionally empty for now
     }
 
     public function deleteSubject(LsDefSubject $subject): void
