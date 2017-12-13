@@ -4,6 +4,7 @@ namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
 use CftfBundle\Entity\LsDoc;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class UpdateDocumentCommand extends BaseCommand
 {

@@ -26,13 +26,13 @@ class ImportController extends Controller
      *
      * @return JsonResponse
      */
-    public function importAction(Request $request)
+    public function importAction(Request $request): JsonResponse
     {
         $lsItemKeys = $request->request->get('cfItemKeys');
         $fileContent = $request->request->get('content');
         $lsDocId = $request->request->get('lsDocId');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
-        $missingFieldsLog = $request->request->get('missingFieldsLog');
+        $missingFieldsLog = $request->request->get('missingFieldsLog', []);
 
         $command = new ParseCsvGithubDocumentCommand($lsItemKeys, base64_decode($fileContent), $lsDocId, $frameworkToAssociate, $missingFieldsLog);
         $this->sendCommand($command);

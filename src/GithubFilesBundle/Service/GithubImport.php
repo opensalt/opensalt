@@ -52,7 +52,7 @@ class GithubImport
      * @param string $frameworkToAssociate
      * @param array $missingFieldsLog
      */
-    public function parseCSVGithubDocument(array $lsItemKeys, string $fileContent, string $lsDocId, string $frameworkToAssociate, array $missingFieldsLog): void
+    public function parseCSVGithubDocument(array $lsItemKeys, string $fileContent, string $lsDocId, string $frameworkToAssociate, $missingFieldsLog): void
     {
         $csvContent = str_getcsv($fileContent, "\n");
         $headers = [];
@@ -92,7 +92,7 @@ class GithubImport
         $em = $this->getEntityManager();
         $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find($lsDocId);
 
-        if (count($missingFieldsLog) > 0){
+        if (null !== $missingFieldsLog && count($missingFieldsLog) > 0){
             foreach ($missingFieldsLog as $messageError) {
                 $errorLog = new ImportLog();
                 $errorLog->setLsDoc($lsDoc);

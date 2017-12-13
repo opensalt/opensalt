@@ -10,7 +10,11 @@ use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
+use JMS\DiExtraBundle\Annotation as DI;
 
+/**
+ * @DI\Service()
+ */
 class ExcelImport
 {
     /**

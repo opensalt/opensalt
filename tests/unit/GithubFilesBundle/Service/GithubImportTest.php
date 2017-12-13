@@ -75,7 +75,7 @@ EOT;
 
     public function testSaveItem(){
         $githubImporter = new GithubImport($this->managerRegistry);
-        $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', null);
+        $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', []);
         $this->em->flush();
 
         $dataToSeeInDatabase = [
@@ -90,7 +90,7 @@ EOT;
 
     public function testSaveItemAssociations(){
         $githubImporter = new GithubImport($this->managerRegistry);
-        $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', null);
+        $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', []);
         $this->em->flush();
 
         $lsItemToCheck = $this->em->getRepository(LsItem::class)->findOneBy(array('identifier' => '2b88ba69-d07e-4ff0-92f5-8bec2b056a85'));
