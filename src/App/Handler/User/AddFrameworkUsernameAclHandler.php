@@ -37,7 +37,7 @@ class AddFrameworkUsernameAclHandler extends BaseUserHandler
         $lsDoc = $dto->lsDoc;
         $access = $dto->access;
 
-        $userRepo = $this->em->getRepository('SaltUserBundle:User');
+        $userRepo = $this->em->getRepository(User::class);
         /** @var User $user */
         $user = $userRepo->loadUserByUsername($username);
         if (null === $user) {

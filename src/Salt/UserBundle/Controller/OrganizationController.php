@@ -41,7 +41,7 @@ class OrganizationController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $organizations = $em->getRepository('SaltUserBundle:Organization')->findAll();
+        $organizations = $em->getRepository(Organization::class)->findAll();
 
         return [
             'organizations' => $organizations,

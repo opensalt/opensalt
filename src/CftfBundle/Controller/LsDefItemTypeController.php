@@ -37,7 +37,7 @@ class LsDefItemTypeController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefItemTypes = $em->getRepository('CftfBundle:LsDefItemType')->findAll();
+        $lsDefItemTypes = $em->getRepository(LsDefItemType::class)->findAll();
 
         return [
             'lsDefItemTypes' => $lsDefItemTypes,
@@ -64,7 +64,7 @@ class LsDefItemTypeController extends Controller
         $page = $request->query->get('page', 1);
         $page_limit = $request->query->get('page_limit', 50);
 
-        $results = $em->getRepository('CftfBundle:LsDefItemType')
+        $results = $em->getRepository(LsDefItemType::class)
             ->getSelect2List($search, $page_limit, $page);
 
         if (!empty($search) && empty($results['results'][$search])) {

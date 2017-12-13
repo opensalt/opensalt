@@ -51,7 +51,7 @@ class LsItemController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsItems = $em->getRepository('CftfBundle:LsItem')->findAll();
+        $lsItems = $em->getRepository(LsItem::class)->findAll();
 
         return [
             'lsItems' => $lsItems,
@@ -92,7 +92,7 @@ class LsItemController extends Controller
                 $this->sendCommand($command);
 
                 // retrieve isChildOf assoc id for the new item
-                $assoc = $this->getDoctrine()->getRepository('CftfBundle:LsAssociation')->findOneBy(['originLsItem' => $lsItem]);
+                $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $lsItem]);
 
                 if ($ajax) {
                     // if ajax call, return the item as json

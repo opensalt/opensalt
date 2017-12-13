@@ -39,7 +39,7 @@ class LsDefConceptController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefConcepts = $em->getRepository('CftfBundle:LsDefConcept')->findAll();
+        $lsDefConcepts = $em->getRepository(LsDefConcept::class)->findAll();
 
         return [
             'lsDefConcepts' => $lsDefConcepts,

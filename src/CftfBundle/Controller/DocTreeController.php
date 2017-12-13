@@ -53,7 +53,7 @@ class DocTreeController extends Controller
 
         // Get all association groups (for all documents);
         // we need groups for other documents if/when we show a document on the right side
-        $lsDefAssociationGroupings = $em->getRepository('CftfBundle:LsDefAssociationGrouping')->findAll();
+        $lsDefAssociationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findAll();
 
         $assocTypes = [];
         $inverseAssocTypes = [];
@@ -63,7 +63,7 @@ class DocTreeController extends Controller
         }
 
         // get list of all documents
-        $resultlsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
+        $resultlsDocs = $em->getRepository(LsDoc::class)->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
         $lsDocs = [];
         $authChecker = $this->get('security.authorization_checker');
         foreach ($resultlsDocs as $doc) {
@@ -153,12 +153,12 @@ class DocTreeController extends Controller
             return $response;
         }
 
-        $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findItemsForExportDoc($lsDoc);
-        $associations = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAssociationsForExportDoc($lsDoc);
-        $assocGroups = $this->getDoctrine()->getRepository('CftfBundle:LsDefAssociationGrouping')->findBy(['lsDoc'=>$lsDoc]);
+        $items = $this->getDoctrine()->getRepository(LsDoc::class)->findItemsForExportDoc($lsDoc);
+        $associations = $this->getDoctrine()->getRepository(LsDoc::class)->findAssociationsForExportDoc($lsDoc);
+        $assocGroups = $this->getDoctrine()->getRepository(LsDefAssociationGrouping::class)->findBy(['lsDoc'=>$lsDoc]);
         $associatedDocs = array_merge(
             $lsDoc->getExternalDocs(),
-            $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAssociatedDocs($lsDoc)
+            $this->getDoctrine()->getRepository(LsDoc::class)->findAssociatedDocs($lsDoc)
         );
 
         $docAttributes = [
@@ -363,7 +363,7 @@ class DocTreeController extends Controller
      */
     public function renderDocumentAction(LsDoc $lsDoc, $_format = 'html')
     {
-        $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
+        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
 
         $items = $repo->findAllChildrenArray($lsDoc);
         $haveParents = $repo->findAllItemsWithParentsArray($lsDoc);
@@ -509,7 +509,7 @@ class DocTreeController extends Controller
     protected function respondWithDocumentById(Request $request, int $id)
     {
         // in this case it has to be a document on this OpenSALT instantiation
-        $newDoc = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->find($id);
+        $newDoc = $this->getDoctrine()->getRepository(LsDoc::class)->find($id);
         if (empty($newDoc)) {
             // if document not found, error
             return new Response('Document not found.', Response::HTTP_NOT_FOUND);
@@ -528,7 +528,7 @@ class DocTreeController extends Controller
      */
     protected function respondWithDocumentByIdentifier(Request $request, string $identifier, LsDoc $lsDoc)
     {
-        $newDoc = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findOneBy(['identifier'=>$identifier]);
+        $newDoc = $this->getDoctrine()->getRepository(LsDoc::class)->findOneBy(['identifier'=>$identifier]);
         if (null !== $newDoc) {
             return $this->exportAction($request, $newDoc);
         }

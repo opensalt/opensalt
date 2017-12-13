@@ -5,6 +5,7 @@ namespace App\Handler\Framework;
 use App\Command\Framework\DeriveDocumentCommand;
 use App\Event\CommandEvent;
 use App\Handler\BaseDoctrineHandler;
+use CftfBundle\Entity\LsDoc;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -34,7 +35,7 @@ class DeriveDocumentHandler extends BaseDoctrineHandler
         //$fileContent = $command->getFileContent();
         //$frameworkToAssociate = $command->getFrameworkToAssociate();
 
-        $derivativeDoc = $this->em->getRepository('CftfBundle:LsDoc')
+        $derivativeDoc = $this->em->getRepository(LsDoc::class)
             ->makeDerivative($doc);
 
         foreach ($doc->getTopLsItems() as $oldTopItem) {

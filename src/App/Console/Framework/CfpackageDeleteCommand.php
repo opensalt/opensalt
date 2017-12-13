@@ -4,6 +4,7 @@ namespace App\Console\Framework;
 
 use App\Command\Framework\DeleteDocumentCommand;
 use App\Event\CommandEvent;
+use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -31,7 +32,7 @@ class CfpackageDeleteCommand extends ContainerAwareCommand
 
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
-        $lsDocRepo = $em->getRepository('CftfBundle:LsDoc');
+        $lsDocRepo = $em->getRepository(LsDoc::class);
 
         $lsDoc = $lsDocRepo->find($lsDocId);
         if (!$lsDoc) {

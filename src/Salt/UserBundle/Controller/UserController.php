@@ -43,9 +43,9 @@ class UserController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_USER')) {
-            $users = $em->getRepository('SaltUserBundle:User')->findAll();
+            $users = $em->getRepository(User::class)->findAll();
         } else {
-            $users = $em->getRepository('SaltUserBundle:User')
+            $users = $em->getRepository(User::class)
                 ->findByOrg($this->getUser()->getOrg());
         }
 

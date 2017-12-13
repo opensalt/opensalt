@@ -90,7 +90,7 @@ class GithubImport
     public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog): void
     {
         $em = $this->getEntityManager();
-        $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find($lsDocId);
+        $lsDoc = $em->getRepository(LsDoc::class)->find($lsDocId);
 
         if (null !== $missingFieldsLog && count($missingFieldsLog) > 0){
             foreach ($missingFieldsLog as $messageError) {
@@ -152,7 +152,7 @@ class GithubImport
             // if it is do not create a new association. This allows content
             // updates but doesn't double up the associations.
             $thisItemsUUID = $content[$i]['Identifier'];
-            $associationExists = $em->getRepository('CftfBundle:LsAssociation')->findOneBy(['originNodeIdentifier' => $thisItemsUUID]);
+            $associationExists = $em->getRepository(LsAssociation::class)->findOneBy(['originNodeIdentifier' => $thisItemsUUID]);
             $logDetails = date('Y/m/d h:i:s A ')."The lsItem with the Human coding scheme of {$content[$i]['Human Coding Scheme']} and UUID of {$thisItemsUUID} has been added.";
 
             if (!$associationExists) {
@@ -216,10 +216,10 @@ class GithubImport
 
         if (strlen(trim($cfAssociation)) > 0) {
             if ($frameworkToAssociate === 'all') {
-                $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
+                $itemsAssociated = $em->getRepository(LsItem::class)
                     ->findAllByIdentifierOrHumanCodingSchemeByValue($cfAssociation);
             } else {
-                $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
+                $itemsAssociated = $em->getRepository(LsItem::class)
                     ->findByAllIdentifierOrHumanCodingSchemeByLsDoc($frameworkToAssociate, $cfAssociation);
             }
 

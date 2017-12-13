@@ -64,7 +64,7 @@ class FrameworkUpdater
         $contentTransformed = $this->transformContent($fileContent);
 
         foreach (array_keys($contentTransformed) as $i) {
-            $cfItem = $em->getRepository('CftfBundle:LsItem')
+            $cfItem = $em->getRepository(LsItem::class)
                 ->findOneByIdentifier($contentTransformed[$i]['Identifier']);
 
             if (!$cfItem) {

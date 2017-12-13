@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Controller;
 
+use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Ramsey\Uuid\Uuid;
@@ -81,7 +82,7 @@ class UriController extends Controller
     private function findIfItem($json, $localUri)
     {
         $em = $this->getDoctrine()->getManager();
-        $item = $em->getRepository('CftfBundle:LsItem')->findOneBy(['uri'=>$localUri]);
+        $item = $em->getRepository(LsItem::class)->findOneBy(['uri'=>$localUri]);
         if ($item) {
             if ($json) {
                 return $this->forward('CftfBundle:Editor:viewItem', ['id' => $item->getId(), '_format' => 'json']);
@@ -100,7 +101,7 @@ class UriController extends Controller
     private function findIfDoc($json, $localUri)
     {
         $em = $this->getDoctrine()->getManager();
-        $doc = $em->getRepository('CftfBundle:LsDoc')->findOneBy(['uri'=>$localUri]);
+        $doc = $em->getRepository(LsDoc::class)->findOneBy(['uri'=>$localUri]);
         if ($doc) {
             if ($json) {
                 //return $this->forward('CftfBundle:Editor:viewDoc', ['id' => $doc->getId(), '_format' => 'json']);
@@ -121,7 +122,7 @@ class UriController extends Controller
     private function findIfAssociation($json, $localUri)
     {
         $em = $this->getDoctrine()->getManager();
-        $association = $em->getRepository('CftfBundle:LsAssociation')->findOneBy(['uri'=>$localUri]);
+        $association = $em->getRepository(LsAssociation::class)->findOneBy(['uri'=>$localUri]);
         if ($association) {
             if ($json) {
                 return $this->forward('CftfBundle:LsAssociation:export', ['id' => $association->getId(), '_format' => 'json']);

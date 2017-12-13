@@ -38,7 +38,7 @@ class LsDefGradeController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefGrades = $em->getRepository('CftfBundle:LsDefGrade')->findAll();
+        $lsDefGrades = $em->getRepository(LsDefGrade::class)->findAll();
 
         return [
             'lsDefGrades' => $lsDefGrades,

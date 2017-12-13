@@ -5,6 +5,7 @@ namespace App\Handler\User;
 use App\Command\User\DeleteFrameworkAclCommand;
 use App\Event\CommandEvent;
 use JMS\DiExtraBundle\Annotation as DI;
+use Salt\UserBundle\Entity\UserDocAcl;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -32,7 +33,7 @@ class DeleteFrameworkAclHandler extends BaseUserHandler
         $doc = $command->getDoc();
         $user = $command->getUser();
 
-        $aclRepo = $this->em->getRepository('SaltUserBundle:UserDocAcl');
+        $aclRepo = $this->em->getRepository(UserDocAcl::class);
         $acl = $aclRepo->findByDocUser($doc, $user);
         if (null !== $acl) {
             $this->em->remove($acl);

@@ -4,6 +4,7 @@ namespace Salt\UserBundle\Controller;
 
 use App\Command\CommandDispatcher;
 use App\Command\User\UpdateUserCommand;
+use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -82,7 +83,7 @@ class OAuthServiceController extends Controller
         ]);
 
         $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository('SaltUserBundle:User')->find($currentUser->getId());
+        $user = $em->getRepository(User::class)->find($currentUser->getId());
         if (null === $user) {
             throw new \UnexpectedValueException('Invalid user.');
         }

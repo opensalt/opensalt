@@ -81,7 +81,7 @@ class EditorController extends Controller
      */
     public function renderDocumentAction(LsDoc $lsDoc, $highlight = null, $_format = 'html'): array
     {
-        $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
+        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
 
         $items = $repo->findAllChildrenArray($lsDoc);
         $haveParents = $repo->findAllItemsWithParentsArray($lsDoc);

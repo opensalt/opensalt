@@ -26,7 +26,7 @@ class CfPackageController extends Controller
      */
     public function exportAction(Request $request, LsDoc $lsDoc, $_format = 'json')
     {
-        $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
+        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
 
         if ('json' === $_format) {
             $response = $this->generateBaseResponse($lsDoc->getUpdatedAt());
@@ -87,7 +87,7 @@ class CfPackageController extends Controller
      */
     protected function generateSimplePackageArray(LsDoc $doc): array
     {
-        $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
+        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
 
         $items = $repo->findAllItems($doc);
         $associations = $repo->findAllAssociations($doc);

@@ -52,7 +52,7 @@ class CommentRepository extends EntityRepository
     {
         $em = $this->getEntityManager();
 
-        $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')
+        $commentUpvote = $em->getRepository(CommentUpvote::class)
             ->findOneBy(['user' => $user, 'comment' => $comment]);
 
         if ($commentUpvote) {

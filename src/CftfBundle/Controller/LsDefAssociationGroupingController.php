@@ -39,7 +39,7 @@ class LsDefAssociationGroupingController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $associationGroupings = $em->getRepository('CftfBundle:LsDefAssociationGrouping')->findAll();
+        $associationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findAll();
 
         return [
             'lsDefAssociationGroupings' => $associationGroupings,

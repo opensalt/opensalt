@@ -5,6 +5,7 @@ namespace App\Handler\Comment;
 use App\Command\Comment\AddCommentCommand;
 use App\Event\CommandEvent;
 use JMS\DiExtraBundle\Annotation as DI;
+use Salt\SiteBundle\Entity\Comment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -27,7 +28,7 @@ class AddCommentHandler extends BaseCommentHandler
         $content = $command->getContent();
         $parentId = $command->getParentId();
 
-        $repo = $this->em->getRepository('SaltSiteBundle:Comment');
+        $repo = $this->em->getRepository(Comment::class);
 
         $comment = $repo->addComment($itemType, $itemId, $user, $content, $parentId);
 

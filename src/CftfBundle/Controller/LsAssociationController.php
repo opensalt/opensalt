@@ -46,7 +46,7 @@ class LsAssociationController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsAssociations = $em->getRepository('CftfBundle:LsAssociation')->findAll();
+        $lsAssociations = $em->getRepository(LsAssociation::class)->findAll();
 
         return [
             'lsAssociations' => $lsAssociations,

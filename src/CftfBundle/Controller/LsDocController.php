@@ -44,7 +44,7 @@ class LsDocController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $results = $em->getRepository('CftfBundle:LsDoc')->findBy(
+        $results = $em->getRepository(LsDoc::class)->findBy(
             [],
             ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']
         );
@@ -333,7 +333,7 @@ class LsDocController extends Controller
     public function exportAction(LsDoc $lsDoc, $_format = 'json')
     {
         $items = $this->getDoctrine()
-            ->getRepository('CftfBundle:LsDoc')
+            ->getRepository(LsDoc::class)
             ->findAllChildrenArray($lsDoc);
 
         return [

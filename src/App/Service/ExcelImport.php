@@ -150,7 +150,7 @@ class ExcelImport
         if (in_array($itemTypeTitle, $itemTypes, true)) {
             $itemType = $itemTypes[$itemTypeTitle];
         } else {
-            $itemType = $this->getEntityManager()->getRepository('CftfBundle:LsDefItemType')
+            $itemType = $this->getEntityManager()->getRepository(LsDefItemType::class)
                 ->findOneByTitle($itemTypeTitle);
 
             if (null === $itemType && !empty($itemTypeTitle)) {

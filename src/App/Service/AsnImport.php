@@ -94,7 +94,7 @@ class AsnImport
                 // Note: We could also get more information about the subject at the URL provided
                 $subject = ucfirst(preg_replace('#.*/#', '', $sdSubject->getValue()));
 
-                $s = $em->getRepository('CftfBundle:LsDefSubject')->findOneBy(['title' => $subject]);
+                $s = $em->getRepository(LsDefSubject::class)->findOneBy(['title' => $subject]);
                 if (null === $s) {
                     $s = new LsDefSubject();
                     $s->setTitle($subject);
@@ -409,7 +409,7 @@ class AsnImport
         }
 
         $itemType = $this->getEntityManager()
-            ->getRepository('CftfBundle:LsDefItemType')
+            ->getRepository(LsDefItemType::class)
             ->findOneBy(['title' => $label]);
 
         if (null === $itemType) {

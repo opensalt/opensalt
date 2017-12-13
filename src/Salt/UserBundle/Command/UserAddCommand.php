@@ -36,7 +36,7 @@ class UserAddCommand extends ContainerAwareCommand
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         if (empty($input->getArgument('org'))) {
-            $orgObjs = $em->getRepository('SaltUserBundle:Organization')->findAll();
+            $orgObjs = $em->getRepository(Organization::class)->findAll();
             $orgs = [];
             foreach ($orgObjs as $org) {
                 $orgs[] = $org->getName();
@@ -49,7 +49,7 @@ class UserAddCommand extends ContainerAwareCommand
                     throw new \Exception('The organization name must exist');
                 }
 
-                $org = $em->getRepository('SaltUserBundle:Organization')->findOneByName($value);
+                $org = $em->getRepository(Organization::class)->findOneByName($value);
                 if (empty($org)) {
                     throw new \Exception('The organization name must exist');
                 }

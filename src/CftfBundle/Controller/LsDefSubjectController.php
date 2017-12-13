@@ -38,7 +38,7 @@ class LsDefSubjectController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefSubjects = $em->getRepository('CftfBundle:LsDefSubject')->findAll();
+        $lsDefSubjects = $em->getRepository(LsDefSubject::class)->findAll();
 
         return [
             'lsDefSubjects' => $lsDefSubjects,
@@ -61,7 +61,7 @@ class LsDefSubjectController extends Controller
         // ?page_limit=N&q=SEARCHTEXT
         $em = $this->getDoctrine()->getManager();
 
-        $objects = $em->getRepository('CftfBundle:LsDefSubject')->getList();
+        $objects = $em->getRepository(LsDefSubject::class)->getList();
 
 //        $want = $request->query->get('q');
 //        if (!array_key_exists($want, $lsDefItemTypes)) {

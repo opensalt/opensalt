@@ -38,7 +38,7 @@ class LsDefLicenceController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefLicences = $em->getRepository('CftfBundle:LsDefLicence')->findAll();
+        $lsDefLicences = $em->getRepository(LsDefLicence::class)->findAll();
 
         return [
             'lsDefLicences' => $lsDefLicences,
