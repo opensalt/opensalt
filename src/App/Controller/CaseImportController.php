@@ -42,7 +42,7 @@ class CaseImportController extends Controller
         $content = base64_decode($request->request->get('fileContent'));
         $fileContent = json_decode($content);
 
-        $command = new ImportCaseJsonCommand($fileContent, $user);
+        $command = new ImportCaseJsonCommand($fileContent, $user->getOrg());
         $this->sendCommand($command);
 
         return new JsonResponse([
