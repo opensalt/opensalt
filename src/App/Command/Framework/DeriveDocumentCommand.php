@@ -58,7 +58,7 @@ class DeriveDocumentCommand extends BaseCommand
         return $this->derivedDoc;
     }
 
-    public function setDerivedDoc($derivedDoc): void
+    public function setDerivedDoc(LsDoc $derivedDoc): void
     {
         $this->derivedDoc = $derivedDoc;
     }

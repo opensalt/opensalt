@@ -4,7 +4,10 @@ namespace CftfBundle\Controller;
 
 use App\Command\CommandDispatcher;
 use App\Command\Framework\AddItemCommand;
+use App\Command\Framework\ChangeItemParentCommand;
+use App\Command\Framework\CopyItemToDocCommand;
 use App\Command\Framework\DeleteItemCommand;
+use App\Command\Framework\RemoveChildCommand;
 use App\Command\Framework\UpdateItemCommand;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
@@ -308,10 +311,8 @@ class LsItemController extends Controller
      */
     public function removeChildAction(LsItem $parent, LsItem $child)
     {
-        $em = $this->getDoctrine()->getManager();
-        $lsItemRepo = $em->getRepository(LsItem::class);
-        $lsItemRepo->removeChild($parent, $child);
-        $em->flush();
+        $command = new RemoveChildCommand($parent, $child);
+        $this->sendCommand($command);
 
         return [];
     }
@@ -341,9 +342,9 @@ class LsItemController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $newItem = $command->perform($form->getData(), $em);
-            $em->flush();
+            $copyCommand = new CopyItemToDocCommand($form->getData());
+            $this->sendCommand($copyCommand);
+            $newItem = $copyCommand->getNewItem();
 
             if ($ajax) {
                 return new Response(
@@ -392,9 +393,8 @@ class LsItemController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $command->perform($form->getData(), $em);
-            $em->flush();
+            $changeCommand = new ChangeItemParentCommand($form->getData());
+            $this->sendCommand($changeCommand);
 
             if ($ajax) {
                 return new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
