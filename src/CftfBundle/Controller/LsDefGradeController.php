@@ -69,7 +69,7 @@ class LsDefGradeController extends Controller
 
                 return $this->redirectToRoute('lsdef_grade_show', array('id' => $lsDefGrade->getId()));
             } catch (\Exception $e) {
-                $form->addError(new FormError('Error adding grade: '. $e->getMessage()));
+                $form->addError(new FormError('Error adding grade: '.$e->getMessage()));
             }
         }
 
@@ -125,7 +125,7 @@ class LsDefGradeController extends Controller
 
                 return $this->redirectToRoute('lsdef_grade_edit', array('id' => $lsDefGrade->getId()));
             } catch (\Exception $e) {
-                $editForm->addError(new FormError('Error updating grade: '. $e->getMessage()));
+                $editForm->addError(new FormError('Error updating grade: '.$e->getMessage()));
             }
         }
 

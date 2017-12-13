@@ -104,7 +104,7 @@ class LsDefItemTypeController extends Controller
 
                 return $this->redirectToRoute('lsdef_item_type_show', array('id' => $lsDefItemType->getId()));
             } catch (\Exception $e) {
-                $form->addError(new FormError('Error adding item type: '. $e->getMessage()));
+                $form->addError(new FormError('Error adding item type: '.$e->getMessage()));
             }
         }
 
@@ -160,7 +160,7 @@ class LsDefItemTypeController extends Controller
 
                 return $this->redirectToRoute('lsdef_item_type_edit', array('id' => $lsDefItemType->getId()));
             } catch (\Exception $e) {
-                $editForm->addError(new FormError('Error updating concept: '. $e->getMessage()));
+                $editForm->addError(new FormError('Error updating concept: '.$e->getMessage()));
             }
         }
 

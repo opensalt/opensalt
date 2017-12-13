@@ -70,7 +70,7 @@ class LsDefConceptController extends Controller
 
                 return $this->redirectToRoute('lsdef_concept_show', array('id' => $lsDefConcept->getId()));
             } catch (\Exception $e) {
-                $form->addError(new FormError('Error adding concept: '. $e->getMessage()));
+                $form->addError(new FormError('Error adding concept: '.$e->getMessage()));
             }
         }
 
@@ -126,7 +126,7 @@ class LsDefConceptController extends Controller
 
                 return $this->redirectToRoute('lsdef_concept_edit', array('id' => $lsDefConcept->getId()));
             } catch (\Exception $e) {
-                $editForm->addError(new FormError('Error updating concept: '. $e->getMessage()));
+                $editForm->addError(new FormError('Error updating concept: '.$e->getMessage()));
             }
         }
 

@@ -5,7 +5,6 @@ namespace App\Handler\Import;
 use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ParseCsvGithubDocumentCommand;
 use App\Event\CommandEvent;
-use App\Service\AsnImport;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use GithubFilesBundle\Service\GithubImport;
 use JMS\DiExtraBundle\Annotation as DI;

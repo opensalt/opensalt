@@ -99,7 +99,7 @@ class LsAssociationController extends Controller
 
                 return $this->redirectToRoute('lsassociation_show', array('id' => $lsAssociation->getId()));
             } catch (\Exception $e) {
-                $form->addError(new FormError('Error adding new association: '. $e->getMessage()));
+                $form->addError(new FormError('Error adding new association: '.$e->getMessage()));
             }
         }
 
@@ -167,6 +167,7 @@ class LsAssociationController extends Controller
      * @param LsItem $originLsItem
      *
      * @return Response
+     *
      * @throws \InvalidArgumentException
      */
     public function treeNewExemplarAction(Request $request, LsItem $originLsItem): Response
@@ -240,7 +241,7 @@ class LsAssociationController extends Controller
 
                 return $this->redirectToRoute('lsassociation_edit', array('id' => $lsAssociation->getId()));
             } catch (\Exception $e) {
-                $editForm->addError(new FormError('Error updating new association: '. $e->getMessage()));
+                $editForm->addError(new FormError('Error updating new association: '.$e->getMessage()));
             }
         }
 

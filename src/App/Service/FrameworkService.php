@@ -51,7 +51,9 @@ class FrameworkService
 
     /**
      * @param LsDoc $doc
+     *
      * @return LsDoc
+     *
      * @throws \InvalidArgumentException
      */
     public function addDocument(LsDoc $doc): LsDoc
@@ -90,6 +92,7 @@ class FrameworkService
     /**
      * @param LsDoc $doc
      * @param \Closure|null $callback
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
     public function deleteFramework(LsDoc $doc, ?\Closure $callback = null): void
@@ -354,6 +357,7 @@ class FrameworkService
      * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsItem|null
+     *
      * @throws \UnexpectedValueException
      */
     protected function getTreeItemForUpdate(LsDoc $lsDoc, array $updates, $lsItemId, ?LsDefAssociationGrouping $assocGroup = null): ?LsItem
@@ -376,12 +380,12 @@ class FrameworkService
 
         // if addCopyToTitle is set, add "Copy of " to fullStatement and abbreviatedStatement
         if (array_key_exists('addCopyToTitle', $updates)) {
-            $title = 'Copy of ' . $lsItem->getFullStatement();
+            $title = 'Copy of '.$lsItem->getFullStatement();
             $lsItem->setFullStatement($title);
 
             $abbreviatedStatement = $lsItem->getAbbreviatedStatement();
             if (null !== $abbreviatedStatement) {
-                $abbreviatedStatement = 'Copy of ' . $abbreviatedStatement;
+                $abbreviatedStatement = 'Copy of '.$abbreviatedStatement;
                 $lsItem->setAbbreviatedStatement($abbreviatedStatement);
             }
         }

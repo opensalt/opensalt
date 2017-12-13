@@ -30,6 +30,7 @@ class TestingController extends Controller
      * @Method({"GET", "POST"})
      *
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function newFrameworkAction(Request $request)
@@ -43,7 +44,7 @@ class TestingController extends Controller
                 $command = new AddDocumentCommand($lsDoc);
                 $this->sendCommand($command);
             } catch (\Exception $e) {
-                $form->addError(new FormError('Error adding new document: '. $e->getMessage()));
+                $form->addError(new FormError('Error adding new document: '.$e->getMessage()));
             }
 
             if (0 === count($form->getErrors())) {

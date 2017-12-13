@@ -142,7 +142,7 @@ class LsDocController extends Controller
                     array('slug' => $lsDoc->getSlug())
                 );
             } catch (\Exception $e) {
-                $form->addError(new FormError('Error adding new document: '. $e->getMessage()));
+                $form->addError(new FormError('Error adding new document: '.$e->getMessage()));
             }
         }
 
@@ -271,7 +271,7 @@ class LsDocController extends Controller
                     array('id' => $lsDoc->getId())
                 );
             } catch (\Exception $e) {
-                $editForm->addError(new FormError('Error upating new document: '. $e->getMessage()));
+                $editForm->addError(new FormError('Error upating new document: '.$e->getMessage()));
             }
         }
 

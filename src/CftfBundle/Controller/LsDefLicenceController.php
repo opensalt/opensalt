@@ -69,7 +69,7 @@ class LsDefLicenceController extends Controller
 
                 return $this->redirectToRoute('lsdef_licence_show', array('id' => $lsDefLicence->getId()));
             } catch (\Exception $e) {
-                $form->addError(new FormError('Error adding licence: '. $e->getMessage()));
+                $form->addError(new FormError('Error adding licence: '.$e->getMessage()));
             }
         }
 
@@ -125,7 +125,7 @@ class LsDefLicenceController extends Controller
 
                 return $this->redirectToRoute('lsdef_licence_edit', array('id' => $lsDefLicence->getId()));
             } catch (\Exception $e) {
-                $editForm->addError(new FormError('Error updating licence: '. $e->getMessage()));
+                $editForm->addError(new FormError('Error updating licence: '.$e->getMessage()));
             }
         }
 

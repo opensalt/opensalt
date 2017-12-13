@@ -96,7 +96,7 @@ class LsDefSubjectController extends Controller
 
                 return $this->redirectToRoute('lsdef_subject_show', array('id' => $lsDefSubject->getId()));
             } catch (\Exception $e) {
-                $form->addError(new FormError('Error adding subject: '. $e->getMessage()));
+                $form->addError(new FormError('Error adding subject: '.$e->getMessage()));
             }
         }
 
@@ -152,7 +152,7 @@ class LsDefSubjectController extends Controller
 
                 return $this->redirectToRoute('lsdef_subject_edit', array('id' => $lsDefSubject->getId()));
             } catch (\Exception $e) {
-                $editForm->addError(new FormError('Error updating subject: '. $e->getMessage()));
+                $editForm->addError(new FormError('Error updating subject: '.$e->getMessage()));
             }
         }
 

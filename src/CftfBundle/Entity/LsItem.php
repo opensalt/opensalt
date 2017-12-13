@@ -410,6 +410,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsItem
+     *
      * @throws \UnexpectedValueException
      */
     public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null): LsItem
@@ -449,6 +450,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsItem
+     *
      * @throws \UnexpectedValueException
      */
     public function duplicateToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null): LsItem
@@ -883,6 +885,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      * @param int|null $sequenceNumber
      *
      * @return LsItem
+     *
      * @throws \UnexpectedValueException
      */
     public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): LsItem
@@ -1149,6 +1152,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsAssociation inserted association (in case the caller needs to get the id later)
+     *
      * @throws \UnexpectedValueException
      */
     public function addParent($parent, ?int $sequenceNumber = null, ?LsDefAssociationGrouping $assocGroup = null): LsAssociation

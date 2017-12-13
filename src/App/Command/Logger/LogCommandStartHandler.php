@@ -17,10 +17,5 @@ class LogCommandStartHandler
      */
     public function handle(LogCommandStartCommand $event, $eventName, EventDispatcherInterface $dispatcher)
     {
-        $command = $event->getSubject();
-
-        var_dump('starting');
-        var_dump($command);
-        var_dump($event->getArguments());
     }
 }

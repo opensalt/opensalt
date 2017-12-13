@@ -1348,6 +1348,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      * @param string $ownedBy
      *
      * @return LsDoc
+     *
      * @throws \InvalidArgumentException
      */
     public function setOwnedBy(?string $ownedBy): LsDoc

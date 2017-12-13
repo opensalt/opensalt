@@ -411,6 +411,7 @@ class DocTreeController extends Controller
      * @param int $includingChildren
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     *
      * @throws \InvalidArgumentException
      */
     public function deleteItemAction(Request $request, LsItem $lsItem, int $includingChildren = 0): Response
@@ -487,6 +488,7 @@ class DocTreeController extends Controller
      * @param LsDefAssociationGrouping $lsDefAssociationGrouping
      *
      * @return Response
+     *
      * @throws \InvalidArgumentException
      */
     public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $lsDefAssociationGrouping): Response

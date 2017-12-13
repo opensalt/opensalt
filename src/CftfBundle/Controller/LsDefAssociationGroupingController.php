@@ -77,7 +77,7 @@ class LsDefAssociationGroupingController extends Controller
 
                 return $this->redirectToRoute('lsdef_association_grouping_show', array('id' => $lsDefAssociationGrouping->getId()));
             } catch (\Exception $e) {
-                $form->addError(new FormError('Error adding new association group: '. $e->getMessage()));
+                $form->addError(new FormError('Error adding new association group: '.$e->getMessage()));
             }
         }
 
@@ -137,7 +137,7 @@ class LsDefAssociationGroupingController extends Controller
 
                 return $this->redirectToRoute('lsdef_association_grouping_edit', array('id' => $lsDefAssociationGrouping->getId()));
             } catch (\Exception $e) {
-                $editForm->addError(new FormError('Error updating association group: '. $e->getMessage()));
+                $editForm->addError(new FormError('Error updating association group: '.$e->getMessage()));
             }
         }
 

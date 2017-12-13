@@ -6,5 +6,4 @@ use App\Command\BaseCommand;
 
 class LogCommandStartCommand extends BaseCommand
 {
-
 }

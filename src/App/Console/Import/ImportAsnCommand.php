@@ -28,6 +28,7 @@ class ImportAsnCommand extends ContainerAwareCommand
         $creator = $input->getOption('creator');
 
         $output->writeln("<info>Starting import of {$asnId}</info>");
+
         try {
             $command = new ImportAsnFromUrlCommand($asnId, $creator);
             $this->getContainer()->get('event_dispatcher')

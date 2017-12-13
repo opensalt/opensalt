@@ -9,6 +9,7 @@ use App\Command\Framework\CopyItemToDocCommand;
 use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\RemoveChildCommand;
 use App\Command\Framework\UpdateItemCommand;
+use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsDefAssociationGrouping;
@@ -95,35 +96,12 @@ class LsItemController extends Controller
 
                 if ($ajax) {
                     // if ajax call, return the item as json
-                    $ret = [
-                        'id' => $lsItem->getId(),
-                        'identifier' => $lsItem->getIdentifier(),
-                        'fullStatement' => $lsItem->getFullStatement(),
-                        'humanCodingScheme' => $lsItem->getHumanCodingScheme(),
-                        'listEnumInSource' => $lsItem->getListEnumInSource(),
-                        'abbreviatedStatement' => $lsItem->getAbbreviatedStatement(),
-                        'conceptKeywords' => $lsItem->getConceptKeywords(),
-                        'conceptKeywordsUri' => $lsItem->getConceptKeywordsUri(),
-                        'notes' => $lsItem->getNotes(),
-                        'language' => $lsItem->getLanguage(),
-                        'educationalAlignment' => $lsItem->getEducationalAlignment(),
-                        'itemType' => $lsItem->getItemType(),
-                        'changedAt' => $lsItem->getChangedAt(),
-                        'extra' => [
-                            'assocId' => isset($assoc) ? $assoc->getId() : null,
-                            'identifier' => isset($assoc) ? $assoc->getIdentifier(): null
-                        ]
-                    ];
-                    $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
-                    $response->headers->set('Content-Type', 'application/json');
-                    $response->headers->set('Pragma', 'no-cache');
-
-                    return $response;
+                    return $this->generateItemJsonResponse($lsItem, $assoc);
                 }
 
                 return $this->redirectToRoute('lsitem_show', array('id' => $lsItem->getId()));
             } catch (\Exception $e) {
-                $form->addError(new FormError('Error adding new item: '. $e->getMessage()));
+                $form->addError(new FormError('Error adding new item: '.$e->getMessage()));
             }
         }
 
@@ -194,32 +172,12 @@ class LsItemController extends Controller
 
                 if ($ajax) {
                     // if ajax call, return the item as json
-                    $ret = [
-                        'id' => $lsItem->getId(),
-                        'identifier' => $lsItem->getIdentifier(),
-                        'fullStatement' => $lsItem->getFullStatement(),
-                        'humanCodingScheme' => $lsItem->getHumanCodingScheme(),
-                        'listEnumInSource' => $lsItem->getListEnumInSource(),
-                        'abbreviatedStatement' => $lsItem->getAbbreviatedStatement(),
-                        'conceptKeywords' => $lsItem->getConceptKeywords(),
-                        'conceptKeywordsUri' => $lsItem->getConceptKeywordsUri(),
-                        'notes' => $lsItem->getNotes(),
-                        'language' => $lsItem->getLanguage(),
-                        'educationalAlignment' => $lsItem->getEducationalAlignment(),
-                        'itemType' => $lsItem->getItemType(),
-                        'changedAt' => $lsItem->getChangedAt(),
-                        'extra' => null
-                    ];
-                    $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
-                    $response->headers->set('Content-Type', 'application/json');
-                    $response->headers->set('Pragma', 'no-cache');
-
-                    return $response;
+                    return $this->generateItemJsonResponse($lsItem);
                 }
 
                 return $this->redirectToRoute('lsitem_edit', ['id' => $lsItem->getId()]);
             } catch (\Exception $e) {
-                $editForm->addError(new FormError('Error updating item: '. $e->getMessage()));
+                $editForm->addError(new FormError('Error updating item: '.$e->getMessage()));
             }
         }
 
@@ -414,5 +372,33 @@ class LsItemController extends Controller
         }
 
         return $ret;
+    }
+
+    private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
+    {
+        $ret = [
+            'id' => $item->getId(),
+            'identifier' => $item->getIdentifier(),
+            'fullStatement' => $item->getFullStatement(),
+            'humanCodingScheme' => $item->getHumanCodingScheme(),
+            'listEnumInSource' => $item->getListEnumInSource(),
+            'abbreviatedStatement' => $item->getAbbreviatedStatement(),
+            'conceptKeywords' => $item->getConceptKeywords(),
+            'conceptKeywordsUri' => $item->getConceptKeywordsUri(),
+            'notes' => $item->getNotes(),
+            'language' => $item->getLanguage(),
+            'educationalAlignment' => $item->getEducationalAlignment(),
+            'itemType' => $item->getItemType(),
+            'changedAt' => $item->getChangedAt(),
+            'extra' => [
+                'assocId' => isset($assoc) ? $assoc->getId() : null,
+                'identifier' => isset($assoc) ? $assoc->getIdentifier(): null
+            ]
+        ];
+        $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Cache-Control', 'no-cache');
+
+        return $response;
     }
 }

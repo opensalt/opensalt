@@ -19,8 +19,5 @@ class LogCommandFailedHandler
     public function handle(CommandEvent $event, $eventName, EventDispatcherInterface $dispatcher)
     {
         $command = $event->getCommand();
-
-        var_dump('failed');
-        var_dump($command);
     }
 }
