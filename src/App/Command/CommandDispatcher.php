@@ -18,7 +18,7 @@ trait CommandDispatcher
         $dispatcher = $this->dispatcher ?? null;
 
         if (null === $dispatcher) {
-           $dispatcher = $this->get('event_dispatcher');
+            $dispatcher = $this->get('event_dispatcher');
         }
 
         $dispatcher->dispatch(

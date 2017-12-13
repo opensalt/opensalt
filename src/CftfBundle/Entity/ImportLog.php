@@ -146,6 +146,6 @@ class ImportLog
     {
         $this->messageType = $messageType;
 
-         return $this;
+        return $this;
     }
 }
