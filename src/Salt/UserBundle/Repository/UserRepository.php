@@ -76,7 +76,7 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @return string The user's password
      */
-    public function addNewUser(string $username, Organization $org, $plainPassword = null, $role = null): string
+    public function addNewUser(string $username, Organization $org, ?string $plainPassword = null, ?string $role = null): string
     {
         if (empty(trim($plainPassword))) {
             // if there is no password, make something ugly up
@@ -101,7 +101,6 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
         $user->addRole($role);
 
         $this->getEntityManager()->persist($user);
-        $this->getEntityManager()->flush($user);
 
         return $plainPassword;
     }
@@ -114,7 +113,7 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @return string The user's password
      */
-    public function setUserPassword($username, $plainPassword = null): string
+    public function setUserPassword(string $username, ?string $plainPassword = null): string
     {
         if (empty(trim($plainPassword))) {
             // if there is no password, make something ugly up
@@ -128,8 +127,6 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
         $password = $this->encoder->encodePassword($user, $plainPassword);
         $user->setPassword($password);
 
-        $this->getEntityManager()->flush($user);
-
         return $plainPassword;
     }
 
@@ -141,7 +138,7 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @throws \InvalidArgumentException
      */
-    public function addRoleToUser($username, $role): void
+    public function addRoleToUser(string $username, string $role): void
     {
         $user = $this->loadUserByUsername($username);
         if (null === $user) {
@@ -149,8 +146,6 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
         }
 
         $user->addRole($role);
-
-        $this->getEntityManager()->flush($user);
     }
 
     /**
@@ -161,7 +156,7 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @throws \InvalidArgumentException
      */
-    public function removeRoleFromUser($username, $role): void
+    public function removeRoleFromUser(string $username, string $role): void
     {
         $user = $this->loadUserByUsername($username);
         if (null === $user) {
@@ -169,7 +164,5 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
         }
 
         $user->removeRole($role);
-
-        $this->getEntityManager()->flush($user);
     }
 }

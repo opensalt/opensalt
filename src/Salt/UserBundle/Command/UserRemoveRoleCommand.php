@@ -2,6 +2,8 @@
 
 namespace Salt\UserBundle\Command;
 
+use App\Command\User\RemoveUserRoleCommand;
+use App\Event\CommandEvent;
 use Salt\UserBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -60,9 +62,9 @@ class UserRemoveRoleCommand extends ContainerAwareCommand
             return;
         }
 
-        $em = $this->getContainer()->get('doctrine')->getManager();
-        $userRepository = $em->getRepository('SaltUserBundle:User');
-        $userRepository->removeRoleFromUser($username, $role);
+        $command = new RemoveUserRoleCommand($username, $role);
+        $this->getContainer()->get('event_dispatcher')
+            ->dispatch(CommandEvent::class, new CommandEvent($command));
 
         $output->writeln(sprintf('The role "%s" has been removed.', $input->getArgument('role')));
     }

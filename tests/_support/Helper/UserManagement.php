@@ -105,6 +105,7 @@ class UserManagement extends \Codeception\Module
         if ($user) {
             $username = $user->getUsername();
             $userRepo->setUserPassword($username, $password);
+            $em->flush();
         } else {
             $orgRepo = $em->getRepository(Organization::class);
             $org = $orgRepo->createQueryBuilder('o')
@@ -122,6 +123,7 @@ class UserManagement extends \Codeception\Module
 
             $username = 'TEST:'.$role.':'.$faker->userName;
             $userRepo->addNewUser($username, $org, $password, $role);
+            $em->flush();
 
             $user = $userRepo->createQueryBuilder('u')
                 ->where('u.username = :username')
