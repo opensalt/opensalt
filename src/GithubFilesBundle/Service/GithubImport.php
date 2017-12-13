@@ -46,13 +46,13 @@ class GithubImport
     /**
      * Parse an Github document into a LsDoc/LsItem hierarchy
      *
-     * @param array $lsDocKeys
      * @param array $lsItemKeys
      * @param string $fileContent
+     * @param string $lsDocId
      * @param string $frameworkToAssociate
      * @param array $missingFieldsLog
      */
-    public function parseCSVGithubDocument($lsItemKeys, $fileContent, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
+    public function parseCSVGithubDocument(array $lsItemKeys, string $fileContent, string $lsDocId, string $frameworkToAssociate, array $missingFieldsLog)
     {
         $csvContent = str_getcsv($fileContent, "\n");
         $headers = [];
@@ -179,8 +179,6 @@ class GithubImport
                 $this->saveAssociations($i, $content, $lsItemKeys, $lsItem, $lsDoc, $frameworkToAssociate);
             }
         }
-
-        $em->flush();
     }
 
     /**

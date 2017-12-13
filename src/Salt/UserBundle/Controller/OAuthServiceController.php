@@ -2,6 +2,8 @@
 
 namespace Salt\UserBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\User\UpdateUserCommand;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -16,6 +18,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class OAuthServiceController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Save the Github Access Token.
      *
@@ -85,7 +89,9 @@ class OAuthServiceController extends Controller
 
         // Set an access token per each user for fetch info.
         $user->setGithubToken($token->getToken());
-        $em->flush();
+
+        $command = new UpdateUserCommand($user);
+        $this->sendCommand($command);
 
         return $this->redirectToRoute('lsdoc_index');
     }

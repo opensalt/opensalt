@@ -13,7 +13,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 /**
  * Class FrameworkUpdater.
  *
- * @DI\Service()
+ * @DI\Service("framework_updater.local")
  */
 class FrameworkUpdater
 {
@@ -81,6 +81,8 @@ class FrameworkUpdater
 
             $this->updateAssociations($cfItem, $contentTransformed[$i], $cfItemKeys);
         }
+
+        $em->flush();
     }
 
     /**

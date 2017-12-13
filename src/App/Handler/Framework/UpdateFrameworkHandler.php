@@ -27,7 +27,7 @@ class UpdateFrameworkHandler extends AbstractDoctrineHandler
      * @DI\InjectParams({
      *     "validator" = @DI\Inject("validator"),
      *     "registry" = @DI\Inject("doctrine"),
-     *     "frameworkUpdater" = @DI\Inject(FrameworkUpdater::class)
+     *     "frameworkUpdater" = @DI\Inject("framework_updater.local")
      * })
      */
     public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, FrameworkUpdater $frameworkUpdater)
