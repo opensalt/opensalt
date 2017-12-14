@@ -1,32 +1,21 @@
 $salt-view-font-path: "" !default;
 
-@media (min-width:1200px) {
-    .container {
-        width: 100%;
-        max-width:1500px;
-    }
-}
-@media (min-width:330px) {
-    #ls_doc_list_left label.col-sm-2.control-label, #ls_doc_list_right label.col-sm-2.control-label {
-        width:18%;
-    }
-}
 main{
-  padding: 8px;
+    padding: 8px;
 }
 body{
-  overflow-x: hidden;
+    overflow-x: hidden;
 }
 #treeSideLeft {
-   // border-right:3px solid #f5f5f5;
-    Float:left;
+    // border-right:3px solid #f5f5f5;
+    float:left;
     width:50%;
     min-width: 300px;
 }
 
 #treeSideRight {
-  //  border-left:3px solid #f5f5f5;
-    Float:left;
+    //  border-left:3px solid #f5f5f5;
+    float:left;
     width:50%;
 }
 
@@ -86,12 +75,12 @@ body{
 #tree2SectionControls {
     display:none;
     margin-top: 15px;
-  padding-left:20px;
+    padding-left:20px;
 }
 
 #tree1SectionControls
 {
-  padding-left:20px;
+    padding-left:20px;
 }
 
 .filterClear {
@@ -445,7 +434,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 .treeSide {
     // document
     .fancytree-container span.fancytree-icon, .fancytree-container span.fancytree-icon:hover
-    {
+        {
         background-image: url('#{$salt-view-font-path}/assets/img/doc.png');
         background-position: inherit;
         background-size: 20px;
@@ -455,20 +444,20 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 
     // folder
     .fancytree-container ul .fancytree-ico-cf span.fancytree-icon, .fancytree-container ul .fancytree-ico-cf span.fancytree-icon:hover,
-    .fancytree-container ul .fancytree-ico-ef span.fancytree-icon, .fancytree-container ul .fancytree-ico-ef span.fancytree-icon:hover
-    {
+        .fancytree-container ul .fancytree-ico-ef span.fancytree-icon, .fancytree-container ul .fancytree-ico-ef span.fancytree-icon:hover
+        {
         background-image: url('#{$salt-view-font-path}/assets/img/folder.png');
     }
 
     .fancytree-force-folder, .fancytree-force-folder:hover
-    {
+        {
         background-image: url('#{$salt-view-font-path}/assets/img/folder.png') !important;
     }
 
     // leaf
     .fancytree-container ul .fancytree-exp-n span.fancytree-icon, .fancytree-container ul .fancytree-exp-n span.fancytree-icon:hover,
-    .fancytree-container ul .fancytree-exp-nl span.fancytree-icon, .fancytree-container ul .fancytree-exp-nl span.fancytree-icon:hover
-    {
+        .fancytree-container ul .fancytree-exp-nl span.fancytree-icon, .fancytree-container ul .fancytree-exp-nl span.fancytree-icon:hover
+        {
         background-image: url('#{$salt-view-font-path}/assets/img/item.png');
     }
 }
@@ -476,8 +465,8 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 #competencyTree {
     // leaf
     .fancytree-exp-n span.fancytree-icon, .fancytree-exp-n span.fancytree-icon:hover,
-    .fancytree-exp-nl span.fancytree-icon, .fancytree-exp-nl span.fancytree-icon:hover
-     {
+        .fancytree-exp-nl span.fancytree-icon, .fancytree-exp-nl span.fancytree-icon:hover
+        {
         background-image: url('#{$salt-view-font-path}/assets/img/doc.png');
         background-position: inherit;
         background-size: 20px;
@@ -604,17 +593,17 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 }
 
 .toggle-container-left {
-    position: absolute;
+    position: relative;
     top: 50%;
-  padding-left: 2px;
+    padding-left: 2px;
     cursor: pointer;
 }
 
 .toggle-container-right {
-    position: absolute;
+    position: relative;
     top: 50%;
     padding-left:15px;
-   // left: 1%;
+    // left: 1%;
     cursor: pointer;
 }
 
@@ -624,4 +613,22 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     float: right;
     width: 5px;
     cursor: col-resize;
+}
+
+@media (min-width:330px) {
+    #ls_doc_list_left label.col-sm-2.control-label, #ls_doc_list_right label.col-sm-2.control-label {
+        width:18%;
+    }
+}
+@media only screen and (max-width : 768px) {
+    #treeSideLeft{
+        padding-bottom:10px;
+    }
+
+}
+@media (min-width:1200px) {
+    .container {
+        width: 100%;
+        max-width:1500px;
+    }
 }
