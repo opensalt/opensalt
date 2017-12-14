@@ -30,7 +30,7 @@ class CommentsController extends Controller
      */
     public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user)
     {
-        return $this->addComment($request, 'document', $doc->getId(), $user);
+        return $this->addComment($request, 'document', $doc, $user);
     }
 
     /**
@@ -42,7 +42,7 @@ class CommentsController extends Controller
      */
     public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user)
     {
-        return $this->addComment($request, 'item', $item->getId(), $user);
+        return $this->addComment($request, 'item', $item, $user);
     }
 
     /**

@@ -26,7 +26,14 @@ class CommentRepository extends EntityRepository
         $comment = new Comment();
         $comment->setContent(trim($content));
         $comment->setUser($user);
-        $comment->setItem($itemType.':'.$itemId);
+        if($itemType=='item')
+        {
+            $comment->setItem($itemId);
+        }
+        else
+        {
+            $comment->setDocument($itemId);
+        }
         $comment->setCreatedByCurrentUser(true);
 
         $parent = $this->find($parentId);
