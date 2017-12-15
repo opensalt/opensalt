@@ -22,6 +22,7 @@ class Version20171214142307 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_5AD1C6CC126F525E ON salt_comment (item_id)');
         $this->addSql('UPDATE salt_comment SET document_id = SUBSTRING_INDEX(item, ":", -1) WHERE SUBSTRING_INDEX(item, ":", 1) = "document"');
         $this->addSql('UPDATE salt_comment SET item_id = SUBSTRING_INDEX(item, ":", -1) WHERE SUBSTRING_INDEX(item, ":", 1) = "item"');
+        $this->addSql('ALTER TABLE salt_comment DROP item');
     }
 
     public function down(Schema $schema)
