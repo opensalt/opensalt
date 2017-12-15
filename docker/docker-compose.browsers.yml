@@ -8,15 +8,17 @@ services:
 
   chrome:
     image: selenium/standalone-chrome:3.8
+    shm_size: '2gb'
     volumes:
       - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
-      - "/dev/shm:/dev/shm"
 
   firefox:
     image: selenium/standalone-firefox:3.8
     shm_size: '2gb'
     volumes:
       - "${PROJ_DIR:-.}/../tests:/var/www/html/tests"
+    environment:
+      SE_OPTS: "-enablePassThrough false"
 
   wait:
     image: jwilder/dockerize

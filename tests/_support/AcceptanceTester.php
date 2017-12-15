@@ -23,7 +23,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
 {
     use _generated\AcceptanceTesterActions;
 
-    static protected $documentsApi = '/ims/case/v1p0/CFDocuments';
+    static protected $documentsApi = '/ims/case/v1p0/CFDocuments?limit=1000';
     static protected $packagesApi = '/ims/case/v1p0/CFPackages/';
 
     private $lsDocId = null;
@@ -217,10 +217,6 @@ class AcceptanceTester extends \Codeception\Actor implements Context
 
         $lastItem = $items[0];
         foreach ($items as $item) {
-            if (($item['adoptionStatus'] ?? 'Draft') !== 'Draft') {
-                continue;
-            }
-
             if ($lastItem['lastChangeDateTime'] < $item['lastChangeDateTime']) {
                 $lastItem = $item;
             }

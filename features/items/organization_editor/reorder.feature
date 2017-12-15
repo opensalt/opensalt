@@ -3,7 +3,7 @@ Feature: Reorder a item
   As an organization-editor user
   I need to see reorder section
 
-  @organization-editor @item @edit-item @1110-1033
+  @organization-editor @item @edit-item @1110-1033 @skip-firefox
   Scenario: 1110-1033 An organization-editor user can reorder a item
     Given I log in as a user with role "Editor"
     Then I create a framework

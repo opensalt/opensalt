@@ -3,7 +3,7 @@ Feature: Adding, viewing and deleting a item
   As an admin user
   I need to see a all of the fields
 
-  @smoke @editor @item @add-item @1016-0929
+  @smoke @editor @item @add-item @1016-0929 @duplicate
   Scenario: 1016-0929 An admin user can add a item
     Given I log in as a user with role "Admin"
     When I create a framework

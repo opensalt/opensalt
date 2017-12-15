@@ -298,4 +298,31 @@ class Item implements Context
     }
   }
 
+
+  /**
+   * @Given /^I move the last item to a Parent Item$/
+   */
+  public function iMoveTheLastItemToAParentItem() {
+    $I = $this->I;
+
+    $I->amOnPage(self::$itemPath.$I->getItemId());
+    $I->waitForElementVisible('#deleteItemBtn');
+    $I->checkOption('#enableMoveCheckbox');
+    $I->click('Make This Item a Parent');
+    $I->dragAndDrop('(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]', '//*[@id="ui-id-1"]/span');
+  }
+
+  /**
+   * @Then /^I see the Child item of the Parent$/
+   */
+  public function iSeeTheChildItemOfTheParent() {
+    $I = $this->I;
+
+    $I->amOnPage(self::$itemPath.$I->getItemId());
+    $I->waitForElementVisible('//*[@id="itemInfo"]');
+    $I->seeElementInDOM('//img[@src="/assets/img/folder.png"]');
+  }
+
+
+
 }

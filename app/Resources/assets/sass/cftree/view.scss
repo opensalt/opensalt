@@ -7,14 +7,14 @@ body{
     overflow-x: hidden;
 }
 #treeSideLeft {
-    // border-right:3px solid #f5f5f5;
+   // border-right:3px solid #f5f5f5;
     float:left;
     width:50%;
     min-width: 300px;
 }
 
 #treeSideRight {
-    //  border-left:3px solid #f5f5f5;
+  //  border-left:3px solid #f5f5f5;
     float:left;
     width:50%;
 }
@@ -567,7 +567,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     z-index:10;
     right:-600px;
     top:10px;
-    width:80vw;
+    width:80vw !important;
     max-width:600px;
     border-left:0 !important;
     height:auto !important;

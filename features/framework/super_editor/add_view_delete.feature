@@ -3,7 +3,7 @@ Feature: Adding, viewing and deleting a framework
   As an super editor
   I need to see a all of the fields
 
-  @super-editor @framework @add-framework
+  @super-editor @framework @add-framework @duplicate
   Scenario: 1016-1323 An super editor can add a framework
     Given I log in as a user with role "Super-Editor"
     Then I should see "Create a new Framework" button
