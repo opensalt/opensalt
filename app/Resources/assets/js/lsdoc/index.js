@@ -658,7 +658,6 @@ var adjustWindow = function (e) {
         $(".treeSideRightInner").hide();
         $(".rightTreeSideLeftInner").hide();
         $("#dragbar").hide();
-
     }
     else {
         $('#treeSideLeft').width('50%');
@@ -667,7 +666,7 @@ var adjustWindow = function (e) {
         $(".rightTreeSideLeftInner").show();
         $("#dragbar").show();
     }
-}
+};
 $(document).on('ready', adjustWindow);
 
 $(window).on('resize', adjustWindow);
