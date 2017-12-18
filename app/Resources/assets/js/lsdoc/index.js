@@ -229,7 +229,6 @@ var Import = (function() {
         if (index < 0 && validatedValues) {
             sendData();
         } else {
-            CfItem.errorValue('Column Missing', 'Column HumanCodingScheme is required', 'danger');
             $('.file-loading').addClass('hidden');
             $('#import-div').removeClass('hidden');
         }

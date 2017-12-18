@@ -120,7 +120,7 @@
         "liuggio/excelbundle": "^2.1",
         "bower-asset/jquery-comments": "^1.2",
         "qandidate/toggle-bundle": "^0.8",
-        "npm-asset/papaparse": "*"
+        "npm-asset/papaparse": "^4.3"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.1",
