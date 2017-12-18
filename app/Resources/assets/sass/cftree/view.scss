@@ -7,14 +7,14 @@ body{
     overflow-x: hidden;
 }
 #treeSideLeft {
-   // border-right:3px solid #f5f5f5;
+    // border-right:3px solid #f5f5f5;
     float:left;
     width:50%;
     min-width: 300px;
 }
 
 #treeSideRight {
-  //  border-left:3px solid #f5f5f5;
+    //  border-left:3px solid #f5f5f5;
     float:left;
     width:50%;
 }
@@ -624,7 +624,15 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     #treeSideLeft{
         padding-bottom:10px;
     }
-
+    .rightTreeSideRightInner{
+        width: 100%;
+    }
+}
+@media (min-width: 768px) {
+    .container {
+        width: 100%; 
+        margin:10px;
+    }
 }
 @media (min-width:1200px) {
     .container {
