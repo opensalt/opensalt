@@ -173,9 +173,11 @@ var Import = (function() {
     function csvImporter(content, disableRequest) {
         file = content;
 
+        var Papa = require('papaparse');
+        var csv = Papa.parse(file);
+
         var fields = CfItem.fields;
-        var lines = file.split("\n");
-        var columns = lines[0].split(",");
+        var columns = csv.data[0];
         var index = null, field = null, column = null;
 
         for (var i = 0; i < fields.length; i++) {
@@ -207,6 +209,9 @@ var Import = (function() {
             return { cfItemKeys: cfItemKeys, fields: fields };
         }
 
+        $('.missing-fields').html('');
+        var validatedValues = validateContent(csv);
+
         if (fields.length > 0) {
             fields.forEach(function(field) {
                 CfItem.missingField(field);
@@ -221,12 +226,27 @@ var Import = (function() {
 
         index = fields.indexOf('humanCodingScheme');
 
-        if (index < 0) {
+        if (index < 0 && validatedValues) {
             sendData();
         } else {
+            CfItem.errorValue('Column Missing', 'Column HumanCodingScheme is required', 'danger');
             $('.file-loading').addClass('hidden');
             $('#import-div').removeClass('hidden');
         }
+    }
+
+    function validateContent(csv) {
+        var sw = true;
+        csv.data.forEach(function(row, i) {
+            if (row[3]) {
+                if (row[3].length > 60) {
+                    sw = false;
+                    CfItem.errorValue('Line '+i+1, 'Abbreviated statement can not be longer than 60 characters.', 'warning');
+                }
+            }
+        });
+
+        return sw;
     }
 
     function jsonImporter(file) {
@@ -492,9 +512,18 @@ var CfItem = (function(){
         alert += '</div>';
 
         missingFieldsErrorMessages.push($(alert).find(".js-error-message-missing-field").text());
-        console.info($(alert).find(".js-error-message-missing-field").text());
-
         $('.missing-fields').append(alert);
+    }
+
+    function errorValue(err, msg, alertType) {
+        var alert = '<div class="alert alert-'+alertType+' js-alert-missing-fields" role="alert">';
+        alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
+        alert += '<div class="js-error-message-missing-field">';
+        alert += '<strong>Error:</strong> '+err+', '+msg;
+        alert += '</div>';
+        alert += '</div>';
+
+        $('.missing-fields').prepend(alert);
     }
 
     function getErrorsLog(){
@@ -505,7 +534,8 @@ var CfItem = (function(){
         fields: fields,
         validDropdowns: validDropdowns,
         missingField: missingField,
-        getErrorsLog: getErrorsLog
+        getErrorsLog: getErrorsLog,
+        errorValue: errorValue
     };
 })();
 
