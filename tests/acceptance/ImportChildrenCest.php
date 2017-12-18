@@ -22,7 +22,6 @@ class ImportChildrenCest
         $data = file_get_contents(codecept_data_dir().'sequenceNumber.csv');
 
         $name = sq('SequenceNumberTest');
-        $docUuid = Uuid::uuid4()->toString();
         $this->rememberedFramework = $name;
 
         $origValues = [];
