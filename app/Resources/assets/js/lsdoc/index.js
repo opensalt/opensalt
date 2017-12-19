@@ -8,17 +8,17 @@ var SaltGithub = (function(){
                 $.each(data.data, function(i, e){
                     $(".js-github-list .js-github-message-loading").hide();
                     $(".js-github-list #repos").append('<li class="list-group-item item" data-owner="'+e.owner.login+'" data-repo="'
-                        +e.name+'" data-sha="" data-path=""><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span> '+e.name+'</li>');
+                                                       +e.name+'" data-sha="" data-path=""><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span> '+e.name+'</li>');
                     $('#repos').removeClass('hidden');
                 });
 
                 paginate(data.totalPages);
                 itemListener('item', false);
             })
-                .fail(function(){
-                    $(".js-github-list .js-github-message-loading").hide();
-                    $(".js-github-list .js-github-message-error").show();
-                });
+            .fail(function(){
+                $(".js-github-list .js-github-message-loading").hide();
+                $(".js-github-list .js-github-message-error").show();
+            });
         }
     }
 
@@ -51,14 +51,14 @@ var SaltGithub = (function(){
                             if (item.name.endsWith('.json') || item.name.endsWith('.csv') || item.name.endsWith('.md')) {
 
                                 $(".js-github-list #files")
-                                    .append('<li class="list-group-item file-item" data-owner="'+$(evt.target)
-                                            .attr('data-owner')+'" data-repo="'+$(evt.target).attr('data-repo')+'" data-sha="'+item.sha
+                                .append('<li class="list-group-item file-item" data-owner="'+$(evt.target)
+                                        .attr('data-owner')+'" data-repo="'+$(evt.target).attr('data-repo')+'" data-sha="'+item.sha
                                         +'" data-fname="'+item.name+'"><span class="glyphicon glyphicon-file" aria-hidden="true"></span> '+item.name+'</li>');
                             }
                         } else if (item.type === 'dir') {
                             $(".js-github-list #files").append('<li class="list-group-item item" data-owner="'+$(evt.target).attr('data-owner')
-                                +'" data-repo="'+$(evt.target).attr('data-repo')+'" data-sha="" data-path="'+item.path
-                                +'"><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span> '+item.name+'</li>');
+                                                               +'" data-repo="'+$(evt.target).attr('data-repo')+'" data-sha="" data-path="'+item.path
+                                                               +'"><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span> '+item.name+'</li>');
 
                             hasSubFolder = true;
                         }
@@ -173,9 +173,11 @@ var Import = (function() {
     function csvImporter(content, disableRequest) {
         file = content;
 
+        var Papa = require('papaparse');
+        var csv = Papa.parse(file);
+
         var fields = CfItem.fields;
-        var lines = file.split("\n");
-        var columns = lines[0].split(",");
+        var columns = csv.data[0];
         var index = null, field = null, column = null;
 
         for (var i = 0; i < fields.length; i++) {
@@ -207,6 +209,9 @@ var Import = (function() {
             return { cfItemKeys: cfItemKeys, fields: fields };
         }
 
+        $('.missing-fields').html('');
+        var validatedValues = validateContent(csv);
+
         if (fields.length > 0) {
             fields.forEach(function(field) {
                 CfItem.missingField(field);
@@ -221,12 +226,26 @@ var Import = (function() {
 
         index = fields.indexOf('humanCodingScheme');
 
-        if (index < 0) {
+        if (index < 0 && validatedValues) {
             sendData();
         } else {
             $('.file-loading').addClass('hidden');
             $('#import-div').removeClass('hidden');
         }
+    }
+
+    function validateContent(csv) {
+        var sw = true;
+        csv.data.forEach(function(row, i) {
+            if (row[3]) {
+                if (row[3].length > 60) {
+                    sw = false;
+                    CfItem.errorValue('Line '+i+1, 'Abbreviated statement can not be longer than 60 characters.', 'warning');
+                }
+            }
+        });
+
+        return sw;
     }
 
     function jsonImporter(file) {
@@ -328,7 +347,7 @@ var SaltLocal = (function(){
         if (window.File && window.FileReader && window.FileList && window.Blob) {
             for (var i=0; f = files[i]; i++) {
                 console.log('name:', escape(f.name), '- type:', f.type || 'n/a', '- size:', f.size,
-                    'bytes', '- lastModified:', f.lastModified ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
+                            'bytes', '- lastModified:', f.lastModified ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
 
                 var reader = new FileReader();
                 if (isTypeValid(f.name)) {
@@ -338,16 +357,16 @@ var SaltLocal = (function(){
                             switch (fileType) {
                                 case 'local':
                                     Import.csv(file);
-                                    break;
+                                break;
                                 case 'case':
                                     Import.case(file);
-                                    break;
+                                break;
                                 case 'derivative':
                                     UpdateFramework.derivative(file);
-                                    break;
+                                break;
                                 case 'update':
                                     UpdateFramework.update(file);
-                                    break;
+                                break;
                             }
                         };
                     })(f);
@@ -423,45 +442,6 @@ var SaltLocal = (function(){
     };
 })();
 
-if(document.getElementById("toggleRight")) {
-    document.getElementById("toggleRight").onclick = function () {
-        toggleDivRight()
-    };
-
-    function toggleDivRight() {
-        var rightWindow = document.getElementById("treeSideRight");
-        if (rightWindow.style.display === "none") {
-            rightWindow.style.display = "block";
-            document.getElementById("treeSideLeft").setAttribute("style", "width:50%");
-            document.getElementById("treeSideRight").setAttribute("style", "width:50%");
-            document.getElementById("toggleRight").setAttribute("class", "fa fa-chevron-circle-right");
-        } else {
-            rightWindow.style.display = "none";
-            document.getElementById("treeSideLeft").setAttribute("style", "width:100%");
-            document.getElementById("toggleRight").setAttribute("class", "fa fa-chevron-circle-left");
-        }
-    }
-}
-
-if(document.getElementById("toggleLeft")) {
-    document.getElementById("toggleLeft").onclick = function () {
-        toggleDivLeft()
-    };
-
-    function toggleDivLeft() {
-        var leftWindow = document.getElementById("treeSideLeft");
-        if (leftWindow.style.display === "none") {
-            leftWindow.style.display = "block";
-            document.getElementById("treeSideRight").setAttribute("style", "width:50%");
-            document.getElementById("treeSideLeft").setAttribute("style", "width:50%");
-            document.getElementById("toggleLeft").setAttribute("class", "fa fa-chevron-circle-left");
-        } else {
-            leftWindow.style.display = "none";
-            document.getElementById("treeSideRight").setAttribute("style", "width:100%");
-            document.getElementById("toggleLeft").setAttribute("class", "fa fa-chevron-circle-right");
-        }
-    }
-}
 var CfItem = (function(){
 
     var missingFieldsErrorMessages = [];
@@ -492,8 +472,8 @@ var CfItem = (function(){
         var mandatoryClass = "";
         var panelType = "default";
         arrData.chunk(2).forEach(function(dropdownGrouped){
-            $('.dropdowns.'+type).append('<div class="row"></div>');
-            dropdownGrouped.forEach(function(dropdown){
+        $('.dropdowns.'+type).append('<div class="row"></div>');
+        dropdownGrouped.forEach(function(dropdown){
                 if( dropdown[1] === 'M' ){ mandatoryClass = "mandatory-class"; panelType = "primary" }
                 $('.dropdowns.'+type+' .row').last().append('<div class="col-xs-6"><div class="panel panel-'+ panelType +'"><div class="panel-body '+ mandatoryClass +'"></div></div></div>');
                 $('.dropdowns.'+type+' .row .panel-body').last().append('<div class="col-xs-6"><div class="form-group"><label>'+dropdown[0].titleize()+'</label><select name="'+dropdown[0]+'" class="form-control select"><option>Choose one option</option></select></div></div>');
@@ -508,7 +488,7 @@ var CfItem = (function(){
 
         $(formMatchedSelector).find("select").each(function(i,e) {
             if ($(e).val().length < 1) {
-                missingRequiredFiles = true;
+                 missingRequiredFiles = true;
             }
         });
 
@@ -531,9 +511,18 @@ var CfItem = (function(){
         alert += '</div>';
 
         missingFieldsErrorMessages.push($(alert).find(".js-error-message-missing-field").text());
-        console.info($(alert).find(".js-error-message-missing-field").text());
-
         $('.missing-fields').append(alert);
+    }
+
+    function errorValue(err, msg, alertType) {
+        var alert = '<div class="alert alert-'+alertType+' js-alert-missing-fields" role="alert">';
+        alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
+        alert += '<div class="js-error-message-missing-field">';
+        alert += '<strong>Error:</strong> '+err+', '+msg;
+        alert += '</div>';
+        alert += '</div>';
+
+        $('.missing-fields').prepend(alert);
     }
 
     function getErrorsLog(){
@@ -544,7 +533,8 @@ var CfItem = (function(){
         fields: fields,
         validDropdowns: validDropdowns,
         missingField: missingField,
-        getErrorsLog: getErrorsLog
+        getErrorsLog: getErrorsLog,
+        errorValue: errorValue
     };
 })();
 
@@ -623,29 +613,3 @@ $(document).on('ready', function(){
 global.SaltLocal = SaltLocal;
 global.SaltGithub = SaltGithub;
 global.listRepositories = listRepositories;
-
-
-$('#dragbar').mousedown(function(e){
-    e.preventDefault();
-
-    var dragBar = function (e) {
-        var maxWidthToAllow=$("#treeView").width()-330;
-        if (e.pageX >= maxWidthToAllow) {
-            $('#treeSideLeft').css("width", maxWidthToAllow);
-        } else {
-            $('#treeSideLeft').css("width", e.pageX+2);
-        }
-        $('#treeSideRight').width($("#treeView").width() - $("#treeSideLeft").width());
-    };
-    $(document).on('mousemove', dragBar);
-
-    $(document).one('mouseup', function(e){
-        $(document).off('mousemove', dragBar);
-    });
-});
-
-$(window).resize(function(){
-    $('#treeSideRight').width($("#treeView").width()-$("#treeSideLeft").width());
-    $('#treeSideLeft').height($("#treeView").height());
-});
-
