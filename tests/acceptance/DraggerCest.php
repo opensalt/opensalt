@@ -36,7 +36,7 @@ class DraggerCest{
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->click('#toggleRight');
         $left = $I->executeJS('return $("#treeSideLeft").width()');
-        $I->assertEquals($left,'1484');
+        $I->assertEquals($left,'1471');
         $I->dontSeeElement('treeSideRight');
     }
 
@@ -47,7 +47,7 @@ class DraggerCest{
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->click('#toggleLeft');
         $left = $I->executeJS('return $("#treeSideRight").width()');
-        $I->assertEquals($left,'1484');
+        $I->assertEquals($left,'1471');
         $I->dontSeeElement('treeSideLeft');
     }
 }
