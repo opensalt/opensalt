@@ -3,7 +3,8 @@ Release Notes
 
 1.3
 ---
-
+User Guide corresponding to 1.3
+https://docs.google.com/document/d/1AtSvwpxcVABon2QzKzGhcHg4KV54JbpKnaIsDXKVkhk/edit?usp=sharing 
 ### New
 
 * Markdown editor
