@@ -557,22 +557,22 @@ var CfItem = (function () {
         $('.missing-fields').append(alert);
     }
 
-    function getErrorsLog() {
-    function errorValue(err, msg, alertType) {
-        var alert = '<div class="alert alert-'+alertType+' js-alert-missing-fields" role="alert">';
-        alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
-        alert += '<div class="js-error-message-missing-field">';
-        alert += '<strong>Error:</strong> '+err+', '+msg;
-        alert += '</div>';
-        alert += '</div>';
+   // function getErrorsLog() {
+   // function errorValue(err, msg, alertType) {
+   //     var alert = '<div class="alert alert-'+alertType+' js-alert-missing-fields" role="alert">';
+   //     alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
+   //     alert += '<div class="js-error-message-missing-field">';
+   //     alert += '<strong>Error:</strong> '+err+', '+msg;
+   //    alert += '</div>';
+   //    alert += '</div>';
 
-        $('.missing-fields').prepend(alert);
-    }
-    }
+   //    $('.missing-fields').prepend(alert);
+   //}
+   // }
 
- //   function getErrorsLog(){
- //       return missingFieldsErrorMessages;
-  //  }
+    function getErrorsLog(){
+       return missingFieldsErrorMessages;
+    }
 
     return {
         fields: fields,
