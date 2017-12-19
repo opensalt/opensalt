@@ -568,10 +568,11 @@ var CfItem = (function () {
 
         $('.missing-fields').prepend(alert);
     }
+    }
 
-   // function getErrorsLog(){
-  //      return missingFieldsErrorMessages;
- //   } 
+ //   function getErrorsLog(){
+ //       return missingFieldsErrorMessages;
+  //  }
 
     return {
         fields: fields,
