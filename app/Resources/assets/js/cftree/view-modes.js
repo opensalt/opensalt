@@ -392,6 +392,16 @@ apx.chooserMode.initialize = function() {
     $("#tree1Instructions").hide();
     $("#treeRightSideMode").hide();
     $("#itemOptionsWrapper").hide();
+    
+    // PW: Added 12/8/2017 to compensate for updated "container toggles"
+    $("#treeSideLeft").width("100%");
+    $(".toggle-container-left").hide();
+    $(".treeSideLeftInner").height("100%");
+    $(".toggle-container-right").hide();
+    // $(".treeSideRightInner").height("100%");
+    $(".rightTreeSideRightInner").height("100%");
+    // cancel window resizer
+    $(window).off("resize");
 
     // unless we have "associations=true" in the query string, hide associations from the item details
     if (apx.query.associations != "true") {

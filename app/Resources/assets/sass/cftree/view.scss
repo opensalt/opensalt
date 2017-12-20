@@ -1,19 +1,22 @@
 $salt-view-font-path: "" !default;
 
-@media (min-width:1200px) {
-    .container {
-        width: 100%;
-        max-width:1500px;
-    }
+main{
+    padding: 8px;
 }
-
+body{
+    overflow-x: hidden;
+}
 #treeSideLeft {
-    border-right:3px solid #f5f5f5;
-    margin-right:-3px;
+    // border-right:3px solid #f5f5f5;
+    float:left;
+    width:50%;
+    min-width: 300px;
 }
 
 #treeSideRight {
-    border-left:3px solid #f5f5f5;
+    //  border-left:3px solid #f5f5f5;
+    float:left;
+    width:50%;
 }
 
 #treeSideLeft .form-group, #treeSideRight .form-group {
@@ -25,12 +28,41 @@ $salt-view-font-path: "" !default;
     overflow: auto;
 }
 
+.treeSideLeftInner {
+    height: calc(100vh - 243px);
+    overflow: hidden;
+    width:calc(100% - 33px);
+    float:left;
+}
+
+.treeSideRightInner {
+    height: calc(100vh - 243px);
+    overflow: auto;
+    width:23px;
+    float:left;
+}
+
+.rightTreeSideLeftInner {
+    height: calc(100vh - 243px);
+    overflow: auto;
+    width:28px;
+    float:left;
+}
+
+.rightTreeSideRightInner {
+    height: calc(100vh - 243px);
+    overflow: auto;
+    width:calc(100% - 40px);;
+    float:left;
+    padding-left: 5px;
+}
+
 #tree1Section {
     height: calc(100% - 169px);
     overflow:auto;
     padding:3px;
-    // padding:10px;
     border-width:0;
+    padding-left:20px;
 }
 .assocGroupFilter[style="display:none"] ~ #tree1Section {
     height: calc(100% - 122px);
@@ -40,10 +72,15 @@ $salt-view-font-path: "" !default;
     background-color:#ffd;
 }
 
-
 #tree2SectionControls {
     display:none;
     margin-top: 15px;
+    padding-left:20px;
+}
+
+#tree1SectionControls
+{
+    padding-left:20px;
 }
 
 .filterClear {
@@ -93,9 +130,11 @@ ul.fancytree-container {
 }
 
 span.fancytree-title {
-    max-width:90%;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    //white-space: pre-wrap;
+    //word-break: normal;
+    max-width:80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #docTitleWrapper {
@@ -174,7 +213,6 @@ span.fancytree-title {
 .itemTitleSpan {
     width: 89%;
     vertical-align: top;
-
     line-height: 1.1em;
     max-height: 48.12px; /* 2*1.1em + 5px */
     max-height: calc(2.2em + 5px);
@@ -255,7 +293,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 }
 
 .instructions {
-    padding:5px;
+    padding:7px;
     border-radius:4px;
     margin-bottom:10px;
     min-height: 32px;
@@ -396,7 +434,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 .treeSide {
     // document
     .fancytree-container span.fancytree-icon, .fancytree-container span.fancytree-icon:hover
-    {
+        {
         background-image: url('#{$salt-view-font-path}/assets/img/doc.png');
         background-position: inherit;
         background-size: 20px;
@@ -406,20 +444,20 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 
     // folder
     .fancytree-container ul .fancytree-ico-cf span.fancytree-icon, .fancytree-container ul .fancytree-ico-cf span.fancytree-icon:hover,
-    .fancytree-container ul .fancytree-ico-ef span.fancytree-icon, .fancytree-container ul .fancytree-ico-ef span.fancytree-icon:hover
-    {
+        .fancytree-container ul .fancytree-ico-ef span.fancytree-icon, .fancytree-container ul .fancytree-ico-ef span.fancytree-icon:hover
+        {
         background-image: url('#{$salt-view-font-path}/assets/img/folder.png');
     }
 
     .fancytree-force-folder, .fancytree-force-folder:hover
-    {
+        {
         background-image: url('#{$salt-view-font-path}/assets/img/folder.png') !important;
     }
 
     // leaf
     .fancytree-container ul .fancytree-exp-n span.fancytree-icon, .fancytree-container ul .fancytree-exp-n span.fancytree-icon:hover,
-    .fancytree-container ul .fancytree-exp-nl span.fancytree-icon, .fancytree-container ul .fancytree-exp-nl span.fancytree-icon:hover
-    {
+        .fancytree-container ul .fancytree-exp-nl span.fancytree-icon, .fancytree-container ul .fancytree-exp-nl span.fancytree-icon:hover
+        {
         background-image: url('#{$salt-view-font-path}/assets/img/item.png');
     }
 }
@@ -427,8 +465,8 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 #competencyTree {
     // leaf
     .fancytree-exp-n span.fancytree-icon, .fancytree-exp-n span.fancytree-icon:hover,
-    .fancytree-exp-nl span.fancytree-icon, .fancytree-exp-nl span.fancytree-icon:hover
-     {
+        .fancytree-exp-nl span.fancytree-icon, .fancytree-exp-nl span.fancytree-icon:hover
+        {
         background-image: url('#{$salt-view-font-path}/assets/img/doc.png');
         background-position: inherit;
         background-size: 20px;
@@ -442,6 +480,9 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     }
 }
 
+//span.fancytree-node{
+//    height:auto !important;
+//}
 #assocView {
     display:none;
 }
@@ -526,7 +567,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     z-index:10;
     right:-600px;
     top:10px;
-    width:80vw;
+    width:80vw !important;
     max-width:600px;
     border-left:0 !important;
     height:auto !important;
@@ -549,4 +590,54 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     right:5px;
     padding: 4px 0 4px 6px;
     margin-top: -5px;
+}
+
+.toggle-container-left {
+    position: relative;
+    top: 50%;
+    padding-left: 2px;
+    cursor: pointer;
+}
+
+.toggle-container-right {
+    position: relative;
+    top: 50%;
+    padding-left:15px;
+    // left: 1%;
+    cursor: pointer;
+}
+
+#dragbar{
+    background-color:#D5D5D5;
+    height:100%;
+    float: right;
+    width: 5px;
+    cursor: col-resize;
+}
+
+@media (min-width:330px) {
+    #ls_doc_list_left label.col-sm-2.control-label, #ls_doc_list_right label.col-sm-2.control-label {
+        width:18%;
+    }
+}
+@media only screen and (max-width : 768px) {
+    #treeSideLeft{
+        padding-bottom:10px;
+    }
+    .rightTreeSideRightInner{
+        width: 100%;
+        padding-left: 15px;
+    }
+}
+@media (min-width: 768px) {
+    .container {
+        width: 100%; 
+        margin:10px;
+    }
+}
+@media (min-width:1200px) {
+    .container {
+        width: 100%;
+        max-width:1500px;
+    }
 }
