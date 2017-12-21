@@ -61,10 +61,7 @@ class CommandEventRouter
         $this->logger->info('Routing command to', ['command' => \get_class($command)]);
 
         try {
-            $dispatcher->dispatch(
-                \get_class($command),
-                $event
-            );
+            $dispatcher->dispatch(\get_class($command), $event);
 
             if ($command->getValidationErrors()) {
                 $errorString = (string) $command->getValidationErrors();

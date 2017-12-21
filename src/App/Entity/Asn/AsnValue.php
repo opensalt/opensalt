@@ -29,7 +29,6 @@ class AsnValue
     {
     }
 
-
     /**
      * @return \DateTime|int|string
      */
@@ -66,7 +65,6 @@ class AsnValue
     {
         $value = new static();
 
-
         if (array_key_exists('datatype', $arr)) {
             $value->datatype = $arr['datatype'];
         }
@@ -90,8 +88,7 @@ class AsnValue
     public static function fromJson($json)
     {
         $arr = json_decode($json);
-        $value = static::fromArray($arr);
 
-        return $value;
+        return static::fromArray($arr);
     }
 }

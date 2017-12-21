@@ -133,6 +133,8 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=120)
+     *
+     * @Serializer\Expose()
      */
     private $title;
 

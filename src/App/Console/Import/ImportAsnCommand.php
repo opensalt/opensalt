@@ -3,19 +3,21 @@
 namespace App\Console\Import;
 
 use App\Command\Import\ImportAsnFromUrlCommand;
+use App\Console\BaseDispatchingCommand;
 use App\Event\CommandEvent;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ImportAsnCommand extends ContainerAwareCommand
+class ImportAsnCommand extends BaseDispatchingCommand
 {
+    protected static $defaultName = 'import:asn';
+
     protected function configure(): void
     {
         $this
-            ->setName('import:asn')
+            ->setName(static::$defaultName)
             ->setDescription('Import ASN Standards Document')
             ->addArgument('asnId', InputArgument::REQUIRED, 'Identifier for ASN Document')
             ->addOption('creator', null, InputOption::VALUE_OPTIONAL, 'Document creator')
@@ -31,11 +33,11 @@ class ImportAsnCommand extends ContainerAwareCommand
 
         try {
             $command = new ImportAsnFromUrlCommand($asnId, $creator);
-            $this->getContainer()->get('event_dispatcher')
-                ->dispatch(CommandEvent::class, new CommandEvent($command));
+            $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
 
             $output->writeln('<info>Done.</info>');
         } catch (\Exception $e) {
+            $output->write($e->getMessage());
             $output->writeln('<error>Error importing document from ASN.</error>');
 
             return 1; // Fail out of command

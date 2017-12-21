@@ -14,9 +14,4 @@ class AsnDocumentMetadata extends AsnBase
         'attributionName' => 'http://creativecommons.org/ns#attributionName',
         'exportVersion' => 'http://purl.org/ASN/schema/core/exportVersion',
     ];
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
 }

@@ -13,8 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UserDocAcl
 {
-    const DENY = 0;
-    const ALLOW = 1;
+    public const DENY = 0;
+    public const ALLOW = 1;
 
     /**
      * @var User

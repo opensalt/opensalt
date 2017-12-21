@@ -21,20 +21,15 @@ abstract class AsnBase
      */
     public static $properties = [];
 
-
-    public function __construct()
-    {
-    }
-
     public function __call($name, $args)
     {
         if (0 === strpos($name, 'get')) {
             $prop = lcfirst(preg_replace('/^get/', '', $name));
             if (array_key_exists($prop, static::$properties)) {
                 return $this->property[$prop];
-            } else {
-                throw new \BadMethodCallException("{$name} does not exist");
             }
+
+            throw new \BadMethodCallException("{$name} does not exist");
         }
 
         if (0 === strpos($name, 'set')) {
@@ -44,10 +39,11 @@ abstract class AsnBase
                     throw new \BadMethodCallException("{$name} requires an argument");
                 }
                 $this->property[$prop] = $args[0];
+
                 return $this;
-            } else {
-                throw new \BadMethodCallException("{$name} does not exist");
             }
+
+            throw new \BadMethodCallException("{$name} does not exist");
         }
 
         throw new \BadMethodCallException("{$name} does not exist");
@@ -58,9 +54,9 @@ abstract class AsnBase
         if (array_key_exists($key, static::$properties)) {
             if (array_key_exists($key, $this->property)) {
                 return $this->property[$key];
-            } else {
-                return null;
             }
+
+            return null;
         }
 
         return null;
@@ -71,6 +67,11 @@ abstract class AsnBase
         if (array_key_exists($key, static::$properties)) {
             $this->property[$key] = $value;
         }
+    }
+
+    public function __isset($key)
+    {
+        return isset($this->property[$key]);
     }
 
     /**
@@ -97,9 +98,8 @@ abstract class AsnBase
     public static function fromJson($json)
     {
         $arr = json_decode($json);
-        $md = static::fromArray($arr);
 
-        return $md;
+        return static::fromArray($arr);
     }
 
     protected function arrayValuesToValueCollection($key, $values)
@@ -112,9 +112,7 @@ abstract class AsnBase
                 $collection[] = AsnValue::fromArray($value);
             }
 
-            $arrayCollection = new ArrayCollection($collection);
-
-            return $arrayCollection;
+            return new ArrayCollection($collection);
         }
 
         return null;

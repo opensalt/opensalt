@@ -3,10 +3,9 @@
 namespace App\Console\Framework;
 
 use App\Command\Framework\DeleteDocumentCommand;
+use App\Console\BaseDoctrineCommand;
 use App\Event\CommandEvent;
 use CftfBundle\Entity\LsDoc;
-use Doctrine\ORM\EntityManager;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,12 +13,14 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-class CfpackageDeleteCommand extends ContainerAwareCommand
+class CfpackageDeleteCommand extends BaseDoctrineCommand
 {
-    protected function configure()
+    protected static $defaultName = 'cfpackage:delete';
+
+    protected function configure(): void
     {
         $this
-            ->setName('cfpackage:delete')
+            ->setName(static::$defaultName)
             ->setDescription('Permanently delete a CFPackage')
             ->addArgument('id', InputArgument::REQUIRED, 'Id of LSDoc for the package')
             ->addOption('yes', 'y', InputOption::VALUE_NONE, 'Delete without prompting')
@@ -30,9 +31,7 @@ class CfpackageDeleteCommand extends ContainerAwareCommand
     {
         $lsDocId = $input->getArgument('id');
 
-        /** @var EntityManager $em */
-        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
-        $lsDocRepo = $em->getRepository(LsDoc::class);
+        $lsDocRepo = $this->em->getRepository(LsDoc::class);
 
         $lsDoc = $lsDocRepo->find($lsDocId);
         if (!$lsDoc) {
@@ -59,8 +58,7 @@ class CfpackageDeleteCommand extends ContainerAwareCommand
         };
 
         $command = new DeleteDocumentCommand($lsDoc, $callback);
-        $this->getContainer()->get('event_dispatcher')
-            ->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
 
         $output->writeln('<info>Deleted.</info>');
     }

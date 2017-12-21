@@ -16,7 +16,7 @@ class Compare
      * @param array $itemArray
      * @param array $fields
      */
-    public static function sortArrayByFields(array &$itemArray, array $fields)
+    public static function sortArrayByFields(array &$itemArray, array $fields): void
     {
         uasort($itemArray, function ($a, $b) use ($fields) {
             foreach ($fields as $field) {
@@ -38,7 +38,7 @@ class Compare
      *
      * @return int
      */
-    public static function arrayCompare($a, $b, $key, $setValueIsLower = true)
+    public static function arrayCompare($a, $b, $key, $setValueIsLower = true): int
     {
         if (!isset($a[$key]) && !isset($b[$key])) {
             return 0;
@@ -65,9 +65,9 @@ class Compare
 
         $xa = preg_split('/[\s.,-]/', $x);
         $ya = preg_split('/[\s.,-]/', $y);
-        $len = count($xa);
-        if ($len < count($ya)) {
-            $len = count($ya);
+        $len = \count($xa);
+        if ($len < \count($ya)) {
+            $len = \count($ya);
         }
         if (1 < $len) {
             for ($idx = 0; $idx < $len; ++$idx) {
@@ -92,7 +92,7 @@ class Compare
      *
      * @return int
      */
-    public static function isSetInArray($a, $b, $key, $setValueIsLower = true)
+    public static function isSetInArray($a, $b, $key, $setValueIsLower = true): int
     {
         $dir = ($setValueIsLower ? 1 : -1);
 

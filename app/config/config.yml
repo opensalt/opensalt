@@ -136,7 +136,7 @@ doctrine:
                 password: "%database_password%"
                 options:  "%pdo_options%"
                 charset:  utf8mb4
-                schema_filter: ~^(?!(auth_session|cache_items|LearningStandards))~
+                schema_filter: ~^(?!(auth_session|cache_items|LearningStandards|std_*|grade_level))~
                 server_version: 5.7
                 mapping_types:
                     json: string
@@ -171,7 +171,6 @@ doctrine:
                         prefix: Gedmo\Tree\Entity
                         dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Tree/Entity"
                         alias: GedmoTree # (optional) it will default to the name set for the mapping
-                        is_bundle: false
 
 doctrine_migrations:
     dir_name: "%kernel.root_dir%/DoctrineMigrations"

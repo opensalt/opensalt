@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class LsDocAttribute
 {
-    const IS_GRADE_LEVELS = 'isGradeLevels';
+    public const IS_GRADE_LEVELS = 'isGradeLevels';
 
     /**
      * @ORM\Id

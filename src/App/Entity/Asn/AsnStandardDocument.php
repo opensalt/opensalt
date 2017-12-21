@@ -97,9 +97,4 @@ class AsnStandardDocument extends AsnBase
         'identifier' => 'http://purl.org/ASN/schema/core/identifier',
         'hasChild' => 'http://purl.org/gem/qualifiers/hasChild',
     ];
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
 }

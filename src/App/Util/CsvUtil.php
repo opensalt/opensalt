@@ -12,7 +12,7 @@ class CsvUtil
 {
     /**
      * Formats a line (passed as a fields  array) as CSV and returns the CSV as a string.
-     * Adapted from http://us3.php.net/manual/en/function.fputcsv.php#87120
+     * Adapted from http://php.net/manual/en/function.fputcsv.php#87120
      *
      * @param array $fields
      * @param string $delimiter
@@ -22,12 +22,12 @@ class CsvUtil
      *
      * @return string
      */
-    public static function arrayToCsv(array &$fields, $delimiter = ',', $enclosure = '"', $encloseAll = true, $nullToMysqlNull = false)
+    public static function arrayToCsv(array &$fields, $delimiter = ',', $enclosure = '"', $encloseAll = true, $nullToMysqlNull = false): string
     {
         $delimiterEsc = preg_quote($delimiter, '/');
         $enclosureEsc = preg_quote($enclosure, '/');
 
-        $output = array();
+        $output = [];
         foreach ($fields as $field) {
             if ($field === null && $nullToMysqlNull) {
                 $output[] = 'NULL';
