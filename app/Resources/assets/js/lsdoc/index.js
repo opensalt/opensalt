@@ -649,3 +649,10 @@ $(window).resize(function(){
     $('#treeSideLeft').height($("#treeView").height());
 });
 
+
+$(".export_csv_comment").click(function(){
+    var currentUrl=window.location.href;
+    var urlArray = currentUrl.split('/');
+    var url="/salt/case/export_comment/"+urlArray[urlArray.length-2]+"/"+urlArray[urlArray.length-1]+"/comment.csv";
+    window.location=url;     
+});

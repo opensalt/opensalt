@@ -15,6 +15,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Salt\SiteBundle\Entity\Comment;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Toggle("comments")
@@ -165,5 +166,61 @@ class CommentsController extends Controller
         $json = $this->serialize($data);
 
         return JsonResponse::fromJsonString($json, $statusCode);
+    }
+    
+    /**
+     * @Route("/salt/case/export_comment/{itemType}/{id}/comment.csv", name="export_comment_file")
+     *
+     * @param int $id
+     * 
+     * @param string $itemType
+     * 
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function exportCommentAction(string $itemType, int $id,Request $request)
+    {        
+        $url=$request->getBaseUrl('_route').'/cftree/'.$itemType.'/'.$id;
+        $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
+        $comment_data=$repo->exportComments($itemType,$id);
+        $rows=array();
+        if($itemType=='item')
+        {
+            $comments=array('Framework Name','Node Address','HumanCodingScheme','User','Organization','Comment');
+            $rows[]=implode(',',$comments);
+            foreach($comment_data as $data)
+            {
+                $comments=array(
+                    $data['item']['fullStatement'],
+                    $url,
+                    $data['item']['humanCodingScheme'],
+                    $data['user']['username'],
+                    $data['user']['org']['name'],
+                    $data['content']
+                    );               
+                $rows[]=implode(',',$comments);
+            }
+        }
+        else
+        {            
+            $comments=array('Framework Name','Node Address','User','Organization','Comment');
+            $rows[]=implode(',',$comments);
+            foreach($comment_data as $data)
+            {
+                $comments=array(
+                    $data['document']['title'],
+                    $url,
+                    $data['user']['username'],
+                    $data['user']['org']['name'],
+                    $data['content']
+                    );               
+                $rows[]=implode(',',$comments);
+            }  
+         }         
+         $content=implode("\n",$rows);
+         $response=new Response($content);
+         $response->headers->set('content_type','text/csv');
+         return $response;
     }
 }

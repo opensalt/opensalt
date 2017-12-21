@@ -4,6 +4,7 @@ namespace Salt\SiteBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
 use Salt\UserBundle\Entity\User;
+use Doctrine\ORM\Query;
 
 /**
  * CommentRepository
@@ -82,5 +83,43 @@ class CommentRepository extends EntityRepository
     public function findByTypeItem(array $id): array
     {
         return $this->findByItem($id['itemType'].':'.$id['itemId']);
+    }
+    
+     /**
+     * @param string $itemType
+     * @param int $itemId
+     *
+     * @return Comment
+     */    
+    
+    public function exportComments($itemType,$itemId)
+    {
+        $query= $this->getEntityManager()
+                     ->createQueryBuilder();
+        if($itemType=='item')
+        {
+            $query->select('r,u,o,i');
+        }
+        else 
+        {
+           $query->select('r,u,o,d');
+        }
+        $query->from('SaltSiteBundle:Comment', 'r') 
+              ->innerJoin('r.user','u')
+              ->innerJoin('u.org','o');
+        if($itemType=='item')
+        {
+            $query->innerJoin('r.item','i')
+                  ->where('i.id = :lsItemId')
+                  ->setParameter('lsItemId', $itemId);
+        }
+        else 
+        {
+           $query->innerJoin('r.document','d')
+                 ->where('d.id = :lsDocId')
+                 ->setParameter('lsDocId', $itemId);
+        } 
+        $output=$query->getQuery();           
+        return $output->getResult(Query::HYDRATE_ARRAY);
     }
 }
