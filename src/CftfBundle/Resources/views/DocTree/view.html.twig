@@ -200,11 +200,8 @@
                                                 </button>
                                             {% endif %}  
                                             {% endif %}
-                                            {% if 'comments' is active feature %}
-                                                {% if is_granted('comment') and is_granted('ROLE_ADMIN') %} 
-                                                    <button type="button" class="export_csv_comment btn btn-default btn-sm" data-alt-document-disabled="true">
-                                                    Export Comments</button>
-                                                {% endif %}
+                                            {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %} 
+                                                <button type="button" class="export_csv_comment btn btn-default btn-sm" data-alt-document-disabled="true">Export Comments</button>
                                             {% endif %}
                                         </div>                                    
 
@@ -255,11 +252,8 @@
                                                 </button>
                                             {% endif %}                                            
                                         {% endif %}
-                                        {% if 'comments' is active feature %}
-                                            {% if is_granted('comment') and is_granted('ROLE_ADMIN') %}
-                                                <button type="button" class="export_csv_comment btn btn-default btn-sm" data-alt-document-disabled="true">
-                                                Export Comments</button>
-                                            {% endif %}
+                                        {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %} 
+                                                <button type="button" class="export_csv_comment btn btn-default btn-sm" data-alt-document-disabled="true">Export Comments</button>
                                         {% endif %}                                       
                                     </div>
                                 </div>
