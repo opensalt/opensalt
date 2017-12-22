@@ -173,9 +173,9 @@
 
                                 <div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
 
-                                <div id="itemOptionsWrapper">
-                                    {% if editorRights %}
+                                <div id="itemOptionsWrapper">                                    
                                         <div class="itemOptions" id="itemOptions">
+                                            {% if editorRights %}
                                             {% if isDraft %}
                                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
                                                         data-target="#editItemModal" data-alt-document-disabled="true">
@@ -198,15 +198,15 @@
                                                         data-toggle="modal" data-target="#addExemplarModal">Add an
                                                     Exemplar
                                                 </button>
-                                            {% endif %}   
+                                            {% endif %}  
+                                            {% endif %}
                                             {% if 'comments' is active feature %}
                                                 {% if is_granted('comment') and is_granted('ROLE_ADMIN') %} 
                                                     <button type="button" class="export_csv_comment btn btn-default btn-sm" data-alt-document-disabled="true">
                                                     Export Comments</button>
                                                 {% endif %}
                                             {% endif %}
-                                        </div>
-                                    {% endif %}
+                                        </div>                                    
 
                                     <div class="itemOptions" id="documentOptions">
                                         <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
