@@ -35,8 +35,9 @@ class DraggerCest{
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->click('#toggleRight');
-        $left = $I->executeJS('return $("#treeSideLeft").width()');
-        $I->assertEquals($left,'1514');
+        $leftWidth = $I->executeJS('return $("#treeSideLeft").width()');
+        $treeViewWidth = $I->executeJS('return $("#treeView").width()');
+        $I->assertEquals($leftWidth, $treeViewWidth);
         $I->dontSeeElement('treeSideRight');
     }
 
@@ -46,8 +47,9 @@ class DraggerCest{
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->click('#toggleLeft');
-        $left = $I->executeJS('return $("#treeSideRight").width()');
-        $I->assertEquals($left,'1514');
+        $rightWidth = $I->executeJS('return $("#treeSideRight").width()');
+        $treeViewWidth = $I->executeJS('return $("#treeView").width()');
+        $I->assertEquals($rightWidth, $treeViewWidth);
         $I->dontSeeElement('treeSideLeft');
     }
 }

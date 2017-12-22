@@ -49,6 +49,7 @@ var mainScripts = [
     npmDir+'/simplemde/dist/simplemde.min.js',
     assetsDir+'/js/application.js',
     assetsDir+'/js/lsdoc/index.js',
+    npmDir+'/papaparse/papaparse.min.js',
     './build/js/apx.js'
 ];
 
@@ -157,6 +158,7 @@ config.resolve.alias = {
   'datatables.net': path.resolve(__dirname, bowerDir+'/datatables.net/js/jquery.dataTables.js'),
   'jquery-ui/ui/widgets/menu': path.resolve(__dirname, bowerDir+'/jquery-ui/ui/widgets/menu.js'),
   'simplemde': path.resolve(__dirname, npmDir+'/simplemde/dist/simplemde.min.js'),
+  'papaparse': path.resolve(__dirname, npmDir+'/papaparse/papaparse.min.js'),
 };
 config.resolve.modules = [
   "node_modules",
