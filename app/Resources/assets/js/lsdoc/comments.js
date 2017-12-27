@@ -3,6 +3,11 @@ var CommentSystem = (function(){
         itemId: null,
         itemType: 'document'
     };
+    
+    function exportCSV(){
+        var url="/salt/case/export_comment/"+commentItem.itemType+"/"+commentItem.itemId+"/comment.csv";
+        window.location=url;     
+    }
 
     function init(nodeRef){
         setItem(nodeRef);
@@ -123,19 +128,18 @@ var CommentSystem = (function(){
     }
 
     return {
-        init: init
+        init: init,
+        exportCSV: exportCSV
     }
 })();
 
 global.CommentSystem = CommentSystem;
 
 $(document).on('ready', function(){
-    CommentSystem.init();
+    CommentSystem.init();    
+    $(".export_csv_comment").click(function(){
+        CommentSystem.exportCSV();  
+    });
 });
 
-$(".export_csv_comment").click(function(){
-    var currentUrl=window.location.href;
-    var urlArray = currentUrl.split('/');
-    var url="/salt/case/export_comment/"+urlArray[urlArray.length-2]+"/"+urlArray[urlArray.length-1]+"/comment.csv";
-    window.location=url;     
-});
+

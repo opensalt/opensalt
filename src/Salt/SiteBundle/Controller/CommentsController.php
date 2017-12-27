@@ -183,21 +183,21 @@ class CommentsController extends Controller
     {        
         $url=$request->getBaseUrl('_route').'/cftree/'.$itemType.'/'.$id;
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
-        $comment_data=$repo->exportComments($itemType,$id);
         $rows=array();
         if($itemType=='item')
-        {
+        {            
             $comments=array('Framework Name','Node Address','HumanCodingScheme','User','Organization','Comment');
             $rows[]=implode(',',$comments);
-            foreach($comment_data as $data)
+            $comment_data=$repo->findBy(['item'=>$id]);
+            foreach($comment_data as $comment)
             {
-                $comments=array(
-                    $data['item']['fullStatement'],
+                  $comments=array(
+                    $comment->getItem()->getFullStatement(),
                     $url,
-                    $data['item']['humanCodingScheme'],
-                    $data['user']['username'],
-                    $data['user']['org']['name'],
-                    $data['content']
+                    $comment->getItem()->getHumanCodingScheme(),
+                    $comment->getUser()->getUsername(),
+                    $comment->getUser()->getOrg()->getName(),
+                    $comment->getContent()
                     );               
                 $rows[]=implode(',',$comments);
             }
@@ -206,14 +206,15 @@ class CommentsController extends Controller
         {            
             $comments=array('Framework Name','Node Address','User','Organization','Comment');
             $rows[]=implode(',',$comments);
-            foreach($comment_data as $data)
+            $comment_data=$repo->findBy(['document'=>$id]);
+            foreach($comment_data as $comment)
             {
                 $comments=array(
-                    $data['document']['title'],
+                    $comment->getDocument()->getTitle(),
                     $url,
-                    $data['user']['username'],
-                    $data['user']['org']['name'],
-                    $data['content']
+                    $comment->getUser()->getUsername(),
+                    $comment->getUser()->getOrg()->getName(),
+                    $comment->getContent()
                     );               
                 $rows[]=implode(',',$comments);
             }  
