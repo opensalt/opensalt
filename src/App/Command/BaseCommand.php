@@ -2,11 +2,17 @@
 
 namespace App\Command;
 
+use App\Event\NotificationEvent;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
-class BaseCommand implements CommandInterface
+abstract class BaseCommand implements CommandInterface
 {
     protected $validationErrors;
+
+    /**
+     * @var NotificationEvent
+     */
+    protected $notificationEvent;
 
     public function hasValidationErrors(): bool
     {
@@ -21,5 +27,15 @@ class BaseCommand implements CommandInterface
     public function setValidationErrors(ConstraintViolationListInterface $violationList): void
     {
         $this->validationErrors = $violationList;
+    }
+
+    public function setNotificationEvent(NotificationEvent $event): void
+    {
+        $this->notificationEvent = $event;
+    }
+
+    public function getNotificationEvent(): ?NotificationEvent
+    {
+        return $this->notificationEvent;
     }
 }

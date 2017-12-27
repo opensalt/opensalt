@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\SiteBundle\Listener;
+namespace App\EventListener;
 
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\Cache\Simple\ApcuCache;

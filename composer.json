@@ -65,6 +65,8 @@
         "ramsey/uuid": "^3.5",
         "ramsey/uuid-doctrine": "^1.2",
 
+        "simplethings/entity-audit-bundle": "^1.0",
+
         "csa/guzzle-bundle": "^2.1",
             "namshi/cuzzle": "*",
 

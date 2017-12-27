@@ -328,7 +328,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
     /**
      * @var \DateTimeInterface
      *
-     * @ORM\Column(name="changed_at", type="datetime", nullable=true)
+     * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      *
      * @Assert\DateTime()

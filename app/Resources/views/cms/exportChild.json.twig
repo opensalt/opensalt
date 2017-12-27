@@ -15,12 +15,12 @@
         {%- endif %}
 
         "standardName": {{ lsDoc.title|json_encode|raw }},
-        "uuid": {{ lsItem.extra.cmsId|json_encode|raw }},
+        "uuid": {{ lsItem.extra.cmsId|default(lsItem.identifier)|json_encode|raw }}
         {% if parent is defined and parent is not empty -%}
-            "parent": {{ parent.extra.cmsId|json_encode|raw }}{% if lsItem.rank is not empty %},{% endif %}
+            ,"parent": {{ parent.extra.cmsId|default(parent.identifier)|json_encode|raw }}
         {% endif -%}
         {% if lsItem.rank is not empty -%}
-            "weight": {{ lsItem.rank|raw }}
+            ,"weight": {{ lsItem.rank|raw }}
         {%- endif %}
 
     } }
@@ -29,7 +29,7 @@
     {%- for childWithId in lsItem.children -%}
         {%- if not loop.first %}, {% endif -%}
         {%- set child = items[childWithId.id] -%}
-        {%- include 'CftfCmsBundle:Export:exportChild.json.twig' with { 'lsItem':child, 'lsDoc':lsDoc, 'items':items, 'parent':lsItem} -%}
+        {%- include 'cms/exportChild.json.twig' with { 'lsItem':child, 'lsDoc':lsDoc, 'items':items, 'parent':lsItem} -%}
     {%- endfor -%}
 {%- endif -%}
 {%- endblock %}

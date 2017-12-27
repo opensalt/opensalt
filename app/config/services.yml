@@ -29,6 +29,12 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
+    App\Controller\Site\AboutController:
+        public: true
+        tags: ['controller.service_arguments']
+        arguments:
+            $rootDir: '%kernel.root_dir%'
+
     # Autowiring commands
     CftfBundle\Command\:
         resource: '../../src/CftfBundle/Command'

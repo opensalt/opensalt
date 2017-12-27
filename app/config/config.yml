@@ -4,7 +4,6 @@ imports:
     - { resource: security.yml }
     - { resource: services.yml }
     - { resource: "@CftfBundle/Resources/config/services.yml" }
-    - { resource: "@CftfCmsBundle/Resources/config/services.yml" }
     - { resource: "@SaltUserBundle/Resources/config/services.yml" }
     - { resource: "@GithubFilesBundle/Resources/config/services.yml" }
     - { resource: "@SaltSiteBundle/Resources/config/services.yml" }
@@ -147,6 +146,7 @@ doctrine:
             uuid: Ramsey\Uuid\Doctrine\UuidType
             uuid_binary: Ramsey\Uuid\Doctrine\UuidBinaryType
             json: App\Doctrine\Types\JsonType
+            datetime: App\Doctrine\Types\DateTimeType
         #mapping_types:
         #    json: string
         #    uuid: char(36)
@@ -164,7 +164,6 @@ doctrine:
                 second_level_cache:
                     enabled: false
                     log_enabled: true
-
                 mappings:
                     gedmo_tree:
                         type: annotation
@@ -271,3 +270,33 @@ qandidate_toggle:
         comments:
             name: comments
             status: '%comments_feature%'
+
+simple_things_entity_audit:
+    #entity_manager: default
+    table_prefix: 'audit_'
+    table_suffix: ''
+    #revision_field_name: rev
+    #revision_type_field_name: revtype
+    revision_table_name: audit_revision
+    #revision_id_field_type: integer
+    audited_entities:
+        - CftfBundle\Entity\LsDoc
+        - CftfBundle\Entity\LsDocAttribute
+        - CftfBundle\Entity\LsDocSubject
+        - CftfBundle\Entity\LsItem
+        - CftfBundle\Entity\LsItemConcept
+        - CftfBundle\Entity\LsAssociation
+        - CftfBundle\Entity\LsDefAssociationGrouping
+        - CftfBundle\Entity\LsDefItemType
+        - CftfBundle\Entity\LsDefConcept
+        - CftfBundle\Entity\LsDefGrade
+        - CftfBundle\Entity\LsDefLicence
+        - CftfBundle\Entity\LsDefSubject
+        - CftfBundle\Entity\CfRubric
+        - CftfBundle\Entity\CfRubricCriterion
+        - CftfBundle\Entity\CfRubricCriterionLevel
+        - Salt\UserBundle\Entity\Organization
+        - Salt\UserBundle\Entity\User
+        - Salt\UserBundle\Entity\UserDocAcl
+    global_ignore_columns:
+        - password

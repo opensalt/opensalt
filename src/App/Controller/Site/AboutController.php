@@ -1,20 +1,28 @@
 <?php
 
-namespace Salt\SiteBundle\Controller;
+namespace App\Controller\Site;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class DefaultController extends Controller
+class AboutController extends AbstractController
 {
     /**
+     * @var string Value of kernel.root_dir
+     */
+    protected $rootDir;
+
+    public function __construct(string $rootDir)
+    {
+        $this->rootDir = $rootDir;
+    }
+
+    /**
      * @Route("/about", name="site_about")
-     * @Template()
      */
     public function aboutAction()
     {
-        $rootDir = $this->getParameter('kernel.root_dir');
+        $rootDir = $this->rootDir;
         $webDir = dirname($rootDir).'/web';
 
         if (file_exists($webDir.'/version.txt')) {
@@ -25,8 +33,8 @@ class DefaultController extends Controller
             $fullVersion = 'UNKNOWN';
         }
 
-        return [
+        return $this->render('site/about.html.twig', [
             'salt_version' => $fullVersion,
-        ];
+        ]);
     }
 }

@@ -82,7 +82,7 @@ class Comment
     /**
      * @var \DateTime
      *
-     * @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"})
+     * @ORM\Column(type="datetime", precision=6)
      * @Serializer\SerializedName("created")
      * @Gedmo\Timestampable(on="create")
      */
@@ -91,7 +91,7 @@ class Comment
     /**
      * @var \DateTime
      *
-     * @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"})
+     * @ORM\Column(type="datetime", precision=6)
      * @Serializer\SerializedName("modified")
      * @Gedmo\Timestampable(on="update")
      */

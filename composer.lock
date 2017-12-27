@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "3cf03eb9484a9c4dfa45f77d249e521f",
+    "content-hash": "5204aed0c98369e67b0bb0ebf3ed4da2",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -6446,6 +6446,57 @@
             ],
             "description": "A security checker for your composer.lock",
             "time": "2017-10-29T18:48:08+00:00"
+        },
+        {
+            "name": "simplethings/entity-audit-bundle",
+            "version": "v1.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/simplethings/EntityAuditBundle.git",
+                "reference": "ee71ea62735797f5b6562590e15cd237edce6489"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/simplethings/EntityAuditBundle/zipball/ee71ea62735797f5b6562590e15cd237edce6489",
+                "reference": "ee71ea62735797f5b6562590e15cd237edce6489",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/dbal": "~2.5",
+                "doctrine/orm": "~2.4",
+                "php": "^5.3.9|~7.0"
+            },
+            "conflict": {
+                "doctrine/doctrine-bundle": "<1.4",
+                "gedmo/doctrine-extensions": "<2.3.1",
+                "symfony/framework-bundle": "<2.7"
+            },
+            "require-dev": {
+                "doctrine/doctrine-bundle": "~1.4",
+                "fabpot/php-cs-fixer": "^1.11",
+                "gedmo/doctrine-extensions": "^2.3.1",
+                "matthiasnoback/symfony-dependency-injection-test": "^1.0",
+                "phpunit/phpunit": "^4.8",
+                "symfony/framework-bundle": "~2.7|~3.0",
+                "symfony/var-dumper": "^2.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SimpleThings\\EntityAudit\\": "src/SimpleThings/EntityAudit"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "description": "Audit for Doctrine Entities",
+            "keywords": [
+                "Audit",
+                "database",
+                "persistence"
+            ],
+            "time": "2017-07-24T15:38:35+00:00"
         },
         {
             "name": "stof/doctrine-extensions-bundle",

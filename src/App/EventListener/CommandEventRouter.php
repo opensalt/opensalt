@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Command;
+namespace App\EventListener;
 
+use App\Command\CommandInterface;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManager;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -76,6 +78,9 @@ class CommandEventRouter
         $this->em->flush();
         $this->em->getConnection()->commit();
 
-//        $dispatcher->dispatch(AddDocumentEvent::class, new AddDocumentEvent());
+        $notification = $command->getNotificationEvent();
+        if ($notification) {
+            $dispatcher->dispatch(NotificationEvent::class, $notification);
+        }
     }
 }
