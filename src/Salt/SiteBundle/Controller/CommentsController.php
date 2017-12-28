@@ -184,8 +184,8 @@ class CommentsController extends Controller
         $rows=array();
         if($itemType=='item')
         {
-            $comments=array('Framework Name','Node Address','HumanCodingScheme','User','Organization','Comment');
-            $rows[]=implode(',',$comments);
+            $comments=array('Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment');
+            $rows[]=implode(',', $comments);
             $comment_data=$repo->findBy(['item'=>$id]);
             foreach($comment_data as $comment)
             {
@@ -197,7 +197,7 @@ class CommentsController extends Controller
                     $comment->getUser()->getOrg()->getName(),
                     $comment->getContent()
                     );
-                  $rows[]=implode(',',$comments);
+                  $rows[]=implode(',', $comments);
             }
         }
         else
@@ -214,12 +214,12 @@ class CommentsController extends Controller
                     $comment->getUser()->getOrg()->getName(),
                     $comment->getContent()
                     );
-                $rows[]=implode(',',$comments);
+                $rows[]=implode(',', $comments);
             }
         }
-        $content=implode("\n",$rows);
+        $content=implode("\n", $rows);
         $response=new Response($content);
-        $response->headers->set('content_type','text/csv');
+        $response->headers->set('content_type', 'text/csv');
         return $response;
     }
 }
