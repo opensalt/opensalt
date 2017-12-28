@@ -55,10 +55,6 @@ class Compare
             return 0;
         }
 
-        if ('rank' === $key) {
-            return $x - $y;
-        }
-
         if (is_numeric($x) && is_numeric($y)) {
             return ((float) $x < (float) $y) ? -1 : 1;
         }
@@ -103,6 +99,7 @@ class Compare
 
             return -1*$dir;
         }
+
         if (isset($b[$key])) {
             return 1*$dir;
         }
