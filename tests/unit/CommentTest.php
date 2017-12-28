@@ -2,7 +2,9 @@
 
 use Doctrine\ORM\EntityManager;
 use Salt\SiteBundle\Entity\Comment;
+use CftfBundle\Entity\LsItem;
 use Salt\SiteBundle\Entity\CommentUpvote;
+use Ramsey\Uuid\Uuid;
 
 class CommentTest extends \Codeception\Test\Unit
 {
@@ -13,21 +15,23 @@ class CommentTest extends \Codeception\Test\Unit
 
     // tests
     public function testAddComment()
-    {
+    {        
         $this->tester->ensureUserExistsWithRole('Editor');
         $user = $this->tester->getLastUser();
+        $em = $this->getModule('Doctrine2')->em;
         $comment = new Comment();
-
-        $comment->setItem('document:123');
+        $itemId = $this->addLsItem();
+        $item = $em->getRepository(LsItem::class)->find($itemId);
+        
         $comment->setContent('unit test comment');
         $comment->setParent(null);
         $comment->setUser($user);
-
-        $em = $this->getModule('Doctrine2')->em;
-        $em->persist($comment);
+        $comment->setItem($item);
+        
+        $em->merge($comment);
         $em->flush();
-
-        $this->tester->seeInRepository(Comment::class, ['item' => 'document:123']);
+        
+        $this->tester->seeInRepository(Comment::class, ['content' => 'unit test comment']);
     }
 
     public function testUpdateComment()
@@ -88,7 +92,7 @@ class CommentTest extends \Codeception\Test\Unit
         /** @var EntityManager $em */
         $em = $this->getModule('Doctrine2')->em;
         $commentRepo = $em->getRepository(Comment::class);
-        $commentId = $this->createComment('upvoted comment');
+        $commentId = $this->createComment('comment');
         $comment = $commentRepo->find($commentId);
 
         $upvotes = $comment->getUpvoteCount();
@@ -112,11 +116,14 @@ class CommentTest extends \Codeception\Test\Unit
     private function createComment($content)
     {
         $this->tester->ensureUserExistsWithRole('Editor');
+        $em = $this->getModule('Doctrine2')->em;
         $user = $this->tester->getLastUser();
+        $itemId = $this->addLsItem();
+        $item = $em->getRepository(LsItem::class)->find($itemId);
 
         $commentId = $this->tester->haveInRepository(Comment::class,
             [
-                'item' => 'document:1111',
+                'item' => $item,
                 'content' => $content,
                 'parent' => null,
                 'fullname' => 'codeception',
@@ -131,9 +138,11 @@ class CommentTest extends \Codeception\Test\Unit
     {
         $this->tester->ensureUserExistsWithRole('Editor');
         $user = $this->tester->getLastUser();
+        $em = $this->getModule('Doctrine2')->em;
         $comment = new Comment();
-
-        $comment->setItem('document:1234');
+        $itemId = $this->addLsItem();
+        $item = $em->getRepository(LsItem::class)->find($itemId);
+        $comment->setItem($item);
         $comment->setContent("Lorem Ipsum is simply dummy text of the printing and
             typesetting industry. Lorem Ipsum has been the industry's standard dummy
             text ever since the 1500s, when an unknown printer took a galley of type
@@ -149,7 +158,24 @@ class CommentTest extends \Codeception\Test\Unit
         $em = $this->getModule('Doctrine2')->em;
         $em->persist($comment);
         $em->flush();
-
-        $this->tester->seeInRepository(Comment::class, ['item' => 'document:1234']);
+        
+        $this->tester->seeInRepository(Comment::class, ['item' => $itemId]);
+    }
+    
+    public function addLsItem()
+    {
+        $lsItem = new LsItem();
+        $em = $this->getModule('Doctrine2')->em;
+        $identifier = Uuid::uuid4()->toString();
+        $docIdentifier = Uuid::uuid4()->toString();        
+        $lsItemId = $this->tester->haveInRepository(LsItem::class,
+            [
+                'identifier' => $identifier,
+                'lsDocIdentifier' => $docIdentifier,
+                'fullStatement' => 'codeception'
+            ]
+        );
+        
+        return $lsItemId;
     }
 }
