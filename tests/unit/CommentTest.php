@@ -164,8 +164,6 @@ class CommentTest extends \Codeception\Test\Unit
     
     public function addLsItem()
     {
-        $lsItem = new LsItem();
-        $em = $this->getModule('Doctrine2')->em;
         $identifier = Uuid::uuid4()->toString();
         $docIdentifier = Uuid::uuid4()->toString();        
         $lsItemId = $this->tester->haveInRepository(LsItem::class,

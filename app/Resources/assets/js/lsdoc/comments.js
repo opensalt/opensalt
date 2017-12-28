@@ -130,7 +130,7 @@ var CommentSystem = (function(){
     return {
         init: init,
         exportCSV: exportCSV
-    }
+    };
 })();
 
 global.CommentSystem = CommentSystem;
