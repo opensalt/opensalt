@@ -35,7 +35,5 @@ class RemoveChildHandler extends BaseDoctrineHandler
 
         $lsItemRepo = $this->em->getRepository(LsItem::class);
         $lsItemRepo->removeChild($parent, $child);
-
-//        $dispatcher->dispatch(RemoveChildEvent::class, new RemoveChildEvent());
     }
 }

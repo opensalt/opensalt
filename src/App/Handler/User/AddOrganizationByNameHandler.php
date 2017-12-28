@@ -41,7 +41,5 @@ class AddOrganizationByNameHandler extends BaseDoctrineHandler
         $organizationName = $command->getOrganizationName();
 
         $this->em->getRepository(Organization::class)->addNewOrganization($organizationName);
-
-//        $dispatcher->dispatch(AddOrganizationByNameEvent::class, new AddOrganizationByNameEvent());
     }
 }

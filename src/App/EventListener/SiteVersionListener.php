@@ -15,16 +15,25 @@ class SiteVersionListener
 {
     /**
      * @var string
-     * @DI\Inject("%kernel.root_dir%")
      */
     public $rootDir;
+
+    /**
+     * @DI\InjectParams({
+     *     "rootDir" = @DI\Inject("%kernel.root_dir%")
+     * })
+     */
+    public function __construct(string $rootDir)
+    {
+        $this->rootDir = $rootDir;
+    }
 
     /**
      * @param FilterResponseEvent $event
      *
      * @DI\Observe(KernelEvents::RESPONSE, priority=200)
      */
-    public function onKernelResponse(FilterResponseEvent $event)
+    public function onKernelResponse(FilterResponseEvent $event): void
     {
         if (HttpKernelInterface::MASTER_REQUEST !== $event->getRequestType()) {
             return;
@@ -33,7 +42,7 @@ class SiteVersionListener
         $cache = new ApcuCache('opensalt');
         if (!$fullVersion = $cache->get('version')) {
             $rootDir = $this->rootDir;
-            $webDir = dirname($rootDir).'/web';
+            $webDir = \dirname($rootDir).'/web';
 
             if (file_exists($webDir.'/version.txt')) {
                 $fullVersion = trim(file_get_contents($webDir.'/version.txt'));

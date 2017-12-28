@@ -31,7 +31,5 @@ class SuspendUserHandler extends BaseUserHandler
 
         $user = $command->getUser();
         $user->suspendUser();
-
-//        $dispatcher->dispatch(SuspendUserEvent::class, new SuspendUserEvent());
     }
 }

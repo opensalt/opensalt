@@ -53,14 +53,14 @@ class CommandEventRouter
      *
      * @throws \Exception
      */
-    public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
+    public function routeCommand(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         $this->em->getConnection()->beginTransaction();
 
         /** @var CommandInterface $command */
         $command = $event->getCommand();
 
-        $this->logger->info('Routing command to', ['command' => \get_class($command)]);
+        $this->logger->info('Routing command', ['command' => \get_class($command)]);
 
         try {
             $dispatcher->dispatch(\get_class($command), $event);
@@ -79,8 +79,9 @@ class CommandEventRouter
         $this->em->getConnection()->commit();
 
         $notification = $command->getNotificationEvent();
-        if ($notification) {
-            $dispatcher->dispatch(NotificationEvent::class, $notification);
+        if (null === $notification) {
+            $notification = new NotificationEvent('Command '.\get_class($command).' handled', null);
         }
+        $dispatcher->dispatch(NotificationEvent::class, $notification);
     }
 }

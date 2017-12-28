@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\DeleteItemCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -39,6 +40,15 @@ class DeleteItemHandler extends BaseFrameworkHandler
 
         $this->framework->deleteItem($item);
 
-//        $dispatcher->dispatch(DeleteItemEvent::class, new DeleteItemEvent());
+        $notification = new NotificationEvent(
+            sprintf('"%s" and direct associations deleted', $item->getShortStatement()),
+            $item->getLsDoc(),
+            [
+                'items' => [
+                    $item->getId() => $item->getIdentifier(),
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

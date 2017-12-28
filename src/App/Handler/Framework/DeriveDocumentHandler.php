@@ -46,7 +46,5 @@ class DeriveDocumentHandler extends BaseDoctrineHandler
         }
 
         $command->setDerivedDoc($derivativeDoc);
-
-//        $dispatcher->dispatch(DeriveDocumentEvent::class, new DeriveDocumentEvent());
     }
 }

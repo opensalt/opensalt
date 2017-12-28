@@ -44,7 +44,5 @@ class SetUserPasswordHandler extends BaseDoctrineHandler
         $newPassword = $this->em->getRepository(User::class)->setUserPassword($username, $plainPassword);
 
         $command->setPlainPassword($newPassword);
-
-//        $dispatcher->dispatch(SetUserPasswordEvent::class, new SetUserPasswordEvent());
     }
 }

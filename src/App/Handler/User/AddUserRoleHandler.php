@@ -42,7 +42,5 @@ class AddUserRoleHandler extends BaseDoctrineHandler
         $role = $command->getRole();
 
         $this->em->getRepository(User::class)->addRoleToUser($username, $role);
-
-//        $dispatcher->dispatch(AddUserRoleEvent::class, new AddUserRoleEvent());
     }
 }

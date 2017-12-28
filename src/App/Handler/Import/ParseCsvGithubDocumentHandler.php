@@ -39,6 +39,7 @@ class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
         parent::__construct($validator, $registry);
         $this->importService = $importService;
     }
+
     /**
      * @DI\Observe(App\Command\Import\ParseCsvGithubDocumentCommand::class)
      */

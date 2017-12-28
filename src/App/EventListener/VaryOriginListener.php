@@ -13,17 +13,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class VaryOriginListener
 {
     /**
-     * @var string
-     * @DI\Inject("%kernel.root_dir%")
-     */
-    public $rootDir;
-
-    /**
      * @param FilterResponseEvent $event
      *
      * @DI\Observe(KernelEvents::RESPONSE, priority=-10)
      */
-    public function onKernelResponse(FilterResponseEvent $event)
+    public function onKernelResponse(FilterResponseEvent $event): void
     {
         if (HttpKernelInterface::MASTER_REQUEST !== $event->getRequestType()) {
             return;

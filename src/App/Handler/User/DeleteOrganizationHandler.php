@@ -32,7 +32,5 @@ class DeleteOrganizationHandler extends BaseUserHandler
         $organization = $command->getOrg();
 
         $this->em->remove($organization);
-
-//        $dispatcher->dispatch(DeleteOrganizationEvent::class, new DeleteOrganizationEvent());
     }
 }

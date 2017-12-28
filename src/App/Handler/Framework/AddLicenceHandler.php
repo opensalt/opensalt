@@ -32,7 +32,5 @@ class AddLicenceHandler extends BaseFrameworkHandler
         $this->validate($command, $licence);
 
         $this->framework->persistLicence($licence);
-
-//        $dispatcher->dispatch(AddLicenceEvent::class, new AddLicenceEvent());
     }
 }

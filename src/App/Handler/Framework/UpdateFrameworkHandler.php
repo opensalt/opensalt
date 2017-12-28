@@ -57,7 +57,5 @@ class UpdateFrameworkHandler extends AbstractDoctrineHandler
         $cfItemKeys = $command->getCfItemKeys();
 
         $this->frameworkUpdater->update($doc, $fileContent, $frameworkToAssociate, $cfItemKeys);
-
-//        $dispatcher->dispatch(UpdateFrameworkEvent::class, new UpdateFrameworkEvent());
     }
 }

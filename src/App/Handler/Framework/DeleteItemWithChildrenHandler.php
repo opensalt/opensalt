@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -35,6 +36,15 @@ class DeleteItemWithChildrenHandler extends BaseFrameworkHandler
 
         $this->framework->deleteItemWithChildren($item);
 
-//        $dispatcher->dispatch(DeleteItemWithChildrenEvent::class, new DeleteItemWithChildrenEvent());
+        $notification = new NotificationEvent(
+            sprintf('"%s" and children deleted', $item->getShortStatement()),
+            $item->getLsDoc(),
+            [
+                'items' => [
+                    $item->getId() => $item->getIdentifier(),
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

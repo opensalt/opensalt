@@ -32,7 +32,5 @@ class AddOrganizationHandler extends BaseUserHandler
         $organization = $command->getOrg();
 
         $this->em->persist($organization);
-
-//        $dispatcher->dispatch(AddOrganizationEvent::class, new AddOrganizationEvent());
     }
 }

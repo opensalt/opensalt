@@ -32,7 +32,5 @@ class AddDocumentHandler extends BaseFrameworkHandler
         $this->validate($command, $doc);
 
         $this->framework->addDocument($doc);
-
-//        $dispatcher->dispatch(AddDocumentEvent::class, new AddDocumentEvent());
     }
 }

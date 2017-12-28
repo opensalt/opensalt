@@ -46,7 +46,5 @@ class AddUserByNameHandler extends BaseDoctrineHandler
         $newPassword = $this->em->getRepository(User::class)->addNewUser($userName, $org, $plainPassword, $role);
 
         $command->setNewPassword($newPassword);
-
-//        $dispatcher->dispatch(AddUserByNameEvent::class, new AddUserByNameEvent());
     }
 }

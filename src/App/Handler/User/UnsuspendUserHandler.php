@@ -31,7 +31,5 @@ class UnsuspendUserHandler extends BaseUserHandler
 
         $user = $command->getUser();
         $user->unsuspendUser();
-
-//        $dispatcher->dispatch(UnsuspendUserEvent::class, new UnsuspendUserEvent());
     }
 }

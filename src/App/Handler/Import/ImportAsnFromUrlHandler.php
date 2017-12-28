@@ -39,6 +39,7 @@ class ImportAsnFromUrlHandler extends AbstractDoctrineHandler
         parent::__construct($validator, $registry);
         $this->importService = $asnImportService;
     }
+
     /**
      * @DI\Observe(App\Command\Import\ImportAsnFromUrlCommand::class)
      */

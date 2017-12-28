@@ -582,6 +582,11 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface
         return $this->title;
     }
 
+    public function getShortStatement(): string
+    {
+        return substr($this->title, 0, 60);
+    }
+
     /**
      * Set version
      *

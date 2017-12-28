@@ -39,6 +39,7 @@ class ImportExcelFileHandler extends AbstractDoctrineHandler
         parent::__construct($validator, $registry);
         $this->importService = $excelImportService;
     }
+
     /**
      * @DI\Observe(App\Command\Import\ImportExcelFileCommand::class)
      */

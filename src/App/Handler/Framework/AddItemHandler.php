@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\AddItemCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -40,6 +41,22 @@ class AddItemHandler extends BaseFrameworkHandler
 
         $this->framework->persistItem($item);
 
-//        $dispatcher->dispatch(AddItemEvent::class, new AddItemEvent());
+        $parent = $item->getParentItem();
+        if (null === $parent) {
+            $parentTitle = $item->getLsDoc()->getTitle();
+        } else {
+            $parentTitle = substr($parent->getShortStatement(), 0, 60);
+        }
+        $notification = new NotificationEvent(
+            sprintf('"%s" added as a child of "%s"', $item->getShortStatement(), $parentTitle),
+            $item->getLsDoc(),
+            [
+                'items' => [
+                    $item->getId() => $item->getIdentifier(),
+                    $parent ? $parent->getId() : '-' => $parent ? $parent->getIdentifier() : '-',
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

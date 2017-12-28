@@ -31,12 +31,12 @@ class MarkImportLogsAsReadHandler extends AbstractDoctrineHandler
      *
      * @param ValidatorInterface $validator
      * @param ManagerRegistry $registry
-     * @param AsnImport $asnImportService
      */
     public function __construct(ValidatorInterface $validator, ManagerRegistry $registry)
     {
         parent::__construct($validator, $registry);
     }
+
     /**
      * @DI\Observe(App\Command\Import\MarkImportLogsAsReadCommand::class)
      */

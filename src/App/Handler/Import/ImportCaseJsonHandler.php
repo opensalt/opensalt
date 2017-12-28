@@ -39,6 +39,7 @@ class ImportCaseJsonHandler extends AbstractDoctrineHandler
         parent::__construct($validator, $registry);
         $this->importService = $caseImport;
     }
+
     /**
      * @DI\Observe(App\Command\Import\ImportCaseJsonCommand::class)
      */

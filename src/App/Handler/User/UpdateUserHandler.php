@@ -32,7 +32,5 @@ class UpdateUserHandler extends BaseUserHandler
         $user = $command->getUser();
 
         $this->em->persist($user);
-
-//        $dispatcher->dispatch(UpdateUserEvent::class, new UpdateUserEvent());
     }
 }

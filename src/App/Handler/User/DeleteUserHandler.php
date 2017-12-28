@@ -32,7 +32,5 @@ class DeleteUserHandler extends BaseUserHandler
         $user = $command->getUser();
 
         $this->em->remove($user);
-
-//        $dispatcher->dispatch(DeleteUserEvent::class, new DeleteUserEvent());
     }
 }

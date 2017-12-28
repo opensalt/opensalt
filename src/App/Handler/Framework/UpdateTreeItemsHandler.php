@@ -35,7 +35,5 @@ class UpdateTreeItemsHandler extends BaseFrameworkHandler
 
         $ret = $this->framework->updateTreeItems($doc, $items);
         $command->setReturnValues($ret);
-
-//        $dispatcher->dispatch(UpdateTreeItemsEvent::class, new UpdateTreeItemsEvent());
     }
 }

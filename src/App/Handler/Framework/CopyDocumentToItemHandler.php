@@ -36,7 +36,5 @@ class CopyDocumentToItemHandler extends BaseDoctrineHandler
         $progressCallback = $command->getCallback();
 
         $this->em->getRepository(LsDoc::class)->copyDocumentToItem($fromDoc, $toDoc, $progressCallback);
-
-//        $dispatcher->dispatch(CopyDocumentToItemEvent::class, new CopyDocumentToItemEvent());
     }
 }

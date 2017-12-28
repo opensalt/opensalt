@@ -32,7 +32,5 @@ class DeleteDocumentHandler extends BaseFrameworkHandler
         $this->validate($command, $doc);
 
         $this->framework->deleteFramework($doc, $command->getProgressCallback());
-
-//        $dispatcher->dispatch(DeleteDocumentEvent::class, new DeleteDocumentEvent());
     }
 }

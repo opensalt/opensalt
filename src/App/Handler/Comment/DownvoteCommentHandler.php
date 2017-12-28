@@ -29,5 +29,7 @@ class DownvoteCommentHandler extends BaseCommentHandler
         if (!$repo->removeUpvoteForUser($comment, $user)) {
             throw new \RuntimeException('Upvote does not exist');
         }
+
+        /* No notification for a down vote */
     }
 }

@@ -38,7 +38,5 @@ class AddTreeAssociationHandler extends BaseFrameworkHandler
 
         $association = $this->framework->addTreeAssociation($doc, $origin, $type, $dest, $assocGroup);
         $command->setAssociation($association);
-
-//        $dispatcher->dispatch(AddTreeAssociationEvent::class, new AddTreeAssociationEvent());
     }
 }

@@ -35,7 +35,5 @@ class AddUserHandler extends BaseUserHandler
         $user->setPassword($encryptedPassword);
 
         $this->em->persist($user);
-
-//        $dispatcher->dispatch(AddUserEvent::class, new AddUserEvent());
     }
 }

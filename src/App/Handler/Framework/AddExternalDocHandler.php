@@ -38,7 +38,5 @@ class AddExternalDocHandler extends BaseDoctrineHandler
 
         $doc->addExternalDoc($identifier, $autoLoad, $url, $title);
         $this->em->persist($doc);
-
-//        $dispatcher->dispatch(AddExternalDocEvent::class, new AddExternalDocEvent());
     }
 }
