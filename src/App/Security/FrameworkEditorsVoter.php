@@ -1,7 +1,8 @@
 <?php
 
-namespace Salt\UserBundle\Security;
+namespace App\Security;
 
+use CftfBundle\Entity\LsDoc;
 use JMS\DiExtraBundle\Annotation as DI;
 use Salt\UserBundle\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -9,14 +10,14 @@ use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * Class StandardVoter
+ * Class FrameworkEditVoter
  *
  * @DI\Service(public=false)
  * @DI\Tag("security.voter")
  */
-class ManageUserVoter extends Voter
+class FrameworkEditorsVoter extends Voter
 {
-    const MANAGE = 'manage';
+    public const MANAGE_EDITORS = 'manage_editors';
 
     /**
      * @var AccessDecisionManagerInterface
@@ -45,12 +46,12 @@ class ManageUserVoter extends Voter
      *
      * @return bool True if the attribute and subject are supported, false otherwise
      */
-    protected function supports($attribute, $subject){
-        if (self::MANAGE !== $attribute) {
+    protected function supports($attribute, $subject) {
+        if ($attribute !== self::MANAGE_EDITORS) {
             return false;
         }
 
-        if (!$subject instanceof User && $subject !== 'users') {
+        if (!$subject instanceof LsDoc) {
             return false;
         }
 
@@ -71,52 +72,39 @@ class ManageUserVoter extends Voter
         $user = $token->getUser();
 
         if (!$user instanceof User) {
+            // If the user is not logged in then deny access
             return false;
         }
 
-        switch ($attribute) {
-            case self::MANAGE:
-                if ($subject === 'users') {
-                    return $this->canManageUsers($token);
-                } else {
-                    return $this->canManageUser($subject, $user);
-                }
-
-            default:
-                return false;
+        // This check only supports LsDoc objects
+        if (!$subject instanceof LsDoc) {
+            return false;
         }
-    }
 
-    /**
-     * Validate if a user can create a standard.
-     *
-     * @param User $targetUser
-     * @param User $user
-     *
-     * @return bool true if the current user can manage a specific user
-     */
-    private function canManageUser(User $targetUser = null, User $user){
-        if ($targetUser->getOrg()->getId() === $user->getOrg()->getId()) {
+        // Allow the owner to manage their own framework
+        if ($subject->getUser() === $user) {
             return true;
         }
 
-        return false;
-    }
+        // Do not allow managing editors if the user is not an admin
+        if (!$this->decisionManager->decide($token, ['ROLE_ADMIN'])) {
+            return false;
+        }
 
-    /**
-     * Validate if a user can manage users
-     *
-     * @param TokenInterface $token
-     *
-     * @return bool true if the current user can manage users
-     */
-    private function canManageUsers(TokenInterface $token)
-    {
-        // ROLE_ADMIN can manage users
-        if ($this->decisionManager->decide($token, ['ROLE_ADMIN'])) {
+        // Check for an explicit ACL
+        $docAcls = $user->getDocAcls();
+        foreach ($docAcls as $acl) {
+            if ($acl->getLsDoc() === $subject) {
+                return 1 === $acl->getAccess();
+            }
+        }
+
+        // Check if the user is in the same organization
+        if ($user->getOrg() === $subject->getOrg()) {
             return true;
         }
 
+        // Otherwise the user does not have edit rights
         return false;
     }
 }

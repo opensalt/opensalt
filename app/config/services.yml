@@ -22,7 +22,7 @@ services:
 
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-        resource: '../../src/App/{Console,Handler,Form,EventSubscriber,Twig,Security,Service}'
+        resource: '../../src/App/{Console,Handler,Form,Service}'
 
     App\Controller\:
         resource: '../../src/App/Controller'
@@ -43,6 +43,7 @@ services:
     Salt\UserBundle\Command\:
         resource: '../../src/Salt/UserBundle/Command'
         tags: ['console.command']
+
 
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler

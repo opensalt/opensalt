@@ -1,6 +1,6 @@
 <?php
 
-namespace CftfBundle\DataFixtures\ORM;
+namespace App\DataFixtures\ORM;
 
 use CftfBundle\Entity\LsDefGrade;
 use Doctrine\Common\DataFixtures\AbstractFixture;

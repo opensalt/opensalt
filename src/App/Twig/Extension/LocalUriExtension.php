@@ -1,6 +1,6 @@
 <?php
 
-namespace CftfBundle\Extension;
+namespace App\Twig\Extension;
 
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Routing\Router;
 /**
  * Class LocalUriExtension.
  *
- * @DI\Service("salt.twig.local_uri")
+ * @DI\Service()
  * @DI\Tag("twig.extension")
  */
 class LocalUriExtension extends \Twig_Extension
@@ -25,7 +25,7 @@ class LocalUriExtension extends \Twig_Extension
      *     "router" = @DI\Inject("router")
      * })
      */
-    public function __construct($router)
+    public function __construct(Router $router)
     {
         $this->router = $router;
     }
@@ -54,9 +54,9 @@ class LocalUriExtension extends \Twig_Extension
             $prefixed = $this->router->generate('editor_uri_lookup', ['uri'=>$uri], Router::ABSOLUTE_URL);
 
             return $prefixed;
-        } else {
-            return $this->router->generate('editor_uri_lookup', ['uri'=>$uri], Router::ABSOLUTE_URL);
         }
+
+        return $this->router->generate('editor_uri_lookup', ['uri'=>$uri], Router::ABSOLUTE_URL);
     }
 
     public function getLocalOrRemoteUri($uri)
@@ -67,8 +67,8 @@ class LocalUriExtension extends \Twig_Extension
 
         if (preg_match('/^local:/', $uri)) {
             return $this->getLocalUri($uri);
-        } else {
-            return $uri;
         }
+
+        return $uri;
     }
 }

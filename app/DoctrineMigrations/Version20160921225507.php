@@ -2,7 +2,7 @@
 
 namespace Application\Migrations;
 
-use CftfBundle\DataFixtures\ORM\LoadDefGradesFixture;
+use App\DataFixtures\ORM\LoadDefGradesFixture;
 use Doctrine\DBAL\Schema\Schema;
 use App\Doctrine\Migration\AbstractFixturesMigration;
 

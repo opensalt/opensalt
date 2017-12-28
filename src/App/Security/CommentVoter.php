@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\UserBundle\Security;
+namespace App\Security;
 
 use JMS\DiExtraBundle\Annotation as DI;
 use Salt\SiteBundle\Entity\Comment;
@@ -16,10 +16,10 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class CommentVoter extends Voter
 {
-    const COMMENT = 'comment';
-    const VIEW = 'comment_view';
-    const UPDATE = 'comment_update';
-    const DELETE = 'comment_delete';
+    public const COMMENT = 'comment';
+    public const VIEW = 'comment_view';
+    public const UPDATE = 'comment_update';
+    public const DELETE = 'comment_delete';
 
     /**
      * Determines if the attribute and subject are supported by this voter.
@@ -81,13 +81,9 @@ class CommentVoter extends Voter
      *
      * @return bool
      */
-    private function canComment($user)
+    private function canComment($user): bool
     {
-        if ($user instanceof User) {
-            return true;
-        }
-
-        return false;
+        return $user instanceof User;
     }
 
     /**
@@ -97,7 +93,7 @@ class CommentVoter extends Voter
      *
      * @return bool
      */
-    private function canView($user)
+    private function canView($user): bool
     {
         return true;
     }
@@ -108,7 +104,7 @@ class CommentVoter extends Voter
      *
      * @return bool
      */
-    private function canUpdate($user, $comment)
+    private function canUpdate($user, $comment): bool
     {
         if (!$user instanceof User) {
             return false;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\UserBundle\Security;
+namespace App\Security;
 
 use CftfBundle\Entity\LsDoc;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -51,7 +51,7 @@ class FrameworkAccessVoter extends Voter
      */
     protected function supports($attribute, $subject)
     {
-        if (!in_array($attribute, [static::VIEW, static::EDIT, static::DELETE], true)) {
+        if (!\in_array($attribute, [static::VIEW, static::EDIT, static::DELETE], true)) {
             return false;
         }
 

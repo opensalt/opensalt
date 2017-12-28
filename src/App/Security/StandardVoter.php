@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\UserBundle\Security;
+namespace App\Security;
 
 use JMS\DiExtraBundle\Annotation as DI;
 use Salt\UserBundle\Entity\User;
@@ -51,7 +51,7 @@ class StandardVoter extends Voter
      */
     protected function supports($attribute, $subject)
     {
-        if (!in_array($attribute, [self::ADD_TO, self::EDIT], true)) {
+        if (!\in_array($attribute, [self::ADD_TO, self::EDIT], true)) {
             return false;
         }
 
@@ -112,7 +112,7 @@ class StandardVoter extends Voter
      *
      * @return bool
      */
-    private function canAddTo(LsDoc $lsDoc = null, TokenInterface $token)
+    private function canAddTo(LsDoc $lsDoc = null, TokenInterface $token): bool
     {
         if (null !== $lsDoc) {
             // Check if the user can edit the document
@@ -137,7 +137,7 @@ class StandardVoter extends Voter
      *
      * @return bool
      */
-    private function canEdit(LsItem $item, TokenInterface $token)
+    private function canEdit(LsItem $item, TokenInterface $token): bool
     {
         if (!$item->getLsDoc()->canEdit()) {
             // The framework is not editable

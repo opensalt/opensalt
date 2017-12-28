@@ -1,24 +1,23 @@
 <?php
 
-namespace Salt\UserBundle\Security;
+namespace App\Security;
 
 use JMS\DiExtraBundle\Annotation as DI;
-use Salt\UserBundle\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * Class FrameworkCreateVoter
+ * Class SuperUserVoter
  *
  * @DI\Service(public=false)
  * @DI\Tag("security.voter")
  */
-class FrameworkCreateVoter extends Voter
+class SuperUserVoter extends Voter
 {
-    public const CREATE = 'create';
-    public const FRAMEWORK = 'lsdoc';
-
+    /**
+     * @var AccessDecisionManagerInterface
+     */
     private $decisionManager;
 
     /**
@@ -43,12 +42,15 @@ class FrameworkCreateVoter extends Voter
      *
      * @return bool True if the attribute and subject are supported, false otherwise
      */
-    protected function supports($attribute, $subject) {
-        if ($attribute !== self::CREATE) {
+    protected function supports($attribute, $subject)
+    {
+        // Do not support the role check we are doing in voteOnAttribute
+        if ($attribute === 'ROLE_SUPER_USER') {
             return false;
         }
 
-        if ($subject !== self::FRAMEWORK) {
+        // Pass on IS_AUTHENTICATED_* checks
+        if (0 === strpos($attribute, 'IS_AUTHENTICATED_')) {
             return false;
         }
 
@@ -65,20 +67,10 @@ class FrameworkCreateVoter extends Voter
      *
      * @return bool
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token) {
-        $user = $token->getUser();
-
-        if (!$user instanceof User) {
-            // If the user is not logged in then deny access
-            return false;
-        }
-
-        return $this->canCreateFramework($token);
-    }
-
-    private function canCreateFramework(TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        if ($this->decisionManager->decide($token, ['ROLE_EDITOR'])) {
+        // ROLE_SUPER_USER can do anything
+        if ($this->decisionManager->decide($token, ['ROLE_SUPER_USER'])) {
             return true;
         }
 

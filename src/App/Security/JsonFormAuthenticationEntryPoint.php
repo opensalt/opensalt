@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\UserBundle\Security;
+namespace App\Security;
 
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\HttpFoundation\JsonResponse;
