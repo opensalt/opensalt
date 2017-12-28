@@ -4,7 +4,6 @@ namespace Salt\SiteBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
 use Salt\UserBundle\Entity\User;
-use Doctrine\ORM\Query;
 
 /**
  * CommentRepository

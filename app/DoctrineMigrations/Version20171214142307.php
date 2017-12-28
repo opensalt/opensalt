@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php 
+  
+declare(strict_types = 1);
 
 namespace Application\Migrations;
 
@@ -14,7 +16,7 @@ class Version20171214142307 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-              
+
         $this->addSql('ALTER TABLE salt_comment ADD document_id INT DEFAULT NULL, ADD item_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE salt_comment ADD CONSTRAINT FK_5AD1C6CCC33F7837 FOREIGN KEY (document_id) REFERENCES ls_doc (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE salt_comment ADD CONSTRAINT FK_5AD1C6CC126F525E FOREIGN KEY (item_id) REFERENCES ls_item (id) ON DELETE CASCADE');
@@ -29,8 +31,7 @@ class Version20171214142307 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-      
-        
+
         $this->addSql('ALTER TABLE salt_comment DROP FOREIGN KEY FK_5AD1C6CCC33F7837');
         $this->addSql('ALTER TABLE salt_comment DROP FOREIGN KEY FK_5AD1C6CC126F525E');
         $this->addSql('DROP INDEX IDX_5AD1C6CCC33F7837 ON salt_comment');

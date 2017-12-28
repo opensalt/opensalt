@@ -167,25 +167,23 @@ class CommentsController extends Controller
 
         return JsonResponse::fromJsonString($json, $statusCode);
     }
-    
+
     /**
      * @Route("/salt/case/export_comment/{itemType}/{id}/comment.csv", name="export_comment_file")
      *
      * @param int $id
-     * 
      * @param string $itemType
-     * 
      * @param Request $request
      *
      * @return Response
      */
-    public function exportCommentAction(string $itemType, int $id,Request $request)
-    {        
+    public function exportCommentAction(string $itemType, int $id, Request $request)
+    {
         $url=$request->getBaseUrl('_route').'/cftree/'.$itemType.'/'.$id;
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
         $rows=array();
         if($itemType=='item')
-        {            
+        {
             $comments=array('Framework Name','Node Address','HumanCodingScheme','User','Organization','Comment');
             $rows[]=implode(',',$comments);
             $comment_data=$repo->findBy(['item'=>$id]);
@@ -198,14 +196,14 @@ class CommentsController extends Controller
                     $comment->getUser()->getUsername(),
                     $comment->getUser()->getOrg()->getName(),
                     $comment->getContent()
-                    );               
-                $rows[]=implode(',',$comments);
+                    );
+                  $rows[]=implode(',',$comments);
             }
         }
         else
-        {            
-            $comments=array('Framework Name','Node Address','User','Organization','Comment');
-            $rows[]=implode(',',$comments);
+        {
+            $comments=array('Framework Name', 'Node Address', 'User', 'Organization', 'Comment');
+            $rows[]=implode(',', $comments);
             $comment_data=$repo->findBy(['document'=>$id]);
             foreach($comment_data as $comment)
             {
@@ -215,13 +213,13 @@ class CommentsController extends Controller
                     $comment->getUser()->getUsername(),
                     $comment->getUser()->getOrg()->getName(),
                     $comment->getContent()
-                    );               
+                    );
                 $rows[]=implode(',',$comments);
-            }  
-         }         
-         $content=implode("\n",$rows);
-         $response=new Response($content);
-         $response->headers->set('content_type','text/csv');
-         return $response;
+            }
+        }
+        $content=implode("\n",$rows);
+        $response=new Response($content);
+        $response->headers->set('content_type','text/csv');
+        return $response;
     }
 }
