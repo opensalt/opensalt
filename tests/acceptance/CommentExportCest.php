@@ -9,6 +9,10 @@ class CommentExportCest {
   static public $commentFilePath='/salt/case/export_comment/';
   static public $itemPath='/cftree/item/';
 
+  public function _before(AcceptanceTester $I) {
+    $I->assertFeatureEnabled('comments');
+  }
+
   public function seeExportCSVButton(AcceptanceTester $I, Scenario $scenario) {
     $loginPage=new Login($I, $scenario);
     $loginPage->loginAsRole('admin');

@@ -20,206 +20,183 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @Toggle("comments")
  */
-class CommentsController extends Controller
-{
-    /**
-     * @Route("/comments/document/{id}", name="create_doc_comment")
-     *
-     * @Method("POST")
-     *
-     * @Security("is_granted('comment')")
-     */
-    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user)
+class CommentsController extends Controller {
+
+  /**
+   * @Route("/comments/document/{id}", name="create_doc_comment")
+   *
+   * @Method("POST")
+   *
+   * @Security("is_granted('comment')")
+   */
+  public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user) {
+    return $this->addComment($request, 'document', $doc, $user);
+  }
+
+  /**
+   * @Route("/comments/item/{id}", name="create_item_comment")
+   *
+   * @Method("POST")
+   *
+   * @Security("is_granted('comment')")
+   */
+  public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user) {
+    return $this->addComment($request, 'item', $item, $user);
+  }
+
+  /**
+   * @Route("/comments/{itemType}/{itemId}", name="get_comments")
+   * @Method("GET")
+   * @ParamConverter("comments", class="SaltSiteBundle:Comment", options={"id": {"itemType", "itemId"}, "repository_method" = "findByTypeItem"})
+   * @Security("is_granted('comment_view')")
+   *
+   * @param array|Comment[] $comments
+   * @param UserInterface|null $user
+   *
+   * @return mixed
+   */
+  public function listAction(array $comments, UserInterface $user=null) {
+    if ($user instanceof User)
     {
-        return $this->addComment($request, 'document', $doc, $user);
+      foreach ($comments as $comment)
+      {
+        $comment->updateStatusForUser($user);
+      }
     }
 
-    /**
-     * @Route("/comments/item/{id}", name="create_item_comment")
-     *
-     * @Method("POST")
-     *
-     * @Security("is_granted('comment')")
-     */
-    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user)
+    return $this->apiResponse($comments);
+  }
+
+  /**
+   * @Route("/comments/{id}")
+   *
+   * @Method("PUT")
+   *
+   * @Security("is_granted('comment_update', comment)")
+   */
+  public function updateAction(Comment $comment, Request $request, UserInterface $user) {
+    $em=$this->getDoctrine()->getManager();
+    $comment->setContent($request->request->get('content'));
+    $em->persist($comment);
+    $em->flush();
+
+    return $this->apiResponse($comment);
+  }
+
+  /**
+   * @Route("/comments/delete/{id}")
+   *
+   * @Method("DELETE")
+   *
+   * @Security("is_granted('comment_delete', comment)")
+   */
+  public function deleteAction(Comment $comment, UserInterface $user) {
+    $em=$this->getDoctrine()->getManager();
+    $em->remove($comment);
+    $em->flush();
+
+    return $this->apiResponse('Ok', 200);
+  }
+
+  /**
+   * @Route("/comments/{id}/upvote")
+   *
+   * @Method("POST")
+   *
+   * @Security("is_granted('comment')")
+   */
+  public function upvoteAction(Comment $comment, UserInterface $user) {
+    $repo=$this->getDoctrine()->getManager()->getRepository(Comment::class);
+    $repo->addUpvoteForUser($comment, $user);
+
+    return $this->apiResponse($comment);
+  }
+
+  /**
+   * @Route("/comments/{id}/upvote")
+   *
+   * @Method("DELETE")
+   *
+   * @Security("is_granted('comment')")
+   */
+  public function downvoteAction(Comment $comment, UserInterface $user) {
+    $repo=$this->getDoctrine()->getManager()->getRepository(Comment::class);
+
+    if ($repo->removeUpvoteForUser($comment, $user))
     {
-        return $this->addComment($request, 'item', $item, $user);
+      return $this->apiResponse($comment);
     }
 
-    /**
-     * @Route("/comments/{itemType}/{itemId}", name="get_comments")
-     * @Method("GET")
-     * @ParamConverter("comments", class="SaltSiteBundle:Comment", options={"id": {"itemType", "itemId"}, "repository_method" = "findByTypeItem"})
-     * @Security("is_granted('comment_view')")
-     *
-     * @param array|Comment[] $comments
-     * @param UserInterface|null $user
-     *
-     * @return mixed
-     */
-    public function listAction(array $comments, UserInterface $user = null)
-    {
-        if ($user instanceof User) {
-            foreach ($comments as $comment) {
-                $comment->updateStatusForUser($user);
-            }
-        }
+    return $this->apiResponse('Item not found', 404);
+  }
 
-        return $this->apiResponse($comments);
-    }
+  /**
+   * Add a comment
+   *
+   * @param Request $request
+   * @param string $itemType
+   * @param int $itemId
+   * @param UserInterface $user
+   *
+   * @return JsonResponse
+   */
+  private function addComment(Request $request, string $itemType, $itemId, UserInterface $user) {
+    $parentId=$request->request->get('parent');
+    $content=$request->request->get('content');
 
-    /**
-     * @Route("/comments/{id}")
-     *
-     * @Method("PUT")
-     *
-     * @Security("is_granted('comment_update', comment)")
-     */
-    public function updateAction(Comment $comment, Request $request, UserInterface $user)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $comment->setContent($request->request->get('content'));
-        $em->persist($comment);
-        $em->flush();
+    $em=$this->getDoctrine()->getManager();
+    $comment=$em->getRepository('SaltSiteBundle:Comment')->addComment($itemType, $itemId, $user, $content, $parentId);
 
-        return $this->apiResponse($comment);
-    }
+    return $this->apiResponse($comment);
+  }
 
-    /**
-     * @Route("/comments/delete/{id}")
-     *
-     * @Method("DELETE")
-     *
-     * @Security("is_granted('comment_delete', comment)")
-     */
-    public function deleteAction(Comment $comment, UserInterface $user)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($comment);
-        $em->flush();
+  private function serialize($data) {
+    return $this->get('jms_serializer')
+    ->serialize($data, 'json');
+  }
 
-        return $this->apiResponse('Ok', 200);
-    }
+  private function apiResponse($data, $statusCode=200): JsonResponse
+  {
+  $json=$this->serialize($data);
 
-    /**
-     * @Route("/comments/{id}/upvote")
-     *
-     * @Method("POST")
-     *
-     * @Security("is_granted('comment')")
-     */
-    public function upvoteAction(Comment $comment, UserInterface $user)
-    {
-        $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
-        $repo->addUpvoteForUser($comment, $user);
+  return JsonResponse::fromJsonString($json, $statusCode);
+}
 
-        return $this->apiResponse($comment);
-    }
+/**
+ * @Route("/salt/case/export_comment/{itemType}/{id}/comment.csv", name="export_comment_file")
+ *
+ * @param int $id
+ * @param string $itemType
+ * @param Request $request
+ *
+ * @return Response
+ */
+public function exportCommentAction(string $itemType, int $id, Request $request) {
+  $url=$request->getBaseUrl('_route') . '/cftree/' . $itemType . '/' . $id;
+  $repo=$this->getDoctrine()->getManager()->getRepository(Comment::class);
+  $rows=array();
 
-    /**
-     * @Route("/comments/{id}/upvote")
-     *
-     * @Method("DELETE")
-     *
-     * @Security("is_granted('comment')")
-     */
-    public function downvoteAction(Comment $comment, UserInterface $user)
-    {
-        $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
+  $headers=array('Framework Name', 'Node Address', ($itemType == 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment');
+  $rows[]=implode(',', array_filter($headers));
+  $comment_data=$repo->findBy([$itemType => $id]);
 
-        if ($repo->removeUpvoteForUser($comment, $user)) {
-            return $this->apiResponse($comment);
-        }
+  foreach ($comment_data as $comment)
+  {
+    $comments=array(
+      ($itemType == 'item') ? $comment->getItem()->getFullStatement() : $comment->getDocument()->getTitle(),
+      $url,
+      ($itemType == 'item') ? $comment->getItem()->getHumanCodingScheme() : null,
+      $comment->getUser()->getUsername(),
+      $comment->getUser()->getOrg()->getName(),
+      $comment->getContent()
+    );
+    $rows[]=implode(',', array_filter($comments));
+  }
 
-        return $this->apiResponse('Item not found', 404);
-    }
+  $content=implode("\n", $rows);
+  $response=new Response($content);
+  $response->headers->set('content_type', 'text/csv');
+  return $response;
+}
 
-    /**
-     * Add a comment
-     *
-     * @param Request $request
-     * @param string $itemType
-     * @param int $itemId
-     * @param UserInterface $user
-     *
-     * @return JsonResponse
-     */
-    private function addComment(Request $request, string $itemType, $itemId, UserInterface $user)
-    {
-        $parentId = $request->request->get('parent');
-        $content = $request->request->get('content');
-
-        $em = $this->getDoctrine()->getManager();
-        $comment = $em->getRepository('SaltSiteBundle:Comment')->addComment($itemType, $itemId, $user, $content, $parentId);
-
-        return $this->apiResponse($comment);
-    }
-
-    private function serialize($data)
-    {
-        return $this->get('jms_serializer')
-            ->serialize($data, 'json');
-    }
-
-    private function apiResponse($data, $statusCode = 200): JsonResponse
-    {
-        $json = $this->serialize($data);
-
-        return JsonResponse::fromJsonString($json, $statusCode);
-    }
-
-    /**
-     * @Route("/salt/case/export_comment/{itemType}/{id}/comment.csv", name="export_comment_file")
-     *
-     * @param int $id
-     * @param string $itemType
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function exportCommentAction(string $itemType, int $id, Request $request)
-    {
-        $url=$request->getBaseUrl('_route').'/cftree/'.$itemType.'/'.$id;
-        $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
-        $rows=array();
-        if($itemType=='item')
-        {
-            $comments=array('Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment');
-            $rows[]=implode(',', $comments);
-            $comment_data=$repo->findBy(['item'=>$id]);
-            foreach($comment_data as $comment)
-            {
-                  $comments=array(
-                    $comment->getItem()->getFullStatement(),
-                    $url,
-                    $comment->getItem()->getHumanCodingScheme(),
-                    $comment->getUser()->getUsername(),
-                    $comment->getUser()->getOrg()->getName(),
-                    $comment->getContent()
-                    );
-                  $rows[]=implode(',', $comments);
-            }
-        }
-        else
-        {
-            $comments=array('Framework Name', 'Node Address', 'User', 'Organization', 'Comment');
-            $rows[]=implode(',', $comments);
-            $comment_data=$repo->findBy(['document'=>$id]);
-            foreach($comment_data as $comment)
-            {
-                $comments=array(
-                    $comment->getDocument()->getTitle(),
-                    $url,
-                    $comment->getUser()->getUsername(),
-                    $comment->getUser()->getOrg()->getName(),
-                    $comment->getContent()
-                    );
-                $rows[]=implode(',', $comments);
-            }
-        }
-        $content=implode("\n", $rows);
-        $response=new Response($content);
-        $response->headers->set('content_type', 'text/csv');
-        return $response;
-    }
 }
