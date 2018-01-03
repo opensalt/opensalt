@@ -651,7 +651,7 @@ $('#dragbar').mousedown(function (e) {
 });
 
 var adjustWindow = function (e) {
-    if ($('#treeView').width() <= 768)
+    if ($(window).width() <= 768)
     {
         $('#treeSideLeft').width('100%');
         $('#treeSideRight').width('100%');
