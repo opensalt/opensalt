@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CommentsController extends Controller
 {
-
     /**
      * @Route("/comments/document/{id}", name="create_doc_comment")
      *
