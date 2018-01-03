@@ -7,14 +7,12 @@ body{
     overflow-x: hidden;
 }
 #treeSideLeft {
-   // border-right:3px solid #f5f5f5;
     float:left;
     width:50%;
     min-width: 300px;
 }
 
 #treeSideRight {
-  //  border-left:3px solid #f5f5f5;
     float:left;
     width:50%;
 }
@@ -65,7 +63,7 @@ body{
     padding-left:20px;
 }
 .assocGroupFilter[style="display:none"] ~ #tree1Section {
-    height: calc(100% - 122px);
+    height: calc(100% - 140px);
 }
 
 #tree1Section.otherDoc .fancytree-container {
@@ -75,11 +73,6 @@ body{
 #tree2SectionControls {
     display:none;
     margin-top: 15px;
-    padding-left:20px;
-}
-
-#tree1SectionControls
-{
     padding-left:20px;
 }
 
@@ -95,10 +88,6 @@ body{
     cursor: pointer;
     color: #ccc;
     display:none;
-}
-
-#tree2SectionControls .filterClear {
-    // right:150px;
 }
 
 #tree2Section {
@@ -130,8 +119,6 @@ ul.fancytree-container {
 }
 
 span.fancytree-title {
-    //white-space: pre-wrap;
-    //word-break: normal;
     max-width:80%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -480,15 +467,8 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     }
 }
 
-//span.fancytree-node{
-//    height:auto !important;
-//}
 #assocView {
     display:none;
-}
-
-#assocViewTable {
-    // max-width: 1000px;
 }
 
 #assocViewTable_filter [type=search] {
@@ -603,7 +583,6 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     position: relative;
     top: 50%;
     padding-left:15px;
-    // left: 1%;
     cursor: pointer;
 }
 
@@ -622,7 +601,16 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 }
 @media only screen and (max-width : 768px) {
     #treeSideLeft{
-        padding-bottom:10px;
+        overflow: hidden;
+    }
+    .treeSideLeftInner{
+        width:100%;
+    }
+    .rightTreeSideRightInner{
+        width:100%
+    }
+    #treeSideRight{
+        margin-top:20px;
     }
 
 }
