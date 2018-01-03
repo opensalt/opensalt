@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd456f2fef2c4eb3840e54295fca904a",
+    "content-hash": "3cf03eb9484a9c4dfa45f77d249e521f",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -2008,38 +2008,40 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "v2.5.14",
+            "version": "v2.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/doctrine2.git",
-                "reference": "810a7baf81462a5ddf10e8baa8cb94b6eec02754"
+                "reference": "374e7ace49d864dad8cddbc55346447c8a6a2083"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/810a7baf81462a5ddf10e8baa8cb94b6eec02754",
-                "reference": "810a7baf81462a5ddf10e8baa8cb94b6eec02754",
+                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/374e7ace49d864dad8cddbc55346447c8a6a2083",
+                "reference": "374e7ace49d864dad8cddbc55346447c8a6a2083",
                 "shasum": ""
             },
             "require": {
-                "doctrine/cache": "~1.4",
-                "doctrine/collections": "~1.2",
-                "doctrine/common": ">=2.5-dev,<2.9-dev",
-                "doctrine/dbal": ">=2.5-dev,<2.7-dev",
-                "doctrine/instantiator": "^1.0.1",
+                "doctrine/annotations": "~1.5",
+                "doctrine/cache": "~1.6",
+                "doctrine/collections": "^1.4",
+                "doctrine/common": "^2.7.1",
+                "doctrine/dbal": "^2.6",
+                "doctrine/instantiator": "~1.1",
                 "ext-pdo": "*",
-                "php": ">=5.4",
-                "symfony/console": "~2.5|~3.0|~4.0"
+                "php": "^7.1",
+                "symfony/console": "~3.0|~4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0",
-                "symfony/yaml": "~2.3|~3.0|~4.0"
+                "doctrine/coding-standard": "^1.0",
+                "phpunit/phpunit": "^6.5",
+                "squizlabs/php_codesniffer": "^3.2",
+                "symfony/yaml": "~3.4|~4.0"
             },
             "suggest": {
                 "symfony/yaml": "If you want to use YAML Metadata Mapping Driver"
             },
             "bin": [
-                "bin/doctrine",
-                "bin/doctrine.php"
+                "bin/doctrine"
             ],
             "type": "library",
             "extra": {
@@ -2048,8 +2050,8 @@
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Doctrine\\ORM\\": "lib/"
+                "psr-4": {
+                    "Doctrine\\ORM\\": "lib/Doctrine/ORM"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -2072,6 +2074,10 @@
                 {
                     "name": "Jonathan Wage",
                     "email": "jonwage@gmail.com"
+                },
+                {
+                    "name": "Marco Pivetta",
+                    "email": "ocramius@gmail.com"
                 }
             ],
             "description": "Object-Relational-Mapper for PHP",
@@ -2080,7 +2086,7 @@
                 "database",
                 "orm"
             ],
-            "time": "2017-12-17T02:57:51+00:00"
+            "time": "2017-12-20T00:38:15+00:00"
         },
         {
             "name": "fig/link-util",
@@ -4242,12 +4248,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codemirror/CodeMirror.git",
-                "reference": "56c271ff88efbf3726a4f0fa0a131942ebf804ff"
+                "reference": "c727c997264451a11573ec121889bc76b071bfe2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/56c271ff88efbf3726a4f0fa0a131942ebf804ff",
-                "reference": "56c271ff88efbf3726a4f0fa0a131942ebf804ff",
+                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/c727c997264451a11573ec121889bc76b071bfe2",
+                "reference": "c727c997264451a11573ec121889bc76b071bfe2",
                 "shasum": ""
             },
             "require-dev": {
@@ -4277,7 +4283,7 @@
                     "lint": "bin/lint"
                 },
                 "branch-alias": {
-                    "dev-master": "5.32.1-dev"
+                    "dev-master": "5.33.1-dev"
                 }
             },
             "license": [
@@ -4290,7 +4296,7 @@
                 "Editor",
                 "JavaScript"
             ],
-            "time": "2017-12-16 17:47:06"
+            "time": "2017-12-21 14:01:04"
         },
         {
             "name": "npm-asset/codemirror-spell-checker",
@@ -6503,60 +6509,6 @@
             "time": "2016-01-26T23:58:32+00:00"
         },
         {
-            "name": "swiftmailer/swiftmailer",
-            "version": "v5.4.8",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/swiftmailer/swiftmailer.git",
-                "reference": "9a06dc570a0367850280eefd3f1dc2da45aef517"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/9a06dc570a0367850280eefd3f1dc2da45aef517",
-                "reference": "9a06dc570a0367850280eefd3f1dc2da45aef517",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "require-dev": {
-                "mockery/mockery": "~0.9.1",
-                "symfony/phpunit-bridge": "~3.2"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.4-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "lib/swift_required.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Chris Corbyn"
-                },
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                }
-            ],
-            "description": "Swiftmailer, free feature-rich PHP mailer",
-            "homepage": "http://swiftmailer.org",
-            "keywords": [
-                "email",
-                "mail",
-                "mailer"
-            ],
-            "time": "2017-05-01T15:54:03+00:00"
-        },
-        {
             "name": "symfony/assetic-bundle",
             "version": "v2.8.2",
             "source": {
@@ -7142,65 +7094,6 @@
                 "psr-7"
             ],
             "time": "2016-08-18T14:44:25+00:00"
-        },
-        {
-            "name": "symfony/swiftmailer-bundle",
-            "version": "v2.6.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/swiftmailer-bundle.git",
-                "reference": "c4808f5169efc05567be983909d00f00521c53ec"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/swiftmailer-bundle/zipball/c4808f5169efc05567be983909d00f00521c53ec",
-                "reference": "c4808f5169efc05567be983909d00f00521c53ec",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.2",
-                "swiftmailer/swiftmailer": "~4.2|~5.0",
-                "symfony/config": "~2.7|~3.0",
-                "symfony/dependency-injection": "~2.7|~3.0",
-                "symfony/http-kernel": "~2.7|~3.0"
-            },
-            "require-dev": {
-                "symfony/console": "~2.7|~3.0",
-                "symfony/framework-bundle": "~2.7|~3.0",
-                "symfony/phpunit-bridge": "~3.3@dev",
-                "symfony/yaml": "~2.7|~3.0"
-            },
-            "suggest": {
-                "psr/log": "Allows logging"
-            },
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.6-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Bundle\\SwiftmailerBundle\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Symfony Community",
-                    "homepage": "http://symfony.com/contributors"
-                },
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                }
-            ],
-            "description": "Symfony SwiftmailerBundle",
-            "homepage": "http://symfony.com",
-            "time": "2017-10-19T01:06:41+00:00"
         },
         {
             "name": "symfony/symfony",

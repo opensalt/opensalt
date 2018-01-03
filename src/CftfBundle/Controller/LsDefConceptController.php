@@ -2,13 +2,20 @@
 
 namespace CftfBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\Framework\AddConceptCommand;
+use App\Command\Framework\DeleteConceptCommand;
+use App\Command\Framework\UpdateConceptCommand;
 use CftfBundle\Form\Type\LsDefConceptType;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use CftfBundle\Entity\LsDefConcept;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * LsDefConcept controller.
@@ -17,6 +24,8 @@ use CftfBundle\Entity\LsDefConcept;
  */
 class LsDefConceptController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Lists all LsDefConcept entities.
      *
@@ -30,7 +39,7 @@ class LsDefConceptController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefConcepts = $em->getRepository('CftfBundle:LsDefConcept')->findAll();
+        $lsDefConcepts = $em->getRepository(LsDefConcept::class)->findAll();
 
         return [
             'lsDefConcepts' => $lsDefConcepts,
@@ -55,11 +64,14 @@ class LsDefConceptController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDefConcept);
-            $em->flush();
+            try {
+                $command = new AddConceptCommand($lsDefConcept);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('lsdef_concept_show', array('id' => $lsDefConcept->getId()));
+                return $this->redirectToRoute('lsdef_concept_show', array('id' => $lsDefConcept->getId()));
+            } catch (\Exception $e) {
+                $form->addError(new FormError('Error adding concept: '.$e->getMessage()));
+            }
         }
 
         return [
@@ -79,7 +91,7 @@ class LsDefConceptController extends Controller
      *
      * @return array
      */
-    public function showAction(LsDefConcept $lsDefConcept)
+    public function showAction(LsDefConcept $lsDefConcept): array
     {
         $deleteForm = $this->createDeleteForm($lsDefConcept);
 
@@ -108,11 +120,14 @@ class LsDefConceptController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDefConcept);
-            $em->flush();
+            try {
+                $command = new UpdateConceptCommand($lsDefConcept);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('lsdef_concept_edit', array('id' => $lsDefConcept->getId()));
+                return $this->redirectToRoute('lsdef_concept_edit', array('id' => $lsDefConcept->getId()));
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError('Error updating concept: '.$e->getMessage()));
+            }
         }
 
         return [
@@ -133,15 +148,14 @@ class LsDefConceptController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function deleteAction(Request $request, LsDefConcept $lsDefConcept)
+    public function deleteAction(Request $request, LsDefConcept $lsDefConcept): Response
     {
         $form = $this->createDeleteForm($lsDefConcept);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($lsDefConcept);
-            $em->flush();
+            $command = new DeleteConceptCommand($lsDefConcept);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('lsdef_concept_index');
@@ -152,9 +166,9 @@ class LsDefConceptController extends Controller
      *
      * @param LsDefConcept $lsDefConcept The LsDefConcept entity
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\FormInterface The form
      */
-    private function createDeleteForm(LsDefConcept $lsDefConcept)
+    private function createDeleteForm(LsDefConcept $lsDefConcept): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsdef_concept_delete', array('id' => $lsDefConcept->getId())))

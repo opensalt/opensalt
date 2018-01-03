@@ -4,13 +4,8 @@
 /phpspec.yml
 /phpcs.xml
 /codeception.yml
-/tests/codeception.yml
-/tests/acceptance.suite.yml
-/tests/api.suite.yml
-/tests/functional.suite.yml
-/tests/unit.suite.yml
-!/tests/_envs
-/tests/_envs/*
+/tests/*.suite.yml
+/tests/_envs/*.yml
 !/tests/_envs/*.dist.yml
 /var/*
 !/var/cache

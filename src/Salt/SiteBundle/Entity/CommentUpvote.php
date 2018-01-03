@@ -45,7 +45,7 @@ class CommentUpvote
     /**
      * @var \DateTime
      *
-     * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
+     * @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"})
      * @Serializer\SerializedName("created")
      * @Gedmo\Timestampable(on="create")
      */
@@ -54,7 +54,7 @@ class CommentUpvote
     /**
      * @var \DateTime
      *
-     * @ORM\Column(type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
+     * @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"})
      * @Serializer\SerializedName("modified")
      * @Gedmo\Timestampable(on="update")
      */

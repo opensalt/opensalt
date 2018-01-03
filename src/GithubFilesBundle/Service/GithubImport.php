@@ -38,7 +38,7 @@ class GithubImport
     /**
      * @return ObjectManager
      */
-    protected function getEntityManager()
+    protected function getEntityManager(): ObjectManager
     {
         return $this->managerRegistry->getManagerForClass(LsDoc::class);
     }
@@ -46,13 +46,13 @@ class GithubImport
     /**
      * Parse an Github document into a LsDoc/LsItem hierarchy
      *
-     * @param array $lsDocKeys
      * @param array $lsItemKeys
      * @param string $fileContent
+     * @param string $lsDocId
      * @param string $frameworkToAssociate
      * @param array $missingFieldsLog
      */
-    public function parseCSVGithubDocument($lsItemKeys, $fileContent, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
+    public function parseCSVGithubDocument(array $lsItemKeys, string $fileContent, string $lsDocId, string $frameworkToAssociate, $missingFieldsLog): void
     {
         $csvContent = str_getcsv($fileContent, "\n");
         $headers = [];
@@ -87,12 +87,12 @@ class GithubImport
      * @param array $content
      * @param array $missingFieldsLog
      */
-    public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog)
+    public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog): void
     {
         $em = $this->getEntityManager();
-        $lsDoc = $em->getRepository('CftfBundle:LsDoc')->find($lsDocId);
+        $lsDoc = $em->getRepository(LsDoc::class)->find($lsDocId);
 
-        if (count($missingFieldsLog) > 0){
+        if (null !== $missingFieldsLog && count($missingFieldsLog) > 0){
             foreach ($missingFieldsLog as $messageError) {
                 $errorLog = new ImportLog();
                 $errorLog->setLsDoc($lsDoc);
@@ -101,7 +101,7 @@ class GithubImport
 
                 $em->persist($errorLog);
             }
-        }else{
+        } else {
             $successLog = new ImportLog();
             $successLog->setLsDoc($lsDoc);
             $successLog->setMessage('Items sucessful imported.');
@@ -117,7 +117,7 @@ class GithubImport
         for ($i = 0, $iMax = count($content); $i < $iMax; ++$i) {
             $lineContent = $content[$i];
             if ($this->isValidItemContent($lineContent, $lsItemKeys)){
-                $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $lineContent, $em);
+                $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $lineContent);
             } else {
                 $lsItems[$i] = null;
                 continue;
@@ -152,7 +152,7 @@ class GithubImport
             // if it is do not create a new association. This allows content
             // updates but doesn't double up the associations.
             $thisItemsUUID = $content[$i]['Identifier'];
-            $associationExists = $em->getRepository('CftfBundle:LsAssociation')->findOneBy(['originNodeIdentifier' => $thisItemsUUID]);
+            $associationExists = $em->getRepository(LsAssociation::class)->findOneBy(['originNodeIdentifier' => $thisItemsUUID]);
             $logDetails = date('Y/m/d h:i:s A ')."The lsItem with the Human coding scheme of {$content[$i]['Human Coding Scheme']} and UUID of {$thisItemsUUID} has been added.";
 
             if (!$associationExists) {
@@ -179,8 +179,6 @@ class GithubImport
                 $this->saveAssociations($i, $content, $lsItemKeys, $lsItem, $lsDoc, $frameworkToAssociate);
             }
         }
-
-        $em->flush();
     }
 
     /**
@@ -212,25 +210,25 @@ class GithubImport
      * @param string  $frameworkToAssociate
      * @param string  $assocType
      */
-    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, $assocType)
+    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, $assocType): void
     {
         $em = $this->getEntityManager();
 
         if (strlen(trim($cfAssociation)) > 0) {
             if ($frameworkToAssociate === 'all') {
-                $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
+                $itemsAssociated = $em->getRepository(LsItem::class)
                     ->findAllByIdentifierOrHumanCodingSchemeByValue($cfAssociation);
             } else {
-                $itemsAssociated = $em->getRepository('CftfBundle:LsItem')
+                $itemsAssociated = $em->getRepository(LsItem::class)
                     ->findByAllIdentifierOrHumanCodingSchemeByLsDoc($frameworkToAssociate, $cfAssociation);
             }
 
             if (count($itemsAssociated) > 0) {
                 foreach ($itemsAssociated as $itemAssociated) {
-                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType, null);
+                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType);
                 }
             } else {
-                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType, null);
+                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType);
             }
         }
     }
@@ -241,14 +239,15 @@ class GithubImport
      * @param string|LsItem $elementAssociated
      * @param string $assocType
      */
-    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, $assocType)
+    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, $assocType): void
     {
         $association = new LsAssociation();
         $association->setType($assocType);
         $association->setLsDoc($lsDoc);
         $association->setOrigin($lsItem);
+
         if (is_string($elementAssociated)) {
-            if (\Ramsey\Uuid\Uuid::isValid($elementAssociated)) {
+            if (Uuid::isValid($elementAssociated)) {
                 $association->setDestinationNodeIdentifier($elementAssociated);
             } elseif (!filter_var($elementAssociated, FILTER_VALIDATE_URL) === false) {
                 $association->setDestinationNodeUri($elementAssociated);
@@ -261,6 +260,7 @@ class GithubImport
         } else {
             $association->setDestination($elementAssociated);
         }
+
         $this->getEntityManager()->persist($association);
     }
 
@@ -280,14 +280,15 @@ class GithubImport
      * @param array $lsItemKeys
      * @param array $data
      */
-    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data, $em)
+    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data): LsItem
     {
+        $em = $this->getEntityManager();
+
         // Query the db for matching UUIDs.
-        $resultOfSearch = $em->getRepository('CftfBundle:LsItem')->findOneBy(array('identifier' => $data[$lsItemKeys['identifier']]));
+        $resultOfSearch = $em->getRepository(LsItem::class)->findOneBy(['identifier' => $data[$lsItemKeys['identifier']]]);
 
         // If not in the DB create a new lsItem.
         if ($resultOfSearch === null) {
-
             $lsItem = new LsItem();
             $em = $this->getEntityManager();
             $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
@@ -297,29 +298,30 @@ class GithubImport
             $em->persist($lsItem);
 
             return $lsItem;
-        } else { // Update if in db and changed.
-            $fullStatement = $resultOfSearch->getFullStatement();
-            if ($data[$lsItemKeys['fullStatement']] != $fullStatement) {
-                $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
-
-                $lsItem = $this->assignValuesToItem($resultOfSearch, $lsDoc, $lsItemKeys, $data, $itemAttributes);
-
-                $em->persist($lsItem);
-
-                // Log if we make an update.
-                $logDetails = date('Y/m/d h:i:s A ')."The lsItem with the Human coding scheme of {$data[$lsItemKeys['humanCodingScheme']]} has been updated.";
-                $errorLog = new ImportLog();
-                $errorLog->setLsDoc($lsDoc);
-                $errorLog->setMessage($logDetails);
-                $errorLog->setMessageType('warning');
-
-                $em->persist($errorLog);
-
-                return $lsItem;
-            } else {
-                return $resultOfSearch;
-            }
         }
+
+        // Update if in db and changed.
+        $fullStatement = $resultOfSearch->getFullStatement();
+        if ($data[$lsItemKeys['fullStatement']] !== $fullStatement) {
+            $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
+
+            $lsItem = $this->assignValuesToItem($resultOfSearch, $lsDoc, $lsItemKeys, $data, $itemAttributes);
+
+            $em->persist($lsItem);
+
+            // Log if we make an update.
+            $logDetails = date('Y/m/d h:i:s A ')."The lsItem with the Human coding scheme of {$data[$lsItemKeys['humanCodingScheme']]} has been updated.";
+            $errorLog = new ImportLog();
+            $errorLog->setLsDoc($lsDoc);
+            $errorLog->setMessage($logDetails);
+            $errorLog->setMessageType('warning');
+
+            $em->persist($errorLog);
+
+            return $lsItem;
+        }
+
+        return $resultOfSearch;
     }
 
     /**
@@ -350,12 +352,16 @@ class GithubImport
     {
         $lsItem->setLsDoc($lsDoc);
         $lsItem->setFullStatement($lineContent[$lsItemKeys['fullStatement']]);
-        if (array_key_exists($lsItemKeys['identifier'], $lineContent) && \Ramsey\Uuid\Uuid::isValid($lineContent[$lsItemKeys['identifier']])) {
+
+        if (array_key_exists($lsItemKeys['identifier'], $lineContent) && Uuid::isValid($lineContent[$lsItemKeys['identifier']])) {
             $lsItem->setIdentifier($lineContent[$lsItemKeys['identifier']]);
             $lsItem->setUri('local:'.$lineContent[$lsItemKeys['identifier']]);
         }
+
         foreach ($keys as $key) {
-            if (array_key_exists($key, $lsItemKeys) && array_key_exists($lsItemKeys[$key], $lineContent)) $lsItem->{'license' === $key ? 'setLicenceUri' : 'set'.ucfirst($key)}($lineContent[$lsItemKeys[$key]]);
+            if (array_key_exists($key, $lsItemKeys) && array_key_exists($lsItemKeys[$key], $lineContent)) {
+                $lsItem->{'license' === $key ? 'setLicenceUri' : 'set'.ucfirst($key)}($lineContent[$lsItemKeys[$key]]);
+            }
         }
 
         return $lsItem;

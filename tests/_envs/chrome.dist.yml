@@ -5,3 +5,6 @@ modules:
             browser: chrome
             host: chrome
             port: 4444
+            capabilities:
+              chromeOptions:
+                args: ['--headless', '--disable-gpu']

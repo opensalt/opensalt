@@ -2,6 +2,12 @@
 
 namespace CftfBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\Framework\AddExternalDocCommand;
+use App\Command\Framework\DeleteAssociationGroupCommand;
+use App\Command\Framework\DeleteItemCommand;
+use App\Command\Framework\DeleteItemWithChildrenCommand;
+use App\Command\Framework\UpdateTreeItemsCommand;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
@@ -15,7 +21,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Util\Compare;
+use App\Util\Compare;
 
 /**
  * Editor Tree controller.
@@ -24,6 +30,8 @@ use Util\Compare;
  */
 class DocTreeController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * @Route("/doc/{slug}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
      * @Route("/doc/{slug}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
@@ -45,7 +53,7 @@ class DocTreeController extends Controller
 
         // Get all association groups (for all documents);
         // we need groups for other documents if/when we show a document on the right side
-        $lsDefAssociationGroupings = $em->getRepository('CftfBundle:LsDefAssociationGrouping')->findAll();
+        $lsDefAssociationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findAll();
 
         $assocTypes = [];
         $inverseAssocTypes = [];
@@ -55,7 +63,7 @@ class DocTreeController extends Controller
         }
 
         // get list of all documents
-        $resultlsDocs = $em->getRepository('CftfBundle:LsDoc')->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
+        $resultlsDocs = $em->getRepository(LsDoc::class)->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
         $lsDocs = [];
         $authChecker = $this->get('security.authorization_checker');
         foreach ($resultlsDocs as $doc) {
@@ -128,14 +136,29 @@ class DocTreeController extends Controller
      * @Route("/docexport/{id}.json", name="doctree_cfpackage_export")
      * @Method("GET")
      */
-    public function exportAction(LsDoc $lsDoc)
+    public function exportAction(Request $request, LsDoc $lsDoc)
     {
-        $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findItemsForExportDoc($lsDoc);
-        $associations = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAssociationsForExportDoc($lsDoc);
-        $assocGroups = $this->getDoctrine()->getRepository('CftfBundle:LsDefAssociationGrouping')->findBy(['lsDoc'=>$lsDoc]);
+        $response = new Response();
+
+        $lastModified = $lsDoc->getUpdatedAt();
+        $response->setEtag(md5($lastModified->format('U')));
+        $response->setLastModified($lastModified);
+        $response->setMaxAge(0);
+        $response->setSharedMaxAge(0);
+        $response->setExpires(\DateTime::createFromFormat('U', $lastModified->format('U'))->sub(new \DateInterval('PT1S')));
+        $response->setPublic();
+        $response->headers->addCacheControlDirective('must-revalidate');
+
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
+
+        $items = $this->getDoctrine()->getRepository(LsDoc::class)->findItemsForExportDoc($lsDoc);
+        $associations = $this->getDoctrine()->getRepository(LsDoc::class)->findAssociationsForExportDoc($lsDoc);
+        $assocGroups = $this->getDoctrine()->getRepository(LsDefAssociationGrouping::class)->findBy(['lsDoc'=>$lsDoc]);
         $associatedDocs = array_merge(
             $lsDoc->getExternalDocs(),
-            $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAssociatedDocs($lsDoc)
+            $this->getDoctrine()->getRepository(LsDoc::class)->findAssociatedDocs($lsDoc)
         );
 
         $docAttributes = [
@@ -161,9 +184,9 @@ class DocTreeController extends Controller
             'licences' => [],
             'assocGroups' => $assocGroups,
         ];
-        $response = new Response($this->renderView('CftfBundle:DocTree:export.json.twig', $arr));
-        $response->headers->set('Content-Type', 'text/json');
-        $response->headers->set('Pragma', 'no-cache');
+
+        $response->setContent($this->renderView('CftfBundle:DocTree:export.json.twig', $arr));
+        $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }
@@ -180,13 +203,13 @@ class DocTreeController extends Controller
         // $request could contain an id...
         if ($id = $request->query->get('id')) {
             // in this case it has to be a document on this OpenSALT instantiation
-            return $this->respondWithDocumentById($id);
+            return $this->respondWithDocumentById($request, $id);
         }
 
         // or an identifier...
         if (null !== $lsDoc && $identifier = $request->query->get('identifier')) {
             // first see if it's referencing a document on this OpenSALT instantiation
-            return $this->respondWithDocumentByIdentifier($identifier, $lsDoc);
+            return $this->respondWithDocumentByIdentifier($request, $identifier, $lsDoc);
         }
 
         // or a url...
@@ -247,6 +270,7 @@ class DocTreeController extends Controller
                 if (preg_match("/\"identifier\"\s*:\s*\"(.+?)\"/", $s, $matches)) {
                     $identifier = $matches[1];
                 }
+
                 $title = '';
                 if (preg_match("/\"title\"\s*:\s*\"([\s\S]+?)\"/", $s, $matches)) {
                     $title = $matches[1];
@@ -256,26 +280,27 @@ class DocTreeController extends Controller
                 if (!empty($identifier) && !empty($title)) {
                     // see if the doc is already there; if so, we don't want to change the "autoLoad" parameter, but we should still update the title/url if necessary
                     $externalDocs = $lsDoc->getExternalDocs();
+
+                    $autoLoad = 'false';
                     if (!empty($externalDocs[$identifier])) {
                         $autoLoad = $externalDocs[$identifier]['autoLoad'];
-                    } else {
-                        // if it's a newly-associated doc, assume here that it does not need to be "autoloaded"; that will be changed if/when we add an association with an item in the doc
-                        $autoLoad = 'false';
                     }
 
                     // if this is a new doc or anything has changed, save it
-                    if (empty($externalDocs[$identifier]) || $externalDocs[$identifier]['autoLoad'] != $autoLoad || $externalDocs[$identifier]['url'] != $url || $externalDocs[$identifier]['title'] != $title) {
-                        $lsDoc->addExternalDoc($identifier, $autoLoad, $url, $title);
-                        $em = $this->getDoctrine()->getManager();
-                        $em->persist($lsDoc);
-                        $em->flush();
+                    if (empty($externalDocs[$identifier])
+                        || $externalDocs[$identifier]['autoLoad'] !== $autoLoad
+                        || $externalDocs[$identifier]['url'] !== $url
+                        || $externalDocs[$identifier]['title'] !== $title
+                    ) {
+                        $command = new AddExternalDocCommand($lsDoc, $identifier, $autoLoad, $url, $title);
+                        $this->sendCommand($command);
                     }
                 }
             }
 
             // now return the file
             $response = new Response($s);
-            $response->headers->set('Content-Type', 'text/json');
+            $response->headers->set('Content-Type', 'application/json');
             $response->headers->set('Pragma', 'no-cache');
 
             return $response;
@@ -338,7 +363,7 @@ class DocTreeController extends Controller
      */
     public function renderDocumentAction(LsDoc $lsDoc, $_format = 'html')
     {
-        $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
+        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
 
         $items = $repo->findAllChildrenArray($lsDoc);
         $haveParents = $repo->findAllItemsWithParentsArray($lsDoc);
@@ -386,30 +411,31 @@ class DocTreeController extends Controller
      * @param int $includingChildren
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     *
+     * @throws \InvalidArgumentException
      */
-    public function deleteAction(Request $request, LsItem $lsItem, $includingChildren = 0)
+    public function deleteItemAction(Request $request, LsItem $lsItem, int $includingChildren = 0): Response
     {
         $ajax = false;
         if ($request->isXmlHttpRequest()) {
             $ajax = true;
         }
+
         $lsDocSlug = $lsItem->getLsDoc()->getSlug();
 
-        $em = $this->getDoctrine()->getManager();
-
-        if ($includingChildren) {
-            $em->getRepository(LsItem::class)->removeItemAndChildren($lsItem);
-            $em->flush();
+        if (0 === $includingChildren) {
+            $command = new DeleteItemCommand($lsItem);
+            $this->sendCommand($command);
         } else {
-            $em->getRepository(LsItem::class)->removeItem($lsItem);
-            $em->flush();
+            $command = new DeleteItemWithChildrenCommand($lsItem);
+            $this->sendCommand($command);
         }
 
         if ($ajax) {
             return new Response($this->generateUrl('doc_tree_view', ['slug' => $lsDocSlug]), Response::HTTP_ACCEPTED);
-        } else {
-            return $this->redirectToRoute('doc_tree_view', ['slug' => $lsDocSlug]);
         }
+
+        return $this->redirectToRoute('doc_tree_view', ['slug' => $lsDocSlug]);
     }
 
     /**
@@ -426,56 +452,26 @@ class DocTreeController extends Controller
      *
      * @param Request $request
      * @param LsDoc $lsDoc
+     * @param string $_format
      *
      * @return array
      */
-    public function updateItemsAction(Request $request, LsDoc $lsDoc, $_format = 'json')
+    public function updateItemsAction(Request $request, LsDoc $lsDoc, $_format = 'json'): array
     {
-        $rv = [];
+        $command = new UpdateTreeItemsCommand($lsDoc, $request->request->get('lsItems'));
+        $this->sendCommand($command);
+        $rv = $command->getReturnValues();
 
-        $em = $this->getDoctrine()->getManager();
-        $assocGroupRepo = $em->getRepository(LsDefAssociationGrouping::class);
-
-        $lsItems = $request->request->get('lsItems');
-        foreach ($lsItems as $lsItemId => $updates) {
-            $rv[$lsItemId] = [
-                'originalKey' => $updates['originalKey'],
-            ];
-
-            // set assocGroup if supplied; pass this in when necessary below
-            $assocGroup = null;
-            if (array_key_exists('assocGroup', $updates)) {
-                $assocGroup = $assocGroupRepo->find($updates['assocGroup']);
-            }
-
-            $lsItem = $this->getItemForUpdate($lsDoc, $updates, $lsItemId, $assocGroup);
-
-            // return the id and fullStatement of the item, whether it's new or it already existed
-            $rv[$lsItemId]['lsItemId'] = $lsItem->getId();
-            $rv[$lsItemId]['lsItemIdentifier'] = $lsItem->getIdentifier();
-            $rv[$lsItemId]['fullStatement'] = $lsItem->getFullStatement();
-
-            if (array_key_exists('deleteChildOf', $updates)) {
-                $this->deleteChildAssociations($lsItem, $updates, $lsItemId, $rv);
-            } elseif (array_key_exists('updateChildOf', $updates)) {
-                $this->updateChildOfAssociations($lsItem, $updates, $lsItemId, $rv);
-            }
-
-            // create new childOf association if specified
-            if (array_key_exists('newChildOf', $updates)) {
-                $this->addChildOfAssociations($lsItem, $updates, $lsItemId, $rv, $assocGroup);
-            }
-        }
-
-        // send new lsItem updatedAt??
-
-        $em->flush();
-
-        // get ids for new associations
+        // get ids for new associations and items
         foreach ($rv as $lsItemId => $val) {
             if (!empty($rv[$lsItemId]['association'])) {
                 $rv[$lsItemId]['assocId'] = $rv[$lsItemId]['association']->getId();
                 unset($rv[$lsItemId]['association']);
+            }
+
+            if (!empty($rv[$lsItemId]['lsItem'])) {
+                $rv[$lsItemId]['lsItemId'] = $rv[$lsItemId]['lsItem']->getId();
+                unset($rv[$lsItemId]['lsItem']);
             }
         }
 
@@ -489,138 +485,18 @@ class DocTreeController extends Controller
      * @Method("POST")
      *
      * @param Request $request
-     * @param LsDefAssociationGrouping $lsDefAssociationGrouping
+     * @param LsDefAssociationGrouping $associationGrouping
      *
-     * @return string
+     * @return Response
+     *
+     * @throws \InvalidArgumentException
      */
-    public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $lsDefAssociationGrouping)
+    public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($lsDefAssociationGrouping);
-        $em->flush();
+        $command = new DeleteAssociationGroupCommand($associationGrouping);
+        $this->sendCommand($command);
 
         return new Response('OK', Response::HTTP_ACCEPTED);
-    }
-
-    /**
-     * Get the item to update, either the original or a copy based on the update array
-     *
-     * @param LsDoc $lsDoc
-     * @param array $updates
-     * @param int $lsItemId
-     * @param LsDefAssociationGrouping|null $assocGroup
-     *
-     * @return LsItem
-     */
-    protected function getItemForUpdate(LsDoc $lsDoc, array $updates, $lsItemId, ?LsDefAssociationGrouping $assocGroup = null): LsItem
-    {
-        $em = $this->getDoctrine()->getManager();
-        $lsItemRepo = $em->getRepository(LsItem::class);
-
-        // copy item if copyFromId is specified
-        if (array_key_exists('copyFromId', $updates)) {
-            $originalItem = $lsItemRepo->find($updates['copyFromId']);
-
-            $lsItem = $originalItem->copyToLsDoc($lsDoc, $assocGroup);
-            // if addCopyToTitle is set, add "Copy of " to fullStatement and abbreviatedStatement
-            if (array_key_exists('addCopyToTitle', $updates)) {
-                $title = 'Copy of '.$lsItem->getFullStatement();
-                $lsItem->setFullStatement($title);
-
-                $astmt = $lsItem->getAbbreviatedStatement();
-                if (!empty($astmt)) {
-                    $astmt = 'Copy of '.$astmt;
-                    $lsItem->setAbbreviatedStatement($astmt);
-                }
-            }
-
-            $em->persist($lsItem);
-            // flush here to generate ID for new lsItem
-            $em->flush();
-
-        } else {
-            // else get lsItem from the repository
-            $lsItem = $lsItemRepo->find($lsItemId);
-        }
-
-        return $lsItem;
-    }
-
-    /**
-     * Remove the appropriate childOf associations for the item based on the update array
-     *
-     * @param LsItem $lsItem
-     * @param array $updates
-     * @param int $lsItemId
-     * @param array $rv
-     */
-    protected function deleteChildAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv): void
-    {
-        $em = $this->getDoctrine()->getManager();
-        $assocRepo = $em->getRepository(LsAssociation::class);
-
-        // delete childOf association if specified
-        if ($updates['deleteChildOf']['assocId'] !== 'all') {
-            $assocRepo->removeAssociation($assocRepo->find($updates['deleteChildOf']['assocId']));
-            $lsItem->setUpdatedAt(new \DateTime());
-            $rv[$lsItemId]['deleteChildOf'] = $updates['deleteChildOf']['assocId'];
-        } else {
-            // if we got "all" for the assocId, it means that we're updating a new item for which the client didn't know an assocId.
-            // so in this case, it's OK to just delete any existing childof association and create a new one below
-            $assocRepo->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
-        }
-    }
-
-    /**
-     * Update the childOf associations based on the update array
-     *
-     * @param LsItem $lsItem
-     * @param array $updates
-     * @param int $lsItemId
-     * @param array $rv
-     */
-    protected function updateChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv): void
-    {
-        $em = $this->getDoctrine()->getManager();
-        $assocRepo = $em->getRepository(LsAssociation::class);
-
-        // update childOf association if specified
-        $assoc = $assocRepo->find($updates['updateChildOf']['assocId']);
-        if (!empty($assoc)) {
-            // as of now the only thing we update is sequenceNumber
-            if (array_key_exists('sequenceNumber', $updates['updateChildOf'])) {
-                $assoc->setSequenceNumber($updates['updateChildOf']['sequenceNumber']*1);
-            }
-            $rv[$lsItemId]['association'] = $assoc;
-            $rv[$lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
-        }
-        $lsItem->setUpdatedAt(new \DateTime());
-    }
-
-    /**
-     * Add new childOf associations based on the update array
-     *
-     * @param LsItem $lsItem
-     * @param array $updates
-     * @param int $lsItemId
-     * @param array $rv
-     */
-    protected function addChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv, ?LsDefAssociationGrouping $assocGroup = null): void
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        // parent could be a doc or item
-        if ($updates['newChildOf']['parentType'] === 'item') {
-            $lsItemRepo = $em->getRepository(LsItem::class);
-            $parentItem = $lsItemRepo->find($updates['newChildOf']['parentId']);
-        } else {
-            $docRepo = $em->getRepository(LsDoc::class);
-            $parentItem = $docRepo->find($updates['newChildOf']['parentId']);
-        }
-        $rv[$lsItemId]['association'] = $lsItem->addParent($parentItem, $updates['newChildOf']['sequenceNumber'], $assocGroup);
-        $lsItem->setUpdatedAt(new \DateTime());
-
-        $rv[$lsItemId]['sequenceNumber'] = $updates['newChildOf']['sequenceNumber'];
     }
 
     /**
@@ -630,16 +506,16 @@ class DocTreeController extends Controller
      *
      * @return Response
      */
-    protected function respondWithDocumentById(int $id)
+    protected function respondWithDocumentById(Request $request, int $id)
     {
         // in this case it has to be a document on this OpenSALT instantiation
-        $newDoc = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->find($id);
+        $newDoc = $this->getDoctrine()->getRepository(LsDoc::class)->find($id);
         if (empty($newDoc)) {
             // if document not found, error
             return new Response('Document not found.', Response::HTTP_NOT_FOUND);
         }
 
-        return $this->exportAction($newDoc);
+        return $this->exportAction($request, $newDoc);
     }
 
     /**
@@ -650,11 +526,11 @@ class DocTreeController extends Controller
      *
      * @return Response
      */
-    protected function respondWithDocumentByIdentifier(string $identifier, LsDoc $lsDoc)
+    protected function respondWithDocumentByIdentifier(Request $request, string $identifier, LsDoc $lsDoc)
     {
-        $newDoc = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findOneBy(['identifier'=>$identifier]);
+        $newDoc = $this->getDoctrine()->getRepository(LsDoc::class)->findOneBy(['identifier'=>$identifier]);
         if (null !== $newDoc) {
-            return $this->exportAction($newDoc);
+            return $this->exportAction($request, $newDoc);
         }
 
         // otherwise look in this doc's externalDocs

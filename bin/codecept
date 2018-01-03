@@ -9,6 +9,10 @@ if [[ "$@" == *"chrome"* ]]; then
   BROWSER="${BROWSER} chrome"
 fi
 
+if [[ "$@" == *"phantomjs"* ]]; then
+  BROWSER="${BROWSER} phantomjs"
+fi
+
 if [ "${BROWSER}x" == "x" ]; then
   BROWSER=firefox
 fi
@@ -16,7 +20,18 @@ fi
 cd $(dirname $0)/..
 
 docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml up -d $BROWSER
-sleep 2
+
+if [[ "${BROWSER}" == *"chrome"* ]]; then
+  docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml run wait dockerize -wait tcp://chrome:4444 -timeout 30s
+fi
+
+if [[ "${BROWSER}" == *"firefox"* ]]; then
+  docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml run wait dockerize -wait tcp://firefox:4444 -timeout 30s
+fi
+
+if [[ "${BROWSER}" == *"phantomjs"* ]]; then
+  docker-compose -f docker/docker-compose.yml -f docker/docker-compose.browsers.yml run wait dockerize -wait tcp://phantomjs:8643 -timeout 30s
+fi
 
 ./bin/phpcli ./bin/codecept-wrapper "$@"
 RET=$?

@@ -2,6 +2,9 @@
 
 namespace Salt\UserBundle\Command;
 
+use App\Command\User\AddUserByNameCommand;
+use App\Event\CommandEvent;
+use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -33,7 +36,7 @@ class UserAddCommand extends ContainerAwareCommand
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         if (empty($input->getArgument('org'))) {
-            $orgObjs = $em->getRepository('SaltUserBundle:Organization')->findAll();
+            $orgObjs = $em->getRepository(Organization::class)->findAll();
             $orgs = [];
             foreach ($orgObjs as $org) {
                 $orgs[] = $org->getName();
@@ -46,7 +49,7 @@ class UserAddCommand extends ContainerAwareCommand
                     throw new \Exception('The organization name must exist');
                 }
 
-                $org = $em->getRepository('SaltUserBundle:Organization')->findOneByName($value);
+                $org = $em->getRepository(Organization::class)->findOneByName($value);
                 if (empty($org)) {
                     throw new \Exception('The organization name must exist');
                 }
@@ -112,15 +115,17 @@ class UserAddCommand extends ContainerAwareCommand
         }
 
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $orgObj = $em->getRepository('SaltUserBundle:Organization')->findOneByName($org);
+        $orgObj = $em->getRepository(Organization::class)->findOneByName($org);
         if (empty($orgObj)) {
             $output->writeln(sprintf('<error>Organization "%s" is not valid.</error>', $org));
 
             return 1;
         }
 
-        $userRepository = $em->getRepository('SaltUserBundle:User');
-        $newPassword = $userRepository->addNewUser($username, $orgObj, $password, $role);
+        $command = new AddUserByNameCommand($username, $orgObj, $password, $role);
+        $this->getContainer()->get('event_dispatcher')
+            ->dispatch(CommandEvent::class, new CommandEvent($command));
+        $newPassword = $command->getNewPassword();
 
         if (empty($password)) {
             $output->writeln(sprintf('The user "%s" has been added with password "%s".', $username, $newPassword));

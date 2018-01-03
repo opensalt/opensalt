@@ -2,6 +2,12 @@
 
 namespace Salt\UserBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\User\AddUserCommand;
+use App\Command\User\DeleteUserCommand;
+use App\Command\User\SuspendUserCommand;
+use App\Command\User\UnsuspendUserCommand;
+use App\Command\User\UpdateUserCommand;
 use Salt\UserBundle\Entity\User;
 use Salt\UserBundle\Form\Type\UserType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -9,6 +15,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -19,6 +27,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class UserController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Lists all user entities.
      *
@@ -33,10 +43,10 @@ class UserController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_USER')) {
-            $users = $em->getRepository('SaltUserBundle:User')->findAll();
+            $users = $em->getRepository(User::class)->findAll();
         } else {
-            $admin = $this->getUser();
-            $users = $em->getRepository('SaltUserBundle:User')->findByOrg($admin->getOrg());
+            $users = $em->getRepository(User::class)
+                ->findByOrg($this->getUser()->getOrg());
         }
 
         return [
@@ -68,15 +78,17 @@ class UserController extends Controller
             }
 
             // Encode the plaintext password
-            $password = $this->get('security.password_encoder')
+            $encryptedPassword = $this->get('security.password_encoder')
                 ->encodePassword($targetUser, $targetUser->getPlainPassword());
-            $targetUser->setPassword($password);
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($targetUser);
-            $em->flush($targetUser);
+            try {
+                $command = new AddUserCommand($targetUser, $encryptedPassword);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('admin_user_index');
+                return $this->redirectToRoute('admin_user_index');
+            } catch (\Exception $e) {
+                $form->addError(new FormError($e->getMessage()));
+            }
         }
 
         return [
@@ -134,9 +146,14 @@ class UserController extends Controller
                 $targetUser->setPassword($password);
             }
 
-            $this->getDoctrine()->getManager()->flush();
+            try {
+                $command = new UpdateUserCommand($targetUser);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('admin_user_index');
+                return $this->redirectToRoute('admin_user_index');
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError($e->getMessage()));
+            }
         }
 
         return [
@@ -159,8 +176,8 @@ class UserController extends Controller
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function suspendAction(Request $request, User $targetUser) {
-        $targetUser->suspendUser();
-        $this->getDoctrine()->getManager()->flush();
+        $command = new SuspendUserCommand($targetUser);
+        $this->sendCommand($command);
 
         return $this->redirectToRoute('admin_user_index');
     }
@@ -178,8 +195,8 @@ class UserController extends Controller
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function unsuspendAction(Request $request, User $targetUser) {
-        $targetUser->unsuspendUser();
-        $this->getDoctrine()->getManager()->flush();
+        $command = new UnsuspendUserCommand($targetUser);
+        $this->sendCommand($command);
 
         return $this->redirectToRoute('admin_user_index');
     }
@@ -202,9 +219,8 @@ class UserController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($targetUser);
-            $em->flush($targetUser);
+            $command = new DeleteUserCommand($targetUser);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('admin_user_index');
@@ -215,9 +231,9 @@ class UserController extends Controller
      *
      * @param User $targetUser The user entity
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\FormInterface The form
      */
-    private function createDeleteForm(User $targetUser)
+    private function createDeleteForm(User $targetUser): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('admin_user_delete', array('id' => $targetUser->getId())))
