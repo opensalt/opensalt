@@ -180,7 +180,7 @@ class CommentsController extends Controller
     private function serialize($data)
     {
         return $this->get('jms_serializer')
-        ->serialize($data, 'json');
+          ->serialize($data, 'json');
     }
 
     private function apiResponse($data, $statusCode=200): JsonResponse
