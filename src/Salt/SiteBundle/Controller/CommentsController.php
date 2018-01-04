@@ -22,7 +22,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Salt\SiteBundle\Entity\Comment;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Toggle("comments")
