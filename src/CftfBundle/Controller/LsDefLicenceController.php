@@ -2,7 +2,13 @@
 
 namespace CftfBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\Framework\AddLicenceCommand;
+use App\Command\Framework\DeleteLicenceCommand;
+use App\Command\Framework\UpdateLicenceCommand;
 use CftfBundle\Form\Type\LsDefLicenceType;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -17,6 +23,8 @@ use CftfBundle\Entity\LsDefLicence;
  */
 class LsDefLicenceController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Lists all LsDefLicence entities.
      *
@@ -30,7 +38,7 @@ class LsDefLicenceController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefLicences = $em->getRepository('CftfBundle:LsDefLicence')->findAll();
+        $lsDefLicences = $em->getRepository(LsDefLicence::class)->findAll();
 
         return [
             'lsDefLicences' => $lsDefLicences,
@@ -55,11 +63,14 @@ class LsDefLicenceController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDefLicence);
-            $em->flush();
+            try {
+                $command = new AddLicenceCommand($lsDefLicence);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('lsdef_licence_show', array('id' => $lsDefLicence->getId()));
+                return $this->redirectToRoute('lsdef_licence_show', array('id' => $lsDefLicence->getId()));
+            } catch (\Exception $e) {
+                $form->addError(new FormError('Error adding licence: '.$e->getMessage()));
+            }
         }
 
         return [
@@ -108,11 +119,14 @@ class LsDefLicenceController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDefLicence);
-            $em->flush();
+            try {
+                $command = new UpdateLicenceCommand($lsDefLicence);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('lsdef_licence_edit', array('id' => $lsDefLicence->getId()));
+                return $this->redirectToRoute('lsdef_licence_edit', array('id' => $lsDefLicence->getId()));
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError('Error updating licence: '.$e->getMessage()));
+            }
         }
 
         return [
@@ -139,9 +153,8 @@ class LsDefLicenceController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($lsDefLicence);
-            $em->flush();
+            $command = new DeleteLicenceCommand($lsDefLicence);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('lsdef_licence_index');
@@ -152,9 +165,9 @@ class LsDefLicenceController extends Controller
      *
      * @param LsDefLicence $lsDefLicence The LsDefLicence entity
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\FormInterface The form
      */
-    private function createDeleteForm(LsDefLicence $lsDefLicence)
+    private function createDeleteForm(LsDefLicence $lsDefLicence): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsdef_licence_delete', array('id' => $lsDefLicence->getId())))

@@ -18,8 +18,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class StandardVoter extends Voter
 {
-    const ADD_TO = 'add-standard-to';
-    const EDIT = 'edit';
+    public const ADD_TO = 'add-standard-to';
+    public const EDIT = 'edit';
 
     /**
      * @var AccessDecisionManagerInterface

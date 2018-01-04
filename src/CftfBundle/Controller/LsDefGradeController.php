@@ -2,7 +2,13 @@
 
 namespace CftfBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\Framework\AddGradeCommand;
+use App\Command\Framework\DeleteGradeCommand;
+use App\Command\Framework\UpdateGradeCommand;
 use CftfBundle\Form\Type\LsDefGradeType;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -17,6 +23,8 @@ use CftfBundle\Entity\LsDefGrade;
  */
 class LsDefGradeController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Lists all LsDefGrade entities.
      *
@@ -30,7 +38,7 @@ class LsDefGradeController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefGrades = $em->getRepository('CftfBundle:LsDefGrade')->findAll();
+        $lsDefGrades = $em->getRepository(LsDefGrade::class)->findAll();
 
         return [
             'lsDefGrades' => $lsDefGrades,
@@ -55,11 +63,14 @@ class LsDefGradeController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDefGrade);
-            $em->flush();
+            try {
+                $command = new AddGradeCommand($lsDefGrade);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('lsdef_grade_show', array('id' => $lsDefGrade->getId()));
+                return $this->redirectToRoute('lsdef_grade_show', array('id' => $lsDefGrade->getId()));
+            } catch (\Exception $e) {
+                $form->addError(new FormError('Error adding grade: '.$e->getMessage()));
+            }
         }
 
         return [
@@ -108,11 +119,14 @@ class LsDefGradeController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDefGrade);
-            $em->flush();
+            try {
+                $command = new UpdateGradeCommand($lsDefGrade);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('lsdef_grade_edit', array('id' => $lsDefGrade->getId()));
+                return $this->redirectToRoute('lsdef_grade_edit', array('id' => $lsDefGrade->getId()));
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError('Error updating grade: '.$e->getMessage()));
+            }
         }
 
         return [
@@ -139,9 +153,8 @@ class LsDefGradeController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($lsDefGrade);
-            $em->flush();
+            $command = new DeleteGradeCommand($lsDefGrade);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('lsdef_grade_index');
@@ -152,9 +165,9 @@ class LsDefGradeController extends Controller
      *
      * @param LsDefGrade $lsDefGrade The LsDefGrade entity
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\FormInterface The form
      */
-    private function createDeleteForm(LsDefGrade $lsDefGrade)
+    private function createDeleteForm(LsDefGrade $lsDefGrade): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsdef_grade_delete', array('id' => $lsDefGrade->getId())))

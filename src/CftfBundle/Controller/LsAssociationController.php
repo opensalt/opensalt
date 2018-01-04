@@ -2,7 +2,16 @@
 
 namespace CftfBundle\Controller;
 
-use Ramsey\Uuid\Uuid;
+use App\Command\CommandDispatcher;
+use App\Command\Framework\AddAssociationCommand;
+use App\Command\Framework\AddExemplarToItemCommand;
+use App\Command\Framework\AddTreeAssociationCommand;
+use App\Command\Framework\DeleteAssociationCommand;
+use App\Command\Framework\UpdateAssociationCommand;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -22,6 +31,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class LsAssociationController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Lists all LsAssociation entities.
      *
@@ -35,7 +46,7 @@ class LsAssociationController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsAssociations = $em->getRepository('CftfBundle:LsAssociation')->findAll();
+        $lsAssociations = $em->getRepository(LsAssociation::class)->findAll();
 
         return [
             'lsAssociations' => $lsAssociations,
@@ -54,7 +65,7 @@ class LsAssociationController extends Controller
      * @param LsItem|null $sourceLsItem
      * @param LsDefAssociationGrouping|null $assocGroup
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|RedirectResponse|Response
      */
     public function newAction(Request $request, ?LsItem $sourceLsItem = null, ?LsDefAssociationGrouping $assocGroup = null)
     {
@@ -64,9 +75,12 @@ class LsAssociationController extends Controller
         $lsAssociation = new LsAssociation();
         if ($sourceLsItem) {
             $lsAssociation->setOriginLsItem($sourceLsItem);
+
+            // Default to adding to source item's LsDoc
+            $lsAssociation->setLsDoc($sourceLsItem->getLsDoc());
         }
 
-        // PW: set assocGroup if provided and non-null
+        // set assocGroup if provided
         if ($assocGroup !== null) {
             $lsAssociation->setGroup($assocGroup);
         }
@@ -75,20 +89,18 @@ class LsAssociationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($sourceLsItem) {
-                // Default to adding to source item's LsDoc
-                $lsAssociation->setLsDoc($sourceLsItem->getLsDoc());
+            try {
+                $command = new AddAssociationCommand($lsAssociation);
+                $this->sendCommand($command);
+
+                if ($ajax) {
+                    return new Response($this->generateUrl('doc_tree_item_view', ['id' => $sourceLsItem->getId()]), Response::HTTP_CREATED);
+                }
+
+                return $this->redirectToRoute('lsassociation_show', array('id' => $lsAssociation->getId()));
+            } catch (\Exception $e) {
+                $form->addError(new FormError('Error adding new association: '.$e->getMessage()));
             }
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsAssociation);
-            $em->flush();
-
-            if ($ajax) {
-                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $sourceLsItem->getId()]), Response::HTTP_CREATED);
-            }
-
-            return $this->redirectToRoute('lsassociation_show', array('id' => $lsAssociation->getId()));
         }
 
         $lsDoc = $form->get('lsDoc')->getData();
@@ -108,7 +120,7 @@ class LsAssociationController extends Controller
     }
 
     /**
-     * Creates a new LsAssociation entity -- tree-view version, called via ajax (PW).
+     * Creates a new LsAssociation entity -- tree-view version, called via ajax
      *
      * @Route("/treenew/{lsDoc}", name="lsassociation_tree_new")
      * @Method("POST")
@@ -118,59 +130,31 @@ class LsAssociationController extends Controller
      *
      * @return Response
      */
-    public function treeNewAction(Request $request, LsDoc $lsDoc)
+    public function treeNewAction(Request $request, LsDoc $lsDoc): Response
     {
-        $em = $this->getDoctrine()->getManager();
-        $lsAssociation = new LsAssociation();
-
-        $lsAssociation->setType($request->request->get('type'));
-
-        // Add to the provided LsDoc
-        $lsAssociation->setLsDoc($lsDoc);
-
-        // deal with origin and dest items, which can be specified by id or by identifier
-        // if externalDoc is specified for either one, mark this document as "autoLoad": "true" in the lsDoc's externalDocuments
-        $repo = $em->getRepository(LsItem::class);
-
-        $origin = $request->request->get('origin');
-        if (!empty($origin['id'])) {
-            $origin = $repo->findOneBy(['id'=>$origin['id']]);
-        } else {
-            if (!empty($origin['externalDoc'])) {
-                $lsDoc->setExternalDocAutoLoad($origin['externalDoc'], 'true');
-                $em->persist($lsDoc);
+        // type, origin['externalDoc', 'id', 'identifier'], dest['externalDoc', 'id', 'identifier'], assocGroup
+        foreach (['type', 'origin', 'dest'] as $value) {
+            if (!$request->request->has($value)) {
+                return new JsonResponse(['error' => ['message' => "Missing value: {$value}"]], Response::HTTP_BAD_REQUEST);
             }
-            $origin = $origin['identifier'];
         }
 
-        $dest = $request->request->get('dest');
-        if (!empty($dest['id'])) {
-            $dest = $repo->findOneBy(['id'=>$dest['id']]);
-        } else {
-            if (!empty($dest['externalDoc'])) {
-                $lsDoc->setExternalDocAutoLoad($dest['externalDoc'], 'true');
-                $em->persist($lsDoc);
-            }
-            $dest = $dest['identifier'];
+        try {
+            $command = new AddTreeAssociationCommand(
+                $lsDoc,
+                $request->request->get('origin'),
+                $request->request->get('type'),
+                $request->request->get('dest'),
+                $request->request->get('assocGroup')
+            );
+            $this->sendCommand($command);
+            $lsAssociation = $command->getAssociation();
+
+            // return id of created association
+            return new Response((null !== $lsAssociation) ? $lsAssociation->getId() : '', Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => ['message' => $e->getMessage()]], Response::HTTP_BAD_REQUEST);
         }
-
-        // setOrigin and setDestination will take care of setting things appropriately depending on whether an identifier or item are supplied
-        $lsAssociation->setOrigin($origin);
-        $lsAssociation->setDestination($dest);
-
-        // set assocGroup if provided
-        $assocGroup = $request->request->get('assocGroup');
-        if (!empty($assocGroup)) {
-            $repo = $em->getRepository(LsDefAssociationGrouping::class);
-            $assocGroup = $repo->findOneBy(['id'=>$assocGroup]);
-            $lsAssociation->setGroup($assocGroup);
-        }
-
-        $em->persist($lsAssociation);
-        $em->flush();
-
-        // return id of created association
-        return new Response($lsAssociation->getId(), Response::HTTP_CREATED);
     }
 
     /**
@@ -178,37 +162,37 @@ class LsAssociationController extends Controller
      *
      * @Route("/treenewexemplar/{originLsItem}", name="lsassociation_tree_new_exemplar")
      * @Method({"GET", "POST"})
-     * @Template()
      *
      * @param Request $request
      * @param LsItem $originLsItem
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return Response
+     *
+     * @throws \InvalidArgumentException
      */
-    public function treeNewExemplarAction(Request $request, LsItem $originLsItem)
+    public function treeNewExemplarAction(Request $request, LsItem $originLsItem): Response
     {
-        $lsAssociation = new LsAssociation();
-        $lsAssociation->setLsDoc($originLsItem->getLsDoc());
-        $lsAssociation->setOriginLsItem($originLsItem);
-        $lsAssociation->setType(LsAssociation::EXEMPLAR);
-        $lsAssociation->setDestinationNodeUri($request->request->get('exemplarUrl'));
-        $lsAssociation->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $lsAssociation->getDestinationNodeUri()));
-        // TODO: setDestinationTitle is not currently a table field.
-        //$lsAssociation->setDestinationTitle($request->request->get("exemplarDescription"));
+        if (!$request->request->has('exemplarUrl')) {
+            return new JsonResponse(['error' => ['message' => 'Missing value: exemplarUrl']], Response::HTTP_BAD_REQUEST);
+        }
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($lsAssociation);
-        $em->flush();
+        try {
+            $command = new AddExemplarToItemCommand($originLsItem, $request->request->get('exemplarUrl'));
+            $this->sendCommand($command);
+            $lsAssociation = $command->getAssociation();
 
-        $rv = [
-            'id' => $lsAssociation->getId(),
-            'identifier' => $lsAssociation->getIdentifier()
-        ];
+            $rv = [
+                'id' => isset($lsAssociation) ? $lsAssociation->getId() : null,
+                'identifier' => isset($lsAssociation) ? $lsAssociation->getIdentifier() : null
+            ];
 
-        $response = new Response(json_encode($rv));
-        $response->headers->set('Content-Type', 'text/json');
-        $response->headers->set('Pragma', 'no-cache');
-        return $response;
+            $response = new JsonResponse($rv);
+            $response->headers->set('Cache-Control', 'no-cache');
+
+            return $response;
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => ['message' => $e->getMessage()]], Response::HTTP_BAD_REQUEST);
+        }
     }
 
     /**
@@ -242,7 +226,7 @@ class LsAssociationController extends Controller
      * @param Request $request
      * @param LsAssociation $lsAssociation
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @return array|RedirectResponse
      */
     public function editAction(Request $request, LsAssociation $lsAssociation)
     {
@@ -251,11 +235,14 @@ class LsAssociationController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsAssociation);
-            $em->flush();
+            try {
+                $command = new UpdateAssociationCommand($lsAssociation);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('lsassociation_edit', array('id' => $lsAssociation->getId()));
+                return $this->redirectToRoute('lsassociation_edit', array('id' => $lsAssociation->getId()));
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError('Error updating new association: '.$e->getMessage()));
+            }
         }
 
         return [
@@ -274,7 +261,7 @@ class LsAssociationController extends Controller
      * @param Request $request
      * @param LsAssociation $lsAssociation
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return RedirectResponse
      */
     public function deleteAction(Request $request, LsAssociation $lsAssociation)
     {
@@ -282,9 +269,8 @@ class LsAssociationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($lsAssociation);
-            $em->flush();
+            $command = new DeleteAssociationCommand($lsAssociation);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('lsassociation_index');
@@ -303,9 +289,8 @@ class LsAssociationController extends Controller
      */
     public function removeChildAction(LsAssociation $lsAssociation)
     {
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($lsAssociation);
-        $em->flush();
+        $command = new DeleteAssociationCommand($lsAssociation);
+        $this->sendCommand($command);
 
         return [];
     }
@@ -333,9 +318,9 @@ class LsAssociationController extends Controller
      *
      * @param LsAssociation $lsAssociation The LsAssociation entity
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return FormInterface The form
      */
-    private function createDeleteForm(LsAssociation $lsAssociation)
+    private function createDeleteForm(LsAssociation $lsAssociation): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsassociation_delete', array('id' => $lsAssociation->getId())))

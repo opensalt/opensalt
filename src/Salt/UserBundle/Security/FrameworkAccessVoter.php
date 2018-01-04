@@ -18,9 +18,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class FrameworkAccessVoter extends Voter
 {
-    const VIEW = 'view';
-    const EDIT = 'edit';
-    const DELETE = 'delete';
+    public const VIEW = 'view';
+    public const EDIT = 'edit';
+    public const DELETE = 'delete';
 
     /**
      * @var AccessDecisionManagerInterface
@@ -116,6 +116,11 @@ class FrameworkAccessVoter extends Voter
         if (!$user instanceof User) {
             // If the user is not logged in then deny access
             return false;
+        }
+
+        // Allow editing if the user is a super-editor
+        if ($this->decisionManager->decide($token, ['ROLE_SUPER_EDITOR'])) {
+            return true;
         }
 
         // Do not allow editing if the user is not an editor

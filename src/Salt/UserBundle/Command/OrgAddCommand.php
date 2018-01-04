@@ -2,6 +2,9 @@
 
 namespace Salt\UserBundle\Command;
 
+use App\Command\User\AddOrganizationByNameCommand;
+use App\Event\CommandEvent;
+use Salt\UserBundle\Entity\Organization;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,7 +36,7 @@ class OrgAddCommand extends ContainerAwareCommand
                     throw new \Exception('The organization name must note be empty');
                 }
 
-                $org = $em->getRepository('SaltUserBundle:Organization')->findOneByName($value);
+                $org = $em->getRepository(Organization::class)->findOneByName($value);
                 if (!empty($org)) {
                     throw new \Exception('The organization name must not already exist');
                 }
@@ -50,7 +53,7 @@ class OrgAddCommand extends ContainerAwareCommand
         $org = trim($input->getArgument('org'));
 
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $orgRepository = $em->getRepository('SaltUserBundle:Organization');
+        $orgRepository = $em->getRepository(Organization::class);
 
         $orgObj = $orgRepository->findOneByName($org);
         if (!empty($orgObj)) {
@@ -59,7 +62,10 @@ class OrgAddCommand extends ContainerAwareCommand
             return 1;
         }
 
-        $orgRepository->addNewOrganization($org);
+        $command = new AddOrganizationByNameCommand($org);
+        $this->getContainer()->get('event_dispatcher')
+            ->dispatch(CommandEvent::class, new CommandEvent($command));
+
         $output->writeln('The organization "%s" has been added.');
     }
 }

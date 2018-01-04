@@ -33,7 +33,7 @@ class ApiExceptionListener
      * @param SerializerInterface $serializer
      *
      * @DI\InjectParams({
-     *     "serializer" = @DI\Inject("serializer"),
+     *     "serializer" = @DI\Inject("jms_serializer"),
      *     "logger" = @DI\Inject("logger")
      * })
      */

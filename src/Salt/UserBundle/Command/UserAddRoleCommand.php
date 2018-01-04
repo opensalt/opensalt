@@ -2,15 +2,13 @@
 
 namespace Salt\UserBundle\Command;
 
-use Salt\UserBundle\Entity\User;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use App\Command\User\AddUserRoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\Question;
 
-class UserAddRoleCommand extends ContainerAwareCommand
+class UserAddRoleCommand extends UserRoleCommand
 {
     protected function configure()
     {
@@ -28,21 +26,8 @@ class UserAddRoleCommand extends ContainerAwareCommand
 
         $helper = $this->getHelper('question');
 
-        if (empty($input->getArgument('username'))) {
-            $question = new Question('Email address or username of new user: ');
-            $question->setValidator(function ($value) {
-                if (trim($value) === '') {
-                    throw new \Exception('The username can not be empty');
-                }
-
-                return $value;
-            });
-            $username = $helper->ask($input, $output, $question);
-            $input->setArgument('username', $username);
-        }
-
         if (empty($input->getArgument('role'))) {
-            $question = new ChoiceQuestion('Role to give the new user: ', ['viewer', 'editor', 'admin', 'super user'], 0);
+            $question = new ChoiceQuestion('Role to give the user: ', ['viewer', 'editor', 'admin', 'super user'], 0);
             $role = $helper->ask($input, $output, $question);
             $input->setArgument('role', $role);
         }
@@ -50,21 +35,13 @@ class UserAddRoleCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $username = trim($input->getArgument('username'));
-        $role = trim($input->getArgument('role'));
-        $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
-
-        if (!in_array($role, User::USER_ROLES)) {
-            $output->writeln(sprintf('<error>Role "%s" is not valid.</error>', $input->getArgument('role')));
-
-            return;
+        if (0 !== $this->doChange($input, $output, AddUserRoleCommand::class)) {
+            return 1;
         }
 
-        $em = $this->getContainer()->get('doctrine')->getManager();
-        $userRepository = $em->getRepository('SaltUserBundle:User');
-        $userRepository->addRoleToUser($username, $role);
-
         $output->writeln(sprintf('The role "%s" has been added.', $input->getArgument('role')));
+
+        return 0;
     }
 
 }

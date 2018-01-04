@@ -2,6 +2,12 @@
 
 namespace Salt\SiteBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\Comment\AddCommentCommand;
+use App\Command\Comment\DeleteCommentCommand;
+use App\Command\Comment\DownvoteCommentCommand;
+use App\Command\Comment\UpdateCommentCommand;
+use App\Command\Comment\UpvoteCommentCommand;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Salt\UserBundle\Entity\User;
@@ -10,6 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -22,6 +29,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CommentsController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * @Route("/comments/document/{id}", name="create_doc_comment")
      *
@@ -79,10 +88,8 @@ class CommentsController extends Controller
      */
     public function updateAction(Comment $comment, Request $request, UserInterface $user)
     {
-        $em=$this->getDoctrine()->getManager();
-        $comment->setContent($request->request->get('content'));
-        $em->persist($comment);
-        $em->flush();
+        $command = new UpdateCommentCommand($comment, $request->request->get('content'));
+        $this->sendCommand($command);
 
         return $this->apiResponse($comment);
     }
@@ -96,9 +103,8 @@ class CommentsController extends Controller
      */
     public function deleteAction(Comment $comment, UserInterface $user)
     {
-        $em=$this->getDoctrine()->getManager();
-        $em->remove($comment);
-        $em->flush();
+        $command = new DeleteCommentCommand($comment);
+        $this->sendCommand($command);
 
         return $this->apiResponse('Ok', 200);
     }
@@ -112,8 +118,12 @@ class CommentsController extends Controller
      */
     public function upvoteAction(Comment $comment, UserInterface $user)
     {
-        $repo=$this->getDoctrine()->getManager()->getRepository(Comment::class);
-        $repo->addUpvoteForUser($comment, $user);
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $command = new UpvoteCommentCommand($comment, $user);
+        $this->sendCommand($command);
 
         return $this->apiResponse($comment);
     }
@@ -127,14 +137,18 @@ class CommentsController extends Controller
      */
     public function downvoteAction(Comment $comment, UserInterface $user)
     {
-        $repo=$this->getDoctrine()->getManager()->getRepository(Comment::class);
-
-        if ($repo->removeUpvoteForUser($comment, $user))
-        {
-            return $this->apiResponse($comment);
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
         }
 
-        return $this->apiResponse('Item not found', 404);
+        try {
+            $command = new DownvoteCommentCommand($comment, $user);
+            $this->sendCommand($command);
+
+            return $this->apiResponse($comment);
+        } catch (\Exception $e) {
+            return $this->apiResponse('Item not found', 404);
+        }
     }
 
     /**
@@ -147,13 +161,19 @@ class CommentsController extends Controller
      *
      * @return JsonResponse
      */
-    private function addComment(Request $request, string $itemType, $itemId, UserInterface $user)
+    private function addComment(Request $request, string $itemType, $itemId, UserInterface $user): Response
     {
-        $parentId=$request->request->get('parent');
-        $content=$request->request->get('content');
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
+        }
 
-        $em=$this->getDoctrine()->getManager();
-        $comment=$em->getRepository('SaltSiteBundle:Comment')->addComment($itemType, $itemId, $user, $content, $parentId);
+        $parentId = $request->request->get('parent');
+        $content = $request->request->get('content');
+
+        $command = new AddCommentCommand($itemType, (int) $itemId, $user, $content, (int) $parentId);
+        $this->sendCommand($command);
+
+        $comment = $command->getComment();
 
         return $this->apiResponse($comment);
     }

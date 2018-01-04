@@ -22,6 +22,9 @@ class ChangeLsItemParentCommand
         return $dto;
     }
 
+    /**
+     * @deprecated
+     */
     public function perform(ChangeLsItemParentDTO $dto, ObjectManager $manager) {
         $dto->lsItem->setUpdatedAt(new \DateTime());
         $manager->getRepository(LsAssociation::class)->removeAllAssociationsOfType($dto->lsItem, LsAssociation::CHILD_OF);

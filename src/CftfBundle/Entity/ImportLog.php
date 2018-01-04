@@ -53,7 +53,7 @@ class ImportLog
     /**
      * @var bool
      *
-     * @ORM\Column(name="is_read", type="boolean", nullable=false)
+     * @ORM\Column(name="is_read", type="boolean", nullable=false, options={"default": 0})
      */
     protected $read = false;
 
@@ -146,6 +146,6 @@ class ImportLog
     {
         $this->messageType = $messageType;
 
-         return $this;
+        return $this;
     }
 }

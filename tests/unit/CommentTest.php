@@ -100,6 +100,7 @@ class CommentTest extends \Codeception\Test\Unit
 
         // Add an upvote
         $commentRepo->addUpvoteForUser($comment, $user);
+        $em->flush();
         $em->detach($comment);
         $comment = $commentRepo->find($commentId);
         $upvotesCount = $comment->getUpvoteCount();
@@ -107,6 +108,7 @@ class CommentTest extends \Codeception\Test\Unit
 
         // Remove the upvote
         $commentRepo->removeUpvoteForUser($comment, $user);
+        $em->flush();
         $em->detach($comment);
         $comment = $commentRepo->find($commentId);
         $upvotesCount = $comment->getUpvoteCount();
