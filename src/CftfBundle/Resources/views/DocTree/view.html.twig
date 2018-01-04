@@ -567,15 +567,31 @@
     {% endblock %}
 
     {% block javascripts %}
+        {% autoescape 'js' %}
         {% if 'comments' is active feature %}
-        <script src="{{ asset('build/comments.js', 'encore') }}"></script>
+            <script src="{{ asset('build/comments.js', 'encore') }}"></script>
         {% endif %}
 
-        {% autoescape 'js' %}
+        {% if editorRights and firebase_api_key is not null %}
+            <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
+            <script>
+                window.firebase = firebase;
+                window.firebaseConfig = {
+                    apiKey: "{{ firebase_api_key |e('js') }}",
+                    authDomain: "{{ firebase_auth_domain |e('js') }}",
+                    databaseURL: "{{ firebase_db_url |e('js') }}"
+                };
+            </script>
+        {% endif %}
+
         <script>
             window.apx = window.apx || {};
 
             apx.enableEdit = {{ (editorRights?"true":"false") |e('js') }};
+            {% if editorRights %}
+                apx.me = "{{ app.user.username |e('js') }}";
+                apx.startTime = {{ "now"|date("Uv") }};
+            {% endif %}
 
             // loaded docid and initial lsItem and assocGroup to show
             apx.lsDocId = {{ lsDocId |json_encode |raw }};

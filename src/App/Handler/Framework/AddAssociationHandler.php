@@ -42,7 +42,11 @@ class AddAssociationHandler extends BaseFrameworkHandler
         $notification = new NotificationEvent(
             sprintf('"%s" association added from "%s" to "%s"', $association->getType(), $fromTitle, $toTitle),
             $association->getLsDoc(),
-            []
+            [
+                'assoc-a' => [
+                    $association,
+                ],
+            ]
         );
         $command->setNotificationEvent($notification);
     }

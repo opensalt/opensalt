@@ -47,15 +47,20 @@ class AddItemHandler extends BaseFrameworkHandler
         } else {
             $parentTitle = substr($parent->getShortStatement(), 0, 60);
         }
+        $changes = [
+            'item-a' => [
+                $item,
+            ],
+        ];
+        if (null === $parent) {
+            $changes['doc-u'] = [$item->getLsDoc()];
+        } else {
+            $changes['item-u'] = [$parent];
+        }
         $notification = new NotificationEvent(
             sprintf('"%s" added as a child of "%s"', $item->getShortStatement(), $parentTitle),
             $item->getLsDoc(),
-            [
-                'items' => [
-                    $item->getId() => $item->getIdentifier(),
-                    $parent ? $parent->getId() : '-' => $parent ? $parent->getIdentifier() : '-',
-                ],
-            ]
+            $changes
         );
         $command->setNotificationEvent($notification);
     }

@@ -4,99 +4,7 @@ window.apx = window.apx||{};
 /* global empty */
 /* global op */
 
-var render = (function(){
-    var
-        mk = require('markdown-it-katex'),
-        markdown = require('markdown-it'),
-        md = markdown('default', {
-            html: true,
-            breaks: true,
-            linkify: false
-        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
-        mdInline = markdown('default', {
-            html: false,
-            breaks: false,
-            linkify: false
-        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
-        mdInlineLinked = markdown('default', {
-            html: false,
-            breaks: false,
-            linkify: true
-        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"})
-    ;
-
-    function sanitizerBlock(dirty) {
-        var sanitizeHtml = require('sanitize-html');
-
-        return sanitizeHtml(dirty, {
-            allowedTags: [
-                'ul', 'ol', 'li',
-                'u', 'b', 'i',
-                'br', 'p'
-            ],
-            allowedAttributes: {
-                'ol': [ 'type' ]
-            }
-        });
-    }
-
-    function sanitizerInline(dirty) {
-        var sanitizeHtml = require('sanitize-html');
-
-        return sanitizeHtml(dirty, {
-            allowedTags: [ ],
-            allowedAttributes: { }
-        });
-    }
-
-    var render = {
-        block: function (value) {
-            return md.render(sanitizerBlock(value));
-        },
-
-        inline: function (value) {
-            return mdInline.renderInline(sanitizerInline(value));
-        },
-
-        inlineLinked: function (value) {
-            return mdInlineLinked.renderInline(sanitizerInline(value));
-        },
-
-        escaped: function(value) {
-            var entityMap = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;',
-                '/': '&#x2F;',
-                '`': '&#x60;',
-                '=': '&#x3D;'
-            };
-
-            return String(value).replace(/[&<>"'`=\/]/g, function (s) {
-                return entityMap[s];
-            });
-        }
-    };
-
-    render.mde = function (element) {
-        var SimpleMDE = require('simplemde');
-        return new SimpleMDE({
-            element: element,
-            toolbar: [
-                'bold', 'italic', 'heading', '|',
-                'quote', 'unordered-list', 'ordered-list', '|',
-                'table', 'horizontal-rule', '|',
-                'preview', 'side-by-side', 'fullscreen'
-            ],
-            previewRender: render.block
-        });
-    };
-
-    return render;
-})();
-
+var render = require('render-md');
 
 ///////////////////////////////////////////////////////////////////////////////
 apx.allDocs = {};
@@ -107,7 +15,7 @@ apx.allItemsHash = {};
  *
  * @class
  */
-function apxDocument(initializer) {
+function ApxDocument(initializer) {
     var self = this;
 
     // record the initializer for use when the document is loaded
@@ -189,7 +97,7 @@ function apxDocument(initializer) {
             // CFDocument comes in standard CASE format
             self.doc = data.CFDocument;
 
-            // store this apxDocument in apx.allDocs
+            // store this ApxDocument in apx.allDocs
             apx.allDocs[self.doc.identifier] = self;
 
             // some SALT-specific top-level things...
@@ -285,7 +193,7 @@ function apxDocument(initializer) {
                         self.itemHash[a.origin.item] = {
                             "assocsOnly": true,
                             assocs: []
-                        }
+                        };
                         self.itemHash[a.origin.item].assocs.push(a);
                     }
                 }
@@ -315,14 +223,14 @@ function apxDocument(initializer) {
             }
 
             // if we're showing the association view, refresh it now, in case we just finished loading a document referred to in an association
-            if (apx.viewMode.currentView == "assoc") {
+            if (apx.viewMode.currentView === "assoc") {
                 apx.viewMode.showAssocView("refresh");
             }
 
         }).fail(function(jqXHR, textStatus, errorThrown){
             self.loadError();
         });
-    }
+    };
 
     self.loadError = function(data) {
         console.log("error loading document", self.initializer);
@@ -406,7 +314,7 @@ function apxDocument(initializer) {
                 var ag;
                 var ago = assoc.CFAssociationGroupingURI;
                 // if we at least have an identifier...
-                if (!empty(ago) && typeof(ago) == "object" && !empty(ago.identifier)) {
+                if (!empty(ago) && typeof(ago) === "object" && !empty(ago.identifier)) {
                     ag = self.assocGroupHash[ago.identifier];
 
                     // if the group didn't already exist, create it now
@@ -455,13 +363,13 @@ function apxDocument(initializer) {
     self.findAssociatedDocs = function() {
         for (var i = 0; i < self.assocs.length; ++i) {
             var a = self.assocs[i];
-            if (a.origin.doc != "-" && a.origin.doc != "?" && !(a.origin.doc in apx.allDocs)) {
+            if (a.origin.doc !== "-" && a.origin.doc !== "?" && !(a.origin.doc in apx.allDocs)) {
                 apx.allDocs[a.origin.doc] = "loading";
-                new apxDocument({"identifier": a.origin.doc}).load();
+                new ApxDocument({"identifier": a.origin.doc}).load();
             }
-            if (a.dest.doc != a.origin.doc && a.dest.doc != "-" && a.dest.doc != "?" && !(a.dest.doc in apx.allDocs)) {
+            if (a.dest.doc != a.origin.doc && a.dest.doc !== "-" && a.dest.doc !== "?" && !(a.dest.doc in apx.allDocs)) {
                 apx.allDocs[a.dest.doc] = "loading";
-                new apxDocument({"identifier": a.dest.doc}).load();
+                new ApxDocument({"identifier": a.dest.doc}).load();
             }
         }
     };
@@ -470,10 +378,10 @@ function apxDocument(initializer) {
     self.updateMainDocAssocs = function() {
         for (var i = 0; i < apx.mainDoc.assocs.length; ++i) {
             var a = apx.mainDoc.assocs[i];
-            if (a.origin.doc == "?" && !empty(self.itemHash[a.origin.item])) {
+            if (a.origin.doc === "?" && !empty(self.itemHash[a.origin.item])) {
                 a.origin.doc = self.doc.identifier;
             }
-            if (a.type != "exemplar" && a.dest.doc == "?" && !empty(self.itemHash[a.dest.item])) {
+            if (a.type !== "exemplar" && a.dest.doc === "?" && !empty(self.itemHash[a.dest.item])) {
                 a.dest.doc = self.doc.identifier;
             }
         }
@@ -508,7 +416,7 @@ function apxDocument(initializer) {
             var title = self.getItemTitle(item);
 
             // if we're in chooser mode...
-            if (apx.query.mode == "chooser") {
+            if (apx.query.mode === "chooser") {
                 // don't include the link indicator
 
             } else {
@@ -518,7 +426,7 @@ function apxDocument(initializer) {
                 if (!empty(ci2)) {
                     for (var j = 0; j < ci2.assocs.length; ++j) {
                         var a = ci2.assocs[j];
-                        if (a.type != "isChildOf") {
+                        if (a.type !== "isChildOf") {
                             associationDisplay = "block";
                             break;
                         }
@@ -541,7 +449,7 @@ function apxDocument(initializer) {
 
                 // if we find a child of the parent that matches the assocGroup
                 // if the association is in the "default group", a.groupId will be undefined; we want to use == so that it matches null
-                if (a.type == "isChildOf" && a.inverse !== true && a.dest.item == parent.key && a.groupId == assocGroup) {
+                if (a.type === "isChildOf" && a.inverse !== true && a.dest.item == parent.key && a.groupId == assocGroup) {
                     var child = {
                         "title": a.origin.item,
                         "key": a.origin.item,
@@ -596,7 +504,7 @@ function apxDocument(initializer) {
                 if (isNaN(seqA)) seqA = 100000;
                 if (isNaN(seqB)) seqB = 100000;
                 // if seqA != seqB, sort by seq
-                if (seqA != seqB) {
+                if (seqA !== seqB) {
                     return seqA - seqB;
                 }
 
@@ -613,7 +521,7 @@ function apxDocument(initializer) {
                 if (isNaN(leA)) leA = 100000;
                 if (isNaN(leB)) leB = 100000;
 
-                if (leA != leB) {
+                if (leA !== leB) {
                     return leA - leB;
                 }
 
@@ -626,7 +534,7 @@ function apxDocument(initializer) {
                 if (empty(hcsB)) return -1;
                 if (empty(hcsA)) return 1;
 
-                var lang = (document.documentElement.lang != "") ? document.documentElement.lang : undefined;
+                var lang = (document.documentElement.lang !== "") ? document.documentElement.lang : undefined;
 
                 return hcsA.localeCompare(hcsB, lang, { numeric: true, sensitivity: 'base' });
             });
@@ -646,7 +554,7 @@ function apxDocument(initializer) {
             for (var i = 0; i < self.assocs.length; ++i) {
                 var a = self.assocs[i];
                 // if this is an isChildOf...
-                if (a.type == "isChildOf" && a.inverse !== true) {
+                if (a.type === "isChildOf" && a.inverse !== true) {
                     // if the origin (child) item exists...
                     var childItem = self.itemHash[a.origin.item];
                     if (!empty(childItem)) {
@@ -870,7 +778,7 @@ function apxDocument(initializer) {
                 if (apx.assocTypes[i] == s) {
                     s = apx.inverseAssocTypes[i];
                     // put an " (R)" after "Is Peer Of" to note that it's a reverse-is-peer-of association
-                    if (s == "Is Peer Of") {
+                    if (s === "Is Peer Of") {
                         s += " (R)";
                     }
                     return s;
@@ -935,13 +843,13 @@ function apxDocument(initializer) {
         } else {
             $menu.closest(".assocGroupFilter").hide();
         }
-    }
+    };
 
     /** An assocGroup was selected from the document's menu, on side 1 or 2 */
     self.assocGroupSelected = function(menu, side) {
         // get the menu val; convert "default" to null; setCurrentAssocGroup
         var val = $(menu).val();
-        if (val == "default") {
+        if (val === "default") {
             self.setCurrentAssocGroup(null, side);
         } else {
             self.setCurrentAssocGroup(val*1, side);
@@ -970,7 +878,7 @@ function apxDocument(initializer) {
     // to get an item from a node (getItemFromNode), just use node.data.ref;
 
     self.isDocNode = function(node) {
-        return (op(node, "data", "ref", "nodeType") == "document");
+        return (op(node, "data", "ref", "nodeType") === "document");
     }
 
     // Initialize a tooltip for a tree item
@@ -1081,7 +989,7 @@ function apxDocument(initializer) {
     };
 
     self.addInverseAssociation = function(a) {
-        if (a.type != "exemplar" && !empty(a.dest.item)) {
+        if (a.type !== "exemplar" && !empty(a.dest.item)) {
             var destItem = apx.allItemsHash[a.dest.item];
             if (!empty(destItem) && !empty(destItem.doc)) {
                 destItem.doc.addAssociation({
@@ -1162,7 +1070,7 @@ function apxDocument(initializer) {
         console.log("openAssociationItem", assoc);
         if (!empty(assoc)) {
             // when the specified "item" is a url (this should be the case for exemplars, and possibly other items), open url in new window
-            if (assoc[assocItem].item.search(/^http(s)?:/) == 0) {
+            if (assoc[assocItem].item.search(/^http(s)?:/) === 0) {
                 window.open(assoc[assocItem].item);
                 // return false to signal that we opened in another window
                 return false;
@@ -1186,9 +1094,9 @@ function apxDocument(initializer) {
             // else try to open the item in a new window
             } else {
                 var doc = apx.allDocs[assoc[assocItem].doc];
-                if (typeof(doc) == "object") {
+                if (typeof(doc) === "object") {
                     var url = doc.getItemUri(doc.itemHash[assoc[assocItem].item]);
-                    if (url != "?") {
+                    if (url !== "?") {
                         window.open(url);
                         // return false to signal that we opened in another window
                         return false;
@@ -1245,7 +1153,7 @@ function apxDocument(initializer) {
             var searchEntered = false;
             var $filter = self["ft" + side].closest("section").find(".treeFilter");
             if ($filter.length > 0) {
-                searchEntered = ($filter.val() != "");
+                searchEntered = ($filter.val() !== "");
             }
 
             // PW 10/11/2017: Only check the top-level items (issues #116 and #204)
@@ -1254,7 +1162,7 @@ function apxDocument(initializer) {
                 for (var i = 0; i < topChildren.length; ++i) {
                     var node = topChildren[i];
                     // don't select unselectable nodes; also don't select the "Orphaned Items" node
-                    if (node.unselectable != true && node.key != "orphans") {
+                    if (node.unselectable != true && node.key !== "orphans") {
                         // if either (we're not filtering) or (the node matches the filter) or (val is false),
                         if (searchEntered == false || node.match == true || val == false) {
                             // set selected to val
@@ -1300,7 +1208,7 @@ function apxDocument(initializer) {
     /** restore checkboxes after tree has been redrawn */
     self.treeCheckboxRestoreCheckboxes = function(side) {
         var $cb = self["ft" + side].closest(".treeSide").find(".treeCheckboxControl");
-        if ($cb.data("checkboxesEnabled") == "true") {
+        if ($cb.data("checkboxesEnabled") === "true") {
             self.treeCheckboxToggleCheckboxes(true, side);
         }
     }
@@ -1315,16 +1223,16 @@ function apxDocument(initializer) {
         });
 
         var cmd = $menu.attr("data-cmd");
-        if (cmd != "hideCheckboxes" && items.length == 0) {
+        if (cmd !== "hideCheckboxes" && items.length === 0) {
             alert("Select one or more items using the checkboxes before choosing a menu item.");
             return;
         }
 
-        if (cmd == "edit") {
+        if (cmd === "edit") {
             alert("The ability to edit properties of multiple items at the same time is not yet implemented.");
-        } else if (cmd == "delete") {
+        } else if (cmd === "delete") {
             apx.edit.deleteItems(items);
-        } else if (cmd == "makeFolders") {
+        } else if (cmd === "makeFolders") {
             self.toggleFolders(items, true);
         } else {    // hideCheckboxes
             // clear checkbox selections
@@ -1389,7 +1297,7 @@ function apxDocument(initializer) {
         var $jq = $("#itemInfo");
 
         // if this is a document node...
-        if (item.nodeType == "document") {
+        if (item.nodeType === "document") {
             // show title and appropriate icon
             var title = render.block(item.title);
             if (!empty(item.version)) {
@@ -1516,7 +1424,7 @@ function apxDocument(initializer) {
                     val = item[key];
 
                     // TODO: deal with cku, licenceUri
-                    // for uri, get it from the apxDocument
+                    // for uri, get it from the ApxDocument
                     if (key === "uri") {
                         val = self.getItemUri(item);
                         html += '<li class="list-group-item lsItemDetailsExtras">'
@@ -1559,8 +1467,8 @@ function apxDocument(initializer) {
                 // first sort the assocs by type; put isChildOf at the end
                 assocs.sort(function(a,b) {
                     if (a.type == b.type && a.inverse == b.inverse) return 0;
-                    if (a.type == "isChildOf") return 1;
-                    if (b.type == "isChildOf") return -1
+                    if (a.type === "isChildOf") return 1;
+                    if (b.type === "isChildOf") return -1
                     if (a.inverse === true && b.inverse !== true) return 1;
                     if (b.inverse === true && a.inverse !== true) return -1;
                     if (a.type < b.type) return -1;
@@ -1575,14 +1483,14 @@ function apxDocument(initializer) {
                     var a = assocs[i];
                     if (a.type != lastType || a.inverse != lastInverse) {
                         // close previous type section if we already opened one
-                        if (lastType != "") {
+                        if (lastType !== "") {
                             html += '</div></div></div></section>';
                         }
 
                         // open type section
                         var title = self.getAssociationTypePretty(a);
                         var icon = "";
-                        if (a.type != "isChildOf") {
+                        if (a.type !== "isChildOf") {
                             icon = '<img class="association-panel-icon" src="/assets/img/association-icon.png">';
                         }
                         html += '<section class="panel panel-default panel-component item-component">'
@@ -1608,7 +1516,7 @@ function apxDocument(initializer) {
                     // assocGroup if assigned -- either in self or mainDoc
                     if (!empty(a.groupId)) {
                         var groupName = "Group " + a.groupId;
-                        if (originDoc == "edited") {
+                        if (originDoc === "edited") {
                             if (!empty(apx.mainDoc.assocGroupIdHash[a.groupId])) {
                                 groupName = self.assocGroupIdHash[a.groupId].title;
                             }
@@ -1798,7 +1706,7 @@ function apxDocument(initializer) {
                 continue;
             }
 
-            if (val == "toggle") {
+            if (val === "toggle") {
                 item.setToParent = !(item.setToParent == true);
             } else {
                 item.setToParent = val;

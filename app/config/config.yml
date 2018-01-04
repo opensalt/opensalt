@@ -27,6 +27,13 @@ parameters:
     brand_link_url: '%env(BRAND_LINK_URL)%'
     brand_link_style: '%env(BRAND_LINK_STYLE)%'
     comments_feature: '%env(COMMENTS_FEATURE)%'
+    firebase_api_key: '%env(FIREBASE_API_KEY)%'
+    firebase_db_url: '%env(FIREBASE_DB_URL)%'
+    firebase_auth_domain: '%env(FIREBASE_AUTH_DOMAIN)%'
+    firebase_project_id: '%env(FIREBASE_PROJECT_ID)%'
+    firebase_client_id: '%env(FIREBASE_CLIENT_ID)%'
+    firebase_client_email: '%env(FIREBASE_CLIENT_EMAIL)%'
+    firebase_private_key: '%env(FIREBASE_PRIVATE_KEY)%'
 
 framework:
     #esi:             ~
@@ -83,6 +90,9 @@ twig:
       brand_logo_style: "%brand_logo_style%"
       brand_link_url: "%brand_link_url%"
       brand_link_style: "%brand_link_style%"
+      firebase_api_key: "%firebase_api_key%"
+      firebase_auth_domain: "%firebase_auth_domain%"
+      firebase_db_url: "%firebase_db_url%"
 
 # Assetic Configuration
 assetic:
@@ -165,6 +175,10 @@ doctrine:
                     enabled: false
                     log_enabled: true
                 mappings:
+                    app:
+                        type: annotation
+                        prefix: App\Entity
+                        dir: "%kernel.root_dir%/../src/App/Entity"
                     gedmo_tree:
                         type: annotation
                         prefix: Gedmo\Tree\Entity
@@ -298,5 +312,6 @@ simple_things_entity_audit:
         - Salt\UserBundle\Entity\Organization
         - Salt\UserBundle\Entity\User
         - Salt\UserBundle\Entity\UserDocAcl
+        - App\Entity\ChangeEntry
     global_ignore_columns:
         - password

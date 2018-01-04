@@ -27,7 +27,7 @@ class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
      * @DI\InjectParams({
      *     "validator" = @DI\Inject("validator"),
      *     "registry" = @DI\Inject("doctrine"),
-     *     "importService" = @DI\Inject("cftf_import.github")
+     *     "importService" = @DI\Inject(GithubFilesBundle\Service\GithubImport::class)
      * })
      *
      * @param ValidatorInterface $validator

@@ -8,18 +8,19 @@ apx.prepareDocumentMenus = function() {
     // The original menu will be rendered into div #ls_doc_list and select #ls_doc_list_lsDoc, on the right side
 
     // Mark this document in the menu
-    var $opt = $("#ls_doc_list_lsDoc [value=" + apx.mainDoc.doc.id + "]");
+    var docList = $("#ls_doc_list_lsDoc");
+    var $opt = docList.find("[value=" + apx.mainDoc.doc.id + "]");
     $opt.html($opt.html() + " (• DOCUMENT BEING EDITED •)");
 
     // add item to menu for loading from another server
-    $("#ls_doc_list_lsDoc").append('<optgroup class="externalDocsOptGroup" label="EXTERNAL DOCUMENTS"><option value="url">Load an “external” document by url…</option></optgroup>');
+    docList.append('<optgroup class="externalDocsOptGroup" label="EXTERNAL DOCUMENTS"><option value="url">Load an “external” document by url…</option></optgroup>');
 
     // go through each provided "associatedDoc" and add it to the "externalDocsOptGroup" option group if it's an external doc
     if (!empty(apx.mainDoc.associatedDocs)) {
         for (var identifier in apx.mainDoc.associatedDocs) {
             var ad = apx.mainDoc.associatedDocs[identifier];
             // non-external docs have urls that start with "local"
-            if (ad.url.search(/local/) != 0) {
+            if (ad.url.search(/local/) !== 0) {
                 apx.addDocToMenus(identifier, ad.url, ad.title);
             }
         }
@@ -36,7 +37,7 @@ apx.prepareDocumentMenus = function() {
     var $leftDiv = $rightDiv.clone();
     $leftDiv.attr("id", "ls_doc_list_left");
     $leftDiv.find("select").attr("id", "ls_doc_list_lsDoc_left");
-    $("#tree1SelectorDiv .row").append($leftDiv);
+    $("#tree1SelectorDiv").find(".row").append($leftDiv);
 
     // enable the select menus
     $("#ls_doc_list_lsDoc_left").on('change', function() { apx.docSelectedForTree(this, 1); });
@@ -67,7 +68,7 @@ apx.addDocToMenus = function(identifier, url, title) {
     }
 
     // and add to menus if necessary
-    if ($(".externalDocsOptGroup [value=" + identifier + "]").length == 0) {
+    if ($(".externalDocsOptGroup [value=" + identifier + "]").length === 0) {
         $(".externalDocsOptGroup").prepend('<option value="' + identifier + '">' + apx.mainDoc.associatedDocs[identifier].title + ' (' + identifier + ')</option>');
     }
 };
@@ -76,7 +77,7 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
     var lsDocId, initializationKey;
 
     // if menuOrUrl is a string, its a URL that the user entered
-    if (typeof(menuOrUrl) == "string") {
+    if (typeof(menuOrUrl) === "string") {
         initializationKey = "url";
         lsDocId = menuOrUrl;
 
@@ -89,7 +90,7 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
         lsDocId = $(menuOrUrl).val();
 
         // if user selects to load a new document by URL, get the URL now
-        if (lsDocId == "url") {
+        if (lsDocId === "url") {
             $("#loadExternalDocumentModal").modal();
             $(menuOrUrl).val("");
 
@@ -98,7 +99,7 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
             return;
 
         // if user selects the blank item in the menu, go back to the currently-loaded document
-        } else if (lsDocId == "") {
+        } else if (lsDocId === "") {
             $(menuOrUrl).val(apx["treeDoc" + side].doc.id);
             return;
 
@@ -123,12 +124,12 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
         var d = apx.allDocs[identifier];
 
         // if this document errored when loading, continue through the loop; if this is what the user is trying to load now, let them retry
-        if (d == "loaderror") {
+        if (d === "loaderror") {
             continue;
         }
 
         // if *any* documents are still autoloading, make the user wait, because the document they're requesting here might be the one that's loading
-        if (d == "loading") {
+        if (d === "loading") {
             apx.spinner.showModal("Loading document");
             setTimeout(function() { apx.docSelectedForTree(menuOrUrl, side); }, 1000);
             return;
@@ -137,8 +138,8 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
         apx.spinner.hideModal();
 
         // if we found the document that was requested here...
-        if ((initializationKey == "identifier" && identifier == lsDocId)
-            || (initializationKey == "id" && !d.isExternalDoc() && d.doc.id == lsDocId)) {
+        if ((initializationKey === "identifier" && identifier == lsDocId)
+            || (initializationKey === "id" && !d.isExternalDoc() && d.doc.id == lsDocId)) {
             // set treeDoc1 or treeDoc2
             apx["treeDoc" + side] = d;
             // and call the side's treeDocLoadCallback function
@@ -150,7 +151,7 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
     // if we get to here, initialize and load the document
     var o = {};
     o[initializationKey] = lsDocId;
-    apx["treeDoc" + side] = new apxDocument(o);
+    apx["treeDoc" + side] = new ApxDocument(o);
 
     // load the document
     apx.spinner.showModal("Loading document");
@@ -162,7 +163,7 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
 };
 
 /** Define a function that will "synch" association destinations as documents get loaded when the application is starting up */
-apx.unknownAssocsShowing = null;;
+apx.unknownAssocsShowing = null;
 apx.checkUnknownAssociationDestinationsInterval = setInterval(function() {
     // if unknownAssocsShowing hasn't been set yet, just return
     if (apx.unknownAssocsShowing === null) {
@@ -182,7 +183,7 @@ apx.checkUnknownAssociationDestinationsInterval = setInterval(function() {
     // if all documents have been loaded, clear the interval
     var allLoaded = true;
     for (var identifier in apx.allDocs) {
-        if (apx.allDocs[identifier] == "loading") {
+        if (apx.allDocs[identifier] === "loading") {
             allLoaded = false;
             break;
         }
@@ -202,7 +203,7 @@ apx.tree1ChangeButtonClicked = function() {
     // clear viewmode_tree1 and hide tree1SectionControls and assocGroupFilter
     $("#viewmode_tree1").html("");
     $("#tree1SectionControls").hide();
-    $("#treeSideLeft .assocGroupFilter").hide();
+    $("#treeSideLeft").find(".assocGroupFilter").hide();
 
     // clear selection in ls_doc_list_lsDoc_left
     $("#ls_doc_list_lsDoc_left").val("");
@@ -227,13 +228,14 @@ apx.treeDocLoadCallback1 = function() {
         // first process the tree, using treeDoc1's current association group
         var ftData = apx.treeDoc1.createTree(apx.treeDoc1.currentAssocGroup, 1);
 
+        var viewmodeTree1 = $('#viewmode_tree1');
         // destroy the existing tree if necessary
-        if ($('#viewmode_tree1').children().length > 0) {
-            $('#viewmode_tree1').fancytree("destroy");
+        if (viewmodeTree1.children().length > 0) {
+            viewmodeTree1.fancytree("destroy");
         }
 
         // establish the fancytree widget
-        apx.treeDoc1.ft1 = $('#viewmode_tree1').fancytree({
+        apx.treeDoc1.ft1 = viewmodeTree1.fancytree({
             extensions: ['filter', 'dnd'],
             source: ftData,
             quicksearch: true,
@@ -377,7 +379,7 @@ apx.treeDocLoadCallback1 = function() {
                     }
 
                     // intra-tree drag
-                    if (treeDraggedFrom == "tree1") {
+                    if (treeDraggedFrom === "tree1") {
                         // Don't allow dropping *over* a non-folder node (this would make it too easy to accidentally create a child).
                         if (droppedNode.folder == true) {
                             // also don't allow dropping before or after the document -- only "over" allowed in this case
@@ -393,7 +395,7 @@ apx.treeDocLoadCallback1 = function() {
                         // drag from tree2 to tree1
                     } else {
                         // if we're in associate mode, only allow drags *over*, not between, items
-                        if (apx.rightSideMode == "addAssociation") {
+                        if (apx.rightSideMode === "addAssociation") {
                             // and don't allow any drops onto the document
                             if (apx.treeDoc1.isDocNode(droppedNode)) {
                                 return false;
@@ -525,7 +527,7 @@ apx.treeDocLoadCallback1 = function() {
     apx.setRightSideMode("itemDetails");
 
     // if this is the mainDoc and it contains no items, show the noItemsInstructions
-    if (apx.treeDoc1 == apx.mainDoc && apx.mainDoc.items.length == 0) {
+    if (apx.treeDoc1 == apx.mainDoc && apx.mainDoc.items.length === 0) {
         $("#noItemsInstructions").show();
     } else {
         $("#noItemsInstructions").hide();
@@ -538,7 +540,7 @@ apx.moreInfoShowing = false;
 apx.toggleMoreInfo = function(arg) {
     if (arg == null) {
         apx.moreInfoShowing = !apx.moreInfoShowing;
-    } else if (arg != "restore") {
+    } else if (arg !== "restore") {
         apx.moreInfoShowing = arg;
     }
 
@@ -558,7 +560,7 @@ apx.toggleMoreInfo = function(arg) {
 
 apx.rightSideMode = "itemDetails";
 apx.setRightSideMode = function(newMode) {
-    if (newMode == "itemDetails") {
+    if (newMode === "itemDetails") {
         $("#tree2SectionControls").hide();
         $("#tree2Section").hide();
         $("#itemSection").show();
@@ -583,7 +585,7 @@ apx.setRightSideMode = function(newMode) {
         $("#itemSection").hide();
         $(".js-comments-container").hide();
 
-        if (newMode == "addAssociation") {
+        if (newMode === "addAssociation") {
             if (!empty(apx.treeDoc2)) {
                 $("#tree2SectionCopyInstructions").hide();
                 $("#tree2SectionRelationshipInstructions").show();
@@ -612,7 +614,7 @@ apx.tree2ChangeButtonClicked = function() {
     // clear viewmode_tree2 and hide tree2SectionControls and assocGroupFilter
     $("#viewmode_tree2").html("");
     $("#tree2SectionControls").hide();
-    $("#treeSideRight .assocGroupFilter").hide();
+    $("#treeSideRight").find(".assocGroupFilter").hide();
 
     // clear selection in ls_doc_list_lsDoc_right
     $("#ls_doc_list_lsDoc_right").val("");
@@ -636,14 +638,16 @@ apx.treeDocLoadCallback2 = function() {
         // process the tree, using current association group
         var ftData = apx.treeDoc2.createTree(apx.treeDoc2.currentAssocGroup2, 2);
 
+        var viewmodeTree2 = $('#viewmode_tree2');
+
         // make sure viewmode_tree2 is cleared and showing
-        if ($('#viewmode_tree2').find(".ui-fancytree").length > 0) {
-            $('#viewmode_tree2').fancytree("destroy");
+        if (viewmodeTree2.find(".ui-fancytree").length > 0) {
+            viewmodeTree2.fancytree("destroy");
         }
-        $('#viewmode_tree2').html("").show();
+        viewmodeTree2.html("").show();
 
         // then initialize (or re-initialize) fancytree
-        apx.treeDoc2.ft2 = $('#viewmode_tree2').fancytree({
+        apx.treeDoc2.ft2 = viewmodeTree2.fancytree({
             extensions: ['filter', 'dnd'],
             source: ftData,
             quicksearch: true,

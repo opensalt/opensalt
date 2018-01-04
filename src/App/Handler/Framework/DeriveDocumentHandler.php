@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\DeriveDocumentCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use CftfBundle\Entity\LsDoc;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -46,5 +47,16 @@ class DeriveDocumentHandler extends BaseDoctrineHandler
         }
 
         $command->setDerivedDoc($derivativeDoc);
+
+        $notification = new NotificationEvent(
+            sprintf('Derived framework "%s" added', $derivativeDoc->getTitle()),
+            $derivativeDoc,
+            [
+                'doc-a' => [
+                    $derivativeDoc,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

@@ -37,7 +37,11 @@ class AddAssociationGroupHandler extends BaseFrameworkHandler
         $notification = new NotificationEvent(
             sprintf('Association Group "%s" added', $associationGroup->getTitle()),
             $associationGroup->getLsDoc(),
-            []
+            [
+                'assocGrp-a' => [
+                    $associationGroup,
+                ],
+            ]
         );
         $command->setNotificationEvent($notification);
     }

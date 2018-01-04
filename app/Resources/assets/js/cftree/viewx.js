@@ -1,7 +1,7 @@
 /* global apx */
 window.apx = window.apx||{};
 
-/* global apxDocument */
+/* global ApxDocument */
 
 ///////////////////////////////////////////////////////////////////////////////
 // UTILITY FUNCTIONS
@@ -65,22 +65,25 @@ apx.initialize = function() {
     $("#rightSideCopyItemsBtn").on('click', function() { apx.setRightSideMode("copyItem"); });
     $("#rightSideCreateAssociationsBtn").on('click', function() { apx.setRightSideMode("addAssociation"); });
 
+    var treeSideLeft = $("#treeSideLeft");
+    var treeSideRight = $("#treeSideRight");
+
     // Tree checkboxes/menus
-    $("#treeSideLeft").find(".treeCheckboxControlBtn").on('click', function(e) { apx.treeDoc1.treeCheckboxToggleAll(null, 1); e.stopPropagation(); });
-    $("#treeSideLeft").find(".treeCheckboxMenuItem").on('click', function() { apx.treeDoc1.treeCheckboxMenuItemSelected($(this), 1); });
-    $("#treeSideRight").find(".treeCheckboxControlBtn").on('click', function(e) { apx.treeDoc2.treeCheckboxToggleAll(null, 2); e.stopPropagation(); });
-    $("#treeSideRight").find(".treeCheckboxMenuItem").on('click', function() { apx.treeDoc2.treeCheckboxMenuItemSelected($(this), 2); });
+    treeSideLeft.find(".treeCheckboxControlBtn").on('click', function(e) { apx.treeDoc1.treeCheckboxToggleAll(null, 1); e.stopPropagation(); });
+    treeSideLeft.find(".treeCheckboxMenuItem").on('click', function() { apx.treeDoc1.treeCheckboxMenuItemSelected($(this), 1); });
+    treeSideRight.find(".treeCheckboxControlBtn").on('click', function(e) { apx.treeDoc2.treeCheckboxToggleAll(null, 2); e.stopPropagation(); });
+    treeSideRight.find(".treeCheckboxMenuItem").on('click', function() { apx.treeDoc2.treeCheckboxMenuItemSelected($(this), 2); });
 
     // popovers on export modal
     $('#exportModal').find('[data-toggle="popover"]').popover();
 
     // change event on assocGroup menus
-    $("#treeSideLeft").find(".assocGroupSelect").off().on('change', function() { apx.treeDoc1.assocGroupSelected(this, 1); });
-    $("#treeSideRight").find(".assocGroupSelect").off().on('change', function() { apx.treeDoc2.assocGroupSelected(this, 2); });
+    treeSideLeft.find(".assocGroupSelect").off().on('change', function() { apx.treeDoc1.assocGroupSelected(this, 1); });
+    treeSideRight.find(".assocGroupSelect").off().on('change', function() { apx.treeDoc2.assocGroupSelected(this, 2); });
 
     // links/buttons on item info panel
     // enable more info link
-    $(".lsItemDetailsMoreInfoLink a").on('click', function(e) { apx.toggleMoreInfo(); });
+    $(".lsItemDetailsMoreInfoLink a").on('click', function() { apx.toggleMoreInfo(); });
 
     // enable deleteItem button
     $("#deleteItemBtn").on('click', apx.edit.deleteItems);
@@ -122,9 +125,9 @@ apx.initialize = function() {
     // lsDocId could be an integer, in which case it's a SALT database ID; or we could be loading by url
     if (apx.lsDocId === 'url') {
         // if we're loading by url, the url should be in the search string, i.e. "url=http://example.com"
-        apx.mainDoc = new apxDocument({"url": decodeURIComponent(apx.query.url)});
+        apx.mainDoc = new ApxDocument({"url": decodeURIComponent(apx.query.url)});
     } else {
-        apx.mainDoc = new apxDocument({"id": apx.lsDocId});
+        apx.mainDoc = new ApxDocument({"id": apx.lsDocId});
     }
     
     // establish and load the main document -- apx.mainDoc
@@ -150,7 +153,7 @@ apx.initialize = function() {
             if (ed.autoLoad === "true" && !(identifier in apx.allDocs)) {
                 console.log("loading doc " + ed.title);
                 apx.allDocs[identifier] = "loading";
-                new apxDocument({"identifier": identifier}).load();
+                new ApxDocument({"identifier": identifier}).load();
             }
         }
 
@@ -168,9 +171,9 @@ apx.initialize = function() {
                 var assocGroups = apx.mainDoc.getAssocGroupsForItem(apx.mainDoc.currentItem, "isChildOf");
 
                 // if initialAssocGroup is empty (null, meaning the default group) OR it isn't one of the available isChildOf relationships for this item...
-                if (empty(apx.initialAssocGroup) || $.inArray(apx.initialAssocGroup, assocGroups) == -1) {
+                if (empty(apx.initialAssocGroup) || $.inArray(apx.initialAssocGroup, assocGroups) === -1) {
                     // then if the item has no isChildOf relationship or has an isChildOf relationship for the default group, use default
-                    if (assocGroups.length == 0 || $.inArray(null, assocGroups) > -1) {
+                    if (assocGroups.length === 0 || $.inArray(null, assocGroups) > -1) {
                         apx.initialAssocGroup = null;
 
                     // else use the first-listed assocGroup
@@ -215,8 +218,49 @@ apx.initialize = function() {
             apx.spinner.hideModal();
         });
     };
+
+    if (window.firebase) {
+        apx.initializeFirebase();
+    }
 };
 
+//////////////////////////////////////////////////////
+/**
+ * Using Firebase to synchronize changes
+ */
+apx.initializeFirebase = function() {
+    window.firebase.initializeApp(window.firebaseConfig);
+    var notificationsRef = window.firebase.database()
+        .ref('doc/' + apx.lsDocId + '/notification')
+        .orderByChild('at')
+        .startAt(apx.startTime);
+    notificationsRef.on('child_added', function(snapshot) {
+        apx.notification(snapshot.val());
+    });
+    console.log('firebase initialized');
+};
+
+$.notifyDefaults({
+    type: 'info',
+    mouse_over: 'pause'
+});
+
+apx.notification = function(val) {
+    console.log('notification', val);
+    apx.displayNotification(val);
+    // @todo: apply change in UI
+};
+
+apx.displayNotification = function(val) {
+    // Do not display messages to yourself
+    if ('string' === typeof val.by && val.by === apx.me) {
+        return;
+    }
+
+    $.notify({
+        message: val.msg
+    }, 5000);
+};
 
 //////////////////////////////////////////////////////
 /**
@@ -259,7 +303,7 @@ window.onpopstate = function(event) {
     }
 
     // now if we're moving to assocView, show it
-    if (view == "assoc") {
+    if (view === "assoc") {
         apx.viewMode.showAssocView("history");
 
     // else show the relevant item
@@ -281,7 +325,7 @@ window.onpopstate = function(event) {
 /** Function to update the history state */
 apx.pushHistoryState = function() {
     // no history if we loaded the mainDoc from a url, or if we're in chooser mode
-    if (apx.mainDoc.loadedFromUrl() || apx.query.mode == "chooser") {
+    if (apx.mainDoc.loadedFromUrl() || apx.query.mode === "chooser") {
         return;
     }
     
@@ -301,7 +345,7 @@ apx.pushHistoryState = function() {
         if (apx.treeDoc1.currentItem == apx.treeDoc1.doc) {
             path = apx.path.lsDoc.replace('ID', apx.lsDocId);
             // add "/av" to path if necessary
-            if (apx.viewMode.currentView == "assoc") {
+            if (apx.viewMode.currentView === "assoc") {
                 path += "/av";
             }
             state.lsItemId = null;
@@ -314,7 +358,7 @@ apx.pushHistoryState = function() {
 
         // add assocGroup to path if necessary
         if (apx.treeDoc1.currentAssocGroup != null) {
-            if (apx.viewMode.currentView != "assoc") {
+            if (apx.viewMode.currentView !== "assoc") {
                 path += "/" + apx.treeDoc1.currentAssocGroup;
             }
             state.assocGroup = apx.treeDoc1.currentAssocGroup;

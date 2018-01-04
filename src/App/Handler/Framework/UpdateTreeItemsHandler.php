@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\UpdateTreeItemsCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -35,5 +36,22 @@ class UpdateTreeItemsHandler extends BaseFrameworkHandler
 
         $ret = $this->framework->updateTreeItems($doc, $items);
         $command->setReturnValues($ret);
+
+        $changedItems = [];
+        foreach ($ret as $itemId => $itemInfo) {
+            $changedItems[$itemId] = $itemInfo['lsItemIdentifier'];
+        }
+
+        $notification = new NotificationEvent(
+            'Framework tree updated',
+            $doc,
+            [
+                'doc-u' => [
+                    $doc->getId() => $doc->getIdentifier(),
+                ],
+                'item-u' => $changedItems,
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

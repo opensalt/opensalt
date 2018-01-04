@@ -38,7 +38,7 @@ class UpdateItemHandler extends BaseFrameworkHandler
             sprintf('"%s" modified', $item->getShortStatement()),
             $item->getLsDoc(),
             [
-                'items' => [
+                'item-u' => [
                     $item->getId() => $item->getIdentifier(),
                 ],
             ]

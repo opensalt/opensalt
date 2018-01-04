@@ -44,7 +44,7 @@ class DeleteItemHandler extends BaseFrameworkHandler
             sprintf('"%s" and direct associations deleted', $item->getShortStatement()),
             $item->getLsDoc(),
             [
-                'items' => [
+                'item-d' => [
                     $item->getId() => $item->getIdentifier(),
                 ],
             ]

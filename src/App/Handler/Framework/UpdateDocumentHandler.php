@@ -2,7 +2,7 @@
 
 namespace App\Handler\Framework;
 
-use App\Command\Framework\AddDocumentCommand;
+use App\Command\Framework\UpdateDocumentCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class UpdateDocumentHandler extends BaseFrameworkHandler
 {
     /**
-     * @DI\Observe(App\Command\Framework\AddDocumentCommand::class)
+     * @DI\Observe(App\Command\Framework\UpdateDocumentCommand::class)
      *
      * @param CommandEvent $event
      * @param string $eventName
@@ -26,7 +26,7 @@ class UpdateDocumentHandler extends BaseFrameworkHandler
      */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        /** @var AddDocumentCommand $command */
+        /** @var UpdateDocumentCommand $command */
         $command = $event->getCommand();
 
         $doc = $command->getDoc();
@@ -34,13 +34,13 @@ class UpdateDocumentHandler extends BaseFrameworkHandler
 
         $doc->setUpdatedAt(new \DateTime());
 
-        /* @todo Check explicitly for change in publication status for different notification */
+        /* @todo Check explicitly for change in publication status for a different notification */
 
         $notification = new NotificationEvent(
            'Framework document modified',
            $doc,
            [
-               'docs' => [
+               'doc-u' => [
                    $doc->getId() => $doc->getIdentifier(),
                ],
            ]

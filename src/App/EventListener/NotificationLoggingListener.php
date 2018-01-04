@@ -9,7 +9,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @DI\Service()
  */
-class NotificationListener
+class NotificationLoggingListener
 {
     /**
      * @var LoggerInterface
@@ -17,10 +17,8 @@ class NotificationListener
     private $logger;
 
     /**
-     * AddDocumentHandler constructor.
-     *
      * @DI\InjectParams({
-     *     "logger" = @DI\Inject("logger"),
+     *     "logger" = @DI\Inject("logger")
      * })
      */
     public function __construct(LoggerInterface $logger)
@@ -31,8 +29,8 @@ class NotificationListener
     /**
      * @DI\Observe(App\Event\NotificationEvent::class)
      */
-    public function handleNotification(NotificationEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
+    public function logNotification(NotificationEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        $this->logger->info('Notification Received', ['msg' => $event->getMessage()]);
+        $this->logger->info('Notification Received', ['msg' => $event->getMessage(), 'user' => $event->getUsername()]);
     }
 }

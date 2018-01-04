@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\ChangeEntry;
 use App\Event\NotificationEvent;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
@@ -13,6 +14,11 @@ abstract class BaseCommand implements CommandInterface
      * @var NotificationEvent
      */
     protected $notificationEvent;
+
+    /**
+     * @return ChangeEntry
+     */
+    protected $changeEntry;
 
     public function hasValidationErrors(): bool
     {
@@ -37,5 +43,15 @@ abstract class BaseCommand implements CommandInterface
     public function getNotificationEvent(): ?NotificationEvent
     {
         return $this->notificationEvent;
+    }
+
+    public function setChangeEntry(ChangeEntry $entry): void
+    {
+        $this->changeEntry = $entry;
+    }
+
+    public function getChangeEntry(): ?ChangeEntry
+    {
+        return $this->changeEntry;
     }
 }

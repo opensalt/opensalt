@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\AddExternalDocCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -38,5 +39,16 @@ class AddExternalDocHandler extends BaseDoctrineHandler
 
         $doc->addExternalDoc($identifier, $autoLoad, $url, $title);
         $this->em->persist($doc);
+
+        $notification = new NotificationEvent(
+            sprintf('Framework "%s" modified', $doc->getTitle()),
+            $doc,
+            [
+                'doc-u' => [
+                    $doc,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

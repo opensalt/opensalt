@@ -41,8 +41,11 @@ class AddExemplarToItemHandler extends BaseFrameworkHandler
             sprintf('Exemplar (%s) added to "%s"', $url, $item->getShortStatement()),
             $item->getLsDoc(),
             [
-                'items' => [
+                'item-u' => [
                     $item->getId() => $item->getIdentifier(),
+                ],
+                'assoc-a' => [
+                    $association,
                 ],
             ]
         );
