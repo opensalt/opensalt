@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 {
-    const USER_ROLES = [
+    public const USER_ROLES = [
         'ROLE_EDITOR',
         'ROLE_ADMIN',
         'ROLE_SUPER_EDITOR',
@@ -81,7 +81,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     /**
      * @var bool
      *
-     * @ORM\Column(name="locked", type="boolean", nullable=false)
+     * @ORM\Column(name="locked", type="boolean", nullable=false, options={"default": 0})
      */
     protected $locked = false;
 
@@ -202,7 +202,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     }
 
     public function getGithubToken(){
-      return $this->githubToken;
+        return $this->githubToken;
     }
 
     public function setGithubToken($token) {

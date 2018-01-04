@@ -16,8 +16,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class FrameworkCreateVoter extends Voter
 {
-    const CREATE = 'create';
-    const FRAMEWORK = 'lsdoc';
+    public const CREATE = 'create';
+    public const FRAMEWORK = 'lsdoc';
 
     private $decisionManager;
 

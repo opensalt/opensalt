@@ -2,7 +2,12 @@
 
 namespace CftfBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\Framework\AddItemTypeCommand;
+use App\Command\Framework\DeleteItemTypeCommand;
+use App\Command\Framework\UpdateItemTypeCommand;
 use CftfBundle\Form\Type\LsDefItemTypeType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -17,6 +22,8 @@ use CftfBundle\Entity\LsDefItemType;
  */
 class LsDefItemTypeController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Lists all LsDefItemType entities.
      *
@@ -30,7 +37,7 @@ class LsDefItemTypeController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefItemTypes = $em->getRepository('CftfBundle:LsDefItemType')->findAll();
+        $lsDefItemTypes = $em->getRepository(LsDefItemType::class)->findAll();
 
         return [
             'lsDefItemTypes' => $lsDefItemTypes,
@@ -57,10 +64,10 @@ class LsDefItemTypeController extends Controller
         $page = $request->query->get('page', 1);
         $page_limit = $request->query->get('page_limit', 50);
 
-        $results = $em->getRepository('CftfBundle:LsDefItemType')
+        $results = $em->getRepository(LsDefItemType::class)
             ->getSelect2List($search, $page_limit, $page);
 
-        if (empty($results['results'][$search]) && !empty($search)) {
+        if (!empty($search) && empty($results['results'][$search])) {
             array_unshift(
                 $results['results'],
                 ['id' => '__'.$search, 'title' => '(NEW) '.$search]
@@ -91,11 +98,14 @@ class LsDefItemTypeController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDefItemType);
-            $em->flush();
+            try {
+                $command = new AddItemTypeCommand($lsDefItemType);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('lsdef_item_type_show', array('id' => $lsDefItemType->getId()));
+                return $this->redirectToRoute('lsdef_item_type_show', array('id' => $lsDefItemType->getId()));
+            } catch (\Exception $e) {
+                $form->addError(new FormError('Error adding item type: '.$e->getMessage()));
+            }
         }
 
         return [
@@ -144,11 +154,14 @@ class LsDefItemTypeController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDefItemType);
-            $em->flush();
+            try {
+                $command = new UpdateItemTypeCommand($lsDefItemType);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('lsdef_item_type_edit', array('id' => $lsDefItemType->getId()));
+                return $this->redirectToRoute('lsdef_item_type_edit', array('id' => $lsDefItemType->getId()));
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError('Error updating concept: '.$e->getMessage()));
+            }
         }
 
         return [
@@ -175,9 +188,8 @@ class LsDefItemTypeController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($lsDefItemType);
-            $em->flush();
+            $command = new DeleteItemTypeCommand($lsDefItemType);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('lsdef_item_type_index');

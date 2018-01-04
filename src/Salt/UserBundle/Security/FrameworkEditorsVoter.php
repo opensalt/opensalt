@@ -17,7 +17,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class FrameworkEditorsVoter extends Voter
 {
-    const MANGE_EDITORS = 'manage_editors';
+    public const MANAGE_EDITORS = 'manage_editors';
 
     /**
      * @var AccessDecisionManagerInterface
@@ -47,7 +47,7 @@ class FrameworkEditorsVoter extends Voter
      * @return bool True if the attribute and subject are supported, false otherwise
      */
     protected function supports($attribute, $subject) {
-        if ($attribute !== self::MANGE_EDITORS) {
+        if ($attribute !== self::MANAGE_EDITORS) {
             return false;
         }
 

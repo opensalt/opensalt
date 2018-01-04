@@ -2,6 +2,10 @@
 
 namespace Salt\UserBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\User\AddOrganizationCommand;
+use App\Command\User\DeleteOrganizationCommand;
+use App\Command\User\UpdateOrganizationCommand;
 use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Form\Type\OrganizationType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -9,7 +13,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Organization controller.
@@ -19,6 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class OrganizationController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Lists all organization entities.
      *
@@ -32,7 +41,7 @@ class OrganizationController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $organizations = $em->getRepository('SaltUserBundle:Organization')->findAll();
+        $organizations = $em->getRepository(Organization::class)->findAll();
 
         return [
             'organizations' => $organizations,
@@ -57,11 +66,14 @@ class OrganizationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($organization);
-            $em->flush($organization);
+            try {
+                $command = new AddOrganizationCommand($organization);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('admin_organization_index');
+                return $this->redirectToRoute('admin_organization_index');
+            } catch (\Exception $e) {
+                $form->addError(new FormError($e->getMessage()));
+            }
         }
 
         return [
@@ -110,9 +122,14 @@ class OrganizationController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+            try {
+                $command = new UpdateOrganizationCommand($organization);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('admin_organization_index');
+                return $this->redirectToRoute('admin_organization_index');
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError($e->getMessage()));
+            }
         }
 
         return [
@@ -133,15 +150,14 @@ class OrganizationController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function deleteAction(Request $request, Organization $organization)
+    public function deleteAction(Request $request, Organization $organization): Response
     {
         $form = $this->createDeleteForm($organization);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($organization);
-            $em->flush($organization);
+            $command = new DeleteOrganizationCommand($organization);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('admin_organization_index');
@@ -152,9 +168,9 @@ class OrganizationController extends Controller
      *
      * @param Organization $organization The organization entity
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\FormInterface The form
      */
-    private function createDeleteForm(Organization $organization)
+    private function createDeleteForm(Organization $organization): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('admin_organization_delete', array('id' => $organization->getId())))

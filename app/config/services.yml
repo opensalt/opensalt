@@ -14,11 +14,29 @@ services:
 #        tags:
 #            - { name: kernel.event_subscriber }
 
-#    twig_asset_version_extension:
-#        class: Pcg\Twig\Extension\AssetVersionExtension
-#        arguments: ["%kernel.root_dir%"]
-#        tags:
-#            - { name: twig.extension }
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+        #public: false
+
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../../src/App/{Console,Handler,Form,EventSubscriber,Twig,Security,Service}'
+
+    App\Controller\:
+        resource: '../../src/App/Controller'
+        public: true
+        tags: ['controller.service_arguments']
+
+    # Autowiring commands
+    CftfBundle\Command\:
+        resource: '../../src/CftfBundle/Command'
+        tags: ['console.command']
+
+    Salt\UserBundle\Command\:
+        resource: '../../src/Salt/UserBundle/Command'
+        tags: ['console.command']
 
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler

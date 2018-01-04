@@ -2,6 +2,8 @@
 
 namespace Salt\UserBundle\Command;
 
+use App\Command\User\SetUserPasswordCommand;
+use App\Event\CommandEvent;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -51,9 +53,10 @@ class UserSetPasswordCommand extends ContainerAwareCommand
         $username = trim($input->getArgument('username'));
         $password = trim($input->getArgument('password'));
 
-        $em = $this->getContainer()->get('doctrine')->getManager();
-        $userRepository = $em->getRepository('SaltUserBundle:User');
-        $newPassword = $userRepository->setUserPassword($username, $password);
+        $command = new SetUserPasswordCommand($username, $password);
+        $this->getContainer()->get('event_dispatcher')
+            ->dispatch(CommandEvent::class, new CommandEvent($command));
+        $newPassword = $command->getPlainPassword();
 
         if (empty($password)) {
             $output->writeln(sprintf('The password for "%s" has been set to "%s".', $input->getArgument('username'), $newPassword));

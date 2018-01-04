@@ -2,7 +2,13 @@
 
 namespace CftfBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\Framework\AddSubjectCommand;
+use App\Command\Framework\DeleteSubjectCommand;
+use App\Command\Framework\UpdateSubjectCommand;
 use CftfBundle\Form\Type\LsDefSubjectType;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -17,6 +23,8 @@ use CftfBundle\Entity\LsDefSubject;
  */
 class LsDefSubjectController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * Lists all LsDefSubject entities.
      *
@@ -30,7 +38,7 @@ class LsDefSubjectController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefSubjects = $em->getRepository('CftfBundle:LsDefSubject')->findAll();
+        $lsDefSubjects = $em->getRepository(LsDefSubject::class)->findAll();
 
         return [
             'lsDefSubjects' => $lsDefSubjects,
@@ -53,7 +61,7 @@ class LsDefSubjectController extends Controller
         // ?page_limit=N&q=SEARCHTEXT
         $em = $this->getDoctrine()->getManager();
 
-        $objects = $em->getRepository('CftfBundle:LsDefSubject')->getList();
+        $objects = $em->getRepository(LsDefSubject::class)->getList();
 
 //        $want = $request->query->get('q');
 //        if (!array_key_exists($want, $lsDefItemTypes)) {
@@ -82,11 +90,14 @@ class LsDefSubjectController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDefSubject);
-            $em->flush();
+            try {
+                $command = new AddSubjectCommand($lsDefSubject);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('lsdef_subject_show', array('id' => $lsDefSubject->getId()));
+                return $this->redirectToRoute('lsdef_subject_show', array('id' => $lsDefSubject->getId()));
+            } catch (\Exception $e) {
+                $form->addError(new FormError('Error adding subject: '.$e->getMessage()));
+            }
         }
 
         return [
@@ -135,11 +146,14 @@ class LsDefSubjectController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDefSubject);
-            $em->flush();
+            try {
+                $command = new UpdateSubjectCommand($lsDefSubject);
+                $this->sendCommand($command);
 
-            return $this->redirectToRoute('lsdef_subject_edit', array('id' => $lsDefSubject->getId()));
+                return $this->redirectToRoute('lsdef_subject_edit', array('id' => $lsDefSubject->getId()));
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError('Error updating subject: '.$e->getMessage()));
+            }
         }
 
         return [
@@ -166,9 +180,8 @@ class LsDefSubjectController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($lsDefSubject);
-            $em->flush();
+            $command = new DeleteSubjectCommand($lsDefSubject);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('lsdef_subject_index');
@@ -179,9 +192,9 @@ class LsDefSubjectController extends Controller
      *
      * @param LsDefSubject $lsDefSubject The LsDefSubject entity
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\FormInterface The form
      */
-    private function createDeleteForm(LsDefSubject $lsDefSubject)
+    private function createDeleteForm(LsDefSubject $lsDefSubject): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsdef_subject_delete', array('id' => $lsDefSubject->getId())))

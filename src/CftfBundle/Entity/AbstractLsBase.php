@@ -42,6 +42,7 @@ class AbstractLsBase implements IdentifiableInterface
      * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=true)
      *
      * @Assert\NotBlank()
+     * @Assert\Uuid(strict=false)
      * @Assert\Length(max=300)
      *
      * @Serializer\Expose()
@@ -72,7 +73,7 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * @var \DateTimeInterface
      *
-     * @ORM\Column(name="updated_at", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL")
+     * @ORM\Column(name="updated_at", type="datetime", options={"default": "CURRENT_TIMESTAMP"})
      * @Gedmo\Timestampable(on="update")
      *
      * @Serializer\Expose()

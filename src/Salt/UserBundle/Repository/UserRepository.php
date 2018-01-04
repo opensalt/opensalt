@@ -11,6 +11,8 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * UserRepository
+ *
+ * @method array findByOrg(Organization $org)
  */
 class UserRepository extends EntityRepository implements UserLoaderInterface
 {
@@ -24,7 +26,8 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @param UserPasswordEncoderInterface $encoder
      */
-    public function setEncoder(UserPasswordEncoderInterface $encoder) {
+    public function setEncoder(UserPasswordEncoderInterface $encoder)
+    {
         $this->encoder = $encoder;
     }
 
@@ -37,7 +40,8 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @return User|null
      */
-    public function loadUserByUsername($username) {
+    public function loadUserByUsername($username): ?User
+    {
         $user = $this->findOneBy(['username'=>$username]);
 
         if ($user instanceof User) {
@@ -52,7 +56,8 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @return array
      */
-    public function findAdmins(){
+    public function findAdmins(): array
+    {
         $qb = $this->createQueryBuilder('u');
         $qb->select('u')
             ->where('u.roles LIKE :roles')
@@ -71,7 +76,8 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @return string The user's password
      */
-    public function addNewUser(string $username, Organization $org, $plainPassword = null, $role = null) {
+    public function addNewUser(string $username, Organization $org, ?string $plainPassword = null, ?string $role = null): string
+    {
         if (empty(trim($plainPassword))) {
             // if there is no password, make something ugly up
             $plainPassword = rtrim(strtr(base64_encode(random_bytes(15)), '+/', '-_'), '=');
@@ -95,7 +101,6 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
         $user->addRole($role);
 
         $this->getEntityManager()->persist($user);
-        $this->getEntityManager()->flush($user);
 
         return $plainPassword;
     }
@@ -108,17 +113,19 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @return string The user's password
      */
-    public function setUserPassword($username, $plainPassword = null) {
+    public function setUserPassword(string $username, ?string $plainPassword = null): string
+    {
         if (empty(trim($plainPassword))) {
             // if there is no password, make something ugly up
             $plainPassword = rtrim(strtr(base64_encode(random_bytes(15)), '+/', '-_'), '=');
         }
 
         $user = $this->loadUserByUsername($username);
+        if (null === $user) {
+            throw new \InvalidArgumentException(sprintf('The user "%s" does not exist.', $username));
+        }
         $password = $this->encoder->encodePassword($user, $plainPassword);
         $user->setPassword($password);
-
-        $this->getEntityManager()->flush($user);
 
         return $plainPassword;
     }
@@ -131,15 +138,14 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @throws \InvalidArgumentException
      */
-    public function addRoleToUser($username, $role) {
+    public function addRoleToUser(string $username, string $role): void
+    {
         $user = $this->loadUserByUsername($username);
         if (null === $user) {
             throw new \InvalidArgumentException(sprintf('The user "%s" does not exist.', $username));
         }
 
         $user->addRole($role);
-
-        $this->getEntityManager()->flush($user);
     }
 
     /**
@@ -150,14 +156,13 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @throws \InvalidArgumentException
      */
-    public function removeRoleFromUser($username, $role) {
+    public function removeRoleFromUser(string $username, string $role): void
+    {
         $user = $this->loadUserByUsername($username);
         if (null === $user) {
             throw new \InvalidArgumentException(sprintf('The user "%s" does not exist.', $username));
         }
 
         $user->removeRole($role);
-
-        $this->getEntityManager()->flush($user);
     }
 }

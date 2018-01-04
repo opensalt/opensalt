@@ -7,7 +7,7 @@ use Codeception\Module\Symfony;
 
 class Toggles extends \Codeception\Module
 {
-    public function isFeatureEnabled(string $feature)
+    public function isFeatureEnabled(string $feature): bool
     {
         $config = $this->_getConfig('features');
 
@@ -28,9 +28,15 @@ class Toggles extends \Codeception\Module
         return false;
     }
 
-    public function assertFeatureEnabled(string $feature)
+    public function assertFeatureEnabled(string $feature): void
     {
-        if (!$this->isFeatureEnabled($feature)) {
+        static $enabled = [];
+
+        if (!isset($enabled[$feature])) {
+            $enabled[$feature] = $this->isFeatureEnabled($feature);
+        }
+
+        if (!$enabled[$feature]) {
             throw new Skip(sprintf('"%s" feature is disabled', $feature));
         }
     }

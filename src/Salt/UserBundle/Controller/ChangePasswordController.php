@@ -2,6 +2,8 @@
 
 namespace Salt\UserBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\User\ChangePasswordCommand;
 use Salt\UserBundle\Form\Type\ChangePasswordType;
 use Salt\UserBundle\Form\DTO\ChangePasswordDTO;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -17,6 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ChangePasswordController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * @Route("/user/change-password", name="user_change_password")
      * @Template()
@@ -33,14 +37,11 @@ class ChangePasswordController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $newPassword = $this->get('security.password_encoder')->encodePassword($this->getUser(), $form->getData()->newPassword);
-
             $user = $this->getUser();
-            $user->setPassword($newPassword);
+            $encryptedPassword = $this->get('security.password_encoder')->encodePassword($user, $form->getData()->newPassword);
 
-            $manager = $this->get('doctrine.orm.entity_manager');
-            $manager->persist($user);
-            $manager->flush($user);
+            $command = new ChangePasswordCommand($user, $encryptedPassword);
+            $this->sendCommand($command);
 
             $this->addFlash('success', 'Your password has been changed.');
 

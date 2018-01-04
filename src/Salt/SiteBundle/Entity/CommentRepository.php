@@ -33,7 +33,6 @@ class CommentRepository extends EntityRepository
         $comment->setParent($parent);
 
         $this->getEntityManager()->persist($comment);
-        $this->getEntityManager()->flush($comment);
 
         return $comment;
     }
@@ -45,7 +44,6 @@ class CommentRepository extends EntityRepository
         $commentUpvote->setUser($user);
 
         $this->getEntityManager()->persist($commentUpvote);
-        $this->getEntityManager()->flush($commentUpvote);
 
         return $commentUpvote;
     }
@@ -54,12 +52,11 @@ class CommentRepository extends EntityRepository
     {
         $em = $this->getEntityManager();
 
-        $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')
+        $commentUpvote = $em->getRepository(CommentUpvote::class)
             ->findOneBy(['user' => $user, 'comment' => $comment]);
 
         if ($commentUpvote) {
             $em->remove($commentUpvote);
-            $em->flush($commentUpvote);
 
             return true;
         }
