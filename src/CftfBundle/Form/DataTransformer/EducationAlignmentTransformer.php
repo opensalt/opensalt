@@ -35,7 +35,7 @@ class EducationAlignmentTransformer implements DataTransformerInterface
         }
 
         /** @var LsDefGradeRepository $repo */
-        $repo = $this->manager->getRepository('CftfBundle:LsDefGrade');
+        $repo = $this->manager->getRepository(LsDefGrade::class);
 
         $grades = preg_split('/,/', $gradeString);
         $alignments = $repo->findBy(['code' => $grades]);

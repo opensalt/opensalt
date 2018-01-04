@@ -52,6 +52,7 @@ Identifier,fullStatement,Human Coding Scheme,Abbreviated Statement,ConceptKeywor
 de5aa87c-c344-4a36-ae61-498b083a324b,"aHq97MnW2sEAn5LgCByW7K8tVu6gBPqck6QmKHbfYu4m2FE42UWkDpmcyapeW6ghgxsVNRdWJKL2dxUKzUtsFdpaUYDFzM9CrYdXmaZkkUjc4uyCtF54rG2Ne5Jy7trF",H.N.SK.AW,Awareness,,,en,,,,,H.N.SK,,,,,
 EOT;
     protected $managerRegistry;
+    /** @var EntityManager */
     protected $em;
     protected $lsDoc;
 
@@ -74,7 +75,8 @@ EOT;
 
     public function testSaveItem(){
         $githubImporter = new GithubImport($this->managerRegistry);
-        $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', null);
+        $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', []);
+        $this->em->flush();
 
         $dataToSeeInDatabase = [
             ['identifier' => '38ce84d0-87de-4937-b030-b1f1eab03ce0'],
@@ -88,7 +90,8 @@ EOT;
 
     public function testSaveItemAssociations(){
         $githubImporter = new GithubImport($this->managerRegistry);
-        $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', null);
+        $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', []);
+        $this->em->flush();
 
         $lsItemToCheck = $this->em->getRepository(LsItem::class)->findOneBy(array('identifier' => '2b88ba69-d07e-4ff0-92f5-8bec2b056a85'));
         // associations include its inverse associations

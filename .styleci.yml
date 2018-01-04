@@ -9,6 +9,7 @@ disabled:
     - phpdoc_align
     - phpdoc_summary
     - phpdoc_var_without_name
+    - property_separation
     # Start enabling these as makes sense
     - binary_operator_spaces
     #- blank_line_after_namespace
@@ -23,6 +24,7 @@ disabled:
     #- cast_spaces
     #- class_definition
     #- concat_without_spaces
+    - const_separation
     #- declare_equal_normalize
     #- elseif
     #- encoding

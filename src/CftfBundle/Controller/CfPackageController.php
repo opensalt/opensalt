@@ -26,16 +26,16 @@ class CfPackageController extends Controller
      */
     public function exportAction(Request $request, LsDoc $lsDoc, $_format = 'json')
     {
-        $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
+        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
 
         if ('json' === $_format) {
-            $pkg = $repo->getPackageArray($lsDoc);
-
-            $response = $this->generateBaseReponse($lsDoc->getUpdatedAt());
+            $response = $this->generateBaseResponse($lsDoc->getUpdatedAt());
 
             if ($response->isNotModified($request)) {
                 return $response;
             }
+
+            $pkg = $repo->getPackageArray($lsDoc);
 
             $response->setContent($this->get('serializer')->serialize(
                 $pkg,
@@ -43,9 +43,8 @@ class CfPackageController extends Controller
                 SerializationContext::create()->setGroups(['Default', 'CfPackage'])
             ));
 
-            $response->headers->set('Content-Type', 'text/json');
+            $response->headers->set('Content-Type', 'application/json');
             $response->headers->set('Content-Disposition', 'attachment; filename=opensalt-framework-'.$lsDoc->getIdentifier().'.json');
-            $response->headers->set('Pragma', 'no-cache');
 
             return $response;
         }
@@ -62,15 +61,17 @@ class CfPackageController extends Controller
      *
      * @return Response
      */
-    protected function generateBaseReponse(\DateTimeInterface $lastModified): Response
+    protected function generateBaseResponse(\DateTimeInterface $lastModified): Response
     {
         $response = new Response();
 
         $response->setEtag(md5($lastModified->format('U')));
         $response->setLastModified($lastModified);
-        $response->setMaxAge(60);
-        $response->setSharedMaxAge(60);
+        $response->setMaxAge(0);
+        $response->setSharedMaxAge(0);
+        $response->setExpires(\DateTime::createFromFormat('U', $lastModified->format('U'))->sub(new \DateInterval('PT1S')));
         $response->setPublic();
+        $response->headers->addCacheControlDirective('must-revalidate');
 
         return $response;
     }
@@ -86,7 +87,7 @@ class CfPackageController extends Controller
      */
     protected function generateSimplePackageArray(LsDoc $doc): array
     {
-        $repo = $this->getDoctrine()->getRepository('CftfBundle:LsDoc');
+        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
 
         $items = $repo->findAllItems($doc);
         $associations = $repo->findAllAssociations($doc);

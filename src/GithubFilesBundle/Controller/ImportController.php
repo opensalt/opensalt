@@ -2,6 +2,8 @@
 
 namespace GithubFilesBundle\Controller;
 
+use App\Command\CommandDispatcher;
+use App\Command\Import\ParseCsvGithubDocumentCommand;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -15,6 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ImportController extends Controller
 {
+    use CommandDispatcher;
+
     /**
      * @Route("/cf/github/import", name="import_from_github")
      *
@@ -22,19 +26,18 @@ class ImportController extends Controller
      *
      * @return JsonResponse
      */
-    public function importAction(Request $request)
+    public function importAction(Request $request): JsonResponse
     {
-        $response = new JsonResponse();
         $lsItemKeys = $request->request->get('cfItemKeys');
         $fileContent = $request->request->get('content');
         $lsDocId = $request->request->get('lsDocId');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
-        $missingFieldsLog = $request->request->get('missingFieldsLog');
+        $missingFieldsLog = $request->request->get('missingFieldsLog', []);
 
-        $githubImporter = $this->get('cftf_import.github');
-        $githubImporter->parseCSVGithubDocument($lsItemKeys, base64_decode($fileContent), $lsDocId, $frameworkToAssociate, $missingFieldsLog);
+        $command = new ParseCsvGithubDocumentCommand($lsItemKeys, base64_decode($fileContent), $lsDocId, $frameworkToAssociate, $missingFieldsLog);
+        $this->sendCommand($command);
 
-        return $response->setData([
+        return new JsonResponse([
             'message' => 'Success',
         ]);
     }

@@ -22,6 +22,8 @@ class CopyToLsDocCommand
     }
 
     /**
+     * @deprecated
+     *
      * @param CopyToLsDocDTO $dto
      * @param ObjectManager $manager
      *

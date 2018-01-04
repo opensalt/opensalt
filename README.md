@@ -7,7 +7,7 @@ Standards Alignment Tool (SALT)
 Overview
 --------
 
-This is a prototype for testing the IMS Global [CASE Specification](https://www.imsglobal.org/case) and proving its use
+This is a prototype for testing the IMS Global Learning Consortium® [CASE™ Specification](https://www.imsglobal.org/case) and proving its use
 in real-world scenarios based on various proof of concept and pilot projects.
 
 The code is intended to run using a set of docker containers using
@@ -20,7 +20,7 @@ Installation
 
 1. Install Docker from [here](https://www.docker.com/products/docker)
    and Docker Compose from [here](https://docs.docker.com/compose/install/)
-  - [Docker for Mac notes](./DOCKER_FOR_MAC.md)
+  - [Docker for Mac notes](./docs/DOCKER_FOR_MAC.md)
 
   > **Note: the rest of the following can be automated by running `./local-dev/initial_dev_install.sh`**
 

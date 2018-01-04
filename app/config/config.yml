@@ -4,11 +4,7 @@ imports:
     - { resource: security.yml }
     - { resource: services.yml }
     - { resource: "@CftfBundle/Resources/config/services.yml" }
-    - { resource: "@CftfAsnBundle/Resources/config/services.yml" }
-    - { resource: "@CftfImsBundle/Resources/config/services.yml" }
-    - { resource: "@CftfSbacBundle/Resources/config/services.yml" }
     - { resource: "@CftfCmsBundle/Resources/config/services.yml" }
-    - { resource: "@CftfUtilBundle/Resources/config/services.yml" }
     - { resource: "@SaltUserBundle/Resources/config/services.yml" }
     - { resource: "@GithubFilesBundle/Resources/config/services.yml" }
     - { resource: "@SaltSiteBundle/Resources/config/services.yml" }
@@ -22,10 +18,6 @@ parameters:
     database_name: '%env(MYSQL_DATABASE)%'
     database_user: '%env(MYSQL_USER)%'
     database_password: '%env(MYSQL_PASSWORD)%'
-    mailer_transport: '%env(MAILER_TRANSPORT)%'
-    mailer_host: '%env(MAILER_HOST)%'
-    mailer_user: '%env(MAILER_USER)%'
-    mailer_password: '%env(MAILER_PASSWORD)%'
     secret: '%env(SECRET)%'
     cookie_secret: '%env(COOKIE_SECRET)%'
     local_uri_host: '%env(LOCAL_URI_HOST)%'
@@ -144,7 +136,7 @@ doctrine:
                 password: "%database_password%"
                 options:  "%pdo_options%"
                 charset:  utf8mb4
-                schema_filter: ~^(?!(auth_session|cache_items|LearningStandards))~
+                schema_filter: ~^(?!(auth_session|cache_items|LearningStandards|std_*|grade_level))~
                 server_version: 5.7
                 mapping_types:
                     json: string
@@ -154,7 +146,7 @@ doctrine:
         types:
             uuid: Ramsey\Uuid\Doctrine\UuidType
             uuid_binary: Ramsey\Uuid\Doctrine\UuidBinaryType
-            json: Pcg\Doctrine\Types\JsonType
+            json: App\Doctrine\Types\JsonType
         #mapping_types:
         #    json: string
         #    uuid: char(36)
@@ -179,18 +171,9 @@ doctrine:
                         prefix: Gedmo\Tree\Entity
                         dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Tree/Entity"
                         alias: GedmoTree # (optional) it will default to the name set for the mapping
-                        is_bundle: false
 
 doctrine_migrations:
     dir_name: "%kernel.root_dir%/DoctrineMigrations"
-
-# Swiftmailer Configuration
-swiftmailer:
-    transport: "%mailer_transport%"
-    host:      "%mailer_host%"
-    username:  "%mailer_user%"
-    password:  "%mailer_password%"
-    spool:     { type: memory }
 
 jms_di_extra:
     locations:

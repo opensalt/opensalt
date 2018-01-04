@@ -27,7 +27,7 @@ class ExportController extends Controller
      */
     public function exportAction(LsDoc $lsDoc, $_format = 'json')
     {
-        $items = $this->getDoctrine()->getRepository('CftfBundle:LsDoc')->findAllChildrenArray($lsDoc);
+        $items = $this->getDoctrine()->getRepository(LsDoc::class)->findAllChildrenArray($lsDoc);
 
         return [
             'lsDoc' => $lsDoc,
