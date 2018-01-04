@@ -11,3 +11,6 @@ checks:
             - npm-asset/marked
             - npm-asset/markdown-it-underline
             - npm-asset/github-markdown-css
+            - npm-asset/simplemde
+            - npm-asset/codemirror
+            - gedmo/doctrine-extensions
