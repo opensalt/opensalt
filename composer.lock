@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd456f2fef2c4eb3840e54295fca904a",
+    "content-hash": "8ce4e40bd2339aa65367318031086d9d",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -2008,38 +2008,40 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "v2.5.14",
+            "version": "v2.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/doctrine2.git",
-                "reference": "810a7baf81462a5ddf10e8baa8cb94b6eec02754"
+                "reference": "374e7ace49d864dad8cddbc55346447c8a6a2083"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/810a7baf81462a5ddf10e8baa8cb94b6eec02754",
-                "reference": "810a7baf81462a5ddf10e8baa8cb94b6eec02754",
+                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/374e7ace49d864dad8cddbc55346447c8a6a2083",
+                "reference": "374e7ace49d864dad8cddbc55346447c8a6a2083",
                 "shasum": ""
             },
             "require": {
-                "doctrine/cache": "~1.4",
-                "doctrine/collections": "~1.2",
-                "doctrine/common": ">=2.5-dev,<2.9-dev",
-                "doctrine/dbal": ">=2.5-dev,<2.7-dev",
-                "doctrine/instantiator": "^1.0.1",
+                "doctrine/annotations": "~1.5",
+                "doctrine/cache": "~1.6",
+                "doctrine/collections": "^1.4",
+                "doctrine/common": "^2.7.1",
+                "doctrine/dbal": "^2.6",
+                "doctrine/instantiator": "~1.1",
                 "ext-pdo": "*",
-                "php": ">=5.4",
-                "symfony/console": "~2.5|~3.0|~4.0"
+                "php": "^7.1",
+                "symfony/console": "~3.0|~4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0",
-                "symfony/yaml": "~2.3|~3.0|~4.0"
+                "doctrine/coding-standard": "^1.0",
+                "phpunit/phpunit": "^6.5",
+                "squizlabs/php_codesniffer": "^3.2",
+                "symfony/yaml": "~3.4|~4.0"
             },
             "suggest": {
                 "symfony/yaml": "If you want to use YAML Metadata Mapping Driver"
             },
             "bin": [
-                "bin/doctrine",
-                "bin/doctrine.php"
+                "bin/doctrine"
             ],
             "type": "library",
             "extra": {
@@ -2048,8 +2050,8 @@
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Doctrine\\ORM\\": "lib/"
+                "psr-4": {
+                    "Doctrine\\ORM\\": "lib/Doctrine/ORM"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -2072,6 +2074,10 @@
                 {
                     "name": "Jonathan Wage",
                     "email": "jonwage@gmail.com"
+                },
+                {
+                    "name": "Marco Pivetta",
+                    "email": "ocramius@gmail.com"
                 }
             ],
             "description": "Object-Relational-Mapper for PHP",
@@ -2080,7 +2086,7 @@
                 "database",
                 "orm"
             ],
-            "time": "2017-12-17T02:57:51+00:00"
+            "time": "2017-12-20T00:38:15+00:00"
         },
         {
             "name": "fig/link-util",
@@ -2245,16 +2251,16 @@
         },
         {
             "name": "gedmo/doctrine-extensions",
-            "version": "v2.4.31",
+            "version": "v2.4.32",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Atlantic18/DoctrineExtensions.git",
-                "reference": "79cd1d49898a21ede9a5dfad41c021abd9a14339"
+                "reference": "a268224b312353be62d72e6390a286f4166a7542"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/79cd1d49898a21ede9a5dfad41c021abd9a14339",
-                "reference": "79cd1d49898a21ede9a5dfad41c021abd9a14339",
+                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/a268224b312353be62d72e6390a286f4166a7542",
+                "reference": "a268224b312353be62d72e6390a286f4166a7542",
                 "shasum": ""
             },
             "require": {
@@ -2267,7 +2273,7 @@
                 "doctrine/mongodb-odm": ">=1.0.2",
                 "doctrine/orm": ">=2.5.0",
                 "phpunit/phpunit": "*",
-                "symfony/yaml": "~2.6|~3.0"
+                "symfony/yaml": "~2.6|~3.0|~4.0"
             },
             "suggest": {
                 "doctrine/mongodb-odm": "to use the extensions with the MongoDB ODM",
@@ -2319,7 +2325,7 @@
                 "tree",
                 "uploadable"
             ],
-            "time": "2017-10-12T06:26:21+00:00"
+            "time": "2017-12-28T14:36:10+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -4242,12 +4248,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codemirror/CodeMirror.git",
-                "reference": "56c271ff88efbf3726a4f0fa0a131942ebf804ff"
+                "reference": "8b9d8e337eb7c1d48d42589a5caee0a2215f620c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/56c271ff88efbf3726a4f0fa0a131942ebf804ff",
-                "reference": "56c271ff88efbf3726a4f0fa0a131942ebf804ff",
+                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/8b9d8e337eb7c1d48d42589a5caee0a2215f620c",
+                "reference": "8b9d8e337eb7c1d48d42589a5caee0a2215f620c",
                 "shasum": ""
             },
             "require-dev": {
@@ -4277,7 +4283,7 @@
                     "lint": "bin/lint"
                 },
                 "branch-alias": {
-                    "dev-master": "5.32.1-dev"
+                    "dev-master": "5.33.1-dev"
                 }
             },
             "license": [
@@ -4290,7 +4296,7 @@
                 "Editor",
                 "JavaScript"
             ],
-            "time": "2017-12-16 17:47:06"
+            "time": "2018-01-01 12:19:58"
         },
         {
             "name": "npm-asset/codemirror-spell-checker",
@@ -4414,12 +4420,12 @@
         },
         {
             "name": "npm-asset/github-markdown-css",
-            "version": "2.9.0",
+            "version": "2.10.0",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/github-markdown-css/-/github-markdown-css-2.9.0.tgz",
+                "url": "https://registry.npmjs.org/github-markdown-css/-/github-markdown-css-2.10.0.tgz",
                 "reference": null,
-                "shasum": "a54b2d97457d529f22255fb1ce78fc24dacc0a7b"
+                "shasum": "0612fed22816b33b282f37ef8def7a4ecabfe993"
             },
             "require-dev": {
                 "npm-asset/generate-github-markdown-css": ">=2.1.0,<3.0.0"
@@ -4466,7 +4472,7 @@
                 "style",
                 "stylesheet"
             ],
-            "time": "2017-10-15T06:56:04+00:00"
+            "time": "2017-12-31T12:55:36+00:00"
         },
         {
             "name": "npm-asset/iso639-js",
@@ -4873,13 +4879,62 @@
             "time": "2016-10-10T12:58:39+00:00"
         },
         {
-            "name": "npm-asset/marked",
-            "version": "0.3.7",
+            "name": "npm-asset/markdown-it-underline",
+            "version": "1.0.1",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/marked/-/marked-0.3.7.tgz",
+                "url": "https://registry.npmjs.org/markdown-it-underline/-/markdown-it-underline-1.0.1.tgz",
                 "reference": null,
-                "shasum": "80ef3bbf1bd00d1c9cfebe42ba1b8c85da258d0d"
+                "shasum": "43a54a541d95d739b43157701f1da306d7c300b2"
+            },
+            "require-dev": {
+                "npm-asset/markdown-it": ">=8.1.0,<9.0.0",
+                "npm-asset/power-assert": ">=1.4.2,<2.0.0"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/arve0/markdown-it-underline/issues"
+                },
+                "npm-asset-main": "index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/arve0/markdown-it-underline.git"
+                },
+                "npm-asset-scripts": {
+                    "preversion": "npm test",
+                    "postpublish": "git push && git push --tags",
+                    "test": "node test.js"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arve Seljebu"
+                }
+            ],
+            "description": "Renders _underline_ to <u>underline</u>",
+            "homepage": "https://github.com/arve0/markdown-it-underline#readme",
+            "keywords": [
+                "commonmark",
+                "markdown",
+                "markdown-it",
+                "markdown-it-plugin",
+                "underline"
+            ],
+            "time": "2016-11-26T10:44:15+00:00"
+        },
+        {
+            "name": "npm-asset/marked",
+            "version": "0.3.9",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/marked/-/marked-0.3.9.tgz",
+                "reference": null,
+                "shasum": "54ce6a57e720c3ac6098374ec625fcbcc97ff290"
             },
             "require-dev": {
                 "npm-asset/gulp": ">=3.8.11,<4.0.0",
@@ -4926,7 +4981,7 @@
                 "markdown",
                 "markup"
             ],
-            "time": "2017-12-01T18:08:30+00:00"
+            "time": "2017-12-23T18:05:12+00:00"
         },
         {
             "name": "npm-asset/match-at",
@@ -6135,12 +6190,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "40b035345ed34a4cc92c842f60a6cc739101542f"
+                "reference": "21b3900483e9bc1536a298bc3eb3d647ab56d8a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/40b035345ed34a4cc92c842f60a6cc739101542f",
-                "reference": "40b035345ed34a4cc92c842f60a6cc739101542f",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/21b3900483e9bc1536a298bc3eb3d647ab56d8a1",
+                "reference": "21b3900483e9bc1536a298bc3eb3d647ab56d8a1",
                 "shasum": ""
             },
             "conflict": {
@@ -6191,7 +6246,7 @@
                 "oro/platform": ">=1.7,<1.7.4",
                 "phpmailer/phpmailer": ">=5,<5.2.24",
                 "phpunit/phpunit": ">=4.8.19,<4.8.28|>=5.0.10,<5.6.3",
-                "phpxmlrpc/extras": "<6.0.1",
+                "phpxmlrpc/extras": "<0.6.1",
                 "pusher/pusher-php-server": "<2.2.1",
                 "sabre/dav": ">=1.6,<1.6.99|>=1.7,<1.7.11|>=1.8,<1.8.9",
                 "shopware/shopware": "<5.2.25",
@@ -6272,7 +6327,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2017-12-12T00:38:43+00:00"
+            "time": "2018-01-03T11:17:07+00:00"
         },
         {
             "name": "sensio/distribution-bundle",
@@ -6443,22 +6498,26 @@
         },
         {
             "name": "stof/doctrine-extensions-bundle",
-            "version": "v1.2.2",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stof/StofDoctrineExtensionsBundle.git",
-                "reference": "4e7499d25dc5d0862da09fa8e336164948a29a25"
+                "reference": "46db71ec7ffee9122eca3cdddd4ef8d84bae269c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stof/StofDoctrineExtensionsBundle/zipball/4e7499d25dc5d0862da09fa8e336164948a29a25",
-                "reference": "4e7499d25dc5d0862da09fa8e336164948a29a25",
+                "url": "https://api.github.com/repos/stof/StofDoctrineExtensionsBundle/zipball/46db71ec7ffee9122eca3cdddd4ef8d84bae269c",
+                "reference": "46db71ec7ffee9122eca3cdddd4ef8d84bae269c",
                 "shasum": ""
             },
             "require": {
-                "gedmo/doctrine-extensions": "^2.3.1",
+                "gedmo/doctrine-extensions": "^2.3.4",
                 "php": ">=5.3.2",
-                "symfony/framework-bundle": "~2.1|~3.0"
+                "symfony/framework-bundle": "~2.7|~3.2|~4.0"
+            },
+            "require-dev": {
+                "symfony/phpunit-bridge": "^4.0",
+                "symfony/security-bundle": "^2.7 || ^3.2 || ^4.0"
             },
             "suggest": {
                 "doctrine/doctrine-bundle": "to use the ORM extensions",
@@ -6467,7 +6526,7 @@
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev"
+                    "dev-master": "1.3.x-dev"
                 }
             },
             "autoload": {
@@ -6500,7 +6559,7 @@
                 "translatable",
                 "tree"
             ],
-            "time": "2016-01-26T23:58:32+00:00"
+            "time": "2017-12-24T16:06:50+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
