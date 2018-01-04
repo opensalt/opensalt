@@ -50,6 +50,7 @@ var mainScripts = [
     assetsDir+'/js/application.js',
     assetsDir+'/js/lsdoc/index.js',
     npmDir+'/papaparse/papaparse.min.js',
+    npmDir+'/markdown-it-underline/index.js',
     './build/js/apx.js'
 ];
 
@@ -159,6 +160,7 @@ config.resolve.alias = {
   'jquery-ui/ui/widgets/menu': path.resolve(__dirname, bowerDir+'/jquery-ui/ui/widgets/menu.js'),
   'simplemde': path.resolve(__dirname, npmDir+'/simplemde/dist/simplemde.min.js'),
   'papaparse': path.resolve(__dirname, npmDir+'/papaparse/papaparse.min.js'),
+  'markdown-it-underline': path.resolve(__dirname, npmDir+'/markdown-it-underline/index.js'),
 };
 config.resolve.modules = [
   "node_modules",
