@@ -7,3 +7,7 @@ checks:
     php:
         code_rating: true
         duplication: false
+        excluded_dependencies:
+            - npm-asset/marked
+            - npm-asset/markdown-it-underline
+            - npm-asset/github-markdown-css
