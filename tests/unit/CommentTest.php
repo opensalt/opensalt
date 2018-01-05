@@ -15,22 +15,22 @@ class CommentTest extends \Codeception\Test\Unit
 
     // tests
     public function testAddComment()
-    {        
+    {
         $this->tester->ensureUserExistsWithRole('Editor');
         $user = $this->tester->getLastUser();
         $em = $this->getModule('Doctrine2')->em;
         $comment = new Comment();
         $itemId = $this->addLsItem();
         $item = $em->getRepository(LsItem::class)->find($itemId);
-        
+
         $comment->setContent('unit test comment');
         $comment->setParent(null);
         $comment->setUser($user);
         $comment->setItem($item);
-        
+
         $em->merge($comment);
         $em->flush();
-        
+
         $this->tester->seeInRepository(Comment::class, ['content' => 'unit test comment']);
     }
 
@@ -160,14 +160,14 @@ class CommentTest extends \Codeception\Test\Unit
         $em = $this->getModule('Doctrine2')->em;
         $em->persist($comment);
         $em->flush();
-        
+
         $this->tester->seeInRepository(Comment::class, ['item' => $itemId]);
     }
-    
+
     public function addLsItem()
     {
         $identifier = Uuid::uuid4()->toString();
-        $docIdentifier = Uuid::uuid4()->toString();        
+        $docIdentifier = Uuid::uuid4()->toString();
         $lsItemId = $this->tester->haveInRepository(LsItem::class,
             [
                 'identifier' => $identifier,
@@ -175,7 +175,7 @@ class CommentTest extends \Codeception\Test\Unit
                 'fullStatement' => 'codeception'
             ]
         );
-        
+
         return $lsItemId;
     }
 }
