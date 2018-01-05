@@ -26,12 +26,9 @@ class CommentRepository extends EntityRepository
         $comment = new Comment();
         $comment->setContent(trim($content));
         $comment->setUser($user);
-        if($itemType=='item')
-        {
+        if ($itemType == 'item') {
             $comment->setItem($itemId);
-        }
-        else
-        {
+        } else {
             $comment->setDocument($itemId);
         }
         $comment->setCreatedByCurrentUser(true);
@@ -78,6 +75,6 @@ class CommentRepository extends EntityRepository
      */
     public function findByTypeItem(array $id): array
     {
-        return $this->findByItem($id['itemType'].':'.$id['itemId']);
+        return $this->findBy([$id['itemType'] => $id['itemId']]);
     }
 }

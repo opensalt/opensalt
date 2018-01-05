@@ -173,7 +173,7 @@
 
                                 <div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
 
-                                <div id="itemOptionsWrapper">                                    
+                                <div id="itemOptionsWrapper">
                                         <div class="itemOptions" id="itemOptions">
                                             {% if editorRights %}
                                             {% if isDraft %}
@@ -198,12 +198,12 @@
                                                         data-toggle="modal" data-target="#addExemplarModal">Add an
                                                     Exemplar
                                                 </button>
-                                            {% endif %}  
                                             {% endif %}
-                                            {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %} 
-                                                <button type="button" class="export_csv_comment btn btn-default btn-sm" data-alt-document-disabled="true">Export Comments</button>
                                             {% endif %}
-                                        </div>                                    
+                                            {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %}
+                                                <a href="#" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
+                                            {% endif %}
+                                        </div>
 
                                     <div class="itemOptions" id="documentOptions">
                                         <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
@@ -250,11 +250,11 @@
                                                         data-target="#seeImportLogs" data-alt-document-disabled="true">
                                                     Import Logs
                                                 </button>
-                                            {% endif %}                                            
+                                            {% endif %}
                                         {% endif %}
-                                        {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %} 
-                                                <button type="button" class="export_csv_comment btn btn-default btn-sm" data-alt-document-disabled="true">Export Comments</button>
-                                        {% endif %}                                       
+                                        {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %}
+                                                <a href="#" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>  <!-- lsItemDetails -->

@@ -3,10 +3,10 @@ var CommentSystem = (function(){
         itemId: null,
         itemType: 'document'
     };
-    
+
     function exportCSV(){
-        var url="/salt/case/export_comment/"+commentItem.itemType+"/"+commentItem.itemId+"/comment.csv";
-        window.location=url;     
+        var url = "/salt/case/export_comment/"+commentItem.itemType+"/"+commentItem.itemId+"/comment.csv";
+        window.location = url;
     }
 
     function init(nodeRef){
@@ -136,10 +136,7 @@ var CommentSystem = (function(){
 global.CommentSystem = CommentSystem;
 
 $(document).on('ready', function(){
-    CommentSystem.init();    
-    $(".export_csv_comment").click(function(){
-        CommentSystem.exportCSV();  
-    });
+    CommentSystem.init();
 });
 
 
