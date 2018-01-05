@@ -102,6 +102,20 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      */
     protected $docAcls;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=255, unique=true)
+     */
+    protected $email;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="user_type", type="string", length=255)
+     */
+    protected $userType;
+
 
     public function __construct($username = null) {
         if (!empty($username)) {
@@ -437,6 +451,46 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      */
     public function unsuspendUser() {
         $this->locked = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the email
+     *
+     * @return string The email
+     */
+    public function getEmail() {
+        return $this->email;
+    }
+
+    /**
+     * @param string $email
+     *
+     * @return $this
+     */
+    public function setEmail($email) {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Returns the userType
+     *
+     * @return string The userType
+     */
+    public function getUserType() {
+        return $this->userType;
+    }
+
+    /**
+     * @param string $userType
+     *
+     * @return $this
+     */
+    public function setUserType($userType) {
+        $this->userType = $userType;
 
         return $this;
     }
