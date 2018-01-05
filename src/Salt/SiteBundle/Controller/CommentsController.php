@@ -161,23 +161,21 @@ class CommentsController extends Controller
      */
     public function exportCommentAction(string $itemType, int $id, Request $request)
     {
-        $url = $request->getBaseUrl('_route').'/cftree/'.$itemType.'/'.$id;
+        $url = ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $id]) : $this->generateUrl('doc_tree_view', ['slug' => $id]);
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
-        $rows = array();
-
-        $headers = array('Framework Name', 'Node Address', ($itemType == 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment');
+        $headers = ['Framework Name', 'Node Address', ($itemType === 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment'];
         $rows[] = implode(',', array_filter($headers));
         $comment_data = $repo->findBy([$itemType => $id]);
 
         foreach ($comment_data as $comment) {
-            $comments=array(
-                ($itemType == 'item') ? $comment->getItem()->getFullStatement() : $comment->getDocument()->getTitle(),
+            $comments=[
+                ($itemType === 'item') ? $comment->getItem()->getFullStatement() : $comment->getDocument()->getTitle(),
                 $url,
-                ($itemType == 'item') ? $comment->getItem()->getHumanCodingScheme() : null,
+                ($itemType === 'item') ? $comment->getItem()->getHumanCodingScheme() : null,
                 $comment->getUser()->getUsername(),
                 $comment->getUser()->getOrg()->getName(),
                 $comment->getContent()
-            );
+            ];
             $rows[] = implode(',', array_filter($comments));
         }
 
@@ -192,12 +190,12 @@ class CommentsController extends Controller
      *
      * @param Request $request
      * @param string $itemType
-     * @param int $itemId
+     * @param $item
      * @param UserInterface $user
      *
      * @return JsonResponse
      */
-    private function addComment(Request $request, string $itemType, $itemId, UserInterface $user): Response
+    private function addComment(Request $request, string $itemType, $item, UserInterface $user): Response
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -206,7 +204,7 @@ class CommentsController extends Controller
         $parentId = $request->request->get('parent');
         $content = $request->request->get('content');
 
-        $command = new AddCommentCommand($itemType, $itemId, $user, $content, (int) $parentId);
+        $command = new AddCommentCommand($itemType, $item, $user, $content, (int) $parentId);
         $this->sendCommand($command);
 
         $comment = $command->getComment();
