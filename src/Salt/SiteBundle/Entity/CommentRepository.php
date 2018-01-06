@@ -14,19 +14,23 @@ class CommentRepository extends EntityRepository
 {
     /**
      * @param string $itemType
-     * @param int $itemId
+     * @param LsDoc|LsItem $itemId
      * @param User $user
      * @param string $content
      * @param int $parentId
      *
      * @return Comment
      */
-    public function addComment($itemType, $itemId, User $user, string $content, $parentId = null)
+    public function addComment(string $itemType, $itemId, User $user, string $content, $parentId = null)
     {
         $comment = new Comment();
         $comment->setContent(trim($content));
         $comment->setUser($user);
-        $comment->setItem($itemType.':'.$itemId);
+        if ($itemType == 'item') {
+            $comment->setItem($itemId);
+        } else {
+            $comment->setDocument($itemId);
+        }
         $comment->setCreatedByCurrentUser(true);
 
         $parent = $this->find($parentId);
@@ -71,6 +75,6 @@ class CommentRepository extends EntityRepository
      */
     public function findByTypeItem(array $id): array
     {
-        return $this->findByItem($id['itemType'].':'.$id['itemId']);
+        return $this->findBy([$id['itemType'] => $id['itemId']]);
     }
 }

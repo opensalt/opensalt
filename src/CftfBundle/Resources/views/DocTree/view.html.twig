@@ -174,8 +174,8 @@
                                 <div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
 
                                 <div id="itemOptionsWrapper">
-                                    {% if editorRights %}
                                         <div class="itemOptions" id="itemOptions">
+                                            {% if editorRights %}
                                             {% if isDraft %}
                                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
                                                         data-target="#editItemModal" data-alt-document-disabled="true">
@@ -199,8 +199,11 @@
                                                     Exemplar
                                                 </button>
                                             {% endif %}
+                                            {% endif %}
+                                            {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %}
+                                                <a href="#" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
+                                            {% endif %}
                                         </div>
-                                    {% endif %}
 
                                     <div class="itemOptions" id="documentOptions">
                                         <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
@@ -248,6 +251,9 @@
                                                     Import Logs
                                                 </button>
                                             {% endif %}
+                                        {% endif %}
+                                        {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %}
+                                                <a href="#" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
                                         {% endif %}
                                     </div>
                                 </div>

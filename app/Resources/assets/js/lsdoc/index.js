@@ -699,4 +699,3 @@ $(document).on('ready', adjustWindow);
 
 $(window).on('resize', adjustWindow);
 
-
