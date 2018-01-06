@@ -678,7 +678,7 @@ function ApxDocument(initializer) {
             }
         }
         return assocs;
-    }
+    };
 
     /** Retrieve the association groups for the item, optionally checking only associations of type assocType */
     self.getAssocGroupsForItem = function(item, assocType) {
@@ -697,17 +697,17 @@ function ApxDocument(initializer) {
             }
         }
         return assocGroups;
-    }
+    };
 
     /** get the fancyTree object for this document on the given side */
     self.getFt = function(side) {
         return self["ft" + side].fancytree("getTree");
-    }
+    };
 
     /** get the fancyTree node for an item on the given side */
     self.getFtNode = function(item, side) {
         return self.getFt(side).getNodeByKey(item.identifier);
-    }
+    };
 
     self.getItemUri = function(item) {
         if (empty(self.doc.uriBase) || empty(item) || empty(item.identifier)) {
@@ -872,7 +872,7 @@ function ApxDocument(initializer) {
             // push history state
             apx.pushHistoryState();
         }
-    }
+    };
 
     // UTILITIES FOR FANCYTREE ELEMENTS (LEFT OR RIGHT SIDE)
     // to get an item from a node (getItemFromNode), just use node.data.ref;

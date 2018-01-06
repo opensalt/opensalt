@@ -264,7 +264,7 @@ apx.edit.deleteItems = function(items) {
                 for (var j = 0; j < item.assocs.length; ++j) {
                     var a = item.assocs[j];
                     // when we find the ischildof...
-                    if (a.type == "isChildOf" && a.inverse != true) {
+                    if (a.type === "isChildOf" && a.inverse != true) {
                         // then if it matches the currentAssocGroup...
                         if (a.groupId == apx.mainDoc.currentAssocGroup) {
                             // (Note that we want != here for assocGroup comparison so that null matches undefined)
@@ -437,7 +437,7 @@ apx.edit.prepareExemplarModal = function() {
 apx.edit.prepareAssociateModal = function() {
     // add an option for each association type to the associationFormType select
     for (var i = 0; i < apx.assocTypes.length; ++i) {
-        if (apx.assocTypes[i] != "Exemplar" && apx.assocTypes[i] != "Is Child Of") {
+        if (apx.assocTypes[i] !== "Exemplar" && apx.assocTypes[i] !== "Is Child Of") {
             $("#associationFormType").append('<option value="' + apx.assocTypes[i] + '">' + apx.assocTypes[i] + '</option>');
         }
     }
@@ -566,7 +566,7 @@ apx.edit.prepareAssociateModal = function() {
                 apx.mainDoc.addInverseAssociation(a);
                 
                 // if the origin item is currently showing in treeDoc1 and this wasn't a childOf assoc, show the association marker
-                if (type != "isChildOf") {
+                if (type !== "isChildOf") {
                     var oi = apx.treeDoc1.itemHash[this.origin.identifier];
                     if (!empty(oi) && !empty(oi.identifier)) {
                         $(apx.treeDoc1.getFtNode(oi, 1).li).find(".treeHasAssociation").show();
@@ -574,7 +574,7 @@ apx.edit.prepareAssociateModal = function() {
                 }
             
                 // note that the assocView is no longer fresh, so that if the user clicks to view the association view it will refresh.
-                if (apx.viewMode.assocViewStatus != "not_written") {
+                if (apx.viewMode.assocViewStatus !== "not_written") {
                     apx.viewMode.assocViewStatus = "stale";
                 }
 
@@ -609,45 +609,71 @@ apx.edit.deleteAssociation = function(assocId, callbackFn) {
         method: 'POST'
     }).done(function(data, textStatus, jqXHR){
         apx.spinner.hideModal();
-        
-        var identifier = apx.mainDoc.assocIdHash[assocId].origin.item;
-        
-        // after deletion, delete the association from the data structure
-        apx.mainDoc.deleteAssociation(assocId);
-
-        // if the origin item is currently showing in treeDoc1, hide the association marker if necessary
-        var oi = apx.mainDoc.itemHash[identifier];
-        if (!empty(oi)) {
-            var showAssociationIcon = false;
-            for (var i = 0; i < oi.assocs.length; ++i) {
-                var a = oi.assocs[i];
-                if (a.type != "isChildOf") {
-                    showAssociationIcon = true;
-                    break;
-                }
-            }
-            $jq = $(apx.treeDoc1.getFtNode(apx.treeDoc1.itemHash[identifier], 1).li).find(".treeHasAssociation").first();
-            if (showAssociationIcon) {
-                $jq.show();
-            } else {
-                $jq.hide();
-            }
-        }
-
-        // note that the assocView is no longer fresh, so that if the user clicks to view the association view it will refresh.
-        if (apx.viewMode.assocViewStatus != "not_written") {
-            apx.viewMode.assocViewStatus = "stale";
-        }
-        
-        // then call callbackFn if specified
-        if (callbackFn != null) {
-            callbackFn();
-        }
-
+        apx.edit.performDeleteAssociation(assocId, callbackFn);
     }).fail(function(jqXHR, textStatus, errorThrown){
         apx.spinner.hideModal();
         alert("An error occurred.");
     });
+};
+
+apx.edit.performDeleteAssociation = function(assocId, callbackFn) {
+    if ("undefined" === typeof apx.mainDoc.assocIdHash[assocId]) {
+        // call callbackFn if specified
+        if (callbackFn != null) {
+            callbackFn();
+        }
+
+        return;
+    }
+
+    // Check if we are viewing an item that has changed
+    var reshowItem = false;
+    $.each(apx.mainDoc.currentItem.assocs, function(idx, val) {
+        if (assocId.toString() === val.id.toString()) {
+            reshowItem = true;
+        }
+    });
+
+    var identifier = apx.mainDoc.assocIdHash[assocId].origin.item;
+
+    // after deletion, delete the association from the data structure
+    apx.mainDoc.deleteAssociation(assocId);
+
+    // if the origin item is currently showing in treeDoc1, hide the association marker if necessary
+    var oi = apx.mainDoc.itemHash[identifier];
+    if (!empty(oi)) {
+        var showAssociationIcon = false;
+        for (var i = 0; i < oi.assocs.length; ++i) {
+            var a = oi.assocs[i];
+            if (a.type !== "isChildOf") {
+                showAssociationIcon = true;
+                break;
+            }
+        }
+        $jq = $(apx.treeDoc1.getFtNode(apx.treeDoc1.itemHash[identifier], 1).li).find(".treeHasAssociation").first();
+        if (showAssociationIcon) {
+            $jq.show();
+        } else {
+            $jq.hide();
+        }
+    }
+
+    // note that the assocView is no longer fresh, so that if the user clicks to view the association view it will refresh.
+    if (apx.viewMode.assocViewStatus !== "not_written") {
+        apx.viewMode.assocViewStatus = "stale";
+    }
+
+    if (reshowItem && 'tree' === apx.viewMode.currentView) {
+        apx.mainDoc.showCurrentItem();
+    }
+    if ('assoc' === apx.viewMode.currentView) {
+        apx.viewMode.showAssocView('refresh');
+    }
+
+    // then call callbackFn if specified
+    if (callbackFn != null) {
+        callbackFn();
+    }
 };
 
 

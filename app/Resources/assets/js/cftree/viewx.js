@@ -235,7 +235,7 @@ apx.initializeFirebase = function() {
         .orderByChild('at')
         .startAt(apx.startTime);
     notificationsRef.on('child_added', function(snapshot) {
-        apx.notification(snapshot.val());
+        apx.notifications.notify(snapshot.val());
     });
     console.log('firebase initialized');
 };
@@ -245,15 +245,64 @@ $.notifyDefaults({
     mouse_over: 'pause'
 });
 
-apx.notification = function(val) {
+apx.notifications = apx.notifications||{};
+
+apx.notifications.notify = function(val) {
     console.log('notification', val);
     apx.displayNotification(val);
     // @todo: apply change in UI
+
+    if ("undefined" !== val.changes['reload']){
+        window.location.reload(true);
+    }
+
+    if ("undefined" !== val.changes['redirect']){
+        window.location.replace(val.changes['redirect']);
+    }
+
+    if ("undefined" !== val.changes['assoc-d']){
+        $.each(val.changes['assoc-d'], function(id, identifier) {
+            apx.edit.performDeleteAssociation(id);
+        });
+    }
+
+    if ("undefined" !== val.changes['assoc-a']){
+        $.each(val.changes['assoc-a'], function(id, identifier) {
+            apx.notifications.addAssociation(id);
+        });
+    }
+};
+
+apx.notifications.addAssociation = function(assocId) {
+    // Get association info
+    $.ajax({
+        url: apx.path.doc_tree_association_json.replace('ID', assocId),
+        method: 'GET'
+    }).done(function(data, textStatus, jqXHR){
+        if ("undefined" !== typeof apx.mainDoc.assocIdHash[data.id]) {
+            // Already exists
+            return;
+        }
+
+        var a = apx.mainDoc.addAssociation(data);
+        apx.mainDoc.addInverseAssociation(a);
+
+        if (apx.mainDoc.currentItem.identifier === data.origin.item
+            || apx.mainDoc.currentItem.identifier === data.dest.item) {
+            apx.mainDoc.showCurrentItem();
+        }
+    }).fail(function(jqXHR, textStatus, errorThrown){
+        // Ignore for now
+    });
 };
 
 apx.displayNotification = function(val) {
     // Do not display messages to yourself
     if ('string' === typeof val.by && val.by === apx.me) {
+        return;
+    }
+
+    if ('boolean' === typeof val.show && val.show === false) {
         return;
     }
 

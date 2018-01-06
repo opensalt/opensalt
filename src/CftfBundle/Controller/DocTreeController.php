@@ -19,9 +19,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Util\Compare;
+use Symfony\Component\Routing\Router;
 
 /**
  * Editor Tree controller.
@@ -497,6 +499,40 @@ class DocTreeController extends Controller
         $this->sendCommand($command);
 
         return new Response('OK', Response::HTTP_ACCEPTED);
+    }
+
+    /**
+     * @Route("/association/{id}", name="doc_tree_association_json")
+     * @Method("GET")
+     */
+    public function treeAssociationAction(LsAssociation $association): JsonResponse
+    {
+        $originUri = $association->getOrigin()->getUri();
+        $originUri = preg_replace('/^local:/', '', $originUri);
+        $originUri = $this->get('router')->generate('editor_uri_lookup', ['uri'=>$originUri], Router::ABSOLUTE_URL);
+
+        $destUri = $association->getOrigin()->getUri();
+        $destUri = preg_replace('/^local:/', '', $destUri);
+        $destUri = $this->get('router')->generate('editor_uri_lookup', ['uri'=>$destUri], Router::ABSOLUTE_URL);
+
+        return new JsonResponse([
+            'id' => $association->getId(),
+            'identifier' => $association->getIdentifier(),
+            'origin' => [
+                'doc' => $association->getOrigin()->getLsDoc()->getIdentifier(),
+                'item' => $association->getOrigin()->getIdentifier(),
+                'uri' => $association->getOrigin()->getIdentifier(),
+                //'uri' => $originUri,
+            ],
+            'type' => $association->getType(),
+            'dest' => [
+                'doc' => $association->getDestination()->getLsDoc()->getIdentifier(),
+                'item' => $association->getDestination()->getIdentifier(),
+                'uri' => $association->getDestination()->getIdentifier(),
+                //'uri' => $destUri,
+            ],
+            'groupId' => ($association->getGroup()) ? $association->getGroup()->getId() : null,
+        ]);
     }
 
     /**
