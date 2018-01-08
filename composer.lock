@@ -2380,16 +2380,16 @@
         },
         {
             "name": "gedmo/doctrine-extensions",
-            "version": "v2.4.32",
+            "version": "v2.4.33",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Atlantic18/DoctrineExtensions.git",
-                "reference": "a268224b312353be62d72e6390a286f4166a7542"
+                "reference": "d5fdc573b6a2ecfa29c070ecb3db8397ac55ed78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/a268224b312353be62d72e6390a286f4166a7542",
-                "reference": "a268224b312353be62d72e6390a286f4166a7542",
+                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/d5fdc573b6a2ecfa29c070ecb3db8397ac55ed78",
+                "reference": "d5fdc573b6a2ecfa29c070ecb3db8397ac55ed78",
                 "shasum": ""
             },
             "require": {
@@ -2454,7 +2454,7 @@
                 "tree",
                 "uploadable"
             ],
-            "time": "2017-12-28T14:36:10+00:00"
+            "time": "2018-01-08T14:13:45+00:00"
         },
         {
             "name": "google/auth",
@@ -3451,16 +3451,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "3.7.0",
+            "version": "3.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "fbcee24d70e0eee6d50118fd39b707aec3e9db4f"
+                "reference": "5b176f5abc7a380cfdb58a9dcf5105bc5fb36de5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/fbcee24d70e0eee6d50118fd39b707aec3e9db4f",
-                "reference": "fbcee24d70e0eee6d50118fd39b707aec3e9db4f",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/5b176f5abc7a380cfdb58a9dcf5105bc5fb36de5",
+                "reference": "5b176f5abc7a380cfdb58a9dcf5105bc5fb36de5",
                 "shasum": ""
             },
             "require": {
@@ -3476,6 +3476,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.0",
+                "phpstan/phpstan-phpunit": "^0.9.2",
                 "phpunit/phpunit": "^6.0"
             },
             "type": "library",
@@ -3508,20 +3509,20 @@
                 "google",
                 "sdk"
             ],
-            "time": "2017-12-08T16:31:17+00:00"
+            "time": "2018-01-07T00:52:44+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
-            "version": "1.7.0",
+            "version": "1.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-tokens-php.git",
-                "reference": "cbcbd1fe73bd83873c994b1572ac8ae93ba96d27"
+                "reference": "85b8cdf69bccf0d3fd89cd4b65714696d0eff7e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-tokens-php/zipball/cbcbd1fe73bd83873c994b1572ac8ae93ba96d27",
-                "reference": "cbcbd1fe73bd83873c994b1572ac8ae93ba96d27",
+                "url": "https://api.github.com/repos/kreait/firebase-tokens-php/zipball/85b8cdf69bccf0d3fd89cd4b65714696d0eff7e2",
+                "reference": "85b8cdf69bccf0d3fd89cd4b65714696d0eff7e2",
                 "shasum": ""
             },
             "require": {
@@ -3561,7 +3562,7 @@
                 "google",
                 "token"
             ],
-            "time": "2018-01-03T13:55:29+00:00"
+            "time": "2018-01-07T00:58:21+00:00"
         },
         {
             "name": "kriswallsmith/assetic",
@@ -4714,12 +4715,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codemirror/CodeMirror.git",
-                "reference": "8b9d8e337eb7c1d48d42589a5caee0a2215f620c"
+                "reference": "ed9f4e3901bdece6d756ef8c167c026665778005"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/8b9d8e337eb7c1d48d42589a5caee0a2215f620c",
-                "reference": "8b9d8e337eb7c1d48d42589a5caee0a2215f620c",
+                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/ed9f4e3901bdece6d756ef8c167c026665778005",
+                "reference": "ed9f4e3901bdece6d756ef8c167c026665778005",
                 "shasum": ""
             },
             "require-dev": {
@@ -4762,7 +4763,7 @@
                 "Editor",
                 "JavaScript"
             ],
-            "time": "2018-01-01 12:19:58"
+            "time": "2018-01-08 09:02:45"
         },
         {
             "name": "npm-asset/codemirror-spell-checker",
@@ -5346,50 +5347,52 @@
         },
         {
             "name": "npm-asset/marked",
-            "version": "0.3.9",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/chjj/marked.git",
+                "reference": "ef80689b9e0b5d05d0c8b9b848b7b4fdcd9595d0"
+            },
             "dist": {
-                "type": "tar",
-                "url": "https://registry.npmjs.org/marked/-/marked-0.3.9.tgz",
-                "reference": null,
-                "shasum": "54ce6a57e720c3ac6098374ec625fcbcc97ff290"
+                "type": "zip",
+                "url": "https://api.github.com/repos/chjj/marked/zipball/ef80689b9e0b5d05d0c8b9b848b7b4fdcd9595d0",
+                "reference": "ef80689b9e0b5d05d0c8b9b848b7b4fdcd9595d0",
+                "shasum": ""
             },
             "require-dev": {
+                "npm-asset/front-matter": ">=2.3.0,<3.0.0",
+                "npm-asset/glob-to-regexp": "0.3.0",
                 "npm-asset/gulp": ">=3.8.11,<4.0.0",
                 "npm-asset/gulp-concat": ">=2.5.2,<3.0.0",
                 "npm-asset/gulp-uglify": ">=1.1.0,<2.0.0",
                 "npm-asset/markdown": "*",
+                "npm-asset/markdown-it": "*",
                 "npm-asset/showdown": "*"
             },
-            "bin": {
-                "marked": "./bin/marked"
-            },
+            "bin": [
+                "./bin/marked"
+            ],
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
                     "url": "http://github.com/chjj/marked/issues"
                 },
                 "npm-asset-main": "./lib/marked.js",
-                "npm-asset-man": [
-                    "./man/marked.1"
-                ],
-                "npm-asset-directories": [],
-                "npm-asset-repository": {
-                    "type": "git",
-                    "url": "git://github.com/chjj/marked.git"
-                },
+                "npm-asset-man": "./man/marked.1",
+                "npm-asset-repository": "git://github.com/chjj/marked.git",
                 "npm-asset-scripts": {
                     "test": "node test",
                     "bench": "node test --bench"
                 },
-                "npm-asset-prefer-global": true
+                "branch-alias": {
+                    "dev-master": "0.3.10-dev"
+                }
             },
             "license": [
                 "MIT"
             ],
             "authors": [
-                {
-                    "name": "Christopher Jeffrey"
-                }
+                "Christopher Jeffrey"
             ],
             "description": "A markdown parser built for speed",
             "homepage": "https://github.com/chjj/marked",
@@ -5398,7 +5401,7 @@
                 "markdown",
                 "markup"
             ],
-            "time": "2017-12-23T18:05:12+00:00"
+            "time": "2018-01-07 18:37:25"
         },
         {
             "name": "npm-asset/match-at",
@@ -6607,12 +6610,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "21b3900483e9bc1536a298bc3eb3d647ab56d8a1"
+                "reference": "fe89fd2178cabef137b9a76fa91d64925474b956"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/21b3900483e9bc1536a298bc3eb3d647ab56d8a1",
-                "reference": "21b3900483e9bc1536a298bc3eb3d647ab56d8a1",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/fe89fd2178cabef137b9a76fa91d64925474b956",
+                "reference": "fe89fd2178cabef137b9a76fa91d64925474b956",
                 "shasum": ""
             },
             "conflict": {
@@ -6695,7 +6698,7 @@
                 "symfony/web-profiler-bundle": ">=2,<2.3.19|>=2.4,<2.4.9|>=2.5,<2.5.4",
                 "symfony/yaml": ">=2,<2.0.22|>=2.1,<2.1.7",
                 "thelia/backoffice-default-template": ">=2.1,<2.1.2",
-                "thelia/thelia": ">=2.1,<2.1.2|>=2.1.0-beta1,<2.1.3",
+                "thelia/thelia": ">=2.1.0-beta1,<2.1.3|>=2.1,<2.1.2",
                 "twig/twig": "<1.20",
                 "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.22|>=8,<8.7.5",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
@@ -6744,7 +6747,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-01-03T11:17:07+00:00"
+            "time": "2018-01-07T00:56:33+00:00"
         },
         {
             "name": "sensio/distribution-bundle",
@@ -7618,16 +7621,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "v3.3.14",
+            "version": "v3.3.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "8e2b473de636a65a018b370d5e88778a260f0e33"
+                "reference": "6e2feb700fc20f6ced75d3e8c273b0ecd3dba835"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/8e2b473de636a65a018b370d5e88778a260f0e33",
-                "reference": "8e2b473de636a65a018b370d5e88778a260f0e33",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/6e2feb700fc20f6ced75d3e8c273b0ecd3dba835",
+                "reference": "6e2feb700fc20f6ced75d3e8c273b0ecd3dba835",
                 "shasum": ""
             },
             "require": {
@@ -7768,7 +7771,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2017-12-04T22:26:41+00:00"
+            "time": "2018-01-05T07:28:58+00:00"
         },
         {
             "name": "tetranz/select2entity-bundle",
@@ -8045,16 +8048,16 @@
         },
         {
             "name": "zendframework/zend-diactoros",
-            "version": "1.6.1",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-diactoros.git",
-                "reference": "c8664b92a6d5bc229e48b0923486c097e45a7877"
+                "reference": "ed6ce7e2105c400ca10277643a8327957c0384b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/c8664b92a6d5bc229e48b0923486c097e45a7877",
-                "reference": "c8664b92a6d5bc229e48b0923486c097e45a7877",
+                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/ed6ce7e2105c400ca10277643a8327957c0384b7",
+                "reference": "ed6ce7e2105c400ca10277643a8327957c0384b7",
                 "shasum": ""
             },
             "require": {
@@ -8073,8 +8076,8 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.6-dev",
-                    "dev-develop": "1.7-dev"
+                    "dev-master": "1.7.x-dev",
+                    "dev-develop": "1.8.x-dev"
                 }
             },
             "autoload": {
@@ -8093,7 +8096,7 @@
                 "psr",
                 "psr-7"
             ],
-            "time": "2017-10-12T15:24:51+00:00"
+            "time": "2018-01-04T18:21:48+00:00"
         },
         {
             "name": "zendframework/zend-eventmanager",
@@ -10263,16 +10266,16 @@
         },
         {
             "name": "symfony/phpunit-bridge",
-            "version": "v3.4.2",
+            "version": "v3.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/phpunit-bridge.git",
-                "reference": "074c2e205c849a5fb37b1c24ade03cc975ac8079"
+                "reference": "24ffb71a115c25f5ee56cbfd38e56ed2cdbeb0a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/074c2e205c849a5fb37b1c24ade03cc975ac8079",
-                "reference": "074c2e205c849a5fb37b1c24ade03cc975ac8079",
+                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/24ffb71a115c25f5ee56cbfd38e56ed2cdbeb0a9",
+                "reference": "24ffb71a115c25f5ee56cbfd38e56ed2cdbeb0a9",
                 "shasum": ""
             },
             "require": {
@@ -10292,6 +10295,10 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "3.4-dev"
+                },
+                "thanks": {
+                    "name": "phpunit/phpunit",
+                    "url": "https://github.com/sebastianbergmann/phpunit"
                 }
             },
             "autoload": {
@@ -10321,7 +10328,7 @@
             ],
             "description": "Symfony PHPUnit Bridge",
             "homepage": "https://symfony.com",
-            "time": "2017-12-14T19:40:10+00:00"
+            "time": "2018-01-04T17:19:23+00:00"
         },
         {
             "name": "webmozart/assert",
