@@ -578,6 +578,17 @@ class Framework implements Context
     }
 
     /**
+     * @Given /^I should see an underline in the framework$/
+     */
+    public function iShouldSeeUnderlineInTheFramework()
+    {
+        $I = $this->I;
+
+        $I->click('//span[text()="MD.Table"]/../../..');
+        $I->seeElement('.lsItemDetails u');
+    }
+
+    /**
      * @Then /^I should see "([^"]*)" button$/
      */
     public function iShouldSeeButton($buttonText) {

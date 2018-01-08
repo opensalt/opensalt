@@ -7,6 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Salt\UserBundle\Entity\User;
+use CftfBundle\Entity\LsDoc;
+use CftfBundle\Entity\LsItem;
 
 /**
  * Comment
@@ -61,9 +63,18 @@ class Comment
     private $user;
 
     /**
-     * @var string
+     * @var LsDoc
      *
-     * @ORM\Column(type="string")
+     * @ORM\ManyToOne(targetEntity="\CftfBundle\Entity\LsDoc")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
+     */
+    private $document;
+
+    /**
+     * @var LsItem
+     *
+     * @ORM\ManyToOne(targetEntity="\CftfBundle\Entity\LsItem")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $item;
 
@@ -214,11 +225,11 @@ class Comment
     /**
      * Set item
      *
-     * @param string $item
+     * @param LsItem $item
      *
      * @return Comment
      */
-    public function setItem(string $item): Comment
+    public function setItem(LsItem $item): Comment
     {
         $this->item = $item;
 
@@ -228,11 +239,35 @@ class Comment
     /**
      * Get item
      *
-     * @return string
+     * @return LsItem
      */
-    public function getItem(): string
+    public function getItem(): LsItem
     {
         return $this->item;
+    }
+
+    /**
+     * Set document
+     *
+     * @param LsDoc $document
+     *
+     * @return Comment
+     */
+    public function setDocument(LsDoc $document): Comment
+    {
+        $this->document = $document;
+
+        return $this;
+    }
+
+    /**
+     * Get document
+     *
+     * @return LsDoc
+     */
+    public function getDocument(): LsDoc
+    {
+        return $this->document;
     }
 
     /**

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bc01c2fcd20690c4afa39e40eabf92be",
+    "content-hash": "79019865348acd905fda208a85bae163",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -5344,6 +5344,55 @@
                 "math"
             ],
             "time": "2016-10-10T12:58:39+00:00"
+        },
+        {
+            "name": "npm-asset/markdown-it-underline",
+            "version": "1.0.1",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/markdown-it-underline/-/markdown-it-underline-1.0.1.tgz",
+                "reference": null,
+                "shasum": "43a54a541d95d739b43157701f1da306d7c300b2"
+            },
+            "require-dev": {
+                "npm-asset/markdown-it": ">=8.1.0,<9.0.0",
+                "npm-asset/power-assert": ">=1.4.2,<2.0.0"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/arve0/markdown-it-underline/issues"
+                },
+                "npm-asset-main": "index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/arve0/markdown-it-underline.git"
+                },
+                "npm-asset-scripts": {
+                    "preversion": "npm test",
+                    "postpublish": "git push && git push --tags",
+                    "test": "node test.js"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arve Seljebu"
+                }
+            ],
+            "description": "Renders _underline_ to <u>underline</u>",
+            "homepage": "https://github.com/arve0/markdown-it-underline#readme",
+            "keywords": [
+                "commonmark",
+                "markdown",
+                "markdown-it",
+                "markdown-it-plugin",
+                "underline"
+            ],
+            "time": "2016-11-26T10:44:15+00:00"
         },
         {
             "name": "npm-asset/marked",

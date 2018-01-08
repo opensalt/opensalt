@@ -1,22 +1,23 @@
 const render = (function(){
     var
+        underline = require('markdown-it-underline'),
         mk = require('markdown-it-katex'),
         markdown = require('markdown-it'),
         md = markdown('default', {
             html: true,
             breaks: true,
             linkify: false
-        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
+        }).use(underline).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
         mdInline = markdown('default', {
             html: false,
             breaks: false,
             linkify: false
-        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
+        }).use(underline).use(mk, {"throwOnError": false, "errorColor": " #cc0000"}),
         mdInlineLinked = markdown('default', {
             html: false,
             breaks: false,
             linkify: true
-        }).use(mk, {"throwOnError": false, "errorColor": " #cc0000"})
+        }).use(underline).use(mk, {"throwOnError": false, "errorColor": " #cc0000"})
     ;
 
     function sanitizerBlock(dirty) {

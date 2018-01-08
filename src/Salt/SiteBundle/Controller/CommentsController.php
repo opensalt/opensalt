@@ -39,7 +39,7 @@ class CommentsController extends Controller
      */
     public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user)
     {
-        return $this->addComment($request, 'document', $doc->getId(), $user);
+        return $this->addComment($request, 'document', $doc, $user);
     }
 
     /**
@@ -51,7 +51,7 @@ class CommentsController extends Controller
      */
     public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user)
     {
-        return $this->addComment($request, 'item', $item->getId(), $user);
+        return $this->addComment($request, 'item', $item, $user);
     }
 
     /**
@@ -67,8 +67,10 @@ class CommentsController extends Controller
      */
     public function listAction(array $comments, UserInterface $user = null)
     {
-        if ($user instanceof User) {
-            foreach ($comments as $comment) {
+        if ($user instanceof User)
+        {
+            foreach ($comments as $comment)
+            {
                 $comment->updateStatusForUser($user);
             }
         }
@@ -149,16 +151,51 @@ class CommentsController extends Controller
     }
 
     /**
+     * @Route("/salt/case/export_comment/{itemType}/{id}/comment.csv", name="export_comment_file")
+     *
+     * @param int $id
+     * @param string $itemType
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function exportCommentAction(string $itemType, int $id, Request $request)
+    {
+        $url = ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $id]) : $this->generateUrl('doc_tree_view', ['slug' => $id]);
+        $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
+        $headers = ['Framework Name', 'Node Address', ($itemType === 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment'];
+        $rows[] = implode(',', array_filter($headers));
+        $comment_data = $repo->findBy([$itemType => $id]);
+
+        foreach ($comment_data as $comment) {
+            $comments=[
+                ($itemType === 'item') ? $comment->getItem()->getFullStatement() : $comment->getDocument()->getTitle(),
+                $url,
+                ($itemType === 'item') ? $comment->getItem()->getHumanCodingScheme() : null,
+                $comment->getUser()->getUsername(),
+                $comment->getUser()->getOrg()->getName(),
+                $comment->getContent()
+            ];
+            $rows[] = implode(',', array_filter($comments));
+        }
+
+        $content = implode("\n", $rows);
+        $response = new Response($content);
+        $response->headers->set('content_type', 'text/csv');
+        return $response;
+    }
+
+    /**
      * Add a comment
      *
      * @param Request $request
      * @param string $itemType
-     * @param int $itemId
+     * @param $item
      * @param UserInterface $user
      *
      * @return JsonResponse
      */
-    private function addComment(Request $request, string $itemType, $itemId, UserInterface $user): Response
+    private function addComment(Request $request, string $itemType, $item, UserInterface $user): Response
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -167,7 +204,7 @@ class CommentsController extends Controller
         $parentId = $request->request->get('parent');
         $content = $request->request->get('content');
 
-        $command = new AddCommentCommand($itemType, (int) $itemId, $user, $content, (int) $parentId);
+        $command = new AddCommentCommand($itemType, $item, $user, $content, (int) $parentId);
         $this->sendCommand($command);
 
         $comment = $command->getComment();
@@ -181,7 +218,7 @@ class CommentsController extends Controller
             ->serialize($data, 'json');
     }
 
-    private function apiResponse($data, $statusCode = 200): JsonResponse
+    private function apiResponse($data, $statusCode=200): JsonResponse
     {
         $json = $this->serialize($data);
 

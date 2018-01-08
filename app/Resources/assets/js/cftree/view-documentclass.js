@@ -1736,4 +1736,3 @@ function ApxDocument(initializer) {
     };
 
 }
-
