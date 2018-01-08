@@ -39,6 +39,8 @@ class Login implements Context
     /**
      * @Given I log in as a user with role :role
      * @Given I log in as a :role user
+     * @Given I am logged in as an :role
+     * @Given I am logged in as a :role
      */
     public function loginAsRole(string $role): Login
     {
