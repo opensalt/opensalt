@@ -14,4 +14,4 @@ Feature: A framework with markdown can be loaded
     And I go to the uploaded framework
     Then I should see math in the framework
     And I should see a table in the framework
-
+    And I should see an underline in the framework
