@@ -161,6 +161,7 @@ class CommentsController extends Controller
      */
     public function exportCommentAction(string $itemType, int $id, Request $request)
     {
+        $base_url = $request->server->get('HTTP_HOST');
         $url = ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $id]) : $this->generateUrl('doc_tree_view', ['slug' => $id]);
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
         $headers = ['Framework Name', 'Node Address', ($itemType === 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
@@ -170,7 +171,7 @@ class CommentsController extends Controller
         foreach ($comment_data as $comment) {
             $comments=[
                 ($itemType === 'item') ? $comment->getItem()->getFullStatement() : $comment->getDocument()->getTitle(),
-                $url,
+                $base_url.$url,
                 ($itemType === 'item') ? $comment->getItem()->getHumanCodingScheme() : null,
                 $comment->getUser()->getUsername(),
                 $comment->getUser()->getOrg()->getName(),
