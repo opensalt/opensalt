@@ -36,7 +36,7 @@ class CommentExportCest {
     $I->amOnPage(self::$docPath . $I->getDocId());
     $I->waitForElementNotVisible('#modalSpinner', 120);
     $I->see('Export Comments');
-    $I->click('//*[@id="documentOptions"]/button[2]');
+    $I->click('//*[@id="doc_export_comment"]');
     $url=self::$commentFilePath . 'document/' . $I->getDocId() . '/comment.csv';
     $csvFile=file_get_contents($I->download($url));
     $I->assertNotEmpty($csvFile, 'CSV file is empty');
@@ -52,13 +52,29 @@ class CommentExportCest {
     $I->amOnPage(self::$itemPath . $I->getItemId());
     $I->waitForElementNotVisible('#modalSpinner', 120);
     $I->see('Export Comments');
-    $I->click('//*[@id="itemOptions"]/button');
+    $I->click('//*[@id="item_export_comment"]');
     $url=self::$commentFilePath . 'item/' . $I->getDocId() . '/comment.csv';
     $csvFile=file_get_contents($I->download($url));
     $I->assertNotEmpty($csvFile, 'CSV file is empty');
     $comment=explode("\n", $csvFile);
     $I->assertGreaterThanOrEqual(1, sizeof($comment));
     $I->assertContains('Framework Name,Node Address,HumanCodingScheme,User,Organization,Comment', $csvFile, 'Exported Item Comments');
+  }
+
+  public function seeTimestampInCommentCSV(AcceptanceTester $I, Scenario $scenario) {
+    $loginPage=new Login($I, $scenario);
+    $loginPage->loginAsRole('admin');
+    $I->getLastFrameworkId();
+    $I->amOnPage(self::$docPath . $I->getDocId());
+    $I->waitForElementNotVisible('#modalSpinner', 120);
+    $I->see('Export Comments');
+    $I->click('//*[@id="doc_export_comment"]');
+    $url=self::$commentFilePath . 'document/' . $I->getDocId() . '/comment.csv';
+    $csvFile=file_get_contents($I->download($url));
+    $I->assertNotEmpty($csvFile, 'CSV file is empty');
+    $comment=explode("\n", $csvFile);
+    $I->assertGreaterThanOrEqual(1, sizeof($comment));
+    $I->assertContains('Created Date,Updated Date', $csvFile, 'See Timestamp column in document Comment Report');
   }
 
 }

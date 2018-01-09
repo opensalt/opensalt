@@ -163,7 +163,7 @@ class CommentsController extends Controller
     {
         $url = ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $id]) : $this->generateUrl('doc_tree_view', ['slug' => $id]);
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
-        $headers = ['Framework Name', 'Node Address', ($itemType === 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment'];
+        $headers = ['Framework Name', 'Node Address', ($itemType === 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
         $rows[] = implode(',', array_filter($headers));
         $comment_data = $repo->findBy([$itemType => $id]);
 
@@ -174,7 +174,9 @@ class CommentsController extends Controller
                 ($itemType === 'item') ? $comment->getItem()->getHumanCodingScheme() : null,
                 $comment->getUser()->getUsername(),
                 $comment->getUser()->getOrg()->getName(),
-                $comment->getContent()
+                $comment->getContent(),
+                $comment->getCreatedAt()->format('Y-m-d H:i:s'),
+                $comment->getUpdatedAt()->format('Y-m-d H:i:s')
             ];
             $rows[] = implode(',', array_filter($comments));
         }
