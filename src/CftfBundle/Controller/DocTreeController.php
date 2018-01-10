@@ -90,6 +90,16 @@ class DocTreeController extends Controller
         ];
 
         if ($editorRights) {
+            // get list of all documents
+            $docs = $em->getRepository(LsDoc::class)->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
+            $lsDocs = [];
+            foreach ($docs as $doc) {
+                if ($authChecker->isGranted('view', $doc)) {
+                    $lsDocs[] = $doc;
+                }
+            }
+            $ret['lsDocs'] = $lsDocs;
+
             $docLocks = ['docs' => [], 'items' => []];
             if ($user instanceof User) {
                 $locks = $em->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
