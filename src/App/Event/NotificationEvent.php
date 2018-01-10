@@ -9,7 +9,7 @@ use Symfony\Component\EventDispatcher\Event;
 class NotificationEvent extends Event
 {
     /**
-     * @var string
+     * @var string Message to display/store about the change
      */
     protected $message;
 
@@ -19,11 +19,11 @@ class NotificationEvent extends Event
     protected $doc;
 
     /**
-     * @var array
+     * @var array What changed
      *
      * Structure is:
      * [
-     *   '{doc,item,assoc}-{a,u,d}' => [
+     *   '{doc,item,assoc}-{a,u,d,l,ul}' => [
      *     <id> => <identifier>,
      *     <object> (which is resolved to <id> => <identifier>)
      *   ]
@@ -32,15 +32,32 @@ class NotificationEvent extends Event
     protected $changed;
 
     /**
-     * @var string
+     * @var string The username of the user that made the change
      */
     protected $username;
 
-    public function __construct(string $message, ?LsDoc $doc, array $changed = [])
+    /**
+     * @var string
+     */
+    protected $msgId;
+
+    /**
+     * @var bool Should the notification be displayed to the end user
+     */
+    protected $display;
+
+    public function __construct(string $messageId, string $message, ?LsDoc $doc, array $changed = [], $display = true)
     {
+        $this->msgId = $messageId;
         $this->message = $message;
         $this->doc = $doc;
         $this->changed = $changed;
+        $this->display = $display;
+    }
+
+    public function getMessageId(): string
+    {
+        return $this->msgId;
     }
 
     public function getMessage(): string

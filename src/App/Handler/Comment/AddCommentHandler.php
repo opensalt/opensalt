@@ -37,9 +37,9 @@ class AddCommentHandler extends BaseCommentHandler
 
         /* @todo update to fill in name and document after comments are modified */
         if ($comment->getParent()) {
-            $notification = new NotificationEvent('Comment reply made' /* on [Short name] */, null);
+            $notification = new NotificationEvent('C02', 'Comment reply made' /* on [Short name] */, null);
         } else {
-            $notification = new NotificationEvent('Comment added' /* to [Short name] */, null);
+            $notification = new NotificationEvent('C01', 'Comment added' /* to [Short name] */, null);
         }
         $command->setNotificationEvent($notification);
     }

@@ -43,6 +43,7 @@ class UpdateTreeItemsHandler extends BaseFrameworkHandler
         }
 
         $notification = new NotificationEvent(
+            'D08',
             'Framework tree updated',
             $doc,
             [

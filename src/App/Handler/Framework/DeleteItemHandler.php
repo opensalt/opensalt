@@ -41,6 +41,7 @@ class DeleteItemHandler extends BaseFrameworkHandler
         $this->framework->deleteItem($item);
 
         $notification = new NotificationEvent(
+            'I04',
             sprintf('"%s" and direct associations deleted', $item->getShortStatement()),
             $item->getLsDoc(),
             [

@@ -33,6 +33,7 @@ class UpdateAssociationHandler extends BaseFrameworkHandler
         $this->validate($command, $association);
 
         $notification = new NotificationEvent(
+            'A07',
             sprintf('Association "%s" modified', $association->getIdentifier()),
             $association->getLsDoc(),
             [

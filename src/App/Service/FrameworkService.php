@@ -2,6 +2,9 @@
 
 namespace App\Service;
 
+use App\Entity\Framework\ObjectLock;
+use App\Entity\LockableInterface;
+use App\Exception\AlreadyLockedException;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Entity\LsDefConcept;
@@ -301,6 +304,23 @@ class FrameworkService
     public function deleteSubject(LsDefSubject $subject): void
     {
         $this->em->remove($subject);
+    }
+
+    /**
+     * @throws AlreadyLockedException
+     */
+    public function lockObject(LockableInterface $doc, User $user): ObjectLock
+    {
+        $lockRepo = $this->em->getRepository(ObjectLock::class);
+
+        return $lockRepo->acquireLock($doc, $user);
+    }
+
+    public function unlockObject(LockableInterface $doc, ?User $user = null): void
+    {
+        $lockRepo = $this->em->getRepository(ObjectLock::class);
+
+        $lockRepo->releaseLock($doc, $user);
     }
 
     /**

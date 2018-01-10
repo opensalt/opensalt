@@ -3,8 +3,9 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\ObjectLock;
+use App\Entity\LockableInterface;
+use App\Exception\AlreadyLockedException;
 use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
 use Doctrine\ORM\EntityRepository;
 use Salt\UserBundle\Entity\User;
 
@@ -15,37 +16,92 @@ use Salt\UserBundle\Entity\User;
  */
 class ObjectLockRepository extends EntityRepository
 {
-    public function getDocLock(LsDoc $doc): ?ObjectLock
+    public function findLockFor(LockableInterface $obj): ?ObjectLock
     {
-        return $this->findOneBy(['lock' => 'doc:'.$doc->getId()]);
+        $lock = $this->findOneBy(['objectType' => \get_class($obj), 'objectId' => $obj->getId()]);
+
+        return $lock;
     }
 
-    public function getItemLock(LsItem $item): ?ObjectLock
+    /**
+     * @return ObjectLock[]
+     */
+    public function findDocLocks(LsDoc $doc): array
     {
-        return $this->findOneBy(['lock' => 'item:'.$item->getId()]);
+        $qb = $this->createQueryBuilder('o');
+        $query = $qb->select('o')
+            ->where('o.doc = :doc')
+            ->andWhere('o.timeout > :now')
+            ->setParameter('doc', $doc)
+            ->setParameter('now', new \DateTime())
+            ->getQuery();
+        return $query->getResult();
     }
 
-    public function createDocLock(LsDoc $doc, User $user, int $timeout = 5): ObjectLock
+    /**
+     * @throws AlreadyLockedException
+     */
+    public function acquireLock(LockableInterface $obj, User $user, int $timeout = 5): ObjectLock
     {
-        $lock = new ObjectLock('doc', $doc->getId(), $user, $timeout);
+        $lock = $this->findLockFor($obj);
+
+        if (null !== $lock && $lock->isExpired()) {
+            //$this->release($lock);
+            $this->removeExpiredLocks();
+            $lock = null;
+        }
+
+        if (null !== $lock && $lock->getUser() !== $user) {
+            throw new AlreadyLockedException("Cannot acquire lock");
+        }
+
+        if (null !== $lock && $lock->getUser() === $user) {
+            $lock->addTime(5);
+            return $lock;
+        }
+
+        $lock = new ObjectLock($obj, $user, $timeout);
         $this->getEntityManager()->persist($lock);
 
         return $lock;
     }
 
-    public function createItemLock(LsItem $item, User $user, int $timeout = 5): ObjectLock
+    public function releaseLock(LockableInterface $obj, ?User $user = null): void
     {
-        $lock = new ObjectLock('item', $item->getId(), $user, $timeout);
-        $this->getEntityManager()->persist($lock);
+        $lock = $this->findLockFor($obj);
 
-        return $lock;
+        if (null !== $lock && $lock->isExpired()) {
+            $this->release($lock);
+            $lock = null;
+        }
+
+        if (null === $lock) {
+            return;
+        }
+
+        if (null !== $user && $lock->getUser() !== $user) {
+            throw new \RuntimeException("Cannot release lock for a different user");
+        }
+
+        $this->_em->remove($lock);
+    }
+
+    public function release(ObjectLock $lock): void
+    {
+        if (null === $lock->getId()) {
+            return;
+        }
+
+        //$this->_em->remove($lock);
+        $this->_em->getConnection()->delete($this->getClassMetadata()->getTableName(), ['id' => $lock->getId()]);
+        $this->_em->detach($lock);
     }
 
     public function removeExpiredLocks(): void
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
         $query = $qb->delete($this->_entityName, 'o')
-            ->where('o.expiry < :now')
+            ->where('o.timeout < :now')
             ->setParameter('now', new \DateTime())
             ->getQuery();
         $query->execute();

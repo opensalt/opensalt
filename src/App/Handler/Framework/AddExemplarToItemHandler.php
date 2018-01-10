@@ -38,6 +38,7 @@ class AddExemplarToItemHandler extends BaseFrameworkHandler
         $command->setAssociation($association);
 
         $notification = new NotificationEvent(
+            'A02',
             sprintf('Exemplar (%s) added to "%s"', $url, $item->getShortStatement()),
             $item->getLsDoc(),
             [

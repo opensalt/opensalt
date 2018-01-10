@@ -27,7 +27,8 @@ const render = (function(){
             allowedTags: [
                 'ul', 'ol', 'li',
                 'u', 'b', 'i',
-                'br', 'p'
+                'br', 'p',
+                'sup', 'sub'
             ],
             allowedAttributes: {
                 'ol': [ 'type' ]

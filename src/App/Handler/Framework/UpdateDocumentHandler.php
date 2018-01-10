@@ -34,13 +34,19 @@ class UpdateDocumentHandler extends BaseFrameworkHandler
 
         $doc->setUpdatedAt(new \DateTime());
 
+        $this->framework->unlockObject($doc);
+
         /* @todo Check explicitly for change in publication status for a different notification */
 
         $notification = new NotificationEvent(
+            'D06',
            'Framework document modified',
            $doc,
            [
                'doc-u' => [
+                   $doc->getId() => $doc->getIdentifier(),
+               ],
+               'doc-ul' => [
                    $doc->getId() => $doc->getIdentifier(),
                ],
            ]

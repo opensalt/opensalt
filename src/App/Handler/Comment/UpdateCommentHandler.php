@@ -30,7 +30,7 @@ class UpdateCommentHandler extends BaseCommentHandler
         $comment->setContent($content);
 
         /* @todo update to fill in name and document after comments are modified */
-        $notification = new NotificationEvent('Comment modified' /* for [Short name] */, null);
+        $notification = new NotificationEvent('C04', 'Comment modified' /* for [Short name] */, null);
         $command->setNotificationEvent($notification);
     }
 }

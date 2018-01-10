@@ -54,6 +54,7 @@ class ChangeItemParentHandler extends BaseDoctrineHandler
         }
 
         $notification = new NotificationEvent(
+            'I02',
             sprintf('Parent of "%s" changed from "%s" to "%s"', $dto->lsItem->getShortStatement(), $parentTitle, $dto->parentItem->getShortStatement()),
             $dto->lsItem->getLsDoc(),
             [

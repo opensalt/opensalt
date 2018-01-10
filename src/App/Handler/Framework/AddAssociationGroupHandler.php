@@ -35,6 +35,7 @@ class AddAssociationGroupHandler extends BaseFrameworkHandler
         $this->framework->persistAssociationGroup($associationGroup);
 
         $notification = new NotificationEvent(
+            'G01',
             sprintf('Association Group "%s" added', $associationGroup->getTitle()),
             $associationGroup->getLsDoc(),
             [

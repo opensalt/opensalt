@@ -246,70 +246,207 @@ $.notifyDefaults({
 });
 
 apx.notifications = apx.notifications||{};
+apx.notifyCheck = apx.notifyCheck||{};
 
-apx.notifications.notify = function(val) {
-    console.log('notification', val);
-    apx.displayNotification(val);
-    // @todo: apply change in UI
-
-    if ("undefined" !== val.changes['reload']){
-        window.location.reload(true);
-    }
-
-    if ("undefined" !== val.changes['redirect']){
-        window.location.replace(val.changes['redirect']);
-    }
-
-    if ("undefined" !== val.changes['assoc-d']){
-        $.each(val.changes['assoc-d'], function(id, identifier) {
-            apx.edit.performDeleteAssociation(id);
-        });
-    }
-
-    if ("undefined" !== val.changes['assoc-a']){
-        $.each(val.changes['assoc-a'], function(id, identifier) {
+$.extend(apx.notifications, {
+    'assoc-a': function (list) {
+        $.each(list, function(id, identifier) {
             apx.notifications.addAssociation(id);
         });
-    }
-};
+    },
 
-apx.notifications.addAssociation = function(assocId) {
-    // Get association info
-    $.ajax({
-        url: apx.path.doc_tree_association_json.replace('ID', assocId),
-        method: 'GET'
-    }).done(function(data, textStatus, jqXHR){
-        if ("undefined" !== typeof apx.mainDoc.assocIdHash[data.id]) {
-            // Already exists
+    'assoc-d': function (list) {
+        $.each(list, function(id, identifier) {
+            apx.edit.performDeleteAssociation(id);
+        });
+    },
+
+    'item-l': function(list, msg) {
+        $.each(list, function(id, identifier) {
+            apx.locks['items'][id] = (msg.by !== apx.me);
+            if (id.toString() === apx.mainDoc.currentItem.id.toString()) {
+                apx.mainDoc.showCurrentItem();
+            }
+        });
+    },
+
+    'item-a': function(list) {
+        $.each(list, function(id, identifier) {
+        });
+    },
+
+    'item-u': function(list) {
+        $.each(list, function(id, identifier) {
+        });
+    },
+
+    'item-d': function(list) {
+        $.each(list, function(id, identifier) {
+        });
+    },
+
+    'item-ul': function(list) {
+        $.each(list, function(id, identifier) {
+            apx.locks['items'][id] = false;
+            if (id.toString() === apx.mainDoc.currentItem.id.toString()) {
+                apx.mainDoc.showCurrentItem();
+            }
+        });
+    },
+
+    'doc-l': function(list, msg) {
+        $.each(list, function(id, identifier) {
+            if (apx.lsDocId.toString() === id.toString()) {
+                apx.locks['docs'][id] = (msg.by !== apx.me);
+                apx.mainDoc.showCurrentItem();
+            }
+        });
+    },
+
+    'doc-a': function(list) {
+        // Document Add should not occur
+    },
+
+    'doc-u': function(list) {
+        $.each(list, function(id, identifier) {
+        });
+    },
+
+    'doc-d': function(list) {
+        $.each(list, function(id, identifier) {
+        });
+    },
+
+    'doc-ul': function(list) {
+        $.each(list, function(id, identifier) {
+            if (apx.lsDocId.toString() === id.toString()) {
+                console.log('matched');
+                apx.locks['docs'][id] = false;
+                apx.mainDoc.showCurrentItem();
+            }
+        });
+    },
+
+    'reload': function (list) {
+        window.location.reload(true);
+    },
+
+    'redirect': function (list) {
+        window.location.replace(list);
+    },
+
+
+    displayNotification: function(notification) {
+        // Do not display messages to yourself
+        if ('string' === typeof notification.by && notification.by === apx.me) {
             return;
         }
 
-        var a = apx.mainDoc.addAssociation(data);
-        apx.mainDoc.addInverseAssociation(a);
-
-        if (apx.mainDoc.currentItem.identifier === data.origin.item
-            || apx.mainDoc.currentItem.identifier === data.dest.item) {
-            apx.mainDoc.showCurrentItem();
+        if ('boolean' === typeof notification.show && notification.show === false) {
+            return;
         }
-    }).fail(function(jqXHR, textStatus, errorThrown){
-        // Ignore for now
-    });
-};
 
-apx.displayNotification = function(val) {
-    // Do not display messages to yourself
-    if ('string' === typeof val.by && val.by === apx.me) {
-        return;
+        if ('undefined' !== typeof notification.msgId && 'undefined' !== typeof apx.notifyCheck[notification.msgId]) {
+            if (false === apx.notifyCheck[notification.msgId](notification)) {
+                return;
+            }
+        }
+
+        $.notify({
+            message: notification.msg
+        }, 5000);
+    },
+
+    notify: function(val) {
+        console.log('notification', val);
+        apx.notifications.displayNotification(val);
+        // @todo: apply change in UI
+
+        if ("object" === typeof val.changes) {
+            $.each(val.changes, function(key, list) {
+                if ("function" === typeof apx.notifications[key]) {
+                    apx.notifications[key](list, val);
+                } else {
+                    console.log("function not found", key, list);
+                }
+            });
+        }
+    },
+
+    addAssociation: function(assocId) {
+        // Get association info
+        $.ajax({
+            url: apx.path.doc_tree_association_json.replace('ID', assocId),
+            method: 'GET'
+        }).done(function(data, textStatus, jqXHR){
+            if ("undefined" !== typeof apx.mainDoc.assocIdHash[data.id]) {
+                // Already exists
+                return;
+            }
+
+            let a = apx.mainDoc.addAssociation(data);
+            apx.mainDoc.addInverseAssociation(a);
+
+            if (apx.mainDoc.currentItem.identifier === data.origin.item
+                || apx.mainDoc.currentItem.identifier === data.dest.item) {
+                apx.mainDoc.showCurrentItem();
+            }
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            // Ignore for now
+        });
     }
+});
 
-    if ('boolean' === typeof val.show && val.show === false) {
-        return;
+$.extend(apx.notifyCheck, {
+    'D04': function(msg) {
+        // document lock
+        console.log('got D04', msg);
+        let display = false;
+        $.each(msg.changes['doc-l'], function(id, identifier) {
+           if ("boolean" !== typeof apx.locks['docs'][id]) {
+               display = true;
+           }
+        });
+
+        return display;
+    },
+    'D05': function(msg) {
+        // document unlock
+        console.log('got D05', msg);
+        let display = false;
+        $.each(msg.changes['doc-ul'], function(id, identifier) {
+            if ("boolean" === typeof apx.locks['docs'][id] && true === apx.locks['docs'][id]) {
+                display = true;
+            }
+        });
+
+        return display;
+    },
+    'I06': function(msg) {
+        // item lock
+        console.log('got I06', msg);
+        let display = false;
+        $.each(msg.changes['item-l'], function(id, identifier) {
+            if ("boolean" !== typeof apx.locks['items'][id]) {
+                display = true;
+            }
+        });
+
+        return display;
+    },
+    'I07': function(msg) {
+        // item unlock
+        console.log('got I07', msg);
+        let display = false;
+        $.each(msg.changes['item-ul'], function(id, identifier) {
+            if ("boolean" === typeof apx.locks['items'][id] && true === apx.locks['items'][id]) {
+                display = true;
+            }
+        });
+
+        return display;
     }
-
-    $.notify({
-        message: val.msg
-    }, 5000);
-};
+});
 
 //////////////////////////////////////////////////////
 /**

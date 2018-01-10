@@ -25,7 +25,7 @@ class DeleteCommentHandler extends BaseCommentHandler
         $this->em->remove($comment);
 
         /* @todo update to fill in name and document after comments are modified */
-        $notification = new NotificationEvent('Comment deleted' /* for [Short name] */, null);
+        $notification = new NotificationEvent('C03', 'Comment deleted' /* for [Short name] */, null);
         $command->setNotificationEvent($notification);
     }
 }

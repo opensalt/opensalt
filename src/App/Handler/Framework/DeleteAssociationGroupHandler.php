@@ -35,6 +35,7 @@ class DeleteAssociationGroupHandler extends BaseFrameworkHandler
         $this->framework->deleteAssociationGroup($associationGroup);
 
         $notification = new NotificationEvent(
+            'G02',
             sprintf('Association Group "%s" deleted', $associationGroup->getTitle()),
             $associationGroup->getLsDoc(),
             [

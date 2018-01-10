@@ -597,6 +597,7 @@
             {% if editorRights %}
                 apx.me = "{{ app.user.username |e('js') }}";
                 apx.startTime = {{ "now"|date("Uv") }};
+                apx.locks = {{ locks |json_encode |raw }};
             {% endif %}
 
             // loaded docid and initial lsItem and assocGroup to show
@@ -613,11 +614,13 @@
             apx.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';
             apx.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
             apx.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
+            apx.path.lsdoc_unlock = '{{ path('lsdoc_unlock', {'id':'ID'}) }}';
             apx.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
             apx.path.lsitem_edit = '{{ path('lsitem_edit', {'id':'ID'}) }}';
             apx.path.lsitem_tree_delete = '{{ path('lsitem_tree_delete', {'id':'ID', 'includingChildren':'CHILDREN'}) }}';
             apx.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC', 'parent':'PARENT'}) }}';
             apx.path.lsitem_copy_item = '{{ path('lsitem_copy_item', {'id':'ID'}) }}';
+            apx.path.lsitem_unlock = '{{ path('lsitem_unlock', {'id':'ID'}) }}';
             apx.path.lsassociation_tree_new = '{{ path('lsassociation_tree_new', {'lsDoc': lsDocId}) }}';
             apx.path.lsassociation_remove = '{{ path('lsassociation_remove', {'id':'ID'}) }}';
             apx.path.lsassociation_tree_new_exemplar = '{{ path('lsassociation_tree_new_exemplar', {'originLsItem':'ORIGIN_ID'}) }}';

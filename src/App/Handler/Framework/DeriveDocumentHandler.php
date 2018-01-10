@@ -49,6 +49,7 @@ class DeriveDocumentHandler extends BaseDoctrineHandler
         $command->setDerivedDoc($derivativeDoc);
 
         $notification = new NotificationEvent(
+            'D03',
             sprintf('Derived framework "%s" added', $derivativeDoc->getTitle()),
             $derivativeDoc,
             [

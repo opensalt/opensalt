@@ -38,6 +38,7 @@ class CopyItemToDocHandler extends BaseDoctrineHandler
         $command->setNewItem($newItem);
 
         $notification = new NotificationEvent(
+            'I03',
             sprintf('Copied "%s" from "%s"', $newItem->getShortStatement(), substr($dto->lsItem->getLsDoc()->getTitle(), 0, 60)),
             $newItem->getLsDoc(),
             [

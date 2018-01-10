@@ -58,6 +58,7 @@ class AddItemHandler extends BaseFrameworkHandler
             $changes['item-u'] = [$parent];
         }
         $notification = new NotificationEvent(
+            'I01',
             sprintf('"%s" added as a child of "%s"', $item->getShortStatement(), $parentTitle),
             $item->getLsDoc(),
             $changes

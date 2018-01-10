@@ -47,6 +47,7 @@ class RemoveChildHandler extends BaseDoctrineHandler
             $fromTitle = $this->getTitle($association->getOrigin());
             $toTitle = $this->getTitle($association->getDestination());
             $notification = new NotificationEvent(
+                'A06',
                 sprintf('"%s" association deleted from "%s" to "%s"', LsAssociation::CHILD_OF, $fromTitle, $toTitle),
                 $parent->getLsDoc(),
                 [

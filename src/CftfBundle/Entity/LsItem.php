@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Entity;
 
+use App\Entity\LockableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -90,7 +91,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     }
  * )
  */
-class LsItem extends AbstractLsBase implements CaseApiInterface
+class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterface
 {
     /**
      * @var string

@@ -34,11 +34,17 @@ class UpdateItemHandler extends BaseFrameworkHandler
 
         $item->setUpdatedAt(new \DateTime()); // Timestampable does not follow up the chain
 
+        $this->framework->unlockObject($item);
+
         $notification = new NotificationEvent(
+            'I08',
             sprintf('"%s" modified', $item->getShortStatement()),
             $item->getLsDoc(),
             [
                 'item-u' => [
+                    $item->getId() => $item->getIdentifier(),
+                ],
+                'item-ul' => [
                     $item->getId() => $item->getIdentifier(),
                 ],
             ]

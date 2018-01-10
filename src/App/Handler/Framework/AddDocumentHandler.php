@@ -35,6 +35,7 @@ class AddDocumentHandler extends BaseFrameworkHandler
         $this->framework->addDocument($doc);
 
         $notification = new NotificationEvent(
+            'D01',
             sprintf('Framework "%s" added', $doc->getTitle()),
             $doc,
             [

@@ -60,6 +60,7 @@ class UpdateFrameworkHandler extends AbstractDoctrineHandler
         $this->frameworkUpdater->update($doc, $fileContent, $frameworkToAssociate, $cfItemKeys);
 
         $notification = new NotificationEvent(
+            'D07',
             'Framework document updated',
             $doc,
             [

@@ -31,6 +31,6 @@ class NotificationLoggingListener
      */
     public function logNotification(NotificationEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        $this->logger->info('Notification Received', ['msg' => $event->getMessage(), 'user' => $event->getUsername()]);
+        $this->logger->info('Notification Received', ['msgId' => $event->getMessageId(), 'msg' => $event->getMessage(), 'user' => $event->getUsername()]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Entity;
 
+use App\Entity\LockableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -59,7 +60,7 @@ use App\Util\Compare;
  *     }
  * )
  */
-class LsDoc extends AbstractLsBase implements CaseApiInterface
+class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterface
 {
     public const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
     public const ADOPTION_STATUS_DRAFT = 'Draft';

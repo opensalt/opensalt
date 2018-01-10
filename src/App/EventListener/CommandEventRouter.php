@@ -66,13 +66,13 @@ class CommandEventRouter
 
         $this->sendCommand($event, $dispatcher);
 
-        $notification = $command->getNotificationEvent();
+        $notification = $this->resolveNotification($command);
         $this->addChangeEntry($command, $notification);
 
         $this->em->flush();
         $this->em->getConnection()->commit();
 
-        $this->sendNotification($dispatcher, $notification, $command);
+        $this->sendNotification($dispatcher, $notification);
     }
 
     /**
@@ -98,17 +98,11 @@ class CommandEventRouter
         }
     }
 
-    protected function addChangeEntry(CommandInterface $command, ?NotificationEvent $notification): void
+    protected function addChangeEntry(CommandInterface $command, NotificationEvent $notification): void
     {
         $changeEntry = $command->getChangeEntry();
         if (null === $changeEntry) {
-            $user = $this->getCurrentUser();
-
-            if (null !== $notification) {
-                $changeEntry = new ChangeEntry($notification->getDoc(), $user, $notification->getMessage(), $notification->getChanged());
-            } else {
-                $changeEntry = new ChangeEntry(null, $user, \get_class($command) . ' occurred with no data');
-            }
+            $changeEntry = new ChangeEntry($notification->getDoc(), $this->getCurrentUser(), $notification->getMessage(), $notification->getChanged());
         }
 
         // We only store the last change in the table, older entries are in the audit table
@@ -121,16 +115,8 @@ class CommandEventRouter
         }
     }
 
-    protected function sendNotification(EventDispatcherInterface $dispatcher, ?NotificationEvent $notification, CommandInterface $command): void
+    protected function sendNotification(EventDispatcherInterface $dispatcher, NotificationEvent $notification): void
     {
-        if (null === $notification) {
-            $notification = new NotificationEvent('Command ' . \get_class($command) . ' handled', null);
-        }
-        if (null === $notification->getUsername()) {
-            $notification->setUsername($this->getCurrentUsername());
-        }
-
-        $notification->resolveChanged();
         $dispatcher->dispatch(NotificationEvent::class, $notification);
     }
 
@@ -157,5 +143,21 @@ class CommandEventRouter
         }
 
         return $user->getUsername();
+    }
+
+    protected function resolveNotification(CommandInterface $command): NotificationEvent
+    {
+        $notification = $command->getNotificationEvent();
+        if (null === $notification) {
+            $notification = new NotificationEvent('X01', 'Command ' . \get_class($command) . ' handled', null, [], false);
+        }
+
+        if (null === $notification->getUsername()) {
+            $notification->setUsername($this->getCurrentUsername());
+        }
+
+        $notification->resolveChanged();
+
+        return $notification;
     }
 }

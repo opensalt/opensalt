@@ -68,6 +68,7 @@ class NotificationToFirebaseListener
         $docId = $doc->getId();
 
         $notification = [
+            'msgId' => $event->getMessageId(),
             'msg' => $event->getMessage(),
             'by' => $event->getUsername(),
             'changes' => $event->getChanged(),

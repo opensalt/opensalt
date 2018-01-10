@@ -8,11 +8,13 @@ use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateTreeItemsCommand;
+use App\Entity\Framework\ObjectLock;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Form\Type\LsDocListType;
+use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -24,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Util\Compare;
 use Symfony\Component\Routing\Router;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Editor Tree controller.
@@ -46,7 +49,7 @@ class DocTreeController extends Controller
      * @Method({"GET"})
      * @Template()
      */
-    public function viewAction(LsDoc $lsDoc, $_format = 'html', $lsItemId = null, $assocGroup = null)
+    public function viewAction(LsDoc $lsDoc, UserInterface $user, $_format = 'html', $lsItemId = null, $assocGroup = null)
     {
         // get form field for selecting a document (for tree2)
         $form = $this->createForm(LsDocListType::class, null, ['ajax' => false]);
@@ -74,10 +77,24 @@ class DocTreeController extends Controller
             }
         }
 
+        $docLocks = ['docs' => [], 'items' => []];
+        if ($user instanceof User) {
+            $locks = $em->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
+            foreach ($locks as $lock) {
+                if (LsDoc::class === $lock->getObjectType()) {
+                    $docLocks['docs'][$lock->getObjectId()] = $lock->getUser() !== $user;
+                }
+                if (LsItem::class === $lock->getObjectType()) {
+                    $docLocks['items'][$lock->getObjectId()] = $lock->getUser() !== $user;
+                }
+            }
+        }
+
         return [
             'lsDoc' => $lsDoc,
             'lsDocId' => $lsDoc->getId(),
             'lsDocTitle' => $lsDoc->getTitle(),
+            'locks' => $docLocks,
 
             'editorRights' => $authChecker->isGranted('edit', $lsDoc),
             'isDraft' => $lsDoc->isDraft(),
@@ -507,6 +524,7 @@ class DocTreeController extends Controller
      */
     public function treeAssociationAction(LsAssociation $association): JsonResponse
     {
+        /*
         $originUri = $association->getOrigin()->getUri();
         $originUri = preg_replace('/^local:/', '', $originUri);
         $originUri = $this->get('router')->generate('editor_uri_lookup', ['uri'=>$originUri], Router::ABSOLUTE_URL);
@@ -514,6 +532,7 @@ class DocTreeController extends Controller
         $destUri = $association->getOrigin()->getUri();
         $destUri = preg_replace('/^local:/', '', $destUri);
         $destUri = $this->get('router')->generate('editor_uri_lookup', ['uri'=>$destUri], Router::ABSOLUTE_URL);
+        */
 
         return new JsonResponse([
             'id' => $association->getId(),
@@ -531,7 +550,7 @@ class DocTreeController extends Controller
                 'uri' => $association->getDestination()->getIdentifier(),
                 //'uri' => $destUri,
             ],
-            'groupId' => ($association->getGroup()) ? $association->getGroup()->getId() : null,
+            'groupId' => $association->getGroup() ? $association->getGroup()->getId() : null,
         ]);
     }
 

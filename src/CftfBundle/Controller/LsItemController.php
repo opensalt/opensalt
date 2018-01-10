@@ -7,8 +7,11 @@ use App\Command\Framework\AddItemCommand;
 use App\Command\Framework\ChangeItemParentCommand;
 use App\Command\Framework\CopyItemToDocCommand;
 use App\Command\Framework\DeleteItemCommand;
+use App\Command\Framework\LockItemCommand;
 use App\Command\Framework\RemoveChildCommand;
+use App\Command\Framework\UnlockItemCommand;
 use App\Command\Framework\UpdateItemCommand;
+use App\Exception\AlreadyLockedException;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
@@ -18,16 +21,19 @@ use CftfBundle\Form\Command\CopyToLsDocCommand;
 use CftfBundle\Form\Type\LsDocListType;
 use CftfBundle\Form\Type\LsItemParentType;
 use CftfBundle\Form\Type\LsItemType;
+use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * LsItem controller.
@@ -145,6 +151,28 @@ class LsItemController extends Controller
     }
 
     /**
+     * @Route("/{id}/unlock", name="lsitem_unlock")
+     * @Method({"POST"})
+     * @Security("is_granted('edit', item)")
+     *
+     * @param LsItem $item
+     * @param User $user
+     *
+     * @return JsonResponse
+     */
+    public function releaseLockAction(LsItem $item, UserInterface $user)
+    {
+        try {
+            $command = new UnlockItemCommand($item, $user);
+            $this->sendCommand($command);
+        } catch (\Exception $e) {
+            return new JsonResponse($e->getMessage());
+        }
+
+        return new JsonResponse('OK');
+    }
+
+    /**
      * Displays a form to edit an existing LsItem entity.
      *
      * @Route("/{id}/edit", name="lsitem_edit")
@@ -154,12 +182,23 @@ class LsItemController extends Controller
      *
      * @param Request $request
      * @param LsItem $lsItem
+     * @param User $user
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function editAction(Request $request, LsItem $lsItem)
+    public function editAction(Request $request, LsItem $lsItem, UserInterface $user)
     {
         $ajax = $request->isXmlHttpRequest();
+
+        try {
+            $command = new LockItemCommand($lsItem, $user);
+            $this->sendCommand($command);
+        } catch (AlreadyLockedException $e) {
+            return $this->render(
+                'CftfBundle:LsItem:locked.html.twig',
+                []
+            );
+        }
 
         $deleteForm = $this->createDeleteForm($lsItem);
         $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);

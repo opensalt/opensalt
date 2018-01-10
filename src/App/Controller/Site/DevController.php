@@ -3,21 +3,14 @@
 namespace App\Controller\Site;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class DevController extends Controller
+class DevController extends AbstractController
 {
-    public function __construct(ContainerInterface $container = null)
-    {
-        // event_dispatcher
-        $this->setContainer($container);
-    }
-
     /**
      * @Route("/dev/cookie", name="dev_cookie")
      * @Security("has_role('ROLE_SUPER_USER')")

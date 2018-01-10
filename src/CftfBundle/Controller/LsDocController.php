@@ -6,10 +6,14 @@ use App\Command\CommandDispatcher;
 use App\Command\Framework\AddDocumentCommand;
 use App\Command\Framework\DeleteDocumentCommand;
 use App\Command\Framework\DeriveDocumentCommand;
+use App\Command\Framework\LockDocumentCommand;
+use App\Command\Framework\UnlockDocumentCommand;
 use App\Command\Framework\UpdateDocumentCommand;
 use App\Command\Framework\UpdateFrameworkCommand;
+use App\Exception\AlreadyLockedException;
 use CftfBundle\Form\Type\RemoteCftfServerType;
 use CftfBundle\Form\Type\LsDocCreateType;
+use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -21,6 +25,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * LsDoc controller.
@@ -233,6 +238,28 @@ class LsDocController extends Controller
     }
 
     /**
+     * @Route("/{id}/unlock", name="lsdoc_unlock")
+     * @Method({"POST"})
+     * @Security("is_granted('edit', lsDoc)")
+     *
+     * @param LsDoc $lsDoc
+     * @param User $user
+     *
+     * @return JsonResponse
+     */
+    public function releaseLockAction(LsDoc $lsDoc, UserInterface $user): JsonResponse
+    {
+        try {
+            $command = new UnlockDocumentCommand($lsDoc, $user);
+            $this->sendCommand($command);
+        } catch (\Exception $e) {
+            return new JsonResponse($e->getMessage());
+        }
+
+        return new JsonResponse('OK');
+    }
+
+    /**
      * Displays a form to edit an existing LsDoc entity.
      *
      * @Route("/{id}/edit", name="lsdoc_edit")
@@ -242,12 +269,23 @@ class LsDocController extends Controller
      *
      * @param Request $request
      * @param LsDoc $lsDoc
+     * @param User $user
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function editAction(Request $request, LsDoc $lsDoc)
+    public function editAction(Request $request, LsDoc $lsDoc, UserInterface $user)
     {
         $ajax = $request->isXmlHttpRequest();
+
+        try {
+            $command = new LockDocumentCommand($lsDoc, $user);
+            $this->sendCommand($command);
+        } catch (AlreadyLockedException $e) {
+            return $this->render(
+                'CftfBundle:LsDoc:locked.html.twig',
+                []
+            );
+        }
 
         $deleteForm = $this->createDeleteForm($lsDoc);
         $editForm = $this->createForm(

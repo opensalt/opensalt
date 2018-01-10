@@ -46,6 +46,7 @@ class DeleteAssociationHandler extends BaseFrameworkHandler
         $toTitle = $this->getTitle($association->getDestination());
         if (LsAssociation::EXEMPLAR === $association->getType()) {
             $notification = new NotificationEvent(
+                'A04',
                 sprintf('Exemplar (%s) removed from "%s"', $toTitle, $fromTitle),
                 $doc,
                 [
@@ -56,6 +57,7 @@ class DeleteAssociationHandler extends BaseFrameworkHandler
             );
         } else {
             $notification = new NotificationEvent(
+                'A05',
                 sprintf('"%s" association deleted from "%s" to "%s"', $association->getType(), $fromTitle, $toTitle),
                 $doc,
                 [

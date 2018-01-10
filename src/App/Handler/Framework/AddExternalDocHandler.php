@@ -41,6 +41,7 @@ class AddExternalDocHandler extends BaseDoctrineHandler
         $this->em->persist($doc);
 
         $notification = new NotificationEvent(
+            'D02',
             sprintf('Framework "%s" modified', $doc->getTitle()),
             $doc,
             [

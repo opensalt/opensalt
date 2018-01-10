@@ -9,29 +9,43 @@ apx.edit = {};
 
 /** Edit the document data */
 apx.edit.prepareDocEditModal = function() {
-    var $editDocModal = $('#editDocModal');
-    $editDocModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
-    $editDocModal.on('shown.bs.modal', function(e){
-        $('#editDocModal').find('.modal-body').load(
+    let $modal = $('#editDocModal');
+    $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
+    $modal.on('shown.bs.modal', function(e){
+        $modal.data('mode', 'open');
+        $modal.find('.modal-footer .btn-save').hide();
+        $modal.find('.modal-body').load(
             apx.path.lsdoc_edit.replace('ID', apx.lsDocId),
             null,
             function(responseText, textStatus, jqXHR){
                 $('#ls_doc_subjects').select2entity({dropdownParent: $('#ls_doc_subjects').closest('div')});
+                if ($modal.find('form[name="ls_doc"]').length) {
+                    $modal.find('.modal-footer .btn-save').show();
+                }
             }
         );
     }).on('hide.bs.modal', function(e){
         $('#ls_doc_subjects').select2('destroy');
+
+        if ('open' === $modal.data('mode')) {
+            $.ajax({
+                url: apx.path.lsdoc_unlock.replace('ID', apx.lsDocId),
+                method: 'POST'
+            });
+        }
+        $modal.data('mode', 'close');
     }).on('hidden.bs.modal', function(e){
-        $('#editDocModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
+        $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
     });
-    $editDocModal.find('.btn-save').on('click', function(e){
+    $modal.find('.btn-save').on('click', function(e){
+        $modal.data('mode', 'save');
         apx.spinner.showModal("Updating document");
         $.ajax({
             url: apx.path.lsdoc_edit.replace('ID', apx.lsDocId),
             method: 'POST',
-            data: $editDocModal.find('form[name=ls_doc]').serialize()
+            data: $modal.find('form[name=ls_doc]').serialize()
         }).done(function(data, textStatus, jqXHR){
-            $editDocModal.modal('hide');
+            $modal.modal('hide');
             // on successful update, reload the doc
             window.location.reload();
             /*
@@ -41,21 +55,21 @@ apx.edit.prepareDocEditModal = function() {
                "adoptionStatus": $("#ls_doc_adoptionStatus").val(),
                };
                */
-
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();
-            $editDocModal.find('.modal-body').html(jqXHR.responseText);
+            $modal.find('.modal-body').html(jqXHR.responseText);
         });
     });
 };
 
 /** Edit an item */
 apx.edit.prepareItemEditModal = function() {
-    var $editItemModal = $('#editItemModal');
-    var statementMde, notesMde;
-    $editItemModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
-    $editItemModal.on('shown.bs.modal', function(e){
-        $('#editItemModal').find('.modal-body').load(
+    let $modal = $('#editItemModal');
+    let statementMde, notesMde;
+    $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
+    $modal.on('shown.bs.modal', function(e){
+        $modal.data('mode', 'open');
+        $modal.find('.modal-body').load(
             apx.path.lsitem_edit.replace('ID', apx.mainDoc.currentItem.id),
             null,
             function(responseText, textStatus, jqXHR) {
@@ -72,8 +86,16 @@ apx.edit.prepareItemEditModal = function() {
         );
     }).on('hide.bs.modal', function(e){
         $('#ls_item_itemType').select2('destroy');
+
+        if ('open' === $modal.data('mode')) {
+            $.ajax({
+                url: apx.path.lsitem_unlock.replace('ID', apx.mainDoc.currentItem.id),
+                method: 'POST'
+            });
+        }
+        $modal.data('mode', 'close');
     }).on('hidden.bs.modal', function(e){
-        $('#editItemModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
+        $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
         if (null !== statementMde) {
             statementMde.toTextArea();
             statementMde = null;
@@ -81,7 +103,8 @@ apx.edit.prepareItemEditModal = function() {
             notesMde = null;
         }
     });
-    $editItemModal.find('.btn-save').on('click', function(e){
+    $modal.find('.btn-save').on('click', function(e){
+        $modal.data('mode', 'save');
         apx.spinner.showModal("Updating item");
         statementMde.toTextArea();
         statementMde = null;
@@ -90,22 +113,22 @@ apx.edit.prepareItemEditModal = function() {
         $.ajax({
             url: apx.path.lsitem_edit.replace('ID', apx.mainDoc.currentItem.id),
             method: 'POST',
-            data: $editItemModal.find('form[name=ls_item]').serialize()
+            data: $modal.find('form[name=ls_item]').serialize()
         }).done(function(data, textStatus, jqXHR){
             apx.spinner.hideModal();
-            $editItemModal.modal('hide');
+            $modal.modal('hide');
 
             // on successful edit, update the item
-            var item = apx.mainDoc.currentItem;
+            let item = apx.mainDoc.currentItem;
             
             // first delete existing attributes (in case they were cleared)
-            for (var key in item) {
-                if (key != "nodeType" && key != "assocs" && key != "setToParent") {
+            for (let key in item) {
+                if (key !== "nodeType" && key !== "assocs" && key !== "setToParent") {
                     delete item[key];
                 }
             }
             // then (re-)set attributes
-            for (var key in data) {
+            for (let key in data) {
                 item[key] = data[key];
             }
             
@@ -115,7 +138,7 @@ apx.edit.prepareItemEditModal = function() {
 
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();
-            $editItemModal.find('.modal-body').html(jqXHR.responseText);
+            $modal.find('.modal-body').html(jqXHR.responseText);
             $('#ls_item_educationalAlignment').multiselect({
                 optionLabel: function(element) {
                     return $(element).html() + ' - ' + $(element).data('title');
@@ -152,7 +175,7 @@ apx.edit.prepareAddNewChildModal = function() {
     var $addNewChildModal = $('#addNewChildModal');
     $addNewChildModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
     $addNewChildModal.on('shown.bs.modal', function(e){
-        $('#addNewChildModal').find('.modal-body').load(
+        $addNewChildModal.find('.modal-body').load(
             getPath(),
             null,
             function(responseText, textStatus, jqXHR){
@@ -170,7 +193,7 @@ apx.edit.prepareAddNewChildModal = function() {
     }).on('hide.bs.modal', function(e){
         $('#ls_item_itemType').select2('destroy');
     }).on('hidden.bs.modal', function(e){
-        $('#addNewChildModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
+        $addNewChildModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
         if (null !== statementMde) {
             statementMde.toTextArea();
             statementMde = null;

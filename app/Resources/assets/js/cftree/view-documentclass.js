@@ -1296,10 +1296,9 @@ function ApxDocument(initializer) {
 
         var $jq = $("#itemInfo");
 
-        // if this is a document node...
-        if (item.nodeType === "document") {
+        function showDocument() {
             // show title and appropriate icon
-            var title = render.block(item.title);
+            let title = render.block(item.title);
             if (!empty(item.version)) {
                 title = '<span style="float:right" class="lessImportant">Version ' + render.escaped(item.version) + '</span>' + title;
             }
@@ -1308,18 +1307,18 @@ function ApxDocument(initializer) {
 
             /////////////////////////////////////
             // Show item details
-            var html = "";
-            var key, attributes, val;
+            let html = "";
+            let key, attributes, val;
             for (key in attributes = {
-                        'officialSourceURL': 'Official URL',
-                        'uri': 'CASE Framework URL',
-                        'creator': 'Creator',
-                        'description': 'Description',
-                        'subjects': 'Subject',
-                        'language': 'Language',
-                        'adoptionStatus': 'Adoption Status',
-                        'note': 'Notes'
-                    }) {
+                'officialSourceURL': 'Official URL',
+                'uri': 'CASE Framework URL',
+                'creator': 'Creator',
+                'description': 'Description',
+                'subjects': 'Subject',
+                'language': 'Language',
+                'adoptionStatus': 'Adoption Status',
+                'note': 'Notes'
+            }) {
                 if (!empty(item[key])) {
                     val = item[key];
                     // TODO: check these exceptions
@@ -1334,7 +1333,7 @@ function ApxDocument(initializer) {
                         }
                     } else if (key === 'subjects') {
                         val = "";
-                        for (var subject in val) {
+                        for (let subject in val) {
                             if (val !== "") val += ", ";
                             val += render.escaped(subject.title);
                         }
@@ -1342,14 +1341,14 @@ function ApxDocument(initializer) {
                         val = render.inlineLinked(val);
 
                         // add target=_blank
-                        var $val = $('<div>' + val + '</div>');
+                        let $val = $('<div>' + val + '</div>');
                         $('a', $val).attr('target', '_blank');
                         val = $val.html();
                     } else if (key === 'uri') {
                         val = render.inlineLinked(self.getItemUri(item));
 
                         // add target=_blank
-                        var $val = $('<div>' + val + '</div>');
+                        let $val = $('<div>' + val + '</div>');
                         $('a', $val).attr('target', '_blank');
                         val = $val.html();
                     } else {
@@ -1360,7 +1359,7 @@ function ApxDocument(initializer) {
                         + '<strong>' + attributes[key] + ':</strong> '
                         + val
                         + '</li>'
-                        ;
+                    ;
                 }
             }
             $jq.find("ul").html(html);
@@ -1371,11 +1370,33 @@ function ApxDocument(initializer) {
             // show documentOptions and hide itemOptions and more info link
             $("#itemOptions").hide();
             $(".lsItemDetailsMoreInfoLink").hide();
-            $("#documentOptions").show();
 
-        // else it's an lsItem
-        } else {
-            // show title and appropriate icon
+            if ("undefined" !== typeof apx.locks) {
+                $.each([
+                    '#editDocModal',
+                    '#manageAssocGroupsModal',
+                    '#addNewChildModal',
+                    '#addChildrenModal',
+                    '#updateFrameworkModal'
+                ], function (i, button) {
+                    if ("undefined" !== typeof apx.locks['docs'][apx.lsDocId]
+                        && true === apx.locks['docs'][apx.lsDocId]) {
+                        $('button[data-target="' + button + '"]')
+                            .attr('disabled', 'disabled')
+                            .addClass('disabled');
+                    } else {
+                        $('button[data-target="' + button + '"]')
+                            .removeAttr('disabled')
+                            .removeClass('disabled');
+                    }
+                });
+            }
+
+            $("#documentOptions").show();
+        }
+
+        function showItem() {
+// show title and appropriate icon
             $jq.find(".itemTitleSpan").html(self.getItemTitle(item));
             if (item.setToParent === true || (!empty(item.ftNodeData) && item.ftNodeData.children.length > 0)) {
                 $jq.find(".itemTitleIcon").attr("src", "/assets/img/folder.png");
@@ -1387,12 +1408,12 @@ function ApxDocument(initializer) {
             var html = "";
             var key, attributes, val;
             for (key in attributes = {
-                        'fstmt': 'Full Statement',
-                        'ck': 'Concept Keywords',
-                        'el': 'Education Level',
-                        'itp': 'Type',
-                        'notes': 'Notes'
-                    }) {
+                'fstmt': 'Full Statement',
+                'ck': 'Concept Keywords',
+                'el': 'Education Level',
+                'itp': 'Type',
+                'notes': 'Notes'
+            }) {
                 if (!empty(item[key])) {
                     val = item[key];
                     if (key === 'fstmt' || key === 'notes') {
@@ -1407,19 +1428,19 @@ function ApxDocument(initializer) {
                             + '<strong>' + attributes[key] + ':</strong> '
                             + render.escaped(val)
                             + '</li>'
-                            ;
+                        ;
                     }
                 }
             }
 
             for (key in attributes = {
-                        'uri': 'CASE Item URI',
-                        'le': 'List Enumeration in Source',
-                        'cku': 'Concept Keywords URI',
-                        'lang': 'Language',
-                        'licenceUri': 'Licence URI',
-                        'mod': 'Last Changed'
-                    }) {
+                'uri': 'CASE Item URI',
+                'le': 'List Enumeration in Source',
+                'cku': 'Concept Keywords URI',
+                'lang': 'Language',
+                'licenceUri': 'Licence URI',
+                'mod': 'Last Changed'
+            }) {
                 if (!empty(item[key]) || key === "uri") {
                     val = item[key];
 
@@ -1465,7 +1486,7 @@ function ApxDocument(initializer) {
             var html = "";
             if (assocs.length > 0) {
                 // first sort the assocs by type; put isChildOf at the end
-                assocs.sort(function(a,b) {
+                assocs.sort(function (a, b) {
                     if (a.type == b.type && a.inverse == b.inverse) return 0;
                     if (a.type === "isChildOf") return 1;
                     if (b.type === "isChildOf") return -1
@@ -1496,7 +1517,7 @@ function ApxDocument(initializer) {
                         html += '<section class="panel panel-default panel-component item-component">'
                             + '<div class="panel-heading">' + icon + title + '</div>'
                             + '<div class="panel-body"><div><div class="list-group">'
-                            ;
+                        ;
 
                         lastType = a.type;
                         lastInverse = a.inverse;
@@ -1535,7 +1556,7 @@ function ApxDocument(initializer) {
                         + self.associationDestItemTitle(a)
                         + '</span>'
                         + '</a>'
-                        ;
+                    ;
                 }
                 // close final type section
                 html += '</div></div></div></section>';
@@ -1553,10 +1574,12 @@ function ApxDocument(initializer) {
             self.toggleItemCreationButtons();
 
             // enable association links
-            $jq.find("[data-association-identifier]").on('click', function(e) { apx.treeDoc1.openAssociationItem(this, false); });
+            $jq.find("[data-association-identifier]").on('click', function (e) {
+                apx.treeDoc1.openAssociationItem(this, false);
+            });
 
             // enable remove association button(s)
-            $jq.find(".btn-remove-association").on('click', function(e) {
+            $jq.find(".btn-remove-association").on('click', function (e) {
                 e.preventDefault();
 
                 // get the assocId from the association link
@@ -1565,7 +1588,7 @@ function ApxDocument(initializer) {
                 var assocId = $item.attr('data-association-id');
 
                 // call edit.deleteAssociation; on callback, re-show the current item
-                apx.edit.deleteAssociation(assocId, function() {
+                apx.edit.deleteAssociation(assocId, function () {
                     apx.treeDoc1.showCurrentItem();
                 });
                 return false;
@@ -1573,8 +1596,49 @@ function ApxDocument(initializer) {
 
             // hide documentOptions and show itemOptions and the more info link
             $("#documentOptions").hide();
+
+            if ("undefined" !== typeof apx.locks) {
+                $.each([
+                    '#editItemModal',
+                    '#addNewChildModal',
+                    '#addExemplarModal'
+                ], function (i, button) {
+                    if ("undefined" !== typeof apx.locks['items'][item.id]
+                        && true === apx.locks['items'][item.id]) {
+                        $('button[data-target="' + button + '"]')
+                            .attr('disabled', 'disabled')
+                            .addClass('disabled');
+                    } else {
+                        $('button[data-target="' + button + '"]')
+                            .removeAttr('disabled')
+                            .removeClass('disabled');
+                    }
+                });
+                $.each([
+                    '#deleteItemBtn',
+                    '#toggleFolderBtn'
+                ], function (i, button) {
+                    if ("undefined" !== typeof apx.locks['items'][item.id]
+                        && true === apx.locks['items'][item.id]) {
+                        $(button)
+                            .attr('disabled', 'disabled')
+                            .addClass('disabled');
+                    } else {
+                        $(button)
+                            .removeAttr('disabled')
+                            .removeClass('disabled');
+                    }
+                });
+            }
             $("#itemOptions").show();
+
             $(".lsItemDetailsMoreInfoLink").show();
+        }
+
+        if (item.nodeType === "document") {
+            showDocument();
+        } else {
+            showItem();
         }
     };
 

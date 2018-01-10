@@ -45,6 +45,7 @@ class AddTreeAssociationHandler extends BaseFrameworkHandler
         $fromTitle = $this->getTitle($association->getOrigin());
         $toTitle = $this->getTitle($association->getDestination());
         $notification = new NotificationEvent(
+            'A03',
             sprintf('"%s" association added from "%s" to "%s"', $association->getType(), $fromTitle, $toTitle),
             $association->getLsDoc(),
             [

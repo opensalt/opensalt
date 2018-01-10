@@ -42,6 +42,7 @@ class DeleteItemWithChildrenHandler extends BaseFrameworkHandler
         $this->framework->deleteItemWithChildren($item);
 
         $notification = new NotificationEvent(
+            'I05',
             sprintf('"%s" and children deleted', $item->getShortStatement()),
             $doc,
             [

@@ -35,6 +35,7 @@ class UpdateAssociationGroupHandler extends BaseFrameworkHandler
         $associationGroup->setUpdatedAt(new \DateTime());
 
         $notification = new NotificationEvent(
+            'G03',
             sprintf('Association Group "%s" modified', $associationGroup->getTitle()),
             $associationGroup->getLsDoc(),
             [

@@ -30,7 +30,7 @@ class UpvoteCommentHandler extends BaseCommentHandler
         $repo->addUpvoteForUser($comment, $user);
 
         /* @todo update to fill in name and document after comments are modified */
-        $notification = new NotificationEvent('Comment up voted' /* for [Short name] */, null);
+        $notification = new NotificationEvent('C05', 'Comment up voted' /* for [Short name] */, null);
         $command->setNotificationEvent($notification);
     }
 }
