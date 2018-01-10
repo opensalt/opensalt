@@ -59,17 +59,22 @@ class CommandEventRouter
      */
     public function routeCommand(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        $this->em->getConnection()->beginTransaction();
-
         /** @var CommandInterface $command */
         $command = $event->getCommand();
 
+        $this->em->getConnection()->beginTransaction();
+
         $this->sendCommand($event, $dispatcher);
 
-        $notification = $this->resolveNotification($command);
-        $this->addChangeEntry($command, $notification);
+        $notification = $command->getNotificationEvent();
+        $changeEntry = $this->addChangeEntry($command, $notification);
 
         $this->em->flush();
+
+        // We need to resolve after the flush in order to have created ids
+        $notification = $this->resolveNotification($command);
+        $this->updateChangeEntry($command, $changeEntry, $notification);
+
         $this->em->getConnection()->commit();
 
         $this->sendNotification($dispatcher, $notification);
@@ -98,7 +103,7 @@ class CommandEventRouter
         }
     }
 
-    protected function addChangeEntry(CommandInterface $command, NotificationEvent $notification): void
+    protected function addChangeEntry(CommandInterface $command, NotificationEvent $notification): ChangeEntry
     {
         $changeEntry = $command->getChangeEntry();
         if (null === $changeEntry) {
@@ -113,6 +118,26 @@ class CommandEventRouter
         } else {
             $change->updateTo($changeEntry);
         }
+
+        return $change;
+    }
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    protected function updateChangeEntry(CommandInterface $command, ChangeEntry $change, NotificationEvent $notification): void
+    {
+        if (null !== $command->getChangeEntry()) {
+            // Do not do an update if the change entry was explicit
+            return;
+        }
+
+        if ($change->getChanged() === $notification->getChanged()) {
+            // Not changed
+            return;
+        }
+
+        $this->em->getRepository(ChangeEntry::class)->updateChanged($change, $notification);
     }
 
     protected function sendNotification(EventDispatcherInterface $dispatcher, NotificationEvent $notification): void

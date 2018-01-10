@@ -2,13 +2,16 @@
 
 namespace App\Entity;
 
+use App\Event\NotificationEvent;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Salt\UserBundle\Entity\User;
 
 /**
- * @ORM\Table(name="salt_change")
+ * @ORM\Table(name="salt_change",
+ *     indexes={@ORM\Index(name="change_time_idx", columns={"changed_at"})}
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\ChangeEntryRepository")
  */
 class ChangeEntry
