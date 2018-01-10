@@ -66,36 +66,15 @@ class DocTreeController extends Controller
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
         }
 
-        // get list of all documents
-        $resultlsDocs = $em->getRepository(LsDoc::class)->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
-        $lsDocs = [];
         $authChecker = $this->get('security.authorization_checker');
-        foreach ($resultlsDocs as $doc) {
-            if ($authChecker->isGranted('view', $doc)) {
-                $lsDocs[] = $doc;
-            }
-        }
+        $editorRights = $authChecker->isGranted('edit', $lsDoc);
 
-        $docLocks = ['docs' => [], 'items' => []];
-        if ($user instanceof User) {
-            $locks = $em->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
-            foreach ($locks as $lock) {
-                if (LsDoc::class === $lock->getObjectType()) {
-                    $docLocks['docs'][$lock->getObjectId()] = $lock->getUser() !== $user;
-                }
-                if (LsItem::class === $lock->getObjectType()) {
-                    $docLocks['items'][$lock->getObjectId()] = $lock->getUser() !== $user;
-                }
-            }
-        }
-
-        return [
+        $ret = [
             'lsDoc' => $lsDoc,
             'lsDocId' => $lsDoc->getId(),
             'lsDocTitle' => $lsDoc->getTitle(),
-            'locks' => $docLocks,
 
-            'editorRights' => $authChecker->isGranted('edit', $lsDoc),
+            'editorRights' => $editorRights,
             'isDraft' => $lsDoc->isDraft(),
             'isAdopted' => $lsDoc->isAdopted(),
             'isDeprecated' => $lsDoc->isDeprecated(),
@@ -108,8 +87,25 @@ class DocTreeController extends Controller
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => $lsDefAssociationGroupings,
-            'lsDocs' => $lsDocs
         ];
+
+        if ($editorRights) {
+            $docLocks = ['docs' => [], 'items' => []];
+            if ($user instanceof User) {
+                $locks = $em->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
+                foreach ($locks as $lock) {
+                    if (LsDoc::class === $lock->getObjectType()) {
+                        $docLocks['docs'][$lock->getObjectId()] = $lock->getUser() !== $user;
+                    }
+                    if (LsItem::class === $lock->getObjectType()) {
+                        $docLocks['items'][$lock->getObjectId()] = $lock->getUser() !== $user;
+                    }
+                }
+            }
+            $ret['locks'] = $docLocks;
+        }
+
+        return $ret;
     }
 
     /**

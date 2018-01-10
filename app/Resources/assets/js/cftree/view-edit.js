@@ -69,10 +69,14 @@ apx.edit.prepareItemEditModal = function() {
     $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
     $modal.on('shown.bs.modal', function(e){
         $modal.data('mode', 'open');
+        $modal.find('.modal-footer .btn-save').hide();
         $modal.find('.modal-body').load(
             apx.path.lsitem_edit.replace('ID', apx.mainDoc.currentItem.id),
             null,
             function(responseText, textStatus, jqXHR) {
+                if ($modal.find('form[name="ls_item"]').length) {
+                    $modal.find('.modal-footer .btn-save').show();
+                }
                 $('#ls_item_educationalAlignment').multiselect({
                     optionLabel: function(element) {
                         return $(element).html() + ' - ' + $(element).data('title');
@@ -154,8 +158,8 @@ apx.edit.prepareItemEditModal = function() {
 /** Add a new child item, to the top level doc or to an item */
 apx.edit.prepareAddNewChildModal = function() {
     function getPath() {
-        var path;
-        if (apx.mainDoc.currentItem == apx.mainDoc.doc) {
+        let path;
+        if (apx.mainDoc.currentItem === apx.mainDoc.doc) {
             path = apx.path.lsitem_new.replace('DOC', apx.lsDocId);
         } else {
             path = apx.path.lsitem_new.replace('DOC', apx.lsDocId).replace('PARENT', apx.mainDoc.currentItem.id);

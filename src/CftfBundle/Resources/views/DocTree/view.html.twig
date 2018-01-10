@@ -593,11 +593,13 @@
         <script>
             window.apx = window.apx || {};
 
-            apx.enableEdit = {{ (editorRights?"true":"false") |e('js') }};
+            apx.enableEdit = {{ editorRights |json_encode |raw }};
             {% if editorRights %}
                 apx.me = "{{ app.user.username |e('js') }}";
                 apx.startTime = {{ "now"|date("Uv") }};
-                apx.locks = {{ locks |json_encode |raw }};
+                {% if firebase_api_key is not null %}
+                    apx.locks = {{ locks |json_encode |raw }};
+                {% endif %}
             {% endif %}
 
             // loaded docid and initial lsItem and assocGroup to show
