@@ -1093,9 +1093,9 @@ function ApxDocument(initializer) {
 
             // else try to open the item in a new window
             } else {
-                var doc = apx.allDocs[assoc[assocItem].doc];
+                let doc = apx.allDocs[assoc[assocItem].doc];
                 if (typeof(doc) === "object") {
-                    var url = doc.getItemUri(doc.itemHash[assoc[assocItem].item]);
+                    let url = doc.getItemUri(doc.itemHash[assoc[assocItem].item]);
                     if (url !== "?") {
                         window.open(url);
                         // return false to signal that we opened in another window
@@ -1136,8 +1136,51 @@ function ApxDocument(initializer) {
         return item;
     };
 
+    self.addNewItemData = function(data) {
+        if ("undefined" === typeof apx.mainDoc.itemIdHash[data.id]) {
+            // add item and association, then reload tree (and current item?)
+            let item = apx.mainDoc.addItem(data);
+
+            // and create and add the isChildOf association and its inverse
+            if ("undefined" !== typeof item.newAssoc) {
+                let atts = {
+                    "id": item.newAssoc.assocId,
+                    "identifier": item.newAssoc.identifier,
+                    "originItem": item,
+                    "type": "isChildOf",
+                    "destItem": apx.mainDoc.currentItem,
+                    "groupId": apx.mainDoc.currentAssocGroup
+                };
+                if ("undefined" !== typeof item.newAssoc.assocDoc) {
+                    atts['assocDoc'] = item.newAssoc.assocDoc;
+                }
+                if ("undefined" !== typeof item.newAssoc.dest) {
+                    atts['dest'] = item.newAssoc.dest;
+                    delete atts.destItem;
+                }
+                if ("undefined" !== typeof item.newAssoc.seq) {
+                    atts['seq'] = item.newAssoc.seq;
+                }
+                if ("undefined" !== typeof item.newAssoc.groupId) {
+                    atts['groupId'] = item.newAssoc.groupId;
+                }
+
+                delete item.newAssoc;
+
+                let a = apx.mainDoc.addAssociation(atts);
+                apx.mainDoc.addInverseAssociation(a);
+            }
+
+            // re-render the tree and re-activate the item
+            if ("tree" === apx.viewMode.currentView) {
+                apx.treeDoc1.ftRender1();
+                apx.treeDoc1.activateCurrentItem();
+            }
+        }
+    };
+
     self.treeCheckboxToggleAll = function(val, side) {
-        var $cb = self["ft" + side].closest(".treeSide").find(".treeCheckboxControl");
+        let $cb = self["ft" + side].closest(".treeSide").find(".treeCheckboxControl");
 
         // if this is the first click for this tree, enable checkboxes on the tree
         if ($cb.data("checkboxesEnabled") != "true") {
@@ -1150,21 +1193,21 @@ function ApxDocument(initializer) {
             }
 
             // determine if something is entered in the search bar
-            var searchEntered = false;
-            var $filter = self["ft" + side].closest("section").find(".treeFilter");
+            let searchEntered = false;
+            let $filter = self["ft" + side].closest("section").find(".treeFilter");
             if ($filter.length > 0) {
                 searchEntered = ($filter.val() !== "");
             }
 
             // PW 10/11/2017: Only check the top-level items (issues #116 and #204)
-            var topChildren = self.getFt(side).rootNode.children[0].children;
+            let topChildren = self.getFt(side).rootNode.children[0].children;
             if (!empty(topChildren)) {
-                for (var i = 0; i < topChildren.length; ++i) {
-                    var node = topChildren[i];
+                for (let i = 0; i < topChildren.length; ++i) {
+                    let node = topChildren[i];
                     // don't select unselectable nodes; also don't select the "Orphaned Items" node
                     if (node.unselectable != true && node.key !== "orphans") {
                         // if either (we're not filtering) or (the node matches the filter) or (val is false),
-                        if (searchEntered == false || node.match == true || val == false) {
+                        if (searchEntered === false || node.match == true || val == false) {
                             // set selected to val
                             node.setSelected(val);
                         }

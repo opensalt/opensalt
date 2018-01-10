@@ -65,8 +65,8 @@ apx.initialize = function() {
     $("#rightSideCopyItemsBtn").on('click', function() { apx.setRightSideMode("copyItem"); });
     $("#rightSideCreateAssociationsBtn").on('click', function() { apx.setRightSideMode("addAssociation"); });
 
-    var treeSideLeft = $("#treeSideLeft");
-    var treeSideRight = $("#treeSideRight");
+    let treeSideLeft = $("#treeSideLeft");
+    let treeSideRight = $("#treeSideRight");
 
     // Tree checkboxes/menus
     treeSideLeft.find(".treeCheckboxControlBtn").on('click', function(e) { apx.treeDoc1.treeCheckboxToggleAll(null, 1); e.stopPropagation(); });
@@ -105,9 +105,9 @@ apx.initialize = function() {
     
     // parse query string
     apx.query = {};
-    var arr = document.location.search.substr(1).split("&");
-    for (var i = 0; i < arr.length; ++i) {
-        var line = arr[i].split("=");
+    let arr = document.location.search.substr(1).split("&");
+    for (let i = 0; i < arr.length; ++i) {
+        let line = arr[i].split("=");
         apx.query[line[0]] = line[1];
     }
     
@@ -146,8 +146,8 @@ apx.initialize = function() {
         apx.prepareDocumentMenus();
 
         // go through each provided "associatedDoc"
-        for (var identifier in apx.mainDoc.associatedDocs) {
-            var ed = apx.mainDoc.associatedDocs[identifier];
+        for (let identifier in apx.mainDoc.associatedDocs) {
+            let ed = apx.mainDoc.associatedDocs[identifier];
             // and start loading now any associatedDocs that have the "autoLoad" flag set to "true" (unless we've already loaded it)
             // we have to do this because associations to items in these docs don't specify the doc id
             if (ed.autoLoad === "true" && !(identifier in apx.allDocs)) {
@@ -162,7 +162,7 @@ apx.initialize = function() {
 
         // if we got an initialLsItemId, set it (the document will be selected by default)
         if (!empty(apx.initialLsItemId)) {
-            var item = apx.mainDoc.itemIdHash[apx.initialLsItemId];
+            let item = apx.mainDoc.itemIdHash[apx.initialLsItemId];
             if (!empty(item)) {
                 apx.mainDoc.setCurrentItem({"identifier": item.identifier});
 
@@ -204,8 +204,8 @@ apx.initialize = function() {
     /** Sometimes we need to refresh the mainDoc entirely from the server... */
     apx.mainDoc.refreshFromServer = function() {
         apx.spinner.showModal("Refreshing document");
-        var currentItemIdentifier = apx.mainDoc.currentItem.identifier;
-        var currentAssocGroup = apx.mainDoc.currentAssocGroup;
+        let currentItemIdentifier = apx.mainDoc.currentItem.identifier;
+        let currentAssocGroup = apx.mainDoc.currentAssocGroup;
         apx.mainDoc.load(function() {
             // if we're showing mainDoc on the left side, refresh it now
             if (apx.mainDoc == apx.treeDoc1) {
@@ -230,7 +230,7 @@ apx.initialize = function() {
  */
 apx.initializeFirebase = function() {
     window.firebase.initializeApp(window.firebaseConfig);
-    var notificationsRef = window.firebase.database()
+    let notificationsRef = window.firebase.database()
         .ref('doc/' + apx.lsDocId + '/notification')
         .orderByChild('at')
         .startAt(apx.startTime);
@@ -251,7 +251,7 @@ apx.notifyCheck = apx.notifyCheck||{};
 $.extend(apx.notifications, {
     'assoc-a': function (list) {
         $.each(list, function(id, identifier) {
-            apx.notifications.addAssociation(id);
+            apx.notifications.loadAssociation(id);
         });
     },
 
@@ -272,6 +272,7 @@ $.extend(apx.notifications, {
 
     'item-a': function(list) {
         $.each(list, function(id, identifier) {
+            apx.notifications.loadItem(id);
         });
     },
 
@@ -373,7 +374,7 @@ $.extend(apx.notifications, {
         }
     },
 
-    addAssociation: function(assocId) {
+    loadAssociation: function(assocId) {
         // Get association info
         $.ajax({
             url: apx.path.doc_tree_association_json.replace('ID', assocId),
@@ -394,6 +395,17 @@ $.extend(apx.notifications, {
         }).fail(function(jqXHR, textStatus, errorThrown){
             // Ignore for now
         });
+    },
+
+    loadItem: function(itemId) {
+        if ("undefined" === typeof apx.mainDoc.itemIdHash[itemId]) {
+            $.ajax({
+                url: apx.path.lsitem_tree_json.replace('ID', itemId),
+                method: 'GET'
+            }).done(function(data, textStatus, jqXHR){
+                apx.mainDoc.addNewItemData(data);
+            });
+        }
     }
 });
 
@@ -476,7 +488,7 @@ window.onpopstate = function(event) {
     // set popStateActivate so we don't re-push this history state
     apx.popStateActivate = true;
 
-    var lsItemId, assocGroup, view;
+    let lsItemId, assocGroup, view;
     // if event.state is null, we're back to the initial values...
     if (event.state == null) {
         lsItemId = apx.initialLsItemId;
@@ -522,8 +534,8 @@ apx.pushHistoryState = function() {
             return;
         }
 
-        var path;
-        var state = {
+        let path;
+        let state = {
             "view": apx.viewMode.currentView
         };
 

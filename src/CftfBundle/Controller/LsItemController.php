@@ -74,7 +74,7 @@ class LsItemController extends Controller
      * @Security("is_granted('add-standard-to', doc)")
      *
      * @param Request $request
-     * @param LsDoc|null $doc
+     * @param LsDoc $doc
      * @param LsItem|null $parent
      * @param LsDefAssociationGrouping|null $assocGroup
      *
@@ -413,6 +413,28 @@ class LsItemController extends Controller
         return $ret;
     }
 
+    /**
+     * Displays a form to change the parent of an existing LsItem entity.
+     *
+     * @Route("/{id}/treeJson", name="lsitem_tree_json")
+     * @Method({"GET"})
+     *
+     * @param LsItem $lsItem
+     *
+     * @return JsonResponse
+     */
+    public function itemJsonInfoAction(LsItem $item): Response
+    {
+        // retrieve isChildOf assoc id for the item
+        $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy([
+            'originLsItem' => $item,
+            'type' => LsAssociation::CHILD_OF,
+            'lsDoc' => $item->getLsDoc(),
+        ]);
+
+        return $this->generateItemJsonResponse($item, $assoc);
+    }
+
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
     {
         $ret = [
@@ -429,11 +451,29 @@ class LsItemController extends Controller
             'educationalAlignment' => $item->getEducationalAlignment(),
             'itemType' => $item->getItemType(),
             'changedAt' => $item->getChangedAt(),
-            'extra' => [
-                'assocId' => isset($assoc) ? $assoc->getId() : null,
-                'identifier' => isset($assoc) ? $assoc->getIdentifier(): null
-            ]
+            'extra' => [],
         ];
+
+        if (null !== $assoc) {
+            $destItem = $assoc->getDestinationNodeIdentifier();
+
+            if (null !== $destItem) {
+                $ret['extra'] = [
+                    'assocDoc' => $assoc->getLsDocIdentifier(),
+                    'assocId' => $assoc->getId(),
+                    'identifier' => $assoc->getIdentifier(),
+                    //'groupId' => (null !== $assoc->getGroup()) ? $assoc->getGroup()->getId() : null,
+                    'dest' => ['doc' => $assoc->getLsDocIdentifier(), 'item' => $destItem, 'uri' => $destItem],
+                ];
+                if ($assoc->getGroup()) {
+                    $ret['extra']['groupId'] = $assoc->getGroup()->getId();
+                }
+                if ($assoc->getSequenceNumber()) {
+                    $ret['extra']['seq'] = $assoc->getSequenceNumber();
+                }
+            }
+        }
+
         $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
         $response->headers->set('Content-Type', 'application/json');
         $response->headers->set('Cache-Control', 'no-cache');

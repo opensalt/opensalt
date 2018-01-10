@@ -139,7 +139,6 @@ apx.edit.prepareItemEditModal = function() {
             // then re-render the tree and re-activate the item
             apx.treeDoc1.ftRender1();
             apx.treeDoc1.activateCurrentItem();
-
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();
             $modal.find('.modal-body').html(jqXHR.responseText);
@@ -173,13 +172,13 @@ apx.edit.prepareAddNewChildModal = function() {
         return path;
     }
 
-    var statementMde,
+    let statementMde,
         notesMde
     ;
-    var $addNewChildModal = $('#addNewChildModal');
-    $addNewChildModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
-    $addNewChildModal.on('shown.bs.modal', function(e){
-        $addNewChildModal.find('.modal-body').load(
+    let $modal = $('#addNewChildModal');
+    $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
+    $modal.on('shown.bs.modal', function(e){
+        $modal.find('.modal-body').load(
             getPath(),
             null,
             function(responseText, textStatus, jqXHR){
@@ -197,7 +196,7 @@ apx.edit.prepareAddNewChildModal = function() {
     }).on('hide.bs.modal', function(e){
         $('#ls_item_itemType').select2('destroy');
     }).on('hidden.bs.modal', function(e){
-        $addNewChildModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
+        $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
         if (null !== statementMde) {
             statementMde.toTextArea();
             statementMde = null;
@@ -205,7 +204,7 @@ apx.edit.prepareAddNewChildModal = function() {
             notesMde = null;
         }
     });
-    $addNewChildModal.find('.btn-save').on('click', function(e) {
+    $modal.find('.btn-save').on('click', function(e) {
         apx.spinner.showModal("Creating item");
         statementMde.toTextArea();
         statementMde = null;
@@ -214,38 +213,18 @@ apx.edit.prepareAddNewChildModal = function() {
         $.ajax({
             url: getPath(),
             method: 'POST',
-            data: $addNewChildModal.find('form[name=ls_item]').serialize()
+            data: $modal.find('form[name=ls_item]').serialize()
         }).done(function(data, textStatus, jqXHR) {
             apx.spinner.hideModal();
-            $addNewChildModal.modal('hide');
+            $modal.modal('hide');
 
-            // on successful add, create and add the item to the document data
-            var item = apx.mainDoc.addItem(data);
-            
-            // and create and add the isChildOf association and its inverse
-            var atts = {
-                "id": item.newAssoc.assocId,
-                "identifier": item.newAssoc.identifier,
-                "originItem": item,
-                "type": "isChildOf",
-                "destItem": apx.mainDoc.currentItem,
-                "groupId": apx.mainDoc.currentAssocGroup
-            };
-            var a = apx.mainDoc.addAssociation(atts);
-            apx.mainDoc.addInverseAssociation(a);
-            
-            delete item.newAssoc;
+            apx.mainDoc.addNewItemData(data);
 
-            // re-render the tree and re-activate the item
-            apx.treeDoc1.ftRender1();
-            apx.treeDoc1.activateCurrentItem();
-            
             // make sure the noItemsInstructions div is hidden
             $("#noItemsInstructions").hide();
-            
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();
-            $addNewChildModal.find('.modal-body').html(jqXHR.responseText);
+            $modal.find('.modal-body').html(jqXHR.responseText);
             $('#ls_item_educationalAlignment').multiselect({
                 optionLabel: function(element) {
                     return $(element).html() + ' - ' + $(element).data('title');
@@ -260,7 +239,7 @@ apx.edit.prepareAddNewChildModal = function() {
 
 /** Delete one or more items */
 apx.edit.deleteItems = function(items) {
-    var completed = 0;
+    let completed = 0;
 
     function itemDeleted() {
         // if we're done hide the spinner and re-render the tree
@@ -278,18 +257,18 @@ apx.edit.deleteItems = function(items) {
         // show "Deleting" spinner
         apx.spinner.showModal("Deleting");
 
-        var lsItems = null;
-        for (var i = 0; i < items.length; ++i) {
-            var item = items[i];
+        let lsItems = null;
+        for (let i = 0; i < items.length; ++i) {
+            let item = items[i];
 
             if (item !== null) {
                 // Check to see if the item exists in a different assocGroup than the assocGroup currently selected
-                var itemExistsInAnotherGroup = false;
-                var assocIdToDelete = null;
+                let itemExistsInAnotherGroup = false;
+                let assocIdToDelete = null;
 
                 // go through all the assocs for this item
-                for (var j = 0; j < item.assocs.length; ++j) {
-                    var a = item.assocs[j];
+                for (let j = 0; j < item.assocs.length; ++j) {
+                    let a = item.assocs[j];
                     // when we find the ischildof...
                     if (a.type === "isChildOf" && a.inverse != true) {
                         // then if it matches the currentAssocGroup...
@@ -340,13 +319,13 @@ apx.edit.deleteItems = function(items) {
                 // else use delete service to delete item
                 } else {
                     // delete all assocs for the item
-                    for (var j = item.assocs.length-1; j >= 0; --j) {
-                        var a = item.assocs[j];
+                    for (let j = item.assocs.length-1; j >= 0; --j) {
+                        let a = item.assocs[j];
                         apx.mainDoc.deleteAssociation(a.id);
                     }
                     
                     // find the item in mainDoc.items
-                    for (var j = 0; j < apx.mainDoc.items.length; ++j) {
+                    for (let j = 0; j < apx.mainDoc.items.length; ++j) {
                         if (apx.mainDoc.items[j] == item) {
                             // delete it from itemHash and itemIdHash, and splice it from the items array
                             delete apx.mainDoc.itemHash[item.identifier];
@@ -380,7 +359,7 @@ apx.edit.deleteItems = function(items) {
     }
 
     // make user confirm
-    var modalId;
+    let modalId;
     if (items.length === 1) {
         if (items[0].ftNodeData.children.length > 0) {
             modalId = '#deleteItemAndChildrenModal';
@@ -393,8 +372,7 @@ apx.edit.deleteItems = function(items) {
         modalId = '#deleteMultipleItemsModal';
     }
 
-    $(modalId).modal()
-    .one('click', '.btn-delete', function() {
+    $(modalId).modal().one('click', '.btn-delete', function() {
         $(this).closest('.modal').modal('hide');
         deleteItemsInternal(items);
     });
