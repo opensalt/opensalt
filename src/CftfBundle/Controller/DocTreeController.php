@@ -25,7 +25,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Util\Compare;
-use Symfony\Component\Routing\Router;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -49,7 +48,7 @@ class DocTreeController extends Controller
      * @Method({"GET"})
      * @Template()
      */
-    public function viewAction(LsDoc $lsDoc, UserInterface $user, $_format = 'html', $lsItemId = null, $assocGroup = null)
+    public function viewAction(LsDoc $lsDoc, UserInterface $user = null, $_format = 'html', $lsItemId = null, $assocGroup = null)
     {
         // get form field for selecting a document (for tree2)
         $form = $this->createForm(LsDocListType::class, null, ['ajax' => false]);
