@@ -170,12 +170,12 @@ class CommentsController extends Controller
 
         foreach ($comment_data as $comment) {
             $comments=[
-                ($itemType === 'item') ? $comment->getItem()->getFullStatement() : $comment->getDocument()->getTitle(),
+                ($itemType === 'item') ? '"'.$comment->getItem()->getLsDoc()->getTitle().'"' : '"'.$comment->getDocument()->getTitle().'"',
                 $base_url.$url,
-                ($itemType === 'item') ? $comment->getItem()->getHumanCodingScheme() : null,
-                $comment->getUser()->getUsername(),
-                $comment->getUser()->getOrg()->getName(),
-                $comment->getContent(),
+                ($itemType === 'item') ? '"'.$comment->getItem()->getHumanCodingScheme().'"' : null,
+                '"'.$comment->getUser()->getUsername().'"',
+                '"'.$comment->getUser()->getOrg()->getName().'"',
+                '"'.$comment->getContent().'"',
                 $comment->getCreatedAt()->format('Y-m-d H:i:s'),
                 $comment->getUpdatedAt()->format('Y-m-d H:i:s')
             ];
