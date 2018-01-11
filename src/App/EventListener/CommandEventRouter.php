@@ -4,6 +4,7 @@ namespace App\EventListener;
 
 use App\Command\CommandInterface;
 use App\Entity\ChangeEntry;
+use App\Entity\NullChangeEntry;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -108,6 +109,11 @@ class CommandEventRouter
         $changeEntry = $command->getChangeEntry();
         if (null === $changeEntry) {
             $changeEntry = new ChangeEntry($notification->getDoc(), $this->getCurrentUser(), $notification->getMessage(), $notification->getChanged());
+        }
+
+        if ($changeEntry instanceof NullChangeEntry) {
+            // Do not store the entry
+            return $changeEntry;
         }
 
         // We only store the last change in the table, older entries are in the audit table
