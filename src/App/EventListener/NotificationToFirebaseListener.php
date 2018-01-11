@@ -4,7 +4,6 @@ namespace App\EventListener;
 use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Kreait\Firebase;
-use Kreait\Firebase\Database;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -18,10 +17,15 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *     doc_id: {
  *         "notification": [
  *             KEY: {
- *                 "message": "message here",
- *                 "username": "username here",
- *                 "itemIds": [],
- *                 "associationIds": [],
+ *                 "at": <milliseconds since epoch>,
+ *                 "msgId": "message id here",
+ *                 "msg": "message here",
+ *                 "by": "username here",
+ *                 "changes": [
+ *                     "{item,doc,assoc}-{a,u,d,l,ul}": [
+ *                         object-id: "object identifier", ...
+ *                     ],
+ *                 ],
  *             }
  *         ]
  *     }
@@ -73,7 +77,7 @@ class NotificationToFirebaseListener
             'msg' => $event->getMessage(),
             'by' => $event->getUsername(),
             'changes' => $event->getChanged(),
-            'at' => Database::SERVER_TIMESTAMP,
+            'at' => (new \DateTime())->format('Uv'),
         ];
 
         // Send the notification after the response is sent
