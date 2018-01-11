@@ -197,6 +197,10 @@ apx.initialize = function() {
             apx.viewMode.showAssocView("pageLoaded");
             apx.viewMode.lastViewButtonPushed = "assoc";
             apx.viewMode.initialView = "assocView";
+        } else if (window.location.href.search(/\/lv$/) > -1) {
+            apx.viewMode.showLogView("pageLoaded");
+            apx.viewMode.lastViewButtonPushed = "log";
+            apx.viewMode.initialView = "logView";
         } else {
             apx.viewMode.initialView = "treeView";
         }
@@ -561,9 +565,10 @@ window.onpopstate = function(event) {
     // now if we're moving to assocView, show it
     if (view === "assoc") {
         apx.viewMode.showAssocView("history");
-
-    // else show the relevant item
+    } else if (view === "log") {
+        apx.viewMode.showLogView("history");
     } else {
+        // else assume tree view
         apx.viewMode.showTreeView("history");
         if ('undefined' !== typeof apx.treeDoc1) {
             // restore assocGroup if necessary
@@ -600,9 +605,13 @@ apx.pushHistoryState = function() {
         // if currentItem is the document...
         if (apx.treeDoc1.currentItem == apx.treeDoc1.doc) {
             path = apx.path.lsDoc.replace('ID', apx.lsDocId);
-            // add "/av" to path if necessary
             if (apx.viewMode.currentView === "assoc") {
+                // add "/av" to path if the association view
                 path += "/av";
+            }
+            if (apx.viewMode.currentView === "log") {
+                // add "/lv" to path if the log view
+                path += "/lv";
             }
             state.lsItemId = null;
 
@@ -614,7 +623,8 @@ apx.pushHistoryState = function() {
 
         // add assocGroup to path if necessary
         if (apx.treeDoc1.currentAssocGroup != null) {
-            if (apx.viewMode.currentView !== "assoc") {
+            if (apx.viewMode.currentView !== "assoc"
+                && apx.viewMode.currentView !== "log") {
                 path += "/" + apx.treeDoc1.currentAssocGroup;
             }
             state.assocGroup = apx.treeDoc1.currentAssocGroup;

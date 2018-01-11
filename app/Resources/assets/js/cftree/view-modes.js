@@ -394,9 +394,38 @@ apx.viewMode.showLogView = function(context) {
     $(".main-view").hide();
     $("#logView").show();
 
-    $('#logTable').DataTable({
-        "ajax": "/cfdoc/ID/revisions".replace('ID', apx.lsDocId)
-    });
+    if ($.fn.dataTable.isDataTable('#logTable')) {
+        $('#logTable').DataTable().clear().ajax.reload();
+    } else {
+        $('#logTable').DataTable({
+            ajax: "/cfdoc/ID/revisions".replace('ID', apx.lsDocId),
+            dataSrc: 'data',
+            columns: [
+                //{ data: 'rev' },
+                {
+                    data: 'changed_at',
+                    render: function(data, type, row) {
+                        if ("display" !== type && "filter" !== type) {
+                            return data;
+                        }
+
+                        function addZero(num) {
+                            return (num >=0 && num < 10) ? "0" + num : num + "";
+                        }
+
+                        let ts = new Date(data + " UTC");
+                        return [
+                            [ts.getFullYear(), addZero(ts.getMonth() + 1), addZero(ts.getDate())].join('-'),
+                            [addZero(ts.getHours()), addZero(ts.getMinutes()), addZero(ts.getSeconds())].join(':')
+                        ].join(" ");
+                    }
+                },
+                { data: 'description' },
+                { data: 'username' }
+            ],
+            retrieve: true
+        });
+    }
 };
 
 ////////////////////////////////////////////////

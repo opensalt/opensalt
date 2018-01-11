@@ -39,6 +39,7 @@ class DocTreeController extends Controller
     /**
      * @Route("/doc/{slug}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
      * @Route("/doc/{slug}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{slug}/lv.{_format}", name="doc_tree_view_log", defaults={"_format"="html", "lsItemId"=null})
      * @Route("/doc/{slug}/{assocGroup}.{_format}", name="doc_tree_view_ag", defaults={"_format"="html", "lsItemId"=null})
      * @ParamConverter("lsDoc", class="CftfBundle:LsDoc", options={
      *     "repository_method" = "findOneBySlug",

@@ -57,7 +57,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->setFirstResult($offset)
             ->setMaxResults(($limit > 0) ? $limit : 1000000)
             ->execute()
-            ->fetchAll(\PDO::FETCH_NUM);
+            ->fetchAll();
 
         return $data;
     }
