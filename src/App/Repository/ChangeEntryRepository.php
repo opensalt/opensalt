@@ -4,11 +4,18 @@ namespace App\Repository;
 
 use App\Entity\ChangeEntry;
 use App\Event\NotificationEvent;
+use CftfBundle\Entity\LsDoc;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\DBALException;
-use Doctrine\ORM\EntityRepository;
+use Symfony\Bridge\Doctrine\RegistryInterface;
 
-class ChangeEntryRepository extends EntityRepository
+class ChangeEntryRepository extends ServiceEntityRepository
 {
+    public function __construct(RegistryInterface $registry)
+    {
+        parent::__construct($registry, ChangeEntry::class);
+    }
+
     /**
      * @throws DBALException
      */
@@ -23,5 +30,35 @@ class ChangeEntryRepository extends EntityRepository
             sprintf('UPDATE %s SET changed = ? WHERE changed_at = ? and description = ?', $this->getClassMetadata()->getTableName()),
             [json_encode($notification->getChanged()), $change->getChangedAt()->format('Y-m-d H:i:s.u'), $change->getDescription()]
         );
+    }
+
+    public function getChangeEntryCountForDoc(LsDoc $doc): int
+    {
+        $data = $this->_em->getConnection()->createQueryBuilder()
+            ->select('count(*)')
+            ->from('audit_'.$this->getClassMetadata()->getTableName(), 'a')
+            ->where('a.doc_id = :doc_id')
+            ->setParameter('doc_id', $doc->getId())
+            ->execute()
+            ->fetchColumn();
+
+        return $data;
+    }
+
+    public function getChangeEntriesForDoc(LsDoc $doc, int $limit = 20, int $offset = 0): array
+    {
+        $data = $this->_em->getConnection()->createQueryBuilder()
+            ->select('a.rev, a.changed_at, a.description, u.username')
+            ->from('audit_'.$this->getClassMetadata()->getTableName(), 'a')
+            ->leftJoin('a', 'salt_user', 'u', 'u.id = a.user_id')
+            ->where('a.doc_id = :doc_id')
+            ->setParameter('doc_id', $doc->getId())
+            ->orderBy('a.rev', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults(($limit > 0) ? $limit : 1000000)
+            ->execute()
+            ->fetchAll(\PDO::FETCH_NUM);
+
+        return $data;
     }
 }

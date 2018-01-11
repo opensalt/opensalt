@@ -197,7 +197,7 @@ apx.checkUnknownAssociationDestinationsInterval = setInterval(function() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // LEFT-SIDE TREE
-apx.tree1Doc = null;
+apx.treeDoc1 = null;
 
 apx.tree1ChangeButtonClicked = function() {
     // clear viewmode_tree1 and hide tree1SectionControls and assocGroupFilter

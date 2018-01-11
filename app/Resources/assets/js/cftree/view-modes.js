@@ -26,14 +26,14 @@ apx.viewMode.showTreeView = function(context) {
     }
 
     // set buttons appropriately
-    $("#displayAssocBtn").removeClass("btn-primary").addClass("btn-default").blur();
-    $("#displayTreeBtn").addClass("btn-primary").removeClass("btn-default").blur();
+    $(".view-btn").removeClass("btn-primary").blur();
+    $("#displayTreeBtn").addClass("btn-primary").blur();
 
     // hide the assocView and show the treeView
-    $("#assocView").hide();
+    $(".main-view").hide();
     $("#treeView").show();
-    apx.tree1Doc.ftRender1();
-    apx.tree1Doc.activateCurrentItem();
+    apx.treeDoc1.ftRender1();
+    apx.treeDoc1.activateCurrentItem();
 };
 
 apx.viewMode.avFilters = {
@@ -364,12 +364,39 @@ apx.viewMode.showAssocView = function(context) {
     }
 
     // set mode toggle buttons appropriately
-    $("#displayTreeBtn").removeClass("btn-primary").addClass("btn-default").blur();
-    $("#displayAssocBtn").addClass("btn-primary").removeClass("btn-default").blur();
+    $(".view-btn").removeClass("btn-primary").blur();
+    $("#displayAssocBtn").addClass("btn-primary").blur();
 
     // hide the treeView and show the assocView
-    $("#treeView").hide();
+    $(".main-view").hide();
     $("#assocView").show();
+};
+
+apx.viewMode.showLogView = function(context) {
+    apx.viewMode.currentView = "log";
+
+    // if the user clicked the button to show this view, or clicked an item from the associations table
+    if (context === "button") {
+        // if the user clicked the button and the last view button pushed wasn't tree...
+        if (context === "button" && apx.viewMode.lastViewButtonPushed !== "log") {
+            // then the user must have been in another view, then clicked the button to go to this view, so push a history state
+            apx.pushHistoryState();
+        }
+        // set viewMode.lastViewButtonPushed to "log"
+        apx.viewMode.lastViewButtonPushed = "log";
+    }
+
+    // set buttons appropriately
+    $(".view-btn").removeClass("btn-primary").blur();
+    $("#displayLogBtn").addClass("btn-primary").blur();
+
+    // hide the assocView and show the treeView
+    $(".main-view").hide();
+    $("#logView").show();
+
+    $('#logTable').DataTable({
+        "ajax": "/cfdoc/ID/revisions".replace('ID', apx.lsDocId)
+    });
 };
 
 ////////////////////////////////////////////////

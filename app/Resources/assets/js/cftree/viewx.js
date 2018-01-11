@@ -94,6 +94,7 @@ apx.initialize = function() {
     // doc view/tree view buttongroup
     $("#displayTreeBtn").on('click', function() { apx.viewMode.showTreeView("button"); });
     $("#displayAssocBtn").on('click', function() { apx.viewMode.showAssocView("button"); });
+    $("#displayLogBtn").on('click', function() { apx.viewMode.showLogView("button"); });
 
     // implement enableMoveCheckbox
     $("#enableMoveCheckbox").on('click', function() { apx.edit.enableMove(this); });

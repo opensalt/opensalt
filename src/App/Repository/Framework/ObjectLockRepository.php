@@ -6,16 +6,22 @@ use App\Entity\Framework\ObjectLock;
 use App\Entity\LockableInterface;
 use App\Exception\AlreadyLockedException;
 use CftfBundle\Entity\LsDoc;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Salt\UserBundle\Entity\User;
+use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
  * Class ObjectLockRepository
  *
  * @method null|ObjectLock findOneBy(array $criteria, array $orderBy = null)
  */
-class ObjectLockRepository extends EntityRepository
+class ObjectLockRepository extends ServiceEntityRepository
 {
+    public function __construct(RegistryInterface $registry)
+    {
+        parent::__construct($registry, ObjectLock::class);
+    }
+
     public function findLockFor(LockableInterface $obj): ?ObjectLock
     {
         $lock = $this->findOneBy(['objectType' => \get_class($obj), 'objectId' => $obj->getId()]);
