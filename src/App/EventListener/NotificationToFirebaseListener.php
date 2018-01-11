@@ -91,7 +91,7 @@ class NotificationToFirebaseListener
                 $dispatcher->addListener(
                     'kernel.terminate',
                     function (Event $event) {
-                        $this->cleanupOldNotifcations();
+                        $this->cleanupOldNotifications();
                     },
                     10
                 );
@@ -114,7 +114,7 @@ class NotificationToFirebaseListener
         $db->getReference($path)->push($notification);
     }
 
-    protected function cleanupOldNotifcations(): void
+    protected function cleanupOldNotifications(): void
     {
         $expireBefore = (new \DateTime('now - 5 minutes'))->format('Uv');
         $removeKeys = [];
