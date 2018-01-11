@@ -6,6 +6,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 use Kreait\Firebase;
 use Kreait\Firebase\Database;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -75,7 +76,29 @@ class NotificationToFirebaseListener
             'at' => Database::SERVER_TIMESTAMP,
         ];
 
-        $this->addDocChangeToFirebase($notification, $docId);
+        // Send the notification after the response is sent
+        $dispatcher->addListener(
+            'kernel.terminate',
+            function (Event $event) use ($notification, $docId) {
+                $this->addDocChangeToFirebase($notification, $docId);
+            },
+            -10
+        );
+
+        try {
+            // Clean up old notifications around 1% of the time
+            if (1 === random_int(1, 100)) {
+                $dispatcher->addListener(
+                    'kernel.terminate',
+                    function (Event $event) {
+                        $this->cleanupOldNotifcations();
+                    },
+                    10
+                );
+            }
+        } catch (\Exception $e) {
+            // Ignore if cannot get enough entropy for random_int
+        }
     }
 
     protected function addDocChangeToFirebase(array $notification, int $docId): void
@@ -89,5 +112,30 @@ class NotificationToFirebaseListener
         $path = "/doc/{$docId}/notification";
         $db = $this->firebase->getDatabase();
         $db->getReference($path)->push($notification);
+    }
+
+    protected function cleanupOldNotifcations(): void
+    {
+        $expireBefore = (new \DateTime('now - 5 minutes'))->format('Uv');
+        $removeKeys = [];
+        $path = '/doc';
+
+        $db = $this->firebase->getDatabase();
+        $docs = $db->getReference($path)->getValue();
+        if (null !== $docs) {
+            foreach ($docs as $doc => $content) {
+                if (array_key_exists('notification', $content)) {
+                    foreach ($content['notification'] as $key => $notification) {
+                        if ($expireBefore > $notification['at']) {
+                            $removeKeys["/doc/{$doc}/notification/{$key}"] = null;
+                        }
+                    }
+                }
+            }
+
+            if (0 < \count($removeKeys)) {
+                $db->getReference()->update($removeKeys);
+            }
+        }
     }
 }
