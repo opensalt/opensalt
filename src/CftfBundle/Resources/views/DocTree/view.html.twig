@@ -27,7 +27,9 @@
                     <div class="btn-group" role="group" aria-label="...">
                         <button id="displayTreeBtn" type="button" class="view-btn btn btn-primary btn-default btn-xs">Tree<br/>View</button>
                         <button id="displayAssocBtn" type="button" class="view-btn btn btn-default btn-xs">Association<br/>View</button>
-                        <button id="displayLogBtn" type="button" class="view-btn btn btn-default btn-xs">Log<br/>View</button>
+                        {% if editorRights %}
+                            <button id="displayLogBtn" type="button" class="view-btn btn btn-default btn-xs">Log<br/>View</button>
+                        {% endif %}
                     </div>
                 </div>
                 <span id="docTitle">{{ lsDocTitle }}</span>

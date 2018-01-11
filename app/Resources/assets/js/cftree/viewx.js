@@ -238,16 +238,69 @@ apx.initializeFirebase = function() {
     notificationsRef.on('child_added', function(snapshot) {
         apx.notifications.notify(snapshot.val());
     });
+
+    let enabled = apx.notifications.isEnabled();
+    $('#notifications-switch-location').html('<a id="notifications-switch" href="#" class="btn btn-lg"><i class="material-icons">notifications'+(enabled?'':'_off')+'</i></a>');
+    $('#notifications-switch').on('click', apx.notifications.toggle);
+    apx.notifications.enableMonitor();
     console.log('firebase initialized');
 };
+
+apx.notifications = apx.notifications||{};
+apx.notifyCheck = apx.notifyCheck||{};
 
 $.notifyDefaults({
     type: 'info',
     mouse_over: 'pause'
 });
 
-apx.notifications = apx.notifications||{};
-apx.notifyCheck = apx.notifyCheck||{};
+apx.notifications.isEnabled = function() {
+    let cookie = document.cookie.match(new RegExp('(^| )n=([^;]+)'));
+    if (cookie) {
+        if ("n" === cookie[2]) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
+apx.notifications.enableMonitor = function() {
+    let current = apx.notifications.isEnabled();
+
+    setInterval(function () {
+        if (current !== apx.notifications.isEnabled()) {
+            current = !current;
+            apx.notifications.displayToggle(current);
+        }
+    }, 500);
+};
+
+apx.notifications.displayToggle = function(isEnabled) {
+    let ns = $('#notifications-switch');
+
+    if (isEnabled) {
+        ns.find('i').html('notifications');
+    } else {
+        ns.find('i').html('notifications_off');
+    }
+};
+
+apx.notifications.toggle = function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    let enabled = apx.notifications.isEnabled();
+    enabled = !enabled;
+
+    if (enabled) {
+        document.cookie = "n=; expires=Thu, 01-Jan-70 00:00:01 GMT; path=/";
+    } else {
+        document.cookie = "n=n; path=/";
+    }
+
+    apx.notifications.displayToggle(enabled);
+};
 
 $.extend(apx.notifications, {
     'assoc-a': function (list) {
@@ -345,6 +398,10 @@ $.extend(apx.notifications, {
         }
 
         if ('boolean' === typeof notification.show && notification.show === false) {
+            return;
+        }
+
+        if (!apx.notifications.isEnabled()) {
             return;
         }
 

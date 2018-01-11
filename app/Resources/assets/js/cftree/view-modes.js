@@ -180,7 +180,7 @@ apx.viewMode.showAssocView = function(context) {
             let assoc = apx.mainDoc.assocs[i];
 
             // skip associations (probably inverse associations) from other docs
-            if (assoc.assocDoc != apx.mainDoc.doc.identifier) {
+            if (assoc.assocDoc !== apx.mainDoc.doc.identifier) {
                 continue;
             }
 
