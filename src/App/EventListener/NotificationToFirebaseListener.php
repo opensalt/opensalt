@@ -86,7 +86,7 @@ class NotificationToFirebaseListener
             function (Event $event) use ($notification, $docId) {
                 $this->addDocChangeToFirebase($notification, $docId);
             },
-            -10
+            10
         );
 
         try {
@@ -97,7 +97,7 @@ class NotificationToFirebaseListener
                     function (Event $event) {
                         $this->cleanupOldNotifications();
                     },
-                    10
+                    -10
                 );
             }
         } catch (\Exception $e) {
