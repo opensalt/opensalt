@@ -413,7 +413,7 @@ apx.viewMode.showLogView = function(context) {
                             return (num >=0 && num < 10) ? "0" + num : num + "";
                         }
 
-                        let ts = new Date(data + " UTC");
+                        let ts = new Date(data.replace(" ", "T").replace(/\..*$/, "Z"));
                         return [
                             [ts.getFullYear(), addZero(ts.getMonth() + 1), addZero(ts.getDate())].join('-'),
                             [addZero(ts.getHours()), addZero(ts.getMinutes()), addZero(ts.getSeconds())].join(':')
