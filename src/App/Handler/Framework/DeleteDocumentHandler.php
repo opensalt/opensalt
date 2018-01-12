@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\DeleteDocumentCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -32,5 +33,17 @@ class DeleteDocumentHandler extends BaseFrameworkHandler
         $this->validate($command, $doc);
 
         $this->framework->deleteFramework($doc, $command->getProgressCallback());
+
+        $notification = new NotificationEvent(
+            'D09',
+            sprintf('Framework "%s" deleted', $doc->getTitle()),
+            null,
+            [
+                'doc-d' => [
+                    $doc->getId() => $doc->getIdentifier(),
+                ]
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }
