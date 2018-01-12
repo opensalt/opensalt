@@ -77,7 +77,7 @@ class NotificationToFirebaseListener
             'msg' => $event->getMessage(),
             'by' => $event->getUsername(),
             'changes' => $event->getChanged(),
-            'at' => (new \DateTime())->format('Uv'),
+            'at' => (int) (new \DateTime())->format('Uv'),
         ];
 
         // Send the notification after the response is sent
