@@ -336,6 +336,32 @@ $.extend(apx.notifications, {
 
     'item-u': function(list) {
         $.each(list, function(id, identifier) {
+            $.ajax({
+                url: apx.path.lsitem_tree_json.replace('ID', id),
+                method: 'GET'
+            }).done(function(data, textStatus, jqXHR){
+                let item = apx.mainDoc.itemIdHash[id];
+
+                // first delete existing attributes (in case they were cleared)
+                for (let key in item) {
+                    if (key !== "nodeType" && key !== "assocs" && key !== "setToParent") {
+                        delete item[key];
+                    }
+                }
+                // then (re-)set attributes
+                for (let key in data) {
+                    item[key] = data[key];
+                }
+
+                // then re-render the tree and re-activate the item
+                if ("tree" === apx.viewMode.currentView) {
+                    apx.treeDoc1.ftRender1();
+                    apx.treeDoc1.activateCurrentItem();
+                    apx.mainDoc.showCurrentItem();
+                }
+            }).fail(function(jqXHR, textStatus, errorThrown){
+                // Ignore for now
+            });
         });
     },
 
@@ -368,11 +394,49 @@ $.extend(apx.notifications, {
 
     'doc-u': function(list) {
         $.each(list, function(id, identifier) {
+            $.ajax({
+                url: apx.path.lsdoc_tree_json.replace('ID', id),
+                method: 'GET'
+            }).done(function(data, textStatus, jqXHR){
+                $.each([
+                    'title',
+                    'officialSourceURL',
+                    'creator',
+                    'publisher',
+                    'description',
+                    'language',
+                    'adoptionStatus',
+                    'statusStart',
+                    'statusEnd',
+                    'note',
+                    'version',
+                    'lastChangeDateTime'
+                ], function(i, key) {
+                    if ("undefined" !== typeof data[key] && null !== data[key]) {
+                        apx.mainDoc.doc[key] = data[key];
+                    } else {
+                        delete apx.mainDoc.doc[key];
+                    }
+                });
+
+                // then re-render the tree and re-activate the item
+                if ("tree" === apx.viewMode.currentView) {
+                    apx.treeDoc1.ftRender1();
+                    apx.treeDoc1.activateCurrentItem();
+                    apx.mainDoc.showCurrentItem();
+                }
+            }).fail(function(jqXHR, textStatus, errorThrown){
+                // Ignore for now
+            });
         });
     },
 
     'doc-d': function(list) {
         $.each(list, function(id, identifier) {
+            // Means we can't do any editing anymore....
+            if (id === apx.mainDoc.doc.id) {
+                window.location.replace('/');
+            }
         });
     },
 
@@ -395,13 +459,13 @@ $.extend(apx.notifications, {
     },
 
 
-    displayNotification: function(notification) {
+    displayNotification: function(msg) {
         // Do not display messages to yourself
-        if ('string' === typeof notification.by && notification.by === apx.me) {
+        if ('string' === typeof msg.by && msg.by === apx.me) {
             return;
         }
 
-        if ('boolean' === typeof notification.show && notification.show === false) {
+        if ('boolean' === typeof msg.show && msg.show === false) {
             return;
         }
 
@@ -409,26 +473,25 @@ $.extend(apx.notifications, {
             return;
         }
 
-        if ('undefined' !== typeof notification.msgId && 'undefined' !== typeof apx.notifyCheck[notification.msgId]) {
-            if (false === apx.notifyCheck[notification.msgId](notification)) {
+        if ('undefined' !== typeof msg.msgId && 'undefined' !== typeof apx.notifyCheck[msg.msgId]) {
+            if (false === apx.notifyCheck[msg.msgId](msg)) {
                 return;
             }
         }
 
         $.notify({
-            message: notification.msg
+            message: msg.msg
         }, 5000);
     },
 
-    notify: function(val) {
-        console.log('notification', val);
-        apx.notifications.displayNotification(val);
-        // @todo: apply change in UI
+    notify: function(msg) {
+        console.log('notification', msg);
+        apx.notifications.displayNotification(msg);
 
-        if ("object" === typeof val.changes) {
-            $.each(val.changes, function(key, list) {
+        if ("object" === typeof msg.changes) {
+            $.each(msg.changes, function(key, list) {
                 if ("function" === typeof apx.notifications[key]) {
-                    apx.notifications[key](list, val);
+                    apx.notifications[key](list, msg);
                 } else {
                     console.log("function not found", key, list);
                 }
@@ -472,18 +535,20 @@ $.extend(apx.notifications, {
 });
 
 $.extend(apx.notifyCheck, {
+    /** @return {boolean} */
     'D04': function(msg) {
         // document lock
         console.log('got D04', msg);
         let display = false;
         $.each(msg.changes['doc-l'], function(id, identifier) {
-           if ("boolean" !== typeof apx.locks['docs'][id]) {
+           if ("boolean" !== typeof apx.locks['docs'][id] || false === apx.locks['docs'][id]) {
                display = true;
            }
         });
 
         return display;
     },
+    /** @return {boolean} */
     'D05': function(msg) {
         // document unlock
         console.log('got D05', msg);
@@ -496,18 +561,20 @@ $.extend(apx.notifyCheck, {
 
         return display;
     },
+    /** @return {boolean} */
     'I06': function(msg) {
         // item lock
         console.log('got I06', msg);
         let display = false;
         $.each(msg.changes['item-l'], function(id, identifier) {
-            if ("boolean" !== typeof apx.locks['items'][id]) {
+            if ("boolean" !== typeof apx.locks['items'][id] || false === apx.locks['items'][id]) {
                 display = true;
             }
         });
 
         return display;
     },
+    /** @return {boolean} */
     'I07': function(msg) {
         // item unlock
         console.log('got I07', msg);

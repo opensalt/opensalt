@@ -381,6 +381,22 @@ class LsDocController extends Controller
     }
 
     /**
+     * Displays a form to change the parent of an existing LsItem entity.
+     *
+     * @Route("/{id}/treeJson", name="lsdoc_tree_json")
+     * @Method({"GET"})
+     * @Security("is_granted('edit', doc)")
+     *
+     * @param LsDoc $doc
+     *
+     * @return JsonResponse
+     */
+    public function itemJsonInfoAction(LsDoc $doc): Response
+    {
+        return $this->generateDocJsonResponse($doc);
+    }
+
+    /**
      * Load the document list from a remote host
      *
      * @param string $hostname
@@ -435,6 +451,32 @@ class LsDocController extends Controller
         }
 
         return $docs;
+    }
+
+    private function generateDocJsonResponse(LsDoc $doc): Response
+    {
+        $ret = [
+            'id' => $doc->getId(),
+            'identifier' => $doc->getIdentifier(),
+            'title' => $doc->getTitle(),
+            'officialSourceURL' => $doc->getOfficialUri(),
+            'creator' => $doc->getCreator(),
+            'publisher' => $doc->getPublisher(),
+            'description' => $doc->getDescription(),
+            'language' => $doc->getLanguage(),
+            'adoptionStatus' => $doc->getAdoptionStatus(),
+            'statusStart' => (null !== $doc->getStatusStart()) ? $doc->getStatusStart()->format('Y-m-d') : null,
+            'statusEnd' => (null !== $doc->getStatusEnd()) ? $doc->getStatusEnd()->format('Y-m-d') : null,
+            'note' => $doc->getNote(),
+            'version' => $doc->getVersion(),
+            'lastChangeDateTime' => $doc->getUpdatedAt()->format('Y-m-d\TH:i:s'),
+        ];
+
+        $response = new JsonResponse($ret);
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Cache-Control', 'no-cache');
+
+        return $response;
     }
 
     /**

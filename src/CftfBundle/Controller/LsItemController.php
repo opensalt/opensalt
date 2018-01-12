@@ -277,7 +277,7 @@ class LsItemController extends Controller
     }
 
     /**
-     * Export an LSItem entity.
+     * Export an LsItem entity.
      *
      * @Route("/{id}/export", defaults={"_format"="json"}, name="lsitem_export")
      * @Method("GET")
@@ -299,6 +299,7 @@ class LsItemController extends Controller
      *
      * @Route("/{id}/removeChild/{child}", name="lsitem_remove_child")
      * @Method("POST")
+     * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
      * @param \CftfBundle\Entity\LsItem $parent
@@ -319,6 +320,7 @@ class LsItemController extends Controller
      *
      * @Route("/{id}/copy", name="lsitem_copy_item")
      * @Method({"GET", "POST"})
+     * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
      * @param Request $request
@@ -372,6 +374,7 @@ class LsItemController extends Controller
      *
      * @Route("/{id}/parent", name="lsitem_change_parent")
      * @Method({"GET", "POST"})
+     * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
      * @param Request $request
@@ -418,8 +421,9 @@ class LsItemController extends Controller
      *
      * @Route("/{id}/treeJson", name="lsitem_tree_json")
      * @Method({"GET"})
+     * @Security("is_granted('edit', item)")
      *
-     * @param LsItem $lsItem
+     * @param LsItem $item
      *
      * @return JsonResponse
      */
