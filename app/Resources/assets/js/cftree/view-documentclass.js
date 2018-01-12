@@ -361,8 +361,8 @@ function ApxDocument(initializer) {
 
     /** Find, and try to load, any docs referenced by associations in this doc */
     self.findAssociatedDocs = function() {
-        for (var i = 0; i < self.assocs.length; ++i) {
-            var a = self.assocs[i];
+        for (let i = 0; i < self.assocs.length; ++i) {
+            let a = self.assocs[i];
             if (a.origin.doc !== "-" && a.origin.doc !== "?" && !(a.origin.doc in apx.allDocs)) {
                 apx.allDocs[a.origin.doc] = "loading";
                 new ApxDocument({"identifier": a.origin.doc}).load();
@@ -376,8 +376,8 @@ function ApxDocument(initializer) {
 
     /** If the mainDoc has any associations that reference items in this doc, update the assoc items */
     self.updateMainDocAssocs = function() {
-        for (var i = 0; i < apx.mainDoc.assocs.length; ++i) {
-            var a = apx.mainDoc.assocs[i];
+        for (let i = 0; i < apx.mainDoc.assocs.length; ++i) {
+            let a = apx.mainDoc.assocs[i];
             if (a.origin.doc === "?" && !empty(self.itemHash[a.origin.item])) {
                 a.origin.doc = self.doc.identifier;
             }
@@ -390,15 +390,15 @@ function ApxDocument(initializer) {
     /** Create a fancytree data structure for the given assocGroup **/
     self.createTree = function(assocGroup, treeSide) {
         // Go through all items
-        for (var i = 0; i < self.items.length; ++i) {
+        for (let i = 0; i < self.items.length; ++i) {
             // for treeSide1, make sure previously-saved ftNodeDatas are cleared from all items
-            if (treeSide == 1) {
+            if (treeSide === 1) {
                 self.items[i].ftNodeData = null;
             }
         }
 
         // start with the document
-        var t = {
+        let t = {
             "title": self.doc.title,
             "key": self.doc.identifier,
             "children": [],
@@ -407,13 +407,13 @@ function ApxDocument(initializer) {
             "expanded": true,
             "checkbox": false,   // tree should not have a checkbox
             "unselectable": true,   // tree should not be selectable
-            "ref":self.doc
+            "ref": self.doc
         };
 
         /** Function to get the appropriate title for a tree item */
         function treeItemTitle(item) {
             // start with the standard title for the item
-            var title = self.getItemTitle(item);
+            let title = self.getItemTitle(item);
 
             // if we're in chooser mode...
             if (apx.query.mode === "chooser") {
@@ -421,11 +421,11 @@ function ApxDocument(initializer) {
 
             } else {
                 // if the item has an association other than isChildOf *in apx.mainDoc*, show an indicator to that effect
-                var associationDisplay = "none";
-                var ci2 = apx.mainDoc.itemHash[item.identifier];
+                let associationDisplay = "none";
+                let ci2 = apx.mainDoc.itemHash[item.identifier];
                 if (!empty(ci2)) {
-                    for (var j = 0; j < ci2.assocs.length; ++j) {
-                        var a = ci2.assocs[j];
+                    for (let j = 0; j < ci2.assocs.length; ++j) {
+                        let a = ci2.assocs[j];
                         if (a.type !== "isChildOf") {
                             associationDisplay = "block";
                             break;
@@ -443,14 +443,17 @@ function ApxDocument(initializer) {
         /** recursive function to find isChildOf associations of a parent */
         function findChildren(parent) {
             // go through all associations
-            for (var i = 0; i < self.assocs.length; ++i) {
-                var a = self.assocs[i];
+            for (let i = 0; i < self.assocs.length; ++i) {
+                let a = self.assocs[i];
                 // note that a.origin.item and a.dest.item will be identifiers (guids)
 
                 // if we find a child of the parent that matches the assocGroup
-                // if the association is in the "default group", a.groupId will be undefined; we want to use == so that it matches null
-                if (a.type === "isChildOf" && a.inverse !== true && a.dest.item == parent.key && a.groupId == assocGroup) {
-                    var child = {
+                if ("isChildOf" === a.type
+                    && true !== a.inverse
+                    && a.dest.item === parent.key
+                    && a.groupId == assocGroup // if the association is in the "default group", a.groupId will be undefined; we want to use == so that it matches null
+                ) {
+                    let child = {
                         "title": a.origin.item,
                         "key": a.origin.item,
                         "children": [],
@@ -465,16 +468,16 @@ function ApxDocument(initializer) {
                     };
 
                     // look for the child in itemHash (we should always find it)
-                    var childItem = self.itemHash[a.origin.item];
+                    let childItem = self.itemHash[a.origin.item];
                     if (!empty(childItem)) {
                         // set the title
-                        child.title = treeItemTitle(childItem)
+                        child.title = treeItemTitle(childItem);
 
                         // and add the item's reference
                         child.ref = childItem;
 
                         // then link the ft node to the childItem if we're rendering the left side
-                        if (treeSide == 1) {
+                        if (treeSide === 1) {
                             childItem.ftNodeData = child;
                         }
                     }
@@ -491,7 +494,7 @@ function ApxDocument(initializer) {
                         child.folder = true;
 
                         // expand the folder if it's the currentItem, or if it was expanded previously
-                        child.expanded = (childItem == self.currentItem || op(self.expandedFolders[treeSide], assocGroup, child.key) === true);
+                        child.expanded = (childItem === self.currentItem || op(self.expandedFolders[treeSide], assocGroup, child.key) === true);
                     }
                 }
             }
@@ -499,8 +502,8 @@ function ApxDocument(initializer) {
             // sort children of parent
             parent.children.sort(function(a,b) {
                 // try to sort by a.seq
-                var seqA = a.seq * 1;
-                var seqB = b.seq * 1;
+                let seqA = a.seq * 1;
+                let seqB = b.seq * 1;
                 if (isNaN(seqA)) seqA = 100000;
                 if (isNaN(seqB)) seqB = 100000;
                 // if seqA != seqB, sort by seq
@@ -509,8 +512,8 @@ function ApxDocument(initializer) {
                 }
 
                 // else try to sort by the item's listEnumeration field
-                var leA = 100000;
-                var leB = 100000;
+                let leA = 100000;
+                let leB = 100000;
                 if (!empty(a.ref) && !empty(a.ref.le)) {
                     leA = a.ref.le*1;
                 }
@@ -527,14 +530,14 @@ function ApxDocument(initializer) {
 
                 // else try to sort by the item's human coding scheme
 
-                var hcsA = op(a, "ref", "hcs");
-                var hcsB = op(b, "ref", "hcs");
+                let hcsA = op(a, "ref", "hcs");
+                let hcsB = op(b, "ref", "hcs");
 
                 if (empty(hcsA) && empty(hcsB)) return 0;
                 if (empty(hcsB)) return -1;
                 if (empty(hcsA)) return 1;
 
-                var lang = (document.documentElement.lang !== "") ? document.documentElement.lang : undefined;
+                let lang = (document.documentElement.lang !== "") ? document.documentElement.lang : undefined;
 
                 return hcsA.localeCompare(hcsB, lang, { numeric: true, sensitivity: 'base' });
             });
@@ -546,41 +549,40 @@ function ApxDocument(initializer) {
         // If we're showing the default association group look for any orphaned items
         if (empty(assocGroup)) {
             // flag all items as "orphaned"; we'll clear these flags below
-            for (var i = 0; i < self.items.length; ++i) {
+            for (let i = 0; i < self.items.length; ++i) {
                 self.items[i].orphaned = true;
             }
 
             // now go through all associations and clear orphaned flag for non-orphaned items
-            for (var i = 0; i < self.assocs.length; ++i) {
-                var a = self.assocs[i];
+            for (let i = 0; i < self.assocs.length; ++i) {
+                let a = self.assocs[i];
                 // if this is an isChildOf...
                 if (a.type === "isChildOf" && a.inverse !== true) {
                     // if the origin (child) item exists...
-                    var childItem = self.itemHash[a.origin.item];
+                    let childItem = self.itemHash[a.origin.item];
                     if (!empty(childItem)) {
                         // then if the parent (destination) item exists...
-                        var parentItem = self.itemHash[a.dest.item];
+                        let parentItem = self.itemHash[a.dest.item];
                         if (!empty(parentItem)) {
                             // then the child isn't an orphan!
                             delete childItem.orphaned;
                         }
                     }
                 }
-
             }
 
             // go back through the items and find the orphans
-            var orphans = [];
-            for (var i = 0; i < self.items.length; ++i) {
-                var item = self.items[i];
-                if (item.orphaned == true) {
+            let orphans = [];
+            for (let i = 0; i < self.items.length; ++i) {
+                let item = self.items[i];
+                if (item.orphaned === true) {
                     orphans.push(item);
                 }
             }
 
             // if we found any, push them onto the tree
             if (orphans.length > 0) {
-                var orphanParent = {
+                let orphanParent = {
                     "title": "*Orphaned Items*",
                     "key": "orphans",
                     "children": [],
@@ -593,9 +595,9 @@ function ApxDocument(initializer) {
                         "doc": self
                     }
                 };
-                for (var i = 0; i < orphans.length; ++i) {
-                    var orphan = orphans[i];
-                    var child = {
+                for (let i = 0; i < orphans.length; ++i) {
+                    let orphan = orphans[i];
+                    let child = {
                         "title": treeItemTitle(orphan),
                         "key": orphan.identifier,
                         "children": [],
@@ -603,7 +605,7 @@ function ApxDocument(initializer) {
                         "ref": orphan
                     };
                     // then link the ft node to the childItem if we're rendering the left side
-                    if (treeSide == 1) {
+                    if (treeSide === 1) {
                         orphan.ftNodeData = child;
                     }
                     orphanParent.children.push(child)
@@ -909,7 +911,7 @@ function ApxDocument(initializer) {
     };
 
     self.addAssociation = function(atts) {
-        var assoc = {
+        let assoc = {
             "id": atts.id,
             "type": atts.type,
             "inverse": atts.inverse
@@ -950,7 +952,7 @@ function ApxDocument(initializer) {
             };
         }
         if (!empty(atts.destItem)) {
-            if (atts.destItem == self.doc) {
+            if (atts.destItem === self.doc) {
                 assoc.dest = {
                     "doc": self.doc.identifier,
                     "item": self.doc.identifier,
@@ -990,7 +992,7 @@ function ApxDocument(initializer) {
 
     self.addInverseAssociation = function(a) {
         if (a.type !== "exemplar" && !empty(a.dest.item)) {
-            var destItem = apx.allItemsHash[a.dest.item];
+            let destItem = apx.allItemsHash[a.dest.item];
             if (!empty(destItem) && !empty(destItem.doc)) {
                 destItem.doc.addAssociation({
                     "inverse": true,
@@ -1626,9 +1628,9 @@ function ApxDocument(initializer) {
                 e.preventDefault();
 
                 // get the assocId from the association link
-                var $target = $(e.target);
-                var $item = $target.parents('.lsassociation');
-                var assocId = $item.attr('data-association-id');
+                let $target = $(e.target);
+                let $item = $target.parents('.lsassociation');
+                let assocId = $item.attr('data-association-id');
 
                 // call edit.deleteAssociation; on callback, re-show the current item
                 apx.edit.deleteAssociation(assocId, function () {

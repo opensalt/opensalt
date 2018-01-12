@@ -313,6 +313,34 @@ $.extend(apx.notifications, {
         });
     },
 
+    'assoc-u': function (list) {
+        // most common (only?) change is sequence number
+        $.each(list, function(id, identifier) {
+                $.ajax({
+                    url: apx.path.doc_tree_association_json.replace('ID', assocId),
+                    method: 'GET'
+                }).done(function(data, textStatus, jqXHR) {
+                    let a = apx.mainDoc.assocIdHash[data.id];
+                    if ("undefined" === typeof a) {
+                        // Does not exist
+                        return;
+                    }
+
+                    a.seq = data.seq;
+                });
+        });
+
+        if ("tree" === apx.viewMode.currentView) {
+            if (apx.mainDoc.currentItem.identifier === data.origin.item
+                || apx.mainDoc.currentItem.identifier === data.dest.item) {
+                apx.mainDoc.showCurrentItem();
+            }
+
+            apx.treeDoc1.ftRender1();
+            apx.treeDoc1.activateCurrentItem();
+        }
+    },
+
     'assoc-d': function (list) {
         $.each(list, function(id, identifier) {
             apx.edit.performDeleteAssociation(id);
@@ -513,9 +541,14 @@ $.extend(apx.notifications, {
             let a = apx.mainDoc.addAssociation(data);
             apx.mainDoc.addInverseAssociation(a);
 
-            if (apx.mainDoc.currentItem.identifier === data.origin.item
-                || apx.mainDoc.currentItem.identifier === data.dest.item) {
-                apx.mainDoc.showCurrentItem();
+            if ("tree" === apx.viewMode.currentView) {
+                if (apx.mainDoc.currentItem.identifier === data.origin.item
+                    || apx.mainDoc.currentItem.identifier === data.dest.item) {
+                    apx.mainDoc.showCurrentItem();
+                }
+
+                apx.treeDoc1.ftRender1();
+                apx.treeDoc1.activateCurrentItem();
             }
         }).fail(function(jqXHR, textStatus, errorThrown){
             // Ignore for now

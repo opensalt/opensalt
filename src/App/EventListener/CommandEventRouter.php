@@ -4,7 +4,7 @@ namespace App\EventListener;
 
 use App\Command\CommandInterface;
 use App\Entity\ChangeEntry;
-use App\Entity\NullChangeEntry;
+use App\Entity\NotificationOnlyChangeEntry;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -111,8 +111,8 @@ class CommandEventRouter
             $changeEntry = new ChangeEntry($notification->getDoc(), $this->getCurrentUser(), $notification->getMessage(), $notification->getChanged());
         }
 
-        if ($changeEntry instanceof NullChangeEntry) {
-            // Do not store the entry
+        if ($changeEntry instanceof NotificationOnlyChangeEntry) {
+            // Do not store the entry, we only want to send a notification
             return $changeEntry;
         }
 

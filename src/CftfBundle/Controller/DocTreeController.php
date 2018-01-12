@@ -549,7 +549,7 @@ class DocTreeController extends Controller
                 'uri' => $association->getOrigin()->getIdentifier(),
                 //'uri' => $originUri,
             ],
-            'type' => $association->getType(),
+            'type' => $association->getNormalizedType(),
             'dest' => [
                 'doc' => $association->getDestination()->getLsDoc()->getIdentifier(),
                 'item' => $association->getDestination()->getIdentifier(),
@@ -557,6 +557,7 @@ class DocTreeController extends Controller
                 //'uri' => $destUri,
             ],
             'groupId' => $association->getGroup() ? $association->getGroup()->getId() : null,
+            'seq' => $association->getSequenceNumber(),
         ]);
     }
 

@@ -230,6 +230,13 @@ DELETE FROM salt_change
  WHERE doc_id = :lsDocId
 ;
 xENDx;
+
+        $conn->prepare($stmt)->execute($params);
+        $stmt = <<<'xENDx'
+DELETE FROM salt_object_lock
+ WHERE doc_id = :lsDocId
+;
+xENDx;
         $conn->prepare($stmt)->execute($params);
 
         $progressCallback('Deleting associations');

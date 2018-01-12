@@ -4,7 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\LockDocumentCommand;
 use App\Command\Framework\UnlockDocumentCommand;
-use App\Entity\NullChangeEntry;
+use App\Entity\NotificationOnlyChangeEntry;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -62,7 +62,7 @@ class LockDocumentHandler extends BaseFrameworkHandler
         $notification->setUsername($user->getUsername());
         $command->setNotificationEvent($notification);
 
-        $command->setChangeEntry(new NullChangeEntry($doc, $user, 'Dont Log - Document locked'));
+        $command->setChangeEntry(new NotificationOnlyChangeEntry($doc, $user, 'Dont Log - Document locked'));
     }
 
     protected function unlockDocument(UnlockDocumentCommand $command): void
@@ -84,6 +84,6 @@ class LockDocumentHandler extends BaseFrameworkHandler
         );
         $command->setNotificationEvent($notification);
 
-        $command->setChangeEntry(new NullChangeEntry($doc, $user, 'Dont Log - Document unlocked'));
+        $command->setChangeEntry(new NotificationOnlyChangeEntry($doc, $user, 'Dont Log - Document unlocked'));
     }
 }

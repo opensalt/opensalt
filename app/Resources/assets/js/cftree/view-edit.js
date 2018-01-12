@@ -824,23 +824,23 @@ apx.edit.enableMove = function(cb) {
 /** Move already-existing items in the tree structure */
 apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
     // make sure droppedNode is expanded if hitMode is "over"
-    if (hitMode == "over") {
+    if (hitMode === "over") {
         droppedNode.setExpanded(true);
         droppedNode.render();
     }
     
     // go through each of the draggedNodes, constructing a hash with items to update
-    var lsItems = {};
-    for (var j = 0; j < draggedNodes.length; ++j) {
-        var draggedNode = draggedNodes[j];
+    let lsItems = {};
+    for (let j = 0; j < draggedNodes.length; ++j) {
+        let draggedNode = draggedNodes[j];
 
         // note original parent
-        var originalParent = draggedNode.parent;
+        let originalParent = draggedNode.parent;
 
         // move the item in the tree
         draggedNode.moveTo(droppedNode, hitMode);
         
-        var item = draggedNode.data.ref;
+        let item = draggedNode.data.ref;
 
         // initialize the lsItems object for this item
         lsItems[item.id] = {"originalKey": item.identifier};
@@ -857,7 +857,6 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
                 "parentId": apx.mainDoc.doc.id,
                 "parentType": "doc"
             }
-            
         } else {
             // otherwise the parent is an item
             lsItems[item.id].newChildOf = {
@@ -872,9 +871,9 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
     }
 
     // now go through *all* siblings of the dragged node(s) (including the dragged nodes themselves)...
-    var siblings = draggedNodes[0].parent.children;
-    for (var i = 0; i < siblings.length; ++i) {
-        var item = siblings[i].data.ref;
+    let siblings = draggedNodes[0].parent.children;
+    for (let i = 0; i < siblings.length; ++i) {
+        let item = siblings[i].data.ref;
         
         // skip the item if it doesn't have an id (e.g. "orphaned items")
         if (empty(item.id)) {

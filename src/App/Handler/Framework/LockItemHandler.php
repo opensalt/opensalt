@@ -4,7 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\LockItemCommand;
 use App\Command\Framework\UnlockItemCommand;
-use App\Entity\NullChangeEntry;
+use App\Entity\NotificationOnlyChangeEntry;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -61,7 +61,7 @@ class LockItemHandler extends BaseFrameworkHandler
         );
         $command->setNotificationEvent($notification);
 
-        $command->setChangeEntry(new NullChangeEntry($item->getLsDoc(), $user, 'Dont log - Item locked'));
+        $command->setChangeEntry(new NotificationOnlyChangeEntry($item->getLsDoc(), $user, 'Dont log - Item locked'));
     }
 
     protected function unlockItem(UnlockItemCommand $command): void
@@ -83,6 +83,6 @@ class LockItemHandler extends BaseFrameworkHandler
         );
         $command->setNotificationEvent($notification);
 
-        $command->setChangeEntry(new NullChangeEntry($item->getLsDoc(), $user, 'Dont log - Item unlocked'));
+        $command->setChangeEntry(new NotificationOnlyChangeEntry($item->getLsDoc(), $user, 'Dont log - Item unlocked'));
     }
 }

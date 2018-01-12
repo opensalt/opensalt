@@ -199,7 +199,7 @@ class FrameworkService
 
     public function updateTreeItems(LsDoc $doc, array $items): array
     {
-        $rv = [];
+        $rv = ['return' => [], 'changes' => []];
 
         foreach ($items as $lsItemId => $updates) {
             $this->updateTreeItem($doc, $lsItemId, $updates, $rv);
@@ -225,7 +225,7 @@ class FrameworkService
         }
 
         // return the id and fullStatement of the item, whether it's new or it already existed
-        $rv[$itemId] = [
+        $rv['return'][$itemId] = [
             'originalKey' => $updates['originalKey'],
             'lsItem' => $lsItem,
             'lsItemIdentifier' => $lsItem->getIdentifier(),
@@ -323,6 +323,7 @@ class FrameworkService
         $lockRepo->releaseLock($doc, $user);
     }
 
+
     /**
      * Get the item to update, either the original or a copy based on the update array
      *
@@ -384,12 +385,26 @@ class FrameworkService
 
         // delete childOf association if specified
         if ($updates['deleteChildOf']['assocId'] !== 'all') {
-            $assocRepo->removeAssociation($assocRepo->find($updates['deleteChildOf']['assocId']));
-            $rv[$lsItemId]['deleteChildOf'] = $updates['deleteChildOf']['assocId'];
+            $assoc = $assocRepo->find($updates['deleteChildOf']['assocId']);
+            $assocRepo->removeAssociation($assoc);
+            $rv['return'][$lsItemId]['deleteChildOf'] = $updates['deleteChildOf']['assocId'];
+
+            if (!array_key_exists('assoc-d', $rv['changes'])) {
+                $rv['changes']['assoc-d'] = [];
+            }
+            $rv['changes']['assoc-d'][$assoc->getId()] = $assoc->getIdentifier();
         } else {
             // if we got "all" for the assocId, it means that we're updating a new item for which the client didn't know an assocId.
             // so in this case, it's OK to just delete any existing childof association and create a new one below
-            $assocRepo->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
+            $deleted = $assocRepo->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
+
+            if (0 < \count($deleted) && !array_key_exists('assoc-d', $rv['changes'])) {
+                $rv['changes']['assoc-d'] = [];
+            }
+            foreach ($deleted as $assoc) {
+                /** @var LsAssociation $assoc */
+                $rv['changes']['assoc-d'][$assoc->getId()] = $assoc->getIdentifier();
+            }
         }
     }
 
@@ -415,8 +430,13 @@ class FrameworkService
         if (array_key_exists('sequenceNumber', $updates['updateChildOf'])) {
             $assoc->setSequenceNumber($updates['updateChildOf']['sequenceNumber']*1);
         }
-        $rv[$lsItemId]['association'] = $assoc;
-        $rv[$lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
+        $rv['return'][$lsItemId]['association'] = $assoc;
+        $rv['return'][$lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
+
+        if (!array_key_exists('assoc-u', $rv['changes'])) {
+            $rv['changes']['assoc-u'] = [];
+        }
+        $rv['changes']['assoc-u'][$assoc->getId()] = $assoc->getIdentifier();
     }
 
     /**
@@ -441,9 +461,15 @@ class FrameworkService
             $parentItem = $docRepo->find($updates['newChildOf']['parentId']);
         }
 
-        $rv[$lsItemId]['association'] = $lsItem->addParent($parentItem, $updates['newChildOf']['sequenceNumber'], $assocGroup);
-        $rv[$lsItemId]['sequenceNumber'] = $updates['newChildOf']['sequenceNumber'];
+        $rv['return'][$lsItemId]['association'] = $lsItem->addParent($parentItem, $updates['newChildOf']['sequenceNumber'], $assocGroup);
+        $rv['return'][$lsItemId]['sequenceNumber'] = $updates['newChildOf']['sequenceNumber'];
+
+        if (!array_key_exists('assoc-a', $rv['changes'])) {
+            $rv['changes']['assoc-a'] = [];
+        }
+        $rv['changes']['assoc-a'][] = $rv['return'][$lsItemId]['association'];
     }
+
 
     /**
      * Get a user from the Security Token Storage.

@@ -226,9 +226,9 @@ apx.treeDocLoadCallback1 = function() {
     // define treeDoc1's ftRender function
     apx.treeDoc1.ftRender1 = function() {
         // first process the tree, using treeDoc1's current association group
-        var ftData = apx.treeDoc1.createTree(apx.treeDoc1.currentAssocGroup, 1);
+        let ftData = apx.treeDoc1.createTree(apx.treeDoc1.currentAssocGroup, 1);
 
-        var viewmodeTree1 = $('#viewmode_tree1');
+        let viewmodeTree1 = $('#viewmode_tree1');
         // destroy the existing tree if necessary
         if (viewmodeTree1.children().length > 0) {
             viewmodeTree1.fancytree("destroy");
@@ -259,11 +259,11 @@ apx.treeDocLoadCallback1 = function() {
             // function called after the node is rendered
             renderNode: function(event, data) {
                 apx.treeDoc1.initializeTooltip(data.node);
-                var $span = $(data.node.span),
+                let $span = $(data.node.span),
                     $title = $span.find('> span.fancytree-title'),
                     ref = data.node.data.ref
                 ;
-                var title = '';
+                let title = '';
                 if (ref.title) {
                     title = render.inline(ref.title);
                 } else if (ref.astmt) {
@@ -287,10 +287,10 @@ apx.treeDocLoadCallback1 = function() {
 
             // when item is activated (user clicks on it or activateKey() is called), show details for the item
             activate: function(event, data) {
-                var item = data.node.data.ref;
+                let item = data.node.data.ref;
 
                 // if this isn't already the currentItem...
-                if (item != apx.treeDoc1.currentItem) {
+                if (item !== apx.treeDoc1.currentItem) {
                     // setCurrentItem
                     apx.treeDoc1.setCurrentItem({"identifier": item.identifier});
                     // push history state...
@@ -336,23 +336,19 @@ apx.treeDocLoadCallback1 = function() {
                     }
 
                     // and don't allow drag if edit.moveEnabled is false
-                    if (apx.edit.moveEnabled != true) {
+                    if (true !== apx.edit.moveEnabled) {
                         return false;
                     }
 
                     // don't allow the document to be dragged
-                    if (apx.treeDoc1.isDocNode(node)) {
-                        return false;
-                    } else {
-                        return true;
-                    }
+                    return !apx.treeDoc1.isDocNode(node);
                 },
 
                 initHelper: function(node, data) {
                     // Helper was just created: modify markup
-                    var helper = data.ui.helper;
-                    var tree = node.tree;
-                    var sourceNodes = data.tree.getSelectedNodes();
+                    let helper = data.ui.helper;
+                    let tree = node.tree;
+                    let sourceNodes = data.tree.getSelectedNodes();
 
                     // Store a list of active + all selected nodes
                     if (!node.isSelected()) {
@@ -370,18 +366,18 @@ apx.treeDocLoadCallback1 = function() {
                 },
 
                 dragEnter: function(droppedNode, data) {
-                    var draggedNode = data.otherNode;
+                    let draggedNode = data.otherNode;
 
                     // determine if this is inter- or intra-tree drag
-                    var treeDraggedFrom = "tree1";
-                    if (droppedNode.tree != draggedNode.tree) {
+                    let treeDraggedFrom = "tree1";
+                    if (droppedNode.tree !== draggedNode.tree) {
                         treeDraggedFrom = "tree2";
                     }
 
                     // intra-tree drag
                     if (treeDraggedFrom === "tree1") {
                         // Don't allow dropping *over* a non-folder node (this would make it too easy to accidentally create a child).
-                        if (droppedNode.folder == true) {
+                        if (true === droppedNode.folder) {
                             // also don't allow dropping before or after the document -- only "over" allowed in this case
                             if (apx.treeDoc1.isDocNode(droppedNode)) {
                                 return "over";
@@ -407,7 +403,7 @@ apx.treeDocLoadCallback1 = function() {
                             // don't allow dropping before or after the document -- only "over" allowed in this case
                             if (apx.treeDoc1.isDocNode(droppedNode)) {
                                 return "over";
-                            } else if (droppedNode.folder == true) {
+                            } else if (droppedNode.folder === true) {
                                 return true;
                             } else {
                                 return ["before", "after"];
@@ -418,12 +414,12 @@ apx.treeDocLoadCallback1 = function() {
 
                 dragDrop: function(droppedNode, data){
                     // determine if this is inter- or intra-tree drag
-                    var treeDraggedFrom = "tree1";
-                    if (droppedNode.tree != data.otherNode.tree) {
+                    let treeDraggedFrom = "tree1";
+                    if (droppedNode.tree !== data.otherNode.tree) {
                         treeDraggedFrom = "tree2";
                     }
 
-                    var draggedNodes = data.ui.helper.data("sourceNodes");
+                    let draggedNodes = data.ui.helper.data("sourceNodes");
 
                     // intra-tree drag - move the item(s) in the tree
                     if (treeDraggedFrom === "tree1") {
@@ -454,7 +450,7 @@ apx.treeDocLoadCallback1 = function() {
         // end of fancytree widget initialization
 
         // if we're not showing mainDoc on the left, set a background color to indicate that
-        if (apx.treeDoc1 != apx.mainDoc) {
+        if (apx.treeDoc1 !== apx.mainDoc) {
             $("#tree1Section").addClass("otherDoc");
         } else {
             $("#tree1Section").removeClass("otherDoc");
@@ -464,7 +460,7 @@ apx.treeDocLoadCallback1 = function() {
         apx.treeDoc1.treeCheckboxRestoreCheckboxes(1);
 
         // if this document is also showing on the right side, re-render there too
-        if (apx.treeDoc1 == apx.treeDoc2 && !empty(apx.treeDoc2.ftRender2)) {
+        if (apx.treeDoc1 === apx.treeDoc2 && !empty(apx.treeDoc2.ftRender2)) {
             apx.treeDoc2.ftRender2();
         }
     };

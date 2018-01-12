@@ -35,23 +35,16 @@ class UpdateTreeItemsHandler extends BaseFrameworkHandler
         $items = $command->getItems();
 
         $ret = $this->framework->updateTreeItems($doc, $items);
-        $command->setReturnValues($ret);
+        $command->setReturnValues($ret['return']);
 
-        $changedItems = [];
-        foreach ($ret as $itemId => $itemInfo) {
-            $changedItems[$itemId] = $itemInfo['lsItemIdentifier'];
-        }
+        $changes = $ret['changes'];
+        //$changes['doc-u'][$doc->getId()] = $doc->getIdentifier();
 
         $notification = new NotificationEvent(
             'D08',
             'Framework tree updated',
             $doc,
-            [
-                'doc-u' => [
-                    $doc->getId() => $doc->getIdentifier(),
-                ],
-                'item-u' => $changedItems,
-            ]
+            $changes
         );
         $command->setNotificationEvent($notification);
     }

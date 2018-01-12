@@ -57,7 +57,7 @@ class LsDefAssociationGroupingController extends Controller
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function newAction(Request $request): Response
+    public function newAction(Request $request)
     {
         $ajax = $request->isXmlHttpRequest();
 
