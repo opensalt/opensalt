@@ -270,7 +270,7 @@ apx.edit.deleteItems = function(items) {
                 for (let j = 0; j < item.assocs.length; ++j) {
                     let a = item.assocs[j];
                     // when we find the ischildof...
-                    if (a.type === "isChildOf" && a.inverse != true) {
+                    if (a.type === "isChildOf" && a.inverse !== true) {
                         // then if it matches the currentAssocGroup...
                         if (a.groupId == apx.mainDoc.currentAssocGroup) {
                             // (Note that we want != here for assocGroup comparison so that null matches undefined)
@@ -326,7 +326,7 @@ apx.edit.deleteItems = function(items) {
                     
                     // find the item in mainDoc.items
                     for (let j = 0; j < apx.mainDoc.items.length; ++j) {
-                        if (apx.mainDoc.items[j] == item) {
+                        if (apx.mainDoc.items[j] === item) {
                             // delete it from itemHash and itemIdHash, and splice it from the items array
                             delete apx.mainDoc.itemHash[item.identifier];
                             delete apx.mainDoc.itemIdHash[item.id];
@@ -631,25 +631,17 @@ apx.edit.performDeleteAssociation = function(assocId, callbackFn) {
         return;
     }
 
-    // Check if we are viewing an item that has changed
-    var reshowItem = false;
-    $.each(apx.mainDoc.currentItem.assocs, function(idx, val) {
-        if (assocId.toString() === val.id.toString()) {
-            reshowItem = true;
-        }
-    });
-
-    var identifier = apx.mainDoc.assocIdHash[assocId].origin.item;
+    let identifier = apx.mainDoc.assocIdHash[assocId].origin.item;
 
     // after deletion, delete the association from the data structure
     apx.mainDoc.deleteAssociation(assocId);
 
     // if the origin item is currently showing in treeDoc1, hide the association marker if necessary
-    var oi = apx.mainDoc.itemHash[identifier];
+    let oi = apx.mainDoc.itemHash[identifier];
     if (!empty(oi)) {
-        var showAssociationIcon = false;
-        for (var i = 0; i < oi.assocs.length; ++i) {
-            var a = oi.assocs[i];
+        let showAssociationIcon = false;
+        for (let i = 0; i < oi.assocs.length; ++i) {
+            let a = oi.assocs[i];
             if (a.type !== "isChildOf") {
                 showAssociationIcon = true;
                 break;
@@ -668,9 +660,12 @@ apx.edit.performDeleteAssociation = function(assocId, callbackFn) {
         apx.viewMode.assocViewStatus = "stale";
     }
 
-    if (reshowItem && 'tree' === apx.viewMode.currentView) {
+    if ('tree' === apx.viewMode.currentView) {
+        apx.treeDoc1.ftRender1();
+        apx.treeDoc1.activateCurrentItem();
         apx.mainDoc.showCurrentItem();
     }
+
     if ('assoc' === apx.viewMode.currentView) {
         apx.viewMode.showAssocView('refresh');
     }

@@ -881,13 +881,13 @@ function ApxDocument(initializer) {
 
     self.isDocNode = function(node) {
         return (op(node, "data", "ref", "nodeType") === "document");
-    }
+    };
 
     // Initialize a tooltip for a tree item
     self.initializeTooltip = function(node) {
-        var $jq = $(node.span);
+        let $jq = $(node.span);
 
-        var content;
+        let content;
         if (self.isDocNode(node)) {
             content = "Document: " + render.block(node.title);
         } else {

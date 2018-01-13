@@ -38,7 +38,6 @@ class UpdateTreeItemsHandler extends BaseFrameworkHandler
         $command->setReturnValues($ret['return']);
 
         $changes = $ret['changes'];
-        //$changes['doc-u'][$doc->getId()] = $doc->getIdentifier();
 
         $notification = new NotificationEvent(
             'D08',

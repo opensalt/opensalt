@@ -23,6 +23,10 @@ services:
       FIREBASE_API_KEY:
       FIREBASE_AUTH_DOMAIN:
       FIREBASE_DB_URL:
+      FIREBASE_PROJECT_ID:
+      FIREBASE_CLIENT_ID:
+      FIREBASE_CLIENT_EMAIL:
+      FIREBASE_PRIVATE_KEY:
     volumes_from:
       - app
     working_dir: /var/www/html

@@ -386,6 +386,10 @@ class FrameworkService
         // delete childOf association if specified
         if ($updates['deleteChildOf']['assocId'] !== 'all') {
             $assoc = $assocRepo->find($updates['deleteChildOf']['assocId']);
+            if (null === $assoc) {
+                return;
+            }
+
             $assocRepo->removeAssociation($assoc);
             $rv['return'][$lsItemId]['deleteChildOf'] = $updates['deleteChildOf']['assocId'];
 
@@ -428,15 +432,18 @@ class FrameworkService
 
         // as of now the only thing we update is sequenceNumber
         if (array_key_exists('sequenceNumber', $updates['updateChildOf'])) {
-            $assoc->setSequenceNumber($updates['updateChildOf']['sequenceNumber']*1);
-        }
-        $rv['return'][$lsItemId]['association'] = $assoc;
-        $rv['return'][$lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
+            if ($assoc->getSequenceNumber() !== (int)$updates['updateChildOf']['sequenceNumber']) {
+                $assoc->setSequenceNumber((int)$updates['updateChildOf']['sequenceNumber']);
 
-        if (!array_key_exists('assoc-u', $rv['changes'])) {
-            $rv['changes']['assoc-u'] = [];
+                $rv['return'][$lsItemId]['association'] = $assoc;
+                $rv['return'][$lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
+
+                if (!array_key_exists('assoc-u', $rv['changes'])) {
+                    $rv['changes']['assoc-u'] = [];
+                }
+                $rv['changes']['assoc-u'][$assoc->getId()] = $assoc->getIdentifier();
+            }
         }
-        $rv['changes']['assoc-u'][$assoc->getId()] = $assoc->getIdentifier();
     }
 
     /**

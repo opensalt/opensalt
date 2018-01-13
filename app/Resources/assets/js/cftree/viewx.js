@@ -250,6 +250,18 @@ apx.initializeFirebase = function() {
     console.log('firebase initialized');
 };
 
+apx.refreshPage = function () {
+    if ("tree" === apx.viewMode.currentView) {
+        apx.treeDoc1.ftRender1();
+        apx.treeDoc1.activateCurrentItem();
+        apx.mainDoc.showCurrentItem();
+    }
+
+    if ('assoc' === apx.viewMode.currentView) {
+        apx.viewMode.showAssocView('refresh');
+    }
+};
+
 apx.notifications = apx.notifications||{};
 apx.notifyCheck = apx.notifyCheck||{};
 
@@ -316,44 +328,35 @@ $.extend(apx.notifications, {
     'assoc-u': function (list) {
         // most common (only?) change is sequence number
         $.each(list, function(id, identifier) {
-                $.ajax({
-                    url: apx.path.doc_tree_association_json.replace('ID', assocId),
-                    method: 'GET'
-                }).done(function(data, textStatus, jqXHR) {
-                    let a = apx.mainDoc.assocIdHash[data.id];
-                    if ("undefined" === typeof a) {
-                        // Does not exist
-                        return;
-                    }
-
+            $.ajax({
+                url: apx.path.doc_tree_association_json.replace('ID', id),
+                method: 'GET'
+            }).done(function(data, textStatus, jqXHR) {
+                let a = apx.mainDoc.assocIdHash[data.id];
+                if ("undefined" !== typeof a) {
                     a.seq = data.seq;
-                });
+                    a.mod = data.mod;
+                }
+
+                apx.refreshPage();
+            });
         });
-
-        if ("tree" === apx.viewMode.currentView) {
-            if (apx.mainDoc.currentItem.identifier === data.origin.item
-                || apx.mainDoc.currentItem.identifier === data.dest.item) {
-                apx.mainDoc.showCurrentItem();
-            }
-
-            apx.treeDoc1.ftRender1();
-            apx.treeDoc1.activateCurrentItem();
-        }
     },
 
     'assoc-d': function (list) {
         $.each(list, function(id, identifier) {
             apx.edit.performDeleteAssociation(id);
         });
+
+        apx.refreshPage();
     },
 
     'item-l': function(list, msg) {
         $.each(list, function(id, identifier) {
             apx.locks['items'][id] = (msg.by !== apx.me);
-            if (id.toString() === apx.mainDoc.currentItem.id.toString()) {
-                apx.mainDoc.showCurrentItem();
-            }
         });
+
+        apx.refreshPage();
     },
 
     'item-a': function(list) {
@@ -381,12 +384,7 @@ $.extend(apx.notifications, {
                     item[key] = data[key];
                 }
 
-                // then re-render the tree and re-activate the item
-                if ("tree" === apx.viewMode.currentView) {
-                    apx.treeDoc1.ftRender1();
-                    apx.treeDoc1.activateCurrentItem();
-                    apx.mainDoc.showCurrentItem();
-                }
+                apx.refreshPage();
             }).fail(function(jqXHR, textStatus, errorThrown){
                 // Ignore for now
             });
@@ -395,15 +393,34 @@ $.extend(apx.notifications, {
 
     'item-d': function(list) {
         $.each(list, function(id, identifier) {
+            let item = apx.mainDoc.itemIdHash[id];
+
+            if ("object" === typeof item.assocs) {
+                $.each(item.assocs, function (i, assoc) {
+                    if (true !== assoc.inverse) {
+                        apx.edit.performDeleteAssociation(assoc.id);
+                    }
+                });
+            }
+
+            // find the item in mainDoc.items
+            for (let i = 0; i < apx.mainDoc.items.length; ++i) {
+                if (apx.mainDoc.items[i] === item) {
+                    // delete it from itemHash and itemIdHash, and splice it from the items array
+                    delete apx.mainDoc.itemHash[item.identifier];
+                    delete apx.mainDoc.itemIdHash[item.id];
+                    apx.mainDoc.items.splice(i, 1);
+                    break;
+                }
+            }
         });
+
+        apx.refreshPage();
     },
 
     'item-ul': function(list) {
         $.each(list, function(id, identifier) {
             apx.locks['items'][id] = false;
-            if (id.toString() === apx.mainDoc.currentItem.id.toString()) {
-                apx.mainDoc.showCurrentItem();
-            }
         });
     },
 
@@ -447,12 +464,7 @@ $.extend(apx.notifications, {
                     }
                 });
 
-                // then re-render the tree and re-activate the item
-                if ("tree" === apx.viewMode.currentView) {
-                    apx.treeDoc1.ftRender1();
-                    apx.treeDoc1.activateCurrentItem();
-                    apx.mainDoc.showCurrentItem();
-                }
+                apx.refreshPage();
             }).fail(function(jqXHR, textStatus, errorThrown){
                 // Ignore for now
             });
@@ -473,16 +485,15 @@ $.extend(apx.notifications, {
             if (apx.lsDocId.toString() === id.toString()) {
                 console.log('matched');
                 apx.locks['docs'][id] = false;
-                apx.mainDoc.showCurrentItem();
             }
         });
     },
 
-    'reload': function (list) {
+    reload: function (list) {
         window.location.reload(true);
     },
 
-    'redirect': function (list) {
+    redirect: function (list) {
         window.location.replace(list);
     },
 
@@ -541,15 +552,7 @@ $.extend(apx.notifications, {
             let a = apx.mainDoc.addAssociation(data);
             apx.mainDoc.addInverseAssociation(a);
 
-            if ("tree" === apx.viewMode.currentView) {
-                if (apx.mainDoc.currentItem.identifier === data.origin.item
-                    || apx.mainDoc.currentItem.identifier === data.dest.item) {
-                    apx.mainDoc.showCurrentItem();
-                }
-
-                apx.treeDoc1.ftRender1();
-                apx.treeDoc1.activateCurrentItem();
-            }
+            apx.refreshPage();
         }).fail(function(jqXHR, textStatus, errorThrown){
             // Ignore for now
         });
@@ -562,6 +565,8 @@ $.extend(apx.notifications, {
                 method: 'GET'
             }).done(function(data, textStatus, jqXHR){
                 apx.mainDoc.addNewItemData(data);
+
+                apx.refreshPage();
             });
         }
     }
@@ -691,7 +696,7 @@ apx.pushHistoryState = function() {
     }
     
     // if we just called this after the user clicked back or forward, though, don't push a new state
-    if (apx.popStateActivate != true) {
+    if (apx.popStateActivate !== true) {
         // For now, at least, if we're not showing the mainDoc on the left side, don't push a new state
         if (apx.mainDoc !== apx.treeDoc1) {
             return;
@@ -703,7 +708,7 @@ apx.pushHistoryState = function() {
         };
 
         // if currentItem is the document...
-        if (apx.treeDoc1.currentItem == apx.treeDoc1.doc) {
+        if (apx.treeDoc1.currentItem === apx.treeDoc1.doc) {
             path = apx.path.lsDoc.replace('ID', apx.lsDocId);
             if (apx.viewMode.currentView === "assoc") {
                 // add "/av" to path if the association view
@@ -714,9 +719,8 @@ apx.pushHistoryState = function() {
                 path += "/lv";
             }
             state.lsItemId = null;
-
-        // else the currentItem is an item
         } else {
+            // else the currentItem is an item
             path = apx.path.lsItem.replace('ID', apx.treeDoc1.currentItem.id);
             state.lsItemId = apx.treeDoc1.currentItem.id;
         }

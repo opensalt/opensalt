@@ -530,34 +530,48 @@ class DocTreeController extends Controller
      */
     public function treeAssociationAction(LsAssociation $association): JsonResponse
     {
-        /*
-        $originUri = $association->getOrigin()->getUri();
-        $originUri = preg_replace('/^local:/', '', $originUri);
-        $originUri = $this->get('router')->generate('editor_uri_lookup', ['uri'=>$originUri], Router::ABSOLUTE_URL);
-
-        $destUri = $association->getOrigin()->getUri();
-        $destUri = preg_replace('/^local:/', '', $destUri);
-        $destUri = $this->get('router')->generate('editor_uri_lookup', ['uri'=>$destUri], Router::ABSOLUTE_URL);
-        */
+        $origin = $association->getOrigin();
+        if (\is_string($origin)) {
+            $originIdentifier = preg_replace('/^local:/', '', $origin);
+            $originDoc = $association->getLsDocIdentifier();
+        } else {
+            $originIdentifier = $origin->getIdentifier();
+            if ($origin instanceof LsDoc) {
+                $originDoc = $origin->getIdentifier();
+            } else {
+                $originDoc = $origin->getLsDocIdentifier();
+            }
+        }
+        $dest = $association->getDestination();
+        if (\is_string($dest)) {
+            $destIdentifier = preg_replace('/^local:/', '', $dest);
+            $destDoc = $association->getLsDocIdentifier();
+        } else {
+            $destIdentifier = $dest->getIdentifier();
+            if ($dest instanceof LsDoc) {
+                $destDoc = $dest->getIdentifier();
+            } else {
+                $destDoc = $dest->getLsDocIdentifier();
+            }
+        }
 
         return new JsonResponse([
             'id' => $association->getId(),
             'identifier' => $association->getIdentifier(),
             'origin' => [
-                'doc' => $association->getOrigin()->getLsDoc()->getIdentifier(),
-                'item' => $association->getOrigin()->getIdentifier(),
-                'uri' => $association->getOrigin()->getIdentifier(),
-                //'uri' => $originUri,
+                'doc' => $originDoc,
+                'item' => $originIdentifier,
+                'uri' => $originIdentifier,
             ],
             'type' => $association->getNormalizedType(),
             'dest' => [
-                'doc' => $association->getDestination()->getLsDoc()->getIdentifier(),
-                'item' => $association->getDestination()->getIdentifier(),
-                'uri' => $association->getDestination()->getIdentifier(),
-                //'uri' => $destUri,
+                'doc' => $destDoc,
+                'item' => $destIdentifier,
+                'uri' => $destIdentifier,
             ],
             'groupId' => $association->getGroup() ? $association->getGroup()->getId() : null,
             'seq' => $association->getSequenceNumber(),
+            'mod' => $association->getUpdatedAt()->format('Y-m-d\TH:i:s'),
         ]);
     }
 
