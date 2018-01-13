@@ -236,7 +236,7 @@ apx.initialize = function() {
 apx.initializeFirebase = function() {
     window.firebase.initializeApp(window.firebaseConfig);
     let notificationsRef = window.firebase.database()
-        .ref('doc/' + apx.lsDocId + '/notification')
+        .ref('/' + apx.firebasePrefix + '/doc/' + apx.lsDocId + '/notification')
         .orderByChild('at')
         .startAt(apx.startTime);
     notificationsRef.on('child_added', function(snapshot) {

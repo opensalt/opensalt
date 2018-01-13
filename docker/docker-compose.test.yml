@@ -27,6 +27,7 @@ services:
       FIREBASE_CLIENT_ID:
       FIREBASE_CLIENT_EMAIL:
       FIREBASE_PRIVATE_KEY:
+      FIREBASE_PREFIX:
     volumes_from:
       - app
     working_dir: /var/www/html

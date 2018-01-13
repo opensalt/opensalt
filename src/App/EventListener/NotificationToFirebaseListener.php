@@ -44,15 +44,22 @@ class NotificationToFirebaseListener
     private $firebase;
 
     /**
+     * @var string
+     */
+    private $prefix;
+
+    /**
      * @DI\InjectParams({
      *     "firebase" = @DI\Inject(Firebase::class),
-     *     "logger" = @DI\Inject("logger")
+     *     "logger" = @DI\Inject("logger"),
+     *     "prefix" = @DI\Inject("%firebase_prefix%"),
      * })
      */
-    public function __construct(?Firebase $firebase, LoggerInterface $logger)
+    public function __construct(?Firebase $firebase, LoggerInterface $logger, ?string $prefix = null)
     {
         $this->firebase = $firebase;
         $this->logger = $logger;
+        $this->prefix = !empty($prefix) ? $prefix : 'opensalt';
     }
 
     /**
@@ -61,7 +68,7 @@ class NotificationToFirebaseListener
     public function handleNotification(NotificationEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         if (null === $this->firebase) {
-            $this->logger->info('Firebase not enabled');
+            $this->logger->debug('Firebase not enabled');
             return;
         }
 
@@ -113,7 +120,7 @@ class NotificationToFirebaseListener
             'changes' => $notification['changes'],
         ]);
 
-        $path = "/doc/{$docId}/notification";
+        $path = '/'.$this->prefix."/doc/{$docId}/notification";
         $db = $this->firebase->getDatabase();
         $db->getReference($path)->push($notification);
     }
@@ -122,7 +129,7 @@ class NotificationToFirebaseListener
     {
         $expireBefore = (new \DateTime('now - 5 minutes'))->format('Uv');
         $removeKeys = [];
-        $path = '/doc';
+        $path = '/'.$this->prefix.'/doc';
 
         $db = $this->firebase->getDatabase();
         $docs = $db->getReference($path)->getValue();

@@ -33,10 +33,18 @@ To set up firebase:
               ".indexOn": ["at"]
             }
           }
+        },
+        "$serverpfx": {
+          "doc": {
+            "$docid": {
+              "notification": {
+                ".indexOn": ["at"]
+              }
+            }
+          }
         }
       }
     }
-
     ```
 10. Click the gear icon next to "Project Overview" and select "Project Settings"
 11. Click "SERVICE ACCOUNTS" in the top menu

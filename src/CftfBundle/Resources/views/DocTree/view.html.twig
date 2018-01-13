@@ -615,6 +615,7 @@
                 apx.startTime = {{ "now"|date("Uv") }};
                 {% if firebase_api_key is not null %}
                     apx.locks = {{ locks |json_encode |raw }};
+                    apx.firebasePrefix = {{ firebase_prefix |json_encode |raw }};
                 {% endif %}
             {% endif %}
 
