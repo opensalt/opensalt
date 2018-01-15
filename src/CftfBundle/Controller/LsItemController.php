@@ -416,29 +416,6 @@ class LsItemController extends Controller
         return $ret;
     }
 
-    /**
-     * Displays a form to change the parent of an existing LsItem entity.
-     *
-     * @Route("/{id}/treeJson", name="lsitem_tree_json")
-     * @Method({"GET"})
-     * @Security("is_granted('edit', item)")
-     *
-     * @param LsItem $item
-     *
-     * @return JsonResponse
-     */
-    public function itemJsonInfoAction(LsItem $item): Response
-    {
-        // retrieve isChildOf assoc id for the item
-        $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy([
-            'originLsItem' => $item,
-            'type' => LsAssociation::CHILD_OF,
-            'lsDoc' => $item->getLsDoc(),
-        ]);
-
-        return $this->generateItemJsonResponse($item, $assoc);
-    }
-
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
     {
         $ret = [

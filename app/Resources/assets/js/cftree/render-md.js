@@ -1,5 +1,5 @@
 const render = (function(){
-    var
+    let
         underline = require('markdown-it-underline'),
         mk = require('markdown-it-katex'),
         markdown = require('markdown-it'),
@@ -21,7 +21,7 @@ const render = (function(){
     ;
 
     function sanitizerBlock(dirty) {
-        var sanitizeHtml = require('sanitize-html');
+        let sanitizeHtml = require('sanitize-html');
 
         return sanitizeHtml(dirty, {
             allowedTags: [
@@ -37,7 +37,7 @@ const render = (function(){
     }
 
     function sanitizerInline(dirty) {
-        var sanitizeHtml = require('sanitize-html');
+        let sanitizeHtml = require('sanitize-html');
 
         return sanitizeHtml(dirty, {
             allowedTags: [ ],
@@ -45,7 +45,7 @@ const render = (function(){
         });
     }
 
-    var render = {
+    let render = {
         block: function (value) {
             return md.render(sanitizerBlock(value));
         },
@@ -59,7 +59,7 @@ const render = (function(){
         },
 
         escaped: function(value) {
-            var entityMap = {
+            let entityMap = {
                 '&': '&amp;',
                 '<': '&lt;',
                 '>': '&gt;',
@@ -77,7 +77,7 @@ const render = (function(){
     };
 
     render.mde = function (element) {
-        var SimpleMDE = require('simplemde');
+        let SimpleMDE = require('simplemde');
         return new SimpleMDE({
             element: element,
             toolbar: [

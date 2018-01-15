@@ -525,57 +525,6 @@ class DocTreeController extends Controller
     }
 
     /**
-     * @Route("/association/{id}", name="doc_tree_association_json")
-     * @Method("GET")
-     */
-    public function treeAssociationAction(LsAssociation $association): JsonResponse
-    {
-        $origin = $association->getOrigin();
-        if (\is_string($origin)) {
-            $originIdentifier = preg_replace('/^local:/', '', $origin);
-            $originDoc = $association->getLsDocIdentifier();
-        } else {
-            $originIdentifier = $origin->getIdentifier();
-            if ($origin instanceof LsDoc) {
-                $originDoc = $origin->getIdentifier();
-            } else {
-                $originDoc = $origin->getLsDocIdentifier();
-            }
-        }
-        $dest = $association->getDestination();
-        if (\is_string($dest)) {
-            $destIdentifier = preg_replace('/^local:/', '', $dest);
-            $destDoc = $association->getLsDocIdentifier();
-        } else {
-            $destIdentifier = $dest->getIdentifier();
-            if ($dest instanceof LsDoc) {
-                $destDoc = $dest->getIdentifier();
-            } else {
-                $destDoc = $dest->getLsDocIdentifier();
-            }
-        }
-
-        return new JsonResponse([
-            'id' => $association->getId(),
-            'identifier' => $association->getIdentifier(),
-            'origin' => [
-                'doc' => $originDoc,
-                'item' => $originIdentifier,
-                'uri' => $originIdentifier,
-            ],
-            'type' => $association->getNormalizedType(),
-            'dest' => [
-                'doc' => $destDoc,
-                'item' => $destIdentifier,
-                'uri' => $destIdentifier,
-            ],
-            'groupId' => $association->getGroup() ? $association->getGroup()->getId() : null,
-            'seq' => $association->getSequenceNumber(),
-            'mod' => $association->getUpdatedAt()->format('Y-m-d\TH:i:s'),
-        ]);
-    }
-
-    /**
      * Create a response with a CFDocument
      *
      * @param int $id
