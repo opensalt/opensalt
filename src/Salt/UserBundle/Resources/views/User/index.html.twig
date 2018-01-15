@@ -2,6 +2,20 @@
 
 {% block body %}
     <h1>User list</h1>
+    
+    <table class="table table-condensed table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>List Of Organization</th>
+        </thead>
+        <tbody>
+        {% for org in orgs %}
+            <tr>
+                <td>{{ org.name }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
     <table class="table table-condensed table-hover table-bordered table-striped">
         <thead>

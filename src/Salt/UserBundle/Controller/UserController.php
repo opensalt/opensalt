@@ -44,13 +44,14 @@ class UserController extends Controller
 
         if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_USER')) {
             $users = $em->getRepository(User::class)->findAll();
+            $orgs=$em->getRepository(Organization::class)->findAll();
         } else {
             $users = $em->getRepository(User::class)
-                ->findByOrg($this->getUser()->getOrg());
+                        ->findByOrg($this->getUser()->getOrg());
         }
-
         return [
             'users' => $users,
+            'orgs'=>$orgs,
         ];
     }
 
