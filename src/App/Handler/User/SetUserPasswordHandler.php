@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\SetUserPasswordCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -44,5 +45,11 @@ class SetUserPasswordHandler extends BaseDoctrineHandler
         $newPassword = $this->em->getRepository(User::class)->setUserPassword($username, $plainPassword);
 
         $command->setPlainPassword($newPassword);
+
+        $command->setNotificationEvent(new NotificationEvent(
+            'U08',
+            sprintf('Password set for "%s"', $username),
+            null
+        ));
     }
 }

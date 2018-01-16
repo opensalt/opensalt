@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Route("/treeuiinfo")
@@ -17,8 +18,50 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class UiInfoController extends AbstractController
 {
     /**
-     * Displays a form to change the parent of an existing LsItem entity.
+     * @Route("/multi/{id}", name="multi_tree_info_json")
+     * @Method({"POST"})
+     * @Security("is_granted('edit', doc)")
      *
+     * @return JsonResponse
+     */
+    public function multiJsonInfoAction(Request $request, LsDoc $doc): JsonResponse
+    {
+        $objs = [];
+        if ($request->request->has('doc') && is_array($request->request->has('doc') )) {
+            $objs['docs'] = [];
+            foreach ($request->request->get('doc') as $id) {
+                $d = $this->getDoctrine()->getRepository(LsDoc::class)
+                    ->find($id);
+                if (null !== $d) {
+                    $objs['docs'][$id] = $this->generateDocArray($d);
+                }
+            }
+        }
+
+        if ($request->request->has('item')) {
+            foreach ($request->request->get('item') as $id) {
+                $i = $this->getDoctrine()->getRepository(LsItem::class)
+                    ->find($id);
+                if (null !== $i) {
+                    $objs['items'][$id] = $this->generateItemArray($i);
+                }
+            }
+        }
+
+        if ($request->request->has('assoc')) {
+            foreach ($request->request->get('assoc') as $id) {
+                $a = $this->getDoctrine()->getRepository(LsAssociation::class)
+                    ->find($id);
+                if (null !== $a) {
+                    $objs['assocs'][$id] = $this->generateAssociationArray($a);
+                }
+            }
+        }
+
+        return new JsonResponse($objs);
+    }
+
+    /**
      * @Route("/doc/{id}", name="lsdoc_tree_json")
      * @Method({"GET"})
      * @Security("is_granted('edit', doc)")
@@ -33,8 +76,6 @@ class UiInfoController extends AbstractController
     }
 
     /**
-     * Displays a form to change the parent of an existing LsItem entity.
-     *
      * @Route("/item/{id}", name="lsitem_tree_json")
      * @Method({"GET"})
      * @Security("is_granted('edit', item)")
@@ -60,10 +101,10 @@ class UiInfoController extends AbstractController
 
     protected function generateDocJsonResponse(LsDoc $doc): JsonResponse
     {
-        return new JsonResponse($this->generateDocJsonArray($doc));
+        return new JsonResponse($this->generateDocArray($doc));
     }
 
-    protected function generateDocJsonArray(LsDoc $doc): array
+    protected function generateDocArray(LsDoc $doc): array
     {
         return [
             'id' => $doc->getId(),

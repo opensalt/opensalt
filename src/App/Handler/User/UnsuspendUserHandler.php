@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\UnsuspendUserCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -31,5 +32,11 @@ class UnsuspendUserHandler extends BaseUserHandler
 
         $user = $command->getUser();
         $user->unsuspendUser();
+
+        $command->setNotificationEvent(new NotificationEvent(
+            'U07',
+            sprintf('User "%s" unsuspended', $user->getUsername()),
+            null
+        ));
     }
 }

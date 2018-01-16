@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\AddUserCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -35,5 +36,11 @@ class AddUserHandler extends BaseUserHandler
         $user->setPassword($encryptedPassword);
 
         $this->em->persist($user);
+
+        $command->setNotificationEvent(new NotificationEvent(
+            'U01',
+            sprintf('User "%s" added to "%s"', $user->getUsername(), $user->getOrg()->getName()),
+            null
+        ));
     }
 }

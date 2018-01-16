@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\SuspendUserCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -31,5 +32,11 @@ class SuspendUserHandler extends BaseUserHandler
 
         $user = $command->getUser();
         $user->suspendUser();
+
+        $command->setNotificationEvent(new NotificationEvent(
+            'U06',
+            sprintf('User "%s" suspended', $user->getUsername()),
+            null
+        ));
     }
 }

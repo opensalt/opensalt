@@ -61,4 +61,19 @@ class ChangeEntryRepository extends ServiceEntityRepository
 
         return $data;
     }
+
+    public function getChangeEntriesForSystem(int $limit = 20, int $offset = 0): \Doctrine\DBAL\Driver\Statement
+    {
+        $data = $this->_em->getConnection()->createQueryBuilder()
+            ->select('a.rev, a.changed_at, a.description, u.username')
+            ->from('audit_'.$this->getClassMetadata()->getTableName(), 'a')
+            ->leftJoin('a', 'salt_user', 'u', 'u.id = a.user_id')
+            ->where('a.doc_id IS NULL')
+            ->orderBy('a.rev', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults(($limit > 0) ? $limit : 1000000)
+            ->execute();
+
+        return $data;
+    }
 }

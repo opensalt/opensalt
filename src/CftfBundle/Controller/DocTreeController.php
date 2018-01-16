@@ -105,11 +105,16 @@ class DocTreeController extends Controller
             if ($user instanceof User) {
                 $locks = $em->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
                 foreach ($locks as $lock) {
+                    if ($lock->getUser() === $user) {
+                        $expiry = false;
+                    } else {
+                        $expiry = $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
+                    }
                     if (LsDoc::class === $lock->getObjectType()) {
-                        $docLocks['docs'][$lock->getObjectId()] = $lock->getUser() !== $user;
+                        $docLocks['docs'][$lock->getObjectId()] = $expiry;
                     }
                     if (LsItem::class === $lock->getObjectType()) {
-                        $docLocks['items'][$lock->getObjectId()] = $lock->getUser() !== $user;
+                        $docLocks['items'][$lock->getObjectId()] = $expiry;
                     }
                 }
             }

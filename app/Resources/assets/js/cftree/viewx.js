@@ -247,6 +247,46 @@ apx.initializeFirebase = function() {
     $('#notifications-switch-location').html('<a id="notifications-switch" href="#" class="btn btn-lg"><i class="material-icons">notifications'+(enabled?'':'_off')+'</i></a>');
     $('#notifications-switch').on('click', apx.notifications.toggle);
     apx.notifications.enableMonitor();
+    $.each(apx.locks.docs, function (id, tm) {
+        if ("number" !== typeof tm || tm < apx.startTime) {
+            return;
+        }
+        apx.locks.docs[id] = setTimeout(function (id) {
+            delete apx.locks.docs[id];
+            let changes = [];
+            changes[id] = 'x';
+            apx.notifications.notify({
+                msgId: 'LockTimeout',
+                msg: 'The document is no longer being edited',
+                at: (new Date()).getTime(),
+                by: '',
+                changes: {
+                    'doc-ul': changes
+                }
+            });
+        }, tm - apx.startTime, id);
+    });
+    $.each(apx.locks.items, function (id, tm) {
+        if ("number" !== typeof tm || tm < apx.startTime) {
+            return;
+        }
+        console.log('timeout set', tm - apx.startTime);
+        apx.locks.items[id] = setTimeout(function (id, title) {
+            console.log('timeout called', id);
+            delete apx.locks.items[id];
+            let changes = [];
+            changes[id] = 'x';
+            apx.notifications.notify({
+                msgId: 'LockTimeout',
+                msg: 'The item "' + title + '" is no longer being edited',
+                at: (new Date()).getTime(),
+                by: '',
+                changes: {
+                    'item-ul': changes
+                }
+            });
+        }, tm - apx.startTime, id, render.inline(apx.mainDoc.itemIdHash[id].fstmt.substr(0, 60)));
+    });
     console.log('firebase initialized');
 };
 
@@ -326,20 +366,30 @@ $.extend(apx.notifications, {
     },
 
     'assoc-u': function (list) {
-        // most common (only?) change is sequence number
-        $.each(list, function(id, identifier) {
-            $.ajax({
-                url: apx.path.doc_tree_association_json.replace('ID', id),
-                method: 'GET'
-            }).done(function(data, textStatus, jqXHR) {
-                let a = apx.mainDoc.assocIdHash[data.id];
-                if ("undefined" !== typeof a) {
-                    a.seq = data.seq;
-                    a.mod = data.mod;
-                }
+        let load = function(data) {
+            let a = apx.mainDoc.assocIdHash[data.id];
+            // most common (only?) change is sequence number
+            if ("undefined" !== typeof a) {
+                a.seq = data.seq;
+                a.mod = data.mod;
+            }
 
-                apx.refreshPage();
-            });
+            apx.refreshPage();
+        };
+
+        $.each(list, function(id, identifier) {
+            if ("undefined" !== apx.notifications.updates['assocs'][assocId]) {
+                load(apx.notifications.updates['assocs'][assocId]);
+            } else {
+                $.ajax({
+                    url: apx.path.doc_tree_association_json.replace('ID', id),
+                    method: 'GET'
+                }).done(function (data, textStatus, jqXHR) {
+                    load(data);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    // Ignore for now
+                });
+            }
         });
     },
 
@@ -353,7 +403,32 @@ $.extend(apx.notifications, {
 
     'item-l': function(list, msg) {
         $.each(list, function(id, identifier) {
-            apx.locks['items'][id] = (msg.by !== apx.me);
+            if (msg.by === apx.me) {
+                // @todo: set timeout for 4 minutes to allow a re-lock (if editing)
+                // @todo: unlock at timeout
+                apx.locks['items'][id] = false;
+            } else {
+                if ("number" === typeof apx.locks.items[id]) {
+                    // remove any existing timer
+                    clearTimeout(apx.locks.items[id]);
+                }
+
+                apx.locks.items[id] = setTimeout(function (id, title) {
+                    console.log('timeout called', id);
+                    delete apx.locks.items[id];
+                    let changes = [];
+                    changes[id] = 'x';
+                    apx.notifications.notify({
+                        msgId: 'LockTimeout',
+                        msg: 'The item "' + title + '" is no longer being edited',
+                        at: (new Date()).getTime(),
+                        by: '',
+                        changes: {
+                            'item-ul': changes
+                        }
+                    });
+                }, 300000, id, render.inline(apx.mainDoc.itemIdHash[id].fstmt.substr(0, 60)));
+            }
         });
 
         apx.refreshPage();
@@ -420,8 +495,13 @@ $.extend(apx.notifications, {
 
     'item-ul': function(list) {
         $.each(list, function(id, identifier) {
-            apx.locks['items'][id] = false;
+            if ("number" === typeof apx.locks['items'][id]) {
+                clearTimeout(apx.locks['items'][id]);
+                delete apx.locks['items'][id];
+            }
         });
+
+        apx.refreshPage();
     },
 
     'doc-l': function(list, msg) {
@@ -483,8 +563,10 @@ $.extend(apx.notifications, {
     'doc-ul': function(list) {
         $.each(list, function(id, identifier) {
             if (apx.lsDocId.toString() === id.toString()) {
-                console.log('matched');
-                apx.locks['docs'][id] = false;
+                if ("number" === typeof apx.locks['items'][id]) {
+                    clearTimeout(apx.locks['docs'][id]);
+                    apx.locks['docs'][id] = false;
+                }
             }
         });
     },
@@ -528,22 +610,40 @@ $.extend(apx.notifications, {
         apx.notifications.displayNotification(msg);
 
         if ("object" === typeof msg.changes) {
+            let changed = {};
             $.each(msg.changes, function(key, list) {
-                if ("function" === typeof apx.notifications[key]) {
-                    apx.notifications[key](list, msg);
-                } else {
-                    console.log("function not found", key, list);
+                let type = key.replace(/-.*/, '');
+                if ("undefined" === typeof changed[type]) {
+                    changed[type] = [];
                 }
+                $.each(list, function(id, identifier) {
+                    changed[type].push(id);
+                });
+            });
+
+            $.ajax({
+                url: apx.path.doc_tree_multi_changes.replace('ID', apx.mainDoc.doc.id),
+                method: 'POST',
+                data: changed
+            }).done(function (data, textStatus, jqXHR) {
+                console.log(data);
+
+                apx.notifications.updates = data;
+
+                $.each(msg.changes, function (key, list) {
+                    if ("function" === typeof apx.notifications[key]) {
+                        apx.notifications[key](list, msg);
+                    } else {
+                        console.log("function not found", key, list);
+                    }
+                });
             });
         }
     },
 
     loadAssociation: function(assocId) {
         // Get association info
-        $.ajax({
-            url: apx.path.doc_tree_association_json.replace('ID', assocId),
-            method: 'GET'
-        }).done(function(data, textStatus, jqXHR){
+        let load = function(data) {
             if ("undefined" !== typeof apx.mainDoc.assocIdHash[data.id]) {
                 // Already exists
                 return;
@@ -553,9 +653,20 @@ $.extend(apx.notifications, {
             apx.mainDoc.addInverseAssociation(a);
 
             apx.refreshPage();
-        }).fail(function(jqXHR, textStatus, errorThrown){
-            // Ignore for now
-        });
+        };
+
+        if ("undefined" !== apx.notifications.updates['assocs'][assocId]) {
+            load(apx.notifications.updates['assocs'][assocId]);
+        } else {
+            $.ajax({
+                url: apx.path.doc_tree_association_json.replace('ID', assocId),
+                method: 'GET'
+            }).done(function (data, textStatus, jqXHR) {
+                load(data);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                // Ignore for now
+            });
+        }
     },
 
     loadItem: function(itemId) {

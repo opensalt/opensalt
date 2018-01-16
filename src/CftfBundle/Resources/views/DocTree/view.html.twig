@@ -588,6 +588,26 @@
     </div>
     {% endblock %}
 
+    {% block sitejavascripts %}
+        <script>
+            window.apx = window.apx || {};
+
+            apx.enableEdit = {{ editorRights |json_encode |raw }};
+            {% if editorRights %}
+            apx.me = "{{ app.user.username |e('js') }}";
+            apx.startTime = {{ "now"|date("Uv") }};
+            apx.startTimeBrowser = (new Date()).getTime();
+            apx.timeDiff = apx.startTimeBrowser - apx.startTime;
+            {% if firebase_api_key is not null %}
+            apx.locks = {{ locks |json_encode |raw }};
+            apx.firebasePrefix = {{ firebase_prefix |json_encode |raw }};
+            {% endif %}
+            {% endif %}
+        </script>
+
+        {{ parent() }}
+    {% endblock %}
+
     {% block javascripts %}
         {% autoescape 'js' %}
         {% if 'comments' is active feature %}
@@ -607,18 +627,6 @@
         {% endif %}
 
         <script>
-            window.apx = window.apx || {};
-
-            apx.enableEdit = {{ editorRights |json_encode |raw }};
-            {% if editorRights %}
-                apx.me = "{{ app.user.username |e('js') }}";
-                apx.startTime = {{ "now"|date("Uv") }};
-                {% if firebase_api_key is not null %}
-                    apx.locks = {{ locks |json_encode |raw }};
-                    apx.firebasePrefix = {{ firebase_prefix |json_encode |raw }};
-                {% endif %}
-            {% endif %}
-
             // loaded docid and initial lsItem and assocGroup to show
             apx.lsDocId = {{ lsDocId |json_encode |raw }};
             apx.initialLsItemId = {{ lsItemId |default(null) |json_encode |raw }};
@@ -650,6 +658,7 @@
             apx.path.lsdef_association_grouping_new = '{{ path('lsdef_association_grouping_new') }}';
             apx.path.lsdef_association_grouping_edit = '{{ path('lsdef_association_grouping_edit', {'id':'ID'}) }}';
             apx.path.lsdef_association_grouping_tree_delete = '{{ path('lsdef_association_grouping_tree_delete', {'id':'ID'}) }}';
+            apx.path.doc_tree_multi_changes = '{{ path('multi_tree_info_json', {'id':'ID'}) }}';
 
             apx.path.doctree_cfpackage_export = '{{ path('doctree_cfpackage_export', {'id':'ID'}) }}';
             apx.path.doctree_retrieve_document = '{{ path('doctree_retrieve_document', {'id':'ID'}) }}';

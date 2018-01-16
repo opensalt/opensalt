@@ -1425,7 +1425,7 @@ function ApxDocument(initializer) {
                     '#updateFrameworkModal'
                 ], function (i, button) {
                     if ("undefined" !== typeof apx.locks['docs'][apx.lsDocId]
-                        && true === apx.locks['docs'][apx.lsDocId]) {
+                        && false !== apx.locks['docs'][apx.lsDocId]) {
                         $('button[data-target="' + button + '"]')
                             .attr('disabled', 'disabled')
                             .addClass('disabled');
@@ -1649,7 +1649,7 @@ function ApxDocument(initializer) {
                     '#addExemplarModal'
                 ], function (i, button) {
                     if ("undefined" !== typeof apx.locks['items'][item.id]
-                        && true === apx.locks['items'][item.id]) {
+                        && false !== apx.locks['items'][item.id]) {
                         $('button[data-target="' + button + '"]')
                             .attr('disabled', 'disabled')
                             .addClass('disabled');
@@ -1664,7 +1664,7 @@ function ApxDocument(initializer) {
                     '#toggleFolderBtn'
                 ], function (i, button) {
                     if ("undefined" !== typeof apx.locks['items'][item.id]
-                        && true === apx.locks['items'][item.id]) {
+                        && false !== apx.locks['items'][item.id]) {
                         $(button)
                             .attr('disabled', 'disabled')
                             .addClass('disabled');

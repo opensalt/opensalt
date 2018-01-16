@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\UpdateOrganizationCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -32,5 +33,11 @@ class UpdateOrganizationHandler extends BaseUserHandler
         $organization = $command->getOrg();
 
         $this->em->persist($organization);
+
+        $command->setNotificationEvent(new NotificationEvent(
+            'O04',
+            sprintf('Organization "%s" modified', $organization->getName()),
+            null
+        ));
     }
 }

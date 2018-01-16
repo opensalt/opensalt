@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\DeleteUserCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -32,5 +33,11 @@ class DeleteUserHandler extends BaseUserHandler
         $user = $command->getUser();
 
         $this->em->remove($user);
+
+        $command->setNotificationEvent(new NotificationEvent(
+            'U03',
+            sprintf('User "%s" deleted', $user->getUsername()),
+            null
+        ));
     }
 }
