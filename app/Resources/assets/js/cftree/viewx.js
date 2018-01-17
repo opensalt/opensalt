@@ -815,7 +815,7 @@ $.extend(apx.notifications, {
             icon: msg.icon ? msg.icon : null,
             target: msg.target ? msg.target : '_self'
         }, {
-            delay: ('number' === typeof msg.delay) ? msg.delay : 5000,
+            delay: ('number' === typeof msg.delay) ? msg.delay : 30000,
             allow_dismiss: ('boolean' === typeof msg.dismissible) ? !msg.dismissible : true,
             type: ('string' === typeof msg.msgType) ? msg.msgType : 'info',
             onShow: msg.onShow ? msg.onShow : null,
