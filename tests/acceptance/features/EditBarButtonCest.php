@@ -17,6 +17,6 @@ class EditBarButtonCest
         $I->see('Edit');
         $I->click('[data-target="#editItemModal"]');
         $I->waitForElementVisible('#editItemModal');
-        $I->seeElement('.fa.fa-sort-alpha-asc');       
+        $I->seeElement('.fa.fa-sort-alpha-asc');
     }
 }
