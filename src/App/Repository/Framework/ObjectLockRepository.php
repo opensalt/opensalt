@@ -58,7 +58,7 @@ class ObjectLockRepository extends ServiceEntityRepository
         }
 
         if (null !== $lock && $lock->getUser() !== $user) {
-            throw new AlreadyLockedException("Cannot acquire lock");
+            throw new AlreadyLockedException('Cannot acquire lock');
         }
 
         if (null !== $lock && $lock->getUser() === $user) {
@@ -86,7 +86,7 @@ class ObjectLockRepository extends ServiceEntityRepository
         }
 
         if (null !== $user && $lock->getUser() !== $user) {
-            throw new \RuntimeException("Cannot release lock for a different user");
+            throw new \RuntimeException('Cannot release lock for a different user');
         }
 
         $this->_em->remove($lock);

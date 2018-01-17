@@ -406,7 +406,7 @@ class FrameworkService
                 $rv['changes']['assoc-d'] = [];
             }
             foreach ($deleted as $assoc) {
-                /** @var LsAssociation $assoc */
+                /* @var LsAssociation $assoc */
                 $rv['changes']['assoc-d'][$assoc->getId()] = $assoc->getIdentifier();
             }
         }
@@ -432,8 +432,8 @@ class FrameworkService
 
         // as of now the only thing we update is sequenceNumber
         if (array_key_exists('sequenceNumber', $updates['updateChildOf'])) {
-            if ($assoc->getSequenceNumber() !== (int)$updates['updateChildOf']['sequenceNumber']) {
-                $assoc->setSequenceNumber((int)$updates['updateChildOf']['sequenceNumber']);
+            if ($assoc->getSequenceNumber() !== (int) $updates['updateChildOf']['sequenceNumber']) {
+                $assoc->setSequenceNumber((int) $updates['updateChildOf']['sequenceNumber']);
 
                 $rv['return'][$lsItemId]['association'] = $assoc;
                 $rv['return'][$lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];

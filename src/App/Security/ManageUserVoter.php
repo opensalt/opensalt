@@ -81,7 +81,6 @@ class ManageUserVoter extends Voter
                 }
 
                 return $this->canManageUser($subject, $user);
-
             default:
                 return false;
         }

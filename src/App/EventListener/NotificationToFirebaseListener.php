@@ -1,6 +1,7 @@
 <?php
 
 namespace App\EventListener;
+
 use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Kreait\Firebase;

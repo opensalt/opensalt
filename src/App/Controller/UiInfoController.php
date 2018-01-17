@@ -27,7 +27,7 @@ class UiInfoController extends AbstractController
     public function multiJsonInfoAction(Request $request, LsDoc $doc): JsonResponse
     {
         $objs = [];
-        if ($request->request->has('doc') && is_array($request->request->has('doc') )) {
+        if ($request->request->has('doc') && is_array($request->request->has('doc'))) {
             $objs['docs'] = [];
             foreach ($request->request->get('doc') as $id) {
                 $d = $this->getDoctrine()->getRepository(LsDoc::class)

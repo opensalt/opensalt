@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Event\NotificationEvent;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;

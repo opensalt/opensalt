@@ -60,16 +60,16 @@ class ObjectLock
     protected $objectId;
 
     /**
-    * @var LsDoc
-    *
-    * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc")
-    */
+     * @var LsDoc
+     *
+     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc")
+     */
     protected $doc;
 
     public function __construct(LockableInterface $obj, User $user, int $minutes = 5)
     {
         if (null === $obj->getId()) {
-            throw new \RuntimeException("Attempt to lock non-persisted object.");
+            throw new \RuntimeException('Attempt to lock non-persisted object.');
         }
 
         $this->user = $user;
@@ -95,7 +95,7 @@ class ObjectLock
 
     public function isExpired(): bool
     {
-        return (new \DateTime() > $this->timeout);
+        return new \DateTime() > $this->timeout;
     }
 
     public function getTimeout(): \DateTime

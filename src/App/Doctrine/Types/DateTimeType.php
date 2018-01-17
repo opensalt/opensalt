@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Doctrine\Types;
+
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 
@@ -10,7 +11,6 @@ use Doctrine\DBAL\Types\ConversionException;
  * Adds support for datetime(3) in MySQL
  *
  * @see https://gist.github.com/coudenysj/6dc8ba55c43b97143a6c
- *
  */
 class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
 {
@@ -47,7 +47,7 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
 
         $val = \DateTime::createFromFormat($format, $value);
         if (!$val) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeFormatString() . '.u');
+            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeFormatString().'.u');
         }
 
         return $val;

@@ -180,7 +180,7 @@ class CommandEventRouter
     {
         $notification = $command->getNotificationEvent();
         if (null === $notification) {
-            $notification = new NotificationEvent('X01', 'Command ' . \get_class($command) . ' handled', null, [], false);
+            $notification = new NotificationEvent('X01', 'Command '.\get_class($command).' handled', null, [], false);
         }
 
         if (null === $notification->getUsername()) {

@@ -5,7 +5,6 @@ namespace App\Handler\Framework;
 use App\Command\Framework\AddAssociationCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use JMS\DiExtraBundle\Annotation as DI;
