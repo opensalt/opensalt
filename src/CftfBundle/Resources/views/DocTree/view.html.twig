@@ -642,11 +642,13 @@
             apx.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
             apx.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
             apx.path.lsdoc_unlock = '{{ path('lsdoc_unlock', {'id':'ID'}) }}';
+            apx.path.lsdoc_lock = '{{ path('lsdoc_lock', {'id':'ID'}) }}';
             apx.path.lsdoc_tree_json = '{{ path('lsdoc_tree_json', {'id':'ID'}) }}';
             apx.path.lsitem_edit = '{{ path('lsitem_edit', {'id':'ID'}) }}';
             apx.path.lsitem_tree_delete = '{{ path('lsitem_tree_delete', {'id':'ID', 'includingChildren':'CHILDREN'}) }}';
             apx.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC', 'parent':'PARENT'}) }}';
             apx.path.lsitem_copy_item = '{{ path('lsitem_copy_item', {'id':'ID'}) }}';
+            apx.path.lsitem_lock = '{{ path('lsitem_lock', {'id':'ID'}) }}';
             apx.path.lsitem_unlock = '{{ path('lsitem_unlock', {'id':'ID'}) }}';
             apx.path.lsitem_tree_json = '{{ path('lsitem_tree_json', {'id':'ID'}) }}';
             apx.path.lsassociation_tree_new = '{{ path('lsassociation_tree_new', {'lsDoc': lsDocId}) }}';
@@ -659,6 +661,7 @@
             apx.path.lsdef_association_grouping_edit = '{{ path('lsdef_association_grouping_edit', {'id':'ID'}) }}';
             apx.path.lsdef_association_grouping_tree_delete = '{{ path('lsdef_association_grouping_tree_delete', {'id':'ID'}) }}';
             apx.path.doc_tree_multi_changes = '{{ path('multi_tree_info_json', {'id':'ID'}) }}';
+            apx.path.doc_revisions = '{{ path('doc_revisions_json', {'id':'ID'}) }}';
 
             apx.path.doctree_cfpackage_export = '{{ path('doctree_cfpackage_export', {'id':'ID'}) }}';
             apx.path.doctree_retrieve_document = '{{ path('doctree_retrieve_document', {'id':'ID'}) }}';

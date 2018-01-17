@@ -160,13 +160,35 @@ class LsItemController extends Controller
      *
      * @return JsonResponse
      */
-    public function releaseLockAction(LsItem $item, UserInterface $user)
+    public function releaseLockAction(LsItem $item, UserInterface $user): JsonResponse
     {
         try {
             $command = new UnlockItemCommand($item, $user);
             $this->sendCommand($command);
         } catch (\Exception $e) {
             return new JsonResponse($e->getMessage());
+        }
+
+        return new JsonResponse('OK');
+    }
+
+    /**
+     * @Route("/{id}/lock", name="lsitem_lock")
+     * @Method({"POST"})
+     * @Security("is_granted('edit', item)")
+     *
+     * @param LsItem $item
+     * @param User $user
+     *
+     * @return JsonResponse
+     */
+    public function extendLockAction(LsItem $item, UserInterface $user): JsonResponse
+    {
+        try {
+            $command = new LockItemCommand($item, $user);
+            $this->sendCommand($command);
+        } catch (\Exception $e) {
+            return new JsonResponse($e->getMessage(), 422);
         }
 
         return new JsonResponse('OK');

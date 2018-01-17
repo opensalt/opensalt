@@ -398,7 +398,7 @@ apx.viewMode.showLogView = function(context) {
         $('#logTable').DataTable().clear().ajax.reload();
     } else {
         $('#logTable').DataTable({
-            ajax: "/cfdoc/ID/revisions".replace('ID', apx.lsDocId),
+            ajax: apx.path.doc_revisions.replace('ID', apx.lsDocId),
             dataSrc: 'data',
             columns: [
                 //{ data: 'rev' },

@@ -108,7 +108,7 @@ class DocTreeController extends Controller
                     if ($lock->getUser() === $user) {
                         $expiry = false;
                     } else {
-                        $expiry = $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
+                        $expiry = (int) $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
                     }
                     if (LsDoc::class === $lock->getObjectType()) {
                         $docLocks['docs'][$lock->getObjectId()] = $expiry;

@@ -7,6 +7,7 @@ use App\Event\NotificationEvent;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Statement;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 class ChangeEntryRepository extends ServiceEntityRepository
@@ -45,7 +46,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
         return $data;
     }
 
-    public function getChangeEntriesForDoc(LsDoc $doc, int $limit = 20, int $offset = 0): array
+    public function getChangeEntriesForDoc(LsDoc $doc, int $limit = 20, int $offset = 0): Statement
     {
         $data = $this->_em->getConnection()->createQueryBuilder()
             ->select('a.rev, a.changed_at, a.description, u.username')
@@ -56,13 +57,12 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->orderBy('a.rev', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults(($limit > 0) ? $limit : 1000000)
-            ->execute()
-            ->fetchAll();
+            ->execute();
 
         return $data;
     }
 
-    public function getChangeEntriesForSystem(int $limit = 20, int $offset = 0): \Doctrine\DBAL\Driver\Statement
+    public function getChangeEntriesForSystem(int $limit = 20, int $offset = 0): Statement
     {
         $data = $this->_em->getConnection()->createQueryBuilder()
             ->select('a.rev, a.changed_at, a.description, u.username')

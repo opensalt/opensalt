@@ -260,6 +260,28 @@ class LsDocController extends Controller
     }
 
     /**
+     * @Route("/{id}/lock", name="lsdoc_lock")
+     * @Method({"POST"})
+     * @Security("is_granted('edit', lsDoc)")
+     *
+     * @param LsDoc $lsDoc
+     * @param User $user
+     *
+     * @return JsonResponse
+     */
+    public function extendLockAction(LsDoc $lsDoc, UserInterface $user): JsonResponse
+    {
+        try {
+            $command = new LockDocumentCommand($lsDoc, $user);
+            $this->sendCommand($command);
+        } catch (\Exception $e) {
+            return new JsonResponse($e->getMessage(), 422);
+        }
+
+        return new JsonResponse('OK');
+    }
+
+    /**
      * Displays a form to edit an existing LsDoc entity.
      *
      * @Route("/{id}/edit", name="lsdoc_edit")

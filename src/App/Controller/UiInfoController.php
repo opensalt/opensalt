@@ -177,7 +177,7 @@ class UiInfoController extends AbstractController
         }
 
         $json = $this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]);
-        return \json_decode($json);
+        return \json_decode($json, true);
     }
 
     protected function generateAssociationJsonResponse(LsAssociation $association): JsonResponse

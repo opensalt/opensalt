@@ -11,6 +11,7 @@ use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocRevisionController extends AbstractController
 {
@@ -31,15 +32,35 @@ class DocRevisionController extends AbstractController
     }
 
     /**
-     * @Route("/cfdoc/{id}/revisions/{offset}/{limit}", defaults={"offset" = 0, "limit" = 0})
+     * @Route("/cfdoc/{id}/revisions/{offset}/{limit}", defaults={"offset" = 0, "limit" = 0}, name="doc_revisions_json")
      * @Method("GET")
      * @Security("is_granted('edit', doc)")
      */
     public function listDocRevisionsAction(LsDoc $doc, int $offset, int $limit): Response
     {
-        //$count = $this->entryRepository->getChangeEntryCountForDoc($doc);
-        $history = $this->entryRepository->getChangeEntriesForDoc($doc, $limit, $offset);
+        $response = new StreamedResponse();
+        $response->headers->set('Content-type', 'application/json');
 
-        return new JsonResponse(['data' => $history]);
+        $response->setCallback(function () use ($doc, $limit, $offset) {
+            $fd = fopen('php://output', 'wb+');
+            fwrite($fd, '{"data": [');
+
+            $history = $this->entryRepository->getChangeEntriesForDoc($doc, $limit, $offset);
+
+            $first = true;
+            foreach ($history as $line) {
+                if (!$first) {
+                    fwrite($fd, ',');
+                } else {
+                    $first = false;
+                }
+                fwrite($fd, json_encode($line));
+            }
+
+            fwrite($fd, ']}');
+            fclose($fd);
+        });
+
+        return $response;
     }
 }

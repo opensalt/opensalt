@@ -26,9 +26,9 @@ function empty(val) {
  *  @returns {*}
  */
 function objectProperty() {
-    var o = arguments[0];
+    let o = arguments[0];
     // go through keys in the arguments
-    for (var i = 1; i < arguments.length; ++i) {
+    for (let i = 1; i < arguments.length; ++i) {
         // if o is empty or is not an object, we can't get any property, so return undefined
         if (empty(o) || typeof(o) !== "object") {
             return undefined;
@@ -169,7 +169,7 @@ apx.initialize = function() {
 
                 // If an item is initially selected, get appropriate initialAssocGroup
                 // first get all assocGroups for isChildOf relationships for this item
-                var assocGroups = apx.mainDoc.getAssocGroupsForItem(apx.mainDoc.currentItem, "isChildOf");
+                let assocGroups = apx.mainDoc.getAssocGroupsForItem(apx.mainDoc.currentItem, "isChildOf");
 
                 // if initialAssocGroup is empty (null, meaning the default group) OR it isn't one of the available isChildOf relationships for this item...
                 if (empty(apx.initialAssocGroup) || $.inArray(apx.initialAssocGroup, assocGroups) === -1) {
@@ -213,7 +213,7 @@ apx.initialize = function() {
         let currentAssocGroup = apx.mainDoc.currentAssocGroup;
         apx.mainDoc.load(function() {
             // if we're showing mainDoc on the left side, refresh it now
-            if (apx.mainDoc == apx.treeDoc1) {
+            if (apx.mainDoc === apx.treeDoc1) {
                 apx.treeDoc1.setCurrentItem({"identifier": currentItemIdentifier});
                 apx.treeDoc1.setCurrentAssocGroup(currentAssocGroup);
                 apx.treeDoc1.ftRender1();
@@ -247,13 +247,14 @@ apx.initializeFirebase = function() {
     $('#notifications-switch-location').html('<a id="notifications-switch" href="#" class="btn btn-lg"><i class="material-icons">notifications'+(enabled?'':'_off')+'</i></a>');
     $('#notifications-switch').on('click', apx.notifications.toggle);
     apx.notifications.enableMonitor();
+
     $.each(apx.locks.docs, function (id, tm) {
         if ("number" !== typeof tm || tm < apx.startTime) {
             return;
         }
         apx.locks.docs[id] = setTimeout(function (id) {
             delete apx.locks.docs[id];
-            let changes = [];
+            let changes = {};
             changes[id] = 'x';
             apx.notifications.notify({
                 msgId: 'LockTimeout',
@@ -270,24 +271,33 @@ apx.initializeFirebase = function() {
         if ("number" !== typeof tm || tm < apx.startTime) {
             return;
         }
-        console.log('timeout set', tm - apx.startTime);
-        apx.locks.items[id] = setTimeout(function (id, title) {
-            console.log('timeout called', id);
+        apx.locks.items[id] = setTimeout(function (id) {
             delete apx.locks.items[id];
-            let changes = [];
+            let changes = {};
             changes[id] = 'x';
+            let item;
+            if ("undefined" === typeof apx.mainDoc.itemIdHash[id]) {
+                item = apx.mainDoc.itemIdHash[id].fstmt;
+            } else {
+                item = "unknown";
+            }
+            let itemName = render.inline(item.substr(0, 60));
             apx.notifications.notify({
                 msgId: 'LockTimeout',
-                msg: 'The item "' + title + '" is no longer being edited',
+                msg: 'The item "' + itemName + '" is no longer being edited',
                 at: (new Date()).getTime(),
                 by: '',
                 changes: {
                     'item-ul': changes
                 }
             });
-        }, tm - apx.startTime, id, render.inline(apx.mainDoc.itemIdHash[id].fstmt.substr(0, 60)));
+        }, tm - apx.startTime, id);
     });
-    console.log('firebase initialized');
+    apx.locks.mine = {
+        docs: {},
+        items: {},
+        warnings: {}
+    };
 };
 
 apx.refreshPage = function () {
@@ -307,7 +317,9 @@ apx.notifyCheck = apx.notifyCheck||{};
 
 $.notifyDefaults({
     type: 'info',
-    mouse_over: 'pause'
+    mouse_over: 'pause',
+    z_index: 1075,
+    url_target: '_self'
 });
 
 apx.notifications.isEnabled = function() {
@@ -402,21 +414,90 @@ $.extend(apx.notifications, {
     },
 
     'item-l': function(list, msg) {
+        if ("undefined" === typeof apx.locks) {
+            // If locks are disabled then ignore
+            return;
+        }
+
+        let timeout = 300000;
+        let warningTime = 60000;
+
         $.each(list, function(id, identifier) {
             if (msg.by === apx.me) {
-                // @todo: set timeout for 4 minutes to allow a re-lock (if editing)
-                // @todo: unlock at timeout
                 apx.locks['items'][id] = false;
+
+                let warning = setTimeout(function (id) {
+                    let item;
+                    if ("undefined" !== typeof apx.mainDoc.itemIdHash[id]) {
+                        item = apx.mainDoc.itemIdHash[id].fstmt;
+                    } else {
+                        item = "unknown";
+                    }
+                    let title = render.inline(item.substr(0, 60));
+
+                    apx.locks.mine.warnings[id] = apx.notifications.notify({
+                        msgId: 'LockTimeoutWarning',
+                        msg: 'Your lock for item "' + title + '" is about to expire<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong>Click here to extend the lock</strong>',
+                        at: (new Date()).getTime(),
+                        by: '',
+                        changes: {
+                        },
+                        delay: warningTime,
+                        msgType: 'warning',
+                        icon: 'glyphicon glyphicon-warning-sign',
+                        url: 'javascript:apx.notifications.relockItem(' + id + ');',
+                        onClose: function(e) {
+                            if (0 === apx.locks.mine.items[id].timeout) {
+                                return;
+                            }
+                            if (apx.locks.mine.items[id].timeout > (new Date()).getTime()) {
+                                return;
+                            }
+
+                            delete apx.locks.items[id];
+
+                            $('#editItemModal').find('.modal-footer .btn-save').hide();
+
+                            let changes = {};
+                            changes[id] = 'x';
+                            apx.notifications.notify({
+                                msgId: 'LockTimeout',
+                                msg: 'Your lock for item "' + title + '" has expired',
+                                at: (new Date()).getTime(),
+                                by: '',
+                                changes: {
+                                    'item-ul': changes
+                                },
+                                delay: 0,
+                                msgType: 'danger',
+                                icon: 'glyphicon glyphicon-alert'
+                            });
+                        }
+                    });
+                }, timeout - warningTime, id);
+
+                apx.locks.mine.items[id] = {
+                    warning: warning,
+                    timeout: msg.at + timeout + apx.timeDiff - 2000
+                };
             } else {
                 if ("number" === typeof apx.locks.items[id]) {
                     // remove any existing timer
                     clearTimeout(apx.locks.items[id]);
                 }
 
-                apx.locks.items[id] = setTimeout(function (id, title) {
-                    console.log('timeout called', id);
+                apx.locks.items[id] = setTimeout(function (id) {
                     delete apx.locks.items[id];
-                    let changes = [];
+
+                    let item;
+                    if ("undefined" !== typeof apx.mainDoc.itemIdHash[id]) {
+                        item = apx.mainDoc.itemIdHash[id].fstmt;
+                    } else {
+                        item = "unknown";
+                    }
+                    let title = render.inline(item.substr(0, 60));
+
+                    let changes = {};
                     changes[id] = 'x';
                     apx.notifications.notify({
                         msgId: 'LockTimeout',
@@ -427,11 +508,45 @@ $.extend(apx.notifications, {
                             'item-ul': changes
                         }
                     });
-                }, 300000, id, render.inline(apx.mainDoc.itemIdHash[id].fstmt.substr(0, 60)));
+                }, timeout, id);
             }
         });
 
         apx.refreshPage();
+    },
+
+    'item-ul': function(list) {
+        if ("undefined" === typeof apx.locks) {
+            // If locks are disabled then ignore
+            return;
+        }
+
+        $.each(list, function(id, identifier) {
+            if ("number" === typeof apx.locks['items'][id]) {
+                clearTimeout(apx.locks['items'][id]);
+                delete apx.locks['items'][id];
+            }
+            if ("undefined" !== typeof apx.locks.mine.items[id] && "number" === typeof apx.locks.mine.items[id].warning) {
+                clearTimeout(apx.locks.mine.items[id].warning);
+                apx.locks.mine.items[id].timeout = 0;
+                if ("undefined" !== typeof apx.locks.mine.warnings[id] && $.isFunction(apx.locks.mine.warnings[id].close)) {
+                    apx.locks.mine.warnings[id].close();
+                }
+            }
+        });
+
+        apx.refreshPage();
+    },
+
+    relockItem: function(id) {
+        // set new lock first
+        apx.locks.mine.items[id].timeout = (new Date()).getTime() + 5000;
+        apx.locks.mine.warnings[id].close();
+        $.ajax({
+            url: apx.path.lsitem_lock.replace('ID', id),
+            method: 'POST'
+        }).done(function (data, textStatus, jqXHR) {
+        });
     },
 
     'item-a': function(list) {
@@ -493,23 +608,129 @@ $.extend(apx.notifications, {
         apx.refreshPage();
     },
 
-    'item-ul': function(list) {
+    'doc-l': function(list, msg) {
+        if ("undefined" === typeof apx.locks) {
+            // If locks are disabled then ignore
+            return;
+        }
+
+        let timeout = 300000;
+        let warningTime = 60000;
+
         $.each(list, function(id, identifier) {
-            if ("number" === typeof apx.locks['items'][id]) {
-                clearTimeout(apx.locks['items'][id]);
-                delete apx.locks['items'][id];
+            if (apx.lsDocId.toString() === id.toString()) {
+                return;
+            }
+
+            if (msg.by === apx.me) {
+                apx.locks['docs'][id] = false;
+
+                let warning = setTimeout(function (id) {
+                    apx.locks.mine.warnings[id] = apx.notifications.notify({
+                        msgId: 'LockTimeoutWarning',
+                        msg: 'Your lock for the document is about to expire<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong>Click here to extend the lock</strong>',
+                        at: (new Date()).getTime(),
+                        by: '',
+                        changes: {
+                        },
+                        delay: warningTime,
+                        msgType: 'warning',
+                        icon: 'glyphicon glyphicon-warning-sign',
+                        url: 'javascript:apx.notifications.relockDoc(' + id + ');',
+                        onClose: function(e) {
+                            if (0 === apx.locks.mine.docs[id].timeout) {
+                                return;
+                            }
+                            if (apx.locks.mine.docs[id].timeout > (new Date()).getTime()) {
+                                return;
+                            }
+
+                            delete apx.locks.docs[id];
+
+                            $('#editDocModal').find('.modal-footer .btn-save').hide();
+
+                            let changes = {};
+                            changes[id] = 'x';
+                            apx.notifications.notify({
+                                msgId: 'LockTimeout',
+                                msg: 'Your lock for the document has expired',
+                                at: (new Date()).getTime(),
+                                by: '',
+                                changes: {
+                                    'doc-ul': changes
+                                },
+                                delay: 0,
+                                msgType: 'danger',
+                                icon: 'glyphicon glyphicon-alert'
+                            });
+                        }
+                    });
+                }, timeout - warningTime, id);
+
+                apx.locks.mine.items[id] = {
+                    warning: warning,
+                    timeout: msg.at + timeout + apx.timeDiff - 2000
+                };
+            } else {
+                if ("number" === typeof apx.locks.docs[id]) {
+                    // remove any existing timer
+                    clearTimeout(apx.locks.docs[id]);
+                }
+
+                apx.locks.docs[id] = setTimeout(function (id) {
+                    delete apx.locks.docs[id];
+
+                    let changes = {};
+                    changes[id] = 'x';
+                    apx.notifications.notify({
+                        msgId: 'LockTimeout',
+                        msg: 'The document is no longer being edited',
+                        at: (new Date()).getTime(),
+                        by: '',
+                        changes: {
+                            'doc-ul': changes
+                        }
+                    });
+                }, timeout, id);
             }
         });
 
         apx.refreshPage();
     },
 
-    'doc-l': function(list, msg) {
+    'doc-ul': function(list) {
+        if ("undefined" === typeof apx.locks) {
+            // If locks are disabled then ignore
+            return;
+        }
+
         $.each(list, function(id, identifier) {
             if (apx.lsDocId.toString() === id.toString()) {
-                apx.locks['docs'][id] = (msg.by !== apx.me);
-                apx.mainDoc.showCurrentItem();
+                if ("number" === typeof apx.locks['docs'][id]) {
+                    clearTimeout(apx.locks['docs'][id]);
+                    delete apx.locks['docs'][id];
+                }
+                if ("undefined" !== typeof apx.locks.mine.docs[id] && "number" === typeof apx.locks.mine.docs[id].warning) {
+                    clearTimeout(apx.locks.mine.docs[id].warning);
+                    apx.locks.mine.docs[id].timeout = 0;
+                    if ("undefined" !== typeof apx.locks.mine.warnings[id] && $.isFunction(apx.locks.mine.warnings[id].close)) {
+                        apx.locks.mine.warnings[id].close();
+                    }
+                }
             }
+        });
+
+        apx.refreshPage();
+    },
+
+    relockDoc: function(id) {
+        // set new lock first
+        apx.locks.mine.docs[id].timeout = (new Date()).getTime() + 5000;
+        apx.locks.mine.warnings[id].close();
+        $.ajax({
+            url: apx.path.lsdoc_lock.replace('ID', id),
+            method: 'POST'
+        }).done(function (data, textStatus, jqXHR) {
         });
     },
 
@@ -560,17 +781,6 @@ $.extend(apx.notifications, {
         });
     },
 
-    'doc-ul': function(list) {
-        $.each(list, function(id, identifier) {
-            if (apx.lsDocId.toString() === id.toString()) {
-                if ("number" === typeof apx.locks['items'][id]) {
-                    clearTimeout(apx.locks['docs'][id]);
-                    apx.locks['docs'][id] = false;
-                }
-            }
-        });
-    },
-
     reload: function (list) {
         window.location.reload(true);
     },
@@ -578,7 +788,6 @@ $.extend(apx.notifications, {
     redirect: function (list) {
         window.location.replace(list);
     },
-
 
     displayNotification: function(msg) {
         // Do not display messages to yourself
@@ -594,20 +803,30 @@ $.extend(apx.notifications, {
             return;
         }
 
-        if ('undefined' !== typeof msg.msgId && 'undefined' !== typeof apx.notifyCheck[msg.msgId]) {
+        if ('undefined' !== typeof msg.msgId && 'function' === typeof apx.notifyCheck[msg.msgId]) {
             if (false === apx.notifyCheck[msg.msgId](msg)) {
                 return;
             }
         }
 
-        $.notify({
-            message: msg.msg
-        }, 5000);
+        return $.notify({
+            message: msg.msg,
+            url: msg.url ? msg.url : null,
+            icon: msg.icon ? msg.icon : null,
+            target: msg.target ? msg.target : '_self'
+        }, {
+            delay: ('number' === typeof msg.delay) ? msg.delay : 5000,
+            allow_dismiss: ('boolean' === typeof msg.dismissible) ? !msg.dismissible : true,
+            type: ('string' === typeof msg.msgType) ? msg.msgType : 'info',
+            onShow: msg.onShow ? msg.onShow : null,
+            onShown: msg.onShown ? msg.onShown : null,
+            onClose: msg.onClose ? msg.onClose : null,
+            onClosed: msg.onClosed ? msg.onClosed : null
+        });
     },
 
     notify: function(msg) {
-        console.log('notification', msg);
-        apx.notifications.displayNotification(msg);
+        let notification = apx.notifications.displayNotification(msg);
 
         if ("object" === typeof msg.changes) {
             let changed = {};
@@ -626,12 +845,11 @@ $.extend(apx.notifications, {
                 method: 'POST',
                 data: changed
             }).done(function (data, textStatus, jqXHR) {
-                console.log(data);
 
                 apx.notifications.updates = data;
 
                 $.each(msg.changes, function (key, list) {
-                    if ("function" === typeof apx.notifications[key]) {
+                    if ($.isFunction(apx.notifications[key])) {
                         apx.notifications[key](list, msg);
                     } else {
                         console.log("function not found", key, list);
@@ -639,6 +857,8 @@ $.extend(apx.notifications, {
                 });
             });
         }
+
+        return notification;
     },
 
     loadAssociation: function(assocId) {
@@ -684,10 +904,10 @@ $.extend(apx.notifications, {
 });
 
 $.extend(apx.notifyCheck, {
+    // See if the lock/unlock message should be shown
     /** @return {boolean} */
     'D04': function(msg) {
         // document lock
-        console.log('got D04', msg);
         let display = false;
         $.each(msg.changes['doc-l'], function(id, identifier) {
            if ("boolean" !== typeof apx.locks['docs'][id] || false === apx.locks['docs'][id]) {
@@ -700,7 +920,6 @@ $.extend(apx.notifyCheck, {
     /** @return {boolean} */
     'D05': function(msg) {
         // document unlock
-        console.log('got D05', msg);
         let display = false;
         $.each(msg.changes['doc-ul'], function(id, identifier) {
             if ("boolean" === typeof apx.locks['docs'][id] && true === apx.locks['docs'][id]) {
@@ -713,7 +932,6 @@ $.extend(apx.notifyCheck, {
     /** @return {boolean} */
     'I06': function(msg) {
         // item lock
-        console.log('got I06', msg);
         let display = false;
         $.each(msg.changes['item-l'], function(id, identifier) {
             if ("boolean" !== typeof apx.locks['items'][id] || false === apx.locks['items'][id]) {
@@ -726,7 +944,6 @@ $.extend(apx.notifyCheck, {
     /** @return {boolean} */
     'I07': function(msg) {
         // item unlock
-        console.log('got I07', msg);
         let display = false;
         $.each(msg.changes['item-ul'], function(id, identifier) {
             if ("boolean" === typeof apx.locks['items'][id] && true === apx.locks['items'][id]) {
@@ -735,7 +952,50 @@ $.extend(apx.notifyCheck, {
         });
 
         return display;
-    }
+    },
+
+    // Add links to items
+    /** @return {boolean} */
+    'I01': function(msg) {
+        // item add
+        let display = false;
+        $.each(msg.changes['item-a'], function(id, identifier) {
+            if ("undefined" !== typeof apx.mainDoc.itemIdHash[id]) {
+                msg.url = apx.path.lsItem.replace('ID', id);
+                display = true;
+            }
+        });
+
+        return display;
+    },
+
+    /** @return {boolean} */
+    'I03': function(msg) {
+        // item copied
+        let display = false;
+        $.each(msg.changes['item-a'], function(id, identifier) {
+            if ("undefined" !== typeof apx.mainDoc.itemIdHash[id]) {
+                msg.url = apx.path.lsItem.replace('ID', id);
+                display = true;
+            }
+        });
+
+        return display;
+    },
+
+    /** @return {boolean} */
+    'I08': function(msg) {
+        // item modified
+        let display = false;
+        $.each(msg.changes['item-u'], function(id, identifier) {
+            if ("undefined" !== typeof apx.mainDoc.itemIdHash[id]) {
+                msg.url = apx.path.lsItem.replace('ID', id);
+                display = true;
+            }
+        });
+
+        return display;
+    },
 });
 
 //////////////////////////////////////////////////////

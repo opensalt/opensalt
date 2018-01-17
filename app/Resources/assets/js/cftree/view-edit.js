@@ -96,6 +96,15 @@ apx.edit.prepareItemEditModal = function() {
                 url: apx.path.lsitem_unlock.replace('ID', apx.mainDoc.currentItem.id),
                 method: 'POST'
             });
+
+            let id = apx.mainDoc.currentItem.id;
+            if ("undefined" !== typeof apx.locks && "undefined" !== typeof apx.locks.mine.items[id] && "number" === typeof apx.locks.mine.items[id].warning) {
+                clearTimeout(apx.locks.mine.items[id].warning);
+                apx.locks.mine.items[id].timeout = 0;
+                if ("undefined" !== typeof apx.locks.mine.warnings[id] && $.isFunction(apx.locks.mine.warnings[id].close)) {
+                    apx.locks.mine.warnings[id].close();
+                }
+            }
         }
         $modal.data('mode', 'close');
     }).on('hidden.bs.modal', function(e){
@@ -119,6 +128,15 @@ apx.edit.prepareItemEditModal = function() {
             method: 'POST',
             data: $modal.find('form[name=ls_item]').serialize()
         }).done(function(data, textStatus, jqXHR){
+            let id = apx.mainDoc.currentItem.id;
+            if ("undefined" !== typeof apx.locks && "undefined" !== typeof apx.locks.mine.items[id] && "number" === typeof apx.locks.mine.items[id].warning) {
+                clearTimeout(apx.locks.mine.items[id].warning);
+                apx.locks.mine.items[id].timeout = 0;
+                if ("undefined" !== typeof apx.locks.mine.warnings[id] && $.isFunction(apx.locks.mine.warnings[id].close)) {
+                    apx.locks.mine.warnings[id].close();
+                }
+            }
+
             apx.spinner.hideModal();
             $modal.modal('hide');
 

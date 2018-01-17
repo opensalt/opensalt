@@ -64,11 +64,7 @@ class SystemLogController extends AbstractController
                 } else {
                     $first = false;
                 }
-                fwrite($fd, json_encode([
-                    'changed_at' => $line['changed_at'],
-                    'description' => $line['description'],
-                    'username' => $line['username']
-                ]));
+                fwrite($fd, json_encode($line));
             }
 
             fwrite($fd, ']}');
