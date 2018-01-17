@@ -26,6 +26,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         'ROLE_ADMIN',
         'ROLE_SUPER_EDITOR',
         'ROLE_SUPER_USER',
+        'ROLE_VIEWER',
     ];
 
     private const ACTIVE = 0;
@@ -85,7 +86,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     /**
      * @var bool
      *
-     * @ORM\Column(name="status", type="integer", nullable=false, options={"default": 1})
+     * @ORM\Column(name="status", type="integer", nullable=false, options={"default": 2})
      */
     protected $status = self::PENDING;
 
