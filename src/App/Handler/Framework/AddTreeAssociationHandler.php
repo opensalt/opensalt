@@ -63,7 +63,7 @@ class AddTreeAssociationHandler extends BaseFrameworkHandler
             return 'NONE';
         }
 
-        if (is_string($obj)) {
+        if (\is_string($obj)) {
             return $obj;
         }
 

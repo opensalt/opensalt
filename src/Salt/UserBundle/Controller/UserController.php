@@ -2,7 +2,7 @@
 
 namespace Salt\UserBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\User\AddUserCommand;
 use App\Command\User\DeleteUserCommand;
 use App\Command\User\SuspendUserCommand;
@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class UserController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all user entities.

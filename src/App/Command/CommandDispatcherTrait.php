@@ -5,7 +5,7 @@ namespace App\Command;
 use App\Event\CommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-trait CommandDispatcher
+trait CommandDispatcherTrait
 {
     /**
      * Send a command to be handled

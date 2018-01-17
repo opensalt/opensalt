@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddDocumentCommand;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Form\Type\LsDocCreateType;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class TestingController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     public function __construct(ContainerInterface $container = null)
     {

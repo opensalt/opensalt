@@ -99,7 +99,7 @@ class NotificationEvent extends Event
                 if (null === $value) {
                     continue;
                 }
-                if (is_object($value)) {
+                if (\is_object($value)) {
                     $new[$type][$value->getId()] = $value->getIdentifier();
                 } else {
                     $new[$type][$key] = $value;

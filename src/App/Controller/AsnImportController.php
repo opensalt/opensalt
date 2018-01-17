@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportAsnFromUrlCommand;
 use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -21,7 +21,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class AsnImportController extends AbstractController
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     private $dispatcher;
 

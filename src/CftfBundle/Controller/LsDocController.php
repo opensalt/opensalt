@@ -2,12 +2,11 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddDocumentCommand;
 use App\Command\Framework\DeleteDocumentCommand;
 use App\Command\Framework\DeriveDocumentCommand;
 use App\Command\Framework\LockDocumentCommand;
-use App\Command\Framework\UnlockDocumentCommand;
 use App\Command\Framework\UpdateDocumentCommand;
 use App\Command\Framework\UpdateFrameworkCommand;
 use App\Exception\AlreadyLockedException;
@@ -34,7 +33,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class LsDocController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all LsDoc entities.
@@ -235,50 +234,6 @@ class LsDocController extends Controller
             'message' => 'Success',
             'new_doc_id' => $derivedDoc->getId()
         ]);
-    }
-
-    /**
-     * @Route("/{id}/unlock", name="lsdoc_unlock")
-     * @Method({"POST"})
-     * @Security("is_granted('edit', lsDoc)")
-     *
-     * @param LsDoc $lsDoc
-     * @param User $user
-     *
-     * @return JsonResponse
-     */
-    public function releaseLockAction(LsDoc $lsDoc, UserInterface $user): JsonResponse
-    {
-        try {
-            $command = new UnlockDocumentCommand($lsDoc, $user);
-            $this->sendCommand($command);
-        } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage());
-        }
-
-        return new JsonResponse('OK');
-    }
-
-    /**
-     * @Route("/{id}/lock", name="lsdoc_lock")
-     * @Method({"POST"})
-     * @Security("is_granted('edit', lsDoc)")
-     *
-     * @param LsDoc $lsDoc
-     * @param User $user
-     *
-     * @return JsonResponse
-     */
-    public function extendLockAction(LsDoc $lsDoc, UserInterface $user): JsonResponse
-    {
-        try {
-            $command = new LockDocumentCommand($lsDoc, $user);
-            $this->sendCommand($command);
-        } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage(), 422);
-        }
-
-        return new JsonResponse('OK');
     }
 
     /**

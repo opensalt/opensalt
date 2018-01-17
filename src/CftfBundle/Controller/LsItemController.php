@@ -2,14 +2,13 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddItemCommand;
 use App\Command\Framework\ChangeItemParentCommand;
 use App\Command\Framework\CopyItemToDocCommand;
 use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\LockItemCommand;
 use App\Command\Framework\RemoveChildCommand;
-use App\Command\Framework\UnlockItemCommand;
 use App\Command\Framework\UpdateItemCommand;
 use App\Exception\AlreadyLockedException;
 use CftfBundle\Entity\LsAssociation;
@@ -28,7 +27,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -42,7 +40,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class LsItemController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all LsItem entities.
@@ -148,50 +146,6 @@ class LsItemController extends Controller
             'lsItem' => $lsItem,
             'delete_form' => $deleteForm->createView(),
         ];
-    }
-
-    /**
-     * @Route("/{id}/unlock", name="lsitem_unlock")
-     * @Method({"POST"})
-     * @Security("is_granted('edit', item)")
-     *
-     * @param LsItem $item
-     * @param User $user
-     *
-     * @return JsonResponse
-     */
-    public function releaseLockAction(LsItem $item, UserInterface $user): JsonResponse
-    {
-        try {
-            $command = new UnlockItemCommand($item, $user);
-            $this->sendCommand($command);
-        } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage());
-        }
-
-        return new JsonResponse('OK');
-    }
-
-    /**
-     * @Route("/{id}/lock", name="lsitem_lock")
-     * @Method({"POST"})
-     * @Security("is_granted('edit', item)")
-     *
-     * @param LsItem $item
-     * @param User $user
-     *
-     * @return JsonResponse
-     */
-    public function extendLockAction(LsItem $item, UserInterface $user): JsonResponse
-    {
-        try {
-            $command = new LockItemCommand($item, $user);
-            $this->sendCommand($command);
-        } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage(), 422);
-        }
-
-        return new JsonResponse('OK');
     }
 
     /**

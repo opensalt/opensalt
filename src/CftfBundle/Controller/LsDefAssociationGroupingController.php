@@ -2,7 +2,7 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddAssociationGroupCommand;
 use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\UpdateAssociationGroupCommand;
@@ -24,7 +24,7 @@ use CftfBundle\Entity\LsDefAssociationGrouping;
  */
 class LsDefAssociationGroupingController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all LsDefAssociationGrouping entities.

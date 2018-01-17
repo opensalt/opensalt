@@ -118,7 +118,10 @@ function ApxDocument(initializer) {
             self.doc.nodeType = "document";
 
             // extract uriBase from doc.uri
-            self.doc.uriBase = self.doc.uri.replace(/\/[^\/]+$/, "/");
+            //self.doc.uriBase = self.doc.uri.replace(/\/[^\/]+$/, "/");
+            //self.doc.uriBase = self.doc.uri.replace(/CFDocuments\/$/, "CFItems/");
+            // @todo: this assumes an OpenSALT instance on the other end that can use /uri/... URLs
+            self.doc.uriBase = self.doc.uri.replace(/(https?:\/\/[^\/]+).*/, '$1/uri/');
 
             // add an assocs array for the document
             self.doc.assocs = [];

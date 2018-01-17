@@ -2,7 +2,7 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddGradeCommand;
 use App\Command\Framework\DeleteGradeCommand;
 use App\Command\Framework\UpdateGradeCommand;
@@ -23,7 +23,7 @@ use CftfBundle\Entity\LsDefGrade;
  */
 class LsDefGradeController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all LsDefGrade entities.

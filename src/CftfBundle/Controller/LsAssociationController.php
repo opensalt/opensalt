@@ -2,7 +2,7 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddAssociationCommand;
 use App\Command\Framework\AddExemplarToItemCommand;
 use App\Command\Framework\AddTreeAssociationCommand;
@@ -31,7 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class LsAssociationController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all LsAssociation entities.

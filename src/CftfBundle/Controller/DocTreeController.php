@@ -2,7 +2,7 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddExternalDocCommand;
 use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\DeleteItemCommand;
@@ -34,7 +34,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class DocTreeController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * @Route("/doc/{slug}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
