@@ -960,10 +960,8 @@ $.extend(apx.notifyCheck, {
         // item add
         let display = false;
         $.each(msg.changes['item-a'], function(id, identifier) {
-            if ("undefined" !== typeof apx.mainDoc.itemIdHash[id]) {
-                msg.url = apx.path.lsItem.replace('ID', id);
-                display = true;
-            }
+            msg.url = apx.path.lsItem.replace('ID', id);
+            display = true;
         });
 
         return display;
@@ -974,10 +972,8 @@ $.extend(apx.notifyCheck, {
         // item copied
         let display = false;
         $.each(msg.changes['item-a'], function(id, identifier) {
-            if ("undefined" !== typeof apx.mainDoc.itemIdHash[id]) {
-                msg.url = apx.path.lsItem.replace('ID', id);
-                display = true;
-            }
+            msg.url = apx.path.lsItem.replace('ID', id);
+            display = true;
         });
 
         return display;
