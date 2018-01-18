@@ -104,11 +104,15 @@ class CommandEventRouter
         }
     }
 
-    protected function addChangeEntry(CommandInterface $command, NotificationEvent $notification): ChangeEntry
+    protected function addChangeEntry(CommandInterface $command, ?NotificationEvent $notification): ChangeEntry
     {
         $changeEntry = $command->getChangeEntry();
         if (null === $changeEntry) {
-            $changeEntry = new ChangeEntry($notification->getDoc(), $this->getCurrentUser(), $notification->getMessage(), $notification->getChanged());
+            if (null !== $notification) {
+                $changeEntry = new ChangeEntry($notification->getDoc(), $this->getCurrentUser(), $notification->getMessage(), $notification->getChanged());
+            } else {
+                $changeEntry = new ChangeEntry(null, $this->getCurrentUser(), \get_class($command), []);
+            }
         }
 
         if ($changeEntry instanceof NotificationOnlyChangeEntry) {
