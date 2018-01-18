@@ -1761,20 +1761,20 @@
         },
         {
             "name": "doctrine/inflector",
-            "version": "v1.2.0",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/inflector.git",
-                "reference": "e11d84c6e018beedd929cff5220969a3c6d1d462"
+                "reference": "5527a48b7313d15261292c149e55e26eae771b0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/inflector/zipball/e11d84c6e018beedd929cff5220969a3c6d1d462",
-                "reference": "e11d84c6e018beedd929cff5220969a3c6d1d462",
+                "url": "https://api.github.com/repos/doctrine/inflector/zipball/5527a48b7313d15261292c149e55e26eae771b0a",
+                "reference": "5527a48b7313d15261292c149e55e26eae771b0a",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.0"
+                "php": "^7.1"
             },
             "require-dev": {
                 "phpunit/phpunit": "^6.2"
@@ -1782,7 +1782,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev"
+                    "dev-master": "1.3.x-dev"
                 }
             },
             "autoload": {
@@ -1824,7 +1824,7 @@
                 "singularize",
                 "string"
             ],
-            "time": "2017-07-22T12:18:28+00:00"
+            "time": "2018-01-09T20:05:19+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -3038,25 +3038,26 @@
         },
         {
             "name": "jms/aop-bundle",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/JMSAopBundle.git",
-                "reference": "78000d007e74283cc564a58e184d7f62548ad394"
+                "reference": "4ee2089a81b54ce94a8c94e95b48d5bb353dd8d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/JMSAopBundle/zipball/78000d007e74283cc564a58e184d7f62548ad394",
-                "reference": "78000d007e74283cc564a58e184d7f62548ad394",
+                "url": "https://api.github.com/repos/schmittjoh/JMSAopBundle/zipball/4ee2089a81b54ce94a8c94e95b48d5bb353dd8d0",
+                "reference": "4ee2089a81b54ce94a8c94e95b48d5bb353dd8d0",
                 "shasum": ""
             },
             "require": {
                 "jms/cg": "^1.1",
                 "php": ">=5.3.9",
-                "symfony/framework-bundle": "^2.3|^3.0"
+                "symfony/framework-bundle": "^2.3 || ^3.0 || ^4.0"
             },
             "require-dev": {
-                "symfony/phpunit-bridge": "^2.7"
+                "phpunit/phpunit": "^4.8.36 | ^5.0",
+                "symfony/phpunit-bridge": "^2.7 || ^4.0"
             },
             "type": "symfony-bundle",
             "extra": {
@@ -3084,7 +3085,7 @@
                 "annotations",
                 "aop"
             ],
-            "time": "2015-12-09T16:30:46+00:00"
+            "time": "2018-01-16T10:22:28+00:00"
         },
         {
             "name": "jms/cg",
@@ -3451,16 +3452,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "3.7.1",
+            "version": "3.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "5b176f5abc7a380cfdb58a9dcf5105bc5fb36de5"
+                "reference": "b0cd8e75a5aeec137c5a8a6597033bf97bcb22ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/5b176f5abc7a380cfdb58a9dcf5105bc5fb36de5",
-                "reference": "5b176f5abc7a380cfdb58a9dcf5105bc5fb36de5",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/b0cd8e75a5aeec137c5a8a6597033bf97bcb22ce",
+                "reference": "b0cd8e75a5aeec137c5a8a6597033bf97bcb22ce",
                 "shasum": ""
             },
             "require": {
@@ -3480,15 +3481,13 @@
                 "phpunit/phpunit": "^6.0"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.x-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
-                    "Kreait\\": "src"
-                }
+                    "Kreait\\Firebase\\": "src/Firebase"
+                },
+                "files": [
+                    "src/Firebase.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -3509,7 +3508,7 @@
                 "google",
                 "sdk"
             ],
-            "time": "2018-01-07T00:52:44+00:00"
+            "time": "2018-01-16T20:15:10+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
@@ -4715,12 +4714,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codemirror/CodeMirror.git",
-                "reference": "ed9f4e3901bdece6d756ef8c167c026665778005"
+                "reference": "945c9673c80526017182faf696af35b839d11e23"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/ed9f4e3901bdece6d756ef8c167c026665778005",
-                "reference": "ed9f4e3901bdece6d756ef8c167c026665778005",
+                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/945c9673c80526017182faf696af35b839d11e23",
+                "reference": "945c9673c80526017182faf696af35b839d11e23",
                 "shasum": ""
             },
             "require-dev": {
@@ -4763,7 +4762,7 @@
                 "Editor",
                 "JavaScript"
             ],
-            "time": "2018-01-08 09:02:45"
+            "time": "2018-01-18 14:46:44"
         },
         {
             "name": "npm-asset/codemirror-spell-checker",
@@ -5396,17 +5395,12 @@
         },
         {
             "name": "npm-asset/marked",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/chjj/marked.git",
-                "reference": "ef80689b9e0b5d05d0c8b9b848b7b4fdcd9595d0"
-            },
+            "version": "0.3.12",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/chjj/marked/zipball/ef80689b9e0b5d05d0c8b9b848b7b4fdcd9595d0",
-                "reference": "ef80689b9e0b5d05d0c8b9b848b7b4fdcd9595d0",
-                "shasum": ""
+                "type": "tar",
+                "url": "https://registry.npmjs.org/marked/-/marked-0.3.12.tgz",
+                "reference": null,
+                "shasum": "7cf25ff2252632f3fe2406bde258e94eee927519"
             },
             "require-dev": {
                 "npm-asset/front-matter": ">=2.3.0,<3.0.0",
@@ -5418,30 +5412,35 @@
                 "npm-asset/markdown-it": "*",
                 "npm-asset/showdown": "*"
             },
-            "bin": [
-                "./bin/marked"
-            ],
+            "bin": {
+                "marked": "./bin/marked"
+            },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
                     "url": "http://github.com/chjj/marked/issues"
                 },
                 "npm-asset-main": "./lib/marked.js",
-                "npm-asset-man": "./man/marked.1",
-                "npm-asset-repository": "git://github.com/chjj/marked.git",
+                "npm-asset-man": [
+                    "./man/marked.1"
+                ],
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git://github.com/chjj/marked.git"
+                },
                 "npm-asset-scripts": {
                     "test": "node test",
                     "bench": "node test --bench"
-                },
-                "branch-alias": {
-                    "dev-master": "0.3.10-dev"
                 }
             },
             "license": [
                 "MIT"
             ],
             "authors": [
-                "Christopher Jeffrey"
+                {
+                    "name": "Christopher Jeffrey"
+                }
             ],
             "description": "A markdown parser built for speed",
             "homepage": "https://github.com/chjj/marked",
@@ -5450,7 +5449,7 @@
                 "markdown",
                 "markup"
             ],
-            "time": "2018-01-07 18:37:25"
+            "time": "2018-01-09T00:10:42+00:00"
         },
         {
             "name": "npm-asset/match-at",
@@ -6517,16 +6516,16 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "3.7.1",
+            "version": "3.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid.git",
-                "reference": "45cffe822057a09e05f7bd09ec5fb88eeecd2334"
+                "reference": "bba83ad77bb9deb6d3c352a7361b818e415b221d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid/zipball/45cffe822057a09e05f7bd09ec5fb88eeecd2334",
-                "reference": "45cffe822057a09e05f7bd09ec5fb88eeecd2334",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/bba83ad77bb9deb6d3c352a7361b818e415b221d",
+                "reference": "bba83ad77bb9deb6d3c352a7361b818e415b221d",
                 "shasum": ""
             },
             "require": {
@@ -6538,7 +6537,7 @@
             },
             "require-dev": {
                 "apigen/apigen": "^4.1",
-                "codeception/aspect-mock": "^1.0 | ^2.0",
+                "codeception/aspect-mock": "^1.0 | ~2.0.0",
                 "doctrine/annotations": "~1.2.0",
                 "goaop/framework": "1.0.0-alpha.2 | ^1.0 | ^2.1",
                 "ircmaxell/random-lib": "^1.1",
@@ -6546,7 +6545,7 @@
                 "mockery/mockery": "^0.9.4",
                 "moontoast/math": "^1.1",
                 "php-mock/php-mock-phpunit": "^0.3|^1.1",
-                "phpunit/phpunit": "^4.7|>=5.0 <5.4",
+                "phpunit/phpunit": "^4.7|^5.0",
                 "satooshi/php-coveralls": "^0.6.1",
                 "squizlabs/php_codesniffer": "^2.3"
             },
@@ -6595,7 +6594,7 @@
                 "identifier",
                 "uuid"
             ],
-            "time": "2017-09-22T20:46:04+00:00"
+            "time": "2018-01-13T22:22:03+00:00"
         },
         {
             "name": "ramsey/uuid-doctrine",
@@ -6659,12 +6658,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "fe89fd2178cabef137b9a76fa91d64925474b956"
+                "reference": "402a514551804df5b4b2150f217e23a15408795a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/fe89fd2178cabef137b9a76fa91d64925474b956",
-                "reference": "fe89fd2178cabef137b9a76fa91d64925474b956",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/402a514551804df5b4b2150f217e23a15408795a",
+                "reference": "402a514551804df5b4b2150f217e23a15408795a",
                 "shasum": ""
             },
             "conflict": {
@@ -6678,9 +6677,10 @@
                 "codeigniter/framework": "<=3.0.6",
                 "composer/composer": "<=1.0.0-alpha11",
                 "contao-components/mediaelement": ">=2.14.2,<2.21.1",
-                "contao/core": ">=2,<3.5.31",
+                "contao/core": ">=2,<3.5.32",
                 "contao/core-bundle": ">=4,<4.4.8",
                 "contao/listing-bundle": ">=4,<4.4.8",
+                "contao/newsletter-bundle": ">=4,<4.1",
                 "doctrine/annotations": ">=1,<1.2.7",
                 "doctrine/cache": ">=1,<1.3.2|>=1.4,<1.4.2",
                 "doctrine/common": ">=2,<2.4.3|>=2.5,<2.5.1",
@@ -6747,7 +6747,7 @@
                 "symfony/web-profiler-bundle": ">=2,<2.3.19|>=2.4,<2.4.9|>=2.5,<2.5.4",
                 "symfony/yaml": ">=2,<2.0.22|>=2.1,<2.1.7",
                 "thelia/backoffice-default-template": ">=2.1,<2.1.2",
-                "thelia/thelia": ">=2.1.0-beta1,<2.1.3|>=2.1,<2.1.2",
+                "thelia/thelia": ">=2.1,<2.1.2|>=2.1.0-beta1,<2.1.3",
                 "twig/twig": "<1.20",
                 "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.22|>=8,<8.7.5",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
@@ -6796,7 +6796,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-01-07T00:56:33+00:00"
+            "time": "2018-01-18T10:00:53+00:00"
         },
         {
             "name": "sensio/distribution-bundle",
@@ -6922,16 +6922,16 @@
         },
         {
             "name": "sensiolabs/security-checker",
-            "version": "v4.1.6",
+            "version": "v4.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sensiolabs/security-checker.git",
-                "reference": "387b6a3b723ba35588b33d5f8d14e28ed608bd30"
+                "reference": "d539ccba2b4dce515de04f16b7ed7ae5b9eeb434"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sensiolabs/security-checker/zipball/387b6a3b723ba35588b33d5f8d14e28ed608bd30",
-                "reference": "387b6a3b723ba35588b33d5f8d14e28ed608bd30",
+                "url": "https://api.github.com/repos/sensiolabs/security-checker/zipball/d539ccba2b4dce515de04f16b7ed7ae5b9eeb434",
+                "reference": "d539ccba2b4dce515de04f16b7ed7ae5b9eeb434",
                 "shasum": ""
             },
             "require": {
@@ -6963,7 +6963,7 @@
                 }
             ],
             "description": "A security checker for your composer.lock",
-            "time": "2017-10-29T18:48:08+00:00"
+            "time": "2018-01-11T05:54:03+00:00"
         },
         {
             "name": "simplethings/entity-audit-bundle",
