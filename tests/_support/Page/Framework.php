@@ -870,4 +870,22 @@ class Framework implements Context
 
     $I->dontSee($item);
   }
+
+  /**
+   * @Given /^I edit the fields in a framework without saving the changes$/
+   */
+  public function iEditTheFieldsInAFrameworkWithoutSavingTheChanges(TableNode $table) {
+    $I = $this->I;
+
+    $this->iGoToTheFrameworkDocument();
+    $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+    $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+    $I->waitForElementVisible('#ls_doc_title');
+
+    $rows = $table->getRows();
+    foreach ($rows as $row) {
+      $this->iEditTheFieldInFramework($row[0], $row[1]);
+    }
+    return $this;
+  }
 }

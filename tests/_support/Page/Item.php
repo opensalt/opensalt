@@ -323,6 +323,24 @@ class Item implements Context
     $I->seeElementInDOM('//img[@src="/assets/img/folder.png"]');
   }
 
+  /**
+   * @Then /^I edit the fields in a item without saving the changes$/
+   */
+  public function iEditTheFieldsInAItemWithoutSavingTheChanges(TableNode $table) {
+    $I = $this->I;
+
+    $this->iAmOnAnItemPage();
+
+    $I->waitForElementVisible('//*[@id="itemOptions"]/button[1]');
+    $I->click('//*[@id="itemOptions"]/button[1]');
+    $I->waitForElementVisible('#ls_item');
+    $I->waitForElementVisible('#ls_item_listEnumInSource');
+
+    $rows = $table->getRows();
+    foreach ($rows as $row) {
+      $this->iEditTheFieldInItem($row[0], $row[1]);
+    }
+  }
 
 
 }
