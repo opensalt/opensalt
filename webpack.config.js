@@ -48,7 +48,6 @@ var mainScripts = [
     bowerDir+'/twbs-pagination/jquery.twbsPagination.js',
     npmDir+'/simplemde/dist/simplemde.min.js',
     assetsDir+'/js/application.js',
-    assetsDir+'/js/lsdoc/index.js',
     npmDir+'/papaparse/papaparse.min.js',
     './build/js/apx.js'
 ];
