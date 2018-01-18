@@ -33,32 +33,10 @@
         {
             "type": "package",
             "package": {
-                "name": "firebase/app",
-                "version": "4.8.1",
+                "name": "firebase",
+                "version": "4.8.2",
                 "dist": {
-                    "url": "https://www.gstatic.com/firebasejs/4.8.1/firebase-app.js",
-                    "type": "file"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "firebase/auth",
-                "version": "4.8.1",
-                "dist": {
-                    "url": "https://www.gstatic.com/firebasejs/4.8.1/firebase-auth.js",
-                    "type": "file"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "firebase/database",
-                "version": "4.8.1",
-                "dist": {
-                    "url": "https://www.gstatic.com/firebasejs/4.8.1/firebase-database.js",
+                    "url": "https://www.gstatic.com/firebasejs/4.8.2/firebase.js",
                     "type": "file"
                 }
             }
@@ -99,9 +77,6 @@
         "ramsey/uuid-doctrine": "^1.2",
 
         "kreait/firebase-php": "~3.7",
-        "firebase/app": "~4.8",
-        "firebase/auth": "~4.8",
-        "firebase/database": "~4.8",
 	"npm-asset/bootstrap-notify": "^3.1.7",
 
         "simplethings/entity-audit-bundle": "^1.0",

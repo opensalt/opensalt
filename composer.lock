@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "79019865348acd905fda208a85bae163",
+    "content-hash": "5216dd8757bc6369cc20972aad8f0e9d",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -2191,39 +2191,6 @@
                 "rest"
             ],
             "time": "2016-10-17T18:31:11+00:00"
-        },
-        {
-            "name": "firebase/app",
-            "version": "4.8.1",
-            "dist": {
-                "type": "file",
-                "url": "https://www.gstatic.com/firebasejs/4.8.1/firebase-app.js",
-                "reference": null,
-                "shasum": null
-            },
-            "type": "library"
-        },
-        {
-            "name": "firebase/auth",
-            "version": "4.8.1",
-            "dist": {
-                "type": "file",
-                "url": "https://www.gstatic.com/firebasejs/4.8.1/firebase-auth.js",
-                "reference": null,
-                "shasum": null
-            },
-            "type": "library"
-        },
-        {
-            "name": "firebase/database",
-            "version": "4.8.1",
-            "dist": {
-                "type": "file",
-                "url": "https://www.gstatic.com/firebasejs/4.8.1/firebase-database.js",
-                "reference": null,
-                "shasum": null
-            },
-            "type": "library"
         },
         {
             "name": "firebase/php-jwt",
