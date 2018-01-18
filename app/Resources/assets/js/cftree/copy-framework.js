@@ -5,8 +5,8 @@ apx.copyFramework = { };
 apx.copyFramework.consts = {
     copyModalId: '',
     copyFormId: '#copyFrameworkForm',
-    copyUrl: '/app_dev.php/copy/framework/',
-    docDestination: '/app_dev.php/cftree/doc/',
+    copyUrl: '/copy/framework/',
+    docDestination: '/cftree/doc/',
     contentModal: '#copyFrameworkModal .contentModal',
     spinnerSelector: '#copyFrameworkModal .file-loading .row .col-md-12',
     spinnerContainerSelector: '#copyFrameworkModal .file-loading',
