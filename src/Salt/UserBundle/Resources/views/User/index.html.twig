@@ -3,20 +3,13 @@
 {% block body %}
     <h1>User list</h1>
     
-    <table class="table table-condensed table-hover table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>List Of Organization</th>
-        </thead>
-        <tbody>
-        {% for org in orgs %}
-            <tr>
-                <td>{{ org.name }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
+{{ form_start(form) }}
+      {{ form_label(form.organization) }}<div class="col-md-2"> {{ form_widget(form.organization) }}</div>
+      {{ form_label(form.user_role) }}<div class="col-md-2"> {{ form_widget(form.user_role) }}</div>
+      <div class="col-md-3"><input class="btn btn-primary" type="submit" value="Search" /></div>       
+{{ form_end(form) }}
+    
+      <br/><br/><br/>
     <table class="table table-condensed table-hover table-bordered table-striped">
         <thead>
             <tr>
@@ -34,6 +27,7 @@
                 <td>{{ user.org.name }}</td>
                 <td>{{ user.username }}</td>
                 <td>
+                    
                     {%- for role in user.roles -%}
                         {% if not loop.first %}, {% endif %}{{ role |replace({'ROLE_':'', '_':' '}) |title }}
                     {%- endfor -%}

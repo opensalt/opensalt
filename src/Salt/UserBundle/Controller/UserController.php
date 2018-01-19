@@ -9,6 +9,7 @@ use App\Command\User\SuspendUserCommand;
 use App\Command\User\UnsuspendUserCommand;
 use App\Command\User\UpdateUserCommand;
 use Salt\UserBundle\Entity\User;
+use Salt\UserBundle\Entity\Organization;
 use Salt\UserBundle\Form\Type\UserType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -18,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Salt\UserBundle\Form\Type\SearchForm;
 
 /**
  * User controller.
@@ -33,25 +35,37 @@ class UserController extends Controller
      * Lists all user entities.
      *
      * @Route("/", name="admin_user_index")
-     * @Method("GET")
+     * 
      * @Template()
      *
      * @return array
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
 
         if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_USER')) {
             $users = $em->getRepository(User::class)->findAll();
-            $orgs=$em->getRepository(Organization::class)->findAll();
+           // $orgs=$em->getRepository(Organization::class)->findAll();
+          // $users = $em->getRepository(User::class)->findBy(['roles' => ['["ROLE_SUPER_USER"]']]);
+         $form = $this->createForm(SearchForm::class);        
+        $form->handleRequest($request);
+        if ($request->getMethod() == 'POST') {
+               $organization = $form["organization"]->getData();
+                $User_role = $form["user_role"]->getData();                
+                 $orgs=$em->getRepository(Organization::class)->findOneBy(['name' => $organization]);
+            $users = $em->getRepository(User::class)->findBy(['org' => $orgs->getId(), 'roles' => ['["ROLE_SUPER_USER"]']]);
+        
+        }            
+            
         } else {
             $users = $em->getRepository(User::class)
                         ->findByOrg($this->getUser()->getOrg());
         }
         return [
             'users' => $users,
-            'orgs'=>$orgs,
+           // 'orgs'=>$orgs,
+            'form'=> $form->createView(),
         ];
     }
 
