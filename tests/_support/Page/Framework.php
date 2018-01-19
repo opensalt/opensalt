@@ -6,6 +6,7 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
+
 class Framework implements Context
 {
     static public $docPath = '/cftree/doc/';
@@ -152,6 +153,17 @@ class Framework implements Context
         $I->waitForElementNotVisible('#wizard', 60);
 
         unlink($filename.'.json');
+
+        return $this;
+    }
+
+    /**
+     * @When /^I select the framework node$/
+     * @When /^I click on the framework node$/
+     */
+    public function iSelectFrameworkNode(): Framework
+    {
+        $this->I->click(['xpath' => '(//div[@id="viewmode_tree1"]/ul/li/span)[1]']);
 
         return $this;
     }
@@ -647,6 +659,8 @@ class Framework implements Context
 
        $I->click('Create');
 
+       $I->waitForElementVisible('#docTitle', 30);
+
        $I->see($framework, '#docTitle');
        $I->setDocId($I->grabValueFrom('#lsDocId'));
 
@@ -662,7 +676,6 @@ class Framework implements Context
       $I->click('Create a new Framework');
       $I->see('LsDoc creation');
       $this->iCreateAFramework();
-
     }
 
     /**
@@ -696,8 +709,6 @@ class Framework implements Context
       $I->amOnPage(self::$lsdocPath.$I->getDocId());
 
       $I->click('Delete');
-
-
     }
 
   /**
@@ -888,4 +899,12 @@ class Framework implements Context
     }
     return $this;
   }
+
+    /**
+     * @Given /^I see the Log View button in the title section$/
+     */
+    public function iSeeTheSelectorInTitleSection()
+    {
+        $this->I->seeElement('#displayLogBtn');
+    }
 }

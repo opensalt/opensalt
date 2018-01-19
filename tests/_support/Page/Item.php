@@ -55,55 +55,61 @@ class Item implements Context
 
   /**
    * @Given /^I add "([^"]*)" Item$/
+   * @Given /^I add the item "([^"]*)"$/
    * @Given /^I add a Item$/
+   * @Given /^I add an item$/
    * @Given /^I add a another Item$/
+   * @Given /^I add another Item$/
    */
   public function iAddItem($item = 'Test Item') {
-    /** @var \Faker\Generator $faker */
-    $faker = \Faker\Factory::create();
-    $this->enum ++;
-    $uri = $faker->url;
-    $licUri = $faker->url;
-    $note = $faker->paragraph;
-    $fullStatement = $faker->paragraph;
-    $enum = $this->enum;
-    $keywords = $faker->word;
-    $statement = $faker->name;
-    $item = $item . ' ' . $enum;
-    $this->rememberedItem = $item;
+      /** @var \Faker\Generator $faker */
+      $faker = \Faker\Factory::create();
+      $this->enum++;
+      $enum = $this->enum;
+      $item = $item . ' ' . $enum;
+      $uri = $faker->url;
+      $licUri = $faker->url;
+      $note = $faker->paragraph;
+      $fullStatement = $faker->paragraph;
+      $keywords = $faker->word;
+      $statement = $item;
+      $this->rememberedItem = $item;
 
-    $this->itemData = [
-      'fullStatement' => $fullStatement,
-      'humanCodingScheme' => $item,
-      'listEnumInSource' => $enum,
-      'abbreviatedStatement' => $statement,
-      'conceptKeywords' => $keywords,
-      'conceptKeywordsUri' => $uri,
-      'language' => 'en',
-      'licenceUri' => $licUri,
-      'note' => $note,
-    ];
+      $this->itemData = [
+          'fullStatement' => $fullStatement,
+          'humanCodingScheme' => $item,
+          'listEnumInSource' => $enum,
+          'abbreviatedStatement' => $statement,
+          'conceptKeywords' => $keywords,
+          'conceptKeywordsUri' => $uri,
+          'language' => 'en',
+          'licenceUri' => $licUri,
+          'note' => $note,
+      ];
 
-    $I = $this->I;
-    $I->see('Add New Child Item');
-    $I->click('Add New Child Item');
-    $I->waitForElementVisible('#ls_item');
-    $I->waitForElementVisible('#ls_item_listEnumInSource');
+      $I = $this->I;
+      $I->waitForText('Add New Child Item', 30);
+      $I->see('Add New Child Item');
+      $I->click('Add New Child Item');
+      $I->waitForElementVisible('#ls_item');
+      $I->waitForElementVisible('#ls_item_listEnumInSource');
 
-    $I->executeJS("$('#ls_item_fullStatement').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$fullStatement}')");
-    $I->fillField('#ls_item_humanCodingScheme', $item);
-    $I->fillField('#ls_item_listEnumInSource', $enum);
-    $I->fillField('#ls_item_abbreviatedStatement', $statement);
-    $I->fillField('#ls_item_conceptKeywords', $keywords);
-    $I->fillField('#ls_item_conceptKeywordsUri', $uri);
-    $I->selectOption('ls_item[language]', array('value' => $this->itemData['language']));
-    $I->fillField('#ls_item_licenceUri', $licUri);
-    $I->executeJS("$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')");
+      $I->executeJS("$('#ls_item_fullStatement').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$fullStatement}')");
+      $I->fillField('#ls_item_humanCodingScheme', $item);
+      $I->fillField('#ls_item_listEnumInSource', $enum);
+      $I->fillField('#ls_item_abbreviatedStatement', $statement);
+      $I->fillField('#ls_item_conceptKeywords', $keywords);
+      $I->fillField('#ls_item_conceptKeywordsUri', $uri);
+      $I->selectOption('ls_item[language]', array('value' => $this->itemData['language']));
+      $I->fillField('#ls_item_licenceUri', $licUri);
+      $I->executeJS("$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')");
 
-    $I->click('Create');
+      $I->click('Create');
+      $I->waitForElementNotVisible('#editItemModal');
 
-    $I->see($item, '.item-humanCodingScheme');
-
+      $I->waitForElementVisible('.item-humanCodingScheme', 30);
+      $I->waitForJS('return $.active == 0');
+      $I->see($item, '.item-humanCodingScheme');
   }
 
     /**
@@ -182,23 +188,27 @@ class Item implements Context
   /**
    * @Given /^I edit the fields in a item$/
    */
-  public function iEditTheFieldsInItem(TableNode $table) {
-    $I = $this->I;
+  public function iEditTheFieldsInItem(TableNode $table): Item
+  {
+      $I = $this->I;
 
-    $this->iAmOnAnItemPage();
+      $this->iAmOnAnItemPage();
 
-    $I->waitForElementVisible('//*[@id="itemOptions"]/button[1]');
-    $I->click('//*[@id="itemOptions"]/button[1]');
-    $I->waitForElementVisible('#ls_item');
-    $I->waitForElementVisible('#ls_item_listEnumInSource');
+      $I->waitForElementVisible('//*[@id="itemOptions"]/button[1]');
+      $I->click('//*[@id="itemOptions"]/button[1]');
+      $I->waitForElementVisible('#ls_item');
+      $I->waitForElementVisible('#ls_item_listEnumInSource');
 
-    $rows = $table->getRows();
-    foreach ($rows as $row) {
-      $this->iEditTheFieldInItem($row[0], $row[1]);
-    }
+      $rows = $table->getRows();
+      foreach ($rows as $row) {
+          $this->iEditTheFieldInItem($row[0], $row[1]);
+      }
 
-    $I->click('//*[@id="editItemModal"]/div/div/div[3]/button[2]');
-    return $this;
+      $I->click('//*[@id="editItemModal"]/div/div/div[3]/button[2]');
+      $I->waitForElementNotVisible('#editItemModal', 30);
+      $I->waitForJS('return $.active == 0');
+
+      return $this;
   }
 
   /**
@@ -216,7 +226,6 @@ class Item implements Context
     $I->waitForElementVisible('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]');
     $I->dragAndDrop('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
     $I->see($this->itemData['humanCodingScheme'], '#viewmode_tree1');
-
   }
 
   /**

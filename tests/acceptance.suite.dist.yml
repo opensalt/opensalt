@@ -39,4 +39,5 @@ gherkin:
             - "Page\\Exemplar"
             - "Page\\Notification"
             - "Page\\Organization"
+            - "Page\\SystemLogs"
             - "Page\\User"
