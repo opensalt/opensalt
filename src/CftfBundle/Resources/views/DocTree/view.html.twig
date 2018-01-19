@@ -382,6 +382,7 @@
                     <th>Username</th>
                 </thead>
             </table>
+            <a id="logViewExport" href="{{ path('doc_revisions_csv', {'id': lsDocId}) }}" class="btn btn-large btn-default btn-export btn-export-csv">Export</a>
         </div>
     </div>
 
@@ -662,6 +663,7 @@
             apx.path.lsdef_association_grouping_tree_delete = '{{ path('lsdef_association_grouping_tree_delete', {'id':'ID'}) }}';
             apx.path.doc_tree_multi_changes = '{{ path('multi_tree_info_json', {'id':'ID'}) }}';
             apx.path.doc_revisions = '{{ path('doc_revisions_json', {'id':'ID'}) }}';
+            apx.path.doc_revisions_export = '{{ path('doc_revisions_csv', {'id': 'ID'}) }}';
 
             apx.path.doctree_cfpackage_export = '{{ path('doctree_cfpackage_export', {'id':'ID'}) }}';
             apx.path.doctree_retrieve_document = '{{ path('doctree_retrieve_document', {'id':'ID'}) }}';

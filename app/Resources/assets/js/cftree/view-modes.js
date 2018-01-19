@@ -394,6 +394,8 @@ apx.viewMode.showLogView = function(context) {
     $(".main-view").hide();
     $("#logView").show();
 
+    $('#logViewExport').attr('href', apx.path.doc_revisions_export.replace('ID', apx.mainDoc.doc.id));
+
     if ($.fn.dataTable.isDataTable('#logTable')) {
         $('#logTable').DataTable().clear().ajax.reload();
     } else {

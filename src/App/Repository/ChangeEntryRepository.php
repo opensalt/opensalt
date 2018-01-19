@@ -62,6 +62,18 @@ class ChangeEntryRepository extends ServiceEntityRepository
         return $data;
     }
 
+    public function getChangeEntryCountForSystem(): int
+    {
+        $data = $this->_em->getConnection()->createQueryBuilder()
+            ->select('count(*)')
+            ->from('audit_'.$this->getClassMetadata()->getTableName(), 'a')
+            ->where('a.doc_id IS NULL')
+            ->execute()
+            ->fetchColumn();
+
+        return $data;
+    }
+
     public function getChangeEntriesForSystem(int $limit = 20, int $offset = 0): Statement
     {
         $data = $this->_em->getConnection()->createQueryBuilder()

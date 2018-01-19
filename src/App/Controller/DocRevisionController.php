@@ -31,7 +31,7 @@ class DocRevisionController extends AbstractController
     }
 
     /**
-     * @Route("/cfdoc/{id}/revisions/{offset}/{limit}", defaults={"offset" = 0, "limit" = 0}, name="doc_revisions_json")
+     * @Route("/cfdoc/{id}/revisions/{offset}/{limit}", requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="doc_revisions_json")
      * @Method("GET")
      * @Security("is_granted('edit', doc)")
      */
@@ -57,6 +57,37 @@ class DocRevisionController extends AbstractController
             }
 
             fwrite($fd, ']}');
+            fclose($fd);
+        });
+
+        return $response;
+    }
+
+    /**
+     * @Route("/cfdoc/{id}/revisions/export", name="doc_revisions_csv")
+     * @Method({"GET"})
+     * @Security("is_granted('edit', doc)")
+     */
+    public function exportDocRevisions(LsDoc $doc): Response
+    {
+        $response = new StreamedResponse();
+        $response->headers->set('Content-type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="framework_log.csv"');
+
+        $response->setCallback(function () use ($doc) {
+            $fd = fopen('php://output', 'wb+');
+
+            fputcsv($fd, ['Date', 'Description', 'Username']);
+
+            $history = $this->entryRepository->getChangeEntriesForDoc($doc, 0, 0);
+            foreach ($history as $line) {
+                fputcsv($fd, [
+                    preg_replace('/\..*$/', '', $line['changed_at']),
+                    $line['description'],
+                    $line['username']
+                ]);
+            }
+
             fclose($fd);
         });
 

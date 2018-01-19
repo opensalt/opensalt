@@ -7,11 +7,13 @@ use Behat\Behat\Context\Context;
 class SystemLogs implements Context
 {
     public const SYSTEM_LOGS_PAGE = '/systemLogs';
+    public const SYSTEM_LOGS_COUNT = '/systemLogs/revisions/counts';
 
     /**
      * @var \AcceptanceTester
      */
     protected $I;
+    protected $filename;
 
     public function __construct(\AcceptanceTester $I)
     {
@@ -24,59 +26,165 @@ class SystemLogs implements Context
     public function iGoToSystemLogs()
     {
         $this->I->amOnPage(self::SYSTEM_LOGS_PAGE);
+
+        $this->I->waitForJS('return $.active == 0', 30);
+        $this->I->waitForElementVisible(['xpath' => '//*[@id="systemLogTable"]/tbody/tr[1]/td[2]'], 30);
     }
 
     /**
-     * @Then /^I see the log table$/
+     * @When /^I select "([^"]*)" from the menu dropdown$/
      */
-    public function iSeeTheLogTable()
+    public function iSelectFromTheMenuDropdown($menuOption)
     {
-        $this->I->seeElement('table#logTable');
+        $I = $this->I;
+
+        $I->click('header .navbar-right a.dropdown-toggle');
+        $I->click($menuOption);
     }
 
     /**
-     * @Given /^I see all of the data table elements$/
+     * @Then /^I see "([^"]*)" in the title section$/
+     */
+    public function iSeeInTheTitleSection($text)
+    {
+        $this->I->see($text, 'main > h1');
+    }
+
+    /**
+     * @Given /^I see all of the data table elements for the system logs$/
      */
     public function iSeeAllOfTheDataTableElements()
     {
         $I = $this->I;
 
-        $I->see('Date', '#logTable');
-        $I->see('Change', '#logTable');
-        $I->see('Username', '#logTable');
+        $I->see('Date', 'th');
+        $I->see('Change', 'th');
+        $I->see('User', 'th');
     }
 
     /**
-     * @Given /^I select Log View$/
+     * @Then /^I should see the add of the user in the log$/
      */
-    public function iSelectLogView()
+    public function iShouldSeeTheAddOfTheUserInTheLog()
     {
-        $this->I->click('#displayLogBtn');
-        $this->I->waitForJS('return $.active == 0', 30);
-        $this->I->waitForElementVisible(['xpath' => '//*[@id="logTable"]/tbody/tr[1]/td[2]'], 30);
+        $this->I->see($this->I->getRememberedString('lastNewUsername').'" added');
     }
 
     /**
-     * @Then /^I should see the add of "([^"]*)" in the log$/
+     * @Given /^I should see the update of the user in the log$/
      */
-    public function iShouldSeeTheAddOfInTheLog($item)
+    public function iShouldSeeTheUpdateOfTheUserInTheLog()
     {
-        $this->I->see("\"{$item}\" added", '#logTable td');
+        $this->I->see($this->I->getRememberedString('lastChangedUsername').'" modified');
     }
 
     /**
-     * @Then /^I should see the update of "([^"]*)" in the log$/
+     * @Given /^I should see the delete of the user in the log$/
      */
-    public function iShouldSeeItemUpdateInTheLog($item)
+    public function iShouldSeeTheDeleteOfTheUserInTheLog()
     {
-        $this->I->see("\"{$item}\" modified", '#logTable td');
+        $this->I->see($this->I->getRememberedString('lastDeletedUsername').'" deleted');
     }
 
     /**
-     * @Given /^I should see the move of "([^"]*)" in the log$/
+     * @Given /^I should see the add of the organization in the log$/
      */
-    public function iShouldSeeTheMoveOfInTheLog($item)
+    public function iShouldSeeTheAddOfTheOrganizationInTheLog()
     {
-        $this->I->see("Framework tree updated", '#logTable td');
+        $this->I->see($this->I->getRememberedString('lastNewOrg').'" added');
+    }
+
+    /**
+     * @Given /^I should see the update of the organization in the log$/
+     */
+    public function iShouldSeeTheUpdateOfTheOrganizationInTheLog()
+    {
+        $this->I->see($this->I->getRememberedString('lastChangedOrg').'" modified');
+    }
+
+    /**
+     * @Given /^I should see the delete of the organization in the log$/
+     */
+    public function iShouldSeeTheDeleteOfTheOrganizationInTheLog()
+    {
+        $this->I->see($this->I->getRememberedString('lastDeletedOrg').'" deleted');
+    }
+
+    /**
+     * @Then /^I do not see "([^"]*)" in the menu dropdown$/
+     */
+    public function iDoNotSeeInTheMenuDropdown($menuOption)
+    {
+        $I = $this->I;
+
+        $I->click('header .navbar-right a.dropdown-toggle');
+        $I->dontSee($menuOption);
+    }
+
+    /**
+     * @Given /^I enter "([^"]*)" in the sytem log search field$/
+     */
+    public function iEnterInTheSytemLogSearchField($term)
+    {
+        $this->I->fillField('#systemLogTable_filter input', $term);
+    }
+
+    /**
+     * @Then /^I should only see rows with "([^"]*)" in the system log data table$/
+     */
+    public function iShouldOnlySeeRowsWithInTheSystemLogDataTable($term)
+    {
+        $rows = $this->I->grabMultiple("//*[@id='systemLogTable']/tbody/tr");
+
+        foreach ($rows as $row) {
+            $this->I->assertContains($term, $row);
+        }
+    }
+
+    /**
+     * @Given /^I download the system log export CSV$/
+     */
+    public function iDownloadTheSystemLogExportCSV()
+    {
+        $I = $this->I;
+
+        $url = $I->grabAttributeFrom('#systemLogView a.btn-export-csv', 'href');
+
+        $this->filename = $I->download($url);
+    }
+
+    /**
+     * @Then /^I can see the data in the CSV matches the data in the system log$/
+     */
+    public function iCanSeeTheDataInTheCSVMatchesTheDataInTheSystemLog()
+    {
+        $export = file_get_contents($this->filename);
+
+        $rows = $this->I->grabMultiple("//*[@id='systemLogTable']/tbody/tr/td[1]");
+        foreach ($rows as $row) {
+            $this->I->assertContains($row, $export);
+        }
+    }
+
+    /**
+     * @Then /^I should see (\d+) rows in the system log data table$/
+     */
+    public function iShouldSeeRowsInTheSystemLogDataTable($count)
+    {
+        $rows = $this->I->grabMultiple("//*[@id='systemLogTable']/tbody/tr");
+        $this->I->assertCount($count, count($rows));
+    }
+
+    /**
+     * @Given /^the system log has at least (\d+) changes$/
+     */
+    public function theSystemLogHasAtLeastChanges($changeCount)
+    {
+        $I = $this->I;
+
+        $hasCount = $I->fetch(static::SYSTEM_LOGS_COUNT);
+
+        if ($hasCount < $changeCount) {
+        }
     }
 }

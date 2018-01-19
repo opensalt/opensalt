@@ -23,6 +23,7 @@ modules:
         - \Helper\UserManagement
         - \Helper\Guzzle
         - \Helper\Toggles
+        - \Helper\Remember
         - Asserts
         - Sequence
 
@@ -39,5 +40,6 @@ gherkin:
             - "Page\\Exemplar"
             - "Page\\Notification"
             - "Page\\Organization"
+            - "Page\\FrameworkLogs"
             - "Page\\SystemLogs"
             - "Page\\User"

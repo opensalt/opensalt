@@ -8,6 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -42,7 +43,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/systemLogs/revisions/{offset}/{limit}", defaults={"offset" = 0, "limit" = 0}, name="system_logs_json")
+     * @Route("/systemLogs/revisions/{offset}/{limit}", requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="system_logs_json")
      * @Method({"GET"})
      * @Security("is_granted('ROLE_SUPER_USER')")
      */
@@ -72,6 +73,18 @@ class SystemLogController extends AbstractController
         });
 
         return $response;
+    }
+
+    /**
+     * @Route("/systemLogs/revisions/count", name="system_logs_count")
+     * @Method({"GET"})
+     * @Security("is_granted('ROLE_SUPER_USER')")
+     */
+    public function changeLogCount(): Response
+    {
+        $count = $this->entryRepository->getChangeEntryCountForSystem();
+
+        return new JsonResponse($count);
     }
 
     /**
