@@ -171,7 +171,7 @@ class CommentsController extends Controller
         foreach ($comment_data as $comment) {
             $comments=[
                 ($itemType === 'item') ? '"'.$comment->getItem()->getLsDoc()->getTitle().'"' : '"'.$comment->getDocument()->getTitle().'"',
-                $base_url.$url,
+                $url,
                 ($itemType === 'item') ? '"'.$comment->getItem()->getHumanCodingScheme().'"' : null,
                 '"'.$comment->getUser()->getUsername().'"',
                 '"'.$comment->getUser()->getOrg()->getName().'"',
