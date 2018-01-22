@@ -92,3 +92,7 @@ services:
             - '@doctrine.dbal.default_connection'
             - 'externalDoc-'
             - 0
+    salt_user.login_listener:
+        class: Salt\UserBundle\Listener\LoginListener
+        tags:
+            - { name: kernel.event_listener, event: security.interactive_login }
