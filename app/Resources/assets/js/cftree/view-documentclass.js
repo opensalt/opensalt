@@ -179,7 +179,7 @@ var render = (function(){
     		}
     	}
     }
-
+    
     function alphaList(editor) {
     	var cm = editor.codemirror;
     	if (cm.getSelection()) {
