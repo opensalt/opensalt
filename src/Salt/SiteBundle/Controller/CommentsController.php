@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Salt\SiteBundle\Entity\Comment;
@@ -159,10 +160,9 @@ class CommentsController extends Controller
      *
      * @return Response
      */
-    public function exportCommentAction(string $itemType, int $id, Request $request)
+    public function exportCommentAction(string $itemType, int $id)
     {
-        $base_url = $request->server->get('HTTP_HOST');
-        $url = ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $id]) : $this->generateUrl('doc_tree_view', ['slug' => $id]);
+        $url = ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $id], UrlGeneratorInterface::ABSOLUTE_URL) : $this->generateUrl('doc_tree_view', ['slug' => $id],UrlGeneratorInterface::ABSOLUTE_URL);
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
         $headers = ['Framework Name', 'Node Address', ($itemType === 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
         $rows[] = implode(',', array_filter($headers));
