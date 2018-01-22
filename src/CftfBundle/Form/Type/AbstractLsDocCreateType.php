@@ -42,6 +42,10 @@ abstract class AbstractLsDocCreateType extends AbstractType
                 'label' => 'URL Name',
                 'disabled' => $disableAsAdopted,
             ])
+            ->add('licenceuri', null, [
+                'label' => 'License URI',
+                'disabled' => $disableAsAdopted,
+            ])
             ;
 
         $this->addOwnership($builder);
