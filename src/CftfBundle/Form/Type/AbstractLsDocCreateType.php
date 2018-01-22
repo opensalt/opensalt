@@ -42,7 +42,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
                 'label' => 'URL Name',
                 'disabled' => $disableAsAdopted,
             ])
-            ->add('LicenseUri', null, [
+            ->add('licenseUri', null, [
                 'label' => 'License URI',
                 'disabled' => $disableAsAdopted,
             ])
