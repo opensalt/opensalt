@@ -7,16 +7,16 @@ class EditBarButtonCest
 {
     static public $itemPath = '/cftree/item/';
 
-    public function seeAlphabeticalListButton(AcceptanceTester $I, Scenario $scenario)
+    public function seeAlphabeticalListButton(AcceptanceTester $Acpt, Scenario $scenario)
     {
-        $loginPage = new Login($I, $scenario);
+        $loginPage = new Login($Acpt, $scenario);
         $loginPage->loginAsRole('super_user');
-        $I->getLastItemId();
-        $I->amOnPage(self::$itemPath.$I->getItemId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->see('Edit');
-        $I->click('[data-target="#editItemModal"]');
-        $I->waitForElementVisible('#editItemModal');
-        $I->seeElement('.fa.fa-sort-alpha-asc');
+        $Acpt->getLastItemId();
+        $Acpt->amOnPage(self::$itemPath.$Acpt->getItemId());
+        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
+        $Acpt->see('Edit');
+        $Acpt->click('[data-target="#editItemModal"]');
+        $Acpt->waitForElementVisible('#editItemModal');
+        $Acpt->seeElement('.fa.fa-sort-alpha-asc');
     }
 }
