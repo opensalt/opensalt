@@ -43,7 +43,6 @@ var render = (function(){
 
     function sanitizerInline(dirty) {
         var sanitizeHtml = require('sanitize-html');
-
         return sanitizeHtml(dirty, {
             allowedTags: [ ],
             allowedAttributes: { }
@@ -82,7 +81,6 @@ var render = (function(){
     };
     var createLevelOneAlphaList = function(listStartCount, startPoint,
     		endPoint, cm, callbackFunction) {
-    	console.log(endPoint);
     	var levelOneEndpoint = endPoint;
     	if (undefined != callbackFunction) {
     		levelOneEndpoint = startPoint + 25;
@@ -110,7 +108,8 @@ var render = (function(){
     	if (undefined != callbackFunction) {
     		callbackFunction(listStartCount, startPoint, endPoint, cm);
     	}
-    }
+    };
+    
     var createLevelTwoAlphaList = function(listStartCount, startPoint,
     		endPoint, cm) {
     	var lineCounter = parseInt(startPoint + 26);
@@ -141,7 +140,8 @@ var render = (function(){
     			lineCounter++;
     		}
     	}
-    }
+    };
+
     var createLevelThreeAlphaList = function(listStartCount, startPoint,
     		endPoint, cm) {
     	var lineCounter = 0;
@@ -179,6 +179,7 @@ var render = (function(){
     		}
     	}
     }
+
     function alphaList(editor) {
     	var cm = editor.codemirror;
     	if (cm.getSelection()) {
@@ -200,6 +201,7 @@ var render = (function(){
     		cm.focus();
     	}
     }
+    
     render.mde = function(element) {
     	var SimpleMDE = require('simplemde');
     	return new SimpleMDE({
@@ -221,13 +223,13 @@ var render = (function(){
 })();
 
 
-// /////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 apx.allDocs = {};
 apx.allItemsHash = {};
 
 /**
  * Class for representing/manipulating/using a document
- * 
+ *
  * @class
  */
 function apxDocument(initializer) {
