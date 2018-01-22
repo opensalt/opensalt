@@ -162,7 +162,7 @@ class CommentsController extends Controller
      */
     public function exportCommentAction(string $itemType, int $id)
     {
-        $url = ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $id], UrlGeneratorInterface::ABSOLUTE_URL) : $this->generateUrl('doc_tree_view', ['slug' => $id],UrlGeneratorInterface::ABSOLUTE_URL);
+        $url = ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $id], UrlGeneratorInterface::ABSOLUTE_URL) : $this->generateUrl('doc_tree_view', ['slug' => $id], UrlGeneratorInterface::ABSOLUTE_URL);
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
         $headers = ['Framework Name', 'Node Address', ($itemType === 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
         $rows[] = implode(',', array_filter($headers));
