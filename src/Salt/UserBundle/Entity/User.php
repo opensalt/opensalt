@@ -186,7 +186,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         $roles = $this->roles;
 
         if (empty($roles)) {
-            $roles[] = 'ROLE_USER';
+            $roles[] = 'ROLE_VIEWER';
         }
 
         return $roles;
