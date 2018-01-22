@@ -10,78 +10,78 @@ class CommentExportCest
     static public $commentFilePath = '/salt/case/export_comment/';
     static public $itemPath = '/cftree/item/';
 
-    public function _before(AcceptanceTester $I)
+    public function _before(AcceptanceTester $Acpt)
     {
-        $I->assertFeatureEnabled('comments');
+        $Acpt->assertFeatureEnabled('comments');
     }
 
-    public function seeExportCSVButton(AcceptanceTester $I, Scenario $scenario)
+    public function seeExportCSVButton(AcceptanceTester $Acpt, Scenario $scenario)
     {
-        $loginPage = new Login($I, $scenario);
+        $loginPage = new Login($Acpt, $scenario);
         $loginPage->loginAsRole('admin');
-        $I->getLastFrameworkId();
-        $I->amOnPage(self::$docPath.$I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->see('Export Comments');
+        $Acpt->getLastFrameworkId();
+        $Acpt->amOnPage(self::$docPath.$Acpt->getDocId());
+        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
+        $Acpt->see('Export Comments');
     }
 
-    public function dontSeeExportCSVButton(AcceptanceTester $I, Scenario $scenario)
+    public function dontSeeExportCSVButton(AcceptanceTester $Acpt)
     {
-        $I->getLastFrameworkId();
-        $I->amOnPage(self::$docPath.$I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->dontSee('Export Comments');
+        $Acpt->getLastFrameworkId();
+        $Acpt->amOnPage(self::$docPath.$Acpt->getDocId());
+        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
+        $Acpt->dontSee('Export Comments');
     }
 
-    public function exportDocumentCommentCSV(AcceptanceTester $I, Scenario $scenario)
+    public function exportDocumentCommentCSV(AcceptanceTester $Acpt, Scenario $scenario)
     {
-        $loginPage = new Login($I, $scenario);
+        $loginPage = new Login($Acpt, $scenario);
         $loginPage->loginAsRole('admin');
-        $I->getLastFrameworkId();
-        $I->amOnPage(self::$docPath.$I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->see('Export Comments');
-        $I->click('//*[@id="doc_export_comment"]');
-        $url = self::$commentFilePath.'document/'.$I->getDocId().'/comment.csv';
-        $csvFile = file_get_contents($I->download($url));
-        $I->assertNotEmpty($csvFile, 'CSV file is empty');
+        $Acpt->getLastFrameworkId();
+        $Acpt->amOnPage(self::$docPath.$Acpt->getDocId());
+        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
+        $Acpt->see('Export Comments');
+        $Acpt->click('//*[@id="doc_export_comment"]');
+        $url = self::$commentFilePath.'document/'.$Acpt->getDocId().'/comment.csv';
+        $csvFile = file_get_contents($Acpt->download($url));
+        $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');
         $comment = explode("\n", $csvFile);
-        $I->assertGreaterThanOrEqual(1, sizeof($comment));
-        $I->assertContains('Framework Name,Node Address,User,Organization,Comment', $csvFile, 'Exported Document Comments');
+        $Acpt->assertGreaterThanOrEqual(1, sizeof($comment));
+        $Acpt->assertContains('Framework Name,Node Address,User,Organization,Comment', $csvFile, 'Exported Document Comments');
     }
 
-    public function exportItemCommentCSV(AcceptanceTester $I, Scenario $scenario)
+    public function exportItemCommentCSV(AcceptanceTester $Acpt, Scenario $scenario)
     {
-        $loginPage = new Login($I, $scenario);
+        $loginPage = new Login($Acpt, $scenario);
         $loginPage->loginAsRole('admin');
-        $I->getLastItemId();
-        $I->amOnPage(self::$itemPath.$I->getItemId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->see('Export Comments');
-        $I->click('//*[@id="item_export_comment"]');
-        $url = self::$commentFilePath.'item/'.$I->getDocId().'/comment.csv';
-        $csvFile = file_get_contents($I->download($url));
-        $I->assertNotEmpty($csvFile, 'CSV file is empty');
+        $Acpt->getLastItemId();
+        $Acpt->amOnPage(self::$itemPath.$Acpt->getItemId());
+        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
+        $Acpt->see('Export Comments');
+        $Acpt->click('//*[@id="item_export_comment"]');
+        $url = self::$commentFilePath.'item/'.$Acpt->getDocId().'/comment.csv';
+        $csvFile = file_get_contents($Acpt->download($url));
+        $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');
         $comment = explode("\n", $csvFile);
-        $I->assertGreaterThanOrEqual(1, sizeof($comment));
-        $I->assertContains('Framework Name,Node Address,HumanCodingScheme,User,Organization,Comment', $csvFile, 'Exported Item Comments');
+        $Acpt->assertGreaterThanOrEqual(1, sizeof($comment));
+        $Acpt->assertContains('Framework Name,Node Address,HumanCodingScheme,User,Organization,Comment', $csvFile, 'Exported Item Comments');
     }
 
-    public function seeTimestampInCommentCSV(AcceptanceTester $I, Scenario $scenario)
+    public function seeTimestampInCommentCSV(AcceptanceTester $Acpt, Scenario $scenario)
     {
-        $loginPage = new Login($I, $scenario);
+        $loginPage = new Login($Acpt, $scenario);
         $loginPage->loginAsRole('admin');
-        $I->getLastFrameworkId();
-        $I->amOnPage(self::$docPath.$I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->see('Export Comments');
-        $I->click('//*[@id="doc_export_comment"]');
-        $url = self::$commentFilePath.'document/'.$I->getDocId().'/comment.csv';
-        $csvFile = file_get_contents($I->download($url));
-        $I->assertNotEmpty($csvFile, 'CSV file is empty');
+        $Acpt->getLastFrameworkId();
+        $Acpt->amOnPage(self::$docPath.$Acpt->getDocId());
+        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
+        $Acpt->see('Export Comments');
+        $Acpt->click('//*[@id="doc_export_comment"]');
+        $url = self::$commentFilePath.'document/'.$Acpt->getDocId().'/comment.csv';
+        $csvFile = file_get_contents($Acpt->download($url));
+        $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');
         $comment = explode("\n", $csvFile);
-        $I->assertGreaterThanOrEqual(1, sizeof($comment));
-        $I->assertContains('Created Date,Updated Date', $csvFile, 'See Timestamp column in document Comment Report');
+        $Acpt->assertGreaterThanOrEqual(1, sizeof($comment));
+        $Acpt->assertContains('Created Date,Updated Date', $csvFile, 'See Timestamp column in document Comment Report');
     }
 
 }
