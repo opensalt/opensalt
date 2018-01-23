@@ -4,6 +4,7 @@ namespace Page;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
+use Codeception\Exception\Fail;
 use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
 
@@ -15,6 +16,8 @@ class Framework implements Context
     static public $fwTitle = '#ls_doc_create_title';
     static public $fwCreatorField = '#ls_doc_create_creator';
 //    static public $frameworkCreatorValue = 'PCG QA Testing';
+
+    static protected $failedCreateCount = 0;
 
     protected $filename;
     protected $rememberedFramework;
@@ -622,6 +625,9 @@ class Framework implements Context
      * @When /^I create a "([^"]*)" framework$/
      */
     public function iCreateAFramework($framework = 'Test Framework') {
+        if (static::$failedCreateCount >= 5) {
+            throw new Fail('Not trying: Too many framework create failures already.');
+        }
        /** @var \Faker\Generator $faker */
        $faker = \Faker\Factory::create();
 
@@ -659,7 +665,12 @@ class Framework implements Context
 
        $I->click('Create');
 
-       $I->waitForElementVisible('#docTitle', 30);
+       try {
+           $I->waitForElementVisible('#docTitle', 30);
+       } catch (\Exception $e) {
+           static::$failedCreateCount++;
+           throw $e;
+       }
 
        $I->see($framework, '#docTitle');
        $I->setDocId($I->grabValueFrom('#lsDocId'));
