@@ -55,7 +55,7 @@ before_script:
 script:
   - ./bin/console --env=prod doctrine:migrations:migrate --no-interaction
   - ./bin/console --env=prod import:generic-csv tests/_data/test_items.csv
-  - ./bin/run-tests --steps -x duplicate -x skip -x skip-firefox
+  - ./bin/run-tests --steps -x duplicate -x skip -x skip-firefox -x change-notification
 #  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/build_pull_request; fi'
 #  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/build_normal; fi'
 
