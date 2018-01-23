@@ -625,56 +625,59 @@ class Framework implements Context
      * @When /^I create a "([^"]*)" framework$/
      */
     public function iCreateAFramework($framework = 'Test Framework') {
+        $I = $this->I;
+
+        $I->amGoingTo('submit a filled in framework create form');
+
         if (static::$failedCreateCount >= 5) {
+            $I->amGoingTo('not bother trying, too many errors creating frameworks already');
             throw new Fail('Not trying: Too many framework create failures already.');
         }
-       /** @var \Faker\Generator $faker */
-       $faker = \Faker\Factory::create();
 
-       $description = $faker->sentence;
+        /** @var \Faker\Generator $faker */
+        $faker = \Faker\Factory::create();
 
-       $note = $faker->paragraph;
-       $framework = sq($framework);
-       $this->rememberedFramework = $framework;
+        $description = $faker->sentence;
 
-       $this->frameworkData = [
-         'title' => $framework,
-         'creator' => $this->creatorName,
-         'officialUri' => 'http://opensalt.net',
-         'publisher' => 'PCG',
-         'version' => '1.0',
-         'description' => $description,
-         'language' => 'en',
-         'adoptionStatus' => 'Draft',
-         'note' => $note,
-       ];
+        $note = $faker->paragraph;
+        $framework = sq($framework);
+        $this->rememberedFramework = $framework;
 
-       $I = $this->I;
+        $this->frameworkData = [
+            'title' => $framework,
+            'creator' => $this->creatorName,
+            'officialUri' => 'http://opensalt.net',
+            'publisher' => 'PCG',
+            'version' => '1.0',
+            'description' => $description,
+            'language' => 'en',
+            'adoptionStatus' => 'Draft',
+            'note' => $note,
+        ];
 
-       $I->fillField(self::$fwTitle, $framework);
-       $I->fillField(self::$fwCreatorField, $this->creatorName);
-       $I->fillField('#ls_doc_create_officialUri', $this->frameworkData['officialUri']);
-       $I->fillField('#ls_doc_create_publisher', $this->frameworkData['publisher']);
+        $I->fillField(self::$fwTitle, $framework);
+        $I->fillField(self::$fwCreatorField, $this->creatorName);
+        $I->fillField('#ls_doc_create_officialUri', $this->frameworkData['officialUri']);
+        $I->fillField('#ls_doc_create_publisher', $this->frameworkData['publisher']);
 //       $I->fillField('#ls_doc_create_urlName','OpenSALT');
-       $I->fillField('#ls_doc_create_version', $this->frameworkData['version']);
-       $I->fillField('#ls_doc_create_description', $description);
+        $I->fillField('#ls_doc_create_version', $this->frameworkData['version']);
+        $I->fillField('#ls_doc_create_description', $description);
 //       $I->selectOption('.select2-search__field', array('text' => 'Math')); //Subject field
-       $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
-       $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
-       $I->fillField('#ls_doc_create_note', $note);
+        $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
+        $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
+        $I->fillField('#ls_doc_create_note', $note);
 
-       $I->click('Create');
+        $I->click('Create');
 
-       try {
-           $I->waitForElementVisible('#docTitle', 30);
-       } catch (\Exception $e) {
-           static::$failedCreateCount++;
-           throw $e;
-       }
+        try {
+            $I->waitForElementVisible('#docTitle', 30);
+        } catch (\Exception $e) {
+            static::$failedCreateCount++;
+            throw $e;
+        }
 
-       $I->see($framework, '#docTitle');
-       $I->setDocId($I->grabValueFrom('#lsDocId'));
-
+        $I->see($framework, '#docTitle');
+        $I->setDocId($I->grabValueFrom('#lsDocId'));
     }
 
     /**

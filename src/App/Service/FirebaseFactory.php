@@ -18,12 +18,15 @@ class FirebaseFactory
         ?string $dbUri
     )
     {
-        if (null === $projectId) {
+        if (empty($projectId) || empty($clientId) || empty($clientEmail)
+            || empty($privateKey) || empty($apiKey) || empty($dbUri)
+        ) {
+            $this->logger->debug('Firebase not configured');
+
             return null;
         }
 
         $pKey = preg_replace('/\\\\n/', chr(10), $privateKey);
-        //$pKey = preg_replace('/-----(BEGIN|END) PRIVATE KEY-----/', '', $pKey);
 
         $serviceAccount = ServiceAccount::fromArray([
             'project_id' => $projectId,
