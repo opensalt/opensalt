@@ -594,16 +594,16 @@
             window.apx = window.apx || {};
 
             apx.enableEdit = {{ editorRights |json_encode |raw }};
-            {% if editorRights %}
-            apx.me = "{{ app.user.username |e('js') }}";
-            apx.startTime = {{ "now"|date("Uv") }};
-            apx.startTimeBrowser = (new Date()).getTime();
-            apx.timeDiff = apx.startTimeBrowser - apx.startTime;
-            {% if firebase_api_key is not null %}
-            apx.locks = {{ locks |json_encode |raw }};
-            apx.firebasePrefix = {{ firebase_prefix |json_encode |raw }};
-            {% endif %}
-            {% endif %}
+            {% if editorRights -%}
+                apx.me = "{{ app.user.username |e('js') }}";
+                apx.startTime = {{ "now"|date("Uv") }};
+                apx.startTimeBrowser = (new Date()).getTime();
+                apx.timeDiff = apx.startTimeBrowser - apx.startTime;
+                {%- if firebase_api_key is not empty -%}
+                    apx.locks = {{ locks |json_encode |raw }};
+                    apx.firebasePrefix = {{ firebase_prefix |json_encode |raw }};
+                {%- endif -%}
+            {%- endif %}
         </script>
 
         {{ parent() }}
@@ -615,7 +615,7 @@
             <script src="{{ asset('build/comments.js', 'encore') }}"></script>
         {% endif %}
 
-        {% if editorRights and firebase_api_key is not null %}
+        {% if editorRights and firebase_api_key is not empty %}
             <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase.js"></script>
             <script>
                 window.firebase = firebase;
