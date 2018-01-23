@@ -7,7 +7,7 @@ use Behat\Behat\Context\Context;
 class SystemLogs implements Context
 {
     public const SYSTEM_LOGS_PAGE = '/systemLogs';
-    public const SYSTEM_LOGS_COUNT = '/systemLogs/revisions/counts';
+    public const SYSTEM_LOGS_COUNT = '/systemLogs/revisions/count';
 
     /**
      * @var \AcceptanceTester
