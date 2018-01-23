@@ -122,7 +122,7 @@ class User implements Context {
 
     $I->amOnPage('/admin/user/');
     $I->click("//td[text()='{$username}']/..//a[text()='Unsuspend']");
-    $I->See('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
+    $I->See('edit', "//td[text()='{$username}']/..//a[text()='edit']");
   }
 
   /**

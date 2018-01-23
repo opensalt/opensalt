@@ -14,10 +14,10 @@ class CfDocCest
         $I->see('Import framework');
     }
 
-    public function userCantSeeCreateImportButtons(AcceptanceTester $I, Scenario $scenario)
+    public function viewerCantSeeCreateImportButtons(AcceptanceTester $I, Scenario $scenario)
     {
         $loginPage = new Login($I, $scenario);
-        $loginPage->loginAsRole('User');
+        $loginPage->loginAsRole('Viewer');
         $I->amOnPage('/cfdoc');
         $I->dontSee('Create a new Framework');
         $I->dontSee('Import framework');
