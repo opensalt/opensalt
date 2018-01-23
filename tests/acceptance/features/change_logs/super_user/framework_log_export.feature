@@ -1,7 +1,7 @@
 Feature: Change Log Interaction
   Framework Log Export
 
-  @0117-0727 @logs @ui @super-user
+  @0117-0727 @logs @ui @super-user @duplicate
   Scenario: 0117-0727 User can have a copy in csv with all of the history data - Logged in as Super-User
     Given I am logged in as an "Super-User"
     #And a <frameworkName> exists that has history

@@ -1,7 +1,7 @@
 Feature: Change Log Interaction
   Framework Log Export
 
-  @0117-0725 @logs @ui @organization-admin
+  @0117-0725 @logs @ui @organization-admin @duplicate
   Scenario: 0117-0725 User can have a copy in csv with all of the history data - Logged in as Org Admin
     Given I am logged in as an "Admin"
     #And a <frameworkName> exists that has history

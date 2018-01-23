@@ -1,7 +1,7 @@
 Feature: Change Log Interaction
   New button <Log View> to view logs
 
-  @incomplete @0117-0702 @logs @ui @organization-admin
+  @incomplete @0117-0702 @logs @ui @organization-admin @duplicate
   Scenario: 0117-0702 Add new item, Update of an item, Move item shows the table of data elements - Logged in as Organization Admin
     Given I am logged in as an "Admin"
     When I create a framework

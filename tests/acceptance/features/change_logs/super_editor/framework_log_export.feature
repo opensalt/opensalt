@@ -1,7 +1,7 @@
 Feature: Change Log Interaction
   Framework Log Export
 
-  @0117-0728 @logs @ui @super-editor
+  @0117-0728 @logs @ui @super-editor @duplicate
   Scenario: 0117-0728 User can have a copy in csv with all of the history data - Logged in as Super-Editor
     Given I am logged in as an "Super-Editor"
     #And a <frameworkName> exists that has history

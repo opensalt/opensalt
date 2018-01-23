@@ -1,7 +1,7 @@
 Feature: Change Log Interaction
   New button <Log View> to view logs
 
-  @incomplete @0117-0714 @logs @ui @super-editor
+  @incomplete @0117-0714 @logs @ui @super-editor @duplicate
   Scenario: 0117-0714 Add new item, Update of an item, Move item shows the table of data elements - Logged in as Super Editor
     Given I am logged in as an "Super-Editor"
     When I create a framework

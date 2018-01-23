@@ -1,7 +1,7 @@
 Feature: Change Log Interaction
   Framework that has at least 25 changes
 
-  @0117-0715 @logs @ui @super-editor
+  @0117-0715 @logs @ui @super-editor @duplicate
   Scenario: 0117-0715 User should see 25 rows in the data table when 25 selected from the Show Entries selected - Logged in as Super Editor
     Given I am logged in as an "Super-Editor"
     #And a <frameworkName> exists that has at least 25 changes

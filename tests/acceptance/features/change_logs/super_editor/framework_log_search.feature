@@ -1,7 +1,7 @@
 Feature: Change Log Interaction
   Search form on the Log view page
 
-  @0117-0716 @logs @ui @super-editor
+  @0117-0716 @logs @ui @super-editor @duplicate
   Scenario: 0117-0716 Searching for an item in the search form shows the table of data elements with those item rows - Logged in as Super-Editor
     Given I am logged in as an "Super-Editor"
     When I create a framework
