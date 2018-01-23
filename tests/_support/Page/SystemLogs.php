@@ -172,7 +172,7 @@ class SystemLogs implements Context
     public function iShouldSeeRowsInTheSystemLogDataTable($count)
     {
         $rows = $this->I->grabMultiple("//*[@id='systemLogTable']/tbody/tr");
-        $this->I->assertCount($count, count($rows));
+        $this->I->assertCount((int)$count, count($rows));
     }
 
     /**
