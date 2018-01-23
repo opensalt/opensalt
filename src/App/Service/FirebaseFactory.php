@@ -14,14 +14,13 @@ class FirebaseFactory
         ?string $clientId,
         ?string $clientEmail,
         ?string $privateKey,
-        ?string $apiKey,
         ?string $dbUri
     )
     {
         if (empty($projectId) || empty($clientId) || empty($clientEmail)
-            || empty($privateKey) || empty($apiKey) || empty($dbUri)
+            || empty($privateKey) || empty($dbUri)
         ) {
-            $this->logger->debug('Firebase not configured');
+            $logger->debug('Firebase not configured');
 
             return null;
         }
@@ -36,7 +35,7 @@ class FirebaseFactory
         ]);
 
         return (new Factory())
-            ->withServiceAccountAndApiKey($serviceAccount, $apiKey)
+            ->withServiceAccount($serviceAccount)
             ->withDatabaseUri($dbUri)
             ->create();
     }

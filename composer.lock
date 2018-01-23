@@ -3419,16 +3419,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "3.8.2",
+            "version": "3.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "b0cd8e75a5aeec137c5a8a6597033bf97bcb22ce"
+                "reference": "dd307464e2f474d3aac68577e69b05c43035f1e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/b0cd8e75a5aeec137c5a8a6597033bf97bcb22ce",
-                "reference": "b0cd8e75a5aeec137c5a8a6597033bf97bcb22ce",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/dd307464e2f474d3aac68577e69b05c43035f1e0",
+                "reference": "dd307464e2f474d3aac68577e69b05c43035f1e0",
                 "shasum": ""
             },
             "require": {
@@ -3475,7 +3475,7 @@
                 "google",
                 "sdk"
             ],
-            "time": "2018-01-16T20:15:10+00:00"
+            "time": "2018-01-23T12:29:21+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
@@ -4681,12 +4681,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codemirror/CodeMirror.git",
-                "reference": "945c9673c80526017182faf696af35b839d11e23"
+                "reference": "d0dca6532dd668cf415b2740152b93d1cb454410"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/945c9673c80526017182faf696af35b839d11e23",
-                "reference": "945c9673c80526017182faf696af35b839d11e23",
+                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/d0dca6532dd668cf415b2740152b93d1cb454410",
+                "reference": "d0dca6532dd668cf415b2740152b93d1cb454410",
                 "shasum": ""
             },
             "require-dev": {
@@ -4729,7 +4729,7 @@
                 "Editor",
                 "JavaScript"
             ],
-            "time": "2018-01-18 14:46:44"
+            "time": "2018-01-19 06:50:18"
         },
         {
             "name": "npm-asset/codemirror-spell-checker",
@@ -6483,16 +6483,16 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "3.7.2",
+            "version": "3.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid.git",
-                "reference": "bba83ad77bb9deb6d3c352a7361b818e415b221d"
+                "reference": "44abcdad877d9a46685a3a4d221e3b2c4b87cb76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid/zipball/bba83ad77bb9deb6d3c352a7361b818e415b221d",
-                "reference": "bba83ad77bb9deb6d3c352a7361b818e415b221d",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/44abcdad877d9a46685a3a4d221e3b2c4b87cb76",
+                "reference": "44abcdad877d9a46685a3a4d221e3b2c4b87cb76",
                 "shasum": ""
             },
             "require": {
@@ -6503,17 +6503,15 @@
                 "rhumsaa/uuid": "self.version"
             },
             "require-dev": {
-                "apigen/apigen": "^4.1",
                 "codeception/aspect-mock": "^1.0 | ~2.0.0",
                 "doctrine/annotations": "~1.2.0",
                 "goaop/framework": "1.0.0-alpha.2 | ^1.0 | ^2.1",
                 "ircmaxell/random-lib": "^1.1",
                 "jakub-onderka/php-parallel-lint": "^0.9.0",
-                "mockery/mockery": "^0.9.4",
+                "mockery/mockery": "^0.9.9",
                 "moontoast/math": "^1.1",
                 "php-mock/php-mock-phpunit": "^0.3|^1.1",
                 "phpunit/phpunit": "^4.7|^5.0",
-                "satooshi/php-coveralls": "^0.6.1",
                 "squizlabs/php_codesniffer": "^2.3"
             },
             "suggest": {
@@ -6561,7 +6559,7 @@
                 "identifier",
                 "uuid"
             ],
-            "time": "2018-01-13T22:22:03+00:00"
+            "time": "2018-01-20T00:28:24+00:00"
         },
         {
             "name": "ramsey/uuid-doctrine",
@@ -6625,12 +6623,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "402a514551804df5b4b2150f217e23a15408795a"
+                "reference": "eca509e364dcea7b7f41f9452d575684cc8e3fb4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/402a514551804df5b4b2150f217e23a15408795a",
-                "reference": "402a514551804df5b4b2150f217e23a15408795a",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/eca509e364dcea7b7f41f9452d575684cc8e3fb4",
+                "reference": "eca509e364dcea7b7f41f9452d575684cc8e3fb4",
                 "shasum": ""
             },
             "conflict": {
@@ -6685,7 +6683,7 @@
                 "phpxmlrpc/extras": "<0.6.1",
                 "pusher/pusher-php-server": "<2.2.1",
                 "sabre/dav": ">=1.6,<1.6.99|>=1.7,<1.7.11|>=1.8,<1.8.9",
-                "shopware/shopware": "<5.2.25",
+                "shopware/shopware": "<5.3.7",
                 "silverstripe/cms": ">=3,<=3.0.11|>=3.1,<3.1.11",
                 "silverstripe/forum": "<=0.6.1|>=0.7,<=0.7.3",
                 "silverstripe/framework": ">=3,<3.3",
@@ -6714,7 +6712,7 @@
                 "symfony/web-profiler-bundle": ">=2,<2.3.19|>=2.4,<2.4.9|>=2.5,<2.5.4",
                 "symfony/yaml": ">=2,<2.0.22|>=2.1,<2.1.7",
                 "thelia/backoffice-default-template": ">=2.1,<2.1.2",
-                "thelia/thelia": ">=2.1,<2.1.2|>=2.1.0-beta1,<2.1.3",
+                "thelia/thelia": ">=2.1.0-beta1,<2.1.3|>=2.1,<2.1.2",
                 "twig/twig": "<1.20",
                 "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.22|>=8,<8.7.5",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
@@ -6763,7 +6761,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-01-18T10:00:53+00:00"
+            "time": "2018-01-22T14:51:56+00:00"
         },
         {
             "name": "sensio/distribution-bundle",

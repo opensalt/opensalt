@@ -61,7 +61,6 @@ services:
             - '%firebase_client_id%'
             - '%firebase_client_email%'
             - '%firebase_private_key%'
-            - '%firebase_api_key%'
             - '%firebase_db_url%'
 
     session.handler.pdo:

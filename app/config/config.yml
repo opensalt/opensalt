@@ -94,6 +94,7 @@ twig:
       firebase_api_key: "%firebase_api_key%"
       firebase_auth_domain: "%firebase_auth_domain%"
       firebase_db_url: "%firebase_db_url%"
+      firebase_project_id: "%firebase_project_id%"
       firebase_prefix: "%firebase_prefix%"
 
 # Assetic Configuration
