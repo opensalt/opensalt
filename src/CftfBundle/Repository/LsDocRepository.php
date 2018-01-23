@@ -317,7 +317,7 @@ xENDx;
     public function makeDerivative(LsDoc $oldLsDoc, $newLsDoc = null): LsDoc
     {
         $em = $this->getEntityManager();
-        if( null === $newLsDoc) {
+        if(null === $newLsDoc) {
             $newLsDoc = new LsDoc();
             $newLsDoc->setTitle($oldLsDoc->getTitle().' - Derivated');
             $newLsDoc->setCreator($oldLsDoc->getCreator());
@@ -331,7 +331,7 @@ xENDx;
             $newLsDoc->setLicence($oldLsDoc->getLicence());
         }
 
-        echo(count($oldLsDoc->getAssociationGroupings()));
+        echo count($oldLsDoc->getAssociationGroupings());
         foreach($oldLsDoc->getAssociationGroupings() as $assocGroup) {
             $assocGroup->duplicateToLsDoc($newLsDoc);
         }

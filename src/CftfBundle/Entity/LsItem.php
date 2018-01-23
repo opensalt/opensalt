@@ -420,7 +420,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
         $newItem->setLsDoc($newLsDoc);
 
         // Add an "Exact" relationship to the original
-        if ( $exactMatchWithOriginal ){
+        if ($exactMatchWithOriginal){
             $exactMatch = $newLsDoc->createAssociation();
             $exactMatch->setOrigin($newItem);
             $exactMatch->setType(LsAssociation::EXACT_MATCH_OF);

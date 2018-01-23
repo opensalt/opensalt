@@ -26,7 +26,7 @@ class CopyFrameworkCommand extends BaseCommand
      */
     private $copyType;
 
-    public function __construct(LsDoc $fromDoc, LsDoc $toDoc, string $copyType = "copy")
+    public function __construct(LsDoc $fromDoc, LsDoc $toDoc, string $copyType = 'copy')
     {
         $this->fromDoc = $fromDoc;
         $this->toDoc = $toDoc;
