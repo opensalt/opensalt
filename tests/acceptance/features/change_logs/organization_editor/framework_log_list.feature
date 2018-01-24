@@ -16,6 +16,6 @@ Feature: Change Log Interaction
     And I select Log View
 
     Then I should see the add of "First Item 1" in the log
-    And I should see the update of "First Item 1" in the log
+    And I should see the update of "1st Item" in the log
 #    And I should see the move of "Second Item" in the log
     And I delete the framework

@@ -107,7 +107,7 @@ class FrameworkLogs implements Context
     public function iShouldSeeRowsInTheDataTable($count)
     {
         $rows = $this->I->grabMultiple("//*[@id='logTable']/tbody/tr");
-        $this->I->assertCount($count, $rows);
+        $this->I->assertEquals((int)$count, count($rows));
     }
 
     /**
