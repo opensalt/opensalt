@@ -28,6 +28,10 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         'ROLE_SUPER_USER',
     ];
 
+    private const ACTIVE = 0;
+    private const SUSPENDED = 1;
+    private const PENDING = 2;
+
     /**
      * @var int
      *
@@ -81,9 +85,9 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     /**
      * @var bool
      *
-     * @ORM\Column(name="locked", type="boolean", nullable=false, options={"default": 0})
+     * @ORM\Column(name="status", type="integer", nullable=false, options={"default": 2})
      */
-    protected $locked = false;
+    protected $status = self::PENDING;
 
     /**
      * @ORM\Column(name="github_token", type="string", length=40, nullable=true)
@@ -366,12 +370,12 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     }
 
     /**
-     * Checks whether the user is locked.
+     * Checks whether the user is suspended.
      *
      * Internally, if this method returns false, the authentication system
      * will throw a LockedException and prevent login.
      *
-     * @return bool true if the user is not locked, false otherwise
+     * @return bool true if the user is not suspended, false otherwise
      *
      * @see LockedException
      */
@@ -412,7 +416,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @return bool true if the user is suspended
      */
     public function isSuspended() {
-        if (true === $this->locked) {
+        if (static::SUSPENDED === $this->status) {
             return true;
         }
 
@@ -425,7 +429,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @return $this
      */
     public function suspendUser() {
-        $this->locked = true;
+        $this->status = static::SUSPENDED;
 
         return $this;
     }
@@ -435,9 +439,17 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return $this
      */
-    public function unsuspendUser() {
-        $this->locked = false;
+    public function activateUser() {
+        $this->status = static::ACTIVE;
 
         return $this;
+    }
+
+    public function isPending() {
+        if (static::PENDING === $this->status) {
+            return true;
+        }
+
+        return false;
     }
 }
