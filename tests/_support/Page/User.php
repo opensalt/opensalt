@@ -2,7 +2,6 @@
 
 namespace Page;
 
-
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use PhpSpec\Exception\Example\PendingException;
@@ -198,6 +197,23 @@ class User implements Context {
     $I->amOnPage('/admin/user/');
     $I->click("//td[text()='{$username}']/..//a[text()='show']");
 
+  }
+
+   /**
+   * @Then /^I search organization and role type$/
+   */
+  public function iSearchOrgAndRole(TableNode $table) {
+    $I = $this->I;
+
+    $I->amOnPage('/admin/user/');
+    $I->see('Organization');
+    $I->see('User role');
+    $rows = $table->getRows();
+    foreach ($rows as $row) {
+      $I->fillField('#search_form_organization', $row[0]);
+    }
+    $I->selectOption('#search_form_user_role', array('value' => '["ROLE_SUPER_USER"]'));
+    $I->click("/html/body/div[1]/main/form/div[3]/input");
   }
 
 }
