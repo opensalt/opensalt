@@ -77,7 +77,7 @@ class DocRevisionController extends AbstractController
         $response->setCallback(function () use ($doc) {
             $fd = fopen('php://output', 'wb+');
 
-            fputcsv($fd, ['Date', 'Description', 'Username']);
+            fputcsv($fd, ['Date/Time (UTC timezone)', 'Description', 'Username']);
 
             $history = $this->entryRepository->getChangeEntriesForDoc($doc, 0, 0);
             foreach ($history as $line) {

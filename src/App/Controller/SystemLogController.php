@@ -31,7 +31,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/systemLogs", name="system_logs_show")
+     * @Route("/system_log", name="system_logs_show")
      * @Method({"GET"})
      * @Security("is_granted('ROLE_SUPER_USER')")
      *
@@ -39,11 +39,11 @@ class SystemLogController extends AbstractController
      */
     public function showSystemLogs(): Response
     {
-        return $this->render('system_logs/show.html.twig');
+        return $this->render('system_log/show.html.twig');
     }
 
     /**
-     * @Route("/systemLogs/revisions/{offset}/{limit}", requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="system_logs_json")
+     * @Route("/system_log/revisions/{offset}/{limit}", requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="system_logs_json")
      * @Method({"GET"})
      * @Security("is_granted('ROLE_SUPER_USER')")
      */
@@ -76,7 +76,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/systemLogs/revisions/count", name="system_logs_count")
+     * @Route("/system_log/revisions/count", name="system_logs_count")
      * @Method({"GET"})
      * @Security("is_granted('ROLE_SUPER_USER')")
      */
@@ -88,7 +88,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/systemLogs/export", name="system_logs_csv")
+     * @Route("/system_log/export", name="system_logs_csv")
      * @Method({"GET"})
      * @Security("is_granted('ROLE_SUPER_USER')")
      *
@@ -103,7 +103,7 @@ class SystemLogController extends AbstractController
         $response->setCallback(function () {
             $fd = fopen('php://output', 'wb+');
 
-            fputcsv($fd, ['Date', 'Description', 'Username']);
+            fputcsv($fd, ['Date/Time (UTC timezone)', 'Description', 'Username']);
 
             $history = $this->entryRepository->getChangeEntriesForSystem(0, 0);
             foreach ($history as $line) {

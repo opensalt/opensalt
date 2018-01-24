@@ -599,7 +599,7 @@
                 apx.startTime = {{ "now"|date("Uv") }};
                 apx.startTimeBrowser = (new Date()).getTime();
                 apx.timeDiff = apx.startTimeBrowser - apx.startTime;
-                {%- if firebase_api_key is not empty -%}
+                {%- if firebase_api_key is not empty %}
                     apx.locks = {{ locks |json_encode |raw }};
                     apx.firebasePrefix = {{ firebase_prefix |json_encode |raw }};
                 {%- endif -%}
