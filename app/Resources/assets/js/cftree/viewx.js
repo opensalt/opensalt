@@ -810,6 +810,10 @@ $.extend(apx.notifications, {
             }
         }
 
+        if (msg.url) {
+            msg.msg += '<span class="notification-url-indicator">Show</span>';
+        }
+
         return $.notify({
             message: msg.msg,
             url: msg.url ? msg.url : null,
@@ -936,6 +940,7 @@ $.extend(apx.notifyCheck, {
         let display = false;
         $.each(msg.changes['item-l'], function(id, identifier) {
             if ("number" !== typeof apx.locks['items'][id] && false !== apx.locks['items'][id]) {
+                msg.url = apx.path.lsItem.replace('ID', id);
                 display = true;
             }
         });
@@ -948,6 +953,7 @@ $.extend(apx.notifyCheck, {
         let display = false;
         $.each(msg.changes['item-ul'], function(id, identifier) {
             if ("number" === typeof apx.locks['items'][id]) {
+                msg.url = apx.path.lsItem.replace('ID', id);
                 display = true;
             }
         });
