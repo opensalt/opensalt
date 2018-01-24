@@ -55,7 +55,6 @@ class UserController extends Controller
                 foreach ($org as $orgId) {
                     $org_id[] = $orgId['id'];
                 }
-                $orgs=$em->getRepository(Organization::class)->findOneBy(['name' => $organization]);
                 $search_parameters=['org' => isset($org_id) ? $org_id : '', 'roles' => isset($User_role) ? [$User_role] : ''];
                 if($organization !== null && empty($org)){
                     $users=[];
