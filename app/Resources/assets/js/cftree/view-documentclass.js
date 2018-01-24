@@ -1266,7 +1266,7 @@ function ApxDocument(initializer) {
         // get all selected items
         let items = [];
         self["ft" + side].fancytree("getTree").visit(function(node) {
-            if (node.selected === true && node.unselectable != true) {
+            if (node.selected === true && node.unselectable !== true) {
                 items.push(node.data.ref);
             }
         });
@@ -1381,7 +1381,9 @@ function ApxDocument(initializer) {
                     } else if (key === 'subjects') {
                         val = "";
                         for (let subject in val) {
-                            if (val !== "") val += ", ";
+                            if (val !== "") {
+                                val += ", ";
+                            }
                             val += render.escaped(subject.title);
                         }
                     } else if (key === 'officialSourceURL') {
@@ -1534,13 +1536,13 @@ function ApxDocument(initializer) {
             if (assocs.length > 0) {
                 // first sort the assocs by type; put isChildOf at the end
                 assocs.sort(function (a, b) {
-                    if (a.type === b.type && a.inverse == b.inverse) return 0;
-                    if (a.type === "isChildOf") return 1;
-                    if (b.type === "isChildOf") return -1
-                    if (a.inverse === true && b.inverse !== true) return 1;
-                    if (b.inverse === true && a.inverse !== true) return -1;
-                    if (a.type < b.type) return -1;
-                    if (a.type > b.type) return 1;
+                    if (a.type === b.type && a.inverse == b.inverse) { return 0; }
+                    if (a.type === "isChildOf") { return 1; }
+                    if (b.type === "isChildOf") { return -1; }
+                    if (a.inverse === true && b.inverse !== true) { return 1; }
+                    if (b.inverse === true && a.inverse !== true) { return -1; }
+                    if (a.type < b.type) { return -1; }
+                    if (a.type > b.type) { return 1; }
                     return 0;   // shouldn't get to here
                 });
 
