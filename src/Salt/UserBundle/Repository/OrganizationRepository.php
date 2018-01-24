@@ -37,9 +37,9 @@ class OrganizationRepository extends EntityRepository
      */
     public function findOrg($search): array
     {
-        $qb = $this->createQueryBuilder('org');
-        $qb->select('org.id')
-            ->where('org.name LIKE :search')
+        $qb = $this->createQueryBuilder('orgs');
+        $qb->select('orgs.id')
+            ->where('orgs.name LIKE :search')
             ->setParameter('search', '%'.$search.'%');
         return $qb->getQuery()->getResult();
     }
