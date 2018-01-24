@@ -5,8 +5,6 @@ namespace Salt\UserBundle\Repository;
 use Doctrine\ORM\EntityRepository;
 use Salt\UserBundle\Entity\Organization;
 
-use Symfony\Component\Ldap\Adapter\ExtLdap\Query;
-
 /**
  * OrganizationRepository
  *
@@ -29,14 +27,13 @@ class OrganizationRepository extends EntityRepository
 
         return $org;
     }
-    
-        
+
     /**
      * Search all organizations which contains passed string.
-     * 
+     *
      * string|null $search
      * @return array
-     * 
+     *
      */
     public function findOrg($search): array
     {

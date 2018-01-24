@@ -12,7 +12,6 @@ use Symfony\Component\Form\FormBuilderInterface;
  */
 class SearchForm extends AbstractType
 {
-
     /**
      * {@inheritdoc}
      */

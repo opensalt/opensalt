@@ -35,7 +35,7 @@ class UserController extends Controller
      * Lists all user entities.
      *
      * @Route("/", name="admin_user_index")
-     * 
+     *
      * @Template()
      *
      * @return array
@@ -48,8 +48,8 @@ class UserController extends Controller
             $form = $this->createForm(SearchForm::class);
             $form->handleRequest($request);
             if ($request->getMethod() === 'POST') {
-                $organization = $form["organization"]->getData();
-                $User_role = $form["user_role"]->getData();
+                $organization = $form['organization']->getData();
+                $User_role = $form['user_role']->getData();
                 $repo = $this->getDoctrine()->getRepository(Organization::class);
                 $org = $repo->findOrg($organization);
                 foreach ($org as $orgId) {
@@ -65,7 +65,7 @@ class UserController extends Controller
                 }
             }
             $formView = $form->createView();
-            
+
         } else {
             $users = $em->getRepository(User::class)
                         ->findByOrg($this->getUser()->getOrg());

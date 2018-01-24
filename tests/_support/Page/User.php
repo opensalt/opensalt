@@ -96,7 +96,6 @@ class User implements Context {
       $I->see($row[0]);
       $this->userName = $row[0];
     }
-
   }
 
   /**
@@ -173,7 +172,6 @@ class User implements Context {
     $I->click('/html/body/div[1]/main/div[2]/div/div[2]/form/ul/li[1]/input');
     $I->see('Your password has been changed.');
   }
-
 
   /**
    * @Then /^I edit the new user$/
