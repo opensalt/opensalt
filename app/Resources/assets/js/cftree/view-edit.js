@@ -99,7 +99,7 @@ apx.edit.prepareItemEditModal = function() {
             });
 
             let id = apx.mainDoc.currentItem.id;
-            if ("undefined" !== typeof apx.locks && "undefined" !== typeof app.locks.mine && "undefined" !== typeof apx.locks.mine.items[id] && "number" === typeof apx.locks.mine.items[id].warning) {
+            if ("undefined" !== typeof apx.locks && "undefined" !== typeof apx.locks.mine && "undefined" !== typeof apx.locks.mine.items[id] && "number" === typeof apx.locks.mine.items[id].warning) {
                 clearTimeout(apx.locks.mine.items[id].warning);
                 apx.locks.mine.items[id].timeout = 0;
                 if ("undefined" !== typeof apx.locks.mine.warnings[id] && $.isFunction(apx.locks.mine.warnings[id].close)) {
@@ -130,7 +130,7 @@ apx.edit.prepareItemEditModal = function() {
             data: $modal.find('form[name=ls_item]').serialize()
         }).done(function(data, textStatus, jqXHR){
             let id = apx.mainDoc.currentItem.id;
-            if ("undefined" !== typeof apx.locks && "undefined" !== typeof app.locks.mine && "undefined" !== typeof apx.locks.mine.items[id] && "number" === typeof apx.locks.mine.items[id].warning) {
+            if ("undefined" !== typeof apx.locks && "undefined" !== typeof apx.locks.mine && "undefined" !== typeof apx.locks.mine.items[id] && "number" === typeof apx.locks.mine.items[id].warning) {
                 clearTimeout(apx.locks.mine.items[id].warning);
                 apx.locks.mine.items[id].timeout = 0;
                 if ("undefined" !== typeof apx.locks.mine.warnings[id] && $.isFunction(apx.locks.mine.warnings[id].close)) {

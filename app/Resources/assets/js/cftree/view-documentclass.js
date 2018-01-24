@@ -1300,11 +1300,11 @@ function ApxDocument(initializer) {
             };
         })();
 
-        $treeside = self["ft" + side].closest(".treeSide");
+        let $treeside = self["ft" + side].closest(".treeSide");
 
         $treeside.find(".treeFilter").off().on('keyup', function() {
             let $that = $(this);
-            $tree = self.getFt(side);
+            let $tree = self.getFt(side);
             debounce(function(){
                 if ($that.val().trim().length > 0) {
                     $tree.filterNodes($that.val(), {
@@ -1312,12 +1312,10 @@ function ApxDocument(initializer) {
                         leavesOnly: false,
                         highlight: false
                     });
-                    console.log("Show filterClear");
                     $that.parent().find(".filterClear").show();
 
                 } else {
                     $tree.clearFilter();
-                    console.log("Hide filterClear");
                     $that.parent().find(".filterClear").hide();
                 }
             }, 500);

@@ -158,7 +158,7 @@ apx.viewMode.showAssocView = function(context) {
             }
 
             // if item comes from another doc, note that
-            if (!empty(doc) && typeof(doc) === "object" && doc != apx.mainDoc) {
+            if (!empty(doc) && typeof(doc) === "object" && doc !== apx.mainDoc) {
                 let docTitle = doc.doc.title;
                 if (docTitle.length > 30) {
                     docTitle = docTitle.substr(0, 35);
@@ -309,7 +309,7 @@ apx.viewMode.showAssocView = function(context) {
 
         // enable group filters if we have any groups
         if (apx.mainDoc.assocGroups.length > 0) {
-            $gf = $("#assocViewTable_wrapper").find(".assocViewTableGroupFilters");
+            let $gf = $("#assocViewTable_wrapper").find(".assocViewTableGroupFilters");
             for (let groupId in apx.viewMode.avFilters.groups) {
                 if (groupId != 0) {
                     $gf.append('<label class="avGroupFilter"><input type="checkbox" data-group-id="' + groupId + '"> ' + apx.mainDoc.assocGroupIdHash[groupId].title + '</label><br>');

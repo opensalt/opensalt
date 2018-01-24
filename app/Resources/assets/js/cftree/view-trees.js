@@ -2,14 +2,15 @@
 window.apx = window.apx||{};
 
 /* global empty */
+/* global ApxDocument */
 
 /** Prepare menus for selecting documents for the left- and right-side trees */
 apx.prepareDocumentMenus = function() {
     // The original menu will be rendered into div #ls_doc_list and select #ls_doc_list_lsDoc, on the right side
 
     // Mark this document in the menu
-    var docList = $("#ls_doc_list_lsDoc");
-    var $opt = docList.find("[value=" + apx.mainDoc.doc.id + "]");
+    let docList = $("#ls_doc_list_lsDoc");
+    let $opt = docList.find("[value=" + apx.mainDoc.doc.id + "]");
     $opt.html($opt.html() + " (• DOCUMENT BEING EDITED •)");
 
     // add item to menu for loading from another server
@@ -17,8 +18,8 @@ apx.prepareDocumentMenus = function() {
 
     // go through each provided "associatedDoc" and add it to the "externalDocsOptGroup" option group if it's an external doc
     if (!empty(apx.mainDoc.associatedDocs)) {
-        for (var identifier in apx.mainDoc.associatedDocs) {
-            var ad = apx.mainDoc.associatedDocs[identifier];
+        for (let identifier in apx.mainDoc.associatedDocs) {
+            let ad = apx.mainDoc.associatedDocs[identifier];
             // non-external docs have urls that start with "local"
             if (ad.url.search(/local/) !== 0) {
                 apx.addDocToMenus(identifier, ad.url, ad.title);
@@ -27,14 +28,14 @@ apx.prepareDocumentMenus = function() {
     }
 
     // now get the div and update the id's
-    var $rightDiv = $("#ls_doc_list");
+    let $rightDiv = $("#ls_doc_list");
     $rightDiv.addClass("ls_doc_list");
     $rightDiv.find("[type=hidden]").remove();
     $rightDiv.attr("id", "ls_doc_list_right");
     $rightDiv.find("select").attr("id", "ls_doc_list_lsDoc_right");
 
     // clone the div for the left side, update the id's there, and insert it in place
-    var $leftDiv = $rightDiv.clone();
+    let $leftDiv = $rightDiv.clone();
     $leftDiv.attr("id", "ls_doc_list_left");
     $leftDiv.find("select").attr("id", "ls_doc_list_lsDoc_left");
     $("#tree1SelectorDiv").find(".row").append($leftDiv);
@@ -48,11 +49,11 @@ apx.prepareDocumentMenus = function() {
     $(".changeTree2DocumentBtn").on('click', function() { apx.tree2ChangeButtonClicked(); });
 
     // prepare the modal for loading an external document
-    var $modal = $('#loadExternalDocumentModal');
+    let $modal = $('#loadExternalDocumentModal');
     $modal.find('.btn-save').on('shown.bs.modal', function(e){
         $("#loadExternalDocumentUrlInput").focus().select();
     }).on('click', function(e) {
-        var url = $("#loadExternalDocumentUrlInput").val();
+        let url = $("#loadExternalDocumentUrlInput").val();
         $modal.modal('hide');
         if (!empty(url)) {
             apx.docSelectedForTree(url);
@@ -74,7 +75,7 @@ apx.addDocToMenus = function(identifier, url, title) {
 };
 
 apx.docSelectedForTree = function(menuOrUrl, side) {
-    var lsDocId, initializationKey;
+    let lsDocId, initializationKey;
 
     // if menuOrUrl is a string, its a URL that the user entered
     if (typeof(menuOrUrl) === "string") {
@@ -120,8 +121,8 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
     $('#viewmode_tree' + side).html("");
 
     // check to see if we already have the document info; if so we don't need to reload
-    for (var identifier in apx.allDocs) {
-        var d = apx.allDocs[identifier];
+    for (let identifier in apx.allDocs) {
+        let d = apx.allDocs[identifier];
 
         // if this document errored when loading, continue through the loop; if this is what the user is trying to load now, let them retry
         if (d === "loaderror") {
@@ -138,8 +139,8 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
         apx.spinner.hideModal();
 
         // if we found the document that was requested here...
-        if ((initializationKey === "identifier" && identifier == lsDocId)
-            || (initializationKey === "id" && !d.isExternalDoc() && d.doc.id == lsDocId)) {
+        if ((initializationKey === "identifier" && identifier === lsDocId)
+            || (initializationKey === "id" && !d.isExternalDoc() && d.doc.id === lsDocId)) {
             // set treeDoc1 or treeDoc2
             apx["treeDoc" + side] = d;
             // and call the side's treeDocLoadCallback function
@@ -149,7 +150,7 @@ apx.docSelectedForTree = function(menuOrUrl, side) {
     }
 
     // if we get to here, initialize and load the document
-    var o = {};
+    let o = {};
     o[initializationKey] = lsDocId;
     apx["treeDoc" + side] = new ApxDocument(o);
 
@@ -485,7 +486,7 @@ apx.treeDocLoadCallback1 = function() {
     $("#tree1InitialInstructions").hide();
 
     // if we're showing the mainDoc...
-    if (apx.treeDoc1 == apx.mainDoc) {
+    if (apx.treeDoc1 === apx.mainDoc) {
         $("#tree1SectionThisDocInstructions").show();
         $("#tree1SectionOtherDocInstructions").hide();
 

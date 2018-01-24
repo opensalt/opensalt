@@ -2,6 +2,7 @@
 window.apx = window.apx||{};
 
 /* global ApxDocument */
+/* global render */
 
 ///////////////////////////////////////////////////////////////////////////////
 // UTILITY FUNCTIONS
@@ -390,8 +391,8 @@ $.extend(apx.notifications, {
         };
 
         $.each(list, function(id, identifier) {
-            if ("undefined" !== apx.notifications.updates['assocs'][assocId]) {
-                load(apx.notifications.updates['assocs'][assocId]);
+            if ("undefined" !== apx.notifications.updates['assocs'][id]) {
+                load(apx.notifications.updates['assocs'][id]);
             } else {
                 $.ajax({
                     url: apx.path.doc_tree_association_json.replace('ID', id),

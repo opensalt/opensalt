@@ -47,7 +47,7 @@ class LockDocumentHandler extends BaseFrameworkHandler
         $doc = $command->getDoc();
         $user = $command->getUser();
 
-        $lock = $this->framework->lockObject($doc, $user);
+        $this->framework->lockObject($doc, $user);
 
         $notification = new NotificationEvent(
             'D04',
