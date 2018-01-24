@@ -201,7 +201,7 @@
                                             {% endif %}
                                             {% endif %}
                                             {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %}
-                                                <a href="#" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
+                                                <a href="#" id="item_export_comment" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
                                             {% endif %}
                                         </div>
 
@@ -253,7 +253,7 @@
                                             {% endif %}
                                         {% endif %}
                                         {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %}
-                                                <a href="#" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
+                                                <a href="#" id="doc_export_comment" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
                                         {% endif %}
                                     </div>
                                 </div>
