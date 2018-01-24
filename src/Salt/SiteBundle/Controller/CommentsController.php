@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Salt\SiteBundle\Entity\Comment;
@@ -151,30 +152,32 @@ class CommentsController extends Controller
     }
 
     /**
-     * @Route("/salt/case/export_comment/{itemType}/{id}/comment.csv", name="export_comment_file")
+     * @Route("/salt/case/export_comment/{itemType}/{itemId}/comment.csv", name="export_comment_file")
      *
-     * @param int $id
+     * @param int $itemId
      * @param string $itemType
      * @param Request $request
      *
      * @return Response
      */
-    public function exportCommentAction(string $itemType, int $id, Request $request)
+    public function exportCommentAction(string $itemType, int $itemId)
     {
-        $url = ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $id]) : $this->generateUrl('doc_tree_view', ['slug' => $id]);
+        $url = ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $itemId], UrlGeneratorInterface::ABSOLUTE_URL) : $this->generateUrl('doc_tree_view', ['slug' => $itemId], UrlGeneratorInterface::ABSOLUTE_URL);
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
-        $headers = ['Framework Name', 'Node Address', ($itemType === 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment'];
+        $headers = ['Framework Name', 'Node Address', ($itemType === 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
         $rows[] = implode(',', array_filter($headers));
-        $comment_data = $repo->findBy([$itemType => $id]);
+        $comment_data = $repo->findBy([$itemType => $itemId]);
 
         foreach ($comment_data as $comment) {
             $comments=[
-                ($itemType === 'item') ? $comment->getItem()->getFullStatement() : $comment->getDocument()->getTitle(),
+                ($itemType === 'item') ? '"'.$comment->getItem()->getLsDoc()->getTitle().'"' : '"'.$comment->getDocument()->getTitle().'"',
                 $url,
-                ($itemType === 'item') ? $comment->getItem()->getHumanCodingScheme() : null,
-                $comment->getUser()->getUsername(),
-                $comment->getUser()->getOrg()->getName(),
-                $comment->getContent()
+                ($itemType === 'item') ? '"'.$comment->getItem()->getHumanCodingScheme().'"' : null,
+                '"'.$comment->getUser()->getUsername().'"',
+                '"'.$comment->getUser()->getOrg()->getName().'"',
+                '"'.$comment->getContent().'"',
+                $comment->getCreatedAt()->format('Y-m-d H:i:s'),
+                $comment->getUpdatedAt()->format('Y-m-d H:i:s')
             ];
             $rows[] = implode(',', array_filter($comments));
         }
