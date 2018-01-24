@@ -34,7 +34,6 @@ class OrganizationRepository extends EntityRepository
      * string|null $search
      *
      * @return array
-     *
      */
     public function findOrg($search): array
     {
