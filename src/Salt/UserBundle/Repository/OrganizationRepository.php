@@ -32,6 +32,7 @@ class OrganizationRepository extends EntityRepository
      * Search all organizations which contains passed string.
      *
      * string|null $search
+     *
      * @return array
      *
      */
