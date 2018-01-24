@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5216dd8757bc6369cc20972aad8f0e9d",
+    "content-hash": "5275074094a72f4e1289c17493cd4b85",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -4553,6 +4553,44 @@
                 "serializer"
             ],
             "time": "2017-02-10T19:39:47+00:00"
+        },
+        {
+            "name": "npm-asset/ajaxq",
+            "version": "0.0.7",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/ajaxq/-/ajaxq-0.0.7.tgz",
+                "reference": null,
+                "shasum": "94444e5c3cef63836f80fd693da8d371aa954daa"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/Foliotek/AjaxQ/issues"
+                },
+                "npm-asset-files": [
+                    "ajaxq.js"
+                ],
+                "npm-asset-main": "ajaxq.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/Foliotek/AjaxQ.git"
+                },
+                "npm-asset-scripts": []
+            },
+            "license": [
+                "ISC"
+            ],
+            "description": "A jQuery plugin to perform sequential ajax requests.",
+            "homepage": "https://github.com/Foliotek/AjaxQ#readme",
+            "keywords": [
+                "ajax",
+                "ajaxq",
+                "jquery",
+                "queue"
+            ],
+            "time": "2015-11-10T17:26:11+00:00"
         },
         {
             "name": "npm-asset/argparse",

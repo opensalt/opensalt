@@ -18,7 +18,8 @@ apx.edit.prepareDocEditModal = function() {
             apx.path.lsdoc_edit.replace('ID', apx.lsDocId),
             null,
             function(responseText, textStatus, jqXHR){
-                $('#ls_doc_subjects').select2entity({dropdownParent: $('#ls_doc_subjects').closest('div')});
+                let $docSubjects = $('#ls_doc_subjects');
+                $docSubjects.select2entity({dropdownParent: $docSubjects.closest('div')});
                 if ($modal.find('form[name="ls_doc"]').length) {
                     $modal.find('.modal-footer .btn-save').show();
                 }
@@ -398,18 +399,18 @@ apx.edit.deleteItems = function(items) {
 
 /** Add an examplar for an item */
 apx.edit.prepareExemplarModal = function() {
-    var $exemplarModal = $('#addExemplarModal');
+    let $exemplarModal = $('#addExemplarModal');
     $exemplarModal.on('shown.bs.modal', function(e){
-        var title = apx.mainDoc.getItemTitle(apx.mainDoc.currentItem);
+        let title = apx.mainDoc.getItemTitle(apx.mainDoc.currentItem);
         $("#addExemplarOriginTitle").html(title);
     });
     $exemplarModal.find('.btn-save').on('click', function(e){ 
-        var ajaxData = {
+        let ajaxData = {
             exemplarUrl: $("#addExemplarFormUrl").val(),
             exemplarDescription: $("#addExemplarFormDescription").val(),
             associationType: "Exemplar"
         };
-        if (ajaxData.exemplarUrl == "") {
+        if (ajaxData.exemplarUrl === "") {
             alert("You must enter a URL to create an exemplar.");
             return;
         }
@@ -417,7 +418,7 @@ apx.edit.prepareExemplarModal = function() {
         apx.spinner.showModal("Saving exemplar");
 
         // construct path for this association
-        var path = apx.path.lsassociation_tree_new_exemplar;
+        let path = apx.path.lsassociation_tree_new_exemplar;
         path = path.replace('ORIGIN_ID', apx.mainDoc.currentItem.id);
 
         $.ajax({
@@ -459,7 +460,7 @@ apx.edit.prepareExemplarModal = function() {
 /** Add an association */
 apx.edit.prepareAssociateModal = function() {
     // add an option for each association type to the associationFormType select
-    for (var i = 0; i < apx.assocTypes.length; ++i) {
+    for (let i = 0; i < apx.assocTypes.length; ++i) {
         if (apx.assocTypes[i] !== "Exemplar" && apx.assocTypes[i] !== "Is Child Of") {
             $("#associationFormType").append('<option value="' + apx.assocTypes[i] + '">' + apx.assocTypes[i] + '</option>');
         }
@@ -470,22 +471,22 @@ apx.edit.prepareAssociateModal = function() {
         $("#lsAssociationDirection").toggleClass("lsAssociationDirectionSwitched");
     });
         
-    var $associateModal = $('#associateModal');
+    let $associateModal = $('#associateModal');
     $associateModal.on('shown.bs.modal', function(e){
-        var originItem = apx.edit.createAssociationNodes.droppedNode.data.ref;
-        var destItem = apx.edit.createAssociationNodes.draggedNodes[0].data.ref;
+        let originItem = apx.edit.createAssociationNodes.droppedNode.data.ref;
+        let destItem = apx.edit.createAssociationNodes.draggedNodes[0].data.ref;
         
         // show the origin and destination statements
-        var destination = apx.mainDoc.getItemTitle(destItem);
+        let destination = apx.mainDoc.getItemTitle(destItem);
         if (apx.edit.createAssociationNodes.draggedNodes.length > 1) {
             destination += " <b>+" + (apx.edit.createAssociationNodes.draggedNodes.length-1) + " additional item(s)</b>";
         }
-        var origin = apx.mainDoc.getItemTitle(originItem);
+        let origin = apx.mainDoc.getItemTitle(originItem);
         $("#lsAssociationDestinationDisplay").html(destination);
         $("#lsAssociationOriginDisplay").html(origin);
 
         // add association group menu if we have one and there's more than one item (the first item is always "default") in the menu
-        var agMenu = $("#treeSideLeft").find(".assocGroupSelect");
+        let agMenu = $("#treeSideLeft").find(".assocGroupSelect");
         if (agMenu.find("option").length > 1) {
             agMenu = agMenu.clone();
             agMenu.attr("id", "associationFormGroup");
@@ -506,20 +507,20 @@ apx.edit.prepareAssociateModal = function() {
         apx.spinner.showModal("Saving association(s)");
 
         // go through all the draggedNodes
-        var completed = 0;
-        for (var i = 0; i < apx.edit.createAssociationNodes.draggedNodes.length; ++i) {
-            var ajaxData = {
+        let completed = 0;
+        for (let i = 0; i < apx.edit.createAssociationNodes.draggedNodes.length; ++i) {
+            let ajaxData = {
                 "type": $("#associationFormType").val()
             };
 
             // the "origin" refers to the node that's 'receiving' the association -- so this is the droppedNode
             // the "destination" refers to the node that's being associated with the origin node -- so this is the draggedNode
-            var originItem = apx.edit.createAssociationNodes.droppedNode.data.ref;
-            var destItem = apx.edit.createAssociationNodes.draggedNodes[i].data.ref;
+            let originItem = apx.edit.createAssociationNodes.droppedNode.data.ref;
+            let destItem = apx.edit.createAssociationNodes.draggedNodes[i].data.ref;
             
             // ... that is, unless the user has clicked to switch directions, in which case we switch the items
             if ($("#lsAssociationDirection").hasClass("lsAssociationDirectionSwitched")) {
-                var temp = originItem;
+                let temp = originItem;
                 originItem = destItem;
                 destItem = temp;
             }
@@ -547,8 +548,8 @@ apx.edit.prepareAssociateModal = function() {
             }
 
             // if an assocGroup is selected via associationFormGroup and isn't default, add it
-            var agMenu = $("#associationFormGroup");
-            if (agMenu.length > 0 && agMenu.val() != "default") {
+            let agMenu = $("#associationFormGroup");
+            if (agMenu.length > 0 && agMenu.val() !== "default") {
                 ajaxData.assocGroup = agMenu.val();
             }
 
@@ -569,8 +570,8 @@ apx.edit.prepareAssociateModal = function() {
                 ++completed;
                 
                 // add new assoc object and its inverse
-                var type = apx.mainDoc.getAssociationTypeCondensed(this);
-                var atts = {
+                let type = apx.mainDoc.getAssociationTypeCondensed(this);
+                let atts = {
                     "id": assocId,
                     "origin": {
                         "doc": this.origin.doc.doc.identifier,
@@ -585,12 +586,12 @@ apx.edit.prepareAssociateModal = function() {
                     },
                     "groupId": this.assocGroup
                 };
-                var a = apx.mainDoc.addAssociation(atts);
+                let a = apx.mainDoc.addAssociation(atts);
                 apx.mainDoc.addInverseAssociation(a);
                 
                 // if the origin item is currently showing in treeDoc1 and this wasn't a childOf assoc, show the association marker
                 if (type !== "isChildOf") {
-                    var oi = apx.treeDoc1.itemHash[this.origin.identifier];
+                    let oi = apx.treeDoc1.itemHash[this.origin.identifier];
                     if (!empty(oi) && !empty(oi.identifier)) {
                         $(apx.treeDoc1.getFtNode(oi, 1).li).find(".treeHasAssociation").show();
                     }
@@ -602,7 +603,7 @@ apx.edit.prepareAssociateModal = function() {
                 }
 
                 // if all are completed, finish up
-                if (completed == apx.edit.createAssociationNodes.draggedNodes.length) {
+                if (completed === apx.edit.createAssociationNodes.draggedNodes.length) {
                     apx.spinner.hideModal();
                     $associateModal.modal('hide');
 
@@ -696,7 +697,7 @@ apx.edit.performDeleteAssociation = function(assocId, callbackFn) {
 
 
 apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
-    for (var j = 0; j < draggedNodes.length; ++j) {
+    for (let j = 0; j < draggedNodes.length; ++j) {
         draggedNodes[j].copyTo(droppedNode, hitMode, function(n) {
             // temporarily add "copy" to the start of the key
             n.key = "copy-" + n.key;
@@ -706,26 +707,26 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
     // now, after a few milliseconds to let the copyTo(s) complete...
     setTimeout(function() {
         // make sure droppedNode is expanded if hitMode is "over"
-        if (hitMode == "over") {
+        if (hitMode === "over") {
             droppedNode.setExpanded(true);
             droppedNode.render();
         }
 
         // construct ajax call to insert the new item(s) and reorder their siblings
-        var lsItems = {};
+        let lsItems = {};
         // get siblings of the copy of the first dragged item (all the dragged items will be included in this siblings array)
-        var siblings = apx.mainDoc.getFt(1).getNodeByKey("copy-" + draggedNodes[0].key).parent.children;
-        for (var i = 0; i < siblings.length; ++i) {
+        let siblings = apx.mainDoc.getFt(1).getNodeByKey("copy-" + draggedNodes[0].key).parent.children;
+        for (let i = 0; i < siblings.length; ++i) {
             // get the key for this node
-            var key = siblings[i].key;
+            let key = siblings[i].key;
             
             // start creating the object for the lsItems hash
-            var o = {"originalKey": key};
+            let o = {"originalKey": key};
 
             // if this is a new node...
-            if (key.indexOf("copy-") == 0) {
+            if (key.indexOf("copy-") === 0) {
                 // get the copied item record
-                var copiedItem = siblings[i].data.ref;
+                let copiedItem = siblings[i].data.ref;
 
                 // if we have an assocGroup other than default selected, add that
                 if (apx.mainDoc.currentAssocGroup != null) {
@@ -743,7 +744,7 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
                     // else *different* assocGroups are chosen on both sides, so:
                     } else {
                         // If the item already has an isChildOf association for the left-side assocGroup, create a new instance of the item
-                        var assocs = apx.treeDoc2.getAssocsForItem(copiedItem, "isChildOf", apx.mainDoc.currentAssocGroup);
+                        let assocs = apx.treeDoc2.getAssocsForItem(copiedItem, "isChildOf", apx.mainDoc.currentAssocGroup);
                         if (assocs.length > 0) {
                             // set copyFromId flag so that updateItemAction will copy the item
                             o.copyFromId = copiedItem.id;
@@ -936,17 +937,17 @@ apx.edit.updateItemsAjaxDone = function(data) {
     // remove stray tooltips
     setTimeout(function() { $(".tooltip").remove(); }, 1000);
 
-    var copiedItem = false;
-    for (var i = 0; i < data.length; ++i) {
-        var o = data[i];
-        var n = apx.mainDoc.getFt(1).getNodeByKey(o.originalKey+'');
+    let copiedItem = false;
+    for (let i = 0; i < data.length; ++i) {
+        let o = data[i];
+        let n = apx.mainDoc.getFt(1).getNodeByKey(o.originalKey+'');
         if (n === null) {
             console.log("couldn't get node for " + o.originalKey);
         } else {
             var item;
 
             // if this is a copied item...
-            if (o.originalKey.indexOf("copy-") == 0) {
+            if (o.originalKey.indexOf("copy-") === 0) {
                 copiedItem = true;
                 
                 // then if the copied item had children -- which will have also been copied -- we need to refresh the mainDoc entirely,
@@ -989,9 +990,9 @@ apx.edit.updateItemsAjaxDone = function(data) {
             
             // if we got back sequenceNumber, we added or updated an isChildOf association; we should always get o.assocId as well
             if (!empty(o.sequenceNumber)) {
-                var existingAssoc = apx.mainDoc.assocIdHash[o.assocId];
+                let existingAssoc = apx.mainDoc.assocIdHash[o.assocId];
                 if (empty(existingAssoc)) {
-                    var atts = {
+                    let atts = {
                         "id": o.assocId,
                         "seq": o.sequenceNumber*1,
                         "originItem": item,
@@ -999,7 +1000,7 @@ apx.edit.updateItemsAjaxDone = function(data) {
                         "destItem": n.parent.data.ref,  // parent item is the node's parent's ref
                         "groupId": apx.mainDoc.currentAssocGroup
                     };
-                    var a = apx.mainDoc.addAssociation(atts);
+                    let a = apx.mainDoc.addAssociation(atts);
                     apx.mainDoc.addInverseAssociation(a);
                     
                 } else {
@@ -1015,7 +1016,7 @@ apx.edit.updateItemsAjaxDone = function(data) {
     if (!copiedItem) {
         apx.treeDoc1.activateCurrentItem();
     }
-}
+};
 
 
 /////////////////////////////////////////////////////
@@ -1027,10 +1028,11 @@ apx.edit.initializeManageAssocGroupButtons = function() {
 };
 
 apx.edit.prepareAddAssocGroupModal = function() {
-    var $addAssocGroupModal = $('#addAssocGroupModal');
+    let $addAssocGroupModal = $('#addAssocGroupModal');
+    let $manageAssocGroupsModal = $("#manageAssocGroupsModal");
     $addAssocGroupModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
     $addAssocGroupModal.on('show.bs.modal', function(e){
-        $("#manageAssocGroupsModal").modal('hide');
+        $manageAssocGroupsModal.modal('hide');
     }).on('shown.bs.modal', function(e){
         $('#addAssocGroupModal').find('.modal-body').load(
             apx.path.lsdef_association_grouping_new,
@@ -1056,8 +1058,8 @@ apx.edit.prepareAddAssocGroupModal = function() {
             apx.spinner.hideModal();
 
             // on successful add, add the item to the assocGroups list
-            var newAssocGroupId = data;
-            var ag = {
+            let newAssocGroupId = data;
+            let ag = {
                 "id": newAssocGroupId,
                 "title": $("#ls_def_association_grouping_title").val(),
                 "description": $("#ls_def_association_grouping_description").val(),
@@ -1067,7 +1069,7 @@ apx.edit.prepareAddAssocGroupModal = function() {
             apx.mainDoc.assocGroupIdHash[ag.id] = ag;
 
             // and add it to the manage groups modal
-            var html = '<tr data-assocgroupid="' + newAssocGroupId + '">';
+            let html = '<tr data-assocgroupid="' + newAssocGroupId + '">';
             html += '<td>' + ag.title + '</td>';
             html += '<td>';
             html += '<button class="assocgroup-edit-btn btn btn-default btn-xs pull-right">Edit</button>';
@@ -1075,7 +1077,7 @@ apx.edit.prepareAddAssocGroupModal = function() {
             html += '<span class="assocgroup-description">' + ag.description + '</span>';
             html += '</td>';
             html += '</tr>';
-            $("#manageAssocGroupsModal").find("tbody").append(html);
+            $manageAssocGroupsModal.find("tbody").append(html);
             apx.edit.initializeManageAssocGroupButtons();
 
             // re-render the select menu(s)
@@ -1086,7 +1088,7 @@ apx.edit.prepareAddAssocGroupModal = function() {
 
             // hide the add modal and show the manage modal
             $addAssocGroupModal.modal('hide');
-            $("#manageAssocGroupsModal").modal('show');
+            $manageAssocGroupsModal.modal('show');
 
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();

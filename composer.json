@@ -115,6 +115,7 @@
         "npm-asset/markdown-it-underline": "~1.0",
         "npm-asset/github-markdown-css": "~2.8",
         "npm-asset/simplemde": "~1.11",
+        "npm-asset/ajaxq": "~0.0.7",
 
         "npm-asset/iso639-js": "^1.1",
 

@@ -4,6 +4,7 @@ window.apx = window.apx||{};
 /* global empty */
 /* global op */
 
+/* global render */
 var render = require('render-md');
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,7 +83,7 @@ function ApxDocument(initializer) {
 
         console.log("loading document", self.initializer);
 
-        $.ajax({
+        $.ajaxq('docFetchQ', {
             url: path,
             method: 'GET',
             data: ajaxData
@@ -216,7 +217,7 @@ function ApxDocument(initializer) {
             }
 
             // if this isn't mainDoc,
-            if (self != apx.mainDoc) {
+            if (self !== apx.mainDoc) {
                 // check to see if this doc is a reference (origin or dest) for any of mainDoc's
                 self.updateMainDocAssocs();
             }
@@ -370,7 +371,7 @@ function ApxDocument(initializer) {
                 apx.allDocs[a.origin.doc] = "loading";
                 new ApxDocument({"identifier": a.origin.doc}).load();
             }
-            if (a.dest.doc != a.origin.doc && a.dest.doc !== "-" && a.dest.doc !== "?" && !(a.dest.doc in apx.allDocs)) {
+            if (a.dest.doc !== a.origin.doc && a.dest.doc !== "-" && a.dest.doc !== "?" && !(a.dest.doc in apx.allDocs)) {
                 apx.allDocs[a.dest.doc] = "loading";
                 new ApxDocument({"identifier": a.dest.doc}).load();
             }
