@@ -100,7 +100,7 @@ class DocTreeController extends Controller
             }
             $ret['lsDocs'] = $lsDocs;
 
-            $docLocks = ['docs' => [], 'items' => []];
+            $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
             if ($user instanceof User) {
                 $locks = $em->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
                 foreach ($locks as $lock) {

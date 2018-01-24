@@ -823,7 +823,7 @@ function ApxDocument(initializer) {
             $menu.append('<option value="default">– Default Group –</option>');
 
             // other groups
-            for (var i = 0; i < self.assocGroups.length; ++i) {
+            for (let i = 0; i < self.assocGroups.length; ++i) {
                 $menu.append('<option value="' + self.assocGroups[i].id + '">' + self.assocGroups[i].title + '</option>');
             }
 

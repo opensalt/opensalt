@@ -619,7 +619,7 @@ $.extend(apx.notifications, {
         let warningTime = 60000;
 
         $.each(list, function(id, identifier) {
-            if (apx.lsDocId.toString() === id.toString()) {
+            if (apx.lsDocId.toString() !== id.toString()) {
                 return;
             }
 
@@ -911,7 +911,7 @@ $.extend(apx.notifyCheck, {
         // document lock
         let display = false;
         $.each(msg.changes['doc-l'], function(id, identifier) {
-           if ("boolean" !== typeof apx.locks['docs'][id] || false === apx.locks['docs'][id]) {
+           if ("number" !== typeof apx.locks['docs'][id] && false !== apx.locks['docs'][id]) {
                display = true;
            }
         });
@@ -923,7 +923,7 @@ $.extend(apx.notifyCheck, {
         // document unlock
         let display = false;
         $.each(msg.changes['doc-ul'], function(id, identifier) {
-            if ("boolean" === typeof apx.locks['docs'][id] && true === apx.locks['docs'][id]) {
+            if ("number" === typeof apx.locks['docs'][id]) {
                 display = true;
             }
         });
@@ -935,7 +935,7 @@ $.extend(apx.notifyCheck, {
         // item lock
         let display = false;
         $.each(msg.changes['item-l'], function(id, identifier) {
-            if ("boolean" !== typeof apx.locks['items'][id] || false === apx.locks['items'][id]) {
+            if ("number" !== typeof apx.locks['items'][id] && false !== apx.locks['items'][id]) {
                 display = true;
             }
         });
@@ -947,7 +947,7 @@ $.extend(apx.notifyCheck, {
         // item unlock
         let display = false;
         $.each(msg.changes['item-ul'], function(id, identifier) {
-            if ("boolean" === typeof apx.locks['items'][id] && true === apx.locks['items'][id]) {
+            if ("number" === typeof apx.locks['items'][id]) {
                 display = true;
             }
         });
