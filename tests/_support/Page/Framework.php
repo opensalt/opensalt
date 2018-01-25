@@ -89,6 +89,7 @@ class Framework implements Context
         $I->waitForElementVisible('#exportModal a.btn-export-case');
         $url = $I->grabAttributeFrom('#exportModal a.btn-export-case', 'href');
 
+
         $this->filename = $I->download($url);
 
         return $this;
@@ -109,6 +110,54 @@ class Framework implements Context
         $I->assertArrayHasKey('CFItems', $parsedJson, 'CASE file does not have a CFItems part');
         $I->assertArrayHasKey('CFAssociations', $parsedJson, 'CASE file does not have a CFAssociations part');
 
+        return $this;
+    }
+
+
+    /**
+     * @When /^I click on copy framework modal button$/
+     */
+    public function iClickOnCopyFrameworkModalButton()
+    {
+        $this->I->click('#js-copy-framework-modal-button');
+
+        return $this;
+    }
+
+    /**
+     * @When /^I click on copy framework$/
+     */
+    public function IClickOnCopyFramework()
+    {
+        $this->I->click('#copyFrameworkModal .modal-footer .js-btn-copy-button');
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see the copy framework modal button$/
+     */
+    public function iShouldSeeTheCopyFrameworkModalButton(): Framework
+    {
+        $this->I->seeElement('#js-copy-framework-modal-button');
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see a success message$/
+     */
+    public function IShouldSeeASuccessMessage(): Framework
+    {
+        $this->I->waitForElementVisible('#copyFrameworkModal .alert-success');
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see the copy framework modal$/
+     */
+    public function iShouldSeeTheCopyFrameworkModal(): Framework
+    {
+        $this->I->waitForElementVisible('#copyFrameworkModal .js-btn-copy-button');
         return $this;
     }
 

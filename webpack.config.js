@@ -49,7 +49,6 @@ var mainScripts = [
     npmDir+'/bootstrap-notify/bootstrap-notify.min.js',
     npmDir+'/simplemde/dist/simplemde.min.js',
     assetsDir+'/js/application.js',
-    assetsDir+'/js/lsdoc/index.js',
     npmDir+'/papaparse/papaparse.min.js',
     npmDir+'/markdown-it-underline/index.js',
     npmDir+'/ajaxq/ajaxq.js',
