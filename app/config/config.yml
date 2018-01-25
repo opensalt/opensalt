@@ -18,6 +18,10 @@ parameters:
     database_name: '%env(MYSQL_DATABASE)%'
     database_user: '%env(MYSQL_USER)%'
     database_password: '%env(MYSQL_PASSWORD)%'
+    mailer_transport: '%env(MAILER_TRANSPORT)%'
+    mailer_host: '%env(MAILER_HOST)%'
+    mailer_user: '%env(MAILER_USER)%'
+    mailer_password: '%env(MAILER_PASSWORD)%'
     secret: '%env(SECRET)%'
     cookie_secret: '%env(COOKIE_SECRET)%'
     local_uri_host: '%env(LOCAL_URI_HOST)%'
@@ -175,6 +179,15 @@ doctrine:
 doctrine_migrations:
     dir_name: "%kernel.root_dir%/DoctrineMigrations"
 
+# Swiftmailer Configuration
+swiftmailer:
+    transport: "%mailer_transport%"
+    host:      "%mailer_host%"
+    username:  "%mailer_user%"
+    password:  "%mailer_password%"
+    spool:     { type: memory }
+
+
 jms_di_extra:
     locations:
         all_bundles: true
@@ -221,7 +234,7 @@ nelmio_security:
     external_redirects:
         whitelist:
             - google.com
-            
+
     # Forces Microsoft/Chrome XSS-Protection with its block mode.
     xss_protection:
         enabled: true
