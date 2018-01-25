@@ -28,9 +28,9 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         'ROLE_SUPER_USER',
     ];
 
-    private const ACTIVE = 0;
-    private const SUSPENDED = 1;
-    private const PENDING = 2;
+    public const ACTIVE = 0;
+    public const SUSPENDED = 1;
+    public const PENDING = 2;
 
     /**
      * @var int
@@ -85,7 +85,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     /**
      * @var bool
      *
-     * @ORM\Column(name="status", type="integer", nullable=false, options={"default": 2})
+     * @ORM\Column(name="status", type="integer", nullable=false, options={"default": User::PENDING})
      */
     protected $status = self::PENDING;
 
@@ -435,7 +435,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     }
 
     /**
-     * Unsuspend the user
+     * Activate the user
      *
      * @return $this
      */
@@ -445,6 +445,9 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         return $this;
     }
 
+    /**
+     * @return bool true if the user is pending for approval for approval
+     */
     public function isPending() {
         if (static::PENDING === $this->status) {
             return true;
