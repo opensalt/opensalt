@@ -1,7 +1,7 @@
 Feature: Change Notifications
 When another user finishes editing the document then I see all of the buttons are enabled
 
-  @0108-0804 @change-notification @ui @organization-admin
+  @0108-0804 @change-notification @ui @organization-admin @duplicate
   Scenario: 0108-0804 Notification for document finished editing and when logged in as an Organization Admin
     Given I am logged in as an "Admin"
     And I log a new "Editor"

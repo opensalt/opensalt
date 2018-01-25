@@ -1,7 +1,7 @@
 Feature: Change Notifications
 When the Document is being edited, a notification is shown and buttons that allow editing are disabled.
 
-  @0108-0802 @change-notification @ui @super-editor
+  @0108-0802 @change-notification @ui @super-editor @duplicate
   Scenario: 0108-0802 Notification for document being edited when logged in as an Super-Editor
     Given I am logged in as an "Super-Editor"
     And I log a new "Super-User"

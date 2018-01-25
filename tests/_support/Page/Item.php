@@ -147,8 +147,8 @@ class Item implements Context
     {
         $I = $this->I;
 
-        $I->dontSee($this->itemData['humanCodingScheme']);
-
+        // The name may be still shown in a notification, restrict to tree
+        $I->dontSee($this->itemData['humanCodingScheme'], '#tree1Section');
     }
 
     /**

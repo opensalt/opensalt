@@ -1,7 +1,7 @@
 Feature: Change Notifications
 When a user creates an item, Item Create Notifications are displayed
 
-  @0108-0824 @change-notification @ui @super-editor
+  @0108-0824 @change-notification @ui @super-editor @duplicate
   Scenario: 0108-0824 Item Create Notifications when logged in as an Super-Editor
     Given I am logged in as an "Super-Editor"
     And I log a new "Super-User"

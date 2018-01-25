@@ -1,7 +1,7 @@
 Feature: Change Notifications
 When a user deletes an item, Item Delete Notifications are displayed
 
-  @0108-0820 @change-notification @ui @super-editor
+  @0108-0820 @change-notification @ui @super-editor @duplicate
   Scenario: 0108-0820 Item Delete Notifications when logged in as an Super-Editor
     Given I am logged in as an "Super-Editor"
     And I log a new "Super-User"
