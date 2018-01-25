@@ -1576,8 +1576,8 @@ function ApxDocument(initializer) {
 
                     // determine if the origin item is a member of the edited doc or an other doc
                     let originDoc = "edited";
-                    let removeBtn = $("#associationRemoveBtn").html()   // remove association button (only for editors)
-                    if (a.assocDoc != apx.mainDoc.doc.identifier) {
+                    let removeBtn = $("#associationRemoveBtn").html();  // remove association button (only for editors)
+                    if (a.assocDoc !== apx.mainDoc.doc.identifier) {
                         originDoc = "other";
                         // if it's another doc, no remove btn
                         removeBtn = "";
