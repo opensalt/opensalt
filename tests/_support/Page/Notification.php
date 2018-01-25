@@ -61,6 +61,9 @@ class Notification implements Context
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\AcceptanceTester $I) {
+                $I->waitForElementChange('button[data-target="#editDocModal"]', function(WebDriverElement $el) {
+                    return false !== strpos($el->getAttribute('class'), 'disabled');
+                }, 30);
                 $I->see('Edit', '.disabled');
                 $I->see('Manage Association Groups', '.disabled');
                 $I->see('Add New Child Item', '.disabled');
@@ -125,8 +128,8 @@ class Notification implements Context
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\AcceptanceTester $I) {
-                $I->waitForElementChange('button[data-target="#editItemModal"]', function(WebDriverElement $el) {
-                    return false !== strpos($el->getAttribute('class'), 'disabled');
+                $I->waitForElementChange('button[data-target="#editDocModal"]', function(WebDriverElement $el) {
+                    return false === strpos($el->getAttribute('class'), 'disabled');
                 }, 30);
                 $I->dontSee('Edit', '.disabled');
                 $I->dontSee('Manage Association Groups', '.disabled');
@@ -147,6 +150,9 @@ class Notification implements Context
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\AcceptanceTester $I) {
+                $I->waitForElementChange('button[data-target="#editItemModal"]', function(WebDriverElement $el) {
+                    return false !== strpos($el->getAttribute('class'), 'disabled');
+                }, 30);
                 $I->see('Edit', '.disabled');
                 $I->see('Delete', '.disabled');
                 $I->see('Make This Item a Parent', '.disabled');
@@ -165,6 +171,9 @@ class Notification implements Context
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\AcceptanceTester $I) {
+                $I->waitForElementChange('button[data-target="#editItemModal"]', function(WebDriverElement $el) {
+                    return false === strpos($el->getAttribute('class'), 'disabled');
+                }, 30);
                 $I->dontSee('Edit', '.disabled');
                 $I->dontSee('Delete', '.disabled');
                 $I->dontSee('Make This Item a Parent', '.disabled');
