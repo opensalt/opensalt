@@ -699,3 +699,6 @@ $(document).on('ready', adjustWindow);
 
 $(window).on('resize', adjustWindow);
 
+$(document).ready(function() {
+    $('#user_table').dataTable();
+} );

@@ -2,8 +2,21 @@
 
 {% block body %}
     <h1>User list</h1>
+    
+{% if form is not empty %}
+{{ form_start(form) }}
+      {{ form_label(form.organization) }}<div class="col-md-2"> {{ form_widget(form.organization) }}</div>
+      {{ form_label(form.user_role) }}<div class="col-md-2"> {{ form_widget(form.user_role) }}</div>
+      <div class="col-md-3"><input class="btn btn-primary" type="submit" value="Search" /></div>
+{{ form_end(form) }}
+      <br/><br/><br/>
+{% endif %}
+      
+{% if users is empty %}
+    NO RESULT FOUND !!!
+{% else %}
 
-    <table class="table table-condensed table-hover table-bordered table-striped">
+    <table class="table table-condensed table-hover table-bordered table-striped" id = 'user_table'>
         <thead>
             <tr>
                 <th>Id</th>
@@ -20,6 +33,7 @@
                 <td>{{ user.org.name }}</td>
                 <td>{{ user.username }}</td>
                 <td>
+
                     {%- for role in user.roles -%}
                         {% if not loop.first %}, {% endif %}{{ role |replace({'ROLE_':'', '_':' '}) |title }}
                     {%- endfor -%}
@@ -47,7 +61,8 @@
         {% endfor %}
         </tbody>
     </table>
-
+   
+{% endif %}
     <ul class="list-inline pull-right">
         <li>
             <a class="btn btn-default" href="{{ path('admin_user_new') }}">Add a new user</a>

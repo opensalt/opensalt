@@ -27,4 +27,20 @@ class OrganizationRepository extends EntityRepository
 
         return $org;
     }
+
+    /**
+     * Search all organizations which contains passed string.
+     *
+     * string|null $search
+     *
+     * @return array
+     */
+    public function findOrg($search): array
+    {
+        $query = $this->createQueryBuilder('orgs');
+        $query->select('orgs.id')
+            ->where('orgs.name LIKE :search')
+            ->setParameter('search', '%'.$search.'%');
+        return $query->getQuery()->getResult();
+    }
 }

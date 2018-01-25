@@ -2,7 +2,6 @@
 
 namespace Page;
 
-
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use PhpSpec\Exception\Example\PendingException;
@@ -97,7 +96,6 @@ class User implements Context {
       $I->see($row[0]);
       $this->userName = $row[0];
     }
-
   }
 
   /**
@@ -175,7 +173,6 @@ class User implements Context {
     $I->see('Your password has been changed.');
   }
 
-
   /**
    * @Then /^I edit the new user$/
    */
@@ -200,4 +197,20 @@ class User implements Context {
 
   }
 
+   /**
+   * @Then /^I search organization and role type$/
+   */
+  public function iSearchOrgAndRole() {
+    $I = $this->I;
+    $I->amOnPage('/admin/user/');
+    $I->see('Organization');
+    $I->see('User role');
+    $organization = $I->grabTextFrom('/html/body/div[1]/main/table/tbody/tr[1]/td[2]');
+    $I->fillField('#search_form_organization', $organization);
+    $I->selectOption('#search_form_user_role', array('value' => '["ROLE_SUPER_USER"]'));
+    $I->click("/html/body/div[1]/main/form/div[3]/input");
+    $I->see($organization, '/html/body/div[1]/main/table/tbody/tr[1]/td[2]');
+    $I->see('Super User', '/html/body/div[1]/main/table/tbody/tr[1]/td[4]');
+  }
+  
 }
