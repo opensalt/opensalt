@@ -27,7 +27,8 @@ class Version20180115230815 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
+        $this->addSql('ALTER TABLE salt_user ADD locked TINYINT(1) DEFAULT \'0\' NOT NULL');
         $this->addSql('UPDATE salt_user SET locked = status');
-        $this->addSql('ALTER TABLE salt_user ADD locked TINYINT(1) DEFAULT \'0\' NOT NULL, DROP status');
+        $this->addSql('ALTER TABLE salt_user DROP status');
     }
 }
