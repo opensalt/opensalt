@@ -200,18 +200,17 @@ class User implements Context {
    /**
    * @Then /^I search organization and role type$/
    */
-  public function iSearchOrgAndRole(TableNode $table) {
+  public function iSearchOrgAndRole() {
     $I = $this->I;
-
     $I->amOnPage('/admin/user/');
     $I->see('Organization');
     $I->see('User role');
-    $rows = $table->getRows();
-    foreach ($rows as $row) {
-      $I->fillField('#search_form_organization', $row[0]);
-    }
+    $organization = $I->grabTextFrom('/html/body/div[1]/main/table/tbody/tr[1]/td[2]');
+    $I->fillField('#search_form_organization', $organization);
     $I->selectOption('#search_form_user_role', array('value' => '["ROLE_SUPER_USER"]'));
     $I->click("/html/body/div[1]/main/form/div[3]/input");
+    $I->see($organization, '/html/body/div[1]/main/table/tbody/tr[1]/td[2]');
+    $I->see('Super User', '/html/body/div[1]/main/table/tbody/tr[1]/td[4]');
   }
-
+  
 }
