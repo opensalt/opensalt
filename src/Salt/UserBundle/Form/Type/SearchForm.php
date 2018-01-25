@@ -20,17 +20,18 @@ class SearchForm extends AbstractType
         $builder
             ->add('organization', TextType::class, [
               'label' => 'Organization',
-                'required'   => false,
+              'required' => false,
             ])
             ->add('user_role', ChoiceType::class, [
-                'choices'  => [
+              'choices' => [
                 'Super User' => '["ROLE_SUPER_USER"]',
                 'Super Editor' => '["ROLE_SUPER_EDITOR"]',
                 'Admin' => '["ROLE_ADMIN"]',
                 'Editor' => '["ROLE_EDITOR"]',
                 'User' => '[]',
-                ],
-              'required'   => false,
-              ]);
+              ],
+              'required' => false,
+        ]);
     }
+
 }

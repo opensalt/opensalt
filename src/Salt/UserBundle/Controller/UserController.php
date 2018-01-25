@@ -56,12 +56,7 @@ class UserController extends Controller
                     $org_id[] = $orgId['id'];
                 }
                 $search_parameters=['org' => isset($org_id) ? $org_id : '', 'roles' => isset($User_role) ? [$User_role] : ''];
-                if($organization !== null && empty($org)){
-                    $users=[];
-                }
-                else{
-                    $users = $em->getRepository(User::class)->findBy(array_filter($search_parameters));
-                }
+                $organization !== null && empty($org) ? $users=[] : $users = $em->getRepository(User::class)->findBy(array_filter($search_parameters));
             }
             $formView = $form->createView();
 
