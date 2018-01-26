@@ -35,6 +35,12 @@ services:
         arguments:
             $rootDir: '%kernel.root_dir%'
 
+    App\Console\ClearFirebaseNotificationsCommand:
+        public: true
+        arguments:
+            - '@Kreait\Firebase'
+            - '%firebase_prefix%'
+
     # Autowiring commands
     CftfBundle\Command\:
         resource: '../../src/CftfBundle/Command'
