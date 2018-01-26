@@ -416,7 +416,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @return bool true if the user is suspended
      */
     public function isSuspended() {
-        if (static::SUSPENDED === $this->status) {
+        if ($this->status === static::SUSPENDED || $this->status === static::PENDING) {
             return true;
         }
 
