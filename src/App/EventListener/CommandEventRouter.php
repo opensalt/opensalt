@@ -65,18 +65,24 @@ class CommandEventRouter
 
         $this->em->getConnection()->beginTransaction();
 
-        $this->sendCommand($event, $dispatcher);
+        try {
+            $this->sendCommand($event, $dispatcher);
 
-        $notification = $command->getNotificationEvent();
-        $changeEntry = $this->addChangeEntry($command, $notification);
+            $notification = $command->getNotificationEvent();
+            $changeEntry = $this->addChangeEntry($command, $notification);
 
-        $this->em->flush();
+            $this->em->flush();
 
-        // We need to resolve after the flush in order to have created ids
-        $notification = $this->resolveNotification($command);
-        $this->updateChangeEntry($command, $changeEntry, $notification);
+            // We need to resolve after the flush in order to have created ids
+            $notification = $this->resolveNotification($command);
+            $this->updateChangeEntry($command, $changeEntry, $notification);
 
-        $this->em->getConnection()->commit();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollBack();
+
+            throw $e;
+        }
 
         $this->sendNotification($dispatcher, $notification);
     }

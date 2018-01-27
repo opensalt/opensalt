@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5275074094a72f4e1289c17493cd4b85",
+    "content-hash": "573a5e7d616aa150909536a051089af0",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -6970,16 +6970,16 @@
         },
         {
             "name": "simplethings/entity-audit-bundle",
-            "version": "v1.0.6",
+            "version": "dev-fixes-opensalt",
             "source": {
                 "type": "git",
-                "url": "https://github.com/simplethings/EntityAuditBundle.git",
-                "reference": "ee71ea62735797f5b6562590e15cd237edce6489"
+                "url": "https://github.com/opensalt/EntityAuditBundle.git",
+                "reference": "6caf6cda34efff3d77a1447e9282e911420f07fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/simplethings/EntityAuditBundle/zipball/ee71ea62735797f5b6562590e15cd237edce6489",
-                "reference": "ee71ea62735797f5b6562590e15cd237edce6489",
+                "url": "https://api.github.com/repos/opensalt/EntityAuditBundle/zipball/6caf6cda34efff3d77a1447e9282e911420f07fd",
+                "reference": "6caf6cda34efff3d77a1447e9282e911420f07fd",
                 "shasum": ""
             },
             "require": {
@@ -7007,17 +7007,24 @@
                     "SimpleThings\\EntityAudit\\": "src/SimpleThings/EntityAudit"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "SimpleThings\\EntityAudit\\Tests\\": "tests/SimpleThings/Tests/EntityAudit"
+                }
+            },
             "license": [
                 "LGPL-2.1"
             ],
             "description": "Audit for Doctrine Entities",
             "keywords": [
                 "Audit",
-                "database",
-                "persistence"
+                "Database",
+                "Persistence"
             ],
-            "time": "2017-07-24T15:38:35+00:00"
+            "support": {
+                "source": "https://github.com/opensalt/EntityAuditBundle/tree/fixes-opensalt"
+            },
+            "time": "2018-01-26 23:17:51"
         },
         {
             "name": "stof/doctrine-extensions-bundle",
@@ -10544,6 +10551,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "roave/security-advisories": 20,
+        "simplethings/entity-audit-bundle": 20,
         "activelamp/swagger-ui-bundle": 20,
         "bower-asset/select2-bootstrap-theme": 20
     },
