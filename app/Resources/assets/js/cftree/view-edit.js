@@ -17,10 +17,12 @@ apx.edit.prepareDocEditModal = function() {
             null,
             function(responseText, textStatus, jqXHR){
                 $('#ls_doc_subjects').select2entity({dropdownParent: $('#ls_doc_subjects').closest('div')});
+                $('#ls_doc_licence').select2entity({dropdownParent: $('#ls_doc_licence').closest('div')});
             }
         );
     }).on('hide.bs.modal', function(e){
         $('#ls_doc_subjects').select2('destroy');
+        $('#ls_doc_licence').select2('destroy');
     }).on('hidden.bs.modal', function(e){
         $('#editDocModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
     });
@@ -97,7 +99,7 @@ apx.edit.prepareItemEditModal = function() {
 
             // on successful edit, update the item
             var item = apx.mainDoc.currentItem;
-            
+
             // first delete existing attributes (in case they were cleared)
             for (var key in item) {
                 if (key != "nodeType" && key != "assocs" && key != "setToParent") {
@@ -108,7 +110,7 @@ apx.edit.prepareItemEditModal = function() {
             for (var key in data) {
                 item[key] = data[key];
             }
-            
+
             // then re-render the tree and re-activate the item
             apx.treeDoc1.ftRender1();
             apx.treeDoc1.activateCurrentItem();
@@ -194,7 +196,7 @@ apx.edit.prepareAddNewChildModal = function() {
 
             // on successful add, create and add the item to the document data
             var item = apx.mainDoc.addItem(data);
-            
+
             // and create and add the isChildOf association and its inverse
             var atts = {
                 "id": item.newAssoc.assocId,
@@ -206,16 +208,16 @@ apx.edit.prepareAddNewChildModal = function() {
             };
             var a = apx.mainDoc.addAssociation(atts);
             apx.mainDoc.addInverseAssociation(a);
-            
+
             delete item.newAssoc;
 
             // re-render the tree and re-activate the item
             apx.treeDoc1.ftRender1();
             apx.treeDoc1.activateCurrentItem();
-            
+
             // make sure the noItemsInstructions div is hidden
             $("#noItemsInstructions").hide();
-            
+
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();
             $addNewChildModal.find('.modal-body').html(jqXHR.responseText);
@@ -286,7 +288,7 @@ apx.edit.deleteItems = function(items) {
                         }
                     }
                 }
-                
+
                 // if item exists in another group, use update_items service to delete the isChildOf association only
                 if (itemExistsInAnotherGroup) {
                     if (empty(lsItems)) {
@@ -296,7 +298,7 @@ apx.edit.deleteItems = function(items) {
                     } else {
                         // delete the assoc first, then make the ajax call
                         apx.mainDoc.deleteAssociation(assocIdToDelete);
-                    
+
                         $.ajax({
                             url: apx.path.doctree_update_items.replace('ID', apx.lsDocId),
                             method: 'POST',
@@ -317,7 +319,7 @@ apx.edit.deleteItems = function(items) {
                         var a = item.assocs[j];
                         apx.mainDoc.deleteAssociation(a.id);
                     }
-                    
+
                     // find the item in mainDoc.items
                     for (var j = 0; j < apx.mainDoc.items.length; ++j) {
                         if (apx.mainDoc.items[j] == item) {
@@ -328,7 +330,7 @@ apx.edit.deleteItems = function(items) {
                             break;
                         }
                     }
-                    
+
                     $.ajax({
                         // for now at least, we always send "1" in for the "CHILDREN" parameter
                         url: apx.path.lsitem_tree_delete.replace('ID', item.id).replace('CHILDREN', 1),
@@ -380,7 +382,7 @@ apx.edit.prepareExemplarModal = function() {
         var title = apx.mainDoc.getItemTitle(apx.mainDoc.currentItem);
         $("#addExemplarOriginTitle").html(title);
     });
-    $exemplarModal.find('.btn-save').on('click', function(e){ 
+    $exemplarModal.find('.btn-save').on('click', function(e){
         var ajaxData = {
             exemplarUrl: $("#addExemplarFormUrl").val(),
             exemplarDescription: $("#addExemplarFormDescription").val(),
@@ -404,7 +406,7 @@ apx.edit.prepareExemplarModal = function() {
         }).done(function(data, textStatus, jqXHR) {
             apx.spinner.hideModal();
             $exemplarModal.modal('hide');
-            
+
             // add the association
             apx.mainDoc.addAssociation({
                 "id": data.id,
@@ -446,12 +448,12 @@ apx.edit.prepareAssociateModal = function() {
     $("#lsAssociationSwitchDirection").on('click', function() {
         $("#lsAssociationDirection").toggleClass("lsAssociationDirectionSwitched");
     });
-        
+
     var $associateModal = $('#associateModal');
     $associateModal.on('shown.bs.modal', function(e){
         var originItem = apx.edit.createAssociationNodes.droppedNode.data.ref;
         var destItem = apx.edit.createAssociationNodes.draggedNodes[0].data.ref;
-        
+
         // show the origin and destination statements
         var destination = apx.mainDoc.getItemTitle(destItem);
         if (apx.edit.createAssociationNodes.draggedNodes.length > 1) {
@@ -475,7 +477,7 @@ apx.edit.prepareAssociateModal = function() {
             }
         }
     });
-    
+
     // when save button is clicked, create the association(s)
     $associateModal.find('.btn-save').on('click', function(e) {
         // var ajaxData = $associateModal.find('form[name=ls_association_tree]').serialize();
@@ -493,14 +495,14 @@ apx.edit.prepareAssociateModal = function() {
             // the "destination" refers to the node that's being associated with the origin node -- so this is the draggedNode
             var originItem = apx.edit.createAssociationNodes.droppedNode.data.ref;
             var destItem = apx.edit.createAssociationNodes.draggedNodes[i].data.ref;
-            
+
             // ... that is, unless the user has clicked to switch directions, in which case we switch the items
             if ($("#lsAssociationDirection").hasClass("lsAssociationDirectionSwitched")) {
                 var temp = originItem;
                 originItem = destItem;
                 destItem = temp;
             }
-            
+
             if (originItem.doc.isExternalDoc()) {
                 ajaxData.origin = {
                     "identifier": originItem.identifier,
@@ -511,7 +513,7 @@ apx.edit.prepareAssociateModal = function() {
             } else {
                 ajaxData.origin = {"identifier": originItem.identifier};
             }
-            
+
             if (destItem.doc.isExternalDoc()) {
                 ajaxData.dest = {
                     "identifier": destItem.identifier,
@@ -541,10 +543,10 @@ apx.edit.prepareAssociateModal = function() {
                 }
             }).done(function(assocId, textStatus, jqXHR) {
                 // "this" will refer to context
-                
+
                 // increment completed counter
                 ++completed;
-                
+
                 // add new assoc object and its inverse
                 var type = apx.mainDoc.getAssociationTypeCondensed(this);
                 var atts = {
@@ -564,7 +566,7 @@ apx.edit.prepareAssociateModal = function() {
                 };
                 var a = apx.mainDoc.addAssociation(atts);
                 apx.mainDoc.addInverseAssociation(a);
-                
+
                 // if the origin item is currently showing in treeDoc1 and this wasn't a childOf assoc, show the association marker
                 if (type != "isChildOf") {
                     var oi = apx.treeDoc1.itemHash[this.origin.identifier];
@@ -572,7 +574,7 @@ apx.edit.prepareAssociateModal = function() {
                         $(apx.treeDoc1.getFtNode(oi, 1).li).find(".treeHasAssociation").show();
                     }
                 }
-            
+
                 // note that the assocView is no longer fresh, so that if the user clicks to view the association view it will refresh.
                 if (apx.viewMode.assocViewStatus != "not_written") {
                     apx.viewMode.assocViewStatus = "stale";
@@ -586,7 +588,7 @@ apx.edit.prepareAssociateModal = function() {
                     // clear createAssociationNodes
                     apx.edit.createAssociationNodes = null;
                 }
-                
+
                 // we don't need to update the item details here, because that will happen if/when the user clicks the toggle button to show the item details
 
             }).fail(function(jqXHR, textStatus, errorThrown){
@@ -594,7 +596,7 @@ apx.edit.prepareAssociateModal = function() {
                 alert("An error occurred when attempting to save the association.");
             });
         }
-    
+
     });
 };
 
@@ -602,16 +604,16 @@ apx.edit.deleteAssociation = function(assocId, callbackFn) {
     if (!confirm("Are you sure you want to remove this association? This can’t be undone.")) {
         return;
     }
-    
+
     apx.spinner.showModal("Removing association");
     $.ajax({
         url: apx.path.lsassociation_remove.replace('ID', assocId),
         method: 'POST'
     }).done(function(data, textStatus, jqXHR){
         apx.spinner.hideModal();
-        
+
         var identifier = apx.mainDoc.assocIdHash[assocId].origin.item;
-        
+
         // after deletion, delete the association from the data structure
         apx.mainDoc.deleteAssociation(assocId);
 
@@ -638,7 +640,7 @@ apx.edit.deleteAssociation = function(assocId, callbackFn) {
         if (apx.viewMode.assocViewStatus != "not_written") {
             apx.viewMode.assocViewStatus = "stale";
         }
-        
+
         // then call callbackFn if specified
         if (callbackFn != null) {
             callbackFn();
@@ -674,7 +676,7 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
         for (var i = 0; i < siblings.length; ++i) {
             // get the key for this node
             var key = siblings[i].key;
-            
+
             // start creating the object for the lsItems hash
             var o = {"originalKey": key};
 
@@ -695,7 +697,7 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
                         // set copyFromId flag so that updateItemAction will copy the item
                         o.copyFromId = copiedItem.id;
                         o.addCopyToTitle = "true";
-                        
+
                     // else *different* assocGroups are chosen on both sides, so:
                     } else {
                         // If the item already has an isChildOf association for the left-side assocGroup, create a new instance of the item
@@ -711,7 +713,7 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
                             console.log("item doesn't exist");
                             // in this case we want to use copiedItem.id as the key for the object in the lsItems hash
                             key = copiedItem.id;
-                            
+
                             // TODO: in this case, it doesn't "copy" children of a "copied" folder...
                         }
                     }
@@ -720,7 +722,7 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
                 } else if (!copiedItem.doc.isExternalDoc()) {
                     // set copyFromId flag so that updateItemAction will copy the item
                     o.copyFromId = copiedItem.id;
-                
+
                 // else different documents, and the treeDoc2 is on a different server...
                 } else {
                     // TODO: deal with copies from an external document??? In this case we would need to send in the full item, and we'd have to take care of copying children here
@@ -761,11 +763,11 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
                     "sequenceNumber": (i + 1)
                 };
             }
-            
+
             // now add o to the lsItems hash with key
             lsItems[key] = o;
         }
-        
+
         // ajax call to submit changes
         apx.spinner.showModal("Copying item(s)");
         $.ajax({
@@ -797,7 +799,7 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
         droppedNode.setExpanded(true);
         droppedNode.render();
     }
-    
+
     // go through each of the draggedNodes, constructing a hash with items to update
     var lsItems = {};
     for (var j = 0; j < draggedNodes.length; ++j) {
@@ -808,7 +810,7 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
 
         // move the item in the tree
         draggedNode.moveTo(droppedNode, hitMode);
-        
+
         var item = draggedNode.data.ref;
 
         // initialize the lsItems object for this item
@@ -826,7 +828,7 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
                 "parentId": apx.mainDoc.doc.id,
                 "parentType": "doc"
             }
-            
+
         } else {
             // otherwise the parent is an item
             lsItems[item.id].newChildOf = {
@@ -835,7 +837,7 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
             }
         }
         // (we'll fill in the sequenceNumber for newChildOf below)
-        
+
         // note: the draggedNode's original parent may now have a "hole" in its children's sequenceNumbers,
         // but that's fine; they will still be in the right order
     }
@@ -844,7 +846,7 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
     var siblings = draggedNodes[0].parent.children;
     for (var i = 0; i < siblings.length; ++i) {
         var item = siblings[i].data.ref;
-        
+
         // skip the item if it doesn't have an id (e.g. "orphaned items")
         if (empty(item.id)) {
             continue;
@@ -854,7 +856,7 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
         if (!(item.id in lsItems)) {
             // initialize the lsItems object
             lsItems[item.id] = {"originalKey": item.identifier};
-            
+
             // then we just have to update the sequenceNumber
             lsItems[item.id].updateChildOf = {
                 "assocId": siblings[i].data.childOfAssocId,
@@ -905,14 +907,14 @@ apx.edit.updateItemsAjaxDone = function(data) {
             // if this is a copied item...
             if (o.originalKey.indexOf("copy-") == 0) {
                 copiedItem = true;
-                
+
                 // then if the copied item had children -- which will have also been copied -- we need to refresh the mainDoc entirely,
                 // because we don't get back from the server any information about the copied children
                 if (!empty(n.children) && n.children.length > 0) {
                     apx.mainDoc.refreshFromServer();
                     return;
                 }
-            
+
                 item = apx.mainDoc.itemIdHash[o.lsItemId];
 
                 // if the item was actually copied, make a copy of the item attached to the copied node and add it to mainDoc
@@ -934,16 +936,16 @@ apx.edit.updateItemsAjaxDone = function(data) {
                         "itp": n.data.ref.itp
                     });
                 }
-                
+
             } else {
                 item = n.data.ref;
             }
-            
+
             // if we got back deleteChildOf, it's the assocId of the deleted association; delete it
             if (!empty(o.deleteChildOf)) {
                 apx.mainDoc.deleteAssociation(o.deleteChildOf);
             }
-            
+
             // if we got back sequenceNumber, we added or updated an isChildOf association; we should always get o.assocId as well
             if (!empty(o.sequenceNumber)) {
                 var existingAssoc = apx.mainDoc.assocIdHash[o.assocId];
@@ -958,7 +960,7 @@ apx.edit.updateItemsAjaxDone = function(data) {
                     };
                     var a = apx.mainDoc.addAssociation(atts);
                     apx.mainDoc.addInverseAssociation(a);
-                    
+
                 } else {
                     existingAssoc.seq = o.sequenceNumber * 1;
                 }
@@ -1096,7 +1098,7 @@ apx.edit.editAssocGroup = function(btn) {
             var $tr = $("tr[data-assocgroupid=" + assocGroupId + "]");
             $tr.find("td").first().html(title);
             $tr.find(".assocgroup-description").html(description);
-            
+
             // and in the mainDoc assocGroups array
             apx.mainDoc.assocGroupIdHash[assocGroupId].title = title;
             apx.mainDoc.assocGroupIdHash[assocGroupId].description = description;
@@ -1110,7 +1112,7 @@ apx.edit.editAssocGroup = function(btn) {
             // hide assoc group edit modal; show manage modal
             $editAssocGroupModal.modal('hide');
             $("#manageAssocGroupsModal").modal('show');
-            
+
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();
             $editAssocGroupModal.find('.modal-body').html(jqXHR.responseText);
@@ -1144,7 +1146,7 @@ apx.edit.deleteAssocGroup = function(btn) {
         }).done(function (data, textStatus, jqXHR) {
             // hide the spinner
             apx.spinner.hideModal();
-            
+
             // remove from the assocGroups array/hash
             for (var i = 0; i < apx.mainDoc.assocGroups.length; ++i) {
                 if (apx.mainDoc.assocGroups[i].id == assocGroupId) {
@@ -1163,7 +1165,7 @@ apx.edit.deleteAssocGroup = function(btn) {
             // remove from the manage modal, then reshow it
             $("tr[data-assocgroupid=" + assocGroupId + "]").remove();
             $("#manageAssocGroupsModal").modal('show');
-            
+
         }).fail(function (jqXHR, textStatus, errorThrown) {
             alert("An error occurred.");
             // console.log(jqXHR.responseText);

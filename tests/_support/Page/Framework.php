@@ -13,7 +13,7 @@ class Framework implements Context
 
     static public $fwTitle = '#ls_doc_create_title';
     static public $fwCreatorField = '#ls_doc_create_creator';
-//    static public $frameworkCreatorValue = 'PCG QA Testing';
+    //    static public $frameworkCreatorValue = 'PCG QA Testing';
 
     protected $filename;
     protected $rememberedFramework;
@@ -377,7 +377,7 @@ class Framework implements Context
         foreach ($origValues as $i => $origValue) {
             $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
         }
-        */
+         */
         $data = str_replace($origValues, $replacements, $data);
 
         $this->uploadedFramework = $data;
@@ -434,7 +434,7 @@ class Framework implements Context
         foreach ($origValues as $i => $origValue) {
             $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
         }
-        */
+         */
         $data = str_replace($origValues, $replacements, $data);
 
         $this->uploadedFramework = $data;
@@ -490,7 +490,7 @@ class Framework implements Context
         foreach ($origValues as $i => $origValue) {
             $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
         }
-        */
+         */
         $data = str_replace($origValues, $replacements, $data);
 
         $this->uploadedFramework = $data;
@@ -589,66 +589,98 @@ class Framework implements Context
     }
 
     /**
+     * @When /^I display modal to edit framework$/
+     */
+    public function iDisplayModalToEditFramework() {
+        $I = $this->I;
+
+        $this->iGoToTheFrameworkDocument();
+        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->waitForElementVisible('#ls_doc_title');
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see licence edit drop-down$/
+     */
+    public function iShouldSeeLicenceEditDropDown() {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#ls_doc_licence');
+    }
+
+    /**
+     * @Then /^I should see licence drop-down$/
+     */
+    public function iShouldSeeLicenceDropDown() {
+        $I = $this->I;
+
+        $I->seeElement('#ls_doc_create_licence');
+    }
+
+    /**
      * @Then /^I should see "([^"]*)" button$/
      */
     public function iShouldSeeButton($buttonText) {
-      $I = $this->I;
+        $I = $this->I;
 
-      $I->see($buttonText);
+        $I->see($buttonText);
     }
 
     /**
      * @Given /^I click the "([^"]*)" button$/
      */
     public function iClickTheButton($button) {
-       $I = $this->I;
+        $I = $this->I;
 
-       $I->click($button);
+        $I->click($button);
     }
 
     /**
      * @When /^I create a "([^"]*)" framework$/
      */
     public function iCreateAFramework($framework = 'Test Framework') {
-       /** @var \Faker\Generator $faker */
-       $faker = \Faker\Factory::create();
+        /** @var \Faker\Generator $faker */
+        $faker = \Faker\Factory::create();
 
-       $description = $faker->sentence;
+        $description = $faker->sentence;
 
-       $note = $faker->paragraph;
-       $framework = sq($framework);
-       $this->rememberedFramework = $framework;
+        $note = $faker->paragraph;
+        $framework = sq($framework);
+        $this->rememberedFramework = $framework;
 
-       $this->frameworkData = [
-         'title' => $framework,
-         'creator' => $this->creatorName,
-         'officialUri' => 'http://opensalt.net',
-         'publisher' => 'PCG',
-         'version' => '1.0',
-         'description' => $description,
-         'language' => 'en',
-         'adoptionStatus' => 'Draft',
-         'note' => $note,
-       ];
+        $this->frameworkData = [
+            'title' => $framework,
+            'creator' => $this->creatorName,
+            'officialUri' => 'http://opensalt.net',
+            'publisher' => 'PCG',
+            'version' => '1.0',
+            'description' => $description,
+            'language' => 'en',
+            'adoptionStatus' => 'Draft',
+            'note' => $note,
+        ];
 
-       $I = $this->I;
+        $I = $this->I;
 
-       $I->fillField(self::$fwTitle, $framework);
-       $I->fillField(self::$fwCreatorField, $this->creatorName);
-       $I->fillField('#ls_doc_create_officialUri', $this->frameworkData['officialUri']);
-       $I->fillField('#ls_doc_create_publisher', $this->frameworkData['publisher']);
-//       $I->fillField('#ls_doc_create_urlName','OpenSALT');
-       $I->fillField('#ls_doc_create_version', $this->frameworkData['version']);
-       $I->fillField('#ls_doc_create_description', $description);
-//       $I->selectOption('.select2-search__field', array('text' => 'Math')); //Subject field
-       $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
-       $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
-       $I->fillField('#ls_doc_create_note', $note);
+        $I->fillField(self::$fwTitle, $framework);
+        $I->fillField(self::$fwCreatorField, $this->creatorName);
+        $I->fillField('#ls_doc_create_officialUri', $this->frameworkData['officialUri']);
+        $I->fillField('#ls_doc_create_publisher', $this->frameworkData['publisher']);
+        //       $I->fillField('#ls_doc_create_urlName','OpenSALT');
+        $I->fillField('#ls_doc_create_version', $this->frameworkData['version']);
+        $I->fillField('#ls_doc_create_description', $description);
+        //       $I->selectOption('.select2-search__field', array('text' => 'Math')); //Subject field
+        $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
+        $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
+        $I->fillField('#ls_doc_create_note', $note);
 
-       $I->click('Create');
+        $I->click('Create');
 
-       $I->see($framework, '#docTitle');
-       $I->setDocId($I->grabValueFrom('#lsDocId'));
+        $I->see($framework, '#docTitle');
+        $I->setDocId($I->grabValueFrom('#lsDocId'));
 
     }
 
@@ -656,12 +688,12 @@ class Framework implements Context
      * @When /^I create a framework$/
      */
     public function iCreateAFramework1() {
-      $I = $this->I;
+        $I = $this->I;
 
-      $I->see('Create a new Framework');
-      $I->click('Create a new Framework');
-      $I->see('LsDoc creation');
-      $this->iCreateAFramework();
+        $I->see('Create a new Framework');
+        $I->click('Create a new Framework');
+        $I->see('LsDoc creation');
+        $this->iCreateAFramework();
 
     }
 
@@ -670,107 +702,107 @@ class Framework implements Context
      * @Given /^I should see the framework data$/
      */
     public function iShouldSeeFramework() {
-      $I = $this->I;
+        $I = $this->I;
 
-      $I->waitForElementVisible('.itemTitleSpan');
+        $I->waitForElementVisible('.itemTitleSpan');
 
-      $I->see('Official URL:');
-      $I->see($this->frameworkData['officialUri']);
-      $I->see('CASE Framework URL:');
-      $I->see('Creator:');
-      $I->see($this->frameworkData['creator']);
-      $I->see('Publisher:');
-      $I->see($this->frameworkData['publisher']);
-      $I->see('Language:');
-      $I->see($this->frameworkData['language']);
-      $I->see('Adoption Status:');
-      $I->see($this->frameworkData['adoptionStatus']);
+        $I->see('Official URL:');
+        $I->see($this->frameworkData['officialUri']);
+        $I->see('CASE Framework URL:');
+        $I->see('Creator:');
+        $I->see($this->frameworkData['creator']);
+        $I->see('Publisher:');
+        $I->see($this->frameworkData['publisher']);
+        $I->see('Language:');
+        $I->see($this->frameworkData['language']);
+        $I->see('Adoption Status:');
+        $I->see($this->frameworkData['adoptionStatus']);
     }
 
     /**
      * @Given /^I delete the framework$/
      */
     public function iDeleteFramework() {
-      $I = $this->I;
+        $I = $this->I;
 
-      $I->amOnPage(self::$lsdocPath.$I->getDocId());
+        $I->amOnPage(self::$lsdocPath.$I->getDocId());
 
-      $I->click('Delete');
+        $I->click('Delete');
 
 
     }
 
-  /**
-   * @Given /^I edit the field in framework$/
-   */
-  public function iEditTheFieldInFramework($field, $data) {
-    $I = $this->I;
-    $map = [
-      'Title' => '#ls_doc_title',
-      'Creator' => '#ls_doc_creator',
-      'Official URI' => '#ls_doc_officialUri',
-      'Publisher' => '#ls_doc_publisher',
-      'Version' => '#ls_doc_version',
-      'Description' => '#ls_doc_description',
-      'Language' => 'ls_doc[language]',
-      'Adoption Status' => 'ls_doc[adoptionStatus]',
-      'Note' => '#ls_doc_note',
-    ];
-    $dataMap = [
-      'Title' => 'title',
-      'Creator' => 'creator',
-      'Official URI' => 'officialUri',
-      'Publisher' => 'publisher',
-      'Version' => 'version',
-      'Description' => 'description',
-      'Language' => 'language',
-      'Adoption Status' => 'adoptionStatus',
-      'Note' =>   'note',
-    ];
+    /**
+     * @Given /^I edit the field in framework$/
+     */
+    public function iEditTheFieldInFramework($field, $data) {
+        $I = $this->I;
+        $map = [
+            'Title' => '#ls_doc_title',
+            'Creator' => '#ls_doc_creator',
+            'Official URI' => '#ls_doc_officialUri',
+            'Publisher' => '#ls_doc_publisher',
+            'Version' => '#ls_doc_version',
+            'Description' => '#ls_doc_description',
+            'Language' => 'ls_doc[language]',
+            'Adoption Status' => 'ls_doc[adoptionStatus]',
+            'Note' => '#ls_doc_note',
+        ];
+        $dataMap = [
+            'Title' => 'title',
+            'Creator' => 'creator',
+            'Official URI' => 'officialUri',
+            'Publisher' => 'publisher',
+            'Version' => 'version',
+            'Description' => 'description',
+            'Language' => 'language',
+            'Adoption Status' => 'adoptionStatus',
+            'Note' =>   'note',
+        ];
 
-    if (in_array($field, ['Language', 'Adoption Status'])){
-      $I->selectOption($map[$field], array('value' => $data));
-    }
-    else {
-      $I->fillField($map[$field], $data);
-    }
+        if (in_array($field, ['Language', 'Adoption Status'])){
+            $I->selectOption($map[$field], array('value' => $data));
+        }
+        else {
+            $I->fillField($map[$field], $data);
+        }
 
-    $this->frameworkData[$dataMap[$field]] = $data;
-  }
-
-  public function iGoToTheFrameworkDocument(){
-    $I = $this->I;
-
-    $I->amOnPage(self::$docPath.$I->getDocId());
-
-  }
-  /**
-   * @Given /^I edit the fields in a framework$/
-   */
-  public function iEditTheFieldsInFramework(TableNode $table) {
-    $I = $this->I;
-
-    $this->iGoToTheFrameworkDocument();
-    $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
-    $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
-    $I->waitForElementVisible('#ls_doc_title');
-
-    $rows = $table->getRows();
-    foreach ($rows as $row) {
-      $this->iEditTheFieldInFramework($row[0], $row[1]);
+        $this->frameworkData[$dataMap[$field]] = $data;
     }
 
-    $I->click('//*[@id="editDocModal"]//button[text()="Save Changes"]');
+    public function iGoToTheFrameworkDocument(){
+        $I = $this->I;
 
-    return $this;
-  }
+        $I->amOnPage(self::$docPath.$I->getDocId());
 
-  /**
-   * @Given /^I upload an excel file$/
-   */
-  public function iUploadAnExcelFile() {
-    throw new PendingException();
-  }
+    }
+    /**
+     * @Given /^I edit the fields in a framework$/
+     */
+    public function iEditTheFieldsInFramework(TableNode $table) {
+        $I = $this->I;
+
+        $this->iGoToTheFrameworkDocument();
+        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->waitForElementVisible('#ls_doc_title');
+
+        $rows = $table->getRows();
+        foreach ($rows as $row) {
+            $this->iEditTheFieldInFramework($row[0], $row[1]);
+        }
+
+        $I->click('//*[@id="editDocModal"]//button[text()="Save Changes"]');
+
+        return $this;
+    }
+
+    /**
+     * @Given /^I upload an excel file$/
+     */
+    public function iUploadAnExcelFile() {
+        throw new PendingException();
+    }
 
     /**
      * @Given /^I upload the adopted CASE file$/
@@ -810,7 +842,7 @@ class Framework implements Context
         foreach ($origValues as $i => $origValue) {
             $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
         }
-        */
+         */
         $data = str_replace($origValues, $replacements, $data);
 
         $this->uploadedFramework = $data;
@@ -852,22 +884,22 @@ class Framework implements Context
         $I->assertEquals($hcsValue, current($level1HcsList));
     }
 
-  /**
-   * @Then /^I search for "([^"]*)" in the framework$/
-   */
-  public function iSearchForInTheFramework($item) {
-    $I = $this->I;
+    /**
+     * @Then /^I search for "([^"]*)" in the framework$/
+     */
+    public function iSearchForInTheFramework($item) {
+        $I = $this->I;
 
-    $I->fillField('#filterOnTree', $item);
-    $I->wait(1);
-  }
+        $I->fillField('#filterOnTree', $item);
+        $I->wait(1);
+    }
 
-  /**
-   * @Given /^I should not see "([^"]*)" in results$/
-   */
-  public function iShouldNotSeeInResults($item) {
-    $I = $this->I;
+    /**
+     * @Given /^I should not see "([^"]*)" in results$/
+     */
+    public function iShouldNotSeeInResults($item) {
+        $I = $this->I;
 
-    $I->dontSee($item);
-  }
+        $I->dontSee($item);
+    }
 }
