@@ -380,7 +380,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @see LockedException
      */
     public function isAccountNonLocked() {
-        return !$this->isSuspended();
+        return !($this->isSuspended() || $this->isPending());
     }
 
     /**
@@ -416,7 +416,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @return bool true if the user is suspended
      */
     public function isSuspended() {
-        if ($this->status === static::SUSPENDED || $this->status === static::PENDING) {
+        if ($this->status === static::SUSPENDED) {
             return true;
         }
 
