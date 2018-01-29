@@ -101,7 +101,13 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @ORM\OneToMany(targetEntity="UserDocAcl", mappedBy="user", indexBy="lsDoc", fetch="EXTRA_LAZY")
      */
     protected $docAcls;
-
+    
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="approve_user", type="boolean", nullable=false, options={"default": 0})
+     */
+    protected $approve_user = false;
 
     public function __construct($username = null) {
         if (!empty($username)) {
@@ -138,9 +144,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return $this
      */
-    public function setUsername($username) {
-        $this->username = $username;
-
+    public function setUsername($username) {        
+        $this->username = $username;          
         return $this;
     }
 
@@ -270,15 +275,19 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @return bool
      */
     public function isEqualTo(UserInterface $user) {
+        
         if (!($user instanceof self)) {
+            
             return false;
         }
 
         if ($user->getUsername() !== $this->getUsername()) {
+          
             return false;
         }
 
         if ($user->getId() !== $this->getId()) {
+            
             return false;
         }
 
@@ -435,9 +444,39 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return $this
      */
-    public function unsuspendUser() {
+    public function unsuspendUser() {        
         $this->locked = false;
 
         return $this;
     }
+    
+    /**
+     * @return bool true if the user is Approved
+     */
+    public function isApproved() {
+        if (true === $this->approve_user) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Approved the user
+     *
+     * @return $this
+     */
+    public function ApprovedUser() {
+        $this->approve_user = true;
+        return $this;
+    }
+    
+    /**
+     * Reject the user
+     *
+     * @return $this
+     */
+    public function unapprovedUser() {        
+        $this->approve_user = false;
+        return $this;
+        }        
 }

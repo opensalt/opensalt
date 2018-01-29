@@ -7,8 +7,8 @@ use Behat\Behat\Context\Context;
 class LoginLocal implements Context, Login
 {
     // include url of current page
-    public static $loginUrl = '/login';
-    public static $logoutUrl = '/logout';
+    public static $loginUrl = '/app_dev.php/login';
+    public static $logoutUrl = '/app_dev.php/logout';
 
     public static $loginLink = 'a.login';
     public static $usernameField = '#username';
@@ -48,7 +48,7 @@ class LoginLocal implements Context, Login
     {
         $I = $this->I;
 
-        $I->amOnPage(self::$loginUrl);
+        $I->amOnPage(self::$loginUrl); 
         $I->fillField(self::$usernameField, $username);
         $I->fillField(self::$passwordField, $password);
         $I->click(self::$loginButton);
@@ -63,8 +63,8 @@ class LoginLocal implements Context, Login
 
     public function iFillInTheUsername(): Login
     {
-        $this->I->fillField(self::$usernameField, $this->I->getLastUsername());
-
+        $use_name = $this->I->fillField(self::$usernameField, $this->I->getLastUsername());
+        
         return $this;
     }
 
@@ -81,4 +81,6 @@ class LoginLocal implements Context, Login
 
         return $this;
     }
+    
+    
 }

@@ -1,16 +1,21 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    
     <h1>User list</h1>
-
-    <table class="table table-condensed table-hover table-bordered table-striped">
+    <ul class="list-inline pull-right">
+        <li>
+            <a class="btn btn-default" href="{{ path('admin_user_new') }}">Add a new user</a>
+        </li>
+    </ul>    
+    <table id="example" class="table table-striped table-bordered" cellspacing="0" width="99%">
         <thead>
             <tr>
                 <th>Id</th>
                 <th>Organization</th>
                 <th>Username</th>
                 <th>Roles</th>
-                <th class="col-md-3">Actions</th>
+                <th class="col-md-4">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -41,16 +46,24 @@
                                 <a class="btn btn-default" href="{{ path('admin_user_suspend', { 'id': user.id }) }}">Suspend</a>
                             {% endif %}
                         </li>
+                        {#1:Approved & Reject Button.click Approved button than Approved button replace with Reject  #}
+                        {#<li>
+                            {% if user.approved  %}
+                                <a class="btn btn-default reject"  href="{{ path('admin_user_rejected', { 'id': user.id }) }}" >Reject</a>
+                            {% else %}
+                                <a class="btn btn-default approve" id="{{user.id }}" onclick="get_approved({{user.id }});" href="{{ path('admin_user_approved', { 'id': user.id }) }}" >Approved</a>
+                            {% endif %}                             
+                         </li>  #} 
+                        {#2:Click Approved button than approved butoon hide#}
+                                {% if not user.approved %}
+                                <li>
+                                   <a class="btn btn-default approve" id="{{user.id }}" onclick="get_approved({{user.id }});" href="{{ path('admin_user_approved', { 'id': user.id }) }}" >Approved</a>
+                                </li>
+                                {% endif %}                           
                     </ul>
                 </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
-
-    <ul class="list-inline pull-right">
-        <li>
-            <a class="btn btn-default" href="{{ path('admin_user_new') }}">Add a new user</a>
-        </li>
-    </ul>
 {% endblock %}

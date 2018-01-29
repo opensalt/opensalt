@@ -39,6 +39,7 @@ class User implements Context {
     $I->click('a.dropdown-toggle');
     $I->click('Manage user');
     $I->see('User list', 'h1');
+    $I->see('Add a new user');
     $I->click('Add a new user');
     $I->fillField('#salt_userbundle_user_username', $username);
     $I->fillField('#salt_userbundle_user_plainPassword', $password);
@@ -75,7 +76,7 @@ class User implements Context {
   public function iDeleteTheUser() {
     $I = $this->I;
     $username = $this->userName;
-    $I->amOnPage('/admin/user/');
+    $I->amOnPage('/app_dev.php/admin/user/');
     $I->click("//td[text()='{$username}']/..//a[text()='show']");
     $I->see($this->userName);
     $I->click('Delete');
@@ -199,5 +200,21 @@ class User implements Context {
     $I->click("//td[text()='{$username}']/..//a[text()='show']");
 
   }
+  
+  
+      
+  /**
+   * @Then /^I approved the user$/
+   */
+  public function iApprovedTheUser() {
+    
+    $I = $this->I;
+    $username = $this->I->getLastUsername();
+    $I->amOnPage('/app_dev.php/admin/user/');
+    $I->click("//td[text()='{$username}']/..//a[text()='Approved']");
+    $I->dontSee('Approved', "//td[text()='{$username}']/..//a[text()='Approved']");
+
+  }
 
 }
+
