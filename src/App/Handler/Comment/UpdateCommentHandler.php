@@ -4,6 +4,7 @@ namespace App\Handler\Comment;
 
 use App\Command\Comment\UpdateCommentCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -27,5 +28,9 @@ class UpdateCommentHandler extends BaseCommentHandler
         $content = $command->getNewContent();
 
         $comment->setContent($content);
+
+        /* @todo update to fill in name and document after comments are modified */
+        $notification = new NotificationEvent('C04', 'Comment modified' /* for [Short name] */, null);
+        $command->setNotificationEvent($notification);
     }
 }

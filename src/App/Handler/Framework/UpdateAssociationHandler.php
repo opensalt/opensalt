@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\UpdateAssociationCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -31,8 +32,16 @@ class UpdateAssociationHandler extends BaseFrameworkHandler
         $association = $command->getAssociation();
         $this->validate($command, $association);
 
-        $association->setUpdatedAt(new \DateTime());
-
-//        $dispatcher->dispatch(UpdateAssociationEvent::class, new UpdateAssociationEvent());
+        $notification = new NotificationEvent(
+            'A07',
+            sprintf('Association "%s" modified', $association->getIdentifier()),
+            $association->getLsDoc(),
+            [
+                'assoc-u' => [
+                    $association->getId() => $association->getIdentifier(),
+                ]
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

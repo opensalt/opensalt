@@ -1,0 +1,9 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}CMS Export{% endblock %}
+
+{% block body %}
+    <pre>
+{% include 'cms/export.json.twig' with {'lsDoc':lsDoc} %}
+    </pre>
+{% endblock %}

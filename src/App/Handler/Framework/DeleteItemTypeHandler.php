@@ -32,7 +32,5 @@ class DeleteItemTypeHandler extends BaseFrameworkHandler
         $this->validate($command, $itemType);
 
         $this->framework->deleteItemType($itemType);
-
-//        $dispatcher->dispatch(DeleteItemTypeEvent::class, new DeleteItemTypeEvent());
     }
 }

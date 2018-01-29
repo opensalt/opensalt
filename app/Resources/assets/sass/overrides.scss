@@ -71,3 +71,7 @@ span.fancytree-node {
   max-width: 300px;
   overflow: hidden;
 }
+
+#notifications-switch:focus {
+    color: $body-bg;
+}

@@ -91,3 +91,9 @@ table.tree {
     max-height: 400px;
     overflow-y: auto;
 }
+
+span.notification-url-indicator {
+    float: right;
+    margin-right: 15px;
+    text-decoration: underline;
+}

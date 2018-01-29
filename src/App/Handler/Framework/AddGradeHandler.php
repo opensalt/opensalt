@@ -32,7 +32,5 @@ class AddGradeHandler extends BaseFrameworkHandler
         $this->validate($command, $grade);
 
         $this->framework->persistGrade($grade);
-
-//        $dispatcher->dispatch(AddGradeEvent::class, new AddGradeEvent());
     }
 }

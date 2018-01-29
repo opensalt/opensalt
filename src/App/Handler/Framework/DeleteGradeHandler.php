@@ -32,7 +32,5 @@ class DeleteGradeHandler extends BaseFrameworkHandler
         $this->validate($command, $grade);
 
         $this->framework->deleteGrade($grade);
-
-//        $dispatcher->dispatch(DeleteGradeEvent::class, new DeleteGradeEvent());
     }
 }

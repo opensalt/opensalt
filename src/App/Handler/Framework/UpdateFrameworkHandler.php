@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\UpdateFrameworkCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
 use CftfBundle\Service\FrameworkUpdater;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -27,7 +28,7 @@ class UpdateFrameworkHandler extends AbstractDoctrineHandler
      * @DI\InjectParams({
      *     "validator" = @DI\Inject("validator"),
      *     "registry" = @DI\Inject("doctrine"),
-     *     "frameworkUpdater" = @DI\Inject("framework_updater.local")
+     *     "frameworkUpdater" = @DI\Inject(CftfBundle\Service\FrameworkUpdater::class)
      * })
      */
     public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, FrameworkUpdater $frameworkUpdater)
@@ -58,6 +59,16 @@ class UpdateFrameworkHandler extends AbstractDoctrineHandler
 
         $this->frameworkUpdater->update($doc, $fileContent, $frameworkToAssociate, $cfItemKeys);
 
-//        $dispatcher->dispatch(UpdateFrameworkEvent::class, new UpdateFrameworkEvent());
+        $notification = new NotificationEvent(
+            'D07',
+            'Framework document updated',
+            $doc,
+            [
+                'doc-u' => [
+                    $doc->getId() => $doc->getIdentifier(),
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Salt\UserBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\User\ChangePasswordCommand;
 use Salt\UserBundle\Form\Type\ChangePasswordType;
 use Salt\UserBundle\Form\DTO\ChangePasswordDTO;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ChangePasswordController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * @Route("/user/change-password", name="user_change_password")

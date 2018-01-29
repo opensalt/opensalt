@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\AddUserByNameCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -47,6 +48,10 @@ class AddUserByNameHandler extends BaseDoctrineHandler
 
         $command->setNewPassword($newPassword);
 
-//        $dispatcher->dispatch(AddUserByNameEvent::class, new AddUserByNameEvent());
+        $command->setNotificationEvent(new NotificationEvent(
+            'U02',
+            sprintf('User "%s" added to "%s"', $userName, $org->getName()),
+            null
+        ));
     }
 }
