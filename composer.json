@@ -96,6 +96,7 @@
 
         "npm-asset/markdown-it": "~8.4",
         "npm-asset/markdown-it-katex": "~2.0",
+        "npm-asset/markdown-it-underline": "~1.0",
         "npm-asset/github-markdown-css": "~2.8",
         "npm-asset/simplemde": "~1.11",
 
