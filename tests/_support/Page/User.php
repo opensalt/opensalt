@@ -236,4 +236,16 @@ class User implements Context
 
     }
 
+    /**
+     * @Then /^I approve the new user$/
+     */
+    public function iApproveTheNewUser()
+    {
+        $I = $this->I;
+
+        $username = $this->userName;
+        $I->amOnPage('/admin/user');
+        $I->click("//td[text()='{$username}']/..//a[text()='Approve']");
+    }
+
 }
