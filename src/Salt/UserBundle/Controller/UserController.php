@@ -62,10 +62,9 @@ class UserController extends Controller
 //        ->findAll();        
 //       dump($User);exit;
         
-        $products = $em->getRepository(User::class)
-        ->searchFilterUser();
-        //dump($products);exit;
-      
+        //$products = $em->getRepository(User::class)
+       // ->searchFilterUser();
+        //dump($products);exit;      
       
         
         $form = $this->createForm(TaskType::class);        
