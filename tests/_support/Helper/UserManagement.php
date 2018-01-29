@@ -58,7 +58,7 @@ class UserManagement extends \Codeception\Module
 
     public function ensurePendingUserExistsWithRole($role) {
         if (!self::$remote) {
-            return $this->ensureUserExistsWithRoleLocal($role, null);
+            return $this->ensureUserExistsWithRoleLocal($role, User::PENDING);
         }
 
         return $this->ensureUserExistsWithRoleRemote($role);
@@ -86,7 +86,7 @@ class UserManagement extends \Codeception\Module
         );
     }
 
-    protected function ensureUserExistsWithRoleLocal(string $role, $status): UserManagement
+    protected function ensureUserExistsWithRoleLocal(string $role, $status = User::ACTIVE): UserManagement
     {
         /** @var Symfony $symfony */
         $symfony = $this->getModule('Symfony');
@@ -105,7 +105,9 @@ class UserManagement extends \Codeception\Module
         /** @var User $user */
         $user = $userRepo->createQueryBuilder('u')
             ->where('u.username like :prefix')
+            ->andWhere('u.status = :status')
             ->setParameter(':prefix', 'TEST:'.$role.':%')
+            ->setParameter(':status', $status)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
