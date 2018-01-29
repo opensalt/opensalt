@@ -3,7 +3,7 @@ Feature: A pending user can not sign into the application
   @login
   Scenario Outline: An anonymous user lands on the front page
     Given I am logged out
-    And a user exists with role "User"
+    And a pending user exists with role "<role>"
 
     When I am on the homepage
     And I follow "Sign in"

@@ -81,6 +81,17 @@ class Login implements Context
         return $this;
     }
 
+    /**
+     * @Given a pending user exists with role :role
+     */
+    public function aPendingUserExistsWithRole(string $role): Login
+    {
+        $loginPage = $this->getLoginPage();
+        $loginPage->aPendingUserExistsWithRole($role);
+
+        return $this;
+    }
+
     protected function getLoginPage(): \Page\Login
     {
         //$env = $this->scenario->current('env');

@@ -81,4 +81,11 @@ class LoginLocal implements Context, Login
 
         return $this;
     }
+
+    public function aPendingUserExistsWithRole(string $role): Login
+    {
+        $this->I->ensurePendingUserExistsWithRole($role);
+
+        return $this;
+    }
 }

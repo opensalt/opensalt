@@ -9,6 +9,7 @@ interface Login
     public function iFillInTheUsername(): Login;
     public function iFillInThePassword(): Login;
     public function aUserExistsWithRole(string $role): Login;
+    public function aPendingUserExistsWithRole(string $role): Login;
 
     public function loginWithPassword(string $username, string $password): Login;
 }
