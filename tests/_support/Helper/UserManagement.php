@@ -110,7 +110,7 @@ class UserManagement extends \Codeception\Module
             ->getQuery()
             ->getOneOrNullResult();
 
-        if ($user) {
+        if ($user && !is_null($status)) {
             $username = $user->getUsername();
             $userRepo->setUserPassword($username, $password);
             $em->flush();
