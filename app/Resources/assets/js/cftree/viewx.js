@@ -668,7 +668,7 @@ $.extend(apx.notifications, {
                     });
                 }, timeout - warningTime, id);
 
-                apx.locks.mine.items[id] = {
+                apx.locks.mine.docs[id] = {
                     warning: warning,
                     timeout: msg.at + timeout + apx.timeDiff - 2000
                 };
@@ -804,13 +804,13 @@ $.extend(apx.notifications, {
             return;
         }
 
-        if ('undefined' !== typeof msg.msgId && 'function' === typeof apx.notifyCheck[msg.msgId]) {
+        if ('function' === typeof apx.notifyCheck[msg.msgId]) {
             if (false === apx.notifyCheck[msg.msgId](msg)) {
                 return;
             }
         }
 
-        if (msg.url) {
+        if (msg.url && "LockTimeoutWarning" !== msg.msgId) {
             msg.msg += '<span class="notification-url-indicator">Show</span>';
         }
 
