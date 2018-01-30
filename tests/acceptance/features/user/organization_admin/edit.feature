@@ -7,6 +7,7 @@ Feature: Edit an existing User
   Scenario: 1011-1058 Edit a user in User List
     Given I log in as a user with role "Admin"
     And I add a new user
+    And I approve the new user
 
     Then I edit a user profile
       | newuser@somewhere.com |
