@@ -79,7 +79,7 @@ const render = (function(){
     let createLevelOneAlphaList = function(listStartCount, startPoint,
         endPoint, cm, callbackFunction) {
       let levelOneEndpoint = endPoint;
-      if (undefined != callbackFunction) {
+      if (undefined !== callbackFunction) {
         levelOneEndpoint = startPoint + 25;
       }
       let counter = 0;
@@ -102,7 +102,7 @@ const render = (function(){
           ch : 99999999999999
         });
       }
-      if (undefined != callbackFunction) {
+      if (undefined !== callbackFunction) {
         callbackFunction(listStartCount, startPoint, endPoint, cm);
       }
     };
