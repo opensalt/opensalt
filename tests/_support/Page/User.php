@@ -199,5 +199,16 @@ class User implements Context {
     $I->click("//td[text()='{$username}']/..//a[text()='show']");
 
   }
+  
+  /**
+   * @Given /^I should see an alpha ordered list in the framework$/
+   */
+  public function iShouldSeeAlphaOrderedListInTheFramework(){
+    $I = $this->I;
+
+    $I->click('//span[text()="MD.Table"]/../../..');
+    $I->seeElement('.lsItemDetails ol {type: 'I'}');
+
+  }
 
 }
