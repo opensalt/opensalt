@@ -137,7 +137,9 @@ class UserManagement extends \Codeception\Module
 
             $user = $userRepo->createQueryBuilder('u')
                 ->where('u.username = :username')
+                ->andWhere('u.status = :status')
                 ->setParameter(':username', $username)
+                ->setParameter(':status', $status)
                 ->setMaxResults(1)
                 ->getQuery()
                 ->getOneOrNullResult();
