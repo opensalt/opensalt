@@ -14,7 +14,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * Class GithubImport.
  *
- * @DI\Service("cftf_import.github")
+ * @DI\Service()
  */
 class GithubImport
 {

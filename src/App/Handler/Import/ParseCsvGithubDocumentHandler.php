@@ -2,9 +2,11 @@
 
 namespace App\Handler\Import;
 
+use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ParseCsvGithubDocumentCommand;
 use App\Event\CommandEvent;
+use CftfBundle\Entity\LsDoc;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use GithubFilesBundle\Service\GithubImport;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -27,7 +29,7 @@ class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
      * @DI\InjectParams({
      *     "validator" = @DI\Inject("validator"),
      *     "registry" = @DI\Inject("doctrine"),
-     *     "importService" = @DI\Inject("cftf_import.github")
+     *     "importService" = @DI\Inject(GithubFilesBundle\Service\GithubImport::class)
      * })
      *
      * @param ValidatorInterface $validator
@@ -39,6 +41,7 @@ class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
         parent::__construct($validator, $registry);
         $this->importService = $importService;
     }
+
     /**
      * @DI\Observe(App\Command\Import\ParseCsvGithubDocumentCommand::class)
      */
@@ -55,5 +58,19 @@ class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
         $missingFieldsLog = $command->getMissingFieldsLog();
 
         $this->importService->parseCSVGithubDocument($itemKeys, $fileContent, $docId, $frameworkToAssociate, $missingFieldsLog);
+
+        $doc = $this->em->getRepository(LsDoc::class)->find($docId);
+
+        $notification = new NotificationEvent(
+            'D15',
+            sprintf('Framework "%s" updated from GitHub CSV', $doc->getTitle()),
+            $doc,
+            [
+                'doc-u' => [
+                    $doc,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

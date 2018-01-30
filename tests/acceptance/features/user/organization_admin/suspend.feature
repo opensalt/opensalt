@@ -7,6 +7,7 @@ Feature: Suspend an existing User
   Scenario: 1011-1416 Suspend a user in User List
     Given I log in as a user with role "Admin"
     And I add a new user
+    And I approve the new user
 
     Then I suspend the user
     And I delete the User

@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -33,6 +34,16 @@ class DeleteAssociationGroupHandler extends BaseFrameworkHandler
 
         $this->framework->deleteAssociationGroup($associationGroup);
 
-//        $dispatcher->dispatch(DeleteAssociationGroupEvent::class, new DeleteAssociationGroupEvent());
+        $notification = new NotificationEvent(
+            'G02',
+            sprintf('Association Group "%s" deleted', $associationGroup->getTitle()),
+            $associationGroup->getLsDoc(),
+            [
+                'assocGrp-d' => [
+                    $associationGroup->getId() => $associationGroup->getIdentifier(),
+                ]
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

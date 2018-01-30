@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportExcelFileCommand;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExcelImportController extends AbstractController
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * @var EventDispatcherInterface

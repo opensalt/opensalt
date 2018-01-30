@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\ChangePasswordCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -36,6 +37,10 @@ class ChangePasswordHandler extends BaseUserHandler
 
         $this->em->persist($user);
 
-//        $dispatcher->dispatch(ChangePasswordEvent::class, new ChangePasswordEvent());
+        $command->setNotificationEvent(new NotificationEvent(
+            'U05',
+            sprintf('User "%s" changed password', $user->getUsername()),
+            null
+        ));
     }
 }

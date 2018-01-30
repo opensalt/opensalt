@@ -602,6 +602,14 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
+     * Return the normalized type (like "isChildOf" instead of "Is Child Of")
+     */
+    public function getNormalizedType(): string
+    {
+        return lcfirst(str_replace(' ', '', $this->type));
+    }
+
+    /**
      * Set originLsDoc
      *
      * @param \CftfBundle\Entity\LsDoc $originLsDoc

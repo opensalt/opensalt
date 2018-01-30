@@ -2,7 +2,7 @@
 
 namespace Salt\UserBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\User\AddOrganizationCommand;
 use App\Command\User\DeleteOrganizationCommand;
 use App\Command\User\UpdateOrganizationCommand;
@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class OrganizationController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all organization entities.

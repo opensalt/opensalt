@@ -2,13 +2,15 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddItemCommand;
 use App\Command\Framework\ChangeItemParentCommand;
 use App\Command\Framework\CopyItemToDocCommand;
 use App\Command\Framework\DeleteItemCommand;
+use App\Command\Framework\LockItemCommand;
 use App\Command\Framework\RemoveChildCommand;
 use App\Command\Framework\UpdateItemCommand;
+use App\Exception\AlreadyLockedException;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
@@ -18,6 +20,7 @@ use CftfBundle\Form\Command\CopyToLsDocCommand;
 use CftfBundle\Form\Type\LsDocListType;
 use CftfBundle\Form\Type\LsItemParentType;
 use CftfBundle\Form\Type\LsItemType;
+use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -28,6 +31,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * LsItem controller.
@@ -36,7 +40,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class LsItemController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all LsItem entities.
@@ -68,7 +72,7 @@ class LsItemController extends Controller
      * @Security("is_granted('add-standard-to', doc)")
      *
      * @param Request $request
-     * @param LsDoc|null $doc
+     * @param LsDoc $doc
      * @param LsItem|null $parent
      * @param LsDefAssociationGrouping|null $assocGroup
      *
@@ -154,12 +158,23 @@ class LsItemController extends Controller
      *
      * @param Request $request
      * @param LsItem $lsItem
+     * @param User $user
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function editAction(Request $request, LsItem $lsItem)
+    public function editAction(Request $request, LsItem $lsItem, UserInterface $user)
     {
         $ajax = $request->isXmlHttpRequest();
+
+        try {
+            $command = new LockItemCommand($lsItem, $user);
+            $this->sendCommand($command);
+        } catch (AlreadyLockedException $e) {
+            return $this->render(
+                'CftfBundle:LsItem:locked.html.twig',
+                []
+            );
+        }
 
         $deleteForm = $this->createDeleteForm($lsItem);
         $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
@@ -238,7 +253,7 @@ class LsItemController extends Controller
     }
 
     /**
-     * Export an LSItem entity.
+     * Export an LsItem entity.
      *
      * @Route("/{id}/export", defaults={"_format"="json"}, name="lsitem_export")
      * @Method("GET")
@@ -260,6 +275,7 @@ class LsItemController extends Controller
      *
      * @Route("/{id}/removeChild/{child}", name="lsitem_remove_child")
      * @Method("POST")
+     * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
      * @param \CftfBundle\Entity\LsItem $parent
@@ -280,6 +296,7 @@ class LsItemController extends Controller
      *
      * @Route("/{id}/copy", name="lsitem_copy_item")
      * @Method({"GET", "POST"})
+     * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
      * @param Request $request
@@ -333,6 +350,7 @@ class LsItemController extends Controller
      *
      * @Route("/{id}/parent", name="lsitem_change_parent")
      * @Method({"GET", "POST"})
+     * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
      * @param Request $request
@@ -390,11 +408,29 @@ class LsItemController extends Controller
             'educationalAlignment' => $item->getEducationalAlignment(),
             'itemType' => $item->getItemType(),
             'changedAt' => $item->getChangedAt(),
-            'extra' => [
-                'assocId' => isset($assoc) ? $assoc->getId() : null,
-                'identifier' => isset($assoc) ? $assoc->getIdentifier(): null
-            ]
+            'extra' => [],
         ];
+
+        if (null !== $assoc) {
+            $destItem = $assoc->getDestinationNodeIdentifier();
+
+            if (null !== $destItem) {
+                $ret['extra'] = [
+                    'assocDoc' => $assoc->getLsDocIdentifier(),
+                    'assocId' => $assoc->getId(),
+                    'identifier' => $assoc->getIdentifier(),
+                    //'groupId' => (null !== $assoc->getGroup()) ? $assoc->getGroup()->getId() : null,
+                    'dest' => ['doc' => $assoc->getLsDocIdentifier(), 'item' => $destItem, 'uri' => $destItem],
+                ];
+                if ($assoc->getGroup()) {
+                    $ret['extra']['groupId'] = $assoc->getGroup()->getId();
+                }
+                if ($assoc->getSequenceNumber()) {
+                    $ret['extra']['seq'] = $assoc->getSequenceNumber();
+                }
+            }
+        }
+
         $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
         $response->headers->set('Content-Type', 'application/json');
         $response->headers->set('Cache-Control', 'no-cache');
