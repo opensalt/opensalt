@@ -610,7 +610,7 @@ class Framework implements Context
       $I = $this->I;
 
       $I->click('//span[text()="MD.Table"]/../../..');
-      $I->seeElement('.lsItemDetails ol {type: 'I'}');
+      $I->seeElement(".lsItemDetails ol {type: 'I'}");
 
     }
 
