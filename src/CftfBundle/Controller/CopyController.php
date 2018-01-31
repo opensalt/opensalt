@@ -2,7 +2,7 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\CopyFrameworkCommand;
 use CftfBundle\Entity\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -18,9 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CopyController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
+
     /**
-     * @Route("/framework/{id}")
+     * @Route("/framework/{id}", name="copy_framework_content")
      * @Method("POST")
      *
      * @param Request $request
