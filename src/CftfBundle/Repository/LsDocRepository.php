@@ -320,10 +320,10 @@ xENDx;
      * @param LsDoc $fromDoc
      * @param LsDoc $toDoc
      */
-    public function copyDocumentContentToDoc(LsDoc $fromDoc, LsDoc $toDoc, $exactMatchWithOriginal = false)
+    public function copyDocumentContentToDoc(LsDoc $fromDoc, LsDoc $toDoc, $exactMatchAssocs = false)
     {
         foreach ($fromDoc->getTopLsItems() as $oldItem) {
-            $newItem = $oldItem->copyToLsDoc($toDoc, null, $exactMatchWithOriginal);
+            $newItem = $oldItem->copyToLsDoc($toDoc, null, $exactMatchAssocs);
             $toDoc->addTopLsItem($newItem);
         }
     }

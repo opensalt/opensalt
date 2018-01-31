@@ -1,4 +1,4 @@
-var apx = window.apx||{};
+window.apx = window.apx||{};
 
 apx.copyFramework = { };
 
@@ -50,7 +50,7 @@ apx.copyFramework.copyFrameworkRequestFail = function(data){
 
 apx.copyFramework.resetModalAfterRequest = function(data){
     setTimeout(apx.copyFramework.resetModal, 3000);
-}
+};
 
 apx.copyFramework.resetModal = function(data){
     $(apx.copyFramework.consts.alertSuccess).addClass("hidden");
