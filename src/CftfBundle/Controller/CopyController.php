@@ -31,12 +31,12 @@ class CopyController extends Controller
      */
     public function frameworkAction(Request $request, LsDoc $lsDoc)
     {
-        $em = $this->getDoctrine()->getManager();
+        $eManager = $this->getDoctrine()->getManager();
 
         $type = $request->request->get('type');
         $frameworkToCopy = $request->request->get('frameworkToCopy');
 
-        $toLsDoc = $em->getRepository(LsDoc::class)->find($frameworkToCopy);
+        $toLsDoc = $eManager->getRepository(LsDoc::class)->find($frameworkToCopy);
 
         $command = new CopyFrameworkCommand($lsDoc, $toLsDoc, $type);
         $this->sendCommand($command);
