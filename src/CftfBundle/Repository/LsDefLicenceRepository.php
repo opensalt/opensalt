@@ -12,9 +12,9 @@ class LsDefLicenceRepository extends AbstractLsDefinitionRepository
      */
     public function getList()
     {
-        $qb = $this->createQueryBuilder('s', 's.title')
+        $qBuilder = $this->createQueryBuilder('s', 's.title')
             ->orderBy('s.title');
 
-        return $qb->getQuery()->getResult();
+        return $qBuilder->getQuery()->getResult();
     }
 }

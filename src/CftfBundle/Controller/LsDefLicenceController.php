@@ -56,7 +56,7 @@ class LsDefLicenceController extends Controller
      *
      * @return array
      */
-    public function jsonListAction(Request $request)
+    public function jsonListAction()
     {
         $em = $this->getDoctrine()->getManager();
 
