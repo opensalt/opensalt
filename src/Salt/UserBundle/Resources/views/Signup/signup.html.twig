@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Create new account</h1>
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <ul class="list-inline pull-right">
+            <li>
+                <input class="btn btn-primary" type="submit" value="Add" />
+            </li>
+        </ul>
+    {{ form_end(form) }}
+
+{% endblock %}
