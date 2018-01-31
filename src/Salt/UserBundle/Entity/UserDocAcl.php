@@ -9,7 +9,12 @@ use Doctrine\ORM\Mapping as ORM;
  * Class UserDocAcl
  *
  * @ORM\Entity(repositoryClass="Salt\UserBundle\Repository\UserDocAclRepository")
- * @ORM\Table(name="salt_user_doc_acl")
+ * @ORM\Table(
+ *     name="salt_user_doc_acl",
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(name="uniq_acl_id", columns={"doc_id", "user_id"})
+ *     }
+ * )
  */
 class UserDocAcl
 {
@@ -17,9 +22,17 @@ class UserDocAcl
     public const ALLOW = 1;
 
     /**
-     * @var User
+     * @var int
      *
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(name="id", type="integer")
+     */
+    protected $id;
+
+    /**
+     * @var User
+     *
      * @ORM\ManyToOne(targetEntity="User", inversedBy="docAcls", fetch="EAGER")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
      */
@@ -28,7 +41,6 @@ class UserDocAcl
     /**
      * @var LsDoc
      *
-     * @ORM\Id
      * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="docAcls", fetch="EAGER")
      * @ORM\JoinColumn(name="doc_id", referencedColumnName="id", nullable=false)
      */
@@ -59,6 +71,14 @@ class UserDocAcl
         $this->user = $user;
         $this->lsDoc = $lsDoc;
         $this->access = $access;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
     }
 
     /**

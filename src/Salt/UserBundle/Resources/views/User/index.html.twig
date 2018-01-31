@@ -36,11 +36,16 @@
                         {% endif %}
                         <li>
                             {% if user.suspended %}
-                                <a class="btn btn-default" href="{{ path('admin_user_unsuspend', { 'id': user.id }) }}">Unsuspend</a>
+                                <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Unsuspend</a>
                             {% else %}
                                 <a class="btn btn-default" href="{{ path('admin_user_suspend', { 'id': user.id }) }}">Suspend</a>
                             {% endif %}
                         </li>
+                        {% if user.pending %}
+                            <li>
+                                <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Approve</a>
+                            </li>
+                        {% endif %}
                     </ul>
                 </td>
             </tr>

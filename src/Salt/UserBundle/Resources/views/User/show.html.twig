@@ -46,7 +46,7 @@
             </li>
         {% else %}
             <li>
-                <a class="btn btn-default" href="{{ path('admin_user_unsuspend', { 'id': user.id }) }}">Unsuspend</a>
+                <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Activate</a>
             </li>
         {% endif %}
         <li>

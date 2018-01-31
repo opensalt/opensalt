@@ -1,0 +1,18 @@
+{% extends '::layout.html.twig' %}
+
+{% block body %}
+    {% if not app.request.xmlHttpRequest %}
+        <h1 class="title">Doc Is Locked</h1>
+    {% endif %}
+
+    <div>Sorry, the document you are trying to edit is currently locked by another user.</div>
+
+    {% if not app.request.xmlHttpRequest %}
+        <br/>
+        <ul class="list-inline text-right">
+            <li>
+                <a class="btn btn-default" href="{{ path('lsdoc_index') }}">Back to list</a>
+            </li>
+        </ul>
+    {% endif %}
+{% endblock %}

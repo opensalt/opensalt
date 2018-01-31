@@ -2,8 +2,9 @@
 
 namespace App\Handler\Framework;
 
-use App\Command\Framework\AddDocumentCommand;
+use App\Command\Framework\UpdateDocumentCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -15,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class UpdateDocumentHandler extends BaseFrameworkHandler
 {
     /**
-     * @DI\Observe(App\Command\Framework\AddDocumentCommand::class)
+     * @DI\Observe(App\Command\Framework\UpdateDocumentCommand::class)
      *
      * @param CommandEvent $event
      * @param string $eventName
@@ -25,7 +26,7 @@ class UpdateDocumentHandler extends BaseFrameworkHandler
      */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        /** @var AddDocumentCommand $command */
+        /** @var UpdateDocumentCommand $command */
         $command = $event->getCommand();
 
         $doc = $command->getDoc();
@@ -33,6 +34,23 @@ class UpdateDocumentHandler extends BaseFrameworkHandler
 
         $doc->setUpdatedAt(new \DateTime());
 
-//        $dispatcher->dispatch(AddDocumentEvent::class, new UpdateDocumentEvent());
+        $this->framework->unlockObject($doc);
+
+        /* @todo Check explicitly for change in publication status for a different notification */
+
+        $notification = new NotificationEvent(
+            'D06',
+           'Framework document modified',
+           $doc,
+           [
+               'doc-u' => [
+                   $doc->getId() => $doc->getIdentifier(),
+               ],
+               'doc-ul' => [
+                   $doc->getId() => $doc->getIdentifier(),
+               ],
+           ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

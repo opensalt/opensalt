@@ -37,6 +37,7 @@ class Organization implements Context
         $I->click('Add a new organization');
         $I->fillField('#salt_userbundle_organization_name', $name);
         $I->click('Add');
+        $I->remember('lastNewOrg', $this->orgName);
     }
 
     /**
@@ -51,7 +52,7 @@ class Organization implements Context
         $I->click("//td[text()='{$org}']/..//a[text()='show']");
         $I->see($this->orgName);
         $I->click('Delete');
-
+        $I->remember('lastDeletedOrg', $this->orgName);
     }
 
     /**
@@ -115,10 +116,34 @@ class Organization implements Context
         foreach ($rows as $row) {
             $I->fillField('#salt_userbundle_organization_name', $row[0]);
             $I->click('Save');
+            $I->waitForText($row[0], 10);
             $I->see($row[0]);
             $this->orgName = $row[0];
         }
+    }
 
+    /**
+     * @Then /^I change the name of the Organization$/
+     */
+    public function iChangeOrganizationName()
+    {
+        /** @var \Faker\Generator $faker */
+        $faker = \Faker\Factory::create();
+        $name = str_replace("'", '', $faker->company);
+        $newOrgName = $name;
+
+        $I = $this->I;
+        $org = $this->orgName;
+
+        $I->amOnPage(self::ORG_ADMIN_PAGE);
+        $I->click("//td[text()='{$org}']/..//a[text()='edit']");
+        $I->seeInField('#salt_userbundle_organization_name', $this->orgName);
+        $I->fillField('#salt_userbundle_organization_name', $newOrgName);
+        $I->click('Save');
+        $I->waitForText($newOrgName, 10);
+        $I->see($newOrgName);
+        $this->orgName = $newOrgName;
+        $I->remember('lastChangedOrg', $this->orgName);
     }
 
     /**

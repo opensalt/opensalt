@@ -2,6 +2,7 @@
 
 namespace App\Handler\Import;
 
+use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ImportExcelFileCommand;
 use App\Event\CommandEvent;
@@ -39,6 +40,7 @@ class ImportExcelFileHandler extends AbstractDoctrineHandler
         parent::__construct($validator, $registry);
         $this->importService = $excelImportService;
     }
+
     /**
      * @DI\Observe(App\Command\Import\ImportExcelFileCommand::class)
      */
@@ -52,12 +54,24 @@ class ImportExcelFileHandler extends AbstractDoctrineHandler
         $creator = $command->getCreator();
         $organization = $command->getOrganization();
 
-        $lsDoc = $this->importService->importExcel($excelFilePath);
+        $doc = $this->importService->importExcel($excelFilePath);
         if ($creator) {
-            $lsDoc->setCreator($creator);
+            $doc->setCreator($creator);
         }
         if ($organization) {
-            $lsDoc->setOrg($organization);
+            $doc->setOrg($organization);
         }
+
+        $notification = new NotificationEvent(
+            'D13',
+            sprintf('Framework "%s" imported from Excel file', $doc->getTitle()),
+            $doc,
+            [
+                'doc-a' => [
+                    $doc,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

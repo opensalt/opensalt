@@ -4,6 +4,11 @@ var CommentSystem = (function(){
         itemType: 'document'
     };
 
+    function exportCSV(){
+        var url = "/salt/case/export_comment/"+commentItem.itemType+"/"+commentItem.itemId+"/comment.csv";
+        window.location = url;
+    }
+
     function init(nodeRef){
         setItem(nodeRef);
         $('.js-comments-container').comments({
@@ -123,8 +128,9 @@ var CommentSystem = (function(){
     }
 
     return {
-        init: init
-    }
+        init: init,
+        exportCSV: exportCSV
+    };
 })();
 
 global.CommentSystem = CommentSystem;
@@ -132,3 +138,5 @@ global.CommentSystem = CommentSystem;
 $(document).on('ready', function(){
     CommentSystem.init();
 });
+
+

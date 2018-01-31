@@ -225,6 +225,20 @@ class LsDocRepository extends \Doctrine\ORM\EntityRepository
             };
         }
 
+        $stmt = <<<'xENDx'
+DELETE FROM salt_change
+ WHERE doc_id = :lsDocId
+;
+xENDx;
+
+        $conn->prepare($stmt)->execute($params);
+        $stmt = <<<'xENDx'
+DELETE FROM salt_object_lock
+ WHERE doc_id = :lsDocId
+;
+xENDx;
+        $conn->prepare($stmt)->execute($params);
+
         $progressCallback('Deleting associations');
         $stmt = <<<'xENDx'
 DELETE FROM ls_association

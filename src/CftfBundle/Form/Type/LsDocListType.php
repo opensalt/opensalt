@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Form\Type;
 
+use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -19,8 +20,22 @@ class LsDocListType extends AbstractType
         $builder
             ->add('lsDoc', EntityType::class, [
                 'label' => 'Document:',
-                'choice_label' => 'title',
-                'group_by' => 'creator',
+                'choice_label' => function(LsDoc $val) {
+                    $title = $val->getTitle();
+                    if (strlen($title) > 60) {
+                        return substr($val->getTitle(), 0, 59)."\u{2026}";
+                    }
+
+                    return $title;
+                },
+                'group_by' => function(LsDoc $val) {
+                    $creator = $val->getCreator();
+                    if (strlen($creator) > 60) {
+                        return substr($val->getCreator(), 0, 59)."\u{2026}";
+                    }
+
+                    return $creator;
+                },
                 'required' => false,
                 'multiple' => false,
                 'class' => 'CftfBundle\Entity\LsDoc',

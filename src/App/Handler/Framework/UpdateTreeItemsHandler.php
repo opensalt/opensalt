@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\UpdateTreeItemsCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -34,8 +35,16 @@ class UpdateTreeItemsHandler extends BaseFrameworkHandler
         $items = $command->getItems();
 
         $ret = $this->framework->updateTreeItems($doc, $items);
-        $command->setReturnValues($ret);
+        $command->setReturnValues($ret['return']);
 
-//        $dispatcher->dispatch(UpdateTreeItemsEvent::class, new UpdateTreeItemsEvent());
+        $changes = $ret['changes'];
+
+        $notification = new NotificationEvent(
+            'D08',
+            'Framework tree updated',
+            $doc,
+            $changes
+        );
+        $command->setNotificationEvent($notification);
     }
 }

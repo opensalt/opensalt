@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\DeleteOrganizationCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -33,6 +34,10 @@ class DeleteOrganizationHandler extends BaseUserHandler
 
         $this->em->remove($organization);
 
-//        $dispatcher->dispatch(DeleteOrganizationEvent::class, new DeleteOrganizationEvent());
+        $command->setNotificationEvent(new NotificationEvent(
+            'O03',
+            sprintf('Organization "%s" deleted', $organization->getName()),
+            null
+        ));
     }
 }

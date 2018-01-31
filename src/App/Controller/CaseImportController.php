@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportCaseJsonCommand;
 use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -16,7 +16,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class CaseImportController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     public function __construct(ContainerInterface $container = null)
     {

@@ -22,21 +22,52 @@ services:
 
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-        resource: '../../src/App/{Console,Handler,Form,EventSubscriber,Twig,Security,Service}'
+        resource: '../../src/App/{Console,Handler,Form,Service,Repository}'
 
     App\Controller\:
         resource: '../../src/App/Controller'
         public: true
         tags: ['controller.service_arguments']
 
+    App\Controller\Site\AboutController:
+        public: true
+        tags: ['controller.service_arguments']
+        arguments:
+            $rootDir: '%kernel.root_dir%'
+
+    App\Console\ClearFirebaseNotificationsCommand:
+        public: true
+        arguments:
+            - '@Kreait\Firebase'
+            - '%firebase_prefix%'
+
     # Autowiring commands
     CftfBundle\Command\:
         resource: '../../src/CftfBundle/Command'
         tags: ['console.command']
 
+    CftfBundle\Service\:
+        resource: '../../src/CftfBundle/Service'
+
     Salt\UserBundle\Command\:
         resource: '../../src/Salt/UserBundle/Command'
         tags: ['console.command']
+
+    GithubFilesBundle\Service\:
+        resource: '../../src/GithubFilesBundle/Service'
+
+
+
+    # Manual services
+    Kreait\Firebase:
+        factory: 'App\Service\FirebaseFactory:createFirebase'
+        arguments:
+            - '@logger'
+            - '%firebase_project_id%'
+            - '%firebase_client_id%'
+            - '%firebase_client_email%'
+            - '%firebase_private_key%'
+            - '%firebase_db_url%'
 
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler

@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Import\MarkImportLogsAsReadCommand;
 use CftfBundle\Entity\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ImportLogsController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * @var EventDispatcherInterface

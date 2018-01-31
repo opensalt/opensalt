@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\AddExemplarToItemCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -36,6 +37,19 @@ class AddExemplarToItemHandler extends BaseFrameworkHandler
         $association = $this->framework->addExemplarToItem($item, $url);
         $command->setAssociation($association);
 
-//        $dispatcher->dispatch(AddExemplarToItemEvent::class, new AddExemplarToItemEvent());
+        $notification = new NotificationEvent(
+            'A02',
+            sprintf('Exemplar (%s) added to "%s"', $url, $item->getShortStatement()),
+            $item->getLsDoc(),
+            [
+                'item-u' => [
+                    $item->getId() => $item->getIdentifier(),
+                ],
+                'assoc-a' => [
+                    $association,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

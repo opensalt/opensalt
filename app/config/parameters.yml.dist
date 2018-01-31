@@ -36,3 +36,12 @@ parameters:
     env(BRAND_LOGO_STYLE): ~
     env(BRAND_LINK_URL): ~
     env(BRAND_LINK_STYLE): ~
+
+    env(FIREBASE_API_KEY): ~
+    env(FIREBASE_DB_URL): ~
+    env(FIREBASE_AUTH_DOMAIN): ~
+    env(FIREBASE_PROJECT_ID): ~
+    env(FIREBASE_CLIENT_ID): ~
+    env(FIREBASE_CLIENT_EMAIL): ~
+    env(FIREBASE_PRIVATE_KEY): ~
+    env(FIREBASE_PREFIX): opensalt

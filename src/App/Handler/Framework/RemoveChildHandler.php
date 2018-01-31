@@ -4,7 +4,10 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\RemoveChildCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
+use CftfBundle\Entity\LsAssociation;
+use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,8 +37,43 @@ class RemoveChildHandler extends BaseDoctrineHandler
         $child = $command->getChild();
 
         $lsItemRepo = $this->em->getRepository(LsItem::class);
-        $lsItemRepo->removeChild($parent, $child);
+        $associations = $lsItemRepo->findChildAssociations($parent, $child);
+        $removedList = [];
+        foreach ($associations as $association) {
+            $removedList[$association->getId()] = $association->getIdentifier();
+        }
 
-//        $dispatcher->dispatch(RemoveChildEvent::class, new RemoveChildEvent());
+        if (!empty($removedList)) {
+            $fromTitle = $this->getTitle($association->getOrigin());
+            $toTitle = $this->getTitle($association->getDestination());
+            $notification = new NotificationEvent(
+                'A06',
+                sprintf('"%s" association deleted from "%s" to "%s"', LsAssociation::CHILD_OF, $fromTitle, $toTitle),
+                $parent->getLsDoc(),
+                [
+                    'assoc-d' => $removedList,
+                ]
+            );
+            $command->setNotificationEvent($notification);
+        }
+
+        $lsItemRepo->removeChild($parent, $child);
+    }
+
+    protected function getTitle($obj): string
+    {
+        if (null === $obj) {
+            return 'NONE';
+        }
+
+        if (is_string($obj)) {
+            return $obj;
+        }
+
+        if ($obj instanceof LsItem || $obj instanceof LsDoc) {
+            return $obj->getShortStatement();
+        }
+
+        return 'UNKNOWN';
     }
 }

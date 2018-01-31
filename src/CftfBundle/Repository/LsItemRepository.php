@@ -6,6 +6,7 @@ use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsDocAttribute;
 use CftfBundle\Entity\LsItem;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * LsItemRepository
@@ -76,12 +77,7 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
         return $qry->getQuery()->getResult();
     }
 
-    /**
-     * @param LsDoc $lsDoc
-     *
-     * @return \Doctrine\ORM\QueryBuilder
-     */
-    public function findAllForDocQueryBuilder(LsDoc $lsDoc)
+    public function findAllForDocQueryBuilder(LsDoc $lsDoc): QueryBuilder
     {
         $qry = $this->createQueryBuilder('i')
             ->leftJoin('i.associations', 'fa')
@@ -98,24 +94,32 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
-     * @param LsAssociation $association
+     * @return LsAssociation[]
      */
-    public function removeAssociation(LsAssociation $association)
+    public function findChildAssociations(LsItem $parent, LsItem $child): array
+    {
+        $associations = [];
+        foreach ($child->getAssociations() as $association) {
+            if ($association->getType() === LsAssociation::CHILD_OF
+                && null !== $association->getDestinationLsItem()
+                && $association->getDestinationLsItem()->getId() === $parent->getId()) {
+                $associations[] = $association;
+            }
+        }
+
+        return $associations;
+    }
+
+    public function removeAssociation(LsAssociation $association): void
     {
         $this->_em->getRepository(LsAssociation::class)->removeAssociation($association);
     }
 
-    /**
-     * @param LsItem $parent
-     * @param LsItem $child
-     */
-    public function removeChild(LsItem $parent, LsItem $child)
+    public function removeChild(LsItem $parent, LsItem $child): void
     {
-        foreach ($child->getAssociations() as $association) {
-            if ($association->getType() === LsAssociation::CHILD_OF
-                && $association->getDestinationLsItem()->getId() === $parent->getId()) {
-                $this->removeAssociation($association);
-            }
+        $associations = $this->findChildAssociations($parent, $child);
+        foreach ($associations as $association) {
+            $this->removeAssociation($association);
         }
     }
 
@@ -142,10 +146,7 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
         return false;
     }
 
-    /**
-     * @return \Doctrine\ORM\QueryBuilder
-     */
-    public function createGradeSelectListQueryBuilder()
+    public function createGradeSelectListQueryBuilder(): QueryBuilder
     {
         return $this->createQueryBuilder('i')
             ->join('i.associations', 'a', 'WITH', 'a.type = :isChild')

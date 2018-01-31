@@ -15,9 +15,9 @@ apx.viewMode.showTreeView = function(context) {
     apx.viewMode.currentView = "tree";
 
     // if the user clicked the button to show this view, or clicked an item from the associations table
-    if (context == "button" || context == "avTable") {
+    if (context === "button" || context === "avTable") {
         // if the user clicked the button and the last view button pushed wasn't tree...
-        if (context == "button" && apx.viewMode.lastViewButtonPushed != "tree") {
+        if (context === "button" && apx.viewMode.lastViewButtonPushed !== "tree") {
             // then the user must have been in the assoc view, then clicked the button to go to the tree view, so push a history state
             apx.pushHistoryState();
         }
@@ -26,12 +26,14 @@ apx.viewMode.showTreeView = function(context) {
     }
 
     // set buttons appropriately
-    $("#displayAssocBtn").removeClass("btn-primary").addClass("btn-default").blur();
-    $("#displayTreeBtn").addClass("btn-primary").removeClass("btn-default").blur();
+    $(".view-btn").removeClass("btn-primary").blur();
+    $("#displayTreeBtn").addClass("btn-primary").blur();
 
     // hide the assocView and show the treeView
-    $("#assocView").hide();
+    $(".main-view").hide();
     $("#treeView").show();
+    apx.treeDoc1.ftRender1();
+    apx.treeDoc1.activateCurrentItem();
 };
 
 apx.viewMode.avFilters = {
@@ -49,8 +51,8 @@ apx.viewMode.avFilters = {
 apx.viewMode.assocViewStatus = "not_written";
 apx.viewMode.showAssocView = function(context) {
     // can't show the assocView until all docs have been loaded
-    for (var identifier in apx.allDocs) {
-        if (apx.allDocs[identifier] == "loading") {
+    for (let identifier in apx.allDocs) {
+        if (apx.allDocs[identifier] === "loading") {
             apx.spinner.showModal("Loading associated document(s)");
             setTimeout(function() { apx.viewMode.showAssocView(context); }, 1000);
             return;
@@ -64,14 +66,14 @@ apx.viewMode.showAssocView = function(context) {
     apx.mainDoc.setCurrentItem({"item": apx.mainDoc.doc});
 
     // if we're refreshing the view
-    if (context == "refresh") {
+    if (context === "refresh") {
         // set viewMode.assocViewStatus to "stale" so we make sure to reload it
         apx.viewMode.assocViewStatus = "stale";
 
     // else if the user clicked the button to load this view
-    } else if (context == "button") {
+    } else if (context === "button") {
         // unless the user has now clicked the Associations button twice in a row, push a history state
-        if (apx.viewMode.lastViewButtonPushed != "assoc") {
+        if (apx.viewMode.lastViewButtonPushed !== "assoc") {
             apx.pushHistoryState();
         }
 
@@ -80,16 +82,16 @@ apx.viewMode.showAssocView = function(context) {
     }
 
     // if viewMode.assocViewStatus isn't "current", re-write the table
-    if (apx.viewMode.assocViewStatus != "current") {
+    if (apx.viewMode.assocViewStatus !== "current") {
         // destroy previous table if we already created it
-        if (apx.viewMode.assocViewStatus != "not_written") {
+        if (apx.viewMode.assocViewStatus !== "not_written") {
             $("#assocViewTable").DataTable().destroy();
         }
 
         // make sure viewMode.avFilters.groups is set up to use included groups
-        var gft = [];
-        for (var i = 0; i < apx.mainDoc.assocGroups.length; ++i) {
-            var group = apx.mainDoc.assocGroups[i];
+        let gft = [];
+        for (let i = 0; i < apx.mainDoc.assocGroups.length; ++i) {
+            let group = apx.mainDoc.assocGroups[i];
             if (!empty(apx.viewMode.avFilters.groups[group.id])) {
                 gft[group.id] = apx.viewMode.avFilters.groups[group.id];
             } else {
@@ -107,7 +109,7 @@ apx.viewMode.showAssocView = function(context) {
 
         function avGetItemCell(a, key) {
             // set default title
-            var title;
+            let title;
             if (!empty(a[key].uri)) {
                 title = a[key].uri;
             } else if (!empty(a[key].item)) {
@@ -117,47 +119,47 @@ apx.viewMode.showAssocView = function(context) {
             } else {
                 title = key;
             }
-            var doc = null;
+            let doc = null;
 
             // for the dest of an exemplar, we just use .uri
-            if (a.type == "exemplar") {
+            if (a.type === "exemplar") {
                 title = a[key].uri;
 
             // else see if the "item" is actually a document
-            } else if (!empty(apx.allDocs[a[key].item]) && typeof(apx.allDocs[a[key].item]) != "string") {
+            } else if (!empty(apx.allDocs[a[key].item]) && typeof(apx.allDocs[a[key].item]) !== "string") {
                 title = "Document: " + apx.allDocs[a[key].item].doc.title;
 
             // else if we know about this item via allItemsHash...
             } else if (!empty(apx.allItemsHash[a[key].item])) {
-                var destItem = apx.allItemsHash[a[key].item];
+                let destItem = apx.allItemsHash[a[key].item];
                 title = apx.mainDoc.getItemTitle(destItem, true);
                 doc = destItem.doc;
 
             // else we don't (currently at least) know about this item...
             } else {
-                if (a[key].doc != "?") {
+                if (a[key].doc !== "?") {
                     // look for document in allDocs
                     doc = apx.allDocs[a[key].doc];
 
                     // if we tried to load this document and failed, note that
-                    if (doc == "loaderror") {
+                    if (doc === "loaderror") {
                         title += " (document could not be loaded)";
 
                     // else if we know we're still in the process of loading that doc, note that
-                    } else if (doc == "loading") {
+                    } else if (doc === "loading") {
                         title += " (loading document...)";
 
                     // else we have the doc -- this shouldn't normally happen, because if we know about the doc,
                     // we should have found the item in apx.allItemsHash above
-                    } else if (typeof(doc) == "object") {
+                    } else if (typeof(doc) === "object") {
                         title += " (item not found in document)";
                     }
                 }
             }
 
             // if item comes from another doc, note that
-            if (!empty(doc) && typeof(doc) == "object" && doc != apx.mainDoc) {
-                var docTitle = doc.doc.title;
+            if (!empty(doc) && typeof(doc) === "object" && doc !== apx.mainDoc) {
+                let docTitle = doc.doc.title;
                 if (docTitle.length > 30) {
                     docTitle = docTitle.substr(0, 35);
                     docTitle = docTitle.replace(/\w+$/, "");
@@ -166,21 +168,19 @@ apx.viewMode.showAssocView = function(context) {
                 title += ' <span style="color:red">' + docTitle + '</span>';
             }
 
-            var html = '<div data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="' + key + '" class="assocViewTitle">'
+            return '<div data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="' + key + '" class="assocViewTitle">'
                 + title
                 + '</div>'
             ;
-
-            return html;
         }
 
         // compose datatables data array
-        var dataSet = [];
-        for (var i = 0; i < apx.mainDoc.assocs.length; ++i) {
-            var assoc = apx.mainDoc.assocs[i];
+        let dataSet = [];
+        for (let i = 0; i < apx.mainDoc.assocs.length; ++i) {
+            let assoc = apx.mainDoc.assocs[i];
 
             // skip associations (probably inverse associations) from other docs
-            if (assoc.assocDoc != apx.mainDoc.doc.identifier) {
+            if (assoc.assocDoc !== apx.mainDoc.doc.identifier) {
                 continue;
             }
 
@@ -245,20 +245,20 @@ apx.viewMode.showAssocView = function(context) {
             }
 
             // determine groupForLinks
-            var groupForLinks = "default";
+            let groupForLinks = "default";
             if ("groupId" in assoc) {
                 groupForLinks = assoc.groupId;
             }
 
             // get text to show in origin and destination column
-            var origin = avGetItemCell(assoc, "origin");
-            var dest = avGetItemCell(assoc, "dest");
+            let origin = avGetItemCell(assoc, "origin");
+            let dest = avGetItemCell(assoc, "dest");
 
             // get type cell, with remove association button (only for editors)
-            var type = apx.mainDoc.getAssociationTypePretty(assoc) + $("#associationRemoveBtn").html();
+            let type = apx.mainDoc.getAssociationTypePretty(assoc) + $("#associationRemoveBtn").html();
 
             // construct array for row
-            var arr = [origin, type, dest];
+            let arr = [origin, type, dest];
 
             // add group to row array if we have any groups
             if (apx.mainDoc.assocGroups.length > 0) {
@@ -274,7 +274,7 @@ apx.viewMode.showAssocView = function(context) {
         }
 
         // set up columns
-        var columns = [
+        let columns = [
             { "title": "Origin", "className": "avTitleCell" },
             { "title": "Association Type", "className": "avTypeCell" },
             { "title": "Destination", "className": "avTitleCell" }
@@ -295,11 +295,11 @@ apx.viewMode.showAssocView = function(context) {
         });
 
         // add filters
-        $("#assocViewTable_wrapper .dataTables_length").prepend($("#assocViewTableFilters").html());
+        $("#assocViewTable_wrapper").find(".dataTables_length").prepend($("#assocViewTableFilters").html());
 
         // enable type filters
-        for (var filter in apx.viewMode.avFilters) {
-            $("#assocViewTable_wrapper input[data-filter=" + filter + "]").prop("checked", apx.viewMode.avFilters[filter])
+        for (let filter in apx.viewMode.avFilters) {
+            $("#assocViewTable_wrapper").find("input[data-filter=" + filter + "]").prop("checked", apx.viewMode.avFilters[filter])
                 .on('change', function() {
                     apx.viewMode.avFilters[$(this).attr("data-filter")] = $(this).is(":checked");
                     apx.viewMode.showAssocView("refresh");
@@ -309,12 +309,12 @@ apx.viewMode.showAssocView = function(context) {
 
         // enable group filters if we have any groups
         if (apx.mainDoc.assocGroups.length > 0) {
-            $gf = $("#assocViewTable_wrapper .assocViewTableGroupFilters");
-            for (var groupId in apx.viewMode.avFilters.groups) {
+            let $gf = $("#assocViewTable_wrapper").find(".assocViewTableGroupFilters");
+            for (let groupId in apx.viewMode.avFilters.groups) {
                 if (groupId != 0) {
                     $gf.append('<label class="avGroupFilter"><input type="checkbox" data-group-id="' + groupId + '"> ' + apx.mainDoc.assocGroupIdHash[groupId].title + '</label><br>');
                 }
-                $("#assocViewTable_wrapper .avGroupFilter input[data-group-id=" + groupId + "]").prop("checked", apx.viewMode.avFilters.groups[groupId])
+                $("#assocViewTable_wrapper").find(".avGroupFilter input[data-group-id=" + groupId + "]").prop("checked", apx.viewMode.avFilters.groups[groupId])
                     .on('change', function() {
                         apx.viewMode.avFilters.groups[$(this).attr("data-group-id")] = $(this).is(":checked");
                         apx.viewMode.showAssocView("refresh");
@@ -325,9 +325,9 @@ apx.viewMode.showAssocView = function(context) {
         }
 
         // enable remove buttons
-        $("#assocViewTable_wrapper .btn-remove-association").on('click', function(e) {
+        $("#assocViewTable_wrapper").find(".btn-remove-association").on('click', function(e) {
             e.preventDefault();
-            var assocId = $(this).closest("tr").find("[data-association-id]").attr("data-association-id");
+            let assocId = $(this).closest("tr").find("[data-association-id]").attr("data-association-id");
             console.log("delete " + assocId);
 
             apx.edit.deleteAssociation(assocId, function() {
@@ -339,7 +339,7 @@ apx.viewMode.showAssocView = function(context) {
 
         // tooltips for items with titles
         $(".assocViewTitle").each(function() {
-            var content = $(this).html();
+            let content = $(this).html();
             $(this).tooltip({
                 "title": content,
                 "delay": { "show": 200, "hide": 100 },
@@ -364,12 +364,70 @@ apx.viewMode.showAssocView = function(context) {
     }
 
     // set mode toggle buttons appropriately
-    $("#displayTreeBtn").removeClass("btn-primary").addClass("btn-default").blur();
-    $("#displayAssocBtn").addClass("btn-primary").removeClass("btn-default").blur();
+    $(".view-btn").removeClass("btn-primary").blur();
+    $("#displayAssocBtn").addClass("btn-primary").blur();
 
     // hide the treeView and show the assocView
-    $("#treeView").hide();
+    $(".main-view").hide();
     $("#assocView").show();
+};
+
+apx.viewMode.showLogView = function(context) {
+    apx.viewMode.currentView = "log";
+
+    // if the user clicked the button to show this view, or clicked an item from the associations table
+    if (context === "button") {
+        // if the user clicked the button and the last view button pushed wasn't tree...
+        if (context === "button" && apx.viewMode.lastViewButtonPushed !== "log") {
+            // then the user must have been in another view, then clicked the button to go to this view, so push a history state
+            apx.pushHistoryState();
+        }
+        // set viewMode.lastViewButtonPushed to "log"
+        apx.viewMode.lastViewButtonPushed = "log";
+    }
+
+    // set buttons appropriately
+    $(".view-btn").removeClass("btn-primary").blur();
+    $("#displayLogBtn").addClass("btn-primary").blur();
+
+    // hide the assocView and show the treeView
+    $(".main-view").hide();
+    $("#logView").show();
+
+    $('#logViewExport').attr('href', apx.path.doc_revisions_export.replace('ID', apx.mainDoc.doc.id));
+
+    if ($.fn.dataTable.isDataTable('#logTable')) {
+        $('#logTable').DataTable().clear().ajax.reload();
+    } else {
+        $('#logTable').DataTable({
+            ajax: apx.path.doc_revisions.replace('ID', apx.lsDocId),
+            dataSrc: 'data',
+            columns: [
+                //{ data: 'rev' },
+                {
+                    data: 'changed_at',
+                    render: function(data, type, row) {
+                        if ("display" !== type && "filter" !== type) {
+                            return data;
+                        }
+
+                        function addZero(num) {
+                            return (num >=0 && num < 10) ? "0" + num : num + "";
+                        }
+
+                        let ts = new Date(data.replace(" ", "T").replace(/\..*$/, "Z"));
+                        return [
+                            [ts.getFullYear(), addZero(ts.getMonth() + 1), addZero(ts.getDate())].join('-'),
+                            [addZero(ts.getHours()), addZero(ts.getMinutes()), addZero(ts.getSeconds())].join(':')
+                        ].join(" ");
+                    }
+                },
+                { data: 'description' },
+                { data: 'username' }
+            ],
+            retrieve: true
+        });
+    }
 };
 
 ////////////////////////////////////////////////
@@ -378,13 +436,13 @@ apx.viewMode.showAssocView = function(context) {
 apx.chooserMode = {};
 apx.chooserMode.active = function() {
     // we're in chooser mode if "mode=chooser" is in the query string
-    return (apx.query.mode == "chooser");
+    return (apx.query.mode === "chooser");
 };
 
 apx.chooserMode.initialize = function() {
-	// add some margin to the body
-	$("body").css("margin", "0 15px");
-	
+    // add some margin to the body
+    $("body").css("margin", "0 15px");
+
     // hide header, footer, docTitleRow, instructions, and some other things
     $("header").hide();
     $("footer").hide();
@@ -404,7 +462,7 @@ apx.chooserMode.initialize = function() {
     $(window).off("resize");
 
     // unless we have "associations=true" in the query string, hide associations from the item details
-    if (apx.query.associations != "true") {
+    if (apx.query.associations !== "true") {
         $(".lsItemAssociations").hide();
     }
 
@@ -425,38 +483,38 @@ apx.chooserMode.initialize = function() {
 
 /** Enable item chooser buttons; this will be called each time an item is activated in the fancytree */
 apx.chooserMode.itemClicked = function(node) {
-    if (apx.query.mode == "chooser") {
-    	// remove previously-shown interface if there
-    	$("#chooserModeShowForChoosing").remove();
-    	
-    	// add new interface
-    	var html = '<div id="chooserModeShowForChoosing" style="position:fixed; z-index:10; top:5px; right:1px; border:2px solid #444; border-radius:5px; background-color:#eee; padding:10px; width:350px;">';
-    	html += '<span id="chooserModeShowForChoosingClose" class="glyphicon glyphicon-remove" title="Close" style="float:right; margin-left:10px; cursor:pointer;"></span>'
-    	// full item title
-    	html += apx.mainDoc.getItemTitle(node.data.ref, true);
-    	html += '<div style="text-align:right; margin-top:10px">'
-    	// buttons
-    	html += '<button class="chooserModeShowDetailsBtn btn btn-default btn-sm">Show Details</button>';
-    	html += '&nbsp;&nbsp;';
-    	html += '<button class="chooserModeChooseBtn btn btn-primary btn-sm">Choose</button>';
-    	html += '</div>';
-    	html += '</div>';
-    	$('body').append(html);
-    	
-    	// enable buggons
-    	$("#chooserModeShowForChoosing").click(function() {
-    		console.log("clicked");
-    		$("#chooserModeShowForChoosing").remove();
-    	});
-    	
-    	$(".chooserModeShowDetailsBtn").on("click", function() {
-        	console.log("details button clicked");
-        	apx.chooserMode.showDetails();
+    if (apx.query.mode === "chooser") {
+        // remove previously-shown interface if there
+        $("#chooserModeShowForChoosing").remove();
+
+        // add new interface
+        let html = '<div id="chooserModeShowForChoosing" style="position:fixed; z-index:10; top:5px; right:1px; border:2px solid #444; border-radius:5px; background-color:#eee; padding:10px; width:350px;">';
+        html += '<span id="chooserModeShowForChoosingClose" class="glyphicon glyphicon-remove" title="Close" style="float:right; margin-left:10px; cursor:pointer;"></span>'
+        // full item title
+        html += apx.mainDoc.getItemTitle(node.data.ref, true);
+        html += '<div style="text-align:right; margin-top:10px">'
+        // buttons
+        html += '<button class="chooserModeShowDetailsBtn btn btn-default btn-sm">Show Details</button>';
+        html += '&nbsp;&nbsp;';
+        html += '<button class="chooserModeChooseBtn btn btn-primary btn-sm">Choose</button>';
+        html += '</div>';
+        html += '</div>';
+        $('body').append(html);
+
+        // enable buggons
+        $("#chooserModeShowForChoosing").click(function () {
+            console.log("clicked");
+            $("#chooserModeShowForChoosing").remove();
         });
-        
-        $(".chooserModeChooseBtn").on("click", function() {
-        	console.log("chooser button clicked");
-        	apx.chooserMode.choose();
+
+        $(".chooserModeShowDetailsBtn").on("click", function () {
+            console.log("details button clicked");
+            apx.chooserMode.showDetails();
+        });
+
+        $(".chooserModeChooseBtn").on("click", function () {
+            console.log("chooser button clicked");
+            apx.chooserMode.choose();
         });
     }
 };
@@ -479,8 +537,8 @@ apx.chooserMode.hideDetails = function() {
 /** Item is chosen... */
 apx.chooserMode.choose = function() {
     // compose data to send back about chosen item
-    var i = apx.mainDoc.currentItem;
-    var data = {
+    let i = apx.mainDoc.currentItem;
+    let data = {
         "item": {
             "identifier": i.identifier,
             "saltId": i.id,
@@ -509,7 +567,7 @@ apx.chooserMode.choose = function() {
 
     // if a callback url is given in the query string, send the chosen item back to that url
     if (!empty(apx.query.choosercallbackurl)) {
-        var url = apx.query.choosercallbackurl + "?data=" + encodeURIComponent(JSON.stringify(data));
+        let url = apx.query.choosercallbackurl + "?data=" + encodeURIComponent(JSON.stringify(data));
         window.location = url;
         /*
         $.ajax({

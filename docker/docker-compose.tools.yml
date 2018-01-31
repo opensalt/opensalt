@@ -13,6 +13,15 @@ services:
       MYSQL_PASSWORD:
       MYSQL_HOST: "${MYSQL_HOST:-db}"
       DB_USE_RDS_CERT:
+      COMMENTS_FEATURE:
+      FIREBASE_API_KEY:
+      FIREBASE_AUTH_DOMAIN:
+      FIREBASE_DB_URL:
+      FIREBASE_PROJECT_ID:
+      FIREBASE_CLIENT_ID:
+      FIREBASE_CLIENT_EMAIL:
+      FIREBASE_PRIVATE_KEY:
+      FIREBASE_PREFIX:
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html

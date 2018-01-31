@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Service\ExcelExport;
 use CftfBundle\Entity\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExcelExportController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     protected $excelExport;
 

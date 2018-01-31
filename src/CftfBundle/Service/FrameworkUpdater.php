@@ -13,7 +13,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 /**
  * Class FrameworkUpdater.
  *
- * @DI\Service("framework_updater.local")
+ * @DI\Service()
  */
 class FrameworkUpdater
 {
@@ -33,7 +33,7 @@ class FrameworkUpdater
      *
      * @DI\InjectParams({
      *     "managerRegistry" = @DI\Inject("doctrine"),
-     *     "githubImport" = @DI\Inject("cftf_import.github"),
+     *     "githubImport" = @DI\Inject(GithubFilesBundle\Service\GithubImport::class),
      * })
      */
     public function __construct(ManagerRegistry $managerRegistry, GithubImport $githubImport)

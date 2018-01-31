@@ -37,6 +37,7 @@
                             {% if brand_logo_url is not empty %}<a class="navbar-brand" href="{{ brand_link_url |default(url('cftf_index')) |e('html_attr') }}" {% if brand_link_style is not empty %}style="{{ brand_link_style |e('html_attr') }}"{% endif %}><img src="{{ brand_logo_url |default('') |e('html_attr') }}" {% if brand_logo_style is not empty %}style="{{ brand_logo_style |e('html_attr') }}"{% endif %}></a>{% endif %}
                             {% if (is_granted('ROLE_USER')) %}
                                 <ul class="nav navbar-nav navbar-right">
+                                    <li id="notifications-switch-location" class="notifications-switch-wrapper"></li>
                                     <li class="dropdown">
                                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" area-expanded="false">Signed in as <strong>{{ app.user.username }}</strong> <span class="caret"></span></a>
                                         <ul class="dropdown-menu">
@@ -46,6 +47,9 @@
                                                 {% endif %}
                                                 {% if is_granted('manage', 'users') %}
                                                     <li><a href="{{ url("admin_user_index") }}">Manage users</a></li>
+                                                {% endif %}
+                                                {% if is_granted('ROLE_SUPER_USER') %}
+                                                    <li><a href="{{ url("system_logs_show") }}">Manage system logs</a></li>
                                                 {% endif %}
                                                 <li role="separator" class="divider"></li>
                                             {% endif %}

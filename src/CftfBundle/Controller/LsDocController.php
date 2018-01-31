@@ -2,14 +2,17 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddDocumentCommand;
 use App\Command\Framework\DeleteDocumentCommand;
 use App\Command\Framework\DeriveDocumentCommand;
+use App\Command\Framework\LockDocumentCommand;
 use App\Command\Framework\UpdateDocumentCommand;
 use App\Command\Framework\UpdateFrameworkCommand;
+use App\Exception\AlreadyLockedException;
 use CftfBundle\Form\Type\RemoteCftfServerType;
 use CftfBundle\Form\Type\LsDocCreateType;
+use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -21,6 +24,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * LsDoc controller.
@@ -29,7 +33,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
  */
 class LsDocController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all LsDoc entities.
@@ -242,12 +246,23 @@ class LsDocController extends Controller
      *
      * @param Request $request
      * @param LsDoc $lsDoc
+     * @param User $user
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function editAction(Request $request, LsDoc $lsDoc)
+    public function editAction(Request $request, LsDoc $lsDoc, UserInterface $user)
     {
         $ajax = $request->isXmlHttpRequest();
+
+        try {
+            $command = new LockDocumentCommand($lsDoc, $user);
+            $this->sendCommand($command);
+        } catch (AlreadyLockedException $e) {
+            return $this->render(
+                'CftfBundle:LsDoc:locked.html.twig',
+                []
+            );
+        }
 
         $deleteForm = $this->createDeleteForm($lsDoc);
         $editForm = $this->createForm(

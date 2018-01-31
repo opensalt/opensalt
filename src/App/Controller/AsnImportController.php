@@ -2,13 +2,13 @@
 
 namespace App\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportAsnFromUrlCommand;
 use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,14 +19,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *
  * @Security("is_granted('create', 'lsdoc')")
  */
-class AsnImportController extends Controller
+class AsnImportController extends AbstractController
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
-    public function __construct(ContainerInterface $container = null)
+    private $dispatcher;
+
+    public function __construct(EventDispatcherInterface $dispatcher)
     {
-        // event_dispatcher
-        $this->setContainer($container);
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -45,7 +46,14 @@ class AsnImportController extends Controller
 
         $fileUrl = $request->request->get('fileUrl');
         $command = new ImportAsnFromUrlCommand($fileUrl, null, $user->getOrg());
-        $this->sendCommand($command);
+
+        try {
+            $this->sendCommand($command);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'message' => $e->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        }
 
         return new JsonResponse([
             'message' => 'Framework imported successfully!',

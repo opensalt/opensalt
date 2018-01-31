@@ -4,6 +4,7 @@ namespace App\Handler\Import;
 
 use App\Command\Import\ImportGenericCsvCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use CftfBundle\Entity\LsDefItemType;
 use CftfBundle\Entity\LsDoc;
@@ -35,6 +36,18 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
         if ($organization) {
             $doc->setOrg($organization);
         }
+
+        $notification = new NotificationEvent(
+            'D10',
+            sprintf('Framework "%s" imported via CSV', $doc->getTitle()),
+            $doc,
+            [
+                'doc-a' => [
+                    $doc,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 
     private function importCsv(string $filename, string $title, string $creator): LsDoc

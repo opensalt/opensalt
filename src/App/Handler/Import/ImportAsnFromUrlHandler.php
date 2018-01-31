@@ -2,6 +2,7 @@
 
 namespace App\Handler\Import;
 
+use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ImportAsnFromUrlCommand;
 use App\Event\CommandEvent;
@@ -39,6 +40,7 @@ class ImportAsnFromUrlHandler extends AbstractDoctrineHandler
         parent::__construct($validator, $registry);
         $this->importService = $asnImportService;
     }
+
     /**
      * @DI\Observe(App\Command\Import\ImportAsnFromUrlCommand::class)
      */
@@ -52,9 +54,21 @@ class ImportAsnFromUrlHandler extends AbstractDoctrineHandler
         $creator = $command->getCreator();
         $organization = $command->getOrganization();
 
-        $lsDoc = $this->importService->generateFrameworkFromAsn($asnId, $creator);
+        $doc = $this->importService->generateFrameworkFromAsn($asnId, $creator);
         if ($organization) {
-            $lsDoc->setOrg($organization);
+            $doc->setOrg($organization);
         }
+
+        $notification = new NotificationEvent(
+            'D11',
+            sprintf('Framework "%s" imported from ASN', $doc->getTitle()),
+            $doc,
+            [
+                'doc-a' => [
+                    $doc,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

@@ -38,7 +38,5 @@ class DeleteFrameworkAclHandler extends BaseUserHandler
         if (null !== $acl) {
             $this->em->remove($acl);
         }
-
-//        $dispatcher->dispatch(DeleteFrameworkAclEvent::class, new DeleteFrameworkAclEvent());
     }
 }

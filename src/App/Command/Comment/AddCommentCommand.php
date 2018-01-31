@@ -5,6 +5,8 @@ namespace App\Command\Comment;
 use App\Command\BaseCommand;
 use Salt\SiteBundle\Entity\Comment;
 use Salt\UserBundle\Entity\User;
+use CftfBundle\Entity\LsDoc;
+use CftfBundle\Entity\LsItem;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AddCommentCommand extends BaseCommand
@@ -18,12 +20,18 @@ class AddCommentCommand extends BaseCommand
     private $itemType;
 
     /**
-     * @var int
+     * @var LsItem
      *
-     * @Assert\Type("int")
-     * @Assert\NotNull()
+     * @assert\type(LsItem::class)
      */
-    private $itemId;
+    private $item;
+
+    /**
+     * @var LsDoc
+     *
+     * @assert\type(LsDoc::class)
+     */
+    private $document;
 
     /**
      * @var User
@@ -58,7 +66,11 @@ class AddCommentCommand extends BaseCommand
     public function __construct(string $itemType, $itemId, User $user, string $content, $parentId = null)
     {
         $this->itemType = $itemType;
-        $this->itemId = (int) $itemId;
+        if ($this->itemType == 'item') {
+            $this->item = $itemId;
+        } else {
+            $this->document = $itemId;
+        }
         $this->user = $user;
         $this->content = $content;
         $this->parentId = (int) $parentId;
@@ -69,9 +81,14 @@ class AddCommentCommand extends BaseCommand
         return $this->itemType;
     }
 
-    public function getItemId(): int
+    public function getItem(): LsItem
     {
-        return $this->itemId;
+        return $this->item;
+    }
+
+    public function getDocument(): LsDoc
+    {
+        return $this->document;
     }
 
     public function getUser(): User

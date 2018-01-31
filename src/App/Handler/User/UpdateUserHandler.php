@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\UpdateUserCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -33,6 +34,10 @@ class UpdateUserHandler extends BaseUserHandler
 
         $this->em->persist($user);
 
-//        $dispatcher->dispatch(UpdateUserEvent::class, new UpdateUserEvent());
+        $command->setNotificationEvent(new NotificationEvent(
+            'U04',
+            sprintf('User "%s" modified', $user->getUsername()),
+            null
+        ));
     }
 }

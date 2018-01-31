@@ -73,7 +73,7 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * @var \DateTimeInterface
      *
-     * @ORM\Column(name="updated_at", type="datetime", options={"default": "CURRENT_TIMESTAMP"})
+     * @ORM\Column(name="updated_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      *
      * @Serializer\Expose()

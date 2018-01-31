@@ -35,12 +35,12 @@ class AppKernel extends Kernel
             new Nelmio\CorsBundle\NelmioCorsBundle(),
 
             new CftfBundle\CftfBundle(),
-            new Cftf\CmsBundle\CftfCmsBundle(),
             new Salt\UserBundle\SaltUserBundle(),
             new GithubFilesBundle\GithubFilesBundle(),
             new Salt\SiteBundle\SaltSiteBundle(),
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
             new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
+            new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
         ];
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {

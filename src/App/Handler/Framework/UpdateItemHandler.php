@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\UpdateItemCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -33,6 +34,21 @@ class UpdateItemHandler extends BaseFrameworkHandler
 
         $item->setUpdatedAt(new \DateTime()); // Timestampable does not follow up the chain
 
-//        $dispatcher->dispatch(UpdateItemEvent::class, new UpdateItemEvent());
+        $this->framework->unlockObject($item);
+
+        $notification = new NotificationEvent(
+            'I08',
+            sprintf('"%s" modified', $item->getShortStatement()),
+            $item->getLsDoc(),
+            [
+                'item-u' => [
+                    $item->getId() => $item->getIdentifier(),
+                ],
+                'item-ul' => [
+                    $item->getId() => $item->getIdentifier(),
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

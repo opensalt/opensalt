@@ -3,7 +3,7 @@ Feature: Adding, viewing and deleting a association management
   As an super user
   I need to see a all of the fields
 
-  @super-user @association @add-association @1017-0930
+  @super-user @association @add-association @1017-0930 @duplicate
   Scenario: 1017-0930 An super-user can add a association group
     Given I log in as a user with role "Super-User"
     Then I create a framework

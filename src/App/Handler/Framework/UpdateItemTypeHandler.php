@@ -30,7 +30,5 @@ class UpdateItemTypeHandler extends BaseFrameworkHandler
 
         $itemType = $command->getItemType();
         $this->validate($command, $itemType);
-
-//        $dispatcher->dispatch(UpdateItemTypeEvent::class, new UpdateItemTypeEvent());
     }
 }

@@ -32,7 +32,5 @@ class DeleteLicenceHandler extends BaseFrameworkHandler
         $this->validate($command, $licence);
 
         $this->framework->deleteLicence($licence);
-
-//        $dispatcher->dispatch(DeleteLicenceEvent::class, new DeleteLicenceEvent());
     }
 }

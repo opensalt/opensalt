@@ -43,13 +43,20 @@ class LsAssociationRepository extends EntityRepository
      *
      * @param $object LsItem|LsDoc
      * @param $type string
+     *
+     * @return LsAssociation[]
      */
-    public function removeAllAssociationsOfType($object, $type) {
+    public function removeAllAssociationsOfType($object, $type): array
+    {
+        $deleted = [];
         foreach ($object->getAssociations() as $association) {
             if ($association->getType() === $type) {
                 $this->removeAssociation($association);
+                $deleted[] = $association;
             }
         }
+
+        return $deleted;
     }
 
     public function findAllAssociationsFor($id)

@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\AddDocumentCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -33,6 +34,16 @@ class AddDocumentHandler extends BaseFrameworkHandler
 
         $this->framework->addDocument($doc);
 
-//        $dispatcher->dispatch(AddDocumentEvent::class, new AddDocumentEvent());
+        $notification = new NotificationEvent(
+            'D01',
+            sprintf('Framework "%s" added', $doc->getTitle()),
+            $doc,
+            [
+                'doc-a' => [
+                    $doc,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

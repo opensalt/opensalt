@@ -22,7 +22,7 @@
         "uri": "http://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
       },
       "humanCodingScheme": "MD.Table",
-      "fullStatement": "This contains a table in markdown:\r\n\r\n| Column 1 | Column 2 |\r\n| --- | --- |\r\n| data 1 | data 2|"
+      "fullStatement": "This contains a _table_ in markdown:\r\n\r\n| Column 1 | Column 2 |\r\n| --- | --- |\r\n| data 1 | data 2|"
     },
     {
       "uri": "http://server/ims/case/v1p0/CFItems/a5eafca0-b8df-11e7-8d17-8dc52d8205bc",

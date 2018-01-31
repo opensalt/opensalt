@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\CopyItemToDocCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -36,6 +37,16 @@ class CopyItemToDocHandler extends BaseDoctrineHandler
         $this->em->persist($newItem);
         $command->setNewItem($newItem);
 
-//        $dispatcher->dispatch(CopyItemToDocEvent::class, new CopyItemToDocEvent());
+        $notification = new NotificationEvent(
+            'I03',
+            sprintf('Copied "%s" from "%s"', $newItem->getShortStatement(), substr($dto->lsItem->getLsDoc()->getTitle(), 0, 60)),
+            $newItem->getLsDoc(),
+            [
+                'items' => [
+                    $newItem->getId() => $newItem->getIdentifier(),
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

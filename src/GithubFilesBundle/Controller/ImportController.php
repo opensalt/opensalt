@@ -2,7 +2,7 @@
 
 namespace GithubFilesBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ParseCsvGithubDocumentCommand;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ImportController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * @Route("/cf/github/import", name="import_from_github")

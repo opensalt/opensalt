@@ -2,17 +2,19 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddExternalDocCommand;
 use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateTreeItemsCommand;
+use App\Entity\Framework\ObjectLock;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Form\Type\LsDocListType;
+use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -22,6 +24,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Util\Compare;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Editor Tree controller.
@@ -30,11 +33,12 @@ use App\Util\Compare;
  */
 class DocTreeController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * @Route("/doc/{slug}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
      * @Route("/doc/{slug}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{slug}/lv.{_format}", name="doc_tree_view_log", defaults={"_format"="html", "lsItemId"=null})
      * @Route("/doc/{slug}/{assocGroup}.{_format}", name="doc_tree_view_ag", defaults={"_format"="html", "lsItemId"=null})
      * @ParamConverter("lsDoc", class="CftfBundle:LsDoc", options={
      *     "repository_method" = "findOneBySlug",
@@ -44,7 +48,7 @@ class DocTreeController extends Controller
      * @Method({"GET"})
      * @Template()
      */
-    public function viewAction(LsDoc $lsDoc, $_format = 'html', $lsItemId = null, $assocGroup = null)
+    public function viewAction(LsDoc $lsDoc, UserInterface $user = null, $_format = 'html', $lsItemId = null, $assocGroup = null)
     {
         // get form field for selecting a document (for tree2)
         $form = $this->createForm(LsDocListType::class, null, ['ajax' => false]);
@@ -62,22 +66,15 @@ class DocTreeController extends Controller
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
         }
 
-        // get list of all documents
-        $resultlsDocs = $em->getRepository(LsDoc::class)->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
-        $lsDocs = [];
         $authChecker = $this->get('security.authorization_checker');
-        foreach ($resultlsDocs as $doc) {
-            if ($authChecker->isGranted('view', $doc)) {
-                $lsDocs[] = $doc;
-            }
-        }
+        $editorRights = $authChecker->isGranted('edit', $lsDoc);
 
-        return [
+        $ret = [
             'lsDoc' => $lsDoc,
             'lsDocId' => $lsDoc->getId(),
             'lsDocTitle' => $lsDoc->getTitle(),
 
-            'editorRights' => $authChecker->isGranted('edit', $lsDoc),
+            'editorRights' => $editorRights,
             'isDraft' => $lsDoc->isDraft(),
             'isAdopted' => $lsDoc->isAdopted(),
             'isDeprecated' => $lsDoc->isDeprecated(),
@@ -90,8 +87,40 @@ class DocTreeController extends Controller
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => $lsDefAssociationGroupings,
-            'lsDocs' => $lsDocs
         ];
+
+        if ($editorRights) {
+            // get list of all documents
+            $docs = $em->getRepository(LsDoc::class)->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
+            $lsDocs = [];
+            foreach ($docs as $doc) {
+                if ($authChecker->isGranted('view', $doc)) {
+                    $lsDocs[] = $doc;
+                }
+            }
+            $ret['lsDocs'] = $lsDocs;
+
+            $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
+            if ($user instanceof User) {
+                $locks = $em->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
+                foreach ($locks as $lock) {
+                    if ($lock->getUser() === $user) {
+                        $expiry = false;
+                    } else {
+                        $expiry = (int) $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
+                    }
+                    if (LsDoc::class === $lock->getObjectType()) {
+                        $docLocks['docs'][$lock->getObjectId()] = $expiry;
+                    }
+                    if (LsItem::class === $lock->getObjectType()) {
+                        $docLocks['items'][$lock->getObjectId()] = $expiry;
+                    }
+                }
+            }
+            $ret['locks'] = $docLocks;
+        }
+
+        return $ret;
     }
 
     /**

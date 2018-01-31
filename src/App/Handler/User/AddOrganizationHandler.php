@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\AddOrganizationCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -33,6 +34,10 @@ class AddOrganizationHandler extends BaseUserHandler
 
         $this->em->persist($organization);
 
-//        $dispatcher->dispatch(AddOrganizationEvent::class, new AddOrganizationEvent());
+        $command->setNotificationEvent(new NotificationEvent(
+            'O01',
+            sprintf('Organization "%s" added', $organization->getName()),
+            null
+        ));
     }
 }

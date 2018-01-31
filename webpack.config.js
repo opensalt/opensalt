@@ -46,9 +46,12 @@ var mainScripts = [
     bowerDir+'/select2/dist/js/select2.full.js',
     vendorDir+'/tetranz/select2entity-bundle/Tetranz/Select2EntityBundle/Resources/public/js/select2entity.js',
     bowerDir+'/twbs-pagination/jquery.twbsPagination.js',
+    npmDir+'/bootstrap-notify/bootstrap-notify.min.js',
     npmDir+'/simplemde/dist/simplemde.min.js',
     assetsDir+'/js/application.js',
     npmDir+'/papaparse/papaparse.min.js',
+    npmDir+'/markdown-it-underline/index.js',
+    npmDir+'/ajaxq/ajaxq.js',
     './build/js/apx.js'
 ];
 
@@ -158,6 +161,9 @@ config.resolve.alias = {
   'jquery-ui/ui/widgets/menu': path.resolve(__dirname, bowerDir+'/jquery-ui/ui/widgets/menu.js'),
   'simplemde': path.resolve(__dirname, npmDir+'/simplemde/dist/simplemde.min.js'),
   'papaparse': path.resolve(__dirname, npmDir+'/papaparse/papaparse.min.js'),
+  'markdown-it-underline': path.resolve(__dirname, npmDir+'/markdown-it-underline/index.js'),
+  'render-md': path.resolve(__dirname, assetsDir+'/js/cftree/render-md.js'),
+  'ajaxq': path.resolve(__dirname, npmDir+'/ajaxq/ajaxq.js')
 };
 config.resolve.modules = [
   "node_modules",

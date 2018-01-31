@@ -58,7 +58,5 @@ class AddFrameworkUsernameAclHandler extends BaseUserHandler
 
         $acl = new UserDocAcl($user, $lsDoc, $access);
         $this->em->persist($acl);
-
-//        $dispatcher->dispatch(AddFrameworkUsernameAclEvent::class, new AddFrameworkUsernameAclEvent());
     }
 }

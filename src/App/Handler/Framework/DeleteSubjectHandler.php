@@ -32,7 +32,5 @@ class DeleteSubjectHandler extends BaseFrameworkHandler
         $this->validate($command, $subject);
 
         $this->framework->deleteSubject($subject);
-
-//        $dispatcher->dispatch(DeleteSubjectEvent::class, new DeleteSubjectEvent());
     }
 }

@@ -30,7 +30,5 @@ class UpdateLicenceHandler extends BaseFrameworkHandler
 
         $licence = $command->getLicence();
         $this->validate($command, $licence);
-
-//        $dispatcher->dispatch(UpdateLicenceEvent::class, new UpdateLicenceEvent());
     }
 }

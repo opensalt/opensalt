@@ -15,6 +15,7 @@ Feature: Back to the list
   Scenario: 1117-1335 Back to the Users list from the User edit page
     Given I log in as a user with role "Admin"
     And I add a new user
+    And I approve the new user
 
     Then I edit the new user
     And I click the "Back to the list" button
