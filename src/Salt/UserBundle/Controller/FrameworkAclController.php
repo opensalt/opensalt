@@ -2,7 +2,7 @@
 
 namespace Salt\UserBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\User\DeleteFrameworkAclCommand;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class FrameworkAclController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * @Route("/{id}/acl", name="framework_acl_edit")

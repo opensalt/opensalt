@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\AddAssociationGroupCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -33,6 +34,16 @@ class AddAssociationGroupHandler extends BaseFrameworkHandler
 
         $this->framework->persistAssociationGroup($associationGroup);
 
-//        $dispatcher->dispatch(AddAssociationGroupEvent::class, new AddAssociationGroupEvent());
+        $notification = new NotificationEvent(
+            'G01',
+            sprintf('Association Group "%s" added', $associationGroup->getTitle()),
+            $associationGroup->getLsDoc(),
+            [
+                'assocGrp-a' => [
+                    $associationGroup,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

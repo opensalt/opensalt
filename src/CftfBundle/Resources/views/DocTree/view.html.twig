@@ -25,9 +25,11 @@
             <div id="docTitleWrapper">
                 <div id="displayBtnGroup" class="form-group">
                     <div class="btn-group" role="group" aria-label="...">
-                        <button id="displayTreeBtn" type="button" class="btn btn-primary btn-xs">Tree<br/>View</button>
-                        <button id="displayAssocBtn" type="button" class="btn btn-default btn-xs">Association<br/>View
-                        </button>
+                        <button id="displayTreeBtn" type="button" class="view-btn btn btn-primary btn-default btn-xs">Tree<br/>View</button>
+                        <button id="displayAssocBtn" type="button" class="view-btn btn btn-default btn-xs">Association<br/>View</button>
+                        {% if editorRights %}
+                            <button id="displayLogBtn" type="button" class="view-btn btn btn-default btn-xs">Log<br/>View</button>
+                        {% endif %}
                     </div>
                 </div>
                 <span id="docTitle">{{ lsDocTitle }}</span>
@@ -41,7 +43,7 @@
         {% endif %}
     </div>
 
-    <div class="row" id="treeView" style="display:none; width:100%">
+    <div class="row main-view tree-view" id="treeView" style="display:none; width:100%">
         <div id="treeSideLeft" class="treeSide borderLeft">
 
             <div class="treeSideLeftInner">
@@ -337,7 +339,7 @@
     </div>
 
 
-    <div class="row" id="assocView">
+    <div class="row main-view assoc-view" id="assocView">
         <div class="col-sm-12">
             <!-- <h3>Associations:</h3> -->
             <div id="assocViewTableFilters" style="display:none">
@@ -366,6 +368,21 @@
                 </div>
             </div>
             <table id="assocViewTable" class="table table-striped table-bordered table-hover display"></table>
+        </div>
+    </div>
+
+
+    <div class="row main-view log-view" id="logView" style="display:none;">
+        <div class="col-sm-12">
+            <table id="logTable" class="table table-bordered table-striped table-hover" data-order='[[0, "desc"]]'>
+                <thead>
+                    {#<th>Rev</th>#}
+                    <th>Date / Time</th>
+                    <th>Change</th>
+                    <th>Username</th>
+                </thead>
+            </table>
+            <a id="logViewExport" href="{{ path('doc_revisions_csv', {'id': lsDocId}) }}" class="btn btn-large btn-default btn-export btn-export-csv">Export</a>
         </div>
     </div>
 
@@ -572,17 +589,45 @@
     </div>
     {% endblock %}
 
-    {% block javascripts %}
-        {% if 'comments' is active feature %}
-        <script src="{{ asset('build/comments.js', 'encore') }}"></script>
-        {% endif %}
-
-        {% autoescape 'js' %}
+    {% block sitejavascripts %}
         <script>
             window.apx = window.apx || {};
 
-            apx.enableEdit = {{ (editorRights?"true":"false") |e('js') }};
+            apx.enableEdit = {{ editorRights |json_encode |raw }};
+            {% if editorRights -%}
+                apx.me = "{{ app.user.username |e('js') }}";
+                apx.startTime = {{ "now"|date("Uv") }};
+                apx.startTimeBrowser = (new Date()).getTime();
+                apx.timeDiff = apx.startTimeBrowser - apx.startTime;
+                {%- if firebase_api_key is not empty %}
+                    apx.locks = {{ locks |json_encode |raw }};
+                    apx.firebasePrefix = {{ firebase_prefix |json_encode |raw }};
+                {%- endif -%}
+            {%- endif %}
+        </script>
 
+        {{ parent() }}
+    {% endblock %}
+
+    {% block javascripts %}
+        {% autoescape 'js' %}
+        {% if 'comments' is active feature %}
+            <script src="{{ asset('build/comments.js', 'encore') }}"></script>
+        {% endif %}
+
+        {% if editorRights and firebase_api_key is not empty %}
+            <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase.js"></script>
+            <script>
+                window.firebase = firebase;
+                window.firebaseConfig = {
+                    apiKey: "{{ firebase_api_key |e('js') }}",
+                    authDomain: "{{ firebase_auth_domain |e('js') }}",
+                    databaseURL: "{{ firebase_db_url |e('js') }}"
+                };
+            </script>
+        {% endif %}
+
+        <script>
             // loaded docid and initial lsItem and assocGroup to show
             apx.lsDocId = {{ lsDocId |json_encode |raw }};
             apx.initialLsItemId = {{ lsItemId |default(null) |json_encode |raw }};
@@ -597,19 +642,28 @@
             apx.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';
             apx.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
             apx.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
-            apx.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
+            apx.path.lsdoc_unlock = '{{ path('lsdoc_unlock', {'id':'ID'}) }}';
+            apx.path.lsdoc_lock = '{{ path('lsdoc_lock', {'id':'ID'}) }}';
+            apx.path.lsdoc_tree_json = '{{ path('lsdoc_tree_json', {'id':'ID'}) }}';
             apx.path.lsitem_edit = '{{ path('lsitem_edit', {'id':'ID'}) }}';
             apx.path.lsitem_tree_delete = '{{ path('lsitem_tree_delete', {'id':'ID', 'includingChildren':'CHILDREN'}) }}';
             apx.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC', 'parent':'PARENT'}) }}';
             apx.path.lsitem_copy_item = '{{ path('lsitem_copy_item', {'id':'ID'}) }}';
+            apx.path.lsitem_lock = '{{ path('lsitem_lock', {'id':'ID'}) }}';
+            apx.path.lsitem_unlock = '{{ path('lsitem_unlock', {'id':'ID'}) }}';
+            apx.path.lsitem_tree_json = '{{ path('lsitem_tree_json', {'id':'ID'}) }}';
             apx.path.lsassociation_tree_new = '{{ path('lsassociation_tree_new', {'lsDoc': lsDocId}) }}';
             apx.path.lsassociation_remove = '{{ path('lsassociation_remove', {'id':'ID'}) }}';
             apx.path.lsassociation_tree_new_exemplar = '{{ path('lsassociation_tree_new_exemplar', {'originLsItem':'ORIGIN_ID'}) }}';
+            apx.path.doc_tree_association_json = '{{ path('doc_tree_association_json', {'id':'ID'}) }}';
             apx.path.doctree_render_document = '{{ path('doctree_render_document', {'id':'ID', '_format':'json'}) }}';
             apx.path.doctree_update_items = '{{ path('doctree_update_items', {'id':'ID', '_format':'json'}) }}';
             apx.path.lsdef_association_grouping_new = '{{ path('lsdef_association_grouping_new') }}';
             apx.path.lsdef_association_grouping_edit = '{{ path('lsdef_association_grouping_edit', {'id':'ID'}) }}';
             apx.path.lsdef_association_grouping_tree_delete = '{{ path('lsdef_association_grouping_tree_delete', {'id':'ID'}) }}';
+            apx.path.doc_tree_multi_changes = '{{ path('multi_tree_info_json', {'id':'ID'}) }}';
+            apx.path.doc_revisions = '{{ path('doc_revisions_json', {'id':'ID'}) }}';
+            apx.path.doc_revisions_export = '{{ path('doc_revisions_csv', {'id': 'ID'}) }}';
 
             apx.path.doctree_cfpackage_export = '{{ path('doctree_cfpackage_export', {'id':'ID'}) }}';
             apx.path.doctree_retrieve_document = '{{ path('doctree_retrieve_document', {'id':'ID'}) }}';

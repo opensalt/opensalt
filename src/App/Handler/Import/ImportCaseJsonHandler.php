@@ -2,6 +2,7 @@
 
 namespace App\Handler\Import;
 
+use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ImportCaseJsonCommand;
 use App\Event\CommandEvent;
@@ -39,6 +40,7 @@ class ImportCaseJsonHandler extends AbstractDoctrineHandler
         parent::__construct($validator, $registry);
         $this->importService = $caseImport;
     }
+
     /**
      * @DI\Observe(App\Command\Import\ImportCaseJsonCommand::class)
      */
@@ -55,5 +57,17 @@ class ImportCaseJsonHandler extends AbstractDoctrineHandler
         if ($organization) {
             $doc->setOrg($organization);
         }
+
+        $notification = new NotificationEvent(
+            'D12',
+            sprintf('Framework "%s" imported from CASE JSON file', $doc->getTitle()),
+            $doc,
+            [
+                'doc-a' => [
+                    $doc,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

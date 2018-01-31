@@ -32,7 +32,5 @@ class AddSubjectHandler extends BaseFrameworkHandler
         $this->validate($command, $subject);
 
         $this->framework->persistSubject($subject);
-
-//        $dispatcher->dispatch(AddSubjectEvent::class, new AddSubjectEvent());
     }
 }

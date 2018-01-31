@@ -32,7 +32,5 @@ class DeleteConceptHandler extends BaseFrameworkHandler
         $this->validate($command, $concept);
 
         $this->framework->deleteConcept($concept);
-
-//        $dispatcher->dispatch(DeleteConceptEvent::class, new DeleteConceptEvent());
     }
 }

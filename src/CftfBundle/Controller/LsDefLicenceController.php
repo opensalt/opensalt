@@ -2,7 +2,7 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddLicenceCommand;
 use App\Command\Framework\DeleteLicenceCommand;
 use App\Command\Framework\UpdateLicenceCommand;
@@ -23,7 +23,7 @@ use CftfBundle\Entity\LsDefLicence;
  */
 class LsDefLicenceController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all LsDefLicence entities.

@@ -38,3 +38,9 @@ Optional Features
 
 OpenSALT uses the http://viima.github.io/jquery-comments/ bundle to allow editors to comment on and upvote published frameworks
   - COMMENTS_FEATURE - *(optional)* set to **always-active** to enable, the default is **inactive**
+
+### Realtime notifications
+
+OpenSALT can use Google's Firebase realtime database to update editors in real-time.
+
+Read the [docs/deployments/firebase.md](./deployments/firebase.md) file to see how to configure it.

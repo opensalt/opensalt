@@ -2,7 +2,7 @@
 
 namespace Salt\SiteBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Comment\AddCommentCommand;
 use App\Command\Comment\DeleteCommentCommand;
 use App\Command\Comment\DownvoteCommentCommand;
@@ -29,7 +29,7 @@ use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
  */
 class CommentsController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * @Route("/comments/document/{id}", name="create_doc_comment")
