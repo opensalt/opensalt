@@ -414,14 +414,14 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @throws \UnexpectedValueException
      */
-    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, $exactMatchWithOriginal = true): LsItem
+    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, $exactMatchAssocs = true): LsItem
     {
         $newItem = clone $this;
 
         $newItem->setLsDoc($newLsDoc);
 
         // Add an "Exact" relationship to the original
-        if ($exactMatchWithOriginal){
+        if ($exactMatchAssocs){
             $exactMatch = $newLsDoc->createAssociation();
             $exactMatch->setOrigin($newItem);
             $exactMatch->setType(LsAssociation::EXACT_MATCH_OF);
@@ -437,7 +437,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         }
 
         foreach ($this->getChildren() as $child) {
-            $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup, $exactMatchWithOriginal);
+            $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup, $exactMatchAssocs);
             $newItem->addChild($newChild, $assocGroup);
         }
 
