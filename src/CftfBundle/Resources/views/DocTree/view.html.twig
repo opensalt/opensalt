@@ -610,7 +610,6 @@
     {% endblock %}
 
     {% block javascripts %}
-        {% autoescape 'js' %}
         {% if 'comments' is active feature %}
             <script src="{{ asset('build/comments.js', 'encore') }}"></script>
         {% endif %}
@@ -627,6 +626,7 @@
             </script>
         {% endif %}
 
+        {% autoescape 'js' %}
         <script>
             // loaded docid and initial lsItem and assocGroup to show
             apx.lsDocId = {{ lsDocId |json_encode |raw }};
