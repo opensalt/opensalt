@@ -175,7 +175,7 @@ const render = (function(){
           }
         }
       }
-    }
+    };
 
     function alphaList(editor) {
       let cm = editor.codemirror;
