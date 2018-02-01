@@ -49,6 +49,7 @@ var mainScripts = [
     npmDir+'/bootstrap-notify/bootstrap-notify.min.js',
     npmDir+'/simplemde/dist/simplemde.min.js',
     assetsDir+'/js/application.js',
+    assetsDir+'/js/lsdoc/index.js',
     npmDir+'/papaparse/papaparse.min.js',
     npmDir+'/markdown-it-underline/index.js',
     npmDir+'/ajaxq/ajaxq.js',
@@ -163,6 +164,7 @@ config.resolve.alias = {
   'papaparse': path.resolve(__dirname, npmDir+'/papaparse/papaparse.min.js'),
   'markdown-it-underline': path.resolve(__dirname, npmDir+'/markdown-it-underline/index.js'),
   'render-md': path.resolve(__dirname, assetsDir+'/js/cftree/render-md.js'),
+  'util-salt': path.resolve(__dirname, assetsDir+'/js/util-salt.js'),
   'ajaxq': path.resolve(__dirname, npmDir+'/ajaxq/ajaxq.js')
 };
 config.resolve.modules = [

@@ -345,7 +345,6 @@ xENDx;
             $newLsDoc->setLicence($oldLsDoc->getLicence());
         }
 
-        echo count($oldLsDoc->getAssociationGroupings());
         foreach($oldLsDoc->getAssociationGroupings() as $assocGroup) {
             $assocGroup->duplicateToLsDoc($newLsDoc);
         }

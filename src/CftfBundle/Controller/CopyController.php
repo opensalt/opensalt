@@ -7,6 +7,7 @@ use App\Command\Framework\CopyFrameworkCommand;
 use CftfBundle\Entity\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,7 @@ class CopyController extends Controller
     /**
      * @Route("/framework/{id}", name="copy_framework_content")
      * @Method("POST")
+     * @Security("is_granted('edit', lsDoc)")
      *
      * @param Request $request
      * @param LsDoc $lsDoc

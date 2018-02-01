@@ -1,60 +1,51 @@
-window.apx = window.apx||{};
+$(document).ready(function(){
+    var apx = window.apx||{};
+    var utilSalt = require('util-salt');
 
-apx.copyFramework = { };
+    apx.copyFramework = {
+        init() {
+            $("#copyFrameworkForm").submit(function(e){
+                e.preventDefault();
+                apx.copyFramework.copyFrameworkRequest($(this).serialize());
+            });
+        },
 
-apx.copyFramework.consts = {
-    copyModalId: "",
-    copyFormId: "#copyFrameworkForm",
-    copyUrl: "/copy/framework/",
-    docDestination: "/cftree/doc/",
-    contentModal: "#copyFrameworkModal .contentModal",
-    spinnerSelector: "#copyFrameworkModal .file-loading .row .col-md-12",
-    spinnerContainerSelector: "#copyFrameworkModal .file-loading",
-    alertSuccess: "#copyFrameworkModal .alert-success",
-    dangerSuccess: "#copyFrameworkModal .alert-danger"
-};
+        copyFrameworkRequest(params) {
+            $("#copyFrameworkModal .file-loading .row .col-md-12").html(utilSalt.spinner("Copying Document"));
+            $("#copyFrameworkModal .contentModal").addClass("hidden");
+            $("#copyFrameworkModal .file-loading").removeClass("hidden");
 
-apx.copyFramework.init = function(){
-    $(apx.copyFramework.consts.copyFormId).submit(function(e){
-        e.preventDefault();
-        apx.copyFramework.copyFrameworkRequest($(this).serialize());
-    });
-};
+            $.post("/copy/framework/" + apx.lsDocId, params, function(data){
+                apx.copyFramework.copyFrameworkRequestSuccess(data);
+            })
+            .fail(function(data){
+                apx.copyFramework.copyFrameworkRequestFail(data);
+            });
+        },
 
-apx.copyFramework.copyFrameworkRequest = function(params){
-    $(apx.copyFramework.consts.spinnerSelector).html(Util.spinner("Copying Document"));
-    $(apx.copyFramework.consts.contentModal).addClass("hidden");
-    $(apx.copyFramework.consts.spinnerContainerSelector).removeClass("hidden");
+        copyFrameworkRequestSuccess(data) {
+            $("#copyFrameworkModal .alert-success").find("a.js-docDestination")
+                .attr("href", "/cftree/doc/" + data.docDestinationId);
+            $("#copyFrameworkModal .alert-success").removeClass("hidden");
+            $("#copyFrameworkModal .file-loading").addClass("hidden");
+            apx.copyFramework.resetModalAfterRequest();
+        },
 
-    $.post(apx.copyFramework.consts.copyUrl + apx.lsDocId, params, function(data){
-        apx.copyFramework.copyFrameworkRequestSuccess(data);
-    })
-    .fail(function(data){
-        apx.copyFramework.copyFrameworkRequestFail(data);
-    });
-};
+        copyFrameworkRequestFail(data) {
+            $("#copyFrameworkModal .alert-danger").removeClass("hidden");
+            $("#copyFrameworkModal .file-loading").addClass("hidden");
+            apx.copyFramework.resetModalAfterRequest();
+        },
 
-apx.copyFramework.copyFrameworkRequestSuccess = function(data){
-    $(apx.copyFramework.consts.alertSuccess).find("a.js-docDestination")
-        .attr("href", apx.copyFramework.consts.docDestination + data.docDestinationId);
-    $(apx.copyFramework.consts.alertSuccess).removeClass("hidden");
-    $(apx.copyFramework.consts.spinnerContainerSelector).addClass("hidden");
-    apx.copyFramework.resetModalAfterRequest();
-};
+        resetModalAfterRequest(data) {
+            setTimeout(apx.copyFramework.resetModal, 3000);
+        },
 
-apx.copyFramework.copyFrameworkRequestFail = function(data){
-    $(apx.copyFramework.consts.dangerSuccess).removeClass("hidden");
-    $(apx.copyFramework.consts.spinnerContainerSelector).addClass("hidden");
-    apx.copyFramework.resetModalAfterRequest();
-};
-
-apx.copyFramework.resetModalAfterRequest = function(data){
-    setTimeout(apx.copyFramework.resetModal, 3000);
-};
-
-apx.copyFramework.resetModal = function(data){
-    $(apx.copyFramework.consts.alertSuccess).addClass("hidden");
-    $(apx.copyFramework.consts.dangerSuccess).addClass("hidden");
-    $(apx.copyFramework.consts.spinnerContainerSelector).addClass("hidden");
-    $(apx.copyFramework.consts.contentModal).removeClass("hidden");
-};
+        resetModal(data) {
+            $("#copyFrameworkModal .alert-success").addClass("hidden");
+            $("#copyFrameworkModal .alert-danger").addClass("hidden");
+            $("#copyFrameworkModal .file-loading").addClass("hidden");
+            $("#copyFrameworkModal .contentModal").removeClass("hidden");
+        }
+    };
+});
