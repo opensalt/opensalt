@@ -974,7 +974,7 @@ class Framework implements Context
             }
         }
         if (!empty($decoded['CFDefinitions'])) {
-            foreach ($decoded['CFDefinitions'] as $type => $content) {
+            foreach ($decoded['CFDefinitions'] as $content) {
                 foreach ($content as $item) {
                     $origValues[] = $item['identifier'];
                     $replacements[] = Uuid::uuid4()->toString();
