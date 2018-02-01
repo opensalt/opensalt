@@ -40,7 +40,7 @@ class LsDocController extends Controller
      *
      * @return array
      */
-    public function indexAction(\Swift_Mailer $mailer)
+    public function indexAction()
     {
         // mailer test
         $message = (new \Swift_Message('Hello Email'))
@@ -48,8 +48,9 @@ class LsDocController extends Controller
         ->setTo('joseph.leon@learningmate.com')
         ->setBody('Sample email');
 
-        $mailer = $this->get('mailer');
-        $mailer->send($message);
+        // $mailer = $this->get('mailer');
+        // $mailer->send($message);
+        $this->get('mailer')->send($message);
 
 
         $em = $this->getDoctrine()->getManager();
