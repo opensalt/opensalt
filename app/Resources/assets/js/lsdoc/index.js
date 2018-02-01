@@ -1,3 +1,4 @@
+var utilSalt = require('util-salt');
 var SaltGithub = (function () {
 
     function getRepoList(page, perPage) {
@@ -185,7 +186,7 @@ var Import = (function () {
             for (var j = 0; j < columns.length; j++) {
                 column = columns[j];
                 if (column.length > 0) {
-                    if (Util.simplify(field) === Util.simplify(column)) {
+                    if (utilSalt.simplify(field) === utilSalt.simplify(column)) {
                         cfItemKeys[field] = column.replace(/"/g, '');
 
                         index = fields.indexOf(field);
@@ -221,7 +222,7 @@ var Import = (function () {
             $('#errors').removeClass('hidden');
         }
 
-        $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+        $('.file-loading .row .col-md-12').html(utilSalt.spinner('Loading file'));
         $('.file-loading').removeClass('hidden');
 
         index = fields.indexOf('humanCodingScheme');
@@ -298,7 +299,7 @@ var Import = (function () {
 
     function caseImporter(file) {
         $('.tab-content').addClass('hidden');
-        $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+        $('.file-loading .row .col-md-12').html(utilSalt.spinner('Loading file'));
         $('.file-loading').removeClass('hidden');
         $('.case-error-msg').addClass('hidden');
 
@@ -394,7 +395,7 @@ var SaltLocal = (function () {
             if (isTypeValid(file.name)) {
 
                 $('.tab-content').addClass('hidden');
-                $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+                $('.file-loading .row .col-md-12').html(utilSalt.spinner('Loading file'));
                 $('.file-loading').removeClass('hidden');
                 $('.case-error-msg').addClass('hidden');
 
@@ -548,7 +549,7 @@ var CfItem = (function () {
         var alert = '<div class="alert alert-warning js-alert-missing-fields" role="alert">';
         alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
         alert += '<div class="js-error-message-missing-field">';
-        alert += '<strong>Missing field "' + Util.titleize(field) + '"</strong>, if you did not list a column ' + field + ' in your CSV ignore this message! ';
+        alert += '<strong>Missing field "' + utilSalt.titleize(field) + '"</strong>, if you did not list a column ' + field + ' in your CSV ignore this message! ';
         alert += 'if you meant to, please take a look at the import template and try again!';
         alert += '</div>';
         alert += '</div>';
@@ -598,39 +599,6 @@ var SanitizeData = (function () {
         matchedFields: matchedFields
     };
 })();
-
-var Util = (function () {
-
-    function simplify(string) {
-        return string.match(/[a-zA-Z]*/g).join("").toLowerCase();
-    }
-
-    function capitalize(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
-    function titleize(string) {
-        return capitalize(string.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1"));
-    }
-
-    function chunk(array, n) {
-        if (!this.length) {
-            return [];
-        }
-        return [this.slice(0, n)].concat(this.slice(n).chunk(n));
-    }
-
-    function spinnerHtml(msg) {
-        return '<div class="spinnerOuter"><span class="glyphicon glyphicon-cog spinning spinnerCog"></span><span class="spinnerText">' + msg + '</span></div>';
-    }
-
-    return {
-        simplify: simplify,
-        titleize: titleize,
-        spinner: spinnerHtml
-    };
-})();
-
 
 function listRepositories() {
     $('#files').addClass('hidden');
