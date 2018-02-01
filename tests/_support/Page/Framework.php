@@ -135,6 +135,15 @@ class Framework implements Context
     }
 
     /**
+     * @Then /^I should not see the copy framework modal button$/
+     */
+    public function iShouldNotSeeTheCopyFrameworkModalButton(): Framework
+    {
+        $this->I->dontSee('#js-copy-framework-modal-button');
+        return $this;
+    }
+
+    /**
      * @Then /^I should see the copy framework modal button$/
      */
     public function iShouldSeeTheCopyFrameworkModalButton(): Framework
