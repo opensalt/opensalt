@@ -556,7 +556,7 @@ var CfItem = (function () {
         missingFieldsErrorMessages.push($(alert).find(".js-error-message-missing-field").text());
         $('.missing-fields').append(alert);
     }
-    
+
     function errorValue(err, msg, alertType) {
         var alert = '<div class="alert alert-'+alertType+' js-alert-missing-fields" role="alert">';
         alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
@@ -630,6 +630,8 @@ var Util = (function () {
         spinner: spinnerHtml
     };
 })();
+
+apx.Util = Util;
 
 function listRepositories() {
     $('#files').addClass('hidden');
