@@ -3,24 +3,22 @@ $salt-view-font-path: "" !default;
 body{
     overflow-x: hidden;
 }
+
+.treeSide {
+    height: calc(100vh - 243px);
+    overflow: auto;
+    display: flex;
+}
+
+#treeSideRight,
 #treeSideLeft {
     float:left;
     width:50%;
     min-width: 300px;
 }
 
-#treeSideRight {
-    float:left;
-    width:50%;
-}
-
 #treeSideLeft .form-group, #treeSideRight .form-group {
     position:relative;
-}
-
-.treeSide {
-    height: calc(100vh - 243px);
-    overflow: auto;
 }
 
 .treeSideLeftInner,
@@ -83,10 +81,6 @@ body{
     display:none;
     margin-top: 15px;
     padding-left:20px;
-}
-
-#tree1SectionControls {
-    padding-left: 20px;
 }
 
 .filterClear {

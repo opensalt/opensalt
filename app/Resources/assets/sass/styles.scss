@@ -8,6 +8,8 @@ html,body {
     min-height: 100%;
     padding-bottom: 36px;
     position: relative;;
+    width: auto !important;
+    max-width: 1500px;
 }
 
 header .navbar-default {
