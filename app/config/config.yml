@@ -202,6 +202,8 @@ swiftmailer:
     username:  "%mailer_user%"
     password:  "%mailer_password%"
     spool:     { type: memory }
+    # to disable mail uncomment MAILER_URL
+    # MAILER_URL: "null://localhost"
 
 
 jms_di_extra:
