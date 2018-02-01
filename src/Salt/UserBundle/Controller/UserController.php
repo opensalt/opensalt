@@ -2,11 +2,11 @@
 
 namespace Salt\UserBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\User\AddUserCommand;
 use App\Command\User\DeleteUserCommand;
 use App\Command\User\SuspendUserCommand;
-use App\Command\User\UnsuspendUserCommand;
+use App\Command\User\ActivateUserCommand;
 use App\Command\User\UpdateUserCommand;
 use Salt\UserBundle\Entity\User;
 use Salt\UserBundle\Form\Type\UserType;
@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class UserController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all user entities.
@@ -183,9 +183,9 @@ class UserController extends Controller
     }
 
     /**
-     * Unsuspend a user
+     * Activate a user
      *
-     * @Route("/{id}/unsuspend", name="admin_user_unsuspend")
+     * @Route("/{id}/activate", name="admin_user_activate")
      * @Security("is_granted('manage', targetUser)")
      * @Method({"GET"})
      *
@@ -194,8 +194,8 @@ class UserController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function unsuspendAction(Request $request, User $targetUser) {
-        $command = new UnsuspendUserCommand($targetUser);
+    public function activateAction(Request $request, User $targetUser) {
+        $command = new ActivateUserCommand($targetUser);
         $this->sendCommand($command);
 
         return $this->redirectToRoute('admin_user_index');

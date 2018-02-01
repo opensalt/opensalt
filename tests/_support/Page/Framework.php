@@ -4,8 +4,10 @@ namespace Page;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
+use Codeception\Exception\Fail;
 use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
+
 class Framework implements Context
 {
     static public $docPath = '/cftree/doc/';
@@ -14,6 +16,8 @@ class Framework implements Context
     static public $fwTitle = '#ls_doc_create_title';
     static public $fwCreatorField = '#ls_doc_create_creator';
 //    static public $frameworkCreatorValue = 'PCG QA Testing';
+
+    static protected $failedCreateCount = 0;
 
     protected $filename;
     protected $rememberedFramework;
@@ -152,6 +156,17 @@ class Framework implements Context
         $I->waitForElementNotVisible('#wizard', 60);
 
         unlink($filename.'.json');
+
+        return $this;
+    }
+
+    /**
+     * @When /^I select the framework node$/
+     * @When /^I click on the framework node$/
+     */
+    public function iSelectFrameworkNode(): Framework
+    {
+        $this->I->click(['xpath' => '(//div[@id="viewmode_tree1"]/ul/li/span)[1]']);
 
         return $this;
     }
@@ -589,6 +604,17 @@ class Framework implements Context
     }
 
     /**
+     * @Given /^I should see an alpha ordered list in the framework$/
+     */
+    public function iShouldSeeAlphaOrderedListInTheFramework(){
+      $I = $this->I;
+
+      $I->click('//span[text()="MD.Table"]/../../..');
+      $I->seeElement(".lsItemDetails ol {type: 'I'}");
+
+    }
+
+    /**
      * @Then /^I should see "([^"]*)" button$/
      */
     public function iShouldSeeButton($buttonText) {
@@ -610,46 +636,59 @@ class Framework implements Context
      * @When /^I create a "([^"]*)" framework$/
      */
     public function iCreateAFramework($framework = 'Test Framework') {
-       /** @var \Faker\Generator $faker */
-       $faker = \Faker\Factory::create();
+        $I = $this->I;
 
-       $description = $faker->sentence;
+        $I->amGoingTo('submit a filled in framework create form');
 
-       $note = $faker->paragraph;
-       $framework = sq($framework);
-       $this->rememberedFramework = $framework;
+        if (static::$failedCreateCount >= 5) {
+            $I->amGoingTo('not bother trying, too many errors creating frameworks already');
+            throw new Fail('Not trying: Too many framework create failures already.');
+        }
 
-       $this->frameworkData = [
-         'title' => $framework,
-         'creator' => $this->creatorName,
-         'officialUri' => 'http://opensalt.net',
-         'publisher' => 'PCG',
-         'version' => '1.0',
-         'description' => $description,
-         'language' => 'en',
-         'adoptionStatus' => 'Draft',
-         'note' => $note,
-       ];
+        /** @var \Faker\Generator $faker */
+        $faker = \Faker\Factory::create();
 
-       $I = $this->I;
+        $description = $faker->sentence;
 
-       $I->fillField(self::$fwTitle, $framework);
-       $I->fillField(self::$fwCreatorField, $this->creatorName);
-       $I->fillField('#ls_doc_create_officialUri', $this->frameworkData['officialUri']);
-       $I->fillField('#ls_doc_create_publisher', $this->frameworkData['publisher']);
+        $note = $faker->paragraph;
+        $framework = sq($framework);
+        $this->rememberedFramework = $framework;
+
+        $this->frameworkData = [
+            'title' => $framework,
+            'creator' => $this->creatorName,
+            'officialUri' => 'http://opensalt.net',
+            'publisher' => 'PCG',
+            'version' => '1.0',
+            'description' => $description,
+            'language' => 'en',
+            'adoptionStatus' => 'Draft',
+            'note' => $note,
+        ];
+
+        $I->fillField(self::$fwTitle, $framework);
+        $I->fillField(self::$fwCreatorField, $this->creatorName);
+        $I->fillField('#ls_doc_create_officialUri', $this->frameworkData['officialUri']);
+        $I->fillField('#ls_doc_create_publisher', $this->frameworkData['publisher']);
 //       $I->fillField('#ls_doc_create_urlName','OpenSALT');
-       $I->fillField('#ls_doc_create_version', $this->frameworkData['version']);
-       $I->fillField('#ls_doc_create_description', $description);
+        $I->fillField('#ls_doc_create_version', $this->frameworkData['version']);
+        $I->fillField('#ls_doc_create_description', $description);
 //       $I->selectOption('.select2-search__field', array('text' => 'Math')); //Subject field
-       $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
-       $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
-       $I->fillField('#ls_doc_create_note', $note);
+        $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
+        $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
+        $I->fillField('#ls_doc_create_note', $note);
 
-       $I->click('Create');
+        $I->click('Create');
 
-       $I->see($framework, '#docTitle');
-       $I->setDocId($I->grabValueFrom('#lsDocId'));
+        try {
+            $I->waitForElementVisible('#docTitle', 30);
+        } catch (\Exception $e) {
+            static::$failedCreateCount++;
+            throw $e;
+        }
 
+        $I->see($framework, '#docTitle');
+        $I->setDocId($I->grabValueFrom('#lsDocId'));
     }
 
     /**
@@ -662,7 +701,6 @@ class Framework implements Context
       $I->click('Create a new Framework');
       $I->see('LsDoc creation');
       $this->iCreateAFramework();
-
     }
 
     /**
@@ -696,8 +734,6 @@ class Framework implements Context
       $I->amOnPage(self::$lsdocPath.$I->getDocId());
 
       $I->click('Delete');
-
-
     }
 
   /**
@@ -870,4 +906,30 @@ class Framework implements Context
 
     $I->dontSee($item);
   }
+
+  /**
+   * @Given /^I edit the fields in a framework without saving the changes$/
+   */
+  public function iEditTheFieldsInAFrameworkWithoutSavingTheChanges(TableNode $table) {
+    $I = $this->I;
+
+    $this->iGoToTheFrameworkDocument();
+    $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+    $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+    $I->waitForElementVisible('#ls_doc_title');
+
+    $rows = $table->getRows();
+    foreach ($rows as $row) {
+      $this->iEditTheFieldInFramework($row[0], $row[1]);
+    }
+    return $this;
+  }
+
+    /**
+     * @Given /^I see the Log View button in the title section$/
+     */
+    public function iSeeTheSelectorInTitleSection()
+    {
+        $this->I->seeElement('#displayLogBtn');
+    }
 }

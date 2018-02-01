@@ -4,6 +4,7 @@ namespace App\Handler\Comment;
 
 use App\Command\Comment\UpvoteCommentCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Salt\SiteBundle\Entity\Comment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -27,5 +28,9 @@ class UpvoteCommentHandler extends BaseCommentHandler
 
         $repo = $this->em->getRepository(Comment::class);
         $repo->addUpvoteForUser($comment, $user);
+
+        /* @todo update to fill in name and document after comments are modified */
+        $notification = new NotificationEvent('C05', 'Comment up voted' /* for [Short name] */, null);
+        $command->setNotificationEvent($notification);
     }
 }

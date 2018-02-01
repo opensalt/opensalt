@@ -8,10 +8,9 @@ sudo: required
 
 env:
   global:
-    - secure: "RMbNU45j8ffJuMtV47S0A3hhpMaw23OYZeMT+NZMVSiFV+fKF1qEd8P2CstNygW77vR4qq3NYJgQFDdtitEI9n+ymI0XQqKp58/25aikIep6MPsfFO/7fHh76Ii1zZIo9qtbqWir3V0sinHeenl5xOXm2UuuPRJHUuNPO3UkX60SjlzluVdrXu+1yLWfYa23Y9lsNJzpvPER1ELi0i+LgeYM1p4WrMPBJdZASzJ8/4vXzmjW2aSaC59CNeUNFcGOrkpk8KVPUy2Ss2E379dCF79SFZ/cHX0qn8hEcdcykgIIY9iCvEs5Ds8Fvm5bxJ6Hc94DT5pfROcMU7lu8y9+1LtT3hfb1+94Z32iuYnxZauso4y1MqEmu0/fn6o4iUrk0B6WD9rdvneS1vfOz5EZUWVke5YETvFozWuVw/vAV2bM+qrbusja8mcMsCsKfGCF/In1bGWfpNlwuiOcIkLWp9+V8HcdLxCjrFZtk7igchvBBBru6C4rvhlYZt+CwlqwxWHV693P2xZubHs4xoIa7XMBbzjhMHjYudlb258KILnPhIkaqLcZdtOxv6ahnRnqf3gwdrtQwXmW13jb8VDU34gGTvAvnnCh4V1t97oc3yHm2aLqKkQKTGajuE7/jJuw/VnyrjQ+U1FywZDYgAhIR4ZWNdbEd6uFZBhxeR6n+hI="
-    - secure: "lSRoso9L/sobEd/sYefzYfBcYPI9Dnq0/oNiPalDKoKPWXvOhhyHN55LpE+L0ezFm37TjGzRpMmcIRx1mUm3RefyYJDWrtq1z+qwpXtjJFbMBZvHsEu0/yUyD4voji8vLZ/W/f4/ntiI8VvVX4LdVotFutiDKr78F7+FKkCajj4rVcx2Ww0Nhu+WHCzmNSP2/stZIVjTzg/PJPL0pVCZMnudefg3w7+2+mT6ki5fxRqwi6Kly0WiQSbnbxfZALDPNzyfGu02W5DbwxhCOerd13KcyS29Zwg7N29lBfRQgpYDygRb1X2oQb2tQOqwjhEURrLz/5XyAOi5p3AZqkmf6eaAcjULJlaj3XIKzTLxP2j/g6UA/UXP+8Dwgsuv8eX4CSvbCfMdhdNdPmvL6zOqCKadMRKO7Lcf+0eQvtyeskwp9GZR5PXxIJcJPu4dNlXrDF67uDVNCbnpq/KjGBUIZaMqjPAcZI5RRsEcWVirG5bi1laWGLV/37pFvo5UU+TEZE10gHviCYiL4RBFN32X/anAQ/DOLieMdnARSJbV+w8h9thtg565Y7LJSBlRJdc2bqhZfA+yyU4WEzw68bwQ8wH3i5ewVxWLM9HCFeWoGUB9SFfBepqdnrghgJgvayCvCfE60XC9D3xyXC1cMe4SXDD0adCBzKmSS9Ydyfs+fk8="
     - COMMIT=${TRAVIS_COMMIT::8}
     - DOCKER_COMPOSE_VERSION=1.16.1
+    - FIREBASE_PREFIX=${FIREBASE_PREFIX:-travis}-${TRAVIS_BUILD_NUMBER}
 
 language: php
 
@@ -53,29 +52,32 @@ before_script:
 
 # Run the tests
 script:
-  - ./bin/console doctrine:migrations:migrate --no-interaction
-  - ./bin/console import:generic-csv tests/_data/test_items.csv
-  - ./bin/run-tests --steps -x duplicate -x skip-firefox
+  - ./bin/console --env=prod doctrine:migrations:migrate -q --no-interaction
+  - ./bin/console --env=prod import:generic-csv tests/_data/test_items.csv
+  - echo 'Running tests...' && echo -en 'travis_fold:start:run.tests\\r'
+  - ./bin/run-tests ${RUN_TEST_ARGS:-"--steps -x duplicate -x skip -x skip-firefox"}
+  - echo -en 'travis_fold:end:run.tests\\r'
 #  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/build_pull_request; fi'
 #  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/build_normal; fi'
 
+#before_cache:
+
 #$TRAVIS_TEST_RESULT has build result 0==success
 after_success:
+  - ./bin/console --env=prod firebase:clear
   - if [ "$OPENSALT_HEROKU_DEPLOY" != "true" ]; then ./ci/travis/push_app.sh; fi
 #  - if [ "$TRAVIS_BRANCH" == "master" ]; then /bin/true; fi
 
 after_failure:
   - echo "Tests FAILED"
+  - ./bin/console --env=prod firebase:clear
   - ./ci/travis/send_errors.sh
 
 
 #before_deploy:
+
 #deploy:
 #  skip_cleanup: true
-#after_deploy:
-
-after_script:
-  - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml down -v
 
 before_deploy:
   - ./deploying/heroku/config_deploy.sh
@@ -89,6 +91,11 @@ deploy:
     condition: $OPENSALT_HEROKU_DEPLOY = "true"
     branch: master
   run: "php bin/console-real doctrine:migrations:migrate --no-interaction"
+
+#after_deploy:
+
+after_script:
+  - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml down -v
 
 notifications:
   hipchat:

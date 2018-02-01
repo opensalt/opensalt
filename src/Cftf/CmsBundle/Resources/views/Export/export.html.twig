@@ -1,9 +1,0 @@
-{% extends "::base.html.twig" %}
-
-{% block title %}CMS Export{% endblock %}
-
-{% block body %}
-    <pre>
-{% include 'CftfCmsBundle:Export:export.json.twig' with {'lsDoc':lsDoc} %}
-    </pre>
-{% endblock %}

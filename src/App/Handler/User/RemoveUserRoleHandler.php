@@ -42,7 +42,5 @@ class RemoveUserRoleHandler extends BaseDoctrineHandler
         $role = $command->getRole();
 
         $this->em->getRepository(User::class)->removeRoleFromUser($username, $role);
-
-//        $dispatcher->dispatch(RemoveUserRoleEvent::class, new RemoveUserRoleEvent());
     }
 }
