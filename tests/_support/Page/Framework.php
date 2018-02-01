@@ -143,7 +143,7 @@ class Framework implements Context
 
         $data = str_replace([
             'Test Framework External Empty',
-            'dc5bbc8a-2c16-445b-b10d-bb7cce3b814e'
+            'd0000000-0000-0000-0000-000000000000'
         ], [$name, $uuid], $data);
         $this->uploadedFramework = $data;
 
@@ -212,7 +212,7 @@ class Framework implements Context
         $diff = $this->arrayDiff(
             json_decode($this->uploadedFramework, true),
             $parsedJson,
-            ['lastChangeDateTime']
+            ['lastChangeDateTime', 'CFDefinitions', 'CFItemTypeURI']
         );
         $I->assertEquals([], $diff, 'Downloaded JSON does not match');
 
@@ -230,8 +230,8 @@ class Framework implements Context
                 if (is_array($v1) && is_array($v2)) {
                     // 2 arrays: just go further...
                     // .. and explain it's an update!
-                    $changes = $this->arrayDiff($v1, $v2);
-                    if (count($changes) > 0) {
+                    $changes = $this->arrayDiff($v1, $v2, $allowedDiffs);
+                    if (\count($changes) > 0 && !\in_array($k1, $allowedDiffs, true)) {
                         // If we have no change, simply ignore
                         $diff[$k1] = array('upd' => $changes);
                     }
@@ -242,7 +242,7 @@ class Framework implements Context
                     unset($arr2[$k1]);
                 } else {
                     // Don't mind if arrays or not.
-                    if (in_array('k1', $allowedDiffs, true)) {
+                    if (!\in_array($k1, $allowedDiffs, true)) {
                         $diff[$k1] = array('old' => $v1, 'new' => $v2);
                     }
                     unset($arr2[$k1]);
@@ -931,5 +931,76 @@ class Framework implements Context
     public function iSeeTheSelectorInTitleSection()
     {
         $this->I->seeElement('#displayLogBtn');
+    }
+
+    /**
+     * @Given /^I upload the Item Type CASE file$/
+     */
+    public function iUploadTheItemTypeCASEFile()
+    {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#file-url');
+
+        $data = file_get_contents(codecept_data_dir().'ItemTypeTestFramework.json');
+
+        $name = sq('ItemTypeFramework');
+        $docUuid = Uuid::uuid4()->toString();
+        $this->rememberedFramework = $name;
+
+        $origValues = [];
+        $replacements = [];
+
+        $decoded = json_decode($data, true);
+
+        // Replace title
+        $origValues[] = $decoded['CFDocument']['title'];
+        $replacements[] = $name;
+
+        // replace document identifier
+        $origValues[] = $decoded['CFDocument']['identifier'];
+        $replacements[] = $docUuid;
+
+        if (!empty($decoded['CFItems'])) {
+            foreach ($decoded['CFItems'] as $item) {
+                $origValues[] = $item['identifier'];
+                $replacements[] = Uuid::uuid4()->toString();
+            }
+        }
+        if (!empty($decoded['CFAssociations'])) {
+            foreach ($decoded['CFAssociations'] as $item) {
+                $origValues[] = $item['identifier'];
+                $replacements[] = Uuid::uuid4()->toString();
+            }
+        }
+        if (!empty($decoded['CFDefinitions'])) {
+            foreach ($decoded['CFDefinitions'] as $content) {
+                foreach ($content as $item) {
+                    $origValues[] = $item['identifier'];
+                    $replacements[] = Uuid::uuid4()->toString();
+                }
+            }
+        }
+
+        /*
+        foreach ($origValues as $i => $origValue) {
+            $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
+        }
+        */
+        $data = str_replace($origValues, $replacements, $data);
+
+        $this->uploadedFramework = $data;
+
+        $filename = tempnam(codecept_data_dir(), 'tmp_itf_');
+        unlink($filename);
+        file_put_contents($filename.'.json', $data);
+
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.json'));
+        $I->click('a.btn-import-case');
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        unlink($filename.'.json');
+
+        return $this;
     }
 }
