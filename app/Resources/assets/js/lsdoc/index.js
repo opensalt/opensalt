@@ -556,7 +556,7 @@ var CfItem = (function () {
         missingFieldsErrorMessages.push($(alert).find(".js-error-message-missing-field").text());
         $('.missing-fields').append(alert);
     }
-    
+
     function errorValue(err, msg, alertType) {
         var alert = '<div class="alert alert-'+alertType+' js-alert-missing-fields" role="alert">';
         alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
@@ -631,6 +631,7 @@ var Util = (function () {
     };
 })();
 
+
 function listRepositories() {
     $('#files').addClass('hidden');
     $('#repos').removeClass('hidden');
@@ -658,24 +659,34 @@ global.SaltLocal = SaltLocal;
 global.SaltGithub = SaltGithub;
 global.listRepositories = listRepositories;
 
+var dragbar = $("#dragbar");
 
-$('#dragbar').mousedown(function (e) {
-    e.preventDefault();
+dragbar.mousedown(function (upperEvent) {
+    upperEvent.preventDefault();
+    var treeSideLeft = $('#treeSideLeft'),
+        treeSideRight = $('#treeSideRight'),
+        treeView = $("#treeView"),
+        treeViewOffsetLeft = treeView.offset().left,
+        treeViewOffsetRight = treeViewOffsetLeft + treeView.width(),
+        threshold = 330;
 
-    var dragBar = function (e) {
-        var maxWidthToAllow = $("#treeView").width() - 330;
-        if (e.pageX >= maxWidthToAllow) {
-            $('#treeSideLeft').css("width", maxWidthToAllow);
-        } else {
-            $('#treeSideLeft').css("width", e.pageX + 2);
-        }
-        $('#treeSideRight').width($("#treeView").width() - $("#treeSideLeft").width());
-    };
     $(document).on('mousemove', dragBar);
 
     $(document).one('mouseup', function (e) {
         $(document).off('mousemove', dragBar);
     });
+
+    function dragBar(e) {
+        var cursorX = e.clientX,
+            cursorFromOffsetLeft = cursorX - treeViewOffsetLeft,
+            cursorFromOffsetRight = treeViewOffsetRight - cursorX;
+        if(cursorFromOffsetLeft < threshold || cursorFromOffsetRight < threshold) {
+            return false;
+        }
+
+        treeSideLeft.css("width", cursorFromOffsetLeft);
+        treeSideRight.css("width", cursorFromOffsetRight);
+    }
 });
 
 var adjustWindow = function (e) {
