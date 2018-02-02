@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types = 1);
 
 namespace Application\Migrations;
 
@@ -21,12 +23,12 @@ INSERT INTO ls_def_licence (identifier, uri, title, licence_text, updated_at)
         ) LIMIT 1;
 xENDx;
         $insertLicence = $this->connection->prepare($sql);
-        $licence_text = "https://creativecommons.org/licenses/by/4.0/legalcode";
+        $licence_text = 'https://creativecommons.org/licenses/by/4.0/legalcode';
         $uuid = Uuid::uuid5(Uuid::NAMESPACE_URL, $licence_text);
         $params = [
             'uuid' => $uuid->toString(),
             'uri' => 'local:'.$uuid->toString(),
-            'title' => "Attribution 4.0 International",
+            'title' => 'Attribution 4.0 International',
             'licence_text' => $licence_text,
         ];
         $insertLicence->execute($params);
