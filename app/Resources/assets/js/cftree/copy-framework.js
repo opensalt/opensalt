@@ -1,6 +1,6 @@
 $(document).ready(function(){
     var apx = window.apx||{};
-    var utilSalt = require('util-salt');
+    var utilSalt = require("util-salt");
 
     apx.copyFramework = {
         init() {
