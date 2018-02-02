@@ -23,7 +23,7 @@ INSERT INTO ls_def_licence (identifier, uri, title, licence_text, updated_at)
         ) LIMIT 1;
 xENDx;
         $insertLicence = $this->connection->prepare($sql);
-        $uuid = Uuid::uuid5(Uuid::NAMESPACE_URL, 'data:text/x-ref;src=EXTERNAL_LICENCE');
+        $uuid = Uuid::uuid5(Uuid::NAMESPACE_URL, 'https://creativecommons.org/licenses/by/4.0/legalcode');
         $params = [
             'uuid' => $uuid->toString(),
             'uri' => 'local:'.$uuid->toString(),
