@@ -46,17 +46,6 @@ class LsDocController extends Controller
      */
     public function indexAction()
     {
-        // mailer test
-        $message = (new \Swift_Message('Hello Email'))
-        ->setFrom('send@example.com')
-        ->setTo('joseph.leon@learningmate.com')
-        ->setBody('Sample email');
-
-        // $mailer = $this->get('mailer');
-        // $mailer->send($message);
-        $this->get('mailer')->send($message);
-
-
         $em = $this->getDoctrine()->getManager();
 
         $results = $em->getRepository(LsDoc::class)->findBy(
