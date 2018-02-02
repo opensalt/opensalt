@@ -10,6 +10,7 @@ Feature: Adding, viewing and deleting a framework
 
     When I click the "Create a new Framework" button
     Then I should see "LsDoc creation"
+    Then I should see licence drop-down
 
     When I create a "Draft" framework
     Then I should see the framework
