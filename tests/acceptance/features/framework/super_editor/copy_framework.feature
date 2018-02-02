@@ -1,7 +1,7 @@
 Feature: Copying framework content to another framework
 
-  @super-user @framework @copy-framework @1016-1323 @duplicate
-  Scenario: An Super-Editor can copy a framework
+  @super-user @framework @copy-framework @1035-1435 @duplicate
+  Scenario: 1035-1435 An Super-Editor can copy a framework
     Given I log in as a user with role "Super-Editor"
     Given I am on a framework page
     Then I should see the copy framework modal button
