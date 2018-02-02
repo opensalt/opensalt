@@ -53,7 +53,8 @@ class FrameworkLogs implements Context
      */
     public function iShouldSeeTheAddOfInTheLog($item)
     {
-        $this->I->see("\"{$item}\" added", '#logTable td');
+        $lookFor = $this->I->getRememberedString($item, $item);
+        $this->I->see("\"{$lookFor}\" added", '#logTable td');
     }
 
     /**

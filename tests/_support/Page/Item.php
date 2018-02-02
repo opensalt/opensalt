@@ -64,6 +64,8 @@ class Item implements Context
      */
     public function iAddItem($item = 'Test Item')
     {
+        $requestedItem = $item;
+
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
         $this->enum++;
@@ -117,6 +119,8 @@ class Item implements Context
             $I->wait(1);
             $I->see($item, '.item-humanCodingScheme');
         }
+
+        $I->remember($requestedItem, $item);
     }
 
     /**

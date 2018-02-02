@@ -5,6 +5,7 @@ namespace Page;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Codeception\Exception\Fail;
+use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
 
@@ -166,7 +167,16 @@ class Framework implements Context
      */
     public function iSelectFrameworkNode(): Framework
     {
-        $this->I->click(['xpath' => '(//div[@id="viewmode_tree1"]/ul/li/span)[1]']);
+        $el = ['xpath' => '(//div[@id="viewmode_tree1"]/ul/li/span)[1]'];
+
+        try {
+            $this->I->click($el);
+        } catch (StaleElementReferenceException $e) {
+            // Wait for 1 second and try again
+            $this->I->wait(1);
+            $this->I->waitForElementVisible($el, 10);
+            $this->I->click($el);
+        }
 
         return $this;
     }
@@ -877,42 +887,55 @@ class Framework implements Context
         $I->assertEquals($hcsValue, current($level1HcsList));
     }
 
-  /**
-   * @Then /^I search for "([^"]*)" in the framework$/
-   */
-  public function iSearchForInTheFramework($item) {
-    $I = $this->I;
+    /**
+     * @Then /^I search for "([^"]*)" in the framework$/
+     */
+    public function iSearchForInTheFramework($item)
+    {
+        $I = $this->I;
 
-    $I->fillField('#filterOnTree', $item);
-    $I->wait(1);
-  }
-
-  /**
-   * @Given /^I should not see "([^"]*)" in results$/
-   */
-  public function iShouldNotSeeInResults($item) {
-    $I = $this->I;
-
-    $I->dontSee($item);
-  }
-
-  /**
-   * @Given /^I edit the fields in a framework without saving the changes$/
-   */
-  public function iEditTheFieldsInAFrameworkWithoutSavingTheChanges(TableNode $table) {
-    $I = $this->I;
-
-    $this->iGoToTheFrameworkDocument();
-    $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
-    $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
-    $I->waitForElementVisible('#ls_doc_title');
-
-    $rows = $table->getRows();
-    foreach ($rows as $row) {
-      $this->iEditTheFieldInFramework($row[0], $row[1]);
+        $I->fillField('#filterOnTree', $item);
     }
-    return $this;
-  }
+
+    /**
+     * @Given /^I should not see "([^"]*)" in results$/
+     */
+    public function iShouldNotSeeInSearchResults($item)
+    {
+        $I = $this->I;
+
+        for ($i = 0; $i < 4; $i++) {
+            try {
+                $I->dontSee($item, '#tree1Section');
+
+                return;
+            } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+                $I->wait(1);
+            }
+        }
+
+        $I->dontSee($item, '#tree1Section');
+    }
+
+    /**
+     * @Given /^I edit the fields in a framework without saving the changes$/
+     */
+    public function iEditTheFieldsInAFrameworkWithoutSavingTheChanges(TableNode $table)
+    {
+        $I = $this->I;
+
+        $this->iGoToTheFrameworkDocument();
+        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->waitForElementVisible('#ls_doc_title');
+
+        $rows = $table->getRows();
+        foreach ($rows as $row) {
+            $this->iEditTheFieldInFramework($row[0], $row[1]);
+        }
+
+        return $this;
+    }
 
     /**
      * @Given /^I see the Log View button in the title section$/
