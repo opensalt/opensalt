@@ -1,12 +1,12 @@
 {
   "CFDocument": {
-    "uri": "https://remote.server.com/ims/case/v1p0/CFDocuments/dc5bbc8a-2c16-445b-b10d-bb7cce3b814e",
-    "identifier": "dc5bbc8a-2c16-445b-b10d-bb7cce3b814e",
+    "uri": "https://remote.server.com/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000",
+    "identifier": "d0000000-0000-0000-0000-000000000000",
     "lastChangeDateTime": "2017-08-24T16:00:53+00:00",
     "CFPackageURI": {
       "title": "Test Framework External Empty",
-      "identifier": "dc5bbc8a-2c16-445b-b10d-bb7cce3b814e",
-      "uri": "https://remote.server.com/ims/case/v1p0/CFPackages/dc5bbc8a-2c16-445b-b10d-bb7cce3b814e"
+      "identifier": "d0000000-0000-0000-0000-000000000000",
+      "uri": "https://remote.server.com/ims/case/v1p0/CFPackages/d0000000-0000-0000-0000-000000000000"
     },
     "creator": "OpenSALT Testing",
     "title": "Test Framework External Empty"
