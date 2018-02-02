@@ -197,14 +197,15 @@ doctrine_migrations:
 
 # Swiftmailer Configuration
 swiftmailer:
-    transport: "%mailer_transport%"
-    host:      "%mailer_host%"
-    username:  "%mailer_user%"
-    password:  "%mailer_password%"
     spool:     { type: memory }
+    transport: smtp
+    host:      smtp.mailtrap.io
+    username:  11d8b9d499ed7f
+    password:  4980cda9c4f460
+    auth_mode: cram-md5
+    port: 2525
     # to disable mail uncomment MAILER_URL
     # MAILER_URL: "null://localhost"
-
 
 jms_di_extra:
     locations:
