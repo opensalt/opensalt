@@ -8,19 +8,21 @@ use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
 use Ramsey\Uuid\Uuid;
 
-/**
- * Auto-generated Migration: Please modify to your needs!
- */
 class Version20180201165909 extends AbstractMigration
 {
     public function up(Schema $schema)
     {
         $sql = <<<'xENDx'
-INSERT INTO ls_def_licence (identifier, uri, title, licence_text, updated_at)
-    SELECT * FROM (SELECT :uuid, :uri, :title, :licence_text, NOW()) AS tmp
-    WHERE NOT EXISTS (
-            SELECT title FROM ls_def_licence WHERE title = :title
-        ) LIMIT 1;
+INSERT IGNORE INTO ls_def_licence
+  (identifier, uri, title, licence_text, description, updated_at)
+SELECT *
+  FROM (SELECT :uuid, :uri, :title, :licence_text, :description, NOW()) AS tmp
+ WHERE NOT EXISTS (
+           SELECT title
+             FROM ls_def_licence
+            WHERE title = :title
+               OR identifier = :uuid
+       ) LIMIT 1;
 xENDx;
         $insertLicence = $this->connection->prepare($sql);
         $uuid = Uuid::uuid5(Uuid::NAMESPACE_URL, 'https://creativecommons.org/licenses/by/4.0/legalcode');
@@ -29,13 +31,16 @@ xENDx;
             'uri' => 'local:'.$uuid->toString(),
             'title' => 'Attribution 4.0 International',
             'licence_text' => 'https://creativecommons.org/licenses/by/4.0/legalcode',
+            'description' => 'Creative Commons Attribution 4.0 International',
         ];
         $insertLicence->execute($params);
+
+        // so the migration does not complain about not having any sql stmts
+        $this->addSql('SELECT "Added licence"');
     }
 
     public function down(Schema $schema)
     {
-        $this->addSql('DELETE FROM ls_def_licence WHERE title = "Attribution 4.0 International" AND licence_text = "https://creativecommons.org/licenses/by/4.0/legalcode"');
-
+        $this->addSql('DELETE IGNORE FROM ls_def_licence WHERE title = "Attribution 4.0 International" AND licence_text = "https://creativecommons.org/licenses/by/4.0/legalcode"');
     }
 }
