@@ -43,6 +43,7 @@ class FrameworkLogs implements Context
      */
     public function iSelectLogView()
     {
+        $this->I->waitForElementNotVisible('#modalSpinner');
         $this->I->click('#displayLogBtn');
         $this->I->waitForJS('return $.active == 0', 30);
         $this->I->waitForElementVisible(['xpath' => '//*[@id="logTable"]/tbody/tr[1]/td[2]'], 30);

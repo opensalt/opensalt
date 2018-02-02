@@ -895,6 +895,9 @@ class Framework implements Context
         $I = $this->I;
 
         $I->fillField('#filterOnTree', $item);
+        // Chrome seems to require an explicit "keyup" to trigger the searching
+        $I->executeJS("$('#filterOnTree').trigger('keyup');");
+        $I->wait(0.5); // search has a 500ms delay to allow typing
     }
 
     /**
