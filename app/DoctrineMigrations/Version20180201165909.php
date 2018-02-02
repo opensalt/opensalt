@@ -25,12 +25,13 @@ SELECT *
        ) LIMIT 1;
 xENDx;
         $insertLicence = $this->connection->prepare($sql);
-        $uuid = Uuid::uuid5(Uuid::NAMESPACE_URL, 'https://creativecommons.org/licenses/by/4.0/legalcode');
+        $licence_text = 'https://creativecommons.org/licenses/by/4.0/legalcode';
+        $uuid = Uuid::uuid5(Uuid::NAMESPACE_URL, $licence_text);
         $params = [
             'uuid' => $uuid->toString(),
             'uri' => 'local:'.$uuid->toString(),
             'title' => 'Attribution 4.0 International',
-            'licence_text' => 'https://creativecommons.org/licenses/by/4.0/legalcode',
+            'licence_text' => $licence_text,
             'description' => 'Creative Commons Attribution 4.0 International',
         ];
         $insertLicence->execute($params);
