@@ -897,7 +897,7 @@ class Framework implements Context
         $I->fillField('#filterOnTree', $item);
         // Chrome seems to require an explicit "keyup" to trigger the searching
         $I->executeJS("$('#filterOnTree').trigger('keyup');");
-        $I->wait(0.5); // search has a 500ms delay to allow typing
+        $I->wait(1); // search has a 500ms delay to allow typing
     }
 
     /**
@@ -913,7 +913,9 @@ class Framework implements Context
 
                 return;
             } catch (\PHPUnit_Framework_AssertionFailedError $e) {
-                $I->wait(1);
+                // Try triggering the search again
+                $I->executeJS("$('#filterOnTree').trigger('keyup');");
+                $I->wait(1.5); // search has a 500ms delay to allow typing
             }
         }
 

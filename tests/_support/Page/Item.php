@@ -311,7 +311,12 @@ class Item implements Context
     {
         $I = $this->I;
 
-        $I->checkOption('#enableMoveCheckbox');
+        try {
+            $I->checkOption('#enableMoveCheckbox');
+        } catch (StaleElementReferenceException $e) {
+            $I->wait(2);
+            $I->checkOption('#enableMoveCheckbox');
+        }
         $I->dragAndDrop('(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[2]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
     }
 
