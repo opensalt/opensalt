@@ -719,10 +719,11 @@ $(document).ready(function() {
             .draw();
     });
     $( '#search_form_user_role' ).on( 'change', function () {
-        table
-            .columns( 3 )
-            .search( '(^'+this.value+'$)',true,false )
-            .draw();
+        if(this.value !== "") {
+            table.columns( 3 ).search( '(^'+this.value+'$)',true,false ).draw();
+        }
+        else
+            table.columns( 3 ).search( this.value ).draw();
     });
     
 });
