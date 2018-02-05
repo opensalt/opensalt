@@ -722,8 +722,9 @@ $(document).ready(function() {
         if(this.value !== "") {
             table.columns( 3 ).search( '(^'+this.value+'$)',true,false ).draw();
         }
-        else
+        else {
             table.columns( 3 ).search( this.value ).draw();
+        }
     });
     
 });
