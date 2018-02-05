@@ -2,13 +2,26 @@
 
 {% block body %}
     <h1>User list</h1>
-    {% if form is not empty %}
-        {{ form_start(form) }}
-          {{ form_label(form.organization) }}<div class="col-md-2"> {{ form_widget(form.organization) }}</div>
-          {{ form_label(form.user_role) }}<div class="col-md-2"> {{ form_widget(form.user_role) }}</div>      
-        {{ form_end(form) }}
-    {% endif %}
-      <br/><br/><br/>
+    <div class="container">
+        <form class="form-inline">
+            <div class="form-group col-md-4" >
+                <label for="organization">Organization : </label> 
+                <input type ="text"  class="form-control" autocomplete = "off" id="search_form_organization" name="organization">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="user_role">User Role : </label>
+                <select id ="search_form_user_role" class="form-control">
+                      <option value="">Select</option>
+                      <option value="Super User">Super User</option>
+                      <option value="Super Editor">Super Editor</option>
+                      <option value="Admin">Admin</option>
+                      <option value="Editor">Editor</option>
+                      <option value="User">User</option>
+                  </select>
+            </div>
+        </form>
+    </div>
+      <br/><br/>
 
     <table class="table table-condensed table-hover table-bordered table-striped" id = "datatable">
         <thead>
