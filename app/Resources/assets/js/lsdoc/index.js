@@ -711,7 +711,7 @@ $(document).on('ready', adjustWindow);
 $(window).on('resize', adjustWindow);
 
 $(document).ready(function() {
-    var table = $('#datatable').DataTable();
+    var table = $('#datatable').dataTable();
 
     $('#search_form_organization').on( 'keyup', function () {
         table
