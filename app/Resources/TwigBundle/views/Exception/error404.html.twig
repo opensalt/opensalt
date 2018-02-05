@@ -30,20 +30,18 @@
 {% block body %}
     <div class="panel panel-danger">
         <div class="panel-heading">
-            <h1>Oops! An Error Occurred</h1>
+            <h1>Page not found</h1>
         </div>
         <div class="panel-body">
-          <h2>The server returned a "{{ status_code }} {{ status_text }}".</h2>
+            <p>
+                The requested page could not be located.<br />
+            </p>
 
-          <p>
-              Something is broken.<br />
-              Please let us know what you were doing when this error occurred and
-              we will fix it as soon as possible.
-          </p>
-
-          <p>
-              Sorry for any inconvenience caused.  You can <a href="{{ path('lsdoc_index') }}">return to the document list</a>.
-          </p>
+            <p>
+                The page may have been delete or may have never existed.<br />
+                Check the URL for misspellings
+                or <a href="{{ path('lsdoc_index') }}">return to the document list</a>.
+            </p>
         </div>
     </div>
 
