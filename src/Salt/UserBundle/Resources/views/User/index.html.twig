@@ -2,8 +2,15 @@
 
 {% block body %}
     <h1>User list</h1>
+    {% if form is not empty %}
+        {{ form_start(form) }}
+          {{ form_label(form.organization) }}<div class="col-md-2"> {{ form_widget(form.organization) }}</div>
+          {{ form_label(form.user_role) }}<div class="col-md-2"> {{ form_widget(form.user_role) }}</div>      
+        {{ form_end(form) }}
+    {% endif %}
+      <br/><br/><br/>
 
-    <table class="table table-condensed table-hover table-bordered table-striped">
+    <table class="table table-condensed table-hover table-bordered table-striped" id = "datatable">
         <thead>
             <tr>
                 <th>Id</th>

@@ -18,6 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Salt\UserBundle\Form\Type\SearchForm;
 
 /**
  * User controller.
@@ -38,19 +39,24 @@ class UserController extends Controller
      *
      * @return array
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
 
         if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_USER')) {
             $users = $em->getRepository(User::class)->findAll();
+            $form = $this->createForm(SearchForm::class);
+            $form->handleRequest($request);
+            $formView = $form->createView();
         } else {
             $users = $em->getRepository(User::class)
                 ->findByOrg($this->getUser()->getOrg());
+            $formView = [];
         }
 
         return [
             'users' => $users,
+            'form'=> $formView,
         ];
     }
 
