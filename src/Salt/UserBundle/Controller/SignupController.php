@@ -9,7 +9,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Salt\UserBundle\Entity\User;
+use Salt\UserBundle\Entity\Organization;
 use App\Command\User\AddUserCommand;
+use App\Command\User\AddOrganizationCommand;
 use App\Command\CommandDispatcherTrait;
 
 /**
@@ -38,10 +40,23 @@ class SignupController extends Controller
         $form = $this->createForm(SignupType::class, $targetUser, ['validation_groups' => ['registration']]);
         $form->handleRequest($request);
 
-
         if ($form->isSubmitted() && $form->isValid()) {
             $encryptedPassword = $this->get('security.password_encoder')
                 ->encodePassword($targetUser, $targetUser->getPlainPassword());
+
+            if (!is_null($form['new_org']->getData())) {
+                $org = new Organization();
+                $org->setName($form['new_org']->getData());
+
+                try {
+                    $commandOrg = new AddOrganizationCommand($org);
+                    $this->sendCommand($commandOrg);
+
+                    $targetUser->setOrg($org);
+                } catch (\Exception $e) {
+                    $form->addError(new FormError($e->getMessage()));
+                }
+            }
 
             try {
                 $command = new AddUserCommand($targetUser, $encryptedPassword);

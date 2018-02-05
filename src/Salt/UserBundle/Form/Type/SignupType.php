@@ -14,7 +14,13 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 
 /**
  * Class SignupType
@@ -30,15 +36,36 @@ class SignupType extends AbstractType
     public function buildform(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username', TextType::class, [])
-            ->add('plainPassword', PasswordType::class, [
+            ->add('username', TextType::class, [
+                'attr' => ['class' => 'form-control'],
+            ])
+            ->add('plainPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'invalid_message' => 'The password fields must match.',
                 'required' => in_array('registration', $options['validation_groups'], true),
-                'label' => 'Password',
+                'first_options' => array('label' => 'Password'),
+                'second_options' => array('label' => 'Confirm Password'),
             ])
             ->add('org', EntityType::class, [
+                'label' => 'Organization',
                 'class' => 'Salt\UserBundle\Entity\Organization',
                 'choice_label' => 'name',
-            ]);
+            ])
+            ->add('new_org', TextType::class, [
+                'label' => 'New Organization',
+                'mapped' => false,
+                'required' => false,
+                'attr' => ['class' => 'new-org-field'],
+            ])
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+                $data = $event->getData();
+                $form = $event->getForm();
+
+                if (is_null($form['org']->getData())) {
+                    unset($data['org']);
+                    $event->setData($data);
+                }
+            });
     }
 
     /**
@@ -50,5 +77,11 @@ class SignupType extends AbstractType
             'data_class' => User::class,
             'validation_groups' => ['Default'],
         ]);
+    }
+
+    public function finishView(FormView $view, FormInterface $form, array $options)
+    {
+        $newOrg = new ChoiceView([], 'new', 'New Organization');
+        $view->children['org']->vars['choices'][] = $newOrg;
     }
 }
