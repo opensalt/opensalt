@@ -718,13 +718,13 @@ $(document).ready(function() {
             .columns( 1 )
             .search( this.value )
             .draw();
-    } );
- 
+    });
+
     $( '#search_form_user_role' ).on( 'change', function () {
         table
             .columns( 3 )
             .search( this.value )
             .draw();
-    } );
+    });
     
-} );
+});
