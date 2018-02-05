@@ -711,19 +711,17 @@ $(document).on('ready', adjustWindow);
 $(window).on('resize', adjustWindow);
 
 $(document).ready(function() {
-    var table = $('#datatable').dataTable();
-
+    var table = $('#datatable').DataTable();
     $('#search_form_organization').on( 'keyup', function () {
         table
             .columns( 1 )
             .search( this.value )
             .draw();
     });
-
     $( '#search_form_user_role' ).on( 'change', function () {
         table
             .columns( 3 )
-            .search( this.value )
+            .search( '(^'+this.value+'$)',true,false )
             .draw();
     });
     

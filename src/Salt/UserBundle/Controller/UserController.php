@@ -34,7 +34,6 @@ class UserController extends Controller
      * Lists all user entities.
      *
      * @Route("/", name="admin_user_index")
-     * @Method("GET")
      * @Template()
      *
      * @return array
