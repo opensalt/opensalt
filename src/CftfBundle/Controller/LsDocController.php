@@ -317,16 +317,30 @@ class LsDocController extends Controller
      * @param Request $request
      * @param LsDoc $lsDoc
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function deleteAction(Request $request, LsDoc $lsDoc)
+    public function deleteAction(Request $request, LsDoc $lsDoc): Response
     {
+        if ($request->isXmlHttpRequest()) {
+            $token = $request->request->get('token');
+            if ($this->isCsrfTokenValid('DELETE '.$lsDoc->getId(), $token)) {
+                try {
+                    $this->deleteFramework($lsDoc);
+
+                    return new JsonResponse('OK');
+                } catch (\Exception $e) {
+                    return new JsonResponse(['error' => ['message' => 'Error deleting framework']], Response::HTTP_BAD_REQUEST);
+                }
+            }
+
+            return new JsonResponse(['error' => ['message' => 'CSRF token invalid']], Response::HTTP_BAD_REQUEST);
+        }
+
         $form = $this->createDeleteForm($lsDoc);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $command = new DeleteDocumentCommand($lsDoc);
-            $this->sendCommand($command);
+            $this->deleteFramework($lsDoc);
         }
 
         return $this->redirectToRoute('lsdoc_index');
@@ -412,6 +426,15 @@ class LsDocController extends Controller
         }
 
         return $docs;
+    }
+
+    /**
+     * @param LsDoc $lsDoc
+     */
+    protected function deleteFramework(LsDoc $lsDoc): void
+    {
+        $command = new DeleteDocumentCommand($lsDoc);
+        $this->sendCommand($command);
     }
 
     /**
