@@ -1337,9 +1337,7 @@ function ApxDocument(initializer) {
         // clear apx.unknownAssocsShowing
         apx.unknownAssocsShowing = {};
 
-        console.log("showCurrentItem");
         let item = self.currentItem;
-        // console.log("showItem", item);
 
         let $jq = $("#itemInfo");
 
@@ -1410,6 +1408,17 @@ function ApxDocument(initializer) {
                         + '</li>'
                     ;
                 }
+            }
+
+            // render license information in case of framework has one.
+            if ("undefined" !== typeof self.licenses && self.licenses.length > 0) {
+                let licenseDoc = self.licenses;
+
+                html += '<li class="list-group-item">'
+                + '<strong>License:</strong> '
+                + licenseDoc[0].title
+                + '</li>'
+                ;
             }
             $jq.find("ul").html(html);
 
