@@ -23,7 +23,7 @@
 {% endfor %}
 ]
 {%- endif %}
-{% if itemTypes is not empty or subjects is not empty or concepts is not empty or licences is not empty or assocGroups is not empty -%}
+{% if itemTypes is not empty or subjects is not empty or concepts is not empty or licence is not empty or assocGroups is not empty -%}
 ,"CFDefinitions": {
     "CFItemTypes": [
     {% for itemType in itemTypes %}
@@ -45,9 +45,12 @@
     ,"CFConcepts": [
     ]
     {%- endif %}
-    {% if licences is not empty -%}
-    {#- TODO: CFLicenses -#}
+    {% if licence is not empty -%}
     ,"CFLicenses": [
+        {
+            "title": {{ licence.title |json_encode |raw }}
+            , "licence_text": {{ licence.licenceText |json_encode |raw }}
+        }
     ]
     {%- endif %}
     {% if assocGroups is not empty -%}
