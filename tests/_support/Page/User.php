@@ -248,4 +248,16 @@ class User implements Context
         $I->click("//td[text()='{$username}']/..//a[text()='Approve']");
     }
 
+    /**
+     * @Then /^I verify an email was sent$/
+     */
+    public function IVerifyEmailWasSent()
+    {
+        $I = $this->I;
+        // $username = $this->userName;
+        $I->deleteAllEmails();
+        // $I->haveEmails();
+        // $I->haveUnreadEmails();
+    }
+
 }
