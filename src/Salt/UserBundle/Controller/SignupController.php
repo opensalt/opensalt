@@ -14,6 +14,7 @@ use App\Command\User\AddUserCommand;
 use App\Command\User\AddOrganizationCommand;
 use App\Command\CommandDispatcherTrait;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
+use Symfony\Component\Form\FormError;
 
 /**
  * Signup Controller.
@@ -65,7 +66,7 @@ class SignupController extends Controller
                 $this->sendCommand($command);
 
                 return $this->redirectToRoute('lsdoc_index');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $form->addError(new FormError($e->getMessage()));
             }
         }

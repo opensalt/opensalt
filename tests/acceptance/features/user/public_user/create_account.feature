@@ -2,7 +2,8 @@ Feature: Create new account
 
     @public-user @user @add-user
     Scenario: Creating new account
-        Given I am on the homepage
+        Given "create_account" is enabled
+        And I am on the homepage
         And I follow "Sign in"
         Then I should see "Username"
         And I should see "Password"
