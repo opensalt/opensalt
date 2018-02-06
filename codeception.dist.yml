@@ -11,11 +11,14 @@ extensions:
         - Codeception\Extension\Recorder:
             delete_successful: true # do not keep screenshots of successful tests
         - Codeception\Extension\Logger
+params:
+    - env # to get params from environment vars
+    - app/config/parameters.yml # to get params from yaml (Symfony style)
 class_name: FunctionalTester
 modules:
     enabled:
         - Mailtrap
     config:
         Mailtrap:
-            api_token: '%env(MAILTRAP_API_KEY)%'
-            inbox_id: '%env(MAILTRAP_INBOX_ID)%'
+            api_token: '%MAILTRAP_API_KEY%'
+            inbox_id: '%MAILTRAP_INBOX_ID%'
