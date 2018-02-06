@@ -59,9 +59,8 @@ class SignupType extends AbstractType
             ])
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $data = $event->getData();
-                $form = $event->getForm();
 
-                if (is_null($form['org']->getData())) {
+                if (is_null($data['org'])) {
                     unset($data['org']);
                     $event->setData($data);
                 }
@@ -81,7 +80,7 @@ class SignupType extends AbstractType
 
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
-        $newOrg = new ChoiceView([], 'new', 'New Organization');
+        $newOrg = new ChoiceView([], 'other', 'Other');
         $view->children['org']->vars['choices'][] = $newOrg;
     }
 }

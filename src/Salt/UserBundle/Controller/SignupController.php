@@ -13,11 +13,13 @@ use Salt\UserBundle\Entity\Organization;
 use App\Command\User\AddUserCommand;
 use App\Command\User\AddOrganizationCommand;
 use App\Command\CommandDispatcherTrait;
+use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 
 /**
  * Signup Controller.
  *
  * @Route("public/user")
+ * @Toggle("create_account")
  */
 class SignupController extends Controller
 {
@@ -62,7 +64,7 @@ class SignupController extends Controller
                 $command = new AddUserCommand($targetUser, $encryptedPassword);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('login');
+                return $this->redirectToRoute('lsdoc_index');
             } catch (Exception $e) {
                 $form->addError(new FormError($e->getMessage()));
             }
