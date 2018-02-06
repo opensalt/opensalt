@@ -32,6 +32,7 @@ services:
       FIREBASE_CLIENT_EMAIL:
       FIREBASE_PRIVATE_KEY:
       FIREBASE_PREFIX:
+      CREATE_ACCOUNT_FEATURE:
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html
