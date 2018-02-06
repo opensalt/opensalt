@@ -260,6 +260,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         }, 2);
     }
 
+
     public function iAmOnAFrameworkPage()
     {
     }
@@ -270,5 +271,13 @@ class AcceptanceTester extends \Codeception\Actor implements Context
     public function iAmOnThePage($page)
     {
         $this->amOnPage($page);
+    }
+
+    /**
+     * @Given /^"([^"]*)" is enabled$/
+     */
+    public function featureIsEnabled($feature)
+    {
+        $this->assertFeatureEnabled($feature);
     }
 }
