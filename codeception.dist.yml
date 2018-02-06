@@ -11,3 +11,11 @@ extensions:
         - Codeception\Extension\Recorder:
             delete_successful: true # do not keep screenshots of successful tests
         - Codeception\Extension\Logger
+class_name: FunctionalTester
+modules:
+    enabled:
+        - Mailtrap
+    config:
+        Mailtrap:
+            api_token: '%env(MAILTRAP_API_KEY)%'
+            inbox_id: '%env(MAILTRAP_INBOX_ID)%'

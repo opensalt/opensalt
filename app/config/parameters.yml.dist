@@ -23,6 +23,9 @@ parameters:
     env(MAILER_AUTH_MODE): ~
     env(MAILER_PORT): ~
 
+    env(MAILTRAP_INBOX_ID): ~
+    env(MAILTRAP_API_KEY): ~
+
     # A secret key that's used to generate certain security-related tokens
     env(SECRET): ThisTokenIsNotSoSecretSoChangeIt
     env(COOKIE_SECRET): ThisTokenIsNotSoSecretChangeIt
