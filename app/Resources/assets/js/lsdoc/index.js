@@ -236,11 +236,11 @@ var Import = (function () {
 
     function validateContent(csv) {
         var sw = true;
-        csv.data.forEach(function(row, i) {
+        csv.data.forEach(function (row, i) {
             if (row[3]) {
                 if (row[3].length > 60) {
                     sw = false;
-                    CfItem.errorValue('Line '+i+1, 'Abbreviated statement can not be longer than 60 characters.', 'warning');
+                    CfItem.errorValue('Line ' + i + 1, 'Abbreviated statement can not be longer than 60 characters.', 'warning');
                 }
             }
         });
@@ -558,17 +558,17 @@ var CfItem = (function () {
     }
 
     function errorValue(err, msg, alertType) {
-        var alert = '<div class="alert alert-'+alertType+' js-alert-missing-fields" role="alert">';
+        var alert = '<div class="alert alert-' + alertType + ' js-alert-missing-fields" role="alert">';
         alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
         alert += '<div class="js-error-message-missing-field">';
-        alert += '<strong>Error:</strong> '+err+', '+msg;
+        alert += '<strong>Error:</strong> ' + err + ', ' + msg;
         alert += '</div>';
         alert += '</div>';
         $('.missing-fields').prepend(alert);
     }
 
-    function getErrorsLog(){
-      return missingFieldsErrorMessages;
+    function getErrorsLog() {
+        return missingFieldsErrorMessages;
     }
 
     return {
@@ -664,11 +664,11 @@ var dragbar = $("#dragbar");
 dragbar.mousedown(function (upperEvent) {
     upperEvent.preventDefault();
     var treeSideLeft = $('#treeSideLeft'),
-        treeSideRight = $('#treeSideRight'),
-        treeView = $("#treeView"),
-        treeViewOffsetLeft = treeView.offset().left,
-        treeViewOffsetRight = treeViewOffsetLeft + treeView.width(),
-        threshold = 330;
+            treeSideRight = $('#treeSideRight'),
+            treeView = $("#treeView"),
+            treeViewOffsetLeft = treeView.offset().left,
+            treeViewOffsetRight = treeViewOffsetLeft + treeView.width(),
+            threshold = 330;
 
     $(document).on('mousemove', dragBar);
 
@@ -678,9 +678,9 @@ dragbar.mousedown(function (upperEvent) {
 
     function dragBar(e) {
         var cursorX = e.clientX,
-            cursorFromOffsetLeft = cursorX - treeViewOffsetLeft,
-            cursorFromOffsetRight = treeViewOffsetRight - cursorX;
-        if(cursorFromOffsetLeft < threshold || cursorFromOffsetRight < threshold) {
+                cursorFromOffsetLeft = cursorX - treeViewOffsetLeft,
+                cursorFromOffsetRight = treeViewOffsetRight - cursorX;
+        if (cursorFromOffsetLeft < threshold || cursorFromOffsetRight < threshold) {
             return false;
         }
 
@@ -710,21 +710,21 @@ $(document).on('ready', adjustWindow);
 
 $(window).on('resize', adjustWindow);
 
-$(document).ready(function() {
-    var table = $('#datatable').DataTable();
-    $('#search_form_organization').on( 'keyup', function () {
+$(document).ready(function () {
+    let table = $('#datatable').DataTable();
+    $('#search_form_organization').on('keyup', function () {
         table
-            .columns( 1 )
-            .search( this.value )
-            .draw();
+                .columns(1)
+                .search(this.value)
+                .draw();
     });
-    $( '#search_form_user_role' ).on( 'change', function () {
-        if(this.value !== "") {
-            table.columns( 3 ).search( '(^'+this.value+'$)',true,false ).draw();
+    $('#search_form_user_role').on('change', function () {
+        if (this.value !== "") {
+            table.columns(3).search('(^' + this.value + '$)', true, false).draw();
         }
         else {
-            table.columns( 3 ).search( this.value ).draw();
+            table.columns(3).search(this.value).draw();
         }
     });
-    
+
 });

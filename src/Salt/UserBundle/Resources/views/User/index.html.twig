@@ -6,23 +6,22 @@
         <form class="form-inline">
             <div class="form-group col-md-4" >
                 <label for="organization">Organization : </label> 
-                <input type ="text"  class="form-control" autocomplete = "off" id="search_form_organization" name="organization">
+                <input type ="text" class="form-control" autocomplete = "off" id="search_form_organization" name="organization">
             </div>
             <div class="form-group col-md-4">
                 <label for="user_role">User Role : </label>
                 <select id ="search_form_user_role" class="form-control">
-                      <option value="">Select</option>
-                      <option value="Super User">Super User</option>
-                      <option value="Super Editor">Super Editor</option>
-                      <option value="Admin">Admin</option>
-                      <option value="Editor">Editor</option>
-                      <option value="User">User</option>
-                  </select>
+                    <option value="">Select</option>
+                    <option value="Super User">Super User</option>
+                    <option value="Super Editor">Super Editor</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Editor">Editor</option>
+                    <option value="User">User</option>
+                </select>
             </div>
         </form>
     </div>
-      <br/><br/>
-
+    <br/>
     <table class="table table-condensed table-hover table-bordered table-striped" id = "datatable">
         <thead>
             <tr>
@@ -34,42 +33,42 @@
             </tr>
         </thead>
         <tbody>
-        {% for user in users %}
-            <tr>
-                <td><a href="{{ path('admin_user_show', { 'id': user.id }) }}">{{ user.id }}</a></td>
-                <td>{{ user.org.name }}</td>
-                <td>{{ user.username }}</td>
-                <td>
-                    {%- for role in user.roles -%}
+            {% for user in users %}
+                <tr>
+                    <td><a href="{{ path('admin_user_show', { 'id': user.id }) }}">{{ user.id }}</a></td>
+                    <td>{{ user.org.name }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>
+                        {%- for role in user.roles -%}
                         {% if not loop.first %}, {% endif %}{{ role |replace({'ROLE_':'', '_':' '}) |title }}
-                    {%- endfor -%}
-                </td>
-                <td class="text-center">
-                    <ul class="list-inline">
-                        <li>
-                            <a class="btn btn-primary" href="{{ path('admin_user_show', { 'id': user.id }) }}">show</a>
-                        </li>
-                        {% if not user.suspended %}
+                        {%- endfor -%}
+                    </td>
+                    <td class="text-center">
+                        <ul class="list-inline">
                             <li>
-                                <a class="btn btn-default" href="{{ path('admin_user_edit', { 'id': user.id }) }}">edit</a>
+                                <a class="btn btn-primary" href="{{ path('admin_user_show', { 'id': user.id }) }}">show</a>
                             </li>
-                        {% endif %}
-                        <li>
-                            {% if user.suspended %}
-                                <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Unsuspend</a>
-                            {% else %}
-                                <a class="btn btn-default" href="{{ path('admin_user_suspend', { 'id': user.id }) }}">Suspend</a>
+                            {% if not user.suspended %}
+                                <li>
+                                    <a class="btn btn-default" href="{{ path('admin_user_edit', { 'id': user.id }) }}">edit</a>
+                                </li>
                             {% endif %}
-                        </li>
-                        {% if user.pending %}
                             <li>
-                                <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Approve</a>
+                                {% if user.suspended %}
+                                    <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Unsuspend</a>
+                                {% else %}
+                                    <a class="btn btn-default" href="{{ path('admin_user_suspend', { 'id': user.id }) }}">Suspend</a>
+                                {% endif %}
                             </li>
-                        {% endif %}
-                    </ul>
-                </td>
-            </tr>
-        {% endfor %}
+                            {% if user.pending %}
+                                <li>
+                                    <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Approve</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </td>
+                </tr>
+            {% endfor %}
         </tbody>
     </table>
 
