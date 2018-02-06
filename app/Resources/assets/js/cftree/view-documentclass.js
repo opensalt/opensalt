@@ -1413,12 +1413,19 @@ function ApxDocument(initializer) {
             // render license information in case of framework has one.
             if ("undefined" !== typeof self.licenses && self.licenses.length > 0) {
                 let licenseDoc = self.licenses;
+                let licenseText = licenseDoc[0].licence_text;
 
                 html += '<li class="list-group-item">'
                 + '<strong>License:</strong> '
-                + licenseDoc[0].title
-                + '</li>'
-                ;
+                + licenseDoc[0].title;
+
+                if ( licenseText.length > 0) {
+                    html += ' - <i>'
+                    + licenseText
+                    '</i>';
+                }
+
+                html += '</li>';
             }
             $jq.find("ul").html(html);
 
