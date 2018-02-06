@@ -60,7 +60,7 @@
         "sensio/framework-extra-bundle": "^3.0.2",
         "twig/twig": "^2.0",
         "incenteev/composer-parameter-handler": "^2.0",
-        
+
         "symfony/swiftmailer-bundle": "^2.3",
 
         "twig/extensions": "^1.3",
@@ -79,7 +79,7 @@
         "ramsey/uuid-doctrine": "^1.2",
 
         "kreait/firebase-php": "~3.7",
-	"npm-asset/bootstrap-notify": "^3.1.7",
+        "npm-asset/bootstrap-notify": "^3.1.7",
 
         "simplethings/entity-audit-bundle": "^1.0",
 
@@ -159,7 +159,8 @@
 
         "squizlabs/php_codesniffer": "~2.8",
         "escapestudios/symfony2-coding-standard": "~2.10",
-        "friendsofphp/php-cs-fixer": "~1.13"
+        "friendsofphp/php-cs-fixer": "~1.13",
+        "ericmartel/codeception-email-mailtrap": "^1.0"
     },
     "scripts": {
         "symfony-scripts": [
