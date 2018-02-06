@@ -43,7 +43,7 @@
         {% endif %}
     </div>
 
-    <div class="row main-view tree-view" id="treeView" style="display:none; width:100%">
+    <div id="treeView" style="display:none; width:100%">
         <div id="treeSideLeft" class="treeSide borderLeft">
 
             <div class="treeSideLeftInner">
@@ -610,7 +610,6 @@
     {% endblock %}
 
     {% block javascripts %}
-        {% autoescape 'js' %}
         {% if 'comments' is active feature %}
             <script src="{{ asset('build/comments.js', 'encore') }}"></script>
         {% endif %}
@@ -627,6 +626,7 @@
             </script>
         {% endif %}
 
+        {% autoescape 'js' %}
         <script>
             // loaded docid and initial lsItem and assocGroup to show
             apx.lsDocId = {{ lsDocId |json_encode |raw }};

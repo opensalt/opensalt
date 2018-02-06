@@ -99,6 +99,25 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ])
             ->add('note', null, [
             ])
+            ->add('licence', Select2EntityType::class, [
+                'disabled' => $disableAsAdopted,
+                'multiple' => false,
+                'remote_route' => 'lsdef_licence_index_json',
+                'class' => 'CftfBundle:LsDefLicence',
+                'primary_key' => 'id',
+                'text_property' => 'title',
+                'minimum_input_length' => 0,
+                'page_limit' => 50,
+                'allow_clear' => true,
+                'delay' => 250,
+                'placeholder' => 'Select Licence',
+                'allow_add' => [
+                    'enable' => false,
+                    'new_tag_text' => '(NEW) ',
+                    'new_tag_prefix' => '___',
+                    'tag_separators' => ',',
+                ],
+            ])
         ;
 
         /*

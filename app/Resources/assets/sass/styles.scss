@@ -5,10 +5,11 @@ html,body {
 }
 
 .container--main {
-    box-sizing: border-box;
     min-height: 100%;
-    padding: 0 0 36px;
+    padding-bottom: 36px;
     position: relative;;
+    width: auto !important;
+    max-width: 1500px;
 }
 
 header .navbar-default {
@@ -40,14 +41,15 @@ footer {
     height: 36px;
     left: 0;
     position: absolute;
-    width: 100%
+    width: 100%;
+    padding: 0 15px;
 }
 
 footer .navbar-default {
     border-radius:4px 4px 0 0;
     border-width: 0;
     min-height: auto;
-    margin-bottom:0px;
+    margin-bottom:0;
     background-color:#78C9E9;
 }
 

@@ -31,10 +31,6 @@
             "url": "https://github.com/PCGGenEd/faker-context"
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/opensalt/EntityAuditBundle"
-        },
-        {
             "type": "package",
             "package": {
                 "name": "firebase",
@@ -83,7 +79,7 @@
         "kreait/firebase-php": "~3.7",
 	"npm-asset/bootstrap-notify": "^3.1.7",
 
-        "simplethings/entity-audit-bundle": "dev-fixes-opensalt",
+        "simplethings/entity-audit-bundle": "^1.0",
 
         "csa/guzzle-bundle": "^2.1",
             "namshi/cuzzle": "*",

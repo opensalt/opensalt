@@ -46,6 +46,28 @@ class LsDefLicenceController extends Controller
     }
 
     /**
+     * Lists all LsDefLicence entities.
+     *
+     * @Route("/list.{_format}", defaults={"_format"="json"}, name="lsdef_licence_index_json")
+     * @Method("GET")
+     * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array
+     */
+    public function jsonListAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $objects = $em->getRepository(LsDefLicence::class)->getList();
+
+        return [
+            'objects' => $objects,
+        ];
+    }
+
+    /**
      * Creates a new LsDefLicence entity.
      *
      * @Route("/new", name="lsdef_licence_new")
