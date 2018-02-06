@@ -86,7 +86,7 @@ class UserController extends Controller
             $message = (new \Swift_Message('Hello Email'))
             ->setFrom('send@example.com')
             ->setTo($email)
-            ->setBody('Thank you!\nYour account has been created and you will be contacted in 2 business days when it is active.');
+            ->setBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
 
             $this->get('mailer')->send($message);
 
