@@ -1522,7 +1522,7 @@ function ApxDocument(initializer) {
             for (let i = 0; i < item.assocs.length; ++i) {
                 assocs.push(item.assocs[i]);
             }
-            if (self != apx.mainDoc) {
+            if (self !== apx.mainDoc) {
                 let mdi = apx.mainDoc.itemHash[item.identifier];
                 if (!empty(mdi)) {
                     for (let i = 0; i < mdi.assocs.length; ++i) {
@@ -1536,7 +1536,7 @@ function ApxDocument(initializer) {
             if (assocs.length > 0) {
                 // first sort the assocs by type; put isChildOf at the end
                 assocs.sort(function (a, b) {
-                    if (a.type === b.type && a.inverse == b.inverse) { return 0; }
+                    if (a.type === b.type && a.inverse === b.inverse) { return 0; }
                     if (a.type === "isChildOf") { return 1; }
                     if (b.type === "isChildOf") { return -1; }
                     if (a.inverse === true && b.inverse !== true) { return 1; }
@@ -1551,7 +1551,12 @@ function ApxDocument(initializer) {
                 let lastInverse = -1;
                 for (let i = 0; i < assocs.length; ++i) {
                     let a = assocs[i];
-                    if (a.type != lastType || a.inverse != lastInverse) {
+
+                    if (a.type === 'isChildOf') {
+                        continue;
+                    }
+
+                    if (a.type !== lastType || a.inverse !== lastInverse) {
                         // close previous type section if we already opened one
                         if (lastType !== "") {
                             html += '</div></div></div></section>';
