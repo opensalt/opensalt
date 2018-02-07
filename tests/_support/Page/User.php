@@ -254,10 +254,13 @@ class User implements Context
     public function IVerifyEmailWasSent()
     {
         $I = $this->I;
-        // $username = $this->userName;
-        $I->deleteAllEmails();
-        // $I->haveEmails();
-        // $I->haveUnreadEmails();
+
+        $I->fetchEmails();
+        $I->haveEmails();
+        $I->haveUnreadEmails();
+        $I->openNextUnreadEmail();
+        $I->seeInOpenedEmailSubject('Your account has been created');
+        $I->seeInOpenedEmailBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
     }
 
 }
