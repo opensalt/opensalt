@@ -32,6 +32,12 @@ services:
       FIREBASE_CLIENT_EMAIL:
       FIREBASE_PRIVATE_KEY:
       FIREBASE_PREFIX:
+      MAILER_TRANSPORT:
+      MAILER_HOST:
+      MAILER_USER:
+      MAILER_PASSWORD:
+      MAILER_AUTH_MODE:
+      MAILER_PORT:
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html
