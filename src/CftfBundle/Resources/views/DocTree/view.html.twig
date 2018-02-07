@@ -236,6 +236,11 @@
                                         {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %}
                                                 <a href="#" id="doc_export_comment" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
                                         {% endif %}
+                                        {% if is_granted('delete', lsDoc) %}
+                                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteFrameworkModal" data-alt-document-disabled="true">
+                                                Delete Framework
+                                            </button>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>  <!-- lsItemDetails -->
@@ -461,6 +466,30 @@
         {% endembed %}
 
         {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
+            'modalName':'deleteFramework',
+            'modalTitle':'Delete Framework',
+            'saveButton': 'Delete',
+            'closeButton': 'Cancel'
+        } %}
+            {% block modalBody %}
+                <div class="errors"></div>
+                <p>
+                    <span class="text-danger"><strong>DANGER:</strong></span>
+                    Are you sure you want to delete this framework?
+                </p>
+                <form>
+                    <div class="form-group">
+                        <label for="deleteFrameworkAcknowledgement">If yes, please type "DELETE" into the text box:</label>
+                        <input id="deleteFrameworkAcknowledgement" type="text" />
+                    </div>
+                </form>
+            {% endblock %}
+            {% block modalButtons %}
+                <button type="button" class="btn btn-danger btn-delete btn-disabled" disabled data-token="{{ csrf_token('DELETE '~lsDocId) }}">Delete</button>
+            {% endblock %}
+        {% endembed %}
+
+        {% embed 'CftfBundle:Editor:_modalComponent.html.twig' with {
         'modalName':'deleteOneItem',
         'modalTitle':'Delete Item',
         'saveButton': 'Delete',
@@ -601,10 +630,12 @@
 
             // establish paths
             apx.path = apx.path || {};
+            apx.path.doc_index = '{{ path('lsdoc_index') }}';
             apx.path.lsDoc = '{{ path('doc_tree_view', {'slug':'ID'}) }}';
             apx.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';
             apx.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
             apx.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
+            apx.path.lsdoc_delete = '{{ path('lsdoc_delete', {'id':'ID'}) }}';
             apx.path.lsdoc_unlock = '{{ path('lsdoc_unlock', {'id':'ID'}) }}';
             apx.path.lsdoc_lock = '{{ path('lsdoc_lock', {'id':'ID'}) }}';
             apx.path.lsdoc_tree_json = '{{ path('lsdoc_tree_json', {'id':'ID'}) }}';

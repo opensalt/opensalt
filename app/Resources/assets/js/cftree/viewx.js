@@ -50,6 +50,7 @@ var op = objectProperty;
 apx.initialize = function() {
     // prepare edit modals/functions
     apx.edit.prepareDocEditModal();
+    apx.edit.prepareDocDeleteModal();
     apx.edit.prepareItemEditModal();
     apx.edit.prepareAddNewChildModal();
     apx.edit.prepareExemplarModal();
