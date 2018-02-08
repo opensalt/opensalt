@@ -61,7 +61,7 @@ class SignupType extends AbstractType
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $data = $event->getData();
 
-                if (is_null($data['org'])) {
+                if ($data['org'] === 'other') {
                     unset($data['org']);
                     $event->setData($data);
                 }

@@ -414,30 +414,30 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @throws \UnexpectedValueException
      */
-    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null): LsItem
+    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, $exactMatchAssocs = true): LsItem
     {
         $newItem = clone $this;
 
         $newItem->setLsDoc($newLsDoc);
 
         // Add an "Exact" relationship to the original
-        $exactMatch = new LsAssociation();
-        $exactMatch->setLsDoc($newLsDoc);
-        $exactMatch->setOrigin($newItem);
-        $exactMatch->setType(LsAssociation::EXACT_MATCH_OF);
-        $exactMatch->setDestination($this);
+        if ($exactMatchAssocs){
+            $exactMatch = $newLsDoc->createAssociation();
+            $exactMatch->setOrigin($newItem);
+            $exactMatch->setType(LsAssociation::EXACT_MATCH_OF);
+            $exactMatch->setDestination($this);
 
-        // PW: set assocGroup if provided and non-null
-        // TODO: should the assocGroup be on both associations, or just the first association, or just the inverse association??
-        if (null !== $assocGroup) {
-            $exactMatch->setGroup($assocGroup);
+            // PW: set assocGroup if provided and non-null
+            // TODO: should the assocGroup be on both associations, or just the first association, or just the inverse association??
+            if (null !== $assocGroup) {
+                $exactMatch->setGroup($assocGroup);
+            }
+            $newItem->addAssociation($exactMatch);
+            $this->addInverseAssociation($exactMatch);
         }
 
-        $newItem->addAssociation($exactMatch);
-        $this->addInverseAssociation($exactMatch);
-
         foreach ($this->getChildren() as $child) {
-            $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup);
+            $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup, $exactMatchAssocs);
             $newItem->addChild($newChild, $assocGroup);
         }
 
@@ -473,7 +473,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
 
         foreach ($this->getChildren() as $child) {
             $newChild = $child->duplicateToLsDoc($newLsDoc, $assocGroup);
-
             $newItem->addChild($newChild, $assocGroup);
         }
 
