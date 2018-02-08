@@ -81,19 +81,19 @@ class UserController extends Controller
             $encryptedPassword = $this->get('security.password_encoder')
                 ->encodePassword($targetUser, $targetUser->getPlainPassword());
 
-            // email the new user
-            $email = $targetUser->getUsername();
-            $message = (new \Swift_Message('Hello Email'))
-            ->setFrom('send@example.com')
-            ->setTo($email)
-            ->setSubject('Your account has been created')
-            ->setBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
-
-            $this->get('mailer')->send($message);
-
             try {
                 $command = new AddUserCommand($targetUser, $encryptedPassword);
                 $this->sendCommand($command);
+
+                // email the new user
+                $email = $targetUser->getUsername();
+                $message = (new \Swift_Message('Hello Email'))
+                ->setFrom('send@example.com')
+                ->setTo($email)
+                ->setSubject('Your account has been created')
+                ->setBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
+
+                $this->get('mailer')->send($message);
 
                 return $this->redirectToRoute('admin_user_index');
             } catch (\Exception $e) {
