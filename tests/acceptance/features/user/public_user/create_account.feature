@@ -13,4 +13,4 @@ Feature: Create new account
         When I follow "Create User Account"
         Then I should see "Create new account"
         Then I create a new account
-        Then I should see "Username"
+        Then I should see "Competency Frameworks"
