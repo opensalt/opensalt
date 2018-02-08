@@ -33,7 +33,7 @@ class UserController extends Controller
      * Lists all user entities.
      *
      * @Route("/", name="admin_user_index")
-     * @Method({"GET"})
+     * @Method("GET")
      * @Template()
      *
      * @return array
@@ -50,6 +50,7 @@ class UserController extends Controller
         }
         return [
             'users' => $users,
+            'roles' => User::USER_ROLES,
         ];
     }
 

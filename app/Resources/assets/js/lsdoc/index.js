@@ -714,9 +714,9 @@ $(document).ready(function () {
     let table = $('#datatable').DataTable();
     $('#search_form_organization').on('keyup', function () {
         table
-                .columns(1)
-                .search(this.value)
-                .draw();
+            .columns(1)
+            .search(this.value)
+            .draw();
     });
     $('#search_form_user_role').on('change', function () {
         if (this.value !== "") {

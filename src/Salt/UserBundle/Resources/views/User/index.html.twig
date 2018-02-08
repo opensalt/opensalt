@@ -12,11 +12,10 @@
                 <label for="user_role">User Role : </label>
                 <select id ="search_form_user_role" class="form-control">
                     <option value="">Select</option>
-                    <option value="Super User">Super User</option>
-                    <option value="Super Editor">Super Editor</option>
-                    <option value="Admin">Admin</option>
-                    <option value="Editor">Editor</option>
                     <option value="User">User</option>
+                    {%- for role in roles -%}
+                        <option value="{{ role |replace({'ROLE_':'', '_':' '}) |title }}">{{ role |replace({'ROLE_':'', '_':' '}) |title }}</option>
+                    {%- endfor -%}
                 </select>
             </div>
         </form>
