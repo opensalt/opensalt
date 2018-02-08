@@ -17,13 +17,13 @@ GHERKIN:
 
 USER STORY:
 
-AS A user with access to create items
-I WANT the legacy processes and workspace processes to create items in an identical manner
+AS A user with access to create items  
+I WANT the legacy processes and workspace processes to create items in an identical manner  
 SO THAT duplicate items and gaps in items do not get generated
 
 SAMPLE ACCEPTANCE CRITERIA:
 
-1
-GIVEN items need to be generated in Workspace or Legacy using a system-wide naming convention
-WHEN the system generates an Item Name
+1  
+GIVEN items need to be generated in Workspace or Legacy using a system-wide naming convention  
+WHEN the system generates an Item Name  
 THEN the Item Name must be unique (not previously used within the system)
