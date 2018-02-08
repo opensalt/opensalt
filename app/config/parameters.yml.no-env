@@ -23,8 +23,10 @@ parameters:
 
     env(GITHUB_CLIENT_ID): ~
     env(GITHUB_CLIENT_SECRET): ~
+
     # to enable the comments feature you should pass 'always-active' instead of 'inactive'
     env(COMMENTS_FEATURE): inactive
+    env(CREATE_ACCOUNT_FEATURE): inactive
 
     env(BRAND_LOGO_URL): ~
     env(BRAND_LOGO_STYLE): ~
