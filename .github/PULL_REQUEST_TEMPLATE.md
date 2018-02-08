@@ -1,5 +1,5 @@
-Please do not create a Pull Request without creating an issue first.
-Failure to do so may result in the rejection of the pull request.
+Please do not create a Pull Request without creating an issue first.  
+Failure to do so may result in the rejection of the pull request.  
 Please be prompt to respond to comments and ensure your code is up to date when you create your PR.
 
 <!-- You can skip this if you're fixing a typo or adding an app to the Showcase. -->
@@ -17,8 +17,9 @@ Demonstrate the code is solid. Example: The exact commands you ran and their out
 <!-- Make sure tests pass on both Codeception. -->
 
 **Code formatting**
+
 Notes:
-Spaces not tabs
+- Spaces not tabs
 <!-- See the simple style guide. -->
 
 **Closing issues**
