@@ -206,10 +206,11 @@ swiftmailer:
     password:  "%mailer_password%"
     # using an env var throws an error
     # auth_mode: "%mailer_auth_mode%"
+    # auth_mode: "%env(MAILER_AUTH_MODE)%"
     auth_mode: cram-md5
     port:      "%mailer_port%"
-    # to disable mail uncomment MAILER_URL
-    # MAILER_URL: "null://localhost"
+    # to disable mail uncomment disable_delivery: true
+    # disable_delivery: true
 
 jms_di_extra:
     locations:
