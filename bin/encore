@@ -11,6 +11,7 @@ cat ./app/Resources/assets/js/cftree/view-documentclass.js \
     ./app/Resources/assets/js/cftree/view-modes.js \
     ./app/Resources/assets/js/cftree/viewx.js \
     ./app/Resources/assets/js/cftree/apxglobal.js \
+    ./app/Resources/assets/js/cftree/copy-framework.js \
 	> ./build/js/apx.js
 
 rm -rf ./web/build/*
