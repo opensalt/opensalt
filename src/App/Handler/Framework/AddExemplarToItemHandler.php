@@ -33,6 +33,7 @@ class AddExemplarToItemHandler extends BaseFrameworkHandler
         $url = $command->getUrl();
 
         $this->validate($command, $item);
+        $this->validate($command, $command);
 
         $association = $this->framework->addExemplarToItem($item, $url);
         $command->setAssociation($association);

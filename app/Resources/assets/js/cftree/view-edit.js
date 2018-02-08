@@ -400,9 +400,10 @@ apx.edit.deleteItems = function(items) {
 /** Add an examplar for an item */
 apx.edit.prepareExemplarModal = function() {
     let $exemplarModal = $('#addExemplarModal');
-    $exemplarModal.on('shown.bs.modal', function(e){
+    $exemplarModal.on('show.bs.modal', function(e){
         let title = apx.mainDoc.getItemTitle(apx.mainDoc.currentItem);
         $("#addExemplarOriginTitle").html(title);
+        $exemplarModal.find('.modal-body .errors').removeClass('alert').removeClass('alert-danger').html('');
     });
     $exemplarModal.find('.btn-save').on('click', function(e){ 
         let ajaxData = {
@@ -410,8 +411,14 @@ apx.edit.prepareExemplarModal = function() {
             exemplarDescription: $("#addExemplarFormDescription").val(),
             associationType: "Exemplar"
         };
+
         if (ajaxData.exemplarUrl === "") {
-            alert("You must enter a URL to create an exemplar.");
+            $exemplarModal.find('.modal-body .errors').addClass('alert').addClass('alert-danger').html("You must enter a URL to create an exemplar.");
+            return;
+        }
+
+        if (ajaxData.exemplarUrl.length > 300) {
+            $exemplarModal.find('.modal-body .errors').addClass('alert').addClass('alert-danger').html("The URL must be 300 characters or less.");
             return;
         }
 
@@ -446,13 +453,14 @@ apx.edit.prepareExemplarModal = function() {
             // clear form fields
             $("#addExemplarFormUrl").val("");
             $("#addExemplarFormDescription").val("");
+            $exemplarModal.find('.modal-body .errors').removeClass('alert').removeClass('alert-danger').html('');
 
             // re-show current item
             apx.mainDoc.showCurrentItem();
 
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();
-            $exemplarModal.find('.modal-body').html(jqXHR.responseText);
+            $exemplarModal.find('.modal-body .errors').addClass('alert').addClass('alert-danger').html(jqXHR.responseJSON.error.message);
         });
     });
 };
