@@ -12,21 +12,71 @@ html,body {
     max-width: 1500px;
 }
 
-header .navbar-default {
-    border-width:0;
-    background-color:#78C9E9;
+.text-white {
+    color: white;
 }
 
-.navbar-brand {
-    padding:5px;
-    background-color:#fff;
-    border-radius:4px;
-    margin:10px 15px 10px -5px !important;
-    height:inherit;
+.header {
+    background-color: #78C9E9;
+    padding: 10px;
+    border-radius: 0 0 4px 4px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    &-logo-area,
+    &-menu-area {
+        display: inline-block;
+        vertical-align: middle;
+    }
+    &-logo-area{
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    &-image-container {
+        padding:5px;
+        background-color:#fff;
+        border-radius:4px;
+        display: inline-block;
+    }
+    &-logo {
+        height:inherit;
+        margin-right: 15px;
+    }
+    &-brand-logo {
+        img {
+            max-width: 100%;
+        }
+    }
+    @media screen and (min-width: 850px) {
+        flex-direction: row;
+        &-logo-area{
+            margin-bottom: 0;
+        }
+        &-brand-logo {
+            img {
+                max-width: none;
+                height: 60px;
+            }
+        }
+    }
 }
 
-.navbar-brand img {
-    height:60px;
+.session-nav {
+    &-login {
+        color: white;
+    }
+    li.active {
+        a {
+            background-color: #F37321;
+            transition: all 0.2s ease-out;
+            &:hover {
+                background-color: darken(#F37321, 5%);
+            }
+        }
+    }
 }
 
 /* hack for IE11 to at least have the logo centred */
