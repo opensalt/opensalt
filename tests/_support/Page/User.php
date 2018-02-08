@@ -75,6 +75,29 @@ class User implements Context
     }
 
     /**
+     * @Then /^I create a new account$/
+     */
+    public function iCreateANewAccount()
+    {
+        $I = $this->I;
+
+        /** @var \Faker\Generator $faker */
+        $faker = \Faker\Factory::create();
+        $username = $faker->email;
+        $password = $faker->password;
+        $org = $faker->company;
+        $this->userName = $username;
+
+        $I->fillField('#signup_username', $username);
+        $I->fillField('#signup_plainPassword_first', $password);
+        $I->fillField('#signup_plainPassword_second', $password);
+        $I->selectOption('#signup_org', 'other');
+        $I->fillField('#signup_new_org', $org);
+        $I->click('Add');
+        $I->remember('lastNewUsername', $username);
+    }
+
+    /**
      * @Then /^I delete the User$/
      */
     public function iDeleteTheUser()

@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use CftfBundle\Entity\LsDoc;
 use JMS\DiExtraBundle\Annotation as DI;
 use Salt\UserBundle\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -9,16 +10,18 @@ use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * Class FrameworkCreateVoter
+ * Class FrameworkEditVoter
  *
  * @DI\Service(public=false)
  * @DI\Tag("security.voter")
  */
-class FrameworkCreateVoter extends Voter
+class FrameworkManageEditorsVoter extends Voter
 {
-    public const CREATE = 'create';
-    public const FRAMEWORK = 'lsdoc';
+    public const MANAGE_EDITORS = 'manage_editors';
 
+    /**
+     * @var AccessDecisionManagerInterface
+     */
     private $decisionManager;
 
     /**
@@ -43,12 +46,13 @@ class FrameworkCreateVoter extends Voter
      *
      * @return bool True if the attribute and subject are supported, false otherwise
      */
-    protected function supports($attribute, $subject) {
-        if ($attribute !== self::CREATE) {
+    protected function supports($attribute, $subject)
+    {
+        if ($attribute !== self::MANAGE_EDITORS) {
             return false;
         }
 
-        if ($subject !== self::FRAMEWORK) {
+        if (!$subject instanceof LsDoc) {
             return false;
         }
 
@@ -65,7 +69,8 @@ class FrameworkCreateVoter extends Voter
      *
      * @return bool
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token) {
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    {
         $user = $token->getUser();
 
         if (!$user instanceof User) {
@@ -73,15 +78,17 @@ class FrameworkCreateVoter extends Voter
             return false;
         }
 
-        return $this->canCreateFramework($token);
-    }
-
-    private function canCreateFramework(TokenInterface $token)
-    {
-        if ($this->decisionManager->decide($token, ['ROLE_EDITOR'])) {
+        // Allow the owner to manage their own framework
+        if ($subject->getUser() === $user) {
             return true;
         }
 
-        return false;
+        // Do not allow managing editors if the user is not an admin
+        if (!$this->decisionManager->decide($token, ['ROLE_ADMIN'])) {
+            return false;
+        }
+
+        // Lastly, check if the user is in the same organization
+        return $user->getOrg() === $subject->getOrg();
     }
 }

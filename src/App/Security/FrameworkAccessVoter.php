@@ -21,6 +21,9 @@ class FrameworkAccessVoter extends Voter
     public const VIEW = 'view';
     public const EDIT = 'edit';
     public const DELETE = 'delete';
+    public const CREATE = 'create';
+
+    public const FRAMEWORK = 'lsdoc';
 
     /**
      * @var AccessDecisionManagerInterface
@@ -51,10 +54,16 @@ class FrameworkAccessVoter extends Voter
      */
     protected function supports($attribute, $subject)
     {
-        if (!\in_array($attribute, [static::VIEW, static::EDIT, static::DELETE], true)) {
+        if (!\in_array($attribute, [static::VIEW, static::CREATE, static::EDIT, static::DELETE], true)) {
             return false;
         }
 
+        // If the attribute is CREATE then we can handle if the subject is FRAMEWORK
+        if (static::FRAMEWORK === $subject && static::CREATE === $attribute) {
+            return true;
+        }
+
+        // For the other attributes, we can handle if the subject is a document
         if (!$subject instanceof LsDoc) {
             return false;
         }
@@ -74,17 +83,11 @@ class FrameworkAccessVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        // This check only supports LsDoc objects
-        if (!$subject instanceof LsDoc) {
-            return false;
-        }
-
-        if (self::VIEW !== $attribute && !$token->getUser() instanceof User) {
-            // If the user is not logged in then deny access
-            return false;
-        }
-
         switch ($attribute) {
+            case self::CREATE:
+                return (static::FRAMEWORK === $subject) && $this->canCreateFramework($token);
+                break;
+
             case self::VIEW:
                 return $this->canViewFramework($subject, $token);
                 break;
@@ -101,6 +104,15 @@ class FrameworkAccessVoter extends Voter
         return false;
     }
 
+    private function canCreateFramework(TokenInterface $token)
+    {
+        if ($this->decisionManager->decide($token, ['ROLE_EDITOR'])) {
+            return true;
+        }
+
+        return false;
+    }
+
     private function canViewFramework(LsDoc $subject, TokenInterface $token)
     {
         if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $subject->getAdoptionStatus()) {
@@ -112,12 +124,6 @@ class FrameworkAccessVoter extends Voter
 
     private function canEditFramework(LsDoc $subject, TokenInterface $token)
     {
-        $user = $token->getUser();
-        if (!$user instanceof User) {
-            // If the user is not logged in then deny access
-            return false;
-        }
-
         // Allow editing if the user is a super-editor
         if ($this->decisionManager->decide($token, ['ROLE_SUPER_EDITOR'])) {
             return true;
@@ -128,12 +134,18 @@ class FrameworkAccessVoter extends Voter
             return false;
         }
 
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            // If the user is not logged in then deny access
+            return false;
+        }
+
         // Allow the owner to edit the framework
         if ($subject->getUser() === $user) {
             return true;
         }
 
-        // Check for an explicit ACL
+        // Check for an explicit ACL (could be a DENY)
         $docAcls = $user->getDocAcls();
         foreach ($docAcls as $acl) {
             if ($acl->getLsDoc() === $subject) {
@@ -141,13 +153,8 @@ class FrameworkAccessVoter extends Voter
             }
         }
 
-        // Check if the user is in the same organization
-        if ($user->getOrg() === $subject->getOrg()) {
-            return true;
-        }
-
-        // Otherwise the user does not have edit rights
-        return false;
+        // Lastly check if the user is in the same organization
+        return $user->getOrg() === $subject->getOrg();
     }
 
     private function canDeleteFramework(LsDoc $subject, TokenInterface $token)
