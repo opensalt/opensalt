@@ -76,7 +76,7 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
      *
      * @return string The user's password
      */
-    public function addNewUser(string $username, Organization $org, ?string $plainPassword = null, ?string $role = null): string
+    public function addNewUser(string $username, Organization $org, ?string $plainPassword = null, ?string $role = null, ?int $status = null): string
     {
         if (empty(trim($plainPassword))) {
             // if there is no password, make something ugly up
@@ -99,6 +99,9 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
         $password = $this->encoder->encodePassword($user, $plainPassword);
         $user->setPassword($password);
         $user->addRole($role);
+        if (User::ACTIVE === $status) {
+            $user->activateUser();
+        }
 
         $this->getEntityManager()->persist($user);
 

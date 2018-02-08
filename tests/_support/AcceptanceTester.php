@@ -2,6 +2,7 @@
 
 use Behat\Behat\Context\Context;
 use Facebook\WebDriver\WebDriverElement;
+use PhpSpec\Exception\Example\PendingException;
 
 /**
  * Inherited Methods
@@ -259,6 +260,24 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         }, 2);
     }
 
-  public function iAmOnAFrameworkPage() {
-  }
+
+    public function iAmOnAFrameworkPage()
+    {
+    }
+
+    /**
+     * @Given /^I am on the page "([^"]*)"$/
+     */
+    public function iAmOnThePage($page)
+    {
+        $this->amOnPage($page);
+    }
+
+    /**
+     * @Given /^"([^"]*)" is enabled$/
+     */
+    public function featureIsEnabled($feature)
+    {
+        $this->assertFeatureEnabled($feature);
+    }
 }

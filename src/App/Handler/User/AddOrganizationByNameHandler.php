@@ -4,6 +4,7 @@ namespace App\Handler\User;
 
 use App\Command\User\AddOrganizationByNameCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -42,6 +43,10 @@ class AddOrganizationByNameHandler extends BaseDoctrineHandler
 
         $this->em->getRepository(Organization::class)->addNewOrganization($organizationName);
 
-//        $dispatcher->dispatch(AddOrganizationByNameEvent::class, new AddOrganizationByNameEvent());
+        $command->setNotificationEvent(new NotificationEvent(
+            'O02',
+            sprintf('Organization "%s" added', $organizationName),
+            null
+        ));
     }
 }

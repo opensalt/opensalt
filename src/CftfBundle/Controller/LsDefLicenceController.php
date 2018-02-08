@@ -2,7 +2,7 @@
 
 namespace CftfBundle\Controller;
 
-use App\Command\CommandDispatcher;
+use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddLicenceCommand;
 use App\Command\Framework\DeleteLicenceCommand;
 use App\Command\Framework\UpdateLicenceCommand;
@@ -23,7 +23,7 @@ use CftfBundle\Entity\LsDefLicence;
  */
 class LsDefLicenceController extends Controller
 {
-    use CommandDispatcher;
+    use CommandDispatcherTrait;
 
     /**
      * Lists all LsDefLicence entities.
@@ -42,6 +42,28 @@ class LsDefLicenceController extends Controller
 
         return [
             'lsDefLicences' => $lsDefLicences,
+        ];
+    }
+
+    /**
+     * Lists all LsDefLicence entities.
+     *
+     * @Route("/list.{_format}", defaults={"_format"="json"}, name="lsdef_licence_index_json")
+     * @Method("GET")
+     * @Template()
+     *
+     * @param Request $request
+     *
+     * @return array
+     */
+    public function jsonListAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $objects = $em->getRepository(LsDefLicence::class)->getList();
+
+        return [
+            'objects' => $objects,
         ];
     }
 

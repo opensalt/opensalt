@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use CftfBundle\Entity\LsDefItemType;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
@@ -97,6 +98,8 @@ class CaseImport
 
         $em->persist($lsDoc);
 
+        $cfItemTypes = [];
+
         $cfItems = $fileContent->CFItems;
         $items = [];
         $items[$lsDoc->getIdentifier()] = $lsDoc;
@@ -191,6 +194,20 @@ class CaseImport
             }
             if (property_exists($cfItem, 'language')) {
                 $lsItem->setLanguage($cfItem->language);
+            }
+            if (property_exists($cfItem, 'CFItemType')) {
+                if (empty($cfItemTypes[$cfItem->CFItemType])) {
+                    $itemType = new LsDefItemType();
+                    $itemType->setTitle($cfItem->CFItemType);
+                    $itemType->setDescription($cfItem->CFItemType);
+                    $itemType->setCode($cfItem->CFItemType);
+                    $itemType->setHierarchyCode(1);
+                    $em->persist($itemType);
+
+                    $cfItemTypes[$cfItem->CFItemType] = $itemType;
+                }
+
+                $lsItem->setItemType($cfItemTypes[$cfItem->CFItemType]);
             }
 
             $em->persist($lsItem);

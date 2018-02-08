@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Create new account</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.username) }}
+        {{ form_row(form.plainPassword) }}
+        {{ form_row(form.org) }}
+        <div class="signup_new_org" style="display: none">
+            {{ form_row(form.new_org) }}
+        </div>
+        <ul class="list-inline pull-right">
+            <li>
+                <input class="btn btn-primary" type="submit" value="Add" />
+            </li>
+        </ul>
+    {{ form_end(form) }}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        var $org = $('#signup_org');
+        $org.change(function() {
+            if ($org.val() === 'other') {
+                $('.signup_new_org').show();
+            } else {
+                $('.signup_new_org').hide();
+            }
+        });
+    </script>
+
+{% endblock %}
+

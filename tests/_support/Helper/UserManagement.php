@@ -50,7 +50,15 @@ class UserManagement extends \Codeception\Module
     public function ensureUserExistsWithRole(string $role): UserManagement
     {
         if (!self::$remote) {
-            return $this->ensureUserExistsWithRoleLocal($role);
+            return $this->ensureUserExistsWithRoleLocal($role, User::ACTIVE);
+        }
+
+        return $this->ensureUserExistsWithRoleRemote($role);
+    }
+
+    public function ensurePendingUserExistsWithRole($role) {
+        if (!self::$remote) {
+            return $this->ensureUserExistsWithRoleLocal($role, User::PENDING);
         }
 
         return $this->ensureUserExistsWithRoleRemote($role);
@@ -78,7 +86,7 @@ class UserManagement extends \Codeception\Module
         );
     }
 
-    protected function ensureUserExistsWithRoleLocal(string $role): UserManagement
+    protected function ensureUserExistsWithRoleLocal(string $role, $status = User::ACTIVE): UserManagement
     {
         /** @var Symfony $symfony */
         $symfony = $this->getModule('Symfony');
@@ -97,7 +105,9 @@ class UserManagement extends \Codeception\Module
         /** @var User $user */
         $user = $userRepo->createQueryBuilder('u')
             ->where('u.username like :prefix')
+            ->andWhere('u.status = :status')
             ->setParameter(':prefix', 'TEST:'.$role.':%')
+            ->setParameter(':status', $status)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
@@ -122,12 +132,14 @@ class UserManagement extends \Codeception\Module
             }
 
             $username = 'TEST:'.$role.':'.$faker->userName;
-            $userRepo->addNewUser($username, $org, $password, $role);
+            $userRepo->addNewUser($username, $org, $password, $role, $status);
             $em->flush();
 
             $user = $userRepo->createQueryBuilder('u')
                 ->where('u.username = :username')
+                ->andWhere('u.status = :status')
                 ->setParameter(':username', $username)
+                ->setParameter(':status', $status)
                 ->setMaxResults(1)
                 ->getQuery()
                 ->getOneOrNullResult();

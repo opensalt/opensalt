@@ -1,11 +1,59 @@
 {% extends '::base.html.twig' %}
 
-{% block body %}
-    <h1>Oops! An Error Occurred</h1>
-    <h2>The server returned a "{{ status_code }} {{ status_text }}".</h2>
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    html {
+        background: url({{ asset('assets/img/killer-salt.jpg') }}) no-repeat center center fixed;
+        background-color: #fff;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+    }
+    body {
+        background-color: transparent;
+    }
+    div.attribution {
+        background-color: #ddd;
+        width: auto;
+        border: #000 1px solid;
+        padding: 2px;
+        position: absolute;
+        bottom: 45px;
+        right: 15px;
+        font-size: smaller;
+    }
+</style>
+{% endblock %}
 
-    <div>
-        Something is broken. Please let us know what you were doing when this error occurred.
-        We will fix it as soon as possible. Sorry for any inconvenience caused.
+{% block body %}
+    <div class="panel panel-danger">
+        <div class="panel-heading">
+            <h1>Oops! An Error Occurred</h1>
+        </div>
+        <div class="panel-body">
+          <h2>The server returned a "{{ status_code }} {{ status_text }}".</h2>
+
+          <p>
+              Something is broken.<br />
+              Please let us know what you were doing when this error occurred and
+              we will fix it as soon as possible.
+          </p>
+
+          <p>
+              Sorry for any inconvenience caused.  You can <a href="{{ path('lsdoc_index') }}">return to the document list</a>.
+          </p>
+        </div>
+    </div>
+
+    <div class="attribution">
+        <a herf="https://www.flickr.com/photos/healthgauge/26137070965/">"Killer Salt"</a>
+        by <a href="https://www.flickr.com/photos/healthgauge/">Heath Gauge</a>
+        is licenced under <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>
+        / Desaturated from original
     </div>
 {% endblock %}
+
+{% block sitejavascripts %}{% endblock %}
+{%- block navbar_right -%}{% endblock %}

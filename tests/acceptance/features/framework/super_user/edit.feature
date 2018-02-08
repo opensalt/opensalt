@@ -21,6 +21,7 @@ Feature: The framework is editable
     Then I should see the framework data
     And I delete the framework
 
-
-
-
+  Scenario: 1016-1326 An Super-User can see licence drop-down
+    Given I log in as a user with role "Super-User"
+    When I display modal to edit framework
+    Then I should see licence edit drop-down
