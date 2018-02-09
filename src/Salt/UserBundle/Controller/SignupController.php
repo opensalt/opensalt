@@ -67,6 +67,7 @@ class SignupController extends Controller
 
                 // email the new user
                 $email = $targetUser->getUsername();
+                
                 $message = (new \Swift_Message('Hello Email'))
                 ->setFrom('send@example.com')
                 ->setTo($email)
