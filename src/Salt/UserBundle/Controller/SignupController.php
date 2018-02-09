@@ -66,14 +66,14 @@ class SignupController extends Controller
                 $this->sendCommand($command);
 
                 // email the new user
-                // $email = $targetUser->getUsername();
-                // $message = (new \Swift_Message('Hello Email'))
-                // ->setFrom('send@example.com')
-                // ->setTo($email)
-                // ->setSubject('Your account has been created')
-                // ->setBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
-                //
-                // $this->get('mailer')->send($message);
+                $email = $targetUser->getUsername();
+                $message = (new \Swift_Message('Hello Email'))
+                ->setFrom('send@example.com')
+                ->setTo($email)
+                ->setSubject('Your account has been created')
+                ->setBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
+
+                $this->get('mailer')->send($message);
 
                 return $this->redirectToRoute('lsdoc_index');
             } catch (\Exception $e) {
