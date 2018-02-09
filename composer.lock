@@ -4720,12 +4720,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codemirror/CodeMirror.git",
-                "reference": "32f3d3e95b15e2403684bd75b13a6315a84b4ce9"
+                "reference": "2ffbf483ca423420903be48c25fc28a30d601403"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/32f3d3e95b15e2403684bd75b13a6315a84b4ce9",
-                "reference": "32f3d3e95b15e2403684bd75b13a6315a84b4ce9",
+                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/2ffbf483ca423420903be48c25fc28a30d601403",
+                "reference": "2ffbf483ca423420903be48c25fc28a30d601403",
                 "shasum": ""
             },
             "require-dev": {
@@ -4768,7 +4768,7 @@
                 "Editor",
                 "JavaScript"
             ],
-            "time": "2018-02-05 21:22:18"
+            "time": "2018-02-08 14:31:52"
         },
         {
             "name": "npm-asset/codemirror-spell-checker",
