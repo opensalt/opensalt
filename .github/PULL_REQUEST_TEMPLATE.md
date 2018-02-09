@@ -16,10 +16,9 @@ Demonstrate the code is solid. Example: The exact commands you ran and their out
 
 <!-- Make sure tests pass on both Codeception. -->
 
-**Code formatting**
+**Code formatting Notes**
 
-Notes:
-- Spaces not tabs
+- Use Spaces not tabs
 <!-- See the simple style guide. -->
 
 **Closing issues**
