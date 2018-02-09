@@ -21,6 +21,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Util\Compare;
@@ -523,9 +524,16 @@ class DocTreeController extends Controller
     public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
         $command = new DeleteAssociationGroupCommand($associationGrouping);
-        $this->sendCommand($command);
+        try {
+            $this->sendCommand($command);
+        } catch (\Exception $e) {
+            if (preg_match('/FOREIGN KEY/', $e->getMessage())) {
+                return new JsonResponse(['error'=>['message'=>'An association group may only be deleted if there are no associations in it.']], Response::HTTP_BAD_REQUEST);
+            }
+            return new JsonResponse(['error'=>['message'=>'The association group could not be deleted.']], Response::HTTP_BAD_REQUEST);
+        }
 
-        return new Response('OK', Response::HTTP_ACCEPTED);
+        return new JsonResponse('OK', Response::HTTP_ACCEPTED);
     }
 
     /**

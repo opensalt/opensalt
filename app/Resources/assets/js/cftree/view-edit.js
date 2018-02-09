@@ -1031,8 +1031,9 @@ apx.edit.updateItemsAjaxDone = function(data) {
 // ASSOCIATION GROUP EDITING
 apx.edit.initializeManageAssocGroupButtons = function() {
     // initialize buttons in association group modal
-    $(".assocgroup-edit-btn").off('click').on('click', function() { apx.edit.editAssocGroup(this); });
-    $(".assocgroup-delete-btn").off('click').on('click', function() { apx.edit.deleteAssocGroup(this); });
+    $('#manageAssocGroupsModal')
+        .off('click', ".assocgroup-edit-btn").on('click', ".assocgroup-edit-btn", function() { apx.edit.editAssocGroup(this); })
+        .off('click', ".assocgroup-delete-btn").on('click', ".assocgroup-delete-btn", function() { apx.edit.deleteAssocGroup(this); });
 };
 
 apx.edit.prepareAddAssocGroupModal = function() {
@@ -1086,7 +1087,6 @@ apx.edit.prepareAddAssocGroupModal = function() {
             html += '</td>';
             html += '</tr>';
             $manageAssocGroupsModal.find("tbody").append(html);
-            apx.edit.initializeManageAssocGroupButtons();
 
             // re-render the select menu(s)
             apx.mainDoc.renderAssocGroupMenu($("#treeSideLeft").find(".assocGroupSelect"), 1);
@@ -1218,9 +1218,12 @@ apx.edit.deleteAssocGroup = function(btn) {
             $("#manageAssocGroupsModal").modal('show');
             
         }).fail(function (jqXHR, textStatus, errorThrown) {
-            alert("An error occurred.");
-            // console.log(jqXHR.responseText);
+            alert(jqXHR.responseJSON.error.message);
+            apx.spinner.hideModal();
+            $("#manageAssocGroupsModal").modal('show');
         });
+    }).one('hidden.bs.modal', function(e){
+        $(this).off('click', '.btn-delete');
     });
 };
 
