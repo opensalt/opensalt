@@ -29,15 +29,18 @@
                         <li>
                             <a class="btn btn-primary" href="{{ path('admin_user_show', { 'id': user.id }) }}">show</a>
                         </li>
-                        {% if not user.suspended %}
+                        {% if not user.unspended %}
                             <li>
                                 <a class="btn btn-default" href="{{ path('admin_user_edit', { 'id': user.id }) }}">edit</a>
                             </li>
                         {% endif %}
                         <li>
-                            {% if user.suspended %}
+                            {% if user.unspended %}
                                 <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Unsuspend</a>
-                            {% else %}
+                            {% endif %}
+                        </li>
+                        <li>
+                            {% if user.suspended %}
                                 <a class="btn btn-default" href="{{ path('admin_user_suspend', { 'id': user.id }) }}">Suspend</a>
                             {% endif %}
                         </li>
