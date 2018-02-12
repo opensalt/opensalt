@@ -316,23 +316,38 @@ xENDx;
         $progressCallback('Done');
     }
 
-    public function makeDerivative(LsDoc $oldLsDoc): LsDoc
+    /**
+     * @param LsDoc $fromDoc
+     * @param LsDoc $toDoc
+     */
+    public function copyDocumentContentToDoc(LsDoc $fromDoc, LsDoc $toDoc, $exactMatchAssocs = false)
+    {
+        foreach ($fromDoc->getTopLsItems() as $oldItem) {
+            $newItem = $oldItem->copyToLsDoc($toDoc, null, $exactMatchAssocs);
+            $toDoc->addTopLsItem($newItem);
+        }
+    }
+
+    public function makeDerivative(LsDoc $oldLsDoc, $newLsDoc = null): LsDoc
     {
         $em = $this->getEntityManager();
-        $newLsDoc = new LsDoc();
-        $newLsDoc->setTitle($oldLsDoc->getTitle().' - Derivated');
-        $newLsDoc->setCreator($oldLsDoc->getCreator());
-        $newLsDoc->setVersion($oldLsDoc->getVersion());
-        $newLsDoc->setDescription($oldLsDoc->getDescription());
-        $newLsDoc->setSubject($oldLsDoc->getSubject());
-        $newLsDoc->setNote($oldLsDoc->getNote());
-        $newLsDoc->setLanguage($oldLsDoc->getLanguage());
-        $newLsDoc->setOrg($oldLsDoc->getOrg());
-        $newLsDoc->setUser($oldLsDoc->getUser());
+        if(null === $newLsDoc) {
+            $newLsDoc = new LsDoc();
+            $newLsDoc->setTitle($oldLsDoc->getTitle().' - Derivated');
+            $newLsDoc->setCreator($oldLsDoc->getCreator());
+            $newLsDoc->setVersion($oldLsDoc->getVersion());
+            $newLsDoc->setDescription($oldLsDoc->getDescription());
+            $newLsDoc->setSubject($oldLsDoc->getSubject());
+            $newLsDoc->setNote($oldLsDoc->getNote());
+            $newLsDoc->setLanguage($oldLsDoc->getLanguage());
+            $newLsDoc->setOrg($oldLsDoc->getOrg());
+            $newLsDoc->setUser($oldLsDoc->getUser());
+            $newLsDoc->setLicence($oldLsDoc->getLicence());
+        }
+
         foreach($oldLsDoc->getAssociationGroupings() as $assocGroup) {
             $assocGroup->duplicateToLsDoc($newLsDoc);
         }
-        $newLsDoc->setLicence($oldLsDoc->getLicence());
 
         $em->persist($newLsDoc);
 

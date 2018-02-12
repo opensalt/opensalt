@@ -35,6 +35,7 @@ parameters:
     firebase_client_email: '%env(FIREBASE_CLIENT_EMAIL)%'
     firebase_private_key: '%env(FIREBASE_PRIVATE_KEY)%'
     firebase_prefix: '%env(FIREBASE_PREFIX)%'
+    create_account_feature: '%env(CREATE_ACCOUNT_FEATURE)%'
 
 framework:
     #esi:             ~
@@ -287,6 +288,9 @@ qandidate_toggle:
         comments:
             name: comments
             status: '%comments_feature%'
+        create_account:
+            name: create_account
+            status: '%create_account_feature%'
 
 simple_things_entity_audit:
     #entity_manager: default

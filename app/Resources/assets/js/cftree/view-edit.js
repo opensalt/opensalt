@@ -65,6 +65,45 @@ apx.edit.prepareDocEditModal = function() {
     });
 };
 
+apx.edit.prepareDocDeleteModal = function() {
+    let $modal = $('#deleteFrameworkModal');
+    let $ack = $modal.find('#deleteFrameworkAcknowledgement');
+    let isDelete = /^"?DELETE"?$/;
+    let $btnDelete = $modal.find('.btn-delete');
+    $modal.on('shown.bs.modal', function(e){
+        $ack.val('');
+        $modal.find('.errors').html('');
+        $btnDelete.addClass('btn-disabled').attr('disabled', 'disabled');
+        $ack.on('change keyup', function(e){
+            if (isDelete.test($ack.val())) {
+                $btnDelete.removeClass('btn-disabled').removeAttr('disabled');
+            } else {
+                $btnDelete.addClass('btn-disabled').attr('disabled', 'disabled');
+            }
+        });
+        $btnDelete.on('click', function(e){
+            $.ajax({
+                url: apx.path.lsdoc_delete.replace('ID', apx.mainDoc.doc.id),
+                method: 'POST',
+                data: {
+                    _method: 'DELETE',
+                    token: $btnDelete.data('token')
+                },
+                dataType: 'json'
+            }).done(function(data, textStatus, jqXHR){
+                window.location.href = apx.path.doc_index;
+            }).fail(function(jqXHR, textStatus, errorThrown){
+                $modal.find('.errors').html('<p class="text-danger">Error: '+jqXHR.responseJSON.error.message+'</p>');
+            });
+        });
+    }).on('hidden.bs.modal', function(e) {
+        $ack.val('');
+        $ack.off('change keyup');
+        $btnDelete.off('click');
+        $btnDelete.addClass('btn-disabled').attr('disabled', 'disabled');
+    });
+};
+
 /** Edit an item */
 apx.edit.prepareItemEditModal = function() {
     let $modal = $('#editItemModal');
