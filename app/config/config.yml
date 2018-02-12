@@ -205,9 +205,6 @@ swiftmailer:
     host:      "%mailer_host%"
     username:  "%mailer_user%"
     password:  "%mailer_password%"
-    # using an env var throws an error
-    # auth_mode: "%mailer_auth_mode%"
-    # auth_mode: "%env(MAILER_AUTH_MODE)%"
     auth_mode: cram-md5
     port:      "%mailer_port%"
     # to disable mail uncomment disable_delivery: true
