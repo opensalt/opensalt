@@ -29,6 +29,10 @@ header .navbar-default {
     height:60px;
 }
 
+.bottomPadd8{
+    padding-bottom: 8px;
+}
+
 /* hack for IE11 to at least have the logo centred */
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
     img[src*=".svg?"] {

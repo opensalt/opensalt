@@ -48,9 +48,9 @@ class UserController extends Controller
             $users = $em->getRepository(User::class)
                 ->findByOrg($this->getUser()->getOrg());
         }
-
         return [
             'users' => $users,
+            'roles' => User::USER_ROLES,
         ];
     }
 
