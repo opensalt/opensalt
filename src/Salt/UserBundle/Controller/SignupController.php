@@ -66,12 +66,13 @@ class SignupController extends Controller
                 $this->sendCommand($command);
 
                 // check to see if the env var is set to "true" mailer
-                if (getenv('USE_MAIL_FEATURE') == 'always-active') {
-                  $fromEmail = getenv('MAIL_FEATURE_FROM_EMAIL');
+                if ($this->getParameter('USE_MAIL_FEATURE') == 'always-active') {
+                  // $fromEmail = getenv('MAIL_FEATURE_FROM_EMAIL');
+                  $fromEmail = $this->getParameter('MAIL_FEATURE_FROM_EMAIL');
                   // email the new user
                   $email = $targetUser->getUsername();
                   $message = (new \Swift_Message('Hello Email'))
-                  ->setFrom(getenv('MAIL_FEATURE_FROM_EMAIL'))                
+                  ->setFrom($fromEmail)
                   ->setTo($email)
                   ->setSubject('Your account has been created')
                   ->setBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
