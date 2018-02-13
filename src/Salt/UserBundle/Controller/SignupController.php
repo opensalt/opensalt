@@ -66,7 +66,7 @@ class SignupController extends Controller
                 $this->sendCommand($command);
 
                 // check to see if the env var is set to "true" mailer
-                if (getenv('USE_MAIL_FEATURE') == "always-active") {
+                if (getenv('USE_MAIL_FEATURE') == 'always-active') {
                   // email the new user
                   $email = $targetUser->getUsername();
                   $message = (new \Swift_Message('Hello Email'))
