@@ -17,6 +17,12 @@ parameters:
     database_name: '%env(MYSQL_DATABASE)%'
     database_user: '%env(MYSQL_USER)%'
     database_password: '%env(MYSQL_PASSWORD)%'
+    mailer_transport: '%env(MAILER_TRANSPORT)%'
+    mailer_host: '%env(MAILER_HOST)%'
+    mailer_user: '%env(MAILER_USER)%'
+    mailer_password: '%env(MAILER_PASSWORD)%'
+    mailer_auth_mode: '%env(MAILER_AUTH_MODE)%'
+    mailer_port: '%env(MAILER_PORT)%'
     secret: '%env(SECRET)%'
     cookie_secret: '%env(COOKIE_SECRET)%'
     local_uri_host: '%env(LOCAL_URI_HOST)%'
@@ -36,6 +42,8 @@ parameters:
     firebase_private_key: '%env(FIREBASE_PRIVATE_KEY)%'
     firebase_prefix: '%env(FIREBASE_PREFIX)%'
     create_account_feature: '%env(CREATE_ACCOUNT_FEATURE)%'
+    use_mail_feature: '%env(USE_MAIL_FEATURE)%'
+    mail_feature_from_email: '%env(MAIL_FEATURE_FROM_EMAIL)%'
 
 framework:
     #esi:             ~
@@ -192,6 +200,18 @@ doctrine:
 doctrine_migrations:
     dir_name: "%kernel.root_dir%/DoctrineMigrations"
 
+# Swiftmailer Configuration
+swiftmailer:
+    spool:     { type: memory }
+    transport: "%mailer_transport%"
+    host:      "%mailer_host%"
+    username:  "%mailer_user%"
+    password:  "%mailer_password%"
+    auth_mode: cram-md5
+    port:      "%mailer_port%"
+    # to disable mail uncomment disable_delivery: true
+    # disable_delivery: true
+
 jms_di_extra:
     locations:
         all_bundles: true
@@ -238,7 +258,7 @@ nelmio_security:
     external_redirects:
         whitelist:
             - google.com
-            
+
     # Forces Microsoft/Chrome XSS-Protection with its block mode.
     xss_protection:
         enabled: true
@@ -291,6 +311,9 @@ qandidate_toggle:
         create_account:
             name: create_account
             status: '%create_account_feature%'
+        email_feature:
+            name: email_feature
+            status: '%use_mail_feature%'
 
 simple_things_entity_audit:
     #entity_manager: default
