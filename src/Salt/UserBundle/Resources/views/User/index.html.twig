@@ -16,10 +16,10 @@
         <tbody>
         {% for user in users %}
             <tr>
-                <td><a href="{{ path('admin_user_show', { 'id': user.id }) }}">{{ user.id }}</a></td>
-                <td>{{ user.org.name }}</td>
-                <td>{{ user.username }}</td>
-                <td>
+                    <td><a href="{{ path('admin_user_show', { 'id': user.id }) }}">{{ user.id }}</a></td>
+                    <td>{{ user.org.name }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>
                     {%- for role in user.roles -%}
                         {% if not loop.first %}, {% endif %}{{ role |replace({'ROLE_':'', '_':' '}) |title }}
                     {%- endfor -%}
@@ -44,7 +44,7 @@
                                 <a class="btn btn-default" href="{{ path('admin_user_suspend', { 'id': user.id }) }}">Suspend</a>
                             {% endif %}
                         </li>
-                        {% if user.pending %}
+						{% if user.pending %}
                             <li>
                                 <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Approve</a>
                             </li>
