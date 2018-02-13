@@ -178,7 +178,7 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
         }
         foreach ($hasChildren as $child) {
             $childIds[] = $child->getId();
-            $this->allChilds($childIds,$child);
+            $this->allChilds($childIds, $child);
         }
     }
 }
