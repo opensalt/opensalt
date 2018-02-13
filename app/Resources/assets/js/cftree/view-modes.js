@@ -122,21 +122,18 @@ apx.viewMode.showAssocView = function(context) {
             let doc = null;
 
             // for the dest of an exemplar, we just use .uri
-            if (a.type === "exemplar") {
+            if ("dest" === key && a.type === "exemplar") {
                 title = a[key].uri;
-
-            // else see if the "item" is actually a document
             } else if (!empty(apx.allDocs[a[key].item]) && typeof(apx.allDocs[a[key].item]) !== "string") {
+                // else see if the "item" is actually a document
                 title = "Document: " + apx.allDocs[a[key].item].doc.title;
-
-            // else if we know about this item via allItemsHash...
             } else if (!empty(apx.allItemsHash[a[key].item])) {
+                // else if we know about this item via allItemsHash...
                 let destItem = apx.allItemsHash[a[key].item];
-                title = apx.mainDoc.getItemTitle(destItem, true);
+                title = apx.mainDoc.getItemTitle(destItem, false);
                 doc = destItem.doc;
-
-            // else we don't (currently at least) know about this item...
             } else {
+                // else we don't (currently at least) know about this item...
                 if (a[key].doc !== "?") {
                     // look for document in allDocs
                     doc = apx.allDocs[a[key].doc];
