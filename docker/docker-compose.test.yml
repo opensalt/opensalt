@@ -36,6 +36,7 @@ services:
       MAILER_PORT:
       CREATE_ACCOUNT_FEATURE:
       USE_MAIL_FEATURE:
+      MAIL_FEATURE_FROM_EMAIL:
     volumes_from:
       - app
     working_dir: /var/www/html
