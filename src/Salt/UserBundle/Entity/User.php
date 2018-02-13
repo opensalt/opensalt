@@ -413,7 +413,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     }
     
     /**
-     * @return bool true if the user is Loked
+     * @return bool true if the user is Locked
      */
     public function isSuspendedLocked() {
         if ($this->status === static::SUSPENDED) {
@@ -436,7 +436,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     
     /**
      * @return bool true if the user is Unsuspended
-    */
+     */
     public function isUnspended() {
         if ($this->status === static::SUSPENDED) {
             return true;
