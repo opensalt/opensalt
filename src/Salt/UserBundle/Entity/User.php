@@ -411,7 +411,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     public function isEnabled() {
         return true;
     }
-    
+
     /**
      * @return bool true if the user is Locked
      */
@@ -433,7 +433,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 
         return false;
     }
-    
+
     /**
      * @return bool true if the user is Unsuspended
      */
