@@ -162,16 +162,51 @@ class CommentsController extends Controller
      */
     public function exportCommentAction(string $itemType, int $itemId)
     {
-        $url = ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $itemId], UrlGeneratorInterface::ABSOLUTE_URL) : $this->generateUrl('doc_tree_view', ['slug' => $itemId], UrlGeneratorInterface::ABSOLUTE_URL);
+        $childIds = [];
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
-        $headers = ['Framework Name', 'Node Address', ($itemType === 'item') ? 'HumanCodingScheme' : null, 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
-        $rows[] = implode(',', array_filter($headers));
-        $comment_data = $repo->findBy([$itemType => $itemId]);
+        $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
+        $rows[] = implode(',', $headers);
+        $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
+        if ($itemType === 'document'){
+            $comment_data = $repo->findBy([$itemType => $itemId]);
+            $child_comment_rows = $this->csvArray($comment_data, $itemType);
+            foreach ($child_comment_rows as $child_row)
+            {
+                $rows[] = $child_row;
+            }
+            $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->findOneById($itemId);
+            $lsDocChilds = $lsItemRepo->findAll($lsDoc);
+            if (!empty($lsDocChilds)){
+                foreach ($lsDocChilds as $lsDocChild){
+                    $childIds[] = $lsDocChild->getId();
+                }
+            }
+            array_filter($childIds);
+        }
+        else
+        {
+            $lsItem = $lsItemRepo->findOneById($itemId);
+            $lsItemRepo->allChilds($childIds, $lsItem);
+            $childIds[] = $itemId;
+        }
+        $comment_data = $repo->findBy(['item' => $childIds]);
+        $child_comment_rows = $this->csvArray($comment_data, 'item');
+        foreach ($child_comment_rows as $child_row)
+        {
+            $rows[] = $child_row;
+        }
+        $content = implode("\n", $rows);
+        $response = new Response($content);
+        $response->headers->set('content_type', 'text/csv');
+        return $response;
+    }
 
+    public function csvArray($comment_data, $itemType)
+    {
         foreach ($comment_data as $comment) {
             $comments=[
                 ($itemType === 'item') ? '"'.$comment->getItem()->getLsDoc()->getTitle().'"' : '"'.$comment->getDocument()->getTitle().'"',
-                $url,
+                ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $comment->getItem()->getId()], UrlGeneratorInterface :: ABSOLUTE_URL) : $this->generateUrl('doc_tree_view', ['slug' => $comment->getDocument()->getId()], UrlGeneratorInterface :: ABSOLUTE_URL),
                 ($itemType === 'item') ? '"'.$comment->getItem()->getHumanCodingScheme().'"' : null,
                 '"'.$comment->getUser()->getUsername().'"',
                 '"'.$comment->getUser()->getOrg()->getName().'"',
@@ -179,13 +214,9 @@ class CommentsController extends Controller
                 $comment->getCreatedAt()->format('Y-m-d H:i:s'),
                 $comment->getUpdatedAt()->format('Y-m-d H:i:s')
             ];
-            $rows[] = implode(',', array_filter($comments));
+            $rows[] = implode(',', $comments);
         }
-
-        $content = implode("\n", $rows);
-        $response = new Response($content);
-        $response->headers->set('content_type', 'text/csv');
-        return $response;
+        return $rows;
     }
 
     /**
