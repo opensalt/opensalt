@@ -37,7 +37,7 @@ parameters:
     env(CREATE_ACCOUNT_FEATURE): inactive
     env(USE_MAIL_FEATURE): inactive
 
-    env(MAIL_FEATURE_FROM_EMAIL): send@example.com
+    env(MAIL_FEATURE_FROM_EMAIL): ~
 
     env(BRAND_LOGO_URL): ~
     env(BRAND_LOGO_STYLE): ~
