@@ -278,14 +278,17 @@ class User implements Context
     {
       // check to see if the email feature is active
       if (getenv('USE_MAIL_FEATURE') == "always-active") {
-        $I = $this->I;
+        $fromEmail = getenv('MAIL_FEATURE_FROM_EMAIL');
+        if ($fromEmail != NULL) {
+          $I = $this->I;
 
-        $I->fetchEmails();
-        $I->haveEmails();
-        $I->haveUnreadEmails();
-        $I->openNextUnreadEmail();
-        $I->seeInOpenedEmailSubject('Your account has been created');
-        $I->seeInOpenedEmailBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
+          $I->fetchEmails();
+          $I->haveEmails();
+          $I->haveUnreadEmails();
+          $I->openNextUnreadEmail();
+          $I->seeInOpenedEmailSubject('Your account has been created');
+          $I->seeInOpenedEmailBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
+        }
       }
     }
 

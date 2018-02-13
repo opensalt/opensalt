@@ -67,17 +67,18 @@ class SignupController extends Controller
 
                 // check to see if the env var is set to "true" mailer
                 if ($this->getParameter('USE_MAIL_FEATURE') == 'always-active') {
-                  // $fromEmail = getenv('MAIL_FEATURE_FROM_EMAIL');
                   $fromEmail = $this->getParameter('mail_feature_from_email');
-                  // email the new user
-                  $email = $targetUser->getUsername();
-                  $message = (new \Swift_Message('Hello Email'))
-                  ->setFrom($fromEmail)
-                  ->setTo($email)
-                  ->setSubject('Your account has been created')
-                  ->setBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
+                  if ($fromEmail != NULL) {
+                    // email the new user
+                    $email = $targetUser->getUsername();
+                    $message = (new \Swift_Message('Hello Email'))
+                    ->setFrom($fromEmail)
+                    ->setTo($email)
+                    ->setSubject('Your account has been created')
+                    ->setBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
 
-                  $this->get('mailer')->send($message);
+                    $this->get('mailer')->send($message);
+                  }
                 }
 
                 return $this->redirectToRoute('lsdoc_index');
