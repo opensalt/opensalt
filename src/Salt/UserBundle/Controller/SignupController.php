@@ -2,6 +2,8 @@
 
 namespace Salt\UserBundle\Controller;
 
+use App\Command\Email\SendSignupReceivedEmailCommand;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Salt\UserBundle\Form\Type\SignupType;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,7 +49,7 @@ class SignupController extends Controller
             $encryptedPassword = $this->get('security.password_encoder')
                 ->encodePassword($targetUser, $targetUser->getPlainPassword());
 
-            if (!is_null($form['new_org']->getData())) {
+            if (null !== $form['new_org']->getData()) {
                 $org = new Organization();
                 $org->setName($form['new_org']->getData());
 
@@ -65,25 +67,25 @@ class SignupController extends Controller
                 $command = new AddUserCommand($targetUser, $encryptedPassword);
                 $this->sendCommand($command);
 
-                // check to see if the env var is set to "true" mailer
-                if ($this->getParameter('USE_MAIL_FEATURE') == 'always-active') {
-                  $fromEmail = $this->getParameter('mail_feature_from_email');
-                  if ($fromEmail != NULL) {
-                    // email the new user
-                    $email = $targetUser->getUsername();
-                    $message = (new \Swift_Message('Hello Email'))
-                    ->setFrom($fromEmail)
-                    ->setTo($email)
-                    ->setSubject('Your account has been created')
-                    ->setBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
-
-                    $this->get('mailer')->send($message);
-                  }
+                // Send email after user has been created
+                try {
+                    $command = new SendSignupReceivedEmailCommand($targetUser->getUsername());
+                    $this->sendCommand($command);
+                } catch (\Swift_RfcComplianceException $e) {
+                    throw new \RuntimeException('A valid email address must be given.');
+                } catch (\Exception $e) {
+                    // Do not throw an error to the client if the email could not be sent
                 }
 
                 return $this->redirectToRoute('lsdoc_index');
+            } catch (UniqueConstraintViolationException $e) {
+                $form->addError(new FormError('That email address is already being used.  Do you already have an account?'));
             } catch (\Exception $e) {
-                $form->addError(new FormError($e->getMessage()));
+                if ('dev' === $this->getParameter('kernel.environment')) {
+                    $form->addError(new FormError(get_class($e).': '.$e->getMessage()));
+                } else {
+                    $form->addError(new FormError('Sorry, an error occurred while creating your account.'));
+                }
             }
         }
 
