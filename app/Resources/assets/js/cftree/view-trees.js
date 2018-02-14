@@ -347,6 +347,11 @@ apx.treeDocLoadCallback1 = function() {
                         return false;
                     }
 
+                    // don't allow the orphan directory to be dragged
+                    if ('orphans' === node.key) {
+                        return false;
+                    }
+
                     // disable tooltips
                     $('#treeView').on('show.bs.tooltip', function() { return false; });
                 },
@@ -384,6 +389,15 @@ apx.treeDocLoadCallback1 = function() {
                     let treeDraggedFrom = "tree1";
                     if (droppedNode.tree !== draggedNode.tree) {
                         treeDraggedFrom = "tree2";
+                    }
+
+                    // Do not allow dropping in Orphaned Items folder
+                    let parent = droppedNode;
+                    while (null !== parent) {
+                        if ('orphans' === parent.key) {
+                            return false;
+                        }
+                        parent = parent.getParent();
                     }
 
                     // intra-tree drag
@@ -703,6 +717,11 @@ apx.treeDocLoadCallback2 = function() {
 
                     // don't allow the document to be dragged
                     if (true === apx.treeDoc2.isDocNode(node)) {
+                        return false;
+                    }
+
+                    // don't allow the orphan directory to be dragged
+                    if ('orphans' === node.key) {
                         return false;
                     }
 
