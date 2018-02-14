@@ -943,7 +943,11 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
 
 apx.edit.updateItemsAjaxDone = function(data) {
     // remove stray tooltips
-    setTimeout(function() { $(".tooltip").remove(); }, 1000);
+    setTimeout(function() {
+        $('body').tooltip('hide');
+        $('#treeView').tooltip('hide');
+        $('#assocView').tooltip('hide');
+    }, 1000);
 
     let copiedItem = false;
     for (let i = 0; i < data.length; ++i) {

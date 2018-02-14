@@ -61,6 +61,20 @@ apx.initialize = function() {
 
     apx.markLogsAsRead();
 
+    $('#treeView').tooltip({
+        'selector': '.fancytree-title',
+        // "content": content,  // this is for popover
+        "title": function() {
+            let node = $.ui.fancytree.getNode(this);
+            return  apx.treeDoc1.tooltipContent(node);
+        },
+        "delay": { "show": 200, "hide": 100 },
+        "placement": "top",
+        "html": true,
+        "container": "body",
+        "trigger": "hover"   // this is for popover
+    });
+
     // right-side buttongroup
     $("#rightSideItemDetailsBtn").on('click', function() { apx.setRightSideMode("itemDetails"); });
     $("#rightSideCopyItemsBtn").on('click', function() { apx.setRightSideMode("copyItem"); });

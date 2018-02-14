@@ -259,7 +259,6 @@ apx.treeDocLoadCallback1 = function() {
 
             // function called after the node is rendered
             renderNode: function(event, data) {
-                apx.treeDoc1.initializeTooltip(data.node);
                 let $span = $(data.node.span),
                     $title = $span.find('> span.fancytree-title'),
                     ref = data.node.data.ref
@@ -278,6 +277,8 @@ apx.treeDocLoadCallback1 = function() {
                 }
 
                 $title.html(title);
+
+                $('body > .tooltip').tooltip('hide');
             },
             
             click: function(event, data) {
@@ -342,7 +343,17 @@ apx.treeDocLoadCallback1 = function() {
                     }
 
                     // don't allow the document to be dragged
-                    return !apx.treeDoc1.isDocNode(node);
+                    if (true === apx.treeDoc1.isDocNode(node)) {
+                        return false;
+                    }
+
+                    // disable tooltips
+                    $('#treeView').on('show.bs.tooltip', function() { return false; });
+                },
+
+                dragStop: function(node, data) {
+                    // re-enable tooltip
+                    $('#treeView').off('show.bs.tooltip');
                 },
 
                 initHelper: function(node, data) {
@@ -633,9 +644,9 @@ apx.treeDocLoadCallback2 = function() {
     // define treeDoc2's ftRender function
     apx.treeDoc2.ftRender2 = function() {
         // process the tree, using current association group
-        var ftData = apx.treeDoc2.createTree(apx.treeDoc2.currentAssocGroup2, 2);
+        let ftData = apx.treeDoc2.createTree(apx.treeDoc2.currentAssocGroup2, 2);
 
-        var viewmodeTree2 = $('#viewmode_tree2');
+        let viewmodeTree2 = $('#viewmode_tree2');
 
         // make sure viewmode_tree2 is cleared and showing
         if (viewmodeTree2.find(".ui-fancytree").length > 0) {
@@ -658,7 +669,6 @@ apx.treeDocLoadCallback2 = function() {
             },
 
             renderNode: function(event, data) {
-                apx.treeDoc2.initializeTooltip(data.node);
             },
 
             expand: function() {
@@ -691,19 +701,20 @@ apx.treeDocLoadCallback2 = function() {
                     // when we start dragging, activate the key so it'll be highlighted
                     apx.treeDoc2.getFt(2).activateKey(node.key);
 
-                    // also show its tooltip
-                    $(node.span).find(".fancytree-title").data('bs.tooltip').options.trigger = 'manual';
-                    $(node.span).find(".fancytree-title").tooltip('show');
-
                     // don't allow the document to be dragged
-                    return !apx.treeDoc2.isDocNode(node);
+                    if (true === apx.treeDoc2.isDocNode(node)) {
+                        return false;
+                    }
+
+                    // disable tooltips
+                    $('#treeView').on('show.bs.tooltip', function() { return false; });
                 },
 
                 initHelper: function(node, data) {
                     // Helper was just created: modify markup
-                    var helper = data.ui.helper;
-                    var tree = node.tree;
-                    var sourceNodes = data.tree.getSelectedNodes();
+                    let helper = data.ui.helper;
+                    let tree = node.tree;
+                    let sourceNodes = data.tree.getSelectedNodes();
 
                     // Store a list of active + all selected nodes
                     if (!node.isSelected()) {
@@ -721,9 +732,8 @@ apx.treeDocLoadCallback2 = function() {
                 },
 
                 dragStop: function(node, data) {
-                    // reset trigger on node's tooltip
-                    $(node.span).find(".fancytree-title").tooltip('hide');
-                    $(node.span).find(".fancytree-title").data('bs.tooltip').options.trigger = 'hover focus';
+                    // re-enable tooltip
+                    $('#treeView').off('show.bs.tooltip');
                 },
 
                 // this function needs to be defined for the dnd functionality to work...

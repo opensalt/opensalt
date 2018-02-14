@@ -891,10 +891,8 @@ function ApxDocument(initializer) {
         return (op(node, "data", "ref", "nodeType") === "document");
     };
 
-    // Initialize a tooltip for a tree item
-    self.initializeTooltip = function(node) {
-        let $jq = $(node.span);
-
+    // Get tooltip content
+    self.tooltipContent = function(node) {
         let content;
         if (self.isDocNode(node)) {
             content = "Document: " + render.block(node.title);
@@ -906,16 +904,7 @@ function ApxDocument(initializer) {
             }
         }
 
-        // Note: we need to make the tooltip appear on the title, not the whole node, so that we can have it persist when you drag from tree2 into tree1
-        $jq.find(".fancytree-title").tooltip({
-            // "content": content,  // this is for popover
-            "title": content,   // this is for tooltip
-            "delay": { "show": 200, "hide": 100 },
-            "placement": "top",
-            "html": true,
-            "container": "body"
-            // "trigger": "hover"   // this is for popover
-        });
+        return content;
     };
 
     self.addAssociation = function(atts) {

@@ -335,15 +335,13 @@ apx.viewMode.showAssocView = function(context) {
         });
 
         // tooltips for items with titles
-        $(".assocViewTitle").each(function() {
-            let content = $(this).html();
-            $(this).tooltip({
-                "title": content,
-                "delay": { "show": 200, "hide": 100 },
-                "placement": "bottom",
-                "html": true,
-                "container": "body"
-            });
+        $('#assocView').tooltip({
+            selector: '.assocViewTitle',
+            "title": function() { return $(this).html(); },
+            "delay": { "show": 200, "hide": 100 },
+            "placement": "top",
+            "html": true,
+            "container": "body"
         });
 
         // click on items to open them
@@ -522,7 +520,11 @@ apx.chooserMode.showDetails = function() {
     $("#treeSideRight").animate({"right": "10px"}, 200);
 
     // remove stray tooltips
-    setTimeout(function() { $(".tooltip").remove(); }, 100);
+    setTimeout(function() {
+        $('body').tooltip('hide');
+        $('#treeView').tooltip('hide');
+        $('#assocView').tooltip('hide');
+    }, 100);
 };
 
 /** Hide details */
