@@ -73,7 +73,7 @@ framework:
         csv: ['text/csv', 'text/plain']
     #translator: { fallbacks: ['%locale%'] }
     assets:
-        version: '170482'
+        version: '180451'
         packages:
           encore:
             json_manifest_path: '%kernel.project_dir%/web/build/manifest.json'
