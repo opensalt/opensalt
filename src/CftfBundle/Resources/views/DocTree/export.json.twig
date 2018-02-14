@@ -23,7 +23,7 @@
 {% endfor %}
 ]
 {%- endif %}
-{% if itemTypes is not empty or subjects is not empty or concepts is not empty or licence is not empty or assocGroups is not empty -%}
+{% if itemTypes is not empty or subjects is not empty or concepts is not empty or licences is not empty or assocGroups is not empty -%}
 ,"CFDefinitions": {
     "CFItemTypes": [
     {% for itemType in itemTypes %}
@@ -43,14 +43,20 @@
     {% if concepts is not empty -%}
     {#- TODO: CFConcepts -#}
     ,"CFConcepts": [
-    ]
     {%- endif %}
-    {% if licence is not empty -%}
+    {% if licences is not empty -%}
     ,"CFLicenses": [
+    {% for licence in licences %}
+    {% if not loop.first %},{% endif %}
         {
-            "title": {{ licence.title |json_encode |raw }}
-            , "licence_text": {{ licence.licenceText |json_encode |raw }}
+            "identifier": {{ licence.identifier |json_encode |raw }}
+            , "uri": {{ licence.uri |json_encode |raw }}
+            , "title": {{ licence.title |json_encode |raw }}
+            , "description": {{ licence.description |json_encode |raw }}
+            , "licenceText": {{ licence.licenceText |json_encode |raw }}
+            , "lastChangeDateTime": {{ licence.updatedAt.date |json_encode |raw }}
         }
+    {% endfor %}
     ]
     {%- endif %}
     {% if assocGroups is not empty -%}

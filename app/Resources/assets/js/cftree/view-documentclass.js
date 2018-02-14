@@ -1413,7 +1413,7 @@ function ApxDocument(initializer) {
             // render license information in case of framework has one.
             if ("undefined" !== typeof self.licenses && self.licenses.length > 0) {
                 let licenseDoc = self.licenses;
-                let licenseText = licenseDoc[0].licence_text;
+                let licenseText = licenseDoc[0].licenceText;
 
                 html += '<li class="list-group-item">'
                 + '<strong>License:</strong> '
@@ -1422,7 +1422,7 @@ function ApxDocument(initializer) {
                 if ( licenseText.length > 0) {
                     html += ' - <i>'
                     + licenseText
-                    '</i>';
+                    + '</i>';
                 }
 
                 html += '</li>';
