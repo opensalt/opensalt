@@ -524,6 +524,7 @@ class DocTreeController extends Controller
     public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
         $command = new DeleteAssociationGroupCommand($associationGrouping);
+
         try {
             $this->sendCommand($command);
         } catch (\Exception $e) {
