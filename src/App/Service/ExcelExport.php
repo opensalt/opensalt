@@ -130,6 +130,7 @@ class ExcelExport
             ->setCellValue('K2', $cfDoc->getAdoptionStatus())
             ->setCellValue('L2', $cfDoc->getStatusStart())
             ->setCellValue('M2', $cfDoc->getStatusEnd())
+            ->setCellValue('N2', $cfDoc->getLicence()->getLicenceText())
             ->setCellValue('O2', $cfDoc->getNote());
 
         $phpExcelObject->getActiveSheet()->setTitle('CF Doc');
