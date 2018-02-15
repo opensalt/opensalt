@@ -53,7 +53,7 @@
             , "uri": {{ licence.uri |json_encode |raw }}
             , "title": {{ licence.title |json_encode |raw }}
             , "description": {{ licence.description |json_encode |raw }}
-            , "licenceText": {{ licence.licenceText |json_encode |raw }}
+            , "licenseText": {{ licence.licenceText |json_encode |raw }}
             , "lastChangeDateTime": {{ licence.updatedAt.date |json_encode |raw }}
         }
     {% endfor %}
