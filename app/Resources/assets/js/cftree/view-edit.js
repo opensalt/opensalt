@@ -1083,11 +1083,11 @@ apx.edit.prepareAddAssocGroupModal = function() {
 
             // and add it to the manage groups modal
             let html = '<tr data-assocgroupid="' + newAssocGroupId + '">';
-            html += '<td>' + render.escape(ag.title) + '</td>';
+            html += '<td>' + render.escaped(ag.title) + '</td>';
             html += '<td>';
             html += '<button class="assocgroup-edit-btn btn btn-default btn-xs pull-right">Edit</button>';
             html += '<button class="assocgroup-delete-btn btn btn-default btn-xs pull-right" style="margin-right:5px">Delete</button>';
-            html += '<span class="assocgroup-description">' + render.escape(ag.description) + '</span>';
+            html += '<span class="assocgroup-description">' + render.escaped(ag.description) + '</span>';
             html += '</td>';
             html += '</tr>';
             $manageAssocGroupsModal.find("tbody").append(html);
