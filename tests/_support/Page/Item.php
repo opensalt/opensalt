@@ -317,7 +317,12 @@ class Item implements Context
             $I->wait(2);
             $I->checkOption('#enableMoveCheckbox');
         }
-        $I->dragAndDrop('(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[2]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
+        try {
+            $I->dragAndDrop('(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[2]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
+        } catch (StaleElementReferenceException $e) {
+            $I->wait(2);
+            $I->dragAndDrop('(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[2]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
+        }
     }
 
     /**
