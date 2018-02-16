@@ -31,42 +31,45 @@
             </tr>
         </thead>
         <tbody>
-            {% for user in users %}
-                <tr>
-                    <td><a href="{{ path('admin_user_show', { 'id': user.id }) }}">{{ user.id }}</a></td>
-                    <td>{{ user.org.name }}</td>
-                    <td>{{ user.username }}</td>
-                    <td>
-                        {%- for role in user.roles -%}
+        {% for user in users %}
+            <tr>
+                <td><a href="{{ path('admin_user_show', { 'id': user.id }) }}">{{ user.id }}</a></td>
+                <td>{{ user.org.name }}</td>
+                <td>{{ user.username }}</td>
+                <td>
+                    {%- for role in user.roles -%}
                         {% if not loop.first %}, {% endif %}{{ role |replace({'ROLE_':'', '_':' '}) |title }}
-                        {%- endfor -%}
-                    </td>
-                    <td class="text-center">
-                        <ul class="list-inline">
-                            <li>
+                    {%- endfor -%}
+                </td>
+                <td class="text-center">
+                    <ul class="list-inline">
+                        <li>
                                 <a class="btn btn-primary" href="{{ path('admin_user_show', { 'id': user.id }) }}">show</a>
-                            </li>
-                            {% if not user.suspended %}
+                        </li>
+                        {% if not user.unspended %}
                                 <li>
                                     <a class="btn btn-default" href="{{ path('admin_user_edit', { 'id': user.id }) }}">edit</a>
                                 </li>
-                            {% endif %}
-                            <li>
-                                {% if user.suspended %}
+                        {% endif %}                        
+                        <li>
+                            {% if user.unspended %}
                                     <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Unsuspend</a>
-                                {% else %}
+                            {% endif %}
+                        </li>
+                        <li>
+                            {% if user.suspended %}
                                     <a class="btn btn-default" href="{{ path('admin_user_suspend', { 'id': user.id }) }}">Suspend</a>
-                                {% endif %}
-                            </li>
+                            {% endif %}
+                        </li>			
                             {% if user.pending %}
                                 <li>
                                     <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Approve</a>
                                 </li>
                             {% endif %}
-                        </ul>
-                    </td>
-                </tr>
-            {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 
