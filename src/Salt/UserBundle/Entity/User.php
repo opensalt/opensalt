@@ -57,6 +57,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @ORM\Column(name="username", type="string", length=255, unique=true)
      *
      * @Assert\NotBlank(groups={"registration", "Default"})
+     * @Assert\Email(groups={"registration"})
      */
     protected $username;
 

@@ -270,19 +270,41 @@ class User implements Context
         $I->amOnPage('/admin/user');
         $I->click("//td[text()='{$username}']/..//a[text()='Approve']");
     }
-    
-   /**
-   * @Then /^I search organization and role type$/
-   */
-  public function iSearchOrgAndRole() {
-    $I = $this->I;
-    $I->amOnPage('/admin/user/');
-    $I->see('Organization');
-    $I->see('User role');
-    $organization = $I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[2]');
-    $I->fillField('#search_form_organization', $organization);
-    $I->selectOption('#search_form_user_role', array('value' => 'Super User'));
-    $I->see($organization, '//*[@id="datatable"]/tbody/tr[1]/td[2]');
-    $I->see('Super User', '//*[@id="datatable"]/tbody/tr[1]/td[4]');
-  }
+
+    /**
+     * @Then /^I verify an email was sent$/
+     */
+    public function IVerifyEmailWasSent()
+    {
+      // check to see if the email feature is active
+      if (getenv('USE_MAIL_FEATURE') == "always-active") {
+        $fromEmail = getenv('MAIL_FEATURE_FROM_EMAIL');
+        if ($fromEmail != NULL) {
+          $I = $this->I;
+
+          $I->fetchEmails();
+          $I->haveEmails();
+          $I->haveUnreadEmails();
+          $I->openNextUnreadEmail();
+          $I->seeInOpenedEmailSubject('Your account has been created');
+          $I->seeInOpenedEmailBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
+        }
+      }
+    }
+
+    /**
+     * @Then /^I search organization and role type$/
+     */
+    public function iSearchOrgAndRole()
+    {
+        $I = $this->I;
+        $I->amOnPage('/admin/user/');
+        $I->see('Organization');
+        $I->see('User role');
+        $organization = $I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[2]');
+        $I->fillField('#search_form_organization', $organization);
+        $I->selectOption('#search_form_user_role', array('value' => 'Super User'));
+        $I->see($organization, '//*[@id="datatable"]/tbody/tr[1]/td[2]');
+        $I->see('Super User', '//*[@id="datatable"]/tbody/tr[1]/td[4]');
+    }
 }

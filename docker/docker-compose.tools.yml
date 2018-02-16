@@ -22,7 +22,11 @@ services:
       FIREBASE_CLIENT_EMAIL:
       FIREBASE_PRIVATE_KEY:
       FIREBASE_PREFIX:
+      MAILTRAP_INBOX_ID:
+      MAILTRAP_API_KEY:
       CREATE_ACCOUNT_FEATURE:
+      USE_MAIL_FEATURE:
+      MAIL_FEATURE_FROM_EMAIL:
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html
