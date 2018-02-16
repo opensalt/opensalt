@@ -191,7 +191,7 @@ class CommentsController extends Controller
         }
         $comment_data = $repo->findBy(['item' => $childIds]);
         $child_comment_rows = $this->csvArray($comment_data, 'item');
-        if(!empty ($child_comment_rows))
+        if (!empty($child_comment_rows))
         {
             foreach ($child_comment_rows as $child_row)
             {

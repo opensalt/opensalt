@@ -174,7 +174,7 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
     {
         $hasChildren = $lsItem->getChildren();
         while (empty($hasChildren)) {
-            exit(0);
+            break;
         }
         foreach ($hasChildren as $child) {
             $childIds[] = $child->getId();
