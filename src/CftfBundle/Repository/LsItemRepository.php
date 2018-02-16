@@ -166,7 +166,7 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
             ])
             ;
     }
-    
+
     /*
      * Find all children items of selected item
      */
