@@ -47,6 +47,7 @@
     {% if licences is not empty -%}
     ,"CFLicenses": [
     {% for licence in licences %}
+    {% if licence is not null -%}
     {% if not loop.first %},{% endif %}
         {
             "identifier": {{ licence.identifier |json_encode |raw }}
@@ -56,6 +57,7 @@
             , "licenseText": {{ licence.licenceText |json_encode |raw }}
             , "lastChangeDateTime": {{ licence.updatedAt.date |json_encode |raw }}
         }
+    {%- endif %}
     {% endfor %}
     ]
     {%- endif %}
