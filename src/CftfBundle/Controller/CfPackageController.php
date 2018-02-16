@@ -44,7 +44,7 @@ class CfPackageController extends Controller
             ));
 
             $response->headers->set('Content-Type', 'application/json');
-            $response->headers->set('Content-Disposition', 'attachment; filename=opensalt-framework-'.$lsDoc->getIdentifier().'.json');
+            $response->headers->set('Content-Disposition', 'attachment; filename="opensalt-framework-'.$lsDoc->getIdentifier().'.json"');
 
             return $response;
         }

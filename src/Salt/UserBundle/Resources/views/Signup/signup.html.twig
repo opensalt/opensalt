@@ -9,7 +9,7 @@
         {{ form_row(form.plainPassword) }}
         {{ form_row(form.org) }}
         <div class="signup_new_org" style="display: none">
-            {{ form_row(form.new_org) }}
+            {{ form_row(form.newOrg) }}
         </div>
         <ul class="list-inline pull-right">
             <li>
@@ -27,8 +27,10 @@
         $org.change(function() {
             if ($org.val() === 'other') {
                 $('.signup_new_org').show();
+                $('#signup_newOrg').attr('required', true);
             } else {
                 $('.signup_new_org').hide();
+                $('#signup_newOrg').attr('required', false);
             }
         });
     </script>
