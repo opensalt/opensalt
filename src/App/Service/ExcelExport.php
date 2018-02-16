@@ -97,9 +97,14 @@ class ExcelExport
      */
     public function generateExcelFile(LsDoc $cfDoc, array $items, array $associations, array $smartLevel, \PHPExcel $phpExcelObject): void
     {
+        $licenseTitle = "";
         $phpExcelObject->getProperties()
             ->setCreator('OpenSALT')
             ->setTitle('case');
+
+        if( $cfDoc->getLicense() ){
+            $licenseTitle = $cfDoc->getLicense()->getTitle();
+        }
 
         $phpExcelObject->setActiveSheetIndex(0)
             ->setCellValue('A1', 'identifier')
