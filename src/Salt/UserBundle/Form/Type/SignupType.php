@@ -53,7 +53,7 @@ class SignupType extends AbstractType
                 'class' => 'Salt\UserBundle\Entity\Organization',
                 'choice_label' => 'name',
             ])
-            ->add('new_org', TextType::class, [
+            ->add('newOrg', TextType::class, [
                 'label' => 'New Organization',
                 'mapped' => false,
                 'required' => false,
