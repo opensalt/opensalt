@@ -45,13 +45,20 @@ class SignupController extends Controller
         $form = $this->createForm(SignupType::class, $targetUser, ['validation_groups' => ['registration']]);
         $form->handleRequest($request);
 
+        if ($form->isSubmitted()) {
+            if ($form['org']->getData() === null && $form['newOrg']->getData() === null) {
+                $form->addError(new FormError("New Organization field can't be blank"));
+                $form->get('newOrg')->addError(new FormError("Can't be blank"));
+            }
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             $encryptedPassword = $this->get('security.password_encoder')
                 ->encodePassword($targetUser, $targetUser->getPlainPassword());
 
-            if (null !== $form['new_org']->getData()) {
+            if (null !== $form['newOrg']->getData()) {
                 $org = new Organization();
-                $org->setName($form['new_org']->getData());
+                $org->setName($form['newOrg']->getData());
 
                 try {
                     $commandOrg = new AddOrganizationCommand($org);
