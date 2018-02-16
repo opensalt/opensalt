@@ -210,7 +210,7 @@ class DocTreeController extends Controller
             'itemTypes' => $itemTypes,
             'subjects' => $lsDoc->getSubjects(),
             'concepts' => [],
-            'licences' => [],
+            'licences' => [$lsDoc->getLicence()],
             'assocGroups' => $assocGroups,
         ];
 
