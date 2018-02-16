@@ -41,6 +41,13 @@ services:
             - '@Kreait\Firebase'
             - '%firebase_prefix%'
 
+    App\Handler\Email\:
+        resource: '../../src/App/Handler/Email'
+        public: true
+        arguments:
+            # Move to _defaults: bind: in Symfony 3.4
+            $mailFromEmail: '%mail_feature_from_email%'
+
     # Autowiring commands
     CftfBundle\Command\:
         resource: '../../src/CftfBundle/Command'
@@ -56,7 +63,9 @@ services:
     GithubFilesBundle\Service\:
         resource: '../../src/GithubFilesBundle/Service'
 
-
+    # Aliased services
+    Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'
+    Qandidate\Toggle\ContextFactory: '@qandidate.toggle.user_context_factory'
 
     # Manual services
     Kreait\Firebase:

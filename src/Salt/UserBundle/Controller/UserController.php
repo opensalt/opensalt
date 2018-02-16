@@ -89,6 +89,7 @@ class UserController extends Controller
             } catch (\Exception $e) {
                 $form->addError(new FormError($e->getMessage()));
             }
+
         }
 
         return [
