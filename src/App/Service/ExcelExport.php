@@ -98,12 +98,15 @@ class ExcelExport
     public function generateExcelFile(LsDoc $cfDoc, array $items, array $associations, array $smartLevel, \PHPExcel $phpExcelObject): void
     {
         $licenseTitle = "";
+        $licenseText = "";
         $phpExcelObject->getProperties()
             ->setCreator('OpenSALT')
             ->setTitle('case');
 
-        if( $cfDoc->getLicense() ){
-            $licenseTitle = $cfDoc->getLicense()->getTitle();
+        $license = $cfDoc->getLicence();
+        if( $license ){
+            $licenseTitle = $license->getTitle();
+            $licenseText = $license->getLicenceText();
         }
 
         $phpExcelObject->setActiveSheetIndex(0)
@@ -120,8 +123,9 @@ class ExcelExport
             ->setCellValue('K1', 'adoptionStatus')
             ->setCellValue('L1', 'statusStartDate')
             ->setCellValue('M1', 'statusEndDate')
-            ->setCellValue('N1', 'license')
-            ->setCellValue('O1', 'notes')
+            ->setCellValue('N1', 'licenseTitle')
+            ->setCellValue('O1', 'licenseText')
+            ->setCellValue('P1', 'notes')
             ->setCellValue('A2', $cfDoc->getIdentifier())
             ->setCellValue('B2', $cfDoc->getCreator())
             ->setCellValue('C2', $cfDoc->getTitle())
@@ -135,8 +139,9 @@ class ExcelExport
             ->setCellValue('K2', $cfDoc->getAdoptionStatus())
             ->setCellValue('L2', $cfDoc->getStatusStart())
             ->setCellValue('M2', $cfDoc->getStatusEnd())
-            ->setCellValue('N2', $cfDoc->getLicence()->getLicenceText())
-            ->setCellValue('O2', $cfDoc->getNote());
+            ->setCellValue('N2', $licenseTitle)
+            ->setCellValue('O2', $licenseText)
+            ->setCellValue('P2', $cfDoc->getNote());
 
         $phpExcelObject->getActiveSheet()->setTitle('CF Doc');
         $phpExcelObject->createSheet();
