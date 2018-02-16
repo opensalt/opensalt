@@ -1103,10 +1103,6 @@ class Framework implements Context
     public function iSeeExportCommentButton()
     {
         $I = $this->I;
-        $I->iAmOnTheHomepage();
-        $I->getLastFrameworkId();
-        $I->amOnPage(self::$docPath.$I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->see('Export Comments');
     }
 
@@ -1115,7 +1111,7 @@ class Framework implements Context
      */
     public function iAddedCommentsOnDocItem()
     {
-        $I = $this->I;        
+        $I = $this->I;
         $this->CfDocComment='acceptance doc comment '.sq($I->getItemId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->createAComment($this->CfDocComment);
@@ -1129,7 +1125,7 @@ class Framework implements Context
      */
     public function iAddedCommentsOnCFItem()
     {
-        $I = $this->I;        
+        $I = $this->I;
         $this->CfItemComment = 'acceptance item comment '.sq($I->getItemId());
         $I->createAComment($this->CfItemComment);
         $I->waitForJS('return $.active == 0;', 2);
