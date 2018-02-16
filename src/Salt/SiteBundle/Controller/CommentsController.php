@@ -175,7 +175,7 @@ class CommentsController extends Controller
                 $rows[] = $child_row;
             }
             $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->findOneById($itemId);
-            $lsDocChilds = $lsItemRepo->findAll($lsDoc);
+            $lsDocChilds = $lsItemRepo->findBylsDoc($lsDoc->getId());
             if (!empty($lsDocChilds)){
                 foreach ($lsDocChilds as $lsDocChild){
                     $childIds[] = $lsDocChild->getId();
@@ -191,9 +191,12 @@ class CommentsController extends Controller
         }
         $comment_data = $repo->findBy(['item' => $childIds]);
         $child_comment_rows = $this->csvArray($comment_data, 'item');
-        foreach ($child_comment_rows as $child_row)
+        if(!empty ($child_comment_rows))
         {
-            $rows[] = $child_row;
+            foreach ($child_comment_rows as $child_row)
+            {
+                $rows[] = $child_row;
+            }
         }
         $content = implode("\n", $rows);
         $response = new Response($content);
