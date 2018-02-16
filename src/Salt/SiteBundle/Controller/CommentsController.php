@@ -167,27 +167,33 @@ class CommentsController extends Controller
         $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
         $rows[] = implode(',', $headers);
         $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
-        if ($itemType === 'document'){
-            $comment_data = $repo->findBy([$itemType => $itemId]);
-            $child_comment_rows = $this->csvArray($comment_data, $itemType);
-            foreach ($child_comment_rows as $child_row)
-            {
-                $rows[] = $child_row;
-            }
-            $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->findOneById($itemId);
-            $lsDocChilds = $lsItemRepo->findBylsDoc($lsDoc->getId());
-            if (!empty($lsDocChilds)){
-                foreach ($lsDocChilds as $lsDocChild){
-                    $childIds[] = $lsDocChild->getId();
-                }
-            }
-            array_filter($childIds);
-        }
-        else
+        switch ($itemType)
         {
-            $lsItem = $lsItemRepo->findOneById($itemId);
-            $lsItemRepo->allChilds($childIds, $lsItem);
-            $childIds[] = $itemId;
+            case 'document':
+            {
+                $comment_data = $repo->findBy([$itemType => $itemId]);
+                $child_comment_rows = $this->csvArray($comment_data, $itemType);
+                foreach ($child_comment_rows as $child_row)
+                {
+                    $rows[] = $child_row;
+                }
+                $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->findOneById($itemId);
+                $lsDocChilds = $lsItemRepo->findBylsDoc($lsDoc->getId());
+                if (!empty($lsDocChilds)){
+                    foreach ($lsDocChilds as $lsDocChild){
+                        $childIds[] = $lsDocChild->getId();
+                    }
+                }
+                array_filter($childIds);
+                break;
+            }
+            case 'item':
+            {
+                $lsItem = $lsItemRepo->findOneById($itemId);
+                $lsItemRepo->allChilds($childIds, $lsItem);
+                $childIds[] = $itemId;
+                 break;
+            }
         }
         $comment_data = $repo->findBy(['item' => $childIds]);
         $child_comment_rows = $this->csvArray($comment_data, 'item');
