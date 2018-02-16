@@ -57,7 +57,6 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @ORM\Column(name="username", type="string", length=255, unique=true)
      *
      * @Assert\NotBlank(groups={"registration", "Default"})
-     * @Assert\Email(groups={"registration"})
      */
     protected $username;
 
@@ -107,6 +106,12 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      */
     protected $docAcls;
 
+    /**
+     * @var string
+     * @Assert\Email(groups={"registration"})
+     * @ORM\Column(name="email", type="string", length=255, unique=true, nullable=true)
+     */
+    protected $email;
 
     public function __construct($username = null) {
         if (!empty($username)) {
@@ -353,6 +358,26 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      */
     public function getDocAcls() {
         return $this->docAcls;
+    }
+
+    /**
+     * Returns the email
+     *
+     * @return string The email
+     */
+    public function getEmail() {
+        return $this->email;
+    }
+
+    /**
+     * @param string $email
+     *
+     * @return $this
+     */
+    public function setEmail($email) {
+        $this->email = $email;
+
+        return $this;
     }
 
     /**

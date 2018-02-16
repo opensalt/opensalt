@@ -89,10 +89,11 @@ class User implements Context
         $this->userName = $username;
 
         $I->fillField('#signup_username', $username);
+        $I->fillField('#signup_email', $username);
         $I->fillField('#signup_plainPassword_first', $password);
         $I->fillField('#signup_plainPassword_second', $password);
         $I->selectOption('#signup_org', 'other');
-        $I->fillField('#signup_new_org', $org);
+        $I->fillField('#signup_newOrg', $org);
         $I->click('Add');
         $I->remember('lastNewUsername', $username);
     }

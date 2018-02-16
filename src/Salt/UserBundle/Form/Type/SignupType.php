@@ -39,6 +39,9 @@ class SignupType extends AbstractType
         $builder
             ->add('username', TextType::class, [
                 'attr' => ['class' => 'form-control'],
+            ])
+            ->add('email', TextType::class, [
+                'attr' => ['class' => 'form-control'],
                 'label' => 'Email Address',
             ])
             ->add('plainPassword', RepeatedType::class, [
@@ -53,7 +56,7 @@ class SignupType extends AbstractType
                 'class' => 'Salt\UserBundle\Entity\Organization',
                 'choice_label' => 'name',
             ])
-            ->add('new_org', TextType::class, [
+            ->add('newOrg', TextType::class, [
                 'label' => 'New Organization',
                 'mapped' => false,
                 'required' => false,
