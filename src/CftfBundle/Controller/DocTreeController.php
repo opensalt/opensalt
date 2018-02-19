@@ -170,7 +170,7 @@ class DocTreeController extends Controller
         $response = new Response();
 
         $lastModified = $lsDoc->getUpdatedAt();
-        $response->setEtag(md5($lastModified->format('U')));
+        $response->setEtag(md5($lastModified->format('U')), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(0);
         $response->setSharedMaxAge(0);
@@ -567,7 +567,28 @@ class DocTreeController extends Controller
         $externalDocs = $lsDoc->getExternalDocs();
         if (!empty($externalDocs[$identifier])) {
             // if we found it, load it, noting that we don't have to save a record of it in externalDocs (since it's already there)
-            return $this->exportExternalDocument($externalDocs[$identifier]['url'], null);
+            $response = $this->exportExternalDocument($externalDocs[$identifier]['url'], null);
+            if (200 !== $response->getStatusCode()) {
+                return $response;
+            }
+
+            $content = $response->getContent();
+            $json = json_decode($content, true);
+            $lastModified = new \DateTime($json['CFDocument']['lastChangeDateTime'], new \DateTimezone('UTC'));
+
+            $response->setEtag(md5($lastModified->format('U')), true);
+            $response->setLastModified($lastModified);
+            $response->setMaxAge(0);
+            $response->setSharedMaxAge(0);
+            $response->setExpires(\DateTime::createFromFormat('U', $lastModified->format('U'))->sub(new \DateInterval('PT1S')));
+            $response->setPublic();
+            $response->headers->addCacheControlDirective('must-revalidate');
+
+            if ($response->isNotModified($request)) {
+                return $response;
+            }
+
+            return $response;
         }
 
         // if not found in externalDocs, error

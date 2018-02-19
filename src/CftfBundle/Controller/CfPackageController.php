@@ -65,7 +65,7 @@ class CfPackageController extends Controller
     {
         $response = new Response();
 
-        $response->setEtag(md5($lastModified->format('U')));
+        $response->setEtag(md5($lastModified->format('U')), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(0);
         $response->setSharedMaxAge(0);

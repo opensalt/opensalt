@@ -200,7 +200,7 @@ class Api1Controller extends Controller
     {
         $response = new Response();
 
-        $response->setEtag(md5($lastModified->format('U')));
+        $response->setEtag(md5($lastModified->format('U')), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(60);
         $response->setSharedMaxAge(60);
