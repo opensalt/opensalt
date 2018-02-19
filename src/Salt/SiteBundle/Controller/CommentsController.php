@@ -133,7 +133,7 @@ class CommentsController extends Controller
      *
      * @Method("DELETE")
      *
-     * @Security("is_granted('comment')")
+     * @Security("is_granted('comment', 'comment_view')")
      */
     public function downvoteAction(Comment $comment, UserInterface $user)
     {
@@ -163,69 +163,70 @@ class CommentsController extends Controller
     public function exportCommentAction(string $itemType, int $itemId)
     {
         $childIds = [];
+        $fp = fopen('php://temp', 'r+');
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
         $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
-        $rows[] = implode(',', $headers);
+        fputcsv($fp, $headers);
         $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
         switch ($itemType)
         {
             case 'document':
-            {
                 $comment_data = $repo->findBy([$itemType => $itemId]);
-                $child_comment_rows = $this->csvArray($comment_data, $itemType);
-                foreach ($child_comment_rows as $child_row)
-                {
-                    $rows[] = $child_row;
+                $this->csvArray($comment_data, $itemType, $fp);
+                $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->find($itemId);
+                $lsDocChilds = $lsDoc->getLsItems();
+                foreach ($lsDocChilds as $lsDocChild){
+                    $childIds[] = $lsDocChild->getId();
                 }
-                $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->findOneById($itemId);
-                $lsDocChilds = $lsItemRepo->findBylsDoc($lsDoc->getId());
-                if (!empty($lsDocChilds)){
-                    foreach ($lsDocChilds as $lsDocChild){
-                        $childIds[] = $lsDocChild->getId();
-                    }
-                }
-                array_filter($childIds);
                 break;
-            }
+                
             case 'item':
-            {
                 $lsItem = $lsItemRepo->findOneById($itemId);
-                $lsItemRepo->allChilds($childIds, $lsItem);
+                $lsItem->getDescendantIds($childIds);
                 $childIds[] = $itemId;
-                 break;
-            }
+                break;
         }
         $comment_data = $repo->findBy(['item' => $childIds]);
-        $child_comment_rows = $this->csvArray($comment_data, 'item');
-        if (!empty($child_comment_rows))
-        {
-            foreach ($child_comment_rows as $child_row)
-            {
-                $rows[] = $child_row;
-            }
-        }
-        $content = implode("\n", $rows);
-        $response = new Response($content);
-        $response->headers->set('content_type', 'text/csv');
+        $this->csvArray($comment_data, 'item', $fp);
+        rewind($fp);
+        $csv = stream_get_contents($fp);
+        fclose($fp);
+        $response = new Response($csv);
+        $response->headers->set('content-type', 'text/csv; charset=utf-8;');
+        $response->headers->set('Content-Disposition', 'attachment;');
         return $response;
     }
 
-    public function csvArray($comment_data, $itemType)
+    /**
+     * Get the export report data
+     */
+    private function csvArray($comment_data, $itemType, $fp)
     {
         foreach ($comment_data as $comment) {
             $comments=[
-                ($itemType === 'item') ? '"'.$comment->getItem()->getLsDoc()->getTitle().'"' : '"'.$comment->getDocument()->getTitle().'"',
-                ($itemType === 'item') ? $this->generateUrl('doc_tree_item_view', ['id' => $comment->getItem()->getId()], UrlGeneratorInterface :: ABSOLUTE_URL) : $this->generateUrl('doc_tree_view', ['slug' => $comment->getDocument()->getId()], UrlGeneratorInterface :: ABSOLUTE_URL),
-                ($itemType === 'item') ? '"'.$comment->getItem()->getHumanCodingScheme().'"' : null,
-                '"'.$comment->getUser()->getUsername().'"',
-                '"'.$comment->getUser()->getOrg()->getName().'"',
-                '"'.$comment->getContent().'"',
+                ($itemType === 'item') ? $comment->getItem()->getLsDoc()->getTitle() : $comment->getDocument()->getTitle(),
+                $this->url($itemType, $comment),
+                ($itemType === 'item') ? $comment->getItem()->getHumanCodingScheme() : null,
+                $comment->getUser()->getUsername(),
+                $comment->getUser()->getOrg()->getName(),
+                $comment->getContent(),
                 $comment->getCreatedAt()->format('Y-m-d H:i:s'),
                 $comment->getUpdatedAt()->format('Y-m-d H:i:s')
             ];
-            $rows[] = implode(',', $comments);
+            fputcsv($fp,$comments);
         }
-        return $rows;
+    }
+
+    private function url($itemType, $comment)
+    {
+        if($itemType === 'item')
+        {
+            return $this->generateUrl('doc_tree_item_view', ['id' => $comment->getItem()->getId()], UrlGeneratorInterface :: ABSOLUTE_URL);
+        }
+        if($itemType === 'document')
+        {
+            return $this->generateUrl('doc_tree_view', ['slug' => $comment->getDocument()->getId()], UrlGeneratorInterface :: ABSOLUTE_URL);
+        }
     }
 
     /**

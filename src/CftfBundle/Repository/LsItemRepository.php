@@ -166,19 +166,4 @@ class LsItemRepository extends \Doctrine\ORM\EntityRepository
             ])
             ;
     }
-
-    /*
-     * Find all children items of selected item
-     */
-    public function allChilds(&$childIds, LsItem $lsItem)
-    {
-        $hasChildren = $lsItem->getChildren();
-        while (empty($hasChildren)) {
-            break;
-        }
-        foreach ($hasChildren as $child) {
-            $childIds[] = $child->getId();
-            $this->allChilds($childIds, $child);
-        }
-    }
 }
