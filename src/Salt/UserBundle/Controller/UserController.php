@@ -199,6 +199,16 @@ class UserController extends Controller
         $command = new ActivateUserCommand($targetUser);
         $this->sendCommand($command);
 
+        // Send email after user has been approved
+        try {
+            $command = new SendSignupReceivedEmailCommand($targetUser->getUsername());
+            $this->sendCommand($command);
+        } catch (\Swift_RfcComplianceException $e) {
+            throw new \RuntimeException('A valid email address must be given.');
+        } catch (\Exception $e) {
+            // Do not throw an error to the client if the email could not be sent
+        }
+
         return $this->redirectToRoute('admin_user_index');
     }
 
