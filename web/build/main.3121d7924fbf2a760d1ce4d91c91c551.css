@@ -18396,7 +18396,7 @@ header .navbar-default {
   background-color: #78C9E9;
 }
 
-.navbar-brand {
+header .navbar-brand {
   padding: 5px;
   background-color: #fff;
   border-radius: 4px;
@@ -18404,8 +18404,153 @@ header .navbar-default {
   height: inherit;
 }
 
-.navbar-brand img {
+header .navbar-brand img {
   height: 60px;
+}
+
+header .navbar-btn.pull-right {
+  margin-top: 28.5px;
+}
+
+header .navbar-btn.btn-login {
+  color: #fff;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+header .navbar-btn.btn-login:focus,
+header .navbar-btn.btn-login.focus {
+  color: #fff;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+header .navbar-btn.btn-login:hover {
+  color: #fff;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+header .navbar-btn.btn-login:active,
+header .navbar-btn.btn-login.active,
+.open > header .navbar-btn.btn-login.dropdown-toggle {
+  color: #fff;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+header .navbar-btn.btn-login:active:hover,
+header .navbar-btn.btn-login:active:focus,
+header .navbar-btn.btn-login:active.focus,
+header .navbar-btn.btn-login.active:hover,
+header .navbar-btn.btn-login.active:focus,
+header .navbar-btn.btn-login.active.focus,
+.open > header .navbar-btn.btn-login.dropdown-toggle:hover,
+.open > header .navbar-btn.btn-login.dropdown-toggle:focus,
+.open > header .navbar-btn.btn-login.dropdown-toggle.focus {
+  color: #fff;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+header .navbar-btn.btn-login:active,
+header .navbar-btn.btn-login.active,
+.open > header .navbar-btn.btn-login.dropdown-toggle {
+  background-image: none;
+}
+
+header .navbar-btn.btn-login.disabled:hover,
+header .navbar-btn.btn-login.disabled:focus,
+header .navbar-btn.btn-login.disabled.focus,
+header .navbar-btn.btn-login[disabled]:hover,
+header .navbar-btn.btn-login[disabled]:focus,
+header .navbar-btn.btn-login[disabled].focus,
+fieldset[disabled] header .navbar-btn.btn-login:hover,
+fieldset[disabled] header .navbar-btn.btn-login:focus,
+fieldset[disabled] header .navbar-btn.btn-login.focus {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+header .navbar-btn.btn-login .badge {
+  color: transparent;
+  background-color: #fff;
+}
+
+header .navbar-btn.btn-login:hover {
+  color: #23527c;
+  background-color: #e6e6e6;
+  border-color: #adadad;
+}
+
+header .navbar-btn.btn-signup {
+  color: #fff;
+  background-color: #f37321;
+  border-color: #ee650d;
+  margin-right: 5px;
+}
+
+header .navbar-btn.btn-signup:focus,
+header .navbar-btn.btn-signup.focus {
+  color: #fff;
+  background-color: #d55a0c;
+  border-color: #753106;
+}
+
+header .navbar-btn.btn-signup:hover {
+  color: #fff;
+  background-color: #d55a0c;
+  border-color: #b44c0a;
+}
+
+header .navbar-btn.btn-signup:active,
+header .navbar-btn.btn-signup.active,
+.open > header .navbar-btn.btn-signup.dropdown-toggle {
+  color: #fff;
+  background-color: #d55a0c;
+  border-color: #b44c0a;
+}
+
+header .navbar-btn.btn-signup:active:hover,
+header .navbar-btn.btn-signup:active:focus,
+header .navbar-btn.btn-signup:active.focus,
+header .navbar-btn.btn-signup.active:hover,
+header .navbar-btn.btn-signup.active:focus,
+header .navbar-btn.btn-signup.active.focus,
+.open > header .navbar-btn.btn-signup.dropdown-toggle:hover,
+.open > header .navbar-btn.btn-signup.dropdown-toggle:focus,
+.open > header .navbar-btn.btn-signup.dropdown-toggle.focus {
+  color: #fff;
+  background-color: #b44c0a;
+  border-color: #753106;
+}
+
+header .navbar-btn.btn-signup:active,
+header .navbar-btn.btn-signup.active,
+.open > header .navbar-btn.btn-signup.dropdown-toggle {
+  background-image: none;
+}
+
+header .navbar-btn.btn-signup.disabled:hover,
+header .navbar-btn.btn-signup.disabled:focus,
+header .navbar-btn.btn-signup.disabled.focus,
+header .navbar-btn.btn-signup[disabled]:hover,
+header .navbar-btn.btn-signup[disabled]:focus,
+header .navbar-btn.btn-signup[disabled].focus,
+fieldset[disabled] header .navbar-btn.btn-signup:hover,
+fieldset[disabled] header .navbar-btn.btn-signup:focus,
+fieldset[disabled] header .navbar-btn.btn-signup.focus {
+  background-color: #f37321;
+  border-color: #ee650d;
+}
+
+header .navbar-btn.btn-signup .badge {
+  color: #f37321;
+  background-color: #fff;
+}
+
+header .navbar-btn.btn-signup:hover {
+  background-color: #ee650d;
 }
 
 .bottomPadd8 {
@@ -18437,14 +18582,14 @@ footer .navbar-default {
   background-color: #78C9E9;
 }
 
-.navbar-default .navbar-nav > li > a,
-.navbar-default .navbar-nav > li > a:hover {
-  color: #fff;
-}
-
 footer .navbar-nav > li > a {
   padding-top: 8px;
   padding-bottom: 8px;
+}
+
+.navbar-default .navbar-nav > li > a,
+.navbar-default .navbar-nav > li > a:hover {
+  color: #fff;
 }
 
 label.required:before {
