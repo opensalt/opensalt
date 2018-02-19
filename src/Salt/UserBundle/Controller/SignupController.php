@@ -84,6 +84,8 @@ class SignupController extends Controller
                     // Do not throw an error to the client if the email could not be sent
                 }
 
+                // send email to admin about this user creation
+
                 return $this->redirectToRoute('lsdoc_index');
             } catch (UniqueConstraintViolationException $e) {
                 $form->addError(new FormError('That email address is already being used.  Do you already have an account?'));
