@@ -41,7 +41,7 @@ class ExcelExportController extends Controller
             200,
             [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'Content-Disposition' => "attachment;filename='{$title}.xlsx'",
+                'Content-Disposition' => 'attachment; filename="'.$title.'.xlsx"',
                 'Cache-Control' => 'max-age=0',
             ]
         );
