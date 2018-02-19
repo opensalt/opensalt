@@ -163,23 +163,23 @@ class CommentsController extends Controller
     public function exportCommentAction(string $itemType, int $itemId)
     {
         $childIds = [];
-        $fp = fopen('php://temp', 'r+');
+        $filePointer = fopen('php://temp', 'r+');
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
         $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
-        fputcsv($fp, $headers);
+        fputcsv($filePointer, $headers);
         $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
         switch ($itemType)
         {
             case 'document':
                 $comment_data = $repo->findBy([$itemType => $itemId]);
-                $this->csvArray($comment_data, $itemType, $fp);
+                $this->csvArray($comment_data, $itemType, $filePointer);
                 $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->find($itemId);
                 $lsDocChilds = $lsDoc->getLsItems();
                 foreach ($lsDocChilds as $lsDocChild){
                     $childIds[] = $lsDocChild->getId();
                 }
                 break;
-                
+
             case 'item':
                 $lsItem = $lsItemRepo->findOneById($itemId);
                 $lsItem->getDescendantIds($childIds);
@@ -187,10 +187,10 @@ class CommentsController extends Controller
                 break;
         }
         $comment_data = $repo->findBy(['item' => $childIds]);
-        $this->csvArray($comment_data, 'item', $fp);
-        rewind($fp);
-        $csv = stream_get_contents($fp);
-        fclose($fp);
+        $this->csvArray($comment_data, 'item', $filePointer);
+        rewind($filePointer);
+        $csv = stream_get_contents($filePointer);
+        fclose($filePointer);
         $response = new Response($csv);
         $response->headers->set('content-type', 'text/csv; charset=utf-8;');
         $response->headers->set('Content-Disposition', 'attachment;');
@@ -200,7 +200,7 @@ class CommentsController extends Controller
     /**
      * Get the export report data
      */
-    private function csvArray($comment_data, $itemType, $fp)
+    private function csvArray($comment_data, $itemType, $filePointer)
     {
         foreach ($comment_data as $comment) {
             $comments=[
@@ -213,7 +213,7 @@ class CommentsController extends Controller
                 $comment->getCreatedAt()->format('Y-m-d H:i:s'),
                 $comment->getUpdatedAt()->format('Y-m-d H:i:s')
             ];
-            fputcsv($fp,$comments);
+            fputcsv($filePointer,$comments);
         }
     }
 
