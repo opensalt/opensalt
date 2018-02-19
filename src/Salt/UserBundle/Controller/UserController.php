@@ -2,6 +2,7 @@
 
 namespace Salt\UserBundle\Controller;
 
+use App\Command\Email\SendUserApprovedEmailCommand;
 use App\Command\CommandDispatcherTrait;
 use App\Command\User\AddUserCommand;
 use App\Command\User\DeleteUserCommand;
@@ -201,7 +202,7 @@ class UserController extends Controller
 
         // Send email after user has been approved
         try {
-            $command = new SendUserApprovalEmailCommand($targetUser->getUsername());
+            $command = new SendUserApprovedEmailCommand($targetUser->getUsername());
             $this->sendCommand($command);
         } catch (\Swift_RfcComplianceException $e) {
             throw new \RuntimeException('A valid email address must be given.');

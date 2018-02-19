@@ -2,7 +2,7 @@
 
 namespace App\Handler\Email;
 
-class SendUserApprovalEmailHandler extends AbstractEmailHandler
+class SendUserApprovedEmailHandler extends AbstractEmailHandler
 {
     protected function configureMessage(\Swift_Message $email): void
     {
