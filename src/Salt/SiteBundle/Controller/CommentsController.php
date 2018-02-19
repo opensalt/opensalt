@@ -213,7 +213,7 @@ class CommentsController extends Controller
                 $comment->getCreatedAt()->format('Y-m-d H:i:s'),
                 $comment->getUpdatedAt()->format('Y-m-d H:i:s')
             ];
-            fputcsv($filePointer,$comments);
+            fputcsv($filePointer, $comments);
         }
     }
 
