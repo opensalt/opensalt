@@ -61,7 +61,10 @@
                                     </li>
                                 </ul>
                             {% elseif (app.request.attributes.get('_route') != 'login') %}
-                                <a href="{{ url("login") }}" class="btn btn-default navbar-btn pull-right login">Sign in</a>
+                                <a href="{{ url("login") }}" class="btn {% if 'create_account' is active feature %}btn-login{% else %}btn-default{% endif %} navbar-btn pull-right login">Sign in</a>
+                                {% if 'create_account' is active feature %}
+                                    <a href="{{ url("public_user_signup") }}" class="btn btn-signup navbar-btn pull-right login">Sign up</a>
+                                {% endif %}
                             {% endif %}
                             {%- endblock -%}
                         </div>

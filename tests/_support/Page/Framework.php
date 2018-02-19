@@ -5,6 +5,7 @@ namespace Page;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Codeception\Exception\Fail;
+use Codeception\Util\Locator;
 use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
 
@@ -757,6 +758,7 @@ class Framework implements Context
             'language' => 'en',
             'adoptionStatus' => 'Draft',
             'note' => $note,
+            'license' => 'Attribution 4.0 International',
         ];
 
         $I->fillField(self::$fwTitle, $framework);
@@ -770,6 +772,10 @@ class Framework implements Context
         $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
         $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
         $I->fillField('#ls_doc_create_note', $note);
+        // Choose one license
+        $I->click(Locator::lastElement('.select2-container--bootstrap'));
+        $I->waitForElementVisible('.select2-results__option--highlighted');
+        $I->click('.select2-results__option--highlighted');
 
         $I->click('Create');
 
@@ -816,6 +822,8 @@ class Framework implements Context
         $I->see($this->frameworkData['language']);
         $I->see('Adoption Status:');
         $I->see($this->frameworkData['adoptionStatus']);
+        $I->see('License:');
+        $I->see($this->frameworkData['license']);
     }
 
     /**
