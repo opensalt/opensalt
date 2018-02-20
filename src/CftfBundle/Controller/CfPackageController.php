@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Controller;
 
+use App\Entity\ChangeEntry;
 use CftfBundle\Entity\LsDoc;
 use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -29,7 +30,7 @@ class CfPackageController extends Controller
         $repo = $this->getDoctrine()->getRepository(LsDoc::class);
 
         if ('json' === $_format) {
-            $response = $this->generateBaseResponse($lsDoc->getUpdatedAt());
+            $response = $this->generateBaseResponse($lsDoc);
 
             if ($response->isNotModified($request)) {
                 return $response;
@@ -61,11 +62,18 @@ class CfPackageController extends Controller
      *
      * @return Response
      */
-    protected function generateBaseResponse(\DateTimeInterface $lastModified): Response
+    protected function generateBaseResponse(LsDoc $lsDoc): Response
     {
         $response = new Response();
 
-        $response->setEtag(md5($lastModified->format('U')));
+        $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
+        $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
+
+        $lastModified = $lsDoc->getUpdatedAt();
+        if (false !== $lastChange && null !== $lastChange['changed_at']) {
+            $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
+        }
+        $response->setEtag(md5($lastModified->format('U.u')), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(0);
         $response->setSharedMaxAge(0);

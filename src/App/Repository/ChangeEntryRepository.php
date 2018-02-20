@@ -33,6 +33,19 @@ class ChangeEntryRepository extends ServiceEntityRepository
         );
     }
 
+    public function getLastChangeTimeForDoc(LsDoc $doc)
+    {
+        $data = $this->_em->getConnection()->createQueryBuilder()
+            ->select('MAX(a.changed_at) as changed_at')
+            ->from('audit_'.$this->getClassMetadata()->getTableName(), 'a')
+            ->where('a.doc_id = :doc_id')
+            ->setParameter('doc_id', $doc->getId())
+            ->execute()
+            ->fetch(\PDO::FETCH_ASSOC);
+
+        return $data;
+    }
+
     public function getChangeEntryCountForDoc(LsDoc $doc): int
     {
         $data = $this->_em->getConnection()->createQueryBuilder()
