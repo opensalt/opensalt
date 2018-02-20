@@ -160,7 +160,7 @@ class CommentsController extends Controller
      * @param Request $request
      *
      * @return Response
-     * 
+     *
      * @Security("is_granted('comment_view')")
      */
     public function exportCommentAction(string $itemType, int $itemId)
@@ -207,7 +207,7 @@ class CommentsController extends Controller
             }
             fclose($handle);
         });
-    
+
         $response->headers->set('content-type', 'text/csv; charset=utf-8;');
         $response->headers->set('Content-Disposition', 'attachment; filename = comment.csv');
         return $response;
@@ -215,7 +215,7 @@ class CommentsController extends Controller
 
     /**
      * Get the export report data
-     * 
+     *
      * @return array
      */
     private function csvArray($comment_data, $itemType)
