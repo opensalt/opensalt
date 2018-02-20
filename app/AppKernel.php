@@ -39,7 +39,6 @@ class AppKernel extends Kernel
             new Salt\UserBundle\SaltUserBundle(),
             new GithubFilesBundle\GithubFilesBundle(),
             new Salt\SiteBundle\SaltSiteBundle(),
-            new Liuggio\ExcelBundle\LiuggioExcelBundle(),
             new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
             new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
         ];
