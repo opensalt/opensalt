@@ -12,21 +12,49 @@ html,body {
     max-width: 1500px;
 }
 
-header .navbar-default {
-    border-width:0;
-    background-color:#78C9E9;
-}
+header {
+    .navbar-default {
+        border-width:0;
+        background-color:#78C9E9;
+    }
 
-.navbar-brand {
-    padding:5px;
-    background-color:#fff;
-    border-radius:4px;
-    margin:10px 15px 10px -5px !important;
-    height:inherit;
-}
+    .navbar-brand {
+        padding:5px;
+        background-color:#fff;
+        border-radius:4px;
+        margin:10px 15px 10px -5px !important;
+        height:inherit;
 
-.navbar-brand img {
-    height:60px;
+        img {
+            height:60px;
+        }
+    }
+
+    .navbar-btn {
+        &.pull-right {
+            margin-top: 28.5px;
+        }
+
+        &.btn-login {
+            @include button-variant(#fff, transparent, transparent);
+
+            &:hover {
+                color: #23527c;
+                background-color: #e6e6e6;
+                border-color: #adadad;
+            }
+        }
+
+        &.btn-signup {
+            @include button-variant(#fff, #f37321, darken(#f37321, 5%));
+
+            margin-right: 5px;
+
+            &:hover {
+                background-color: #ee650d;
+            }
+        }
+    }
 }
 
 .bottomPadd8{
@@ -47,23 +75,23 @@ footer {
     position: absolute;
     width: 100%;
     padding: 0 15px;
-}
 
-footer .navbar-default {
-    border-radius:4px 4px 0 0;
-    border-width: 0;
-    min-height: auto;
-    margin-bottom:0;
-    background-color:#78C9E9;
+    .navbar-default {
+        border-radius:4px 4px 0 0;
+        border-width: 0;
+        min-height: auto;
+        margin-bottom:0;
+        background-color:#78C9E9;
+    }
+
+    .navbar-nav > li > a {
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
 }
 
 .navbar-default .navbar-nav > li > a, .navbar-default .navbar-nav > li > a:hover {
     color:#fff;
-}
-
-footer .navbar-nav > li > a {
-    padding-top: 8px;
-    padding-bottom: 8px;
 }
 
 label.required:before {
