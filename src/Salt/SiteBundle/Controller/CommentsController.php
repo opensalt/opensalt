@@ -23,6 +23,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Salt\SiteBundle\Entity\Comment;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * @Toggle("comments")
@@ -133,7 +134,7 @@ class CommentsController extends Controller
      *
      * @Method("DELETE")
      *
-     * @Security("is_granted('comment', 'comment_view')")
+     * @Security("is_granted('comment')")
      */
     public function downvoteAction(Comment $comment, UserInterface $user)
     {
@@ -159,20 +160,25 @@ class CommentsController extends Controller
      * @param Request $request
      *
      * @return Response
+     * 
+     * @Security("is_granted('comment_view')")
      */
     public function exportCommentAction(string $itemType, int $itemId)
     {
         $childIds = [];
-        $filePointer = fopen('php://temp', 'r+');
+        $child_comment_rows = [];
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
-        $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
-        fputcsv($filePointer, $headers);
         $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
+        $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
         switch ($itemType)
         {
             case 'document':
                 $comment_data = $repo->findBy([$itemType => $itemId]);
-                $this->csvArray($comment_data, $itemType, $filePointer);
+                $comment_rows = $this->csvArray($comment_data, $itemType);
+                foreach ($comment_rows as $row)
+                {
+                    $rows[] = $row;
+                }
                 $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->find($itemId);
                 $lsDocChilds = $lsDoc->getLsItems();
                 foreach ($lsDocChilds as $lsDocChild){
@@ -187,23 +193,36 @@ class CommentsController extends Controller
                 break;
         }
         $comment_data = $repo->findBy(['item' => $childIds]);
-        $this->csvArray($comment_data, 'item', $filePointer);
-        rewind($filePointer);
-        $csv = stream_get_contents($filePointer);
-        fclose($filePointer);
-        $response = new Response($csv);
+        $comment_rows = $this->csvArray($comment_data, 'item');
+        foreach ($comment_rows as $child_row)
+        {
+            $rows[] = $child_row;
+        }
+        $response = new StreamedResponse();
+        $response->setCallback(function () use($rows) {
+            $handle = fopen('php://output', 'r+');
+            foreach ($rows as $row)
+            {
+                fputcsv($handle, $row);
+            }
+            fclose($handle);
+        });
+    
         $response->headers->set('content-type', 'text/csv; charset=utf-8;');
-        $response->headers->set('Content-Disposition', 'attachment;');
+        $response->headers->set('Content-Disposition', 'attachment; filename = comment.csv');
         return $response;
     }
 
     /**
      * Get the export report data
+     * 
+     * @return array
      */
-    private function csvArray($comment_data, $itemType, $filePointer)
+    private function csvArray($comment_data, $itemType)
     {
+        $comments = [];
         foreach ($comment_data as $comment) {
-            $comments=[
+            $comments[]=[
                 ($itemType === 'item') ? $comment->getItem()->getLsDoc()->getTitle() : $comment->getDocument()->getTitle(),
                 $this->url($itemType, $comment),
                 ($itemType === 'item') ? $comment->getItem()->getHumanCodingScheme() : null,
@@ -213,8 +232,8 @@ class CommentsController extends Controller
                 $comment->getCreatedAt()->format('Y-m-d H:i:s'),
                 $comment->getUpdatedAt()->format('Y-m-d H:i:s')
             ];
-            fputcsv($filePointer, $comments);
         }
+        return $comments;
     }
 
     private function url($itemType, $comment)
@@ -225,7 +244,7 @@ class CommentsController extends Controller
         }
         if($itemType === 'document')
         {
-            return $this->generateUrl('doc_tree_view', ['slug' => $comment->getDocument()->getId()], UrlGeneratorInterface :: ABSOLUTE_URL);
+            return $this->generateUrl('doc_tree_view', ['slug' => $comment->getDocument()->getSlug()], UrlGeneratorInterface :: ABSOLUTE_URL);
         }
     }
 
