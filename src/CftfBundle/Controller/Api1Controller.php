@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Controller;
 
+use App\Entity\ChangeEntry;
 use CftfBundle\Entity\CaseApiInterface;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
@@ -86,7 +87,14 @@ class Api1Controller extends Controller
 
         $this->get('logger')->info('CASE API: package returned', ['id' => $id]);
 
-        $response = $this->generateBaseReponse($doc->getUpdatedAt());
+        $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
+        $lastChange = $changeRepo->getLastChangeTimeForDoc($doc);
+
+        $lastModified = $doc->getUpdatedAt();
+        if (false !== $lastChange && null !== $lastChange['changed_at']) {
+            $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
+        }
+        $response = $this->generateBaseReponse($lastModified);
         if ($response->isNotModified($request)) {
             return $response;
         }
@@ -200,7 +208,7 @@ class Api1Controller extends Controller
     {
         $response = new Response();
 
-        $response->setEtag(md5($lastModified->format('U')), true);
+        $response->setEtag(md5($lastModified->format('U.u')), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(60);
         $response->setSharedMaxAge(60);

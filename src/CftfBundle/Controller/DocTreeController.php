@@ -8,6 +8,7 @@ use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateTreeItemsCommand;
+use App\Entity\ChangeEntry;
 use App\Entity\Framework\ObjectLock;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
@@ -169,8 +170,14 @@ class DocTreeController extends Controller
     {
         $response = new Response();
 
+        $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
+        $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
+
         $lastModified = $lsDoc->getUpdatedAt();
-        $response->setEtag(md5($lastModified->format('U')), true);
+        if (false !== $lastChange && null !== $lastChange['changed_at']) {
+            $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
+        }
+        $response->setEtag(md5($lastModified->format('U.u')), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(0);
         $response->setSharedMaxAge(0);
@@ -574,7 +581,7 @@ class DocTreeController extends Controller
 
             $content = $response->getContent();
             $json = json_decode($content, true);
-            $lastModified = new \DateTime($json['CFDocument']['lastChangeDateTime'], new \DateTimezone('UTC'));
+            $lastModified = new \DateTime($json['CFDocument']['lastChangeDateTime'], new \DateTimeZone('UTC'));
 
             $response->setEtag(md5($lastModified->format('U')), true);
             $response->setLastModified($lastModified);
