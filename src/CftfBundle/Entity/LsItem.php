@@ -956,7 +956,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             $childIds[] = $child->getId();
             $child->getDescendantIds($childIds);
         }
-    } 
+    }
 
     /**
      * Set lsDoc
