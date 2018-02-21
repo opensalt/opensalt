@@ -949,13 +949,14 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /*
      * Find all children items of selected item
      */
-    public function getDescendantIds($childIds)
+    public function getDescendantIds(&$childIds)
     {
         $hasChildren = $this->getChildren();
         foreach ($hasChildren as $child) {
             $childIds[] = $child->getId();
+            $child->getDescendantIds($childIds);
         }
-    }
+    } 
 
     /**
      * Set lsDoc

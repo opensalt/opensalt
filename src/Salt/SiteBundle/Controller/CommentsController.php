@@ -166,10 +166,11 @@ class CommentsController extends Controller
     public function exportCommentAction(string $itemType, int $itemId)
     {
         $childIds = [];
-        $child_comment_rows = [];
+        $comment_rows = [];
         $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
         $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
         $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
+        $rows[] = $headers;
         switch ($itemType)
         {
             case 'document':
