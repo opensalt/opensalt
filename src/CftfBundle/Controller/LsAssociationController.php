@@ -112,8 +112,8 @@ class LsAssociationController extends Controller
         ];
 
         if ($ajax && $form->isSubmitted() && !$form->isValid()) {
-            //return $this->render('CftfBundle:LsAssociation:new.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
-            return $this->render('CftfBundle:LsAssociation:new.html.twig', $ret, new Response('', Response::HTTP_OK));
+            //return $this->render('CftfBundle:ls_association:new.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
+            return $this->render('CftfBundle:ls_association:new.html.twig', $ret, new Response('', Response::HTTP_OK));
         }
 
         return $ret;

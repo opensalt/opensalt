@@ -176,7 +176,7 @@ class UiInfoController extends AbstractController
             }
         }
 
-        $json = $this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]);
+        $json = $this->renderView('CftfBundle:doc_tree:export_item.json.twig', ['lsItem' => $ret]);
         return \json_decode($json, true);
     }
 

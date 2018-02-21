@@ -259,7 +259,7 @@ class LsDocController extends Controller
             $this->sendCommand($command);
         } catch (AlreadyLockedException $e) {
             return $this->render(
-                'CftfBundle:LsDoc:locked.html.twig',
+                'CftfBundle:ls_doc:locked.html.twig',
                 []
             );
         }
@@ -298,7 +298,7 @@ class LsDocController extends Controller
 
         if ($ajax && $editForm->isSubmitted() && !$editForm->isValid()) {
             return $this->render(
-                'CftfBundle:LsDoc:edit.html.twig',
+                'CftfBundle:ls_doc:edit.html.twig',
                 $ret,
                 new Response('', Response::HTTP_UNPROCESSABLE_ENTITY)
             );

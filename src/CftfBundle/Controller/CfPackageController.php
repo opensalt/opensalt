@@ -6,6 +6,7 @@ use App\Entity\ChangeEntry;
 use CftfBundle\Entity\LsDoc;
 use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +25,7 @@ class CfPackageController extends Controller
      * @Route("/doc/{id}.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, defaults={"_format"="json"}, name="cfpackage_export")
      * @Route("/doc/{id}/export.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, defaults={"_format"="json"}, name="cfpackage_export2")
      * @Method("GET")
+     * @Template()
      */
     public function exportAction(Request $request, LsDoc $lsDoc, $_format = 'json')
     {
@@ -50,9 +52,7 @@ class CfPackageController extends Controller
             return $response;
         }
 
-        $arr = $this->generateSimplePackageArray($lsDoc);
-
-        return new Response($this->renderView("CftfBundle:CfPackage:export.$_format.twig", $arr));
+        return $this->generateSimplePackageArray($lsDoc);
     }
 
     /**

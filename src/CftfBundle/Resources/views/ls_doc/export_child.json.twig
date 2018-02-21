@@ -1,0 +1,28 @@
+{% block body %}
+    {
+        "uri": {{ lsItem.uri|local_uri |json_encode |raw }},
+        {#"lsDocUri": {{ lsItem.lsDocUri|local_uri |json_encode |raw }},#}
+        "fullStatement": {{ lsItem.fullStatement |json_encode |raw }},
+        "identifier": {{ lsItem.identifier |json_encode |raw }},
+        "humanCodingScheme": {{ lsItem.humanCodingScheme |json_encode |raw }},
+        "listEnumInSource": {{ lsItem.listEnumInSource |json_encode |raw }},
+        "abbreviatedStatement": {{ lsItem.abbreviatedStatement |json_encode |raw }},
+        "conceptKeywords": {{ lsItem.conceptKeywords |json_encode |raw }},
+        "conceptKeywordsUri": {{ lsItem.conceptKeywordsUri|local_uri |json_encode |raw }},
+        "notes": {{ lsItem.notes |json_encode |raw }},
+        "language": {{ lsItem.language |json_encode |raw }},
+        "educationalAlignment": {{ lsItem.educationalAlignment |json_encode |raw }},
+        "type": {{ lsItem.type |json_encode |raw }},
+        "licenceUri": {{ lsItem.licenceUri|local_uri |json_encode |raw }},
+        "changedAt": {{ lsItem.changedAt|date('c') |json_encode |raw }},
+        "learningStandardItemChildUri": [
+        {% for childWithId in lsItem.children %}
+            {% set child = items[childWithId.id] %}
+            {% if not loop.first %},{% endif %}
+            {# child.uri|local_uri |json_encode |raw #}
+            {# render_esi(path('lsitem_export', { 'id': child.id })) #}
+            {% include 'CftfBundle:ls_doc:export_child.json.twig' with { 'lsItem':child, 'lsDoc':lsDoc, 'items':items} %}
+        {% endfor %}
+        ]
+    }
+{% endblock %}
