@@ -43,10 +43,30 @@ class SignupType extends AbstractType
             ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
-                'invalid_message' => 'The password fields must match.',
+                'invalid_message' => 'Passwords do not match',
                 'required' => in_array('registration', $options['validation_groups'], true),
-                'first_options' => array('label' => 'Password'),
-                'second_options' => array('label' => 'Confirm Password'),
+                'first_options' => array(
+                    'label' => 'Password',
+                    'attr' => [
+                        'data-toggle' => 'popover',
+                        'data-content' => '
+                        <p>Password must be at least 8<br> characters long and must meet<br> password
+                    complexity rules<br> requiring at least three<br> of the following:</p>
+                        <ul>
+                            <li>An uppercase letter</li>
+                            <li>A lowercase letter</li>
+                            <li>A number</li>
+                            <li>An special character</li>
+                        </ul>'
+                    ]
+                ),
+                'second_options' => array(
+                    'label' => 'Confirm Password',
+                    'attr' => [
+                        'data-toggle' => 'popover',
+                        'data-content' => 'Must match password'
+                    ]
+                ),
             ])
             ->add('org', EntityType::class, [
                 'label' => 'Organization',

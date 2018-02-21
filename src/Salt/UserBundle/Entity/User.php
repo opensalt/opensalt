@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="Salt\UserBundle\Repository\UserRepository")
  * @ORM\Table(name="salt_user")
- * @UniqueEntity("username")
+ * @UniqueEntity("username", message="That email address is already being used", groups={"registration"})
  */
 class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 {
@@ -66,6 +66,12 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @Assert\NotBlank(groups={"registration"})
      * @Assert\Length(max=4096)
+     * @Assert\Regex(
+     *     pattern="/(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/",
+     *     match=true,
+     *     message="Password does not match required criteria",
+     *     groups={"registration"}
+     * )
      */
     private $plainPassword;
 

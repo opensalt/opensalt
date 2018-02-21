@@ -66,7 +66,11 @@ class SignupController extends Controller
 
                     $targetUser->setOrg($org);
                 } catch (\Exception $e) {
-                    $form->addError(new FormError($e->getMessage()));
+                    if ($commandOrg->hasValidationErrors()) {
+                        $errors = $commandOrg->getValidationErrors();
+                        $form->addError(new FormError($errors[0]->getMessage()));
+                        $form->get('newOrg')->addError(new FormError($errors[0]->getMessage()));
+                    }
                 }
             }
 
@@ -81,12 +85,15 @@ class SignupController extends Controller
                 } catch (\Swift_RfcComplianceException $e) {
                     throw new \RuntimeException('A valid email address must be given.');
                 } catch (\Exception $e) {
+                    if ($command->hasValidationErrors()) {
+                        $errors = $command->getValidationErrors();
+                        $form->addError(new FormError($errors[0]->getMessage()));
+                        $form->get('username')->addError(new FormError($errors[0]->getMessage()));
+                    }
                     // Do not throw an error to the client if the email could not be sent
                 }
 
                 return $this->redirectToRoute('lsdoc_index');
-            } catch (UniqueConstraintViolationException $e) {
-                $form->addError(new FormError('That email address is already being used.  Do you already have an account?'));
             } catch (\Exception $e) {
                 if ('dev' === $this->getParameter('kernel.environment')) {
                     $form->addError(new FormError(get_class($e).': '.$e->getMessage()));

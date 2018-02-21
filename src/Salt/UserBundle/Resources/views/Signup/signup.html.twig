@@ -1,30 +1,55 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    <div class="container">
     <h1>Create new account</h1>
 
     {{ form_start(form) }}
         {{ form_errors(form) }}
         {{ form_row(form.username) }}
         {{ form_row(form.plainPassword) }}
+
         {{ form_row(form.org) }}
         <div class="signup_new_org" style="display: none">
             {{ form_row(form.newOrg) }}
         </div>
         <ul class="list-inline pull-right">
             <li>
-                <input class="btn btn-primary" type="submit" value="Add" />
+                <input class="btn btn-primary" type="submit" value="Submit" />
             </li>
         </ul>
+    </div>
     {{ form_end(form) }}
 
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
+
     <script>
         var $org = $('#signup_org');
+        var $newOrg = $('#signup_newOrg');
+        var $username = $('#signup_username');
+        var orgs = [];
+
+        var errorContent = '<span class="help-block">' +
+        '<ul class="list-unstyled"><li><span class="glyphicon glyphicon-exclamation-sign"></span> Choose this org from the dropdown' +
+        '</li></ul></span>';
+
+        function removeError() {
+            $('.signup_new_org').removeClass('has-error');
+            $newOrg.next('span').remove();
+            $('input[type="submit"]').removeClass('disabled');
+        }
+
+        $('#signup_org option').each(function() {
+            orgs.push(this.text);
+        });
+
         $org.change(function() {
+            removeError();
+            $newOrg.val('');
+
             if ($org.val() === 'other') {
                 $('.signup_new_org').show();
                 $('#signup_newOrg').attr('required', true);
@@ -32,6 +57,21 @@
                 $('.signup_new_org').hide();
                 $('#signup_newOrg').attr('required', false);
             }
+        });
+
+        $newOrg.on('blur', function() {
+            removeError();
+            if (orgs.includes($newOrg.val())) {
+                $('.signup_new_org').addClass('has-error');
+                $newOrg.parent().append(errorContent);
+                $('input[type="submit"]').addClass('disabled');
+            }
+        });
+
+        $('[data-toggle="popover"]').popover({
+            trigger: 'hover',
+            placement: 'left',
+            html: true,
         });
     </script>
 
