@@ -60,7 +60,7 @@ const render = (function(){
         inlineLinked: function (value) {
             // Remove images and replace with alt text or "[image]"
             let wrap = $('<div>').html(mdInlineLinked.renderInline(sanitizerInline(value)));
-            wrap.find('img').replaceWith(function() { return this.alt || '[image]'});
+            wrap.find('img').replaceWith(function() { return this.alt || '[image]'; });
             return wrap.html();
         },
 
