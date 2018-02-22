@@ -43,7 +43,7 @@ class Exemplar implements Context
         $I->click('//*[@id="addExemplarBtn"]');
         $I->waitForElementVisible('#addExemplarModal');
         $I->fillField('#addExemplarFormUrl', $this->exemplarData['url']);
-        $I->fillField('#addExemplarFormDescription', $exemplar);
+        //$I->fillField('#addExemplarFormDescription', $exemplar);
         $I->click('//*[@id="addExemplarModal"]/div/div/div[3]/button[2]');
     }
 

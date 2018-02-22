@@ -441,9 +441,10 @@ apx.edit.deleteItems = function(items) {
 /** Add an examplar for an item */
 apx.edit.prepareExemplarModal = function() {
     let $exemplarModal = $('#addExemplarModal');
-    $exemplarModal.on('shown.bs.modal', function(e){
+    $exemplarModal.on('show.bs.modal', function(e){
         let title = apx.mainDoc.getItemTitle(apx.mainDoc.currentItem);
         $("#addExemplarOriginTitle").html(title);
+        $exemplarModal.find('.modal-body .errors').removeClass('alert').removeClass('alert-danger').html('');
     });
     $exemplarModal.find('.btn-save').on('click', function(e){
         let ajaxData = {
@@ -451,8 +452,14 @@ apx.edit.prepareExemplarModal = function() {
             exemplarDescription: $("#addExemplarFormDescription").val(),
             associationType: "Exemplar"
         };
+
         if (ajaxData.exemplarUrl === "") {
-            alert("You must enter a URL to create an exemplar.");
+            $exemplarModal.find('.modal-body .errors').addClass('alert').addClass('alert-danger').html("You must enter a URL to create an exemplar.");
+            return;
+        }
+
+        if (ajaxData.exemplarUrl.length > 300) {
+            $exemplarModal.find('.modal-body .errors').addClass('alert').addClass('alert-danger').html("The URL must be 300 characters or less.");
             return;
         }
 
@@ -487,13 +494,14 @@ apx.edit.prepareExemplarModal = function() {
             // clear form fields
             $("#addExemplarFormUrl").val("");
             $("#addExemplarFormDescription").val("");
+            $exemplarModal.find('.modal-body .errors').removeClass('alert').removeClass('alert-danger').html('');
 
             // re-show current item
             apx.mainDoc.showCurrentItem();
 
         }).fail(function(jqXHR, textStatus, errorThrown){
             apx.spinner.hideModal();
-            $exemplarModal.find('.modal-body').html(jqXHR.responseText);
+            $exemplarModal.find('.modal-body .errors').addClass('alert').addClass('alert-danger').html(jqXHR.responseJSON.error.message);
         });
     });
 };
@@ -976,7 +984,11 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
 
 apx.edit.updateItemsAjaxDone = function(data) {
     // remove stray tooltips
-    setTimeout(function() { $(".tooltip").remove(); }, 1000);
+    setTimeout(function() {
+        $('body').tooltip('hide');
+        $('#treeView').tooltip('hide');
+        $('#assocView').tooltip('hide');
+    }, 1000);
 
     let copiedItem = false;
     for (let i = 0; i < data.length; ++i) {
@@ -1064,8 +1076,9 @@ apx.edit.updateItemsAjaxDone = function(data) {
 // ASSOCIATION GROUP EDITING
 apx.edit.initializeManageAssocGroupButtons = function() {
     // initialize buttons in association group modal
-    $(".assocgroup-edit-btn").off('click').on('click', function() { apx.edit.editAssocGroup(this); });
-    $(".assocgroup-delete-btn").off('click').on('click', function() { apx.edit.deleteAssocGroup(this); });
+    $('#manageAssocGroupsModal')
+        .off('click', ".assocgroup-edit-btn").on('click', ".assocgroup-edit-btn", function() { apx.edit.editAssocGroup(this); })
+        .off('click', ".assocgroup-delete-btn").on('click', ".assocgroup-delete-btn", function() { apx.edit.deleteAssocGroup(this); });
 };
 
 apx.edit.prepareAddAssocGroupModal = function() {
@@ -1111,15 +1124,14 @@ apx.edit.prepareAddAssocGroupModal = function() {
 
             // and add it to the manage groups modal
             let html = '<tr data-assocgroupid="' + newAssocGroupId + '">';
-            html += '<td>' + ag.title + '</td>';
+            html += '<td>' + render.escaped(ag.title) + '</td>';
             html += '<td>';
             html += '<button class="assocgroup-edit-btn btn btn-default btn-xs pull-right">Edit</button>';
             html += '<button class="assocgroup-delete-btn btn btn-default btn-xs pull-right" style="margin-right:5px">Delete</button>';
-            html += '<span class="assocgroup-description">' + ag.description + '</span>';
+            html += '<span class="assocgroup-description">' + render.escaped(ag.description) + '</span>';
             html += '</td>';
             html += '</tr>';
             $manageAssocGroupsModal.find("tbody").append(html);
-            apx.edit.initializeManageAssocGroupButtons();
 
             // re-render the select menu(s)
             apx.mainDoc.renderAssocGroupMenu($("#treeSideLeft").find(".assocGroupSelect"), 1);
@@ -1251,9 +1263,12 @@ apx.edit.deleteAssocGroup = function(btn) {
             $("#manageAssocGroupsModal").modal('show');
 
         }).fail(function (jqXHR, textStatus, errorThrown) {
-            alert("An error occurred.");
-            // console.log(jqXHR.responseText);
+            alert(jqXHR.responseJSON.error.message);
+            apx.spinner.hideModal();
+            $("#manageAssocGroupsModal").modal('show');
         });
+    }).one('hidden.bs.modal', function(e){
+        $(this).off('click', '.btn-delete');
     });
 };
 
