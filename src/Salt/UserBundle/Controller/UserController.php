@@ -51,7 +51,6 @@ class UserController extends Controller
         }
         return [
             'users' => $users,
-            'roles' => User::USER_ROLES,
         ];
     }
 

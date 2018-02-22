@@ -300,11 +300,8 @@ class User implements Context
         $I = $this->I;
         $I->amOnPage('/admin/user/');
         $I->see('Organization');
-        $I->see('User role');
         $organization = $I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[2]');
         $I->fillField('#search_form_organization', $organization);
-        $I->selectOption('#search_form_user_role', array('value' => 'Super User'));
         $I->see($organization, '//*[@id="datatable"]/tbody/tr[1]/td[2]');
-        $I->see('Super User', '//*[@id="datatable"]/tbody/tr[1]/td[4]');
     }
 }

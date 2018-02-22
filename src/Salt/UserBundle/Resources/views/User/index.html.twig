@@ -2,24 +2,16 @@
 
 {% block body %}
     <h1>User list</h1>
-    <div class="row bottomPadd8">
-        <form class="form-inline">
-            <div class="form-group col-md-4" >
-                <label for="organization">Organization : </label> 
-                <input type ="text" class="form-control" autocomplete = "off" id="search_form_organization" name="organization">
-            </div>
-            <div class="form-group col-md-4">
-                <label for="user_role">User Role : </label>
-                <select id ="search_form_user_role" class="form-control">
-                    <option value="">Select</option>
-                    <option value="User">User</option>
-                    {%- for role in roles -%}
-                        <option value="{{ role |replace({'ROLE_':'', '_':' '}) |title }}">{{ role |replace({'ROLE_':'', '_':' '}) |title }}</option>
-                    {%- endfor -%}
-                </select>
-            </div>
-        </form>
-    </div>
+    {% if is_granted('ROLE_SUPER_USER') %}
+        <div class="row bottomPadd8">
+            <form class="form-inline">
+                <div class="form-group col-md-4" >
+                    <label for="organization">Organization : </label> 
+                    <input type ="text" class="form-control" autocomplete = "off" id="search_form_organization" name="organization">
+                </div>
+            </form>
+        </div>
+    {% endif %}
     <table class="table table-condensed table-hover table-bordered table-striped" id = "datatable">
         <thead>
             <tr>
