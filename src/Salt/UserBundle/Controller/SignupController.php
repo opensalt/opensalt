@@ -3,7 +3,6 @@
 namespace Salt\UserBundle\Controller;
 
 use App\Command\Email\SendSignupReceivedEmailCommand;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Salt\UserBundle\Form\Type\SignupType;
 use Symfony\Component\HttpFoundation\Request;
