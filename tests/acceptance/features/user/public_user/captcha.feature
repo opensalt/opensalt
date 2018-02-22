@@ -14,7 +14,7 @@ Feature: A user should see a captcha after several wrong attempts
     When I fill in the username with wrong data
     And I fill in the password with wrong data
     And I press "Login"
-    After several wrong attempts
+    And After several wrong attempts
     Then I should see captcha is rendered
 
     Examples:
