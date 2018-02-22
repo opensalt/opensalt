@@ -1,7 +1,9 @@
 {% extends '::layout.html.twig' %}
 
 {% block body %}
-    <script src="https://www.google.com/recaptcha/api.js"></script>
+    {% if google_captcha_site_key is not empty %}
+        <script src="https://www.google.com/recaptcha/api.js"></script>
+    {% endif %}
 
     <div class="container">
         <div class="row">
@@ -33,7 +35,11 @@
                         <input type="hidden" name="_target_path" value="{{ redirect }}"/>
                     {% endif %}
 
-                    <button class="pull-right btn btn-primary g-recaptcha" data-sitekey="{{ google_captcha_site_key }}" data-callback="onSubmit">Login</button>
+                    {% if google_captcha_site_key is not empty %}
+                        <button class="pull-right btn btn-primary g-recaptcha" data-sitekey="{{ google_captcha_site_key }}" data-callback="onSubmit">Login</button>
+                    {% else %}
+                        <button class="pull-right btn btn-primary" data-callback="onSubmit">Login</button>
+                    {% endif %}
                 </form>
                 {% if 'create_account' is active feature %}
                     <a class="btn btn-link new-account" href="{{ path('public_user_signup') }}">Create User Account</a>
