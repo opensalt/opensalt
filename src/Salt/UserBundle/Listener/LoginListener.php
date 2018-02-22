@@ -20,11 +20,14 @@ class LoginListener
     {
         $request = $event->getRequest();
         $captcha_secret = $this->container->getParameter('google_captcha_secret_key');
-        $recaptcha = new ReCaptcha($captcha_secret);
-        $resp = $recaptcha->verify($request->request->get('g-recaptcha-response'), $request->getClientIp());
 
-        if (!$resp->isSuccess()) {
-            throw new BadCredentialsException("the reCAPTCHA wasn't entered correctly, please try again");
+        if (null !== $captcha_secret) {
+            $recaptcha = new ReCaptcha($captcha_secret);
+            $resp = $recaptcha->verify($request->request->get('g-recaptcha-response'), $request->getClientIp());
+
+            if (!$resp->isSuccess()) {
+                throw new BadCredentialsException("the reCAPTCHA wasn't entered correctly, please try again");
+            }
         }
     }
 }
