@@ -3,6 +3,7 @@
 namespace Salt\UserBundle\Controller;
 
 use App\Command\Email\SendSignupReceivedEmailCommand;
+use App\Command\Email\SendAdminNotificationEmailCommand;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Salt\UserBundle\Form\Type\SignupType;
@@ -85,6 +86,15 @@ class SignupController extends Controller
                 }
 
                 // send email to admin about this user creation
+                try {
+                    $from_email = $this->getParameter('MAIL_FEATURE_FROM_EMAIL');
+                    $command = new SendAdminNotificationEmailCommand($from_email);
+                    $this->sendCommand($command);
+                } catch (\Swift_RfcComplianceException $e) {
+                    throw new \RuntimeException('A valid email address must be given.');
+                } catch (\Exception $e) {
+                    // Do not throw an error to the client if the email could not be sent
+                }
 
                 return $this->redirectToRoute('lsdoc_index');
             } catch (UniqueConstraintViolationException $e) {
