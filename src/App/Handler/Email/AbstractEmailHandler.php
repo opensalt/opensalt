@@ -13,9 +13,15 @@ use Qandidate\Toggle\ToggleManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Bundle\TwigBundle\TwigEngine;
 
 abstract class AbstractEmailHandler extends BaseValidatedHandler implements EventSubscriberInterface
 {
+    /**
+     * @var TwigEngine
+     */
+    protected $templating;
+
     /**
      * @var ToggleManager
      */
@@ -36,13 +42,14 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler implements Even
      */
     private $mailFromEmail;
 
-    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, string $mailFromEmail = null)
+    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, string $mailFromEmail = null, TwigEngine $templating)
     {
         parent::__construct($validator);
         $this->manager = $manager;
         $this->context = $contextFactory->createContext();
         $this->mailer = $mailer;
         $this->mailFromEmail = $mailFromEmail;
+        $this->templating = $templating;
     }
 
     public static function getSubscribedEvents()
