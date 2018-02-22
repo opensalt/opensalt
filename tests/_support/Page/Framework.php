@@ -13,8 +13,6 @@ class Framework implements Context
 {
     static public $docPath = '/cftree/doc/';
     static public $lsdocPath = '/cfdoc/';
-    static public $itemPath = '/cftree/item/';
-    static public $commentFilePath = '/salt/case/export_comment/';
 
     static public $fwTitle = '#ls_doc_create_title';
     static public $fwCreatorField = '#ls_doc_create_creator';
@@ -30,8 +28,6 @@ class Framework implements Context
     protected $creatorName = 'OpenSALT Testing';
     protected $frameworkData = [];
     protected $id;
-    protected $CfDocComment;
-    protected $CFItemComment;
 
     /**
      * @var \AcceptanceTester
