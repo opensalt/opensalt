@@ -43,3 +43,4 @@ gherkin:
             - "Page\\FrameworkLogs"
             - "Page\\SystemLogs"
             - "Page\\User"
+            - "Page\\Comment"
