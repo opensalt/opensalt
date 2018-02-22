@@ -6,14 +6,16 @@ class SendAdminNotificationEmailHandler extends AbstractEmailHandler
 {
     protected function configureMessage(\Swift_Message $email): void
     {
+      $userName = 'staticUser';
+      $organization = 'staticOrg';
         $email
-            ->setSubject('Your account has been created')
+            ->setSubject('An account was created that needs to be approved')
             ->setBody(
-              $this->renderView(
+              $this->templating->render(
                   // app/Resources/views/Emails/admin_notification.html.twig
                   'Emails/admin_notification.html.twig',
                   array(
-                    'username' => $username,
+                    'username' => $userName,
                     'organization' => $organization
                   ) // pass values to the template
               ),
