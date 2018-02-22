@@ -102,12 +102,14 @@ class ExcelExport
     {
         $licenseTitle = '';
         $licenseText = '';
+        $licenseUri = '';
         $phpExcelObject->getProperties()
             ->setCreator('OpenSALT')
             ->setTitle('case');
 
         $license = $cfDoc->getLicence();
         if($license){
+            $licenseUri = $license->getUri();
             $licenseTitle = $license->getTitle();
             $licenseText = $license->getLicenceText();
         }
@@ -126,9 +128,10 @@ class ExcelExport
             ->setCellValue('K1', 'adoptionStatus')
             ->setCellValue('L1', 'statusStartDate')
             ->setCellValue('M1', 'statusEndDate')
-            ->setCellValue('N1', 'licenseTitle')
-            ->setCellValue('O1', 'licenseText')
-            ->setCellValue('P1', 'notes')
+            ->setCellValue('N1', 'licenseUri')
+            ->setCellValue('O1', 'licenseTitle')
+            ->setCellValue('P1', 'licenseText')
+            ->setCellValue('Q1', 'notes')
             ->setCellValue('A2', $cfDoc->getIdentifier())
             ->setCellValue('B2', $cfDoc->getCreator())
             ->setCellValue('C2', $cfDoc->getTitle())
@@ -142,9 +145,10 @@ class ExcelExport
             ->setCellValue('K2', $cfDoc->getAdoptionStatus())
             ->setCellValue('L2', $cfDoc->getStatusStart())
             ->setCellValue('M2', $cfDoc->getStatusEnd())
-            ->setCellValue('N2', $licenseTitle)
-            ->setCellValue('O2', $licenseText)
-            ->setCellValue('P2', $cfDoc->getNote())
+            ->setCellValue('N2', $licenseUri)
+            ->setCellValue('O2', $licenseTitle)
+            ->setCellValue('P2', $licenseText)
+            ->setCellValue('Q2', $cfDoc->getNote());
             ->setTitle('CF Doc');
 
         $phpExcelObject->createSheet();
