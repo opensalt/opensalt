@@ -92,7 +92,7 @@
         "nilportugues/jsonapi-bundle": "^1.5.2",
         "nelmio/cors-bundle": "~1.5.3",
 
-        "phpoffice/phpexcel": "^1.8.1",
+        "phpoffice/phpspreadsheet": "^1.1.0",
 
         "activelamp/swagger-ui-bundle": "dev-master",
 
@@ -136,7 +136,6 @@
         "bower-asset/datatables.net-scroller-bs": "^1.4.2",
         "bower-asset/datatables.net-select": "^1.2.2",
         "bower-asset/datatables.net-select-bs": "^1.2.2",
-        "liuggio/excelbundle": "^2.1",
         "bower-asset/jquery-comments": "^1.2",
         "qandidate/toggle-bundle": "^0.8",
         "npm-asset/papaparse": "^4.3"
