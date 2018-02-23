@@ -45,11 +45,11 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler implements Even
     public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, string $mailFromEmail = null, TwigEngine $templating)
     {
         parent::__construct($validator);
+        $this->templating = $templating;
         $this->manager = $manager;
         $this->context = $contextFactory->createContext();
         $this->mailer = $mailer;
         $this->mailFromEmail = $mailFromEmail;
-        $this->templating = $templating;
     }
 
     public static function getSubscribedEvents()
@@ -89,7 +89,7 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler implements Even
         $email = (new \Swift_Message())
             ->setFrom($this->mailFromEmail)
             ->setTo($command->getRecipient());
-        $this->configureMessage($email);
+        $this->configureMessage($email, $command);
 
         try {
             $this->mailer->send($email);
@@ -145,5 +145,5 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler implements Even
         return new NotificationOnlyChangeEntry(null, null, 'Email sent');
     }
 
-    abstract protected function configureMessage(\Swift_Message $email): void;
+    abstract protected function configureMessage(\Swift_Message $email, $command): void;
 }

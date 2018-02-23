@@ -4,7 +4,7 @@ namespace App\Handler\Email;
 
 class SendSignupReceivedEmailHandler extends AbstractEmailHandler
 {
-    protected function configureMessage(\Swift_Message $email): void
+    protected function configureMessage(\Swift_Message $email, $command): void
     {
         $email
             ->setSubject('Your account has been created')
