@@ -22,6 +22,7 @@ class AddExemplarToItemCommand extends BaseCommand
      *
      * @Assert\Type("string")
      * @Assert\NotNull()
+     * @Assert\Length(max="300")
      */
     private $url;
 

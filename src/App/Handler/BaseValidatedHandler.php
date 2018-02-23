@@ -5,6 +5,7 @@ namespace App\Handler;
 use App\Command\CommandInterface;
 use App\Event\CommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class BaseValidatedHandler
@@ -27,7 +28,13 @@ abstract class BaseValidatedHandler
         if (\count($errors)) {
             $command->setValidationErrors($errors);
 
-            throw new \RuntimeException((string) $errors);
+            $showErrors = [];
+            foreach ($errors as $error) {
+                /* @var ConstraintViolationInterface $error */
+                $showErrors[] = $error->getMessage();
+            }
+
+            throw new \RuntimeException(implode('<br/>', $showErrors));
         }
     }
 }

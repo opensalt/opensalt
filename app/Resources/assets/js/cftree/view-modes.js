@@ -122,21 +122,18 @@ apx.viewMode.showAssocView = function(context) {
             let doc = null;
 
             // for the dest of an exemplar, we just use .uri
-            if (a.type === "exemplar") {
+            if ("dest" === key && a.type === "exemplar") {
                 title = a[key].uri;
-
-            // else see if the "item" is actually a document
             } else if (!empty(apx.allDocs[a[key].item]) && typeof(apx.allDocs[a[key].item]) !== "string") {
+                // else see if the "item" is actually a document
                 title = "Document: " + apx.allDocs[a[key].item].doc.title;
-
-            // else if we know about this item via allItemsHash...
             } else if (!empty(apx.allItemsHash[a[key].item])) {
+                // else if we know about this item via allItemsHash...
                 let destItem = apx.allItemsHash[a[key].item];
-                title = apx.mainDoc.getItemTitle(destItem, true);
+                title = apx.mainDoc.getItemTitle(destItem, false);
                 doc = destItem.doc;
-
-            // else we don't (currently at least) know about this item...
             } else {
+                // else we don't (currently at least) know about this item...
                 if (a[key].doc !== "?") {
                     // look for document in allDocs
                     doc = apx.allDocs[a[key].doc];
@@ -338,15 +335,13 @@ apx.viewMode.showAssocView = function(context) {
         });
 
         // tooltips for items with titles
-        $(".assocViewTitle").each(function() {
-            let content = $(this).html();
-            $(this).tooltip({
-                "title": content,
-                "delay": { "show": 200, "hide": 100 },
-                "placement": "bottom",
-                "html": true,
-                "container": "body"
-            });
+        $('#assocView').tooltip({
+            selector: '.assocViewTitle',
+            "title": function() { return $(this).html(); },
+            "delay": { "show": 200, "hide": 100 },
+            "placement": "top",
+            "html": true,
+            "container": "body"
         });
 
         // click on items to open them
@@ -525,7 +520,11 @@ apx.chooserMode.showDetails = function() {
     $("#treeSideRight").animate({"right": "10px"}, 200);
 
     // remove stray tooltips
-    setTimeout(function() { $(".tooltip").remove(); }, 100);
+    setTimeout(function() {
+        $('body').tooltip('hide');
+        $('#treeView').tooltip('hide');
+        $('#assocView').tooltip('hide');
+    }, 100);
 };
 
 /** Hide details */

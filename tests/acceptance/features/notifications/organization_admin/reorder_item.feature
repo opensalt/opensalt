@@ -11,6 +11,4 @@ When a user moves an item, Item Move Notifications are displayed
     And I add a another Item
     And I reorder the item
     Then I see a notification modified "Framework tree updated"
-    And Show link is selected from the notification
-    Then that item is selected
     And I delete the framework
