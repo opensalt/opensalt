@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Salt\UserBundle\Validator\Constraints as CustomAssert;
 
 /**
  * Class User
@@ -65,13 +66,13 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @var string
      *
      * @Assert\NotBlank(groups={"registration"})
-     * @Assert\Length(max=4096)
-     * @Assert\Regex(
-     *     pattern="/(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/",
-     *     match=true,
-     *     message="Password does not match required criteria",
-     *     groups={"registration"}
-     * )
+     * @Assert\Length(
+     *      min=8,
+     *      max=4096,
+     *      minMessage="Password must be at least {{ limit }} charactes long",
+     *      maxMessage="Password cannot be longer than {{ limit }} characters"
+     *  )
+     * @CustomAssert\PasswordField(groups={"registration"})
      */
     private $plainPassword;
 
