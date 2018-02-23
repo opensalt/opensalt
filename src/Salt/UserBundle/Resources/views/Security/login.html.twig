@@ -1,6 +1,10 @@
 {% extends '::layout.html.twig' %}
 
 {% block body %}
+    {% if google_captcha_site_key is not empty %}
+        <script src="https://www.google.com/recaptcha/api.js"></script>
+    {% endif %}
+
     <div class="container">
         <div class="row">
             <div class="col-xs-2">
@@ -15,7 +19,7 @@
             <div class="col-xs-4">
             </div>
             <div class="col-xs-4">
-                <form action="{{ path('login') }}" method="post">
+                <form id="login-form" action="{{ path('login') }}" method="post">
                     <div class="form-group">
                         <label for="username">Username:</label>
                         <input class="form-control" type="text" id="username" name="_username" value="{{ last_username }}" />
@@ -31,7 +35,11 @@
                         <input type="hidden" name="_target_path" value="{{ redirect }}"/>
                     {% endif %}
 
-                    <button class="pull-right btn btn-primary" type="submit">Login</button>
+                    {% if google_captcha_site_key is not empty %}
+                        <button class="pull-right btn btn-primary btn-login g-recaptcha" data-sitekey="{{ google_captcha_site_key }}" data-callback="onSubmit">Login</button>
+                    {% else %}
+                        <button class="pull-right btn btn-primary btn-login" type="submit">Login</button>
+                    {% endif %}
                 </form>
                 {% if 'create_account' is active feature %}
                     <a class="btn btn-link new-account" href="{{ path('public_user_signup') }}">Create User Account</a>
@@ -39,4 +47,14 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {% if google_captcha_site_key is not empty %}
+        <script>
+            function onSubmit(token) {
+                document.getElementById('login-form').submit();
+            }
+        </script>
+    {% endif %}
 {% endblock %}
