@@ -6,6 +6,7 @@ use App\Command\User\AddUserByNameCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
+use App\Service\User\UserManager;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use JMS\DiExtraBundle\Annotation as DI;
 use Salt\UserBundle\Entity\User;
@@ -19,9 +20,15 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class AddUserByNameHandler extends BaseDoctrineHandler
 {
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry)
+    /**
+     * @var UserManager
+     */
+    private $userManager;
+
+    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, UserManager $userManager)
     {
         parent::__construct($validator, $registry);
+        $this->userManager = $userManager;
     }
 
     /**
@@ -44,7 +51,7 @@ class AddUserByNameHandler extends BaseDoctrineHandler
         $plainPassword = $command->getPlainPassword();
         $role = $command->getRole();
 
-        $newPassword = $this->em->getRepository(User::class)->addNewUser($userName, $org, $plainPassword, $role, User::ACTIVE);
+        $newPassword = $this->userManager->addNewUser($userName, $org, $plainPassword, $role, User::ACTIVE);
 
         $command->setNewPassword($newPassword);
 
