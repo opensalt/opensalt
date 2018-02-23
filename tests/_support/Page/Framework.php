@@ -405,13 +405,13 @@ class Framework implements Context
      */
     public function iShouldHaveAnExcelFileWithSmartLevels(): Framework
     {
-        $reader = \PHPExcel_IOFactory::createReaderForFile($this->filename);
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($this->filename);
         $ss = $reader->load($this->filename);
 
         $sheet = $ss->getSheetByName('CF Item');
 
         $row = 1;
-        while (!empty($sheet->getCell('A'.++$row)->getValue())) {
+        while (!empty($sheet->getCell('A'.++$row)) && !empty($sheet->getCell('A'.++$row)->getValue())) {
             $item = $sheet->getCell('B'.$row)->getValue();
             $smartLevel = $sheet->getCell('D'.$row)->getValue();
 

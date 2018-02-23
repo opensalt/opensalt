@@ -6,6 +6,9 @@ use CftfBundle\Entity\LsDoc;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
  * Class ExcelExport
@@ -41,7 +44,7 @@ class ExcelExport
         return $this->managerRegistry->getManagerForClass(LsDoc::class);
     }
 
-    public function exportExcelFile(LsDoc $doc): \PHPExcel
+    public function exportExcelFile(LsDoc $doc): Spreadsheet
     {
         $repo = $this->getEntityManager()->getRepository(LsDoc::class);
 
@@ -61,7 +64,7 @@ class ExcelExport
             }
         }
 
-        $phpExcelObject = new \PHPExcel();
+        $phpExcelObject = new Spreadsheet();
 
         $this->generateExcelFile($doc, $items, $associations, $smartLevel, $phpExcelObject);
 
@@ -91,11 +94,11 @@ class ExcelExport
      * @param array $items
      * @param array $associations
      * @param array $smartLevel
-     * @param \PHPExcel $phpExcelObject
+     * @param Spreadsheet $phpExcelObject
      *
-     * @throws \PHPExcel_Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
-    public function generateExcelFile(LsDoc $cfDoc, array $items, array $associations, array $smartLevel, \PHPExcel $phpExcelObject): void
+    public function generateExcelFile(LsDoc $cfDoc, array $items, array $associations, array $smartLevel, Spreadsheet $phpExcelObject): void
     {
         $licenseTitle = '';
         $licenseText = '';
@@ -141,13 +144,11 @@ class ExcelExport
             ->setCellValue('M2', $cfDoc->getStatusEnd())
             ->setCellValue('N2', $licenseTitle)
             ->setCellValue('O2', $licenseText)
-            ->setCellValue('P2', $cfDoc->getNote());
+            ->setCellValue('P2', $cfDoc->getNote())
+            ->setTitle('CF Doc');
 
-        $phpExcelObject->getActiveSheet()->setTitle('CF Doc');
         $phpExcelObject->createSheet();
-        $phpExcelObject->setActiveSheetIndex(1);
-        $activeSheet = $phpExcelObject->getActiveSheet();
-
+        $activeSheet = $phpExcelObject->setActiveSheetIndex(1);
         $activeSheet
             ->setCellValue('A1', 'identifier')
             ->setCellValue('B1', 'fullStatement')
@@ -171,17 +172,14 @@ class ExcelExport
                 $activeSheet->setCellValueExplicit(
                     'D'.$j,
                     $smartLevel[$item['id']],
-                    \PHPExcel_Cell_DataType::TYPE_STRING
+                    DataType::TYPE_STRING
                 );
             }
             ++$j;
         }
 
         $phpExcelObject->createSheet();
-        $phpExcelObject->setActiveSheetIndex(2);
-        $activeSheet = $phpExcelObject->getActiveSheet();
-        $activeSheet->setTitle('CF Association');
-
+        $activeSheet = $phpExcelObject->setActiveSheetIndex(2);
         $activeSheet
             ->setCellValue('A1', 'identifier')
             ->setCellValue('B1', 'uri')
@@ -192,7 +190,8 @@ class ExcelExport
             ->setCellValue('G1', 'associationType')
             ->setCellValue('H1', 'associationGroupIdentifier')
             ->setCellValue('I1', 'associationGroupName')
-            ->setCellValue('J1', 'lastChangeDateTime');
+            ->setCellValue('J1', 'lastChangeDateTime')
+            ->setTitle('CF Association');
 
         $j = 2;
         foreach ($associations as $association) {
@@ -204,11 +203,11 @@ class ExcelExport
     /**
      * Add item row to worksheet
      *
-     * @param \PHPExcel_Worksheet $sheet
+     * @param Worksheet $sheet
      * @param int $y
      * @param array $row
      */
-    protected function addItemRow(\PHPExcel_Worksheet $sheet, int $y, array $row): void
+    protected function addItemRow(Worksheet $sheet, int $y, array $row): void
     {
         $columns = [
             'A' => 'identifier',
@@ -233,11 +232,11 @@ class ExcelExport
     /**
      * Add association row to worksheet
      *
-     * @param \PHPExcel_Worksheet $sheet
+     * @param Worksheet $sheet
      * @param int $y
      * @param array $row
      */
-    protected function addAssociationRow(\PHPExcel_Worksheet $sheet, int $y, array $row): void
+    protected function addAssociationRow(Worksheet $sheet, int $y, array $row): void
     {
         $columns = [
             'A' => 'identifier',
@@ -260,13 +259,13 @@ class ExcelExport
     /**
      * Fill in a cell if there is a value
      *
-     * @param \PHPExcel_Worksheet $sheet
+     * @param Worksheet $sheet
      * @param string $x
      * @param int $y
      * @param array $row
      * @param string|array $field
      */
-    protected function addCellIfExists(\PHPExcel_Worksheet $sheet, string $x, int $y, array $row, $field): void
+    protected function addCellIfExists(Worksheet $sheet, string $x, int $y, array $row, $field): void
     {
         if (is_array($field)) {
             if (array_key_exists($field[0], $row) && null !== $row[$field[0]]) {
