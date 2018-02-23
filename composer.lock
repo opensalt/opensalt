@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2a88b4ba190f573d70d9ef6c04d05319",
+    "content-hash": "398841f039d4be586a2278be39c7a299",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -2471,6 +2471,51 @@
             "time": "2018-01-24T18:28:42+00:00"
         },
         {
+            "name": "google/recaptcha",
+            "version": "1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/google/recaptcha.git",
+                "reference": "5a56d15ca10a7b75158178752b2ad8f755eb4f78"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/google/recaptcha/zipball/5a56d15ca10a7b75158178752b2ad8f755eb4f78",
+                "reference": "5a56d15ca10a7b75158178752b2ad8f755eb4f78",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ReCaptcha\\": "src/ReCaptcha"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "Client library for reCAPTCHA, a free service that protect websites from spam and abuse.",
+            "homepage": "http://www.google.com/recaptcha/",
+            "keywords": [
+                "Abuse",
+                "captcha",
+                "recaptcha",
+                "spam"
+            ],
+            "time": "2017-03-09T18:44:34+00:00"
+        },
+        {
             "name": "guzzlehttp/guzzle",
             "version": "6.3.0",
             "source": {
@@ -4654,12 +4699,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codemirror/CodeMirror.git",
-                "reference": "404a9257a073a12c16a83086bf6c507dead4b4aa"
+                "reference": "c1ec14bfe2e36c554ebabbda5cb3f52d9d6cfac9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/404a9257a073a12c16a83086bf6c507dead4b4aa",
-                "reference": "404a9257a073a12c16a83086bf6c507dead4b4aa",
+                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/c1ec14bfe2e36c554ebabbda5cb3f52d9d6cfac9",
+                "reference": "c1ec14bfe2e36c554ebabbda5cb3f52d9d6cfac9",
                 "shasum": ""
             },
             "require-dev": {
@@ -4702,7 +4747,7 @@
                 "Editor",
                 "JavaScript"
             ],
-            "time": "2018-02-20 08:58:15"
+            "time": "2018-02-22 17:15:28"
         },
         {
             "name": "npm-asset/codemirror-spell-checker",
@@ -5335,12 +5380,12 @@
         },
         {
             "name": "npm-asset/marked",
-            "version": "0.3.15",
+            "version": "0.3.16",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/marked/-/marked-0.3.15.tgz",
+                "url": "https://registry.npmjs.org/marked/-/marked-0.3.16.tgz",
                 "reference": null,
-                "shasum": "de96982e54c880962f5093a2fa93d0866bf73668"
+                "shasum": "2f188b7dfcfa6540fe9940adaf0f3b791c9a5cba"
             },
             "require-dev": {
                 "npm-asset/front-matter": ">=2.3.0,<3.0.0",
@@ -5370,7 +5415,8 @@
                 "npm-asset-scripts": {
                     "test": "node test",
                     "bench": "node test --bench",
-                    "build": "uglifyjs lib/marked.js -cm  --comments /Copyright/ -o marked.min.js"
+                    "build": "uglifyjs lib/marked.js -cm  --comments /Copyright/ -o marked.min.js",
+                    "preversion": "npm run build"
                 }
             },
             "license": [
@@ -5388,7 +5434,7 @@
                 "markdown",
                 "markup"
             ],
-            "time": "2018-02-19T04:26:10+00:00"
+            "time": "2018-02-20T20:56:21+00:00"
         },
         {
             "name": "npm-asset/match-at",
@@ -6626,17 +6672,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "b5def2d9e0121c82083f552a90f7b499531a20fb"
+                "reference": "940eb3dbebd9bb2d82c94ecc896df8b19b9bd867"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/b5def2d9e0121c82083f552a90f7b499531a20fb",
-                "reference": "b5def2d9e0121c82083f552a90f7b499531a20fb",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/940eb3dbebd9bb2d82c94ecc896df8b19b9bd867",
+                "reference": "940eb3dbebd9bb2d82c94ecc896df8b19b9bd867",
                 "shasum": ""
             },
             "conflict": {
+                "3f/pygmentize": "<1.2",
                 "adodb/adodb-php": "<5.20.6",
                 "amphp/artax": "<1.0.6|>=2,<2.0.6",
+                "asymmetricrypt/asymmetricrypt": ">=0,<9.9.99",
                 "aws/aws-sdk-php": ">=3,<3.2.1",
                 "bugsnag/bugsnag-laravel": ">=2,<2.0.2",
                 "cakephp/cakephp": ">=1.3,<1.3.18|>=2,<2.4.99|>=2.5,<2.5.99|>=2.6,<2.6.12|>=2.7,<2.7.6|>=3,<3.0.15|>=3.1,<3.1.4",
@@ -6682,6 +6730,7 @@
                 "oro/crm": ">=1.7,<1.7.4",
                 "oro/platform": ">=1.7,<1.7.4",
                 "padraic/humbug_get_contents": "<1.1.2",
+                "pagarme/pagarme-php": ">=0,<9.9.99",
                 "phpmailer/phpmailer": ">=5,<5.2.24",
                 "phpunit/phpunit": ">=4.8.19,<4.8.28|>=5.0.10,<5.6.3",
                 "phpxmlrpc/extras": "<0.6.1",
@@ -6699,6 +6748,7 @@
                 "simplesamlphp/simplesamlphp-module-infocard": "<1.0.1",
                 "socalnick/scn-social-auth": "<1.15.2",
                 "squizlabs/php_codesniffer": ">=1,<2.8.1",
+                "stormpath/sdk": ">=0,<9.9.99",
                 "swiftmailer/swiftmailer": ">=4,<5.4.5",
                 "symfony/dependency-injection": ">=2,<2.0.17",
                 "symfony/form": ">=2.3,<2.3.35|>=2.4,<2.6.12|>=2.7,<2.7.38|>=2.8,<2.8.31|>=3,<3.2.14|>=3.3,<3.3.13",
@@ -6719,6 +6769,7 @@
                 "symfony/yaml": ">=2,<2.0.22|>=2.1,<2.1.7",
                 "thelia/backoffice-default-template": ">=2.1,<2.1.2",
                 "thelia/thelia": ">=2.1,<2.1.2|>=2.1.0-beta1,<2.1.3",
+                "titon/framework": ">=0,<9.9.99",
                 "twig/twig": "<1.20",
                 "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.22|>=8,<8.7.5",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
@@ -6767,7 +6818,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-02-20T15:56:25+00:00"
+            "time": "2018-02-21T14:50:18+00:00"
         },
         {
             "name": "sensio/distribution-bundle",
@@ -6975,23 +7026,16 @@
                     "SimpleThings\\EntityAudit\\": "src/SimpleThings/EntityAudit"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "SimpleThings\\EntityAudit\\Tests\\": "tests/SimpleThings/Tests/EntityAudit"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "LGPL-2.1"
             ],
             "description": "Audit for Doctrine Entities",
             "keywords": [
                 "Audit",
-                "Database",
-                "Persistence"
+                "database",
+                "persistence"
             ],
-            "support": {
-                "source": "https://github.com/opensalt/EntityAuditBundle/tree/v1.0.6"
-            },
             "time": "2017-07-24T15:38:35+00:00"
         },
         {
