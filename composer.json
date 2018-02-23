@@ -138,7 +138,8 @@
         "bower-asset/datatables.net-select-bs": "^1.2.2",
         "bower-asset/jquery-comments": "^1.2",
         "qandidate/toggle-bundle": "^0.8",
-        "npm-asset/papaparse": "^4.3"
+        "npm-asset/papaparse": "^4.3",
+        "google/recaptcha": "~1.1"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.1",

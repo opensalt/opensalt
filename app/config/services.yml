@@ -53,15 +53,16 @@ services:
         resource: '../../src/CftfBundle/Command'
         tags: ['console.command']
 
-    CftfBundle\Service\:
-        resource: '../../src/CftfBundle/Service'
-
     Salt\UserBundle\Command\:
         resource: '../../src/Salt/UserBundle/Command'
         tags: ['console.command']
 
+    CftfBundle\Service\:
+        resource: '../../src/CftfBundle/Service'
+
     GithubFilesBundle\Service\:
         resource: '../../src/GithubFilesBundle/Service'
+
 
     # Workarounds for 3.4 deprecations
     Symfony\Bundle\SwiftmailerBundle\Command\:
@@ -108,3 +109,10 @@ services:
             - '@doctrine.dbal.default_connection'
             - 'externalDoc-'
             - 0
+
+    Salt\UserBundle\Listener\LoginListener:
+        class: Salt\UserBundle\Listener\LoginListener
+        arguments:
+            $captchaSecret: '%google_captcha_secret_key%'
+        tags:
+            - { name: kernel.event_listener, event: security.interactive_login }
