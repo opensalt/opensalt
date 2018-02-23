@@ -2,14 +2,13 @@
 
 namespace Salt\UserBundle\Listener;
 
-use Symfony\Component\DependencyInjection\ContainerInterface as Container;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use ReCaptcha\ReCaptcha;
 
 class LoginListener
 {
-    private $container;
+    private $captchaSecret;
 
     public function __construct(string $captchaSecret = null)
     {
