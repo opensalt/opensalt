@@ -145,5 +145,5 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler implements Even
         return new NotificationOnlyChangeEntry(null, null, 'Email sent');
     }
 
-    abstract protected function configureMessage(\Swift_Message $email, $command): void;
+    abstract protected function configureMessage(\Swift_Message $email, AbstractSendEmailCommand $command): void;
 }
