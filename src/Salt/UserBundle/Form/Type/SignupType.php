@@ -56,7 +56,7 @@ class SignupType extends AbstractType
                             <li>An uppercase letter</li>
                             <li>A lowercase letter</li>
                             <li>A number</li>
-                            <li>An special character</li>
+                            <li>A special character</li>
                         </ul>'
                     ]
                 ),
