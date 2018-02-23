@@ -280,4 +280,12 @@ class AcceptanceTester extends \Codeception\Actor implements Context
     {
         $this->assertFeatureEnabled($feature);
     }
+
+    /**
+     * @Then I fill in the :input with :data
+     */
+    public function iFillFieldWithData(string $input, string $data)
+    {
+        $this->fillField($input, $data);
+    }
 }

@@ -31,6 +31,7 @@ class AddUserHandler extends BaseUserHandler
         $this->validate($command, $command);
 
         $user = $command->getUser();
+        $this->validate($command, $user);
 
         $encryptedPassword = $command->getEncryptedPassword();
         $user->setPassword($encryptedPassword);

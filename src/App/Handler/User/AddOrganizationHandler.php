@@ -31,6 +31,7 @@ class AddOrganizationHandler extends BaseUserHandler
         $this->validate($command, $command);
 
         $organization = $command->getOrg();
+        $this->validate($command, $organization);
 
         $this->em->persist($organization);
 
