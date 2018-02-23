@@ -256,16 +256,15 @@ class UserController extends Controller
     /**
      * Reject a user
      *
-     * @Route("/{id}/suspend", name="admin_user_reject")
+     * @Route("/{id}/reject", name="admin_user_reject")
      * @Security("is_granted('manage', targetUser)")
      * @Method({"GET"})
      *
-     * @param Request $request
      * @param User $targetUser
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function rejectAction(Request $request, User $targetUser) {
+    public function rejectAction(User $targetUser) {
         $command = new SuspendUserCommand($targetUser);
         $this->sendCommand($command);
 
