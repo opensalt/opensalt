@@ -148,7 +148,7 @@ function ApxDocument(initializer) {
             if (empty(self.assocGroups)) {
                 self.assocGroups = [];
             } else {
-                for (var i = 0; i < self.assocGroups.length; ++i) {
+                for (let i = 0; i < self.assocGroups.length; ++i) {
                     self.assocGroupHash[self.assocGroups[i].identifier] = self.assocGroups[i];
                     self.assocGroupIdHash[self.assocGroups[i].id] = self.assocGroups[i];
                 }
@@ -824,7 +824,11 @@ function ApxDocument(initializer) {
 
             // other groups
             for (let i = 0; i < self.assocGroups.length; ++i) {
-                $menu.append('<option value="' + self.assocGroups[i].id + '">' + self.assocGroups[i].title + '</option>');
+                let title = self.assocGroups[i].title;
+                if (60 < title.length) {
+                    title = title.substr(0, 58) + "\u2026";
+                }
+                $menu.append('<option value="' + self.assocGroups[i].id + '">' + render.escaped(title) + '</option>');
             }
 
             // show the menu
@@ -887,10 +891,8 @@ function ApxDocument(initializer) {
         return (op(node, "data", "ref", "nodeType") === "document");
     };
 
-    // Initialize a tooltip for a tree item
-    self.initializeTooltip = function(node) {
-        let $jq = $(node.span);
-
+    // Get tooltip content
+    self.tooltipContent = function(node) {
         let content;
         if (self.isDocNode(node)) {
             content = "Document: " + render.block(node.title);
@@ -902,16 +904,7 @@ function ApxDocument(initializer) {
             }
         }
 
-        // Note: we need to make the tooltip appear on the title, not the whole node, so that we can have it persist when you drag from tree2 into tree1
-        $jq.find(".fancytree-title").tooltip({
-            // "content": content,  // this is for popover
-            "title": content,   // this is for tooltip
-            "delay": { "show": 200, "hide": 100 },
-            "placement": "top",
-            "html": true,
-            "container": "body"
-            // "trigger": "hover"   // this is for popover
-        });
+        return content;
     };
 
     self.addAssociation = function(atts) {
@@ -1585,7 +1578,7 @@ function ApxDocument(initializer) {
                             icon = '<img class="association-panel-icon" src="/assets/img/association-icon.png">';
                         }
                         html += '<section class="panel panel-default panel-component item-component">'
-                            + '<div class="panel-heading">' + icon + title + '</div>'
+                            + '<div class="panel-heading">' + icon + render.escaped(title) + '</div>'
                             + '<div class="panel-body"><div><div class="list-group">'
                         ;
 
@@ -1617,7 +1610,7 @@ function ApxDocument(initializer) {
                                 groupName = self.assocGroupIdHash[a.groupId].title;
                             }
                         }
-                        html += '<span class="label label-default">' + groupName + '</span>';
+                        html += '<span class="label label-default">' + render.escaped(groupName) + '</span>';
                     }
 
                     html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
