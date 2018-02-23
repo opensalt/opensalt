@@ -38,7 +38,7 @@
                     {% if google_captcha_site_key is not empty %}
                         <button class="pull-right btn btn-primary btn-login g-recaptcha" data-sitekey="{{ google_captcha_site_key }}" data-callback="onSubmit">Login</button>
                     {% else %}
-                        <button class="pull-right btn btn-primary btn-login" data-callback="onSubmit">Login</button>
+                        <button class="pull-right btn btn-primary btn-login" type="submit">Login</button>
                     {% endif %}
                 </form>
                 {% if 'create_account' is active feature %}
@@ -50,9 +50,11 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script>
-        function onSubmit(token) {
-            document.getElementById('login-form').submit();
-        }
-    </script>
+    {% if google_captcha_site_key is not empty %}
+        <script>
+            function onSubmit(token) {
+                document.getElementById('login-form').submit();
+            }
+        </script>
+    {% endif %}
 {% endblock %}
