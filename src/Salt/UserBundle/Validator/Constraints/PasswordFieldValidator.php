@@ -12,19 +12,19 @@ class PasswordFieldValidator extends ConstraintValidator
     public function validate($value, Constraint $constraint)
     {
         if (preg_match('/[A-Z]/', $value, $matches)) {
-            $this->asserts++;
+            ++$this->asserts;
         }
 
         if (preg_match('/[a-z]/', $value, $matches)) {
-            $this->asserts++;
+            ++$this->asserts;
         }
 
         if (preg_match('/[0-9]/', $value, $matches)) {
-            $this->asserts++;
+            ++$this->asserts;
         }
 
         if (preg_match('/[_\W]/', $value, $matches)) {
-            $this->asserts++;
+            ++$this->asserts;
         }
 
         if ($this->asserts < 3) {
