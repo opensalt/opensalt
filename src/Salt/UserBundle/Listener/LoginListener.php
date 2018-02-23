@@ -11,23 +11,24 @@ class LoginListener
 {
     private $container;
 
-    public function __construct(Container $container)
+    public function __construct(string $captchaSecret = null)
     {
-        $this->container = $container;
+        $this->captchaSecret = $captchaSecret;
     }
 
     public function onSecurityInteractiveLogin(InteractiveLoginEvent $event)
     {
+        if (empty($this->captchaSecret)) {
+            return;
+        }
+
         $request = $event->getRequest();
-        $captcha_secret = $this->container->getParameter('google_captcha_secret_key');
 
-        if (null !== $captcha_secret) {
-            $recaptcha = new ReCaptcha($captcha_secret);
-            $resp = $recaptcha->verify($request->request->get('g-recaptcha-response'), $request->getClientIp());
+        $recaptcha = new ReCaptcha($this->captchaSecret);
+        $resp = $recaptcha->verify($request->request->get('g-recaptcha-response'), $request->getClientIp());
 
-            if (!$resp->isSuccess()) {
-                throw new BadCredentialsException("the reCAPTCHA wasn't entered correctly, please try again");
-            }
+        if (!$resp->isSuccess()) {
+            throw new BadCredentialsException("the reCAPTCHA wasn't entered correctly, please try again");
         }
     }
 }
