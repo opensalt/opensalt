@@ -530,9 +530,17 @@ class DocTreeController extends Controller
     public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
         $command = new DeleteAssociationGroupCommand($associationGrouping);
-        $this->sendCommand($command);
 
-        return new Response('OK', Response::HTTP_ACCEPTED);
+        try {
+            $this->sendCommand($command);
+        } catch (\Exception $e) {
+            if (preg_match('/FOREIGN KEY/', $e->getMessage())) {
+                return new JsonResponse(['error'=>['message'=>'An association group may only be deleted if there are no associations in it.']], Response::HTTP_BAD_REQUEST);
+            }
+            return new JsonResponse(['error'=>['message'=>'The association group could not be deleted.']], Response::HTTP_BAD_REQUEST);
+        }
+
+        return new JsonResponse('OK', Response::HTTP_ACCEPTED);
     }
 
     /**
