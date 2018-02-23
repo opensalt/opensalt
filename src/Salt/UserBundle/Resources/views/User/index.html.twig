@@ -27,7 +27,7 @@
                 <th>Organization</th>
                 <th>Username</th>
                 <th>Roles</th>
-                <th class="col-md-3">Actions</th>
+                <th class="col-md-4">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -43,26 +43,31 @@
                     </td>
                     <td class="text-center">
                         <ul class="list-inline">
-                            <li>
-                                <a class="btn btn-primary" href="{{ path('admin_user_show', { 'id': user.id }) }}">show</a>
-                            </li>
-                            {% if not user.suspended %}
                                 <li>
-                                    <a class="btn btn-default" href="{{ path('admin_user_edit', { 'id': user.id }) }}">edit</a>
+                                    <a class="btn btn-primary" href="{{ path('admin_user_show', { 'id': user.id }) }}">show</a>
                                 </li>
-                            {% endif %}
-                            <li>
-                                {% if user.suspended %}
-                                    <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Unsuspend</a>
-                                {% else %}
-                                    <a class="btn btn-default" href="{{ path('admin_user_suspend', { 'id': user.id }) }}">Suspend</a>
+                                {% if not user.suspended %}
+                                    <li>
+                                        <a class="btn btn-default" href="{{ path('admin_user_edit', { 'id': user.id }) }}">edit</a>
+                                    </li>
                                 {% endif %}
-                            </li>
-                            {% if user.pending %}
                                 <li>
-                                    <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Approve</a>
+                                    {% if user.suspended %}
+                                        <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Unsuspend</a>
+                                    {% else %}
+                                        <a class="btn btn-default" href="{{ path('admin_user_suspend', { 'id': user.id }) }}">Suspend</a>
+                                    {% endif %}
                                 </li>
-                            {% endif %}
+                                {% if user.pending %}
+                                    <li>
+                                        <a class="btn btn-primary" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Approve</a>
+                                    </li>
+                                    {% if is_granted('ROLE_SUPER_USER') %} 
+                                        <li>
+                                            <a class="btn btn-default btn-reject" href="{{ path('admin_user_reject', { 'id': user.id }) }}">Reject</a>
+                                        </li>
+                                    {% endif %}
+                                {% endif %}
                         </ul>
                     </td>
                 </tr>

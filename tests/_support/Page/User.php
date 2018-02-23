@@ -307,4 +307,16 @@ class User implements Context
         $I->see($organization, '//*[@id="datatable"]/tbody/tr[1]/td[2]');
         $I->see('Super User', '//*[@id="datatable"]/tbody/tr[1]/td[4]');
     }
+
+    /**
+     * @Then /^I reject the new user$/
+     */
+    public function isRejectTheNewUser()
+    {
+        $I = $this->I;
+
+        $username = $this->userName;
+        $I->amOnPage('/admin/user');
+        $I->click("//td[text()='{$username}']/..//a[text()='Reject']");
+    }
 }

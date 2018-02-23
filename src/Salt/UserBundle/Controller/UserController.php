@@ -250,7 +250,26 @@ class UserController extends Controller
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('admin_user_delete', array('id' => $targetUser->getId())))
             ->setMethod('DELETE')
-            ->getForm()
-        ;
+            ->getForm();
     }
+
+    /**
+     * Reject a user
+     *
+     * @Route("/{id}/suspend", name="admin_user_reject")
+     * @Security("is_granted('manage', targetUser)")
+     * @Method({"GET"})
+     *
+     * @param Request $request
+     * @param User $targetUser
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function rejectAction(Request $request, User $targetUser) {
+        $command = new SuspendUserCommand($targetUser);
+        $this->sendCommand($command);
+
+        return $this->redirectToRoute('admin_user_index');
+    }
+
 }
