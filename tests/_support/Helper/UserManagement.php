@@ -98,7 +98,7 @@ class UserManagement extends \Codeception\Module
         $faker = \Faker\Factory::create();
 
         $role = preg_replace('/[^A-Z]/', '_', strtoupper($role));
-        $password = $faker->password;
+        $password = $faker->password.'aB3';
 
         /** @var UserRepository $userRepo */
         $userRepo = $em->getRepository(User::class);
