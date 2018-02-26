@@ -436,9 +436,10 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             $this->addInverseAssociation($exactMatch);
         }
 
+        $seq = 0;
         foreach ($this->getChildren() as $child) {
             $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup, $exactMatchAssocs);
-            $newItem->addChild($newChild, $assocGroup);
+            $newItem->addChild($newChild, $assocGroup, ++$seq);
         }
 
         return $newItem;

@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="Salt\UserBundle\Repository\OrganizationRepository")
  * @ORM\Table(name="salt_org")
- * @UniqueEntity("name")
+ * @UniqueEntity("name", message="The organization name is already being used")
  */
 class Organization
 {

@@ -11,6 +11,7 @@ use CftfBundle\Entity\LsItem;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
  * @DI\Service()
@@ -46,7 +47,7 @@ class ExcelImport
 
     public function importExcel(string $excelFilePath): LsDoc
     {
-        $phpExcelObject = \PHPExcel_IOFactory::load($excelFilePath);
+        $phpExcelObject = \PhpOffice\PhpSpreadsheet\IOFactory::load($excelFilePath);
 
         /** @var LsItem[] $items */
         $items = [];
@@ -63,7 +64,7 @@ class ExcelImport
         for ($i = 2; $i <= $lastRow; ++$i) {
             $item = $this->saveItem($sheet, $doc, $i);
             $items[$item->getIdentifier()] = $item;
-            $smartLevel = (string) $sheet->getCellByColumnAndRow(3, $i)->getValue();
+            $smartLevel = (string) $this->getCellValueOrNull($sheet, 3, $i);
             if (!empty($smartLevel)) {
                 $smartLevels[$smartLevel] = $item;
                 $itemSmartLevels[$item->getIdentifier()] = $smartLevel;
@@ -96,56 +97,59 @@ class ExcelImport
         return $doc;
     }
 
-    private function saveDoc(\PHPExcel_Worksheet $sheet): LsDoc
+    private function saveDoc(Worksheet $sheet): LsDoc
     {
         $doc = new LsDoc();
-        $doc->setIdentifier($sheet->getCellByColumnAndRow(0, 2)->getValue());
-        $doc->setCreator($sheet->getCellByColumnAndRow(1, 2)->getValue());
-        $doc->setTitle($sheet->getCellByColumnAndRow(2, 2)->getValue());
-        $doc->setOfficialUri($sheet->getCellByColumnAndRow(4, 2)->getValue());
-        $doc->setPublisher($sheet->getCellByColumnAndRow(5, 2)->getValue());
-        $doc->setDescription($sheet->getCellByColumnAndRow(6, 2)->getValue());
-        $doc->setSubject($sheet->getCellByColumnAndRow(7, 2)->getValue());
-        $doc->setLanguage($sheet->getCellByColumnAndRow(8, 2)->getValue());
-        $doc->setVersion($sheet->getCellByColumnAndRow(9, 2)->getValue());
-        if (!empty($sheet->getCellByColumnAndRow(10, 2)->getValue())) {
-            $doc->setAdoptionStatus($sheet->getCellByColumnAndRow(10, 2)->getValue());
+        $doc->setIdentifier($this->getCellValueOrNull($sheet, 1, 2));
+        $doc->setCreator($this->getCellValueOrNull($sheet, 2, 2));
+        $doc->setTitle($this->getCellValueOrNull($sheet, 3, 2));
+        // col 4 - lastChangeDate
+        $doc->setOfficialUri($this->getCellValueOrNull($sheet, 5, 2));
+        $doc->setPublisher($this->getCellValueOrNull($sheet, 6, 2));
+        $doc->setDescription($this->getCellValueOrNull($sheet, 7, 2));
+        $doc->setSubject($this->getCellValueOrNull($sheet, 8, 2));
+        $doc->setLanguage($this->getCellValueOrNull($sheet, 9, 2));
+        $doc->setVersion($this->getCellValueOrNull($sheet, 10, 2));
+        if (!empty($this->getCellValueOrNull($sheet, 11, 2))) {
+            $doc->setAdoptionStatus($this->getCellValueOrNull($sheet, 11, 2));
         }
         $doc->setStatusStart(
             new \DateTime(
-                \PHPExcel_Style_NumberFormat::toFormattedString(
-                    $sheet->getCellByColumnAndRow(11, 2)->getValue(),
+                \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
+                    $this->getCellValueOrNull($sheet, 12, 2),
                     'YYYY-MM-DD'
                 )
             )
         );
         $doc->setStatusEnd(
             new \DateTime(
-                \PHPExcel_Style_NumberFormat::toFormattedString(
-                    $sheet->getCellByColumnAndRow(12, 2)->getValue(),
+                \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
+                    $this->getCellValueOrNull($sheet, 13, 2),
                     'YYYY-MM-DD'
                 )
             )
         );
-        $doc->setLicence($sheet->getCellByColumnAndRow(13, 2)->getValue());
-        $doc->setNote($sheet->getCellByColumnAndRow(14, 2)->getValue());
+        $doc->setLicence($this->getCellValueOrNull($sheet, 14, 2));
+        // col 14 - Licence title
+        // col 15 - Licence text
+        $doc->setNote($this->getCellValueOrNull($sheet, 16, 2));
 
         $this->getEntityManager()->persist($doc);
 
         return $doc;
     }
 
-    private function saveItem(\PHPExcel_Worksheet $sheet, LsDoc $doc, int $row): LsItem
+    private function saveItem(Worksheet $sheet, LsDoc $doc, int $row): LsItem
     {
         static $itemTypes = [];
 
-        $identifier = $sheet->getCellByColumnAndRow(0, $row)->getValue();
+        $identifier = $this->getCellValueOrNull($sheet, 1, $row);
         if (empty($identifier)) {
             $identifier = null;
         }
         $item = $doc->createItem($identifier);
 
-        $itemTypeTitle = $sheet->getCellByColumnAndRow(10, $row)->getValue();
+        $itemTypeTitle = $this->getCellValueOrNull($sheet, 11, $row);
 
         if (in_array($itemTypeTitle, $itemTypes, true)) {
             $itemType = $itemTypes[$itemTypeTitle];
@@ -157,7 +161,7 @@ class ExcelImport
                 $itemType = new LsDefItemType();
                 $itemType->setTitle($itemTypeTitle);
                 $itemType->setCode($itemTypeTitle);
-                $itemType->setHierarchyCode($sheet->getCellByColumnAndRow(3, $row)->getValue());
+                $itemType->setHierarchyCode($itemTypeTitle);
                 $this->getEntityManager()->persist($itemType);
             }
 
@@ -165,36 +169,42 @@ class ExcelImport
         }
         $item->setItemType($itemType);
 
-        $item->setFullStatement($sheet->getCellByColumnAndRow(1, $row)->getValue());
-        $item->setHumanCodingScheme($sheet->getCellByColumnAndRow(2, $row)->getValue());
-        $item->setListEnumInSource($sheet->getCellByColumnAndRow(4, $row)->getValue());
-        $item->setAbbreviatedStatement($sheet->getCellByColumnAndRow(5, $row)->getValue());
-        $item->setConceptKeywords($sheet->getCellByColumnAndRow(6, $row)->getValue());
-        $item->setNotes($sheet->getCellByColumnAndRow(7, $row)->getValue());
-        $item->setLanguage($sheet->getCellByColumnAndRow(8, $row)->getValue());
-        $item->setEducationalAlignment($sheet->getCellByColumnAndRow(9, $row)->getValue());
+        $item->setFullStatement($this->getCellValueOrNull($sheet, 2, $row));
+        $item->setHumanCodingScheme($this->getCellValueOrNull($sheet, 3, $row));
+        // col 4 - smart level
+        $item->setListEnumInSource($this->getCellValueOrNull($sheet, 5, $row));
+        $item->setAbbreviatedStatement($this->getCellValueOrNull($sheet, 6, $row));
+        $item->setConceptKeywords($this->getCellValueOrNull($sheet, 7, $row));
+        $item->setNotes($this->getCellValueOrNull($sheet, 8, $row));
+        $item->setLanguage($this->getCellValueOrNull($sheet, 9, $row));
+        $item->setEducationalAlignment($this->getCellValueOrNull($sheet, 10, $row));
+        // col 11 - item type
+        // col 12 - licence
+        // col 13 - last change date time
 
         $this->getEntityManager()->persist($item);
 
         return $item;
     }
 
-    private function saveAssociation(\PHPExcel_Worksheet $sheet, LsDoc $doc, int $row, array $items): ?LsAssociation
+    private function saveAssociation(Worksheet $sheet, LsDoc $doc, int $row, array $items): ?LsAssociation
     {
         $fieldNames = [
-            0 => 'identifier',
-            1 => 'uri',
-            2 => 'originNodeIdentifier',
-            3 => 'destinationNodeIdentifier',
-            4 => 'associationType',
-            5 => 'associationGroupIdentifier',
-            6 => 'associationGroupName',
-            7 => 'lastChangeDateTime',
+            1 => 'identifier',
+            2 => 'uri',
+            3 => 'originNodeIdentifier',
+            // 4 => 'originNodeUri',
+            5 => 'destinationNodeIdentifier',
+            // 6 => 'destinationNodeUri',
+            7 => 'associationType',
+            8 => 'associationGroupIdentifier',
+            9 => 'associationGroupName',
+            10 => 'lastChangeDateTime',
         ];
 
         $fields = [];
         foreach ($fieldNames as $col => $name) {
-            $fields[$name] = $sheet->getCellByColumnAndRow($col, $row)->getValue();
+            $fields[$name] = $this->getCellValueOrNull($sheet, $col, $row);
         }
 
         if (empty($fields['identifier'])) {
@@ -242,5 +252,16 @@ class ExcelImport
         $this->getEntityManager()->persist($association);
 
         return $association;
+    }
+
+    private function getCellValueOrNull(Worksheet $sheet, int $col, int $row)
+    {
+        $cell = $sheet->getCellByColumnAndRow($col, $row);
+
+        if (null === $cell) {
+            return null;
+        }
+
+        return $cell->getValue();
     }
 }

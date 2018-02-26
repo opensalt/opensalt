@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "219d699d74ec0141d37c7830a9d90086",
+    "content-hash": "398841f039d4be586a2278be39c7a299",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -2471,6 +2471,51 @@
             "time": "2018-01-24T18:28:42+00:00"
         },
         {
+            "name": "google/recaptcha",
+            "version": "1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/google/recaptcha.git",
+                "reference": "5a56d15ca10a7b75158178752b2ad8f755eb4f78"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/google/recaptcha/zipball/5a56d15ca10a7b75158178752b2ad8f755eb4f78",
+                "reference": "5a56d15ca10a7b75158178752b2ad8f755eb4f78",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ReCaptcha\\": "src/ReCaptcha"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "Client library for reCAPTCHA, a free service that protect websites from spam and abuse.",
+            "homepage": "http://www.google.com/recaptcha/",
+            "keywords": [
+                "Abuse",
+                "captcha",
+                "recaptcha",
+                "spam"
+            ],
+            "time": "2017-03-09T18:44:34+00:00"
+        },
+        {
             "name": "guzzlehttp/guzzle",
             "version": "6.3.0",
             "source": {
@@ -2803,26 +2848,26 @@
         },
         {
             "name": "incenteev/composer-parameter-handler",
-            "version": "v2.1.2",
+            "version": "v2.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Incenteev/ParameterHandler.git",
-                "reference": "d7ce7f06136109e81d1cb9d57066c4d4a99cf1cc"
+                "reference": "933c45a34814f27f2345c11c37d46b3ca7303550"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Incenteev/ParameterHandler/zipball/d7ce7f06136109e81d1cb9d57066c4d4a99cf1cc",
-                "reference": "d7ce7f06136109e81d1cb9d57066c4d4a99cf1cc",
+                "url": "https://api.github.com/repos/Incenteev/ParameterHandler/zipball/933c45a34814f27f2345c11c37d46b3ca7303550",
+                "reference": "933c45a34814f27f2345c11c37d46b3ca7303550",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3",
-                "symfony/yaml": "~2.3|~3.0"
+                "symfony/yaml": "^2.3 || ^3.0 || ^4.0"
             },
             "require-dev": {
-                "composer/composer": "1.0.*@dev",
-                "phpspec/prophecy-phpunit": "~1.0",
-                "symfony/filesystem": "~2.2"
+                "composer/composer": "^1.0@dev",
+                "symfony/filesystem": "^2.3 || ^3 || ^4",
+                "symfony/phpunit-bridge": "^4.0"
             },
             "type": "library",
             "extra": {
@@ -2850,7 +2895,7 @@
             "keywords": [
                 "parameters management"
             ],
-            "time": "2015-11-10T17:04:01+00:00"
+            "time": "2018-02-13T18:05:56+00:00"
         },
         {
             "name": "ircmaxell/random-lib",
@@ -3834,72 +3879,6 @@
             "time": "2016-11-22T05:14:51+00:00"
         },
         {
-            "name": "liuggio/ExcelBundle",
-            "version": "v2.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/liuggio/ExcelBundle.git",
-                "reference": "b4fe94b64449490a1b5fbbce827c2501be335126"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/liuggio/ExcelBundle/zipball/b4fe94b64449490a1b5fbbce827c2501be335126",
-                "reference": "b4fe94b64449490a1b5fbbce827c2501be335126",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.2",
-                "phpoffice/phpexcel": "~1.8.1",
-                "symfony/framework-bundle": "~2.6|~3.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.6",
-                "sensio/framework-extra-bundle": "~2.3|~3.0",
-                "symfony/browser-kit": "~2.6|~3.0",
-                "symfony/class-loader": "~2.6|~3.0",
-                "symfony/finder": "~2.6|~3.0",
-                "symfony/form": "~2.6|~3.0",
-                "symfony/validator": "~2.6|~3.0"
-            },
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ],
-                "psr-4": {
-                    "Liuggio\\ExcelBundle\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "ExcelBundle Contributors",
-                    "homepage": "https://github.com/liuggio/ExcelBundle#contributors"
-                },
-                {
-                    "name": "Giulio De Donato",
-                    "email": "liuggio@gmail.com"
-                }
-            ],
-            "description": "This is a Symfony2 Bundle helps you to read and write Excel files (including pdf, xlsx, odt), thanks to the PHPExcel library",
-            "homepage": "http://www.welcometothebundle.com",
-            "keywords": [
-                "Symfony2",
-                "bundle",
-                "excel",
-                "xls"
-            ],
-            "time": "2016-06-20T17:11:22+00:00"
-        },
-        {
             "name": "matthimatiker/opcache-bundle",
             "version": "0.4.3",
             "source": {
@@ -4595,12 +4574,12 @@
         },
         {
             "name": "npm-asset/argparse",
-            "version": "1.0.9",
+            "version": "1.0.10",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/argparse/-/argparse-1.0.9.tgz",
+                "url": "https://registry.npmjs.org/argparse/-/argparse-1.0.10.tgz",
                 "reference": null,
-                "shasum": "73d83bc263f86e97f8cc4f6bae1b0e90a7d22c86"
+                "shasum": "bcd6791ea5ae09725e17e5ad988134cd40b3d911"
             },
             "require": {
                 "npm-asset/sprintf-js": "~1.0.2"
@@ -4649,7 +4628,7 @@
                 "option",
                 "parser"
             ],
-            "time": "2016-09-29T19:31:03+00:00"
+            "time": "2018-02-15T14:24:01+00:00"
         },
         {
             "name": "npm-asset/bootstrap-notify",
@@ -4720,12 +4699,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codemirror/CodeMirror.git",
-                "reference": "2ffbf483ca423420903be48c25fc28a30d601403"
+                "reference": "c1ec14bfe2e36c554ebabbda5cb3f52d9d6cfac9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/2ffbf483ca423420903be48c25fc28a30d601403",
-                "reference": "2ffbf483ca423420903be48c25fc28a30d601403",
+                "url": "https://api.github.com/repos/codemirror/CodeMirror/zipball/c1ec14bfe2e36c554ebabbda5cb3f52d9d6cfac9",
+                "reference": "c1ec14bfe2e36c554ebabbda5cb3f52d9d6cfac9",
                 "shasum": ""
             },
             "require-dev": {
@@ -4755,7 +4734,7 @@
                     "lint": "bin/lint"
                 },
                 "branch-alias": {
-                    "dev-master": "5.34.1-dev"
+                    "dev-master": "5.35.1-dev"
                 }
             },
             "license": [
@@ -4768,7 +4747,7 @@
                 "Editor",
                 "JavaScript"
             ],
-            "time": "2018-02-08 14:31:52"
+            "time": "2018-02-22 17:15:28"
         },
         {
             "name": "npm-asset/codemirror-spell-checker",
@@ -5215,19 +5194,19 @@
         },
         {
             "name": "npm-asset/markdown-it",
-            "version": "8.4.0",
+            "version": "8.4.1",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/markdown-it/-/markdown-it-8.4.0.tgz",
+                "url": "https://registry.npmjs.org/markdown-it/-/markdown-it-8.4.1.tgz",
                 "reference": null,
-                "shasum": "e2400881bf171f7018ed1bd9da441dac8af6306d"
+                "shasum": "206fe59b0e4e1b78a7c73250af9b34a4ad0aaf44"
             },
             "require": {
                 "npm-asset/argparse": ">=1.0.7,<2.0.0",
                 "npm-asset/entities": "~1.1.1",
                 "npm-asset/linkify-it": ">=2.0.0,<3.0.0",
                 "npm-asset/mdurl": ">=1.0.1,<2.0.0",
-                "npm-asset/uc.micro": ">=1.0.3,<2.0.0"
+                "npm-asset/uc.micro": ">=1.0.5,<2.0.0"
             },
             "require-dev": {
                 "npm-asset/ansi": ">=0.3.0,<0.4.0",
@@ -5295,7 +5274,7 @@
                 "markdown-it-plugin",
                 "parser"
             ],
-            "time": "2017-08-24T15:12:53+00:00"
+            "time": "2018-02-15T14:17:42+00:00"
         },
         {
             "name": "npm-asset/markdown-it-katex",
@@ -5401,22 +5380,20 @@
         },
         {
             "name": "npm-asset/marked",
-            "version": "0.3.12",
+            "version": "0.3.16",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/marked/-/marked-0.3.12.tgz",
+                "url": "https://registry.npmjs.org/marked/-/marked-0.3.16.tgz",
                 "reference": null,
-                "shasum": "7cf25ff2252632f3fe2406bde258e94eee927519"
+                "shasum": "2f188b7dfcfa6540fe9940adaf0f3b791c9a5cba"
             },
             "require-dev": {
                 "npm-asset/front-matter": ">=2.3.0,<3.0.0",
                 "npm-asset/glob-to-regexp": "0.3.0",
-                "npm-asset/gulp": ">=3.8.11,<4.0.0",
-                "npm-asset/gulp-concat": ">=2.5.2,<3.0.0",
-                "npm-asset/gulp-uglify": ">=1.1.0,<2.0.0",
                 "npm-asset/markdown": "*",
                 "npm-asset/markdown-it": "*",
-                "npm-asset/showdown": "*"
+                "npm-asset/showdown": "*",
+                "npm-asset/uglify-js": ">=3.3.10,<4.0.0"
             },
             "bin": {
                 "marked": "./bin/marked"
@@ -5424,7 +5401,7 @@
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
-                    "url": "http://github.com/chjj/marked/issues"
+                    "url": "http://github.com/markedjs/marked/issues"
                 },
                 "npm-asset-main": "./lib/marked.js",
                 "npm-asset-man": [
@@ -5433,11 +5410,13 @@
                 "npm-asset-directories": [],
                 "npm-asset-repository": {
                     "type": "git",
-                    "url": "git://github.com/chjj/marked.git"
+                    "url": "git://github.com/markedjs/marked.git"
                 },
                 "npm-asset-scripts": {
                     "test": "node test",
-                    "bench": "node test --bench"
+                    "bench": "node test --bench",
+                    "build": "uglifyjs lib/marked.js -cm  --comments /Copyright/ -o marked.min.js",
+                    "preversion": "npm run build"
                 }
             },
             "license": [
@@ -5449,13 +5428,13 @@
                 }
             ],
             "description": "A markdown parser built for speed",
-            "homepage": "https://github.com/chjj/marked",
+            "homepage": "https://github.com/markedjs/marked",
             "keywords": [
                 "html",
                 "markdown",
                 "markup"
             ],
-            "time": "2018-01-09T00:10:42+00:00"
+            "time": "2018-02-20T20:56:21+00:00"
         },
         {
             "name": "npm-asset/match-at",
@@ -6008,33 +5987,61 @@
             "time": "2015-05-17T12:39:23+00:00"
         },
         {
-            "name": "phpoffice/phpexcel",
-            "version": "1.8.1",
+            "name": "phpoffice/phpspreadsheet",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/PHPOffice/PHPExcel.git",
-                "reference": "372c7cbb695a6f6f1e62649381aeaa37e7e70b32"
+                "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
+                "reference": "a2771e562e3a17c0d512d2009e38fd628beece90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PHPExcel/zipball/372c7cbb695a6f6f1e62649381aeaa37e7e70b32",
-                "reference": "372c7cbb695a6f6f1e62649381aeaa37e7e70b32",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/a2771e562e3a17c0d512d2009e38fd628beece90",
+                "reference": "a2771e562e3a17c0d512d2009e38fd628beece90",
                 "shasum": ""
             },
             "require": {
+                "ext-ctype": "*",
+                "ext-dom": "*",
+                "ext-gd": "*",
+                "ext-iconv": "*",
+                "ext-libxml": "*",
+                "ext-mbstring": "*",
+                "ext-simplexml": "*",
                 "ext-xml": "*",
+                "ext-xmlreader": "*",
                 "ext-xmlwriter": "*",
-                "php": ">=5.2.0"
+                "ext-zip": "*",
+                "ext-zlib": "*",
+                "php": "^5.6|^7.0",
+                "psr/simple-cache": "^1.0"
+            },
+            "require-dev": {
+                "dompdf/dompdf": "^0.8.0",
+                "friendsofphp/php-cs-fixer": "@stable",
+                "jpgraph/jpgraph": "^4.0",
+                "mpdf/mpdf": "^7.0.0",
+                "phpunit/phpunit": "^5.7",
+                "squizlabs/php_codesniffer": "^2.7",
+                "tecnickcom/tcpdf": "^6.2"
+            },
+            "suggest": {
+                "dompdf/dompdf": "Option for rendering PDF with PDF Writer",
+                "ext-dom": "Option to read and write HTML files",
+                "ext-gd": "Required for exact column width autocalculation",
+                "jpgraph/jpgraph": "Option for rendering charts, or including charts with PDF or HTML Writers",
+                "mpdf/mpdf": "Option for rendering PDF with PDF Writer",
+                "tecnick.com/tcpdf": "Option for rendering PDF with PDF Writer"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "PHPExcel": "Classes/"
+                "psr-4": {
+                    "PhpOffice\\PhpSpreadsheet\\": "src/PhpSpreadsheet"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL"
+                "LGPL-2.1"
             ],
             "authors": [
                 {
@@ -6042,28 +6049,30 @@
                     "homepage": "http://blog.maartenballiauw.be"
                 },
                 {
-                    "name": "Mark Baker"
+                    "name": "Erik Tilt"
                 },
                 {
                     "name": "Franck Lefevre",
-                    "homepage": "http://blog.rootslabs.net"
+                    "homepage": "http://rootslabs.net"
                 },
                 {
-                    "name": "Erik Tilt"
+                    "name": "Mark Baker",
+                    "homepage": "http://markbakeruk.net"
                 }
             ],
-            "description": "PHPExcel - OpenXML - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
-            "homepage": "http://phpexcel.codeplex.com",
+            "description": "PHPSpreadsheet - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
+            "homepage": "https://github.com/PHPOffice/PhpSpreadsheet",
             "keywords": [
                 "OpenXML",
                 "excel",
+                "gnumeric",
+                "ods",
                 "php",
                 "spreadsheet",
                 "xls",
                 "xlsx"
             ],
-            "abandoned": "phpoffice/phpspreadsheet",
-            "time": "2015-05-01T07:00:55+00:00"
+            "time": "2018-01-28T12:37:15+00:00"
         },
         {
             "name": "phpoption/phpoption",
@@ -6663,17 +6672,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "3df94834c80037130b533703df4672785b6ea112"
+                "reference": "940eb3dbebd9bb2d82c94ecc896df8b19b9bd867"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/3df94834c80037130b533703df4672785b6ea112",
-                "reference": "3df94834c80037130b533703df4672785b6ea112",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/940eb3dbebd9bb2d82c94ecc896df8b19b9bd867",
+                "reference": "940eb3dbebd9bb2d82c94ecc896df8b19b9bd867",
                 "shasum": ""
             },
             "conflict": {
+                "3f/pygmentize": "<1.2",
                 "adodb/adodb-php": "<5.20.6",
                 "amphp/artax": "<1.0.6|>=2,<2.0.6",
+                "asymmetricrypt/asymmetricrypt": ">=0,<9.9.99",
                 "aws/aws-sdk-php": ">=3,<3.2.1",
                 "bugsnag/bugsnag-laravel": ">=2,<2.0.2",
                 "cakephp/cakephp": ">=1.3,<1.3.18|>=2,<2.4.99|>=2.5,<2.5.99|>=2.6,<2.6.12|>=2.7,<2.7.6|>=3,<3.0.15|>=3.1,<3.1.4",
@@ -6718,9 +6729,13 @@
                 "onelogin/php-saml": "<2.10.4",
                 "oro/crm": ">=1.7,<1.7.4",
                 "oro/platform": ">=1.7,<1.7.4",
+                "padraic/humbug_get_contents": "<1.1.2",
+                "pagarme/pagarme-php": ">=0,<9.9.99",
                 "phpmailer/phpmailer": ">=5,<5.2.24",
                 "phpunit/phpunit": ">=4.8.19,<4.8.28|>=5.0.10,<5.6.3",
                 "phpxmlrpc/extras": "<0.6.1",
+                "propel/propel": ">=2.0.0-alpha1,<=2.0.0-alpha7",
+                "propel/propel1": ">=1,<=1.7.1",
                 "pusher/pusher-php-server": "<2.2.1",
                 "sabre/dav": ">=1.6,<1.6.99|>=1.7,<1.7.11|>=1.8,<1.8.9",
                 "shopware/shopware": "<5.3.7",
@@ -6733,6 +6748,7 @@
                 "simplesamlphp/simplesamlphp-module-infocard": "<1.0.1",
                 "socalnick/scn-social-auth": "<1.15.2",
                 "squizlabs/php_codesniffer": ">=1,<2.8.1",
+                "stormpath/sdk": ">=0,<9.9.99",
                 "swiftmailer/swiftmailer": ">=4,<5.4.5",
                 "symfony/dependency-injection": ">=2,<2.0.17",
                 "symfony/form": ">=2.3,<2.3.35|>=2.4,<2.6.12|>=2.7,<2.7.38|>=2.8,<2.8.31|>=3,<3.2.14|>=3.3,<3.3.13",
@@ -6752,16 +6768,17 @@
                 "symfony/web-profiler-bundle": ">=2,<2.3.19|>=2.4,<2.4.9|>=2.5,<2.5.4",
                 "symfony/yaml": ">=2,<2.0.22|>=2.1,<2.1.7",
                 "thelia/backoffice-default-template": ">=2.1,<2.1.2",
-                "thelia/thelia": ">=2.1.0-beta1,<2.1.3|>=2.1,<2.1.2",
+                "thelia/thelia": ">=2.1,<2.1.2|>=2.1.0-beta1,<2.1.3",
+                "titon/framework": ">=0,<9.9.99",
                 "twig/twig": "<1.20",
                 "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.22|>=8,<8.7.5",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
                 "typo3/neos": ">=1.1,<1.1.3|>=1.2,<1.2.13|>=2,<2.0.4",
                 "willdurand/js-translation-bundle": "<2.1.1",
                 "yiisoft/yii": ">=1.1.14,<1.1.15",
-                "yiisoft/yii2": "<2.0.5",
+                "yiisoft/yii2": "<2.0.14",
                 "yiisoft/yii2-bootstrap": "<2.0.4",
-                "yiisoft/yii2-dev": "<2.0.4",
+                "yiisoft/yii2-dev": "<2.0.14",
                 "yiisoft/yii2-gii": "<2.0.4",
                 "yiisoft/yii2-jui": "<2.0.4",
                 "zendframework/zend-cache": ">=2.4,<2.4.8|>=2.5,<2.5.3",
@@ -6801,7 +6818,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-02-04T22:09:50+00:00"
+            "time": "2018-02-21T14:50:18+00:00"
         },
         {
             "name": "sensio/distribution-bundle",
@@ -8563,23 +8580,23 @@
         },
         {
             "name": "codeception/stub",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Stub.git",
-                "reference": "673ea54cdd7141e0a5138ad78aaa60751912f573"
+                "reference": "95fb7a36b81890dd2e5163e7ab31310df6f1bb99"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Stub/zipball/673ea54cdd7141e0a5138ad78aaa60751912f573",
-                "reference": "673ea54cdd7141e0a5138ad78aaa60751912f573",
+                "url": "https://api.github.com/repos/Codeception/Stub/zipball/95fb7a36b81890dd2e5163e7ab31310df6f1bb99",
+                "reference": "95fb7a36b81890dd2e5163e7ab31310df6f1bb99",
                 "shasum": ""
             },
             "require": {
-                "phpunit/phpunit-mock-objects": "^2.3|^3.0|^4.0|^5.0"
+                "phpunit/phpunit-mock-objects": ">2.3 <7.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.8|^5.0|^6.0|^7.0"
+                "phpunit/phpunit": ">=4.8 <8.0"
             },
             "type": "library",
             "autoload": {
@@ -8592,7 +8609,7 @@
                 "MIT"
             ],
             "description": "Flexible Stub wrapper for PHPUnit's Mock Builder",
-            "time": "2018-01-27T00:37:17+00:00"
+            "time": "2018-02-18T13:56:56+00:00"
         },
         {
             "name": "codeception/verify",
@@ -9435,16 +9452,16 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.7.3",
+            "version": "1.7.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "e4ed002c67da8eceb0eb8ddb8b3847bb53c5c2bf"
+                "reference": "dfd6be44111a7c41c2e884a336cc4f461b3b2401"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/e4ed002c67da8eceb0eb8ddb8b3847bb53c5c2bf",
-                "reference": "e4ed002c67da8eceb0eb8ddb8b3847bb53c5c2bf",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/dfd6be44111a7c41c2e884a336cc4f461b3b2401",
+                "reference": "dfd6be44111a7c41c2e884a336cc4f461b3b2401",
                 "shasum": ""
             },
             "require": {
@@ -9456,7 +9473,7 @@
             },
             "require-dev": {
                 "phpspec/phpspec": "^2.5|^3.2",
-                "phpunit/phpunit": "^4.8.35 || ^5.7"
+                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.5"
             },
             "type": "library",
             "extra": {
@@ -9494,7 +9511,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2017-11-24T13:59:53+00:00"
+            "time": "2018-02-19T10:16:54+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
