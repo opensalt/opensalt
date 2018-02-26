@@ -148,7 +148,7 @@ class ExcelExport
             ->setCellValue('N2', $licenseUri)
             ->setCellValue('O2', $licenseTitle)
             ->setCellValue('P2', $licenseText)
-            ->setCellValue('Q2', $cfDoc->getNote());
+            ->setCellValue('Q2', $cfDoc->getNote())
             ->setTitle('CF Doc');
 
         $phpExcelObject->createSheet();
