@@ -3,7 +3,6 @@
 namespace App\Handler\Email;
 
 use App\Command\Email\AbstractSendEmailCommand;
-use App\Command\Email\SendSignupReceivedEmailCommand;
 
 class SendSignupReceivedEmailHandler extends AbstractEmailHandler
 {
