@@ -165,46 +165,42 @@ class CommentsController extends Controller
      */
     public function exportCommentAction(string $itemType, int $itemId)
     {
-        $childIds = [];
-        $comment_rows = [];
-        $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
-        $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
-        $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
-        $rows[] = $headers;
-        switch ($itemType)
-        {
-            case 'document':
-                $comment_data = $repo->findBy([$itemType => $itemId]);
-                $comment_rows = $this->csvArray($comment_data, $itemType);
-                foreach ($comment_rows as $row)
-                {
-                    $rows[] = $row;
-                }
-                $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->find($itemId);
-                $lsDocChilds = $lsDoc->getLsItems();
-                foreach ($lsDocChilds as $lsDocChild){
-                    $childIds[] = $lsDocChild->getId();
-                }
-                break;
-
-            case 'item':
-                $lsItem = $lsItemRepo->findOneById($itemId);
-                $lsItem->getDescendantIds($childIds);
-                $childIds[] = $itemId;
-                break;
-        }
-        $comment_data = $repo->findBy(['item' => $childIds]);
-        $comment_rows = $this->csvArray($comment_data, 'item');
-        foreach ($comment_rows as $child_row)
-        {
-            $rows[] = $child_row;
-        }
         $response = new StreamedResponse();
-        $response->setCallback(function () use($rows) {
+        $response->setCallback(function () use($itemType, $itemId) {
+            $childIds = [];
+            $comment_rows = [];
             $handle = fopen('php://output', 'r+');
-            foreach ($rows as $row)
+            $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
+            $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
+            $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
+            fputcsv($handle, $headers);
+            switch ($itemType)
             {
-                fputcsv($handle, $row);
+                case 'document':
+                    $comment_data = $repo->findBy([$itemType => $itemId]);
+                    $comment_rows = $this->csvArray($comment_data, $itemType);
+                    foreach ($comment_rows as $row)
+                    {
+                        fputcsv($handle, $row);
+                    }
+                    $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->find($itemId);
+                    $lsDocChilds = $lsDoc->getLsItems();
+                    foreach ($lsDocChilds as $lsDocChild){
+                        $childIds[] = $lsDocChild->getId();
+                    }
+                    break;
+
+                case 'item':
+                    $lsItem = $lsItemRepo->findOneById($itemId);
+                    $childIds=$lsItem->getDescendantIds();
+                    $childIds[] = $itemId;
+                    break;
+            }
+            $comment_data = $repo->findBy(['item' => $childIds]);
+            $comment_rows = $this->csvArray($comment_data, 'item');
+            foreach ($comment_rows as $child_row)
+            {
+                fputcsv($handle, $child_row);
             }
             fclose($handle);
         });
