@@ -89,7 +89,7 @@ class SignupController extends Controller
                 // get public users username and org
                 try {
                     $from_email = $this->getParameter('mail_feature_from_email');
-                    $command = new SendAdminNotificationEmailCommand($from_email, $targetUser->getUsername());
+                    $command = new SendAdminNotificationEmailCommand($from_email, $targetUser->getUsername(), $targetUser->getOrg()->getName());
                     $this->sendCommand($command);
                 } catch (\Swift_RfcComplianceException $e) {
                     throw new \RuntimeException('A valid email address must be given.');
