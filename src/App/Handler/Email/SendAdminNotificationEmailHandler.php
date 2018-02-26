@@ -11,7 +11,7 @@ class SendAdminNotificationEmailHandler extends AbstractEmailHandler
     {
         /** @var SendAdminNotificationEmailCommand $command */
         $userName = $command->getUsername();
-        $organization = 'staticOrg';
+        $organization = $command->getOrganization();
         $email
             ->setSubject('An account was created that needs to be approved')
             ->setBody(
