@@ -9,6 +9,11 @@ class SendAdminNotificationEmailCommand extends AbstractSendEmailCommand
      */
     protected $userName;
 
+    /**
+     * @var string
+     */
+    protected $userOrganization;
+
     public function __construct(string $recipient, string $userName, string $userOrganization)
     {
         parent::__construct($recipient);

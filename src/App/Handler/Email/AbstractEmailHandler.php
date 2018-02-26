@@ -42,7 +42,7 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler implements Even
      */
     private $mailFromEmail;
 
-    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, string $mailFromEmail = null, TwigEngine $templating)
+    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, TwigEngine $templating, string $mailFromEmail = null)
     {
         parent::__construct($validator);
         $this->templating = $templating;
