@@ -89,7 +89,7 @@ class Notification implements Context
     }
 
     /**
-     * @Then /^I see a notification modified "([^"]*)"$/
+     * @Then /^I see a notification New "([^"]*)"$/
      */
     public function iSeeANotificationOfNew($type)
     {
@@ -104,7 +104,7 @@ class Notification implements Context
     }
 
     /**
-     * @Then /^I see a notification New "([^"]*)"$/
+     * @Then /^I see a notification modified "([^"]*)"$/
      */
     public function iSeeANotificationOfModified($type)
     {
@@ -113,6 +113,17 @@ class Notification implements Context
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\AcceptanceTester $I) use ($type) {
+                // Look for notification, might take a few seconds to show up (allow 10)
+                for ($i = 0; $i < 9; $i++) {
+                    try {
+                        $I->see($type, '.alert-info');
+
+                        return;
+                    } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+                        $I->wait(1);
+                    }
+                }
+
                 $I->see($type, '.alert-info');
             }
         );

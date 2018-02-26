@@ -41,6 +41,8 @@ services:
       CREATE_ACCOUNT_FEATURE:
       USE_MAIL_FEATURE:
       MAIL_FEATURE_FROM_EMAIL:
+      GOOGLE_CAPTCHA_SITE_KEY:
+      GOOGLE_CAPTCHA_SECRET_KEY:
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html

@@ -8,6 +8,7 @@ use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateTreeItemsCommand;
+use App\Entity\ChangeEntry;
 use App\Entity\Framework\ObjectLock;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
@@ -21,6 +22,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Util\Compare;
@@ -169,8 +171,14 @@ class DocTreeController extends Controller
     {
         $response = new Response();
 
+        $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
+        $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
+
         $lastModified = $lsDoc->getUpdatedAt();
-        $response->setEtag(md5($lastModified->format('U')));
+        if (false !== $lastChange && null !== $lastChange['changed_at']) {
+            $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
+        }
+        $response->setEtag(md5($lastModified->format('U.u')), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(0);
         $response->setSharedMaxAge(0);
@@ -523,9 +531,17 @@ class DocTreeController extends Controller
     public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
         $command = new DeleteAssociationGroupCommand($associationGrouping);
-        $this->sendCommand($command);
 
-        return new Response('OK', Response::HTTP_ACCEPTED);
+        try {
+            $this->sendCommand($command);
+        } catch (\Exception $e) {
+            if (preg_match('/FOREIGN KEY/', $e->getMessage())) {
+                return new JsonResponse(['error'=>['message'=>'An association group may only be deleted if there are no associations in it.']], Response::HTTP_BAD_REQUEST);
+            }
+            return new JsonResponse(['error'=>['message'=>'The association group could not be deleted.']], Response::HTTP_BAD_REQUEST);
+        }
+
+        return new JsonResponse('OK', Response::HTTP_ACCEPTED);
     }
 
     /**
@@ -567,7 +583,28 @@ class DocTreeController extends Controller
         $externalDocs = $lsDoc->getExternalDocs();
         if (!empty($externalDocs[$identifier])) {
             // if we found it, load it, noting that we don't have to save a record of it in externalDocs (since it's already there)
-            return $this->exportExternalDocument($externalDocs[$identifier]['url'], null);
+            $response = $this->exportExternalDocument($externalDocs[$identifier]['url'], null);
+            if (200 !== $response->getStatusCode()) {
+                return $response;
+            }
+
+            $content = $response->getContent();
+            $json = json_decode($content, true);
+            $lastModified = new \DateTime($json['CFDocument']['lastChangeDateTime'], new \DateTimeZone('UTC'));
+
+            $response->setEtag(md5($lastModified->format('U')), true);
+            $response->setLastModified($lastModified);
+            $response->setMaxAge(0);
+            $response->setSharedMaxAge(0);
+            $response->setExpires(\DateTime::createFromFormat('U', $lastModified->format('U'))->sub(new \DateInterval('PT1S')));
+            $response->setPublic();
+            $response->headers->addCacheControlDirective('must-revalidate');
+
+            if ($response->isNotModified($request)) {
+                return $response;
+            }
+
+            return $response;
         }
 
         // if not found in externalDocs, error

@@ -11,13 +11,14 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Salt\UserBundle\Validator\Constraints as CustomAssert;
 
 /**
  * Class User
  *
  * @ORM\Entity(repositoryClass="Salt\UserBundle\Repository\UserRepository")
  * @ORM\Table(name="salt_user")
- * @UniqueEntity("username")
+ * @UniqueEntity("username", message="That email address is already being used", groups={"registration"})
  */
 class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 {
@@ -65,7 +66,13 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @var string
      *
      * @Assert\NotBlank(groups={"registration"})
-     * @Assert\Length(max=4096)
+     * @Assert\Length(
+     *      min=8,
+     *      max=4096,
+     *      minMessage="Password must be at least {{ limit }} charactes long",
+     *      maxMessage="Password cannot be longer than {{ limit }} characters"
+     *  )
+     * @CustomAssert\PasswordField(groups={"registration"})
      */
     private $plainPassword;
 
