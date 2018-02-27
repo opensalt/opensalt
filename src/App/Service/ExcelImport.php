@@ -6,6 +6,7 @@ use CftfBundle\Entity\ImportLog;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDefAssociationGrouping;
 use CftfBundle\Entity\LsDefItemType;
+use CftfBundle\Entity\LsDefLicence;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -129,14 +130,43 @@ class ExcelImport
                 )
             )
         );
-        $doc->setLicence($this->getCellValueOrNull($sheet, 14, 2));
-        // col 14 - Licence title
-        // col 15 - Licence text
-        $doc->setNote($this->getCellValueOrNull($sheet, 16, 2));
+
+        $licence = $this->getLicence($sheet);
+
+        $doc->setLicence($licence);
+
+        $doc->setNote($this->getCellValueOrNull($sheet, 17, 2));
 
         $this->getEntityManager()->persist($doc);
 
         return $doc;
+    }
+
+    private function getLicence(Worksheet $sheet): LsDefLicence
+    {
+        $uri = $this->getCellValueOrNull($sheet, 14, 2);
+        $title = $this->getCellValueOrNull($sheet, 15, 2);
+        $licenceText = $this->getCellValueOrNull($sheet, 16, 2);
+
+        // Look for this licence locally
+        $licence = $this->getEntityManager()->getRepository(LsDefLicence::class)
+            ->findOneByUri($uri);
+
+        // Check if the licence uri exists locally
+        if (null !== $licence && !empty($uri)) {
+            return $licence;
+        }
+
+        // creates licence if it doesn't exists locally
+        $licence = new LsDefLicence();
+
+        $licence->setUri($uri);
+        $licence->setTitle($title);
+        $licence->setLicenceText($licenceText);
+
+        $this->getEntityManager()->persist($licence);
+
+        return $licence;
     }
 
     private function saveItem(Worksheet $sheet, LsDoc $doc, int $row): LsItem
