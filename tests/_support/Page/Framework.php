@@ -6,6 +6,7 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Codeception\Exception\Fail;
 use Codeception\Util\Locator;
+use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
 
@@ -225,7 +226,16 @@ class Framework implements Context
      */
     public function iSelectFrameworkNode(): Framework
     {
-        $this->I->click(['xpath' => '(//div[@id="viewmode_tree1"]/ul/li/span)[1]']);
+        $el = ['xpath' => '(//div[@id="viewmode_tree1"]/ul/li/span)[1]'];
+
+        try {
+            $this->I->click($el);
+        } catch (StaleElementReferenceException $e) {
+            // Wait for 1 second and try again
+            $this->I->wait(1);
+            $this->I->waitForElementVisible($el, 10);
+            $this->I->click($el);
+        }
 
         return $this;
     }
@@ -395,13 +405,13 @@ class Framework implements Context
      */
     public function iShouldHaveAnExcelFileWithSmartLevels(): Framework
     {
-        $reader = \PHPExcel_IOFactory::createReaderForFile($this->filename);
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($this->filename);
         $ss = $reader->load($this->filename);
 
         $sheet = $ss->getSheetByName('CF Item');
 
         $row = 1;
-        while (!empty($sheet->getCell('A'.++$row)->getValue())) {
+        while (!empty($sheet->getCell('A'.++$row)) && !empty($sheet->getCell('A'.++$row)->getValue())) {
             $item = $sheet->getCell('B'.$row)->getValue();
             $smartLevel = $sheet->getCell('D'.$row)->getValue();
 
@@ -989,26 +999,43 @@ class Framework implements Context
     /**
      * @Then /^I search for "([^"]*)" in the framework$/
      */
-    public function iSearchForInTheFramework($item) {
+    public function iSearchForInTheFramework($item)
+    {
         $I = $this->I;
 
         $I->fillField('#filterOnTree', $item);
-        $I->wait(1);
+        // Chrome seems to require an explicit "keyup" to trigger the searching
+        $I->executeJS("$('#filterOnTree').trigger('keyup');");
+        $I->wait(1); // search has a 500ms delay to allow typing
     }
 
     /**
      * @Given /^I should not see "([^"]*)" in results$/
      */
-    public function iShouldNotSeeInResults($item) {
+    public function iShouldNotSeeInSearchResults($item)
+    {
         $I = $this->I;
 
-        $I->dontSee($item);
+        for ($i = 0; $i < 4; $i++) {
+            try {
+                $I->dontSee($item, '#tree1Section');
+
+                return;
+            } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+                // Try triggering the search again
+                $I->executeJS("$('#filterOnTree').trigger('keyup');");
+                $I->wait(1.5); // search has a 500ms delay to allow typing
+            }
+        }
+
+        $I->dontSee($item, '#tree1Section');
     }
 
     /**
      * @Given /^I edit the fields in a framework without saving the changes$/
      */
-    public function iEditTheFieldsInAFrameworkWithoutSavingTheChanges(TableNode $table) {
+    public function iEditTheFieldsInAFrameworkWithoutSavingTheChanges(TableNode $table)
+    {
         $I = $this->I;
 
         $this->iGoToTheFrameworkDocument();
@@ -1020,6 +1047,7 @@ class Framework implements Context
         foreach ($rows as $row) {
             $this->iEditTheFieldInFramework($row[0], $row[1]);
         }
+
         return $this;
     }
 
