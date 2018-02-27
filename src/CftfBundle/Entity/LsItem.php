@@ -949,7 +949,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
 
     /*
      * Find all children items of selected item
-     * @return array|null
+     * @return array
      */
     public function getDescendantIds(): array
     {

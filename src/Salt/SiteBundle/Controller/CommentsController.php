@@ -168,8 +168,7 @@ class CommentsController extends Controller
         $response = new StreamedResponse();
         $response->setCallback(function () use($itemType, $itemId) {
             $childIds = [];
-            $comment_rows = [];
-            $handle = fopen('php://output', 'r+');
+            $handle = fopen('php://output', 'wb+');
             $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
             $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
             $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
@@ -191,7 +190,7 @@ class CommentsController extends Controller
                     break;
 
                 case 'item':
-                    $lsItem = $lsItemRepo->findOneById($itemId);
+                    $lsItem = $lsItemRepo->find($itemId);
                     $childIds=$lsItem->getDescendantIds();
                     $childIds[] = $itemId;
                     break;
