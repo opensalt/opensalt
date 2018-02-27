@@ -5,22 +5,26 @@ namespace App\Handler\User;
 use App\Command\User\AddUserRoleCommand;
 use App\Event\CommandEvent;
 use App\Handler\BaseDoctrineHandler;
+use App\Service\User\UserManager;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use JMS\DiExtraBundle\Annotation as DI;
-use Salt\UserBundle\Entity\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class AddUserRoleHandler
- *
- * @DI\Service()
  */
 class AddUserRoleHandler extends BaseDoctrineHandler
 {
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry)
+    /**
+     * @var UserManager
+     */
+    private $userManager;
+
+    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, UserManager $userManager)
     {
         parent::__construct($validator, $registry);
+        $this->userManager = $userManager;
     }
 
     /**
@@ -41,6 +45,6 @@ class AddUserRoleHandler extends BaseDoctrineHandler
         $username = $command->getUserName();
         $role = $command->getRole();
 
-        $this->em->getRepository(User::class)->addRoleToUser($username, $role);
+        $this->userManager->addRoleToUser($username, $role);
     }
 }

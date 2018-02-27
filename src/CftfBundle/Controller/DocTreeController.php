@@ -128,6 +128,7 @@ class DocTreeController extends Controller
     /**
      * @Route("/remote", name="doc_tree_remote_view")
      * @Method({"GET"})
+     * @Template("@Cftf/doc_tree/view.html.twig")
      */
     public function viewRemoteAction()
     {
@@ -138,7 +139,7 @@ class DocTreeController extends Controller
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
         }
 
-        $arr = [
+        return [
             'lsDoc' => '',
             'lsDocId' => 'url',
             'lsDocTitle' => 'Remote Framework',
@@ -155,8 +156,6 @@ class DocTreeController extends Controller
             'assocGroups' => [],
             'lsDocs' => []
         ];
-
-        return new Response($this->renderView('CftfBundle:DocTree:view.html.twig', $arr));
     }
 
 ///////////////////////////////////////////////
@@ -167,9 +166,9 @@ class DocTreeController extends Controller
      * @Route("/docexport/{id}.json", name="doctree_cfpackage_export")
      * @Method("GET")
      */
-    public function exportAction(Request $request, LsDoc $lsDoc)
+    public function exportAction(Request $request, LsDoc $lsDoc): JsonResponse
     {
-        $response = new Response();
+        $response = new JsonResponse();
 
         $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
         $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
@@ -222,9 +221,9 @@ class DocTreeController extends Controller
             'assocGroups' => $assocGroups,
         ];
 
-        $response->setContent($this->renderView('CftfBundle:DocTree:export.json.twig', $arr));
-        $response->headers->set('Content-Type', 'application/json');
+        $response->setContent($this->renderView('@Cftf/doc_tree/export.json.twig', $arr));
 
+        // This is called to retrieve a response by other methods, so cannot use a template
         return $response;
     }
 

@@ -6,6 +6,7 @@ use App\Repository\ChangeEntryRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,12 +35,11 @@ class SystemLogController extends AbstractController
      * @Route("/system_log", name="system_logs_show")
      * @Method({"GET"})
      * @Security("is_granted('ROLE_SUPER_USER')")
-     *
-     * @return Response
+     * @Template()
      */
-    public function showSystemLogs(): Response
+    public function showSystemLogs(): array
     {
-        return $this->render('system_log/show.html.twig');
+        return [];
     }
 
     /**

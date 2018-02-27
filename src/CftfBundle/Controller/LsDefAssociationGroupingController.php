@@ -82,7 +82,7 @@ class LsDefAssociationGroupingController extends Controller
         }
 
         if ($ajax && $form->isSubmitted() && !$form->isValid()) {
-            return $this->render('CftfBundle:LsDefAssociationGrouping:new.html.twig', ['form' => $form->createView()], new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
+            return $this->render('CftfBundle:ls_def_association_grouping:new.html.twig', ['form' => $form->createView()], new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
         return [

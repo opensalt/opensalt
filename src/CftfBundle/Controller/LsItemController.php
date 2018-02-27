@@ -115,7 +115,7 @@ class LsItemController extends Controller
         ];
 
         if ($ajax && $form->isSubmitted()) {
-            return $this->render('CftfBundle:LsItem:new.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
+            return $this->render('CftfBundle:ls_item:new.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
         return $ret;
@@ -171,7 +171,7 @@ class LsItemController extends Controller
             $this->sendCommand($command);
         } catch (AlreadyLockedException $e) {
             return $this->render(
-                'CftfBundle:LsItem:locked.html.twig',
+                'CftfBundle:ls_item:locked.html.twig',
                 []
             );
         }
@@ -203,7 +203,7 @@ class LsItemController extends Controller
         ];
 
         if ($ajax && $editForm->isSubmitted() && !$editForm->isValid()) {
-            return $this->render('CftfBundle:LsItem:edit.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
+            return $this->render('CftfBundle:ls_item:edit.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
         return $ret;
@@ -339,7 +339,7 @@ class LsItemController extends Controller
         ];
 
         if ($ajax && $form->isSubmitted() && !$form->isValid()) {
-            return $this->render('CftfBundle:LsItem:copy.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
+            return $this->render('CftfBundle:ls_item:copy.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
         return $ret;
@@ -386,7 +386,7 @@ class LsItemController extends Controller
         ];
 
         if ($ajax && $form->isSubmitted() && !$form->isValid()) {
-            return $this->render('CftfBundle:LsItem:changeParent.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
+            return $this->render('CftfBundle:ls_item:changeParent.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
         return $ret;
@@ -431,7 +431,7 @@ class LsItemController extends Controller
             }
         }
 
-        $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
+        $response = new Response($this->renderView('CftfBundle:doc_tree:export_item.json.twig', ['lsItem' => $ret]));
         $response->headers->set('Content-Type', 'application/json');
         $response->headers->set('Cache-Control', 'no-cache');
 

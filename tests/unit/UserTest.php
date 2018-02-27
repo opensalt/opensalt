@@ -1,6 +1,5 @@
 <?php
 
-use Doctrine\ORM\EntityManager;
 use Salt\UserBundle\Entity\User;
 use Salt\UserBundle\Entity\Organization;
 

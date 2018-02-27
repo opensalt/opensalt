@@ -16,7 +16,8 @@ abstract class AbstractFixturesMigration extends AbstractMigration implements Co
 
     public function loadFixtures(array $fixtures, $append = true)
     {
-        $em = $this->container->get('doctrine.orm.entity_manager');
+        $doctrine = $this->container->get('doctrine');
+        $em = $doctrine->getManager();
         $loader = new ContainerAwareLoader($this->container);
         array_map(array($loader, 'addFixture'), $fixtures);
         $purger = null;
