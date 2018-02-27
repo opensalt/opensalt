@@ -5,10 +5,11 @@ namespace App\Controller;
 use App\Command\CommandDispatcherTrait;
 use App\Service\ExcelExport;
 use CftfBundle\Entity\LsDoc;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExcelExportController extends Controller
 {
@@ -24,20 +25,24 @@ class ExcelExportController extends Controller
     }
 
     /**
-     * @Route("/salt/case/export/{id}", name="export_case_file")
+     * @Route("/cfdoc/{id}/excel", name="export_excel_file")
+     * @Method("GET")
      *
      * @param LsDoc $lsDoc
      *
-     * @return Response
+     * @return StreamedResponse
      */
-    public function exportExcelAction(LsDoc $lsDoc): Response
+    public function exportExcelAction(LsDoc $lsDoc): StreamedResponse
     {
         $title = preg_replace('/[^A-Za-z0-9]/', '_', $lsDoc->getTitle());
 
         $phpExcelObject = $this->excelExport->exportExcelFile($lsDoc);
 
-        $response = $this->get('phpexcel')->createStreamedResponse(
-            $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007'),
+        return new StreamedResponse(
+            function () use ($phpExcelObject) {
+                \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($phpExcelObject, 'Xlsx')
+                    ->save('php://output');
+            },
             200,
             [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -45,7 +50,5 @@ class ExcelExportController extends Controller
                 'Cache-Control' => 'max-age=0',
             ]
         );
-
-        return $response;
     }
 }

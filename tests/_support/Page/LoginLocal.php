@@ -13,7 +13,7 @@ class LoginLocal implements Context, Login
     public static $loginLink = 'a.login';
     public static $usernameField = '#username';
     public static $passwordField = '#password';
-    public static $loginButton = 'button.btn-primary[type=submit]';
+    public static $loginButton = 'button.btn-login';
 
     /**
      * @var \AcceptanceTester

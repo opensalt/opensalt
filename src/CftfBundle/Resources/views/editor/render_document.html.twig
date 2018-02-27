@@ -1,0 +1,22 @@
+<h3>
+    <a href="{{ lsDoc.uri|local_uri }}" name="document" class="lsDoc text-muted">
+        {{ lsDoc.title }}
+    </a>
+</h3>
+<ul>
+    {% for itemId in topItemIds %}
+        {% set item = items[itemId] %}
+        {% include 'CftfBundle:editor:render_child.html.twig' with { 'lsItem':item, 'lsDoc':lsDoc, 'items':items, 'highlight':highlight } %}
+    {% endfor %}
+
+    {% if orphaned is not empty %}
+        <li>
+            <strong>Orphaned</strong>:
+            <ul>
+                {% for item in orphaned %}
+                    {% include 'CftfBundle:editor:render_child.html.twig' with { 'lsItem':item, 'lsDoc':lsDoc, 'items':items, 'highlight':highlight } %}
+                {% endfor %}
+            </ul>
+        </li>
+    {% endif %}
+</ul>

@@ -15,12 +15,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\ClientInterface;
-use JMS\DiExtraBundle\Annotation as DI;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @DI\Service()
- */
 class AsnImport
 {
     /**
@@ -31,15 +27,6 @@ class AsnImport
     /** @var ClientInterface */
     private $jsonClient;
 
-    /**
-     * @param EntityManager $em
-     * @param ClientInterface $jsonClient
-     *
-     * @DI\InjectParams({
-     *     "em" = @DI\Inject("doctrine.orm.entity_manager"),
-     *     "jsonClient" = @DI\Inject("csa_guzzle.client.json"),
-     * })
-     */
     public function __construct(EntityManagerInterface $em, ClientInterface $jsonClient)
     {
         $this->em = $em;

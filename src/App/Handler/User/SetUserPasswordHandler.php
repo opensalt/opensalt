@@ -6,22 +6,26 @@ use App\Command\User\SetUserPasswordCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
+use App\Service\User\UserManager;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use JMS\DiExtraBundle\Annotation as DI;
-use Salt\UserBundle\Entity\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class SetUserPasswordHandler
- *
- * @DI\Service()
  */
 class SetUserPasswordHandler extends BaseDoctrineHandler
 {
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry)
+    /**
+     * @var UserManager
+     */
+    private $userManager;
+
+    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, UserManager $userManager)
     {
         parent::__construct($validator, $registry);
+        $this->userManager = $userManager;
     }
 
     /**
@@ -42,7 +46,7 @@ class SetUserPasswordHandler extends BaseDoctrineHandler
         $username = $command->getUserName();
         $plainPassword = $command->getPlainPassword();
 
-        $newPassword = $this->em->getRepository(User::class)->setUserPassword($username, $plainPassword);
+        $newPassword = $this->userManager->setUserPassword($username, $plainPassword);
 
         $command->setPlainPassword($newPassword);
 

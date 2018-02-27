@@ -436,9 +436,10 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             $this->addInverseAssociation($exactMatch);
         }
 
+        $seq = 0;
         foreach ($this->getChildren() as $child) {
             $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup, $exactMatchAssocs);
-            $newItem->addChild($newChild, $assocGroup);
+            $newItem->addChild($newChild, $assocGroup, ++$seq);
         }
 
         return $newItem;
@@ -944,6 +945,21 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         );
 
         return $ids->toArray();
+    }
+
+    /*
+     * Find all children items of selected item
+     * @return array
+     */
+    public function getDescendantIds(): array
+    {
+        $childIds = [];
+        $hasChildren = $this->getChildren();
+        foreach ($hasChildren as $child) {
+            $childIds[$child->getId()] = $child->getId();
+            $childIds = array_merge($childIds, $child->getDescendantIds());
+        }
+        return $childIds;
     }
 
     /**

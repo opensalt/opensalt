@@ -51,11 +51,17 @@ const render = (function(){
         },
 
         inline: function (value) {
-            return mdInline.renderInline(sanitizerInline(value));
+            // Remove images and replace with alt text or "[image]"
+            let wrap = $('<div>').html(mdInline.renderInline(sanitizerInline(value)));
+            wrap.find('img').replaceWith(function() { return this.alt || '[image]'; });
+            return wrap.html();
         },
 
         inlineLinked: function (value) {
-            return mdInlineLinked.renderInline(sanitizerInline(value));
+            // Remove images and replace with alt text or "[image]"
+            let wrap = $('<div>').html(mdInlineLinked.renderInline(sanitizerInline(value)));
+            wrap.find('img').replaceWith(function() { return this.alt || '[image]'; });
+            return wrap.html();
         },
 
         escaped: function(value) {

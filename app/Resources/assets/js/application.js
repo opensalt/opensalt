@@ -4,4 +4,7 @@ $.fn.select2.defaults.set('theme', 'bootstrap');
 //  $("#select2insidemodal").select2({
 //    dropdownParent: $("#myModal")
 //  });
-$('[data-toggle="tooltip"]').tooltip({container: 'body'});
+$('body').tooltip({
+    container: 'body',
+    selector: '[data-toggle="tooltip"]'
+});

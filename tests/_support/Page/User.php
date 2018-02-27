@@ -35,7 +35,7 @@ class User implements Context
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
         $username = $faker->email;
-        $password = $faker->password;
+        $password = $faker->password.'aB3';
         $this->userName = $username;
 
         $I->click('a.dropdown-toggle');
@@ -60,7 +60,7 @@ class User implements Context
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
         $username = $faker->email;
-        $password = $faker->password;
+        $password = $faker->password.'aB3';
         $this->userName = $username;
 
         $I->click('a.dropdown-toggle');
@@ -84,7 +84,7 @@ class User implements Context
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
         $username = $faker->email;
-        $password = $faker->password;
+        $password = $faker->password.'aB3';
         $org = $faker->company;
         $this->userName = $username;
 

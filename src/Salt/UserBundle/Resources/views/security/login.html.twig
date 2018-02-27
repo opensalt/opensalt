@@ -1,0 +1,60 @@
+{% extends '::layout.html.twig' %}
+
+{% block body %}
+    {% if google_captcha_site_key is not empty %}
+        <script src="https://www.google.com/recaptcha/api.js"></script>
+    {% endif %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-2">
+            </div>
+            <div class="col-xs-8">
+                {% if error %}
+                    <div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4">
+            </div>
+            <div class="col-xs-4">
+                <form id="login-form" action="{{ path('login') }}" method="post">
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input class="form-control" type="text" id="username" name="_username" value="{{ last_username }}" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input class="form-control" type="password" id="password" name="_password" />
+                    </div>
+
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
+                    {% if redirect is not empty %}
+                        <input type="hidden" name="_target_path" value="{{ redirect }}"/>
+                    {% endif %}
+
+                    {% if google_captcha_site_key is not empty %}
+                        <button class="pull-right btn btn-primary btn-login g-recaptcha" data-sitekey="{{ google_captcha_site_key }}" data-callback="onSubmit">Login</button>
+                    {% else %}
+                        <button class="pull-right btn btn-primary btn-login" type="submit">Login</button>
+                    {% endif %}
+                </form>
+                {% if 'create_account' is active feature %}
+                    <a class="btn btn-link new-account" href="{{ path('public_user_signup') }}">Create User Account</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {% if google_captcha_site_key is not empty %}
+        <script>
+            function onSubmit(token) {
+                document.getElementById('login-form').submit();
+            }
+        </script>
+    {% endif %}
+{% endblock %}
