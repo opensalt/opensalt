@@ -13,9 +13,15 @@ use Qandidate\Toggle\ToggleManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Bundle\TwigBundle\TwigEngine;
 
 abstract class AbstractEmailHandler extends BaseValidatedHandler implements EventSubscriberInterface
 {
+    /**
+     * @var TwigEngine
+     */
+    protected $templating;
+
     /**
      * @var ToggleManager
      */
@@ -36,9 +42,10 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler implements Even
      */
     private $mailFromEmail;
 
-    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, string $mailFromEmail = null)
+    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, TwigEngine $templating, string $mailFromEmail = null)
     {
         parent::__construct($validator);
+        $this->templating = $templating;
         $this->manager = $manager;
         $this->context = $contextFactory->createContext();
         $this->mailer = $mailer;
@@ -82,7 +89,7 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler implements Even
         $email = (new \Swift_Message())
             ->setFrom($this->mailFromEmail)
             ->setTo($command->getRecipient());
-        $this->configureMessage($email);
+        $this->configureMessage($email, $command);
 
         try {
             $this->mailer->send($email);
@@ -138,5 +145,5 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler implements Even
         return new NotificationOnlyChangeEntry(null, null, 'Email sent');
     }
 
-    abstract protected function configureMessage(\Swift_Message $email): void;
+    abstract protected function configureMessage(\Swift_Message $email, AbstractSendEmailCommand $command): void;
 }

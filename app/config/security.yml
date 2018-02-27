@@ -38,6 +38,9 @@ security:
             #stateless: true
             provider: local_db_provider
 
+            # Required for Symfony 3.4
+            logout_on_user_change: true
+
             entry_point: salt.authentication.json_form_entry_point
 
             # activate different ways to authenticate
