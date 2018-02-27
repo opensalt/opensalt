@@ -13,8 +13,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class AddUserRoleHandler
- *
- * @DI\Service()
  */
 class AddUserRoleHandler extends BaseDoctrineHandler
 {

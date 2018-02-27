@@ -13,8 +13,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class RemoveUserRoleHandler
- *
- * @DI\Service()
  */
 class RemoveUserRoleHandler extends BaseDoctrineHandler
 {

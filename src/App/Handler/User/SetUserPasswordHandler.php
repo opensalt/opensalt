@@ -14,8 +14,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class SetUserPasswordHandler
- *
- * @DI\Service()
  */
 class SetUserPasswordHandler extends BaseDoctrineHandler
 {

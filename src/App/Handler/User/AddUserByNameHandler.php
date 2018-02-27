@@ -15,8 +15,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class AddUserByNameHandler
- *
- * @DI\Service()
  */
 class AddUserByNameHandler extends BaseDoctrineHandler
 {
