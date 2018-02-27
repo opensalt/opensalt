@@ -44,6 +44,8 @@ parameters:
     create_account_feature: '%env(CREATE_ACCOUNT_FEATURE)%'
     use_mail_feature: '%env(USE_MAIL_FEATURE)%'
     mail_feature_from_email: '%env(MAIL_FEATURE_FROM_EMAIL)%'
+    google_captcha_site_key: '%env(GOOGLE_CAPTCHA_SITE_KEY)%'
+    google_captcha_secret_key: '%env(GOOGLE_CAPTCHA_SECRET_KEY)%'
 
 framework:
     #esi:             ~
@@ -82,7 +84,7 @@ framework:
         csv: ['text/csv', 'text/plain']
     #translator: { fallbacks: ['%locale%'] }
     assets:
-        version: '170482'
+        version: '180451'
         packages:
           encore:
             json_manifest_path: '%kernel.project_dir%/web/build/manifest.json'
@@ -105,6 +107,7 @@ twig:
       firebase_db_url: "%firebase_db_url%"
       firebase_project_id: "%firebase_project_id%"
       firebase_prefix: "%firebase_prefix%"
+      google_captcha_site_key: '%google_captcha_site_key%'
 
 # Assetic Configuration
 assetic:

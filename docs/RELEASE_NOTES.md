@@ -1,6 +1,47 @@
 Release Notes
 =============
 
+2.0 ([Full issue and PR list](https://github.com/opensalt/opensalt/issues?&q=milestone%3A2.0+is%3Aclosed))
+---
+### New
+
+* The code has been migrated to a command-handler model
+  * All changes to the database are done via a handler and there is only
+    one place where a commit to the database occurs.
+  * Changes are now being logged for audit purposes.
+
+* Items and framework documents are now locked while being edited
+
+* Added optional feature to display notifications of changes to others
+  editing the same framework.
+
+* In the framework view, the width of the tree and the detail information
+  can be adjusted by moving the centre bar.
+
+* Added the ability to export comments.
+
+
+### Improvements
+
+* Abbreviated statement can now be 60 characters instead of 50.
+
+* Removed table listing organization admins from the login page.
+
+* Frameworks with references to many other frameworks will now load the
+  other framework information better.
+
+* Added parsing for underline in markdown to show text as underlined
+  instead of emphasized.
+
+
+### Fixes
+
+* Various fixes and improvements to importing frameworks.
+
+* Various UI fixes and improvements.
+
+
+
 1.3
 ---
 User Guide corresponding to 1.3
