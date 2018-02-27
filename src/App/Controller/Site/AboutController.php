@@ -3,6 +3,7 @@
 namespace App\Controller\Site;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class AboutController extends AbstractController
@@ -19,6 +20,7 @@ class AboutController extends AbstractController
 
     /**
      * @Route("/about", name="site_about")
+     * @Template()
      */
     public function aboutAction()
     {
@@ -33,8 +35,8 @@ class AboutController extends AbstractController
             $fullVersion = 'UNKNOWN';
         }
 
-        return $this->render('site/about.html.twig', [
+        return [
             'salt_version' => $fullVersion,
-        ]);
+        ];
     }
 }
