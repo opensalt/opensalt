@@ -18376,6 +18376,11 @@ ul.multiselect-container {
   cursor: pointer;
 }
 
+.modal-body {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
 html,
 body {
   height: 100%;
@@ -18555,6 +18560,10 @@ header .navbar-btn.btn-signup:hover {
 
 .bottomPadd8 {
   padding-bottom: 8px;
+}
+
+#datatable_filter {
+  display: none;
 }
 
 /* hack for IE11 to at least have the logo centred */

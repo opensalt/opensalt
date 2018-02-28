@@ -60,6 +60,9 @@ services:
         resource: '../../vendor/symfony/swiftmailer-bundle/Command'
         tags: ['console.command']
 
+    Symfony\Bundle\AsseticBundle\Command\:
+        resource: '../../vendor/symfony/assetic-bundle/Command'
+        tags: ['console.command']
 
     # Aliased services
     Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'
