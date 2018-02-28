@@ -64,7 +64,7 @@
                                     </li>
                                     {% if is_granted('ROLE_SUPER_USER') %} 
                                         <li>
-                                            <a class="btn btn-default btn-reject" href="{{ path('admin_user_reject', { 'id': user.id }) }}">Reject</a>
+                                            <a class="btn btn-danger" href="{{ path('admin_user_reject', { 'id': user.id }) }}">Reject</a>
                                         </li>
                                     {% endif %}
                                 {% endif %}
