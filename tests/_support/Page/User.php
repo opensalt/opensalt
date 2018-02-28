@@ -105,6 +105,7 @@ class User implements Context
         $I = $this->I;
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='show']");
         $I->see($username);
         $I->click('Delete');
@@ -303,5 +304,18 @@ class User implements Context
         $organization = $I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[2]');
         $I->fillField('#search_form_organization', $organization);
         $I->see($organization, '//*[@id="datatable"]/tbody/tr[1]/td[2]');
+    }
+
+    /**
+     * @Then /^I reject the new user$/
+     */
+    public function isRejectTheNewUser()
+    {
+        $I = $this->I;
+
+        $username = $this->userName;
+        $I->amOnPage('/admin/user');
+        $I->click('th.sorting_asc');
+        $I->click("//td[text()='{$username}']/..//a[text()='Reject']");
     }
 }
