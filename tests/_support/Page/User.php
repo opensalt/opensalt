@@ -105,6 +105,7 @@ class User implements Context
         $I = $this->I;
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='show']");
         $I->see($username);
         $I->click('Delete');
@@ -314,6 +315,7 @@ class User implements Context
 
         $username = $this->userName;
         $I->amOnPage('/admin/user');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Reject']");
     }
 }
