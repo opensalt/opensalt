@@ -70,7 +70,7 @@
 
         $('[data-toggle="popover"]').popover({
             trigger: 'hover',
-            placement: 'left',
+            placement: function() { return $(window).width() < 1100 ? 'bottom' : 'left'; },
             html: true,
         });
     </script>
