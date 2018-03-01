@@ -3,7 +3,7 @@
 namespace App\Command\Comment;
 
 use App\Command\BaseCommand;
-use Salt\SiteBundle\Entity\Comment;
+use App\Entity\Comment\Comment;
 use Salt\UserBundle\Entity\User;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;

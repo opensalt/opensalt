@@ -5,7 +5,7 @@ namespace App\Handler\Comment;
 use App\Command\Comment\DownvoteCommentCommand;
 use App\Event\CommandEvent;
 use JMS\DiExtraBundle\Annotation as DI;
-use Salt\SiteBundle\Entity\Comment;
+use App\Entity\Comment\Comment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**

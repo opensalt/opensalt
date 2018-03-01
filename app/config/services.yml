@@ -60,9 +60,6 @@ services:
     CftfBundle\Service\:
         resource: '../../src/CftfBundle/Service'
 
-    GithubFilesBundle\Service\:
-        resource: '../../src/GithubFilesBundle/Service'
-
 
     # Workarounds for 3.4 deprecations
     Symfony\Bundle\SwiftmailerBundle\Command\:

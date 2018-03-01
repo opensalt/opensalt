@@ -14,24 +14,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class LockController extends AbstractController
 {
     use CommandDispatcherTrait;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
-
-    public function __construct(EventDispatcherInterface $dispatcher)
-    {
-        // event_dispatcher
-        $this->dispatcher = $dispatcher;
-    }
 
     /**
      * @Route("/cfdoc/{id}/unlock", name="lsdoc_unlock")

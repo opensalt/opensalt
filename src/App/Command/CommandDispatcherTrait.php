@@ -8,6 +8,19 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 trait CommandDispatcherTrait
 {
     /**
+     * @var EventDispatcherInterface
+     */
+    protected $dispatcher;
+
+    /**
+     * @required
+     */
+    public function setDispatcher(EventDispatcherInterface $dispatcher): void
+    {
+        $this->dispatcher = $dispatcher;
+    }
+
+    /**
      * Send a command to be handled
      *
      * @param CommandInterface $command

@@ -1,21 +1,21 @@
 <?php
 
-namespace GithubFilesBundle\Controller;
+namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ParseCsvGithubDocumentCommand;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class ImportController
+ * Class GithubImportController
  *
  * @Security("is_granted('create', 'lsdoc')")
  */
-class ImportController extends Controller
+class GithubImportController extends AbstractController
 {
     use CommandDispatcherTrait;
 

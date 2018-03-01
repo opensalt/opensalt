@@ -1,17 +1,27 @@
 <?php
 
-namespace Salt\SiteBundle\Entity;
+namespace App\Repository;
 
-use Doctrine\ORM\EntityRepository;
+use CftfBundle\Entity\LsDoc;
+use CftfBundle\Entity\LsItem;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Entity\Comment\Comment;
+use App\Entity\Comment\CommentUpvote;
 use Salt\UserBundle\Entity\User;
+use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
  * CommentRepository
  *
  * @method Comment[] findByItem(string $itemRef)
  */
-class CommentRepository extends EntityRepository
+class CommentRepository extends ServiceEntityRepository
 {
+    public function __construct(RegistryInterface $registry)
+    {
+        parent::__construct($registry, Comment::class);
+    }
+
     /**
      * @param string $itemType
      * @param LsDoc|LsItem $itemId
@@ -26,7 +36,7 @@ class CommentRepository extends EntityRepository
         $comment = new Comment();
         $comment->setContent(trim($content));
         $comment->setUser($user);
-        if ($itemType == 'item') {
+        if ('item' === $itemType) {
             $comment->setItem($itemId);
         } else {
             $comment->setDocument($itemId);

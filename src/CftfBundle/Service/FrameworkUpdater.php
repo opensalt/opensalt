@@ -7,7 +7,7 @@ use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
-use GithubFilesBundle\Service\GithubImport;
+use App\Service\GithubImport;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
@@ -33,7 +33,7 @@ class FrameworkUpdater
      *
      * @DI\InjectParams({
      *     "managerRegistry" = @DI\Inject("doctrine"),
-     *     "githubImport" = @DI\Inject(GithubFilesBundle\Service\GithubImport::class),
+     *     "githubImport" = @DI\Inject(App\Service\GithubImport::class),
      * })
      */
     public function __construct(ManagerRegistry $managerRegistry, GithubImport $githubImport)

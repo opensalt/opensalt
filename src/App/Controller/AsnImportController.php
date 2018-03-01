@@ -8,7 +8,6 @@ use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,13 +21,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class AsnImportController extends AbstractController
 {
     use CommandDispatcherTrait;
-
-    private $dispatcher;
-
-    public function __construct(EventDispatcherInterface $dispatcher)
-    {
-        $this->dispatcher = $dispatcher;
-    }
 
     /**
      * @Route("/cf/asn/import", name="import_from_asn")

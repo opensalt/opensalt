@@ -1,9 +1,9 @@
 <?php
 
 use Doctrine\ORM\EntityManager;
-use Salt\SiteBundle\Entity\Comment;
+use App\Entity\Comment\Comment;
 use CftfBundle\Entity\LsItem;
-use Salt\SiteBundle\Entity\CommentUpvote;
+use App\Entity\Comment\CommentUpvote;
 use Ramsey\Uuid\Uuid;
 
 class CommentTest extends \Codeception\Test\Unit

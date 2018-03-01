@@ -3,7 +3,7 @@
 namespace App\Command\Comment;
 
 use App\Command\BaseCommand;
-use Salt\SiteBundle\Entity\Comment;
+use App\Entity\Comment\Comment;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class DeleteCommentCommand extends BaseCommand

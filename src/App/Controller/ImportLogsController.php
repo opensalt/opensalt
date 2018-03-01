@@ -8,27 +8,13 @@ use CftfBundle\Entity\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class ImportLogsController extends Controller
+class ImportLogsController extends AbstractController
 {
     use CommandDispatcherTrait;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
-
-    public function __construct(EventDispatcherInterface $dispatcher, ContainerInterface $container = null)
-    {
-        // event_dispatcher
-        $this->setContainer($container);
-        $this->dispatcher = $dispatcher;
-    }
 
     /**
      * @Route("/cfdoc/{doc}/import_logs/mark_as_read", name="mark_import_logs_as_read")

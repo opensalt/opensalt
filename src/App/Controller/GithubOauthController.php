@@ -1,19 +1,19 @@
 <?php
 
-namespace GithubFilesBundle\Controller;
+namespace App\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class DefaultController
+ * Class GithubOauthController
  *
  * @Security("is_granted('create', 'lsdoc')")
  */
-class DefaultController extends Controller
+class GithubOauthController extends AbstractController
 {
     /**
      * @Route("/user/github/repos")
@@ -95,10 +95,10 @@ class DefaultController extends Controller
      */
     private function parseLink($link, $rel)
     {
-        if (!preg_match('(<([^>]+)>;\s*rel="'.preg_quote($rel).'")', $link, $match)) {
+        if (!preg_match('/<([^>]+)>;\s*rel="'.preg_quote($rel, '/').'"/', $link, $match)) {
             return null;
         }
-        if (!preg_match('([^\d]*(\d+))', $match[1], $totalPages)) {
+        if (!preg_match('/[^\d]*(\d+)/', $match[1], $totalPages)) {
             return null;
         }
 

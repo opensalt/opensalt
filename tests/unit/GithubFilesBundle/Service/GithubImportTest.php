@@ -5,8 +5,8 @@ use CftfBundle\Entity\LsItem;
 use \Codeception\Util\Stub;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use GithubFilesBundle\Service\GithubImport;
-use Salt\SiteBundle\Entity\CommentUpvote;
+use App\Service\GithubImport;
+use App\Entity\Comment\CommentUpvote;
 
 class GithubImportTest extends \Codeception\Test\Unit
 {

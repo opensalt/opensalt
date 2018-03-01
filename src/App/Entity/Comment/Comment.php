@@ -1,19 +1,20 @@
 <?php
 
-namespace Salt\SiteBundle\Entity;
+namespace App\Entity\Comment;
 
+use CftfBundle\Entity\LsDoc;
+use CftfBundle\Entity\LsItem;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Salt\UserBundle\Entity\User;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
 
 /**
  * Comment
  *
- * @ORM\Entity(repositoryClass="CommentRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\CommentRepository")
  * @ORM\Table(name="salt_comment")
  *
  * @Serializer\VirtualProperty(
@@ -36,7 +37,7 @@ class Comment
     /**
      * @var Comment
      *
-     * @ORM\ManyToOne(targetEntity="\Salt\SiteBundle\Entity\Comment")
+     * @ORM\ManyToOne(targetEntity="Comment")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      *
      * @Serializer\Accessor(getter="getParentId")
@@ -123,7 +124,7 @@ class Comment
      */
     public function __construct()
     {
-        $this->upvotes = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->upvotes = new ArrayCollection();
     }
 
     /**
@@ -139,7 +140,7 @@ class Comment
     /**
      * Set parent
      *
-     * @param int $parent
+     * @param Comment|null $parent
      *
      * @return Comment
      */
@@ -277,8 +278,7 @@ class Comment
      */
     public function getFullname(): string
     {
-        $displayName = preg_replace('/@.*/', '', $this->getUser()->getUsername());
-        return $displayName;
+        return preg_replace('/@.*/', '', $this->getUser()->getUsername());
     }
 
     /**
@@ -339,6 +339,8 @@ class Comment
      * Remove upvote
      *
      * @param CommentUpvote $upvote
+     *
+     * @return Comment
      */
     public function removeUpvote(CommentUpvote $upvote): Comment
     {

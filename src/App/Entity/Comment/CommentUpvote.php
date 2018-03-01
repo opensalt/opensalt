@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\SiteBundle\Entity;
+namespace App\Entity\Comment;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;

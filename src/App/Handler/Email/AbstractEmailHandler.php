@@ -12,13 +12,13 @@ use Qandidate\Toggle\ContextFactory;
 use Qandidate\Toggle\ToggleManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Bundle\TwigBundle\TwigEngine;
 
 abstract class AbstractEmailHandler extends BaseValidatedHandler implements EventSubscriberInterface
 {
     /**
-     * @var TwigEngine
+     * @var EngineInterface
      */
     protected $templating;
 
@@ -42,7 +42,7 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler implements Even
      */
     private $mailFromEmail;
 
-    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, TwigEngine $templating, string $mailFromEmail = null)
+    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, EngineInterface $templating, string $mailFromEmail = null)
     {
         parent::__construct($validator);
         $this->templating = $templating;

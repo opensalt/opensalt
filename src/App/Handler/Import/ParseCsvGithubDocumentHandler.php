@@ -8,7 +8,7 @@ use App\Command\Import\ParseCsvGithubDocumentCommand;
 use App\Event\CommandEvent;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use GithubFilesBundle\Service\GithubImport;
+use App\Service\GithubImport;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -29,7 +29,7 @@ class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
      * @DI\InjectParams({
      *     "validator" = @DI\Inject("validator"),
      *     "registry" = @DI\Inject("doctrine"),
-     *     "importService" = @DI\Inject(GithubFilesBundle\Service\GithubImport::class)
+     *     "importService" = @DI\Inject(App\Service\GithubImport::class)
      * })
      *
      * @param ValidatorInterface $validator

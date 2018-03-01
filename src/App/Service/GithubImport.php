@@ -1,46 +1,32 @@
 <?php
 
-namespace GithubFilesBundle\Service;
+namespace App\Service;
 
 use CftfBundle\Entity\ImportLog;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\Common\Persistence\ObjectManager;
-use JMS\DiExtraBundle\Annotation as DI;
+use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 
-/**
- * Class GithubImport.
- *
- * @DI\Service()
- */
 class GithubImport
 {
     /**
-     * @var ManagerRegistry
+     * @var EntityManagerInterface
      */
-    private $managerRegistry;
+    private $entityManager;
 
-    /**
-     * @param ManagerRegistry $managerRegistry
-     *
-     * @DI\InjectParams({
-     *     "managerRegistry" = @DI\Inject("doctrine"),
-     * })
-     */
-    public function __construct(ManagerRegistry $managerRegistry)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->managerRegistry = $managerRegistry;
+        $this->entityManager = $entityManager;
     }
 
     /**
-     * @return ObjectManager
+     * @return EntityManagerInterface
      */
-    protected function getEntityManager(): ObjectManager
+    protected function getEntityManager(): EntityManagerInterface
     {
-        return $this->managerRegistry->getManagerForClass(LsDoc::class);
+        return $this->entityManager;
     }
 
     /**

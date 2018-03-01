@@ -7,20 +7,20 @@ use App\Service\ExcelExport;
 use CftfBundle\Entity\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class ExcelExportController extends Controller
+class ExcelExportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    /**
+     * @var ExcelExport
+     */
     protected $excelExport;
 
-    public function __construct(ContainerInterface $container = null, ExcelExport $excelExport)
+    public function __construct(ExcelExport $excelExport)
     {
-        // event_dispatcher
-        $this->setContainer($container);
         $this->excelExport = $excelExport;
     }
 

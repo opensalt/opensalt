@@ -1,6 +1,6 @@
 <?php
 
-namespace Salt\SiteBundle\Controller;
+namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
 use App\Command\Comment\AddCommentCommand;
@@ -8,27 +8,27 @@ use App\Command\Comment\DeleteCommentCommand;
 use App\Command\Comment\DownvoteCommentCommand;
 use App\Command\Comment\UpdateCommentCommand;
 use App\Command\Comment\UpvoteCommentCommand;
+use App\Entity\Comment\Comment;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
-use Salt\UserBundle\Entity\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Salt\SiteBundle\Entity\Comment;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
+use Salt\UserBundle\Entity\User;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @Toggle("comments")
  */
-class CommentsController extends Controller
+class CommentsController extends AbstractController
 {
     use CommandDispatcherTrait;
 
@@ -69,10 +69,8 @@ class CommentsController extends Controller
      */
     public function listAction(array $comments, UserInterface $user = null)
     {
-        if ($user instanceof User)
-        {
-            foreach ($comments as $comment)
-            {
+        if ($user instanceof User) {
+            foreach ($comments as $comment) {
                 $comment->updateStatusForUser($user);
             }
         }
@@ -82,12 +80,11 @@ class CommentsController extends Controller
 
     /**
      * @Route("/comments/{id}")
-     *
      * @Method("PUT")
      *
      * @Security("is_granted('comment_update', comment)")
      */
-    public function updateAction(Comment $comment, Request $request, UserInterface $user)
+    public function updateAction(Request $request, Comment $comment, UserInterface $user)
     {
         $command = new UpdateCommentCommand($comment, $request->request->get('content'));
         $this->sendCommand($command);
@@ -157,7 +154,6 @@ class CommentsController extends Controller
      *
      * @param int $itemId
      * @param string $itemType
-     * @param Request $request
      *
      * @return Response
      *
@@ -173,18 +169,17 @@ class CommentsController extends Controller
             $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
             $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
             fputcsv($handle, $headers);
-            switch ($itemType)
-            {
+
+            switch ($itemType) {
                 case 'document':
-                    $comment_data = $repo->findBy([$itemType => $itemId]);
-                    $comment_rows = $this->csvArray($comment_data, $itemType);
-                    foreach ($comment_rows as $row)
-                    {
+                    $commentData = $repo->findBy([$itemType => $itemId]);
+                    $commentRows = $this->csvArray($commentData, $itemType);
+                    foreach ($commentRows as $row) {
                         fputcsv($handle, $row);
                     }
                     $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->find($itemId);
                     $lsDocChilds = $lsDoc->getLsItems();
-                    foreach ($lsDocChilds as $lsDocChild){
+                    foreach ($lsDocChilds as $lsDocChild) {
                         $childIds[] = $lsDocChild->getId();
                     }
                     break;
@@ -195,53 +190,60 @@ class CommentsController extends Controller
                     $childIds[] = $itemId;
                     break;
             }
-            $comment_data = $repo->findBy(['item' => $childIds]);
-            $comment_rows = $this->csvArray($comment_data, 'item');
-            foreach ($comment_rows as $child_row)
-            {
+
+            $commentData = $repo->findBy(['item' => $childIds]);
+            $commentRows = $this->csvArray($commentData, 'item');
+            foreach ($commentRows as $child_row) {
                 fputcsv($handle, $child_row);
             }
+
             fclose($handle);
         });
 
         $response->headers->set('content-type', 'text/csv; charset=utf-8;');
         $response->headers->set('Content-Disposition', 'attachment; filename = comment.csv');
+
         return $response;
     }
 
     /**
      * Get the export report data
      *
+     * @param array|Comment[] $commentData
+     * @param string $itemType
+     *
      * @return array
      */
-    private function csvArray($comment_data, $itemType)
+    private function csvArray(array $commentData, string $itemType): array
     {
         $comments = [];
-        foreach ($comment_data as $comment) {
-            $comments[]=[
-                ($itemType === 'item') ? $comment->getItem()->getLsDoc()->getTitle() : $comment->getDocument()->getTitle(),
+        foreach ($commentData as $comment) {
+            $comments[] = [
+                ('item' === $itemType) ? $comment->getItem()->getLsDoc()->getTitle() : $comment->getDocument()->getTitle(),
                 $this->url($itemType, $comment),
-                ($itemType === 'item') ? $comment->getItem()->getHumanCodingScheme() : null,
+                ('item' === $itemType) ? $comment->getItem()->getHumanCodingScheme() : null,
                 $comment->getUser()->getUsername(),
                 $comment->getUser()->getOrg()->getName(),
                 $comment->getContent(),
                 $comment->getCreatedAt()->format('Y-m-d H:i:s'),
-                $comment->getUpdatedAt()->format('Y-m-d H:i:s')
+                $comment->getUpdatedAt()->format('Y-m-d H:i:s'),
             ];
         }
+
         return $comments;
     }
 
-    private function url($itemType, $comment)
+    private function url(string $itemType, Comment $comment): ?string
     {
-        if($itemType === 'item')
-        {
-            return $this->generateUrl('doc_tree_item_view', ['id' => $comment->getItem()->getId()], UrlGeneratorInterface :: ABSOLUTE_URL);
+        if ('item' === $itemType) {
+            return $this->generateUrl('doc_tree_item_view', ['id' => $comment->getItem()->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
         }
-        if($itemType === 'document')
-        {
-            return $this->generateUrl('doc_tree_view', ['slug' => $comment->getDocument()->getSlug()], UrlGeneratorInterface :: ABSOLUTE_URL);
+
+        if ('document' === $itemType) {
+            return $this->generateUrl('doc_tree_view', ['slug' => $comment->getDocument()->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL);
         }
+
+        return null;
     }
 
     /**
@@ -271,13 +273,13 @@ class CommentsController extends Controller
         return $this->apiResponse($comment);
     }
 
-    private function serialize($data)
+    private function serialize($data): string
     {
         return $this->get('jms_serializer')
             ->serialize($data, 'json');
     }
 
-    private function apiResponse($data, $statusCode=200): JsonResponse
+    private function apiResponse($data, int $statusCode = 200): JsonResponse
     {
         $json = $this->serialize($data);
 

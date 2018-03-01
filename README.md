@@ -70,4 +70,4 @@ Other Docs
 ----------
 
 - [User Management Commands](./src/Salt/UserBundle/Resources/doc/Commands.md)
-- [Github Authentication Config](./src/GithubFilesBundle/Resources/doc/GithubAuth.md)
+- [Github Authentication Config](./docs/deployment/GithubAuth.md)
