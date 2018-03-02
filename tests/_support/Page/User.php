@@ -105,6 +105,7 @@ class User implements Context
 
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
+        $I->click('th.sorting_asc');
         $I->see('Approve', "//td[text()='{$username}']/..//a[text()='Approve']");
         $I->see('Reject', "//td[text()='{$username}']/..//a[text()='Reject']");
     }
@@ -190,6 +191,7 @@ class User implements Context
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Unsuspend']");
         $I->See('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
@@ -328,7 +330,7 @@ class User implements Context
     {
         $I = $this->I;
 
-        $username = $this->userName;
+        $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
         $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Reject']");
