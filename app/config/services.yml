@@ -55,10 +55,6 @@ services:
         resource: '../../vendor/symfony/swiftmailer-bundle/Command'
         tags: ['console.command']
 
-    Sensio\Bundle\GeneratorBundle\Command\:
-        resource: '../../vendor/sensio/generator-bundle/Command/*Command.php'
-        tags: ['console.command']
-
     Symfony\Bundle\AsseticBundle\Command\:
         resource: '../../vendor/symfony/assetic-bundle/Command'
         tags: ['console.command']
