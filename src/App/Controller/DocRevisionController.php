@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\ChangeEntryRepository;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;

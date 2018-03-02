@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsDefConcept;
+use App\Entity\Framework\LsDefConcept;
 
 class UpdateConceptCommand extends BaseCommand
 {

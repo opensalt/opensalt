@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsDefGrade;
+use App\Entity\Framework\LsDefGrade;
 
 class UpdateGradeCommand extends BaseCommand
 {

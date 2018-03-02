@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsDefConcept;
+use App\Entity\Framework\LsDefConcept;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AddConceptCommand extends BaseCommand

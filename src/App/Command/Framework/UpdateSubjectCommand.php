@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsDefSubject;
+use App\Entity\Framework\LsDefSubject;
 
 class UpdateSubjectCommand extends BaseCommand
 {

@@ -3,8 +3,8 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsItem;
-use CftfBundle\Form\DTO\CopyToLsDocDTO;
+use App\Entity\Framework\LsItem;
+use App\Form\DTO\CopyToLsDocDTO;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CopyItemToDocCommand extends BaseCommand

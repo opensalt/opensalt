@@ -2,8 +2,7 @@
 
 namespace App\Entity\User;
 
-use App\Entity\User\User;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -42,7 +41,7 @@ class UserDocAcl
     /**
      * @var LsDoc
      *
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc", inversedBy="docAcls", fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Framework\LsDoc", inversedBy="docAcls", fetch="EAGER")
      * @ORM\JoinColumn(name="doc_id", referencedColumnName="id", nullable=false)
      */
     protected $lsDoc;

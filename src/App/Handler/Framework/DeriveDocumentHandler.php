@@ -6,7 +6,7 @@ use App\Command\Framework\DeriveDocumentCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

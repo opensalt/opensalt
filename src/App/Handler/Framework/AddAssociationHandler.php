@@ -5,8 +5,8 @@ namespace App\Handler\Framework;
 use App\Command\Framework\AddAssociationCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

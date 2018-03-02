@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use App\Entity\User\User;
@@ -35,7 +35,7 @@ class ChangeEntry
     /**
      * @var LsDoc
      *
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Framework\LsDoc")
      * @ORM\JoinColumn(name="doc_id", referencedColumnName="id", nullable=true, unique=true)
      */
     protected $doc;

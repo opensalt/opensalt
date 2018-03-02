@@ -67,7 +67,7 @@ class ImsxStatusInfo
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("imsx_codeMinor")
-     * @Serializer\Type("CftfBundle\Api\v1p0\DTO\ImsxCodeMinor")
+     * @Serializer\Type("App\DTO\Api1\ImsxCodeMinor")
      */
     public $codeMinor;
 

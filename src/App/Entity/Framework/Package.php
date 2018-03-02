@@ -2,11 +2,6 @@
 
 namespace App\Entity\Framework;
 
-use CftfBundle\Entity\AbstractLsBase;
-use CftfBundle\Entity\CfRubric;
-use CftfBundle\Entity\LsAssociation;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;

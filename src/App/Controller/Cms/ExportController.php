@@ -2,7 +2,7 @@
 
 namespace App\Controller\Cms;
 
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -20,7 +20,7 @@ class ExportController extends AbstractController
      * @Method({"GET"})
      * @Template()
      *
-     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     * @param \App\Entity\Framework\LsDoc $lsDoc
      * @param string $_format
      *
      * @return array

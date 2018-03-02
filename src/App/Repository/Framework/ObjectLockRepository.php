@@ -5,7 +5,7 @@ namespace App\Repository\Framework;
 use App\Entity\Framework\ObjectLock;
 use App\Entity\LockableInterface;
 use App\Exception\AlreadyLockedException;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Entity\User\User;
 use Symfony\Bridge\Doctrine\RegistryInterface;

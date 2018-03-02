@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
 use Symfony\Component\Validator\Constraints as Assert;
 

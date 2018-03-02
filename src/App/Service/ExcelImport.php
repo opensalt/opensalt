@@ -2,13 +2,13 @@
 
 namespace App\Service;
 
-use CftfBundle\Entity\ImportLog;
-use CftfBundle\Entity\LsAssociation;
-use CftfBundle\Entity\LsDefAssociationGrouping;
-use CftfBundle\Entity\LsDefItemType;
-use CftfBundle\Entity\LsDefLicence;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\ImportLog;
+use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDefItemType;
+use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;

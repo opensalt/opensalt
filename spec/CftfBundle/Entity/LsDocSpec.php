@@ -2,7 +2,7 @@
 
 namespace spec\CftfBundle\Entity;
 
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use PhpSpec\ObjectBehavior;
 
 class LsDocSpec extends ObjectBehavior

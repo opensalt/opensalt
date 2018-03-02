@@ -35,7 +35,6 @@ class AppKernel extends Kernel
             new ActiveLAMP\Bundle\SwaggerUIBundle\ALSwaggerUIBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
 
-            new CftfBundle\CftfBundle(),
             new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
             new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
         ];

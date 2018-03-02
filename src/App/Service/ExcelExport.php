@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;

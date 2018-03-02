@@ -2,7 +2,7 @@
 
 namespace App\Entity\User;
 
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -104,7 +104,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
 
     /**
      * @var LsDoc[]|Collection
-     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDoc", mappedBy="user", indexBy="id", fetch="EXTRA_LAZY")
+     * @ORM\OneToMany(targetEntity="App\Entity\Framework\LsDoc", mappedBy="user", indexBy="id", fetch="EXTRA_LAZY")
      */
     protected $frameworks;
 
@@ -349,7 +349,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     /**
      * Get the frameworks owned by the user
      *
-     * @return \CftfBundle\Entity\LsDoc[]|\Doctrine\Common\Collections\Collection
+     * @return \App\Entity\Framework\LsDoc[]|\Doctrine\Common\Collections\Collection
      */
     public function getFrameworks() {
         return $this->frameworks;

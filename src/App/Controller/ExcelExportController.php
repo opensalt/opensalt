@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
 use App\Service\ExcelExport;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

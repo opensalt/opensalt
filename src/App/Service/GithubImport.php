@@ -2,10 +2,10 @@
 
 namespace App\Service;
 
-use CftfBundle\Entity\ImportLog;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
-use CftfBundle\Entity\LsAssociation;
+use App\Entity\Framework\ImportLog;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsAssociation;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 

@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use JMS\DiExtraBundle\Annotation as DI;
 use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;

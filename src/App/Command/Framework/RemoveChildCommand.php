@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsItem;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class RemoveChildCommand extends BaseCommand

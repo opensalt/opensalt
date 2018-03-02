@@ -2,7 +2,7 @@
 
 namespace App\Form\DTO;
 
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
 use Symfony\Component\Validator\Constraints as Assert;
 

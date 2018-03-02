@@ -2,7 +2,7 @@
 
 namespace App\DataFixtures\ORM;
 
-use CftfBundle\Entity\LsDefGrade;
+use App\Entity\Framework\LsDefGrade;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\Persistence\ObjectManager;
 

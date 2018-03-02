@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Form\DTO\ChangeLsItemParentDTO;
+use App\Form\DTO\ChangeLsItemParentDTO;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ChangeItemParentCommand extends BaseCommand

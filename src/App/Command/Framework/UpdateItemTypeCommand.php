@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsDefItemType;
+use App\Entity\Framework\LsDefItemType;
 
 class UpdateItemTypeCommand extends BaseCommand
 {

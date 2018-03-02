@@ -6,9 +6,9 @@ use App\Command\Import\ImportGenericCsvCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
-use CftfBundle\Entity\LsDefItemType;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsDefItemType;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

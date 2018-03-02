@@ -3,7 +3,6 @@
 namespace App\Entity\Framework;
 
 use App\Entity\LockableInterface;
-use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\User\User;
 
@@ -62,7 +61,7 @@ class ObjectLock
     /**
      * @var LsDoc
      *
-     * @ORM\ManyToOne(targetEntity="CftfBundle\Entity\LsDoc")
+     * @ORM\ManyToOne(targetEntity="LsDoc")
      */
     protected $doc;
 

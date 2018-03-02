@@ -2,6 +2,8 @@
 
 namespace CftfBundle\Entity;
 
+use App\Entity\Framework\LsAssociation;
+
 class LsAssociationTest extends \Codeception\Test\Unit
 {
     // tests

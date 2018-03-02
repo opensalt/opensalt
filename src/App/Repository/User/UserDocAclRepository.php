@@ -3,7 +3,7 @@
 namespace App\Repository\User;
 
 use App\Entity\User\UserDocAcl;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Entity\User\User;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -24,7 +24,7 @@ class UserDocAclRepository extends ServiceEntityRepository
     /**
      * Find an ACL by the document and user
      *
-     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     * @param \App\Entity\Framework\LsDoc $lsDoc
      * @param \App\Entity\User\User $user
      *
      * @return null|object

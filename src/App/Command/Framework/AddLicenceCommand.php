@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsDefLicence;
+use App\Entity\Framework\LsDefLicence;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AddLicenceCommand extends BaseCommand

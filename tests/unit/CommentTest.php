@@ -2,7 +2,7 @@
 
 use Doctrine\ORM\EntityManager;
 use App\Entity\Comment\Comment;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsItem;
 use App\Entity\Comment\CommentUpvote;
 use Ramsey\Uuid\Uuid;
 

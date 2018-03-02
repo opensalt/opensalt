@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\Entity\ChangeEntry;
 use App\Event\NotificationEvent;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;

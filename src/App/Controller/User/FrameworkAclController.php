@@ -4,7 +4,7 @@ namespace App\Controller\User;
 
 use App\Command\CommandDispatcherTrait;
 use App\Command\User\DeleteFrameworkAclCommand;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use App\Entity\User\User;
@@ -193,7 +193,7 @@ class FrameworkAclController extends AbstractController
     /**
      * Creates a form to delete a user entity.
      *
-     * @param \CftfBundle\Entity\LsDoc $lsDoc
+     * @param \App\Entity\Framework\LsDoc $lsDoc
      * @param User $targetUser The user entity
      *
      * @return \Symfony\Component\Form\FormInterface The form

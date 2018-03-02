@@ -6,7 +6,7 @@ use App\Command\Framework\ChangeItemParentCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
-use CftfBundle\Entity\LsAssociation;
+use App\Entity\Framework\LsAssociation;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

@@ -2,18 +2,18 @@
 
 namespace App\Service;
 
-use CftfBundle\Entity\CfRubric;
-use CftfBundle\Entity\CfRubricCriterion;
-use CftfBundle\Entity\CfRubricCriterionLevel;
-use CftfBundle\Entity\IdentifiableInterface;
-use CftfBundle\Entity\LsAssociation;
-use CftfBundle\Entity\LsDefAssociationGrouping;
-use CftfBundle\Entity\LsDefConcept;
-use CftfBundle\Entity\LsDefItemType;
-use CftfBundle\Entity\LsDefLicence;
-use CftfBundle\Entity\LsDefSubject;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\CfRubric;
+use App\Entity\Framework\CfRubricCriterion;
+use App\Entity\Framework\CfRubricCriterionLevel;
+use App\Entity\Framework\IdentifiableInterface;
+use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDefConcept;
+use App\Entity\Framework\LsDefItemType;
+use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDefSubject;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 

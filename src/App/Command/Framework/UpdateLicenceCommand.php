@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsDefLicence;
+use App\Entity\Framework\LsDefLicence;
 
 class UpdateLicenceCommand extends BaseCommand
 {

@@ -2,8 +2,8 @@
 
 namespace App\Entity\Comment;
 
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -66,7 +66,7 @@ class Comment
     /**
      * @var LsDoc
      *
-     * @ORM\ManyToOne(targetEntity="\CftfBundle\Entity\LsDoc")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Framework\LsDoc")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $document;
@@ -74,7 +74,7 @@ class Comment
     /**
      * @var LsItem
      *
-     * @ORM\ManyToOne(targetEntity="\CftfBundle\Entity\LsItem")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Framework\LsItem")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $item;

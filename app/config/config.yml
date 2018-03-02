@@ -324,21 +324,21 @@ simple_things_entity_audit:
     revision_table_name: audit_revision
     #revision_id_field_type: integer
     audited_entities:
-        - CftfBundle\Entity\LsDoc
-        - CftfBundle\Entity\LsDocAttribute
-        - CftfBundle\Entity\LsDocSubject
-        - CftfBundle\Entity\LsItem
-        - CftfBundle\Entity\LsItemConcept
-        - CftfBundle\Entity\LsAssociation
-        - CftfBundle\Entity\LsDefAssociationGrouping
-        - CftfBundle\Entity\LsDefItemType
-        - CftfBundle\Entity\LsDefConcept
-        - CftfBundle\Entity\LsDefGrade
-        - CftfBundle\Entity\LsDefLicence
-        - CftfBundle\Entity\LsDefSubject
-        - CftfBundle\Entity\CfRubric
-        - CftfBundle\Entity\CfRubricCriterion
-        - CftfBundle\Entity\CfRubricCriterionLevel
+        - App\Entity\Framework\LsDoc
+        - App\Entity\Framework\LsDocAttribute
+        - App\Entity\Framework\LsDocSubject
+        - App\Entity\Framework\LsItem
+        - App\Entity\Framework\LsItemConcept
+        - App\Entity\Framework\LsAssociation
+        - App\Entity\Framework\LsDefAssociationGrouping
+        - App\Entity\Framework\LsDefItemType
+        - App\Entity\Framework\LsDefConcept
+        - App\Entity\Framework\LsDefGrade
+        - App\Entity\Framework\LsDefLicence
+        - App\Entity\Framework\LsDefSubject
+        - App\Entity\Framework\CfRubric
+        - App\Entity\Framework\CfRubricCriterion
+        - App\Entity\Framework\CfRubricCriterionLevel
         - App\Entity\User\Organization
         - App\Entity\User\User
         - App\Entity\User\UserDocAcl

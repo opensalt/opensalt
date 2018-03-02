@@ -2,8 +2,8 @@
 
 namespace App\Repository;
 
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Entity\Comment\Comment;
 use App\Entity\Comment\CommentUpvote;

@@ -3,11 +3,6 @@ app:
     type:     annotation
     prefix:   /
 
-cftf:
-    resource: "@CftfBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
 al_swagger_ui:
     resource: "@ALSwaggerUIBundle/Resources/config/routing.yml"
     prefix: /api/doc

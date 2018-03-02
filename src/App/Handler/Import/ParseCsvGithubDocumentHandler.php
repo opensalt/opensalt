@@ -6,7 +6,7 @@ use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ParseCsvGithubDocumentCommand;
 use App\Event\CommandEvent;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use App\Service\GithubImport;
 use JMS\DiExtraBundle\Annotation as DI;

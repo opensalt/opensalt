@@ -2,7 +2,7 @@
 
 namespace App\Entity\User;
 
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -46,7 +46,7 @@ class Organization
 
     /**
      * @var LsDoc[]|Collection
-     * @ORM\OneToMany(targetEntity="CftfBundle\Entity\LsDoc", mappedBy="org", indexBy="id", fetch="EXTRA_LAZY")
+     * @ORM\OneToMany(targetEntity="App\Entity\Framework\LsDoc", mappedBy="org", indexBy="id", fetch="EXTRA_LAZY")
      */
     protected $frameworks;
 
@@ -124,7 +124,7 @@ class Organization
     /**
      * Get the list of frameworks owned by the organization
      *
-     * @return \CftfBundle\Entity\LsDoc[]|\Doctrine\Common\Collections\Collection
+     * @return \App\Entity\Framework\LsDoc[]|\Doctrine\Common\Collections\Collection
      */
     public function getFrameworks() {
         return $this->frameworks;

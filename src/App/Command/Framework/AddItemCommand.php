@@ -3,9 +3,9 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsDefAssociationGrouping;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 
 class AddItemCommand extends BaseCommand
 {

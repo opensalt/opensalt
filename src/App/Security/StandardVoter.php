@@ -4,8 +4,8 @@ namespace App\Security;
 
 use JMS\DiExtraBundle\Annotation as DI;
 use App\Entity\User\User;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;

@@ -2,7 +2,7 @@
 
 namespace App\Form\Type;
 
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr;
 use App\Entity\User\User;

@@ -2,10 +2,10 @@
 
 namespace App\Service;
 
-use CftfBundle\Entity\LsDefItemType;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
-use CftfBundle\Entity\LsAssociation;
+use App\Entity\Framework\LsDefItemType;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsAssociation;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;

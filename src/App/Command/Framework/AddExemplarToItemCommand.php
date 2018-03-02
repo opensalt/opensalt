@@ -3,8 +3,8 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsAssociation;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsItem;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AddExemplarToItemCommand extends BaseCommand

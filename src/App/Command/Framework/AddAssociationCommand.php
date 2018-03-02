@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsAssociation;
+use App\Entity\Framework\LsAssociation;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AddAssociationCommand extends BaseCommand

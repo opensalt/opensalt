@@ -3,7 +3,7 @@
 namespace CftfBundle\Entity;
 
 use Doctrine\ORM\EntityManager;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsItem;
 use Ramsey\Uuid\Uuid;
 
 class LsItemTest extends \Codeception\Test\Unit

@@ -2,8 +2,8 @@
 
 namespace App\Event;
 
-use CftfBundle\Entity\AbstractLsBase;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\AbstractLsBase;
+use App\Entity\Framework\LsDoc;
 use Symfony\Component\EventDispatcher\Event;
 
 class NotificationEvent extends Event

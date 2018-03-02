@@ -5,7 +5,7 @@ namespace App\Handler\Framework;
 use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsItem;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

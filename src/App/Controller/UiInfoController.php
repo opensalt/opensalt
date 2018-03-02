@@ -2,9 +2,9 @@
 
 namespace App\Controller;
 
-use CftfBundle\Entity\LsAssociation;
-use CftfBundle\Entity\LsDoc;
-use CftfBundle\Entity\LsItem;
+use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -176,7 +176,7 @@ class UiInfoController extends AbstractController
             }
         }
 
-        $json = $this->renderView('CftfBundle:doc_tree:export_item.json.twig', ['lsItem' => $ret]);
+        $json = $this->renderView('framework/doc_tree/export_item.json.twig', ['lsItem' => $ret]);
         return \json_decode($json, true);
     }
 

@@ -3,8 +3,8 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsAssociation;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDoc;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 

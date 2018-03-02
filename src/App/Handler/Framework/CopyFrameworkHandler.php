@@ -5,7 +5,7 @@ namespace App\Handler\Framework;
 use App\Command\Framework\CopyItemToDocCommand;
 use App\Event\CommandEvent;
 use App\Handler\BaseDoctrineHandler;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

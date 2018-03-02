@@ -5,7 +5,7 @@ namespace App\Console\Framework;
 use App\Command\Framework\DeleteDocumentCommand;
 use App\Console\BaseDoctrineCommand;
 use App\Event\CommandEvent;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

@@ -24,10 +24,10 @@ class DevController extends AbstractController
         if (empty($cookie = $request->server->get('DEV_COOKIE'))) {
             $this->addFlash('error', 'Could not add development cookie as no DEV_COOKIE set.');
 
-            return $this->redirectToRoute('cftf_index');
+            return $this->redirectToRoute('salt_index');
         }
 
-        $response = $this->redirectToRoute('cftf_index');
+        $response = $this->redirectToRoute('salt_index');
         $response->headers->setCookie(new Cookie('dev', $cookie, 'now + 1 year'));
         $this->addFlash('success', 'Development cookie set.');
 

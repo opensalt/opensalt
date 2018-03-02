@@ -3,7 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDefAssociationGrouping;
 
 class UpdateAssociationGroupCommand extends BaseCommand
 {

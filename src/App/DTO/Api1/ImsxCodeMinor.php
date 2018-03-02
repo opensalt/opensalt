@@ -11,7 +11,7 @@ class ImsxCodeMinor
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("imsx_codeMinorField")
-     * @Serializer\Type("array<CftfBundle\Api\v1p0\DTO\ImsxCodeMinorField>")
+     * @Serializer\Type("array<App\DTO\Api1\ImsxCodeMinorField>")
      */
     public $codeMinorField;
 

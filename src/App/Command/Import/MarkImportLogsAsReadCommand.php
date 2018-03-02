@@ -3,7 +3,7 @@
 namespace App\Command\Import;
 
 use App\Command\BaseCommand;
-use CftfBundle\Entity\LsDoc;
+use App\Entity\Framework\LsDoc;
 
 class MarkImportLogsAsReadCommand extends BaseCommand
 {
