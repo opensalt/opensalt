@@ -1,53 +1,33 @@
 <?php
 
-namespace CftfBundle\Service;
+namespace App\Service;
 
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use CftfBundle\Entity\LsAssociation;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\Common\Persistence\ObjectManager;
-use App\Service\GithubImport;
-use JMS\DiExtraBundle\Annotation as DI;
+use Doctrine\ORM\EntityManagerInterface;
 
-/**
- * Class FrameworkUpdater.
- *
- * @DI\Service()
- */
 class FrameworkUpdater
 {
     /**
-     * @var ManagerRegistry
+     * @var EntityManagerInterface
      */
-    private $managerRegistry;
+    private $entityManager;
 
     /**
      * @var GithubImport
      */
     private $githubImport;
 
-    /**
-     * @param ManagerRegistry $managerRegistry
-     * @param GithubImport $githubImport
-     *
-     * @DI\InjectParams({
-     *     "managerRegistry" = @DI\Inject("doctrine"),
-     *     "githubImport" = @DI\Inject(App\Service\GithubImport::class),
-     * })
-     */
-    public function __construct(ManagerRegistry $managerRegistry, GithubImport $githubImport)
+    public function __construct(EntityManagerInterface $entityManager, GithubImport $githubImport)
     {
-        $this->managerRegistry = $managerRegistry;
+        $this->entityManager = $entityManager;
         $this->githubImport = $githubImport;
     }
 
-    /**
-     * @return ObjectManager
-     */
-    protected function getEntityManager(): ObjectManager
+    protected function getEntityManager(): EntityManagerInterface
     {
-        return $this->managerRegistry->getManagerForClass(LsDoc::class);
+        return $this->entityManager;
     }
 
     /**

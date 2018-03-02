@@ -6,7 +6,7 @@ use App\Command\Framework\UpdateFrameworkCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
-use CftfBundle\Service\FrameworkUpdater;
+use App\Service\FrameworkUpdater;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -28,7 +28,7 @@ class UpdateFrameworkHandler extends AbstractDoctrineHandler
      * @DI\InjectParams({
      *     "validator" = @DI\Inject("validator"),
      *     "registry" = @DI\Inject("doctrine"),
-     *     "frameworkUpdater" = @DI\Inject(CftfBundle\Service\FrameworkUpdater::class)
+     *     "frameworkUpdater" = @DI\Inject(App\Service\FrameworkUpdater::class)
      * })
      */
     public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, FrameworkUpdater $frameworkUpdater)

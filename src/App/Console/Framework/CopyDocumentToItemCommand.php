@@ -1,6 +1,6 @@
 <?php
 
-namespace CftfBundle\Command;
+namespace App\Console\Framework;
 
 use App\Command\Framework\CopyDocumentToItemCommand as CopyDocumentToItemEventCommand;
 use App\Console\BaseDoctrineCommand;
