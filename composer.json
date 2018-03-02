@@ -5,12 +5,7 @@
     "description": "A competency framework managment system that works with the CASE format",
     "autoload": {
         "psr-4": {
-            "Cftf\\": "src/Cftf/",
-            "CftfBundle\\": "src/CftfBundle/",
-            "GithubFilesBundle\\": "src/GithubFilesBundle/",
-            "Pcg\\": "src/Pcg/",
-            "Salt\\": "src/Salt/",
-            "App\\": "src/App/"
+            "App\\": "src/"
         },
         "classmap": [
             "app/AppKernel.php",

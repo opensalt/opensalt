@@ -190,7 +190,7 @@ doctrine:
                     app:
                         type: annotation
                         prefix: App\Entity
-                        dir: "%kernel.root_dir%/../src/App/Entity"
+                        dir: "%kernel.root_dir%/../src/Entity"
                     gedmo_tree:
                         type: annotation
                         prefix: Gedmo\Tree\Entity
