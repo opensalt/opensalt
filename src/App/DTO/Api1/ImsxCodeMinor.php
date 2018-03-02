@@ -1,6 +1,6 @@
 <?php
 
-namespace CftfBundle\Api\v1p0\DTO;
+namespace App\DTO\Api1;
 
 use JMS\Serializer\Annotation as Serializer;
 

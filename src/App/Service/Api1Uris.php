@@ -1,6 +1,6 @@
 <?php
 
-namespace CftfBundle\Api\v1p0\Service;
+namespace App\Service;
 
 use CftfBundle\Entity\CfRubric;
 use CftfBundle\Entity\CfRubricCriterion;
@@ -14,15 +14,10 @@ use CftfBundle\Entity\LsDefLicence;
 use CftfBundle\Entity\LsDefSubject;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
-use JMS\DiExtraBundle\Annotation as DI;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 
-/**
- * Class ApiService
- *
- * @DI\Service("salt.api.v1p0.utils")
- */
-class ApiUtilService
+class Api1Uris
 {
     public static $classMap = [
         LsDoc::class => 'api_v1p0_cfdocument',
@@ -39,18 +34,11 @@ class ApiUtilService
     ];
 
     /**
-     * @var Router
+     * @var RouterInterface
      */
     private $router;
 
-    /**
-     * @param Router $router
-     *
-     * @DI\InjectParams({
-     *     "router" = @DI\Inject("router")
-     * })
-     */
-    public function __construct(Router $router)
+    public function __construct(RouterInterface $router)
     {
         $this->router = $router;
     }
@@ -106,7 +94,7 @@ class ApiUtilService
 
     public function getApiUriForIdentifier(string $id, string $route): string
     {
-        return $this->router->generate($route, ['id' => $id], Router::ABSOLUTE_URL);
+        return $this->router->generate($route, ['id' => $id], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
     /**

@@ -7,23 +7,17 @@ use App\Entity\ChangeEntry;
 use App\Entity\NotificationOnlyChangeEntry;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use JMS\DiExtraBundle\Annotation as DI;
 use Psr\Log\LoggerInterface;
 use App\Entity\User\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-/**
- * Class CommandEventRouter
- *
- * @DI\Service()
- */
 class CommandEventRouter
 {
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $em;
 
@@ -37,18 +31,9 @@ class CommandEventRouter
      */
     private $tokenStorage;
 
-    /**
-     * AddDocumentHandler constructor.
-     *
-     * @DI\InjectParams({
-     *     "registry" = @DI\Inject("doctrine"),
-     *     "tokenStorage" = @DI\Inject("security.token_storage"),
-     *     "logger" = @DI\Inject("logger"),
-     * })
-     */
-    public function __construct(ManagerRegistry $registry, TokenStorageInterface $tokenStorage, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage, LoggerInterface $logger)
     {
-        $this->em = $registry->getManager();
+        $this->em = $entityManager;
         $this->logger = $logger;
         $this->tokenStorage = $tokenStorage;
     }

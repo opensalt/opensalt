@@ -19,10 +19,12 @@ services:
         autoconfigure: true
         public: true
         #public: false
+        bind:
+            $rootDir: "%kernel.root_dir%"
 
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-        resource: '../../src/App/{Console,Handler,Form/Type,Service,Repository}'
+        resource: '../../src/App/{Console,Handler,Form/Type,EventListener,Service,Repository}'
 
     App\Controller\:
         resource: '../../src/App/Controller'
@@ -47,15 +49,6 @@ services:
         arguments:
             # Move to _defaults: bind: in Symfony 3.4
             $mailFromEmail: '%mail_feature_from_email%'
-
-    # Autowiring commands
-    CftfBundle\Command\:
-        resource: '../../src/CftfBundle/Command'
-        tags: ['console.command']
-
-    CftfBundle\Service\:
-        resource: '../../src/CftfBundle/Service'
-
 
     # Workarounds for 3.4 deprecations
     Symfony\Bundle\SwiftmailerBundle\Command\:
@@ -109,3 +102,8 @@ services:
             $captchaSecret: '%google_captcha_secret_key%'
         tags:
             - { name: kernel.event_listener, event: security.interactive_login }
+
+    App\EventListener\NotificationToFirebaseListener:
+        class: App\EventListener\NotificationToFirebaseListener
+        arguments:
+            $prefix: '%firebase_prefix%'

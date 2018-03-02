@@ -1,10 +1,10 @@
 <?php
 
-namespace CftfBundle\Api\v1p0\EventListener;
+namespace App\EventListener;
 
-use CftfBundle\Api\v1p0\DTO\ImsxCodeMinor;
-use CftfBundle\Api\v1p0\DTO\ImsxCodeMinorField;
-use CftfBundle\Api\v1p0\DTO\ImsxStatusInfo;
+use App\DTO\Api1\ImsxCodeMinor;
+use App\DTO\Api1\ImsxCodeMinorField;
+use App\DTO\Api1\ImsxStatusInfo;
 use JMS\DiExtraBundle\Annotation as DI;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
@@ -14,11 +14,6 @@ use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-/**
- * Class ApiExceptionListener
- *
- * @DI\Service()
- */
 class ApiExceptionListener
 {
     /** @var SerializerInterface */
@@ -27,16 +22,6 @@ class ApiExceptionListener
     /** @var LoggerInterface */
     private $logger;
 
-    /**
-     * ApiExceptionListener constructor.
-     *
-     * @param SerializerInterface $serializer
-     *
-     * @DI\InjectParams({
-     *     "serializer" = @DI\Inject("jms_serializer"),
-     *     "logger" = @DI\Inject("logger")
-     * })
-     */
     public function __construct(SerializerInterface $serializer, LoggerInterface $logger)
     {
         $this->serializer = $serializer;

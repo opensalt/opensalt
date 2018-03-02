@@ -8,9 +8,6 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-/**
- * @DI\Service()
- */
 class SiteVersionListener
 {
     /**
@@ -18,11 +15,6 @@ class SiteVersionListener
      */
     public $rootDir;
 
-    /**
-     * @DI\InjectParams({
-     *     "rootDir" = @DI\Inject("%kernel.root_dir%")
-     * })
-     */
     public function __construct(string $rootDir)
     {
         $this->rootDir = $rootDir;

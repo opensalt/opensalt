@@ -7,9 +7,6 @@ use JMS\DiExtraBundle\Annotation as DI;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @DI\Service()
- */
 class NotificationLoggingListener
 {
     /**
@@ -17,11 +14,6 @@ class NotificationLoggingListener
      */
     private $logger;
 
-    /**
-     * @DI\InjectParams({
-     *     "logger" = @DI\Inject("logger")
-     * })
-     */
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;

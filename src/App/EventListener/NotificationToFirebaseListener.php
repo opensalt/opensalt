@@ -10,8 +10,6 @@ use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @DI\Service()
- *
  * Firebase data structure
  *
  * "doc": {
@@ -49,13 +47,6 @@ class NotificationToFirebaseListener
      */
     private $prefix;
 
-    /**
-     * @DI\InjectParams({
-     *     "firebase" = @DI\Inject(Firebase::class),
-     *     "logger" = @DI\Inject("logger"),
-     *     "prefix" = @DI\Inject("%firebase_prefix%"),
-     * })
-     */
     public function __construct(?Firebase $firebase, LoggerInterface $logger, ?string $prefix = null)
     {
         $this->firebase = $firebase;
