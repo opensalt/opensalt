@@ -7,7 +7,7 @@ use App\Entity\LockableInterface;
 use App\Exception\AlreadyLockedException;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**

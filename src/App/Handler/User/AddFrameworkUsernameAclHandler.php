@@ -5,8 +5,8 @@ namespace App\Handler\User;
 use App\Command\User\AddFrameworkUsernameAclCommand;
 use App\Event\CommandEvent;
 use JMS\DiExtraBundle\Annotation as DI;
-use Salt\UserBundle\Entity\User;
-use Salt\UserBundle\Entity\UserDocAcl;
+use App\Entity\User\User;
+use App\Entity\User\UserDocAcl;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**

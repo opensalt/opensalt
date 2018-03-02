@@ -19,7 +19,7 @@ class LsDocType extends AbstractLsDocCreateType
                 'disabled' => true,
                 'placeholder' => 'None',
                 'label' => 'Owning Organization',
-                'class' => 'Salt\UserBundle\Entity\Organization',
+                'class' => 'App\Entity\User\Organization',
                 'choice_label' => 'name',
             ])
             ->add('user', EntityType::class, [
@@ -27,7 +27,7 @@ class LsDocType extends AbstractLsDocCreateType
                 'disabled' => true,
                 'placeholder' => 'None',
                 'label' => 'Owning User',
-                'class' => 'Salt\UserBundle\Entity\User',
+                'class' => 'App\Entity\User\User',
                 'choice_label' => 'username',
             ])
         ;

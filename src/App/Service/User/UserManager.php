@@ -3,8 +3,8 @@
 namespace App\Service\User;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Salt\UserBundle\Entity\Organization;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\Organization;
+use App\Entity\User\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserManager

@@ -3,7 +3,7 @@
 namespace App\Command\User;
 
 use App\Command\BaseCommand;
-use Salt\UserBundle\Form\DTO\AddAclUsernameDTO;
+use App\Form\DTO\AddAclUsernameDTO;
 
 class AddFrameworkUsernameAclCommand extends BaseCommand
 {

@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportAsnFromUrlCommand;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

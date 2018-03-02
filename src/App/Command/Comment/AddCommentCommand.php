@@ -4,7 +4,7 @@ namespace App\Command\Comment;
 
 use App\Command\BaseCommand;
 use App\Entity\Comment\Comment;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Symfony\Component\Validator\Constraints as Assert;

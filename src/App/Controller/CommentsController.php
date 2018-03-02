@@ -12,7 +12,7 @@ use App\Entity\Comment\Comment;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -59,7 +59,7 @@ class CommentsController extends AbstractController
     /**
      * @Route("/comments/{itemType}/{itemId}", name="get_comments")
      * @Method("GET")
-     * @ParamConverter("comments", class="SaltSiteBundle:Comment", options={"id": {"itemType", "itemId"}, "repository_method" = "findByTypeItem"})
+     * @ParamConverter("comments", class="App\Entity\Comment\Comment", options={"id": {"itemType", "itemId"}, "repository_method" = "findByTypeItem"})
      * @Security("is_granted('comment_view')")
      *
      * @param array|Comment[] $comments

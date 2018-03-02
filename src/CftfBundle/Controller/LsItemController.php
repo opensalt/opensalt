@@ -20,7 +20,7 @@ use CftfBundle\Form\Command\CopyToLsDocCommand;
 use CftfBundle\Form\Type\LsDocListType;
 use CftfBundle\Form\Type\LsItemParentType;
 use CftfBundle\Form\Type\LsItemType;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;

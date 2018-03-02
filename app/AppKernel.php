@@ -36,7 +36,6 @@ class AppKernel extends Kernel
             new Nelmio\CorsBundle\NelmioCorsBundle(),
 
             new CftfBundle\CftfBundle(),
-            new Salt\UserBundle\SaltUserBundle(),
             new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
             new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
         ];

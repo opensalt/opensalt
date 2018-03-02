@@ -2,7 +2,7 @@
 
 namespace App\Command\User;
 
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AddUserCommand extends UserCommand

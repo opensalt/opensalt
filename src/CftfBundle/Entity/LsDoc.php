@@ -8,9 +8,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
-use Salt\UserBundle\Entity\Organization;
-use Salt\UserBundle\Entity\User;
-use Salt\UserBundle\Entity\UserDocAcl;
+use App\Entity\User\Organization;
+use App\Entity\User\User;
+use App\Entity\User\UserDocAcl;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Util\Compare;
@@ -70,7 +70,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * @var Organization
      *
-     * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\Organization", inversedBy="frameworks")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User\Organization", inversedBy="frameworks")
      * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=true)
      *
      * @Assert\Type(Organization::class)
@@ -82,7 +82,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\User", inversedBy="frameworks")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User\User", inversedBy="frameworks")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
      *
      * @Assert\Type(User::class)
@@ -359,7 +359,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * @var UserDocAcl[]|Collection
      *
-     * @ORM\OneToMany(targetEntity="Salt\UserBundle\Entity\UserDocAcl", mappedBy="lsDoc", indexBy="user", fetch="EXTRA_LAZY")
+     * @ORM\OneToMany(targetEntity="App\Entity\User\UserDocAcl", mappedBy="lsDoc", indexBy="user", fetch="EXTRA_LAZY")
      *
      * @Assert\All({
      *     @Assert\Type(UserDocAcl::class)
@@ -1255,7 +1255,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * Get the organization owner for the framework
      *
-     * @return \Salt\UserBundle\Entity\Organization
+     * @return \App\Entity\User\Organization
      */
     public function getOrg()
     {
@@ -1265,7 +1265,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * Set the organization owner for the framework
      *
-     * @param \Salt\UserBundle\Entity\Organization $org
+     * @param \App\Entity\User\Organization $org
      *
      * @return LsDoc
      */
@@ -1279,7 +1279,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * Get the user owner for the framework
      *
-     * @return \Salt\UserBundle\Entity\User
+     * @return \App\Entity\User\User
      */
     public function getUser(): ?User
     {
@@ -1289,7 +1289,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * Set the user owner for the framework
      *
-     * @param \Salt\UserBundle\Entity\User|null $user
+     * @param \App\Entity\User\User|null $user
      *
      * @return LsDoc
      */

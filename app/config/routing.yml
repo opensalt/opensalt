@@ -3,21 +3,6 @@ app:
     type:     annotation
     prefix:   /
 
-salt_site:
-    resource: "@SaltSiteBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
-github_files:
-    resource: "@GithubFilesBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
-salt_user:
-    resource: "@SaltUserBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
 cftf:
     resource: "@CftfBundle/Controller/"
     type:     annotation

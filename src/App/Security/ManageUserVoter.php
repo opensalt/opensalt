@@ -3,7 +3,7 @@
 namespace App\Security;
 
 use JMS\DiExtraBundle\Annotation as DI;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;

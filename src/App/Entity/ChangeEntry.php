@@ -5,7 +5,7 @@ namespace App\Entity;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 
 /**
  * @ORM\Table(name="salt_change",
@@ -27,7 +27,7 @@ class ChangeEntry
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User\User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
      */
     protected $user;

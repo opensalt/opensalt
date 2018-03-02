@@ -8,7 +8,7 @@ use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use JMS\DiExtraBundle\Annotation as DI;
-use Salt\UserBundle\Entity\Organization;
+use App\Entity\User\Organization;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 

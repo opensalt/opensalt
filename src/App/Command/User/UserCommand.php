@@ -3,7 +3,7 @@
 namespace App\Command\User;
 
 use App\Command\BaseCommand;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use Symfony\Component\Validator\Constraints as Assert;
 
 abstract class UserCommand extends BaseCommand

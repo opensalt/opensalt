@@ -3,7 +3,7 @@
 namespace App\Security;
 
 use JMS\DiExtraBundle\Annotation as DI;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;

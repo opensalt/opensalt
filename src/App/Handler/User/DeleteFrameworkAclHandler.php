@@ -5,7 +5,7 @@ namespace App\Handler\User;
 use App\Command\User\DeleteFrameworkAclCommand;
 use App\Event\CommandEvent;
 use JMS\DiExtraBundle\Annotation as DI;
-use Salt\UserBundle\Entity\UserDocAcl;
+use App\Entity\User\UserDocAcl;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**

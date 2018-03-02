@@ -7,7 +7,7 @@ use CftfBundle\Entity\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Entity\Comment\Comment;
 use App\Entity\Comment\CommentUpvote;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**

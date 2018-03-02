@@ -339,9 +339,9 @@ simple_things_entity_audit:
         - CftfBundle\Entity\CfRubric
         - CftfBundle\Entity\CfRubricCriterion
         - CftfBundle\Entity\CfRubricCriterionLevel
-        - Salt\UserBundle\Entity\Organization
-        - Salt\UserBundle\Entity\User
-        - Salt\UserBundle\Entity\UserDocAcl
+        - App\Entity\User\Organization
+        - App\Entity\User\User
+        - App\Entity\User\UserDocAcl
         - App\Entity\ChangeEntry
     global_ignore_columns:
         - password

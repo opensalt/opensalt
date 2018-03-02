@@ -9,7 +9,7 @@ use App\Handler\BaseDoctrineHandler;
 use App\Service\User\UserManager;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use JMS\DiExtraBundle\Annotation as DI;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 

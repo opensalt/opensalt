@@ -3,7 +3,7 @@
 namespace App\Command\Import;
 
 use App\Command\BaseCommand;
-use Salt\UserBundle\Entity\Organization;
+use App\Entity\User\Organization;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ImportAsnFromUrlCommand extends BaseCommand

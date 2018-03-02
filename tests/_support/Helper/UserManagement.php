@@ -6,9 +6,9 @@ use App\Service\User\UserManager;
 use Codeception\Module\Symfony;
 use Codeception\TestInterface;
 use Doctrine\ORM\EntityManager;
-use Salt\UserBundle\Entity\Organization;
-use Salt\UserBundle\Entity\User;
-use Salt\UserBundle\Repository\UserRepository;
+use App\Entity\User\Organization;
+use App\Entity\User\User;
+use App\Repository\User\UserRepository;
 
 class UserManagement extends \Codeception\Module
 {

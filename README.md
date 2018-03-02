@@ -69,5 +69,5 @@ Installation
 Other Docs
 ----------
 
-- [User Management Commands](./src/Salt/UserBundle/Resources/doc/Commands.md)
+- [User Management Commands](./docs/Commands.md)
 - [Github Authentication Config](./docs/deployment/GithubAuth.md)

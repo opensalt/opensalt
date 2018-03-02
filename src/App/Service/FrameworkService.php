@@ -17,7 +17,7 @@ use CftfBundle\Entity\LsItem;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManager;
 use Ramsey\Uuid\Uuid;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 

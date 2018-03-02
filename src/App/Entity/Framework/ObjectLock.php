@@ -5,7 +5,7 @@ namespace App\Entity\Framework;
 use App\Entity\LockableInterface;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\Mapping as ORM;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 
 /**
  * @ORM\Table(
@@ -33,7 +33,7 @@ class ObjectLock
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="Salt\UserBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User\User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
      */
     protected $user;

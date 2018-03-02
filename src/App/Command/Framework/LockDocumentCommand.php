@@ -4,7 +4,7 @@ namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
 use CftfBundle\Entity\LsDoc;
-use Salt\UserBundle\Entity\User;
+use App\Entity\User\User;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class LockDocumentCommand extends BaseCommand

@@ -1,7 +1,7 @@
 <?php
 
-use Salt\UserBundle\Entity\User;
-use Salt\UserBundle\Entity\Organization;
+use App\Entity\User\User;
+use App\Entity\User\Organization;
 
 class UserTest extends \Codeception\Test\Unit
 {
