@@ -93,9 +93,9 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     /**
      * @var bool
      *
-     * @ORM\Column(name="status", type="integer", nullable=false, options={"default": User::PENDING})
+     * @ORM\Column(name="status", type="integer", nullable=false, options={"default": User::ACTIVE})
      */
-    protected $status = self::PENDING;
+    protected $status = self::ACTIVE;
 
     /**
      * @ORM\Column(name="github_token", type="string", length=40, nullable=true)
@@ -462,5 +462,16 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         }
 
         return false;
+    }
+
+    /**
+     * @param string $status
+     *
+     * @return $this
+     */
+    public function setStatus($status) {
+        $this->status = $status;
+
+        return $this;
     }
 }

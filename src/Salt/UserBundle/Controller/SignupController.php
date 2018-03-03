@@ -75,6 +75,7 @@ class SignupController extends Controller
             }
 
             try {
+                $targetUser->setStatus(User::PENDING);
                 $command = new AddUserCommand($targetUser, $encryptedPassword);
                 $this->sendCommand($command);
 

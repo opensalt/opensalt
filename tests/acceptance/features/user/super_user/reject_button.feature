@@ -5,7 +5,9 @@ Feature: Click Reject Button
 
   @super-user @user @reinstate @1828-0126
   Scenario: 1828-0126 Reject a user in User List
-    Given I log in as a user with role "Super User"
-    And I add a new user with "Super User" role
-    And I reject the new user
+    Given "create_account" is enabled
+    And I log in as a user with role "Super User"
+    And I am on the page "/public/user/signup"
+    Then I create a new account
+    Then I reject the new user
     Then I delete the User

@@ -92,9 +92,22 @@ class User implements Context
         $I->fillField('#signup_plainPassword_first', $password);
         $I->fillField('#signup_plainPassword_second', $password);
         $I->selectOption('#signup_org', 'other');
-        $I->fillField('#signup_new_org', $org);
-        $I->click('Add');
+        $I->fillField('#signup_newOrg', $org);
+        $I->click('Submit');
         $I->remember('lastNewUsername', $username);
+    }
+
+    /**
+     * @Then /^I see last created account is pending$/
+     */
+    public function getLastCreatedAccount() {
+        $I = $this->I;
+
+        $username = $I->getRememberedString('lastNewUsername');
+        $I->amOnPage('/admin/user');
+        $I->click('th.sorting_asc');
+        $I->see('Approve', "//td[text()='{$username}']/..//a[text()='Approve']");
+        $I->see('Reject', "//td[text()='{$username}']/..//a[text()='Reject']");
     }
 
     /**
@@ -122,6 +135,7 @@ class User implements Context
 
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='edit']");
         $rows = $table->getRows();
         foreach ($rows as $row) {
@@ -163,6 +177,7 @@ class User implements Context
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Suspend']");
         $I->dontSee('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
@@ -176,6 +191,7 @@ class User implements Context
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Unsuspend']");
         $I->See('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
@@ -269,6 +285,7 @@ class User implements Context
 
         $username = $this->userName;
         $I->amOnPage('/admin/user');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Approve']");
     }
 
@@ -313,7 +330,7 @@ class User implements Context
     {
         $I = $this->I;
 
-        $username = $this->userName;
+        $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
         $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Reject']");
