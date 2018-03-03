@@ -75,6 +75,7 @@ class SignupController extends AbstractController
             }
 
             try {
+                $targetUser->setStatus(User::PENDING);
                 $command = new AddUserCommand($targetUser, $encryptedPassword);
                 $this->sendCommand($command);
 

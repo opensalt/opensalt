@@ -14,3 +14,6 @@ Feature: Create new account
         Then I should see "Create new account"
         Then I create a new account
         Then I should see "Competency Frameworks"
+
+        Then I log in as a user with role "Super-User"
+        Then I see last created account is pending
