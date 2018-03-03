@@ -1,5 +1,6 @@
 <?php
 
+use Doctrine\ORM\EntityManagerInterface;
 use Salt\UserBundle\Entity\User;
 use Salt\UserBundle\Entity\Organization;
 
@@ -13,12 +14,16 @@ class UserTest extends \Codeception\Test\Unit
     // tests
     public function testAddUser()
     {
+        /* @var EntityManagerInterface $em */
         $em = $this->getModule('Doctrine2')->em;
+
+        /* @var User $user */
         $user = new User();
+
         $org = $em->getRepository(Organization::class)->find(1);
 
         $user->setUsername('usertest');
-        $user->setPassword('password');
+        $user->setPassword('passwordaB3');
         $user->setOrg($org);
 
         $em->merge($user);
@@ -28,6 +33,8 @@ class UserTest extends \Codeception\Test\Unit
         $em->clear();
 
         $user = $em->getRepository(User::class)->findOneBy(['username' => 'usertest']);
-        $this->assertEquals($user->isPending(), true);
+        $this->assertEquals($user->isPending(), false);
+        $this->assertEquals($user->isSuspended(), false);
+        $this->assertEquals($user->isAccountNonLocked(), true);
     }
 }
