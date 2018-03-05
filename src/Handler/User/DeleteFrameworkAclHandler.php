@@ -8,11 +8,6 @@ use JMS\DiExtraBundle\Annotation as DI;
 use App\Entity\User\UserDocAcl;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class DeleteFrameworkAclHandler
- *
- * @DI\Service()
- */
 class DeleteFrameworkAclHandler extends BaseUserHandler
 {
     /**

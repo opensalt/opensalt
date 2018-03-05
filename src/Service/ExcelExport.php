@@ -3,45 +3,26 @@
 namespace App\Service;
 
 use App\Entity\Framework\LsDoc;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\Common\Persistence\ObjectManager;
-use JMS\DiExtraBundle\Annotation as DI;
+use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-/**
- * Class ExcelExport
- *
- * @DI\Service()
- */
 class ExcelExport
 {
     /**
-     * @var ManagerRegistry
+     * @var EntityManagerInterface
      */
-    private $managerRegistry;
+    private $entityManager;
 
-    /**
-     * CreestCsv constructor
-     *
-     * @param ManagerRegistry $managerRegistry
-     *
-     * @DI\InjectParams({
-     *     "managerRegistry" = @DI\Inject("doctrine")
-     * })
-     */
-    public function __construct(ManagerRegistry $managerRegistry)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->managerRegistry = $managerRegistry;
+        $this->entityManager = $entityManager;
     }
 
-    /**
-     * @return ObjectManager
-     */
-    public function getEntityManager(): ObjectManager
+    public function getEntityManager(): EntityManagerInterface
     {
-        return $this->managerRegistry->getManagerForClass(LsDoc::class);
+        return $this->entityManager;
     }
 
     public function exportExcelFile(LsDoc $doc): Spreadsheet

@@ -7,15 +7,12 @@ use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use App\Service\User\UserManager;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 use JMS\DiExtraBundle\Annotation as DI;
 use App\Entity\User\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * Class AddUserByNameHandler
- */
 class AddUserByNameHandler extends BaseDoctrineHandler
 {
     /**
@@ -23,9 +20,9 @@ class AddUserByNameHandler extends BaseDoctrineHandler
      */
     private $userManager;
 
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, UserManager $userManager)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, UserManager $userManager)
     {
-        parent::__construct($validator, $registry);
+        parent::__construct($validator, $entityManager);
         $this->userManager = $userManager;
     }
 

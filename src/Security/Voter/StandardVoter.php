@@ -1,21 +1,15 @@
 <?php
 
-namespace App\Security;
+namespace App\Security\Voter;
 
-use JMS\DiExtraBundle\Annotation as DI;
 use App\Entity\User\User;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Security\Voter\FrameworkAccessVoter;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-/**
- * Class StandardVoter
- *
- * @DI\Service(public=false)
- * @DI\Tag("security.voter")
- */
 class StandardVoter extends Voter
 {
     public const ADD_TO = 'add-standard-to';
@@ -26,15 +20,6 @@ class StandardVoter extends Voter
      */
     private $decisionManager;
 
-    /**
-     * SuperUserVoter constructor.
-     *
-     * @param \Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface $decisionManager
-     *
-     * @DI\InjectParams({
-     *     "decisionManager" = @DI\Inject("security.access.decision_manager")
-     * })
-     */
     public function __construct(AccessDecisionManagerInterface $decisionManager)
     {
         $this->decisionManager = $decisionManager;

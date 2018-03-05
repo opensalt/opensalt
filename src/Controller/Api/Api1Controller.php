@@ -9,6 +9,8 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\CfDocQuery;
 use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -23,6 +25,22 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class Api1Controller extends AbstractController
 {
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * @var SerializerInterface
+     */
+    protected $serializer;
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer)
+    {
+        $this->logger = $logger;
+        $this->serializer = $serializer;
+    }
+
     /**
      * @Route("/CFDocuments.{_format}", name="api_v1p0_cfdocuments", defaults={"_format"="json"})
      * @Method("GET")
@@ -57,14 +75,14 @@ class Api1Controller extends AbstractController
             }
         }
 
-        $this->get('logger')->info('CASE API: getAllCfDocuments', []);
+        $this->logger->info('CASE API: getAllCfDocuments', []);
 
         $response = $this->generateBaseReponse($lastModified);
         if ($response->isNotModified($request)) {
             return $response;
         }
 
-        $response->setContent($this->get('serializer')->serialize(
+        $response->setContent($this->serializer->serialize(
             ['CFDocuments' => $docs],
             $request->getRequestFormat('json'),
             SerializationContext::create()->setGroups(['Default', 'CfDocuments'])
@@ -85,7 +103,7 @@ class Api1Controller extends AbstractController
         $doc = $obj;
         $id = $obj->getIdentifier();
 
-        $this->get('logger')->info('CASE API: package returned', ['id' => $id]);
+        $this->logger->info('CASE API: package returned', ['id' => $id]);
 
         $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
         $lastChange = $changeRepo->getLastChangeTimeForDoc($doc);
@@ -101,7 +119,7 @@ class Api1Controller extends AbstractController
 
         $pkg = $repo->getPackageArray($doc);
 
-        $response->setContent($this->get('serializer')->serialize(
+        $response->setContent($this->serializer->serialize(
             $pkg,
             $request->getRequestFormat('json'),
             SerializationContext::create()->setGroups(['Default', 'CfPackage'])
@@ -135,14 +153,14 @@ class Api1Controller extends AbstractController
             }
         }
 
-        $this->get('logger')->info('CASE API: item associations returned', ['id' => $id]);
+        $this->logger->info('CASE API: item associations returned', ['id' => $id]);
 
         $response = $this->generateBaseReponse($lastModified);
         if ($response->isNotModified($request)) {
             return $response;
         }
 
-        $response->setContent($this->get('serializer')->serialize(
+        $response->setContent($this->serializer->serialize(
             [
                 'CFItem' => $item,
                 'CFAssociations' => $associations,
@@ -227,7 +245,7 @@ class Api1Controller extends AbstractController
      */
     protected function generateObjectResponse(Request $request, CaseApiInterface $obj): Response
     {
-        $this->get('logger')->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
+        $this->logger->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
 
         $response = $this->generateBaseReponse($obj->getUpdatedAt());
 
@@ -235,8 +253,7 @@ class Api1Controller extends AbstractController
             return $response;
         }
 
-        $serializer = $this->get('serializer');
-        $result = $serializer->serialize(
+        $result = $this->serializer->serialize(
             $obj,
             $request->getRequestFormat('json'),
             SerializationContext::create()->setGroups([
@@ -260,7 +277,7 @@ class Api1Controller extends AbstractController
      */
     protected function generateObjectCollectionResponse(Request $request, CaseApiInterface $obj): Response
     {
-        $this->get('logger')->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
+        $this->logger->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
 
         $response = $this->generateBaseReponse(new \DateTime());
 
@@ -270,8 +287,7 @@ class Api1Controller extends AbstractController
 
         $collection = explode('/', $request->getPathInfo())[4];
 
-        $serializer = $this->get('serializer');
-        $result = $serializer->serialize(
+        $result = $this->serializer->serialize(
             [$collection => [$obj]],
             $request->getRequestFormat('json'),
             SerializationContext::create()->setGroups([

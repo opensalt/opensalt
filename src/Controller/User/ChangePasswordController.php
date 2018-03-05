@@ -11,6 +11,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 
 /**
  * Class ChangePasswordController
@@ -29,7 +30,7 @@ class ChangePasswordController extends AbstractController
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function changePasswordAction(Request $request)
+    public function changePasswordAction(Request $request, PasswordEncoderInterface $passwordEncoder)
     {
         $dto = new ChangePasswordDTO();
         $form = $this->createForm(ChangePasswordType::class, $dto);
@@ -38,7 +39,7 @@ class ChangePasswordController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $this->getUser();
-            $encryptedPassword = $this->get('security.password_encoder')->encodePassword($user, $form->getData()->newPassword);
+            $encryptedPassword = $passwordEncoder->encodePassword($user, $form->getData()->newPassword);
 
             $command = new ChangePasswordCommand($user, $encryptedPassword);
             $this->sendCommand($command);

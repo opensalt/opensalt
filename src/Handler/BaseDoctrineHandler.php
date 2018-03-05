@@ -2,28 +2,13 @@
 
 namespace App\Handler;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
-use JMS\DiExtraBundle\Annotation as DI;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * Class BaseDoctrineHandler
- */
 abstract class BaseDoctrineHandler extends AbstractDoctrineHandler
 {
-    /**
-     * BaseUserHandler constructor.
-     *
-     * @DI\InjectParams({
-     *     "validator" = @DI\Inject("validator"),
-     *     "registry" = @DI\Inject("doctrine")
-     * })
-     *
-     * @param ValidatorInterface $validator
-     * @param ManagerRegistry $registry
-     */
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager)
     {
-        parent::__construct($validator, $registry);
+        parent::__construct($validator, $entityManager);
     }
 }

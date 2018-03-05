@@ -7,15 +7,12 @@ use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ParseCsvGithubDocumentCommand;
 use App\Event\CommandEvent;
 use App\Entity\Framework\LsDoc;
-use Doctrine\Common\Persistence\ManagerRegistry;
 use App\Service\GithubImport;
+use Doctrine\ORM\EntityManagerInterface;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * @DI\Service()
- */
 class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
 {
     /**
@@ -23,22 +20,9 @@ class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
      */
     protected $importService;
 
-    /**
-     * BaseFrameworkHandler constructor.
-     *
-     * @DI\InjectParams({
-     *     "validator" = @DI\Inject("validator"),
-     *     "registry" = @DI\Inject("doctrine"),
-     *     "importService" = @DI\Inject(App\Service\GithubImport::class)
-     * })
-     *
-     * @param ValidatorInterface $validator
-     * @param ManagerRegistry $registry
-     * @param GithubImport $importService
-     */
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, GithubImport $importService)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, GithubImport $importService)
     {
-        parent::__construct($validator, $registry);
+        parent::__construct($validator, $entityManager);
         $this->importService = $importService;
     }
 

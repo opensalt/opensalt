@@ -8,9 +8,6 @@ use JMS\DiExtraBundle\Annotation as DI;
 use App\Entity\Comment\Comment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @DI\Service()
- */
 class DownvoteCommentHandler extends BaseCommentHandler
 {
     /**

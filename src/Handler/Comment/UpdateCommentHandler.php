@@ -8,9 +8,6 @@ use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @DI\Service()
- */
 class UpdateCommentHandler extends BaseCommentHandler
 {
     /**

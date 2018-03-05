@@ -7,11 +7,6 @@ use App\Event\CommandEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class AddSubjectHandler
- *
- * @DI\Service()
- */
 class AddSubjectHandler extends BaseFrameworkHandler
 {
     /**

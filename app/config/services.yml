@@ -17,38 +17,42 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
-        public: true
-        #public: false
+        public: false
         bind:
             $rootDir: "%kernel.root_dir%"
+            $mailFromEmail: '%mail_feature_from_email%'
+            $externalDocCache: '@salt.cache.external_docs'
+            $firebasePrefix: '%firebase_prefix%'
 
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-        resource: '../../src/{Console,Handler,Form/Type,EventListener,Service,Repository}'
+        resource: '../../src/{Console,Handler,Form/Type,EventListener,Service,Repository,Security,Twig}'
 
-    App\Controller\:
-        resource: '../../src/Controller'
-        public: true
-        tags: ['controller.service_arguments']
-
-    App\Controller\Site\AboutController:
-        public: true
-        tags: ['controller.service_arguments']
+    App\Controller\User\OAuthServiceController:
         arguments:
-            $rootDir: '%kernel.root_dir%'
+            $githubClientId: '%github_client_id%'
+            $githubClientSecret: '%github_client_secret%'
+            $githubRedirectUri: "@=container.hasParameter('github_redirect_uri') ? parameter('github_redirect_uri') : null"
 
-    App\Console\ClearFirebaseNotificationsCommand:
-        public: true
+    App\Controller\Framework\LsDocController:
         arguments:
-            - '@Kreait\Firebase'
-            - '%firebase_prefix%'
+            $guzzleJsonClient: '@csa_guzzle.client.json'
 
-    App\Handler\Email\:
-        resource: '../../src/Handler/Email'
-        public: true
+    App\Controller\Framework\DocTreeController:
         arguments:
-            # Move to _defaults: bind: in Symfony 3.4
-            $mailFromEmail: '%mail_feature_from_email%'
+            $guzzleJsonClient: '@csa_guzzle.client.json'
+
+    App\Controller\User\SignupController:
+        arguments:
+            $kernelEnv: '%kernel.environment%'
+
+    App\EventListener\LoginListener:
+        class: App\EventListener\LoginListener
+        arguments:
+            $captchaSecret: '%google_captcha_secret_key%'
+        tags:
+            - { name: kernel.event_listener, event: security.interactive_login }
+
 
     # Workarounds for 3.4 deprecations
     Symfony\Bundle\SwiftmailerBundle\Command\:
@@ -70,36 +74,22 @@ services:
     Kreait\Firebase:
         factory: 'App\Service\FirebaseFactory:createFirebase'
         arguments:
-            - '@logger'
-            - '%firebase_project_id%'
-            - '%firebase_client_id%'
-            - '%firebase_client_email%'
-            - '%firebase_private_key%'
-            - '%firebase_db_url%'
+            $logger: '@logger'
+            $projectId: '%firebase_project_id%'
+            $clientId: '%firebase_client_id%'
+            $clientEmail: '%firebase_client_email%'
+            $privateKey: '%firebase_private_key%'
+            $dbUri: '%firebase_db_url%'
 
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
-        public:    false
         arguments:
-            - 'mysql:host=%database_host%;port=%database_port%;dbname=%database_name%'
-            - { db_username: '%database_user%', db_password: '%database_password%', db_table: 'auth_session', db_id_col: 'id', db_connection_options: "%pdo_options%" }
+            $pdoOrDsn: 'mysql:host=%database_host%;port=%database_port%;dbname=%database_name%'
+            $options: { db_username: '%database_user%', db_password: '%database_password%', db_table: 'auth_session', db_id_col: 'id', db_connection_options: "%pdo_options%" }
 
     salt.cache.external_docs:
         class: Symfony\Component\Cache\Adapter\PdoAdapter
-        public: true
         arguments:
-            - '@doctrine.dbal.default_connection'
-            - 'externalDoc-'
-            - 0
-
-    App\EventListener\LoginListener:
-        class: App\EventListener\LoginListener
-        arguments:
-            $captchaSecret: '%google_captcha_secret_key%'
-        tags:
-            - { name: kernel.event_listener, event: security.interactive_login }
-
-    App\EventListener\NotificationToFirebaseListener:
-        class: App\EventListener\NotificationToFirebaseListener
-        arguments:
-            $prefix: '%firebase_prefix%'
+            $connOrDsn: '@doctrine.dbal.default_connection'
+            $namespace: 'externalDoc-'
+            $defaultLifetime: 0

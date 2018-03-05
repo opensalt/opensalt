@@ -18,13 +18,13 @@ class ClearFirebaseNotificationsCommand extends Command
     /**
      * @var string
      */
-    private $prefix;
+    private $firebasePrefix;
 
-    public function __construct(?Firebase $firebase, ?string $prefix = null)
+    public function __construct(?Firebase $firebase, ?string $firebasePrefix = null)
     {
         parent::__construct();
         $this->firebase = $firebase;
-        $this->prefix = !empty($prefix) ? $prefix : 'opensalt';
+        $this->firebasePrefix = !empty($firebasePrefix) ? $firebasePrefix : 'opensalt';
     }
 
     protected function configure(): void
@@ -43,7 +43,7 @@ class ClearFirebaseNotificationsCommand extends Command
             return 0;
         }
 
-        $prefix = $this->prefix;
+        $prefix = $this->firebasePrefix;
         $path = "/{$prefix}/doc";
         $db = $this->firebase->getDatabase();
         $db->getReference($path)->remove();

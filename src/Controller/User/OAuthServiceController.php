@@ -5,11 +5,13 @@ namespace App\Controller\User;
 use App\Command\CommandDispatcherTrait;
 use App\Command\User\UpdateUserCommand;
 use App\Entity\User\User;
+use League\OAuth2\Client\Provider\Github;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -22,21 +24,44 @@ class OAuthServiceController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
+     * @var string
+     */
+    private $githubClientId;
+
+    /**
+     * @var string
+     */
+    private $githubClientSecret;
+
+    /**
+     * @var string
+     */
+    private $githubRedirectUri;
+
+    public function __construct(string $githubClientId = null, string $githubClientSecret = null, string $githubRedirectUri = null)
+    {
+        $this->githubClientId = $githubClientId;
+        $this->githubClientSecret = $githubClientSecret;
+        $this->githubRedirectUri = $githubRedirectUri;
+    }
+
+    /**
      * Save the Github Access Token.
      *
      * @Route("/check-github", name="github_login")
      * @Method("GET")
      *
      * @param Request $request
+     * @param SessionInterface $session
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      *
      * @throws \UnexpectedValueException
      */
-    public function githubAction(Request $request): Response
+    public function githubAction(Request $request, SessionInterface $session): Response
     {
-        if ($this->container->hasParameter('github_redirect_uri')) {
-            $redirectUri = $this->getParameter('github_redirect_uri');
+        if (!empty($this->githubRedirectUri)) {
+            $redirectUri = $this->githubRedirectUri;
         }
         if (empty($redirectUri)) {
             $redirectUri = $this->generateUrl(
@@ -46,9 +71,9 @@ class OAuthServiceController extends AbstractController
             );
         }
 
-        $provider = new \League\OAuth2\Client\Provider\Github([
-            'clientId'     => $this->getParameter('github_client_id'),
-            'clientSecret' => $this->getParameter('github_client_secret'),
+        $provider = new Github([
+            'clientId'     => $this->githubClientId,
+            'clientSecret' => $this->githubClientSecret,
             'redirectUri'  => $redirectUri,
         ]);
 
@@ -57,7 +82,6 @@ class OAuthServiceController extends AbstractController
 
         // User logged in
         $currentUser = $this->getUser();
-        $session = $this->get('session');
 
         if (!isset($code)) {
             $options = [

@@ -8,11 +8,6 @@ use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class ActivateUserHandler
- *
- * @DI\Service()
- */
 class ActivateUserHandler extends BaseUserHandler
 {
     /**

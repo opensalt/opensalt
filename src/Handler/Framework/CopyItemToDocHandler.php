@@ -9,11 +9,6 @@ use App\Handler\BaseDoctrineHandler;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class CopyItemToDocHandler
- *
- * @DI\Service()
- */
 class CopyItemToDocHandler extends BaseDoctrineHandler
 {
     /**

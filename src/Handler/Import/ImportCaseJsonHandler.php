@@ -6,15 +6,12 @@ use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ImportCaseJsonCommand;
 use App\Event\CommandEvent;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 use JMS\DiExtraBundle\Annotation as DI;
 use App\Service\CaseImport;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * @DI\Service()
- */
 class ImportCaseJsonHandler extends AbstractDoctrineHandler
 {
     /**
@@ -22,22 +19,9 @@ class ImportCaseJsonHandler extends AbstractDoctrineHandler
      */
     protected $importService;
 
-    /**
-     * constructor.
-     *
-     * @DI\InjectParams({
-     *     "validator" = @DI\Inject("validator"),
-     *     "registry" = @DI\Inject("doctrine"),
-     *     "caseImport" = @DI\Inject(App\Service\CaseImport::class)
-     * })
-     *
-     * @param ValidatorInterface $validator
-     * @param ManagerRegistry $registry
-     * @param CaseImport $caseImport
-     */
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, CaseImport $caseImport)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, CaseImport $caseImport)
     {
-        parent::__construct($validator, $registry);
+        parent::__construct($validator, $entityManager);
         $this->importService = $caseImport;
     }
 

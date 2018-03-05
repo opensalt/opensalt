@@ -2,8 +2,7 @@
 
 namespace App\Handler;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -12,19 +11,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class AbstractDoctrineHandler extends BaseValidatedHandler
 {
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     protected $em;
 
-    /**
-     * AbstractUserHandler constructor.
-     *
-     * @param ValidatorInterface $validator
-     * @param ManagerRegistry $registry
-     */
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager)
     {
         parent::__construct($validator);
-        $this->em = $registry->getManager();
+        $this->em = $entityManager;
     }
 }

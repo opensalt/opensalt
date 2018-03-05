@@ -2,20 +2,19 @@
 
 namespace App\Console;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 abstract class BaseDoctrineCommand extends BaseDispatchingCommand
 {
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     protected $em;
 
-    public function __construct(EventDispatcherInterface $dispatcher, ManagerRegistry $registry)
+    public function __construct(EventDispatcherInterface $dispatcher, EntityManagerInterface $entityManager)
     {
-        $this->em = $registry->getManager();
+        $this->em = $entityManager;
 
         parent::__construct($dispatcher);
     }

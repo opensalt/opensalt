@@ -3,14 +3,14 @@
 namespace App\Console\User;
 
 use App\Command\User\SetUserPasswordCommand;
+use App\Console\BaseDispatchingCommand;
 use App\Event\CommandEvent;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
-class UserSetPasswordCommand extends ContainerAwareCommand
+class UserSetPasswordCommand extends BaseDispatchingCommand
 {
     protected function configure()
     {
@@ -54,8 +54,7 @@ class UserSetPasswordCommand extends ContainerAwareCommand
         $password = trim($input->getArgument('password'));
 
         $command = new SetUserPasswordCommand($username, $password);
-        $this->getContainer()->get('event_dispatcher')
-            ->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
         $newPassword = $command->getPlainPassword();
 
         if (empty($password)) {

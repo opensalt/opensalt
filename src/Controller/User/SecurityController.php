@@ -6,6 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
@@ -15,9 +16,15 @@ class SecurityController extends AbstractController
      */
     private $authenticationUtils;
 
-    public function __construct(AuthenticationUtils $authenticationUtils)
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    private $authChecker;
+
+    public function __construct(AuthenticationUtils $authenticationUtils, AuthorizationCheckerInterface $authChecker)
     {
         $this->authenticationUtils = $authenticationUtils;
+        $this->authChecker = $authChecker;
     }
 
     /**
@@ -26,7 +33,7 @@ class SecurityController extends AbstractController
      */
     public function loginAction(Request $request)
     {
-        $securityContext = $this->get('security.authorization_checker');
+        $securityContext = $this->authChecker;
         if ($securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return $this->redirect('/');
         }

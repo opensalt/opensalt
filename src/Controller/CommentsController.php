@@ -11,6 +11,7 @@ use App\Command\Comment\UpvoteCommentCommand;
 use App\Entity\Comment\Comment;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use JMS\Serializer\SerializerInterface;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 use App\Entity\User\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -31,6 +32,16 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class CommentsController extends AbstractController
 {
     use CommandDispatcherTrait;
+
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
 
     /**
      * @Route("/comments/document/{id}", name="create_doc_comment")
@@ -275,8 +286,7 @@ class CommentsController extends AbstractController
 
     private function serialize($data): string
     {
-        return $this->get('jms_serializer')
-            ->serialize($data, 'json');
+        return $this->serializer->serialize($data, 'json');
     }
 
     private function apiResponse($data, int $statusCode = 200): JsonResponse

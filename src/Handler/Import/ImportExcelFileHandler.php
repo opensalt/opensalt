@@ -7,14 +7,11 @@ use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ImportExcelFileCommand;
 use App\Event\CommandEvent;
 use App\Service\ExcelImport;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * @DI\Service()
- */
 class ImportExcelFileHandler extends AbstractDoctrineHandler
 {
     /**
@@ -22,22 +19,9 @@ class ImportExcelFileHandler extends AbstractDoctrineHandler
      */
     protected $importService;
 
-    /**
-     * BaseFrameworkHandler constructor.
-     *
-     * @DI\InjectParams({
-     *     "validator" = @DI\Inject("validator"),
-     *     "registry" = @DI\Inject("doctrine"),
-     *     "excelImportService" = @DI\Inject(App\Service\ExcelImport::class)
-     * })
-     *
-     * @param ValidatorInterface $validator
-     * @param ManagerRegistry $registry
-     * @param ExcelImport $excelImportService
-     */
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, ExcelImport $excelImportService)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, ExcelImport $excelImportService)
     {
-        parent::__construct($validator, $registry);
+        parent::__construct($validator, $entityManager);
         $this->importService = $excelImportService;
     }
 

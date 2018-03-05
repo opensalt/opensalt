@@ -10,11 +10,6 @@ use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class LockItemHandler
- *
- * @DI\Service()
- */
 class LockItemHandler extends BaseFrameworkHandler
 {
     /**

@@ -7,14 +7,11 @@ use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\MarkImportLogsAsReadCommand;
 use App\Event\CommandEvent;
 use App\Service\AsnImport;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * @DI\Service()
- */
 class MarkImportLogsAsReadHandler extends AbstractDoctrineHandler
 {
     /**
@@ -22,20 +19,9 @@ class MarkImportLogsAsReadHandler extends AbstractDoctrineHandler
      */
     protected $importService;
 
-    /**
-     * BaseFrameworkHandler constructor.
-     *
-     * @DI\InjectParams({
-     *     "validator" = @DI\Inject("validator"),
-     *     "registry" = @DI\Inject("doctrine")
-     * })
-     *
-     * @param ValidatorInterface $validator
-     * @param ManagerRegistry $registry
-     */
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager)
     {
-        parent::__construct($validator, $registry);
+        parent::__construct($validator, $entityManager);
     }
 
     /**

@@ -8,7 +8,6 @@
 
 namespace App\Form\Type;
 
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -23,12 +22,6 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use App\Entity\User\User;
 
-/**
- * Class SignupType
- *
- * @DI\Service()
- * @DI\Tag("form.type")
- */
 class SignupType extends AbstractType
 {
     /**

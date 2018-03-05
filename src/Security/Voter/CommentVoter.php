@@ -1,19 +1,12 @@
 <?php
 
-namespace App\Security;
+namespace App\Security\Voter;
 
-use JMS\DiExtraBundle\Annotation as DI;
 use App\Entity\Comment\Comment;
 use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-/**
- * Class CommentVoter
- *
- * @DI\Service(public=false)
- * @DI\Tag("security.voter")
- */
 class CommentVoter extends Voter
 {
     public const COMMENT = 'comment';

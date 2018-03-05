@@ -7,16 +7,11 @@ use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
 use App\Service\FrameworkUpdater;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * Class UpdateFrameworkHandler
- *
- * @DI\Service()
- */
 class UpdateFrameworkHandler extends AbstractDoctrineHandler
 {
     /**
@@ -24,16 +19,9 @@ class UpdateFrameworkHandler extends AbstractDoctrineHandler
      */
     private $frameworkUpdater;
 
-    /**
-     * @DI\InjectParams({
-     *     "validator" = @DI\Inject("validator"),
-     *     "registry" = @DI\Inject("doctrine"),
-     *     "frameworkUpdater" = @DI\Inject(App\Service\FrameworkUpdater::class)
-     * })
-     */
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, FrameworkUpdater $frameworkUpdater)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, FrameworkUpdater $frameworkUpdater)
     {
-        parent::__construct($validator, $registry);
+        parent::__construct($validator, $entityManager);
         $this->frameworkUpdater = $frameworkUpdater;
     }
 

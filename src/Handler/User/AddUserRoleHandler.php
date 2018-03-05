@@ -6,14 +6,11 @@ use App\Command\User\AddUserRoleCommand;
 use App\Event\CommandEvent;
 use App\Handler\BaseDoctrineHandler;
 use App\Service\User\UserManager;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * Class AddUserRoleHandler
- */
 class AddUserRoleHandler extends BaseDoctrineHandler
 {
     /**
@@ -21,9 +18,9 @@ class AddUserRoleHandler extends BaseDoctrineHandler
      */
     private $userManager;
 
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $registry, UserManager $userManager)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, UserManager $userManager)
     {
-        parent::__construct($validator, $registry);
+        parent::__construct($validator, $entityManager);
         $this->userManager = $userManager;
     }
 

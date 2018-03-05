@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "uri",
- *     exp="service('Api\Service\Api1Uris').getApiUrl(object)",
+ *     exp="service('App\\Service\\Api1Uris').getApiUrl(object)",
  *     options={
  *         @Serializer\SerializedName("uri"),
  *         @Serializer\Expose()
@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "cfDocumentUri",
- *     exp="service('Api\Service\Api1Uris').getLinkUri(object.getLsDoc())",
+ *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getLsDoc())",
  *     options={
  *         @Serializer\SerializedName("CFDocumentURI"),
  *         @Serializer\Expose()
@@ -48,7 +48,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "cfItemTypeUri",
- *     exp="service('Api\Service\Api1Uris').getLinkUri(object.getItemType())",
+ *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getItemType())",
  *     options={
  *         @Serializer\SerializedName("CFItemTypeURI"),
  *         @Serializer\Expose()
@@ -57,7 +57,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "conceptKeywords",
- *     exp="service('Api\Service\Api1Uris').splitByComma(object.getConceptKeywords())",
+ *     exp="service('App\\Service\\Api1Uris').splitByComma(object.getConceptKeywords())",
  *     options={
  *         @Serializer\SerializedName("conceptKeywords"),
  *         @Serializer\Expose()
@@ -66,7 +66,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "conceptKeywordsUri",
- *     exp="(object.getConcepts().count()===0)?null:service('Api\Service\Api1Uris').getLinkUri(object.getConcepts()[0])",
+ *     exp="(object.getConcepts().count()===0)?null:service('App\\Service\\Api1Uris').getLinkUri(object.getConcepts()[0])",
  *     options={
  *         @Serializer\SerializedName("conceptKeywordsURI"),
  *         @Serializer\Expose()
@@ -75,7 +75,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "educationLevel",
- *     exp="service('Api\Service\Api1Uris').splitByComma(object.getEducationalAlignment())",
+ *     exp="service('App\\Service\\Api1Uris').splitByComma(object.getEducationalAlignment())",
  *     options={
  *         @Serializer\SerializedName("educationLevel"),
  *         @Serializer\Expose()
@@ -84,7 +84,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "licenseUri",
- *     exp="service('Api\Service\Api1Uris').getLinkUri(object.getLicence())",
+ *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getLicence())",
  *     options={
  *         @Serializer\SerializedName("licenseURI"),
  *         @Serializer\Expose()

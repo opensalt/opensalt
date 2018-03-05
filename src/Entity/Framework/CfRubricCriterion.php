@@ -17,7 +17,7 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @Serializer\VirtualProperty(
  *     "itemUri",
- *     exp="service('Api\Service\Api1Uris').getLinkUri(object.getItem())",
+ *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getItem())",
  *     options={
  *         @Serializer\SerializedName("CFItemURI"),
  *         @Serializer\Expose()

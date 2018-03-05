@@ -3,10 +3,10 @@
 namespace App\Console\User;
 
 use App\Command\User\AddUserByNameCommand;
+use App\Console\BaseDoctrineCommand;
 use App\Event\CommandEvent;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 
-class UserAddCommand extends ContainerAwareCommand
+class UserAddCommand extends BaseDoctrineCommand
 {
     protected function configure()
     {
@@ -34,7 +34,7 @@ class UserAddCommand extends ContainerAwareCommand
 
         $helper = $this->getHelper('question');
 
-        $em = $this->getContainer()->get('doctrine')->getManager();
+        $em = $this->em;
         if (empty($input->getArgument('org'))) {
             $orgObjs = $em->getRepository(Organization::class)->findAll();
             $orgs = [];
@@ -114,7 +114,7 @@ class UserAddCommand extends ContainerAwareCommand
             return 1;
         }
 
-        $em = $this->getContainer()->get('doctrine')->getManager();
+        $em = $this->em;
         $orgObj = $em->getRepository(Organization::class)->findOneByName($org);
         if (empty($orgObj)) {
             $output->writeln(sprintf('<error>Organization "%s" is not valid.</error>', $org));
@@ -123,8 +123,7 @@ class UserAddCommand extends ContainerAwareCommand
         }
 
         $command = new AddUserByNameCommand($username, $orgObj, $password, $role);
-        $this->getContainer()->get('event_dispatcher')
-            ->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
         $newPassword = $command->getNewPassword();
 
         if (empty($password)) {

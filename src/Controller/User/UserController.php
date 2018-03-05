@@ -19,6 +19,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 
 /**
  * User controller.
@@ -39,11 +41,11 @@ class UserController extends AbstractController
      *
      * @return array
      */
-    public function indexAction()
+    public function indexAction(AuthorizationCheckerInterface $authChecker)
     {
         $em = $this->getDoctrine()->getManager();
 
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_USER')) {
+        if ($authChecker->isGranted('ROLE_SUPER_USER')) {
             $users = $em->getRepository(User::class)->findAll();
         } else {
             $users = $em->getRepository(User::class)
@@ -65,7 +67,7 @@ class UserController extends AbstractController
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function newAction(Request $request)
+    public function newAction(Request $request, AuthorizationCheckerInterface $authChecker, PasswordEncoderInterface $passwordEncoder)
     {
         $targetUser = new User();
         $form = $this->createForm(UserType::class, $targetUser, ['validation_groups' => ['registration']]);
@@ -73,12 +75,12 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Set to organization to match the creating users, unless the super-user
-            if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_USER')) {
+            if (!$authChecker->isGranted('ROLE_SUPER_USER')) {
                 $targetUser->setOrg($this->getUser()->getOrg());
             }
 
             // Encode the plaintext password
-            $encryptedPassword = $this->get('security.password_encoder')
+            $encryptedPassword = $passwordEncoder
                 ->encodePassword($targetUser, $targetUser->getPlainPassword());
 
             try {
@@ -133,7 +135,7 @@ class UserController extends AbstractController
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function editAction(Request $request, User $targetUser)
+    public function editAction(Request $request, User $targetUser, PasswordEncoderInterface $passwordEncoder)
     {
         $deleteForm = $this->createDeleteForm($targetUser);
         $editForm = $this->createForm(UserType::class, $targetUser);
@@ -142,7 +144,7 @@ class UserController extends AbstractController
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             $plainPassword = $targetUser->getPlainPassword();
             if (!empty($plainPassword)) {
-                $password = $this->get('security.password_encoder')
+                $password = $passwordEncoder
                     ->encodePassword($targetUser, $targetUser->getPlainPassword());
                 $targetUser->setPassword($password);
             }

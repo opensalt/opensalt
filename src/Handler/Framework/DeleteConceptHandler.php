@@ -7,11 +7,6 @@ use App\Event\CommandEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class DeleteConceptHandler
- *
- * @DI\Service()
- */
 class DeleteConceptHandler extends BaseFrameworkHandler
 {
     /**

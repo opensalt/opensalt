@@ -6,42 +6,23 @@ use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\LsAssociation;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\Common\Persistence\ObjectManager;
-use JMS\DiExtraBundle\Annotation as DI;
+use Doctrine\ORM\EntityManagerInterface;
 
-/**
- * Class CaseImport.
- *
- * @DI\Service()
- */
 class CaseImport
 {
     /**
-     * @var ManagerRegistry
+     * @var EntityManagerInterface
      */
-    private $managerRegistry;
+    private $entityManager;
 
-    /**
-     * constructor
-     *
-     * @param ManagerRegistry $managerRegistry
-     *
-     * @DI\InjectParams({
-     *     "managerRegistry" = @DI\Inject("doctrine")
-     * })
-     */
-    public function __construct(ManagerRegistry $managerRegistry)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->managerRegistry = $managerRegistry;
+        $this->entityManager = $entityManager;
     }
 
-    /**
-     * @return ObjectManager
-     */
-    public function getEntityManager(): ObjectManager
+    public function getEntityManager(): EntityManagerInterface
     {
-        return $this->managerRegistry->getManagerForClass(LsDoc::class);
+        return $this->entityManager;
     }
 
     /**

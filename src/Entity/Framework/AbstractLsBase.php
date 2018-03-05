@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @Serializer\ExclusionPolicy("all")
  * @Serializer\VirtualProperty(
  *     "uri",
- *     exp="service('Api\Service\Api1Uris').getApiUrl(object)",
+ *     exp="service('App\\Service\\Api1Uris').getApiUrl(object)",
  *     options={
  *         @Serializer\SerializedName("uri"),
  *         @Serializer\Expose()

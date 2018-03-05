@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "uri",
- *     exp="service('Api\Service\Api1Uris').getApiUrl(object)",
+ *     exp="service('App\\Service\\Api1Uris').getApiUrl(object)",
  *     options={
  *         @Serializer\SerializedName("uri"),
  *         @Serializer\Expose()
@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "cfDocumentUri",
- *     exp="service('Api\Service\Api1Uris').getLinkUri(object.getLsDoc())",
+ *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getLsDoc())",
  *     options={
  *         @Serializer\SerializedName("CFDocumentURI"),
  *         @Serializer\Expose()
@@ -33,7 +33,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "cfAssociationGroupingUri",
- *     exp="service('Api\Service\Api1Uris').getLinkUri(object.getGroup())",
+ *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getGroup())",
  *     options={
  *         @Serializer\SerializedName("CFAssociationGroupingURI"),
  *         @Serializer\Expose()
@@ -42,7 +42,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "originNodeUri",
- *     exp="service('Api\Service\Api1Uris').getNodeLinkUri('origin', object)",
+ *     exp="service('App\\Service\\Api1Uris').getNodeLinkUri('origin', object)",
  *     options={
  *         @Serializer\SerializedName("originNodeURI"),
  *         @Serializer\Expose()
@@ -51,7 +51,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "associationType",
- *     exp="service('Api\Service\Api1Uris').formatAssociationType(object.getType())",
+ *     exp="service('App\\Service\\Api1Uris').formatAssociationType(object.getType())",
  *     options={
  *         @Serializer\SerializedName("associationType"),
  *         @Serializer\Expose()
@@ -60,7 +60,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\VirtualProperty(
  *     "destinationNodeUri",
- *     exp="service('Api\Service\Api1Uris').getNodeLinkUri('destination', object)",
+ *     exp="service('App\\Service\\Api1Uris').getNodeLinkUri('destination', object)",
  *     options={
  *         @Serializer\SerializedName("destinationNodeURI"),
  *         @Serializer\Expose()

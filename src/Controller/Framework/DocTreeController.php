@@ -16,16 +16,19 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Form\Type\LsDocListType;
 use App\Entity\User\User;
+use GuzzleHttp\ClientInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Util\Compare;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -36,6 +39,22 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class DocTreeController extends AbstractController
 {
     use CommandDispatcherTrait;
+
+    /**
+     * @var ClientInterface
+     */
+    private $guzzleJsonClient;
+
+    /**
+     * @var PdoAdapter
+     */
+    private $externalDocCache;
+
+    public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache)
+    {
+        $this->guzzleJsonClient = $guzzleJsonClient;
+        $this->externalDocCache = $externalDocCache;
+    }
 
     /**
      * @Route("/doc/{slug}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
@@ -50,7 +69,7 @@ class DocTreeController extends AbstractController
      * @Method({"GET"})
      * @Template()
      */
-    public function viewAction(LsDoc $lsDoc, UserInterface $user = null, $_format = 'html', $lsItemId = null, $assocGroup = null)
+    public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, UserInterface $user = null, $_format = 'html', $lsItemId = null, $assocGroup = null)
     {
         // get form field for selecting a document (for tree2)
         $form = $this->createForm(LsDocListType::class, null, ['ajax' => false]);
@@ -68,7 +87,6 @@ class DocTreeController extends AbstractController
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
         }
 
-        $authChecker = $this->get('security.authorization_checker');
         $editorRights = $authChecker->isGranted('edit', $lsDoc);
 
         $ret = [
@@ -258,14 +276,13 @@ class DocTreeController extends AbstractController
 
     protected function exportExternalDocument($url, ?LsDoc $lsDoc = null) {
         // Check the cache for the document
-        $cache = $this->get('salt.cache.external_docs');
+        $cache = $this->externalDocCache;
         $cacheDoc = $cache->getItem(rawurlencode($url));
         if ($cacheDoc->isHit()) {
             $s = $cacheDoc->get();
         } else {
             // first check to see if this url returns a valid document (function taken from notes of php file_exists)
-            $client = $this->get('csa_guzzle.client.json');
-            $extDoc = $client->request(
+            $extDoc = $this->guzzleJsonClient->request(
                 'GET',
                 $url,
                 [

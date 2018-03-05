@@ -13,6 +13,7 @@ use App\Exception\AlreadyLockedException;
 use App\Form\Type\RemoteCaseServerType;
 use App\Form\Type\LsDocCreateType;
 use App\Entity\User\User;
+use GuzzleHttp\ClientInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -24,6 +25,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -36,6 +38,16 @@ class LsDocController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
+     * @var ClientInterface
+     */
+    private $guzzleJsonClient;
+
+    public function __construct(ClientInterface $guzzleJsonClient)
+    {
+        $this->guzzleJsonClient = $guzzleJsonClient;
+    }
+
+    /**
      * Lists all LsDoc entities.
      *
      * @Route("/", name="lsdoc_index")
@@ -44,7 +56,7 @@ class LsDocController extends AbstractController
      *
      * @return array
      */
-    public function indexAction()
+    public function indexAction(AuthorizationCheckerInterface $authChecker)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -54,7 +66,6 @@ class LsDocController extends AbstractController
         );
 
         $lsDocs = [];
-        $authChecker = $this->get('security.authorization_checker');
         foreach ($results as $lsDoc) {
             if ($authChecker->isGranted('view', $lsDoc)) {
                 $lsDocs[] = $lsDoc;
@@ -99,12 +110,12 @@ class LsDocController extends AbstractController
      * @param string $urlPrefix
      *
      * @return \Psr\Http\Message\ResponseInterface
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     protected function loadDocumentsFromServer(string $urlPrefix)
     {
-        $client = $this->get('csa_guzzle.client.json');
-
-        $list = $client->request(
+        $list = $this->guzzleJsonClient->request(
             'GET',
             $urlPrefix.'/ims/case/v1p0/CFDocuments',
             [

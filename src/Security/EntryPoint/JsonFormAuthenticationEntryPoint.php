@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Security;
+namespace App\Security\EntryPoint;
 
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\HttpFoundation\JsonResponse;

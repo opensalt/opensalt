@@ -11,11 +11,6 @@ use App\Entity\Framework\LsItem;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class DeleteAssociationHandler
- *
- * @DI\Service()
- */
 class DeleteAssociationHandler extends BaseFrameworkHandler
 {
     /**

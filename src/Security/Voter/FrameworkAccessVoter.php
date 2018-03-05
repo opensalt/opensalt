@@ -1,21 +1,14 @@
 <?php
 
-namespace App\Security;
+namespace App\Security\Voter;
 
 use App\Entity\Framework\LsDoc;
-use JMS\DiExtraBundle\Annotation as DI;
 use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-/**
- * Class FrameworkEditVoter
- *
- * @DI\Service(public=false)
- * @DI\Tag("security.voter")
- */
 class FrameworkAccessVoter extends Voter
 {
     public const VIEW = 'view';
@@ -30,15 +23,6 @@ class FrameworkAccessVoter extends Voter
      */
     private $decisionManager;
 
-    /**
-     * SuperUserVoter constructor.
-     *
-     * @param \Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface $decisionManager
-     *
-     * @DI\InjectParams({
-     *     "decisionManager" = @DI\Inject("security.access.decision_manager")
-     * })
-     */
     public function __construct(AccessDecisionManagerInterface $decisionManager)
     {
         $this->decisionManager = $decisionManager;

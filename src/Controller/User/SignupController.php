@@ -17,6 +17,7 @@ use App\Command\User\AddOrganizationCommand;
 use App\Command\CommandDispatcherTrait;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 
 /**
  * Signup Controller.
@@ -29,6 +30,22 @@ class SignupController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
+     * @var string
+     */
+    private $mailFromEmail;
+
+    /**
+     * @var string
+     */
+    private $kernelEnv;
+
+    public function __construct(string $mailFromEmail = null, string $kernelEnv = null)
+    {
+        $this->mailFromEmail = $mailFromEmail;
+        $this->kernelEnv = $kernelEnv;
+    }
+
+    /**
      * Creates a new user entity
      *
      * @Route("/signup", name="public_user_signup")
@@ -39,7 +56,7 @@ class SignupController extends AbstractController
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function signupAction(Request $request)
+    public function signupAction(Request $request, PasswordEncoderInterface $passwordEncoder)
     {
         $targetUser = new User();
         $form = $this->createForm(SignupType::class, $targetUser, ['validation_groups' => ['registration']]);
@@ -53,7 +70,7 @@ class SignupController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $encryptedPassword = $this->get('security.password_encoder')
+            $encryptedPassword = $passwordEncoder
                 ->encodePassword($targetUser, $targetUser->getPlainPassword());
 
             if (null !== $form['newOrg']->getData()) {
@@ -97,7 +114,7 @@ class SignupController extends AbstractController
                 // send email to admin about this user creation
                 // get public users username and org
                 try {
-                    $from_email = $this->getParameter('mail_feature_from_email');
+                    $from_email = $this->mailFromEmail;
                     $command = new SendAdminNotificationEmailCommand($from_email, $targetUser->getUsername(), $targetUser->getOrg()->getName());
                     $this->sendCommand($command);
                 } catch (\Swift_RfcComplianceException $e) {
@@ -108,7 +125,7 @@ class SignupController extends AbstractController
 
                 return $this->redirectToRoute('lsdoc_index');
             } catch (\Exception $e) {
-                if ('dev' === $this->getParameter('kernel.environment')) {
+                if ('dev' === $this->kernelEnv) {
                     $form->addError(new FormError(get_class($e).': '.$e->getMessage()));
                 } else {
                     $form->addError(new FormError('Sorry, an error occurred while creating your account.'));

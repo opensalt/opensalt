@@ -12,11 +12,6 @@ use App\Entity\Framework\LsItem;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class RemoveChildHandler
- *
- * @DI\Service()
- */
 class RemoveChildHandler extends BaseDoctrineHandler
 {
     /**

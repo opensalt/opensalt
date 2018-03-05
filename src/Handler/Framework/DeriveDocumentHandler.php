@@ -10,11 +10,6 @@ use App\Entity\Framework\LsDoc;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class DeriveDocumentHandler
- *
- * @DI\Service()
- */
 class DeriveDocumentHandler extends BaseDoctrineHandler
 {
     /**

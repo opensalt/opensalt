@@ -2,18 +2,13 @@
 
 namespace App\Handler\Framework;
 
-use App\Command\Framework\CopyItemToDocCommand;
+use App\Command\Framework\CopyFrameworkCommand;
 use App\Event\CommandEvent;
 use App\Handler\BaseDoctrineHandler;
 use App\Entity\Framework\LsDoc;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class CopyFrameworkHandler
- *
- * @DI\Service()
- */
 class CopyFrameworkHandler extends BaseDoctrineHandler
 {
     /**
@@ -27,7 +22,7 @@ class CopyFrameworkHandler extends BaseDoctrineHandler
      */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        /** @var CopyItemToDocCommand $command */
+        /** @var CopyFrameworkCommand $command */
         $command = $event->getCommand();
         $this->validate($command, $command);
 

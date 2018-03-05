@@ -8,7 +8,6 @@
 
 namespace App\Form\Type;
 
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -17,12 +16,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-/**
- * Class UserType
- *
- * @DI\Service()
- * @DI\Tag("form.type")
- */
 class UserType extends AbstractType
 {
     /**
@@ -30,15 +23,6 @@ class UserType extends AbstractType
      */
     private $authorizationChecker;
 
-    /**
-     * UserType constructor.
-     *
-     * @param \Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface $authorizationChecker
-     *
-     * @DI\InjectParams({
-     *     "authorizationChecker" = @DI\Inject("security.authorization_checker")
-     * })
-     */
     public function __construct(AuthorizationCheckerInterface $authorizationChecker)
     {
         $this->authorizationChecker = $authorizationChecker;

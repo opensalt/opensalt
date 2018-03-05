@@ -3,15 +3,15 @@
 namespace App\Console\User;
 
 use App\Command\User\AddOrganizationByNameCommand;
+use App\Console\BaseDoctrineCommand;
 use App\Event\CommandEvent;
 use App\Entity\User\Organization;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
-class OrgAddCommand extends ContainerAwareCommand
+class OrgAddCommand extends BaseDoctrineCommand
 {
     protected function configure()
     {
@@ -29,7 +29,7 @@ class OrgAddCommand extends ContainerAwareCommand
         $helper = $this->getHelper('question');
 
         if (empty($input->getArgument('org'))) {
-            $em = $this->getContainer()->get('doctrine')->getManager();
+            $em = $this->em;
             $question = new Question('New organization name: ');
             $question->setValidator(function ($value) use ($em) {
                 if (trim($value) === '') {
@@ -52,7 +52,7 @@ class OrgAddCommand extends ContainerAwareCommand
     {
         $org = trim($input->getArgument('org'));
 
-        $em = $this->getContainer()->get('doctrine')->getManager();
+        $em = $this->em;
         $orgRepository = $em->getRepository(Organization::class);
 
         $orgObj = $orgRepository->findOneByName($org);
@@ -63,8 +63,7 @@ class OrgAddCommand extends ContainerAwareCommand
         }
 
         $command = new AddOrganizationByNameCommand($org);
-        $this->getContainer()->get('event_dispatcher')
-            ->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
 
         $output->writeln('The organization "%s" has been added.');
     }

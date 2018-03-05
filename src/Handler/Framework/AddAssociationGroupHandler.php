@@ -8,11 +8,6 @@ use App\Event\NotificationEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class AddAssociationGroupHandler
- *
- * @DI\Service()
- */
 class AddAssociationGroupHandler extends BaseFrameworkHandler
 {
     /**

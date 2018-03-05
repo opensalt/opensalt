@@ -5,6 +5,7 @@ namespace App\Controller\Framework;
 use App\Entity\ChangeEntry;
 use App\Entity\Framework\LsDoc;
 use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,7 +28,7 @@ class CfPackageController extends AbstractController
      * @Method("GET")
      * @Template()
      */
-    public function exportAction(Request $request, LsDoc $lsDoc, $_format = 'json')
+    public function exportAction(Request $request, LsDoc $lsDoc, SerializerInterface $serializer, $_format = 'json')
     {
         $repo = $this->getDoctrine()->getRepository(LsDoc::class);
 
@@ -40,7 +41,7 @@ class CfPackageController extends AbstractController
 
             $pkg = $repo->getPackageArray($lsDoc);
 
-            $response->setContent($this->get('serializer')->serialize(
+            $response->setContent($serializer->serialize(
                 $pkg,
                 $request->getRequestFormat('json'),
                 SerializationContext::create()->setGroups(['Default', 'CfPackage'])

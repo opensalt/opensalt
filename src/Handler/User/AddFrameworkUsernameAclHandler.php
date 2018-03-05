@@ -9,11 +9,6 @@ use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class AddFrameworkUsernameAclHandler
- *
- * @DI\Service()
- */
 class AddFrameworkUsernameAclHandler extends BaseUserHandler
 {
     /**

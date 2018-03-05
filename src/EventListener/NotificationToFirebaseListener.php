@@ -38,20 +38,20 @@ class NotificationToFirebaseListener
     private $logger;
 
     /**
-     * @var Firebase
+     * @var Firebase|null
      */
     private $firebase;
 
     /**
      * @var string
      */
-    private $prefix;
+    private $firebasePrefix;
 
-    public function __construct(?Firebase $firebase, LoggerInterface $logger, ?string $prefix = null)
+    public function __construct(?Firebase $firebase, LoggerInterface $logger, ?string $firebasePrefix = null)
     {
         $this->firebase = $firebase;
         $this->logger = $logger;
-        $this->prefix = !empty($prefix) ? $prefix : 'opensalt';
+        $this->firebasePrefix = !empty($firebasePrefix) ? $firebasePrefix : 'opensalt';
     }
 
     /**
@@ -112,7 +112,7 @@ class NotificationToFirebaseListener
             'changes' => $notification['changes'],
         ]);
 
-        $path = '/'.$this->prefix."/doc/{$docId}/notification";
+        $path = '/'.$this->firebasePrefix."/doc/{$docId}/notification";
         $db = $this->firebase->getDatabase();
         $db->getReference($path)->push($notification);
     }
@@ -121,7 +121,7 @@ class NotificationToFirebaseListener
     {
         $expireBefore = (new \DateTime('now - 5 minutes'))->format('Uv');
         $removeKeys = [];
-        $path = '/'.$this->prefix.'/doc';
+        $path = '/'.$this->firebasePrefix.'/doc';
 
         $db = $this->firebase->getDatabase();
         $docs = $db->getReference($path)->getValue();

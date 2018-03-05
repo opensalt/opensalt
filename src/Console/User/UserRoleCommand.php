@@ -2,14 +2,14 @@
 
 namespace App\Console\User;
 
+use App\Console\BaseDispatchingCommand;
 use App\Event\CommandEvent;
 use App\Entity\User\User;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
-abstract class UserRoleCommand extends ContainerAwareCommand
+abstract class UserRoleCommand extends BaseDispatchingCommand
 {
     protected function interact(InputInterface $input, OutputInterface $output)
     {
@@ -44,8 +44,7 @@ abstract class UserRoleCommand extends ContainerAwareCommand
         $username = trim($input->getArgument('username'));
 
         $command = new $commandClass($username, $role);
-        $this->getContainer()->get('event_dispatcher')
-            ->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
 
         return 0;
     }
@@ -55,7 +54,7 @@ abstract class UserRoleCommand extends ContainerAwareCommand
         $role = trim($inRole);
         $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
 
-        if (!in_array($role, User::USER_ROLES, true)) {
+        if (!\in_array($role, User::USER_ROLES, true)) {
             throw new \RuntimeException(sprintf('Role "%s" is not valid.', $inRole));
         }
 

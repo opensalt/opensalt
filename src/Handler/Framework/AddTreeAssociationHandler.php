@@ -10,11 +10,6 @@ use App\Entity\Framework\LsItem;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class AddTreeAssociationHandler
- *
- * @DI\Service()
- */
 class AddTreeAssociationHandler extends BaseFrameworkHandler
 {
     /**

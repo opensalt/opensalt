@@ -10,11 +10,6 @@ use App\Entity\Framework\LsAssociation;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class ChangeItemParentHandler
- *
- * @DI\Service()
- */
 class ChangeItemParentHandler extends BaseDoctrineHandler
 {
     /**

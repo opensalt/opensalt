@@ -1,38 +1,18 @@
 <?php
 
-namespace App\Security;
+namespace App\Security\Voter;
 
-use App\Entity\Framework\LsDoc;
-use JMS\DiExtraBundle\Annotation as DI;
-use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-/**
- * Class FrameworkEditVoter
- *
- * @DI\Service(public=false)
- * @DI\Tag("security.voter")
- */
-class FrameworkManageEditorsVoter extends Voter
+class SuperUserVoter extends Voter
 {
-    public const MANAGE_EDITORS = 'manage_editors';
-
     /**
      * @var AccessDecisionManagerInterface
      */
     private $decisionManager;
 
-    /**
-     * SuperUserVoter constructor.
-     *
-     * @param \Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface $decisionManager
-     *
-     * @DI\InjectParams({
-     *     "decisionManager" = @DI\Inject("security.access.decision_manager")
-     * })
-     */
     public function __construct(AccessDecisionManagerInterface $decisionManager)
     {
         $this->decisionManager = $decisionManager;
@@ -48,11 +28,13 @@ class FrameworkManageEditorsVoter extends Voter
      */
     protected function supports($attribute, $subject)
     {
-        if ($attribute !== self::MANAGE_EDITORS) {
+        // Do not support the role check we are doing in voteOnAttribute
+        if ($attribute === 'ROLE_SUPER_USER') {
             return false;
         }
 
-        if (!$subject instanceof LsDoc) {
+        // Pass on IS_AUTHENTICATED_* checks
+        if (0 === strpos($attribute, 'IS_AUTHENTICATED_')) {
             return false;
         }
 
@@ -71,24 +53,11 @@ class FrameworkManageEditorsVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        $user = $token->getUser();
-
-        if (!$user instanceof User) {
-            // If the user is not logged in then deny access
-            return false;
-        }
-
-        // Allow the owner to manage their own framework
-        if ($subject->getUser() === $user) {
+        // ROLE_SUPER_USER can do anything
+        if ($this->decisionManager->decide($token, ['ROLE_SUPER_USER'])) {
             return true;
         }
 
-        // Do not allow managing editors if the user is not an admin
-        if (!$this->decisionManager->decide($token, ['ROLE_ADMIN'])) {
-            return false;
-        }
-
-        // Lastly, check if the user is in the same organization
-        return $user->getOrg() === $subject->getOrg();
+        return false;
     }
 }

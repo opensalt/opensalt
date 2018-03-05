@@ -12,9 +12,6 @@ use App\Entity\Framework\LsItem;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @DI\Service()
- */
 class ImportGenericCsvHandler extends BaseDoctrineHandler
 {
     /**
