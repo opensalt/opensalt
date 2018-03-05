@@ -26,7 +26,8 @@ services:
 
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-        resource: '../../src/{Console,Handler,Form/Type,EventListener,Service,Repository,Security,Twig}'
+        resource: '../../src/*'
+        exclude: '../../src/{DataFixtures,DTO,Entity,Exception,Util}'
 
     App\Controller\User\OAuthServiceController:
         arguments:
