@@ -1,12 +1,12 @@
 <?php
 
+namespace App\Service;
+
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use \Codeception\Util\Stub;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use App\Service\GithubImport;
-use App\Entity\Comment\CommentUpvote;
 
 class GithubImportTest extends \Codeception\Test\Unit
 {
@@ -51,18 +51,11 @@ Identifier,fullStatement,Human Coding Scheme,Abbreviated Statement,ConceptKeywor
 38ce84d0-87de-4937-b030-b1f1eab03ce0,"RYcknN3uf9nFcah5bdEg7tuyPnRtxXBFvnQXAYCP8jyCsQ3NYrJEz2smDwkJsVydp9etRmC7zwySGWEgufaGgs4CwYtqEdvPY4jeQx73H3k8wY9hYa4RNwbUaph8hZYt",H.N.SK,Self-Knowledge,,,en,,,,,H.N,,,,,
 de5aa87c-c344-4a36-ae61-498b083a324b,"aHq97MnW2sEAn5LgCByW7K8tVu6gBPqck6QmKHbfYu4m2FE42UWkDpmcyapeW6ghgxsVNRdWJKL2dxUKzUtsFdpaUYDFzM9CrYdXmaZkkUjc4uyCtF54rG2Ne5Jy7trF",H.N.SK.AW,Awareness,,,en,,,,,H.N.SK,,,,,
 EOT;
-    protected $managerRegistry;
     /** @var EntityManager */
     protected $em;
     protected $lsDoc;
 
     public function _before(){
-        $this->managerRegistry = Stub::makeEmpty(
-            'Doctrine\Common\Persistence\ManagerRegistry',
-            array(
-                'getManagerForClass' => function() { return $this->em; }
-            )
-        );
         $this->tester->ensureUserExistsWithRole('Editor');
         $this->em = $this->getModule('Doctrine2')->em;
         $this->lsDoc = new LsDoc();
@@ -74,7 +67,7 @@ EOT;
     }
 
     public function testSaveItem(){
-        $githubImporter = new GithubImport($this->managerRegistry);
+        $githubImporter = new GithubImport($this->em);
         $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', []);
         $this->em->flush();
 
@@ -89,7 +82,7 @@ EOT;
     }
 
     public function testSaveItemAssociations(){
-        $githubImporter = new GithubImport($this->managerRegistry);
+        $githubImporter = new GithubImport($this->em);
         $githubImporter->parseCSVGithubDocument($this->validItemKeys, $this->validCSVContent, $this->lsDoc->getId(), 'all', []);
         $this->em->flush();
 

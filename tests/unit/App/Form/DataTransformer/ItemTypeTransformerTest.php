@@ -1,9 +1,8 @@
 <?php
 
-namespace CftfBundle\Form\DataTransformer;
+namespace App\Form\DataTransformer;
 
 use App\Entity\Framework\LsDefItemType;
-use App\Form\DataTransformer\ItemTypeTransformer;
 use Doctrine\Common\Persistence\ObjectManager;
 
 class ItemTypeTransformerTest extends \Codeception\Test\Unit

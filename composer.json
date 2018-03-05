@@ -14,7 +14,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "Codeception\\Module\\": "tests/_support/Module"
         },
         "classmap": [
             "tests/_behat/Context.php"

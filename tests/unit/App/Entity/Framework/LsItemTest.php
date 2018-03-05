@@ -1,9 +1,8 @@
 <?php
 
-namespace CftfBundle\Entity;
+namespace App\Entity\Framework;
 
-use Doctrine\ORM\EntityManager;
-use App\Entity\Framework\LsItem;
+use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 
 class LsItemTest extends \Codeception\Test\Unit
@@ -17,6 +16,7 @@ class LsItemTest extends \Codeception\Test\Unit
     public function testIncreasedAbbreviatedStatement()
     {
         $lsItem = new LsItem();
+        /** @var EntityManagerInterface $em */
         $em = $this->getModule('Doctrine2')->em;
 
         $identifier = Uuid::uuid4()->toString();

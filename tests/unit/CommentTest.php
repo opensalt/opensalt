@@ -157,7 +157,6 @@ class CommentTest extends \Codeception\Test\Unit
         $comment->setParent(null);
         $comment->setUser($user);
 
-        $em = $this->getModule('Doctrine2')->em;
         $em->persist($comment);
         $em->flush();
 

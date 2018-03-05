@@ -90,10 +90,10 @@ class UserManagement extends \Codeception\Module
     protected function ensureUserExistsWithRoleLocal(string $role, $status = User::ACTIVE): UserManagement
     {
         /** @var Symfony $symfony */
-        $symfony = $this->getModule('Symfony');
+        $symfony = $this->getModule('Symfony2Module');
 
         /** @var EntityManager $em */
-        $em = $symfony->grabService('doctrine.orm.default_entity_manager');
+        $em = $symfony->_getEntityManager();
 
         $userManager = $symfony->grabService(UserManager::class);
 
