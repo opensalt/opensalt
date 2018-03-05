@@ -65,13 +65,10 @@ class CodeceptionBridge
         switch ($service) {
             case ToggleManager::class:
                 return $this->toggleManager;
-
             case ContextFactory::class:
                 return $this->contextFactory;
-
             case UserManager::class:
                 return $this->userManager;
-
             default:
                 return null;
         }
