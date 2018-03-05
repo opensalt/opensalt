@@ -1,19 +1,9 @@
 # Learn more about services, parameters and containers at
 # http://symfony.com/doc/current/book/service_container.html
 parameters:
-#    parameter_name: value
+    container.autowiring.strict_mode: true
 
 services:
-#    service_name:
-#        class: AppBundle\Directory\ClassName
-#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
-
-#    google.preauth_subscriber:
-#        class: Pcg\GoogleBundle\Listener\ConnectPreAuthListener
-#        arguments: ["@twig"]
-#        tags:
-#            - { name: kernel.event_subscriber }
-
     _defaults:
         autowire: true
         autoconfigure: true
@@ -21,8 +11,10 @@ services:
         bind:
             $rootDir: "%kernel.root_dir%"
             $mailFromEmail: '%mail_feature_from_email%'
-            $externalDocCache: '@salt.cache.external_docs'
             $firebasePrefix: '%firebase_prefix%'
+            $guzzleJsonClient: '@csa_guzzle.client.json'
+            $kernelEnv: '%kernel.environment%'
+            $externalDocCache: '@salt.cache.external_docs'
 
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -34,18 +26,6 @@ services:
             $githubClientId: '%github_client_id%'
             $githubClientSecret: '%github_client_secret%'
             $githubRedirectUri: "@=container.hasParameter('github_redirect_uri') ? parameter('github_redirect_uri') : null"
-
-    App\Controller\Framework\LsDocController:
-        arguments:
-            $guzzleJsonClient: '@csa_guzzle.client.json'
-
-    App\Controller\Framework\DocTreeController:
-        arguments:
-            $guzzleJsonClient: '@csa_guzzle.client.json'
-
-    App\Controller\User\SignupController:
-        arguments:
-            $kernelEnv: '%kernel.environment%'
 
     App\EventListener\LoginListener:
         class: App\EventListener\LoginListener
@@ -71,7 +51,6 @@ services:
     # Aliased services
     Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'
     Qandidate\Toggle\ContextFactory: '@qandidate.toggle.user_context_factory'
-    GuzzleHttp\ClientInterface: '@csa_guzzle.client.json'
     SimpleThings\EntityAudit\AuditReader: '@simplethings_entityaudit.reader'
 
     # Manual services

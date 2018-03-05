@@ -8,7 +8,6 @@ imports:
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: en
-    container.autowiring.strict_mode: true
     database_host: '%env(MYSQL_HOST)%'
     database_port: '%env(MYSQL_PORT)%'
     database_name: '%env(MYSQL_DATABASE)%'
