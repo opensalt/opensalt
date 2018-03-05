@@ -1,6 +1,6 @@
 <?php
 
-namespace spec\CftfBundle\Entity;
+namespace spec\App\Entity\Framework;
 
 use App\Entity\Framework\LsDoc;
 use PhpSpec\ObjectBehavior;
