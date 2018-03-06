@@ -2,7 +2,11 @@
 
 {% block body %}
     <h1>Organizations list</h1>
-
+    <ul class="list-inline pull-right">
+        <li>
+            <a class="btn btn-default" href="{{ path('admin_organization_new') }}">Add a new organization</a>
+        </li>
+    </ul>
     <table class="table table-condensed table-hover table-bordered table-striped">
         <thead>
             <tr>
@@ -30,10 +34,4 @@
         {% endfor %}
         </tbody>
     </table>
-
-    <ul class="list-inline pull-right">
-        <li>
-            <a class="btn btn-default" href="{{ path('admin_organization_new') }}">Add a new organization</a>
-        </li>
-    </ul>
 {% endblock %}
