@@ -23,8 +23,6 @@ class AppKernel extends Kernel
             new Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle(),
             new Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle(),
 
-            new JMS\DiExtraBundle\JMSDiExtraBundle(),
-            new JMS\AopBundle\JMSAopBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
 
             new Tetranz\Select2EntityBundle\TetranzSelect2EntityBundle(),

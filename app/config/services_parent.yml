@@ -1,0 +1,6 @@
+services:
+    salt.authentication.json_form_entry_point:
+        class: App\Security\Entrypoint\JsonFormAuthenticationEntryPoint
+        parent: security.authentication.form_entry_point.main
+        autowire: true
+        public: true

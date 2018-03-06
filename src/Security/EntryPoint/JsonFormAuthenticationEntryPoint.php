@@ -2,18 +2,12 @@
 
 namespace App\Security\EntryPoint;
 
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\EntryPoint\FormAuthenticationEntryPoint;
 
-/**
- * Class JsonFormAuthenticationEntryPoint
- *
- * @DI\Service("salt.authentication.json_form_entry_point", parent="security.authentication.form_entry_point.main")
- */
 class JsonFormAuthenticationEntryPoint extends FormAuthenticationEntryPoint
 {
     /**

@@ -64,7 +64,6 @@
         "symfony/assetic-bundle": "^2.8",
 
         "symfony/polyfill-iconv": "^1.0",
-        "jms/di-extra-bundle": "^1.9.1",
         "jms/serializer-bundle": "^2.3.1",
 
         "doctrine/doctrine-migrations-bundle": "^1.1",

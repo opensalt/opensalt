@@ -3,6 +3,7 @@ imports:
     - { resource: pdo-options.php }
     - { resource: security.yml }
     - { resource: services.yml }
+    - { resource: services_parent.yml }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
@@ -210,12 +211,6 @@ swiftmailer:
     port:      "%mailer_port%"
     # to disable mail uncomment disable_delivery: true
     # disable_delivery: true
-
-jms_di_extra:
-    locations:
-        all_bundles: true
-        #bundles: []
-        directories: ["%kernel.root_dir%/../src"]
 
 jms_serializer:
     handlers:
