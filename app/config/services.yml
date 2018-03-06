@@ -37,6 +37,9 @@ services:
         arguments:
             $captchaSecret: '%google_captcha_secret_key%'
 
+    App\Service\Api1Uris:
+        public: true
+
     # Allow Codeception to get some defined services for testing
     App\Service\CodeceptionBridge:
         public: true
