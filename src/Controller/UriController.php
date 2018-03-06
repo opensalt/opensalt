@@ -85,9 +85,9 @@ class UriController extends AbstractController
         $item = $em->getRepository(LsItem::class)->findOneBy(['uri'=>$localUri]);
         if ($item) {
             if ($json) {
-                return $this->forward('App\Controller\Framework\Editor:viewItem', ['id' => $item->getId(), '_format' => 'json']);
+                return $this->forward('App\Controller\Framework\EditorController:viewItem', ['id' => $item->getId(), '_format' => 'json']);
             }
-            //return $this->forward('App\Controller\Framework\Editor:viewItem', ['id' => $item->getId(), '_format' => 'html']);
+            //return $this->forward('App\Controller\Framework\EditorController:viewItem', ['id' => $item->getId(), '_format' => 'html']);
             return $this->redirectToRoute('doc_tree_item_view', ['id' => $item->getId()]);
         }
 
@@ -106,11 +106,11 @@ class UriController extends AbstractController
         $doc = $em->getRepository(LsDoc::class)->findOneBy(['uri'=>$localUri]);
         if ($doc) {
             if ($json) {
-                //return $this->forward('App\Controller\Framework\Editor:viewDoc', ['id' => $doc->getId(), '_format' => 'json']);
+                //return $this->forward('App\Controller\Framework\EditorController:viewDoc', ['id' => $doc->getId(), '_format' => 'json']);
                 // http://127.0.0.1:3000/app_dev.php/uri/731cf3e4-43a2-4aa0-b2a7-87a49dac5374.json
-                return $this->forward('App\Controller\Framework\CfPackage:export', ['id' => $doc->getId(), '_format' => 'json']);
+                return $this->forward('App\Controller\Framework\CfPackageController:export', ['id' => $doc->getId(), '_format' => 'json']);
             }
-            //return $this->forward('App\Controller\Framework\Editor:viewDoc', ['id' => $doc->getId(), '_format' => 'html']);
+            //return $this->forward('App\Controller\Framework\EditorController:viewDoc', ['id' => $doc->getId(), '_format' => 'html']);
             return $this->redirectToRoute('doc_tree_view', ['slug' => $doc->getSlug()]);
         }
 
@@ -129,7 +129,7 @@ class UriController extends AbstractController
         $association = $em->getRepository(LsAssociation::class)->findOneBy(['uri'=>$localUri]);
         if ($association) {
             if ($json) {
-                return $this->forward('App\Controller\Framework\LsAssociation:export', ['id' => $association->getId(), '_format' => 'json']);
+                return $this->forward('App\Controller\Framework\LsAssociationController:export', ['id' => $association->getId(), '_format' => 'json']);
             }
 
             $hasOrigin = $association->getOrigin();

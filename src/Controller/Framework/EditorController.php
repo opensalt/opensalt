@@ -26,7 +26,7 @@ class EditorController extends AbstractController
      */
     public function indexAction(): Response
     {
-        return $this->forward('App\Controller\Framework\LsDoc:index', []);
+        return $this->forward('App\Controller\Framework\LsDocController:index', []);
     }
 
     /**
@@ -42,7 +42,7 @@ class EditorController extends AbstractController
     public function viewDocAction(LsDoc $lsDoc, $_format)
     {
         if ('json' === $_format) {
-            return $this->forward('App\Controller\Framework\LsDoc:export', ['lsDoc' => $lsDoc]);
+            return $this->forward('App\Controller\Framework\LsDocController:export', ['lsDoc' => $lsDoc]);
         }
 
         return ['lsDoc'=>$lsDoc];
@@ -61,7 +61,7 @@ class EditorController extends AbstractController
     public function viewItemAction(LsItem $lsItem, $_format)
     {
         if ('json' === $_format) {
-            return $this->forward('App\Controller\Framework\LsItem:export', ['lsItem' => $lsItem]);
+            return $this->forward('App\Controller\Framework\LsItemController:export', ['lsItem' => $lsItem]);
         }
 
         return ['lsItem'=>$lsItem];
