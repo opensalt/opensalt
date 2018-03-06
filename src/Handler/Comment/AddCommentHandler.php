@@ -5,15 +5,11 @@ namespace App\Handler\Comment;
 use App\Command\Comment\AddCommentCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-use JMS\DiExtraBundle\Annotation as DI;
 use App\Entity\Comment\Comment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AddCommentHandler extends BaseCommentHandler
 {
-    /**
-     * @DI\Observe(App\Command\Comment\AddCommentCommand::class)
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var AddCommentCommand $command */
@@ -21,7 +17,7 @@ class AddCommentHandler extends BaseCommentHandler
         $this->validate($command, $command);
 
         $itemType = $command->getItemType();
-        $itemId = ($itemType == 'item') ? $command->getItem() : $command->getDocument();
+        $itemId = ('item' === $itemType) ? $command->getItem() : $command->getDocument();
         $user = $command->getUser();
         $content = $command->getContent();
         $parentId = $command->getParentId();

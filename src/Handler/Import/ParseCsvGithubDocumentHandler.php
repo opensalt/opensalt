@@ -9,7 +9,6 @@ use App\Event\CommandEvent;
 use App\Entity\Framework\LsDoc;
 use App\Service\GithubImport;
 use Doctrine\ORM\EntityManagerInterface;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -26,9 +25,6 @@ class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
         $this->importService = $importService;
     }
 
-    /**
-     * @DI\Observe(App\Command\Import\ParseCsvGithubDocumentCommand::class)
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var ParseCsvGithubDocumentCommand $command */

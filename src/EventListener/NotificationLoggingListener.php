@@ -3,11 +3,11 @@
 namespace App\EventListener;
 
 use App\Event\NotificationEvent;
-use JMS\DiExtraBundle\Annotation as DI;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class NotificationLoggingListener
+class NotificationLoggingListener implements EventSubscriberInterface
 {
     /**
      * @var LoggerInterface
@@ -19,9 +19,11 @@ class NotificationLoggingListener
         $this->logger = $logger;
     }
 
-    /**
-     * @DI\Observe(App\Event\NotificationEvent::class)
-     */
+    public static function getSubscribedEvents()
+    {
+        return [NotificationEvent::class => 'logNotification'];
+    }
+
     public function logNotification(NotificationEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         $this->logger->info('Notification Received', ['msgId' => $event->getMessageId(), 'msg' => $event->getMessage(), 'user' => $event->getUsername()]);

@@ -4,15 +4,11 @@ namespace App\Handler\Comment;
 
 use App\Command\Comment\DownvoteCommentCommand;
 use App\Event\CommandEvent;
-use JMS\DiExtraBundle\Annotation as DI;
 use App\Entity\Comment\Comment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DownvoteCommentHandler extends BaseCommentHandler
 {
-    /**
-     * @DI\Observe(App\Command\Comment\DownvoteCommentCommand::class)
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var DownvoteCommentCommand $command */

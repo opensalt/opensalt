@@ -11,11 +11,10 @@ use App\Handler\BaseValidatedHandler;
 use Qandidate\Toggle\ContextFactory;
 use Qandidate\Toggle\ToggleManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-abstract class AbstractEmailHandler extends BaseValidatedHandler implements EventSubscriberInterface
+abstract class AbstractEmailHandler extends BaseValidatedHandler
 {
     /**
      * @var EngineInterface
@@ -50,12 +49,6 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler implements Even
         $this->context = $contextFactory->createContext();
         $this->mailer = $mailer;
         $this->mailFromEmail = $mailFromEmail;
-    }
-
-    public static function getSubscribedEvents()
-    {
-        $event = str_replace('Handler', 'Command', static::class);
-        return [$event => 'handle'];
     }
 
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void

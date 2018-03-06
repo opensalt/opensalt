@@ -3,11 +3,11 @@
 namespace App\EventListener;
 
 use App\Event\NotificationEvent;
-use JMS\DiExtraBundle\Annotation as DI;
 use Kreait\Firebase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Firebase data structure
@@ -30,7 +30,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *     }
  * }
  */
-class NotificationToFirebaseListener
+class NotificationToFirebaseListener implements EventSubscriberInterface
 {
     /**
      * @var LoggerInterface
@@ -54,9 +54,11 @@ class NotificationToFirebaseListener
         $this->firebasePrefix = !empty($firebasePrefix) ? $firebasePrefix : 'opensalt';
     }
 
-    /**
-     * @DI\Observe(App\Event\NotificationEvent::class)
-     */
+    public static function getSubscribedEvents()
+    {
+        return [NotificationEvent::class => 'handleNotification'];
+    }
+
     public function handleNotification(NotificationEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         if (null === $this->firebase) {

@@ -8,7 +8,6 @@ use App\Command\Import\ImportAsnFromUrlCommand;
 use App\Event\CommandEvent;
 use App\Service\AsnImport;
 use Doctrine\ORM\EntityManagerInterface;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -25,9 +24,6 @@ class ImportAsnFromUrlHandler extends AbstractDoctrineHandler
         $this->importService = $asnImportService;
     }
 
-    /**
-     * @DI\Observe(App\Command\Import\ImportAsnFromUrlCommand::class)
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var ImportAsnFromUrlCommand $command */

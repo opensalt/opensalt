@@ -5,10 +5,11 @@ namespace App\Handler;
 use App\Command\CommandInterface;
 use App\Event\CommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-abstract class BaseValidatedHandler
+abstract class BaseValidatedHandler implements EventSubscriberInterface
 {
     /**
      * @var ValidatorInterface
@@ -36,5 +37,11 @@ abstract class BaseValidatedHandler
 
             throw new \RuntimeException(implode('<br/>', $showErrors));
         }
+    }
+
+    public static function getSubscribedEvents()
+    {
+        $event = str_replace('Handler', 'Command', static::class);
+        return [$event => 'handle'];
     }
 }

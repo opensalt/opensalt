@@ -8,7 +8,6 @@ use App\Command\Import\ImportExcelFileCommand;
 use App\Event\CommandEvent;
 use App\Service\ExcelImport;
 use Doctrine\ORM\EntityManagerInterface;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -25,9 +24,6 @@ class ImportExcelFileHandler extends AbstractDoctrineHandler
         $this->importService = $excelImportService;
     }
 
-    /**
-     * @DI\Observe(App\Command\Import\ImportExcelFileCommand::class)
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var ImportExcelFileCommand $command */

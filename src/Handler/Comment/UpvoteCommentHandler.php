@@ -5,15 +5,11 @@ namespace App\Handler\Comment;
 use App\Command\Comment\UpvoteCommentCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-use JMS\DiExtraBundle\Annotation as DI;
 use App\Entity\Comment\Comment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UpvoteCommentHandler extends BaseCommentHandler
 {
-    /**
-     * @DI\Observe(App\Command\Comment\UpvoteCommentCommand::class)
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var UpvoteCommentCommand $command */

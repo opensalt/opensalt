@@ -7,21 +7,10 @@ use App\Command\Framework\UnlockItemCommand;
 use App\Entity\NotificationOnlyChangeEntry;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LockItemHandler extends BaseFrameworkHandler
 {
-    /**
-     * @DI\Observe(App\Command\Framework\LockItemCommand::class)
-     * @DI\Observe(App\Command\Framework\UnlockItemCommand::class)
-     *
-     * @param CommandEvent $event
-     * @param string $eventName
-     * @param EventDispatcherInterface $dispatcher
-     *
-     * @throws \Exception
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var LockItemCommand|UnlockItemCommand $command */
@@ -35,6 +24,14 @@ class LockItemHandler extends BaseFrameworkHandler
         if ($command instanceof UnlockItemCommand) {
             $this->unlockItem($command);
         }
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            LockItemCommand::class => 'handle',
+            UnlockItemCommand::class => 'handle',
+        ];
     }
 
     protected function lockItem(LockItemCommand $command): void

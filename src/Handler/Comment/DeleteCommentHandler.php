@@ -5,14 +5,10 @@ namespace App\Handler\Comment;
 use App\Command\Comment\DeleteCommentCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DeleteCommentHandler extends BaseCommentHandler
 {
-    /**
-     * @DI\Observe(App\Command\Comment\DeleteCommentCommand::class)
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var DeleteCommentCommand $command */

@@ -8,13 +8,13 @@ use App\Entity\NotificationOnlyChangeEntry;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use Doctrine\ORM\EntityManagerInterface;
-use JMS\DiExtraBundle\Annotation as DI;
 use Psr\Log\LoggerInterface;
 use App\Entity\User\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class CommandEventRouter
+class CommandEventRouter implements EventSubscriberInterface
 {
     /**
      * @var EntityManagerInterface
@@ -38,11 +38,11 @@ class CommandEventRouter
         $this->tokenStorage = $tokenStorage;
     }
 
-    /**
-     * @DI\Observe(App\Event\CommandEvent::class)
-     *
-     * @throws \Exception
-     */
+    public static function getSubscribedEvents()
+    {
+        return [CommandEvent::class => 'routeCommand'];
+    }
+
     public function routeCommand(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var CommandInterface $command */

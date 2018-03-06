@@ -7,21 +7,10 @@ use App\Command\Framework\UnlockDocumentCommand;
 use App\Entity\NotificationOnlyChangeEntry;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LockDocumentHandler extends BaseFrameworkHandler
 {
-    /**
-     * @DI\Observe(App\Command\Framework\LockDocumentCommand::class)
-     * @DI\Observe(App\Command\Framework\UnlockDocumentCommand::class)
-     *
-     * @param CommandEvent $event
-     * @param string $eventName
-     * @param EventDispatcherInterface $dispatcher
-     *
-     * @throws \Exception
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var LockDocumentCommand|UnlockDocumentCommand $command */
@@ -35,6 +24,14 @@ class LockDocumentHandler extends BaseFrameworkHandler
         if ($command instanceof UnlockDocumentCommand) {
             $this->unlockDocument($command);
         }
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            LockDocumentCommand::class => 'handle',
+            UnlockDocumentCommand::class => 'handle',
+        ];
     }
 
     protected function lockDocument(LockDocumentCommand $command): void

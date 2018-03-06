@@ -36,8 +36,6 @@ services:
         class: App\EventListener\LoginListener
         arguments:
             $captchaSecret: '%google_captcha_secret_key%'
-        tags:
-            - { name: kernel.event_listener, event: security.interactive_login }
 
     # Allow Codeception to get some defined services for testing
     App\Service\CodeceptionBridge:

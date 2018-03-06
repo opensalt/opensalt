@@ -9,20 +9,10 @@ use App\Handler\BaseDoctrineHandler;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class RemoveChildHandler extends BaseDoctrineHandler
 {
-    /**
-     * @DI\Observe(App\Command\Framework\RemoveChildCommand::class)
-     *
-     * @param CommandEvent $event
-     * @param string $eventName
-     * @param EventDispatcherInterface $dispatcher
-     *
-     * @throws \Exception
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var RemoveChildCommand $command */

@@ -7,7 +7,6 @@ use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ImportCaseJsonCommand;
 use App\Event\CommandEvent;
 use Doctrine\ORM\EntityManagerInterface;
-use JMS\DiExtraBundle\Annotation as DI;
 use App\Service\CaseImport;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -25,9 +24,6 @@ class ImportCaseJsonHandler extends AbstractDoctrineHandler
         $this->importService = $caseImport;
     }
 
-    /**
-     * @DI\Observe(App\Command\Import\ImportCaseJsonCommand::class)
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var ImportCaseJsonCommand $command */

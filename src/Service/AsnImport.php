@@ -27,10 +27,10 @@ class AsnImport
     /** @var ClientInterface */
     private $jsonClient;
 
-    public function __construct(EntityManagerInterface $em, ClientInterface $jsonClient)
+    public function __construct(EntityManagerInterface $em, ClientInterface $guzzleJsonClient)
     {
         $this->em = $em;
-        $this->jsonClient = $jsonClient;
+        $this->jsonClient = $guzzleJsonClient;
     }
 
     /**

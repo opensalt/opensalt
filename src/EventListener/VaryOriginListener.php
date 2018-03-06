@@ -2,18 +2,18 @@
 
 namespace App\EventListener;
 
-use JMS\DiExtraBundle\Annotation as DI;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class VaryOriginListener
+class VaryOriginListener implements EventSubscriberInterface
 {
-    /**
-     * @param FilterResponseEvent $event
-     *
-     * @DI\Observe(KernelEvents::RESPONSE, priority=-10)
-     */
+    public static function getSubscribedEvents()
+    {
+        return [KernelEvents::RESPONSE => ['onKernelResponse', -10]];
+    }
+
     public function onKernelResponse(FilterResponseEvent $event): void
     {
         if (HttpKernelInterface::MASTER_REQUEST !== $event->getRequestType()) {

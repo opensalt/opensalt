@@ -8,7 +8,6 @@ use App\Command\Import\MarkImportLogsAsReadCommand;
 use App\Event\CommandEvent;
 use App\Service\AsnImport;
 use Doctrine\ORM\EntityManagerInterface;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -24,9 +23,6 @@ class MarkImportLogsAsReadHandler extends AbstractDoctrineHandler
         parent::__construct($validator, $entityManager);
     }
 
-    /**
-     * @DI\Observe(App\Command\Import\MarkImportLogsAsReadCommand::class)
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var MarkImportLogsAsReadCommand $command */

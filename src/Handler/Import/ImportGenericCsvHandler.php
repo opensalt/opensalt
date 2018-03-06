@@ -9,14 +9,10 @@ use App\Handler\BaseDoctrineHandler;
 use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ImportGenericCsvHandler extends BaseDoctrineHandler
 {
-    /**
-     * @DI\Observe(App\Command\Import\ImportGenericCsvCommand::class)
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var ImportGenericCsvCommand $command */

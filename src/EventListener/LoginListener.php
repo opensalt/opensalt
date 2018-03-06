@@ -2,17 +2,24 @@
 
 namespace App\EventListener;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use ReCaptcha\ReCaptcha;
+use Symfony\Component\Security\Http\SecurityEvents;
 
-class LoginListener
+class LoginListener implements EventSubscriberInterface
 {
     private $captchaSecret;
 
     public function __construct(string $captchaSecret = null)
     {
         $this->captchaSecret = $captchaSecret;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [SecurityEvents::INTERACTIVE_LOGIN => 'onSecurityInteractiveLogin'];
     }
 
     public function onSecurityInteractiveLogin(InteractiveLoginEvent $event)

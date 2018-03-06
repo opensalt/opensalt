@@ -8,7 +8,6 @@ use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
 use App\Service\FrameworkUpdater;
 use Doctrine\ORM\EntityManagerInterface;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -25,15 +24,6 @@ class UpdateFrameworkHandler extends AbstractDoctrineHandler
         $this->frameworkUpdater = $frameworkUpdater;
     }
 
-    /**
-     * @DI\Observe(App\Command\Framework\UpdateFrameworkCommand::class)
-     *
-     * @param CommandEvent $event
-     * @param string $eventName
-     * @param EventDispatcherInterface $dispatcher
-     *
-     * @throws \Exception
-     */
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var UpdateFrameworkCommand $command */
