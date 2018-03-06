@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2737f95bdc80c66d99b5d9c67db28ab4",
+    "content-hash": "43041f8eea5a3c30ec2b68ae8e6d63b5",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -143,52 +143,6 @@
                 "responsive",
                 "web"
             ]
-        },
-        {
-            "name": "bower-asset/bootstrap-multiselect",
-            "version": "v0.9.15",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/davidstutz/bootstrap-multiselect.git",
-                "reference": "4749da211e6d39644ef164cd709cfeae5ccba579"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/davidstutz/bootstrap-multiselect/zipball/4749da211e6d39644ef164cd709cfeae5ccba579",
-                "reference": "4749da211e6d39644ef164cd709cfeae5ccba579",
-                "shasum": ""
-            },
-            "require": {
-                "bower-asset/bootstrap": ">=2.3.2",
-                "bower-asset/jquery": ">=1.11.0"
-            },
-            "type": "bower-asset-library",
-            "extra": {
-                "bower-asset-main": [
-                    "./dist/js/bootstrap-multiselect.js",
-                    "./dist/css/bootstrap-multiselect.css",
-                    "./dist/less/bootstrap-multiselect.less"
-                ],
-                "bower-asset-ignore": [
-                    "docs/.*",
-                    "tests/.*",
-                    "*.html",
-                    "*.git*",
-                    "*.md",
-                    "*.png",
-                    "*.php"
-                ]
-            },
-            "description": "Twitter Bootstrap plugin to make selects user friendly.",
-            "keywords": [
-                "bootstrap",
-                "css",
-                "jquery",
-                "js",
-                "less",
-                "multiselect"
-            ],
-            "time": "2018-03-04T00:05:19+00:00"
         },
         {
             "name": "bower-asset/bootstrap-sass",
@@ -4638,6 +4592,53 @@
                 "parser"
             ],
             "time": "2018-02-15T14:24:01+00:00"
+        },
+        {
+            "name": "npm-asset/bootstrap-multiselect",
+            "version": "0.9.13",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/bootstrap-multiselect/-/bootstrap-multiselect-0.9.13.tgz",
+                "reference": null,
+                "shasum": "57b874511495393b23f866da6d2e866579fc27e5"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/davidstutz/bootstrap-multiselect/issues"
+                },
+                "npm-asset-main": "dist/bootstrap-multiselect.js",
+                "npm-asset-directories": {
+                    "doc": "docs",
+                    "test": "tests"
+                },
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "https://github.com/davidstutz/bootstrap-multiselect"
+                },
+                "npm-asset-scripts": {
+                    "test": "echo \"Error: no test specified\" && exit 1"
+                }
+            },
+            "license": [
+                "Apache License, Version 2.0"
+            ],
+            "authors": [
+                {
+                    "name": "David Stutz"
+                }
+            ],
+            "description": "JQuery multiselect plugin based on Twitter Bootstrap.",
+            "homepage": "https://github.com/davidstutz/bootstrap-multiselect",
+            "keywords": [
+                "bootstrap",
+                "css",
+                "jquery",
+                "js",
+                "less",
+                "multiselect"
+            ],
+            "time": "2015-06-03T00:05:20+00:00"
         },
         {
             "name": "npm-asset/bootstrap-notify",
