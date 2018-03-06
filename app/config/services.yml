@@ -21,7 +21,12 @@ services:
         resource: '../../src/*'
         exclude: '../../src/{DataFixtures,DTO,Entity,Exception,Util}'
 
+    App\Controller\:
+        resource: '../../src/Controller'
+        tags: ['controller.service_arguments']
+
     App\Controller\User\OAuthServiceController:
+        tags: ['controller.service_arguments']
         arguments:
             $githubClientId: '%github_client_id%'
             $githubClientSecret: '%github_client_secret%'

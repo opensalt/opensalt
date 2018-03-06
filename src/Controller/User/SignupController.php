@@ -17,7 +17,7 @@ use App\Command\User\AddOrganizationCommand;
 use App\Command\CommandDispatcherTrait;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 use Symfony\Component\Form\FormError;
-use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * Signup Controller.
@@ -30,6 +30,11 @@ class SignupController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
+     * @var UserPasswordEncoderInterface
+     */
+    private $passwordEncoder;
+
+    /**
      * @var string
      */
     private $mailFromEmail;
@@ -39,8 +44,9 @@ class SignupController extends AbstractController
      */
     private $kernelEnv;
 
-    public function __construct(string $mailFromEmail = null, string $kernelEnv = null)
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, string $mailFromEmail = null, string $kernelEnv = null)
     {
+        $this->passwordEncoder = $passwordEncoder;
         $this->mailFromEmail = $mailFromEmail;
         $this->kernelEnv = $kernelEnv;
     }
@@ -56,7 +62,7 @@ class SignupController extends AbstractController
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function signupAction(Request $request, PasswordEncoderInterface $passwordEncoder)
+    public function signupAction(Request $request)
     {
         $targetUser = new User();
         $form = $this->createForm(SignupType::class, $targetUser, ['validation_groups' => ['registration']]);
@@ -70,7 +76,7 @@ class SignupController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $encryptedPassword = $passwordEncoder
+            $encryptedPassword = $this->passwordEncoder
                 ->encodePassword($targetUser, $targetUser->getPlainPassword());
 
             if (null !== $form['newOrg']->getData()) {

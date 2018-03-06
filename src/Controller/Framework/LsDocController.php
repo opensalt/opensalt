@@ -42,9 +42,15 @@ class LsDocController extends AbstractController
      */
     private $guzzleJsonClient;
 
-    public function __construct(ClientInterface $guzzleJsonClient)
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    private $authChecker;
+
+    public function __construct(ClientInterface $guzzleJsonClient, AuthorizationCheckerInterface $authChecker)
     {
         $this->guzzleJsonClient = $guzzleJsonClient;
+        $this->authChecker = $authChecker;
     }
 
     /**
@@ -56,7 +62,7 @@ class LsDocController extends AbstractController
      *
      * @return array
      */
-    public function indexAction(AuthorizationCheckerInterface $authChecker)
+    public function indexAction()
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -67,7 +73,7 @@ class LsDocController extends AbstractController
 
         $lsDocs = [];
         foreach ($results as $lsDoc) {
-            if ($authChecker->isGranted('view', $lsDoc)) {
+            if ($this->authChecker->isGranted('view', $lsDoc)) {
                 $lsDocs[] = $lsDoc;
             }
         }
