@@ -123,7 +123,7 @@
         "milo/github-api": "^1.4",
         "league/oauth2-github": "^0.2.2",
 
-        "matthimatiker/opcache-bundle": "^0.4",
+        "matthimatiker/opcache-bundle": "^0.7",
         "bower-asset/datatables.net": "^1.10.15",
         "bower-asset/datatables.net-bs": "^1.10.15",
         "bower-asset/datatables.net-fixedheader": "^3.1.2",
@@ -133,7 +133,7 @@
         "bower-asset/datatables.net-select": "^1.2.2",
         "bower-asset/datatables.net-select-bs": "^1.2.2",
         "bower-asset/jquery-comments": "^1.2",
-        "qandidate/toggle-bundle": "^0.8",
+        "qandidate/toggle-bundle": "^1.1.0",
         "npm-asset/papaparse": "^4.3",
         "google/recaptcha": "~1.1"
     },

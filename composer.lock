@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5568529df0bf8867590ccf9c671fc2f5",
+    "content-hash": "2737f95bdc80c66d99b5d9c67db28ab4",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -3883,27 +3883,33 @@
         },
         {
             "name": "matthimatiker/opcache-bundle",
-            "version": "0.4.3",
+            "version": "0.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Matthimatiker/OpcacheBundle.git",
-                "reference": "659cfb6789127c8c2c097b5dc9a3d131d9a3f679"
+                "reference": "16a3ea5fe2e530701650c9f2f67a40d63e917a8b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Matthimatiker/OpcacheBundle/zipball/659cfb6789127c8c2c097b5dc9a3d131d9a3f679",
-                "reference": "659cfb6789127c8c2c097b5dc9a3d131d9a3f679",
+                "url": "https://api.github.com/repos/Matthimatiker/OpcacheBundle/zipball/16a3ea5fe2e530701650c9f2f67a40d63e917a8b",
+                "reference": "16a3ea5fe2e530701650c9f2f67a40d63e917a8b",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.5.5 | ^7.0.0",
-                "symfony/symfony": "^2.3.0 | ^3.0.0"
+                "php": "^7.0.0",
+                "symfony/asset": "^2.7.0 | ^3.0.0 | ^4.0",
+                "symfony/config": "^2.7.0 | ^3.0.0 | ^4.0",
+                "symfony/dependency-injection": "^2.7.0 | ^3.0.0 | ^4.0",
+                "symfony/http-kernel": "^2.7.0 | ^3.0.0 | ^4.0",
+                "symfony/templating": "^2.7.0 | ^3.0.0 | ^4.0",
+                "symfony/web-profiler-bundle": "^2.7.0 | ^3.0.0 | ^4.0",
+                "twig/twig": "^2.0.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "~4.0",
-                "satooshi/php-coveralls": "~0.6"
+                "satooshi/php-coveralls": "^1.0.0"
             },
-            "type": "library",
+            "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
                     "Matthimatiker\\OpcacheBundle\\": "."
@@ -3921,7 +3927,7 @@
                 }
             ],
             "description": "Displays the state of the PHP opcache in the Symfony profiler toolbar.",
-            "time": "2016-10-26T10:56:17+00:00"
+            "time": "2017-11-26T17:46:18+00:00"
         },
         {
             "name": "mervick/material-design-icons",
@@ -6485,30 +6491,32 @@
         },
         {
             "name": "qandidate/toggle-bundle",
-            "version": "0.8.0",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/qandidate-labs/qandidate-toggle-bundle.git",
-                "reference": "f8e39374dc79448cceaec2447d858cf0a02f1bff"
+                "reference": "e812c862ca6aa6bf181fe18da42da88fb5586551"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/qandidate-labs/qandidate-toggle-bundle/zipball/f8e39374dc79448cceaec2447d858cf0a02f1bff",
-                "reference": "f8e39374dc79448cceaec2447d858cf0a02f1bff",
+                "url": "https://api.github.com/repos/qandidate-labs/qandidate-toggle-bundle/zipball/e812c862ca6aa6bf181fe18da42da88fb5586551",
+                "reference": "e812c862ca6aa6bf181fe18da42da88fb5586551",
                 "shasum": ""
             },
             "require": {
                 "doctrine/common": "~2.2",
+                "php": ">=7.0",
                 "qandidate/toggle": "~1.0",
-                "symfony/framework-bundle": "~2.7|~3.0",
-                "symfony/security-core": "~2.7|~3.0"
+                "symfony/framework-bundle": "^2.7||^3.0||^4.0",
+                "symfony/http-foundation": "^2.7||^3.0||^4.0",
+                "symfony/http-kernel": "^2.7||^3.0||^4.0",
+                "symfony/security-bundle": "^2.7||^3.0||^4.0"
             },
             "require-dev": {
                 "matthiasnoback/symfony-dependency-injection-test": "^1.1",
                 "phpunit/phpunit": "^5.0 || ^4.8.10",
-                "symfony/browser-kit": "~2.7|~3.0",
-                "symfony/framework-bundle": "~2.7|~3.0",
-                "symfony/twig-bundle": "~2.7|~3.0",
+                "symfony/browser-kit": "^2.7||^3.0||^4.0",
+                "symfony/twig-bundle": "^2.7||^3.0||^4.0",
                 "twig/twig": "~1.16,>=1.16.2"
             },
             "suggest": {
@@ -6517,7 +6525,7 @@
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.6.x-dev"
+                    "dev-master": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -6540,7 +6548,7 @@
                 }
             ],
             "description": "This Bundle provides the integration with qandidate/toggle. It provides the services and configuration you need to implement feature toggles in your Symfony application.",
-            "time": "2017-10-21T20:58:03+00:00"
+            "time": "2017-12-19T13:33:17+00:00"
         },
         {
             "name": "ramsey/uuid",
