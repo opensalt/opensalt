@@ -82,7 +82,6 @@
             "namshi/cuzzle": "*",
 
         "nelmio/security-bundle": "^2.0",
-        "hwi/oauth-bundle": "^0.5.1",
 
         "nilportugues/jsonapi-bundle": "^1.5.2",
         "nelmio/cors-bundle": "~1.5.3",
