@@ -60,8 +60,6 @@
 
         "twig/extensions": "^1.5",
 
-        "symfony/assetic-bundle": "^2.8",
-
         "symfony/polyfill-iconv": "^1.0",
         "jms/serializer-bundle": "^2.3.1",
 
