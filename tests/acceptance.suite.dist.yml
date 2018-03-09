@@ -1,13 +1,13 @@
 actor: AcceptanceTester
 modules:
     enabled:
-        - Symfony:
+        - Symfony2Module:
             app_path: 'app'
             var_path: 'var'
             environment: 'prod'
             part: SERVICES
         - Doctrine2:
-            depends: Symfony
+            depends: Symfony2Module
             cleanup: false
         - WebDriver:
             url: 'http://nginx/'

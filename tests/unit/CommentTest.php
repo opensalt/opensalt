@@ -1,9 +1,9 @@
 <?php
 
 use Doctrine\ORM\EntityManager;
-use Salt\SiteBundle\Entity\Comment;
-use CftfBundle\Entity\LsItem;
-use Salt\SiteBundle\Entity\CommentUpvote;
+use App\Entity\Comment\Comment;
+use App\Entity\Framework\LsItem;
+use App\Entity\Comment\CommentUpvote;
 use Ramsey\Uuid\Uuid;
 
 class CommentTest extends \Codeception\Test\Unit
@@ -157,7 +157,6 @@ class CommentTest extends \Codeception\Test\Unit
         $comment->setParent(null);
         $comment->setUser($user);
 
-        $em = $this->getModule('Doctrine2')->em;
         $em->persist($comment);
         $em->flush();
 

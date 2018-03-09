@@ -1,0 +1,24 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    {% if not app.request.xmlHttpRequest %}
+        <h1>LsDefAssociationGrouping creation</h1>
+    {% endif %}
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        {% if not app.request.xmlHttpRequest %}
+            <p class="text-right">
+                <input class="btn btn-primary" type="submit" value="Create" />
+            </p>
+        {% endif %}
+    {{ form_end(form) }}
+
+    {% if not app.request.xmlHttpRequest %}
+    <ul class="list-inline text-right">
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdef_association_grouping_index') }}">Back to the list</a>
+        </li>
+    </ul>
+    {% endif %}
+{% endblock %}

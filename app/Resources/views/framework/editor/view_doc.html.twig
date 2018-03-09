@@ -1,0 +1,217 @@
+{% extends "base.html.twig" %}
+
+{% block title %}{{ lsDoc.title |truncate(64, true) }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-12">
+                <ol class="breadcrumb">
+                    <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
+                    <li class="active">{{ lsDoc.title |truncate(64, true) }}</li>
+                </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <section class="panel panel-default">
+                <div class="panel-body">
+                    <ul class="list-group">
+                        {% for field, name in {
+                            'title': 'Title',
+                            'officialUri': 'Official URL',
+                            'creator': 'Creator',
+                            'publisher': 'Publisher',
+                            'description': 'Description',
+                            'version': 'Version',
+                            'subjects': 'Subject',
+                            'language': 'Language',
+                            'adoptionStatus': 'Adoption Status',
+                            'statusStart': 'Status Start',
+                            'statusEnd': 'Status End',
+                            'note': 'Notes'
+                        } %}
+                            {% if attribute(lsDoc, field) is not empty %}
+                                <li class="list-group-item">
+                                    <strong>{{ name }}:</strong>
+                                    {% set value = attribute(lsDoc, field) %}
+                                    {% if value.timestamp is defined and value.timezone is defined %}
+                                        {{ value|date }}
+                                    {% elseif field == 'subjects' %}
+                                        {% for subject in value %}
+                                            {%- if not loop.first %}, {% endif %}{{ subject.title }}
+                                        {%- endfor %}
+                                    {% elseif field == 'uri' %}
+                                        <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                                    {% else %}
+                                        {{ value }}
+                                    {% endif %}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+
+                    <div class="text-center">
+                        <ul class="list-inline">
+                            <li>
+                                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportModal">Export</button>
+                            </li>
+                            {% if is_granted('edit', lsDoc) %}
+                                <li>
+                                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editModal">Edit</button>
+                                </li>
+                                <li>
+                                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addChildModal">Add Learning Standard</button>
+                                </li>
+                            {% endif %}
+                            {% if is_granted('manage_editors', lsDoc) %}
+                                <li>
+                                    <a href="{{ path('framework_acl_edit', {'id':lsDoc.id}) }}" class="btn btn-default">Manage Access</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-sm-6">
+            {% embed 'framework/editor/_ls_item_component.html.twig' with {'title':'Children', 'items':lsDoc.topLsItems, 'componentName':'children'} %}
+            {% endembed %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <section class="panel panel-default panel-component">
+                <div class="panel-heading">{{ lsDoc.title }}</div>
+                <div class="rendered-document panel-body">
+                    {{ render_esi(path('editor_render', {'id':lsDoc.id})) }}
+                </div>
+            </section>
+        </div>
+    </div>
+
+
+    {% embed 'framework/editor/_modal_component.html.twig' with {
+        'modalName':'export',
+        'modalTitle':'Export Document',
+        'closeButton': 'Done'
+    } %}
+        {% block modalButtons %}{% endblock %}
+        {% block modalBody %}
+            {% embed 'framework/ls_doc/_export_component.html.twig' with {'view':'editor'} %}
+            {% endembed %}
+        {% endblock %}
+    {% endembed %}
+
+    {% embed 'framework/editor/_modal_component.html.twig' with {
+        'modalName':'edit',
+        'modalTitle':'Edit Document',
+        'saveButton': 'Save Changes'
+    } %}
+    {% endembed %}
+
+    {% embed 'framework/editor/_modal_component.html.twig' with {
+        'modalName':'addChild',
+        'modalTitle':'Add Learning Standard',
+        'saveButton': 'Create'
+    } %}
+    {% endembed %}
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        window.app = window.app||{};
+        app.lsDocId = {{ lsDoc.id }};
+        app.path = app.path||{};
+        app.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
+        app.path.lsitem_new = '{{ path('lsitem_new', {'doc':'DOC'}) }}';
+
+        function prepareExportModal(){
+            var $exportModal = $('#exportModal');
+            $('[data-toggle="popover"]').popover();
+        }
+
+        function prepareEditModal(){
+            var $editModal = $('#editModal');
+            $editModal.on('shown.bs.modal', function(e){
+                $('#editModal').find('.modal-body').load(
+                        //'{{ path('lsdoc_edit', {'id':lsDoc.id}) }}',
+                        app.path.lsdoc_edit.replace('ID', app.lsDocId),
+                        null,
+                        function(responseText, textStatus, jqXHR){
+                            $('#ls_doc_subjects').select2entity({dropdownParent: $('#editModal')});
+                        }
+                )
+            }).on('hidden.bs.modal', function(e){
+                $('#editModal').find('.modal-body').html('...');
+            });
+            $editModal.find('.btn-save').on('click', function(e){
+                //$editModal.find('form[name=ls_doc]').submit();
+                $.ajax({
+                    //url: '{{ path('lsdoc_edit', {'id':lsDoc.id}) }}',
+                    url: app.path.lsdoc_edit.replace('ID', app.lsDocId),
+                    method: 'POST',
+                    data: $editModal.find('form[name=ls_doc]').serialize()
+                }).done(function(data, textStatus, jqXHR){
+                    $editModal.modal('hide');
+                    window.location.reload(true);
+                }).fail(function(jqXHR, textStatus, errorThrown){
+                    $('#editModal').find('.modal-body').html(jqXHR.responseText);
+                    $('#ls_doc_subjects').select2entity({dropdownParent: $('#editModal')});
+                });
+            });
+        }
+
+
+        function prepareAddChildModal(){
+            var $addChildModal = $('#addChildModal');
+            $addChildModal.on('shown.bs.modal', function(e){
+                $('#addChildModal').find('.modal-body').load(
+                        //'{{ path('lsitem_new', {'doc':lsDoc.id}) }}',
+                        app.path.lsitem_new.replace('DOC', app.lsDocId),
+                        null,
+                        function(responseText, textStatus, jqXHR){
+                            $('#ls_item_educationalAlignment').multiselect({
+                                optionLabel: function(element) {
+                                    return $(element).html() + ' - ' + $(element).data('title');
+                                },
+                                numberDisplayed: 20
+                            });
+                            $('#ls_item_itemType').select2entity({dropdownParent: $('#addChildModal')});
+                        }
+                )
+            }).on('hidden.bs.modal', function(e){
+                $('#addChildModal').find('.modal-body').html('...');
+            });
+            $addChildModal.find('.btn-save').on('click', function(e){
+                //$addChildModal.find('form[name=ls_doc]').submit();
+                $.ajax({
+                    //url: '{{ path('lsitem_new', {'doc':lsDoc.id}) }}',
+                    url: app.path.lsitem_new.replace('DOC', app.lsDocId),
+                    method: 'POST',
+                    data: $addChildModal.find('form[name=ls_item]').serialize()
+                }).done(function(data, textStatus, jqXHR){
+                    $addChildModal.modal('hide');
+                    window.location.reload(true);
+                }).fail(function(jqXHR, textStatus, errorThrown){
+                    $('#addChildModal').find('.modal-body').html(jqXHR.responseText);
+                    $('#ls_item_educationalAlignment').multiselect({
+                        optionLabel: function(element) {
+                            return $(element).html() + ' - ' + $(element).data('title');
+                        },
+                        numberDisplayed: 20
+                    });
+                    $('#ls_item_itemType').select2entity({dropdownParent: $('#addChildModal')});
+                });
+            });
+        }
+
+        $(document).ready(function(){
+            prepareExportModal();
+            prepareEditModal();
+            prepareAddChildModal();
+        });
+    </script>
+{% endblock %}

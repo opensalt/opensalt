@@ -6,9 +6,9 @@ use App\Service\User\UserManager;
 use Codeception\Module\Symfony;
 use Codeception\TestInterface;
 use Doctrine\ORM\EntityManager;
-use Salt\UserBundle\Entity\Organization;
-use Salt\UserBundle\Entity\User;
-use Salt\UserBundle\Repository\UserRepository;
+use App\Entity\User\Organization;
+use App\Entity\User\User;
+use App\Repository\User\UserRepository;
 
 class UserManagement extends \Codeception\Module
 {
@@ -90,10 +90,10 @@ class UserManagement extends \Codeception\Module
     protected function ensureUserExistsWithRoleLocal(string $role, $status = User::ACTIVE): UserManagement
     {
         /** @var Symfony $symfony */
-        $symfony = $this->getModule('Symfony');
+        $symfony = $this->getModule('Symfony2Module');
 
         /** @var EntityManager $em */
-        $em = $symfony->grabService('doctrine.orm.default_entity_manager');
+        $em = $symfony->_getEntityManager();
 
         $userManager = $symfony->grabService(UserManager::class);
 

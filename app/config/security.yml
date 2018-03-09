@@ -9,14 +9,14 @@ security:
         ROLE_SUPER_USER: [ROLE_ADMIN, ROLE_SUPER_EDITOR, ROLE_ALLOWED_TO_SWITCH]
 
     encoders:
-        Salt\UserBundle\Entity\User:
+        App\Entity\User\User:
             algorithm: bcrypt
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
         local_db_provider:
             entity:
-                class: SaltUserBundle:User
+                class: App\Entity\User\User
 
         in_memory:
             memory: ~
@@ -53,13 +53,13 @@ security:
                 login_path: login
                 check_path: login
                 csrf_token_generator: security.csrf.token_manager
-                default_target_path: cftf_index
+                default_target_path: salt_index
                 always_use_default_target_path: false
                 use_referer: true
 
             logout:
                 path: /logout
-                target: cftf_index
+                target: salt_index
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods
     # http://symfony.com/doc/current/cookbook/security/access_control.htm
