@@ -1,4 +1,0 @@
-services:
-#    salt_site.example:
-#        class: Salt\SiteBundle\Example
-#        arguments: ["@service_id", "plain_value", "%parameter%"]

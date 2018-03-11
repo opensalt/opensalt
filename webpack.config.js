@@ -42,7 +42,7 @@ var mainScripts = [
     bowerDir+'/datatables.net-scroller/js/dataTables.scroller.js',
     bowerDir+'/datatables.net-select/js/dataTables.select.js',
     //bowerDir+'/ui-contextmenu/jquery.ui-contextmenu.js',
-    bowerDir+'/bootstrap-multiselect/dist/js/bootstrap-multiselect.js',
+    npmDir+'/bootstrap-multiselect/dist/js/bootstrap-multiselect.js',
     bowerDir+'/select2/dist/js/select2.full.js',
     vendorDir+'/tetranz/select2entity-bundle/Tetranz/Select2EntityBundle/Resources/public/js/select2entity.js',
     bowerDir+'/twbs-pagination/jquery.twbsPagination.js',

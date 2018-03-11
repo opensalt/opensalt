@@ -1,0 +1,298 @@
+<?php
+
+namespace App\Controller;
+
+use App\Command\CommandDispatcherTrait;
+use App\Command\Comment\AddCommentCommand;
+use App\Command\Comment\DeleteCommentCommand;
+use App\Command\Comment\DownvoteCommentCommand;
+use App\Command\Comment\UpdateCommentCommand;
+use App\Command\Comment\UpvoteCommentCommand;
+use App\Entity\Comment\Comment;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
+use JMS\Serializer\SerializerInterface;
+use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
+use App\Entity\User\User;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+
+/**
+ * @Toggle("comments")
+ */
+class CommentsController extends AbstractController
+{
+    use CommandDispatcherTrait;
+
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
+    /**
+     * @Route("/comments/document/{id}", name="create_doc_comment")
+     *
+     * @Method("POST")
+     *
+     * @Security("is_granted('comment')")
+     */
+    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user)
+    {
+        return $this->addComment($request, 'document', $doc, $user);
+    }
+
+    /**
+     * @Route("/comments/item/{id}", name="create_item_comment")
+     *
+     * @Method("POST")
+     *
+     * @Security("is_granted('comment')")
+     */
+    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user)
+    {
+        return $this->addComment($request, 'item', $item, $user);
+    }
+
+    /**
+     * @Route("/comments/{itemType}/{itemId}", name="get_comments")
+     * @Method("GET")
+     * @ParamConverter("comments", class="App\Entity\Comment\Comment", options={"id": {"itemType", "itemId"}, "repository_method" = "findByTypeItem"})
+     * @Security("is_granted('comment_view')")
+     *
+     * @param array|Comment[] $comments
+     * @param UserInterface|null $user
+     *
+     * @return mixed
+     */
+    public function listAction(array $comments, UserInterface $user = null)
+    {
+        if ($user instanceof User) {
+            foreach ($comments as $comment) {
+                $comment->updateStatusForUser($user);
+            }
+        }
+
+        return $this->apiResponse($comments);
+    }
+
+    /**
+     * @Route("/comments/{id}")
+     * @Method("PUT")
+     *
+     * @Security("is_granted('comment_update', comment)")
+     */
+    public function updateAction(Request $request, Comment $comment, UserInterface $user)
+    {
+        $command = new UpdateCommentCommand($comment, $request->request->get('content'));
+        $this->sendCommand($command);
+
+        return $this->apiResponse($comment);
+    }
+
+    /**
+     * @Route("/comments/delete/{id}")
+     *
+     * @Method("DELETE")
+     *
+     * @Security("is_granted('comment_delete', comment)")
+     */
+    public function deleteAction(Comment $comment, UserInterface $user)
+    {
+        $command = new DeleteCommentCommand($comment);
+        $this->sendCommand($command);
+
+        return $this->apiResponse('Ok', 200);
+    }
+
+    /**
+     * @Route("/comments/{id}/upvote")
+     *
+     * @Method("POST")
+     *
+     * @Security("is_granted('comment')")
+     */
+    public function upvoteAction(Comment $comment, UserInterface $user)
+    {
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $command = new UpvoteCommentCommand($comment, $user);
+        $this->sendCommand($command);
+
+        return $this->apiResponse($comment);
+    }
+
+    /**
+     * @Route("/comments/{id}/upvote")
+     *
+     * @Method("DELETE")
+     *
+     * @Security("is_granted('comment')")
+     */
+    public function downvoteAction(Comment $comment, UserInterface $user)
+    {
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
+        }
+
+        try {
+            $command = new DownvoteCommentCommand($comment, $user);
+            $this->sendCommand($command);
+
+            return $this->apiResponse($comment);
+        } catch (\Exception $e) {
+            return $this->apiResponse('Item not found', 404);
+        }
+    }
+
+    /**
+     * @Route("/salt/case/export_comment/{itemType}/{itemId}/comment.csv", name="export_comment_file")
+     *
+     * @param int $itemId
+     * @param string $itemType
+     *
+     * @return Response
+     *
+     * @Security("is_granted('comment_view')")
+     */
+    public function exportCommentAction(string $itemType, int $itemId)
+    {
+        $response = new StreamedResponse();
+        $response->setCallback(function () use($itemType, $itemId) {
+            $childIds = [];
+            $handle = fopen('php://output', 'wb+');
+            $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
+            $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
+            $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
+            fputcsv($handle, $headers);
+
+            switch ($itemType) {
+                case 'document':
+                    $commentData = $repo->findBy([$itemType => $itemId]);
+                    $commentRows = $this->csvArray($commentData, $itemType);
+                    foreach ($commentRows as $row) {
+                        fputcsv($handle, $row);
+                    }
+                    $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->find($itemId);
+                    $lsDocChilds = $lsDoc->getLsItems();
+                    foreach ($lsDocChilds as $lsDocChild) {
+                        $childIds[] = $lsDocChild->getId();
+                    }
+                    break;
+
+                case 'item':
+                    $lsItem = $lsItemRepo->find($itemId);
+                    $childIds=$lsItem->getDescendantIds();
+                    $childIds[] = $itemId;
+                    break;
+            }
+
+            $commentData = $repo->findBy(['item' => $childIds]);
+            $commentRows = $this->csvArray($commentData, 'item');
+            foreach ($commentRows as $child_row) {
+                fputcsv($handle, $child_row);
+            }
+
+            fclose($handle);
+        });
+
+        $response->headers->set('content-type', 'text/csv; charset=utf-8;');
+        $response->headers->set('Content-Disposition', 'attachment; filename = comment.csv');
+
+        return $response;
+    }
+
+    /**
+     * Get the export report data
+     *
+     * @param array|Comment[] $commentData
+     * @param string $itemType
+     *
+     * @return array
+     */
+    private function csvArray(array $commentData, string $itemType): array
+    {
+        $comments = [];
+        foreach ($commentData as $comment) {
+            $comments[] = [
+                ('item' === $itemType) ? $comment->getItem()->getLsDoc()->getTitle() : $comment->getDocument()->getTitle(),
+                $this->url($itemType, $comment),
+                ('item' === $itemType) ? $comment->getItem()->getHumanCodingScheme() : null,
+                $comment->getUser()->getUsername(),
+                $comment->getUser()->getOrg()->getName(),
+                $comment->getContent(),
+                $comment->getCreatedAt()->format('Y-m-d H:i:s'),
+                $comment->getUpdatedAt()->format('Y-m-d H:i:s'),
+            ];
+        }
+
+        return $comments;
+    }
+
+    private function url(string $itemType, Comment $comment): ?string
+    {
+        if ('item' === $itemType) {
+            return $this->generateUrl('doc_tree_item_view', ['id' => $comment->getItem()->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        }
+
+        if ('document' === $itemType) {
+            return $this->generateUrl('doc_tree_view', ['slug' => $comment->getDocument()->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL);
+        }
+
+        return null;
+    }
+
+    /**
+     * Add a comment
+     *
+     * @param Request $request
+     * @param string $itemType
+     * @param $item
+     * @param UserInterface $user
+     *
+     * @return JsonResponse
+     */
+    private function addComment(Request $request, string $itemType, $item, UserInterface $user): Response
+    {
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $parentId = $request->request->get('parent');
+        $content = $request->request->get('content');
+
+        $command = new AddCommentCommand($itemType, $item, $user, $content, (int) $parentId);
+        $this->sendCommand($command);
+
+        $comment = $command->getComment();
+
+        return $this->apiResponse($comment);
+    }
+
+    private function serialize($data): string
+    {
+        return $this->serializer->serialize($data, 'json');
+    }
+
+    private function apiResponse($data, int $statusCode = 200): JsonResponse
+    {
+        $json = $this->serialize($data);
+
+        return JsonResponse::fromJsonString($json, $statusCode);
+    }
+}

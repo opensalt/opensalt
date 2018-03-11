@@ -2,12 +2,13 @@
 
 namespace Helper;
 
+use App\Service\User\UserManager;
 use Codeception\Module\Symfony;
 use Codeception\TestInterface;
 use Doctrine\ORM\EntityManager;
-use Salt\UserBundle\Entity\Organization;
-use Salt\UserBundle\Entity\User;
-use Salt\UserBundle\Repository\UserRepository;
+use App\Entity\User\Organization;
+use App\Entity\User\User;
+use App\Repository\User\UserRepository;
 
 class UserManagement extends \Codeception\Module
 {
@@ -89,10 +90,12 @@ class UserManagement extends \Codeception\Module
     protected function ensureUserExistsWithRoleLocal(string $role, $status = User::ACTIVE): UserManagement
     {
         /** @var Symfony $symfony */
-        $symfony = $this->getModule('Symfony');
+        $symfony = $this->getModule('Symfony2Module');
 
         /** @var EntityManager $em */
-        $em = $symfony->grabService('doctrine.orm.default_entity_manager');
+        $em = $symfony->_getEntityManager();
+
+        $userManager = $symfony->grabService(UserManager::class);
 
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
@@ -114,7 +117,7 @@ class UserManagement extends \Codeception\Module
 
         if ($user) {
             $username = $user->getUsername();
-            $userRepo->setUserPassword($username, $password);
+            $userManager->setUserPassword($username, $password);
             $em->flush();
         } else {
             $orgRepo = $em->getRepository(Organization::class);
@@ -132,7 +135,7 @@ class UserManagement extends \Codeception\Module
             }
 
             $username = 'TEST:'.$role.':'.$faker->userName;
-            $userRepo->addNewUser($username, $org, $password, $role, $status);
+            $userManager->addNewUser($username, $org, $password, $role, $status);
             $em->flush();
 
             $user = $userRepo->createQueryBuilder('u')

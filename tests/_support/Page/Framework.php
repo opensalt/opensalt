@@ -46,12 +46,10 @@ class Framework implements Context
     public function iAmOnAFrameworkPage(): Framework
     {
         $I = $this->I;
-
         $I->iAmOnTheHomepage();
         $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
-
         return $this;
     }
 
@@ -67,6 +65,7 @@ class Framework implements Context
 
         return $this;
     }
+    
 
     /**
      * @Given /^I should see the framework information$/
@@ -1129,4 +1128,5 @@ class Framework implements Context
 
         return $this;
     }
+
 }
