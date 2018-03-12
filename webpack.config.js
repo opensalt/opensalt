@@ -3,6 +3,7 @@ var path = require('path');
 
 var vendorDir = './vendor';
 var bowerDir = './vendor/bower-asset';
+var pdfmakeDir = './vendor/bpampuch';
 var npmDir = './vendor/npm-asset';
 var assetsDir = './app/Resources/assets';
 var buildDir = './web/build';
@@ -53,6 +54,8 @@ var mainScripts = [
     npmDir+'/papaparse/papaparse.min.js',
     npmDir+'/markdown-it-underline/index.js',
     npmDir+'/ajaxq/ajaxq.js',
+    pdfmakeDir+'/pdfmake/build/pdfmake.min.js',
+    pdfmakeDir+'/pdfmake/build/vfs_fonts.js',
     './build/js/apx.js'
 ];
 
@@ -165,7 +168,8 @@ config.resolve.alias = {
   'markdown-it-underline': path.resolve(__dirname, npmDir+'/markdown-it-underline/index.js'),
   'render-md': path.resolve(__dirname, assetsDir+'/js/cftree/render-md.js'),
   'util-salt': path.resolve(__dirname, assetsDir+'/js/util-salt.js'),
-  'ajaxq': path.resolve(__dirname, npmDir+'/ajaxq/ajaxq.js')
+  'ajaxq': path.resolve(__dirname, npmDir+'/ajaxq/ajaxq.js'),
+  'pdfMake': path.resolve(__dirname, pdfmakeDir+'/pdfmake/build/pdfmake.js')
 };
 config.resolve.modules = [
   "node_modules",

@@ -1129,4 +1129,18 @@ class Framework implements Context
         return $this;
     }
 
+    /**
+     * @When /^I download the framework PDF file$/
+     */
+    public function iDownloadTheFrameworkPdfFile(): Framework
+    {
+        $I = $this->I;
+
+        $I->click('Export', '#itemInfo');
+        $I->waitForElementVisible('#pdfgen');
+        $this->filename = $I->click('#pdfgen');
+               
+        return $this;
+    }
+    
 }
