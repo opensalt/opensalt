@@ -445,6 +445,9 @@ var SaltLocal = (function () {
            dataType: 'json',
             success: function (response) {
             var pdfData= response
+            var pdfMake = require('pdfmake');
+            var pdfFonts = require('pdfmake_fonts');
+            pdfMake.vfs = pdfFonts.pdfMake.vfs;
     function getCFItemRelationship(identifier){
     var associations=[];
             for(var i=0;i<pdfData["CFAssociations"].length;i++){

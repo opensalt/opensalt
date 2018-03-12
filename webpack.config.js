@@ -169,7 +169,8 @@ config.resolve.alias = {
   'render-md': path.resolve(__dirname, assetsDir+'/js/cftree/render-md.js'),
   'util-salt': path.resolve(__dirname, assetsDir+'/js/util-salt.js'),
   'ajaxq': path.resolve(__dirname, npmDir+'/ajaxq/ajaxq.js'),
-  'pdfMake': path.resolve(__dirname, pdfmakeDir+'/pdfmake/build/pdfmake.js')
+  'pdfmake': path.resolve(__dirname, pdfmakeDir+'/pdfmake/build/pdfmake.js'),
+  'pdfmake_fonts': path.resolve(__dirname, pdfmakeDir+'/pdfmake/build/vfs_fonts.js')
 };
 config.resolve.modules = [
   "node_modules",
