@@ -1159,7 +1159,7 @@ class Framework implements Context
         $I->assertArrayHasKey('CFDocument', $parsedPdf, 'CASE file does not have a CFDocument part','CFItems', $parsedPdf, 
             'CASE file does not have a CFItems part','CFAssociations', $parsedPdf, 
             'CASE file does not have a CFAssociations part');
-        
+
         return $this;
     }
 }
