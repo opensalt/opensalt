@@ -6,6 +6,6 @@ Feature: The framework can be downloaded pdf
   @incomplete @anonymous @pdf-file @7620-0007
   Scenario: 0908-0000 An anonymous can see a framework
     Given I log in as a user with role "Admin"
-    Given I am on a framework page
-    
-    When I download the framework PDF file 
+    Given I am on a framework page    
+    When I download the framework PDF file
+    Then I should see content in the PDF file 

@@ -1,5 +1,4 @@
 var utilSalt = require('util-salt');
-
 var SaltGithub = (function () {
 
     function getRepoList(page, perPage) {
@@ -484,10 +483,8 @@ var SaltLocal = (function () {
             content.push( { text:"Date : "+ pdfData["CFDocument"].statusStartDate  , fontSize: 12 });
         }
         content.push( { text:"Draft : "+"Draft field is not present in case file right now"  ,pageBreak: 'after', fontSize: 12 });
-
         //for cfitems
         content.push( { text:"Framework Elements" , style:{ alignment: 'center'},margin:[0,30,0,0] , fontSize: 15  });
-
         for(var i=0;i<pdfData.CFItems.length;i++){
             content.push( { text:"",margin:[0,20,0,0] });
                 if("humanCodingScheme" in pdfData.CFItems[i]){
@@ -510,8 +507,7 @@ var SaltLocal = (function () {
                 }
                 var relationshipData=getCFItemRelationship(pdfData.CFItems[i].identifier);
                     content.push( { text:"Relationships with Other Frameworks", style:{ alignment: 'center'}, fontSize: 12 ,margin:[0,20,0,20]});
-
-            //create association table
+                //create association table
                 var body=[];
                 var tableData=[];
                 //table headers
