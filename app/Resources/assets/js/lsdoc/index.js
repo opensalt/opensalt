@@ -443,7 +443,7 @@ var SaltLocal = (function () {
            type: 'get',
            dataType: 'json',
             success: function (response) {
-            var pdfData = response
+            var pdfData = response;
             var pdfMake = require('pdfmake');
             var pdfFonts = require('pdfmake_fonts');
             pdfMake.vfs = pdfFonts.pdfMake.vfs;
