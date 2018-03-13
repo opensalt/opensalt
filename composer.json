@@ -130,7 +130,8 @@
         "bower-asset/jquery-comments": "^1.2",
         "qandidate/toggle-bundle": "^1.1.0",
         "npm-asset/papaparse": "^4.3",
-        "google/recaptcha": "~1.1"
+        "google/recaptcha": "~1.1",
+        "bpampuch/pdfmake": "~0.1.36"
     },
     "require-dev": {
         "roave/security-advisories" :"dev-master",
