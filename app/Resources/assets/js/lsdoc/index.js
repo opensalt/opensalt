@@ -450,7 +450,7 @@ var SaltLocal = (function () {
     function getCFItemRelationship(identifier){
     var associations = [];
             for(var i = 0; i < pdfData["CFAssociations"].length; i++){
-                    if(identifier == pdfData["CFAssociations"][i].originNodeURI.identifier){
+                    if(identifier === pdfData["CFAssociations"][i].originNodeURI.identifier){
                             var associationObject = {"origin":{}, "relationhship":"", "destination":{}};
                             associationObject.origin = pdfData["CFAssociations"][i].originNodeURI;
                             associationObject.relationhship = pdfData["CFAssociations"][i].associationType;
@@ -515,7 +515,7 @@ var SaltLocal = (function () {
 
                 for(var j = 0; j < relationshipData.length; j++){
                     tableData = [];
-                    tableData.push({ text: relationshipData[j].origin.title, style:{fontSize:11}}, {text: relationshipData[j].relationhship, style: {fontSize:11}}, {text: relationshipData[j].destination.title, style: {fontSize:11}})
+                    tableData.push({ text: relationshipData[j].origin.title, style:{fontSize:11}}, {text: relationshipData[j].relationhship, style: {fontSize:11}}, {text: relationshipData[j].destination.title, style: {fontSize:11}});
                     body.push(tableData);
                 }
 
@@ -523,8 +523,8 @@ var SaltLocal = (function () {
                     headerRows: 1,
                     widths: [ '*', '*', '*' ],
                     body: body
-                }
-                content.push({ table:table })
+                };
+                content.push({ table:table });
                 if(i<pdfData.CFItems.length-1){
                     content.push({ text: "", pageBreak: 'after'});
                 }
