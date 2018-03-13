@@ -43,8 +43,6 @@
     "require": {
         "php": "^7.1.0",
 
-        "fxp/composer-asset-plugin": "^1.4",
-
         "symfony/symfony": "3.4.*",
         "doctrine/orm": "^2.5",
         "doctrine/doctrine-bundle": "^1.6",
@@ -71,7 +69,6 @@
         "ramsey/uuid-doctrine": "^1.4",
 
         "kreait/firebase-php": "~3.7",
-        "npm-asset/bootstrap-notify": "^3.1.7",
 
         "simplethings/entity-audit-bundle": "^1.0",
 
@@ -87,49 +84,13 @@
 
         "activelamp/swagger-ui-bundle": "dev-master",
 
-        "bower-asset/jquery": "^2.2.4",
-        "bower-asset/jquery-ui": "^1.12.0",
-        "bower-asset/fancytree": "2.24.0",
-        "bower-asset/ui-contextmenu": "^1.12.0",
-        "bower-asset/bootstrap-sass": "^3.3.6",
-        "bower-asset/html5-boilerplate": "^5.3.0",
-        "bower-asset/modernizr": "^3.3.1",
-        "bower-asset/normalize.css": "^3.0.3",
-        "npm-asset/jquery-contextmenu": "^2.2.4",
-        "npm-asset/bootstrap-multiselect": "0.9.13",
-        "bower-asset/twbs-pagination": "^1.4.1",
-
-        "bower-asset/select2": "^4.0.3",
-        "bower-asset/select2-bootstrap-theme": "dev-master",
         "tetranz/select2entity-bundle": "2.*",
-
-        "npm-asset/markdown-it": "~8.4",
-        "npm-asset/markdown-it-katex": "~2.0",
-        "npm-asset/markdown-it-underline": "~1.0",
-        "npm-asset/github-markdown-css": "~2.8",
-        "npm-asset/simplemde": "~1.11",
-        "npm-asset/ajaxq": "~0.0.7",
-
-        "npm-asset/iso639-js": "^1.1",
-
-        "fortawesome/font-awesome": "^4.6",
-        "mervick/material-design-icons": "^2.2",
 
         "milo/github-api": "^1.4",
         "league/oauth2-github": "^0.2.2",
 
         "matthimatiker/opcache-bundle": "^0.7",
-        "bower-asset/datatables.net": "^1.10.15",
-        "bower-asset/datatables.net-bs": "^1.10.15",
-        "bower-asset/datatables.net-fixedheader": "^3.1.2",
-        "bower-asset/datatables.net-fixedheader-bs": "^3.1.2",
-        "bower-asset/datatables.net-scroller": "^1.4.2",
-        "bower-asset/datatables.net-scroller-bs": "^1.4.2",
-        "bower-asset/datatables.net-select": "^1.2.2",
-        "bower-asset/datatables.net-select-bs": "^1.2.2",
-        "bower-asset/jquery-comments": "^1.2",
         "qandidate/toggle-bundle": "^1.1.0",
-        "npm-asset/papaparse": "^4.3",
         "google/recaptcha": "~1.1"
     },
     "require-dev": {
