@@ -535,7 +535,7 @@ var SaltLocal = (function () {
         downloadPdf();
             }
         });
-    }
+    };
 
     return {
         handleFile: handleFileSelect,
