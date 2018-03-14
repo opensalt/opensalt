@@ -609,13 +609,15 @@ function listRepositories() {
     $('#back').html('');
 }
 
-$(document).on('ready', function () {
+$(document).ready(function () {
+  console.log('ready --');
     $('.github-tab').click(function () {
         SaltGithub.getRepoList(1, 30);
         listRepositories();
     });
 
     $('.btn-import-asn').click(function () {
+  console.log('clicked --');
         Import.fromAsn();
     });
 
@@ -674,7 +676,7 @@ var adjustWindow = function (e) {
         $("#dragbar").show();
     }
 };
-$(document).on('ready', adjustWindow);
+$(document).ready(adjustWindow);
 
 $(window).on('resize', adjustWindow);
 
