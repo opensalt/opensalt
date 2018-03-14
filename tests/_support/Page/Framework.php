@@ -804,7 +804,7 @@ class Framework implements Context
 
         $I->see('Create a new Framework');
         $I->click('Create a new Framework');
-        $I->see('LsDoc creation');
+        $I->see('Create New Framework Package');
         $this->iCreateAFramework();
     }
 
