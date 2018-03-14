@@ -32,7 +32,7 @@ if (!fs.existsSync('./build/js')) {
     }
     fs.mkdirSync('./build/js');
 }
-fs.writeFileSync('./build/js/apx.js', apxScripts.map((f)=>{
+fs.writeFileSync('./build/js/apx.js', apxScripts.map((f) => {
     return fs.readFileSync(f).toString();
 }).join(';'));
 
