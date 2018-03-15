@@ -114,7 +114,7 @@ var SaltGithub = (function () {
     function itemListener(elementClass, isFile) {
         var $element = $('.' + elementClass);
 
-        $element.click(function (evt) {
+        $element.on('click', function (evt) {
             getFiles(evt, isFile);
         });
     }
@@ -610,14 +610,12 @@ function listRepositories() {
 }
 
 $(document).ready(function () {
-  console.log('ready --');
-    $('.github-tab').click(function () {
+    $('.github-tab').on('click', function () {
         SaltGithub.getRepoList(1, 30);
         listRepositories();
     });
 
-    $('.btn-import-asn').click(function () {
-  console.log('clicked --');
+    $('.btn-import-asn').on('click', function () {
         Import.fromAsn();
     });
 
