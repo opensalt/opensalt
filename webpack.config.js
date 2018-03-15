@@ -6,14 +6,20 @@ const npmDir = './node_modules/';
 const assetsDir = './app/Resources/assets';
 const buildDir = './web/build';
 
-const sharedScripts = [
+var sharedScripts = [
     npmDir+'/html5-boilerplate/dist/js/plugins.js',
     npmDir+'/jquery/dist/jquery.js',
+    npmDir+'/jquery-migrate/dist/jquery-migrate'+(Encore.isProduction()?'.min':'')+'.js',
     npmDir+'/jquery-ui-bundle/jquery-ui.js',
     npmDir+'/bootstrap-sass/assets/javascripts/bootstrap.js',
     npmDir+'/jquery.fancytree/dist/jquery.fancytree-all.js',
     assetsDir+'/js/site.js'
 ];
+if (Encore.isProduction()) {
+    // Remove jquery-migrate from production code
+    // Comment the next line out if you want the minified version
+    //sharedScripts.splice(2, 1);
+}
 
 const apxScripts = [
     assetsDir+'/js/cftree/view-documentclass.js',
@@ -147,6 +153,14 @@ Encore
             }
         ]
         ,exclude: /docker/
+    })
+    .addLoader({
+        test: /jquery-(migrate|ui)(|.min).js$/,
+        use: [
+            {
+              loader: 'imports-loader?define=>false'
+            }
+        ]
     })
 ;
 /*
