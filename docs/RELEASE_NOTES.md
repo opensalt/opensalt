@@ -12,6 +12,20 @@ Release Notes
     * All bundles have been removed from src/
     * Moved all code to be under the App\ namespace (located at src/)
     * Twig templates have been moved to app/Resources/views
+* User Account Management
+  * User Account Self Creation
+    * Pending Field for newly created users
+    * Approve and Reject buttons for Super Users
+    * Email Address field
+    * Optional Email service (mail)
+  * User List Page
+    * Filters for various fields
+    * Search Bar
+* Rich Text editor
+  * Enable Underline using Markdown _emphasis_ tag
+  * Alphabetical, Numbered and traditional bulleted lists
+* Commenting System
+  * Comment Report pulls comments from all nodes into a list 
 
 ### Fixes
 
@@ -61,7 +75,7 @@ Release Notes
 1.3
 ---
 User Guide corresponding to 1.3
-https://docs.google.com/document/d/1AtSvwpxcVABon2QzKzGhcHg4KV54JbpKnaIsDXKVkhk/edit?usp=sharing 
+https://docs.google.com/document/d/1AtSvwpxcVABon2QzKzGhcHg4KV54JbpKnaIsDXKVkhk/edit?usp=sharing
 ### New
 
 * Markdown editor
