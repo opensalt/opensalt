@@ -30,6 +30,8 @@ body{
     height: calc(100vh - 243px);
     overflow: hidden;
     float:left;
+    display: flex;
+    flex-flow: column;
 }
 
 .treeSideRightInner {
@@ -63,13 +65,10 @@ body{
 }
 
 #tree1Section {
-    height: calc(100% - 169px);
+    flex: 1 1 auto;
     overflow:auto;
     padding:3px;
     border-width:0;
-}
-.assocGroupFilter[style="display:none"] ~ #tree1Section {
-    height: calc(100% - 122px);
 }
 
 #tree1Section.otherDoc .fancytree-container {
