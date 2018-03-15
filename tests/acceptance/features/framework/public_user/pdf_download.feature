@@ -7,4 +7,3 @@ Feature: The framework can be downloaded pdf
   Scenario: 0908-0000 An anonymous can see a framework
     Given I am on a framework page
     When I download the framework PDF file
-    Then I should see content in the PDF file

@@ -3,10 +3,10 @@ var path = require('path');
 
 var vendorDir = './vendor';
 var bowerDir = './vendor/bower-asset';
-var pdfmakeDir = './vendor/bpampuch';
 var npmDir = './vendor/npm-asset';
 var assetsDir = './app/Resources/assets';
 var buildDir = './web/build';
+var pdfmakeDir = './vendor/bpampuch';
 
 var sharedScripts = [
     bowerDir+'/html5-boilerplate/dist/js/plugins.js',
