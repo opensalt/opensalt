@@ -4,9 +4,9 @@ $bootstrap-sass-asset-helper: false !default;
 // --------------------------------------------------
 
 // Overrides
-$icon-font-path: "../../../../vendor/bower-asset/bootstrap/dist/fonts/" !default;
+$icon-font-path: "../../../../node_modules/bootstrap-sass/assets/fonts/bootstrap/" !default;
 
-$md-font-path: "../../../../vendor/mervick/material-design-icons/fonts/" !default;
+$md-font-path: "../../../../node_modules/bootstrap-material-icons/fonts/" !default;
 $salt-view-font-path: "" !default;
 
 //== Colors

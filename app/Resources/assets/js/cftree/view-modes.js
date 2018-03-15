@@ -497,7 +497,7 @@ apx.chooserMode.itemClicked = function(node) {
         $('body').append(html);
 
         // enable buggons
-        $("#chooserModeShowForChoosing").click(function () {
+        $("#chooserModeShowForChoosing").on('click', function () {
             console.log("clicked");
             $("#chooserModeShowForChoosing").remove();
         });

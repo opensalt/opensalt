@@ -17,8 +17,8 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Form\Type\LsDocListType;
 use App\Entity\User\User;
 use GuzzleHttp\ClientInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -61,11 +61,7 @@ class DocTreeController extends AbstractController
      * @Route("/doc/{slug}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
      * @Route("/doc/{slug}/lv.{_format}", name="doc_tree_view_log", defaults={"_format"="html", "lsItemId"=null})
      * @Route("/doc/{slug}/{assocGroup}.{_format}", name="doc_tree_view_ag", defaults={"_format"="html", "lsItemId"=null})
-     * @ParamConverter("lsDoc", class="App\Entity\Framework\LsDoc", options={
-     *     "repository_method" = "findOneBySlug",
-     *     "mapping": {"slug": "slug"},
-     *     "map_method_signature" = true
-     * })
+     * @Entity("lsDoc", expr="repository.findOneBySlug(slug)")
      * @Method({"GET"})
      * @Template()
      */
