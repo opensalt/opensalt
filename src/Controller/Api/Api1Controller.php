@@ -8,11 +8,12 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\CfDocQuery;
+use App\Repository\Framework\LsDocRepository;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -95,7 +96,7 @@ class Api1Controller extends AbstractController
     /**
      * @Route("/CFPackages/{id}.{_format}", name="api_v1p0_cfpackage", defaults={"_format"="json"})
      * @Method("GET")
-     * @ParamConverter("obj", class="App\Entity\Framework\LsDoc", options={"repository_method"="findOneByIdentifier"})
+     * @Entity("obj", expr="repository.findOneByIdentifier(id)")
      */
     public function getCfPackageAction(Request $request, LsDoc $obj): Response
     {
@@ -132,7 +133,7 @@ class Api1Controller extends AbstractController
      * @Route("/CFItemAssociations/{id}.{_format}", name="api_v1p0_cfitemassociations", defaults={"_format"="json"})
      * @Route("/CFItems/{id}/associations.{_format}", name="api_v1p0_cfitemassociations2", defaults={"_format"="json"})
      * @Method("GET")
-     * @ParamConverter("obj", class="App\Entity\Framework\LsItem", options={"repository_method"="findOneByIdentifier"})
+     * @Entity("obj", expr="repository.findOneByIdentifier(id)")
      */
     public function getCfItemAssociationsAction(Request $request, LsItem $obj): Response
     {
@@ -183,16 +184,11 @@ class Api1Controller extends AbstractController
      * @Route("/CFRubricCriteria/{id}.{_format}", name="api_v1p0_cfrubriccriterion", defaults={"class"="App\Entity\Framework\CfRubricCriterion", "_format"="json"})
      * @Route("/CFRubricCriterionLevels/{id}.{_format}", name="api_v1p0_cfrubriccriterionlevel", defaults={"class"="App\Entity\Framework\CfRubricCriterionLevel", "_format"="json"})
      * @Method("GET")
-     * @ParamConverter("obj", class="App\Entity\Framework\LsDoc", options={"id"={"id", "class"}, "repository_method"="apiFindOneByClassIdentifier"})
-     *
-     * @param Request $request
-     * @param CaseApiInterface $obj
-     * @param string $_format
-     *
-     * @return Response
      */
-    public function getObjectAction(Request $request, CaseApiInterface $obj): Response
+    public function getObjectAction(Request $request, LsDocRepository $repo, $class, $id): Response
     {
+        $obj = $repo->apiFindOneByClassIdentifier(['class' => $class, 'id' => $id]);
+
         return $this->generateObjectResponse($request, $obj);
     }
 
@@ -201,16 +197,11 @@ class Api1Controller extends AbstractController
      * @Route("/CFItemTypes/{id}.{_format}", name="api_v1p0_cfitemtype", defaults={"class"="App\Entity\Framework\LsDefItemType", "_format"="json"})
      * @Route("/CFSubjects/{id}.{_format}", name="api_v1p0_cfsubject", defaults={"class"="App\Entity\Framework\LsDefSubject", "_format"="json"})
      * @Method("GET")
-     * @ParamConverter("obj", class="App\Entity\Framework\LsDoc", options={"id"={"id", "class"}, "repository_method"="apiFindOneByClassIdentifier"})
-     *
-     * @param Request $request
-     * @param CaseApiInterface $obj
-     * @param string $_format
-     *
-     * @return Response
      */
-    public function getObjectCollectionAction(Request $request, CaseApiInterface $obj): Response
+    public function getObjectCollectionAction(Request $request, LsDocRepository $repo, $class, $id): Response
     {
+        $obj = $repo->apiFindOneByClassIdentifier(['class' => $class, 'id' => $id]);
+
         return $this->generateObjectCollectionResponse($request, $obj);
     }
 

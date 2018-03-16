@@ -114,7 +114,7 @@ var SaltGithub = (function () {
     function itemListener(elementClass, isFile) {
         var $element = $('.' + elementClass);
 
-        $element.click(function (evt) {
+        $element.on('click', function (evt) {
             getFiles(evt, isFile);
         });
     }
@@ -609,13 +609,13 @@ function listRepositories() {
     $('#back').html('');
 }
 
-$(document).on('ready', function () {
-    $('.github-tab').click(function () {
+$(document).ready(function () {
+    $('.github-tab').on('click', function () {
         SaltGithub.getRepoList(1, 30);
         listRepositories();
     });
 
-    $('.btn-import-asn').click(function () {
+    $('.btn-import-asn').on('click', function () {
         Import.fromAsn();
     });
 
@@ -674,7 +674,7 @@ var adjustWindow = function (e) {
         $("#dragbar").show();
     }
 };
-$(document).on('ready', adjustWindow);
+$(document).ready(adjustWindow);
 
 $(window).on('resize', adjustWindow);
 

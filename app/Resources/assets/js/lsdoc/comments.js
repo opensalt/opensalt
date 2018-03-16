@@ -135,7 +135,7 @@ var CommentSystem = (function(){
 
 global.CommentSystem = CommentSystem;
 
-$(document).on('ready', function(){
+$(document).ready(function(){
     CommentSystem.init();
 });
 
