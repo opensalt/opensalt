@@ -144,7 +144,7 @@ class ExcelExport
             ->setCellValue('I1', 'language')
             ->setCellValue('J1', 'educationLevel')
             ->setCellValue('K1', 'CFItemType')
-            ->setCellValue('L1', 'licenseURI')
+            ->setCellValue('L1', 'license')
             ->setTitle('CF Item');
 
         $j = 2;
