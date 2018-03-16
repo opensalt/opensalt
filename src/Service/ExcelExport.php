@@ -109,10 +109,9 @@ class ExcelExport
             ->setCellValue('K1', 'adoptionStatus')
             ->setCellValue('L1', 'statusStartDate')
             ->setCellValue('M1', 'statusEndDate')
-            ->setCellValue('N1', 'licenseUri')
-            ->setCellValue('O1', 'licenseTitle')
-            ->setCellValue('P1', 'licenseText')
-            ->setCellValue('Q1', 'notes')
+            ->setCellValue('N1', 'licenseTitle')
+            ->setCellValue('O1', 'licenseText')
+            ->setCellValue('P1', 'notes')
             ->setCellValue('A2', $cfDoc->getIdentifier())
             ->setCellValue('B2', $cfDoc->getCreator())
             ->setCellValue('C2', $cfDoc->getTitle())
@@ -126,10 +125,9 @@ class ExcelExport
             ->setCellValue('K2', $cfDoc->getAdoptionStatus())
             ->setCellValue('L2', $cfDoc->getStatusStart())
             ->setCellValue('M2', $cfDoc->getStatusEnd())
-            ->setCellValue('N2', $licenseUri)
-            ->setCellValue('O2', $licenseTitle)
-            ->setCellValue('P2', $licenseText)
-            ->setCellValue('Q2', $cfDoc->getNote())
+            ->setCellValue('N2', $licenseTitle)
+            ->setCellValue('O2', $licenseText)
+            ->setCellValue('P2', $cfDoc->getNote())
             ->setTitle('CF Doc');
 
         $phpExcelObject->createSheet();
@@ -146,8 +144,7 @@ class ExcelExport
             ->setCellValue('I1', 'language')
             ->setCellValue('J1', 'educationLevel')
             ->setCellValue('K1', 'CFItemType')
-            ->setCellValue('L1', 'license')
-            ->setCellValue('M1', 'lastChangeDateTime')
+            ->setCellValue('L1', 'licenseURI')
             ->setTitle('CF Item');
 
         $j = 2;
@@ -167,15 +164,13 @@ class ExcelExport
         $activeSheet = $phpExcelObject->setActiveSheetIndex(2);
         $activeSheet
             ->setCellValue('A1', 'identifier')
-            ->setCellValue('B1', 'uri')
-            ->setCellValue('C1', 'originNodeIdentifier')
-            ->setCellValue('D1', 'originNodeUri')
-            ->setCellValue('E1', 'destinationNodeIdentifier')
-            ->setCellValue('F1', 'destinationNodeUri')
-            ->setCellValue('G1', 'associationType')
-            ->setCellValue('H1', 'associationGroupIdentifier')
-            ->setCellValue('I1', 'associationGroupName')
-            ->setCellValue('J1', 'lastChangeDateTime')
+            ->setCellValue('B1', 'originNodeIdentifier')
+            ->setCellValue('C1', 'originNodeHumanCodingScheme')
+            ->setCellValue('D1', 'associationType')
+            ->setCellValue('E1', 'destinationNodeHumanCodingScheme')
+            ->setCellValue('F1', 'destinationNodeIdentifier')
+            ->setCellValue('G1', 'associationGroupIdentifier')
+            ->setCellValue('H1', 'associationGroupName')
             ->setTitle('CF Association');
 
         $j = 2;
@@ -198,6 +193,7 @@ class ExcelExport
             'A' => 'identifier',
             'B' => 'fullStatement',
             'C' => 'humanCodingScheme',
+            'D' => 'smartLevel',
             'E' => 'listEnumInSource',
             'F' => 'abbreviatedStatement',
             'G' => 'conceptKeywords',
@@ -206,7 +202,6 @@ class ExcelExport
             'J' => 'educationalAlignment',
             'K' => ['itemType', 'title'],
             'L' => 'license',
-            'M' => 'updatedAt',
         ];
 
         foreach ($columns as $column => $field) {
@@ -225,15 +220,13 @@ class ExcelExport
     {
         $columns = [
             'A' => 'identifier',
-            'B' => 'uri',
-            'C' => 'originNodeIdentifier',
-            'D' => 'originNodeUri',
-            'E' => 'destinationNodeIdentifier',
-            'F' => 'destinationNodeUri',
-            'G' => 'type',
-            'H' => 'group',
-            'I' => 'groupName',
-            'J' => 'updatedAt',
+            'B' => 'originNodeIdentifier',
+            'C' => ['originLsItem', 'humanCodingScheme'],
+            'D' => 'type',
+            'E' => ['destinationLsItem', 'humanCodingScheme'],
+            'F' => 'destinationNodeIdentifier',
+            'G' => 'group',
+            'H' => 'groupName',
         ];
 
         foreach ($columns as $column => $field) {
