@@ -326,3 +326,15 @@ simple_things_entity_audit:
         - App\Entity\ChangeEntry
     global_ignore_columns:
         - password
+        
+knp_snappy:
+    temporary_folder: %kernel.cache_dir%/snappy
+  
+    pdf:
+        enabled:    true
+        binary:     /usr/bin/wkhtmltopdf #"\"C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe\"" for Windows users
+        options:    []
+        
+   
+        
+     

@@ -27,7 +27,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-
+use Knp\Snappy\Pdf;
+use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 /**
  * LsDoc controller.
  *
@@ -62,8 +63,30 @@ class LsDocController extends AbstractController
      *
      * @return array
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
+     // $snappy = new Pdf('/usr/local/bin/wkhtmltopdf');
+//header('Content-Type: application/pdf');
+//header('Content-Disposition: attachment; filename="file.pdf"');
+ //$snappy->getOutput();
+//exit(0);
+        //$snappy = new Pdf('/usr/local/bin/wkhtmltopdf');
+//$snappy->generateFromHtml('<h1>Bill</h1><p>You owe me money, dude.</p>', '/tmp/bill-123.pdf');
+        $html = $this->renderView('site/about/test.html.twig', array(
+            'some'  => ''
+        ));
+        $path = $request->server->get('DOCUMENT_ROOT');    // C:/wamp64/www/
+        $path = rtrim($path, "/");                         // C:/wamp64/www
+         $output = $path . $request->server->get('BASE');        // C:/wamp64/www/project/web
+        $output .= '/pdf/contract'.'.pdf';
+               
+        
+         return new PdfResponse(
+            $this->get('knp_snappy.pdf')->getOutput($html),
+            'file.pdf'
+        );
+        exit(0);
+        
         $em = $this->getDoctrine()->getManager();
 
         $results = $em->getRepository(LsDoc::class)->findBy(
