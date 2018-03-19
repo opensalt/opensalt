@@ -1138,7 +1138,7 @@ class Framework implements Context
 
         $I->click('Export', '#itemInfo');
         $I->waitForElementVisible('#exportModal a.btn-export-pdf');
-        $I->click('//*[@id="exportModal"]/div/div/div[2]/div/div[1]/div/div[3]/a');
+        $I->click('#exportModal a.btn-export-pdf');
 
         return $this;
     }
