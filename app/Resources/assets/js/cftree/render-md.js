@@ -207,11 +207,11 @@ const render = (function(){
 
     function underlineText(editor) {
       var cm = editor.codemirror;
-      var output = '';
+      var output = "";
       var selectedText = cm.getSelection();
       var text = selectedText || 'placeholder';
 
-      output = '_' + text + '_';
+      output = "_" + text + "_";
       cm.replaceSelection(output);
     }
 
@@ -226,14 +226,14 @@ const render = (function(){
               className: "fa fa-underline",
               title: "Underline text (Ctrl/Cmd-Alt-R)",
             },
-            'bold', 'italic', 'heading', '|', 'quote',
-            'unordered-list', 'ordered-list', {
+            "bold", "italic", "heading", "|", "quote",
+            "unordered-list", "ordered-list", {
             name : "AlphabeticalList",
             action : alphaList,
             className : "fa fa-sort-alpha-asc",
             title : "Alphabetical List",
-          } , '|', 'table', 'horizontal-rule', '|', 'preview',
-          'side-by-side', 'fullscreen' ],
+          } , "|", "table", "horizontal-rule", "|", "preview",
+          "side-by-side", "fullscreen" ],
           previewRender : render.block
         });
     };
