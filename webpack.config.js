@@ -183,7 +183,9 @@ config.resolve.alias = {
   //'markdown-it-underline': path.resolve(__dirname, npmDir+'/markdown-it-underline/index.js'),
   'render-md': path.resolve(__dirname, assetsDir+'/js/cftree/render-md.js'),
   'util-salt': path.resolve(__dirname, assetsDir+'/js/util-salt.js'),
-  'ajaxq': path.resolve(__dirname, npmDir+'/ajaxq/ajaxq.js')
+  'ajaxq': path.resolve(__dirname, npmDir+'/ajaxq/ajaxq.js'),
+  'pdfmake': path.resolve(__dirname, npmDir+'/pdfmake/build/pdfmake.js'),
+  'pdfmake_fonts': path.resolve(__dirname, npmDir+'/pdfmake/build/vfs_fonts.js')
 };
 config.resolve.modules = [
   'node_modules',

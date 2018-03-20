@@ -437,9 +437,110 @@ var SaltLocal = (function () {
         return false;
     }
 
+    var handlePdfFile = function (data) {
+        $.ajax({
+        url: data,
+        type: 'get',
+        dataType: 'json',
+            success: function (response) {
+            var pdfData = response;
+            var pdfMake = require('pdfmake');
+            var pdfFonts = require('pdfmake_fonts');
+            pdfMake.vfs = pdfFonts.pdfMake.vfs;
+                function getCFItemRelationship(identifier){
+                var associations = [];
+                        for(var i = 0; i < pdfData["CFAssociations"].length; i++){
+                                if(identifier === pdfData["CFAssociations"][i].originNodeURI.identifier){
+                                        var associationObject = {"origin":{}, "relationhship":"", "destination":{}};
+                                        associationObject.origin = pdfData["CFAssociations"][i].originNodeURI;
+                                        associationObject.relationhship = pdfData["CFAssociations"][i].associationType;
+                                        associationObject.destination = pdfData["CFAssociations"][i].destinationNodeURI;
+                                        associations.push(associationObject);
+                                }
+                        }
+                return associations;
+                }
+                function downloadPdf(){
+
+                var docDefinition = {};
+                    if("creator" in pdfData["CFDocument"]){
+                        docDefinition.header = {text:"Creator : " + pdfData["CFDocument"]["creator"], margin: [ 70, 10 ]};
+                    }
+                    if("licenseURI" in pdfData["CFDocument"] && "title" in pdfData["CFDocument"].licenseURI){
+                        docDefinition.footer = {text:"License : " + pdfData["CFDocument"].licenseURI.title, margin: [ 70, 10, 0, 20 ]};
+                    }
+                var content = [];
+                    if("title" in pdfData["CFDocument"]){
+                        content.push({ text:pdfData["CFDocument"].title, style:{alignment: 'center'}, margin:[ 0, 70, 0, 0 ], fontSize: 15 });
+                    }
+                    if("publisher" in pdfData["CFDocument"]){
+                        content.push({ text:pdfData["CFDocument"].publisher, style:{alignment: 'center'}, margin:[ 0, 0 ], fontSize: 10 });
+                    }
+                    if("licenseURI" in pdfData["CFDocument"]){
+                        content.push({ text:"Created by CfDoc Organization, under a"+ pdfData["CFDocument"].licenseURI.title +" license" , fontSize: 12 , margin:[0,500,0,0] });
+                    }
+                    if( "statusStartDate" in pdfData["CFDocument"]){
+                        content.push({ text:"Date : "+ pdfData["CFDocument"].statusStartDate, fontSize: 12 });
+                    }
+                    content.push({ text:"Draft : "+"Draft field is not present in case file right now", pageBreak: 'after', fontSize: 12 });
+                    //for cfitems
+                    content.push({ text:"Framework Elements", style:{ alignment: 'center'}, margin:[0,30,0,0], fontSize: 15 });
+                    for(var i = 0;i<pdfData.CFItems.length;i++){
+                        content.push({ text:"",margin:[0,20,0,0] });
+                            if("humanCodingScheme" in pdfData.CFItems[i]){
+                                content.push({ text: "Human Coding Scheme : "+ pdfData.CFItems[i].humanCodingScheme, margin:[0,10,0,0] ,style:{ bold: true}, fontSize: 11 });
+                            }
+                            if("abbreviatedStatement" in pdfData.CFItems[i]){
+                                content.push({ text: "Abbreviated Statement : "+ pdfData.CFItems[i].abbreviatedStatement, fontSize: 11, margin: [0,10,0,0]});
+                            }
+                            if("fullStatement" in pdfData.CFItems[i]){
+                                content.push({ text: "Full Statement : "+ pdfData.CFItems[i].fullStatement, fontSize: 11, margin: [0,10,0,0]});
+                            }
+                            if("CFItemType" in pdfData.CFItems[i]){
+                                content.push({ text: "Item Type : "+ pdfData.CFItems[i].CFItemType, fontSize: 11, margin: [0,10,0,0]});
+                            }
+                            if("notes" in pdfData.CFItems[i]){
+                                content.push({ text: "Notes : "+ pdfData.CFItems[i].notes, fontSize: 11, margin: [0,10,0,0]});
+                            }
+                            if("conceptKeywords" in pdfData.CFItems[i]){
+                                content.push({ text: "Concept Keywords : " + pdfData.CFItems[i].conceptKeywords.toString(), fontSize: 11, margin: [0,10,0,0]});
+                            }
+                            var relationshipData = getCFItemRelationship(pdfData.CFItems[i].identifier);
+                                content.push({ text: "Relationships with Other Frameworks", style: { alignment: 'center'}, fontSize: 12, margin: [0,20,0,20]});
+                            //create association table
+                            var body = [];
+                            var tableData = [];
+                            //table headers
+                                body.push([{ text: 'Framework', bold: true}, {text: 'Relationship', bold: true}, {text: 'Other Statement', bold: true}]);
+
+                            for(var j = 0; j < relationshipData.length; j++){
+                                tableData = [];
+                                tableData.push({ text: relationshipData[j].origin.title, style:{fontSize:11}}, {text: relationshipData[j].relationhship, style: {fontSize:11}}, {text: relationshipData[j].destination.title, style: {fontSize:11}});
+                                body.push(tableData);
+                            }
+
+                            var table = {
+                                headerRows: 1,
+                                widths: [ '*', '*', '*' ],
+                                body: body
+                            };
+                            content.push({ table:table });
+                            if(i<pdfData.CFItems.length-1){
+                                content.push({ text: "", pageBreak: 'after'});
+                            }
+                    }
+                    docDefinition.content = content;
+                    pdfMake.createPdf(docDefinition).download('framework.pdf');
+                }
+                downloadPdf();
+            }
+        });
+    };
+
     return {
         handleFile: handleFileSelect,
-        handleExcelFile: handleExcelFile
+        handleExcelFile: handleExcelFile,
+        handlePdfFile:handlePdfFile
     };
 })();
 

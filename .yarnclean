@@ -20,9 +20,6 @@ demos
 coverage
 .nyc_output
 
-# build directories
-build
-
 # build scripts
 Makefile
 Gulpfile.js
