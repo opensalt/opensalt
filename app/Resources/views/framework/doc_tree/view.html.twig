@@ -212,31 +212,19 @@
                                             <a href="{{ path('framework_acl_edit', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
                                         {% endif %}
 
-                                        {% if editorRights and isDraft %}
-                                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">
-                                                Add New Child Item
-                                            </button>
-                                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
-                                                    data-target="#addChildrenModal"
-                                                    data-alt-document-disabled="true">Import Children
-                                            </button>
-                                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
-                                                    data-target="#updateFrameworkModal"
-                                                    data-alt-document-disabled="true">Update Framework
-                                            </button>
-                                            <button type="button" id="js-copy-framework-modal-button" class="btn btn-default btn-sm" data-toggle="modal"
-                                                    data-target="#copyFrameworkModal"
-                                                    data-alt-document-disabled="true">Copy Framework
-                                            </button>
-                                        {% endif %}
-
                                         {% if editorRights %}
                                             {% if isDraft %}
+                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal" data-alt-document-disabled="true">
+                                                    Add New Child Item
+                                                </button>
                                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildrenModal" data-alt-document-disabled="true">
                                                     Import Children
                                                 </button>
                                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#updateFrameworkModal" data-alt-document-disabled="true">
                                                     Update Framework
+                                                </button>
+                                                <button type="button" id="js-copy-framework-modal-button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#copyFrameworkModal" data-alt-document-disabled="true">
+                                                    Copy Framework
                                                 </button>
                                             {% endif %}
                                             {% if lsDoc.importLogs is not empty %}
