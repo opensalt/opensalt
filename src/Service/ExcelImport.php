@@ -118,7 +118,7 @@ class ExcelImport
 
         $doc->setLicence($licence);
 
-        $doc->setNote($this->getCellValueOrNull($sheet, 17, 2));
+        $doc->setNote($this->getCellValueOrNull($sheet, 16, 2));
 
         $this->getEntityManager()->persist($doc);
 
@@ -127,23 +127,12 @@ class ExcelImport
 
     private function getLicence(Worksheet $sheet): LsDefLicence
     {
-        $uri = $this->getCellValueOrNull($sheet, 14, 2);
-        $title = $this->getCellValueOrNull($sheet, 15, 2);
-        $licenceText = $this->getCellValueOrNull($sheet, 16, 2);
-
-        // Look for this licence locally
-        $licence = $this->getEntityManager()->getRepository(LsDefLicence::class)
-            ->findOneByUri($uri);
-
-        // Check if the licence uri exists locally
-        if (null !== $licence && !empty($uri)) {
-            return $licence;
-        }
+        $title = $this->getCellValueOrNull($sheet, 14, 2);
+        $licenceText = $this->getCellValueOrNull($sheet, 15, 2);
 
         // creates licence if it doesn't exists locally
         $licence = new LsDefLicence();
 
-        $licence->setUri($uri);
         $licence->setTitle($title);
         $licence->setLicenceText($licenceText);
 
@@ -193,7 +182,6 @@ class ExcelImport
         $item->setEducationalAlignment($this->getCellValueOrNull($sheet, 10, $row));
         // col 11 - item type
         // col 12 - licence
-        // col 13 - last change date time
 
         $this->getEntityManager()->persist($item);
 
@@ -204,15 +192,11 @@ class ExcelImport
     {
         $fieldNames = [
             1 => 'identifier',
-            2 => 'uri',
-            3 => 'originNodeIdentifier',
-            // 4 => 'originNodeUri',
-            5 => 'destinationNodeIdentifier',
-            // 6 => 'destinationNodeUri',
-            7 => 'associationType',
-            8 => 'associationGroupIdentifier',
-            9 => 'associationGroupName',
-            10 => 'lastChangeDateTime',
+            2 => 'originNodeIdentifier',
+            4 => 'associationType',
+            6 => 'destinationNodeIdentifier',
+            7 => 'associationGroupIdentifier',
+            8 => 'associationGroupName',
         ];
 
         $fields = [];
@@ -225,8 +209,6 @@ class ExcelImport
         }
 
         $association = $doc->createAssociation($fields['identifier']);
-
-        $association->setUri($fields['uri']);
 
         if (array_key_exists((string) $fields['originNodeIdentifier'], $items)) {
             $association->setOrigin($items[$fields['originNodeIdentifier']]);
