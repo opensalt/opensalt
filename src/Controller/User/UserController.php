@@ -64,8 +64,9 @@ class UserController extends AbstractController
         if ($this->authChecker->isGranted('ROLE_SUPER_USER')) {
             $users = $em->getRepository(User::class)->findAll();
         } else {
+            $user_org = $this->getUser()->getOrg();
             $users = $em->getRepository(User::class)
-                ->findByOrg($this->getUser()->getOrg());
+                     ->findAdminOrg($user_org);
         }
         return [
             'users' => $users,
