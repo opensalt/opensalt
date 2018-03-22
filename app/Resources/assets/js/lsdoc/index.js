@@ -681,7 +681,7 @@ $(window).on('resize', adjustWindow);
 $(document).ready(function () {
     let table = $('#datatable').DataTable({
         order: [],
-        columnDefs: [ { orderable: false, targets: [0], },{orderable: false, targets: [4],} ]
+        columnDefs: [ { orderable: false, targets: [0]},{orderable: false, targets: [4]} ]
     });
     $('#search_form_organization').on('keyup', function () {
         table

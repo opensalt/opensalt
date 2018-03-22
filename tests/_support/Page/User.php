@@ -345,6 +345,7 @@ class User implements Context
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
         $I->see($username);
+        $I->see('show', "//td[text()='{$username}']/..//a[text()='show']");
         $I->see('Approve', "//td[text()='{$username}']/..//a[text()='Approve']");
         $I->see('Reject', "//td[text()='{$username}']/..//a[text()='Reject']");
     }
