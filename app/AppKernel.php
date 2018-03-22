@@ -34,6 +34,7 @@ class AppKernel extends Kernel
 
             new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
             new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
+            new GGGGino\WordBundle\GGGGinoWordBundle(),
         ];
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {
