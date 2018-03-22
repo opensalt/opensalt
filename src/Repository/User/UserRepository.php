@@ -80,6 +80,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             ->setParameter('org', $user_org)
             ->addOrderBy('u.status', 'DESC')
             ->addOrderBy('u.id', 'DESC');
+        
         return $qb->getQuery()->getResult();
     }
 

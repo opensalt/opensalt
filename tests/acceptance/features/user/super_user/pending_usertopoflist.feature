@@ -1,4 +1,4 @@
-Feature: Pending new user should be display on top of list
+Feature: Pending new user should be display on top of user list page
 
     @public-user @user @add-user
     Scenario: Pending new user should be display on top of list

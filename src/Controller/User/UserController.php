@@ -66,7 +66,7 @@ class UserController extends AbstractController
         } else {
             $user_org = $this->getUser()->getOrg();
             $users = $em->getRepository(User::class)
-                ->findAdminOrg($user_org);
+                     ->findAdminOrg($user_org);
         }
         return [
             'users' => $users,
