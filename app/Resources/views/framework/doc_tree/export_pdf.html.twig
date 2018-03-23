@@ -1,11 +1,11 @@
 <section>
-    <p style="line-height: 20px;"></p>
+    <p style="line-height: 30px;"></p>
     {% if pdfData.CFDocument.title is defined %}<p style="text-align:center"><h2>{{ pdfData.CFDocument.title }}</h2></p>{% endif %}
-    {% if pdfData.CFDocument.publisher is defined %}<b style="text-align:center;">{{ pdfData.CFDocument.publisher }}</b>{% endif %}
+{% if pdfData.CFDocument.publisher is defined %}<p style="text-align:center;"><h3>{{ pdfData.CFDocument.publisher }}</h3></p>{% endif %}
 </section>
 
 <section>
-    <p style="line-height: 250px;"></p>
+    <p style="line-height: 360px;"></p>
     {% if pdfData.CFDocument.licenseURI.title is defined %}<p>Created by CfDoc Organization, under a {{ pdfData.CFDocument.licenseURI.title }} license</p>{% endif %}
     {% if pdfData.CFDocument.statusStartDate is defined %}<p>Date : {{ pdfData.CFDocument.statusStartDate }}</p>{% endif %}
     <p>Draft : Draft field is not present in case file right now</p>
@@ -13,6 +13,7 @@
 </section>
 
 {% if pdfData.CFItems is not empty %}
+    <p style="text-align:center"><h3>Framework Elements</h3></p>
 {% for category in pdfData.CFItems %}
 
     <section>

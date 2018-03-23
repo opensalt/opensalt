@@ -33,17 +33,17 @@ class PdfExportController extends Controller
                     'pdfData' => json_decode($response->getContent(), true)
                  )
         );
-        Html::addHtml($section,htmlentities($html));
+        Html::addHtml($section, htmlentities($html));
         Settings::setPdfRendererName(Settings::PDF_RENDERER_TCPDF);
         Settings::setPdfRendererPath('../vendor/tecnickcom/tcpdf');
         $file = 'Framework.pdf';
         header('Content-Description: File Transfer');
-        header('Content-Disposition: attachment; filename="' . $file . '"');
+        header('Content-Disposition: attachment; filename="'.$file.'"');
         header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         header('Content-Transfer-Encoding: binary');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Expires: 0');
         $writer = $this->get('phpword')->createWriter($phpWordObject, 'PDF');
-        $writer->save("php://output");
+        $writer->save('php://output');
     }
 }
