@@ -335,4 +335,17 @@ class User implements Context
         $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Reject']");
     }
+
+    /**
+     * @Then /^I see last created user account display top of user list page$/
+     */
+    public function getLastCreatedAccountTopList() {
+        $I = $this->I;
+        $username = $I->getRememberedString('lastNewUsername');
+        $I->amOnPage('/admin/user');
+        $I->see($username);
+        $I->see('show', "//td[text()='{$username}']/..//a[text()='show']");
+        $I->see('Approve', "//td[text()='{$username}']/..//a[text()='Approve']");
+        $I->see('Reject', "//td[text()='{$username}']/..//a[text()='Reject']");
+    }
 }
