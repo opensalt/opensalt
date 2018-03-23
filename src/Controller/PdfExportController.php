@@ -42,7 +42,7 @@ class PdfExportController extends Controller
         $response = new Response();
 
         // Set header
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . $file . '";');
+        $response->headers->set('Content-Disposition', 'attachment; filename="'.$file.'";');
 
         // Send headers before outputting anything
         $response->sendHeaders();
