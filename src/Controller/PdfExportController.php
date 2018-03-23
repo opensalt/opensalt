@@ -6,7 +6,6 @@ use App\Command\CommandDispatcherTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
@@ -37,7 +36,6 @@ class PdfExportController extends Controller
         Settings::setPdfRendererName(Settings::PDF_RENDERER_TCPDF);
         Settings::setPdfRendererPath('../vendor/tecnickcom/tcpdf');
         $file = 'Framework.pdf';
-        header('Content-Description: File Transfer');
         header('Content-Disposition: attachment; filename="'.$file.'"');
         header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         header('Content-Transfer-Encoding: binary');
