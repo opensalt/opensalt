@@ -339,8 +339,10 @@ class User implements Context
     /**
      * @Then /^I see last created user account display top of user list page$/
      */
-    public function getLastCreatedAccountTopList() {
+    public function getLastCreatedAccountTopList()
+    {
         $I = $this->I;
+
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
         $I->see($username);
