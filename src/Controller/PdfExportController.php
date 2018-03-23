@@ -6,6 +6,8 @@ use App\Command\CommandDispatcherTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
@@ -19,7 +21,7 @@ class PdfExportController extends Controller
      *
      * @param int $id
      */
-    public function exportPdfAction(int $id)
+    public function exportPdfAction(int $id, Request $request)
     {
         $phpWordObject = $this->get('phpword')->createPHPWordObject();
         // Create a new Page
@@ -36,12 +38,17 @@ class PdfExportController extends Controller
         Settings::setPdfRendererName(Settings::PDF_RENDERER_TCPDF);
         Settings::setPdfRendererPath('../vendor/tecnickcom/tcpdf');
         $file = 'Framework.pdf';
-        header('Content-Disposition: attachment; filename="'.$file.'"');
-        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-        header('Content-Transfer-Encoding: binary');
-        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Expires: 0');
         $writer = $this->get('phpword')->createWriter($phpWordObject, 'PDF');
-        $writer->save('php://output');
+        $response = new Response();
+
+        // Set header
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $file . '";');
+
+        // Send headers before outputting anything
+        $response->sendHeaders();
+
+        $response->setContent(file_get_contents($writer->save('php://output')));
+
+        return $response;
     }
 }
