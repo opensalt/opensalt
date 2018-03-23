@@ -283,7 +283,7 @@ class Guzzle extends \Codeception\Module
             for ($i = 0, $sum = 0; $i < $state; $i++)
                 $sum += ($ords[$i] + ($i == $state - 1)) * pow(85, 4 - $i);
             for ($i = 0; $i < $state - 1; $i++)
-                $ouput .= chr($sum >> ((3 - $i) * 8));
+                $output .= chr($sum >> ((3 - $i) * 8));
         }
 
         return $output;
@@ -317,22 +317,21 @@ class Guzzle extends \Codeception\Module
 
     public function getDecodedStream($stream, $options) {
         $data = "";
+        $length = !empty($options["Length"]) ? $options["Length"] : strlen($stream);
+        $_stream = substr($stream, 0, $length);
+
+        foreach ($options as $key => $value) {
+            if ($key == "ASCIIHexDecode")
+                $_stream = $this->decodeAsciiHex($_stream);
+            if ($key == "ASCII85Decode")
+                $_stream = $this->decodeAscii85($_stream);
+            if ($key == "FlateDecode")
+                $_stream = $this->decodeFlate($_stream);
+
+            data = $_stream;
+        }
         if (empty($options["Filter"]))
             $data = $stream;
-        else {
-            $length = !empty($options["Length"]) ? $options["Length"] : strlen($stream);
-            $_stream = substr($stream, 0, $length);
-
-            foreach ($options as $key => $value) {
-                if ($key == "ASCIIHexDecode")
-                    $_stream = $this->decodeAsciiHex($_stream);
-                if ($key == "ASCII85Decode")
-                    $_stream = $this->decodeAscii85($_stream);
-                if ($key == "FlateDecode")
-                    $_stream = $this->decodeFlate($_stream);
-            }
-            $data = $_stream;
-        }
         return $data;
     }
 
