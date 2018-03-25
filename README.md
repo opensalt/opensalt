@@ -2,6 +2,7 @@ Standards Alignment Tool (SALT)
 ===============================
 
 [![Latest Stable Version](https://poser.pugx.org/opensalt/opensalt/v/stable)](https://github.com/opensalt/opensalt) [![Build Status](https://travis-ci.org/opensalt/opensalt.svg?branch=develop)](https://travis-ci.org/opensalt/opensalt) [![StyleCI](https://styleci.io/repos/72233269/shield?style=flat&branch=develop)](https://styleci.io/repos/72233269) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/opensalt/opensalt/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/opensalt/opensalt/?branch=develop) [![SensioLabsInsight](https://insight.sensiolabs.com/projects/e4aee568-15d9-4d97-944f-fb742bb9e885/mini.png)](https://insight.sensiolabs.com/projects/e4aee568-15d9-4d97-944f-fb742bb9e885)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fopensalt%2Fopensalt.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fopensalt%2Fopensalt?ref=badge_shield)
 
 
 Overview
@@ -71,3 +72,7 @@ Other Docs
 
 - [User Management Commands](./docs/Commands.md)
 - [Github Authentication Config](./docs/deployment/GithubAuth.md)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fopensalt%2Fopensalt.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fopensalt%2Fopensalt?ref=badge_large)
