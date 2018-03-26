@@ -1,7 +1,7 @@
 Feature: Pending new user should be display on top of user list page
 
-    @public-user @user @add-user
-    Scenario: Pending new user should be display on top of list
+    @public-user @user @add-user @9922-8928
+    Scenario: 9922-8928 Pending new user should be display on top of user list page
         Given "create_account" is enabled
         And I am on the homepage
         And I follow "Sign up"        
