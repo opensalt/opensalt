@@ -27,7 +27,7 @@ Feature: Create new user account password should be 8 characters long
         Then I should see "Password does not match required criteria"
 
     @public-user @user @add-user @5568-7622
-    Scenario: 5568-7622 Password must be 8 characters long
+    Scenario: 5569-7622 Password must be 8 characters long
         Given "create_account" is enabled
         And I am on the homepage
         And I follow "Sign up"
