@@ -114,9 +114,10 @@ class ExcelImport
             )
         );
 
-        $licence = $this->getLicence($sheet);
-
-        $doc->setLicence($licence);
+        if ($this->getCellValueOrNull($sheet, 14, 2) !== null && $this->getCellValueOrNull($sheet, 15, 2) !== null) {
+            $licence = $this->getLicence($sheet);
+            $doc->setLicence($licence);
+        }
 
         $doc->setNote($this->getCellValueOrNull($sheet, 16, 2));
 
