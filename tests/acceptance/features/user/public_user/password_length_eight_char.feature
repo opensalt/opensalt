@@ -1,8 +1,7 @@
-
 Feature: Create new account password should be 8 characters long
 
-    @public-user @user @add-user
-    Scenario: Must match passwords
+    @public-user @user @add-user @5566-7620
+    Scenario: 5566-7620 Must match passwords
         Given "create_account" is enabled
         And I am on the homepage
         And I follow "Sign up"
@@ -14,8 +13,8 @@ Feature: Create new account password should be 8 characters long
         Then I click "Submit"
         Then I should see "Passwords do not match"
 
-    @public-user @user @add-user
-    Scenario: Must be a valid password
+    @public-user @user @add-user @5567-7621
+    Scenario: 5566-7621 Must be a valid password
         Given "create_account" is enabled
         And I am on the homepage
         And I follow "Sign up"
@@ -27,8 +26,8 @@ Feature: Create new account password should be 8 characters long
         Then I click "Submit"
         Then I should see "Password does not match required criteria"
 
-    @public-user @user @add-user
-    Scenario: Password must be 8 characters long
+    @public-user @user @add-user @5568-7622
+    Scenario: 5568-7622 Password must be 8 characters long
         Given "create_account" is enabled
         And I am on the homepage
         And I follow "Sign up"
@@ -38,4 +37,4 @@ Feature: Create new account password should be 8 characters long
         Then I fill in the "Password" with "pass@1"
         Then I fill in the "Confirm Password" with "pass@1"
         Then I click "Submit"
-        Then I should see "Sorry, Passwords must be at least 8 characters long." 
+        Then I should see "Sorry, Passwords must be at least 8 characters long."
