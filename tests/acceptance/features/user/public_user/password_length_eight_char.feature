@@ -1,4 +1,4 @@
-Feature: Create new account password should be 8 characters long
+Feature: Create new user account password should be 8 characters long
 
     @public-user @user @add-user @5566-7620
     Scenario: 5566-7620 Must match passwords
@@ -14,7 +14,7 @@ Feature: Create new account password should be 8 characters long
         Then I should see "Passwords do not match"
 
     @public-user @user @add-user @5567-7621
-    Scenario: 5566-7621 Must be a valid password
+    Scenario: 5567-7621 Must be a valid password
         Given "create_account" is enabled
         And I am on the homepage
         And I follow "Sign up"
