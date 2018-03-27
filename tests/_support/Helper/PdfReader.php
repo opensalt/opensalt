@@ -205,7 +205,7 @@ class PdfReader extends \Codeception\Module
                 $_stream = $this->decodeFlate($_stream);
             }
 
-            data = $_stream;
+            $data = $_stream;
         }
         if (empty($options["Filter"])) {
             $data = $stream;

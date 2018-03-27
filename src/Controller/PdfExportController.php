@@ -22,7 +22,7 @@ class PdfExportController extends Controller
      * @Method("GET")
      *
      * @param int $id
-     * 
+     *
      * @return StreamedResponse
      */
     public function exportPdfAction(int $id, Request $request): StreamedResponse
@@ -52,6 +52,6 @@ class PdfExportController extends Controller
                 'Content-Disposition' => 'attachment; filename="'.$file.'"',
                 'Cache-Control' => 'max-age=0',
             ]
-        ); 
+        );
     }
 }
