@@ -7,11 +7,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
-use \PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PdfExportController extends Controller
