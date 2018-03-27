@@ -134,7 +134,7 @@ class SignupController extends AbstractController
                 if ('dev' === $this->kernelEnv) {
                     $form->addError(new FormError(get_class($e).': '.$e->getMessage()));
                 } else {
-                    $form->addError(new FormError('Sorry, Passwords must be at least 8 characters long.'));
+                    $form->addError(new FormError('Sorry, an error occurred while creating your account.'));
                 }
             }
         }
