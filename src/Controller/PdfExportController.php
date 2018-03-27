@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
+use \PhpOffice\PhpWord\IOFactory;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PdfExportController extends Controller
 {
@@ -20,35 +22,36 @@ class PdfExportController extends Controller
      * @Method("GET")
      *
      * @param int $id
+     * 
+     * @return StreamedResponse
      */
-    public function exportPdfAction(int $id, Request $request)
+    public function exportPdfAction(int $id, Request $request): StreamedResponse
     {
-        $phpWordObject = $this->get('phpword')->createPHPWordObject();
+        $phpWordObject = new PhpWord();
         // Create a new Page
         $section = $phpWordObject->addSection();
 
         $response = $this->forward('App\Controller\Framework\CfPackageController:exportAction', ['id' => $id, '_format' => 'json']);
         $html = $this->renderView(
             'framework/doc_tree/export_pdf.html.twig',
-            array(
-                    'pdfData' => json_decode($response->getContent(), true)
-                 )
+            ['pdfData' => json_decode($response->getContent(), true)]
         );
         Html::addHtml($section, htmlentities($html));
         Settings::setPdfRendererName(Settings::PDF_RENDERER_TCPDF);
         Settings::setPdfRendererPath('../vendor/tecnickcom/tcpdf');
         $file = 'Framework.pdf';
-        $writer = $this->get('phpword')->createWriter($phpWordObject, 'PDF');
-        $response = new Response();
 
-        // Set header
-        $response->headers->set('Content-Disposition', 'attachment; filename="'.$file.'";');
-
-        // Send headers before outputting anything
-        $response->sendHeaders();
-
-        $response->setContent(file_get_contents($writer->save('php://output')));
-
-        return $response;
+        return new StreamedResponse(
+            function () use ($phpWordObject) {
+                IOFactory::createWriter($phpWordObject, 'PDF')
+                    ->save('php://output');
+            },
+            200,
+            [
+                'Content-Type' => 'application/PDF',
+                'Content-Disposition' => 'attachment; filename="'.$file.'"',
+                'Cache-Control' => 'max-age=0',
+            ]
+        ); 
     }
 }

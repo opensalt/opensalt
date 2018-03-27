@@ -8,7 +8,7 @@
     <p style="line-height: 360px;"></p>
     {% if pdfData.CFDocument.licenseURI.title is defined %}<p>Created by CfDoc Organization, under a {{ pdfData.CFDocument.licenseURI.title }} license</p>{% endif %}
     {% if pdfData.CFDocument.statusStartDate is defined %}<p>Date : {{ pdfData.CFDocument.statusStartDate }}</p>{% endif %}
-    <p>Draft : Draft field is not present in case file right now</p>
+    <p>Draft : {% if pdfData.CFDocument.adoptionStatus is defined %} {{ pdfData.CFDocument.adoptionStatus }} {% else %} Draft field is not present in case file right now</p>{% endif %}
     <p style="page-break-after:always;"></p>
 </section>
 
