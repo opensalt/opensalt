@@ -225,9 +225,15 @@ class ExcelImport
             $association->setDestination($ref, $fields['destinationNodeIdentifier']);
         }
 
-        $associationType = ucfirst(preg_replace('/([A-Z])/', ' $1', (string) $fields['associationType']));
-        if (in_array($associationType, LsAssociation::allTypes(), true)) {
-            $association->setType($associationType);
+        $allTypes = [];
+        foreach(LsAssociation::allTypes() as $type) {
+            $allTypes[] = str_replace(' ', '', strtolower($type));
+        }
+
+        $associationType = str_replace(' ', '', strtolower($fields['associationType']));
+
+        if (in_array($associationType, $allTypes, true)) {
+            $association->setType($fields['associationType']);
         } else {
             $log = new ImportLog();
             $log->setLsDoc($doc);
