@@ -33,7 +33,7 @@ class AppKernel extends Kernel
             new Nelmio\CorsBundle\NelmioCorsBundle(),
 
             new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
-            new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
+            new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle()
         ];
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {
