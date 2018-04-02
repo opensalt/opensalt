@@ -48,7 +48,7 @@ class ExcelImport
         for ($i = 2; $i <= $lastRow; ++$i) {
             $item = $this->saveItem($sheet, $doc, $i);
             $items[$item->getIdentifier()] = $item;
-            $smartLevel = (string) $this->getCellValueOrNull($sheet, 3, $i);
+            $smartLevel = (string) $this->getCellValueOrNull($sheet, 4, $i);
             if (!empty($smartLevel)) {
                 $smartLevels[$smartLevel] = $item;
                 $itemSmartLevels[$item->getIdentifier()] = $smartLevel;
@@ -220,6 +220,8 @@ class ExcelImport
 
         if (array_key_exists((string) $fields['destinationNodeIdentifier'], $items)) {
             $association->setDestination($items[$fields['destinationNodeIdentifier']]);
+        } elseif ($this->checkIfItemExists($fields['destinationNodeIdentifier'], $items)) {
+            $association->setDestination($items[$fields['destinationNodeIdentifier']]);
         } else {
             $ref = 'data:text/x-ref-unresolved,'.$fields['destinationNodeIdentifier'];
             $association->setDestination($ref, $fields['destinationNodeIdentifier']);
@@ -265,5 +267,19 @@ class ExcelImport
         }
 
         return $cell->getValue();
+    }
+
+    private function checkIfItemExists($identifier, &$items)
+    {
+        $item = $this->getEntityManager()
+            ->getRepository(LsItem::class)
+            ->findOneBy(['identifier' => $identifier]);
+
+        if ($item !== null) {
+            $items[$item->getIdentifier()] = $item;
+            return true;
+        }
+
+        return false;
     }
 }
