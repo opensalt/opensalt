@@ -14,26 +14,29 @@ class CommentRepository extends EntityRepository
 {
     /**
      * @param string $itemType
-     * @param int $itemId
+     * @param LsDoc|LsItem $itemId
      * @param User $user
      * @param string $content
      * @param int $parentId
      *
      * @return Comment
      */
-    public function addComment($itemType, $itemId, User $user, string $content, $parentId = null)
+    public function addComment(string $itemType, $itemId, User $user, string $content, $parentId = null)
     {
         $comment = new Comment();
         $comment->setContent(trim($content));
         $comment->setUser($user);
-        $comment->setItem($itemType.':'.$itemId);
+        if ($itemType == 'item') {
+            $comment->setItem($itemId);
+        } else {
+            $comment->setDocument($itemId);
+        }
         $comment->setCreatedByCurrentUser(true);
 
         $parent = $this->find($parentId);
         $comment->setParent($parent);
 
         $this->getEntityManager()->persist($comment);
-        $this->getEntityManager()->flush($comment);
 
         return $comment;
     }
@@ -45,7 +48,6 @@ class CommentRepository extends EntityRepository
         $commentUpvote->setUser($user);
 
         $this->getEntityManager()->persist($commentUpvote);
-        $this->getEntityManager()->flush($commentUpvote);
 
         return $commentUpvote;
     }
@@ -54,12 +56,11 @@ class CommentRepository extends EntityRepository
     {
         $em = $this->getEntityManager();
 
-        $commentUpvote = $em->getRepository('SaltSiteBundle:CommentUpvote')
+        $commentUpvote = $em->getRepository(CommentUpvote::class)
             ->findOneBy(['user' => $user, 'comment' => $comment]);
 
         if ($commentUpvote) {
             $em->remove($commentUpvote);
-            $em->flush($commentUpvote);
 
             return true;
         }
@@ -74,6 +75,6 @@ class CommentRepository extends EntityRepository
      */
     public function findByTypeItem(array $id): array
     {
-        return $this->findByItem($id['itemType'].':'.$id['itemId']);
+        return $this->findBy([$id['itemType'] => $id['itemId']]);
     }
 }

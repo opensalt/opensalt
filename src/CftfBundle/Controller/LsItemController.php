@@ -2,6 +2,15 @@
 
 namespace CftfBundle\Controller;
 
+use App\Command\CommandDispatcherTrait;
+use App\Command\Framework\AddItemCommand;
+use App\Command\Framework\ChangeItemParentCommand;
+use App\Command\Framework\CopyItemToDocCommand;
+use App\Command\Framework\DeleteItemCommand;
+use App\Command\Framework\LockItemCommand;
+use App\Command\Framework\RemoveChildCommand;
+use App\Command\Framework\UpdateItemCommand;
+use App\Exception\AlreadyLockedException;
 use CftfBundle\Entity\LsAssociation;
 use CftfBundle\Entity\LsDoc;
 use CftfBundle\Entity\LsItem;
@@ -11,14 +20,18 @@ use CftfBundle\Form\Command\CopyToLsDocCommand;
 use CftfBundle\Form\Type\LsDocListType;
 use CftfBundle\Form\Type\LsItemParentType;
 use CftfBundle\Form\Type\LsItemType;
+use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * LsItem controller.
@@ -27,6 +40,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class LsItemController extends Controller
 {
+    use CommandDispatcherTrait;
+
     /**
      * Lists all LsItem entities.
      *
@@ -40,7 +55,7 @@ class LsItemController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsItems = $em->getRepository('CftfBundle:LsItem')->findAll();
+        $lsItems = $em->getRepository(LsItem::class)->findAll();
 
         return [
             'lsItems' => $lsItems,
@@ -57,70 +72,41 @@ class LsItemController extends Controller
      * @Security("is_granted('add-standard-to', doc)")
      *
      * @param Request $request
-     * @param LsDoc|null $doc
+     * @param LsDoc $doc
      * @param LsItem|null $parent
      * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function newAction(Request $request, LsDoc $doc = null, LsItem $parent = null, LsDefAssociationGrouping $assocGroup = null)
+    public function newAction(Request $request, LsDoc $doc, LsItem $parent = null, LsDefAssociationGrouping $assocGroup = null)
     {
         $ajax = $request->isXmlHttpRequest();
 
         $lsItem = new LsItem();
 
-        if ($doc) {
-            $lsItem->setLsDoc($doc);
-            $lsItem->setLsDocUri($doc->getUri());
-
-            if ($parent) {
-                $parent->addChild($lsItem, $assocGroup);
-            } else {
-                $doc->addTopLsItem($lsItem, $assocGroup);
-            }
-        }
+        $lsItem->setLsDoc($doc);
+        $lsItem->setLsDocUri($doc->getUri());
 
         $form = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $lsItem->setUpdatedAt(new \DateTime()); // Timestampable does not follow up the chain
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsItem);
-            $em->flush();
+            try {
+                $command = new AddItemCommand($lsItem, $doc, $parent, $assocGroup);
+                $this->sendCommand($command);
 
-            // retrieve isChildOf assoc id for the new item
-            $assoc = $this->getDoctrine()->getRepository('CftfBundle:LsAssociation')->findOneBy(['originLsItem'=>$lsItem]);
+                // retrieve isChildOf assoc id for the new item
+                $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $lsItem]);
 
-            if ($ajax) {
-                // if ajax call, return the item as json
-                $ret = [
-                    'id' => $lsItem->getId(),
-                    'identifier' => $lsItem->getIdentifier(),
-                    'fullStatement' => $lsItem->getFullStatement(),
-                    'humanCodingScheme' => $lsItem->getHumanCodingScheme(),
-                    'listEnumInSource' => $lsItem->getListEnumInSource(),
-                    'abbreviatedStatement' => $lsItem->getAbbreviatedStatement(),
-                    'conceptKeywords' => $lsItem->getConceptKeywords(),
-                    'conceptKeywordsUri' => $lsItem->getConceptKeywordsUri(),
-                    'notes' => $lsItem->getNotes(),
-                    'language' => $lsItem->getLanguage(),
-                    'educationalAlignment' => $lsItem->getEducationalAlignment(),
-                    'itemType' => $lsItem->getItemType(),
-                    'changedAt' => $lsItem->getChangedAt(),
-                    'extra' => [
-                        'assocId' => $assoc->getId(),
-                        'identifier' => $assoc->getIdentifier()
-                    ]
-                ];
-                $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
-                $response->headers->set('Content-Type', 'text/json');
-                $response->headers->set('Pragma', 'no-cache');
+                if ($ajax) {
+                    // if ajax call, return the item as json
+                    return $this->generateItemJsonResponse($lsItem, $assoc);
+                }
 
-                return $response;
+                return $this->redirectToRoute('lsitem_show', array('id' => $lsItem->getId()));
+            } catch (\Exception $e) {
+                $form->addError(new FormError('Error adding new item: '.$e->getMessage()));
             }
-
-            return $this->redirectToRoute('lsitem_show', array('id' => $lsItem->getId()));
         }
 
         $ret = [
@@ -128,7 +114,7 @@ class LsItemController extends Controller
             'form' => $form->createView(),
         ];
 
-        if ($ajax && $form->isSubmitted() && !$form->isValid()) {
+        if ($ajax && $form->isSubmitted()) {
             return $this->render('CftfBundle:LsItem:new.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
@@ -172,49 +158,42 @@ class LsItemController extends Controller
      *
      * @param Request $request
      * @param LsItem $lsItem
+     * @param User $user
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function editAction(Request $request, LsItem $lsItem)
+    public function editAction(Request $request, LsItem $lsItem, UserInterface $user)
     {
         $ajax = $request->isXmlHttpRequest();
+
+        try {
+            $command = new LockItemCommand($lsItem, $user);
+            $this->sendCommand($command);
+        } catch (AlreadyLockedException $e) {
+            return $this->render(
+                'CftfBundle:LsItem:locked.html.twig',
+                []
+            );
+        }
 
         $deleteForm = $this->createDeleteForm($lsItem);
         $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $lsItem->setUpdatedAt(new \DateTime()); // Timestampable does not follow up the chain
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsItem);
-            $em->flush();
+            try {
+                $command = new UpdateItemCommand($lsItem);
+                $this->sendCommand($command);
 
-            if ($ajax) {
-                // if ajax call, return the item as json
-                $ret = [
-                    'id' => $lsItem->getId(),
-                    'identifier' => $lsItem->getIdentifier(),
-                    'fullStatement' => $lsItem->getFullStatement(),
-                    'humanCodingScheme' => $lsItem->getHumanCodingScheme(),
-                    'listEnumInSource' => $lsItem->getListEnumInSource(),
-                    'abbreviatedStatement' => $lsItem->getAbbreviatedStatement(),
-                    'conceptKeywords' => $lsItem->getConceptKeywords(),
-                    'conceptKeywordsUri' => $lsItem->getConceptKeywordsUri(),
-                    'notes' => $lsItem->getNotes(),
-                    'language' => $lsItem->getLanguage(),
-                    'educationalAlignment' => $lsItem->getEducationalAlignment(),
-                    'itemType' => $lsItem->getItemType(),
-                    'changedAt' => $lsItem->getChangedAt(),
-                    'extra' => null
-                ];
-                $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
-                $response->headers->set('Content-Type', 'text/json');
-                $response->headers->set('Pragma', 'no-cache');
+                if ($ajax) {
+                    // if ajax call, return the item as json
+                    return $this->generateItemJsonResponse($lsItem);
+                }
 
-                return $response;
+                return $this->redirectToRoute('lsitem_edit', ['id' => $lsItem->getId()]);
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError('Error updating item: '.$e->getMessage()));
             }
-
-            return $this->redirectToRoute('lsitem_edit', ['id' => $lsItem->getId()]);
         }
 
         $ret = [
@@ -250,10 +229,8 @@ class LsItemController extends Controller
         $hasChildren = $lsItem->getChildren();
 
         if ($form->isSubmitted() && $form->isValid() && $hasChildren->isEmpty()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->getRepository(LsAssociation::class)->removeAllAssociations($lsItem);
-            $em->remove($lsItem);
-            $em->flush();
+            $command = new DeleteItemCommand($lsItem);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('lsitem_index');
@@ -264,9 +241,9 @@ class LsItemController extends Controller
      *
      * @param LsItem $lsItem The LsItem entity
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return FormInterface The form
      */
-    private function createDeleteForm(LsItem $lsItem)
+    private function createDeleteForm(LsItem $lsItem): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsitem_delete', array('id' => $lsItem->getId())))
@@ -276,7 +253,7 @@ class LsItemController extends Controller
     }
 
     /**
-     * Export an LSItem entity.
+     * Export an LsItem entity.
      *
      * @Route("/{id}/export", defaults={"_format"="json"}, name="lsitem_export")
      * @Method("GET")
@@ -298,6 +275,7 @@ class LsItemController extends Controller
      *
      * @Route("/{id}/removeChild/{child}", name="lsitem_remove_child")
      * @Method("POST")
+     * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
      * @param \CftfBundle\Entity\LsItem $parent
@@ -307,10 +285,8 @@ class LsItemController extends Controller
      */
     public function removeChildAction(LsItem $parent, LsItem $child)
     {
-        $em = $this->getDoctrine()->getManager();
-        $lsItemRepo = $em->getRepository(LsItem::class);
-        $lsItemRepo->removeChild($parent, $child);
-        $em->flush();
+        $command = new RemoveChildCommand($parent, $child);
+        $this->sendCommand($command);
 
         return [];
     }
@@ -320,6 +296,7 @@ class LsItemController extends Controller
      *
      * @Route("/{id}/copy", name="lsitem_copy_item")
      * @Method({"GET", "POST"})
+     * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
      * @param Request $request
@@ -340,9 +317,9 @@ class LsItemController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $newItem = $command->perform($form->getData(), $em);
-            $em->flush();
+            $copyCommand = new CopyItemToDocCommand($form->getData());
+            $this->sendCommand($copyCommand);
+            $newItem = $copyCommand->getNewItem();
 
             if ($ajax) {
                 return new Response(
@@ -373,6 +350,7 @@ class LsItemController extends Controller
      *
      * @Route("/{id}/parent", name="lsitem_change_parent")
      * @Method({"GET", "POST"})
+     * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
      * @param Request $request
@@ -391,9 +369,8 @@ class LsItemController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $command->perform($form->getData(), $em);
-            $em->flush();
+            $changeCommand = new ChangeItemParentCommand($form->getData());
+            $this->sendCommand($changeCommand);
 
             if ($ajax) {
                 return new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
@@ -413,5 +390,51 @@ class LsItemController extends Controller
         }
 
         return $ret;
+    }
+
+    private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
+    {
+        $ret = [
+            'id' => $item->getId(),
+            'identifier' => $item->getIdentifier(),
+            'fullStatement' => $item->getFullStatement(),
+            'humanCodingScheme' => $item->getHumanCodingScheme(),
+            'listEnumInSource' => $item->getListEnumInSource(),
+            'abbreviatedStatement' => $item->getAbbreviatedStatement(),
+            'conceptKeywords' => $item->getConceptKeywords(),
+            'conceptKeywordsUri' => $item->getConceptKeywordsUri(),
+            'notes' => $item->getNotes(),
+            'language' => $item->getLanguage(),
+            'educationalAlignment' => $item->getEducationalAlignment(),
+            'itemType' => $item->getItemType(),
+            'changedAt' => $item->getChangedAt(),
+            'extra' => [],
+        ];
+
+        if (null !== $assoc) {
+            $destItem = $assoc->getDestinationNodeIdentifier();
+
+            if (null !== $destItem) {
+                $ret['extra'] = [
+                    'assocDoc' => $assoc->getLsDocIdentifier(),
+                    'assocId' => $assoc->getId(),
+                    'identifier' => $assoc->getIdentifier(),
+                    //'groupId' => (null !== $assoc->getGroup()) ? $assoc->getGroup()->getId() : null,
+                    'dest' => ['doc' => $assoc->getLsDocIdentifier(), 'item' => $destItem, 'uri' => $destItem],
+                ];
+                if ($assoc->getGroup()) {
+                    $ret['extra']['groupId'] = $assoc->getGroup()->getId();
+                }
+                if ($assoc->getSequenceNumber()) {
+                    $ret['extra']['seq'] = $assoc->getSequenceNumber();
+                }
+            }
+        }
+
+        $response = new Response($this->renderView('CftfBundle:DocTree:export_item.json.twig', ['lsItem' => $ret]));
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Cache-Control', 'no-cache');
+
+        return $response;
     }
 }

@@ -11,8 +11,8 @@ modules:
             cleanup: false
         - WebDriver:
             url: 'http://nginx/'
-            browser: chrome
-            host: chrome
+            browser: firefox
+            host: firefox
             restart: true
             window_size: 1500x1100
             log_js_errors: true
@@ -23,6 +23,7 @@ modules:
         - \Helper\UserManagement
         - \Helper\Guzzle
         - \Helper\Toggles
+        - \Helper\Remember
         - Asserts
         - Sequence
 
@@ -37,4 +38,8 @@ gherkin:
             - "Page\\Framework"
             - "Page\\Item"
             - "Page\\Exemplar"
+            - "Page\\Notification"
             - "Page\\Organization"
+            - "Page\\FrameworkLogs"
+            - "Page\\SystemLogs"
+            - "Page\\User"

@@ -1,0 +1,11 @@
+{% block body %}
+{ "nodes": [
+    {%- for itemId in lsDoc.topLSItemIds -%}
+        {%- set item = items[itemId] -%}
+        {%- if not loop.first -%},{%- endif -%}
+        {#- render_esi(path('lsitem_export', { 'id': item.id })) -#}
+        {#- item.uri|local_uri |json_encode |raw -#}
+        {%- include 'cms/exportChild.json.twig' with { 'lsItem':item, 'lsDoc':lsDoc, 'items':items} -%}
+    {% endfor %}
+] }
+{% endblock %}

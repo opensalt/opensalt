@@ -1,4 +1,0 @@
-services:
-#    cftf_sbac.example:
-#        class: Cftf\SbacBundle\Example
-#        arguments: ["@service_id", "plain_value", %parameter%]

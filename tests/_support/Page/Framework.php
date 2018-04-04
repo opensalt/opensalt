@@ -4,8 +4,11 @@ namespace Page;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
+use Codeception\Exception\Fail;
+use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
+
 class Framework implements Context
 {
     static public $docPath = '/cftree/doc/';
@@ -15,6 +18,8 @@ class Framework implements Context
     static public $fwCreatorField = '#ls_doc_create_creator';
 //    static public $frameworkCreatorValue = 'PCG QA Testing';
 
+    static protected $failedCreateCount = 0;
+
     protected $filename;
     protected $rememberedFramework;
     protected $uploadedFramework;
@@ -22,6 +27,7 @@ class Framework implements Context
     protected $importedAsnList;
     protected $creatorName = 'OpenSALT Testing';
     protected $frameworkData = [];
+    protected $id;
 
     /**
      * @var \AcceptanceTester
@@ -156,6 +162,26 @@ class Framework implements Context
     }
 
     /**
+     * @When /^I select the framework node$/
+     * @When /^I click on the framework node$/
+     */
+    public function iSelectFrameworkNode(): Framework
+    {
+        $el = ['xpath' => '(//div[@id="viewmode_tree1"]/ul/li/span)[1]'];
+
+        try {
+            $this->I->click($el);
+        } catch (StaleElementReferenceException $e) {
+            // Wait for 1 second and try again
+            $this->I->wait(1);
+            $this->I->waitForElementVisible($el, 10);
+            $this->I->click($el);
+        }
+
+        return $this;
+    }
+
+    /**
      * @Given /^I go to the uploaded framework$/
      * @Given /^I go to the created framework$/
      */
@@ -173,6 +199,7 @@ class Framework implements Context
 
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
+        $I->setDocId($I->grabValueFrom('#lsDocId'));
 
         return $this;
     }
@@ -576,6 +603,17 @@ class Framework implements Context
     }
 
     /**
+     * @Given /^I should see an underline in the framework$/
+     */
+    public function iShouldSeeUnderlineInTheFramework()
+    {
+        $I = $this->I;
+
+        $I->click('//span[text()="MD.Table"]/../../..');
+        $I->seeElement('.lsItemDetails u');
+    }
+
+    /**
      * @Then /^I should see "([^"]*)" button$/
      */
     public function iShouldSeeButton($buttonText) {
@@ -597,45 +635,59 @@ class Framework implements Context
      * @When /^I create a "([^"]*)" framework$/
      */
     public function iCreateAFramework($framework = 'Test Framework') {
-       /** @var \Faker\Generator $faker */
-       $faker = \Faker\Factory::create();
+        $I = $this->I;
 
-       $description = $faker->sentence;
+        $I->amGoingTo('submit a filled in framework create form');
 
-       $note = $faker->paragraph;
-       $framework = sq($framework);
-       $this->rememberedFramework = $framework;
+        if (static::$failedCreateCount >= 5) {
+            $I->amGoingTo('not bother trying, too many errors creating frameworks already');
+            throw new Fail('Not trying: Too many framework create failures already.');
+        }
 
-       $this->frameworkData = [
-         'title' => $framework,
-         'creator' => $this->creatorName,
-         'officialUri' => 'http://opensalt.net',
-         'publisher' => 'PCG',
-         'version' => '1.0',
-         'description' => $description,
-         'language' => 'en',
-         'adoptionStatus' => 'Draft',
-         'note' => $note,
-       ];
+        /** @var \Faker\Generator $faker */
+        $faker = \Faker\Factory::create();
 
-       $I = $this->I;
+        $description = $faker->sentence;
 
-       $I->fillField(self::$fwTitle, $framework);
-       $I->fillField(self::$fwCreatorField, $this->creatorName);
-       $I->fillField('#ls_doc_create_officialUri', $this->frameworkData['officialUri']);
-       $I->fillField('#ls_doc_create_publisher', $this->frameworkData['publisher']);
+        $note = $faker->paragraph;
+        $framework = sq($framework);
+        $this->rememberedFramework = $framework;
+
+        $this->frameworkData = [
+            'title' => $framework,
+            'creator' => $this->creatorName,
+            'officialUri' => 'http://opensalt.net',
+            'publisher' => 'PCG',
+            'version' => '1.0',
+            'description' => $description,
+            'language' => 'en',
+            'adoptionStatus' => 'Draft',
+            'note' => $note,
+        ];
+
+        $I->fillField(self::$fwTitle, $framework);
+        $I->fillField(self::$fwCreatorField, $this->creatorName);
+        $I->fillField('#ls_doc_create_officialUri', $this->frameworkData['officialUri']);
+        $I->fillField('#ls_doc_create_publisher', $this->frameworkData['publisher']);
 //       $I->fillField('#ls_doc_create_urlName','OpenSALT');
-       $I->fillField('#ls_doc_create_version', $this->frameworkData['version']);
-       $I->fillField('#ls_doc_create_description', $description);
+        $I->fillField('#ls_doc_create_version', $this->frameworkData['version']);
+        $I->fillField('#ls_doc_create_description', $description);
 //       $I->selectOption('.select2-search__field', array('text' => 'Math')); //Subject field
-       $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
-       $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
-       $I->fillField('#ls_doc_create_note', $note);
+        $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
+        $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
+        $I->fillField('#ls_doc_create_note', $note);
 
-       $I->click('Create');
+        $I->click('Create');
 
-       $I->see($framework, '#docTitle');
+        try {
+            $I->waitForElementVisible('#docTitle', 30);
+        } catch (\Exception $e) {
+            static::$failedCreateCount++;
+            throw $e;
+        }
 
+        $I->see($framework, '#docTitle');
+        $I->setDocId($I->grabValueFrom('#lsDocId'));
     }
 
     /**
@@ -648,7 +700,6 @@ class Framework implements Context
       $I->click('Create a new Framework');
       $I->see('LsDoc creation');
       $this->iCreateAFramework();
-
     }
 
     /**
@@ -682,8 +733,6 @@ class Framework implements Context
       $I->amOnPage(self::$lsdocPath.$I->getDocId());
 
       $I->click('Delete');
-
-
     }
 
   /**
@@ -724,14 +773,21 @@ class Framework implements Context
     $this->frameworkData[$dataMap[$field]] = $data;
   }
 
+  public function iGoToTheFrameworkDocument(){
+    $I = $this->I;
+
+    $I->amOnPage(self::$docPath.$I->getDocId());
+
+  }
   /**
    * @Given /^I edit the fields in a framework$/
    */
   public function iEditTheFieldsInFramework(TableNode $table) {
     $I = $this->I;
 
-    $I->waitForElementVisible('//*[@id="documentOptions"]/button[2]');
-    $I->click('//*[@id="documentOptions"]/button[2]');
+    $this->iGoToTheFrameworkDocument();
+    $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+    $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
     $I->waitForElementVisible('#ls_doc_title');
 
     $rows = $table->getRows();
@@ -739,7 +795,8 @@ class Framework implements Context
       $this->iEditTheFieldInFramework($row[0], $row[1]);
     }
 
-    $I->click('(//button[text()="Save Changes"])[1]');
+    $I->click('//*[@id="editDocModal"]//button[text()="Save Changes"]');
+
     return $this;
   }
 
@@ -828,5 +885,68 @@ class Framework implements Context
         $level1HcsList = $I->grabMultiple('.item-humanCodingScheme');
 
         $I->assertEquals($hcsValue, current($level1HcsList));
+    }
+
+    /**
+     * @Then /^I search for "([^"]*)" in the framework$/
+     */
+    public function iSearchForInTheFramework($item)
+    {
+        $I = $this->I;
+
+        $I->fillField('#filterOnTree', $item);
+        // Chrome seems to require an explicit "keyup" to trigger the searching
+        $I->executeJS("$('#filterOnTree').trigger('keyup');");
+        $I->wait(1); // search has a 500ms delay to allow typing
+    }
+
+    /**
+     * @Given /^I should not see "([^"]*)" in results$/
+     */
+    public function iShouldNotSeeInSearchResults($item)
+    {
+        $I = $this->I;
+
+        for ($i = 0; $i < 4; $i++) {
+            try {
+                $I->dontSee($item, '#tree1Section');
+
+                return;
+            } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+                // Try triggering the search again
+                $I->executeJS("$('#filterOnTree').trigger('keyup');");
+                $I->wait(1.5); // search has a 500ms delay to allow typing
+            }
+        }
+
+        $I->dontSee($item, '#tree1Section');
+    }
+
+    /**
+     * @Given /^I edit the fields in a framework without saving the changes$/
+     */
+    public function iEditTheFieldsInAFrameworkWithoutSavingTheChanges(TableNode $table)
+    {
+        $I = $this->I;
+
+        $this->iGoToTheFrameworkDocument();
+        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->waitForElementVisible('#ls_doc_title');
+
+        $rows = $table->getRows();
+        foreach ($rows as $row) {
+            $this->iEditTheFieldInFramework($row[0], $row[1]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @Given /^I see the Log View button in the title section$/
+     */
+    public function iSeeTheSelectorInTitleSection()
+    {
+        $this->I->seeElement('#displayLogBtn');
     }
 }

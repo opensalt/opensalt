@@ -13,7 +13,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 /**
  * Class FrameworkUpdater.
  *
- * @DI\Service("framework_updater.local")
+ * @DI\Service()
  */
 class FrameworkUpdater
 {
@@ -33,7 +33,7 @@ class FrameworkUpdater
      *
      * @DI\InjectParams({
      *     "managerRegistry" = @DI\Inject("doctrine"),
-     *     "githubImport" = @DI\Inject("cftf_import.github"),
+     *     "githubImport" = @DI\Inject(GithubFilesBundle\Service\GithubImport::class),
      * })
      */
     public function __construct(ManagerRegistry $managerRegistry, GithubImport $githubImport)
@@ -64,7 +64,7 @@ class FrameworkUpdater
         $contentTransformed = $this->transformContent($fileContent);
 
         foreach (array_keys($contentTransformed) as $i) {
-            $cfItem = $em->getRepository('CftfBundle:LsItem')
+            $cfItem = $em->getRepository(LsItem::class)
                 ->findOneByIdentifier($contentTransformed[$i]['Identifier']);
 
             if (!$cfItem) {
@@ -83,35 +83,6 @@ class FrameworkUpdater
         }
 
         $em->flush();
-    }
-
-    /**
-     * Update framework from a CSV in a new derivative framework
-     *
-     * @param LsDoc  $lsDoc
-     * @param string $fileContent
-     * @param string $frameworkToAssociate
-     *
-     * @return LsDoc
-     */
-    public function derive(LsDoc $lsDoc, $fileContent, $frameworkToAssociate): LsDoc
-    {
-        $em = $this->getEntityManager();
-
-        $newCfDocDerivated = $em->getRepository('CftfBundle:LsDoc')->makeDerivative($lsDoc);
-
-        $em->persist($newCfDocDerivated);
-
-        foreach ($lsDoc->getTopLsItems() as $oldTopItem) {
-            $newItem = $oldTopItem->copyToLsDoc($newCfDocDerivated);
-            $em->persist($newItem);
-
-            $newCfDocDerivated->addTopLsItem($newItem);
-        }
-
-        $em->flush();
-
-        return $newCfDocDerivated;
     }
 
     /**

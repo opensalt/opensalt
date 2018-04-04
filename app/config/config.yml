@@ -4,11 +4,6 @@ imports:
     - { resource: security.yml }
     - { resource: services.yml }
     - { resource: "@CftfBundle/Resources/config/services.yml" }
-    - { resource: "@CftfAsnBundle/Resources/config/services.yml" }
-    - { resource: "@CftfImsBundle/Resources/config/services.yml" }
-    - { resource: "@CftfSbacBundle/Resources/config/services.yml" }
-    - { resource: "@CftfCmsBundle/Resources/config/services.yml" }
-    - { resource: "@CftfUtilBundle/Resources/config/services.yml" }
     - { resource: "@SaltUserBundle/Resources/config/services.yml" }
     - { resource: "@GithubFilesBundle/Resources/config/services.yml" }
     - { resource: "@SaltSiteBundle/Resources/config/services.yml" }
@@ -22,10 +17,6 @@ parameters:
     database_name: '%env(MYSQL_DATABASE)%'
     database_user: '%env(MYSQL_USER)%'
     database_password: '%env(MYSQL_PASSWORD)%'
-    mailer_transport: '%env(MAILER_TRANSPORT)%'
-    mailer_host: '%env(MAILER_HOST)%'
-    mailer_user: '%env(MAILER_USER)%'
-    mailer_password: '%env(MAILER_PASSWORD)%'
     secret: '%env(SECRET)%'
     cookie_secret: '%env(COOKIE_SECRET)%'
     local_uri_host: '%env(LOCAL_URI_HOST)%'
@@ -36,6 +27,14 @@ parameters:
     brand_link_url: '%env(BRAND_LINK_URL)%'
     brand_link_style: '%env(BRAND_LINK_STYLE)%'
     comments_feature: '%env(COMMENTS_FEATURE)%'
+    firebase_api_key: '%env(FIREBASE_API_KEY)%'
+    firebase_db_url: '%env(FIREBASE_DB_URL)%'
+    firebase_auth_domain: '%env(FIREBASE_AUTH_DOMAIN)%'
+    firebase_project_id: '%env(FIREBASE_PROJECT_ID)%'
+    firebase_client_id: '%env(FIREBASE_CLIENT_ID)%'
+    firebase_client_email: '%env(FIREBASE_CLIENT_EMAIL)%'
+    firebase_private_key: '%env(FIREBASE_PRIVATE_KEY)%'
+    firebase_prefix: '%env(FIREBASE_PREFIX)%'
 
 framework:
     #esi:             ~
@@ -74,7 +73,7 @@ framework:
         csv: ['text/csv', 'text/plain']
     #translator: { fallbacks: ['%locale%'] }
     assets:
-        version: '170481'
+        version: '180451'
         packages:
           encore:
             json_manifest_path: '%kernel.project_dir%/web/build/manifest.json'
@@ -92,6 +91,11 @@ twig:
       brand_logo_style: "%brand_logo_style%"
       brand_link_url: "%brand_link_url%"
       brand_link_style: "%brand_link_style%"
+      firebase_api_key: "%firebase_api_key%"
+      firebase_auth_domain: "%firebase_auth_domain%"
+      firebase_db_url: "%firebase_db_url%"
+      firebase_project_id: "%firebase_project_id%"
+      firebase_prefix: "%firebase_prefix%"
 
 # Assetic Configuration
 assetic:
@@ -144,7 +148,7 @@ doctrine:
                 password: "%database_password%"
                 options:  "%pdo_options%"
                 charset:  utf8mb4
-                schema_filter: ~^(?!(auth_session|cache_items|LearningStandards))~
+                schema_filter: ~^(?!(auth_session|cache_items|LearningStandards|std_*|grade_level))~
                 server_version: 5.7
                 mapping_types:
                     json: string
@@ -154,7 +158,8 @@ doctrine:
         types:
             uuid: Ramsey\Uuid\Doctrine\UuidType
             uuid_binary: Ramsey\Uuid\Doctrine\UuidBinaryType
-            json: Pcg\Doctrine\Types\JsonType
+            json: App\Doctrine\Types\JsonType
+            datetime: App\Doctrine\Types\DateTimeType
         #mapping_types:
         #    json: string
         #    uuid: char(36)
@@ -172,25 +177,19 @@ doctrine:
                 second_level_cache:
                     enabled: false
                     log_enabled: true
-
                 mappings:
+                    app:
+                        type: annotation
+                        prefix: App\Entity
+                        dir: "%kernel.root_dir%/../src/App/Entity"
                     gedmo_tree:
                         type: annotation
                         prefix: Gedmo\Tree\Entity
                         dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Tree/Entity"
                         alias: GedmoTree # (optional) it will default to the name set for the mapping
-                        is_bundle: false
 
 doctrine_migrations:
     dir_name: "%kernel.root_dir%/DoctrineMigrations"
-
-# Swiftmailer Configuration
-swiftmailer:
-    transport: "%mailer_transport%"
-    host:      "%mailer_host%"
-    username:  "%mailer_user%"
-    password:  "%mailer_password%"
-    spool:     { type: memory }
 
 jms_di_extra:
     locations:
@@ -288,3 +287,34 @@ qandidate_toggle:
         comments:
             name: comments
             status: '%comments_feature%'
+
+simple_things_entity_audit:
+    #entity_manager: default
+    table_prefix: 'audit_'
+    table_suffix: ''
+    #revision_field_name: rev
+    #revision_type_field_name: revtype
+    revision_table_name: audit_revision
+    #revision_id_field_type: integer
+    audited_entities:
+        - CftfBundle\Entity\LsDoc
+        - CftfBundle\Entity\LsDocAttribute
+        - CftfBundle\Entity\LsDocSubject
+        - CftfBundle\Entity\LsItem
+        - CftfBundle\Entity\LsItemConcept
+        - CftfBundle\Entity\LsAssociation
+        - CftfBundle\Entity\LsDefAssociationGrouping
+        - CftfBundle\Entity\LsDefItemType
+        - CftfBundle\Entity\LsDefConcept
+        - CftfBundle\Entity\LsDefGrade
+        - CftfBundle\Entity\LsDefLicence
+        - CftfBundle\Entity\LsDefSubject
+        - CftfBundle\Entity\CfRubric
+        - CftfBundle\Entity\CfRubricCriterion
+        - CftfBundle\Entity\CfRubricCriterionLevel
+        - Salt\UserBundle\Entity\Organization
+        - Salt\UserBundle\Entity\User
+        - Salt\UserBundle\Entity\UserDocAcl
+        - App\Entity\ChangeEntry
+    global_ignore_columns:
+        - password

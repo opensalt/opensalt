@@ -2,8 +2,17 @@
 
 namespace CftfBundle\Controller;
 
+use App\Command\CommandDispatcherTrait;
+use App\Command\Framework\AddDocumentCommand;
+use App\Command\Framework\DeleteDocumentCommand;
+use App\Command\Framework\DeriveDocumentCommand;
+use App\Command\Framework\LockDocumentCommand;
+use App\Command\Framework\UpdateDocumentCommand;
+use App\Command\Framework\UpdateFrameworkCommand;
+use App\Exception\AlreadyLockedException;
 use CftfBundle\Form\Type\RemoteCftfServerType;
 use CftfBundle\Form\Type\LsDocCreateType;
+use Salt\UserBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -15,6 +24,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * LsDoc controller.
@@ -23,6 +33,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
  */
 class LsDocController extends Controller
 {
+    use CommandDispatcherTrait;
+
     /**
      * Lists all LsDoc entities.
      *
@@ -36,7 +48,7 @@ class LsDocController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $results = $em->getRepository('CftfBundle:LsDoc')->findBy(
+        $results = $em->getRepository(LsDoc::class)->findBy(
             [],
             ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']
         );
@@ -125,21 +137,17 @@ class LsDocController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $user = $this->getUser();
-            if ($lsDoc->getOwnedBy() === 'user') {
-                $lsDoc->setUser($user);
-            } else {
-                $lsDoc->setOrg($user->getOrg());
+            try {
+                $command = new AddDocumentCommand($lsDoc);
+                $this->sendCommand($command);
+
+                return $this->redirectToRoute(
+                    'doc_tree_view',
+                    array('slug' => $lsDoc->getSlug())
+                );
+            } catch (\Exception $e) {
+                $form->addError(new FormError('Error adding new document: '.$e->getMessage()));
             }
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDoc);
-            $em->flush();
-
-            return $this->redirectToRoute(
-                'doc_tree_view',
-                array('slug' => $lsDoc->getSlug())
-            );
         }
 
         return [
@@ -192,9 +200,9 @@ class LsDocController extends Controller
         $fileContent = $request->request->get('content');
         $cfItemKeys = $request->request->get('cfItemKeys');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
-        $frameworkUpdater = $this->get('framework_updater.local');
 
-        $frameworkUpdater->update($lsDoc, base64_decode($fileContent), $frameworkToAssociate, $cfItemKeys);
+        $command = new UpdateFrameworkCommand($lsDoc, base64_decode($fileContent), $frameworkToAssociate, $cfItemKeys);
+        $this->sendCommand($command);
 
         return $response->setData([
             'message' => 'Success',
@@ -210,19 +218,21 @@ class LsDocController extends Controller
      *
      * @param Request $request
      * @param LsDoc $lsDoc
+     *
+     * @return Response
      */
-    public function deriveAction(Request $request, LsDoc $lsDoc)
+    public function deriveAction(Request $request, LsDoc $lsDoc): Response
     {
-        $response = new JsonResponse();
         $fileContent = $request->request->get('content');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
-        $frameworkUpdater = $this->get('framework_updater.local');
 
-        $newCfDocDerivated = $frameworkUpdater->derive($lsDoc, base64_decode($fileContent), $frameworkToAssociate);
+        $command = new DeriveDocumentCommand($lsDoc, base64_decode($fileContent), $frameworkToAssociate);
+        $this->sendCommand($command);
+        $derivedDoc = $command->getDerivedDoc();
 
-        return $response->setData([
+        return new JsonResponse([
             'message' => 'Success',
-            'new_doc_id' => $newCfDocDerivated->getId()
+            'new_doc_id' => $derivedDoc->getId()
         ]);
     }
 
@@ -236,12 +246,23 @@ class LsDocController extends Controller
      *
      * @param Request $request
      * @param LsDoc $lsDoc
+     * @param User $user
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function editAction(Request $request, LsDoc $lsDoc)
+    public function editAction(Request $request, LsDoc $lsDoc, UserInterface $user)
     {
         $ajax = $request->isXmlHttpRequest();
+
+        try {
+            $command = new LockDocumentCommand($lsDoc, $user);
+            $this->sendCommand($command);
+        } catch (AlreadyLockedException $e) {
+            return $this->render(
+                'CftfBundle:LsDoc:locked.html.twig',
+                []
+            );
+        }
 
         $deleteForm = $this->createDeleteForm($lsDoc);
         $editForm = $this->createForm(
@@ -252,18 +273,21 @@ class LsDocController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($lsDoc);
-            $em->flush();
+            try {
+                $command = new UpdateDocumentCommand($lsDoc);
+                $this->sendCommand($command);
 
-            if ($ajax) {
-                return new Response('OK', Response::HTTP_ACCEPTED);
+                if ($ajax) {
+                    return new Response('OK', Response::HTTP_ACCEPTED);
+                }
+
+                return $this->redirectToRoute(
+                    'lsdoc_edit',
+                    array('id' => $lsDoc->getId())
+                );
+            } catch (\Exception $e) {
+                $editForm->addError(new FormError('Error upating new document: '.$e->getMessage()));
             }
-
-            return $this->redirectToRoute(
-                'lsdoc_edit',
-                array('id' => $lsDoc->getId())
-            );
         }
 
         $ret = [
@@ -301,10 +325,8 @@ class LsDocController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()
-                ->getManager()
-                ->getRepository(LsDoc::class)
-                ->deleteDocument($lsDoc);
+            $command = new DeleteDocumentCommand($lsDoc);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('lsdoc_index');
@@ -326,7 +348,7 @@ class LsDocController extends Controller
     public function exportAction(LsDoc $lsDoc, $_format = 'json')
     {
         $items = $this->getDoctrine()
-            ->getRepository('CftfBundle:LsDoc')
+            ->getRepository(LsDoc::class)
             ->findAllChildrenArray($lsDoc);
 
         return [

@@ -1,0 +1,56 @@
+{% extends '::layout.html.twig' %}
+
+{% block body %}
+<h1>System Logs</h1>
+
+<div class="row system-log-view" id="systemLogView">
+    <div class="col-sm-12">
+        <table id="systemLogTable" class="table table-bordered table-striped table-hover" data-order='[[0, "desc"]]'>
+            <thead>
+            {#<th>Rev</th>#}
+            <th>Date / Time</th>
+            <th>Change</th>
+            <th>User</th>
+            </thead>
+        </table>
+        <a href="{{ path('system_logs_csv') }}" class="btn btn-large btn-default btn-export btn-export-csv">Export</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        if ($.fn.dataTable.isDataTable('#systemLogTable')) {
+            $('#systemLogTable').DataTable().clear().ajax.reload();
+        } else {
+            $('#systemLogTable').DataTable({
+                ajax: "{{ path('system_logs_json') }}",
+                dataSrc: 'data',
+                columns: [
+                    //{ data: 'rev' },
+                    {
+                        data: 'changed_at',
+                        render: function(data, type, row) {
+                            if ("display" !== type && "filter" !== type) {
+                                return data;
+                            }
+
+                            function addZero(num) {
+                                return (num >=0 && num < 10) ? "0" + num : num + "";
+                            }
+
+                            let ts = new Date(data.replace(" ", "T").replace(/\..*$/, "Z"));
+                            return [
+                                [ts.getFullYear(), addZero(ts.getMonth() + 1), addZero(ts.getDate())].join('-'),
+                                [addZero(ts.getHours()), addZero(ts.getMinutes()), addZero(ts.getSeconds())].join(':')
+                            ].join(" ");
+                        }
+                    },
+                    { data: 'description' },
+                    { data: 'username' }
+                ],
+                retrieve: true
+            });
+        }
+    </script>
+{% endblock %}

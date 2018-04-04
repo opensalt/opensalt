@@ -1,30 +1,30 @@
-var SaltGithub = (function(){
+var SaltGithub = (function () {
 
     function getRepoList(page, perPage) {
         if ($('.js-github-list').length > 0) {
-            $.get('/user/github/repos', { page: page, perPage: perPage }, function(data){
+            $.get('/user/github/repos', {page: page, perPage: perPage}, function (data) {
                 $('#repos').html('');
 
-                $.each(data.data, function(i, e){
+                $.each(data.data, function (i, e) {
                     $(".js-github-list .js-github-message-loading").hide();
-                    $(".js-github-list #repos").append('<li class="list-group-item item" data-owner="'+e.owner.login+'" data-repo="'
-                                                       +e.name+'" data-sha="" data-path=""><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span> '+e.name+'</li>');
+                    $(".js-github-list #repos").append('<li class="list-group-item item" data-owner="' + e.owner.login + '" data-repo="'
+                            + e.name + '" data-sha="" data-path=""><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span> ' + e.name + '</li>');
                     $('#repos').removeClass('hidden');
                 });
 
                 paginate(data.totalPages);
                 itemListener('item', false);
             })
-            .fail(function(){
-                $(".js-github-list .js-github-message-loading").hide();
-                $(".js-github-list .js-github-message-error").show();
-            });
+                    .fail(function () {
+                        $(".js-github-list .js-github-message-loading").hide();
+                        $(".js-github-list .js-github-message-error").show();
+                    });
         }
     }
 
     function getFiles(evt, isFile) {
         var name = $(evt.target).attr('data-fname'),
-            hasSubFolder = false;
+                hasSubFolder = false;
 
         $.ajax({
             url: '/user/github/files',
@@ -36,7 +36,7 @@ var SaltGithub = (function(){
             },
             type: 'get',
             dataType: 'json',
-            success: function(response){
+            success: function (response) {
                 if (isFile) {
                     var content = window.atob(response.data.content);
                     if (name.endsWith('.csv')) {
@@ -46,19 +46,19 @@ var SaltGithub = (function(){
                     }
                 } else {
                     $(".js-github-list #files").html('<ul></ul>');
-                    response.data.forEach(function(item){
+                    response.data.forEach(function (item) {
                         if (item.type === 'file') {
                             if (item.name.endsWith('.json') || item.name.endsWith('.csv') || item.name.endsWith('.md')) {
 
                                 $(".js-github-list #files")
-                                .append('<li class="list-group-item file-item" data-owner="'+$(evt.target)
-                                        .attr('data-owner')+'" data-repo="'+$(evt.target).attr('data-repo')+'" data-sha="'+item.sha
-                                        +'" data-fname="'+item.name+'"><span class="glyphicon glyphicon-file" aria-hidden="true"></span> '+item.name+'</li>');
+                                        .append('<li class="list-group-item file-item" data-owner="' + $(evt.target)
+                                                .attr('data-owner') + '" data-repo="' + $(evt.target).attr('data-repo') + '" data-sha="' + item.sha
+                                                + '" data-fname="' + item.name + '"><span class="glyphicon glyphicon-file" aria-hidden="true"></span> ' + item.name + '</li>');
                             }
                         } else if (item.type === 'dir') {
-                            $(".js-github-list #files").append('<li class="list-group-item item" data-owner="'+$(evt.target).attr('data-owner')
-                                                               +'" data-repo="'+$(evt.target).attr('data-repo')+'" data-sha="" data-path="'+item.path
-                                                               +'"><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span> '+item.name+'</li>');
+                            $(".js-github-list #files").append('<li class="list-group-item item" data-owner="' + $(evt.target).attr('data-owner')
+                                    + '" data-repo="' + $(evt.target).attr('data-repo') + '" data-sha="" data-path="' + item.path
+                                    + '"><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span> ' + item.name + '</li>');
 
                             hasSubFolder = true;
                         }
@@ -104,7 +104,7 @@ var SaltGithub = (function(){
         $('#pagination').twbsPagination({
             totalPages: pages,
             visiblePages: 5,
-            onPageClick: function(event, page){
+            onPageClick: function (event, page) {
                 getRepoList(page, 30);
             }
         });
@@ -113,7 +113,7 @@ var SaltGithub = (function(){
     function itemListener(elementClass, isFile) {
         var $element = $('.' + elementClass);
 
-        $element.click(function(evt){
+        $element.click(function (evt) {
             getFiles(evt, isFile);
         });
     }
@@ -124,48 +124,48 @@ var SaltGithub = (function(){
     };
 })();
 
-var UpdateFramework = (function(){
+var UpdateFramework = (function () {
     var frameworkToAssociateSelector = '#js-framework-to-association-on-update',
-        pathToUpdateFramework = "/cfdoc/doc/" + getCurrentCfDocId();
+            pathToUpdateFramework = "/cfdoc/doc/" + getCurrentCfDocId();
 
-    function init(){
-        $('body').on('click', '.btn.btn--updater', function(){
-            SaltLocal.handleFile( $(this).data('update-action') );
+    function init() {
+        $('body').on('click', '.btn.btn--updater', function () {
+            SaltLocal.handleFile($(this).data('update-action'));
         });
     }
 
-    function getRequestParams(fileContent){
+    function getRequestParams(fileContent) {
         fileData = Import.csv(fileContent, true);
         return {
             content: window.btoa(encodeURIComponent(fileContent).replace(/%([0-9A-F]{2})/g,
-                function toSolidBytes(match, p1) {
-                    return String.fromCharCode('0x'+p1);
-                })),
+                    function toSolidBytes(match, p1) {
+                        return String.fromCharCode('0x' + p1);
+                    })),
             cfItemKeys: fileData.cfItemKeys,
             frameworkToAssociate: $(frameworkToAssociateSelector).val()
         };
     }
 
-    function getCurrentCfDocId(){
+    function getCurrentCfDocId() {
         return $('#lsDocId').val();
     }
 
-    function derivative(fileContent){
-        $.post(pathToUpdateFramework + "/derive", getRequestParams(fileContent), function(data){
+    function derivative(fileContent) {
+        $.post(pathToUpdateFramework + "/derive", getRequestParams(fileContent), function (data) {
             window.location.href = "/cftree/doc/" + data.new_doc_id;
         });
     }
 
-    function update(fileContent){
-        $.post(pathToUpdateFramework + "/update", getRequestParams(fileContent), function(){
+    function update(fileContent) {
+        $.post(pathToUpdateFramework + "/update", getRequestParams(fileContent), function () {
             location.reload();
         });
     }
 
-    return { init: init, derivative: derivative, update: update };
+    return {init: init, derivative: derivative, update: update};
 })();
 
-var Import = (function() {
+var Import = (function () {
 
     var file = "";
     var cfItemKeys = {};
@@ -173,9 +173,11 @@ var Import = (function() {
     function csvImporter(content, disableRequest) {
         file = content;
 
+        var Papa = require('papaparse');
+        var csv = Papa.parse(file);
+
         var fields = CfItem.fields;
-        var lines = file.split("\n");
-        var columns = lines[0].split(",");
+        var columns = csv.data[0];
         var index = null, field = null, column = null;
 
         for (var i = 0; i < fields.length; i++) {
@@ -202,29 +204,48 @@ var Import = (function() {
                 }
             }
         }
-        if (disableRequest){
-            return { cfItemKeys: cfItemKeys, fields: fields };
+
+        if (disableRequest) {
+            return {cfItemKeys: cfItemKeys, fields: fields};
         }
 
+        $('.missing-fields').html('');
+        var validatedValues = validateContent(csv);
+
         if (fields.length > 0) {
-            fields.forEach(function(field) {
+            fields.forEach(function (field) {
                 CfItem.missingField(field);
             });
 
             $('#import-div').addClass('hidden');
             $('#errors').removeClass('hidden');
-        } else {
-            $('#import-div').addClass('hidden');
-            $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
-            $('.file-loading').removeClass('hidden');
         }
+
+        $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+        $('.file-loading').removeClass('hidden');
 
         index = fields.indexOf('humanCodingScheme');
 
-        if (index < 0) {
-            $('.file-loading').addClass('hidden');
+        if (index < 0 && validatedValues) {
             sendData();
+        } else {
+            $('.file-loading').addClass('hidden');
+            $('#import-div').removeClass('hidden');
         }
+    }
+
+    function validateContent(csv) {
+        var sw = true;
+        csv.data.forEach(function(row, i) {
+            if (row[3]) {
+                if (row[3].length > 60) {
+                    sw = false;
+                    CfItem.errorValue('Line '+i+1, 'Abbreviated statement can not be longer than 60 characters.', 'warning');
+                }
+            }
+        });
+
+        return sw;
     }
 
     function jsonImporter(file) {
@@ -232,7 +253,7 @@ var Import = (function() {
         var keys = Object.keys(json);
         var subKey = [];
 
-        keys.forEach(function(subJson){
+        keys.forEach(function (subJson) {
             subKey = Object.keys(subJson);
         });
     }
@@ -240,9 +261,9 @@ var Import = (function() {
     function sendData() {
         var dataRequest = {
             content: window.btoa(encodeURIComponent(file).replace(/%([0-9A-F]{2})/g,
-                function toSolidBytes(match, p1) {
-                    return String.fromCharCode('0x'+p1);
-                })),
+                    function toSolidBytes(match, p1) {
+                        return String.fromCharCode('0x' + p1);
+                    })),
             cfItemKeys: cfItemKeys,
             lsDocId: $('#lsDocId').val(),
             frameworkToAssociate: $('#js-framework-to-association').val(),
@@ -253,7 +274,7 @@ var Import = (function() {
             url: '/cf/github/import',
             type: 'post',
             data: dataRequest,
-            success: function(response){
+            success: function (response) {
                 location.reload();
             }
         });
@@ -266,10 +287,10 @@ var Import = (function() {
             data: {
                 fileUrl: $('#asn-url').val()
             },
-            success: function(response){
+            success: function (response) {
                 location.reload();
             },
-            error: function(){
+            error: function () {
                 $('.asn-error-msg').html('<strong>Error!</strong> Something went wrong.').removeClass('hidden');
             }
         });
@@ -286,14 +307,14 @@ var Import = (function() {
             type: 'post',
             data: {
                 fileContent: window.btoa(encodeURIComponent(file).replace(/%([0-9A-F]{2})/g,
-                    function toSolidBytes(match, p1) {
-                        return String.fromCharCode('0x'+p1);
-                    }))
+                        function toSolidBytes(match, p1) {
+                            return String.fromCharCode('0x' + p1);
+                        }))
             },
-            success: function(response) {
+            success: function (response) {
                 location.reload();
             },
-            error: function(){
+            error: function () {
                 $('.tab-content').removeClass('hidden');
                 $('.case-error-msg').html('Error while importing the file');
                 $('.case-error-msg').removeClass('hidden');
@@ -311,41 +332,41 @@ var Import = (function() {
     };
 })();
 
-var SaltLocal = (function(){
+var SaltLocal = (function () {
 
     function handleFileSelect(fileType, input) {
         var files = document.getElementById(input).files;
         var json = '', f;
 
-        if (fileType === 'update' || fileType === 'derivative'){
+        if (fileType === 'update' || fileType === 'derivative') {
             files = document.getElementById('file-for-update').files;
         } else {
             files = document.getElementById('file-url').files;
         }
 
         if (window.File && window.FileReader && window.FileList && window.Blob) {
-            for (var i=0; f = files[i]; i++) {
+            for (var i = 0; f = files[i]; i++) {
                 console.log('name:', escape(f.name), '- type:', f.type || 'n/a', '- size:', f.size,
-                            'bytes', '- lastModified:', f.lastModified ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
+                        'bytes', '- lastModified:', f.lastModified ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
 
                 var reader = new FileReader();
                 if (isTypeValid(f.name)) {
-                    reader.onload = (function(theFile) {
-                        return function(e) {
+                    reader.onload = (function (theFile) {
+                        return function (e) {
                             var file = e.target.result;
                             switch (fileType) {
                                 case 'local':
                                     Import.csv(file);
-                                break;
+                                    break;
                                 case 'case':
                                     Import.case(file);
-                                break;
+                                    break;
                                 case 'derivative':
                                     UpdateFramework.derivative(file);
-                                break;
+                                    break;
                                 case 'update':
                                     UpdateFramework.update(file);
-                                break;
+                                    break;
                             }
                         };
                     })(f);
@@ -385,10 +406,10 @@ var SaltLocal = (function(){
                     contentType: false,
                     processData: false,
                     type: 'POST',
-                    success: function(response){
+                    success: function (response) {
                         location.reload();
                     },
-                    error: function(){
+                    error: function () {
                         $('.tab-content').removeClass('hidden');
                         $('.case-error-msg').html('Error while importing the file');
                         $('.case-error-msg').removeClass('hidden');
@@ -421,7 +442,46 @@ var SaltLocal = (function(){
     };
 })();
 
-var CfItem = (function(){
+if (document.getElementById("toggleRight")) {
+    document.getElementById("toggleRight").onclick = function () {
+        toggleDivRight()
+    };
+
+    function toggleDivRight() {
+        var rightWindow = document.getElementById("treeSideRight");
+        if (rightWindow.style.display === "none") {
+            rightWindow.style.display = "block";
+            document.getElementById("treeSideLeft").setAttribute("style", "width:50%");
+            document.getElementById("treeSideRight").setAttribute("style", "width:50%");
+            document.getElementById("toggleRight").setAttribute("class", "fa fa-chevron-circle-right");
+        } else {
+            rightWindow.style.display = "none";
+            document.getElementById("treeSideLeft").setAttribute("style", "width:100%");
+            document.getElementById("toggleRight").setAttribute("class", "fa fa-chevron-circle-left");
+        }
+    }
+}
+
+if (document.getElementById("toggleLeft")) {
+    document.getElementById("toggleLeft").onclick = function () {
+        toggleDivLeft()
+    };
+
+    function toggleDivLeft() {
+        var leftWindow = document.getElementById("treeSideLeft");
+        if (leftWindow.style.display === "none") {
+            leftWindow.style.display = "block";
+            document.getElementById("treeSideRight").setAttribute("style", "width:50%");
+            document.getElementById("treeSideLeft").setAttribute("style", "width:50%");
+            document.getElementById("toggleLeft").setAttribute("class", "fa fa-chevron-circle-left");
+        } else {
+            leftWindow.style.display = "none";
+            document.getElementById("treeSideRight").setAttribute("style", "width:100%");
+            document.getElementById("toggleLeft").setAttribute("class", "fa fa-chevron-circle-right");
+        }
+    }
+}
+var CfItem = (function () {
 
     var missingFieldsErrorMessages = [];
 
@@ -436,7 +496,6 @@ var CfItem = (function(){
         'educationLevel',
         'cfItemType',
         'license',
-
         'isChildOf',
         'isPartOf',
         'replacedBy',
@@ -444,20 +503,25 @@ var CfItem = (function(){
         'precedes',
         'isPeerOf',
         'hasSkillLevel',
-        'isRelatedTo'
+        'isRelatedTo',
+        'sequenceNumber'
     ];
 
-    function generateDropdowns(arrData, type){
+    function generateDropdowns(arrData, type) {
         var mandatoryClass = "";
         var panelType = "default";
-        arrData.chunk(2).forEach(function(dropdownGrouped){
-        $('.dropdowns.'+type).append('<div class="row"></div>');
-        dropdownGrouped.forEach(function(dropdown){
-                if( dropdown[1] === 'M' ){ mandatoryClass = "mandatory-class"; panelType = "primary" }
-                $('.dropdowns.'+type+' .row').last().append('<div class="col-xs-6"><div class="panel panel-'+ panelType +'"><div class="panel-body '+ mandatoryClass +'"></div></div></div>');
-                $('.dropdowns.'+type+' .row .panel-body').last().append('<div class="col-xs-6"><div class="form-group"><label>'+dropdown[0].titleize()+'</label><select name="'+dropdown[0]+'" class="form-control select"><option>Choose one option</option></select></div></div>');
-                $('.dropdowns.'+type+' .row .panel-body').last().append('<div class="col-xs-6"><div class="form-group"><label>Enter default value if needed</label><input name="'+dropdown[0]+'_default_value" type="text" class="form-control"/></div></div>');
-                mandatoryClass = "";panelType = "default";
+        arrData.chunk(2).forEach(function (dropdownGrouped) {
+            $('.dropdowns.' + type).append('<div class="row"></div>');
+            dropdownGrouped.forEach(function (dropdown) {
+                if (dropdown[1] === 'M') {
+                    mandatoryClass = "mandatory-class";
+                    panelType = "primary"
+                }
+                $('.dropdowns.' + type + ' .row').last().append('<div class="col-xs-6"><div class="panel panel-' + panelType + '"><div class="panel-body ' + mandatoryClass + '"></div></div></div>');
+                $('.dropdowns.' + type + ' .row .panel-body').last().append('<div class="col-xs-6"><div class="form-group"><label>' + dropdown[0].titleize() + '</label><select name="' + dropdown[0] + '" class="form-control select"><option>Choose one option</option></select></div></div>');
+                $('.dropdowns.' + type + ' .row .panel-body').last().append('<div class="col-xs-6"><div class="form-group"><label>Enter default value if needed</label><input name="' + dropdown[0] + '_default_value" type="text" class="form-control"/></div></div>');
+                mandatoryClass = "";
+                panelType = "default";
             });
         });
     }
@@ -465,9 +529,9 @@ var CfItem = (function(){
     function validDropdowns(formMatchedSelector) {
         var missingRequiredFiles = false;
 
-        $(formMatchedSelector).find("select").each(function(i,e) {
+        $(formMatchedSelector).find("select").each(function (i, e) {
             if ($(e).val().length < 1) {
-                 missingRequiredFiles = true;
+                missingRequiredFiles = true;
             }
         });
 
@@ -484,37 +548,48 @@ var CfItem = (function(){
         var alert = '<div class="alert alert-warning js-alert-missing-fields" role="alert">';
         alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
         alert += '<div class="js-error-message-missing-field">';
-        alert += '<strong>Missing field "'+Util.titleize(field)+'"</strong>, if you did not list a column '+field+' in your CSV ignore this message! ';
+        alert += '<strong>Missing field "' + Util.titleize(field) + '"</strong>, if you did not list a column ' + field + ' in your CSV ignore this message! ';
         alert += 'if you meant to, please take a look at the import template and try again!';
         alert += '</div>';
         alert += '</div>';
 
         missingFieldsErrorMessages.push($(alert).find(".js-error-message-missing-field").text());
-        console.info($(alert).find(".js-error-message-missing-field").text());
-
         $('.missing-fields').append(alert);
+    }
+    
+    function errorValue(err, msg, alertType) {
+        var alert = '<div class="alert alert-'+alertType+' js-alert-missing-fields" role="alert">';
+        alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
+        alert += '<div class="js-error-message-missing-field">';
+        alert += '<strong>Error:</strong> '+err+', '+msg;
+        alert += '</div>';
+        alert += '</div>';
+        $('.missing-fields').prepend(alert);
     }
 
     function getErrorsLog(){
-        return missingFieldsErrorMessages;
+      return missingFieldsErrorMessages;
     }
 
     return {
         fields: fields,
         validDropdowns: validDropdowns,
         missingField: missingField,
-        getErrorsLog: getErrorsLog
+        getErrorsLog: getErrorsLog,
+        errorValue: errorValue
     };
 })();
 
-var SanitizeData = (function(){
+var SanitizeData = (function () {
 
-    function matchedFields(formSelector){
+    function matchedFields(formSelector) {
         var sanitizedData = {},
-            tempData = {},
-            formData = $(formSelector).serializeArray();
+                tempData = {},
+                formData = $(formSelector).serializeArray();
 
-        formData.forEach(function(e){ tempData[e.name] = e.value; });
+        formData.forEach(function (e) {
+            tempData[e.name] = e.value;
+        });
 
         return tempData;
     }
@@ -524,25 +599,25 @@ var SanitizeData = (function(){
     };
 })();
 
-var Util = (function(){
+var Util = (function () {
 
-    function simplify(string){
+    function simplify(string) {
         return string.match(/[a-zA-Z]*/g).join("").toLowerCase();
     }
 
-    function capitalize(string){
+    function capitalize(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
-    function titleize(string){
+    function titleize(string) {
         return capitalize(string.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1"));
     }
 
-    function chunk(array, n){
-        if ( !this.length ) {
+    function chunk(array, n) {
+        if (!this.length) {
             return [];
         }
-        return [ this.slice( 0, n ) ].concat( this.slice(n).chunk(n) );
+        return [this.slice(0, n)].concat(this.slice(n).chunk(n));
     }
 
     function spinnerHtml(msg) {
@@ -556,7 +631,7 @@ var Util = (function(){
     };
 })();
 
-function listRepositories(){
+function listRepositories() {
     $('#files').addClass('hidden');
     $('#repos').removeClass('hidden');
     $('#pagination').removeClass('hidden');
@@ -565,13 +640,13 @@ function listRepositories(){
     $('#back').html('');
 }
 
-$(document).on('ready', function(){
-    $('.github-tab').click(function(){
+$(document).on('ready', function () {
+    $('.github-tab').click(function () {
         SaltGithub.getRepoList(1, 30);
         listRepositories();
     });
 
-    $('.btn-import-asn').click(function(){
+    $('.btn-import-asn').click(function () {
         Import.fromAsn();
     });
 
@@ -582,3 +657,45 @@ $(document).on('ready', function(){
 global.SaltLocal = SaltLocal;
 global.SaltGithub = SaltGithub;
 global.listRepositories = listRepositories;
+
+
+$('#dragbar').mousedown(function (e) {
+    e.preventDefault();
+
+    var dragBar = function (e) {
+        var maxWidthToAllow = $("#treeView").width() - 330;
+        if (e.pageX >= maxWidthToAllow) {
+            $('#treeSideLeft').css("width", maxWidthToAllow);
+        } else {
+            $('#treeSideLeft').css("width", e.pageX + 2);
+        }
+        $('#treeSideRight').width($("#treeView").width() - $("#treeSideLeft").width());
+    };
+    $(document).on('mousemove', dragBar);
+
+    $(document).one('mouseup', function (e) {
+        $(document).off('mousemove', dragBar);
+    });
+});
+
+var adjustWindow = function (e) {
+    if ($('#treeView').width() <= 768)
+    {
+        $('#treeSideLeft').width('100%');
+        $('#treeSideRight').width('100%');
+        $(".treeSideRightInner").hide();
+        $(".rightTreeSideLeftInner").hide();
+        $("#dragbar").hide();
+    }
+    else {
+        $('#treeSideLeft').width('50%');
+        $('#treeSideRight').width('50%');
+        $(".treeSideRightInner").show();
+        $(".rightTreeSideLeftInner").show();
+        $("#dragbar").show();
+    }
+};
+$(document).on('ready', adjustWindow);
+
+$(window).on('resize', adjustWindow);
+

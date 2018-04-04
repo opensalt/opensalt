@@ -2,6 +2,7 @@
 
 namespace CftfBundle\Entity;
 
+use App\Entity\LockableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -90,7 +91,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     }
  * )
  */
-class LsItem extends AbstractLsBase implements CaseApiInterface
+class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterface
 {
     /**
      * @var string
@@ -172,9 +173,9 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="abbreviated_statement", type="string", length=50, nullable=true)
+     * @ORM\Column(name="abbreviated_statement", type="string", length=60, nullable=true)
      *
-     * @Assert\Length(max=50)
+     * @Assert\Length(max=60)
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("abbreviatedStatement")
@@ -328,7 +329,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
     /**
      * @var \DateTimeInterface
      *
-     * @ORM\Column(name="changed_at", type="datetime", nullable=true)
+     * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      *
      * @Assert\DateTime()
@@ -374,8 +375,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
     {
         parent::__construct($identifier);
 
-        $this->children = new ArrayCollection();
-        $this->lsItemParent = new ArrayCollection();
         $this->associations = new ArrayCollection();
         $this->inverseAssociations = new ArrayCollection();
         $this->changedAt = $this->getUpdatedAt();
@@ -399,8 +398,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
         parent::__clone();
 
         // Clear values for new item
-        $this->children = new ArrayCollection();
-        $this->lsItemParent = new ArrayCollection();
         $this->associations = new ArrayCollection();
         $this->inverseAssociations = new ArrayCollection();
 
@@ -414,6 +411,8 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsItem
+     *
+     * @throws \UnexpectedValueException
      */
     public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null): LsItem
     {
@@ -437,9 +436,10 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
         $newItem->addAssociation($exactMatch);
         $this->addInverseAssociation($exactMatch);
 
+        $seq = 0;
         foreach ($this->getChildren() as $child) {
             $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup);
-            $newItem->addChild($newChild, $assocGroup);
+            $newItem->addChild($newChild, $assocGroup, ++$seq);
         }
 
         return $newItem;
@@ -452,6 +452,8 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsItem
+     *
+     * @throws \UnexpectedValueException
      */
     public function duplicateToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null): LsItem
     {
@@ -471,7 +473,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
         }
 
         foreach ($this->getChildren() as $child) {
-            $newChild = $child->duplicateToLsDoc($newLsDoc, $assocGroup, $derivated);
+            $newChild = $child->duplicateToLsDoc($newLsDoc, $assocGroup);
 
             $newItem->addChild($newChild, $assocGroup);
         }
@@ -595,7 +597,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
             return $this->getAbbreviatedStatement();
         }
 
-        return substr($this->getFullStatement(), 0, 50);
+        return substr($this->getFullStatement(), 0, 60);
     }
 
     /**
@@ -884,42 +886,28 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      * @param LsDefAssociationGrouping|null $assocGroup
      * @param int|null $sequenceNumber
      *
-     * @return LsAssociation
+     * @return LsItem
+     *
+     * @throws \UnexpectedValueException
      */
-    public function createChildItem(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): LsAssociation
+    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): LsItem
     {
         $association = new LsAssociation();
         $association->setLsDoc($child->getLsDoc());
         $association->setOrigin($child);
         $association->setType(LsAssociation::CHILD_OF);
         $association->setDestination($this);
+
         if (null !== $sequenceNumber) {
             $association->setSequenceNumber($sequenceNumber);
         }
 
-        // PW: set assocGroup if provided and non-null
-        if ($assocGroup !== null) {
+        if (null !== $assocGroup) {
             $association->setGroup($assocGroup);
         }
 
         $child->addAssociation($association);
         $this->addInverseAssociation($association);
-
-        return $association;
-    }
-
-    /**
-     * Add child
-     *
-     * @param LsItem $child
-     * @param LsDefAssociationGrouping|null $assocGroup
-     * @param int|null $sequenceNumber
-     *
-     * @return LsItem
-     */
-    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): LsItem
-    {
-        $this->createChildItem($child, $assocGroup, $sequenceNumber);
 
         return $this;
     }
@@ -1010,11 +998,11 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
     /**
      * Add association
      *
-     * @param \CftfBundle\Entity\LsAssociation $association
+     * @param LsAssociation $association
      *
      * @return LsItem
      */
-    public function addAssociation(\CftfBundle\Entity\LsAssociation $association): LsItem
+    public function addAssociation(LsAssociation $association): LsItem
     {
         $this->associations[] = $association;
 
@@ -1024,9 +1012,11 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
     /**
      * Remove association
      *
-     * @param \CftfBundle\Entity\LsAssociation $association
+     * @param LsAssociation $association
+     *
+     * @return LsItem
      */
-    public function removeAssociation(\CftfBundle\Entity\LsAssociation $association): LsItem
+    public function removeAssociation(LsAssociation $association): LsItem
     {
         $this->associations->removeElement($association);
 
@@ -1046,11 +1036,11 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
     /**
      * Add inverseAssociation
      *
-     * @param \CftfBundle\Entity\LsAssociation $inverseAssociation
+     * @param LsAssociation $inverseAssociation
      *
      * @return LsItem
      */
-    public function addInverseAssociation(\CftfBundle\Entity\LsAssociation $inverseAssociation): LsItem
+    public function addInverseAssociation(LsAssociation $inverseAssociation): LsItem
     {
         $this->inverseAssociations[] = $inverseAssociation;
 
@@ -1060,9 +1050,11 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
     /**
      * Remove inverseAssociation
      *
-     * @param \CftfBundle\Entity\LsAssociation $inverseAssociation
+     * @param LsAssociation $inverseAssociation
+     *
+     * @return LsItem
      */
-    public function removeInverseAssociation(\CftfBundle\Entity\LsAssociation $inverseAssociation): LsItem
+    public function removeInverseAssociation(LsAssociation $inverseAssociation): LsItem
     {
         $this->inverseAssociations->removeElement($inverseAssociation);
 
@@ -1162,6 +1154,8 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
      * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return LsAssociation inserted association (in case the caller needs to get the id later)
+     *
+     * @throws \UnexpectedValueException
      */
     public function addParent($parent, ?int $sequenceNumber = null, ?LsDefAssociationGrouping $assocGroup = null): LsAssociation
     {
@@ -1171,17 +1165,18 @@ class LsItem extends AbstractLsBase implements CaseApiInterface
         $association->setType(LsAssociation::CHILD_OF);
         $association->setDestination($parent?:$this->lsDoc);
 
-        // PW: set sequenceNumber if provided and non-null
-        if ($sequenceNumber !== null) {
+        // set sequenceNumber if provided
+        if (null !== $sequenceNumber) {
             $association->setSequenceNumber($sequenceNumber);
         }
 
-        // PW: set assocGroup if provided and non-null
-        if ($assocGroup !== null) {
+        // set assocGroup if provided
+        if (null !== $assocGroup) {
             $association->setGroup($assocGroup);
         }
 
         $this->addAssociation($association);
+        $parent->addInverseAssociation($association);
 
         return $association;
     }
