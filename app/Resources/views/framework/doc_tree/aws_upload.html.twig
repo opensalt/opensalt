@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+ {{ form_start(form) }} 
+      {{ form_widget(form) }} 
+      {{ form_end(form) }} 
+<table class="table table-condensed table-hover table-bordered table-striped" id = "datatable">
+        <thead>
+            <tr>
+                <th>File Name</th>                
+            </tr>
+        </thead>
+        <tbody>
+{% for file in aws_files %}
+    {% if file.type != 'dir' %}
+        <tr><td><a href="{{ path('aws_file_download', {'fileName': file.basename }) }}">{{ file.basename }}</a></td></tr>
+    {% endif %}
+{% endfor %}
+{% endblock %}
