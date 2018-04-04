@@ -1,0 +1,59 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    {% if not app.request.xmlHttpRequest %}
+        <h1>Change LsItem Parent</h1>
+    {% endif %}
+
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+
+    <div id="lsItemListWrap-changeParent" class="row">
+        <div class="col-sm-12">
+            <section id="lsItemList" class="panel panel-default panel-component">
+                {% if lsDoc is not empty %}
+                    <div class="panel-heading">Select Destination Standard:</div>
+                    <div class="panel-body">
+                        <div>
+                            {{ render_esi(path('editor_render', {'id':lsDoc.id})) }}
+                        </div>
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+
+    {% if not app.request.xmlHttpRequest %}
+        <input class="btn btn-primary" type="submit" value="Change" />
+    {% endif %}
+    {{ form_end(form) }}
+
+    {% if not app.request.xmlHttpRequest %}
+        <br/>
+        <ul class="list-inline">
+            <li>
+                <a class="btn btn-default" href="{{ path('lsassociation_index') }}">Back to the list</a>
+            </li>
+        </ul>
+    {% endif %}
+{% endblock %}
+
+
+{% block javascripts %}
+    <script>
+        var $lsItemList = $('#lsItemListWrap-changeParent');
+        $lsItemList.on('click', '.lsItem', function(e){
+            e.stopPropagation();
+            e.preventDefault();
+
+            var $target = $(e.target);
+            $('#ls_item_parent_parentItem').val($target.attr('name').replace(/mark-/, ''));
+        });
+        $lsItemList.on('click', '.lsDoc', function(e){
+            e.stopPropagation();
+            e.preventDefault();
+
+            $('#ls_item_parent_parentItem').val('');
+        });
+    </script>
+{% endblock %}

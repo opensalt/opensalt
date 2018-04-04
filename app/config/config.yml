@@ -3,10 +3,7 @@ imports:
     - { resource: pdo-options.php }
     - { resource: security.yml }
     - { resource: services.yml }
-    - { resource: "@CftfBundle/Resources/config/services.yml" }
-    - { resource: "@SaltUserBundle/Resources/config/services.yml" }
-    - { resource: "@GithubFilesBundle/Resources/config/services.yml" }
-    - { resource: "@SaltSiteBundle/Resources/config/services.yml" }
+    - { resource: services_parent.yml }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
@@ -17,6 +14,12 @@ parameters:
     database_name: '%env(MYSQL_DATABASE)%'
     database_user: '%env(MYSQL_USER)%'
     database_password: '%env(MYSQL_PASSWORD)%'
+    mailer_transport: '%env(MAILER_TRANSPORT)%'
+    mailer_host: '%env(MAILER_HOST)%'
+    mailer_user: '%env(MAILER_USER)%'
+    mailer_password: '%env(MAILER_PASSWORD)%'
+    mailer_auth_mode: '%env(MAILER_AUTH_MODE)%'
+    mailer_port: '%env(MAILER_PORT)%'
     secret: '%env(SECRET)%'
     cookie_secret: '%env(COOKIE_SECRET)%'
     local_uri_host: '%env(LOCAL_URI_HOST)%'
@@ -35,6 +38,11 @@ parameters:
     firebase_client_email: '%env(FIREBASE_CLIENT_EMAIL)%'
     firebase_private_key: '%env(FIREBASE_PRIVATE_KEY)%'
     firebase_prefix: '%env(FIREBASE_PREFIX)%'
+    create_account_feature: '%env(CREATE_ACCOUNT_FEATURE)%'
+    use_mail_feature: '%env(USE_MAIL_FEATURE)%'
+    mail_feature_from_email: '%env(MAIL_FEATURE_FROM_EMAIL)%'
+    google_captcha_site_key: '%env(GOOGLE_CAPTCHA_SITE_KEY)%'
+    google_captcha_secret_key: '%env(GOOGLE_CAPTCHA_SECRET_KEY)%'
 
 framework:
     #esi:             ~
@@ -96,19 +104,7 @@ twig:
       firebase_db_url: "%firebase_db_url%"
       firebase_project_id: "%firebase_project_id%"
       firebase_prefix: "%firebase_prefix%"
-
-# Assetic Configuration
-assetic:
-    debug:          "%kernel.debug%"
-    use_controller: false
-    bundles:        [ ]
-    #java: /usr/bin/java
-    filters:
-        cssrewrite: ~
-        #closure:
-        #    jar: "%kernel.root_dir%/Resources/java/compiler.jar"
-        #yui_css:
-        #    jar: "%kernel.root_dir%/Resources/java/yuicompressor-2.4.7.jar"
+      google_captcha_site_key: '%google_captcha_site_key%'
 
 services:
     twig.extension.text:
@@ -181,7 +177,7 @@ doctrine:
                     app:
                         type: annotation
                         prefix: App\Entity
-                        dir: "%kernel.root_dir%/../src/App/Entity"
+                        dir: "%kernel.root_dir%/../src/Entity"
                     gedmo_tree:
                         type: annotation
                         prefix: Gedmo\Tree\Entity
@@ -191,11 +187,17 @@ doctrine:
 doctrine_migrations:
     dir_name: "%kernel.root_dir%/DoctrineMigrations"
 
-jms_di_extra:
-    locations:
-        all_bundles: true
-        #bundles: []
-        directories: ["%kernel.root_dir%/../src"]
+# Swiftmailer Configuration
+swiftmailer:
+    spool:     { type: memory }
+    transport: "%mailer_transport%"
+    host:      "%mailer_host%"
+    username:  "%mailer_user%"
+    password:  "%mailer_password%"
+    auth_mode: cram-md5
+    port:      "%mailer_port%"
+    # to disable mail uncomment disable_delivery: true
+    # disable_delivery: true
 
 jms_serializer:
     handlers:
@@ -237,7 +239,7 @@ nelmio_security:
     external_redirects:
         whitelist:
             - google.com
-            
+
     # Forces Microsoft/Chrome XSS-Protection with its block mode.
     xss_protection:
         enabled: true
@@ -287,6 +289,12 @@ qandidate_toggle:
         comments:
             name: comments
             status: '%comments_feature%'
+        create_account:
+            name: create_account
+            status: '%create_account_feature%'
+        email_feature:
+            name: email_feature
+            status: '%use_mail_feature%'
 
 simple_things_entity_audit:
     #entity_manager: default
@@ -297,24 +305,24 @@ simple_things_entity_audit:
     revision_table_name: audit_revision
     #revision_id_field_type: integer
     audited_entities:
-        - CftfBundle\Entity\LsDoc
-        - CftfBundle\Entity\LsDocAttribute
-        - CftfBundle\Entity\LsDocSubject
-        - CftfBundle\Entity\LsItem
-        - CftfBundle\Entity\LsItemConcept
-        - CftfBundle\Entity\LsAssociation
-        - CftfBundle\Entity\LsDefAssociationGrouping
-        - CftfBundle\Entity\LsDefItemType
-        - CftfBundle\Entity\LsDefConcept
-        - CftfBundle\Entity\LsDefGrade
-        - CftfBundle\Entity\LsDefLicence
-        - CftfBundle\Entity\LsDefSubject
-        - CftfBundle\Entity\CfRubric
-        - CftfBundle\Entity\CfRubricCriterion
-        - CftfBundle\Entity\CfRubricCriterionLevel
-        - Salt\UserBundle\Entity\Organization
-        - Salt\UserBundle\Entity\User
-        - Salt\UserBundle\Entity\UserDocAcl
+        - App\Entity\Framework\LsDoc
+        - App\Entity\Framework\LsDocAttribute
+        - App\Entity\Framework\LsDocSubject
+        - App\Entity\Framework\LsItem
+        - App\Entity\Framework\LsItemConcept
+        - App\Entity\Framework\LsAssociation
+        - App\Entity\Framework\LsDefAssociationGrouping
+        - App\Entity\Framework\LsDefItemType
+        - App\Entity\Framework\LsDefConcept
+        - App\Entity\Framework\LsDefGrade
+        - App\Entity\Framework\LsDefLicence
+        - App\Entity\Framework\LsDefSubject
+        - App\Entity\Framework\CfRubric
+        - App\Entity\Framework\CfRubricCriterion
+        - App\Entity\Framework\CfRubricCriterionLevel
+        - App\Entity\User\Organization
+        - App\Entity\User\User
+        - App\Entity\User\UserDocAcl
         - App\Entity\ChangeEntry
     global_ignore_columns:
         - password

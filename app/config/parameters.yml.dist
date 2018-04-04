@@ -20,6 +20,8 @@ parameters:
     env(MAILER_HOST): 127.0.0.1
     env(MAILER_USER): ~
     env(MAILER_PASSWORD): ~
+    env(MAILER_AUTH_MODE): ~
+    env(MAILER_PORT): ~
 
     # A secret key that's used to generate certain security-related tokens
     env(SECRET): ThisTokenIsNotSoSecretSoChangeIt
@@ -29,8 +31,13 @@ parameters:
 
     env(GITHUB_CLIENT_ID): ~
     env(GITHUB_CLIENT_SECRET): ~
+
     # to enable the comments feature you should pass 'always-active' instead of 'inactive'
     env(COMMENTS_FEATURE): inactive
+    env(CREATE_ACCOUNT_FEATURE): inactive
+    env(USE_MAIL_FEATURE): inactive
+
+    env(MAIL_FEATURE_FROM_EMAIL): ~
 
     env(BRAND_LOGO_URL): ~
     env(BRAND_LOGO_STYLE): ~
@@ -45,3 +52,5 @@ parameters:
     env(FIREBASE_CLIENT_EMAIL): ~
     env(FIREBASE_PRIVATE_KEY): ~
     env(FIREBASE_PREFIX): opensalt
+    env(GOOGLE_CAPTCHA_SITE_KEY): ~
+    env(GOOGLE_CAPTCHA_SECRET_KEY): ~

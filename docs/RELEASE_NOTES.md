@@ -1,6 +1,22 @@
 Release Notes
 =============
 
+2.1 ([Full issue and PR list](https://github.com/opensalt/opensalt/issues?&q=milestone%3A2.1+is%3Aclosed))
+---
+### New
+
+### Improvements
+
+* Updated to Symfony 3.4
+  * Moved to current recommended directory structure
+    * All bundles have been removed from src/
+    * Moved all code to be under the App\ namespace (located at src/)
+    * Twig templates have been moved to app/Resources/views
+
+### Fixes
+
+
+
 2.0 ([Full issue and PR list](https://github.com/opensalt/opensalt/issues?&q=milestone%3A2.0+is%3Aclosed))
 ---
 ### New

@@ -9,7 +9,7 @@ Feature: Adding, viewing and deleting a framework
     Then I should see "Create a new Framework" button
 
     When I click the "Create a new Framework" button
-    Then I should see "LsDoc creation"
+    Then I should see "Create New Framework Package"
 
     When I create a "Draft" framework
     Then I should see the framework

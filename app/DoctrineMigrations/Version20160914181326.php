@@ -2,7 +2,7 @@
 
 namespace Application\Migrations;
 
-use CftfBundle\Entity\LsDocAttribute;
+use App\Entity\Framework\LsDocAttribute;
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
 

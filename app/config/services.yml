@@ -1,85 +1,80 @@
 # Learn more about services, parameters and containers at
 # http://symfony.com/doc/current/book/service_container.html
 parameters:
-#    parameter_name: value
+    container.autowiring.strict_mode: true
 
 services:
-#    service_name:
-#        class: AppBundle\Directory\ClassName
-#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
-
-#    google.preauth_subscriber:
-#        class: Pcg\GoogleBundle\Listener\ConnectPreAuthListener
-#        arguments: ["@twig"]
-#        tags:
-#            - { name: kernel.event_subscriber }
-
     _defaults:
         autowire: true
         autoconfigure: true
-        public: true
-        #public: false
+        public: false
+        bind:
+            $rootDir: "%kernel.root_dir%"
+            $mailFromEmail: '%mail_feature_from_email%'
+            $firebasePrefix: '%firebase_prefix%'
+            $guzzleJsonClient: '@csa_guzzle.client.json'
+            $kernelEnv: '%kernel.environment%'
+            $externalDocCache: '@salt.cache.external_docs'
 
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-        resource: '../../src/App/{Console,Handler,Form,Service,Repository}'
+        resource: '../../src/*'
+        exclude: '../../src/{DataFixtures,DTO,Entity,Exception,Util}'
 
     App\Controller\:
-        resource: '../../src/App/Controller'
-        public: true
+        resource: '../../src/Controller'
         tags: ['controller.service_arguments']
 
-    App\Controller\Site\AboutController:
-        public: true
+    App\Controller\User\OAuthServiceController:
         tags: ['controller.service_arguments']
         arguments:
-            $rootDir: '%kernel.root_dir%'
+            $githubClientId: '%github_client_id%'
+            $githubClientSecret: '%github_client_secret%'
+            $githubRedirectUri: "@=container.hasParameter('github_redirect_uri') ? parameter('github_redirect_uri') : null"
 
-    App\Console\ClearFirebaseNotificationsCommand:
-        public: true
+    App\EventListener\LoginListener:
+        class: App\EventListener\LoginListener
         arguments:
-            - '@Kreait\Firebase'
-            - '%firebase_prefix%'
+            $captchaSecret: '%google_captcha_secret_key%'
 
-    # Autowiring commands
-    CftfBundle\Command\:
-        resource: '../../src/CftfBundle/Command'
+    App\Service\Api1Uris:
+        public: true
+
+    # Allow Codeception to get some defined services for testing
+    App\Service\CodeceptionBridge:
+        public: true
+
+    # Workarounds for 3.4 deprecations
+    Symfony\Bundle\SwiftmailerBundle\Command\:
+        resource: '../../vendor/symfony/swiftmailer-bundle/Command'
         tags: ['console.command']
 
-    CftfBundle\Service\:
-        resource: '../../src/CftfBundle/Service'
 
-    Salt\UserBundle\Command\:
-        resource: '../../src/Salt/UserBundle/Command'
-        tags: ['console.command']
-
-    GithubFilesBundle\Service\:
-        resource: '../../src/GithubFilesBundle/Service'
-
-
+    # Aliased services
+    Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'
+    Qandidate\Toggle\ContextFactory: '@qandidate.toggle.user_context_factory'
+    SimpleThings\EntityAudit\AuditReader: '@simplethings_entityaudit.reader'
 
     # Manual services
     Kreait\Firebase:
         factory: 'App\Service\FirebaseFactory:createFirebase'
         arguments:
-            - '@logger'
-            - '%firebase_project_id%'
-            - '%firebase_client_id%'
-            - '%firebase_client_email%'
-            - '%firebase_private_key%'
-            - '%firebase_db_url%'
+            $logger: '@logger'
+            $projectId: '%firebase_project_id%'
+            $clientId: '%firebase_client_id%'
+            $clientEmail: '%firebase_client_email%'
+            $privateKey: '%firebase_private_key%'
+            $dbUri: '%firebase_db_url%'
 
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
-        public:    false
         arguments:
-            - 'mysql:host=%database_host%;port=%database_port%;dbname=%database_name%'
-            - { db_username: '%database_user%', db_password: '%database_password%', db_table: 'auth_session', db_id_col: 'id', db_connection_options: "%pdo_options%" }
+            $pdoOrDsn: 'mysql:host=%database_host%;port=%database_port%;dbname=%database_name%'
+            $options: { db_username: '%database_user%', db_password: '%database_password%', db_table: 'auth_session', db_id_col: 'id', db_connection_options: "%pdo_options%" }
 
     salt.cache.external_docs:
         class: Symfony\Component\Cache\Adapter\PdoAdapter
-        public: true
         arguments:
-            - '@doctrine.dbal.default_connection'
-            - 'externalDoc-'
-            - 0
+            $connOrDsn: '@doctrine.dbal.default_connection'
+            $namespace: 'externalDoc-'
+            $defaultLifetime: 0
