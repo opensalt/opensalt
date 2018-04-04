@@ -200,6 +200,8 @@ class ExcelImport
             8 => 'associationGroupName',
         ];
 
+        $itemRepo = $this->getEntityManager()->getRepository(LsItem::class);
+
         $fields = [];
         foreach ($fieldNames as $col => $name) {
             $fields[$name] = $this->getCellValueOrNull($sheet, $col, $row);
@@ -220,8 +222,9 @@ class ExcelImport
 
         if (array_key_exists((string) $fields['destinationNodeIdentifier'], $items)) {
             $association->setDestination($items[$fields['destinationNodeIdentifier']]);
-        } elseif ($this->checkIfItemExists($fields['destinationNodeIdentifier'], $items)) {
-            $association->setDestination($items[$fields['destinationNodeIdentifier']]);
+        } elseif ($item = $itemRepo->findOneByIdentifier($fields['destinationNodeIdentifier'])) {
+            $items[$item->getIdentifier()] = $item;
+            $association->setDestination($item);
         } else {
             $ref = 'data:text/x-ref-unresolved,'.$fields['destinationNodeIdentifier'];
             $association->setDestination($ref, $fields['destinationNodeIdentifier']);
@@ -267,19 +270,5 @@ class ExcelImport
         }
 
         return $cell->getValue();
-    }
-
-    private function checkIfItemExists($identifier, &$items)
-    {
-        $item = $this->getEntityManager()
-            ->getRepository(LsItem::class)
-            ->findOneBy(['identifier' => $identifier]);
-
-        if ($item !== null) {
-            $items[$item->getIdentifier()] = $item;
-            return true;
-        }
-
-        return false;
     }
 }
