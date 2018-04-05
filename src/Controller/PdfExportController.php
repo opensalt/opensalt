@@ -24,7 +24,7 @@ class PdfExportController extends Controller
      *
      * @return StreamedResponse
      */
-    public function exportPdfAction(int $id, Request $request): StreamedResponse
+    public function exportPdfAction(int $id): StreamedResponse
     {
         $phpWordObject = new PhpWord();
         // Create a new Page

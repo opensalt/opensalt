@@ -1128,7 +1128,7 @@ class Framework implements Context
 
         return $this;
     }
-    
+
     /**
      * @When /^I download the framework PDF file$/
      */
