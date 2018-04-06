@@ -92,7 +92,7 @@
         "matthimatiker/opcache-bundle": "^0.7",
         "qandidate/toggle-bundle": "^1.1.0",
         "google/recaptcha": "~1.1",
-        "phpoffice/phpword": "dev-master",
+        "phpoffice/phpword": "^0.14.0",
         "tecnickcom/tcpdf": "6.*"
     },
     "require-dev": {

@@ -1154,7 +1154,7 @@ class Framework implements Context
 
         $PdfContent = $I->pdf2text($this->filename);
         $I->assertNotEmpty($PdfContent, 'PDF file is empty');
-        $I->assertContains($I->getLastFrameworkTitle(), $PdfContent, 'Exported PDF');
+        $I->assertContains($I->getLastFrameworkTitle(), $PdfContent, 'Exported PDF does not have framework');
         return $this;
     }
 
