@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c672e8467b60c2263c4ead7d9a27365f",
+    "content-hash": "246b96eb084c98ea7595e013631c792b",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -53,16 +53,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.53.1",
+            "version": "3.54.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "6c225154ac6f767c8135fc13a35d0aab1399288d"
+                "reference": "421118dc7a7d01520e13917a86179c9cbe6934b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/6c225154ac6f767c8135fc13a35d0aab1399288d",
-                "reference": "6c225154ac6f767c8135fc13a35d0aab1399288d",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/421118dc7a7d01520e13917a86179c9cbe6934b2",
+                "reference": "421118dc7a7d01520e13917a86179c9cbe6934b2",
                 "shasum": ""
             },
             "require": {
@@ -129,7 +129,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2018-04-02T20:48:35+00:00"
+            "time": "2018-04-05T19:28:11+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -783,16 +783,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "v2.6.3",
+            "version": "v2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "e3eed9b1facbb0ced3a0995244843a189e7d1b13"
+                "reference": "f76bf5ef631cec551a86c2291fc749534febebf1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/e3eed9b1facbb0ced3a0995244843a189e7d1b13",
-                "reference": "e3eed9b1facbb0ced3a0995244843a189e7d1b13",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/f76bf5ef631cec551a86c2291fc749534febebf1",
+                "reference": "f76bf5ef631cec551a86c2291fc749534febebf1",
                 "shasum": ""
             },
             "require": {
@@ -801,9 +801,11 @@
                 "php": "^7.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.4.6",
+                "doctrine/coding-standard": "^4.0",
+                "phpunit/phpunit": "^7.0",
                 "phpunit/phpunit-mock-objects": "!=3.2.4,!=3.2.5",
-                "symfony/console": "2.*||^3.0"
+                "symfony/console": "^2.0.5||^3.0",
+                "symfony/phpunit-bridge": "^3.4.5|^4.0.5"
             },
             "suggest": {
                 "symfony/console": "For helpful console commands such as SQL execution and import of files."
@@ -814,7 +816,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6.x-dev"
+                    "dev-master": "2.7.x-dev"
                 }
             },
             "autoload": {
@@ -852,7 +854,7 @@
                 "persistence",
                 "queryobject"
             ],
-            "time": "2017-11-19T13:38:54+00:00"
+            "time": "2018-04-01T23:33:17+00:00"
         },
         {
             "name": "doctrine/doctrine-bundle",
@@ -2651,16 +2653,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "dev-master",
+            "version": "1.0.44",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "6458a02475da96115e3eaf95b882feefc4294e0b"
+                "reference": "168dbe519737221dc87d17385cde33073881fd02"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/6458a02475da96115e3eaf95b882feefc4294e0b",
-                "reference": "6458a02475da96115e3eaf95b882feefc4294e0b",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/168dbe519737221dc87d17385cde33073881fd02",
+                "reference": "168dbe519737221dc87d17385cde33073881fd02",
                 "shasum": ""
             },
             "require": {
@@ -2731,11 +2733,11 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2018-04-02T08:51:33+00:00"
+            "time": "2018-04-06T09:58:14+00:00"
         },
         {
             "name": "league/flysystem-aws-s3-v3",
-            "version": "dev-master",
+            "version": "1.0.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem-aws-s3-v3.git",
@@ -3642,16 +3644,16 @@
         },
         {
             "name": "paragonie/random_compat",
-            "version": "v2.0.11",
+            "version": "v2.0.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/random_compat.git",
-                "reference": "5da4d3c796c275c55f057af5a643ae297d96b4d8"
+                "reference": "258c89a6b97de7dfaf5b8c7607d0478e236b04fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/5da4d3c796c275c55f057af5a643ae297d96b4d8",
-                "reference": "5da4d3c796c275c55f057af5a643ae297d96b4d8",
+                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/258c89a6b97de7dfaf5b8c7607d0478e236b04fb",
+                "reference": "258c89a6b97de7dfaf5b8c7607d0478e236b04fb",
                 "shasum": ""
             },
             "require": {
@@ -3686,7 +3688,7 @@
                 "pseudorandom",
                 "random"
             ],
-            "time": "2017-09-27T21:40:39+00:00"
+            "time": "2018-04-04T21:24:14+00:00"
         },
         {
             "name": "pclzip/pclzip",
@@ -4784,16 +4786,16 @@
         },
         {
             "name": "simplethings/entity-audit-bundle",
-            "version": "v1.0.7",
+            "version": "v1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/simplethings/EntityAuditBundle.git",
-                "reference": "ea97355e99b66cbcc0d60a6f107ad6db6a8f8184"
+                "reference": "44c94e979a3698e53ed4a9001e06e55bc1a43591"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/simplethings/EntityAuditBundle/zipball/ea97355e99b66cbcc0d60a6f107ad6db6a8f8184",
-                "reference": "ea97355e99b66cbcc0d60a6f107ad6db6a8f8184",
+                "url": "https://api.github.com/repos/simplethings/EntityAuditBundle/zipball/44c94e979a3698e53ed4a9001e06e55bc1a43591",
+                "reference": "44c94e979a3698e53ed4a9001e06e55bc1a43591",
                 "shasum": ""
             },
             "require": {
@@ -4831,7 +4833,7 @@
                 "database",
                 "persistence"
             ],
-            "time": "2018-03-26T17:06:37+00:00"
+            "time": "2018-04-04T09:57:44+00:00"
         },
         {
             "name": "stof/doctrine-extensions-bundle",
@@ -5472,16 +5474,16 @@
         },
         {
             "name": "symfony/swiftmailer-bundle",
-            "version": "v3.2.1",
+            "version": "v3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/swiftmailer-bundle.git",
-                "reference": "20e71c247a5a43ceb655db9712394d08c09b33ef"
+                "reference": "f1ba0552a9cd4df0191a58845fbd5541cf9eda2d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/swiftmailer-bundle/zipball/20e71c247a5a43ceb655db9712394d08c09b33ef",
-                "reference": "20e71c247a5a43ceb655db9712394d08c09b33ef",
+                "url": "https://api.github.com/repos/symfony/swiftmailer-bundle/zipball/f1ba0552a9cd4df0191a58845fbd5541cf9eda2d",
+                "reference": "f1ba0552a9cd4df0191a58845fbd5541cf9eda2d",
                 "shasum": ""
             },
             "require": {
@@ -5530,7 +5532,7 @@
             ],
             "description": "Symfony SwiftmailerBundle",
             "homepage": "http://symfony.com",
-            "time": "2018-03-08T16:39:26+00:00"
+            "time": "2018-04-03T16:29:41+00:00"
         },
         {
             "name": "symfony/symfony",
@@ -9041,8 +9043,6 @@
     "stability-flags": {
         "activelamp/swagger-ui-bundle": 20,
         "phpoffice/phpword": 20,
-        "league/flysystem": 20,
-        "league/flysystem-aws-s3-v3": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,

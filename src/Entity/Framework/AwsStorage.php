@@ -35,6 +35,16 @@ class AwsStorage
     protected $lsDoc;
 
     /**
+     * @var LsItem
+     *
+     * @ORM\ManyToOne(targetEntity="LsItem", inversedBy="awsStorage")
+     * @ORM\JoinColumn(name="ls_item_id", referencedColumnName="id", nullable=true)
+     *
+     * @Assert\NotBlank
+     */
+    protected $lsItem;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="file_name", type="string", length=250)
@@ -43,13 +53,31 @@ class AwsStorage
      */
     protected $fileName;
 
-    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="file_path", type="string", length=250)
+     *
+     * @Assert\NotBlank
+     */
+    protected $filePath;
+
     /**
      * Constructor
      */
     public function __construct()
     {
-       
+
+    }
+
+    /**
+     * Get the internal id of the object (or null if not persisted)
+     *
+     * @return int|null
+     */
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 
     /**
@@ -67,6 +95,20 @@ class AwsStorage
     }
 
     /**
+     * Set LsItem
+     *
+     * @param LsItem $lsItem
+     *
+     * @return AwsStorage
+     */
+    public function setLsItem($lsItem): AwsStorage
+    {
+        $this->lsItem = $lsItem;
+
+        return $this;
+    }
+    
+    /**
      * Set fileName
      *
      * @param string $fileName
@@ -80,7 +122,40 @@ class AwsStorage
         return $this;
     }
 
-   
+    /**
+     * Set filePath
+     *
+     * @param string $filePath
+     *
+     * @return AwsStorage
+     */
+    public function setFilePath($filePath): AwsStorage
+    {
+        $this->filePath = $filePath;
+
+        return $this;
+    }
+
+    /**
+     * Get lsDoc
+     *
+     * @return LsDoc
+     */
+    public function getLsDoc(): ?LsDoc
+    {
+        return $this->lsDoc;
+    }
+
+    /**
+     * Get lsItem
+     *
+     * @return LsItem
+     */
+    public function getLsItem(): ?LsItem
+    {
+        return $this->lsItem;
+    }
+
     /**
      * Get fileName
      *
@@ -89,6 +164,16 @@ class AwsStorage
     public function getFileName(): ?string
     {
         return $this->fileName;
+    }
+
+    /**
+     * Get filePath
+     *
+     * @return string
+     */
+    public function getFilePath(): ?string
+    {
+        return $this->filePath;
     }
 
 }

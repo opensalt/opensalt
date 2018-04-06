@@ -29,7 +29,7 @@ class AwsStorage extends AbstractController
     {
         $form = $this->createFormBuilder() 
         ->add('photo', FileType::class, array('label' => 'File Upload')) 
-        ->add('save', SubmitType::class, array('label' => 'Submit'))          
+        ->add('save', SubmitType::class, array('label' => 'Submit'))
         ->getForm(); 
 
         $form->handleRequest($request); 
@@ -47,7 +47,7 @@ class AwsStorage extends AbstractController
                 $result =$filesystem->writeStream($fileName, $stream);
                 fclose($stream);
                 echo "File Uploaded Successfully..!!";
-            }        
+            }
         }
        $aws_data = $filesystem->listContents();
         return $this->render('framework/doc_tree/aws_upload.html.twig', array( 
@@ -55,7 +55,7 @@ class AwsStorage extends AbstractController
             'aws_files' => $aws_data,
         ));
     }
-    
+
     private function configuration()
     {
         $client = \Aws\S3\S3Client::factory([
@@ -66,12 +66,12 @@ class AwsStorage extends AbstractController
         'region'  => 'eu-central-1',
         'version' => 'latest',
         ]); 
-     
+
         $adapter    = new AwsS3Adapter($client, "sample-test4");
         $filesystem = new Filesystem($adapter);
         return $filesystem;
     }
-    
+
 /**
  * @param String $fileName
  *
