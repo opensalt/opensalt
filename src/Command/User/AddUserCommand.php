@@ -12,8 +12,10 @@ class AddUserCommand extends UserCommand
      *
      * @Assert\NotNull()
      * @Assert\Length(
-     *     min = 6,
-     *     minMessage="The new password should be at least 6 characters long"
+     *     min=8,
+     *     max=4096,
+     *     minMessage="Password must be at least {{ limit }} characters long",
+     *     maxMessage="Password cannot be longer than {{ limit }} characters"
      * )
      */
     private $encryptedPassword;

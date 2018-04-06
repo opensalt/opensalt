@@ -69,7 +69,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * @Assert\Length(
      *      min=8,
      *      max=4096,
-     *      minMessage="Password must be at least {{ limit }} charactes long",
+     *      minMessage="Password must be at least {{ limit }} characters long",
      *      maxMessage="Password cannot be longer than {{ limit }} characters",
      *      groups={"registration"}
      *  )

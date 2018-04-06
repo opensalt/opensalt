@@ -679,7 +679,7 @@ $(document).ready(adjustWindow);
 $(window).on('resize', adjustWindow);
 
 $(document).ready(function () {
-    let table = $('#datatable').DataTable({
+    let table = $('#userdatatable').DataTable({
         order: [],
         columnDefs: [ {orderable: false, targets: [0]}, {orderable: false, targets: [4]} ]
     });

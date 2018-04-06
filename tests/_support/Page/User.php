@@ -318,9 +318,9 @@ class User implements Context
         $I = $this->I;
         $I->amOnPage('/admin/user/');
         $I->see('Organization');
-        $organization = $I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[2]');
+        $organization = $I->grabTextFrom('//*[@id="userdatatable"]/tbody/tr[1]/td[2]');
         $I->fillField('#search_form_organization', $organization);
-        $I->see($organization, '//*[@id="datatable"]/tbody/tr[1]/td[2]');
+        $I->see($organization, '//*[@id="userdatatable"]/tbody/tr[1]/td[2]');
     }
 
     /**
@@ -345,9 +345,6 @@ class User implements Context
 
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
-        $I->see($username);
-        $I->see('show', "//td[text()='{$username}']/..//a[text()='show']");
-        $I->see('Approve', "//td[text()='{$username}']/..//a[text()='Approve']");
-        $I->see('Reject', "//td[text()='{$username}']/..//a[text()='Reject']");
+        $I->assertEquals($I->grabTextFrom('//*[@id="userdatatable"]/tbody/tr[1]/td[3]'),$username,'Last Created user has not dispalyed on top of user list page');
     }
 }
