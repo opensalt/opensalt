@@ -34,6 +34,6 @@ class SendAdminNotificationEmailCommand extends AbstractSendEmailCommand
      */
     public function getOrganization(): string
     {
-      return $this->userOrganization;
+        return $this->userOrganization;
     }
 }

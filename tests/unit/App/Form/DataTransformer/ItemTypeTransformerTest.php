@@ -3,14 +3,14 @@
 namespace App\Form\DataTransformer;
 
 use App\Entity\Framework\LsDefItemType;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 
 class ItemTypeTransformerTest extends \Codeception\Test\Unit
 {
     // tests
     public function testTransformWithNewEntity()
     {
-        $stub = $this->createMock(ObjectManager::class);
+        $stub = $this->createMock(EntityManagerInterface::class);
 
         $transformer = new ItemTypeTransformer($stub, LsDefItemType::class, 'title', 'id');
 
