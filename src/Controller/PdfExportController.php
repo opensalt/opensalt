@@ -36,7 +36,7 @@ class PdfExportController extends Controller
         );
         Html::addHtml($section, htmlentities($html));
         Settings::setPdfRendererName(Settings::PDF_RENDERER_MPDF);
-	Settings::setPdfRendererPath('../vendor/mpdf/mpdf');
+        Settings::setPdfRendererPath('../vendor/mpdf/mpdf');
         $file = 'Framework.pdf';
 
         return new StreamedResponse(
