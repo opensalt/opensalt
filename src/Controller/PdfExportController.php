@@ -35,8 +35,8 @@ class PdfExportController extends Controller
             ['pdfData' => json_decode($response->getContent(), true)]
         );
         Html::addHtml($section, htmlentities($html));
-        Settings::setPdfRendererName(Settings::PDF_RENDERER_TCPDF);
-        Settings::setPdfRendererPath('../vendor/tecnickcom/tcpdf');
+        Settings::setPdfRendererName(Settings::PDF_RENDERER_MPDF);
+	Settings::setPdfRendererPath('../vendor/mpdf/mpdf');
         $file = 'Framework.pdf';
 
         return new StreamedResponse(
