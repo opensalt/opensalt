@@ -337,14 +337,15 @@ class User implements Context
     }
 
     /**
-     * @Then /^I see last created user account display top of user list page$/
+     * @Then /^I see status column on user list page$/
      */
-    public function getLastCreatedAccountTopList()
+    public function seeStatusColumn()
     {
         $I = $this->I;
 
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
-        $I->assertEquals($I->grabTextFrom('//*[@id="userdatatable"]/tbody/tr[1]/td[3]'),$username,'Last Created user has not dispalyed on top of user list page');
+        $I->click('th.sorting_asc');
+        $I->assertEquals($I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[5]'), 'Pending', 'Can not see status column');
     }
 }

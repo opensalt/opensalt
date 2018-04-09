@@ -679,10 +679,7 @@ $(document).ready(adjustWindow);
 $(window).on('resize', adjustWindow);
 
 $(document).ready(function () {
-    let table = $('#userdatatable').DataTable({
-        order: [],
-        columnDefs: [ {orderable: false, targets: [0]}, {orderable: false, targets: [4]} ]
-    });
+    let table = $('#datatable').DataTable();
     $('#search_form_organization').on('keyup', function () {
         table
             .columns(1)

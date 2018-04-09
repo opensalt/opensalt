@@ -54,30 +54,4 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             ->setParameter('roles', '%"ROLE_ADMIN"%');
         return $qb->getQuery()->getResult();
     }
-
-    /**
-     * Pending status & new register user on Top of user list.
-     *
-     * @return array
-     */
-    public function findAll()
-    {
-        return $this->findBy(array(), array('status' => 'DESC', 'id' => 'DESC'));
-    }
-
-    /**
-     * Admin login Pending status & new register user on Top of user list.
-     *
-     * @return array
-     */
-    public function findAdminOrg($user_org)
-    {
-        $qb = $this->createQueryBuilder('u');
-        $qb->select('u')
-            ->where('u.org = :org')
-            ->setParameter('org', $user_org)
-            ->addOrderBy('u.status', 'DESC')
-            ->addOrderBy('u.id', 'DESC');
-        return $qb->getQuery()->getResult();
-    }
 }
