@@ -342,8 +342,6 @@ class User implements Context
     public function seeStatusColumn()
     {
         $I = $this->I;
-
-        $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
         $I->click('th.sorting_asc');
         $I->assertEquals($I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[5]'), 'Pending', 'Can not see status column');
