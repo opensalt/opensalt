@@ -63,14 +63,14 @@ js: encore cache-clear
 .PHONY: js
 
 encore: yarn-install
-	docker run --rm -u $(shell id -u):$(shell id -g) -v $(shell pwd):/app --workdir /app node:alpine ./node_modules/.bin/encore production
+	docker run --rm -u $(shell id -u):$(shell id -g) -v $(shell pwd):/app --workdir /app node:9-alpine ./node_modules/.bin/encore production
 encore-dev: yarn-install
-	docker run --rm -u $(shell id -u):$(shell id -g) -v $(shell pwd):/app --workdir /app node:alpine ./node_modules/.bin/encore dev
+	docker run --rm -u $(shell id -u):$(shell id -g) -v $(shell pwd):/app --workdir /app node:9-alpine ./node_modules/.bin/encore dev
 encore-build: encore
 .PHONY: encore encore-dev encore-build
 
 node_modules: yarn.lock package.json
-	docker run --rm -u $(shell id -u):$(shell id -g) -v $(shell pwd):/app --workdir /app node:alpine yarn install --non-interactive
+	docker run --rm -u $(shell id -u):$(shell id -g) -v $(shell pwd):/app --workdir /app node:9-alpine yarn install --non-interactive
 yarn-install: node_modules
 .PHONY: yarn-install
 
