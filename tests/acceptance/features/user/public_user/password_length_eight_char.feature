@@ -37,4 +37,4 @@ Feature: Create new user account password should be 8 characters long
         Then I fill in the "Password" with "pass@1"
         Then I fill in the "Confirm Password" with "pass@1"
         Then I click "Submit"
-        Then I should see "Sorry, Passwords must be at least 8 characters long."
+        Then I should see "Password must be at least 8 characters long"

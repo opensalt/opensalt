@@ -318,9 +318,9 @@ class User implements Context
         $I = $this->I;
         $I->amOnPage('/admin/user/');
         $I->see('Organization');
-        $organization = $I->grabTextFrom('//*[@id="userdatatable"]/tbody/tr[1]/td[2]');
+        $organization = $I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[2]');
         $I->fillField('#search_form_organization', $organization);
-        $I->see($organization, '//*[@id="userdatatable"]/tbody/tr[1]/td[2]');
+        $I->see($organization, '//*[@id="datatable"]/tbody/tr[1]/td[2]');
     }
 
     /**
