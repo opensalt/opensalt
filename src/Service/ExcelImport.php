@@ -11,6 +11,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Ramsey\Uuid\Uuid;
 
 class ExcelImport
 {
@@ -83,47 +84,53 @@ class ExcelImport
 
     private function saveDoc(Worksheet $sheet): LsDoc
     {
-        $doc = new LsDoc();
-        $doc->setIdentifier($this->getCellValueOrNull($sheet, 1, 2));
-        $doc->setCreator($this->getCellValueOrNull($sheet, 2, 2));
-        $doc->setTitle($this->getCellValueOrNull($sheet, 3, 2));
-        // col 4 - lastChangeDate
-        $doc->setOfficialUri($this->getCellValueOrNull($sheet, 5, 2));
-        $doc->setPublisher($this->getCellValueOrNull($sheet, 6, 2));
-        $doc->setDescription($this->getCellValueOrNull($sheet, 7, 2));
-        $doc->setSubject($this->getCellValueOrNull($sheet, 8, 2));
-        $doc->setLanguage($this->getCellValueOrNull($sheet, 9, 2));
-        $doc->setVersion($this->getCellValueOrNull($sheet, 10, 2));
-        if (!empty($this->getCellValueOrNull($sheet, 11, 2))) {
-            $doc->setAdoptionStatus($this->getCellValueOrNull($sheet, 11, 2));
-        }
-        $doc->setStatusStart(
-            new \DateTime(
-                \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
-                    $this->getCellValueOrNull($sheet, 12, 2),
-                    'YYYY-MM-DD'
+        $docRepo = $this->getEntityManager()->getRepository(LsDoc::class);
+        $doc = $docRepo->findOneByIdentifier($this->getCellValueOrNull($sheet, 1, 2));
+
+        if ($doc !== null) {
+            /* $doc->setIdentifier($this->getCellValueOrNull($sheet, 1, 2)); */
+            $doc->setCreator($this->getCellValueOrNull($sheet, 2, 2));
+            $doc->setTitle($this->getCellValueOrNull($sheet, 3, 2));
+            // col 4 - lastChangeDate
+            $doc->setOfficialUri($this->getCellValueOrNull($sheet, 5, 2));
+            $doc->setPublisher($this->getCellValueOrNull($sheet, 6, 2));
+            $doc->setDescription($this->getCellValueOrNull($sheet, 7, 2));
+            $doc->setSubject($this->getCellValueOrNull($sheet, 8, 2));
+            $doc->setLanguage($this->getCellValueOrNull($sheet, 9, 2));
+            $doc->setVersion($this->getCellValueOrNull($sheet, 10, 2));
+            if (!empty($this->getCellValueOrNull($sheet, 11, 2))) {
+                $doc->setAdoptionStatus($this->getCellValueOrNull($sheet, 11, 2));
+            }
+            $doc->setStatusStart(
+                new \DateTime(
+                    \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
+                        $this->getCellValueOrNull($sheet, 12, 2),
+                        'YYYY-MM-DD'
+                    )
                 )
-            )
-        );
-        $doc->setStatusEnd(
-            new \DateTime(
-                \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
-                    $this->getCellValueOrNull($sheet, 13, 2),
-                    'YYYY-MM-DD'
+            );
+            $doc->setStatusEnd(
+                new \DateTime(
+                    \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
+                        $this->getCellValueOrNull($sheet, 13, 2),
+                        'YYYY-MM-DD'
+                    )
                 )
-            )
-        );
+            );
 
-        if ($this->getCellValueOrNull($sheet, 14, 2) !== null && $this->getCellValueOrNull($sheet, 15, 2) !== null) {
-            $licence = $this->getLicence($sheet);
-            $doc->setLicence($licence);
+            if ($this->getCellValueOrNull($sheet, 14, 2) !== null && $this->getCellValueOrNull($sheet, 15, 2) !== null) {
+                $licence = $this->getLicence($sheet);
+                $doc->setLicence($licence);
+            }
+
+            $doc->setNote($this->getCellValueOrNull($sheet, 16, 2));
+
+            $this->getEntityManager()->persist($doc);
+
+            return $doc;
         }
 
-        $doc->setNote($this->getCellValueOrNull($sheet, 16, 2));
-
-        $this->getEntityManager()->persist($doc);
-
-        return $doc;
+        return null;
     }
 
     private function getLicence(Worksheet $sheet): LsDefLicence
@@ -145,12 +152,19 @@ class ExcelImport
     private function saveItem(Worksheet $sheet, LsDoc $doc, int $row): LsItem
     {
         static $itemTypes = [];
+        $item = null;
 
         $identifier = $this->getCellValueOrNull($sheet, 1, $row);
         if (empty($identifier)) {
             $identifier = null;
+        } elseif (Uuid::isValid($identifier)) {
+            $item = $this->getEntityManager()->getRepository(LsItem::class)
+                ->findOneBy(['identifier' => $identifier, 'lsDocIdentifier' => $doc->getIdentifier()]);
         }
-        $item = $doc->createItem($identifier);
+
+        if ($item === null) {
+            $item = $doc->createItem($identifier);
+        }
 
         $itemTypeTitle = $this->getCellValueOrNull($sheet, 11, $row);
 
@@ -170,6 +184,7 @@ class ExcelImport
 
             $itemTypes[$itemTypeTitle] = $itemType;
         }
+
         $item->setItemType($itemType);
 
         $item->setFullStatement($this->getCellValueOrNull($sheet, 2, $row));
@@ -201,17 +216,23 @@ class ExcelImport
         ];
 
         $itemRepo = $this->getEntityManager()->getRepository(LsItem::class);
-
+        $association = null;
         $fields = [];
+
         foreach ($fieldNames as $col => $name) {
             $fields[$name] = $this->getCellValueOrNull($sheet, $col, $row);
         }
 
         if (empty($fields['identifier'])) {
             $fields['identifier'] = null;
+        } elseif (Uuid::isValid($fields['identifier'])) {
+            $association = $this->getEntityManager()->getRepository(LsAssociation::class)
+                ->findOneBy(['identifier' => $fields['identifier'], 'lsDocIdentifier' => $doc->getIdentifier()]);
         }
 
-        $association = $doc->createAssociation($fields['identifier']);
+        if ($association === null) {
+            $association = $doc->createAssociation($fields['identifier']);
+        }
 
         if (array_key_exists((string) $fields['originNodeIdentifier'], $items)) {
             $association->setOrigin($items[$fields['originNodeIdentifier']]);
