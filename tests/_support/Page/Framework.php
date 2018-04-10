@@ -1158,4 +1158,34 @@ class Framework implements Context
         return $this;
     }
 
+    /**
+     * @Given /^I download the template excel file$/
+     */
+    public function iDownloadTheTemplateExcelFile(): Framework
+    {
+        $I = $this->I;
+
+        $I->click('#guideline');
+        $url = $I->grabAttributeFrom('#guideline', 'href');
+
+        $this->filename = $I->download($url);
+
+        return $this;
+    }
+    
+    /**
+     * @Given /^I download the sample excel file$/
+     */
+    public function iDownloadTheSampleExcelFile(): Framework
+    {
+        $I = $this->I;
+
+        $I->click('#template');
+        $url = $I->grabAttributeFrom('#template', 'href');
+
+        $this->filename = $I->download($url);
+
+        return $this;
+    }
+
 }

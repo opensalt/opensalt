@@ -27,6 +27,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * LsDoc controller.
@@ -472,5 +474,17 @@ class LsDocController extends AbstractController
             )
             ->setMethod('DELETE')
             ->getForm();
+    }
+
+    /**
+     * @Route("/template/download", name="download_sample_file")
+     * @Template()
+     * 
+     **/
+    public function downloadFileAction()
+    {
+        $response = new BinaryFileResponse('assets/sample-file/Framework.xlsx');
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT,'Framework.xlsx');
+        return $response;
     }
 }
