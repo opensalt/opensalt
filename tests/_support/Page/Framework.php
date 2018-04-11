@@ -9,6 +9,7 @@ use Codeception\Util\Locator;
 use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class Framework implements Context
 {
@@ -1156,6 +1157,41 @@ class Framework implements Context
         $I->assertNotEmpty($PdfContent, 'PDF file is empty');
         $I->assertContains($I->getLastFrameworkTitle(), $PdfContent, 'Exported PDF does not have framework');
         return $this;
+    }
+
+    /**
+     * @Then /^I update the framework via spreadsheet$/
+     */
+    public function updateFrameworkSpreadsheet()
+    {
+        $I = $this->I;
+
+        $filename = str_replace(codecept_output_dir(), '', $this->filename);
+        rename($this->filename, codecept_data_dir().''.$filename.'.xlsx');
+
+        codecept_debug('DATOS!!!!!................');
+        codecept_debug($filename.'.xlsx');
+        codecept_debug(codecept_data_dir().''.$filename.'.xlsx');
+
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile(codecept_data_dir().''.$filename.'.xlsx');
+        $ss = $reader->load(codecept_data_dir().''.$filename.'.xlsx');
+
+        $sheet = $ss->getSheetByName('CF Doc');
+        $sheet->setCellValue('B2', 'Test');
+        $sheet->setCellValue('C2', 'Framework updated by spreadsheet');
+
+        $writer = \PHPOffice\PhpSpreadsheet\IOFactory::createWriter($ss, 'Xlsx');
+        $writer->save(codecept_data_dir().''.$filename.'.xlsx');
+
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->see('Update Framework');
+        $I->click('Update Framework');
+        $I->waitForElementVisible('#updateFrameworkModal');
+        $I->see('Import Spreadsheet file');
+        $I->attachFile('input#excel-url', $filename.'.xlsx');
+        $I->click('Import Framework');
+        $I->waitForJS('return $.active == 0', 5);
+        $I->see('Framework updated by spreadsheet');
     }
 
 }
