@@ -703,16 +703,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "v2.7.0",
+            "version": "v2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "f76bf5ef631cec551a86c2291fc749534febebf1"
+                "reference": "11037b4352c008373561dc6fc836834eed80c3b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/f76bf5ef631cec551a86c2291fc749534febebf1",
-                "reference": "f76bf5ef631cec551a86c2291fc749534febebf1",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/11037b4352c008373561dc6fc836834eed80c3b5",
+                "reference": "11037b4352c008373561dc6fc836834eed80c3b5",
                 "shasum": ""
             },
             "require": {
@@ -774,7 +774,7 @@
                 "persistence",
                 "queryobject"
             ],
-            "time": "2018-04-01T23:33:17+00:00"
+            "time": "2018-04-07T18:44:18+00:00"
         },
         {
             "name": "doctrine/doctrine-bundle",
@@ -1683,22 +1683,22 @@
         },
         {
             "name": "google/auth",
-            "version": "v1.2.1",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-auth-library-php.git",
-                "reference": "da0062d279c9459350808a4fb63dbc08b90d6b90"
+                "reference": "8f7c96146b2c62d3f4c6bbc4b5bb8a8e396b0b71"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-auth-library-php/zipball/da0062d279c9459350808a4fb63dbc08b90d6b90",
-                "reference": "da0062d279c9459350808a4fb63dbc08b90d6b90",
+                "url": "https://api.github.com/repos/google/google-auth-library-php/zipball/8f7c96146b2c62d3f4c6bbc4b5bb8a8e396b0b71",
+                "reference": "8f7c96146b2c62d3f4c6bbc4b5bb8a8e396b0b71",
                 "shasum": ""
             },
             "require": {
                 "firebase/php-jwt": "~2.0|~3.0|~4.0|~5.0",
                 "guzzlehttp/guzzle": "~5.3.1|~6.0",
-                "guzzlehttp/psr7": "~1.2",
+                "guzzlehttp/psr7": "^1.2",
                 "php": ">=5.4",
                 "psr/cache": "^1.0",
                 "psr/http-message": "^1.0"
@@ -1726,7 +1726,7 @@
                 "google",
                 "oauth2"
             ],
-            "time": "2018-01-24T18:28:42+00:00"
+            "time": "2018-04-06T19:26:30+00:00"
         },
         {
             "name": "google/recaptcha",
@@ -3621,16 +3621,16 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "1.2.0",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "8380fb3ad28242093c18d0baa9b7e67fb429ea84"
+                "reference": "36acc372875c4d894dc093825ce4f62209db5a76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/8380fb3ad28242093c18d0baa9b7e67fb429ea84",
-                "reference": "8380fb3ad28242093c18d0baa9b7e67fb429ea84",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/36acc372875c4d894dc093825ce4f62209db5a76",
+                "reference": "36acc372875c4d894dc093825ce4f62209db5a76",
                 "shasum": ""
             },
             "require": {
@@ -3703,7 +3703,7 @@
                 "xls",
                 "xlsx"
             ],
-            "time": "2018-03-04T20:41:15+00:00"
+            "time": "2018-04-10T03:53:16+00:00"
         },
         {
             "name": "phpoffice/phpword",
@@ -4570,16 +4570,16 @@
         },
         {
             "name": "simplethings/entity-audit-bundle",
-            "version": "v1.0.8",
+            "version": "v1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/simplethings/EntityAuditBundle.git",
-                "reference": "44c94e979a3698e53ed4a9001e06e55bc1a43591"
+                "reference": "5725ecab2d132288842d9a075d1a8662520829c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/simplethings/EntityAuditBundle/zipball/44c94e979a3698e53ed4a9001e06e55bc1a43591",
-                "reference": "44c94e979a3698e53ed4a9001e06e55bc1a43591",
+                "url": "https://api.github.com/repos/simplethings/EntityAuditBundle/zipball/5725ecab2d132288842d9a075d1a8662520829c5",
+                "reference": "5725ecab2d132288842d9a075d1a8662520829c5",
                 "shasum": ""
             },
             "require": {
@@ -4588,6 +4588,7 @@
                 "php": "^5.3.9|~7.0"
             },
             "conflict": {
+                "doctrine/dbal": "2.7.0",
                 "doctrine/doctrine-bundle": "<1.4",
                 "gedmo/doctrine-extensions": "<2.3.1",
                 "symfony/framework-bundle": "<2.7"
@@ -4617,7 +4618,7 @@
                 "database",
                 "persistence"
             ],
-            "time": "2018-04-04T09:57:44+00:00"
+            "time": "2018-04-10T08:14:31+00:00"
         },
         {
             "name": "stof/doctrine-extensions-bundle",
@@ -5320,16 +5321,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "v3.4.7",
+            "version": "v3.4.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "eb07b0eab0bda8441fbf94d06ad1f9896e0552cc"
+                "reference": "5304a36c5efbb01af7efe2bb5b1953dbaeebc293"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/eb07b0eab0bda8441fbf94d06ad1f9896e0552cc",
-                "reference": "eb07b0eab0bda8441fbf94d06ad1f9896e0552cc",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/5304a36c5efbb01af7efe2bb5b1953dbaeebc293",
+                "reference": "5304a36c5efbb01af7efe2bb5b1953dbaeebc293",
                 "shasum": ""
             },
             "require": {
@@ -5470,7 +5471,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2018-04-03T05:50:03+00:00"
+            "time": "2018-04-06T15:20:04+00:00"
         },
         {
             "name": "tecnickcom/tcpdf",
@@ -6490,16 +6491,16 @@
         },
         {
             "name": "escapestudios/symfony2-coding-standard",
-            "version": "3.1.1",
+            "version": "3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/djoos/Symfony-coding-standard.git",
-                "reference": "5219056aec251469bebf86d4a5b81462b491cc84"
+                "reference": "9c8abe59849f1198e786e3daf8c8d3ed7a4fb41f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/5219056aec251469bebf86d4a5b81462b491cc84",
-                "reference": "5219056aec251469bebf86d4a5b81462b491cc84",
+                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/9c8abe59849f1198e786e3daf8c8d3ed7a4fb41f",
+                "reference": "9c8abe59849f1198e786e3daf8c8d3ed7a4fb41f",
                 "shasum": ""
             },
             "conflict": {
@@ -6537,7 +6538,7 @@
                 "phpcs",
                 "symfony"
             ],
-            "time": "2018-02-16T10:27:21+00:00"
+            "time": "2018-04-09T10:03:56+00:00"
         },
         {
             "name": "facebook/webdriver",
@@ -8545,16 +8546,16 @@
         },
         {
             "name": "symfony/phpunit-bridge",
-            "version": "v3.4.7",
+            "version": "v3.4.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/phpunit-bridge.git",
-                "reference": "e4b72beb8961340764367a804f21044e83fc19a8"
+                "reference": "48c669ec1a2b0425d4a82c7ad4bce2f5b947b95e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/e4b72beb8961340764367a804f21044e83fc19a8",
-                "reference": "e4b72beb8961340764367a804f21044e83fc19a8",
+                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/48c669ec1a2b0425d4a82c7ad4bce2f5b947b95e",
+                "reference": "48c669ec1a2b0425d4a82c7ad4bce2f5b947b95e",
                 "shasum": ""
             },
             "require": {
@@ -8607,7 +8608,7 @@
             ],
             "description": "Symfony PHPUnit Bridge",
             "homepage": "https://symfony.com",
-            "time": "2018-03-20T23:37:33+00:00"
+            "time": "2018-04-04T15:02:59+00:00"
         },
         {
             "name": "symfony/polyfill-php72",
