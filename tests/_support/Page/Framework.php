@@ -1129,4 +1129,33 @@ class Framework implements Context
         return $this;
     }
 
+    /**
+     * @When /^I download the framework PDF file$/
+     */
+    public function iDownloadTheFrameworkPdfFile(): Framework
+    {
+        $I = $this->I;
+
+        $I->click('Export', '#itemInfo');
+        $I->waitForElementVisible('#exportModal a.btn-export-pdf');
+        $I->click('#exportModal a.btn-export-pdf');
+        $url = $I->grabAttributeFrom('#exportModal a.btn-export-pdf', 'href');
+        $this->filename = $I->download($url);
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see content in the PDF file$/
+     */
+    public function iShouldSeeContentInThePDFFile(): Framework
+    {
+        $I = $this->I;
+
+        $PdfContent = $I->pdf2text($this->filename);
+        $I->assertNotEmpty($PdfContent, 'PDF file is empty');
+        $I->assertContains($I->getLastFrameworkTitle(), $PdfContent, 'Exported PDF does not have framework');
+        return $this;
+    }
+
 }

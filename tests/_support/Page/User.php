@@ -333,4 +333,15 @@ class User implements Context
         $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Reject']");
     }
+
+    /**
+     * @Then /^I see status column on user list page$/
+     */
+    public function seeStatusColumn()
+    {
+        $I = $this->I;
+        $I->amOnPage('/admin/user');
+        $I->click('th.sorting_asc');
+        $I->assertEquals($I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[5]'), 'Pending', 'Can not see status column');
+    }
 }

@@ -24,6 +24,7 @@
                 <th>Organization</th>
                 <th>Username</th>
                 <th>Roles</th>
+                <th>Status</th>
                 <th class="col-md-4">Actions</th>
             </tr>
         </thead>
@@ -37,6 +38,9 @@
                         {%- for role in user.roles -%}
                         {% if not loop.first %}, {% endif %}{{ role |replace({'ROLE_':'', '_':' '}) |title }}
                         {%- endfor -%}
+                    </td>
+                    <td>
+                        {{ user.status }}
                     </td>
                     <td class="text-center">
                         <ul class="list-inline">

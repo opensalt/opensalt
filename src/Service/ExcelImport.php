@@ -48,7 +48,7 @@ class ExcelImport
         for ($i = 2; $i <= $lastRow; ++$i) {
             $item = $this->saveItem($sheet, $doc, $i);
             $items[$item->getIdentifier()] = $item;
-            $smartLevel = (string) $this->getCellValueOrNull($sheet, 3, $i);
+            $smartLevel = (string) $this->getCellValueOrNull($sheet, 4, $i);
             if (!empty($smartLevel)) {
                 $smartLevels[$smartLevel] = $item;
                 $itemSmartLevels[$item->getIdentifier()] = $smartLevel;
@@ -114,9 +114,10 @@ class ExcelImport
             )
         );
 
-        $licence = $this->getLicence($sheet);
-
-        $doc->setLicence($licence);
+        if ($this->getCellValueOrNull($sheet, 14, 2) !== null && $this->getCellValueOrNull($sheet, 15, 2) !== null) {
+            $licence = $this->getLicence($sheet);
+            $doc->setLicence($licence);
+        }
 
         $doc->setNote($this->getCellValueOrNull($sheet, 16, 2));
 
@@ -199,6 +200,8 @@ class ExcelImport
             8 => 'associationGroupName',
         ];
 
+        $itemRepo = $this->getEntityManager()->getRepository(LsItem::class);
+
         $fields = [];
         foreach ($fieldNames as $col => $name) {
             $fields[$name] = $this->getCellValueOrNull($sheet, $col, $row);
@@ -219,14 +222,23 @@ class ExcelImport
 
         if (array_key_exists((string) $fields['destinationNodeIdentifier'], $items)) {
             $association->setDestination($items[$fields['destinationNodeIdentifier']]);
+        } elseif ($item = $itemRepo->findOneByIdentifier($fields['destinationNodeIdentifier'])) {
+            $items[$item->getIdentifier()] = $item;
+            $association->setDestination($item);
         } else {
             $ref = 'data:text/x-ref-unresolved,'.$fields['destinationNodeIdentifier'];
             $association->setDestination($ref, $fields['destinationNodeIdentifier']);
         }
 
-        $associationType = ucfirst(preg_replace('/([A-Z])/', ' $1', (string) $fields['associationType']));
-        if (in_array($associationType, LsAssociation::allTypes(), true)) {
-            $association->setType($associationType);
+        $allTypes = [];
+        foreach(LsAssociation::allTypes() as $type) {
+            $allTypes[] = str_replace(' ', '', strtolower($type));
+        }
+
+        $associationType = str_replace(' ', '', strtolower($fields['associationType']));
+
+        if (in_array($associationType, $allTypes, true)) {
+            $association->setType($fields['associationType']);
         } else {
             $log = new ImportLog();
             $log->setLsDoc($doc);

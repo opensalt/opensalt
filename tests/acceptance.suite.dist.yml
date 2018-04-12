@@ -24,6 +24,7 @@ modules:
         - \Helper\Guzzle
         - \Helper\Toggles
         - \Helper\Remember
+        - \Helper\PdfReader
         - Asserts
         - Sequence
 
