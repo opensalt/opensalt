@@ -28,7 +28,7 @@ class AwsStorage extends AbstractController
     public function awsStorage(Request $request)
     {
         $form = $this->createFormBuilder() 
-        ->add('photo', FileType::class, array('label' => 'File Upload')) 
+        ->add('upload', FileType::class, array('label' => 'File Upload')) 
         ->add('save', SubmitType::class, array('label' => 'Submit'))
         ->getForm(); 
 
@@ -37,16 +37,16 @@ class AwsStorage extends AbstractController
         
         if ($form->isSubmitted() && $form->isValid()) { 
             $data = $form->getData();
-            $fileName = $data['photo']->getClientOriginalName(); 
-            $file = $data['photo']->getRealPath(); 
+            $fileName = $data['upload']->getClientOriginalName(); 
+            $file = $data['upload']->getRealPath(); 
             if ($filesystem->has($fileName))
-            {echo "Already exists";}
+            {echo '<div class="message">Already exists</div>';}
             else
             {
                 $stream = fopen($file, 'r+');
                 $result =$filesystem->writeStream($fileName, $stream);
                 fclose($stream);
-                echo "File Uploaded Successfully..!!";
+                echo '<div class="message">File Uploaded Successfully..!!</div>';
             }
         }
        $aws_data = $filesystem->listContents();
