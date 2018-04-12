@@ -14,7 +14,7 @@ class SendAdminNotificationEmailCommand extends AbstractSendEmailCommand
      */
     protected $userOrganization;
 
-    public function __construct(string $recipient, string $userName, string $userOrganization)
+    public function __construct(?string $recipient, string $userName, string $userOrganization)
     {
         parent::__construct($recipient);
         $this->userName = $userName;
@@ -34,6 +34,6 @@ class SendAdminNotificationEmailCommand extends AbstractSendEmailCommand
      */
     public function getOrganization(): string
     {
-      return $this->userOrganization;
+        return $this->userOrganization;
     }
 }

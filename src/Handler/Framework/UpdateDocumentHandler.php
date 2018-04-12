@@ -25,16 +25,16 @@ class UpdateDocumentHandler extends BaseFrameworkHandler
 
         $notification = new NotificationEvent(
             'D06',
-           'Framework document modified',
-           $doc,
-           [
-               'doc-u' => [
-                   $doc->getId() => $doc->getIdentifier(),
-               ],
-               'doc-ul' => [
-                   $doc->getId() => $doc->getIdentifier(),
-               ],
-           ]
+            'Framework document modified',
+            $doc,
+            [
+                'doc-u' => [
+                    $doc->getId() => $doc->getIdentifier(),
+                ],
+                'doc-ul' => [
+                    $doc->getId() => $doc->getIdentifier(),
+                ],
+            ]
         );
         $command->setNotificationEvent($notification);
     }

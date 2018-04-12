@@ -2,13 +2,11 @@
 
 namespace Page;
 
-
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 
 class User implements Context
 {
-
     /**
      * @var \AcceptanceTester
      */
@@ -193,7 +191,7 @@ class User implements Context
         $I->amOnPage('/admin/user/');
         $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Unsuspend']");
-        $I->See('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
+        $I->see('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
 
     /**
@@ -205,7 +203,7 @@ class User implements Context
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
-        $I->See($username);
+        $I->see($username);
     }
 
     /**
@@ -260,7 +258,6 @@ class User implements Context
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
         $I->click("//td[text()='{$username}']/..//a[text()='edit']");
-
     }
 
     /**
@@ -273,7 +270,6 @@ class User implements Context
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
         $I->click("//td[text()='{$username}']/..//a[text()='show']");
-
     }
 
     /**
@@ -292,22 +288,24 @@ class User implements Context
     /**
      * @Then /^I verify an email was sent$/
      */
-    public function IVerifyEmailWasSent()
+    public function iVerifyEmailWasSent()
     {
-      // check to see if the email feature is active
-      if (getenv('USE_MAIL_FEATURE') == "always-active") {
-        $fromEmail = getenv('MAIL_FEATURE_FROM_EMAIL');
-        if ($fromEmail != NULL) {
-          $I = $this->I;
+        // check to see if the email feature is active
+        if (getenv('USE_MAIL_FEATURE') === 'always-active') {
+            $I = $this->I;
 
-          $I->fetchEmails();
-          $I->haveEmails();
-          $I->haveUnreadEmails();
-          $I->openNextUnreadEmail();
-          $I->seeInOpenedEmailSubject('Your account has been created');
-          $I->seeInOpenedEmailBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
+            $fromEmail = getenv('MAIL_FEATURE_FROM_EMAIL');
+            if (NULL !== $fromEmail) {
+                $I->fetchEmails();
+                $I->haveEmails();
+                $I->haveUnreadEmails();
+                $I->openNextUnreadEmail();
+                $I->seeInOpenedEmailSubject('Your account has been created');
+                $I->seeInOpenedEmailBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
+            } else {
+                $I->comment('MAIL_FEATURE disabled, email would not be sent.');
+            }
         }
-      }
     }
 
     /**
