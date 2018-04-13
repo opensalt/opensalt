@@ -34,10 +34,10 @@ class PdfExportController extends Controller
         $stopwatch->start('Fetch Data From DB');
         $response = $this->forward('App\Controller\Framework\CfPackageController:exportAction', ['id' => $id, '_format' => 'json']);
         $event = $stopwatch->stop('Fetch Data From DB');
-                 $timeTaken = $event->getDuration();
-                 $logger->info('Fetch Data From DB', array(
-                               'Time Taken' => $timeTaken
-                              ));
+        $timeTaken = $event->getDuration();
+        $logger->info('Fetch Data From DB', array(
+                       'Time Taken' => $timeTaken
+                    ));
         $stopwatch->start('Html Render');
         $html = $this->renderView(
             'framework/doc_tree/export_pdf.html.twig',
@@ -47,8 +47,8 @@ class PdfExportController extends Controller
         $event = $stopwatch->stop('Html Render');
         $timeTaken = $event->getDuration(); 
         $logger->info('Html Render==>', array(
-            'Time Taken' => $timeTaken
-            ));
+                       'Time Taken' => $timeTaken
+                    ));
         Settings::setPdfRendererName(Settings::PDF_RENDERER_TCPDF);
         Settings::setPdfRendererPath('../vendor/tecnickcom/tcpdf');
         $file = 'Framework.pdf';
@@ -68,9 +68,9 @@ class PdfExportController extends Controller
         $event = $stopwatch->stop('Pdf Export');
         $timeTaken = $event->getDuration(); 
         $logger->info('Pdf Export==>', array(
-            // include extra "context" info in your logs
-            'Time Taken' => $timeTaken,
-            ));   
+                        // include extra "context" info in your logs
+                       'Time Taken' => $timeTaken,
+                    ));   
         return $response;
     }
 }
