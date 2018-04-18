@@ -1176,6 +1176,11 @@ class Framework implements Context
         $sheet->setCellValue('B2', 'Test');
         $sheet->setCellValue('C2', 'Framework updated by spreadsheet');
 
+        $sheet = $ss->getSheetByName('CF Item');
+        $sheet->setCellValue('B2', 'Item updated by spreadsheet');
+        $sheet->setCellValue('C2', 'T');
+        $sheet->setCellValue('F2', '');
+
         $writer = \PHPOffice\PhpSpreadsheet\IOFactory::createWriter($ss, 'Xlsx');
         $writer->save(codecept_data_dir().''.$filename.'.xlsx');
 
@@ -1188,6 +1193,7 @@ class Framework implements Context
         $I->click('Import Framework');
         $I->waitForJS('return $.active == 0', 5);
         $I->see('Framework updated by spreadsheet');
+        $I->see('T Item updated by spreadsheet');
     }
 
 }
