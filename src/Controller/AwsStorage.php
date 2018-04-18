@@ -14,7 +14,8 @@ use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request; 
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType; 
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Aws\Credentials\CredentialProvider;
 
 class AwsStorage extends AbstractController
 {
@@ -58,16 +59,18 @@ class AwsStorage extends AbstractController
 
     private function configuration()
     {
+        $provider = CredentialProvider::defaultProvider();
         $client = \Aws\S3\S3Client::factory([
-        'credentials' => [
+        /*'credentials' => [
             'key'    => 'AKIAJMM3WLA2KVT732XA',
             'secret' => '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'
-        ],
-        'region'  => 'eu-central-1',
+        ], */
+        'credentials' => $provider,
+        'region'  => 'us-east-1',
         'version' => 'latest',
         ]); 
 
-        $adapter    = new AwsS3Adapter($client, "sample-test4");
+        $adapter    = new AwsS3Adapter($client, "Actinc.opensalt.np");
         $filesystem = new Filesystem($adapter);
         return $filesystem;
     }
