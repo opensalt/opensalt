@@ -1169,10 +1169,6 @@ class Framework implements Context
         $filename = str_replace(codecept_output_dir(), '', $this->filename);
         rename($this->filename, codecept_data_dir().''.$filename.'.xlsx');
 
-        codecept_debug('DATOS!!!!!................');
-        codecept_debug($filename.'.xlsx');
-        codecept_debug(codecept_data_dir().''.$filename.'.xlsx');
-
         $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile(codecept_data_dir().''.$filename.'.xlsx');
         $ss = $reader->load(codecept_data_dir().''.$filename.'.xlsx');
 

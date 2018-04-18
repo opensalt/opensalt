@@ -37,6 +37,7 @@ class ExcelImport
         /** @var LsItem[] $items */
         $items = [];
         $itemSmartLevels = [];
+        $associations = [];
 
         /** @var LsItem[] $smartLevels */
         $smartLevels = [];
@@ -46,10 +47,12 @@ class ExcelImport
 
         $sheet = $phpExcelObject->getSheetByName('CF Item');
         $lastRow = $sheet->getHighestRow();
+
         for ($i = 2; $i <= $lastRow; ++$i) {
             $item = $this->saveItem($sheet, $doc, $i);
             $items[$item->getIdentifier()] = $item;
             $smartLevel = (string) $this->getCellValueOrNull($sheet, 4, $i);
+
             if (!empty($smartLevel)) {
                 $smartLevels[$smartLevel] = $item;
                 $itemSmartLevels[$item->getIdentifier()] = $smartLevel;
@@ -69,15 +72,32 @@ class ExcelImport
             if (array_key_exists($parentLevel, $smartLevels)) {
                 $smartLevels[$parentLevel]->addChild($item, null, $seq);
             } else {
-                $doc->createChildItem($item, null, $seq);
+
+                $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
+                    'originLsItem' => $item,
+                    'type' => LsAssociation::CHILD_OF,
+                    'lsDoc' => $item->getLsDoc(),
+                ]);
+
+                if (null === $assoc) {
+                    $doc->createChildItem($item, null, $seq);
+                } else {
+                    $assoc->setSequenceNumber($seq);
+                }
             }
         }
 
         $sheet = $phpExcelObject->getSheetByName('CF Association');
         $lastRow = $sheet->getHighestRow();
         for ($i = 2; $i <= $lastRow; ++$i) {
-            $this->saveAssociation($sheet, $doc, $i, $items);
+            $association = $this->saveAssociation($sheet, $doc, $i, $items);
+            if (null !== $association) {
+                $associations[$association->getIdentifier()] = $association;
+            }
         }
+
+        $this->checkRemovedElements($doc, $items, 'items');
+        $this->checkRemovedElements($doc, $associations, 'associations');
 
         return $doc;
     }
@@ -291,5 +311,28 @@ class ExcelImport
         }
 
         return $cell->getValue();
+    }
+
+    private function checkRemovedElements($doc, $array, $type)
+    {
+        $docRepo = $this->getEntityManager()->getRepository(LsDoc::class);
+        $repo = $this->getEntityManager()->getRepository(LsItem::class);
+        $findAll = 'findAllItems';
+        $remove = 'removeItem';
+
+        if ($type === 'associations') {
+            $repo = $this->getEntityManager()->getRepository(LsAssociation::class);
+            $findAll = 'findAllAssociations';
+            $remove = 'removeAssociation';
+        }
+
+        $existingItems = $docRepo->$findAll($doc);
+
+        foreach ($existingItems as $existingItem) {
+            if (!array_key_exists($existingItem['identifier'], $array)) {
+                $element = $repo->findOneByIdentifier($existingItem['identifier']);
+                $repo->$remove($element);
+            }
+        }
     }
 }
