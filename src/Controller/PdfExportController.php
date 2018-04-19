@@ -25,7 +25,7 @@ class PdfExportController extends Controller
      *
      * @return StreamedResponse
      */
-    public function exportPdfAction(int $id,LoggerInterface $logger): StreamedResponse
+    public function exportPdfAction(int $id, LoggerInterface $logger): StreamedResponse
     {
         $phpWordObject = new PhpWord();
         // Create a new Page
@@ -45,7 +45,7 @@ class PdfExportController extends Controller
         );
         Html::addHtml($section, htmlentities($html));
         $event = $stopwatch->stop('Html Render');
-        $timeTaken = $event->getDuration(); 
+        $timeTaken = $event->getDuration();
         $logger->info('Html Render==>', array(
                        'Time Taken' => $timeTaken
                     ));
@@ -66,11 +66,11 @@ class PdfExportController extends Controller
             ]
         );
         $event = $stopwatch->stop('Pdf Export');
-        $timeTaken = $event->getDuration(); 
+        $timeTaken = $event->getDuration();
         $logger->info('Pdf Export==>', array(
                         // include extra "context" info in your logs
                        'Time Taken' => $timeTaken,
-                    ));   
+                    ));
         return $response;
     }
 }
