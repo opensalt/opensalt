@@ -1174,10 +1174,10 @@ class Framework implements Context
 
         $sheet = $ss->getSheetByName('CF Doc');
         $sheet->setCellValue('B2', 'Test');
-        $sheet->setCellValue('C2', 'Framework updated by spreadsheet');
+        $sheet->setCellValue('C2', 'Framework updated');
 
         $sheet = $ss->getSheetByName('CF Item');
-        $sheet->setCellValue('B2', 'Item updated by spreadsheet');
+        $sheet->setCellValue('B2', 'Item updated');
         $sheet->setCellValue('C2', 'T');
         $sheet->setCellValue('F2', '');
 
@@ -1192,8 +1192,8 @@ class Framework implements Context
         $I->attachFile('input#excel-url', $filename.'.xlsx');
         $I->click('Import Framework');
         $I->waitForJS('return $.active == 0', 5);
-        $I->see('Framework updated by spreadsheet');
-        $I->see('T Item updated by spreadsheet');
+        $I->see('Framework updated');
+        $I->see('T Item updated');
     }
 
 }
