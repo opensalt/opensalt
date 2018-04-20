@@ -87,7 +87,9 @@
         "qandidate/toggle-bundle": "^1.1.0",
         "google/recaptcha": "~1.1",
         "phpoffice/phpword": "^0.14.0",
-        "tecnickcom/tcpdf": "6.*"
+        "tecnickcom/tcpdf": "6.*",
+        "oneup/uploader-bundle":"2.0.0",
+        "gregwar/tex2png": "dev-master"
     },
     "require-dev": {
         "roave/security-advisories" :"dev-master",
