@@ -1196,4 +1196,35 @@ class Framework implements Context
         $I->see('T Item updated');
     }
 
+    /**
+     * @Given /^I upload the file$/
+     */
+    public function uploadFile(): Framework
+    {
+        $I = $this->I;
+
+        $I->amOnPage('/cfdoc/aws');
+        $I->attachFile('//*[@id="form_upload"]', str_replace(codecept_data_dir(), '', 'test_items.csv'));
+        $I->click('//*[@id="form_save"]');
+        $I->waitForElementNotVisible('#wizard', 60);
+        $I->seeElement('.message');
+        return $this;
+    }
+    
+    /**
+     * @Given /^I download the file$/
+     */
+    public function downloadFile(): Framework
+    {
+        $I = $this->I;
+
+        $I->amOnPage('/cfdoc/aws');
+        $I->see('test_items.csv');
+        $url = $I->grabAttributeFrom('//a[contains(text(),"test_items.csv")]', 'href');
+        $this->filename = $I->download($url);
+        $downloadedFile = file_get_contents($this->filename);
+        $I->assertNotEmpty($downloadedFile, 'File is empty');
+        return $this;
+    }
+
 }
