@@ -1,13 +1,9 @@
-Feature: The framework is viewable by an anonymous user
-  In order to confirm the application is up and running
+Feature: The framework can be downloaded
+  In order to load a framework into another server
   As an anonymous user
-  I need to see a framework
+  I need to download a CASE file of the framework
 
-  @smoke @anonymous @view-framework @0901-0001
-  Scenario: 0901-0001 An anonymous user can see a framework
-    Given I am on a framework page
-    Then I should see the framework tree
-    And I should see the framework information
-
-    Given I am on an item page
-    And I should see the item information
+  @smoke @anonymous @case-file @0901-0000
+  Scenario: 0901-0000 An anonymous can see a framework
+    Given I upload the file
+    Then I download the file
