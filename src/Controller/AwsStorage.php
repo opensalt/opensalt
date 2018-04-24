@@ -69,6 +69,7 @@ class AwsStorage extends AbstractController
      * @param string $fileName
      *
      * @Route("/{fileName}/file-download", requirements={"fileName"=".+"}, name="aws_file_download")
+     *
      * @return StreamedResponse
      *
      */
