@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types = 1);
 
 namespace Application\Migrations;
 
@@ -18,7 +20,6 @@ class Version20180423105341 extends AbstractMigration
         $this->addSql('CREATE TABLE aws_storage (id INT AUTO_INCREMENT NOT NULL, ls_doc_id INT NOT NULL, ls_item_id INT DEFAULT NULL, file_name VARCHAR(250) NOT NULL, INDEX IDX_6276BCC59388802C (ls_doc_id), INDEX IDX_6276BCC5E27A1FD2 (ls_item_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
         $this->addSql('ALTER TABLE aws_storage ADD CONSTRAINT FK_6276BCC59388802C FOREIGN KEY (ls_doc_id) REFERENCES ls_doc (id)');
         $this->addSql('ALTER TABLE aws_storage ADD CONSTRAINT FK_6276BCC5E27A1FD2 FOREIGN KEY (ls_item_id) REFERENCES ls_item (id)');
-        
     }
 
     public function down(Schema $schema)

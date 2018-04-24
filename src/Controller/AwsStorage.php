@@ -19,8 +19,6 @@ class AwsStorage extends AbstractController
 
     /**
      * @Route("/cfdoc/aws", name="aws_storage_file")
-     *
-     *
      */
     public function awsStorage(Request $request)
     {
@@ -68,7 +66,7 @@ class AwsStorage extends AbstractController
     }
 
     /**
-     * @param String $fileName
+     * @param string $fileName
      *
      * @Route("/{fileName}/file-download", requirements={"fileName"=".+"}, name="aws_file_download")
      * @return StreamedResponse
