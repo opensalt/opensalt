@@ -4,6 +4,7 @@ namespace CftfBundle\Repository;
 
 use CftfBundle\Entity\CaseApiInterface;
 use CftfBundle\Entity\LsAssociation;
+use CftfBundle\Entity\LsDefLicence;
 use CftfBundle\Entity\LsDoc;
 use Doctrine\ORM\Query;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -408,9 +409,10 @@ xENDx;
     public function findAllItems(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
     {
         $query = $this->getEntityManager()->createQuery('
-            SELECT i, t, a, adi, add
+            SELECT i, t, a, adi, add, c
             FROM CftfBundle:LsItem i INDEX BY i.id
             LEFT JOIN i.itemType t
+            LEFT JOIN i.concepts c
             LEFT JOIN i.associations a WITH a.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
@@ -527,15 +529,31 @@ xENDx;
      */
     public function findAllUsedLicences(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
     {
+        // get licences for items
         $query = $this->getEntityManager()->createQuery('
             SELECT DISTINCT l
-            FROM CftfBundle:LsDefLicence l, CftfBundle:LsItem i, CftfBundle:LsDoc d
+            FROM CftfBundle:LsDefLicence l INDEX BY l.id, CftfBundle:LsItem i
             WHERE (i.lsDoc = :lsDocId AND i.licence = l)
-               OR (d.id = :lsDocId AND d.licence = l)
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
         $results = $query->getResult($format);
+
+        // get licences for the doc
+        $query = $this->getEntityManager()->createQuery('
+            SELECT DISTINCT l
+            FROM CftfBundle:LsDefLicence l INDEX BY l.id, CftfBundle:LsDoc d
+            WHERE (d.id = :lsDocId AND d.licence = l)
+        ');
+        $query->setParameter('lsDocId', $lsDoc->getId());
+
+        /* @var LsDefLicence[] $docResults */
+        $docResults = $query->getResult($format);
+
+        // merge the results so a licence only appears once
+        foreach ($docResults as $result) {
+            $results[$result->getId()] = $result;
+        }
 
         return $results;
     }
