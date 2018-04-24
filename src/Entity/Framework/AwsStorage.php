@@ -98,7 +98,7 @@ class AwsStorage
 
         return $this;
     }
-    
+
     /**
      * Set fileName
      *
@@ -142,5 +142,4 @@ class AwsStorage
     {
         return $this->fileName;
     }
-
 }

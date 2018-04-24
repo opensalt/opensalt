@@ -15,5 +15,4 @@ class AwsStorageRepository extends EntityRepository
     {
         parent::__construct($registry, AwsStorage::class);
     }
-
 }
