@@ -86,7 +86,7 @@ class UserController extends AbstractController
     public function newAction(Request $request)
     {
         $targetUser = new User();
-        $form = $this->createForm(UserType::class, $targetUser);
+        $form = $this->createForm(UserType::class, $targetUser, ['validation_groups' => ['registration']]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
