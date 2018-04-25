@@ -43,7 +43,7 @@ class ChangePasswordController extends AbstractController
     public function changePasswordAction(Request $request)
     {
         $dto = new ChangePasswordDTO();
-        $form = $this->createForm(ChangePasswordType::class, $dto);
+        $form = $this->createForm(ChangePasswordType::class, $dto, ['validation_groups' => ['registration']]);
 
         $form->handleRequest($request);
 

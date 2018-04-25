@@ -86,7 +86,7 @@ class UserController extends AbstractController
     public function newAction(Request $request)
     {
         $targetUser = new User();
-        $form = $this->createForm(UserType::class, $targetUser, ['validation_groups' => ['registration']]);
+        $form = $this->createForm(UserType::class, $targetUser);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -154,7 +154,7 @@ class UserController extends AbstractController
     public function editAction(Request $request, User $targetUser)
     {
         $deleteForm = $this->createDeleteForm($targetUser);
-        $editForm = $this->createForm(UserType::class, $targetUser);
+        $editForm = $this->createForm(UserType::class, $targetUser, ['validation_groups' => ['registration']]);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
