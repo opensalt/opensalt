@@ -43,7 +43,7 @@ class LsItemType extends AbstractType
         }
         $builder
             ->add('fullStatement')
-             ->add('attachment', FileType::class, array( 'multiple' => true, 'mapped' => false,'label'=>'Full statement Attachment(s)'))   
+             ->add('attachment', FileType::class, array( 'multiple' => true, 'mapped' => false,'label'=>'Full statement Attachment(s)','required' => false,))   
             ->add('humanCodingScheme')
             //->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
             ->add('listEnumInSource')
@@ -103,7 +103,7 @@ class LsItemType extends AbstractType
             ])
             ->add('licenceUri')
             ->add('notes')
-            ->add('notesFile', FileType::class, array( 'multiple' => true, 'mapped' => false,'label'=>'Notes Attachment(s)')) 
+            ->add('notesFile', FileType::class, array( 'multiple' => true, 'mapped' => false,'label'=>'Notes Attachment(s)','required' => false,)) 
             ->add('notesAttachment', HiddenType::class, array('mapped' => false)) 
             ->add('fullstatementAttachment', HiddenType::class, array('mapped' => false));
             /*
