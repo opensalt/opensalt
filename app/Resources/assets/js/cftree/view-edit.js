@@ -1306,11 +1306,12 @@ function setDropZone(){
             addRemoveLinks: true,
             acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff, .tif',
             accept: function(file, done) {
-                var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
+               // var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
                 var arFiles = jQuery("#ls_item_fullstatementAttachment").val().split(",");
-                if (extension == "exe" || extension == "bat") {
-                    done("Error! File(s) of these type(s) are not accepted.");
-                } else if (jQuery.inArray(file.name, arFiles) > -1) {
+              //  if (extension == "exe" || extension == "bat") {
+               //     done("Error! File(s) of these type(s) are not accepted.");
+                //} else 
+                    if (jQuery.inArray(file.name, arFiles) > -1) {
                     var currentValue = jQuery("#ls_item_fullstatementAttachment").val();
                     currentValue = removeValue(currentValue, name);
                     var _ref;
@@ -1369,14 +1370,12 @@ function setDropZone(){
                 attachmentTo: 'notes'
             },
             addRemoveLinks: true,
-             acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff, tif',
+             acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff,tif',
             accept: function(file, done) {
                 var notesFiles = jQuery("#ls_item_notesAttachment").val().split(",");
 
-                var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
-                if (extension == "exe" || extension == "bat") {
-                    done("Error! File(s) of these type(s) are not accepted.");
-                } else if (jQuery.inArray(file.name, notesFiles) > -1) {
+                //var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
+                 if (jQuery.inArray(file.name, notesFiles) > -1) {
                     var currentValue = jQuery("#ls_item_notesAttachment").val();
                     currentValue = removeValue(currentValue, name);
                     var _ref;
