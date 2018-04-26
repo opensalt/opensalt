@@ -1304,7 +1304,7 @@ function setDropZone(){
                 attachmentTo: 'fullstatement'
             },
             addRemoveLinks: true,
-            acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF',
+            acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff, .tif',
             accept: function(file, done) {
                 var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
                 var arFiles = jQuery("#ls_item_fullstatementAttachment").val().split(",");
@@ -1368,7 +1368,7 @@ function setDropZone(){
                 attachmentTo: 'notes'
             },
             addRemoveLinks: true,
-            acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG',
+            acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff, .tif',
             accept: function(file, done) {
                 var notesFiles = jQuery("#ls_item_notesAttachment").val().split(",");
 
