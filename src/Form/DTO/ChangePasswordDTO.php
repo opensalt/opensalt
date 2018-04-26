@@ -11,7 +11,7 @@ class ChangePasswordDTO
     /**
      * @var string
      *
-     * @SecurityAssert\UserPassword(message="The current password is incorrect", groups={"registration"})
+     * @SecurityAssert\UserPassword(message="The current password is incorrect", groups={"changepass"})
      */
     public $oldPassword;
 
@@ -23,9 +23,9 @@ class ChangePasswordDTO
      *      max=4096,
      *      minMessage="Password must be at least {{ limit }} characters long",
      *      maxMessage="Password cannot be longer than {{ limit }} characters",
-     *      groups={"registration"} 
+     *      groups={"changepass"} 
      * )
-     * @CustomAssert\PasswordField(groups={"registration"})
+     * @CustomAssert\PasswordField(groups={"changepass"})
      * 
      */
     public $newPassword;
