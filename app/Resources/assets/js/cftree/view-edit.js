@@ -1357,7 +1357,8 @@ function setDropZone(){
                 return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
             },
             error: function(file, response) {
-                file.previewElement.classList.add("dz-error");
+                //file.previewElement.classList.add("dz-error");
+                (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
             }
         });
         var notesDropzone = $("#Dropzonenotes").dropzone({
@@ -1368,7 +1369,7 @@ function setDropZone(){
                 attachmentTo: 'notes'
             },
             addRemoveLinks: true,
-            acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff, .tif',
+             acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff, tif',
             accept: function(file, done) {
                 var notesFiles = jQuery("#ls_item_notesAttachment").val().split(",");
 
@@ -1422,7 +1423,8 @@ function setDropZone(){
                 return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
             },
             error: function(file, response) {
-                file.previewElement.classList.add("dz-error");
+                 var _ref;
+                 (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
             }
         });
 
