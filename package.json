@@ -39,7 +39,8 @@
     "simplemde": "^1.11.2",
     "swagger-ui-dist": "^3.15.0",
     "twbs-pagination": "^1.4.1",
-    "ui-contextmenu": "^1.12.0"
+    "ui-contextmenu": "^1.12.0",
+    "dropzone":"^5.4.0"
   },
   "devDependencies": {
     "@symfony/webpack-encore": "^0.19.0",

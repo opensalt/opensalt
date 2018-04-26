@@ -118,6 +118,9 @@ apx.edit.prepareItemEditModal = function() {
             function(responseText, textStatus, jqXHR) {
                 if ($modal.find('form[name="ls_item"]').length) {
                     $modal.find('.modal-footer .btn-save').show();
+                 
+                    setDropZone();
+
                 }
                 $('#ls_item_educationalAlignment').multiselect({
                     optionLabel: function(element) {
@@ -128,8 +131,7 @@ apx.edit.prepareItemEditModal = function() {
                 $('#ls_item_itemType').select2entity({dropdownParent: $('#ls_item_itemType').closest('div')});
                 statementMde = render.mde($('#ls_item_fullStatement')[0]);
                 notesMde = render.mde($('#ls_item_notes')[0]);
-            }
-        );
+            });
     }).on('hide.bs.modal', function(e){
         $('#ls_item_itemType').select2('destroy');
 
@@ -251,6 +253,8 @@ apx.edit.prepareAddNewChildModal = function() {
                 $('#ls_item_itemType').select2entity({dropdownParent: $('#ls_item_itemType').closest('div')});
                 statementMde = render.mde($('#ls_item_fullStatement')[0]);
                 notesMde = render.mde($('#ls_item_notes')[0]);
+                setDropZone();
+                
             }
         );
     }).on('hide.bs.modal', function(e){
@@ -1271,4 +1275,155 @@ apx.edit.deleteAssocGroup = function(btn) {
         $(this).off('click', '.btn-delete');
     });
 };
+function removeValue(list, value) {
+  return list.replace(new RegExp(",?" + value + ",?"), function(match) {
+      var first_comma = match.charAt(0) === ',',
+          second_comma;
 
+      if (first_comma &&
+          (second_comma = match.charAt(match.length - 1) === ',')) {
+        return ',';
+      }
+      return '';
+    });
+}
+
+function setDropZone(){
+        $('#ls_item_attachment').replaceWith('<div id="Dropzonefullstatement" class="dropzone"><div class="dz-message">Upload Attachment</div></div>');
+        $('#ls_item_notesFile').replaceWith('<div id="Dropzonenotes" class="dropzone"><div class="dz-message">Upload Attachment</div></div>');
+        let path = apx.path.lsitem_upload_attachment;
+        path = path.replace('ID', apx.mainDoc.currentItem.id);
+        let deletepath = apx.path.lsitem_delete_attachment;
+        deletepath = deletepath.replace('ID', apx.mainDoc.currentItem.id);
+
+        var fullstatementDropzone = $("#Dropzonefullstatement").dropzone({
+            //autoProcessQueue: false,
+            maxFilesize: 5,
+            url: path,
+            params: {
+                attachmentTo: 'fullstatement'
+            },
+            addRemoveLinks: true,
+            acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF',
+            accept: function(file, done) {
+                var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
+                var arFiles = jQuery("#ls_item_fullstatementAttachment").val().split(",");
+                if (extension == "exe" || extension == "bat") {
+                    done("Error! File(s) of these type(s) are not accepted.");
+                } else if (jQuery.inArray(file.name, arFiles) > -1) {
+                    var currentValue = jQuery("#ls_item_fullstatementAttachment").val();
+                    currentValue = removeValue(currentValue, name);
+                    var _ref;
+                    return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+
+                    done("File already exists.");
+                } else {
+                    done();
+                    var fileName = file.name;
+                    var currentValue = jQuery("#ls_item_fullstatementAttachment").val();
+                    if (currentValue == '') {
+                        jQuery("#ls_item_fullstatementAttachment").val(fileName);
+                    } else {
+                        jQuery("#ls_item_fullstatementAttachment").val(currentValue + "," + fileName);
+                    }
+                }
+            },
+            init: function() {
+
+            },
+            success: function(file, response) {
+                var imgName = response.fileName;
+                file.previewElement.classList.add("dz-success");
+                console.log("Successfully uploaded :" + imgName);
+            },
+
+            removedfile: function(file) {
+                var name = file.name;
+                var currentValue = jQuery("#ls_item_fullstatementAttachment").val();
+                currentValue = removeValue(currentValue, name);
+                jQuery("#ls_item_fullstatementAttachment").val(currentValue);
+                $.ajax({
+                    type: 'POST',
+                    url: deletepath,
+                    data: {
+                        name: name,
+                        attachmentTo: "fullstatement"
+                    },
+                    sucess: function(data) {
+                        console.log('success: ' + data);
+                    }
+                });
+                var _ref;
+                return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+            },
+            error: function(file, response) {
+                file.previewElement.classList.add("dz-error");
+            }
+        });
+        var notesDropzone = $("#Dropzonenotes").dropzone({
+            // autoProcessQueue: false,
+            maxFilesize: 5,
+            url: path,
+            params: {
+                attachmentTo: 'notes'
+            },
+            addRemoveLinks: true,
+            acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG',
+            accept: function(file, done) {
+                var notesFiles = jQuery("#ls_item_notesAttachment").val().split(",");
+
+                var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
+                if (extension == "exe" || extension == "bat") {
+                    done("Error! File(s) of these type(s) are not accepted.");
+                } else if (jQuery.inArray(file.name, notesFiles) > -1) {
+                    var currentValue = jQuery("#ls_item_notesAttachment").val();
+                    currentValue = removeValue(currentValue, name);
+                    var _ref;
+                    return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+
+                    done("File already exists.");
+                } else {
+                    done();
+                    var fileName = file.name;
+                    var currentValue = jQuery("#ls_item_notesAttachment").val();
+                    if (currentValue == '') {
+                        jQuery("#ls_item_notesAttachment").val(fileName);
+                    } else {
+                        jQuery("#ls_item_notesAttachment").val(currentValue + "," + fileName);
+                    }
+
+                }
+            },
+            init: function() {
+
+            },
+            success: function(file, response) {
+                var imgName = response.fileName;
+                file.previewElement.classList.add("dz-success");
+            },
+
+            removedfile: function(file) {
+                var name = file.name;
+                var currentValue = jQuery("#ls_item_notesAttachment").val();
+                currentValue = removeValue(currentValue, name)
+                jQuery("#ls_item_notesAttachment").val(currentValue);
+                $.ajax({
+                    type: 'POST',
+                    url: deletepath,
+                    data: {
+                        name: name,
+                        attachmentTo: "notes"
+                    },
+                    sucess: function(data) {
+                        console.log('success: ' + data);
+                    }
+                });
+                var _ref;
+                return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+            },
+            error: function(file, response) {
+                file.previewElement.classList.add("dz-error");
+            }
+        });
+
+}
