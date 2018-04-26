@@ -154,7 +154,7 @@ class UserController extends AbstractController
     public function editAction(Request $request, User $targetUser)
     {
         $deleteForm = $this->createDeleteForm($targetUser);
-        $editForm = $this->createForm(UserType::class, $targetUser, ['validation_groups' => ['registration']]);
+        $editForm = $this->createForm(UserType::class, $targetUser);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
