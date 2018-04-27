@@ -58,6 +58,7 @@ const mainScripts = [
     assetsDir+'/js/lsdoc/index.js',
     npmDir+'/papaparse/papaparse.min.js',
     npmDir+'/ajaxq/ajaxq.js',
+    npmDir+'/dropzone/dist/dropzone.js',
     './build/js/apx.js'
 ];
 
@@ -79,6 +80,7 @@ Encore
 //        npmDir+'/fancytree/dist/skin-lion/ui.fancytree.css',
 //        vendorDir+'/mervick/material-design-icons/scss/material-icons.scss',
         assetsDir+'/sass/application.scss',
+        npmDir+'/dropzone/dist/dropzone.css'
 //        vendorDir+'/fortawesome/font-awesome/css/font-awesome.css'
     ])
     .addStyleEntry('commentscss', [
