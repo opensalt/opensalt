@@ -1301,7 +1301,7 @@ function setDropZone(){
         var fullstatementDropzone = $("#Dropzonefullstatement").dropzone({
             //autoProcessQueue: false,
             maxFilesize: 5,
-            url: path,
+            url: '/aws',
             params: {
                 attachmentTo: 'fullstatement'
             },

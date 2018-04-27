@@ -15,5 +15,22 @@ class AwsStorageRepository extends EntityRepository
     {
         parent::__construct($registry, AwsStorage::class);
     }
+    
+    /**
+     * @param LsItem $itemId
+     * @param string $fileName
+     *
+     * @return file
+     */
+    public function addFile($itemId, string $fileName)
+    {
+        $file = new AwsStorage();
+        $file->setLsItem($lsItem);
+        $file->setFileName($fileName);
+        
+        $this->getEntityManager()->persist($file);
+
+        return $file;
+    }
 
 }

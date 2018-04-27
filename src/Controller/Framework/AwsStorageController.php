@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Framework;
 
 use App\Command\CommandDispatcherTrait;
 use App\Service\ExcelExport;
@@ -16,41 +16,45 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Aws\Credentials\CredentialProvider;
+use App\Command\Framework\AddFileToAwsCommand;
 
-class AwsStorage extends AbstractController
+class AwsStorageController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/cfdoc/aws", name="aws_storage_file")
+     * @Route("/aws", name="aws_storage_file")
      *
-     * 
+     * @Method("GET")
      */
     public function awsStorage(Request $request)
     {
-        $form = $this->createFormBuilder() 
+       /* $form = $this->createFormBuilder() 
         ->add('upload', FileType::class, array('label' => 'File Upload')) 
         ->add('save', SubmitType::class, array('label' => 'Submit'))
         ->getForm(); 
 
-        $form->handleRequest($request); 
+        $form->handleRequest($request); */
         $filesystem = $this->configuration();
         
-        if ($form->isSubmitted() && $form->isValid()) { 
-            $data = $form->getData();
-            $fileName = $data['upload']->getClientOriginalName(); 
-            $file = $data['upload']->getRealPath(); 
+       // if ($form->isSubmitted() && $form->isValid()) { 
+            //$data = $form->getData();
+        $file = $request->files->get('file');
+            $fileName = $file->getClientOriginalName(); 
+            $filePath = $file->getRealPath(); 
             if ($filesystem->has($fileName))
             {echo '<div class="message">Already exists</div>';}
             else
             {
-                $stream = fopen($file, 'r+');
+                $stream = fopen($filePath, 'r+');
                 $result =$filesystem->writeStream($fileName, $stream);
                 fclose($stream);
+               // $command=new AddFileToAwsCommand($lsItem, $fileName);
+                //$this->sendCommand($command);
                 echo '<div class="message">File Uploaded Successfully..!!</div>';
             }
-        }
-       $aws_data = $filesystem->listContents();
+       // }
+      // $aws_data = $filesystem->listContents();
       /*  return $this->render('framework/doc_tree/aws_upload.html.twig', array( 
             'form' => $form->createView(),
             'aws_files' => $aws_data,
