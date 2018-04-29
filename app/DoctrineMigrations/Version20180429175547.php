@@ -28,5 +28,5 @@ class Version20180429175547 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('DROP TABLE aws_storage');
-}
+    }
 }

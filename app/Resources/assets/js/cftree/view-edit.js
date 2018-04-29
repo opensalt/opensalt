@@ -1301,7 +1301,7 @@ function setDropZone(){
         var fullstatementDropzone = $("#Dropzonefullstatement").dropzone({
             //autoProcessQueue: false,
             maxFilesize: 5,
-            url: '/aws',
+            url: '/cfdoc/1/fullStatement/aws',
             params: {
                 attachmentTo: 'fullstatement'
             },
@@ -1367,7 +1367,7 @@ function setDropZone(){
         var notesDropzone = $("#Dropzonenotes").dropzone({
             // autoProcessQueue: false,
             maxFilesize: 5,
-            url: path,
+            url: '/cfdoc/1/notes/aws',
             params: {
                 attachmentTo: 'notes'
             },

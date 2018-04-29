@@ -12,9 +12,7 @@ use League\Flysystem\Adapter\AwsS3 as Adapter;
 use Aws\S3\S3Client;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Filesystem;
-use Symfony\Component\HttpFoundation\Request; 
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Request;
 use Aws\Credentials\CredentialProvider;
 use App\Command\Framework\AddFileToAwsCommand;
 
@@ -23,42 +21,26 @@ class AwsStorageController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/aws", name="aws_storage_file")
+     * @Route("/cfdoc/{id}/{field}/aws", name="aws_storage_file")
      *
-     * @Method("GET")
      */
-    public function awsStorage(Request $request)
+    public function awsStorage(Request $request, LsItem $lsItem, string $field)
     {
-       /* $form = $this->createFormBuilder() 
-        ->add('upload', FileType::class, array('label' => 'File Upload')) 
-        ->add('save', SubmitType::class, array('label' => 'Submit'))
-        ->getForm(); 
-
-        $form->handleRequest($request); */
         $filesystem = $this->configuration();
         
-       // if ($form->isSubmitted() && $form->isValid()) { 
-            //$data = $form->getData();
         $file = $request->files->get('file');
-            $fileName = $file->getClientOriginalName(); 
-            $filePath = $file->getRealPath(); 
-            if ($filesystem->has($fileName))
-            {echo '<div class="message">Already exists</div>';}
-            else
-            {
-                $stream = fopen($filePath, 'r+');
-                $result =$filesystem->writeStream($fileName, $stream);
-                fclose($stream);
-               // $command=new AddFileToAwsCommand($lsItem, $fileName);
-                //$this->sendCommand($command);
-                echo '<div class="message">File Uploaded Successfully..!!</div>';
-            }
-       // }
-      // $aws_data = $filesystem->listContents();
-      /*  return $this->render('framework/doc_tree/aws_upload.html.twig', array( 
-            'form' => $form->createView(),
-            'aws_files' => $aws_data,
-        )); */
+        $fileName = $file->getClientOriginalName(); 
+        $filePath = $file->getRealPath(); 
+        if (!$filesystem->has($fileName))
+        {
+            $stream = fopen($filePath, 'r+');
+            $result =$filesystem->writeStream($fileName, $stream);
+            fclose($stream);
+            echo '<div class="message">File Uploaded Successfully..!!</div>';
+        }
+        $command=new AddFileToAwsCommand($lsItem, $fileName, $field);
+        $this->sendCommand($command);
+        return "File Saved.";
     }
 
     private function configuration()
@@ -71,10 +53,12 @@ class AwsStorageController extends AbstractController
         ], */
         'credentials' => $provider,
         'region'  => 'us-east-1',
+        //'region'  => 'eu-central-1',
         'version' => 'latest',
         ]); 
 
-        $adapter    = new AwsS3Adapter($client, "Actinc.opensalt.np");
+        //$adapter    = new AwsS3Adapter($client, "sample-test4");
+        $adapter    = new AwsS3Adapter($client, "actinc.opensalt.np", "dev");
         $filesystem = new Filesystem($adapter);
         return $filesystem;
     }
