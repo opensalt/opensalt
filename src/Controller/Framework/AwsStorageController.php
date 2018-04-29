@@ -15,6 +15,7 @@ use League\Flysystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Aws\Credentials\CredentialProvider;
 use App\Command\Framework\AddFileToAwsCommand;
+use App\Entity\Framework\LsItem;
 
 class AwsStorageController extends AbstractController
 {
