@@ -5,11 +5,8 @@ namespace App\Handler\Framework;
 use App\Command\Framework\AddFileToAwsCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-//use App\Command\Framework\AwsStorage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Doctrine\ORM\EntityRepository;
 use App\Handler\BaseDoctrineHandler;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Framework\AwsStorage;
 
 class AddFileToAwsHandler extends BaseDoctrineHandler
@@ -20,12 +17,11 @@ class AddFileToAwsHandler extends BaseDoctrineHandler
         $this->validate($command, $command);
 
         $lsItem = $command->getItem();
-
         $fileName = $command->getFileName();
-$repo = $this->em->getRepository(AwsStorage::class);
-        //$repo = $this->getEntityManager()->getRepository(AwsStorage::class);
+        $fileName = $command->getField();
+        $repo = $this->em->getRepository(AwsStorage::class);
 
-        $comment = $repo->addFile($lsItem, $fileName);
+        $comment = $repo->addFile($lsItem, $fileName, $field);
 
 //        $command->setComment($comment);
 

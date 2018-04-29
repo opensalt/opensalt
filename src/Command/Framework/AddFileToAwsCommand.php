@@ -23,10 +23,20 @@ class AddFileToAwsCommand extends BaseCommand
 
     private $fileName;
 
+    /**
+     * @var string
+     *
+     * @Assert\Type("string")
+     * @Assert\NotNull()
+     */
+
+    private $field;
+
     public function __construct(LsItem $item, string $fileName)
     {
         $this->item = $item;
-         $this->fileName = $fileName;
+        $this->fileName = $fileName;
+        $this->field = $field;
     }
 
     public function getItem(): LsItem
@@ -37,5 +47,10 @@ class AddFileToAwsCommand extends BaseCommand
     public function getFileName(): string
     {
         return $this->fileName;
+    }
+
+    public function getField(): string
+    {
+        return $this->field;
     }
 }

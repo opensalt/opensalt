@@ -44,6 +44,15 @@ class AwsStorage
     protected $fileName;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="field", type="string", length=50)
+     *
+     * @Assert\NotBlank
+     */
+    protected $field;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -90,6 +99,20 @@ class AwsStorage
     }
 
     /**
+     * Set fieldName
+     *
+     * @param string $field
+     *
+     * @return AwsStorage
+     */
+    public function setField($field): AwsStorage
+    {
+        $this->field = $field;
+
+        return $this;
+    }
+
+    /**
      * Get lsItem
      *
      * @return LsItem
@@ -107,5 +130,15 @@ class AwsStorage
     public function getFileName(): ?string
     {
         return $this->fileName;
+    }
+
+    /**
+     * Get fieldName
+     *
+     * @return string
+     */
+    public function getField(): ?string
+    {
+        return $this->field;
     }
 }

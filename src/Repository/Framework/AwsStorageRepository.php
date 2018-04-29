@@ -6,7 +6,6 @@ use App\Entity\Framework\AwsStorage;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use App\Entity\Framework\LsItem;
-use Doctrine\ORM\Query;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
@@ -22,14 +21,16 @@ class AwsStorageRepository extends ServiceEntityRepository
     /**
      * @param LsItem $itemId
      * @param string $fileName
+     * @param string $field
      *
      * @return file
      */
-    public function addFile($itemId, string $fileName)
+    public function addFile($itemId, string $fileName, string $field)
     {
         $file = new AwsStorage();
         $file->setLsItem($itemId);
         $file->setFileName($fileName);
+        $file->setField($field);
         $this->getEntityManager()->persist($file);
 
         return $file;
