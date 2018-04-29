@@ -5,6 +5,7 @@ namespace App\Command\Framework;
 use App\Command\BaseCommand;
 use App\Entity\Framework\AwsStorage;
 use App\Entity\Framework\LsItem;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class AddFileToAwsCommand extends BaseCommand
 {
@@ -12,6 +13,15 @@ class AddFileToAwsCommand extends BaseCommand
      * @var LsItem
      */
     private $item;
+
+    /**
+     * @var string
+     *
+     * @Assert\Type("string")
+     * @Assert\NotNull()
+     */
+
+    private $fileName;
 
     public function __construct(LsItem $item, string $fileName)
     {
@@ -26,6 +36,6 @@ class AddFileToAwsCommand extends BaseCommand
 
     public function getFileName(): string
     {
-        return $this->fileName();
+        return $this->fileName;
     }
 }
