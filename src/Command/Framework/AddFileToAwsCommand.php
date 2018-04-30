@@ -32,7 +32,7 @@ class AddFileToAwsCommand extends BaseCommand
 
     private $field;
 
-    public function __construct(LsItem $item, string $fileName)
+    public function __construct(LsItem $item, string $fileName, string $field)
     {
         $this->item = $item;
         $this->fileName = $fileName;
