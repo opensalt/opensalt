@@ -93,7 +93,9 @@
         "qandidate/toggle-bundle": "^1.1.0",
         "google/recaptcha": "~1.1",
         "phpoffice/phpword": "^0.14.0",
-        "tecnickcom/tcpdf": "6.*"
+        "tecnickcom/tcpdf": "6.*",
+        "league/flysystem": "^1.0.44",
+        "league/flysystem-aws-s3-v3": "^1.0.19"
     },
     "require-dev": {
         "roave/security-advisories" :"dev-master",
