@@ -9,7 +9,7 @@ services:
         autoconfigure: true
         public: false
         bind:
-            $rootDir: "%kernel.root_dir%"
+            $rootDir: '%kernel.root_dir%'
             $mailFromEmail: '%mail_feature_from_email%'
             $firebasePrefix: '%firebase_prefix%'
             $guzzleJsonClient: '@csa_guzzle.client.json'
@@ -32,10 +32,21 @@ services:
             $githubClientSecret: '%github_client_secret%'
             $githubRedirectUri: "@=container.hasParameter('github_redirect_uri') ? parameter('github_redirect_uri') : null"
 
+    App\Controller\SessionController:
+        tags: ['controller.service_arguments']
+        arguments:
+            $sessionMaxIdleTime: '%session_max_idle_time%'
+
     App\EventListener\LoginListener:
         class: App\EventListener\LoginListener
         arguments:
             $captchaSecret: '%google_captcha_secret_key%'
+
+    App\Security\Session\SessionIdleHandler:
+        arguments:
+            $sessionMaxIdleTime: '%session_max_idle_time%'
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
 
     App\Service\Api1Uris:
         public: true

@@ -1,5 +1,4 @@
 const utilSalt = (function () {
-
     function simplify(string) {
         return string.match(/[a-zA-Z]*/g).join("").toLowerCase();
     }
