@@ -196,7 +196,7 @@ swiftmailer:
     host:      "%mailer_host%"
     username:  "%mailer_user%"
     password:  "%mailer_password%"
-    auth_mode: cram-md5
+    auth_mode: "%mailer_auth_mode%"
     port:      "%mailer_port%"
     # to disable mail uncomment disable_delivery: true
     # disable_delivery: true
