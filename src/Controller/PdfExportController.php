@@ -31,7 +31,7 @@ class PdfExportController extends Controller
 
         $response = $this->forward('App\Controller\Framework\CfPackageController:exportAction', ['id' => $id, '_format' => 'json']);
         $data_array=json_decode($response->getContent(), true);
-        for($i=0; $i < sizeof($data_array['CFItems']); $i++)
+        for($i=0; $i < sizeof($data_array['CFItems']); ++$i)
         {
             $data_array['CFItems'][$i]['fullStatement']= $this->render_images($data_array['CFItems'][$i]['fullStatement']);
             if(isset($data_array['CFItems'][$i]['notes']))
@@ -42,7 +42,6 @@ class PdfExportController extends Controller
         $html = $this->renderView(
             'framework/doc_tree/export_pdf.html.twig',
             ['pdfData' => $data_array]
-            
         );
         Html::addHtml($section, htmlentities($html));
         Settings::setPdfRendererName(Settings::PDF_RENDERER_TCPDF);
@@ -64,7 +63,6 @@ class PdfExportController extends Controller
     }
 
     /**
-     *
      * @param string $string
      *
      * @return result
