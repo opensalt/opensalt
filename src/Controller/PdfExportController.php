@@ -30,9 +30,19 @@ class PdfExportController extends Controller
         $section = $phpWordObject->addSection();
 
         $response = $this->forward('App\Controller\Framework\CfPackageController:exportAction', ['id' => $id, '_format' => 'json']);
+        $data_array=json_decode($response->getContent(), true);
+        for($i=0; $i < sizeof($data_array['CFItems']); $i++)
+        {
+            $data_array['CFItems'][$i]['fullStatement']= $this->render_images($data_array['CFItems'][$i]['fullStatement']);
+            if(isset($data_array['CFItems'][$i]['notes']))
+            {
+                $data_array['CFItems'][$i]['notes']= $this->render_images($data_array['CFItems'][$i]['notes']);
+            }
+       }
         $html = $this->renderView(
             'framework/doc_tree/export_pdf.html.twig',
-            ['pdfData' => json_decode($response->getContent(), true)]
+            ['pdfData' => $data_array]
+            
         );
         Html::addHtml($section, htmlentities($html));
         Settings::setPdfRendererName(Settings::PDF_RENDERER_TCPDF);
@@ -51,5 +61,18 @@ class PdfExportController extends Controller
                 'Cache-Control' => 'max-age=0',
             ]
         );
+    }
+
+    /**
+     *
+     * @param string $string
+     *
+     * @return result
+     */
+    public function render_images($string)
+    {
+        $string = str_replace('![alt text](', '<br/><br/><img src ="', $string);
+        $result = str_replace(')', '"/>', $string);
+        return $result;
     }
 }
