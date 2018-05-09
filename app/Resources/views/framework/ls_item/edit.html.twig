@@ -19,8 +19,8 @@
                  {% set notesAttachment = notesAttachment ~ ','~entity.filename %}
             {% endif %}
         {% endfor %}
-        <input type="hidden" name="ls_item[fullstatementAttachment]" id="ls_item_fullstatementAttachment" value="{{ attachment|trim(',')}}">
-         <input type="hidden" name="ls_item[notesAttachment]" id="ls_item_notesAttachment" value="{{ notesAttachment|trim(',')}}">
+        <input type="hidden" name="fullstatementAttachment" id="ls_item_fullstatementAttachment" value="{{ attachment|trim(',')}}">
+         <input type="hidden" name="notesAttachment" id="ls_item_notesAttachment" value="{{ notesAttachment|trim(',')}}">
         {% if not app.request.xmlHttpRequest %}
             
             

@@ -44,7 +44,7 @@ class AwsStorageRepository extends ServiceEntityRepository
     public function findAllItemAttachment(LsItem $lsitem)
     { 
         $qb = $this->createQueryBuilder('i')
-                    ->where('i.lsItem = :ls_item_id')            
+                    ->where('i.lsItem = :ls_item_id and i.status=1 ')            
                     ->setParameter('ls_item_id', $lsitem->getId());
         $result = $qb->getQuery()->getResult();
         return $result;
