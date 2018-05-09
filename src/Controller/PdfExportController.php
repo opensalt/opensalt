@@ -30,13 +30,13 @@ class PdfExportController extends Controller
         $section = $phpWordObject->addSection();
 
         $response = $this->forward('App\Controller\Framework\CfPackageController:exportAction', ['id' => $id, '_format' => 'json']);
-        $data_array=json_decode($response->getContent(), true);
+        $data_array = json_decode($response->getContent(), true);
         for($i=0; $i < count($data_array['CFItems']); ++$i)
         {
-            $data_array['CFItems'][$i]['fullStatement']= $this->render_images($data_array['CFItems'][$i]['fullStatement']);
+            $data_array['CFItems'][$i]['fullStatement'] = $this->render_images($data_array['CFItems'][$i]['fullStatement']);
             if(isset($data_array['CFItems'][$i]['notes']))
             {
-                $data_array['CFItems'][$i]['notes']= $this->render_images($data_array['CFItems'][$i]['notes']);
+                $data_array['CFItems'][$i]['notes'] = $this->render_images($data_array['CFItems'][$i]['notes']);
             }
        }
         $html = $this->renderView(
