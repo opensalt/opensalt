@@ -69,8 +69,8 @@ class PdfExportController extends Controller
      */
     public function render_images($string)
     {
-        $string = str_replace('![alt text](', '<br/><br/><img src ="', $string);
-        $result = str_replace(')', '"/>', $string);
+        $pattern = '/\!\[([^\]]*)alt text\]\(*\((\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|])\)/';
+        $result = preg_replace($pattern, '$1 <img src="$2">' , $string );
         return $result;
     }
 }
