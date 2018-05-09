@@ -52,6 +52,21 @@ class AwsStorage
      */
     protected $field;
 
+    
+    /**
+     * @ORM\Column(name="status",
+     *             type="boolean",
+     *             nullable=false,
+     *             options={"default" = 0})
+     */
+    private $status;
+    
+    
+    /**
+     * @ORM\Column(name="deletedAt", type="datetime", nullable=true)
+     */
+    private $deletedAt;   
+    
     /**
      * Constructor
      */
@@ -111,7 +126,35 @@ class AwsStorage
 
         return $this;
     }
+    
+    
+    /**
+     * Set status
+     *
+     * @param string $status
+     *
+     * @return AwsStorage
+     */
+    public function setStatus($status): AwsStorage
+    {
+        $this->status = $status;
 
+        return $this;
+    }
+    
+    /**
+     * Set deletedAt
+     *
+     * @param string $deletedAt
+     *
+     * @return AwsStorage
+     */
+    
+    public function setDeletedAt($deletedAt)
+    {
+        $this->deletedAt = $deletedAt;
+    }   
+    
     /**
      * Get lsItem
      *
@@ -141,4 +184,26 @@ class AwsStorage
     {
         return $this->field;
     }
+    
+    /**
+     * Get status
+     *
+     * @return string
+     */    
+    public function getStatus()
+    {
+        return $this->status;
+    }
+    
+    /**
+     * Get deletedAt
+     *
+     * @return string
+     */    
+    public function getDeletedAt()
+    {
+        return $this->deletedAt;
+    }
+
+    
 }

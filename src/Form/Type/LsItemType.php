@@ -104,8 +104,8 @@ class LsItemType extends AbstractType
             ->add('licenceUri')
             ->add('notes')
             ->add('notesFile', FileType::class, array( 'multiple' => true, 'mapped' => false,'label'=>'Notes Attachment(s)','required' => false,)) 
-            ->add('notesAttachment', HiddenType::class, array('mapped' => false)) 
-            ->add('fullstatementAttachment', HiddenType::class, array('mapped' => false));
+          //  ->add('notesAttachment', HiddenType::class, array('mapped' => false)) 
+           // ->add('fullstatementAttachment', HiddenType::class, array('mapped' => false));
             /*
             ->add('changedAt', 'Symfony\Component\Form\Extension\Core\Type\DateTimeType', [
                 'required' => false,
