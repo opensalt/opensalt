@@ -568,7 +568,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      */
     public function setTitle($title): LsDoc
     {
-        $this->title = substr($title, 0, 120);
+        $this->title = mb_substr($title, 0, 120);
 
         return $this;
     }
@@ -585,7 +585,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
 
     public function getShortStatement(): string
     {
-        return substr($this->title, 0, 60);
+        return mb_substr($this->title, 0, 60);
     }
 
     /**
@@ -621,7 +621,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      */
     public function setDescription($description): LsDoc
     {
-        $this->description = substr($description, 0, 300);
+        $this->description = mb_substr($description, 0, 300);
 
         return $this;
     }

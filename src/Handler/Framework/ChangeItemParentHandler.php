@@ -24,7 +24,7 @@ class ChangeItemParentHandler extends BaseDoctrineHandler
 
         $parent = $dto->lsItem->getParentItem();
         if (null === $parent) {
-            $parentTitle = substr($dto->lsItem->getLsDoc(), 0, 60);
+            $parentTitle = mb_substr($dto->lsItem->getLsDoc(), 0, 60);
         } else {
             $parentTitle = $parent->getShortStatement();
             $changedItems[$parent->getId()] = $parent->getIdentifier();
