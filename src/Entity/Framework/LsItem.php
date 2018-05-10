@@ -596,7 +596,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             return $this->getAbbreviatedStatement();
         }
 
-        return substr($this->getFullStatement(), 0, 60);
+        return mb_substr($this->getFullStatement(), 0, 60);
     }
 
     /**
