@@ -51,12 +51,12 @@ class ExcelImport
 
         for ($i = 2; $i <= $lastRow; ++$i) {
             $item = $this->saveItem($sheet, $doc, $i);
-            $items[$item->getIdentifier()] = $item;
+            if ($item !== null) $items[$item->getIdentifier()] = $item;
             $smartLevel = (string) $this->getCellValueOrNull($sheet, 4, $i);
 
             if (!empty($smartLevel)) {
                 $smartLevels[$smartLevel] = $item;
-                $itemSmartLevels[$item->getIdentifier()] = $smartLevel;
+                if ($item !== null) $itemSmartLevels[$item->getIdentifier()] = $smartLevel;
             }
         }
 
@@ -172,7 +172,7 @@ class ExcelImport
         return $licence;
     }
 
-    private function saveItem(Worksheet $sheet, LsDoc $doc, int $row): LsItem
+    private function saveItem(Worksheet $sheet, LsDoc $doc, int $row): ?LsItem
     {
         static $itemTypes = [];
         $item = null;
@@ -185,44 +185,46 @@ class ExcelImport
                 ->findOneBy(['identifier' => $identifier, 'lsDocIdentifier' => $doc->getIdentifier()]);
         }
 
-        if ($item === null) {
+        if ($item === null && !empty($this->getCellValueOrNull($sheet, 2, $row))) {
             $item = $doc->createItem($identifier);
         }
 
-        $itemTypeTitle = $this->getCellValueOrNull($sheet, 11, $row);
+        if ($item !== null) {
+            $itemTypeTitle = $this->getCellValueOrNull($sheet, 11, $row);
 
-        if (in_array($itemTypeTitle, $itemTypes, true)) {
-            $itemType = $itemTypes[$itemTypeTitle];
-        } else {
-            $itemType = $this->getEntityManager()->getRepository(LsDefItemType::class)
-                ->findOneByTitle($itemTypeTitle);
+            if (in_array($itemTypeTitle, $itemTypes, true)) {
+                $itemType = $itemTypes[$itemTypeTitle];
+            } else {
+                $itemType = $this->getEntityManager()->getRepository(LsDefItemType::class)
+                    ->findOneByTitle($itemTypeTitle);
 
-            if (null === $itemType && !empty($itemTypeTitle)) {
-                $itemType = new LsDefItemType();
-                $itemType->setTitle($itemTypeTitle);
-                $itemType->setCode($itemTypeTitle);
-                $itemType->setHierarchyCode($itemTypeTitle);
-                $this->getEntityManager()->persist($itemType);
+                if (null === $itemType && !empty($itemTypeTitle)) {
+                    $itemType = new LsDefItemType();
+                    $itemType->setTitle($itemTypeTitle);
+                    $itemType->setCode($itemTypeTitle);
+                    $itemType->setHierarchyCode($itemTypeTitle);
+                    $this->getEntityManager()->persist($itemType);
+                }
+
+                $itemTypes[$itemTypeTitle] = $itemType;
             }
 
-            $itemTypes[$itemTypeTitle] = $itemType;
+            $item->setItemType($itemType);
+
+            $item->setFullStatement($this->getCellValueOrNull($sheet, 2, $row));
+            $item->setHumanCodingScheme($this->getCellValueOrNull($sheet, 3, $row));
+            // col 4 - smart level
+            $item->setListEnumInSource($this->getCellValueOrNull($sheet, 5, $row));
+            $item->setAbbreviatedStatement($this->getCellValueOrNull($sheet, 6, $row));
+            $item->setConceptKeywords($this->getCellValueOrNull($sheet, 7, $row));
+            $item->setNotes($this->getCellValueOrNull($sheet, 8, $row));
+            $item->setLanguage($this->getCellValueOrNull($sheet, 9, $row));
+            $item->setEducationalAlignment($this->getCellValueOrNull($sheet, 10, $row));
+            // col 11 - item type
+            // col 12 - licence
+
+            $this->getEntityManager()->persist($item);
         }
-
-        $item->setItemType($itemType);
-
-        $item->setFullStatement($this->getCellValueOrNull($sheet, 2, $row));
-        $item->setHumanCodingScheme($this->getCellValueOrNull($sheet, 3, $row));
-        // col 4 - smart level
-        $item->setListEnumInSource($this->getCellValueOrNull($sheet, 5, $row));
-        $item->setAbbreviatedStatement($this->getCellValueOrNull($sheet, 6, $row));
-        $item->setConceptKeywords($this->getCellValueOrNull($sheet, 7, $row));
-        $item->setNotes($this->getCellValueOrNull($sheet, 8, $row));
-        $item->setLanguage($this->getCellValueOrNull($sheet, 9, $row));
-        $item->setEducationalAlignment($this->getCellValueOrNull($sheet, 10, $row));
-        // col 11 - item type
-        // col 12 - licence
-
-        $this->getEntityManager()->persist($item);
 
         return $item;
     }
@@ -332,7 +334,7 @@ class ExcelImport
         $docRepo = $this->getEntityManager()->getRepository(LsDoc::class);
         $repo = $this->getEntityManager()->getRepository(LsItem::class);
         $findAll = 'findAllItems';
-        $remove = 'removeItem';
+        $remove = 'removeItemAndChildren';
 
         if ($type === 'associations') {
             $repo = $this->getEntityManager()->getRepository(LsAssociation::class);

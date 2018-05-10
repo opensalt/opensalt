@@ -7,6 +7,7 @@ Feature: Updating a framework via spreadsheet
 
         When I create a framework
         And I add a Item
+        Then I import children
         Then I should see the framework
         Then I download the framework excel file
         Then I update the framework via spreadsheet

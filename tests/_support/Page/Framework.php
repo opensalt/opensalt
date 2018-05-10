@@ -1181,6 +1181,8 @@ class Framework implements Context
         $sheet->setCellValue('C2', 'T');
         $sheet->setCellValue('F2', '');
 
+        $sheet->removeRow(3);
+
         $writer = \PHPOffice\PhpSpreadsheet\IOFactory::createWriter($ss, 'Xlsx');
         $writer->save(codecept_data_dir().''.$filename.'.xlsx');
 
@@ -1194,6 +1196,9 @@ class Framework implements Context
         $I->waitForJS('return $.active == 0', 5);
         $I->see('Framework updated');
         $I->see('T Item updated');
+        $I->dontSee('A.B abc');
+        $I->dontSee('A.B.C def');
+        $I->dontSee('A.B.D ghi');
     }
 
 }
