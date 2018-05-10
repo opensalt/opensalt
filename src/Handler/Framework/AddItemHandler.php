@@ -30,7 +30,7 @@ class AddItemHandler extends BaseFrameworkHandler
         if (null === $parent) {
             $parentTitle = $item->getLsDoc()->getTitle();
         } else {
-            $parentTitle = substr($parent->getShortStatement(), 0, 60);
+            $parentTitle = mb_substr($parent->getShortStatement(), 0, 60);
         }
         $changes = [
             'item-a' => [
