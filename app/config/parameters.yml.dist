@@ -36,6 +36,7 @@ parameters:
     env(COMMENTS_FEATURE): inactive
     env(CREATE_ACCOUNT_FEATURE): inactive
     env(USE_MAIL_FEATURE): inactive
+    env(ENABLE_FILE_SYSTEM): inactive
 
     env(MAIL_FEATURE_FROM_EMAIL): ~
 
