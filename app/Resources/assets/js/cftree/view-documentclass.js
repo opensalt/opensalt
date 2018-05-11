@@ -1480,6 +1480,7 @@ function ApxDocument(initializer) {
                      noteAttachField='<strong>Attachments:</strong>';
                      for(noteAttachCounter=0;noteAttachCounter<item.notesattch.length;noteAttachCounter++)
                      {
+                        let fileDownloadPath = apx.path.lsitem_download_attachment;
                         fileDownloadPath = fileDownloadPath.replace('FILENAME', item.notesattch[noteAttachCounter]);
                         noteAttachField+='<li>'
                             +'<a href='+fileDownloadPath+' target="_blank">' + item.notesattch[noteAttachCounter] + '</a> '
@@ -1491,6 +1492,7 @@ function ApxDocument(initializer) {
                      fullattachment='<strong>Attachments:</strong>';
                      for(fullattachmentCounter=0;fullattachmentCounter<item.fstmtattch.length;fullattachmentCounter++)
                      {
+                        let fileDownloadPath = apx.path.lsitem_download_attachment;
                         fileDownloadPath = fileDownloadPath.replace('FILENAME', item.fstmtattch[fullattachmentCounter]);
                         fullattachment+='<li>'
                             +'<a href='+fileDownloadPath+' target="_blank">' + item.fstmtattch[fullattachmentCounter] + '</a> '
