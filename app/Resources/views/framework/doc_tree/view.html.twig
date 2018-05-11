@@ -717,8 +717,7 @@
             apx.path.lsDoc = '{{ path('doc_tree_view', {'slug':'ID'}) }}';
             apx.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';
             apx.path.lsItemDetails = '{{ path('doc_tree_item_details', {'id':'ID'}) }}';
-            apx.path.lsitem_upload_attachment = '{{ path('lsitem_upload_attachment', {'id':'ID'}) }}';
-            apx.path.lsitem_delete_attachment = '{{ path('lsitem_delete_attachment', {'id':'ID'}) }}';
+            apx.path.lsitem_delete_attachment = '{{ path('aws_delete_file', {'id':'ID'}) }}';
             apx.path.lsdoc_edit = '{{ path('lsdoc_edit', {'id':'ID'}) }}';
             apx.path.lsdoc_delete = '{{ path('lsdoc_delete', {'id':'ID'}) }}';
             apx.path.lsdoc_unlock = '{{ path('lsdoc_unlock', {'id':'ID'}) }}';
@@ -743,10 +742,9 @@
             apx.path.doc_tree_multi_changes = '{{ path('multi_tree_info_json', {'id':'ID'}) }}';
             apx.path.doc_revisions = '{{ path('doc_revisions_json', {'id':'ID'}) }}';
             apx.path.doc_revisions_export = '{{ path('doc_revisions_csv', {'id': 'ID'}) }}';
-
             apx.path.doctree_cfpackage_export = '{{ path('doctree_cfpackage_export', {'id':'ID'}) }}';
             apx.path.doctree_retrieve_document = '{{ path('doctree_retrieve_document', {'id':'ID'}) }}';
-
+            apx.path.lsitem_download_attachment = '{{ path('aws_file_download', {'fileName':'FILENAME'}) }}';
             //////////////////////////////////
             function initialize() {
                 if (!$.isFunction(apx.initialize)) {

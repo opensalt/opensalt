@@ -10,6 +10,12 @@
         {{ form_row(form.plainPassword) }}
 
         {{ form_row(form.org) }}
+        <div class="form-group js-add-org-message">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-10">
+                <i>If your organization is not in the list, select Other to add it.</i>
+            </div>
+        </div>
         <div class="signup_new_org" style="display: none">
             {{ form_row(form.newOrg) }}
         </div>
@@ -52,9 +58,11 @@
 
             if ($org.val() === 'other') {
                 $('.signup_new_org').show();
+                $('.js-add-org-message').hide('fast');
                 $('#signup_newOrg').attr('required', true);
             } else {
                 $('.signup_new_org').hide();
+                $('.js-add-org-message').show('fast');
                 $('#signup_newOrg').attr('required', false);
             }
         });

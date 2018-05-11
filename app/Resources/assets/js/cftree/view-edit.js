@@ -118,9 +118,7 @@ apx.edit.prepareItemEditModal = function() {
             function(responseText, textStatus, jqXHR) {
                 if ($modal.find('form[name="ls_item"]').length) {
                     $modal.find('.modal-footer .btn-save').show();
-                 
                     setDropZone();
-
                 }
                 $('#ls_item_educationalAlignment').multiselect({
                     optionLabel: function(element) {
@@ -1292,47 +1290,46 @@ function removeValue(list, value) {
 function setDropZone(){
         $('#ls_item_attachment').replaceWith('<div id="Dropzonefullstatement" class="dropzone"><div class="dz-message">Upload Attachment</div></div>');
         $('#ls_item_notesFile').replaceWith('<div id="Dropzonenotes" class="dropzone"><div class="dz-message">Upload Attachment</div></div>');
-        let path = apx.path.lsitem_upload_attachment;
-        path = path.replace('ID', apx.mainDoc.currentItem.id);
         let deletepath = apx.path.lsitem_delete_attachment;
-        
         deletepath = deletepath.replace('ID', apx.mainDoc.currentItem.id);
-
-        var fullstatementDropzone = $("#Dropzonefullstatement").dropzone({
-            //autoProcessQueue: false,
+        var AllowedFileType='.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff,.tif,.pdf,.PDF,.xml,.html,.json,.doc,.docx,.txt,.prn,.pdf,.csv,.json,.html,.xml,.mp3,.mp4,.mpeg,.mpg,.wav';
+        
+            var fullstatementDropzone = $("#Dropzonefullstatement").dropzone({
             maxFilesize: 5,
-            url: '/cfdoc/1/fullStatement/aws',
+            maxFiles: 3,
+            url: '/cfdoc/'+apx.mainDoc.currentItem.id+'/fullStatement/aws',
             params: {
-                attachmentTo: 'fullstatement'
+               attachmentTo: 'fullstatement'
             },
             addRemoveLinks: true,
-            acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff,.tif',
+            acceptedFiles: AllowedFileType,
             accept: function(file, done) {
-               // var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
-                var arFiles = jQuery("#ls_item_fullstatementAttachment").val().split(",");
-              //  if (extension == "exe" || extension == "bat") {
-               //     done("Error! File(s) of these type(s) are not accepted.");
-                //} else 
-                    if (jQuery.inArray(file.name, arFiles) > -1) {
-                    var currentValue = jQuery("#ls_item_fullstatementAttachment").val();
-                    currentValue = removeValue(currentValue, name);
-                    var _ref;
-                    return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+               done();
+               var fileName = file.name;
+               var currentValue = jQuery("#ls_item_fullstatementAttachment").val();
+               if (currentValue == '') {
+                   jQuery("#ls_item_fullstatementAttachment").val(fileName);
+               } else {
+                   jQuery("#ls_item_fullstatementAttachment").val(currentValue + "," + fileName);
+               }
 
-                    done("File already exists.");
-                } else {
-                    done();
-                    var fileName = file.name;
-                    var currentValue = jQuery("#ls_item_fullstatementAttachment").val();
-                    if (currentValue == '') {
-                        jQuery("#ls_item_fullstatementAttachment").val(fileName);
-                    } else {
-                        jQuery("#ls_item_fullstatementAttachment").val(currentValue + "," + fileName);
-                    }
-                }
             },
-            init: function() {
-
+           init: function() {
+                var fullstatementFiles = jQuery("#ls_item_fullstatementAttachment").val().split(",");
+                var thisDropzone=this;
+                for (i = 0; i < fullstatementFiles.length; i++) {
+                    if(fullstatementFiles[i]!=''){   
+                    var mockFile = { name: fullstatementFiles[i], size: 100}; // here we get the file name and size as response 
+                    this.options.addedfile.call(this, mockFile);
+                    mockFile.previewElement.classList.add('dz-success');
+                    mockFile.previewElement.classList.add('dz-complete');
+                    thisDropzone.emit("complete", mockFile);  
+                    $(".dz-size").hide();
+                    $(".dz-message").show();
+                    
+                     }
+                     
+                }
             },
             success: function(file, response) {
                 var imgName = response.fileName;
@@ -1367,16 +1364,15 @@ function setDropZone(){
         var notesDropzone = $("#Dropzonenotes").dropzone({
             // autoProcessQueue: false,
             maxFilesize: 5,
-            url: '/cfdoc/1/notes/aws',
+            maxFiles: 3,
+            url: '/cfdoc/'+apx.mainDoc.currentItem.id+'/notes/aws',
             params: {
                 attachmentTo: 'notes'
             },
             addRemoveLinks: true,
-             acceptedFiles: '.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff,tif',
+             acceptedFiles: AllowedFileType,
             accept: function(file, done) {
                 var notesFiles = jQuery("#ls_item_notesAttachment").val().split(",");
-
-                //var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
                  if (jQuery.inArray(file.name, notesFiles) > -1) {
                     var currentValue = jQuery("#ls_item_notesAttachment").val();
                     currentValue = removeValue(currentValue, name);
@@ -1397,7 +1393,19 @@ function setDropZone(){
                 }
             },
             init: function() {
-
+                var notesFiles = jQuery("#ls_item_notesAttachment").val().split(",");
+                var thisDropzone=this;
+                for (i = 0; i < notesFiles.length; i++) {
+                    if(notesFiles[i]!=''){   
+                    var mockFile = { name: notesFiles[i], size: 100}; // here we get the file name and size as response 
+                    this.options.addedfile.call(this, mockFile);
+                    mockFile.previewElement.classList.add('dz-success');
+                    mockFile.previewElement.classList.add('dz-complete');
+                    thisDropzone.emit("complete", mockFile);  
+                    $(".dz-size").hide();
+                    $(".dz-message").show();
+                     }
+                }
             },
             success: function(file, response) {
                 var imgName = response.fileName;

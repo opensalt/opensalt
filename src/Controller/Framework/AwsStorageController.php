@@ -15,7 +15,9 @@ use League\Flysystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Aws\Credentials\CredentialProvider;
 use App\Command\Framework\AddFileToAwsCommand;
+use App\Command\Framework\DeleteFileCommand;
 use App\Entity\Framework\LsItem;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AwsStorageController extends AbstractController
 {
@@ -27,21 +29,31 @@ class AwsStorageController extends AbstractController
      */
     public function awsStorage(Request $request, LsItem $lsItem, string $field)
     {
+        $output = array('uploaded' => false);
         $filesystem = $this->configuration();
-        
         $file = $request->files->get('file');
+        
         $fileName = $file->getClientOriginalName(); 
-        $filePath = $file->getRealPath(); 
+        $ext = $file->guessExtension();
+        $name = explode('.',$fileName);
+        $fileName = $name[0].'-'.md5(uniqid()).'.'.$file->getClientOriginalExtension();
+        
+        /*$filePath = $file->getRealPath(); 
         if (!$filesystem->has($fileName))
         {
             $stream = fopen($filePath, 'r+');
             $result =$filesystem->writeStream($fileName, $stream);
             fclose($stream);
             echo '<div class="message">File Uploaded Successfully..!!</div>';
-        }
+        }*/
+        
         $command=new AddFileToAwsCommand($lsItem, $fileName, $field);
         $this->sendCommand($command);
-        return "File Saved.";
+      
+        $output['uploaded'] = true;
+        $output['fileName'] = $fileName;
+        return new JsonResponse($output);
+
     }
 
     private function configuration()
@@ -57,38 +69,59 @@ class AwsStorageController extends AbstractController
         //'region'  => 'eu-central-1',
         'version' => 'latest',
         ]); 
-
         //$adapter    = new AwsS3Adapter($client, "sample-test4");
         $adapter    = new AwsS3Adapter($client, "actinc.opensalt.np", "dev");
         $filesystem = new Filesystem($adapter);
         return $filesystem;
     }
 
-/**
- * @param String $fileName
- *
- * @Route("/{fileName}/file-download", requirements={"fileName"=".+"}, name="aws_file_download")
- * @return StreamedResponse
- *
- */
-    public function awsDownload(String $fileName): StreamedResponse
-    {
-        $filesystem = $this->configuration();
-        $stream = $filesystem->readStream($fileName);
-        $contents = stream_get_contents($stream);
+    /**
+     * @param String $fileName
+     *
+     * @Route("/{fileName}/file-download", requirements={"fileName"=".+"}, name="aws_file_download")
+     * @return StreamedResponse
+     *
+     */
+        public function awsDownload(String $fileName): StreamedResponse
+        {
+            
+            $filesystem = $this->configuration();
+            $stream = $filesystem->readStream($fileName);
+            $contents = stream_get_contents($stream);
+            return new StreamedResponse(
+                function () use ($contents, $fileName, $filesystem) {
+                    $local = fopen('php://output', 'rw+');
+                    fwrite($local, $contents);
+                    fclose($local);
+                },
+                200,
+                [
+                    'Content-Type' => $filesystem->getMimetype($fileName),
+                    'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+                    'Cache-Control' => 'max-age=0',
+                ]
+            );
+        }
+        
+    /**
+     * delete attachment.
+     *
+     * @Route("/cfdoc/{id}/deleteAttachment", name="aws_delete_file")
+     * @Method({"GET", "POST"})
+     * @param Request $request
+     * @param LsItem $lsItem
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
 
-        return new StreamedResponse(
-            function () use ($contents, $fileName, $filesystem) {
-                $local = fopen('php://output', 'rw+');
-                fwrite($local, $contents);
-                fclose($local);
-            },
-            200,
-            [
-                'Content-Type' => $filesystem->getMimetype($fileName),
-                'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
-                'Cache-Control' => 'max-age=0',
-            ]
-        );
-    }
+    public function deleteAttachmentAction(Request $request, LsItem $lsItem)
+    {
+        $output = array('uploaded' => false);
+        $fileName = $request->get('name');
+       // $fileName='SampleAudio_0-2d108903326448efa678e681a4818c92.mp3';
+        $command=new DeleteFileCommand($lsItem,$fileName);
+        $this->sendCommand($command);
+        $output['delete'] = true;
+        return new JsonResponse($output);
+    }        
 }

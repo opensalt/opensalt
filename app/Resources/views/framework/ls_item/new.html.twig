@@ -6,7 +6,8 @@
     {% endif %}
 
        {{ form_start(form, {'enctype': 'multipart/form-data'}) }}
-
+        <input type="hidden" name="fullstatementAttachment" id="ls_item_fullstatementAttachment" value="">
+         <input type="hidden" name="notesAttachment" id="ls_item_notesAttachment" value="">
         {{ form_widget(form) }}
         {% if not app.request.xmlHttpRequest %}
             <input class="btn btn-primary" type="submit" value="Create" />

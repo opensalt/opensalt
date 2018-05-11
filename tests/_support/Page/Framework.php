@@ -1195,5 +1195,21 @@ class Framework implements Context
         $I->see('Framework updated');
         $I->see('T Item updated');
     }
+    
+     /**
+     * @When /^I see attachment$/
+     */
+    public function iSeeAttachment(): Framework
+    {
+        $I = $this->I;
 
+        $this->iGoToTheFrameworkDocument();
+        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#addNewChildModal"]');
+        $I->click('//*[@id="documentOptions"]/button[@data-target="#addNewChildModal"]');
+        $I->waitForElementVisible('#Dropzonefullstatement');
+        $I->see('Full statement Attachment(s)');
+        $I->see('Notes Attachment(s)');
+
+        return $this;
+    }
 }

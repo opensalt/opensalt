@@ -15,6 +15,7 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\AwsStorage;
 use App\Form\Command\ChangeLsItemParentCommand;
 use App\Form\Command\CopyToLsDocCommand;
 use App\Form\Type\LsDocListType;
@@ -87,7 +88,7 @@ class LsItemController extends AbstractController
 
         $lsItem->setLsDoc($doc);
         $lsItem->setLsDocUri($doc->getUri());
-
+        
         $form = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
         $form->handleRequest($request);
 
@@ -178,13 +179,14 @@ class LsItemController extends AbstractController
         }
 
         $deleteForm = $this->createDeleteForm($lsItem);
+        $em = $this->getDoctrine()->getManager();
+        $lsItemAttachment = $em->getRepository(AwsStorage::class)->findAllItemAttachment($lsItem);
+     
+       
         $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            //echo '<pre>';
-            //print_r($_POST);die;
-            print_r($request); exit(0);
             try {
                 $command = new UpdateItemCommand($lsItem);
                 $this->sendCommand($command);
@@ -204,6 +206,7 @@ class LsItemController extends AbstractController
             'lsItem' => $lsItem,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
+            'lsItemAttachment'=> $lsItemAttachment
         ];
 
         if ($ajax && $editForm->isSubmitted() && !$editForm->isValid()) {
@@ -480,34 +483,6 @@ class LsItemController extends AbstractController
             return new JsonResponse($output);
     }
     
-    /**
-     * delete attachment.
-     *
-     * @Route("/{id}/delete-attachment", name="lsitem_delete_attachment")
-     * @Method({"GET", "POST"})
-     * @Template()
-     * @Security("is_granted('edit', lsItem)")
-     *
-     * @param Request $request
-     * @param LsItem $lsItem
-     * @param User $user
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
-     */
 
-    public function deleteAttachmentAction(Request $request, LsItem $lsItem, UserInterface $user)
-    {
-        $output = array('uploaded' => false);
-        // get the file from the request object
-        $file = $request->files->get('file');
-        $attachmentTo=$request->get('attachmentTo');
-        $uploadDir =dirname(__DIR__).'../../../web/uploads/'. $attachmentTo.'/';
-        $fileName=$uploadDir.'/'.$request->get('name');
-        $fs = new Filesystem();
-        if($fs->remove($fileName)){
-            $output['delete'] = true;
-        }
-        return new JsonResponse($output);
-    }
 
 }

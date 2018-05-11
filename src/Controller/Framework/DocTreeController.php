@@ -14,6 +14,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\AwsStorage;
 use App\Form\Type\LsDocListType;
 use App\Entity\User\User;
 use GuzzleHttp\ClientInterface;
@@ -216,12 +217,29 @@ class DocTreeController extends AbstractController
         ];
 
         $itemTypes = [];
+       
         foreach ($items as $item) {
             if (!empty($item['itemType'])) {
                 $itemTypes[$item['itemType']['code']] = $item['itemType'];
             }
         }
 
+        foreach ($items as $key=>$item) {
+           $lsItemAttachment = $this->getDoctrine()->getRepository(AwsStorage::class)->findItemAttachmenById($item['id']);
+            $notesAttachment=array();
+            $fullStatementAttachment=array();
+           foreach($lsItemAttachment as $attachment){
+               if($attachment['field']=='fullStatement'){
+                   $fullStatementAttachment[]=$attachment['fileName'];
+               }
+               else if($attachment['field']=='notes'){
+                    $notesAttachment[]=$attachment['fileName'];
+               }
+           }
+           $items[$key]['fullStatementAttachment']=$fullStatementAttachment;
+           $items[$key]['notesAttachment']=$notesAttachment;
+        }
+       
         $arr = [
             'lsDoc' => $lsDoc,
             'docAttributes' => $docAttributes,

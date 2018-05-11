@@ -6,6 +6,9 @@
 "identifier": {{ lsItem.identifier |json_encode |raw }},
 {# Leave out uri; we can construct that from the CFDocumentURI and the identifier #}
 "fstmt": {{ lsItem.fullStatement |json_encode |raw }},
+{% if lsItem.fullStatementAttachment is not null %}
+"fstmtattch": {{ lsItem.fullStatementAttachment |json_encode |raw }},
+{% endif %}
 {% if lsItem.humanCodingScheme is not null %}
 "hcs": {{ lsItem.humanCodingScheme |json_encode |raw }},
 {% endif %}
@@ -21,6 +24,9 @@
 {% endif %}
 {% if lsItem.notes is not null %}
 "notes": {{ lsItem.notes |json_encode |raw }},
+{% endif %}
+{% if lsItem.notesAttachment is not null %}
+"notesattch": {{ lsItem.notesAttachment |json_encode |raw }},
 {% endif %}
 {% if lsItem.language is not null %}
 "lang": {{ lsItem.language |json_encode |raw }},
