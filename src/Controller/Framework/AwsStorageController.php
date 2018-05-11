@@ -84,6 +84,7 @@ class AwsStorageController extends AbstractController
      */
         public function awsDownload(String $fileName): StreamedResponse
         {
+            
             $filesystem = $this->configuration();
             $stream = $filesystem->readStream($fileName);
             $contents = stream_get_contents($stream);

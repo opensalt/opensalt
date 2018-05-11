@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 use App\Entity\Framework\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Component\Validator\Constraints\DateTime;
+use Doctrine\ORM\Query;
 /**
  * AwsStorageRepository
  */
@@ -56,26 +57,28 @@ class AwsStorageRepository extends ServiceEntityRepository
      *
      * @return file
      */
-
     public function DeleteFile($itemId,$fileName)
     {
-       /* $qb = $this->createQueryBuilder('i')
-                    ->where('i.fileName = :fileName')            
-                    ->setParameter('fileName', $fileName);
-        $file = $qb->getQuery()->getResult();
-        $file->setStatus(false);
-        $file->setDeletedAt(new DateTime());
-        $this->getEntityManager()->persist($file);
-        return $this;*/
-        
 
         $file = $this->findOneBy(array('fileName' => $fileName));
-       
-        echo $file->getField();
         $file->setStatus(false);
         $file->setDeletedAt(new \DateTime());
         $this->getEntityManager()->persist($file);
         return $this;
         
     }
+        /**
+     * @param LsItem $itemId
+     *
+     * @return array
+     */
+    public function findItemAttachmenById($itemId, $format = Query::HYDRATE_ARRAY)
+    { 
+        $qb = $this->createQueryBuilder('i')
+                    ->where('i.lsItem = :ls_item_id and i.status=:ls_status ')            
+                    ->setParameter('ls_item_id', $itemId)
+                    ->setParameter('ls_status', true);
+        $result = $qb->getQuery()->getResult($format);
+        return $result;
+    }   
 }
