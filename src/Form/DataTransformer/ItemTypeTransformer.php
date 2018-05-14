@@ -3,7 +3,7 @@
 namespace App\Form\DataTransformer;
 
 use App\Entity\Framework\LsDefItemType;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -15,7 +15,7 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
  */
 class ItemTypeTransformer implements DataTransformerInterface
 {
-    /** @var ObjectManager */
+    /** @var EntityManagerInterface */
     protected $em;
     /** @var string */
     protected $className;
@@ -27,12 +27,12 @@ class ItemTypeTransformer implements DataTransformerInterface
     protected $accessor;
 
     /**
-     * @param ObjectManager $em
+     * @param EntityManagerInterface $em
      * @param string        $class
      * @param string|null   $textProperty
      * @param string        $primaryKey
      */
-    public function __construct(ObjectManager $em, $class, $textProperty = null, $primaryKey = 'id')
+    public function __construct(EntityManagerInterface $em, $class, $textProperty = null, $primaryKey = 'id')
     {
         $this->em = $em;
         $this->className = $class;
@@ -59,7 +59,7 @@ class ItemTypeTransformer implements DataTransformerInterface
             return $data;
         }
 
-        $text = is_null($this->textProperty)
+        $text = (null === $this->textProperty)
             ? (string) $entity
             : $this->accessor->getValue($entity, $this->textProperty);
 

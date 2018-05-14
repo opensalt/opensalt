@@ -27,6 +27,11 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        session_check:
+            pattern: ^/session/check
+            methods: [GET]
+            security: false
+
         read_api:
             pattern: ^/api/
             methods: [GET]

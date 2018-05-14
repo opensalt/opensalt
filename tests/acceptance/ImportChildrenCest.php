@@ -14,9 +14,11 @@ class ImportChildrenCest
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('super_user');
         $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementVisible('[data-target="#addChildrenModal"]', 120);
         $I->see('Import Children');
         $I->click('Import Children');
-        $I->waitForElementVisible('#addChildrenModal');
+        $I->waitForElementVisible('#addChildrenModal', 120);
         $I->see('Import Items');
 
         $data = file_get_contents(codecept_data_dir().'sequenceNumber.csv');
@@ -70,9 +72,11 @@ class ImportChildrenCest
         $framework->iCreateAFramework('Import CSV Framework');
 
         $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementVisible('[data-target="#addChildrenModal"]', 120);
         $I->see('Import Children');
         $I->click('Import Children');
-        $I->waitForElementVisible('#addChildrenModal');
+        $I->waitForElementVisible('#addChildrenModal', 120);
         $I->see('Import Items');
 
         $I->attachFile('input#file-url', 'abbreviatedStatementLimit.csv');
@@ -91,9 +95,11 @@ class ImportChildrenCest
         $framework->iCreateAFramework('Import CSV Framework');
 
         $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementVisible('[data-target="#addChildrenModal"]', 120);
         $I->see('Import Children');
         $I->click('Import Children');
-        $I->waitForElementVisible('#addChildrenModal');
+        $I->waitForElementVisible('#addChildrenModal', 120);
         $I->see('Import Items');
 
         $I->attachFile('input#file-url', 'abbreviatedStatement.csv');

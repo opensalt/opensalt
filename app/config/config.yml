@@ -10,7 +10,7 @@ imports:
 parameters:
     locale: en
     database_host: '%env(MYSQL_HOST)%'
-    database_port: '%env(MYSQL_PORT)%'
+    database_port: '%env(int:MYSQL_PORT)%'
     database_name: '%env(MYSQL_DATABASE)%'
     database_user: '%env(MYSQL_USER)%'
     database_password: '%env(MYSQL_PASSWORD)%'
@@ -19,7 +19,7 @@ parameters:
     mailer_user: '%env(MAILER_USER)%'
     mailer_password: '%env(MAILER_PASSWORD)%'
     mailer_auth_mode: '%env(MAILER_AUTH_MODE)%'
-    mailer_port: '%env(MAILER_PORT)%'
+    mailer_port: '%env(int:MAILER_PORT)%'
     secret: '%env(SECRET)%'
     cookie_secret: '%env(COOKIE_SECRET)%'
     local_uri_host: '%env(LOCAL_URI_HOST)%'
@@ -43,6 +43,8 @@ parameters:
     mail_feature_from_email: '%env(MAIL_FEATURE_FROM_EMAIL)%'
     google_captcha_site_key: '%env(GOOGLE_CAPTCHA_SITE_KEY)%'
     google_captcha_secret_key: '%env(GOOGLE_CAPTCHA_SECRET_KEY)%'
+    env(SESSION_MAX_IDLE_TIME): 3600
+    session_max_idle_time: '%env(int:SESSION_MAX_IDLE_TIME)%'
 
 framework:
     #esi:             ~
@@ -69,7 +71,7 @@ framework:
         cookie_lifetime: 0
         #cookie_secure: true
         cookie_httponly: true
-        gc_maxlifetime: 3600
+        gc_maxlifetime: 86400
         gc_probability: 25
         gc_divisor:     100
         metadata_update_threshold: 120
@@ -144,7 +146,7 @@ doctrine:
                 password: "%database_password%"
                 options:  "%pdo_options%"
                 charset:  utf8mb4
-                schema_filter: ~^(?!(auth_session|cache_items|LearningStandards|std_*|grade_level))~
+                schema_filter: ~^(?!(cache_items|LearningStandards|std_*|grade_level))~
                 server_version: 5.7
                 mapping_types:
                     json: string
@@ -194,7 +196,7 @@ swiftmailer:
     host:      "%mailer_host%"
     username:  "%mailer_user%"
     password:  "%mailer_password%"
-    auth_mode: cram-md5
+    auth_mode: "%mailer_auth_mode%"
     port:      "%mailer_port%"
     # to disable mail uncomment disable_delivery: true
     # disable_delivery: true
