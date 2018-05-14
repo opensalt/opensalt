@@ -1292,12 +1292,18 @@ function setDropZone(){
         $('#ls_item_notesFile').replaceWith('<div id="Dropzonenotes" class="dropzone"><div class="dz-message">Upload Attachment</div></div>');
         let deletepath = apx.path.lsitem_delete_attachment;
         deletepath = deletepath.replace('ID', apx.mainDoc.currentItem.id);
+        
+        let uploadpath = apx.path.lsitem_upload_attachment;
+        uploadpath = uploadpath.replace('ID', apx.mainDoc.currentItem.id);
+        fullstatementUploadpath = uploadpath.replace('FIELD', 'fullStatement');
+        notesUploadpath = uploadpath.replace('FIELD', 'notes');
+        
         var AllowedFileType='.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff,.tif,.pdf,.PDF,.xml,.html,.json,.doc,.docx,.txt,.prn,.pdf,.csv,.json,.html,.xml,.mp3,.mp4,.mpeg,.mpg,.wav';
         
             var fullstatementDropzone = $("#Dropzonefullstatement").dropzone({
             maxFilesize: 5,
             maxFiles: 3,
-            url: '/cfdoc/'+apx.mainDoc.currentItem.id+'/fullStatement/aws',
+            url: fullstatementUploadpath,
             params: {
                attachmentTo: 'fullstatement'
             },
@@ -1365,7 +1371,7 @@ function setDropZone(){
             // autoProcessQueue: false,
             maxFilesize: 5,
             maxFiles: 3,
-            url: '/cfdoc/'+apx.mainDoc.currentItem.id+'/notes/aws',
+            url: notesUploadpath,
             params: {
                 attachmentTo: 'notes'
             },
