@@ -205,18 +205,35 @@ const render = (function(){
       }
     }
 
+    function underlineText(editor) {
+      var cm = editor.codemirror;
+      var output = "";
+      var selectedText = cm.getSelection();
+      var text = selectedText || 'placeholder';
+
+      output = "_" + text + "_";
+      cm.replaceSelection(output);
+    }
+
     render.mde = function (element) {
         let SimpleMDE = require('simplemde');
         return new SimpleMDE({
           element : element,
-          toolbar : [ 'bold', 'italic', 'heading', '|', 'quote',
-            'unordered-list', 'ordered-list', {
+          toolbar : [
+            {
+              name: "underlineText",
+              action: underlineText,
+              className: "fa fa-underline",
+              title: "Underline text",
+            },
+            "bold", "italic", "heading", "|", "quote",
+            "unordered-list", "ordered-list", {
             name : "AlphabeticalList",
             action : alphaList,
-            className : "fa fa-sort-alpha-asc", // Look for a suitable icon
+            className : "fa fa-sort-alpha-asc",
             title : "Alphabetical List",
-          } , '|', 'table', 'horizontal-rule', '|', 'preview',
-          'side-by-side', 'fullscreen' ],
+          } , "|", "table", "horizontal-rule", "|", "preview",
+          "side-by-side", "fullscreen" ],
           previewRender : render.block
         });
     };
