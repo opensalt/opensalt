@@ -167,7 +167,7 @@ class LsItemController extends AbstractController
     public function editAction(Request $request, LsItem $lsItem, UserInterface $user)
     {
         $ajax = $request->isXmlHttpRequest();
-
+//echo 'asdadsdas';
         try {
             $command = new LockItemCommand($lsItem, $user);
             $this->sendCommand($command);
@@ -181,7 +181,7 @@ class LsItemController extends AbstractController
         $deleteForm = $this->createDeleteForm($lsItem);
         $em = $this->getDoctrine()->getManager();
         $lsItemAttachment = $em->getRepository(AwsStorage::class)->findAllItemAttachment($lsItem);
-     
+       
        
         $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
         $editForm->handleRequest($request);
@@ -401,6 +401,7 @@ class LsItemController extends AbstractController
 
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
     {
+         
         $ret = [
             'id' => $item->getId(),
             'identifier' => $item->getIdentifier(),
@@ -437,7 +438,20 @@ class LsItemController extends AbstractController
                 }
             }
         }
+        $lsItemAttachment = $this->getDoctrine()->getRepository(AwsStorage::class)->findItemAttachmenById($item->getId());
 
+        $notesAttachment=array();
+            $fullStatementAttachment=array();
+           foreach($lsItemAttachment as $attachment){
+               if($attachment['field']=='fullStatement'){
+                   $fullStatementAttachment[]=$attachment['fileName'];
+               }
+               else if($attachment['field']=='notes'){
+                    $notesAttachment[]=$attachment['fileName'];
+               }
+           }
+           $ret['fullStatementAttachment']=$fullStatementAttachment;
+           $ret['notesAttachment']=$notesAttachment;
         $response = new Response($this->renderView('framework/doc_tree/export_item.json.twig', ['lsItem' => $ret]));
         $response->headers->set('Content-Type', 'application/json');
         $response->headers->set('Cache-Control', 'no-cache');

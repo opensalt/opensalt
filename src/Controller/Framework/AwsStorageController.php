@@ -38,14 +38,14 @@ class AwsStorageController extends AbstractController
         $name = explode('.',$fileName);
         $fileName = $name[0].'-'.md5(uniqid()).'.'.$file->getClientOriginalExtension();
         
-        /*$filePath = $file->getRealPath(); 
+        $filePath = $file->getRealPath(); 
         if (!$filesystem->has($fileName))
         {
             $stream = fopen($filePath, 'r+');
             $result =$filesystem->writeStream($fileName, $stream);
             fclose($stream);
             echo '<div class="message">File Uploaded Successfully..!!</div>';
-        }*/
+        }
         
         $command=new AddFileToAwsCommand($lsItem, $fileName, $field);
         $this->sendCommand($command);
@@ -60,7 +60,7 @@ class AwsStorageController extends AbstractController
     {
         $provider = CredentialProvider::defaultProvider();
         $client = \Aws\S3\S3Client::factory([
-        /*'credentials' => [
+       /* 'credentials' => [
             'key'    => 'AKIAJMM3WLA2KVT732XA',
             'secret' => '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'
         ], */
@@ -82,10 +82,39 @@ class AwsStorageController extends AbstractController
      * @return StreamedResponse
      *
      */
-        public function awsDownload(String $fileName): StreamedResponse
+       // public function awsDownload(String $fileName):StreamedResponse
+        public function awsDownload(String $fileName)
         {
+            $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+            $exts = array('mp3','mp4','mpeg','mpg','wav'); 
             
-            $filesystem = $this->configuration();
+            $arr=array();
+           // return $this->render('framework/ls_item/show.attachment.twig', $arr);  
+            
+                $filesystem = $this->configuration();
+            $stream = $filesystem->readStream($fileName);
+            $contents = stream_get_contents($stream);
+           
+            if(in_array($ext, $exts)){
+                $arr=array('contents'=>base64_encode($contents),'ext'=>$ext);
+                return $this->render('framework/ls_item/show.attachment.twig', $arr);  
+            }
+            else{
+                 return new StreamedResponse(
+                function () use ($contents, $fileName, $filesystem) {
+                    $local = fopen('php://output', 'rw+');
+                    fwrite($local, $contents);
+                    fclose($local);
+                },
+                200,
+                [
+                    'Content-Type' => $filesystem->getMimetype($fileName),
+                    'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+                    'Cache-Control' => 'max-age=0',
+                ]);
+                
+            }
+           /* $filesystem = $this->configuration();
             $stream = $filesystem->readStream($fileName);
             $contents = stream_get_contents($stream);
             return new StreamedResponse(
@@ -100,7 +129,8 @@ class AwsStorageController extends AbstractController
                     'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
                     'Cache-Control' => 'max-age=0',
                 ]
-            );
+            );*/
+            
         }
         
     /**

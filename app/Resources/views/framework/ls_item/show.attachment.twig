@@ -1,110 +1,20 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>LsItem</h1>
+{#<img src="{{ asset('assets/img/association-icon.png') }}" width="300px" height="150px"> #}
 
-    <table class="table table-condensed table-bordered table-striped">
-        <tbody>
-            <tr>
-                <th>Internal Id</th>
-                <td>{{ lsItem.id }}</td>
-            </tr>
-            <tr>
-                <th>Uri</th>
-                <td>{{ lsItem.uri }}</td>
-            </tr>
-            <tr>
-                <th>LSDoc Uri</th>
-                <td><a href="{{ path('lsdoc_show', { 'id': lsItem.lsDoc.id }) }}">{{ lsItem.lsDocUri }}</a></td>
-            </tr>
-            <tr>
-                <th>Human Coding Scheme</th>
-                <td>{{ lsItem.humanCodingScheme }}</td>
-            </tr>
-            <tr>
-                <th>Identifier</th>
-                <td>{{ lsItem.identifier }}</td>
-            </tr>
-            <tr>
-                <th>List Enum in Source</th>
-                <td>{{ lsItem.listEnumInSource }}</td>
-            </tr>
-            <tr>
-                <th>Full Statement</th>
-                <td>{{ lsItem.fullStatement }}</td>
-            </tr>
-            <tr>
-                <th>Abbreviated Statement</th>
-                <td>{{ lsItem.abbreviatedStatement }}</td>
-            </tr>
-            <tr>
-                <th>Concept Keywords</th>
-                <td>{{ lsItem.conceptKeywords }}</td>
-            </tr>
-            <tr>
-                <th>Concept Keywords Uri</th>
-                <td>{{ lsItem.conceptKeywordsUri }}</td>
-            </tr>
-            <tr>
-                <th>Notes</th>
-                <td>{{ lsItem.notes }}</td>
-            </tr>
-            <tr>
-                <th>Language</th>
-                <td>{{ lsItem.language }}</td>
-            </tr>
-            <tr>
-                <th>Educational Alignment</th>
-                <td>{{ lsItem.educationalAlignment }}</td>
-            </tr>
-            <tr>
-                <th>Item Type</th>
-                <td>{{ lsItem.itemType.code }}</td>
-            </tr>
-            {% if lsItem.lsItemParent is not empty %}
-            <tr>
-                <th>Parent</th>
-                <td>
-                    {% for parent in lsItem.lsItemParent %}
-                        <a href="{{ path('lsitem_show', { 'id':parent.id }) }}">{{ parent.uri }}</a><br/>
-                    {% endfor %}
-                </td>
-            </tr>
-            {% endif %}
-            {% if lsItem.children is not empty %}
-            <tr>
-                <th>Children</th>
-                <td>
-                    {% for child in lsItem.children %}
-                        <a href="{{ path('lsitem_show', { 'id':child.id }) }}">{{ child.uri }}</a><br/>
-                    {% endfor %}
-                </td>
-            </tr>
-            {% endif %}
-            <tr>
-                <th>Licence Uri</th>
-                <td>{{ lsItem.licenceUri }}</td>
-            </tr>
-            <tr>
-                <th>Changed At</th>
-                <td>{% if lsItem.changedAt %}{{ lsItem.changedAt|date('Y-m-d H:i:s') }}{% endif %}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <ul class="list-inline">
-        <li>
-            <a class="btn btn-primary" href="{{ path('lsitem_index') }}">Back to the list</a>
-        </li>
-        {% if is_granted('edit', lsItem) %}
-          <li>
-              <a class="btn btn-default" href="{{ path('lsitem_edit', { 'id': lsItem.id }) }}">Edit</a>
-          </li>
-          <li>
-              {{ form_start(delete_form) }}
-                  <input class="btn btn-default" type="submit" value="Delete">
-              {{ form_end(delete_form) }}
-          </li>
-        {% endif %}
-    </ul>
+ {% if ext == 'mp3' %}
+    <audio controls>
+      <source src="data:audio/wav;base64,{{ contents}}" type="audio/mpeg">
+      Your browser does not support the audio tag.
+    </audio>
+ {% else %}
+     
+    <video width="320" height="240" controls>
+      <source src="data:video/webm;base64,{{contents}}"  type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+      
+  {% endif %} 
+  
 {% endblock %}
