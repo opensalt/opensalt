@@ -224,7 +224,7 @@ const render = (function(){
               name: "underlineText",
               action: underlineText,
               className: "fa fa-underline",
-              title: "Underline text (Ctrl/Cmd-Alt-R)",
+              title: "Underline text",
             },
             "bold", "italic", "heading", "|", "quote",
             "unordered-list", "ordered-list", {
