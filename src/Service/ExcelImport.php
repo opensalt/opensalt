@@ -51,12 +51,16 @@ class ExcelImport
 
         for ($i = 2; $i <= $lastRow; ++$i) {
             $item = $this->saveItem($sheet, $doc, $i);
-            if ($item !== null) $items[$item->getIdentifier()] = $item;
+            if ($item !== null) {
+                $items[$item->getIdentifier()] = $item;
+            }
             $smartLevel = (string) $this->getCellValueOrNull($sheet, 4, $i);
 
             if (!empty($smartLevel)) {
                 $smartLevels[$smartLevel] = $item;
-                if ($item !== null) $itemSmartLevels[$item->getIdentifier()] = $smartLevel;
+                if ($item !== null) {
+                    $itemSmartLevels[$item->getIdentifier()] = $smartLevel;
+                }
             }
         }
 
