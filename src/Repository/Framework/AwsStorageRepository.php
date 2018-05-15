@@ -80,5 +80,26 @@ class AwsStorageRepository extends ServiceEntityRepository
                     ->setParameter('ls_status', true);
         $result = $qb->getQuery()->getResult($format);
         return $result;
-    }   
+    }  
+    
+    
+        /**
+     * @param LsItem $itemId
+     * @param string $fileName
+     *
+     * @return file
+     */
+    public function UpdateFile($lsitemId,$fileName)
+    {
+       
+       foreach($fileName as $f){
+
+            $file = $this->findOneBy(array('fileName' => $f));
+            $file->setLsItem($lsitemId);
+            $this->getEntityManager()->persist($file);
+         }
+
+        return $this;
+
+        }
 }
