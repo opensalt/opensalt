@@ -1293,11 +1293,11 @@ function setDropZone(){
         let deletepath = apx.path.lsitem_delete_attachment;
         deletepath = deletepath.replace('ID', apx.mainDoc.currentItem.id);
         
-        let uploadpath = apx.path.lsitem_upload_attachment;
-        uploadpath = uploadpath.replace('ID', apx.mainDoc.currentItem.id);
-        fullstatementUploadpath = uploadpath.replace('FIELD', 'fullStatement');
-        notesUploadpath = uploadpath.replace('FIELD', 'notes');
-        
+            let uploadpath = apx.path.lsitem_upload_attachment;
+            uploadpath = uploadpath.replace('ID', apx.mainDoc.currentItem.id);
+            fullstatementUploadpath = uploadpath.replace('FIELD', 'fullStatement');
+            notesUploadpath = uploadpath.replace('FIELD', 'notes');
+
             var AllowedFileType='.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff,.tif,.pdf,.PDF,.xml,.html,.json,.doc,.docx,.txt,.prn,.pdf,.csv,.json,.html,.xml,.mp3,.mp4,.mpeg,.mpg,.wav';
             
             var fullstatementDropzone = $("#Dropzonefullstatement").dropzone({
@@ -1321,13 +1321,15 @@ function setDropZone(){
                         alert(errorMessage);
                       });
                 var fullstatementFiles = jQuery("#ls_item_fullstatementAttachment").val().split(",");
+                
                 var thisDropzone=this;
                 for (i = 0; i < fullstatementFiles.length; i++) {
                     if(fullstatementFiles[i]!=''){   
-                    var mockFile = { name: fullstatementFiles[i], size: 100}; // here we get the file name and size as response 
+                    var mockFile = { name: fullstatementFiles[i], accepted: true}; // here we get the file name and size as response 
                     this.options.addedfile.call(this, mockFile);
+                     thisDropzone.files.push(mockFile);
                      //thisDropzone.emit("addedfile", fullstatementFiles[i]);
-                     
+                   // this.options.maxFiles = this.options.maxFiles - 1;
                     mockFile.previewElement.classList.add('dz-success');
                     mockFile.previewElement.classList.add('dz-complete');
                     thisDropzone.emit("complete", mockFile);  
@@ -1337,6 +1339,18 @@ function setDropZone(){
                      }
                      
                 }
+                
+                this.on("addedfile", function(file) {
+                     var thisDropzone=this;
+                     var fullstatementFiles = jQuery("#ls_item_fullstatementAttachment").val().split(",");
+                    
+                    if (fullstatementFiles.length >= this.options.maxFiles) {
+                       // this.removeFile(this.file);
+                        thisDropzone.emit("maxfilesexceeded");
+                    }
+                });
+                
+                
             },
             success: function(file, response) {
                 var imgName = response.fileName;
@@ -1349,6 +1363,8 @@ function setDropZone(){
                         }
                     }
                 file.previewElement.classList.add("dz-success");
+                var fileuploded = file.previewElement.querySelector("[data-dz-name]");
+                fileuploded.innerHTML = imgName;
                 console.log("Successfully uploaded :" + imgName);
                 
             },
@@ -1369,8 +1385,7 @@ function setDropZone(){
                         console.log('success: ' + data);
                     }
                 });
-                var _ref;
-                return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+                $(file['previewElement']).remove();
             },
             error: function(file, response) {
               //  $(file.previewElement).addClass("dz-error").find('.dz-error-message').text(response.Message);
@@ -1390,26 +1405,11 @@ function setDropZone(){
             addRemoveLinks: true,
             acceptedFiles: AllowedFileType,
             dictInvalidFileType: "You can't upload files of this type,The file you are uploading must be in one of the following formats: jpeg, png , gif , tif , doc , docx, txt, prn, pdf, csv, json, html, xml, mp3, mp4, mpeg, mpg, wav ",
-             accept: function(file, done) {
-                var notesFiles = jQuery("#ls_item_notesAttachment").val().split(",");
-                 if (jQuery.inArray(file.name, notesFiles) > -1) {
-                    var currentValue = jQuery("#ls_item_notesAttachment").val();
-                    currentValue = removeValue(currentValue, name);
-                    var _ref;
-                    return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+            accept: function(file, done) {
+               done();
+               var fileName = file.name;
+              
 
-                    done("File already exists.");
-                } else {
-                    done();
-                    var fileName = file.name;
-                    /*var currentValue = jQuery("#ls_item_notesAttachment").val();
-                    if (currentValue == '') {
-                        jQuery("#ls_item_notesAttachment").val(fileName);
-                    } else {
-                        jQuery("#ls_item_notesAttachment").val(currentValue + "," + fileName);
-                    }*/
-
-                }
             },
             init: function() {
                   this.on('error', function(file, errorMessage) {
@@ -1419,7 +1419,7 @@ function setDropZone(){
                 var thisDropzone=this;
                 for (i = 0; i < notesFiles.length; i++) {
                     if(notesFiles[i]!=''){   
-                    var mockFile = { name: notesFiles[i], size: 100}; // here we get the file name and size as response 
+                    var mockFile = { name: notesFiles[i], accepted: true}; // here we get the file name and size as response 
                     this.options.addedfile.call(this, mockFile);
                     
                     //thisDropzone.emit("addedfile", notesFiles[i]);
@@ -1430,6 +1430,16 @@ function setDropZone(){
                     $(".dz-message").show();
                      }
                 }
+               this.on("addedfile", function(file) {
+                     var thisDropzone=this;
+                     var notesFiles = jQuery("#ls_item_notesAttachment").val().split(",");
+                    if (notesFiles.length >= this.options.maxFiles) {
+                       // this.removeFile(this.file);
+                        thisDropzone.emit("maxfilesexceeded");
+                    }
+                }); 
+                
+                
             },
             success: function(file, response) {
                 var imgName = response.fileName;
@@ -1442,6 +1452,8 @@ function setDropZone(){
                    }
                }
                 file.previewElement.classList.add("dz-success");
+                var fileuploded = file.previewElement.querySelector("[data-dz-name]");
+                fileuploded.innerHTML = imgName;
                 console.log("Successfully uploaded :" + imgName);
             },
 
