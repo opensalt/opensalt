@@ -17,7 +17,7 @@
 {% for category in pdfData.CFItems %}
 
     <section>
-       <p><b>Full Statement : </b>{{ category.fullStatement }} </p>
+       <p><b>Full Statement : </b>{{ category.fullStatement | raw }} </p>
        {% if category.humanCodingScheme is defined %}<p><b>Human coding scheme : </b>{{ category.humanCodingScheme }} </p>{% endif %}
        {% if category.listEnumeration is defined %}<p><b>List enum in source : </b>{{ category.listEnumeration }} </p>{% endif %}
        {% if category.abbreviatedStatement is defined %}<p><b>Abbreviated statement : </b>{{ category.abbreviatedStatement }} </p>{% endif %}
@@ -25,7 +25,7 @@
        {% if category.language is defined %}<p><b>Language : </b>{{ category.language }} </p>{% endif %}
        {% if category.educationLevel is defined %}<p><b>Education Level : </b>{% for level in category.educationLevel %}{% if not loop.first %}, {% endif %}{{ level }} {% endfor %} </p>{% endif %}
        {% if category.CFItemType is defined %}<p><b>Item type : </b>{{ category.CFItemType }} </p>{% endif %}
-       {% if category.notes is defined %}<p><b>Notes : </b>{{ category.notes }} </p> {% endif %}
+       {% if category.notes is defined %}<p><b>Notes : </b>{{ category.notes | raw }} </p> {% endif %}
     </section>
 
     <section>

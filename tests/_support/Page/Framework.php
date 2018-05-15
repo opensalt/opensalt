@@ -1187,6 +1187,7 @@ class Framework implements Context
         $writer->save(codecept_data_dir().''.$filename.'.xlsx');
 
         $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#updateFrameworkModal"]', 120);
         $I->see('Update Framework');
         $I->click('Update Framework');
         $I->waitForElementVisible('#updateFrameworkModal');
