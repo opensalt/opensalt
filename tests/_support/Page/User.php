@@ -233,14 +233,14 @@ class User implements Context
         $I->amOnPage('/user/change-password');
         $I->see('Change Password');
         $I->fillField('#change_password_oldPassword', $password);
-        $I->fillField('#change_password_newPassword_first', '123456');
-        $I->fillField('#change_password_newPassword_second', '123456');
+        $I->fillField('#change_password_newPassword_first', 'opensalt@123');
+        $I->fillField('#change_password_newPassword_second', 'opensalt@123');
         $I->click('/html/body/div[1]/main/div[2]/div/div[2]/form/ul/li[1]/input');
         $I->see('Your password has been changed.');
 
         $I->amOnPage('/user/change-password');
         $I->see('Change Password');
-        $I->fillField('#change_password_oldPassword', '123456');
+        $I->fillField('#change_password_oldPassword', 'opensalt@123');
         $I->fillField('#change_password_newPassword_first', $password);
         $I->fillField('#change_password_newPassword_second', $password);
         $I->click('/html/body/div[1]/main/div[2]/div/div[2]/form/ul/li[1]/input');
@@ -343,5 +343,19 @@ class User implements Context
         $I->amOnPage('/admin/user');
         $I->click('th.sorting_asc');
         $I->assertEquals($I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[5]'), 'Pending', 'Can not see status column');
+    }
+    
+    /**
+     * @Then /^I fill in the old password$/
+     */
+    public function iOldPassword()
+    {
+        $I = $this->I;
+        $password = $this->I->getLastPassword();
+
+        $I->amOnPage('/user/change-password');
+        $I->see('Change Password');
+        $I->fillField('#change_password_oldPassword', $password);
+
     }
 }
