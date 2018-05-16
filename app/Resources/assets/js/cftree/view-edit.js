@@ -211,6 +211,7 @@ apx.edit.prepareItemEditModal = function() {
             });
             statementMde = render.mde($('#ls_item_fullStatement')[0]);
             notesMde = render.mde($('#ls_item_notes')[0]);
+             setDropZone();
         });
     });
 };
@@ -296,6 +297,7 @@ apx.edit.prepareAddNewChildModal = function() {
             });
             statementMde = render.mde($('#ls_item_fullStatement')[0]);
             notesMde = render.mde($('#ls_item_notes')[0]);
+             setDropZone();
         });
     });
 };
