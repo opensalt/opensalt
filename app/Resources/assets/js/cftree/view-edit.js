@@ -1290,10 +1290,10 @@ function removeValue(list, value) {
 }
 
 function setDropZone(){
-        $('#ls_item_attachment').replaceWith('<div id="Dropzonefullstatement" class="dropzone"><div class="dz-message">Upload Attachment</div></div>');
-        $('#ls_item_notesFile').replaceWith('<div id="Dropzonenotes" class="dropzone"><div class="dz-message">Upload Attachment</div></div>');
-        let deletepath = apx.path.lsitem_delete_attachment;
-        deletepath = deletepath.replace('ID', apx.mainDoc.currentItem.id);
+            $('#ls_item_attachment').replaceWith('<div id="Dropzonefullstatement" class="dropzone"><div class="dz-message">Upload Attachment</div></div>');
+            $('#ls_item_notesFile').replaceWith('<div id="Dropzonenotes" class="dropzone"><div class="dz-message">Upload Attachment</div></div>');
+            let deletepath = apx.path.lsitem_delete_attachment;
+            deletepath = deletepath.replace('ID', apx.mainDoc.currentItem.id);
         
             let uploadpath = apx.path.lsitem_upload_attachment;
             uploadpath = uploadpath.replace('ID', apx.mainDoc.currentItem.id);
@@ -1330,8 +1330,6 @@ function setDropZone(){
                     var mockFile = { name: fullstatementFiles[i], accepted: true}; // here we get the file name and size as response 
                     this.options.addedfile.call(this, mockFile);
                      thisDropzone.files.push(mockFile);
-                     //thisDropzone.emit("addedfile", fullstatementFiles[i]);
-                   // this.options.maxFiles = this.options.maxFiles - 1;
                     mockFile.previewElement.classList.add('dz-success');
                     mockFile.previewElement.classList.add('dz-complete');
                     thisDropzone.emit("complete", mockFile);  
@@ -1341,7 +1339,6 @@ function setDropZone(){
                      }
                      
                 }
-                
                 this.on("addedfile", function(file) {
                      var thisDropzone=this;
                      var fullstatementFiles = jQuery("#ls_item_fullstatementAttachment").val().split(",");
@@ -1350,9 +1347,8 @@ function setDropZone(){
                        // this.removeFile(this.file);
                         thisDropzone.emit("maxfilesexceeded");
                     }
+   
                 });
-                
-                
             },
             success: function(file, response) {
                 var imgName = response.fileName;
@@ -1390,17 +1386,13 @@ function setDropZone(){
                 $(file['previewElement']).remove();
             },
             error: function(file, response) {
-              //  $(file.previewElement).addClass("dz-error").find('.dz-error-message').text(response.Message);
-
-                (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+               (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
             }
         });
         var notesDropzone = $("#Dropzonenotes").dropzone({
-            // autoProcessQueue: false,
             maxFilesize: 5,
             maxFiles: 3,
             url: notesUploadpath,
-            
             params: {
                 attachmentTo: 'notes'
             },
@@ -1410,38 +1402,33 @@ function setDropZone(){
             accept: function(file, done) {
                done();
                var fileName = file.name;
-              
-
             },
             init: function() {
                   this.on('error', function(file, errorMessage) {
                         alert(errorMessage);
                       });
                 var notesFiles = jQuery("#ls_item_notesAttachment").val().split(",");
-                var thisDropzone=this;
+                var notesDropzone=this;
                 for (i = 0; i < notesFiles.length; i++) {
                     if(notesFiles[i]!=''){   
                     var mockFile = { name: notesFiles[i], accepted: true}; // here we get the file name and size as response 
                     this.options.addedfile.call(this, mockFile);
-                    
-                    //thisDropzone.emit("addedfile", notesFiles[i]);
+                     notesDropzone.files.push(mockFile);
                     mockFile.previewElement.classList.add('dz-success');
                     mockFile.previewElement.classList.add('dz-complete');
-                    thisDropzone.emit("complete", mockFile);  
+                    notesDropzone.emit("complete", mockFile);  
                     $(".dz-size").hide();
                     $(".dz-message").show();
                      }
                 }
                this.on("addedfile", function(file) {
-                     var thisDropzone=this;
+                     var notesDropzone=this;
                      var notesFiles = jQuery("#ls_item_notesAttachment").val().split(",");
                     if (notesFiles.length >= this.options.maxFiles) {
-                       // this.removeFile(this.file);
-                        thisDropzone.emit("maxfilesexceeded");
+                       notesDropzone.emit("maxfilesexceeded");
                     }
+    
                 }); 
-                
-                
             },
             success: function(file, response) {
                 var imgName = response.fileName;
@@ -1483,5 +1470,4 @@ function setDropZone(){
                  (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
             }
         });
-
-}
+    }
