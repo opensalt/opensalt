@@ -83,7 +83,7 @@ class AwsStorage
 
         return $this;
     }
-    
+
     /**
      * Set fileName
      *

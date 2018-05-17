@@ -23,14 +23,13 @@ class AwsStorageController extends AbstractController
 
     /**
      * @Route("/cfdoc/{id}/{field}/aws", name="aws_storage_file")
-     *
      */
     public function awsStorage(Request $request, LsItem $lsItem, string $field)
     {
         $filesystem = $this->configuration();
-        
+
         $file = $request->files->get('file');
-        $fileName = $file->getClientOriginalName(); 
+        $fileName = $file->getClientOriginalName();
         $filePath = $file->getRealPath(); 
         if (!$filesystem->has($fileName))
         {
@@ -64,13 +63,13 @@ class AwsStorageController extends AbstractController
         return $filesystem;
     }
 
-/**
- * @param String $fileName
- *
- * @Route("/{fileName}/file-download", requirements={"fileName"=".+"}, name="aws_file_download")
- * @return StreamedResponse
- *
- */
+    /**
+     * @param String $fileName
+     *
+     * @Route("/{fileName}/file-download", requirements={"fileName"=".+"}, name="aws_file_download")
+     * @return StreamedResponse
+     *
+     */
     public function awsDownload(String $fileName): StreamedResponse
     {
         $filesystem = $this->configuration();

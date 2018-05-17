@@ -20,14 +20,8 @@ class AddFileToAwsHandler extends BaseDoctrineHandler
         $fileName = $command->getFileName();
         $field = $command->getField();
         $repo = $this->em->getRepository(AwsStorage::class);
-
         $comment = $repo->addFile($lsItem, $fileName, $field);
-
-//        $command->setComment($comment);
-
         $notification="File Added";
 
-//        $command->setNotificationEvent($notification);
     }
 }
-

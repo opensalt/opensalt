@@ -20,7 +20,6 @@ class AddFileToAwsCommand extends BaseCommand
      * @Assert\Type("string")
      * @Assert\NotNull()
      */
-
     private $fileName;
 
     /**
@@ -29,7 +28,6 @@ class AddFileToAwsCommand extends BaseCommand
      * @Assert\Type("string")
      * @Assert\NotNull()
      */
-
     private $field;
 
     public function __construct(LsItem $item, string $fileName, string $field)
