@@ -3,13 +3,9 @@
 namespace App\Controller\Framework;
 
 use App\Command\CommandDispatcherTrait;
-use App\Service\ExcelExport;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use League\Flysystem\Adapter\AwsS3 as Adapter;
-use Aws\S3\S3Client;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,6 +27,7 @@ class AwsStorageController extends AbstractController
         $file = $request->files->get('file');
         $fileName = $file->getClientOriginalName();
         $filePath = $file->getRealPath(); 
+        
         if (!$filesystem->has($fileName))
         {
             $stream = fopen($filePath, 'r+');
@@ -40,6 +37,7 @@ class AwsStorageController extends AbstractController
         }
         $command=new AddFileToAwsCommand($lsItem, $fileName, $field);
         $this->sendCommand($command);
+        
         return "File Saved.";
     }
 
@@ -55,6 +53,7 @@ class AwsStorageController extends AbstractController
         'region'  => 'us-east-1',
         //'region'  => 'eu-central-1',
         'version' => 'latest',
+            
         ]); 
 
         //$adapter    = new AwsS3Adapter($client, "sample-test4");
@@ -64,11 +63,12 @@ class AwsStorageController extends AbstractController
     }
 
     /**
+     * 
      * @param String $fileName
      *
      * @Route("/{fileName}/file-download", requirements={"fileName"=".+"}, name="aws_file_download")
+     * 
      * @return StreamedResponse
-     *
      */
     public function awsDownload(String $fileName): StreamedResponse
     {
@@ -90,4 +90,5 @@ class AwsStorageController extends AbstractController
             ]
         );
     }
+
 }
