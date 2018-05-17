@@ -17,7 +17,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use App\Entity\Framework\AwsStorage;
 
 class LsItemType extends AbstractType
 {
@@ -45,7 +44,7 @@ class LsItemType extends AbstractType
             ->add('fullStatement')
             ->add('attachment', FileType::class, array( 'multiple' => true, 'mapped' => false,'label'=>'Full statement Attachment(s)','required' => false,))
             ->add('humanCodingScheme')
-            //->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
+             //->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
             ->add('listEnumInSource')
             ->add('abbreviatedStatement')
             ->add('conceptKeywords')

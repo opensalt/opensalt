@@ -2,9 +2,7 @@
 
 namespace App\Handler\Framework;
 
-use App\Command\Framework\AddFileToAwsCommand;
 use App\Event\CommandEvent;
-use App\Event\NotificationEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use App\Handler\BaseDoctrineHandler;
 use App\Entity\Framework\AwsStorage;

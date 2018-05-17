@@ -440,7 +440,7 @@ class LsItemController extends AbstractController
 
         return $response;
     }
-    
+
     /**
      * Upload attachment to LsItem entity.
      *
@@ -465,8 +465,8 @@ class LsItemController extends AbstractController
             $attachmentTo=$request->get('attachmentTo');
             $fileName = $file->getClientOriginalName();
             // set your uploads directory
-            $uploadDir =dirname(__DIR__).'../../../web/uploads/'. $attachmentTo.'/';
 
+            $uploadDir =dirname(__DIR__).'../../../web/uploads/'. $attachmentTo.'/';
             if ($file->move($uploadDir, $fileName)) { 
                $output['uploaded'] = true;
                $output['fileName'] = $fileName;
@@ -494,6 +494,7 @@ class LsItemController extends AbstractController
         // get the file from the request object
         $file = $request->files->get('file');
         $attachmentTo=$request->get('attachmentTo');
+        
         $uploadDir =dirname(__DIR__).'../../../web/uploads/'. $attachmentTo.'/';
         $fileName=$uploadDir.'/'.$request->get('name');
         $fs = new Filesystem();
