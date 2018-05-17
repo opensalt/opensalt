@@ -3,7 +3,6 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
-use App\Entity\Framework\AwsStorage;
 use App\Entity\Framework\LsItem;
 use Symfony\Component\Validator\Constraints as Assert;
 
