@@ -1477,7 +1477,7 @@ function ApxDocument(initializer) {
             }) {
                 
                  if (item.notesattch.length){
-                     noteAttachField='<strong>Attachments:</strong><br>';
+                     noteAttachField='<strong>Attachments:</strong><div style="height:10px;"></div>';
                      for(noteAttachCounter=0;noteAttachCounter<item.notesattch.length;noteAttachCounter++)
                      {
                         let fileDownloadPath = apx.path.lsitem_download_attachment;
@@ -1490,7 +1490,7 @@ function ApxDocument(initializer) {
                      
                  }
                  if (item.fstmtattch.length){
-                     fullattachment='<strong>Attachments:</strong><br>';
+                     fullattachment='<strong>Attachments:</strong><div style="height:10px;"></div>';
                      for(fullattachmentCounter=0;fullattachmentCounter<item.fstmtattch.length;fullattachmentCounter++)
                      {
                         let fileDownloadPath = apx.path.lsitem_download_attachment;

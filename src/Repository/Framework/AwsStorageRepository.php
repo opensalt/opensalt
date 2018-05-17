@@ -81,25 +81,21 @@ class AwsStorageRepository extends ServiceEntityRepository
         $result = $qb->getQuery()->getResult($format);
         return $result;
     }  
-    
-    
         /**
      * @param LsItem $itemId
-     * @param string $fileName
+     * @param string $fileList
      *
      * @return file
      */
-    public function UpdateFile($lsitemId,$fileName)
+    public function UpdateFile($lsitemId,$fileList)
     {
-       
-       foreach($fileName as $f){
+       foreach($fileList as $fileName){
 
-            $file = $this->findOneBy(array('fileName' => $f));
+            $file = $this->findOneBy(array('fileName' => $fileName));
             $file->setLsItem($lsitemId);
             $this->getEntityManager()->persist($file);
          }
-
         return $this;
 
-        }
+       }
 }
