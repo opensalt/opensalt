@@ -3,7 +3,6 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\AwsStorage;
-use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use App\Entity\Framework\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
