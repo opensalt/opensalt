@@ -27,7 +27,7 @@ class AwsStorageController extends AbstractController
         $file = $request->files->get('file');
         $fileName = $file->getClientOriginalName();
 
-        $filePath = $file->getRealPath(); 
+        $filePath = $file->getRealPath();
 
         if (!$filesystem->has($fileName))
         {
@@ -39,7 +39,7 @@ class AwsStorageController extends AbstractController
         $command=new AddFileToAwsCommand($lsItem, $fileName, $field);
         $this->sendCommand($command);
 
-        return "File Saved.";
+        return 'File Saved.';
     }
 
     private function configuration()
@@ -57,7 +57,7 @@ class AwsStorageController extends AbstractController
 
         ]);
 
-        $adapter = new AwsS3Adapter($client, "actinc.opensalt.np", "dev");
+        $adapter = new AwsS3Adapter($client, 'actinc.opensalt.np', 'dev');
         $filesystem = new Filesystem($adapter);
 
         return $filesystem;
@@ -66,7 +66,7 @@ class AwsStorageController extends AbstractController
     /**
      * Download file
      * 
-     * @param String $fileName
+     * @param string $fileName
      * @Route("/{fileName}/file-download", requirements={"fileName"=".+"}, name="aws_file_download")
      * 
      * @return StreamedResponse

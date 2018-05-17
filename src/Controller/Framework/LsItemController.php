@@ -251,8 +251,7 @@ class LsItemController extends AbstractController
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsitem_delete', array('id' => $lsItem->getId())))
             ->setMethod('DELETE')
-            ->getForm()
-        ;
+            ->getForm();
     }
 
     /**
@@ -466,8 +465,8 @@ class LsItemController extends AbstractController
             $fileName = $file->getClientOriginalName();
             // set your uploads directory
 
-            $uploadDir =dirname(__DIR__).'../../../web/uploads/'. $attachmentTo.'/';
-            if ($file->move($uploadDir, $fileName)) { 
+            $uploadDir =dirname(__DIR__).'../../../web/uploads/'.$attachmentTo.'/';
+            if ($file->move($uploadDir, $fileName)) {
                $output['uploaded'] = true;
                $output['fileName'] = $fileName;
             }
@@ -494,11 +493,11 @@ class LsItemController extends AbstractController
         // get the file from the request object
         $file = $request->files->get('file');
         $attachmentTo=$request->get('attachmentTo');
-        
-        $uploadDir =dirname(__DIR__).'../../../web/uploads/'. $attachmentTo.'/';
+
+        $uploadDir =dirname(__DIR__).'../../../web/uploads/'.$attachmentTo.'/';
         $fileName=$uploadDir.'/'.$request->get('name');
         $fs = new Filesystem();
-        if($fs->remove($fileName)){
+        if($fs->remove($fileName)) {
             $output['delete'] = true;
         }
         return new JsonResponse($output);
