@@ -16,11 +16,12 @@ class AddExemplarToItemHandler extends BaseFrameworkHandler
 
         $item = $command->getItem();
         $url = $command->getUrl();
+        $file = $command->getFile();
 
         $this->validate($command, $item);
         $this->validate($command, $command);
 
-        $association = $this->framework->addExemplarToItem($item, $url);
+        $association = $this->framework->addExemplarToItem($item, $url, $file);
         $command->setAssociation($association);
 
         $notification = new NotificationEvent(

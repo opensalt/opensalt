@@ -14,6 +14,7 @@ use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\AwsStorage;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManager;
 use Ramsey\Uuid\Uuid;
@@ -125,7 +126,7 @@ class FrameworkService
         $this->em->persist($association);
     }
 
-    public function addExemplarToItem(LsItem $item, string $url): LsAssociation
+    public function addExemplarToItem(LsItem $item, string $url, AwsStorage $file): LsAssociation
     {
         $lsAssociation = new LsAssociation();
         $lsAssociation->setLsDoc($item->getLsDoc());
@@ -133,6 +134,7 @@ class FrameworkService
         $lsAssociation->setType(LsAssociation::EXEMPLAR);
         $lsAssociation->setDestinationNodeUri($url);
         $lsAssociation->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $url));
+        $lsAssociation->setFileName($file);
 
         // TODO: setDestinationTitle is not currently a table field.
         //$lsAssociation->setDestinationTitle($request->request->get("exemplarDescription"));

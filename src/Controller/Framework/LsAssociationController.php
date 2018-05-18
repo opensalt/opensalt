@@ -177,7 +177,8 @@ class LsAssociationController extends AbstractController
         }
 
         try {
-            $command = new AddExemplarToItemCommand($originLsItem, $request->request->get('exemplarUrl'));
+            $file_name='test1.png';
+            $command = new AddExemplarToItemCommand($originLsItem, $request->request->get('exemplarUrl'), $file_name);
             $this->sendCommand($command);
             $lsAssociation = $command->getAssociation();
 

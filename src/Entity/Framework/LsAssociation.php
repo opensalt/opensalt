@@ -258,7 +258,40 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      */
     private $sequenceNumber;
 
+    /**
+     * @var AwsStorage
+     *
+     * @ORM\ManyToOne(targetEntity="AwsStorage", inversedBy="inverseAssociations", fetch="EAGER", cascade={"persist"})
+     * @ORM\JoinColumn(name="attachment_id", referencedColumnName="id")
+     *
+     * @Serializer\Exclude()
+     */
+    protected $attachmentId;
+	
+	
+    /**
+     * Set Attachment ID
+     *
+     * @param AwsStorage $attachmentId
+     *
+     * @return LsAssociation
+     */
+    public function setAttachment($attachmentId): LsAssociation
+    {
+        $this->attachmentId = $attachmentId;
 
+        return $this;
+    }
+
+    /**
+     * Get attachment
+     *
+     * @return LsAssociation
+     */
+    public function getAttachment(): ?LsAssociation
+    {
+        return $this->attachmentId;
+    }
     /**
      * Constructor
      *

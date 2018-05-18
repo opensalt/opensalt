@@ -25,6 +25,13 @@ class AddExemplarToItemCommand extends BaseCommand
      * @Assert\Length(max="300")
      */
     private $url;
+    
+    /**
+     * @var AwsStorage|null
+     *
+     * @Assert\Type(AwsStorage::class)
+     */
+    private $file;
 
     /**
      * @var LsAssociation|null
@@ -36,10 +43,11 @@ class AddExemplarToItemCommand extends BaseCommand
     /**
      * Constructor.
      */
-    public function __construct(LsItem $item, string $url, ?LsAssociation $association = null)
+    public function __construct(LsItem $item, string $url, AwsStorage $file, ?LsAssociation $association = null)
     {
         $this->item = $item;
         $this->url = $url;
+        $this->file = $file;
         $this->association = $association;
     }
 
@@ -51,6 +59,11 @@ class AddExemplarToItemCommand extends BaseCommand
     public function getUrl(): string
     {
         return $this->url;
+    }
+    
+    public function getFile(): AwsStorage
+    {
+        return $this->file;
     }
 
     public function getAssociation(): ?LsAssociation
