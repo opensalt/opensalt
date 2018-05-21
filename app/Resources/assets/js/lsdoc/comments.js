@@ -14,6 +14,7 @@ var CommentSystem = (function(){
         $('.js-comments-container').comments({
             profilePictureUrl: '',
             enableDeletingCommentWithReplies: true,
+            enableAttachments: COMMENTS_ATTACHMENTS,
             getComments: function(success, error) {
                 $.ajax({
                     type: 'get',

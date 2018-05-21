@@ -30,6 +30,7 @@ parameters:
     brand_link_url: '%env(BRAND_LINK_URL)%'
     brand_link_style: '%env(BRAND_LINK_STYLE)%'
     comments_feature: '%env(COMMENTS_FEATURE)%'
+    comments_attachments: '%env(COMMENTS_ATTACHMENTS)%'
     firebase_api_key: '%env(FIREBASE_API_KEY)%'
     firebase_db_url: '%env(FIREBASE_DB_URL)%'
     firebase_auth_domain: '%env(FIREBASE_AUTH_DOMAIN)%'
@@ -291,6 +292,9 @@ qandidate_toggle:
         comments:
             name: comments
             status: '%comments_feature%'
+        comments_attachments:
+            name: comments_attachments
+            status: '%comments_attachments%'
         create_account:
             name: create_account
             status: '%create_account_feature%'

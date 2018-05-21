@@ -26,6 +26,7 @@ parameters:
 
     # to enable the comments feature you should pass 'always-active' instead of 'inactive'
     env(COMMENTS_FEATURE): inactive
+    env(COMMENTS_ATTACHMENTS): inactive
     env(CREATE_ACCOUNT_FEATURE): inactive
     env(USE_MAIL_FEATURE): inactive
 
