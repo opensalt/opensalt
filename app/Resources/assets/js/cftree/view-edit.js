@@ -1290,8 +1290,8 @@ function removeValue(list, value) {
 }
 
 function setDropZone(){
-            $('#ls_item_attachment').replaceWith('<div id="Dropzonefullstatement" class="dropzone"><div class="dz-message">Upload Attachment</div></div>');
-            $('#ls_item_notesFile').replaceWith('<div id="Dropzonenotes" class="dropzone"><div class="dz-message">Upload Attachment</div></div>');
+            $('#ls_item_attachment').replaceWith('<div id="Dropzonefullstatement" class="dropzone"><div class="dz-message">Upload Attachment</div></div><small id="emailHelp" class="form-text text-muted"><small>You can upload max. 3 files</small>');
+            $('#ls_item_notesFile').replaceWith('<div id="Dropzonenotes" class="dropzone"><div class="dz-message">Upload Attachment</div></div><small id="emailHelp" class="form-text text-muted"><small>You can upload max. 3 files</small>');
             let deletepath = apx.path.lsitem_delete_attachment;
             deletepath = deletepath.replace('ID', apx.mainDoc.currentItem.id);
         
@@ -1368,7 +1368,7 @@ function setDropZone(){
             },
 
             removedfile: function(file) {
-                var name = file.name;
+                var name = file.previewElement.querySelector('[data-dz-name]').innerHTML;
                 var currentValue = jQuery("#ls_item_fullstatementAttachment").val();
                 currentValue = removeValue(currentValue, name);
                 jQuery("#ls_item_fullstatementAttachment").val(currentValue);
@@ -1447,7 +1447,8 @@ function setDropZone(){
             },
 
             removedfile: function(file) {
-                var name = file.name;
+                //var name = file.name;
+                var name = file.previewElement.querySelector('[data-dz-name]').innerHTML;
                 var currentValue = jQuery("#ls_item_notesAttachment").val();
                 currentValue = removeValue(currentValue, name)
                 jQuery("#ls_item_notesAttachment").val(currentValue);
