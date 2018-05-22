@@ -2,8 +2,13 @@ Release Notes
 =============
 
 2.1 ([Full issue and PR list](https://github.com/opensalt/opensalt/issues?&q=milestone%3A2.1+is%3Aclosed))
+http://docs.opensalt.org/en/2.1/
+
 ---
 ### New
+- Update Framework via Spreadsheet
+- Mail Configuration for User Management Features
+
 
 ### Improvements
 
@@ -14,7 +19,6 @@ Release Notes
     * Twig templates have been moved to app/Resources/views
 
 ### Fixes
-
 
 
 2.0 ([Full issue and PR list](https://github.com/opensalt/opensalt/issues?&q=milestone%3A2.0+is%3Aclosed))
@@ -61,7 +65,7 @@ Release Notes
 1.3
 ---
 User Guide corresponding to 1.3
-https://docs.google.com/document/d/1AtSvwpxcVABon2QzKzGhcHg4KV54JbpKnaIsDXKVkhk/edit?usp=sharing 
+https://docs.google.com/document/d/1AtSvwpxcVABon2QzKzGhcHg4KV54JbpKnaIsDXKVkhk/edit?usp=sharing
 ### New
 
 * Markdown editor
