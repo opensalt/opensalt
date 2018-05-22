@@ -37,7 +37,7 @@ class AwsStorageController extends AbstractController
         $ext = $file->guessExtension();
         $name = explode('.',$fileName);
         $fileName = $name[0].'-'.md5(uniqid()).'.'.$file->getClientOriginalExtension();
-        
+        $fileName = preg_replace('/[^A-Za-z0-9\.]/','_',$fileName);
         $filePath = $file->getRealPath(); 
         if (!$filesystem->has($fileName))
         {
@@ -60,17 +60,17 @@ class AwsStorageController extends AbstractController
     {
         $provider = CredentialProvider::defaultProvider();
         $client = \Aws\S3\S3Client::factory([
-       /* 'credentials' => [
+        'credentials' => [
             'key'    => 'AKIAJMM3WLA2KVT732XA',
             'secret' => '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'
-        ], */
-        'credentials' => $provider,
-        'region'  => 'us-east-1',
-        //'region'  => 'eu-central-1',
+        ], 
+       // 'credentials' => $provider,
+       // 'region'  => 'us-east-1',
+        'region'  => 'eu-central-1',
         'version' => 'latest',
         ]); 
-        //$adapter    = new AwsS3Adapter($client, "sample-test4");
-        $adapter    = new AwsS3Adapter($client, "actinc.opensalt.np", "dev");
+        $adapter    = new AwsS3Adapter($client, "sample-test4");
+        //$adapter    = new AwsS3Adapter($client, "actinc.opensalt.np", "dev");
         $filesystem = new Filesystem($adapter);
         return $filesystem;
     }

@@ -1477,42 +1477,54 @@ function ApxDocument(initializer) {
             }) {
                 
                  if (item.notesattch.length){
-                     noteAttachField='<strong>Attachments:</strong>';
+                     noteAttachField='<strong>Attachments:</strong><div style="height:10px;"></div>';
                      for(noteAttachCounter=0;noteAttachCounter<item.notesattch.length;noteAttachCounter++)
                      {
                         let fileDownloadPath = apx.path.lsitem_download_attachment;
                         fileDownloadPath = fileDownloadPath.replace('FILENAME', item.notesattch[noteAttachCounter]);
-                        noteAttachField+='<li>'
-                            +'<a href='+fileDownloadPath+' target="_blank">' + item.notesattch[noteAttachCounter] + '</a> '
+                        var shortText = jQuery.trim(item.notesattch[noteAttachCounter] ).substring(0, 100); 
+                        noteAttachField+='<li class="list-group-item">'
+                            +'<a href='+fileDownloadPath+' target="_blank" >' + shortText + '</a> '
                             +'</li>';
                      } 
                      
                  }
                  if (item.fstmtattch.length){
-                     fullattachment='<strong>Attachments:</strong>';
+                     fullattachment='<strong>Attachments:</strong><div style="height:10px;"></div>';
                      for(fullattachmentCounter=0;fullattachmentCounter<item.fstmtattch.length;fullattachmentCounter++)
                      {
                         let fileDownloadPath = apx.path.lsitem_download_attachment;
                         fileDownloadPath = fileDownloadPath.replace('FILENAME', item.fstmtattch[fullattachmentCounter]);
-                        fullattachment+='<li>'
-                            +'<a href='+fileDownloadPath+' target="_blank">' + item.fstmtattch[fullattachmentCounter] + '</a> '
+                        fullattachment+='<li class="list-group-item">'
+                            +'<a href='+fileDownloadPath+' target="_blank" >' + item.fstmtattch[fullattachmentCounter] + '</a> '
                             +'</li>';
                      } 
                      
                  }
-                if (!empty(item[key])) {
+                if (!empty(item[key])||(empty(item['notes']&&item.notesattch.length>0))||(empty(item['fstmt']&&item.fstmtattch.length>0))) {
                     val = item[key];
                     if (key === 'fstmt' || key === 'notes') {
-                        html += '<li class="list-group-item markdown-body">'+ '<strong>' + attributes[key] + ':</strong>'+render.block(val);
-                    if (key === 'fstmt'){
-                        html += '<ul style="list-style: inside">'+fullattachment+'</ul>';
-                    }
-                     if (key === 'notes'){
-                        html += '<ul style="list-style: inside">'+noteAttachField+'</ul>';
-                    }                   
+                          if (key === 'fstmt'){
+                            html += '<li class="list-group-item markdown-body">'+ '<strong>' + attributes[key] + ':</strong>';
+                            if (!empty(item[key])){
+                               
+                                html+=render.block(val);
+                           }
+                           
+                            html += '<br><ul style="list-style: inside;padding-left:1px;" class="list-group">'+fullattachment+'</ul>';
+                        }
+                        if (key === 'notes'){
+                             if (!empty(item[key])|| item.notesattch.length>0 ){
+                                html += '<li class="list-group-item markdown-body">'+ '<strong>' + attributes[key] + ':</strong>';
+                            }
+                            if (!empty(item[key])){
+                                html+=render.block(val);
+                           }
+                             html += '<br><ul style="inside;padding-left:1px;" class="list-group">'+noteAttachField+'</ul>';
+                       }                   
                         html +='</li>';
                         
-                    } else {
+                    } else if(!empty(item[key])) {
                         // TODO: deal with ck, el, itp
                         html += '<li class="list-group-item">'
                             + '<strong>' + attributes[key] + ':</strong> '

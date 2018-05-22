@@ -10,6 +10,7 @@ use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\LockItemCommand;
 use App\Command\Framework\RemoveChildCommand;
 use App\Command\Framework\UpdateItemCommand;
+use App\Command\Framework\UpdateAttachmentCommand;
 use App\Exception\AlreadyLockedException;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
@@ -96,9 +97,20 @@ class LsItemController extends AbstractController
             try {
                 $command = new AddItemCommand($lsItem, $doc, $parent, $assocGroup);
                 $this->sendCommand($command);
-
-                // retrieve isChildOf assoc id for the new item
+                
+                $notesAttachment= ($request->get('notesAttachment')!='')?explode(',',$request->get('notesAttachment')):array();
+                $fullstatementAttachment= ($request->get('fullstatementAttachment')!='')?explode(',',$request->get('fullstatementAttachment')):array();
+                $attachment=array_merge($notesAttachment,$fullstatementAttachment);
+               
                 $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $lsItem]);
+                
+                if(count($attachment)){
+                    $attachmentCommand = new UpdateAttachmentCommand($lsItem,$attachment);
+                    $this->sendCommand($attachmentCommand);  
+                }
+                          
+                // retrieve isChildOf assoc id for the new item
+                
 
                 if ($ajax) {
                     // if ajax call, return the item as json
@@ -443,7 +455,7 @@ class LsItemController extends AbstractController
         $notesAttachment=array();
             $fullStatementAttachment=array();
            foreach($lsItemAttachment as $attachment){
-               if($attachment['field']=='fullStatement'){
+               if($attachment['field']=='fullstatement'){
                    $fullStatementAttachment[]=$attachment['fileName'];
                }
                else if($attachment['field']=='notes'){

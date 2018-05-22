@@ -10,7 +10,7 @@
           {% set attachment = '' %}
         {% set notesAttachment = '' %}
         {% for entity in lsItemAttachment %}
-            {% if entity.field == 'fullStatement' %}
+            {% if entity.field == 'fullstatement' %}
              
                {% set attachment = attachment ~ ','~entity.filename %}
 

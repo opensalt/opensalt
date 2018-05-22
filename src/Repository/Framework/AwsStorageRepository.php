@@ -75,10 +75,29 @@ class AwsStorageRepository extends ServiceEntityRepository
     public function findItemAttachmenById($itemId, $format = Query::HYDRATE_ARRAY)
     { 
         $qb = $this->createQueryBuilder('i')
-                    ->where('i.lsItem = :ls_item_id and i.status=:ls_status ')            
-                    ->setParameter('ls_item_id', $itemId)
-                    ->setParameter('ls_status', true);
+                    ->where('i.lsItem = :ls_item_id and i.status=1 ')            
+                    ->setParameter('ls_item_id', $itemId);
+        
         $result = $qb->getQuery()->getResult($format);
         return $result;
-    }   
+    }  
+        /**
+     * @param LsItem $itemId
+     * @param string $fileList
+     *
+     * @return file
+     */
+    public function UpdateFile($lsitemId,$fileList)
+    {
+       foreach($fileList as $fileName){
+
+            $file = $this->findOneBy(array('fileName' => $fileName));
+            $file->setLsItem($lsitemId);
+            $file->setStatus(true);
+            $this->getEntityManager()->persist($file);
+         }
+        return $this;
+
+       }
+ 
 }
