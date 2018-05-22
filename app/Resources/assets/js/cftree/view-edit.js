@@ -1297,7 +1297,7 @@ function setDropZone(){
         
             let uploadpath = apx.path.lsitem_upload_attachment;
             uploadpath = uploadpath.replace('ID', apx.mainDoc.currentItem.id);
-            fullstatementUploadpath = uploadpath.replace('FIELD', 'fullStatement');
+            fullstatementUploadpath = uploadpath.replace('FIELD', 'fullstatement');
             notesUploadpath = uploadpath.replace('FIELD', 'notes');
 
             var AllowedFileType='.jpg,.jpeg,.JPEG,.JPG,.png,.PNG,.svg,.SVG,.gif,.GIF,.tiff,.tif,.pdf,.PDF,.xml,.html,.json,.doc,.docx,.txt,.prn,.pdf,.csv,.json,.html,.xml,.mp3,.mp4,.mpeg,.mpg,.wav';
@@ -1308,7 +1308,7 @@ function setDropZone(){
             url: fullstatementUploadpath,
             dictInvalidFileType: "You can't upload files of this type,The file you are uploading must be in one of the following formats: jpeg, png , gif , tif , doc , docx, txt, prn, pdf, csv, json, html, xml, mp3, mp4, mpeg, mpg, wav ",
             params: { 
-               attachmentTo: 'fullStatement'
+               attachmentTo: 'fullstatement'
             },
             addRemoveLinks: true,
             acceptedFiles: AllowedFileType,
@@ -1377,7 +1377,7 @@ function setDropZone(){
                     url: deletepath,
                     data: {
                         name: name,
-                        attachmentTo: "fullStatement"
+                        attachmentTo: "fullstatement"
                     },
                     sucess: function(data) {
                         console.log('success: ' + data);

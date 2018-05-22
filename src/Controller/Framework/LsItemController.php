@@ -455,7 +455,7 @@ class LsItemController extends AbstractController
         $notesAttachment=array();
             $fullStatementAttachment=array();
            foreach($lsItemAttachment as $attachment){
-               if($attachment['field']=='fullStatement'){
+               if($attachment['field']=='fullstatement'){
                    $fullStatementAttachment[]=$attachment['fileName'];
                }
                else if($attachment['field']=='notes'){
