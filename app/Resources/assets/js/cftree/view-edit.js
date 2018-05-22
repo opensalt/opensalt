@@ -1308,7 +1308,7 @@ function setDropZone(){
             url: fullstatementUploadpath,
             dictInvalidFileType: "You can't upload files of this type,The file you are uploading must be in one of the following formats: jpeg, png , gif , tif , doc , docx, txt, prn, pdf, csv, json, html, xml, mp3, mp4, mpeg, mpg, wav ",
             params: { 
-               attachmentTo: 'fullstatement'
+               attachmentTo: 'fullStatement'
             },
             addRemoveLinks: true,
             acceptedFiles: AllowedFileType,
@@ -1377,7 +1377,7 @@ function setDropZone(){
                     url: deletepath,
                     data: {
                         name: name,
-                        attachmentTo: "fullstatement"
+                        attachmentTo: "fullStatement"
                     },
                     sucess: function(data) {
                         console.log('success: ' + data);

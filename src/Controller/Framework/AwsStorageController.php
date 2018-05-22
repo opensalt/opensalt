@@ -44,7 +44,7 @@ class AwsStorageController extends AbstractController
             $stream = fopen($filePath, 'r+');
             $result =$filesystem->writeStream($fileName, $stream);
             fclose($stream);
-            echo '<div class="message">File Uploaded Successfully..!!</div>';
+            //echo '<div class="message">File Uploaded Successfully..!!</div>';
         }
         
         $command=new AddFileToAwsCommand($lsItem, $fileName, $field);
@@ -60,17 +60,17 @@ class AwsStorageController extends AbstractController
     {
         $provider = CredentialProvider::defaultProvider();
         $client = \Aws\S3\S3Client::factory([
-        'credentials' => [
+       /* 'credentials' => [
             'key'    => 'AKIAJMM3WLA2KVT732XA',
             'secret' => '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'
-        ], 
-       // 'credentials' => $provider,
-       // 'region'  => 'us-east-1',
-        'region'  => 'eu-central-1',
+        ], */
+        'credentials' => $provider,
+        'region'  => 'us-east-1',
+       // 'region'  => 'eu-central-1',
         'version' => 'latest',
         ]); 
-        $adapter    = new AwsS3Adapter($client, "sample-test4");
-        //$adapter    = new AwsS3Adapter($client, "actinc.opensalt.np", "dev");
+        //$adapter    = new AwsS3Adapter($client, "sample-test4");
+        $adapter    = new AwsS3Adapter($client, "actinc.opensalt.np", "dev");
         $filesystem = new Filesystem($adapter);
         return $filesystem;
     }
