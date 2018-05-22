@@ -60,13 +60,13 @@ class AwsStorageController extends AbstractController
     {
         $provider = CredentialProvider::defaultProvider();
         $client = \Aws\S3\S3Client::factory([
-       /* 'credentials' => [
+        /*'credentials' => [
             'key'    => 'AKIAJMM3WLA2KVT732XA',
             'secret' => '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'
         ], */
         'credentials' => $provider,
         'region'  => 'us-east-1',
-       // 'region'  => 'eu-central-1',
+        //'region'  => 'eu-central-1',
         'version' => 'latest',
         ]); 
         //$adapter    = new AwsS3Adapter($client, "sample-test4");
@@ -87,17 +87,31 @@ class AwsStorageController extends AbstractController
         {
             $ext = pathinfo($fileName, PATHINFO_EXTENSION);
             $exts = array('mp3','mp4','mpeg','mpg','wav'); 
-            
+            $fileext=array('txt', 'prn', 'pdf', 'csv', 'json', 'html','xml');
             $arr=array();
-           // return $this->render('framework/ls_item/show.attachment.twig', $arr);  
-            
-                $filesystem = $this->configuration();
+             $filesystem = $this->configuration();
             $stream = $filesystem->readStream($fileName);
             $contents = stream_get_contents($stream);
            
             if(in_array($ext, $exts)){
                 $arr=array('contents'=>base64_encode($contents),'ext'=>$ext);
                 return $this->render('framework/ls_item/show.attachment.twig', $arr);  
+            }
+            else if($ext=='pdf'){
+
+            return new StreamedResponse(
+                function () use ($contents, $fileName, $filesystem) {
+                    $local = fopen('php://output', 'rw+');
+                    fwrite($local, $contents);
+                    fclose($local);
+                },
+                200,
+                [
+                    'Content-Type' => $filesystem->getMimetype($fileName),
+                    'Content-Disposition' => 'inline; filename="'.$fileName.'"',
+                    'Content-Transfer-Encoding' => 'binary',
+                    'Accept-Ranges'=>'bytes'
+                ]);
             }
             else{
                  return new StreamedResponse(

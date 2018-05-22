@@ -8,8 +8,16 @@
       <source src="data:audio/wav;base64,{{ contents}}" type="audio/mpeg">
       Your browser does not support the audio tag.
     </audio>
- {% else %}
+ {% elseif ext=='mpeg' || ext=='mpg' %}
+     <object classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" codebase="http://www.apple.com/qtactivex/qtplugin.cab" height="195" width="340" name="CRUNKCinema" align="left">
+     <param name="src" value="data:video/webm;base64,{{contents}}">
+     <param name="autoplay" value="true">
+     <param name="controller" value="true">
+     <embed height="195" width="340" align="left" src="movietrailers/trailer_sma.mov" autoplay="true" controller="true">
+     </embed>
+    </object>
      
+  {% else %}   
     <video width="320" height="240" controls>
       <source src="data:video/webm;base64,{{contents}}"  type="video/mp4">
       Your browser does not support the video tag.
