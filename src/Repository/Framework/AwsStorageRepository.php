@@ -32,7 +32,7 @@ class AwsStorageRepository extends ServiceEntityRepository
         $file->setLsItem($itemId);
         $file->setFileName($fileName);
         $file->setField($field);
-        $file->setStatus(false);
+        $file->setStatus(true);
         $this->getEntityManager()->persist($file);
 
         return $file;
