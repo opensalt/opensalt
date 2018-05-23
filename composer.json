@@ -98,7 +98,7 @@
     "require-dev": {
         "roave/security-advisories" :"dev-master",
         "sensio/generator-bundle": "^3.1",
-        "symfony/phpunit-bridge": "^3.2",
+        "symfony/phpunit-bridge": "^4.0",
 
         "codeception/codeception": "^2.3",
             "codeception/specify": "~0.4",

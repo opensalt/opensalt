@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4aa3ed0c0a1e21659743691dcb437f23",
+    "content-hash": "f45f540af2164579ce796910c43a0efb",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -8862,16 +8862,16 @@
         },
         {
             "name": "symfony/phpunit-bridge",
-            "version": "v3.4.9",
+            "version": "v4.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/phpunit-bridge.git",
-                "reference": "7470518370113785f67a7fd8e6e1667661e88805"
+                "reference": "30d8eed8b7b3b94ee1a8b4cd2d0aa1f4ed6950e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/7470518370113785f67a7fd8e6e1667661e88805",
-                "reference": "7470518370113785f67a7fd8e6e1667661e88805",
+                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/30d8eed8b7b3b94ee1a8b4cd2d0aa1f4ed6950e5",
+                "reference": "30d8eed8b7b3b94ee1a8b4cd2d0aa1f4ed6950e5",
                 "shasum": ""
             },
             "require": {
@@ -8890,7 +8890,7 @@
             "type": "symfony-bridge",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.4-dev"
+                    "dev-master": "4.0-dev"
                 },
                 "thanks": {
                     "name": "phpunit/phpunit",
@@ -8924,7 +8924,7 @@
             ],
             "description": "Symfony PHPUnit Bridge",
             "homepage": "https://symfony.com",
-            "time": "2018-04-30T15:36:51+00:00"
+            "time": "2018-05-11T15:58:37+00:00"
         },
         {
             "name": "symfony/polyfill-php72",
