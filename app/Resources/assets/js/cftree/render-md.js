@@ -240,7 +240,7 @@ const render = (function(){
             {
               name: "mathText",
               action: mathText,
-              className: "si-sigma",
+              className: "fa si-sigma",
               title: "Math text",
             },
             "quote",
