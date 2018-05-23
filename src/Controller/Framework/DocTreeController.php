@@ -18,8 +18,7 @@ use App\Form\Type\LsDocListType;
 use App\Entity\User\User;
 use GuzzleHttp\ClientInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -57,12 +56,11 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * @Route("/doc/{slug}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{slug}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{slug}/lv.{_format}", name="doc_tree_view_log", defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{slug}/{assocGroup}.{_format}", name="doc_tree_view_ag", defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{slug}.{_format}", name="doc_tree_view", methods={"GET"}, defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{slug}/av.{_format}", name="doc_tree_view_av", methods={"GET"}, defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{slug}/lv.{_format}", name="doc_tree_view_log", methods={"GET"}, defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{slug}/{assocGroup}.{_format}", name="doc_tree_view_ag", methods={"GET"}, defaults={"_format"="html", "lsItemId"=null})
      * @Entity("lsDoc", expr="repository.findOneBySlug(slug)")
-     * @Method({"GET"})
      * @Template()
      */
     public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, UserInterface $user = null, $_format = 'html', $lsItemId = null, $assocGroup = null)
@@ -140,8 +138,7 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * @Route("/remote", name="doc_tree_remote_view")
-     * @Method({"GET"})
+     * @Route("/remote", name="doc_tree_remote_view", methods={"GET"})
      */
     public function viewRemoteAction()
     {
@@ -176,8 +173,7 @@ class DocTreeController extends AbstractController
     /**
      * Export a CFPackage in a special json format designed for efficiently loading the package's data to the OpenSALT doctree client
      *
-     * @Route("/docexport/{id}.json", name="doctree_cfpackage_export")
-     * @Method("GET")
+     * @Route("/docexport/{id}.json", name="doctree_cfpackage_export", methods={"GET"})
      */
     public function exportAction(Request $request, LsDoc $lsDoc): JsonResponse
     {
@@ -243,9 +239,8 @@ class DocTreeController extends AbstractController
     /**
      * Retrieve a CFPackage from the given document identifier, then use exportAction to export it
      *
-     * @Route("/retrievedocument/{id}", name="doctree_retrieve_document")
-     * @Route("/retrievedocument/url", name="doctree_retrieve_document_by_url", defaults={"id"=null})
-     * @Method("GET")
+     * @Route("/retrievedocument/{id}", name="doctree_retrieve_document", methods={"GET"})
+     * @Route("/retrievedocument/url", name="doctree_retrieve_document_by_url", methods={"GET"}, defaults={"id"=null})
      */
     public function retrieveDocumentAction(Request $request, ?LsDoc $lsDoc = null)
     {
@@ -364,8 +359,7 @@ class DocTreeController extends AbstractController
 
 
     /**
-     * @Route("/item/{id}/details", name="doc_tree_item_details")
-     * @Method("GET")
+     * @Route("/item/{id}/details", name="doc_tree_item_details", methods={"GET"})
      * @Template()
      *
      * Note that this must come before viewItemAction for the url mapping to work properly.
@@ -380,9 +374,8 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * @Route("/item/{id}.{_format}", name="doc_tree_item_view", defaults={"_format"="html"})
-     * @Route("/item/{id}/{assocGroup}.{_format}", name="doc_tree_item_view_ag", defaults={"_format"="html"})
-     * @Method({"GET"})
+     * @Route("/item/{id}.{_format}", name="doc_tree_item_view", methods={"GET"}, defaults={"_format"="html"})
+     * @Route("/item/{id}/{assocGroup}.{_format}", name="doc_tree_item_view_ag", methods={"GET"}, defaults={"_format"="html"})
      *
      * @param LsItem $lsItem
      * @param string $assocGroup
@@ -398,8 +391,7 @@ class DocTreeController extends AbstractController
 
 
     /**
-     * @Route("/render/{id}.{_format}", defaults={"_format"="html"}, name="doctree_render_document")
-     * @Method("GET")
+     * @Route("/render/{id}.{_format}", methods={"GET"}, defaults={"_format"="html"}, name="doctree_render_document")
      * @Template()
      *
      * @param \App\Entity\Framework\LsDoc $lsDoc
@@ -450,8 +442,7 @@ class DocTreeController extends AbstractController
     /**
      * Deletes a LsItem entity, from the tree view.
      *
-     * @Route("/item/{id}/delete/{includingChildren}", name="lsitem_tree_delete", defaults={"includingChildren" = 0})
-     * @Method("POST")
+     * @Route("/item/{id}/delete/{includingChildren}", methods={"POST"}, name="lsitem_tree_delete", defaults={"includingChildren" = 0})
      * @Security("is_granted('edit', lsItem)")
      *
      * @param Request $request
@@ -493,8 +484,7 @@ class DocTreeController extends AbstractController
      * If we do a copy, the service returns an array of trees with the copied lsItemIds.
      * For other operations, we return an empty array.
      *
-     * @Route("/doc/{id}/updateitems.{_format}", name="doctree_update_items")
-     * @Method("POST")
+     * @Route("/doc/{id}/updateitems.{_format}", methods={"POST"}, name="doctree_update_items")
      * @Security("is_granted('edit', lsDoc)")
      * @Template()
      *
@@ -529,8 +519,7 @@ class DocTreeController extends AbstractController
     /**
      * Deletes a LsDefAssociationGrouping entity, ajax/treeview version.
      *
-     * @Route("/assocgroup/{id}/delete", name="lsdef_association_grouping_tree_delete")
-     * @Method("POST")
+     * @Route("/assocgroup/{id}/delete", methods={"POST"}, name="lsdef_association_grouping_tree_delete")
      *
      * @param Request $request
      * @param LsDefAssociationGrouping $associationGrouping

@@ -10,8 +10,7 @@ use App\Command\Framework\UnlockItemCommand;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,8 +21,7 @@ class LockController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/cfdoc/{id}/unlock", name="lsdoc_unlock")
-     * @Method({"POST"})
+     * @Route("/cfdoc/{id}/unlock", methods={"POST"}, name="lsdoc_unlock")
      * @Security("is_granted('edit', lsDoc)")
      *
      * @param LsDoc $lsDoc
@@ -44,8 +42,7 @@ class LockController extends AbstractController
     }
 
     /**
-     * @Route("/cfdoc/{id}/lock", name="lsdoc_lock")
-     * @Method({"POST"})
+     * @Route("/cfdoc/{id}/lock", methods={"POST"}, name="lsdoc_lock")
      * @Security("is_granted('edit', lsDoc)")
      *
      * @param LsDoc $lsDoc
@@ -66,8 +63,7 @@ class LockController extends AbstractController
     }
 
     /**
-     * @Route("/cfitem/{id}/unlock", name="lsitem_unlock")
-     * @Method({"POST"})
+     * @Route("/cfitem/{id}/unlock", methods={"POST"}, name="lsitem_unlock")
      * @Security("is_granted('edit', item)")
      *
      * @param LsItem $item
@@ -88,8 +84,7 @@ class LockController extends AbstractController
     }
 
     /**
-     * @Route("/cfitem/{id}/lock", name="lsitem_lock")
-     * @Method({"POST"})
+     * @Route("/cfitem/{id}/lock", methods={"POST"}, name="lsitem_lock")
      * @Security("is_granted('edit', item)")
      *
      * @param LsItem $item

@@ -14,9 +14,8 @@ use App\Entity\Framework\LsItem;
 use JMS\Serializer\SerializerInterface;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 use App\Entity\User\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,9 +43,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/document/{id}", name="create_doc_comment")
-     *
-     * @Method("POST")
+     * @Route("/comments/document/{id}", name="create_doc_comment", methods={"POST"})
      *
      * @Security("is_granted('comment')")
      */
@@ -56,9 +53,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/item/{id}", name="create_item_comment")
-     *
-     * @Method("POST")
+     * @Route("/comments/item/{id}", name="create_item_comment", methods={"POST"})
      *
      * @Security("is_granted('comment')")
      */
@@ -68,8 +63,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/{itemType}/{itemId}", name="get_comments")
-     * @Method("GET")
+     * @Route("/comments/{itemType}/{itemId}", name="get_comments", methods={"GET"})
      * @ParamConverter("comments", class="App\Entity\Comment\Comment", options={"id": {"itemType", "itemId"}, "repository_method" = "findByTypeItem"})
      * @Security("is_granted('comment_view')")
      *
@@ -90,8 +84,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/{id}")
-     * @Method("PUT")
+     * @Route("/comments/{id}", methods={"PUT"})
      *
      * @Security("is_granted('comment_update', comment)")
      */
@@ -104,9 +97,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/delete/{id}")
-     *
-     * @Method("DELETE")
+     * @Route("/comments/delete/{id}", methods={"DELETE"})
      *
      * @Security("is_granted('comment_delete', comment)")
      */
@@ -119,9 +110,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/{id}/upvote")
-     *
-     * @Method("POST")
+     * @Route("/comments/{id}/upvote", methods={"POST"})
      *
      * @Security("is_granted('comment')")
      */
@@ -138,9 +127,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/{id}/upvote")
-     *
-     * @Method("DELETE")
+     * @Route("/comments/{id}/upvote", methods={"DELETE"})
      *
      * @Security("is_granted('comment')")
      */

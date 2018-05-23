@@ -322,3 +322,7 @@ simple_things_entity_audit:
         - App\Entity\ChangeEntry
     global_ignore_columns:
         - password
+
+sensio_framework_extra:
+    router:
+        annotations: false

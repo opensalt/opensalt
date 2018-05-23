@@ -5,8 +5,7 @@ namespace App\Controller\Framework;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\CopyFrameworkCommand;
 use App\Entity\Framework\LsDoc;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,8 +21,7 @@ class CopyController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/framework/{id}", name="copy_framework_content")
-     * @Method("POST")
+     * @Route("/framework/{id}", name="copy_framework_content", methods={"POST"})
      * @Security("is_granted('edit', lsDoc)")
      *
      * @param Request $request

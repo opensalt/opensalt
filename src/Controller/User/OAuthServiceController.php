@@ -6,8 +6,7 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\User\UpdateUserCommand;
 use App\Entity\User\User;
 use League\OAuth2\Client\Provider\Github;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,8 +47,7 @@ class OAuthServiceController extends AbstractController
     /**
      * Save the Github Access Token.
      *
-     * @Route("/check-github", name="github_login")
-     * @Method("GET")
+     * @Route("/check-github", methods={"GET"}, name="github_login")
      *
      * @param Request $request
      * @param SessionInterface $session

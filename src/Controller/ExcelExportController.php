@@ -5,8 +5,7 @@ namespace App\Controller;
 use App\Command\CommandDispatcherTrait;
 use App\Service\ExcelExport;
 use App\Entity\Framework\LsDoc;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -25,8 +24,7 @@ class ExcelExportController extends AbstractController
     }
 
     /**
-     * @Route("/cfdoc/{id}/excel", name="export_excel_file")
-     * @Method("GET")
+     * @Route("/cfdoc/{id}/excel", methods={"GET"}, name="export_excel_file")
      *
      * @param LsDoc $lsDoc
      *
