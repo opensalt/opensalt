@@ -15,4 +15,5 @@ Feature: A framework with markdown can be loaded
     Then I should see math in the framework
     And I should see a table in the framework
     And I should see an underline in the framework
+    And I should see a math equation in the framework
     # And I should see an alpha ordered list in the framework
