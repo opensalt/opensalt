@@ -240,7 +240,7 @@ const render = (function(){
             {
               name: "mathText",
               action: mathText,
-              className: "fa fa-wrench",
+              className: "si-sigma",
               title: "Math text",
             },
             "quote",
