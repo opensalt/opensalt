@@ -58,7 +58,7 @@ class PdfExportController extends Controller
 
     public function renderImages(string $string): string
     {
-        $pattern = '/\!\[([^\]]*)\]\(((?:https:\/\/|\/)[^\)]+)\)/';
+        $pattern = '/\!\[([^\]]*)\]\(((?:https?:\/\/|\/)[^\)]+)\)/';
 
         return preg_replace($pattern, '<img src = "$2">', $string);
     }
