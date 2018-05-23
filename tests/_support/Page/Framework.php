@@ -173,6 +173,24 @@ class Framework implements Context
     }
 
     /**
+     * @When /^I click on copy from button$/
+     */
+    public function iClickOnCopyFromButton(): Framework
+    {
+        $this->I->click('#copyFrameworkModal_copyLeftBtn');
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see the copy from button active$/
+     */
+    public function iShouldSeeTheCopyFromButtonActive(): Framework
+    {
+        $this->I->click('#copyFrameworkModal_copyLeftBtn');
+        return $this;
+    }
+
+    /**
      * @Then /^I should see the import dialogue$/
      */
     public function iShouldSeeTheImportDialogue(): Framework
