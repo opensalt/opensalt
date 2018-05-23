@@ -18,27 +18,21 @@ class PdfExportController extends Controller
     /**
      * @Route("/cfdoc/{id}/pdf", name="export_pdf_file")
      * @Method("GET")
-     *
-     * @param int $id
-     *
-     * @return StreamedResponse
      */
     public function exportPdfAction(int $id): StreamedResponse
     {
         $phpWordObject = new PhpWord();
-        // Create a new Page
         $section = $phpWordObject->addSection();
 
         $response = $this->forward('App\Controller\Framework\CfPackageController:exportAction', ['id' => $id, '_format' => 'json']);
         $data_array = json_decode($response->getContent(), true);
-        for($i=0; $i < count($data_array['CFItems']); ++$i)
-        {
-            $data_array['CFItems'][$i]['fullStatement'] = $this->render_images($data_array['CFItems'][$i]['fullStatement']);
-            if(isset($data_array['CFItems'][$i]['notes']))
-            {
-                $data_array['CFItems'][$i]['notes'] = $this->render_images($data_array['CFItems'][$i]['notes']);
+        for ($i = 0, $iMax = count($data_array['CFItems']); $i < $iMax; ++$i) {
+            $data_array['CFItems'][$i]['fullStatement'] = $this->renderImages($data_array['CFItems'][$i]['fullStatement']);
+            if (isset($data_array['CFItems'][$i]['notes'])) {
+                $data_array['CFItems'][$i]['notes'] = $this->renderImages($data_array['CFItems'][$i]['notes']);
             }
-       }
+        }
+
         $html = $this->renderView(
             'framework/doc_tree/export_pdf.html.twig',
             ['pdfData' => $data_array]
@@ -62,12 +56,7 @@ class PdfExportController extends Controller
         );
     }
 
-    /**
-     * @param string $string
-     *
-     * @return result
-     */
-    public function render_images($string)
+    public function renderImages(string $string): string
     {
         $pattern = '/\!\[([^\]]*)\]\(((?:https?:\/\/|\/)[^\)]+)\)/';
         $result = preg_replace($pattern, '<img src = "$2">', $string);
