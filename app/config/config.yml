@@ -279,12 +279,6 @@ nelmio_cors:
                 #- '*'
             max_age: 60
 
-al_swagger_ui:
-    static_resources:
-        resource_dir: "app/Resources/swagger-docs/"
-        resource_list_filename: api-docs.json
-    resource_list: al_swagger_ui_static_resource_list
-
 qandidate_toggle:
     persistence: config
     toggles:

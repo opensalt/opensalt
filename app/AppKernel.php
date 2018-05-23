@@ -29,7 +29,6 @@ class AppKernel extends Kernel
             new Csa\Bundle\GuzzleBundle\CsaGuzzleBundle(),
 
             new Nelmio\SecurityBundle\NelmioSecurityBundle(),
-            new ActiveLAMP\Bundle\SwaggerUIBundle\ALSwaggerUIBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
 
             new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
