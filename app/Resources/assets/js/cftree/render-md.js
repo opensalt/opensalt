@@ -215,6 +215,16 @@ const render = (function(){
       cm.replaceSelection(output);
     }
 
+    function mathText(editor) {
+      var cm = editor.codemirror;
+      var output = "";
+      var selectedText = cm.getSelection();
+      var text = selectedText;
+
+      output = "$$" + text + "$$";
+      cm.replaceSelection(output);
+    }
+
     render.mde = function (element) {
         let SimpleMDE = require('simplemde');
         return new SimpleMDE({
@@ -226,7 +236,14 @@ const render = (function(){
               className: "fa fa-underline",
               title: "Underline text",
             },
-            "bold", "italic", "heading", "|", "quote",
+            "bold", "italic", "heading", "|",
+            {
+              name: "mathText",
+              action: mathText,
+              className: "fa fa-wrench",
+              title: "Math text",
+            },
+            "quote",
             "unordered-list", "ordered-list", {
             name : "AlphabeticalList",
             action : alphaList,
