@@ -6,6 +6,11 @@ about: Submit a report to help us improve
 
 **Thank you for your interest in OpenSALT!**
 
+> This template helps ensure that we have enough information to work on
+> the issue.<br/>
+> Please feel free to ignore any section that is not applicable or add
+> additional information.
+
 ### Describe the problem
 A clear and concise description of what the problem is.
 
