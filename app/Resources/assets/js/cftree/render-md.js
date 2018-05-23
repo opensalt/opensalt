@@ -221,7 +221,7 @@ const render = (function(){
       var selectedText = cm.getSelection();
       var text = selectedText;
 
-      output = "$$" + text + "$$";
+      output = "$" + text + "$";
       cm.replaceSelection(output);
     }
 
