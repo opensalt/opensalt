@@ -87,7 +87,8 @@
         "qandidate/toggle-bundle": "^1.1.0",
         "google/recaptcha": "~1.1",
         "phpoffice/phpword": "^0.14.0",
-        "tecnickcom/tcpdf": "6.*"
+        "tecnickcom/tcpdf": "6.*",
+        "symfony/flex": "^1.0"
     },
     "require-dev": {
         "roave/security-advisories" :"dev-master",
