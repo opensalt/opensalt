@@ -1,15 +1,35 @@
 nelmio_security:
-    # prevents framing of the entire site
+#    signed_cookie:
+#        names: ['*']
+#        secret: '%cookie_secret%'
+#        hash_algo: sha256
+    #cookie_session:
+    #    enabled: true
+    #    name: session
+    #    secure: true
+    #encrypted_cookie:
+    #    names: ['*']
+    #    secret: '%cookie_secret%'
+    #    algorithm: rijndael-256
+    forced_ssl:
+        enabled: false
+
+    # prevents framing
     clickjacking:
         paths:
+            '^/cftree/doc/': ALLOW
             '^/.*': DENY
+        content_types: []
+
+    external_redirects:
+        whitelist:
+            - google.com
 
     # disables content type sniffing for script resources
     content_type:
         nosniff: true
 
-    # forces Microsoft's XSS-Protection with
-    # its block mode
+    # Forces Microsoft/Chrome XSS-Protection with its block mode.
     xss_protection:
         enabled: true
         mode_block: true
