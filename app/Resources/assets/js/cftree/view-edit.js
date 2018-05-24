@@ -455,6 +455,8 @@ apx.edit.prepareExemplarModal = function() {
         let ajaxData = {
             exemplarUrl: $("#addExemplarFormUrl").val(),
             exemplarDescription: $("#addExemplarFormDescription").val(),
+            exemplarAttachment: $("#addExemplarFormAttachment").val(),
+            exemplarAttachmentUrl: $("#addExemplarFormAttachment").prop('addExemplarFormAttachment'),
             associationType: "Exemplar"
         };
 
@@ -499,6 +501,7 @@ apx.edit.prepareExemplarModal = function() {
             // clear form fields
             $("#addExemplarFormUrl").val("");
             $("#addExemplarFormDescription").val("");
+            $("#addExemplarFormAttachment").val("");
             $exemplarModal.find('.modal-body .errors').removeClass('alert').removeClass('alert-danger').html('');
 
             // re-show current item

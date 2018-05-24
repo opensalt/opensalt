@@ -27,9 +27,11 @@ class AddExemplarToItemCommand extends BaseCommand
     private $url;
     
     /**
-     * @var AwsStorage|null
+     *@var string
      *
-     * @Assert\Type(AwsStorage::class)
+     * @Assert\Type("string")
+     * @Assert\NotNull()
+     * @Assert\Length(max="300")
      */
     private $file;
 
@@ -43,7 +45,7 @@ class AddExemplarToItemCommand extends BaseCommand
     /**
      * Constructor.
      */
-    public function __construct(LsItem $item, string $url, AwsStorage $file, ?LsAssociation $association = null)
+    public function __construct(LsItem $item, string $url, string $file, ?LsAssociation $association = null)
     {
         $this->item = $item;
         $this->url = $url;
@@ -61,7 +63,7 @@ class AddExemplarToItemCommand extends BaseCommand
         return $this->url;
     }
     
-    public function getFile(): AwsStorage
+    public function getFile(): string
     {
         return $this->file;
     }

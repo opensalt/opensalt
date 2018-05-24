@@ -126,7 +126,7 @@ class FrameworkService
         $this->em->persist($association);
     }
 
-    public function addExemplarToItem(LsItem $item, string $url, AwsStorage $file): LsAssociation
+    public function addExemplarToItem(LsItem $item, string $url, string $file): LsAssociation
     {
         $lsAssociation = new LsAssociation();
         $lsAssociation->setLsDoc($item->getLsDoc());
@@ -134,7 +134,7 @@ class FrameworkService
         $lsAssociation->setType(LsAssociation::EXEMPLAR);
         $lsAssociation->setDestinationNodeUri($url);
         $lsAssociation->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $url));
-        $lsAssociation->setFileName($file);
+        $lsAssociation->setAttachment($file);
 
         // TODO: setDestinationTitle is not currently a table field.
         //$lsAssociation->setDestinationTitle($request->request->get("exemplarDescription"));
