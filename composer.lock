@@ -2339,16 +2339,16 @@
         },
         {
             "name": "jms/serializer-bundle",
-            "version": "2.3.1",
+            "version": "2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/JMSSerializerBundle.git",
-                "reference": "9dec7ab62248aa97f33cce70c301af15154f8f0b"
+                "reference": "507d2359857226b3188f6de96dae7e33584c1445"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/JMSSerializerBundle/zipball/9dec7ab62248aa97f33cce70c301af15154f8f0b",
-                "reference": "9dec7ab62248aa97f33cce70c301af15154f8f0b",
+                "url": "https://api.github.com/repos/schmittjoh/JMSSerializerBundle/zipball/507d2359857226b3188f6de96dae7e33584c1445",
+                "reference": "507d2359857226b3188f6de96dae7e33584c1445",
                 "shasum": ""
             },
             "require": {
@@ -2375,7 +2375,7 @@
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.3-dev"
+                    "dev-master": "2.4-dev"
                 }
             },
             "autoload": {
@@ -2409,7 +2409,7 @@
                 "serialization",
                 "xml"
             ],
-            "time": "2017-12-08T19:49:08+00:00"
+            "time": "2018-05-20T07:28:26+00:00"
         },
         {
             "name": "kreait/firebase-php",
