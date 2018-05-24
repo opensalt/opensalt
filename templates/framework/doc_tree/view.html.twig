@@ -398,9 +398,14 @@
                                         </select>
                                     </div>
                                     <div class="col-sm-2">
-                                        <p class="text-right align-input-select">
-                                            Copy to:
-                                        </p>
+                                        <div class="btn-group" role="group" aria-label="">
+                                            <a id="copyFrameworkModal_copyLeftBtn" href="#" class="btn btn-default" data-toggle="tooltip" data-placement="bottom" title="Copy From" role="button">
+                                                <i class="fa fa-arrow-left fa-lg"></i>
+                                            </a>
+                                            <a id="copyFrameworkModal_copyRightBtn" href="#" class="btn btn-default active" data-toggle="tooltip" data-placement="bottom" title="Copy To" role="button">
+                                                <i class="fa fa-arrow-right fa-lg"></i>
+                                            </a>
+                                        </div>
                                     </div>
                                     <div class="col-sm-4">
                                         {% set lastCreator = '' %}
