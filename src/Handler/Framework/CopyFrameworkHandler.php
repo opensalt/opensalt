@@ -20,7 +20,6 @@ class CopyFrameworkHandler extends BaseDoctrineHandler
         $fromDoc = $command->getFromDoc();
         $toDoc = $command->getToDoc();
 
-
         $this->em->getRepository(LsDoc::class)
             ->copyDocumentContentToDoc($fromDoc, $toDoc, 'copyAndAssociate' === $copyType);
 
