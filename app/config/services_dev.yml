@@ -1,6 +1,1 @@
 services:
-    # Workarounds for 3.4 deprecations
-    Sensio\Bundle\GeneratorBundle\Command\:
-        resource: '../../vendor/sensio/generator-bundle/Command/*Command.php'
-        tags: ['console.command']
-

@@ -11,8 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use App\Entity\Framework\LsDefGrade;
 
@@ -28,8 +27,7 @@ class LsDefGradeController extends AbstractController
     /**
      * Lists all LsDefGrade entities.
      *
-     * @Route("/", name="lsdef_grade_index")
-     * @Method("GET")
+     * @Route("/", methods={"GET"}, name="lsdef_grade_index")
      * @Template()
      *
      * @return array
@@ -48,8 +46,7 @@ class LsDefGradeController extends AbstractController
     /**
      * Creates a new LsDefGrade entity.
      *
-     * @Route("/new", name="lsdef_grade_new")
-     * @Method({"GET", "POST"})
+     * @Route("/new", methods={"GET", "POST"}, name="lsdef_grade_new")
      * @Template()
      *
      * @param Request $request
@@ -82,8 +79,7 @@ class LsDefGradeController extends AbstractController
     /**
      * Finds and displays a LsDefGrade entity.
      *
-     * @Route("/{id}", name="lsdef_grade_show")
-     * @Method("GET")
+     * @Route("/{id}", methods={"GET"}, name="lsdef_grade_show")
      * @Template()
      *
      * @param LsDefGrade $lsDefGrade
@@ -103,8 +99,7 @@ class LsDefGradeController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefGrade entity.
      *
-     * @Route("/{id}/edit", name="lsdef_grade_edit")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_grade_edit")
      * @Template()
      *
      * @param Request $request
@@ -139,8 +134,7 @@ class LsDefGradeController extends AbstractController
     /**
      * Deletes a LsDefGrade entity.
      *
-     * @Route("/{id}", name="lsdef_grade_delete")
-     * @Method("DELETE")
+     * @Route("/{id}", methods={"DELETE"}, name="lsdef_grade_delete")
      *
      * @param Request $request
      * @param LsDefGrade $lsDefGrade

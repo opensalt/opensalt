@@ -14,8 +14,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
@@ -36,8 +35,7 @@ class LsAssociationController extends AbstractController
     /**
      * Lists all LsAssociation entities.
      *
-     * @Route("/", name="lsassociation_index")
-     * @Method("GET")
+     * @Route("/", name="lsassociation_index", methods={"GET"})
      * @Template()
      *
      * @return array
@@ -56,9 +54,8 @@ class LsAssociationController extends AbstractController
     /**
      * Creates a new LsAssociation entity.
      *
-     * @Route("/new/{sourceLsItem}", name="lsassociation_new")
-     * @Route("/new/{sourceLsItem}/{assocGroup}", name="lsassociation_new_ag")
-     * @Method({"GET", "POST"})
+     * @Route("/new/{sourceLsItem}", methods={"GET", "POST"}, name="lsassociation_new")
+     * @Route("/new/{sourceLsItem}/{assocGroup}", methods={"GET", "POST"}, name="lsassociation_new_ag")
      * @Template()
      *
      * @param Request $request
@@ -122,8 +119,7 @@ class LsAssociationController extends AbstractController
     /**
      * Creates a new LsAssociation entity -- tree-view version, called via ajax
      *
-     * @Route("/treenew/{lsDoc}", name="lsassociation_tree_new")
-     * @Method("POST")
+     * @Route("/treenew/{lsDoc}", methods={"POST"}, name="lsassociation_tree_new")
      *
      * @param Request $request
      * @param LsDoc $lsDoc  : the document we're adding the association to
@@ -160,8 +156,7 @@ class LsAssociationController extends AbstractController
     /**
      * Creates a new LsAssociation entity for an exemplar
      *
-     * @Route("/treenewexemplar/{originLsItem}", name="lsassociation_tree_new_exemplar")
-     * @Method({"GET", "POST"})
+     * @Route("/treenewexemplar/{originLsItem}", methods={"GET", "POST"}, name="lsassociation_tree_new_exemplar")
      *
      * @param Request $request
      * @param LsItem $originLsItem
@@ -198,8 +193,7 @@ class LsAssociationController extends AbstractController
     /**
      * Finds and displays a LsAssociation entity.
      *
-     * @Route("/{id}", name="lsassociation_show")
-     * @Method("GET")
+     * @Route("/{id}", methods={"GET"}, name="lsassociation_show")
      * @Template()
      *
      * @param LsAssociation $lsAssociation
@@ -219,8 +213,7 @@ class LsAssociationController extends AbstractController
     /**
      * Displays a form to edit an existing LsAssociation entity.
      *
-     * @Route("/{id}/edit", name="lsassociation_edit")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsassociation_edit")
      * @Template()
      *
      * @param Request $request
@@ -255,8 +248,7 @@ class LsAssociationController extends AbstractController
     /**
      * Deletes a LsAssociation entity.
      *
-     * @Route("/{id}", name="lsassociation_delete")
-     * @Method("DELETE")
+     * @Route("/{id}", methods={"DELETE"}, name="lsassociation_delete")
      *
      * @param Request $request
      * @param LsAssociation $lsAssociation
@@ -279,8 +271,7 @@ class LsAssociationController extends AbstractController
     /**
      * Remove a child LSItem
      *
-     * @Route("/{id}/remove", name="lsassociation_remove")
-     * @Method("POST")
+     * @Route("/{id}/remove", methods={"POST"}, name="lsassociation_remove")
      * @Template()
      *
      * @param \App\Entity\Framework\LsAssociation $lsAssociation
@@ -298,8 +289,7 @@ class LsAssociationController extends AbstractController
     /**
      * Export an LsAssociation entity.
      *
-     * @Route("/{id}/export", defaults={"_format"="json"}, name="lsassociation_export")
-     * @Method("GET")
+     * @Route("/{id}/export", methods={"GET"}, defaults={"_format"="json"}, name="lsassociation_export")
      * @Template()
      *
      * @param LsAssociation $lsAssociation

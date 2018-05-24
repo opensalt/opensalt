@@ -3,8 +3,7 @@
 namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
@@ -16,8 +15,7 @@ class PdfExportController extends Controller
 {
     use CommandDispatcherTrait;
     /**
-     * @Route("/cfdoc/{id}/pdf", name="export_pdf_file")
-     * @Method("GET")
+     * @Route("/cfdoc/{id}/pdf", methods={"GET"}, name="export_pdf_file")
      */
     public function exportPdfAction(int $id): StreamedResponse
     {
