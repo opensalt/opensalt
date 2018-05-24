@@ -85,6 +85,9 @@ Encore
         npmDir+'/jquery-comments/css/jquery-comments.css',
         assetsDir+'/sass/comments.scss'
     ])
+    .addStyleEntry('swaggercss', [
+        npmDir+'/swagger-ui-dist/swagger-ui.css'
+    ])
     /*
     .enableSassLoader(function(sassOptions) {}, {
         resolveUrlLoader: true

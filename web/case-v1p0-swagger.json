@@ -15,9 +15,35 @@
             "url" : "https://www.imsglobal.org/license.html"
         }
     },
+    "host" : "www.imsglobal.org",
     "basePath" : "/ims/case/v1p0",
-    "schemes" : [ "https" ],
-    "tags" : [],
+    "schemes" : [ "http","https" ],
+    "tags" : [
+        {
+            "name" : "AssociationsManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Associations. Associations are to establish relationships between definitions from different sources. This interface manages the associations between CFDocuments and between CFItems."
+        },
+        {
+            "name" : "DefinitionsManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Definitions. This interface manages the definitions of the: Competency Framework Concepts, Competency Framework Subjects, Competency Framework Licenses, Competency Framework Item Types and Competency Framework Association Groupings."
+        },
+        {
+            "name" : "DocumentsManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Documents. Documents are the root entry point for the definition of an academic standard/competency. This interface manages the document descriptions only i.e. it does not support the management of Items, Associations, etc."
+        },
+        {
+            "name" : "ItemsManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Items. Items are the containers for the definitions in an academic standard/competency. This interface manages the Item descriptions only i.e. it does not support the management of Associations, etc."
+        },
+        {
+            "name" : "PackagesManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Packages as a whole. A Competency Framework Package is a package that contains all of the arefacts that are used for the definition of a Competency Framework Document."
+        },
+        {
+            "name" : "RubricsManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Rubrics. Rubrics associate the set of rubric criteria being defined for a specific academic standard/competency (defined as either a CFItem or a CFDocument)."
+        }
+    ],
     "paths" : {
         "/CFAssociationGroupings/{sourcedId}" : {
             "get" : {
@@ -29,26 +55,123 @@
                     {
                         "name" : "sourcedId",
                         "in" : "path",
-                        "description" : "The GUID that identifies the Competency Framework AssociationGrouping that is to be read from the service provider.",
+                        "description" : "The UUID that identifies the Competency Framework AssociationGrouping that is to be read from the service provider.",
                         "required" : true,
                         "type" : "string"
                     }
                 ],
                 "responses" : {
                     "200" : {
-                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "description" : "This is the response when the request has been completed successfully. It is the CFAssociationGrouping from the service provider.",
                         "schema" : {
                             "$ref" : "#/definitions/CFAssociationGrouping.Type"
-                        },
-                        "headers" : {
-                            "X-Total-Count" : {
-                                "description" : "The total number of resources that are available",
-                                "type" : "integer"
-                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
-                        "description" : "StatusInfo Error Report",
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    }
+                }
+            }
+        },
+        "/CFAssociations/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFAssociation",
+                "summary" : "The REST read request message for the getCFAssociation() API call.",
+                "tags" : [ "AssociationsManager" ],
+                "description" : "This is a request to the service provider to provide the information for the specific Competency Framework Association. If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the CFAssociation to be supplied.",
+                        "required" : true,
+                        "type" : "string"
+                    }
+                ],
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFAssociation from the service provider.",
+                        "schema" : {
+                            "$ref" : "#/definitions/CFAssociation.Type"
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
                         "schema" : {
                             "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
@@ -61,31 +184,61 @@
                 "operationId" : "getCFConcept",
                 "summary" : "The REST read request message for the getCFConcept() API call.",
                 "tags" : [ "DefinitionsManager" ],
-                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Concept.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Concept and the set of children CFConcepts as identified by the hierarchy codes.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
                 "parameters" : [
                     {
                         "name" : "sourcedId",
                         "in" : "path",
-                        "description" : "The GUID that identifies the Competency Framework Concept that is to be read from the service provider.",
+                        "description" : "The UUID that identifies the Competency Framework Concept that is to be read from the service provider.",
                         "required" : true,
                         "type" : "string"
                     }
                 ],
                 "responses" : {
                     "200" : {
-                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "description" : "This is the response when the request has been completed successfully. It is the CFConcept and child CFSConcepts from the service provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFConcept.Type"
-                        },
-                        "headers" : {
-                            "X-Total-Count" : {
-                                "description" : "The total number of resources that are available",
-                                "type" : "integer"
-                            }
+                            "$ref" : "#/definitions/CFConceptSet.Type"
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
-                        "description" : "StatusInfo Error Report",
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
                         "schema" : {
                             "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
@@ -162,19 +315,49 @@
                 ],
                 "responses" : {
                     "200" : {
-                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "description" : "This is the response when the request has been completed successfully. It is the set of CFDocuments from the service provider.",
                         "schema" : {
                             "$ref" : "#/definitions/CFDocumentSet.Type"
-                        },
-                        "headers" : {
-                            "X-Total-Count" : {
-                                "description" : "The total number of resources that are available",
-                                "type" : "integer"
-                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
-                        "description" : "StatusInfo Error Report",
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
                         "schema" : {
                             "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
@@ -192,26 +375,56 @@
                     {
                         "name" : "sourcedId",
                         "in" : "path",
-                        "description" : "The GUID that identifies the Competency Framework Document that is to be read from the service provider.",
+                        "description" : "The UUID that identifies the Competency Framework Document that is to be read from the service provider.",
                         "required" : true,
                         "type" : "string"
                     }
                 ],
                 "responses" : {
                     "200" : {
-                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "description" : "This is the response when the request has been completed successfully. It is the CFDocument from the service provider.",
                         "schema" : {
                             "$ref" : "#/definitions/CFDocument.Type"
-                        },
-                        "headers" : {
-                            "X-Total-Count" : {
-                                "description" : "The total number of resources that are available",
-                                "type" : "integer"
-                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
-                        "description" : "StatusInfo Error Report",
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
                         "schema" : {
                             "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
@@ -224,31 +437,61 @@
                 "operationId" : "getCFItemAssociations",
                 "summary" : "The REST read request message for the getCFItemAssociations() API call.",
                 "tags" : [ "AssociationsManager" ],
-                "description" : "This is a request to the Service Provider to provide the all of the Competency Associations for the specified CFItem.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "description" : "This is a request to the Service Provider to provide the all of the Competency Associations for the specified CFItem and the information about the CFItem itself.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
                 "parameters" : [
                     {
                         "name" : "sourcedId",
                         "in" : "path",
-                        "description" : "The GUID that identifies the CFItem for which ALL associations are to be supplied.",
+                        "description" : "The UUID that identifies the CFItem for which ALL associations are to be supplied.",
                         "required" : true,
                         "type" : "string"
                     }
                 ],
                 "responses" : {
                     "200" : {
-                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "description" : "This is the response when the request has been completed successfully. It is the CFItem and set of CFAssociations from the service provider.",
                         "schema" : {
                             "$ref" : "#/definitions/CFAssociationSet.Type"
-                        },
-                        "headers" : {
-                            "X-Total-Count" : {
-                                "description" : "The total number of resources that are available",
-                                "type" : "integer"
-                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
-                        "description" : "StatusInfo Error Report",
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
                         "schema" : {
                             "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
@@ -261,31 +504,61 @@
                 "operationId" : "getCFItemType",
                 "summary" : "The REST read request message for the getCFItemType() API call.",
                 "tags" : [ "DefinitionsManager" ],
-                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Item Type.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Item Type and the set of children CFItemTypes as identified by the hierarchy codes.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
                 "parameters" : [
                     {
                         "name" : "sourcedId",
                         "in" : "path",
-                        "description" : "The GUID that identifies the Competency Framework ItemType that is to be read from the service provider.",
+                        "description" : "The UUID that identifies the Competency Framework ItemType that is to be read from the service provider.",
                         "required" : true,
                         "type" : "string"
                     }
                 ],
                 "responses" : {
                     "200" : {
-                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "description" : "This is the response when the request has been completed successfully. It is the CFItemType and child CFItemTypes from the service provider.",
                         "schema" : {
-                            "$ref" : "#/definitions/CFItemType.Type"
-                        },
-                        "headers" : {
-                            "X-Total-Count" : {
-                                "description" : "The total number of resources that are available",
-                                "type" : "integer"
-                            }
+                            "$ref" : "#/definitions/CFItemTypeSet.Type"
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
-                        "description" : "StatusInfo Error Report",
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
                         "schema" : {
                             "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
@@ -303,26 +576,56 @@
                     {
                         "name" : "sourcedId",
                         "in" : "path",
-                        "description" : "The GUID that identifies the Competency Framework Item that is to be read from the service provider.",
+                        "description" : "The UUID that identifies the Competency Framework Item that is to be read from the service provider.",
                         "required" : true,
                         "type" : "string"
                     }
                 ],
                 "responses" : {
                     "200" : {
-                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "description" : "This is the response when the request has been completed successfully. It is the CFItem from the service provider.",
                         "schema" : {
                             "$ref" : "#/definitions/CFItem.Type"
-                        },
-                        "headers" : {
-                            "X-Total-Count" : {
-                                "description" : "The total number of resources that are available",
-                                "type" : "integer"
-                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
-                        "description" : "StatusInfo Error Report",
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
                         "schema" : {
                             "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
@@ -340,26 +643,56 @@
                     {
                         "name" : "sourcedId",
                         "in" : "path",
-                        "description" : "The GUID that identifies the Competency Framework License that is to be read from the service provider.",
+                        "description" : "The UUID that identifies the Competency Framework License that is to be read from the service provider.",
                         "required" : true,
                         "type" : "string"
                     }
                 ],
                 "responses" : {
                     "200" : {
-                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "description" : "This is the response when the request has been completed successfully. It is the CFLicense from the service provider.",
                         "schema" : {
                             "$ref" : "#/definitions/CFLicense.Type"
-                        },
-                        "headers" : {
-                            "X-Total-Count" : {
-                                "description" : "The total number of resources that are available",
-                                "type" : "integer"
-                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
-                        "description" : "StatusInfo Error Report",
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
                         "schema" : {
                             "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
@@ -377,26 +710,56 @@
                     {
                         "name" : "sourcedId",
                         "in" : "path",
-                        "description" : "The GUID that identifies the Competency Framework Document that is to be read from the service provider and supplied with all of its component artefacts.",
+                        "description" : "The UUID that identifies the Competency Framework Document that is to be read from the service provider and supplied with all of its component artefacts.",
                         "required" : true,
                         "type" : "string"
                     }
                 ],
                 "responses" : {
                     "200" : {
-                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "description" : "This is the response when the request has been completed successfully. It is the CFPackage from the service provider.",
                         "schema" : {
                             "$ref" : "#/definitions/CFPackage.Type"
-                        },
-                        "headers" : {
-                            "X-Total-Count" : {
-                                "description" : "The total number of resources that are available",
-                                "type" : "integer"
-                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
-                        "description" : "StatusInfo Error Report",
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
                         "schema" : {
                             "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
@@ -414,26 +777,56 @@
                     {
                         "name" : "sourcedId",
                         "in" : "path",
-                        "description" : "The GUID that identifies the Competency Framework Rubric that is to be read from the service provider.",
+                        "description" : "The UUID that identifies the Competency Framework Rubric that is to be read from the service provider.",
                         "required" : true,
                         "type" : "string"
                     }
                 ],
                 "responses" : {
                     "200" : {
-                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "description" : "This is the response when the request has been completed successfully. It is the CFRubric from the service provider.",
                         "schema" : {
                             "$ref" : "#/definitions/CFRubric.Type"
-                        },
-                        "headers" : {
-                            "X-Total-Count" : {
-                                "description" : "The total number of resources that are available",
-                                "type" : "integer"
-                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
-                        "description" : "StatusInfo Error Report",
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
                         "schema" : {
                             "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
@@ -446,31 +839,61 @@
                 "operationId" : "getCFSubject",
                 "summary" : "The REST read request message for the getCFSubject() API call.",
                 "tags" : [ "DefinitionsManager" ],
-                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Subject.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Subject and the set of children CFSubjects as identified by the hierarchy codes.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
                 "parameters" : [
                     {
                         "name" : "sourcedId",
                         "in" : "path",
-                        "description" : "The GUID that identifies the Competency Framework Subject that is to be read from the service provider.",
+                        "description" : "The UUID that identifies the Competency Framework Subject that is to be read from the service provider.",
                         "required" : true,
                         "type" : "string"
                     }
                 ],
                 "responses" : {
                     "200" : {
-                        "description" : "The GET request has been fully and successfully implemented by the Service Provider.",
+                        "description" : "This is the response when the request has been completed successfully. It is the CFSubject and child CFSubjects from the service provider.",
                         "schema" : {
                             "$ref" : "#/definitions/CFSubjectSet.Type"
-                        },
-                        "headers" : {
-                            "X-Total-Count" : {
-                                "description" : "The total number of resources that are available",
-                                "type" : "integer"
-                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "schema" : {
+                            "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
                     },
                     "default" : {
-                        "description" : "StatusInfo Error Report",
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
                         "schema" : {
                             "$ref" : "#/definitions/imsx_StatusInfo.Type"
                         }
@@ -481,55 +904,29 @@
     },
     "definitions" : {
         "CFAssociation.Type" : {
-            "description" : "This is the container for the data about the relationship between two CFDocuments or between two CFItems.",
+            "description" : "This is the container for the data about the relationship between two CFDocuments or between two CFItems outside of the context of a CFPackage or CFItem.",
             "type" : "object",
-            "properties" : {
-                "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
+            "allOf" : [
+                {
+                    "$ref" : "#/definitions/CFPckgAssociation.Type"
                 },
-                "associationType" : {
-                    "type" : "string",
-                    "enum" : [ "isChildOf","isPeerOf","isPartOf","exactMatchOf","precedes","isRelatedTo","replacedBy","exemplar","hasSkillLevel" ]
-                },
-                "CFDocumentURI" : {
-                    "description" : "Model Primitive Datatype = AnyURI",
-                    "type" : "string",
-                    "format" : "uri"
-                },
-                "sequenceNumber" : {
-                    "description" : "Model Primitive Datatype = Integer",
-                    "type" : "integer",
-                    "format" : "int32"
-                },
-                "uri" : {
-                    "description" : "Model Primitive Datatype = AnyURI",
-                    "type" : "string",
-                    "format" : "uri"
-                },
-                "originNodeURI" : {
-                    "$ref" : "#/definitions/LinkURI.Type"
-                },
-                "destinationNodeURI" : {
-                    "$ref" : "#/definitions/LinkURI.Type"
-                },
-                "CFAssociationGroupingURI" : {
-                    "$ref" : "#/definitions/LinkURI.Type"
-                },
-                "lastChangeDateTime" : {
-                    "description" : "Model Primitive Datatype = DateTime",
-                    "type" : "string",
-                    "format" : "date-time"
+                {
+                    "type" : "object",
+                    "properties" : {
+                        "CFDocumentURI" : {
+                            "$ref" : "#/definitions/LinkURI.Type"
+                        }
+                    },
+                    "additionalProperties" : false
                 }
-            },
-            "required" : [ "identifier","associationType","uri","originNodeURI","destinationNodeURI","lastChangeDateTime" ],
-            "additionalProperties" : false
+            ]
         },
         "CFAssociationGrouping.Type" : {
             "description" : "This is the container for information about a set of associations that have been labelled as a group (the nature of the group being defined by this container).",
             "type" : "object",
             "properties" : {
                 "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
+                    "$ref" : "#/definitions/UUID.Type"
                 },
                 "uri" : {
                     "description" : "Model Primitive Datatype = AnyURI",
@@ -557,23 +954,26 @@
             "description" : "This is the container for a collection of CFAssociations. There must be at least one CFAssociation. Note that the association can be between CFDocuments or between CFItems.",
             "type" : "object",
             "properties" : {
+                "CFItem" : {
+                    "$ref" : "#/definitions/CFItem.Type"
+                },
                 "CFAssociations" : {
                     "type" : "array",
                     "minItems" : 1,
                     "items" : {
-                        "$ref" : "#/definitions/CFAssociation.Type"
+                        "$ref" : "#/definitions/CFPckgAssociation.Type"
                     }
                 }
             },
-            "required" : [ "CFAssociations" ],
+            "required" : [ "CFItem","CFAssociations" ],
             "additionalProperties" : false
         },
         "CFConcept.Type" : {
-            "description" : "The container for the definition of a concept which is addressed by the competency frammework.",
+            "description" : "The container for the definition of a concept which is addressed by the competency framework.",
             "type" : "object",
             "properties" : {
                 "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
+                    "$ref" : "#/definitions/UUID.Type"
                 },
                 "uri" : {
                     "description" : "Model Primitive Datatype = AnyURI",
@@ -603,6 +1003,21 @@
                 }
             },
             "required" : [ "identifier","uri","title","hierarchyCode","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFConceptSet.Type" : {
+            "description" : "The container for the set of CFConcepts supplied in the response payload. The relationship between the CFConcepts is determined by the 'hierarchyCode'. The first CFConcept is that which has been specified in the call. The other CFConcepts are the set of children as determined by their place in the 'hierarchyCode' of the CFConcept.",
+            "type" : "object",
+            "properties" : {
+                "CFConcepts" : {
+                    "type" : "array",
+                    "minItems" : 1,
+                    "items" : {
+                        "$ref" : "#/definitions/CFConcept.Type"
+                    }
+                }
+            },
+            "required" : [ "CFConcepts" ],
             "additionalProperties" : false
         },
         "CFDefinition.Type" : {
@@ -648,11 +1063,223 @@
             "additionalProperties" : false
         },
         "CFDocument.Type" : {
-            "description" : "The container for the data about a competency framework document (CFDocument). A CFDocument is the root for the creation of a learning standard/competency.",
+            "description" : "The container for the data about a competency framework document (CFDocument) when exchanged outside of the context of a CFPackage. A CFDocument is the root for the creation of a learning standard/competency.",
+            "type" : "object",
+            "allOf" : [
+                {
+                    "$ref" : "#/definitions/CFPckgDocument.Type"
+                },
+                {
+                    "type" : "object",
+                    "properties" : {
+                        "CFPackageURI" : {
+                            "$ref" : "#/definitions/LinkURI.Type"
+                        }
+                    },
+                    "required" : [ "CFPackageURI" ],
+                    "additionalProperties" : false
+                }
+            ]
+        },
+        "CFDocumentSet.Type" : {
+            "description" : "This is the container for a collection of CFDocuments. There must be at least one CFDocument.",
+            "type" : "object",
+            "properties" : {
+                "CFDocuments" : {
+                    "type" : "array",
+                    "minItems" : 1,
+                    "items" : {
+                        "$ref" : "#/definitions/CFDocument.Type"
+                    }
+                }
+            },
+            "required" : [ "CFDocuments" ],
+            "additionalProperties" : false
+        },
+        "CFItem.Type" : {
+            "description" : "This is the container for the CFItem data outside of the context of a CFPackage. This is the content that either describes a specific competency (learning objective) or describes a grouping of competencies within the taxonomy of a Competency Framework Document. ",
+            "type" : "object",
+            "allOf" : [
+                {
+                    "$ref" : "#/definitions/CFPckgItem.Type"
+                },
+                {
+                    "type" : "object",
+                    "properties" : {
+                        "CFDocumentURI" : {
+                            "$ref" : "#/definitions/LinkURI.Type"
+                        }
+                    },
+                    "required" : [ "CFDocumentURI" ],
+                    "additionalProperties" : false
+                }
+            ]
+        },
+        "CFItemType.Type" : {
+            "description" : "The container for the ItemType information use within the competency framework.",
             "type" : "object",
             "properties" : {
                 "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
+                    "$ref" : "#/definitions/UUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "title" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "description" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "hierarchyCode" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "typeCode" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                }
+            },
+            "required" : [ "identifier","uri","title","description","hierarchyCode","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFItemTypeSet.Type" : {
+            "description" : "The container for the set of CFItemTypes supplied in the response payload. The relationship between the CFItemTypes is determined by the 'hierarchyCode'. The first CFItemType is that which has been specified in the call. The other CFItemTypes are the set of children as determined by their place in the 'hierarchyCode' of the CFItemType.",
+            "type" : "object",
+            "properties" : {
+                "CFItemTypes" : {
+                    "type" : "array",
+                    "minItems" : 1,
+                    "items" : {
+                        "$ref" : "#/definitions/CFItemType.Type"
+                    }
+                }
+            },
+            "required" : [ "CFItemTypes" ],
+            "additionalProperties" : false
+        },
+        "CFLicense.Type" : {
+            "description" : "The container for the information about a license used within the competency framework.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/UUID.Type"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "title" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "description" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "licenseText" : {
+                    "description" : "Model Primitive Datatype = String",
+                    "type" : "string"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                }
+            },
+            "required" : [ "identifier","uri","title","licenseText","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFPackage.Type" : {
+            "description" : "This is the container for all of the data for a Competency Framework Package i.e. the root CFDocument and ALL of the corresponding components i.e. the CFItems, CFAssociations and CFDefinitions.",
+            "type" : "object",
+            "properties" : {
+                "CFDocument" : {
+                    "$ref" : "#/definitions/CFPckgDocument.Type"
+                },
+                "CFItems" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFPckgItem.Type"
+                    }
+                },
+                "CFAssociations" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFPckgAssociation.Type"
+                    }
+                },
+                "CFDefinitions" : {
+                    "$ref" : "#/definitions/CFDefinition.Type"
+                },
+                "CFRubrics" : {
+                    "type" : "array",
+                    "minItems" : 0,
+                    "items" : {
+                        "$ref" : "#/definitions/CFRubric.Type"
+                    }
+                }
+            },
+            "required" : [ "CFDocument" ],
+            "additionalProperties" : false
+        },
+        "CFPckgAssociation.Type" : {
+            "description" : "This is the container for the data about the relationship between two CFDocuments or between two CFItems within the context of a CFPackage.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/UUID.Type"
+                },
+                "associationType" : {
+                    "type" : "string",
+                    "enum" : [ "isChildOf","isPeerOf","isPartOf","exactMatchOf","precedes","isRelatedTo","replacedBy","exemplar","hasSkillLevel" ]
+                },
+                "sequenceNumber" : {
+                    "description" : "Model Primitive Datatype = Integer",
+                    "type" : "integer",
+                    "format" : "int32"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                },
+                "originNodeURI" : {
+                    "$ref" : "#/definitions/LinkGenURI.Type"
+                },
+                "destinationNodeURI" : {
+                    "$ref" : "#/definitions/LinkGenURI.Type"
+                },
+                "CFAssociationGroupingURI" : {
+                    "$ref" : "#/definitions/LinkURI.Type"
+                },
+                "lastChangeDateTime" : {
+                    "description" : "Model Primitive Datatype = DateTime",
+                    "type" : "string",
+                    "format" : "date-time"
+                }
+            },
+            "required" : [ "identifier","associationType","uri","originNodeURI","destinationNodeURI","lastChangeDateTime" ],
+            "additionalProperties" : false
+        },
+        "CFPckgDocument.Type" : {
+            "description" : "The container for the data about a competency framework document (CFDocument) within a CFPackage. A CFDocument is the root for the creation of a learning standard/competency.",
+            "type" : "object",
+            "properties" : {
+                "identifier" : {
+                    "$ref" : "#/definitions/UUID.Type"
                 },
                 "uri" : {
                     "description" : "Model Primitive Datatype = AnyURI",
@@ -726,42 +1353,17 @@
                 "notes" : {
                     "description" : "Model Primitive Datatype = String",
                     "type" : "string"
-                },
-                "CFPackageURI" : {
-                    "description" : "Model Primitive Datatype = AnyURI",
-                    "type" : "string",
-                    "format" : "uri"
                 }
             },
-            "required" : [ "identifier","uri","creator","title","lastChangeDateTime","CFPackageURI" ],
+            "required" : [ "identifier","uri","creator","title","lastChangeDateTime" ],
             "additionalProperties" : false
         },
-        "CFDocumentSet.Type" : {
-            "description" : "This is the container for a collection of CFDocuments. There must be at least one CFDocument.",
-            "type" : "object",
-            "properties" : {
-                "CFDocuments" : {
-                    "type" : "array",
-                    "minItems" : 1,
-                    "items" : {
-                        "$ref" : "#/definitions/CFDocument.Type"
-                    }
-                }
-            },
-            "required" : [ "CFDocuments" ],
-            "additionalProperties" : false
-        },
-        "CFItem.Type" : {
-            "description" : "This is the container for the CFItem data. This is the content that either describes a specific competency (learning objective) or describes a grouping of competencies within the taxonomy of a Competency Framework Document. ",
+        "CFPckgItem.Type" : {
+            "description" : "This is the container for the CFItem data within the context of a CFPackage. This is the content that either describes a specific competency (learning objective) or describes a grouping of competencies within the taxonomy of a Competency Framework Document. ",
             "type" : "object",
             "properties" : {
                 "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
-                },
-                "CFDocumentURI" : {
-                    "description" : "Model Primitive Datatype = AnyURI",
-                    "type" : "string",
-                    "format" : "uri"
+                    "$ref" : "#/definitions/UUID.Type"
                 },
                 "fullStatement" : {
                     "description" : "Model Primitive Datatype = NormalizedString",
@@ -841,112 +1443,7 @@
                     "format" : "date-time"
                 }
             },
-            "required" : [ "identifier","CFDocumentURI","fullStatement","uri","lastChangeDateTime" ],
-            "additionalProperties" : false
-        },
-        "CFItemType.Type" : {
-            "description" : "The container for the ItemType information use within the competency framework.",
-            "type" : "object",
-            "properties" : {
-                "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
-                },
-                "uri" : {
-                    "description" : "Model Primitive Datatype = AnyURI",
-                    "type" : "string",
-                    "format" : "uri"
-                },
-                "title" : {
-                    "description" : "Model Primitive Datatype = NormalizedString",
-                    "type" : "string"
-                },
-                "description" : {
-                    "description" : "Model Primitive Datatype = String",
-                    "type" : "string"
-                },
-                "hierarchyCode" : {
-                    "description" : "Model Primitive Datatype = NormalizedString",
-                    "type" : "string"
-                },
-                "typeCode" : {
-                    "description" : "Model Primitive Datatype = NormalizedString",
-                    "type" : "string"
-                },
-                "lastChangeDateTime" : {
-                    "description" : "Model Primitive Datatype = DateTime",
-                    "type" : "string",
-                    "format" : "date-time"
-                }
-            },
-            "required" : [ "identifier","uri","title","description","hierarchyCode","lastChangeDateTime" ],
-            "additionalProperties" : false
-        },
-        "CFLicense.Type" : {
-            "description" : "The container for the information about a license used within the competency framework.",
-            "type" : "object",
-            "properties" : {
-                "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
-                },
-                "uri" : {
-                    "description" : "Model Primitive Datatype = AnyURI",
-                    "type" : "string",
-                    "format" : "uri"
-                },
-                "title" : {
-                    "description" : "Model Primitive Datatype = NormalizedString",
-                    "type" : "string"
-                },
-                "description" : {
-                    "description" : "Model Primitive Datatype = String",
-                    "type" : "string"
-                },
-                "licenseText" : {
-                    "description" : "Model Primitive Datatype = String",
-                    "type" : "string"
-                },
-                "lastChangeDateTime" : {
-                    "description" : "Model Primitive Datatype = DateTime",
-                    "type" : "string",
-                    "format" : "date-time"
-                }
-            },
-            "required" : [ "identifier","uri","title","licenseText","lastChangeDateTime" ],
-            "additionalProperties" : false
-        },
-        "CFPackage.Type" : {
-            "description" : "This is the container for all of the data for a Competency Framework Package i.e. the root CFDocument and ALL of the corresponding components i.e. the CFItems, CFAssociations and CFDefinitions.",
-            "type" : "object",
-            "properties" : {
-                "CFDocument" : {
-                    "$ref" : "#/definitions/CFDocument.Type"
-                },
-                "CFItems" : {
-                    "type" : "array",
-                    "minItems" : 0,
-                    "items" : {
-                        "$ref" : "#/definitions/CFItem.Type"
-                    }
-                },
-                "CFAssociations" : {
-                    "type" : "array",
-                    "minItems" : 0,
-                    "items" : {
-                        "$ref" : "#/definitions/CFAssociation.Type"
-                    }
-                },
-                "CFDefinitions" : {
-                    "$ref" : "#/definitions/CFDefinition.Type"
-                },
-                "CFRubrics" : {
-                    "type" : "array",
-                    "minItems" : 0,
-                    "items" : {
-                        "$ref" : "#/definitions/CFRubric.Type"
-                    }
-                }
-            },
-            "required" : [ "CFDocument" ],
+            "required" : [ "identifier","fullStatement","uri","lastChangeDateTime" ],
             "additionalProperties" : false
         },
         "CFRubric.Type" : {
@@ -954,11 +1451,12 @@
             "type" : "object",
             "properties" : {
                 "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
+                    "$ref" : "#/definitions/UUID.Type"
                 },
                 "uri" : {
-                    "description" : "Model Primitive Datatype = NormalizedString",
-                    "type" : "string"
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
                 },
                 "title" : {
                     "description" : "Model Primitive Datatype = NormalizedString",
@@ -989,7 +1487,7 @@
             "type" : "object",
             "properties" : {
                 "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
+                    "$ref" : "#/definitions/UUID.Type"
                 },
                 "uri" : {
                     "description" : "Model Primitive Datatype = AnyURI",
@@ -1005,9 +1503,7 @@
                     "type" : "string"
                 },
                 "CFItemURI" : {
-                    "description" : "Model Primitive Datatype = AnyURI",
-                    "type" : "string",
-                    "format" : "uri"
+                    "$ref" : "#/definitions/LinkURI.Type"
                 },
                 "weight" : {
                     "description" : "Model Primitive Datatype = Float",
@@ -1020,7 +1516,7 @@
                     "format" : "int32"
                 },
                 "rubricId" : {
-                    "$ref" : "#/definitions/GUID.Type"
+                    "$ref" : "#/definitions/UUID.Type"
                 },
                 "lastChangeDateTime" : {
                     "description" : "Model Primitive Datatype = DateTime",
@@ -1043,7 +1539,7 @@
             "type" : "object",
             "properties" : {
                 "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
+                    "$ref" : "#/definitions/UUID.Type"
                 },
                 "uri" : {
                     "description" : "Model Primitive Datatype = AnyURI",
@@ -1073,7 +1569,7 @@
                     "format" : "int32"
                 },
                 "rubricCriterionId" : {
-                    "$ref" : "#/definitions/GUID.Type"
+                    "$ref" : "#/definitions/UUID.Type"
                 },
                 "lastChangeDateTime" : {
                     "description" : "Model Primitive Datatype = DateTime",
@@ -1089,7 +1585,7 @@
             "type" : "object",
             "properties" : {
                 "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
+                    "$ref" : "#/definitions/UUID.Type"
                 },
                 "uri" : {
                     "description" : "Model Primitive Datatype = AnyURI",
@@ -1118,23 +1614,40 @@
             "additionalProperties" : false
         },
         "CFSubjectSet.Type" : {
-            "description" : "...tbd (Class description)...",
+            "description" : "The container for the set of CFSubjects supplied in the response payload. The relationship between the CFSubjects is determined by the 'hierarchyCode'. The first CFSubject is that which has been specified in the call. The other CFSubjects are the set of children as determined by their place in the 'hierarchyCode' of the CFSubject.",
             "type" : "object",
             "properties" : {
                 "CFSubjects" : {
                     "type" : "array",
-                    "minItems" : 0,
+                    "minItems" : 1,
                     "items" : {
                         "$ref" : "#/definitions/CFSubject.Type"
                     }
                 }
             },
+            "required" : [ "CFSubjects" ],
             "additionalProperties" : false
         },
-        "GUID.Type" : {
-            "description" : "The data-type for establishing a Globally Unique Identifier (GUID). The form of the GUID is a Universally Unique Identifier (UUID) of 16 hexadecimal characters (lower case) in the format 8-4-4-4-12.",
-            "type" : "string",
-            "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+        "LinkGenURI.Type" : {
+            "description" : "A container for the information that is used to achieve the link data reference.",
+            "type" : "object",
+            "properties" : {
+                "title" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "identifier" : {
+                    "description" : "Model Primitive Datatype = NormalizedString",
+                    "type" : "string"
+                },
+                "uri" : {
+                    "description" : "Model Primitive Datatype = AnyURI",
+                    "type" : "string",
+                    "format" : "uri"
+                }
+            },
+            "required" : [ "title","identifier","uri" ],
+            "additionalProperties" : false
         },
         "LinkURI.Type" : {
             "description" : "A container for the information that is used to achieve the link data reference.",
@@ -1145,7 +1658,7 @@
                     "type" : "string"
                 },
                 "identifier" : {
-                    "$ref" : "#/definitions/GUID.Type"
+                    "$ref" : "#/definitions/UUID.Type"
                 },
                 "uri" : {
                     "description" : "Model Primitive Datatype = AnyURI",
@@ -1160,6 +1673,11 @@
             "description" : "The data-type for establishing a Uniform Resource Locator (URL) as defined by W3C.",
             "type" : "string",
             "format" : "uri"
+        },
+        "UUID.Type" : {
+            "description" : "The data-type for establishing a Globally Unique Identifier (GUID). The form of the GUID is a Universally Unique Identifier (UUID) of 16 hexadecimal characters (lower case) in the format 8-4-4-4-12. All permitted versions (1-5) and variants (1-2) are supported.",
+            "type" : "string",
+            "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
         },
         "imsx_CodeMinor.Type" : {
             "description" : "This is the container for the set of code minor status codes reported in the responses from the Service Provider.",
