@@ -1,0 +1,59 @@
+{% extends "layout.html.twig" %}
+
+{% block stylesheets %}
+{{ parent() }}
+    <style>
+        pre {
+            display: inherit;
+            padding: inherit;
+            line-height: inherit;
+            border: inherit;
+            background-color: inherit;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ asset('build/swaggercss.css', 'encore') }}" />
+    <style>
+        .swagger-ui .info .title {
+            font-size: 24px;
+        }
+        .swagger-ui .model-box {
+            padding: 5px;
+        }
+        .try-out, .try-out__btn {
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block sitejavascripts %}
+{% endblock %}
+
+{% block javascripts %}
+    <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+    {#
+    <script src="{{ asset('build/manifest.js', 'encore') }}"></script>
+    <script src="{{ asset('build/swagger.js', 'encore') }}"></script>
+    #}
+    <script>
+var ui = SwaggerUIBundle({
+    url: "/case-v1p0-swagger.json",
+    dom_id: '.swagger-section',
+    presets: [
+      SwaggerUIBundle.presets.apis,
+      SwaggerUIBundle.SwaggerUIStandalonePreset
+    ]
+});
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <aside class="panel panel-default">
+        <p class="panel-body text-center">
+            This documentation is automatically generated from the content of Appendix B1 in the <a href="https://www.imsglobal.org/sites/default/files/CASE/casev1p0/rest_binding/caseservicev1p0_restbindv1p0.html#AppB1">CASE™ 1.0 Specification (REST API)</a> document.
+        </p>
+    </aside>
+    <div class="swagger-section">
+    </div>
+</div>
+{% endblock %}
