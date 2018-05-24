@@ -66,7 +66,7 @@ class Framework implements Context
 
         return $this;
     }
-    
+
 
     /**
      * @Given /^I should see the framework information$/
@@ -688,6 +688,17 @@ class Framework implements Context
 
         $I->click('//span[text()="MD.Table"]/../../..');
         $I->seeElement('.lsItemDetails u');
+    }
+
+    /**
+     * @Given /^I should see a math equation in the framework$/
+     */
+    public function iShouldSeeMathEquationInTheFramework()
+    {
+        $I = $this->I;
+
+        $I->click('//span[text()="MD.Table"]/../../..');
+        $I->seeElement('.lsItemDetails .katex');
     }
 
     /**
