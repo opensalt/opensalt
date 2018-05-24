@@ -7,6 +7,80 @@
 
     {{ form_start(edit_form) }}
         {{ form_start(edit_form, {'enctype': 'multipart/form-data'}) }}
+
+        <div class="form-group">
+            {{ form_label(edit_form.fullStatement) }}
+            <div class="col-sm-10">
+                {{ form_widget(edit_form.fullStatement) }}
+                {{ form_errors(edit_form.fullStatement) }}
+            </div>
+        </div>
+        
+
+        <div class="form-group" {% if 'enable_filesystem' is active feature %} style="display: block;" {% endif %} style="display: none;">
+            {{ form_label(edit_form.attachment) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.attachment) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(edit_form.humanCodingScheme) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.humanCodingScheme) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(edit_form.listEnumInSource) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.listEnumInSource) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(edit_form.abbreviatedStatement) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.abbreviatedStatement) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(edit_form.conceptKeywords) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.conceptKeywords) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(edit_form.conceptKeywordsUri) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.conceptKeywordsUri) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(edit_form.language) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.language) }}</div>
+        </div>
+
+        <div class="form-group"> 
+            {{ form_label(edit_form.educationalAlignment) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.educationalAlignment) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(edit_form.itemType) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.itemType) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(edit_form.licenceUri) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.licenceUri) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(edit_form.notes) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.notes) }}</div>
+        </div>
+
+        <div class="form-group" {% if 'enable_filesystem' is active feature %} style="display: block;" {% endif %} style="display: none;">
+            {{ form_label(edit_form.notesFile) }}
+            <div class="col-sm-10">{{ form_widget(edit_form.notesFile) }}</div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-10">{{ form_widget(edit_form.fullstatementAttachment) }}</div>
+        </div>
+
         {% if not app.request.xmlHttpRequest %}
             <p class="text-right">
                   <input class="btn btn-primary" type="submit" value="Save Changes" id="item-submit-button"/>

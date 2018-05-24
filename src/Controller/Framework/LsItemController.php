@@ -34,6 +34,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Filesystem\Filesystem;
+
 /**
  * LsItem controller.
  *
@@ -182,9 +183,7 @@ class LsItemController extends AbstractController
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
-            //echo '<pre>';
-            //print_r($_POST);die;
-            print_r($request); exit(0);
+
             try {
                 $command = new UpdateItemCommand($lsItem);
                 $this->sendCommand($command);
@@ -252,8 +251,7 @@ class LsItemController extends AbstractController
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsitem_delete', array('id' => $lsItem->getId())))
             ->setMethod('DELETE')
-            ->getForm()
-        ;
+            ->getForm();
     }
 
     /**
@@ -441,6 +439,7 @@ class LsItemController extends AbstractController
 
         return $response;
     }
+
     /**
      * Upload attachment to LsItem entity.
      *
@@ -455,31 +454,25 @@ class LsItemController extends AbstractController
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-
     public function uploadAttachmentAction(Request $request, LsItem $lsItem, UserInterface $user)
     {
-            
+
             $output = array('uploaded' => false);
             //print_R();
             // get the file from the request object
             $file = $request->files->get('file');
             $attachmentTo=$request->get('attachmentTo');
-            // generate a new filename (safer, better approach)
-            // To use original filename, $fileName = $this->file->getClientOriginalName();
-            //$fileName = md5(uniqid()).'.'.$file->guessExtension();
             $fileName = $file->getClientOriginalName();
             // set your uploads directory
-            $uploadDir =dirname(__DIR__).'../../../web/uploads/'. $attachmentTo.'/';
-           /* if (!file_exists($uploadDir) && !is_dir($uploadDir)) {
-                mkdir($uploadDir, 0775, true);
-            }*/
-            if ($file->move($uploadDir, $fileName)) { 
+
+            $uploadDir =dirname(__DIR__).'../../../web/uploads/'.$attachmentTo.'/';
+            if ($file->move($uploadDir, $fileName)) {
                $output['uploaded'] = true;
                $output['fileName'] = $fileName;
             }
             return new JsonResponse($output);
     }
-    
+
     /**
      * delete attachment.
      *
@@ -494,17 +487,17 @@ class LsItemController extends AbstractController
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-
     public function deleteAttachmentAction(Request $request, LsItem $lsItem, UserInterface $user)
     {
         $output = array('uploaded' => false);
         // get the file from the request object
         $file = $request->files->get('file');
         $attachmentTo=$request->get('attachmentTo');
-        $uploadDir =dirname(__DIR__).'../../../web/uploads/'. $attachmentTo.'/';
+
+        $uploadDir =dirname(__DIR__).'../../../web/uploads/'.$attachmentTo.'/';
         $fileName=$uploadDir.'/'.$request->get('name');
         $fs = new Filesystem();
-        if($fs->remove($fileName)){
+        if($fs->remove($fileName)) {
             $output['delete'] = true;
         }
         return new JsonResponse($output);

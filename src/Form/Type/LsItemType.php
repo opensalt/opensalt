@@ -17,7 +17,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use App\Entity\Framework\AwsStorage;
 
 class LsItemType extends AbstractType
 {
@@ -43,9 +42,9 @@ class LsItemType extends AbstractType
         }
         $builder
             ->add('fullStatement')
-             ->add('attachment', FileType::class, array( 'multiple' => true, 'mapped' => false,'label'=>'Full statement Attachment(s)','required' => false,))   
+            ->add('attachment', FileType::class, array('multiple' => true, 'mapped' => false, 'label'=>'Full statement Attachment(s)', 'required' => false))
             ->add('humanCodingScheme')
-            //->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
+             //->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
             ->add('listEnumInSource')
             ->add('abbreviatedStatement')
             ->add('conceptKeywords')
@@ -103,8 +102,8 @@ class LsItemType extends AbstractType
             ])
             ->add('licenceUri')
             ->add('notes')
-            ->add('notesFile', FileType::class, array( 'multiple' => true, 'mapped' => false,'label'=>'Notes Attachment(s)','required' => false,)) 
-            ->add('notesAttachment', HiddenType::class, array('mapped' => false)) 
+            ->add('notesFile', FileType::class, array('multiple' => true, 'mapped' => false, 'label'=>'Notes Attachment(s)', 'required' => false))
+            ->add('notesAttachment', HiddenType::class, array('mapped' => false))
             ->add('fullstatementAttachment', HiddenType::class, array('mapped' => false));
             /*
             ->add('changedAt', 'Symfony\Component\Form\Extension\Core\Type\DateTimeType', [
@@ -114,11 +113,11 @@ class LsItemType extends AbstractType
                 'time_widget' => 'single_text',
             ])
             */
-        ;
+
         $builder->get('educationalAlignment')
-            ->addModelTransformer(new EducationAlignmentTransformer($this->em))
-            ;
+            ->addModelTransformer(new EducationAlignmentTransformer($this->em));
     }
+
     /**
      * @param OptionsResolver $resolver
      */
