@@ -9,68 +9,71 @@
         {{ form_start(edit_form, {'enctype': 'multipart/form-data'}) }}
 
         <div class="form-group">
-            <label class="control-label col-sm-2"> {{ form_label(edit_form.fullStatement) }} </label>
-            <div class="col-sm-10">{{ form_widget(edit_form.fullStatement) }}</div>
-            <div class="col-sm-10" style="float: right;">{{ form_errors(edit_form.fullStatement) }}</div>
+            {{ form_label(edit_form.fullStatement) }}
+            <div class="col-sm-10">
+                {{ form_widget(edit_form.fullStatement) }}
+                {{ form_errors(edit_form.fullStatement) }}
+            </div>
         </div>
+        
 
         <div class="form-group" {% if 'enable_filesystem' is active feature %} style="display: block;" {% endif %} style="display: none;">
-            <label class="control-label col-sm-2"> {{ form_label(edit_form.attachment) }} </label>
+            {{ form_label(edit_form.attachment) }}
             <div class="col-sm-10">{{ form_widget(edit_form.attachment) }}</div>
         </div>
 
         <div class="form-group">
-            <label class="control-label col-sm-2"> {{ form_label(edit_form.humanCodingScheme) }} </label>
+            {{ form_label(edit_form.humanCodingScheme) }}
             <div class="col-sm-10">{{ form_widget(edit_form.humanCodingScheme) }}</div>
         </div>
 
         <div class="form-group">
-            <label class="col-sm-2"> {{ form_label(edit_form.listEnumInSource) }} </label>
+            {{ form_label(edit_form.listEnumInSource) }}
             <div class="col-sm-10">{{ form_widget(edit_form.listEnumInSource) }}</div>
         </div>
 
         <div class="form-group">
-            <label class="col-sm-2"> {{ form_label(edit_form.abbreviatedStatement) }} </label>
+            {{ form_label(edit_form.abbreviatedStatement) }}
             <div class="col-sm-10">{{ form_widget(edit_form.abbreviatedStatement) }}</div>
         </div>
 
         <div class="form-group">
-            <label class="col-sm-2"> {{ form_label(edit_form.conceptKeywords) }} </label>
+            {{ form_label(edit_form.conceptKeywords) }}
             <div class="col-sm-10">{{ form_widget(edit_form.conceptKeywords) }}</div>
         </div>
 
         <div class="form-group">
-            <label class="col-sm-2"> {{ form_label(edit_form.conceptKeywordsUri) }} </label>
+            {{ form_label(edit_form.conceptKeywordsUri) }}
             <div class="col-sm-10">{{ form_widget(edit_form.conceptKeywordsUri) }}</div>
         </div>
 
         <div class="form-group">
-            <label class="col-sm-2"> {{ form_label(edit_form.language) }} </label>
+            {{ form_label(edit_form.language) }}
             <div class="col-sm-10">{{ form_widget(edit_form.language) }}</div>
         </div>
 
         <div class="form-group"> 
-            <label class="col-sm-2">{{ form_label(edit_form.educationalAlignment) }} </label>
+            {{ form_label(edit_form.educationalAlignment) }}
             <div class="col-sm-10">{{ form_widget(edit_form.educationalAlignment) }}</div>
         </div>
 
         <div class="form-group">
-            <label class="col-sm-2"> {{ form_label(edit_form.itemType) }} </label>
+            {{ form_label(edit_form.itemType) }}
             <div class="col-sm-10">{{ form_widget(edit_form.itemType) }}</div>
         </div>
 
         <div class="form-group">
-            <label class="col-sm-2"> {{ form_label(edit_form.licenceUri) }} </label>
+            {{ form_label(edit_form.licenceUri) }}
             <div class="col-sm-10">{{ form_widget(edit_form.licenceUri) }}</div>
         </div>
 
         <div class="form-group">
-            <label class="col-sm-2"> {{ form_label(edit_form.notes) }} </label>
+            {{ form_label(edit_form.notes) }}
             <div class="col-sm-10">{{ form_widget(edit_form.notes) }}</div>
         </div>
 
         <div class="form-group" {% if 'enable_filesystem' is active feature %} style="display: block;" {% endif %} style="display: none;">
-            <label class="col-sm-2"> {{ form_label(edit_form.notesFile) }} </label>
+            {{ form_label(edit_form.notesFile) }}
             <div class="col-sm-10">{{ form_widget(edit_form.notesFile) }}</div>
         </div>
 
