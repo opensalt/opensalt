@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f45f540af2164579ce796910c43a0efb",
+    "content-hash": "79b53e2aad4bba2aee5d153e4899e181",
     "packages": [
         {
             "name": "activelamp/swagger-ui-bundle",
@@ -3208,16 +3208,16 @@
         },
         {
             "name": "nilportugues/jsonapi-bundle",
-            "version": "1.5.2",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nilportugues/symfony-jsonapi.git",
-                "reference": "c4bbdfec0bb0b402aa0057fd32d1225447988460"
+                "reference": "c86957fed9e32824e21310152b3f07a7e3ca0e61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nilportugues/symfony-jsonapi/zipball/c4bbdfec0bb0b402aa0057fd32d1225447988460",
-                "reference": "c4bbdfec0bb0b402aa0057fd32d1225447988460",
+                "url": "https://api.github.com/repos/nilportugues/symfony-jsonapi/zipball/c86957fed9e32824e21310152b3f07a7e3ca0e61",
+                "reference": "c86957fed9e32824e21310152b3f07a7e3ca0e61",
                 "shasum": ""
             },
             "require": {
@@ -3225,9 +3225,9 @@
                 "php": ">=5.5.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "~1.9",
-                "nilportugues/php_backslasher": "~0.2",
-                "symfony/symfony": "2.*"
+                "friendsofphp/php-cs-fixer": "^1.9",
+                "nilportugues/php_backslasher": "^0.2",
+                "symfony/symfony": "^2.0|^3.0"
             },
             "type": "library",
             "autoload": {
@@ -3262,7 +3262,7 @@
                 "symfony3",
                 "transformer"
             ],
-            "time": "2016-07-11T20:41:05+00:00"
+            "time": "2017-07-31T09:44:25+00:00"
         },
         {
             "name": "nilportugues/serializer",

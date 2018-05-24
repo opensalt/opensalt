@@ -77,7 +77,7 @@
 
         "nelmio/security-bundle": "^2.5",
 
-        "nilportugues/jsonapi-bundle": "^1.5.2",
+        "nilportugues/jsonapi-bundle": "^2.1.0",
         "nelmio/cors-bundle": "~1.5.4",
 
         "phpoffice/phpspreadsheet": "^1.1.0",
