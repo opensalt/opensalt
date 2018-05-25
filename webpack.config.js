@@ -3,7 +3,7 @@ const path = require('path');
 
 const vendorDir = './vendor';
 const npmDir = './node_modules/';
-const assetsDir = './app/Resources/assets';
+const assetsDir = './assets';
 const buildDir = './public/build';
 
 var sharedScripts = [

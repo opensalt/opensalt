@@ -2,11 +2,11 @@
 
 @import "bootstrap";
 
-@import "../../../../node_modules/bootstrap-material-icons/scss/material-icons";
+@import "~bootstrap-material-icons/scss/material-icons";
 @import "~font-awesome/scss/font-awesome";
 @import "~katex/dist/katex.min.css";
 @import "~github-markdown-css/github-markdown.css";
-@import "../../../../node_modules/simplemde/dist/simplemde.min.css";
+@import "~simplemde/dist/simplemde.min.css";
 @import "~jquery.fancytree/dist/skin-lion/ui.fancytree";
 @import "~bootstrap-multiselect/dist/css/bootstrap-multiselect";
 @import "~select2/dist/css/select2";
