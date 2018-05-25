@@ -167,12 +167,6 @@
     "guzzlehttp/psr7": {
         "version": "1.4.2"
     },
-    "ircmaxell/random-lib": {
-        "version": "v1.2.0"
-    },
-    "ircmaxell/security-lib": {
-        "version": "v1.1.0"
-    },
     "jakub-onderka/php-console-color": {
         "version": "0.1"
     },

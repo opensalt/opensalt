@@ -48,7 +48,7 @@
         "google/recaptcha": "~1.1",
         "jms/serializer-bundle": "^2.3.1",
         "kreait/firebase-php": "~3.7",
-        "league/oauth2-github": "^0.2.2",
+        "league/oauth2-github": "^2.0.0",
         "matthimatiker/opcache-bundle": "^0.7",
         "milo/github-api": "^1.4",
         "namshi/cuzzle": "^2.0",
