@@ -11,14 +11,14 @@ parameters:
     env(MYSQL_USER): null
     env(MYSQL_PASSWORD): null
     env(MAILER_TRANSPORT): smtp
-    env(MAILER_HOST): smtp.mailtrap.io
-    env(MAILER_USER): 11d8b9d499ed7f
-    env(MAILER_PASSWORD): 4980cda9c4f460
+    env(MAILER_HOST): 127.0.0.1
+    env(MAILER_USER): null
+    env(MAILER_PASSWORD): null
     env(MAILER_AUTH_MODE): null
     env(MAILER_PORT): null
-    env(SECRET): UTbkcOuw8svFed2bLa3q
+    env(SECRET): null
     env(APP_SECRET): '%env(SECRET)%'
-    env(COOKIE_SECRET): e1xhNBki5aJSJ7JR1YG5Vn76
+    env(COOKIE_SECRET): null
     env(LOCAL_URI_HOST): 'http://127.0.0.1:3000/'
     env(GITHUB_CLIENT_ID): null
     env(GITHUB_CLIENT_SECRET): null
