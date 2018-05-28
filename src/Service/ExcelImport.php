@@ -262,13 +262,13 @@ class ExcelImport
             }
 
             if ($association === null) {
-                $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
+                $association = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
                     'originNodeIdentifier' => $fields['originNodeIdentifier'],
                     'type' => $fields['associationType'],
                     'destinationNodeIdentifier' => $fields['destinationNodeIdentifier']
                 ]);
 
-                if (null === $assoc) {
+                if (null === $association) {
                     $association = $doc->createAssociation($fields['identifier']);
                 }
             }
