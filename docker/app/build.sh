@@ -12,7 +12,7 @@ chmod 777 ../../var/{cache,logs,sessions}
 tar cf app.tar \
 	--exclude-vcs --exclude='var/*/*' \
 	-C ../.. \
-	assets bin config pulic src templates translations var vendor web \
+	assets bin config public src templates translations var vendor web \
 	composer.json composer.lock symfony.lock \
 	package.json webpack.config.js yarn.lock \
 	LICENSE README.md
