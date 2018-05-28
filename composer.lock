@@ -2707,16 +2707,16 @@
         },
         {
             "name": "matthimatiker/opcache-bundle",
-            "version": "0.7.0",
+            "version": "0.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Matthimatiker/OpcacheBundle.git",
-                "reference": "16a3ea5fe2e530701650c9f2f67a40d63e917a8b"
+                "reference": "c0e7c7400d40ff9da64c9855097f7581d731fcb9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Matthimatiker/OpcacheBundle/zipball/16a3ea5fe2e530701650c9f2f67a40d63e917a8b",
-                "reference": "16a3ea5fe2e530701650c9f2f67a40d63e917a8b",
+                "url": "https://api.github.com/repos/Matthimatiker/OpcacheBundle/zipball/c0e7c7400d40ff9da64c9855097f7581d731fcb9",
+                "reference": "c0e7c7400d40ff9da64c9855097f7581d731fcb9",
                 "shasum": ""
             },
             "require": {
@@ -2751,7 +2751,7 @@
                 }
             ],
             "description": "Displays the state of the PHP opcache in the Symfony profiler toolbar.",
-            "time": "2017-11-26T17:46:18+00:00"
+            "time": "2018-05-28T17:35:02+00:00"
         },
         {
             "name": "milo/github-api",
