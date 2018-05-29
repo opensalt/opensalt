@@ -1,6 +1,6 @@
 # How to get Secret Keys for Google reCAPTCHA v2
 
-Opensalt uses Google Invisible reCAPTCHA for prevent DOS attacks. In order to make it work you need to set the following environment variables:
+Opensalt uses Google Invisible reCAPTCHA for prevent DOS attacks. In order to make it work you need to set the following environment variables in the `docker/.env` file:
 ```
 GOOGLE_CAPTCHA_SITE_KEY
 GOOGLE_CAPTCHA_SECRET_KEY
