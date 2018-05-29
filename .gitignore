@@ -5,6 +5,7 @@
 /phpcs.xml
 /codeception.yml
 /makefile
+/yarn-error.log
 /tests/*.suite.yml
 /tests/_envs/*.yml
 !/tests/_envs/*.dist.yml
