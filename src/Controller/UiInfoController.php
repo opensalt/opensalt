@@ -5,8 +5,7 @@ namespace App\Controller;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,8 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 class UiInfoController extends AbstractController
 {
     /**
-     * @Route("/multi/{id}", name="multi_tree_info_json")
-     * @Method({"POST"})
+     * @Route("/multi/{id}", methods={"POST"}, name="multi_tree_info_json")
      * @Security("is_granted('edit', doc)")
      *
      * @return JsonResponse
@@ -62,8 +60,7 @@ class UiInfoController extends AbstractController
     }
 
     /**
-     * @Route("/doc/{id}", name="lsdoc_tree_json")
-     * @Method({"GET"})
+     * @Route("/doc/{id}", methods={"GET"}, name="lsdoc_tree_json")
      * @Security("is_granted('edit', doc)")
      *
      * @param LsDoc $doc
@@ -76,8 +73,7 @@ class UiInfoController extends AbstractController
     }
 
     /**
-     * @Route("/item/{id}", name="lsitem_tree_json")
-     * @Method({"GET"})
+     * @Route("/item/{id}", methods={"GET"}, name="lsitem_tree_json")
      * @Security("is_granted('edit', item)")
      *
      * @param LsItem $item
@@ -90,8 +86,7 @@ class UiInfoController extends AbstractController
     }
 
     /**
-     * @Route("/association/{id}", name="doc_tree_association_json")
-     * @Method({"GET"})
+     * @Route("/association/{id}", methods={"GET"}, name="doc_tree_association_json")
      * @Security("is_granted('edit', association.getLsDoc())")
      */
     public function associationJsonInfoAction(LsAssociation $association): JsonResponse

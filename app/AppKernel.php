@@ -29,7 +29,6 @@ class AppKernel extends Kernel
             new Csa\Bundle\GuzzleBundle\CsaGuzzleBundle(),
 
             new Nelmio\SecurityBundle\NelmioSecurityBundle(),
-            new ActiveLAMP\Bundle\SwaggerUIBundle\ALSwaggerUIBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
 
             new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
@@ -39,8 +38,6 @@ class AppKernel extends Kernel
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {
             $bundles[] = new Symfony\Bundle\DebugBundle\DebugBundle();
             $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
-            $bundles[] = new Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
-            $bundles[] = new Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle();
             $bundles[] = new Matthimatiker\OpcacheBundle\MatthimatikerOpcacheBundle();
             $bundles[] = new Fidry\PsyshBundle\PsyshBundle();
         }

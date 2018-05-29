@@ -14,8 +14,7 @@ use App\Form\Type\RemoteCaseServerType;
 use App\Form\Type\LsDocCreateType;
 use App\Entity\User\User;
 use GuzzleHttp\ClientInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use App\Entity\Framework\LsDoc;
@@ -56,8 +55,7 @@ class LsDocController extends AbstractController
     /**
      * Lists all LsDoc entities.
      *
-     * @Route("/", name="lsdoc_index")
-     * @Method("GET")
+     * @Route("/", methods={"GET"}, name="lsdoc_index")
      * @Template()
      *
      * @return array
@@ -86,8 +84,7 @@ class LsDocController extends AbstractController
     /**
      * Show frameworks from a remote system
      *
-     * @Route("/remote", name="lsdoc_remote_index")
-     * @Method({"GET", "POST"})
+     * @Route("/remote", methods={"GET", "POST"}, name="lsdoc_remote_index")
      * @Template()
      *
      * @return array
@@ -138,8 +135,7 @@ class LsDocController extends AbstractController
     /**
      * Creates a new LsDoc entity.
      *
-     * @Route("/new", name="lsdoc_new")
-     * @Method({"GET", "POST"})
+     * @Route("/new", methods={"GET", "POST"}, name="lsdoc_new")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
@@ -176,8 +172,7 @@ class LsDocController extends AbstractController
     /**
      * Finds and displays a LsDoc entity.
      *
-     * @Route("/{id}.{_format}", defaults={"_format"="html"}, name="lsdoc_show")
-     * @Method("GET")
+     * @Route("/{id}.{_format}", methods={"GET"}, defaults={"_format"="html"}, name="lsdoc_show")
      * @Template()
      * @Security("is_granted('view', lsDoc)")
      *
@@ -204,12 +199,8 @@ class LsDocController extends AbstractController
     /**
      * Update a framework given a CSV or external File.
      *
-     * @Route("/doc/{id}/update", name="lsdoc_update")
-     * @Method("POST")
+     * @Route("/doc/{id}/update", methods={"POST"}, name="lsdoc_update")
      * @Security("is_granted('edit', lsDoc)")
-     *
-     * @param Request $request
-     * @param LsDoc $lsDoc
      */
     public function updateAction(Request $request, LsDoc $lsDoc)
     {
@@ -229,8 +220,7 @@ class LsDocController extends AbstractController
     /**
      * Update a framework given a CSV or external File on a derivative framework.
      *
-     * @Route("/doc/{id}/derive", name="lsdoc_update_derive")
-     * @Method("POST")
+     * @Route("/doc/{id}/derive", methods={"POST"}, name="lsdoc_update_derive")
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
@@ -256,8 +246,7 @@ class LsDocController extends AbstractController
     /**
      * Displays a form to edit an existing LsDoc entity.
      *
-     * @Route("/{id}/edit", name="lsdoc_edit")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdoc_edit")
      * @Template()
      * @Security("is_granted('edit', lsDoc)")
      *
@@ -327,8 +316,7 @@ class LsDocController extends AbstractController
     /**
      * Deletes a LsDoc entity.
      *
-     * @Route("/{id}", name="lsdoc_delete")
-     * @Method("DELETE")
+     * @Route("/{id}", methods={"DELETE"}, name="lsdoc_delete")
      * @Security("is_granted('delete', lsDoc)")
      *
      * @param Request $request
@@ -366,8 +354,7 @@ class LsDocController extends AbstractController
     /**
      * Finds and displays a LsDoc entity.
      *
-     * @Route("/{id}/export.{_format}", requirements={"_format"="(json|html|null)"}, defaults={"_format"="json"}, name="lsdoc_export")
-     * @Method("GET")
+     * @Route("/{id}/export.{_format}", methods={"GET"}, requirements={"_format"="(json|html|null)"}, defaults={"_format"="json"}, name="lsdoc_export")
      * @Template()
      * @Security("is_granted('view', lsDoc)")
      *

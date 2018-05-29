@@ -13,8 +13,7 @@ use App\Entity\User\User;
 use App\Form\Type\UserType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -51,8 +50,7 @@ class UserController extends AbstractController
     /**
      * Lists all user entities.
      *
-     * @Route("/", name="admin_user_index")
-     * @Method("GET")
+     * @Route("/", methods={"GET"}, name="admin_user_index")
      * @Template()
      *
      * @return array
@@ -75,8 +73,7 @@ class UserController extends AbstractController
     /**
      * Creates a new user entity.
      *
-     * @Route("/new", name="admin_user_new")
-     * @Method({"GET", "POST"})
+     * @Route("/new", methods={"GET", "POST"}, name="admin_user_new")
      * @Template()
      *
      * @param Request $request
@@ -119,9 +116,8 @@ class UserController extends AbstractController
     /**
      * Finds and displays a user entity.
      *
-     * @Route("/{id}", name="admin_user_show")
+     * @Route("/{id}", methods={"GET"}, name="admin_user_show")
      * @Security("is_granted('manage', targetUser)")
-     * @Method("GET")
      * @Template()
      *
      * @param User $targetUser
@@ -141,9 +137,8 @@ class UserController extends AbstractController
     /**
      * Displays a form to edit an existing user entity.
      *
-     * @Route("/{id}/edit", name="admin_user_edit")
+     * @Route("/{id}/edit", methods={"GET", "POST"}, name="admin_user_edit")
      * @Security("is_granted('manage', targetUser)")
-     * @Method({"GET", "POST"})
      * @Template()
      *
      * @param Request $request
@@ -185,9 +180,8 @@ class UserController extends AbstractController
     /**
      * Suspend a user
      *
-     * @Route("/{id}/suspend", name="admin_user_suspend")
+     * @Route("/{id}/suspend", methods={"GET"}, name="admin_user_suspend")
      * @Security("is_granted('manage', targetUser)")
-     * @Method({"GET"})
      *
      * @param Request $request
      * @param User $targetUser
@@ -204,9 +198,8 @@ class UserController extends AbstractController
     /**
      * Activate a user
      *
-     * @Route("/{id}/activate", name="admin_user_activate")
+     * @Route("/{id}/activate", methods={"GET"}, name="admin_user_activate")
      * @Security("is_granted('manage', targetUser)")
-     * @Method({"GET"})
      *
      * @param Request $request
      * @param User $targetUser
@@ -233,9 +226,8 @@ class UserController extends AbstractController
     /**
      * Deletes a user entity.
      *
-     * @Route("/{id}", name="admin_user_delete")
+     * @Route("/{id}", methods={"DELETE"}, name="admin_user_delete")
      * @Security("is_granted('manage', targetUser)")
-     * @Method("DELETE")
      *
      * @param Request $request
      * @param User $targetUser
@@ -273,9 +265,8 @@ class UserController extends AbstractController
     /**
      * Reject a user
      *
-     * @Route("/{id}/reject", name="admin_user_reject")
+     * @Route("/{id}/reject", methods={"GET"}, name="admin_user_reject")
      * @Security("is_granted('manage', targetUser)")
-     * @Method({"GET"})
      *
      * @param User $targetUser
      *

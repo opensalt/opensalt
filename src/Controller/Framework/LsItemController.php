@@ -21,8 +21,7 @@ use App\Form\Type\LsDocListType;
 use App\Form\Type\LsItemParentType;
 use App\Form\Type\LsItemType;
 use App\Entity\User\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -45,8 +44,7 @@ class LsItemController extends AbstractController
     /**
      * Lists all LsItem entities.
      *
-     * @Route("/", name="lsitem_index")
-     * @Method("GET")
+     * @Route("/", methods={"GET"}, name="lsitem_index")
      * @Template()
      *
      * @return array
@@ -65,9 +63,8 @@ class LsItemController extends AbstractController
     /**
      * Creates a new LsItem entity.
      *
-     * @Route("/new/{doc}/{parent}", name="lsitem_new")
-     * @Route("/new/{doc}/{parent}/{assocGroup}", name="lsitem_new_ag")
-     * @Method({"GET", "POST"})
+     * @Route("/new/{doc}/{parent}", methods={"GET", "POST"}, name="lsitem_new")
+     * @Route("/new/{doc}/{parent}/{assocGroup}", methods={"GET", "POST"}, name="lsitem_new_ag")
      * @Template()
      * @Security("is_granted('add-standard-to', doc)")
      *
@@ -124,8 +121,7 @@ class LsItemController extends AbstractController
     /**
      * Finds and displays a LsItem entity.
      *
-     * @Route("/{id}.{_format}", defaults={"_format"="html"}, name="lsitem_show")
-     * @Method("GET")
+     * @Route("/{id}.{_format}", methods={"GET"}, defaults={"_format"="html"}, name="lsitem_show")
      * @Template()
      *
      * @param LsItem $lsItem
@@ -151,8 +147,7 @@ class LsItemController extends AbstractController
     /**
      * Displays a form to edit an existing LsItem entity.
      *
-     * @Route("/{id}/edit", name="lsitem_edit")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsitem_edit")
      * @Template()
      * @Security("is_granted('edit', lsItem)")
      *
@@ -212,8 +207,7 @@ class LsItemController extends AbstractController
     /**
      * Deletes a LsItem entity.
      *
-     * @Route("/{id}", name="lsitem_delete")
-     * @Method("DELETE")
+     * @Route("/{id}", methods={"DELETE"}, name="lsitem_delete")
      * @Security("is_granted('edit', lsItem)")
      *
      * @param Request $request
@@ -255,8 +249,7 @@ class LsItemController extends AbstractController
     /**
      * Export an LsItem entity.
      *
-     * @Route("/{id}/export", defaults={"_format"="json"}, name="lsitem_export")
-     * @Method("GET")
+     * @Route("/{id}/export", methods={"GET"}, defaults={"_format"="json"}, name="lsitem_export")
      * @Template()
      *
      * @param LsItem $lsItem
@@ -273,8 +266,7 @@ class LsItemController extends AbstractController
     /**
      * Remove a child LSItem
      *
-     * @Route("/{id}/removeChild/{child}", name="lsitem_remove_child")
-     * @Method("POST")
+     * @Route("/{id}/removeChild/{child}", methods={"POST"}, name="lsitem_remove_child")
      * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
@@ -294,8 +286,7 @@ class LsItemController extends AbstractController
     /**
      * Copy an LsItem to a new LsDoc
      *
-     * @Route("/{id}/copy", name="lsitem_copy_item")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/copy", methods={"GET", "POST"}, name="lsitem_copy_item")
      * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
@@ -348,8 +339,7 @@ class LsItemController extends AbstractController
     /**
      * Displays a form to change the parent of an existing LsItem entity.
      *
-     * @Route("/{id}/parent", name="lsitem_change_parent")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/parent", methods={"GET", "POST"}, name="lsitem_change_parent")
      * @Security("is_granted('edit', lsItem)")
      * @Template()
      *

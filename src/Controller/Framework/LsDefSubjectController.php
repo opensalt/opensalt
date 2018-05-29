@@ -11,8 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use App\Entity\Framework\LsDefSubject;
 
@@ -28,8 +27,7 @@ class LsDefSubjectController extends AbstractController
     /**
      * Lists all LsDefSubject entities.
      *
-     * @Route("/", name="lsdef_subject_index")
-     * @Method("GET")
+     * @Route("/", methods={"GET"}, name="lsdef_subject_index")
      * @Template()
      *
      * @return array
@@ -48,8 +46,7 @@ class LsDefSubjectController extends AbstractController
     /**
      * Lists all LsDefSubject entities.
      *
-     * @Route("/list.{_format}", defaults={"_format"="json"}, name="lsdef_subject_index_json")
-     * @Method("GET")
+     * @Route("/list.{_format}", methods={"GET"}, defaults={"_format"="json"}, name="lsdef_subject_index_json")
      * @Template()
      *
      * @param Request $request
@@ -75,8 +72,7 @@ class LsDefSubjectController extends AbstractController
     /**
      * Creates a new LsDefSubject entity.
      *
-     * @Route("/new", name="lsdef_subject_new")
-     * @Method({"GET", "POST"})
+     * @Route("/new", methods={"GET", "POST"}, name="lsdef_subject_new")
      * @Template()
      *
      * @param Request $request
@@ -109,8 +105,7 @@ class LsDefSubjectController extends AbstractController
     /**
      * Finds and displays a LsDefSubject entity.
      *
-     * @Route("/{id}", name="lsdef_subject_show")
-     * @Method("GET")
+     * @Route("/{id}", methods={"GET"}, name="lsdef_subject_show")
      * @Template()
      *
      * @param LsDefSubject $lsDefSubject
@@ -130,8 +125,7 @@ class LsDefSubjectController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefSubject entity.
      *
-     * @Route("/{id}/edit", name="lsdef_subject_edit")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_subject_edit")
      * @Template()
      *
      * @param Request $request
@@ -166,8 +160,7 @@ class LsDefSubjectController extends AbstractController
     /**
      * Deletes a LsDefSubject entity.
      *
-     * @Route("/{id}", name="lsdef_subject_delete")
-     * @Method("DELETE")
+     * @Route("/{id}", methods={"DELETE"}, name="lsdef_subject_delete")
      *
      * @param Request $request
      * @param LsDefSubject $lsDefSubject

@@ -13,18 +13,15 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class Api1Controller
- *
  * @Route("/ims/case/v1p0")
  */
-class Api1Controller extends AbstractController
+class CaseV1P0Controller extends AbstractController
 {
     /**
      * @var LoggerInterface
@@ -43,8 +40,7 @@ class Api1Controller extends AbstractController
     }
 
     /**
-     * @Route("/CFDocuments.{_format}", name="api_v1p0_cfdocuments", defaults={"_format"="json"})
-     * @Method("GET")
+     * @Route("/CFDocuments.{_format}", name="api_v1p0_cfdocuments", methods={"GET"}, defaults={"_format"="json"})
      */
     public function getAllCfDocumentsAction(Request $request): Response
     {
@@ -94,8 +90,7 @@ class Api1Controller extends AbstractController
     }
 
     /**
-     * @Route("/CFPackages/{id}.{_format}", name="api_v1p0_cfpackage", defaults={"_format"="json"})
-     * @Method("GET")
+     * @Route("/CFPackages/{id}.{_format}", name="api_v1p0_cfpackage", methods={"GET"}, defaults={"_format"="json"})
      * @Entity("obj", expr="repository.findOneByIdentifier(id)")
      */
     public function getCfPackageAction(Request $request, LsDoc $obj): Response
@@ -130,9 +125,8 @@ class Api1Controller extends AbstractController
     }
 
     /**
-     * @Route("/CFItemAssociations/{id}.{_format}", name="api_v1p0_cfitemassociations", defaults={"_format"="json"})
-     * @Route("/CFItems/{id}/associations.{_format}", name="api_v1p0_cfitemassociations2", defaults={"_format"="json"})
-     * @Method("GET")
+     * @Route("/CFItemAssociations/{id}.{_format}", name="api_v1p0_cfitemassociations", methods={"GET"}, defaults={"_format"="json"})
+     * @Route("/CFItems/{id}/associations.{_format}", name="api_v1p0_cfitemassociations2", methods={"GET"}, defaults={"_format"="json"})
      * @Entity("obj", expr="repository.findOneByIdentifier(id)")
      */
     public function getCfItemAssociationsAction(Request $request, LsItem $obj): Response
@@ -175,15 +169,14 @@ class Api1Controller extends AbstractController
     }
 
     /**
-     * @Route("/CFAssociationGroupings/{id}.{_format}", name="api_v1p0_cfassociationgrouping", defaults={"class"="App\Entity\Framework\LsDefAssociationGrouping", "_format"="json"})
-     * @Route("/CFAssociations/{id}.{_format}", name="api_v1p0_cfassociation", defaults={"class"="App\Entity\Framework\LsAssociation", "_format"="json"})
-     * @Route("/CFDocuments/{id}.{_format}", name="api_v1p0_cfdocument", defaults={"class"="App\Entity\Framework\LsDoc", "_format"="json"})
-     * @Route("/CFItems/{id}.{_format}", name="api_v1p0_cfitem", defaults={"class"="App\Entity\Framework\LsItem", "_format"="json"})
-     * @Route("/CFLicenses/{id}.{_format}", name="api_v1p0_cflicense", defaults={"class"="App\Entity\Framework\LsDefLicence", "_format"="json"})
-     * @Route("/CFRubrics/{id}.{_format}", name="api_v1p0_cfrubric", defaults={"class"="App\Entity\Framework\CfRubric", "_format"="json"})
-     * @Route("/CFRubricCriteria/{id}.{_format}", name="api_v1p0_cfrubriccriterion", defaults={"class"="App\Entity\Framework\CfRubricCriterion", "_format"="json"})
-     * @Route("/CFRubricCriterionLevels/{id}.{_format}", name="api_v1p0_cfrubriccriterionlevel", defaults={"class"="App\Entity\Framework\CfRubricCriterionLevel", "_format"="json"})
-     * @Method("GET")
+     * @Route("/CFAssociationGroupings/{id}.{_format}", name="api_v1p0_cfassociationgrouping", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefAssociationGrouping", "_format"="json"})
+     * @Route("/CFAssociations/{id}.{_format}", name="api_v1p0_cfassociation", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsAssociation", "_format"="json"})
+     * @Route("/CFDocuments/{id}.{_format}", name="api_v1p0_cfdocument", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDoc", "_format"="json"})
+     * @Route("/CFItems/{id}.{_format}", name="api_v1p0_cfitem", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsItem", "_format"="json"})
+     * @Route("/CFLicenses/{id}.{_format}", name="api_v1p0_cflicense", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefLicence", "_format"="json"})
+     * @Route("/CFRubrics/{id}.{_format}", name="api_v1p0_cfrubric", methods={"GET"}, defaults={"class"="App\Entity\Framework\CfRubric", "_format"="json"})
+     * @Route("/CFRubricCriteria/{id}.{_format}", name="api_v1p0_cfrubriccriterion", methods={"GET"}, defaults={"class"="App\Entity\Framework\CfRubricCriterion", "_format"="json"})
+     * @Route("/CFRubricCriterionLevels/{id}.{_format}", name="api_v1p0_cfrubriccriterionlevel", methods={"GET"}, defaults={"class"="App\Entity\Framework\CfRubricCriterionLevel", "_format"="json"})
      */
     public function getObjectAction(Request $request, LsDocRepository $repo, $class, $id): Response
     {
@@ -193,10 +186,9 @@ class Api1Controller extends AbstractController
     }
 
     /**
-     * @Route("/CFConcepts/{id}.{_format}", name="api_v1p0_cfconcept", defaults={"class"="App\Entity\Framework\LsDefConcept", "_format"="json"})
-     * @Route("/CFItemTypes/{id}.{_format}", name="api_v1p0_cfitemtype", defaults={"class"="App\Entity\Framework\LsDefItemType", "_format"="json"})
-     * @Route("/CFSubjects/{id}.{_format}", name="api_v1p0_cfsubject", defaults={"class"="App\Entity\Framework\LsDefSubject", "_format"="json"})
-     * @Method("GET")
+     * @Route("/CFConcepts/{id}.{_format}", name="api_v1p0_cfconcept", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefConcept", "_format"="json"})
+     * @Route("/CFItemTypes/{id}.{_format}", name="api_v1p0_cfitemtype", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefItemType", "_format"="json"})
+     * @Route("/CFSubjects/{id}.{_format}", name="api_v1p0_cfsubject", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefSubject", "_format"="json"})
      */
     public function getObjectCollectionAction(Request $request, LsDocRepository $repo, $class, $id): Response
     {
