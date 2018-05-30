@@ -2543,7 +2543,7 @@
                 {
                     "name": "Luís Otávio Cobucci Oblonczyk",
                     "email": "lcobucci@gmail.com",
-                    "role": "developer"
+                    "role": "Developer"
                 }
             ],
             "description": "A simple library to work with JSON Web Token and JSON Web Signature",
@@ -6145,16 +6145,16 @@
         },
         {
             "name": "escapestudios/symfony2-coding-standard",
-            "version": "3.4.0",
+            "version": "3.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/djoos/Symfony-coding-standard.git",
-                "reference": "9969c937bb11ef6315491d558bc8bb474567175c"
+                "reference": "4bbb23250bbfef2020e2fd7aebf94a0007fdfb5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/9969c937bb11ef6315491d558bc8bb474567175c",
-                "reference": "9969c937bb11ef6315491d558bc8bb474567175c",
+                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/4bbb23250bbfef2020e2fd7aebf94a0007fdfb5a",
+                "reference": "4bbb23250bbfef2020e2fd7aebf94a0007fdfb5a",
                 "shasum": ""
             },
             "conflict": {
@@ -6192,7 +6192,7 @@
                 "phpcs",
                 "symfony"
             ],
-            "time": "2018-05-21T08:05:13+00:00"
+            "time": "2018-05-29T08:52:19+00:00"
         },
         {
             "name": "facebook/webdriver",
