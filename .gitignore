@@ -1,4 +1,3 @@
-/app/config/parameters.yml
 /build/*
 /app/phpunit.xml
 /phpspec.yml
