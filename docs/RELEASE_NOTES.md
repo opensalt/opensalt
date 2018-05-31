@@ -1,7 +1,23 @@
 Release Notes
 =============
 
-2.1 ([Full issue and PR list](https://github.com/opensalt/opensalt/issues?&q=milestone%3A2.1+is%3Aclosed))
+2.1.1 ([Full issue and PR list](https://github.com/opensalt/opensalt/issues?&q=milestone%3A2.1+is%3Aclosed))
+---
+### New
+
+### Improvements
+
+* Updated to Symfony 4.0 using the Symfony Flex directory structure
+  * Moved to current recommended directory structure
+    * All configuration has been moved to config/
+    * Twig templates have been moved to templates/
+    * JS and SASS assets have been moved to assets/
+
+### Fixes
+
+
+
+2.1 ([Full issue and PR list](https://github.com/opensalt/opensalt/milestone/18?closed=1))
 ---
 ### New
 

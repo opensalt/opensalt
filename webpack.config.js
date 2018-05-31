@@ -3,8 +3,8 @@ const path = require('path');
 
 const vendorDir = './vendor';
 const npmDir = './node_modules/';
-const assetsDir = './app/Resources/assets';
-const buildDir = './web/build';
+const assetsDir = './assets';
+const buildDir = './public/build';
 
 var sharedScripts = [
     npmDir+'/html5-boilerplate/dist/js/plugins.js',
@@ -62,7 +62,7 @@ const mainScripts = [
 ];
 
 Encore
-    .setOutputPath('web/build/')
+    .setOutputPath('public/build/')
     .setPublicPath('/build')
     .cleanupOutputBeforeBuild()
 
@@ -144,7 +144,7 @@ Encore
               options: {
                 sourceMap: !Encore.isProduction()
                 ,keepQuery: true
-                ,root: __dirname+'/web'
+                ,root: __dirname+'/public'
                 //,debug: true
               }
             },
@@ -190,7 +190,7 @@ config.resolve.alias = {
 };
 config.resolve.modules = [
   'node_modules',
-  path.resolve(__dirname, './web/assets/img'),
+  path.resolve(__dirname, './public/assets/img'),
   path.resolve(__dirname, '.')
   //path.resolve(__dirname, npmDir)
 ];

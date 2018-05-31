@@ -1,8 +1,0 @@
-app:
-    resource: "../../src/Controller/"
-    type:     annotation
-    prefix:   /
-
-logout:
-    path: /logout
-

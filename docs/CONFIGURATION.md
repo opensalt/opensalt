@@ -1,7 +1,7 @@
 OpenSALT Configuration
 ======================
 
-OpenSALT is intended to be configured using environment variables that can be passed into the docker container.
+OpenSALT is intended to be configured using environment variables that can be passed into the docker container via the `docker/.env` file.
 
 MySQL configuration
 -------------------
@@ -18,7 +18,7 @@ Secrets configuration
 
 A couple secrets are required for creating secure tokens
 
- - SECRET - Should be a long random string
+ - APP_SECRET - Should be a long random string
  - COOKIE_SECRET - Should be a different long random string
 
 Branding configuration

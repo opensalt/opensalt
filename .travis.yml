@@ -9,7 +9,7 @@ sudo: required
 env:
   global:
     - COMMIT=${TRAVIS_COMMIT::8}
-    - DOCKER_COMPOSE_VERSION=1.16.1
+    - DOCKER_COMPOSE_VERSION=1.21.2
     - FIREBASE_PREFIX=${FIREBASE_PREFIX:-travis}-${TRAVIS_BUILD_NUMBER}
 
 language: php
@@ -42,7 +42,6 @@ install:
   - echo ${TRAVIS_BUILD_NUMBER} > BUILD_NUMBER
   - echo $(date -u +%Y%m%d.%H%M).${COMMIT} > BUILD_MD
   - echo $(cat VERSION).$(cat BUILD_NUMBER)+$(cat BUILD_MD) > web/version.txt
-  - cp ./app/config/parameters.yml.dist ./app/config/parameters.yml
   - ./bin/build.sh
 
 # Create docker image with the running code

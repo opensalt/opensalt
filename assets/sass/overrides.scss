@@ -1,0 +1,77 @@
+span.fancytree-empty,
+span.fancytree-vline,
+span.fancytree-expander,
+span.fancytree-icon,
+span.fancytree-checkbox,
+span.fancytree-radio,
+span.fancytree-drag-helper-img,
+#fancytree-drop-marker {
+    background-image: url("~jquery.fancytree/dist/skin-lion/icons.gif");
+}
+
+span.fancytree-node {
+    position: relative;
+    height: 25px;
+    overflow: hidden;
+}
+
+#competencyTree {
+    ul.fancytree-container {
+        border: none;
+        overflow: hidden;
+        font-family: inherit;
+
+        &:focus {
+            outline: none;
+        }
+
+        span.fancytree-title {
+            color: $link-color;
+            background-color: inherit;
+            outline: none;
+
+            &:focus {
+                outline: none;
+            }
+        }
+
+        span.fancytree-folder {
+            span.fancytree-title {
+                font-weight: bold;
+                color: $text-color;
+            }
+        }
+    }
+    
+    .salt-framework-link span.fancytree-title:hover {
+        text-decoration: $link-hover-decoration;
+        color: $link-hover-color;
+    }
+}
+
+#viewmode_tree {
+    ul.fancytree-container {
+        overflow: hidden;
+    }
+}
+
+/* Markdown */
+.CodeMirror, .CodeMirror-scroll {
+    min-height: 150px;
+}
+
+.markdown-body {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Tooltips */
+.tooltip {
+  max-height: 300px;
+  max-width: 300px;
+  overflow: hidden;
+}
+
+#notifications-switch:focus {
+    color: $body-bg;
+}
