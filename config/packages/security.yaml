@@ -42,9 +42,7 @@ security:
             anonymous: true
             #stateless: true
             provider: local_db_provider
-
-            # Required for Symfony 3.4
-            logout_on_user_change: true
+            user_checker: App\Security\UserChecker
 
             entry_point: salt.authentication.json_form_entry_point
 
