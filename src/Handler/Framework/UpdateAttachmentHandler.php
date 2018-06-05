@@ -18,9 +18,9 @@ class UpdateAttachmentHandler extends BaseDoctrineHandler
         $lsItem = $command->getItem();
         $fileName = $command->getFileName();
         $repo = $this->em->getRepository(AwsStorage::class);
-        // $comment = $repo->updateFile($lsItem, $fileName);
-        // $command->setComment($comment);
-        // $notification="File uodated";
-        // $command->setNotificationEvent($notification);
+        $comment = $repo->updateFile($lsItem, $fileName);
+        $command->setComment($comment);
+        $notification="File uodated";
+        $command->setNotificationEvent($notification);
     }
 }

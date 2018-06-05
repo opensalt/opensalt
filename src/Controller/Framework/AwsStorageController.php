@@ -111,7 +111,7 @@ class AwsStorageController extends AbstractController
       );
         } else {
             return new StreamedResponse(
-        function () use ($contents, $fileName, $filesystem) {
+        function () use ($contents) {
             $local = fopen('php://output', 'rw+');
             fwrite($local, $contents);
             fclose($local);

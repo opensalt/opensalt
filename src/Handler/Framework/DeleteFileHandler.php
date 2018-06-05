@@ -12,13 +12,13 @@ class DeleteFileHandler extends BaseDoctrineHandler
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         $command = $event->getCommand();
-        //$this->validate($command, $command);
+        $this->validate($command, $command);
         $lsItem = $command->getItem();
         $fileName = $command->getFileName();
         $repo = $this->em->getRepository(AwsStorage::class);
-        // $comment = $repo->DeleteFile($lsItem, $fileName);
-        // $command->setComment($comment);
-        // $notification = 'File Deleted';
-        // $command->setNotificationEvent($notification);
+        $comment = $repo->DeleteFile($lsItem, $fileName);
+        $command->setComment($comment);
+        $notification = 'File Deleted';
+        $command->setNotificationEvent($notification);
     }
 }
