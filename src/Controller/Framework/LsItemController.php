@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Filesystem\Filesystem;
+
 /**
  * LsItem controller.
  *
@@ -71,9 +71,9 @@ class LsItemController extends AbstractController
      * @Template()
      * @Security("is_granted('add-standard-to', doc)")
      *
-     * @param Request $request
-     * @param LsDoc $doc
-     * @param LsItem|null $parent
+     * @param Request                       $request
+     * @param LsDoc                         $doc
+     * @param LsItem|null                   $parent
      * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
@@ -86,7 +86,7 @@ class LsItemController extends AbstractController
 
         $lsItem->setLsDoc($doc);
         $lsItem->setLsDocUri($doc->getUri());
-        
+
         $form = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
         $form->handleRequest($request);
 
@@ -94,27 +94,26 @@ class LsItemController extends AbstractController
             try {
                 $command = new AddItemCommand($lsItem, $doc, $parent, $assocGroup);
                 $this->sendCommand($command);
-                
-                $notesAttachment= ($request->get('notesAttachment')!='')?explode(',',$request->get('notesAttachment')):array();
-                $fullstatementAttachment= ($request->get('fullstatementAttachment')!='')?explode(',',$request->get('fullstatementAttachment')):array();
-                $attachment=array_merge($notesAttachment,$fullstatementAttachment);
-               
+
+                $notesAttachment = ('' != $request->get('notesAttachment')) ? explode(',', $request->get('notesAttachment')) : [];
+                $fullstatementAttachment = ('' != $request->get('fullstatementAttachment')) ? explode(',', $request->get('fullstatementAttachment')) : [];
+                $attachment = array_merge($notesAttachment, $fullstatementAttachment);
+
                 $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $lsItem]);
-                
-                if(count($attachment)){
-                    $attachmentCommand = new UpdateAttachmentCommand($lsItem,$attachment);
-                    $this->sendCommand($attachmentCommand);  
+
+                if (count($attachment)) {
+                    $attachmentCommand = new UpdateAttachmentCommand($lsItem, $attachment);
+                    $this->sendCommand($attachmentCommand);
                 }
-                          
+
                 // retrieve isChildOf assoc id for the new item
-                
 
                 if ($ajax) {
                     // if ajax call, return the item as json
                     return $this->generateItemJsonResponse($lsItem, $assoc);
                 }
 
-                return $this->redirectToRoute('lsitem_show', array('id' => $lsItem->getId()));
+                return $this->redirectToRoute('lsitem_show', ['id' => $lsItem->getId()]);
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding new item: '.$e->getMessage()));
             }
@@ -166,15 +165,15 @@ class LsItemController extends AbstractController
      * @Security("is_granted('edit', lsItem)")
      *
      * @param Request $request
-     * @param LsItem $lsItem
-     * @param User $user
+     * @param LsItem  $lsItem
+     * @param User    $user
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function editAction(Request $request, LsItem $lsItem, UserInterface $user)
     {
         $ajax = $request->isXmlHttpRequest();
-//echo 'asdadsdas';
+        //echo 'asdadsdas';
         try {
             $command = new LockItemCommand($lsItem, $user);
             $this->sendCommand($command);
@@ -188,8 +187,7 @@ class LsItemController extends AbstractController
         $deleteForm = $this->createDeleteForm($lsItem);
         $em = $this->getDoctrine()->getManager();
         $lsItemAttachment = $em->getRepository(AwsStorage::class)->findAllItemAttachment($lsItem);
-       
-       
+
         $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
         $editForm->handleRequest($request);
 
@@ -213,7 +211,7 @@ class LsItemController extends AbstractController
             'lsItem' => $lsItem,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-            'lsItemAttachment'=> $lsItemAttachment
+            'lsItemAttachment' => $lsItemAttachment,
         ];
 
         if ($ajax && $editForm->isSubmitted() && !$editForm->isValid()) {
@@ -230,7 +228,7 @@ class LsItemController extends AbstractController
      * @Security("is_granted('edit', lsItem)")
      *
      * @param Request $request
-     * @param LsItem $lsItem
+     * @param LsItem  $lsItem
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -259,7 +257,7 @@ class LsItemController extends AbstractController
     private function createDeleteForm(LsItem $lsItem): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsitem_delete', array('id' => $lsItem->getId())))
+            ->setAction($this->generateUrl('lsitem_delete', ['id' => $lsItem->getId()]))
             ->setMethod('DELETE')
             ->getForm()
         ;
@@ -283,7 +281,7 @@ class LsItemController extends AbstractController
     }
 
     /**
-     * Remove a child LSItem
+     * Remove a child LSItem.
      *
      * @Route("/{id}/removeChild/{child}", methods={"POST"}, name="lsitem_remove_child")
      * @Security("is_granted('edit', lsItem)")
@@ -303,14 +301,14 @@ class LsItemController extends AbstractController
     }
 
     /**
-     * Copy an LsItem to a new LsDoc
+     * Copy an LsItem to a new LsDoc.
      *
      * @Route("/{id}/copy", methods={"GET", "POST"}, name="lsitem_copy_item")
      * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
      * @param Request $request
-     * @param LsItem $lsItem
+     * @param LsItem  $lsItem
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
@@ -341,7 +339,7 @@ class LsItemController extends AbstractController
                 );
             }
 
-            return $this->redirectToRoute('lsitem_show', array('id' => $lsItem->getId()));
+            return $this->redirectToRoute('lsitem_show', ['id' => $lsItem->getId()]);
         }
 
         $ret = [
@@ -363,7 +361,7 @@ class LsItemController extends AbstractController
      * @Template()
      *
      * @param Request $request
-     * @param LsItem $lsItem
+     * @param LsItem  $lsItem
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
@@ -403,7 +401,6 @@ class LsItemController extends AbstractController
 
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
     {
-         
         $ret = [
             'id' => $item->getId(),
             'identifier' => $item->getIdentifier(),
@@ -442,24 +439,24 @@ class LsItemController extends AbstractController
         }
         $lsItemAttachment = $this->getDoctrine()->getRepository(AwsStorage::class)->findItemAttachmenById($item->getId());
 
-        $notesAttachment=array();
-            $fullStatementAttachment=array();
-           foreach($lsItemAttachment as $attachment){
-               if($attachment['field']=='fullstatement'){
-                   $fullStatementAttachment[]=$attachment['fileName'];
-               }
-               else if($attachment['field']=='notes'){
-                    $notesAttachment[]=$attachment['fileName'];
-               }
-           }
-           $ret['fullStatementAttachment']=$fullStatementAttachment;
-           $ret['notesAttachment']=$notesAttachment;
+        $notesAttachment = [];
+        $fullStatementAttachment = [];
+        foreach ($lsItemAttachment as $attachment) {
+            if ('fullstatement' == $attachment['field']) {
+                $fullStatementAttachment[] = $attachment['fileName'];
+            } elseif ('notes' == $attachment['field']) {
+                $notesAttachment[] = $attachment['fileName'];
+            }
+        }
+        $ret['fullStatementAttachment'] = $fullStatementAttachment;
+        $ret['notesAttachment'] = $notesAttachment;
         $response = new Response($this->renderView('framework/doc_tree/export_item.json.twig', ['lsItem' => $ret]));
         $response->headers->set('Content-Type', 'application/json');
         $response->headers->set('Cache-Control', 'no-cache');
 
         return $response;
     }
+
     /**
      * Upload attachment to LsItem entity.
      *
@@ -469,36 +466,32 @@ class LsItemController extends AbstractController
      * @Security("is_granted('edit', lsItem)")
      *
      * @param Request $request
-     * @param LsItem $lsItem
-     * @param User $user
+     * @param LsItem  $lsItem
+     * @param User    $user
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-
     public function uploadAttachmentAction(Request $request, LsItem $lsItem, UserInterface $user)
     {
-            
-            $output = array('uploaded' => false);
-            //print_R();
-            // get the file from the request object
-            $file = $request->files->get('file');
-            $attachmentTo=$request->get('attachmentTo');
-            // generate a new filename (safer, better approach)
-            // To use original filename, $fileName = $this->file->getClientOriginalName();
-            //$fileName = md5(uniqid()).'.'.$file->guessExtension();
-            $fileName = $file->getClientOriginalName();
-            // set your uploads directory
-            $uploadDir =dirname(__DIR__).'../../../web/uploads/'. $attachmentTo.'/';
-           /* if (!file_exists($uploadDir) && !is_dir($uploadDir)) {
-                mkdir($uploadDir, 0775, true);
-            }*/
-            if ($file->move($uploadDir, $fileName)) { 
-               $output['uploaded'] = true;
-               $output['fileName'] = $fileName;
-            }
-            return new JsonResponse($output);
+        $output = ['uploaded' => false];
+        //print_R();
+        // get the file from the request object
+        $file = $request->files->get('file');
+        $attachmentTo = $request->get('attachmentTo');
+        // generate a new filename (safer, better approach)
+        // To use original filename, $fileName = $this->file->getClientOriginalName();
+        //$fileName = md5(uniqid()).'.'.$file->guessExtension();
+        $fileName = $file->getClientOriginalName();
+        // set your uploads directory
+        $uploadDir = dirname(__DIR__).'../../../web/uploads/'.$attachmentTo.'/';
+        /* if (!file_exists($uploadDir) && !is_dir($uploadDir)) {
+             mkdir($uploadDir, 0775, true);
+         }*/
+        if ($file->move($uploadDir, $fileName)) {
+            $output['uploaded'] = true;
+            $output['fileName'] = $fileName;
+        }
+
+        return new JsonResponse($output);
     }
-    
-
-
 }
