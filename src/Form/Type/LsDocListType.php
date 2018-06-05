@@ -23,7 +23,7 @@ class LsDocListType extends AbstractType
                 'choice_label' => function(LsDoc $val) {
                     $title = $val->getTitle();
                     if (strlen($title) > 60) {
-                        return substr($val->getTitle(), 0, 59)."\u{2026}";
+                        return mb_substr($val->getTitle(), 0, 59)."\u{2026}";
                     }
 
                     return $title;
@@ -31,7 +31,7 @@ class LsDocListType extends AbstractType
                 'group_by' => function(LsDoc $val) {
                     $creator = $val->getCreator();
                     if (strlen($creator) > 60) {
-                        return substr($val->getCreator(), 0, 59)."\u{2026}";
+                        return mb_substr($val->getCreator(), 0, 59)."\u{2026}";
                     }
 
                     return $creator;

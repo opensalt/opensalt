@@ -1,0 +1,85 @@
+{% extends "layout.html.twig" %}
+
+{% block stylesheets %}
+{{ parent() }}
+    <link rel="stylesheet" href="{{ asset('build/swaggercss.css', 'encore') }}" />
+    <style>
+        pre {
+            display: inherit;
+            padding: inherit;
+            line-height: inherit;
+            border: inherit;
+            background-color: inherit;
+        }
+        .swagger-ui .info pre.base-url {
+            color: transparent;
+        }
+        pre.base-url:before {
+            content: "[ Base URL: /ims/case/v1p0 ]";
+            color: #3b4151;
+        }
+        hgroup.main a:before {
+            content: "[ OpenAPI JSON file: ";
+        }
+        hgroup.main a:after {
+            content: " ]";
+        }
+        .swagger-ui .info {
+            margin-bottom: 15px;
+        }
+        .swagger-ui .info .title {
+            font-size: 24px;
+        }
+        .model-box {
+            padding: 5px;
+        }
+        .opblock-tag {
+            background-color: rgba(97,175,254,.3);
+        }
+        .opblock-tag .markdown {
+            font-size: 12px;
+        }
+        .try-out, .try-out__btn,
+        .scheme-container,
+        .information-container > section > div > div:nth-child(3),
+        .information-container > section > div > div:nth-child(4),
+        .information-container > section > div > div:nth-child(5)
+        {
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{# No need for site-wide javascript code on this page #}
+{% block sitejavascripts %}
+{% endblock %}
+
+{# Remove login/logout links on this page #}
+{% block navbar_right %}
+{% endblock %}
+
+{% block javascripts %}
+    <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+    <script>
+    var ui = SwaggerUIBundle({
+        url: '/case-v1p0-swagger.json',
+        dom_id: '.swagger-section',
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIBundle.SwaggerUIStandalonePreset
+        ]
+    });
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <aside class="panel panel-default" style="margin: 0 0 -35px; border-color: #aaa; box-shadow: 3px 3px #ddd;">
+        <p class="panel-body text-center" style="margin:0;">
+            This documentation is automatically generated from the content of Appendix B1 in the <a href="https://www.imsglobal.org/sites/default/files/CASE/casev1p0/rest_binding/caseservicev1p0_restbindv1p0.html#AppB1">CASE™ 1.0 Specification (REST API)</a> document.
+        </p>
+    </aside>
+    <div class="swagger-section">
+    </div>
+</div>
+{% endblock %}

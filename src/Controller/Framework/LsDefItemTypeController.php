@@ -10,8 +10,7 @@ use App\Form\Type\LsDefItemTypeType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use App\Entity\Framework\LsDefItemType;
 
@@ -27,8 +26,7 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Lists all LsDefItemType entities.
      *
-     * @Route("/", name="lsdef_item_type_index")
-     * @Method("GET")
+     * @Route("/", methods={"GET"}, name="lsdef_item_type_index")
      * @Template()
      *
      * @return array
@@ -47,8 +45,7 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Lists all LsDefItemType entities.
      *
-     * @Route("/list.{_format}", defaults={"_format"="json"}, name="lsdef_item_type_index_json")
-     * @Method("GET")
+     * @Route("/list.{_format}", methods={"GET"}, defaults={"_format"="json"}, name="lsdef_item_type_index_json")
      * @Template()
      *
      * @param Request $request
@@ -83,8 +80,7 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Creates a new LsDefItemType entity.
      *
-     * @Route("/new", name="lsdef_item_type_new")
-     * @Method({"GET", "POST"})
+     * @Route("/new", methods={"GET", "POST"}, name="lsdef_item_type_new")
      * @Template()
      *
      * @param Request $request
@@ -117,8 +113,7 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Finds and displays a LsDefItemType entity.
      *
-     * @Route("/{id}", name="lsdef_item_type_show")
-     * @Method("GET")
+     * @Route("/{id}", methods={"GET"}, name="lsdef_item_type_show")
      * @Template()
      *
      * @param LsDefItemType $lsDefItemType
@@ -138,8 +133,7 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefItemType entity.
      *
-     * @Route("/{id}/edit", name="lsdef_item_type_edit")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_item_type_edit")
      * @Template()
      *
      * @param Request $request
@@ -174,8 +168,7 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Deletes a LsDefItemType entity.
      *
-     * @Route("/{id}", name="lsdef_item_type_delete")
-     * @Method("DELETE")
+     * @Route("/{id}", methods={"DELETE"}, name="lsdef_item_type_delete")
      *
      * @param Request $request
      * @param LsDefItemType $lsDefItemType

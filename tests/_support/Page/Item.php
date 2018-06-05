@@ -395,6 +395,30 @@ class Item implements Context
         }
     }
 
+    /**
+     * @Then /^I import children$/
+     */
+    public function iImportChildren()
+    {
+        $I = $this->I;
+
+        $I->see('Import Children');
+        $I->click('Import Children');
+        $I->waitForElementVisible('#addChildrenModal', 120);
+        $I->see('Import Items');
+        $I->attachFile('input#file-url', 'children.csv');
+        $I->click('.btn-import-csv');
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 10);
+
+        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
+
+        $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
+        $I->see('A.B abc');
+        $I->see('A.B.C def');
+        $I->see('A.B.D ghi');
+    }
+
     protected function waitAndAcceptPopup($tries = 30)
     {
         while ($tries--) {

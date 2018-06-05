@@ -2,7 +2,7 @@ actor: AcceptanceTester
 modules:
     enabled:
         - Symfony2Module:
-            app_path: 'app'
+            app_path: 'src'
             var_path: 'var'
             environment: 'prod'
             part: SERVICES

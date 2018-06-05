@@ -3,7 +3,7 @@ Development Notes
 
 ## Using the `app_dev.php` front controller
 
-In order to use `/app_dev.php/...` you will need to ensure that the appropriate environment variable(s) are set when starting the docker containers (in the `docker/docker-compose.yml` or the `docker/.env` files).
+In order to use `/app_dev.php/...` you will need to ensure that the appropriate environment variable(s) are set when starting the docker containers in the `docker/.env` file.
 
 * **ALLOW_LOCAL_DEV** - set to allow using the development front controller from a non-routable IP address.
 

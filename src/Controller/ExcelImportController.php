@@ -4,8 +4,7 @@ namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportExcelFileCommand;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,8 +15,7 @@ class ExcelImportController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/salt/excel/import", name="import_excel_file")
-     * @Method("POST")
+     * @Route("/salt/excel/import", methods={"POST"}, name="import_excel_file")
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return Response

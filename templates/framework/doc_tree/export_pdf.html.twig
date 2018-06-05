@@ -1,0 +1,55 @@
+<section>
+    <p style="line-height: 30px;"></p>
+    {% if pdfData.CFDocument.title is defined %}<p style="text-align:center"><h2>{{ pdfData.CFDocument.title }}</h2></p>{% endif %}
+    {% if pdfData.CFDocument.publisher is defined %}<p style="text-align:center;"><h4>{{ pdfData.CFDocument.publisher }}</h4></p>{% endif %}
+</section>
+
+<section>
+    <p style="line-height: 360px;"></p>
+    {% if pdfData.CFDocument.licenseURI.title is defined %}<p>Created by CfDoc Organization, under a {{ pdfData.CFDocument.licenseURI.title }} license</p>{% endif %}
+    {% if pdfData.CFDocument.statusStartDate is defined %}<p>Date : {{ pdfData.CFDocument.statusStartDate }}</p>{% endif %}
+    <p>Draft : {% if pdfData.CFDocument.adoptionStatus is defined %} {{ pdfData.CFDocument.adoptionStatus }} {% else %} Draft field is not present in case file right now</p>{% endif %}
+    <p style="page-break-after:always;"></p>
+</section>
+
+{% if pdfData.CFItems is not empty %}
+    <p style="text-align:center"><h3>Framework Elements</h3></p>
+{% for category in pdfData.CFItems %}
+
+    <section>
+       <p><b>Full Statement : </b>{{ category.fullStatement | raw }} </p>
+       {% if category.humanCodingScheme is defined %}<p><b>Human coding scheme : </b>{{ category.humanCodingScheme }} </p>{% endif %}
+       {% if category.listEnumeration is defined %}<p><b>List enum in source : </b>{{ category.listEnumeration }} </p>{% endif %}
+       {% if category.abbreviatedStatement is defined %}<p><b>Abbreviated statement : </b>{{ category.abbreviatedStatement }} </p>{% endif %}
+       {% if category.conceptKeywords is defined %}<p><b>Concept keywords : </b>{% for keywords in category.conceptKeywords %}{% if not loop.first %}, {% endif %}{{ keywords}} {% endfor %}</p>{% endif %}
+       {% if category.language is defined %}<p><b>Language : </b>{{ category.language }} </p>{% endif %}
+       {% if category.educationLevel is defined %}<p><b>Education Level : </b>{% for level in category.educationLevel %}{% if not loop.first %}, {% endif %}{{ level }} {% endfor %} </p>{% endif %}
+       {% if category.CFItemType is defined %}<p><b>Item type : </b>{{ category.CFItemType }} </p>{% endif %}
+       {% if category.notes is defined %}<p><b>Notes : </b>{{ category.notes | raw }} </p> {% endif %}
+    </section>
+
+    <section>
+        <p style="text-align: center;"><b>Relationships with Other Frameworks</b></p>
+        <table border="1" cellpadding="10">
+            <tr>
+                <td>Framework</td>
+                <td>Relationship </td>
+                <td>Other Statement</td>
+            </tr>
+             {% for Associations in pdfData.CFAssociations %}
+             {% if Associations.originNodeURI.identifier == category.identifier %}
+            <tr>
+                <td>{{ Associations.originNodeURI.title }}</td>
+                <td>{{ Associations.associationType }}</td>
+                <td>{{ Associations.destinationNodeURI.title }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </table>
+        {% if not loop.last %}
+        <p style="page-break-after:always;"></p>
+        {% endif %}
+    </section>
+
+{% endfor %}
+{% endif %}

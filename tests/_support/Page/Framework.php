@@ -66,7 +66,7 @@ class Framework implements Context
 
         return $this;
     }
-    
+
 
     /**
      * @Given /^I should see the framework information$/
@@ -169,6 +169,24 @@ class Framework implements Context
     public function iShouldSeeTheCopyFrameworkModal(): Framework
     {
         $this->I->waitForElementVisible('#copyFrameworkModal .js-btn-copy-button');
+        return $this;
+    }
+
+    /**
+     * @When /^I click on copy from button$/
+     */
+    public function iClickOnCopyFromButton(): Framework
+    {
+        $this->I->click('#copyFrameworkModal_copyLeftBtn');
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see the copy from button active$/
+     */
+    public function iShouldSeeTheCopyFromButtonActive(): Framework
+    {
+        $this->I->click('#copyFrameworkModal_copyLeftBtn');
         return $this;
     }
 
@@ -670,6 +688,17 @@ class Framework implements Context
 
         $I->click('//span[text()="MD.Table"]/../../..');
         $I->seeElement('.lsItemDetails u');
+    }
+
+    /**
+     * @Given /^I should see a math equation in the framework$/
+     */
+    public function iShouldSeeMathEquationInTheFramework()
+    {
+        $I = $this->I;
+
+        $I->click('//span[text()="MD.Table"]/../../..');
+        $I->seeElement('.lsItemDetails .katex');
     }
 
     /**
@@ -1181,10 +1210,13 @@ class Framework implements Context
         $sheet->setCellValue('C2', 'T');
         $sheet->setCellValue('F2', '');
 
+        $sheet->removeRow(3);
+
         $writer = \PHPOffice\PhpSpreadsheet\IOFactory::createWriter($ss, 'Xlsx');
         $writer->save(codecept_data_dir().''.$filename.'.xlsx');
 
         $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#updateFrameworkModal"]', 120);
         $I->see('Update Framework');
         $I->click('Update Framework');
         $I->waitForElementVisible('#updateFrameworkModal');
@@ -1194,6 +1226,9 @@ class Framework implements Context
         $I->waitForJS('return $.active == 0', 5);
         $I->see('Framework updated');
         $I->see('T Item updated');
+        $I->dontSee('A.B abc');
+        $I->dontSee('A.B.C def');
+        $I->dontSee('A.B.D ghi');
     }
     
      /**

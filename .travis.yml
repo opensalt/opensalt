@@ -9,7 +9,7 @@ sudo: required
 env:
   global:
     - COMMIT=${TRAVIS_COMMIT::8}
-    - DOCKER_COMPOSE_VERSION=1.16.1
+    - DOCKER_COMPOSE_VERSION=1.21.2
     - FIREBASE_PREFIX=${FIREBASE_PREFIX:-travis}-${TRAVIS_BUILD_NUMBER}
 
 language: php

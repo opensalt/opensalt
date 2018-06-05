@@ -1,0 +1,175 @@
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+imports:
+    - { resource: 'pdo-options.php' }
+
+parameters:
+    # Defaults for environment variables
+    env(MYSQL_HOST): null
+    env(MYSQL_PORT): 3306
+    env(MYSQL_DATABASE): null
+    env(MYSQL_USER): null
+    env(MYSQL_PASSWORD): null
+    env(MAILER_TRANSPORT): smtp
+    env(MAILER_HOST): 127.0.0.1
+    env(MAILER_USER): null
+    env(MAILER_PASSWORD): null
+    env(MAILER_AUTH_MODE): null
+    env(MAILER_PORT): null
+    env(SECRET): null
+    env(APP_SECRET): '%env(SECRET)%'
+    env(COOKIE_SECRET): null
+    env(LOCAL_URI_HOST): 'http://127.0.0.1:3000/'
+    env(GITHUB_CLIENT_ID): null
+    env(GITHUB_CLIENT_SECRET): null
+    env(COMMENTS_FEATURE): inactive
+    env(CREATE_ACCOUNT_FEATURE): inactive
+    env(USE_MAIL_FEATURE): inactive
+    env(MAIL_FEATURE_FROM_EMAIL): null
+    env(BRAND_LOGO_URL): null
+    env(BRAND_LOGO_STYLE): null
+    env(BRAND_LINK_URL): null
+    env(BRAND_LINK_STYLE): null
+    env(FIREBASE_API_KEY): null
+    env(FIREBASE_DB_URL): null
+    env(FIREBASE_AUTH_DOMAIN): null
+    env(FIREBASE_PROJECT_ID): null
+    env(FIREBASE_CLIENT_ID): null
+    env(FIREBASE_CLIENT_EMAIL): null
+    env(FIREBASE_PRIVATE_KEY): null
+    env(FIREBASE_PREFIX): opensalt
+    env(GOOGLE_CAPTCHA_SITE_KEY): null
+    env(GOOGLE_CAPTCHA_SECRET_KEY): null
+    env(SESSION_MAX_IDLE_TIME): 3600
+
+    locale: en
+    database_host: '%env(MYSQL_HOST)%'
+    database_port: '%env(int:MYSQL_PORT)%'
+    database_name: '%env(MYSQL_DATABASE)%'
+    database_user: '%env(MYSQL_USER)%'
+    database_password: '%env(MYSQL_PASSWORD)%'
+    mailer_transport: '%env(MAILER_TRANSPORT)%'
+    mailer_host: '%env(MAILER_HOST)%'
+    mailer_user: '%env(MAILER_USER)%'
+    mailer_password: '%env(MAILER_PASSWORD)%'
+    mailer_auth_mode: '%env(MAILER_AUTH_MODE)%'
+    mailer_port: '%env(int:MAILER_PORT)%'
+    secret: '%env(APP_SECRET)%'
+    cookie_secret: '%env(COOKIE_SECRET)%'
+    local_uri_host: '%env(LOCAL_URI_HOST)%'
+    github_client_id: '%env(GITHUB_CLIENT_ID)%'
+    github_client_secret: '%env(GITHUB_CLIENT_SECRET)%'
+    brand_logo_url: '%env(BRAND_LOGO_URL)%'
+    brand_logo_style: '%env(BRAND_LOGO_STYLE)%'
+    brand_link_url: '%env(BRAND_LINK_URL)%'
+    brand_link_style: '%env(BRAND_LINK_STYLE)%'
+    comments_feature: '%env(COMMENTS_FEATURE)%'
+    firebase_api_key: '%env(FIREBASE_API_KEY)%'
+    firebase_db_url: '%env(FIREBASE_DB_URL)%'
+    firebase_auth_domain: '%env(FIREBASE_AUTH_DOMAIN)%'
+    firebase_project_id: '%env(FIREBASE_PROJECT_ID)%'
+    firebase_client_id: '%env(FIREBASE_CLIENT_ID)%'
+    firebase_client_email: '%env(FIREBASE_CLIENT_EMAIL)%'
+    firebase_private_key: '%env(FIREBASE_PRIVATE_KEY)%'
+    firebase_prefix: '%env(FIREBASE_PREFIX)%'
+    create_account_feature: '%env(CREATE_ACCOUNT_FEATURE)%'
+    use_mail_feature: '%env(USE_MAIL_FEATURE)%'
+    mail_feature_from_email: '%env(MAIL_FEATURE_FROM_EMAIL)%'
+    google_captcha_site_key: '%env(GOOGLE_CAPTCHA_SITE_KEY)%'
+    google_captcha_secret_key: '%env(GOOGLE_CAPTCHA_SECRET_KEY)%'
+    session_max_idle_time: '%env(int:SESSION_MAX_IDLE_TIME)%'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: false       # Allows optimizing the container by removing unused services; this also means
+                            # fetching services directly from the container via $container->get() won't work.
+                            # The best practice is to be explicit about your dependencies anyway.
+        bind:
+            $rootDir: '%kernel.root_dir%'
+            $mailFromEmail: '%mail_feature_from_email%'
+            $firebasePrefix: '%firebase_prefix%'
+            $guzzleJsonClient: '@csa_guzzle.client.json'
+            $kernelEnv: '%kernel.environment%'
+            $externalDocCache: '@salt.cache.external_docs'
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{DataFixtures,DTO,Entity,Exception,Migrations,Tests,Util,Kernel.php}'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+    App\Controller\User\OAuthServiceController:
+        tags: ['controller.service_arguments']
+        arguments:
+            $githubClientId: '%github_client_id%'
+            $githubClientSecret: '%github_client_secret%'
+            $githubRedirectUri: "@=container.hasParameter('github_redirect_uri') ? parameter('github_redirect_uri') : null"
+
+    App\Controller\SessionController:
+        tags: ['controller.service_arguments']
+        arguments:
+            $sessionMaxIdleTime: '%session_max_idle_time%'
+
+    App\EventListener\LoginListener:
+        class: App\EventListener\LoginListener
+        arguments:
+            $captchaSecret: '%google_captcha_secret_key%'
+
+    App\Security\Session\SessionIdleHandler:
+        arguments:
+            $sessionMaxIdleTime: '%session_max_idle_time%'
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+
+    App\Service\Api1Uris:
+        public: true
+
+    # Allow Codeception to get some defined services for testing
+    App\Service\CodeceptionBridge:
+        public: true
+
+    # Workarounds for 3.4 deprecations
+    Symfony\Bundle\SwiftmailerBundle\Command\:
+        resource: '../vendor/symfony/swiftmailer-bundle/Command'
+        tags: ['console.command']
+
+
+    # Aliased services
+    Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'
+    Qandidate\Toggle\ContextFactory: '@qandidate.toggle.user_context_factory'
+    SimpleThings\EntityAudit\AuditReader: '@simplethings_entityaudit.reader'
+
+    # Manual services
+    Kreait\Firebase:
+        factory: 'App\Service\FirebaseFactory:createFirebase'
+        arguments:
+            $logger: '@logger'
+            $projectId: '%firebase_project_id%'
+            $clientId: '%firebase_client_id%'
+            $clientEmail: '%firebase_client_email%'
+            $privateKey: '%firebase_private_key%'
+            $dbUri: '%firebase_db_url%'
+
+    session.handler.pdo:
+        class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
+        arguments:
+            $pdoOrDsn: 'mysql:host=%database_host%;port=%database_port%;dbname=%database_name%'
+            $options: { db_username: '%database_user%', db_password: '%database_password%', db_table: 'auth_session', db_id_col: 'id', db_connection_options: "%pdo_options%" }
+
+    salt.cache.external_docs:
+        class: Symfony\Component\Cache\Adapter\PdoAdapter
+        arguments:
+            $connOrDsn: '@doctrine.dbal.default_connection'
+            $namespace: 'externalDoc-'
+            $defaultLifetime: 0

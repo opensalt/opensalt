@@ -3,8 +3,7 @@
 namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
@@ -16,23 +15,25 @@ class PdfExportController extends Controller
 {
     use CommandDispatcherTrait;
     /**
-     * @Route("/cfdoc/{id}/pdf", name="export_pdf_file")
-     * @Method("GET")
-     *
-     * @param int $id
-     *
-     * @return StreamedResponse
+     * @Route("/cfdoc/{id}/pdf", methods={"GET"}, name="export_pdf_file")
      */
     public function exportPdfAction(int $id): StreamedResponse
     {
         $phpWordObject = new PhpWord();
-        // Create a new Page
         $section = $phpWordObject->addSection();
 
         $response = $this->forward('App\Controller\Framework\CfPackageController:exportAction', ['id' => $id, '_format' => 'json']);
+        $data_array = json_decode($response->getContent(), true);
+        for ($i = 0, $iMax = count($data_array['CFItems']); $i < $iMax; ++$i) {
+            $data_array['CFItems'][$i]['fullStatement'] = $this->renderImages($data_array['CFItems'][$i]['fullStatement']);
+            if (isset($data_array['CFItems'][$i]['notes'])) {
+                $data_array['CFItems'][$i]['notes'] = $this->renderImages($data_array['CFItems'][$i]['notes']);
+            }
+        }
+
         $html = $this->renderView(
             'framework/doc_tree/export_pdf.html.twig',
-            ['pdfData' => json_decode($response->getContent(), true)]
+            ['pdfData' => $data_array]
         );
         Html::addHtml($section, htmlentities($html));
         Settings::setPdfRendererName(Settings::PDF_RENDERER_TCPDF);
@@ -51,5 +52,12 @@ class PdfExportController extends Controller
                 'Cache-Control' => 'max-age=0',
             ]
         );
+    }
+
+    public function renderImages(string $string): string
+    {
+        $pattern = '/\!\[([^\]]*)\]\(((?:https?:\/\/|\/)[^\)]+)\)/';
+
+        return preg_replace($pattern, '<img src = "$2">', $string);
     }
 }

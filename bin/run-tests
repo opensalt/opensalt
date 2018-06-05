@@ -2,13 +2,7 @@
 
 cd $(dirname $0)/..
 
-./bin/phpspec run
-RET=$?
-
 ./bin/codecept run "$@"
-RET2=$?
-if [ "$RET" == "0" ]; then
-  RET=$RET2
-fi
+RET=$?
 
 exit $RET

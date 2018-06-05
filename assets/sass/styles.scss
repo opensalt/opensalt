@@ -1,0 +1,141 @@
+html,body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.container--main {
+    min-height: 100%;
+    padding-bottom: 36px;
+    position: relative;;
+    width: auto !important;
+    max-width: 1500px;
+}
+
+header {
+    .navbar-default {
+        border-width:0;
+        background-color:#78C9E9;
+    }
+
+    .navbar-brand {
+        padding:5px;
+        background-color:#fff;
+        border-radius:4px;
+        margin:10px 15px 10px -5px !important;
+        height:inherit;
+
+        img {
+            height:60px;
+        }
+    }
+
+    .navbar-btn {
+        &.pull-right {
+            margin-top: 28.5px;
+        }
+
+        &.btn-login {
+            @include button-variant(#fff, transparent, transparent);
+
+            &:hover {
+                color: #23527c;
+                background-color: #e6e6e6;
+                border-color: #adadad;
+            }
+        }
+
+        &.btn-signup {
+            @include button-variant(#fff, #f37321, darken(#f37321, 5%));
+
+            margin-right: 5px;
+
+            &:hover {
+                background-color: #ee650d;
+            }
+        }
+    }
+}
+
+.bottomPadd8{
+    padding-bottom: 8px;
+}
+
+/* hack for IE11 to at least have the logo centred */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    img[src*=".svg?"] {
+        width: 100%;
+    }
+}
+
+footer {
+    bottom: 0;
+    height: 36px;
+    left: 0;
+    position: absolute;
+    width: 100%;
+    padding: 0 15px;
+
+    .navbar-default {
+        border-radius:4px 4px 0 0;
+        border-width: 0;
+        min-height: auto;
+        margin-bottom:0;
+        background-color:#78C9E9;
+    }
+
+    .navbar-nav > li > a {
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+}
+
+.navbar-default .navbar-nav > li > a, .navbar-default .navbar-nav > li > a:hover {
+    color:#fff;
+}
+
+label.required:before {
+    content: '*';
+    color: red;
+}
+
+.panel-component .panel-body {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.item-humanCodingScheme {
+    font-weight: bold;
+}
+
+table.tree {
+    td.shrink {
+        white-space: nowrap;
+    }
+    td.expand {
+        width: 99%;
+    }
+}
+
+.list-group-item {
+    word-wrap: break-word;
+}
+
+.modal-body.fields-body-framework {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+span.notification-url-indicator {
+    float: right;
+    margin-right: 15px;
+    text-decoration: underline;
+}
+
+.dropzone{
+  border: 1px solid #CCC !important;
+}
+
+.si-sigma:before {
+  content: "\03a3";
+}

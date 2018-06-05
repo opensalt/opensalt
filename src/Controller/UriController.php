@@ -8,8 +8,7 @@ use App\Entity\Framework\LsItem;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,9 +17,8 @@ class UriController extends AbstractController
     /**
      * Export an LSItem entity.
      *
-     * @Route("/uri/{uri}", requirements={"uri"=".+"}, defaults={"_format"="html"}, name="editor_uri_lookup")
-     * @Route("/uri/", defaults={"_format"="html"}, name="editor_uri_lookup_empty")
-     * @Method("GET")
+     * @Route("/uri/{uri}", methods={"GET"}, requirements={"uri"=".+"}, defaults={"_format"="html"}, name="editor_uri_lookup")
+     * @Route("/uri/", methods={"GET"}, defaults={"_format"="html"}, name="editor_uri_lookup_empty")
      * @Template()
      *
      * @param Request $request
