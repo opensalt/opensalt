@@ -433,8 +433,7 @@ class LsItemController extends AbstractController
     /**
      * Upload attachment to LsItem entity.
      *
-     * @Route("/{id}/upload-attachment", name="lsitem_upload_attachment")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/upload-attachment", methods={"GET", "POST"}, name="lsitem_upload_attachment")
      * @Template()
      * @Security("is_granted('edit', lsItem)")
      *
@@ -447,32 +446,30 @@ class LsItemController extends AbstractController
 
     public function uploadAttachmentAction(Request $request, LsItem $lsItem, UserInterface $user)
     {
-            
-            $output = array('uploaded' => false);
-            // get the file from the request object
-            $file = $request->files->get('file');
-            $attachmentTo=$request->get('attachmentTo');
-            // generate a new filename (safer, better approach)
-            // To use original filename, $fileName = $this->file->getClientOriginalName();
-            //$fileName = md5(uniqid()).'.'.$file->guessExtension();
-            $fileName = $file->getClientOriginalName();
-            // set your uploads directory
-            $uploadDir =dirname(__DIR__).'../../../web/uploads/'. $attachmentTo.'/';
-            if (!file_exists($uploadDir) && !is_dir($uploadDir)) {
-                mkdir($uploadDir, 0775, true);
-            }
-            if ($file->move($uploadDir, $fileName)) { 
-               $output['uploaded'] = true;
-               $output['fileName'] = $fileName;
-            }
-            return new JsonResponse($output);
+        $output = array('uploaded' => false);
+        // get the file from the request object
+        $file = $request->files->get('file');
+        $attachmentTo=$request->get('attachmentTo');
+        // generate a new filename (safer, better approach)
+        // To use original filename, $fileName = $this->file->getClientOriginalName();
+        //$fileName = md5(uniqid()).'.'.$file->guessExtension();
+        $fileName = $file->getClientOriginalName();
+        // set your uploads directory
+        $uploadDir =dirname(__DIR__).'../../../web/uploads/'. $attachmentTo.'/';
+        if (!file_exists($uploadDir) && !is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+        if ($file->move($uploadDir, $fileName)) {
+            $output['uploaded'] = true;
+            $output['fileName'] = $fileName;
+        }
+        return new JsonResponse($output);
     }
-    
+
     /**
      * delete attachment.
      *
-     * @Route("/{id}/delete-attachment", name="lsitem_delete_attachment")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/delete-attachment", methods={"GET", "POST"}, name="lsitem_delete_attachment")
      * @Template()
      * @Security("is_granted('edit', lsItem)")
      *
@@ -497,7 +494,4 @@ class LsItemController extends AbstractController
         }
         return new JsonResponse($output);
     }
-       
-    
-    
 }
