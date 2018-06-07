@@ -7,6 +7,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsDocAttribute;
 use App\Entity\Framework\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -151,6 +152,49 @@ class LsItemRepository extends ServiceEntityRepository
         }
 
         return false;
+    }
+
+    public function findExactMatches(String $identifier): array
+    {
+        $assocRepo = $this->_em->getRepository(LsAssociation::class);
+
+        $item = $this->findOneByIdentifier($identifier);
+        if (null === $item) {
+            return [];
+        }
+
+        $matched= [$item->getId() => $item];
+        $matchedCount = 0;
+
+        while (count($matched) !== $matchedCount) {
+            $matchedCount = count($matched);
+
+            $fromCriteria = new Criteria();
+            $fromCriteria->where(Criteria::expr()->in('originLsItem', array_keys($matched)));
+            $fromCriteria->andWhere(Criteria::expr()->eq('type', LsAssociation::EXACT_MATCH_OF));
+            $results = $assocRepo->matching($fromCriteria);
+            foreach ($results as $assoc) {
+                /** @var LsAssociation $assoc */
+                $item = $assoc->getDestinationLsItem();
+                if (null !== $item) {
+                    $matched[$item->getId()] = $item;
+                }
+            }
+
+            $toCriteria = new Criteria();
+            $toCriteria->where(Criteria::expr()->in('destinationLsItem', array_keys($matched)));
+            $toCriteria->andWhere(Criteria::expr()->eq('type', LsAssociation::EXACT_MATCH_OF));
+            $results = $assocRepo->matching($toCriteria);
+            foreach ($results as $assoc) {
+                /** @var LsAssociation $assoc */
+                $item = $assoc->getOriginLsItem();
+                if (null !== $item) {
+                    $matched[$item->getId()] = $item;
+                }
+            }
+        }
+
+        return $matched;
     }
 
     public function createGradeSelectListQueryBuilder(): QueryBuilder
