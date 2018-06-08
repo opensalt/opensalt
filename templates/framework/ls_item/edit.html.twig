@@ -5,11 +5,28 @@
         <h1>LsItem edit</h1>
     {% endif %}
 
-    {{ form_start(edit_form) }}
-        {{ form_widget(edit_form) }}
+    
+        {{ form_start(edit_form, {'enctype': 'multipart/form-data'}) }}
+          {% set attachment = '' %}
+        {% set notesAttachment = '' %}
+        {% for entity in lsItemAttachment %}
+            {% if entity.field == 'fullstatement' %}
+             
+               {% set attachment = attachment ~ ','~entity.filename %}
+
+            {% elseif entity.field == 'notes' %}
+                
+                 {% set notesAttachment = notesAttachment ~ ','~entity.filename %}
+            {% endif %}
+        {% endfor %}
+        <input type="hidden" name="fullstatementAttachment" id="ls_item_fullstatementAttachment" value="{{ attachment|trim(',')}}">
+         <input type="hidden" name="notesAttachment" id="ls_item_notesAttachment" value="{{ notesAttachment|trim(',')}}">
         {% if not app.request.xmlHttpRequest %}
+            
+            
+      
             <p class="text-right">
-                <input class="btn btn-primary" type="submit" value="Save Changes" />
+                  <input class="btn btn-primary" type="submit" value="Save Changes" id="item-submit-button"/>
             </p>
         {% endif %}
     {{ form_end(edit_form) }}

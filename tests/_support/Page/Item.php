@@ -433,4 +433,19 @@ class Item implements Context
             }
         }
     }
+     /**
+     * @When /^I download attachment$/
+     */
+    public function iDownloadAttachment(): Framework
+    {
+        $I = $this->I;
+
+        $this->iAmOnAnItemPage();
+
+        $this->filename = $I->download('/app_dev.php/Framework.pdf/file-download');
+        $awsFile = file_get_contents($this->filename);
+        $I->assertNotEmpty($awsFile, 'File is empty');
+
+        return $this;
+    }
 }
