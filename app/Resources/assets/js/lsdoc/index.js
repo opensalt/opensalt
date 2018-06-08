@@ -1,3 +1,4 @@
+var utilSalt = require('util-salt');
 var SaltGithub = (function () {
 
     function getRepoList(page, perPage) {
@@ -113,7 +114,7 @@ var SaltGithub = (function () {
     function itemListener(elementClass, isFile) {
         var $element = $('.' + elementClass);
 
-        $element.click(function (evt) {
+        $element.on('click', function (evt) {
             getFiles(evt, isFile);
         });
     }
@@ -185,7 +186,7 @@ var Import = (function () {
             for (var j = 0; j < columns.length; j++) {
                 column = columns[j];
                 if (column.length > 0) {
-                    if (Util.simplify(field) === Util.simplify(column)) {
+                    if (utilSalt.simplify(field) === utilSalt.simplify(column)) {
                         cfItemKeys[field] = column.replace(/"/g, '');
 
                         index = fields.indexOf(field);
@@ -221,7 +222,7 @@ var Import = (function () {
             $('#errors').removeClass('hidden');
         }
 
-        $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+        $('.file-loading .row .col-md-12').html(utilSalt.spinner('Loading file'));
         $('.file-loading').removeClass('hidden');
 
         index = fields.indexOf('humanCodingScheme');
@@ -236,11 +237,11 @@ var Import = (function () {
 
     function validateContent(csv) {
         var sw = true;
-        csv.data.forEach(function(row, i) {
+        csv.data.forEach(function (row, i) {
             if (row[3]) {
                 if (row[3].length > 60) {
                     sw = false;
-                    CfItem.errorValue('Line '+i+1, 'Abbreviated statement can not be longer than 60 characters.', 'warning');
+                    CfItem.errorValue('Line ' + i + 1, 'Abbreviated statement can not be longer than 60 characters.', 'warning');
                 }
             }
         });
@@ -298,7 +299,7 @@ var Import = (function () {
 
     function caseImporter(file) {
         $('.tab-content').addClass('hidden');
-        $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+        $('.file-loading .row .col-md-12').html(utilSalt.spinner('Loading file'));
         $('.file-loading').removeClass('hidden');
         $('.case-error-msg').addClass('hidden');
 
@@ -394,7 +395,7 @@ var SaltLocal = (function () {
             if (isTypeValid(file.name)) {
 
                 $('.tab-content').addClass('hidden');
-                $('.file-loading .row .col-md-12').html(Util.spinner('Loading file'));
+                $('.file-loading .row .col-md-12').html(utilSalt.spinner('Loading file'));
                 $('.file-loading').removeClass('hidden');
                 $('.case-error-msg').addClass('hidden');
 
@@ -548,7 +549,7 @@ var CfItem = (function () {
         var alert = '<div class="alert alert-warning js-alert-missing-fields" role="alert">';
         alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
         alert += '<div class="js-error-message-missing-field">';
-        alert += '<strong>Missing field "' + Util.titleize(field) + '"</strong>, if you did not list a column ' + field + ' in your CSV ignore this message! ';
+        alert += '<strong>Missing field "' + utilSalt.titleize(field) + '"</strong>, if you did not list a column ' + field + ' in your CSV ignore this message! ';
         alert += 'if you meant to, please take a look at the import template and try again!';
         alert += '</div>';
         alert += '</div>';
@@ -556,19 +557,19 @@ var CfItem = (function () {
         missingFieldsErrorMessages.push($(alert).find(".js-error-message-missing-field").text());
         $('.missing-fields').append(alert);
     }
-    
+
     function errorValue(err, msg, alertType) {
-        var alert = '<div class="alert alert-'+alertType+' js-alert-missing-fields" role="alert">';
+        var alert = '<div class="alert alert-' + alertType + ' js-alert-missing-fields" role="alert">';
         alert += '<a href="#" class="close" data-dismiss="alert" aria-label="close">x</a>';
         alert += '<div class="js-error-message-missing-field">';
-        alert += '<strong>Error:</strong> '+err+', '+msg;
+        alert += '<strong>Error:</strong> ' + err + ', ' + msg;
         alert += '</div>';
         alert += '</div>';
         $('.missing-fields').prepend(alert);
     }
 
-    function getErrorsLog(){
-      return missingFieldsErrorMessages;
+    function getErrorsLog() {
+        return missingFieldsErrorMessages;
     }
 
     return {
@@ -599,38 +600,6 @@ var SanitizeData = (function () {
     };
 })();
 
-var Util = (function () {
-
-    function simplify(string) {
-        return string.match(/[a-zA-Z]*/g).join("").toLowerCase();
-    }
-
-    function capitalize(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
-    function titleize(string) {
-        return capitalize(string.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1"));
-    }
-
-    function chunk(array, n) {
-        if (!this.length) {
-            return [];
-        }
-        return [this.slice(0, n)].concat(this.slice(n).chunk(n));
-    }
-
-    function spinnerHtml(msg) {
-        return '<div class="spinnerOuter"><span class="glyphicon glyphicon-cog spinning spinnerCog"></span><span class="spinnerText">' + msg + '</span></div>';
-    }
-
-    return {
-        simplify: simplify,
-        titleize: titleize,
-        spinner: spinnerHtml
-    };
-})();
-
 function listRepositories() {
     $('#files').addClass('hidden');
     $('#repos').removeClass('hidden');
@@ -640,13 +609,13 @@ function listRepositories() {
     $('#back').html('');
 }
 
-$(document).on('ready', function () {
-    $('.github-tab').click(function () {
+$(document).ready(function () {
+    $('.github-tab').on('click', function () {
         SaltGithub.getRepoList(1, 30);
         listRepositories();
     });
 
-    $('.btn-import-asn').click(function () {
+    $('.btn-import-asn').on('click', function () {
         Import.fromAsn();
     });
 
@@ -658,24 +627,34 @@ global.SaltLocal = SaltLocal;
 global.SaltGithub = SaltGithub;
 global.listRepositories = listRepositories;
 
+var dragbar = $("#dragbar");
 
-$('#dragbar').mousedown(function (e) {
-    e.preventDefault();
+dragbar.mousedown(function (upperEvent) {
+    upperEvent.preventDefault();
+    var treeSideLeft = $('#treeSideLeft'),
+            treeSideRight = $('#treeSideRight'),
+            treeView = $("#treeView"),
+            treeViewOffsetLeft = treeView.offset().left,
+            treeViewOffsetRight = treeViewOffsetLeft + treeView.width(),
+            threshold = 330;
 
-    var dragBar = function (e) {
-        var maxWidthToAllow = $("#treeView").width() - 330;
-        if (e.pageX >= maxWidthToAllow) {
-            $('#treeSideLeft').css("width", maxWidthToAllow);
-        } else {
-            $('#treeSideLeft').css("width", e.pageX + 2);
-        }
-        $('#treeSideRight').width($("#treeView").width() - $("#treeSideLeft").width());
-    };
     $(document).on('mousemove', dragBar);
 
     $(document).one('mouseup', function (e) {
         $(document).off('mousemove', dragBar);
     });
+
+    function dragBar(e) {
+        var cursorX = e.clientX,
+                cursorFromOffsetLeft = cursorX - treeViewOffsetLeft,
+                cursorFromOffsetRight = treeViewOffsetRight - cursorX;
+        if (cursorFromOffsetLeft < threshold || cursorFromOffsetRight < threshold) {
+            return false;
+        }
+
+        treeSideLeft.css("width", cursorFromOffsetLeft);
+        treeSideRight.css("width", cursorFromOffsetRight);
+    }
 });
 
 var adjustWindow = function (e) {
@@ -695,7 +674,17 @@ var adjustWindow = function (e) {
         $("#dragbar").show();
     }
 };
-$(document).on('ready', adjustWindow);
+$(document).ready(adjustWindow);
 
 $(window).on('resize', adjustWindow);
 
+$(document).ready(function () {
+    let table = $('#datatable').DataTable();
+    $('#search_form_organization').on('keyup', function () {
+        table
+            .columns(1)
+            .search(this.value)
+            .draw();
+    });
+
+});

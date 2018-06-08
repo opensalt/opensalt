@@ -50,6 +50,7 @@ var op = objectProperty;
 apx.initialize = function() {
     // prepare edit modals/functions
     apx.edit.prepareDocEditModal();
+    apx.edit.prepareDocDeleteModal();
     apx.edit.prepareItemEditModal();
     apx.edit.prepareAddNewChildModal();
     apx.edit.prepareExemplarModal();
@@ -60,6 +61,7 @@ apx.initialize = function() {
     apx.edit.initializeManageAssocGroupButtons();
 
     apx.markLogsAsRead();
+    apx.copyFramework.init();
 
     $('#treeView').tooltip({
         'selector': '.fancytree-title',
@@ -118,7 +120,7 @@ apx.initialize = function() {
     if (!empty(apx.initialAssocGroup)) {
         apx.initialAssocGroup *= 1;
     }
-    
+
     // parse query string
     apx.query = {};
     let arr = document.location.search.substr(1).split("&");
@@ -126,7 +128,7 @@ apx.initialize = function() {
         let line = arr[i].split("=");
         apx.query[line[0]] = line[1];
     }
-    
+
     // if we're in chooserMode, initialize
     if (apx.chooserMode.active()) {
         apx.chooserMode.initialize();
@@ -137,7 +139,7 @@ apx.initialize = function() {
 
     ///////////////////////////////////////////////////////////////////////////////
     // MAINDOC
-    
+
     // lsDocId could be an integer, in which case it's a SALT database ID; or we could be loading by url
     if (apx.lsDocId === 'url') {
         // if we're loading by url, the url should be in the search string, i.e. "url=http://example.com"
@@ -145,19 +147,19 @@ apx.initialize = function() {
     } else {
         apx.mainDoc = new ApxDocument({"id": apx.lsDocId});
     }
-    
+
     // establish and load the main document -- apx.mainDoc
     apx.spinner.showModal("Loading document");
     apx.mainDoc.load(function() {
         apx.spinner.hideModal();
-        
+
         // show the treeView div now that the document has been loaded
         $("#treeView").show();
-        
+
         // fill in document title, in case we loaded from url
         $("#docTitle").html(apx.mainDoc.doc.title);
         window.document.title = apx.mainDoc.doc.title;
-        
+
         // Prepare menus for choosing documents on each side (we have to do this after we've gotten mainDoc.associatedDocs)
         apx.prepareDocumentMenus();
 
@@ -1082,7 +1084,7 @@ apx.pushHistoryState = function() {
     if (apx.mainDoc.loadedFromUrl() || apx.query.mode === "chooser") {
         return;
     }
-    
+
     // if we just called this after the user clicked back or forward, though, don't push a new state
     if (apx.popStateActivate !== true) {
         // For now, at least, if we're not showing the mainDoc on the left side, don't push a new state

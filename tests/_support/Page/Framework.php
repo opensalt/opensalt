@@ -5,9 +5,11 @@ namespace Page;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Codeception\Exception\Fail;
+use Codeception\Util\Locator;
 use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class Framework implements Context
 {
@@ -16,7 +18,7 @@ class Framework implements Context
 
     static public $fwTitle = '#ls_doc_create_title';
     static public $fwCreatorField = '#ls_doc_create_creator';
-//    static public $frameworkCreatorValue = 'PCG QA Testing';
+    //    static public $frameworkCreatorValue = 'PCG QA Testing';
 
     static protected $failedCreateCount = 0;
 
@@ -45,12 +47,10 @@ class Framework implements Context
     public function iAmOnAFrameworkPage(): Framework
     {
         $I = $this->I;
-
         $I->iAmOnTheHomepage();
         $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
-
         return $this;
     }
 
@@ -66,6 +66,7 @@ class Framework implements Context
 
         return $this;
     }
+    
 
     /**
      * @Given /^I should see the framework information$/
@@ -90,6 +91,7 @@ class Framework implements Context
         $I->waitForElementVisible('#exportModal a.btn-export-case');
         $url = $I->grabAttributeFrom('#exportModal a.btn-export-case', 'href');
 
+
         $this->filename = $I->download($url);
 
         return $this;
@@ -110,6 +112,63 @@ class Framework implements Context
         $I->assertArrayHasKey('CFItems', $parsedJson, 'CASE file does not have a CFItems part');
         $I->assertArrayHasKey('CFAssociations', $parsedJson, 'CASE file does not have a CFAssociations part');
 
+        return $this;
+    }
+
+
+    /**
+     * @When /^I click on copy framework modal button$/
+     */
+    public function iClickOnCopyFrameworkModalButton()
+    {
+        $this->I->click('#js-copy-framework-modal-button');
+
+        return $this;
+    }
+
+    /**
+     * @When /^I click on copy framework$/
+     */
+    public function IClickOnCopyFramework()
+    {
+        $this->I->click('#copyFrameworkModal .modal-footer .js-btn-copy-button');
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I should not see the copy framework modal button$/
+     */
+    public function iShouldNotSeeTheCopyFrameworkModalButton(): Framework
+    {
+        $this->I->dontSee('#js-copy-framework-modal-button');
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see the copy framework modal button$/
+     */
+    public function iShouldSeeTheCopyFrameworkModalButton(): Framework
+    {
+        $this->I->seeElement('#js-copy-framework-modal-button');
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see a success message$/
+     */
+    public function IShouldSeeASuccessMessage(): Framework
+    {
+        $this->I->waitForElementVisible('#copyFrameworkModal .alert-success');
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see the copy framework modal$/
+     */
+    public function iShouldSeeTheCopyFrameworkModal(): Framework
+    {
+        $this->I->waitForElementVisible('#copyFrameworkModal .js-btn-copy-button');
         return $this;
     }
 
@@ -144,7 +203,7 @@ class Framework implements Context
 
         $data = str_replace([
             'Test Framework External Empty',
-            'dc5bbc8a-2c16-445b-b10d-bb7cce3b814e'
+            'd0000000-0000-0000-0000-000000000000'
         ], [$name, $uuid], $data);
         $this->uploadedFramework = $data;
 
@@ -222,7 +281,7 @@ class Framework implements Context
         $diff = $this->arrayDiff(
             json_decode($this->uploadedFramework, true),
             $parsedJson,
-            ['lastChangeDateTime']
+            ['lastChangeDateTime', 'CFDefinitions', 'CFItemTypeURI']
         );
         $I->assertEquals([], $diff, 'Downloaded JSON does not match');
 
@@ -240,8 +299,8 @@ class Framework implements Context
                 if (is_array($v1) && is_array($v2)) {
                     // 2 arrays: just go further...
                     // .. and explain it's an update!
-                    $changes = $this->arrayDiff($v1, $v2);
-                    if (count($changes) > 0) {
+                    $changes = $this->arrayDiff($v1, $v2, $allowedDiffs);
+                    if (\count($changes) > 0 && !\in_array($k1, $allowedDiffs, true)) {
                         // If we have no change, simply ignore
                         $diff[$k1] = array('upd' => $changes);
                     }
@@ -252,7 +311,7 @@ class Framework implements Context
                     unset($arr2[$k1]);
                 } else {
                     // Don't mind if arrays or not.
-                    if (in_array('k1', $allowedDiffs, true)) {
+                    if (!\in_array($k1, $allowedDiffs, true)) {
                         $diff[$k1] = array('old' => $v1, 'new' => $v2);
                     }
                     unset($arr2[$k1]);
@@ -346,13 +405,13 @@ class Framework implements Context
      */
     public function iShouldHaveAnExcelFileWithSmartLevels(): Framework
     {
-        $reader = \PHPExcel_IOFactory::createReaderForFile($this->filename);
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($this->filename);
         $ss = $reader->load($this->filename);
 
         $sheet = $ss->getSheetByName('CF Item');
 
         $row = 1;
-        while (!empty($sheet->getCell('A'.++$row)->getValue())) {
+        while (!empty($sheet->getCell('A'.++$row)) && !empty($sheet->getCell('A'.++$row)->getValue())) {
             $item = $sheet->getCell('B'.$row)->getValue();
             $smartLevel = $sheet->getCell('D'.$row)->getValue();
 
@@ -402,7 +461,7 @@ class Framework implements Context
         foreach ($origValues as $i => $origValue) {
             $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
         }
-        */
+         */
         $data = str_replace($origValues, $replacements, $data);
 
         $this->uploadedFramework = $data;
@@ -459,7 +518,7 @@ class Framework implements Context
         foreach ($origValues as $i => $origValue) {
             $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
         }
-        */
+         */
         $data = str_replace($origValues, $replacements, $data);
 
         $this->uploadedFramework = $data;
@@ -515,7 +574,7 @@ class Framework implements Context
         foreach ($origValues as $i => $origValue) {
             $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
         }
-        */
+         */
         $data = str_replace($origValues, $replacements, $data);
 
         $this->uploadedFramework = $data;
@@ -614,21 +673,64 @@ class Framework implements Context
     }
 
     /**
+     * @When /^I display modal to edit framework$/
+     */
+    public function iDisplayModalToEditFramework() {
+        $I = $this->I;
+
+        $this->iGoToTheFrameworkDocument();
+        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->waitForElementVisible('#ls_doc_title');
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see licence edit drop-down$/
+     */
+    public function iShouldSeeLicenceEditDropDown() {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#ls_doc_licence');
+    }
+
+    /**
+     * @Then /^I should see licence drop-down$/
+     */
+    public function iShouldSeeLicenceDropDown() {
+        $I = $this->I;
+
+        $I->seeElement('#ls_doc_create_licence');
+    }
+
+    /**
+     * @Given /^I should see an alpha ordered list in the framework$/
+     */
+    public function iShouldSeeAlphaOrderedListInTheFramework(){
+        $I = $this->I;
+
+        $I->click('//span[text()="MD.Table"]/../../..');
+        $I->seeElement(".lsItemDetails ol {type: 'I'}");
+
+    }
+
+    /**
      * @Then /^I should see "([^"]*)" button$/
      */
     public function iShouldSeeButton($buttonText) {
-      $I = $this->I;
+        $I = $this->I;
 
-      $I->see($buttonText);
+        $I->see($buttonText);
     }
 
     /**
      * @Given /^I click the "([^"]*)" button$/
      */
     public function iClickTheButton($button) {
-       $I = $this->I;
+        $I = $this->I;
 
-       $I->click($button);
+        $I->click($button);
     }
 
     /**
@@ -663,19 +765,24 @@ class Framework implements Context
             'language' => 'en',
             'adoptionStatus' => 'Draft',
             'note' => $note,
+            'license' => 'Attribution 4.0 International',
         ];
 
         $I->fillField(self::$fwTitle, $framework);
         $I->fillField(self::$fwCreatorField, $this->creatorName);
         $I->fillField('#ls_doc_create_officialUri', $this->frameworkData['officialUri']);
         $I->fillField('#ls_doc_create_publisher', $this->frameworkData['publisher']);
-//       $I->fillField('#ls_doc_create_urlName','OpenSALT');
+        //       $I->fillField('#ls_doc_create_urlName','OpenSALT');
         $I->fillField('#ls_doc_create_version', $this->frameworkData['version']);
         $I->fillField('#ls_doc_create_description', $description);
-//       $I->selectOption('.select2-search__field', array('text' => 'Math')); //Subject field
+        //       $I->selectOption('.select2-search__field', array('text' => 'Math')); //Subject field
         $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
         $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
         $I->fillField('#ls_doc_create_note', $note);
+        // Choose one license
+        $I->click(Locator::lastElement('.select2-container--bootstrap'));
+        $I->waitForElementVisible('.select2-results__option--highlighted');
+        $I->click('.select2-results__option--highlighted');
 
         $I->click('Create');
 
@@ -694,12 +801,12 @@ class Framework implements Context
      * @When /^I create a framework$/
      */
     public function iCreateAFramework1() {
-      $I = $this->I;
+        $I = $this->I;
 
-      $I->see('Create a new Framework');
-      $I->click('Create a new Framework');
-      $I->see('LsDoc creation');
-      $this->iCreateAFramework();
+        $I->see('Create a new Framework');
+        $I->click('Create a new Framework');
+        $I->see('Create New Framework Package');
+        $this->iCreateAFramework();
     }
 
     /**
@@ -707,105 +814,107 @@ class Framework implements Context
      * @Given /^I should see the framework data$/
      */
     public function iShouldSeeFramework() {
-      $I = $this->I;
+        $I = $this->I;
 
-      $I->waitForElementVisible('.itemTitleSpan');
+        $I->waitForElementVisible('.itemTitleSpan');
 
-      $I->see('Official URL:');
-      $I->see($this->frameworkData['officialUri']);
-      $I->see('CASE Framework URL:');
-      $I->see('Creator:');
-      $I->see($this->frameworkData['creator']);
-      $I->see('Publisher:');
-      $I->see($this->frameworkData['publisher']);
-      $I->see('Language:');
-      $I->see($this->frameworkData['language']);
-      $I->see('Adoption Status:');
-      $I->see($this->frameworkData['adoptionStatus']);
+        $I->see('Official URL:');
+        $I->see($this->frameworkData['officialUri']);
+        $I->see('CASE Framework URL:');
+        $I->see('Creator:');
+        $I->see($this->frameworkData['creator']);
+        $I->see('Publisher:');
+        $I->see($this->frameworkData['publisher']);
+        $I->see('Language:');
+        $I->see($this->frameworkData['language']);
+        $I->see('Adoption Status:');
+        $I->see($this->frameworkData['adoptionStatus']);
+        $I->see('License:');
+        $I->see($this->frameworkData['license']);
     }
 
     /**
      * @Given /^I delete the framework$/
      */
     public function iDeleteFramework() {
-      $I = $this->I;
+        $I = $this->I;
 
-      $I->amOnPage(self::$lsdocPath.$I->getDocId());
+        $I->amOnPage(self::$lsdocPath.$I->getDocId());
 
-      $I->click('Delete');
+        $I->click('Delete');
     }
 
-  /**
-   * @Given /^I edit the field in framework$/
-   */
-  public function iEditTheFieldInFramework($field, $data) {
-    $I = $this->I;
-    $map = [
-      'Title' => '#ls_doc_title',
-      'Creator' => '#ls_doc_creator',
-      'Official URI' => '#ls_doc_officialUri',
-      'Publisher' => '#ls_doc_publisher',
-      'Version' => '#ls_doc_version',
-      'Description' => '#ls_doc_description',
-      'Language' => 'ls_doc[language]',
-      'Adoption Status' => 'ls_doc[adoptionStatus]',
-      'Note' => '#ls_doc_note',
-    ];
-    $dataMap = [
-      'Title' => 'title',
-      'Creator' => 'creator',
-      'Official URI' => 'officialUri',
-      'Publisher' => 'publisher',
-      'Version' => 'version',
-      'Description' => 'description',
-      'Language' => 'language',
-      'Adoption Status' => 'adoptionStatus',
-      'Note' =>   'note',
-    ];
+    /**
+     * @Given /^I edit the field in framework$/
+     */
+    public function iEditTheFieldInFramework($field, $data) {
+        $I = $this->I;
+        $map = [
+            'Title' => '#ls_doc_title',
+            'Creator' => '#ls_doc_creator',
+            'Official URI' => '#ls_doc_officialUri',
+            'Publisher' => '#ls_doc_publisher',
+            'Version' => '#ls_doc_version',
+            'Description' => '#ls_doc_description',
+            'Language' => 'ls_doc[language]',
+            'Adoption Status' => 'ls_doc[adoptionStatus]',
+            'Note' => '#ls_doc_note',
+        ];
+        $dataMap = [
+            'Title' => 'title',
+            'Creator' => 'creator',
+            'Official URI' => 'officialUri',
+            'Publisher' => 'publisher',
+            'Version' => 'version',
+            'Description' => 'description',
+            'Language' => 'language',
+            'Adoption Status' => 'adoptionStatus',
+            'Note' =>   'note',
+        ];
 
-    if (in_array($field, ['Language', 'Adoption Status'])){
-      $I->selectOption($map[$field], array('value' => $data));
-    }
-    else {
-      $I->fillField($map[$field], $data);
-    }
+        if (in_array($field, ['Language', 'Adoption Status'])){
+            $I->selectOption($map[$field], array('value' => $data));
+        }
+        else {
+            $I->fillField($map[$field], $data);
+        }
 
-    $this->frameworkData[$dataMap[$field]] = $data;
-  }
-
-  public function iGoToTheFrameworkDocument(){
-    $I = $this->I;
-
-    $I->amOnPage(self::$docPath.$I->getDocId());
-
-  }
-  /**
-   * @Given /^I edit the fields in a framework$/
-   */
-  public function iEditTheFieldsInFramework(TableNode $table) {
-    $I = $this->I;
-
-    $this->iGoToTheFrameworkDocument();
-    $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
-    $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
-    $I->waitForElementVisible('#ls_doc_title');
-
-    $rows = $table->getRows();
-    foreach ($rows as $row) {
-      $this->iEditTheFieldInFramework($row[0], $row[1]);
+        $this->frameworkData[$dataMap[$field]] = $data;
     }
 
-    $I->click('//*[@id="editDocModal"]//button[text()="Save Changes"]');
+    public function iGoToTheFrameworkDocument(){
+        $I = $this->I;
 
-    return $this;
-  }
+        $I->amOnPage(self::$docPath.$I->getDocId());
 
-  /**
-   * @Given /^I upload an excel file$/
-   */
-  public function iUploadAnExcelFile() {
-    throw new PendingException();
-  }
+    }
+    /**
+     * @Given /^I edit the fields in a framework$/
+     */
+    public function iEditTheFieldsInFramework(TableNode $table) {
+        $I = $this->I;
+
+        $this->iGoToTheFrameworkDocument();
+        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->click('//*[@id="documentOptions"]/button[@data-target="#editDocModal"]');
+        $I->waitForElementVisible('#ls_doc_title');
+
+        $rows = $table->getRows();
+        foreach ($rows as $row) {
+            $this->iEditTheFieldInFramework($row[0], $row[1]);
+        }
+
+        $I->click('//*[@id="editDocModal"]//button[text()="Save Changes"]');
+
+        return $this;
+    }
+
+    /**
+     * @Given /^I upload an excel file$/
+     */
+    public function iUploadAnExcelFile() {
+        throw new PendingException();
+    }
 
     /**
      * @Given /^I upload the adopted CASE file$/
@@ -845,7 +954,7 @@ class Framework implements Context
         foreach ($origValues as $i => $origValue) {
             $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
         }
-        */
+         */
         $data = str_replace($origValues, $replacements, $data);
 
         $this->uploadedFramework = $data;
@@ -949,4 +1058,148 @@ class Framework implements Context
     {
         $this->I->seeElement('#displayLogBtn');
     }
+
+    /**
+     * @Given /^I upload the Item Type CASE file$/
+     */
+    public function iUploadTheItemTypeCASEFile()
+    {
+        $I = $this->I;
+
+        $I->waitForElementVisible('#file-url');
+
+        $data = file_get_contents(codecept_data_dir().'ItemTypeTestFramework.json');
+
+        $name = sq('ItemTypeFramework');
+        $docUuid = Uuid::uuid4()->toString();
+        $this->rememberedFramework = $name;
+
+        $origValues = [];
+        $replacements = [];
+
+        $decoded = json_decode($data, true);
+
+        // Replace title
+        $origValues[] = $decoded['CFDocument']['title'];
+        $replacements[] = $name;
+
+        // replace document identifier
+        $origValues[] = $decoded['CFDocument']['identifier'];
+        $replacements[] = $docUuid;
+
+        if (!empty($decoded['CFItems'])) {
+            foreach ($decoded['CFItems'] as $item) {
+                $origValues[] = $item['identifier'];
+                $replacements[] = Uuid::uuid4()->toString();
+            }
+        }
+        if (!empty($decoded['CFAssociations'])) {
+            foreach ($decoded['CFAssociations'] as $item) {
+                $origValues[] = $item['identifier'];
+                $replacements[] = Uuid::uuid4()->toString();
+            }
+        }
+        if (!empty($decoded['CFDefinitions'])) {
+            foreach ($decoded['CFDefinitions'] as $content) {
+                foreach ($content as $item) {
+                    $origValues[] = $item['identifier'];
+                    $replacements[] = Uuid::uuid4()->toString();
+                }
+            }
+        }
+
+        /*
+        foreach ($origValues as $i => $origValue) {
+            $data = mb_ereg_replace("/{$origValue}/", $replacements[$i], $data);
+        }
+        */
+        $data = str_replace($origValues, $replacements, $data);
+
+        $this->uploadedFramework = $data;
+
+        $filename = tempnam(codecept_data_dir(), 'tmp_itf_');
+        unlink($filename);
+        file_put_contents($filename.'.json', $data);
+
+        $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.json'));
+        $I->click('a.btn-import-case');
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        unlink($filename.'.json');
+
+        return $this;
+    }
+
+    /**
+     * @When /^I download the framework PDF file$/
+     */
+    public function iDownloadTheFrameworkPdfFile(): Framework
+    {
+        $I = $this->I;
+
+        $I->click('Export', '#itemInfo');
+        $I->waitForElementVisible('#exportModal a.btn-export-pdf');
+        $I->click('#exportModal a.btn-export-pdf');
+        $url = $I->grabAttributeFrom('#exportModal a.btn-export-pdf', 'href');
+        $this->filename = $I->download($url);
+
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see content in the PDF file$/
+     */
+    public function iShouldSeeContentInThePDFFile(): Framework
+    {
+        $I = $this->I;
+
+        $PdfContent = $I->pdf2text($this->filename);
+        $I->assertNotEmpty($PdfContent, 'PDF file is empty');
+        $I->assertContains($I->getLastFrameworkTitle(), $PdfContent, 'Exported PDF does not have framework');
+        return $this;
+    }
+
+    /**
+     * @Then /^I update the framework via spreadsheet$/
+     */
+    public function updateFrameworkSpreadsheet()
+    {
+        $I = $this->I;
+
+        $filename = str_replace(codecept_output_dir(), '', $this->filename);
+        rename($this->filename, codecept_data_dir().''.$filename.'.xlsx');
+
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile(codecept_data_dir().''.$filename.'.xlsx');
+        $ss = $reader->load(codecept_data_dir().''.$filename.'.xlsx');
+
+        $sheet = $ss->getSheetByName('CF Doc');
+        $sheet->setCellValue('B2', 'Test');
+        $sheet->setCellValue('C2', 'Framework updated');
+
+        $sheet = $ss->getSheetByName('CF Item');
+        $sheet->setCellValue('B2', 'Item updated');
+        $sheet->setCellValue('C2', 'T');
+        $sheet->setCellValue('F2', '');
+
+        $sheet->removeRow(3);
+
+        $writer = \PHPOffice\PhpSpreadsheet\IOFactory::createWriter($ss, 'Xlsx');
+        $writer->save(codecept_data_dir().''.$filename.'.xlsx');
+
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#updateFrameworkModal"]', 120);
+        $I->see('Update Framework');
+        $I->click('Update Framework');
+        $I->waitForElementVisible('#updateFrameworkModal');
+        $I->see('Import Spreadsheet file');
+        $I->attachFile('input#excel-url', $filename.'.xlsx');
+        $I->click('Import Framework');
+        $I->waitForJS('return $.active == 0', 5);
+        $I->see('Framework updated');
+        $I->see('T Item updated');
+        $I->dontSee('A.B abc');
+        $I->dontSee('A.B.C def');
+        $I->dontSee('A.B.D ghi');
+    }
+
 }

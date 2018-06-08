@@ -24,6 +24,7 @@ class FrameworkLogs implements Context
     public function iSeeTheLogTable()
     {
         $this->I->seeElement('table#logTable');
+        $this->I->dontSeeElement('#treeView');
     }
 
     /**

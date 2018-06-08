@@ -1,0 +1,5 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {% include 'framework/ls_doc/export.json.twig' with {'lsDoc':lsDoc, 'items': items} %}
+{% endblock %}

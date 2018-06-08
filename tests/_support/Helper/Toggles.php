@@ -4,6 +4,8 @@ namespace Helper;
 
 use Codeception\Exception\Skip;
 use Codeception\Module\Symfony;
+use Qandidate\Toggle\ContextFactory;
+use Qandidate\Toggle\ToggleManager;
 
 class Toggles extends \Codeception\Module
 {
@@ -16,10 +18,10 @@ class Toggles extends \Codeception\Module
         }
 
         /** @var Symfony $symfony */
-        $symfony = $this->getModule('Symfony');
+        $symfony = $this->getModule('Symfony2Module');
 
-        $toggles = $symfony->grabService('qandidate.toggle.manager');
-        $context = $symfony->grabService('qandidate.toggle.context_factory');
+        $toggles = $symfony->grabService(ToggleManager::class);
+        $context = $symfony->grabService(ContextFactory::class);
 
         if ($toggles->active($feature, $context->createContext())) {
             return true;

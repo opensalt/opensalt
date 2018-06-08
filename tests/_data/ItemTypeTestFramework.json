@@ -1,0 +1,74 @@
+{
+  "CFDocument": {
+    "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000",
+    "identifier": "d0000000-0000-0000-0000-000000000000",
+    "lastChangeDateTime": "2017-09-22T23:13:54+00:00",
+    "CFPackageURI": {
+      "title": "Item Type Test",
+      "identifier": "d0000000-0000-0000-0000-000000000000",
+      "uri": "https://server/ims/case/v1p0/CFPackages/d0000000-0000-0000-0000-000000000000"
+    },
+    "creator": "OpenSALT Testing",
+    "title": "Item Type Test",
+    "adoptionStatus": "Draft"
+  },
+  "CFItems": [
+    {
+      "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000001",
+      "identifier": "00000000-0000-0000-0000-000000000001",
+      "lastChangeDateTime": "2017-09-22T23:15:13+00:00",
+      "CFDocumentURI": {
+        "title": "Item Type Test",
+        "identifier": "d0000000-0000-0000-0000-000000000000",
+        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
+      },
+      "fullStatement": "Item 1",
+      "CFItemType": "Standard",
+      "CFItemTypeURI": {
+        "title": "Standard",
+        "identifier": "b0000000-0000-0000-0000-000000000000",
+        "uri": "https://server/ims/case/v1p0/CFDocuments/b0000000-0000-0000-0000-000000000000"
+      }
+    }
+  ],
+  "CFAssociations": [
+    {
+      "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000001",
+      "identifier": "a0000000-0000-0000-0000-000000000001",
+      "lastChangeDateTime": "2017-09-22T23:14:07+00:00",
+      "CFDocumentURI": {
+        "title": "Item Type Test",
+        "identifier": "d0000000-0000-0000-0000-000000000000",
+        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
+      },
+      "originNodeURI": {
+        "title": "Item 1",
+        "identifier": "00000000-0000-0000-0000-000000000001",
+        "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000001"
+      },
+      "associationType": "isChildOf",
+      "destinationNodeURI": {
+        "title": "Item Type Test",
+        "identifier": "d0000000-0000-0000-0000-000000000000",
+        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
+      }
+    }
+  ],
+  "CFDefinitions": {
+    "CFConcepts": [],
+    "CFSubjects": [],
+    "CFLicenses": [],
+    "CFItemTypes": [
+      {
+        "uri": "https://server/ims/case/v1p0/CFItemTypes/b0000000-0000-0000-0000-000000000000",
+        "identifier": "b0000000-0000-0000-0000-000000000000",
+        "lastChangeDateTime": "2018-01-31T19:51:09+00:00",
+        "title": "Standard",
+        "description": "Standard",
+        "typeCode": "Standard",
+        "hierarchyCode": "1"
+      }
+    ],
+    "CFAssociationGroupings": []
+  }
+}

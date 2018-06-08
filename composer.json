@@ -5,12 +5,7 @@
     "description": "A competency framework managment system that works with the CASE format",
     "autoload": {
         "psr-4": {
-            "Cftf\\": "src/Cftf/",
-            "CftfBundle\\": "src/CftfBundle/",
-            "GithubFilesBundle\\": "src/GithubFilesBundle/",
-            "Pcg\\": "src/Pcg/",
-            "Salt\\": "src/Salt/",
-            "App\\": "src/App/"
+            "App\\": "src/"
         },
         "classmap": [
             "app/AppKernel.php",
@@ -19,7 +14,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "Codeception\\Module\\": "tests/_support/Module"
         },
         "classmap": [
             "tests/_behat/Context.php"
@@ -46,100 +42,61 @@
     "prefer-stable": true,
     "require": {
         "php": "^7.1.0",
-        "roave/security-advisories" :"dev-master",
 
-        "fxp/composer-asset-plugin": "^1.2",
-
-        "symfony/symfony": ">=3.3.0 <=3.3.2 || >=3.3.4 <3.4",
+        "symfony/symfony": "3.4.*",
         "doctrine/orm": "^2.5",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-cache-bundle": "^1.2",
         "symfony/monolog-bundle": "^3.1",
         "symfony/polyfill-apcu": "^1.0",
-        "sensio/distribution-bundle": "^5.0",
-        "sensio/framework-extra-bundle": "^3.0.2",
+        "sensio/distribution-bundle": "^5.0.19",
+        "sensio/framework-extra-bundle": "^5.0.0",
         "twig/twig": "^2.0",
         "incenteev/composer-parameter-handler": "^2.0",
 
-        "twig/extensions": "^1.3",
+        "symfony/swiftmailer-bundle": "^3.2",
 
-        "symfony/assetic-bundle": "^2.8",
+        "twig/extensions": "^1.5",
 
         "symfony/polyfill-iconv": "^1.0",
-        "jms/di-extra-bundle": "^1.7",
-        "jms/serializer-bundle": "^1.1",
+        "jms/serializer-bundle": "^2.3.1",
 
         "doctrine/doctrine-migrations-bundle": "^1.1",
-        "stof/doctrine-extensions-bundle": "^1.2",
+        "stof/doctrine-extensions-bundle": "^1.3",
         "doctrine/doctrine-fixtures-bundle": "^2.3",
 
-        "ramsey/uuid": "^3.5",
-        "ramsey/uuid-doctrine": "^1.2",
+        "ramsey/uuid": "^3.7",
+        "ramsey/uuid-doctrine": "^1.4",
 
         "kreait/firebase-php": "~3.7",
-	"npm-asset/bootstrap-notify": "^3.1.7",
 
         "simplethings/entity-audit-bundle": "^1.0",
 
-        "csa/guzzle-bundle": "^2.1",
-            "namshi/cuzzle": "*",
+        "csa/guzzle-bundle": "^3.0",
+            "namshi/cuzzle": "^2.0",
 
-        "nelmio/security-bundle": "^2.0",
-        "hwi/oauth-bundle": "^0.5.1",
+        "nelmio/security-bundle": "^2.5",
 
         "nilportugues/jsonapi-bundle": "^1.5.2",
-        "nelmio/cors-bundle": "~1.5.3",
+        "nelmio/cors-bundle": "~1.5.4",
 
-        "phpoffice/phpexcel": "^1.8.1",
+        "phpoffice/phpspreadsheet": "^1.1.0",
 
         "activelamp/swagger-ui-bundle": "dev-master",
 
-        "bower-asset/jquery": "^2.2.4",
-        "bower-asset/jquery-ui": "^1.12.0",
-        "bower-asset/fancytree": "2.24.0",
-        "bower-asset/ui-contextmenu": "^1.12.0",
-        "bower-asset/bootstrap-sass": "^3.3.6",
-        "bower-asset/html5-boilerplate": "^5.3.0",
-        "bower-asset/modernizr": "^3.3.1",
-        "bower-asset/normalize.css": "^3.0.3",
-        "npm-asset/jquery-contextmenu": "^2.2.4",
-        "bower-asset/bootstrap-multiselect": "^0.9.13",
-        "bower-asset/twbs-pagination": "^1.4.1",
-
-        "bower-asset/select2": "^4.0.3",
-        "bower-asset/select2-bootstrap-theme": "dev-master",
         "tetranz/select2entity-bundle": "2.*",
-
-        "npm-asset/markdown-it": "~8.4",
-        "npm-asset/markdown-it-katex": "~2.0",
-        "npm-asset/markdown-it-underline": "~1.0",
-        "npm-asset/github-markdown-css": "~2.8",
-        "npm-asset/simplemde": "~1.11",
-        "npm-asset/ajaxq": "~0.0.7",
-
-        "npm-asset/iso639-js": "^1.1",
-
-        "fortawesome/font-awesome": "^4.6",
-        "mervick/material-design-icons": "^2.2",
 
         "milo/github-api": "^1.4",
         "league/oauth2-github": "^0.2.2",
 
-        "matthimatiker/opcache-bundle": "^0.4",
-        "bower-asset/datatables.net": "^1.10.15",
-        "bower-asset/datatables.net-bs": "^1.10.15",
-        "bower-asset/datatables.net-fixedheader": "^3.1.2",
-        "bower-asset/datatables.net-fixedheader-bs": "^3.1.2",
-        "bower-asset/datatables.net-scroller": "^1.4.2",
-        "bower-asset/datatables.net-scroller-bs": "^1.4.2",
-        "bower-asset/datatables.net-select": "^1.2.2",
-        "bower-asset/datatables.net-select-bs": "^1.2.2",
-        "liuggio/excelbundle": "^2.1",
-        "bower-asset/jquery-comments": "^1.2",
-        "qandidate/toggle-bundle": "^0.8",
-        "npm-asset/papaparse": "^4.3"
+        "matthimatiker/opcache-bundle": "^0.7",
+        "qandidate/toggle-bundle": "^1.1.0",
+        "google/recaptcha": "~1.1",
+        "phpoffice/phpword": "^0.14.0",
+        "tecnickcom/tcpdf": "6.*"
     },
     "require-dev": {
+        "roave/security-advisories" :"dev-master",
         "sensio/generator-bundle": "^3.1",
         "symfony/phpunit-bridge": "^3.2",
 
@@ -155,9 +112,11 @@
             "phpspec/nyan-formatters": "~2.0",
             "ciaranmcnulty/phpspec-typehintedmethods": "~2.0",
 
-        "squizlabs/php_codesniffer": "~2.8",
-        "escapestudios/symfony2-coding-standard": "~2.10",
-        "friendsofphp/php-cs-fixer": "~1.13"
+        "squizlabs/php_codesniffer": "^3.2",
+        "escapestudios/symfony2-coding-standard": "^3.1",
+        "friendsofphp/php-cs-fixer": "^2.10",
+        "ericmartel/codeception-email-mailtrap": "^1.0",
+        "theofidry/psysh-bundle": "^3.4"
     },
     "scripts": {
         "symfony-scripts": [

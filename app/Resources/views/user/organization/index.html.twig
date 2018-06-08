@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Organizations list</h1>
+    <ul class="list-inline pull-right">
+        <li>
+            <a class="btn btn-default" href="{{ path('admin_organization_new') }}">Add a new organization</a>
+        </li>
+    </ul>
+    <table class="table table-condensed table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-1">Id</th>
+                <th>Name</th>
+                <th class="col-md-2">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for organization in organizations %}
+            <tr>
+                <td><a href="{{ path('admin_organization_show', { 'id': organization.id }) }}">{{ organization.id }}</a></td>
+                <td>{{ organization.name }}</td>
+                <td>
+                    <ul class="list-inline">
+                        <li>
+                            <a class="btn btn-primary" href="{{ path('admin_organization_show', { 'id': organization.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a class="btn btn-default" href="{{ path('admin_organization_edit', { 'id': organization.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

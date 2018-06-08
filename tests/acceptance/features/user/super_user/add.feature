@@ -7,5 +7,4 @@ Feature: Add new User
   Scenario: 1016-1245 Adding new user
     Given I log in as a user with role "Super User"
     Then I add a new user with "Super User" role
-
     Then I delete the User

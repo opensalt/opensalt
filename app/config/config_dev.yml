@@ -1,5 +1,6 @@
 imports:
     - { resource: config.yml }
+    - { resource: services_dev.yml }
 
 framework:
     router:
@@ -42,5 +43,3 @@ monolog:
         #    type:   chromephp
         #    level:  info
 
-assetic:
-    use_controller: true

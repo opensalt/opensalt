@@ -14,7 +14,7 @@ class AppKernel extends Kernel
             new Symfony\Bundle\SecurityBundle\SecurityBundle(),
             new Symfony\Bundle\TwigBundle\TwigBundle(),
             new Symfony\Bundle\MonologBundle\MonologBundle(),
-            new Symfony\Bundle\AsseticBundle\AsseticBundle(),
+            new Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
 
@@ -22,8 +22,6 @@ class AppKernel extends Kernel
             new Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle(),
             new Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle(),
 
-            new JMS\DiExtraBundle\JMSDiExtraBundle(),
-            new JMS\AopBundle\JMSAopBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
 
             new Tetranz\Select2EntityBundle\TetranzSelect2EntityBundle(),
@@ -34,11 +32,6 @@ class AppKernel extends Kernel
             new ActiveLAMP\Bundle\SwaggerUIBundle\ALSwaggerUIBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
 
-            new CftfBundle\CftfBundle(),
-            new Salt\UserBundle\SaltUserBundle(),
-            new GithubFilesBundle\GithubFilesBundle(),
-            new Salt\SiteBundle\SaltSiteBundle(),
-            new Liuggio\ExcelBundle\LiuggioExcelBundle(),
             new Qandidate\Bundle\ToggleBundle\QandidateToggleBundle(),
             new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
         ];
@@ -49,6 +42,7 @@ class AppKernel extends Kernel
             $bundles[] = new Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
             $bundles[] = new Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle();
             $bundles[] = new Matthimatiker\OpcacheBundle\MatthimatikerOpcacheBundle();
+            $bundles[] = new Fidry\PsyshBundle\PsyshBundle();
         }
 
         return $bundles;

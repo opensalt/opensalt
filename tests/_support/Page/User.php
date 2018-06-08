@@ -2,13 +2,11 @@
 
 namespace Page;
 
-
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 
 class User implements Context
 {
-
     /**
      * @var \AcceptanceTester
      */
@@ -35,7 +33,7 @@ class User implements Context
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
         $username = $faker->email;
-        $password = $faker->password;
+        $password = $faker->password.'aB3';
         $this->userName = $username;
 
         $I->click('a.dropdown-toggle');
@@ -60,7 +58,7 @@ class User implements Context
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
         $username = $faker->email;
-        $password = $faker->password;
+        $password = $faker->password.'aB3';
         $this->userName = $username;
 
         $I->click('a.dropdown-toggle');
@@ -75,6 +73,42 @@ class User implements Context
     }
 
     /**
+     * @Then /^I create a new account$/
+     */
+    public function iCreateANewAccount()
+    {
+        $I = $this->I;
+
+        /** @var \Faker\Generator $faker */
+        $faker = \Faker\Factory::create();
+        $username = $faker->email;
+        $password = $faker->password.'aB3';
+        $org = $faker->company;
+        $this->userName = $username;
+
+        $I->fillField('#signup_username', $username);
+        $I->fillField('#signup_plainPassword_first', $password);
+        $I->fillField('#signup_plainPassword_second', $password);
+        $I->selectOption('#signup_org', 'other');
+        $I->fillField('#signup_newOrg', $org);
+        $I->click('Submit');
+        $I->remember('lastNewUsername', $username);
+    }
+
+    /**
+     * @Then /^I see last created account is pending$/
+     */
+    public function getLastCreatedAccount() {
+        $I = $this->I;
+
+        $username = $I->getRememberedString('lastNewUsername');
+        $I->amOnPage('/admin/user');
+        $I->click('th.sorting_asc');
+        $I->see('Approve', "//td[text()='{$username}']/..//a[text()='Approve']");
+        $I->see('Reject', "//td[text()='{$username}']/..//a[text()='Reject']");
+    }
+
+    /**
      * @Then /^I delete the User$/
      */
     public function iDeleteTheUser()
@@ -82,6 +116,7 @@ class User implements Context
         $I = $this->I;
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='show']");
         $I->see($username);
         $I->click('Delete');
@@ -98,6 +133,7 @@ class User implements Context
 
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='edit']");
         $rows = $table->getRows();
         foreach ($rows as $row) {
@@ -139,6 +175,7 @@ class User implements Context
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Suspend']");
         $I->dontSee('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
@@ -152,8 +189,9 @@ class User implements Context
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Unsuspend']");
-        $I->See('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
+        $I->see('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
 
     /**
@@ -165,7 +203,7 @@ class User implements Context
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
-        $I->See($username);
+        $I->see($username);
     }
 
     /**
@@ -220,7 +258,6 @@ class User implements Context
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
         $I->click("//td[text()='{$username}']/..//a[text()='edit']");
-
     }
 
     /**
@@ -233,7 +270,6 @@ class User implements Context
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
         $I->click("//td[text()='{$username}']/..//a[text()='show']");
-
     }
 
     /**
@@ -245,7 +281,67 @@ class User implements Context
 
         $username = $this->userName;
         $I->amOnPage('/admin/user');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='Approve']");
     }
 
+    /**
+     * @Then /^I verify an email was sent$/
+     */
+    public function iVerifyEmailWasSent()
+    {
+        // check to see if the email feature is active
+        if (getenv('USE_MAIL_FEATURE') === 'always-active') {
+            $I = $this->I;
+
+            $fromEmail = getenv('MAIL_FEATURE_FROM_EMAIL');
+            if (NULL !== $fromEmail) {
+                $I->fetchEmails();
+                $I->haveEmails();
+                $I->haveUnreadEmails();
+                $I->openNextUnreadEmail();
+                $I->seeInOpenedEmailSubject('Your account has been created');
+                $I->seeInOpenedEmailBody('Thank you! Your account has been created and you will be contacted in 2 business days when it is active.');
+            } else {
+                $I->comment('MAIL_FEATURE disabled, email would not be sent.');
+            }
+        }
+    }
+
+    /**
+     * @Then /^I search organization and role type$/
+     */
+    public function iSearchOrgAndRole()
+    {
+        $I = $this->I;
+        $I->amOnPage('/admin/user/');
+        $I->see('Organization');
+        $organization = $I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[2]');
+        $I->fillField('#search_form_organization', $organization);
+        $I->see($organization, '//*[@id="datatable"]/tbody/tr[1]/td[2]');
+    }
+
+    /**
+     * @Then /^I reject the new user$/
+     */
+    public function isRejectTheNewUser()
+    {
+        $I = $this->I;
+
+        $username = $I->getRememberedString('lastNewUsername');
+        $I->amOnPage('/admin/user');
+        $I->click('th.sorting_asc');
+        $I->click("//td[text()='{$username}']/..//a[text()='Reject']");
+    }
+
+    /**
+     * @Then /^I see status column on user list page$/
+     */
+    public function seeStatusColumn()
+    {
+        $I = $this->I;
+        $I->amOnPage('/admin/user');
+        $I->click('th.sorting_asc');
+        $I->assertEquals($I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[5]'), 'Pending', 'Can not see status column');
+    }
 }
