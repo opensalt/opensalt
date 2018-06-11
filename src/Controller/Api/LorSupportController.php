@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/api/lor")
+ * @Route("/api/v1/lor")
  */
 class LorSupportController extends AbstractController
 {

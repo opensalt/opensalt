@@ -13,8 +13,8 @@ class Framework implements Context
 {
     static public $docPath = '/cftree/doc/';
     static public $lsdocPath = '/cfdoc/';
-    static public $creatorsPath = 'api/lor/creators';
-    static public $frameworksByCreatorPath = 'api/lor/frameworksByCreator/';
+    static public $creatorsPath = 'api/v1/lor/creators';
+    static public $frameworksByCreatorPath = 'api/v1/lor/frameworksByCreator/';
 
     static public $fwTitle = '#ls_doc_create_title';
     static public $fwCreatorField = '#ls_doc_create_creator';
