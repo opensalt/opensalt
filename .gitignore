@@ -9,18 +9,6 @@
 /tests/*.suite.yml
 /tests/_envs/*.yml
 !/tests/_envs/*.dist.yml
-/var/*
-!/var/cache
-/var/cache/*
-!var/cache/.gitkeep
-!/var/logs
-/var/logs/*
-!var/logs/.gitkeep
-!/var/sessions
-/var/sessions/*
-!var/sessions/.gitkeep
-!var/SymfonyRequirements.php
-/vendor/
 
 /public/bundles/*
 !public/bundles/.gitkeep
@@ -103,5 +91,15 @@ pw-archive/
 /.env
 /public/bundles/
 /var/
+!/var/cache
+/var/cache/*
+!/var/cache/.gitkeep
+!/var/logs
+/var/logs/*
+!/var/logs/.gitkeep
+!/var/sessions
+/var/sessions/*
+!/var/sessions/.gitkeep
+!/var/SymfonyRequirements.php
 /vendor/
 ###< symfony/framework-bundle ###

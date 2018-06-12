@@ -9,6 +9,9 @@ modules:
         - Doctrine2:
             depends: Symfony2Module
             cleanup: false
+        - REST:
+            depends: PhpBrowser
+            url: 'http://nginx/'
         - WebDriver:
             url: 'http://nginx/'
             browser: firefox
