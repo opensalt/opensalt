@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   phpfpm:
-    image: opensalt/php:7.1-fpm
+    image: opensalt/php:7.2-fpm
     depends_on:
       - db
     environment:

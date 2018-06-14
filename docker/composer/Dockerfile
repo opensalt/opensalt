@@ -1,4 +1,4 @@
-FROM opensalt/php:7.1-cli
+FROM opensalt/php:7.2-cli
 
 # Memory Limit
 RUN echo "memory_limit=-1" > $PHP_INI_DIR/conf.d/memory-limit.ini \

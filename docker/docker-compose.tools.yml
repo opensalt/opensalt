@@ -6,7 +6,7 @@ services:
   phpcli:
     #build:
     #  context: ./php
-    image: opensalt/php:7.1-cli
+    image: opensalt/php:7.2-cli
     environment:
       #XDEBUG_CONFIG: remote_host=Your_IP_Address
       MYSQL_DATABASE:
@@ -56,7 +56,7 @@ services:
   composer:
     #build:
     #  context: ./composer
-    image: opensalt/composer:1.6-7.1
+    image: opensalt/composer:1.6-7.2
     environment:
       MYSQL_DATABASE:
       MYSQL_USER:
