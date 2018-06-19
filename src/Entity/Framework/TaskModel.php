@@ -59,17 +59,17 @@ class TaskModel
     /**
      * @ORM\ Column(type="string", length=255)
      */
-    private $stemRequirments;
+    private $stemRequirements;
 
     /**
      * @ORM\ Column(type="string", length=255)
      */
-    private $keyRequirments;
+    private $keyRequirements;
 
     /**
      * @ORM\ Column(type="string", length=255)
      */
-    private $distractorRequirments;
+    private $distractorRequirements;
 
     /**
      * @ORM\ Column(type="string", length=255)
@@ -100,7 +100,7 @@ class TaskModel
     /**
      * @ORM\ Column(type="string", length=255)
      */
-    private $commonAuthoringProblems;
+    private $commonAuthoringProblemsRequirements;
 
     public function getId()
     {
