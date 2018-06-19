@@ -5,6 +5,7 @@ namespace App\Controller\Framework;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\Framework\TaskModelRepository;
 
 /**
  * TaskModel controller.
@@ -13,6 +14,21 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class TaskModelController extends AbstractController
 {
+    /**
+     * @var \Twig_Environment
+     */
+    private $twig;
+
+    /**
+     * @var taskModelRepository
+     */
+    private $taskModelRepository;
+
+    public function __construct(\Twig_Environment $twig, taskModelRepository $taskModelRepository)
+    {
+        $this->twig = $twig;
+        $this->taskModelRepository = $taskModelRepository;
+    }
 
     /**
      * List all TaskModel entities.
@@ -21,9 +37,10 @@ class TaskModelController extends AbstractController
      */
     public function index()
     {
-      return new Response(
-        '<html><body>index</body></html>'
-      );
+      $html = $this->twig->render('framework/task_model/index.html.twig', [
+        'task_models' => $this->taskModelRepository->findAll()
+      ]);
+      return new Response($html);
     }
 
     /**

@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <h1>Task Model List</h1>
+
+  <table class="table table-condensed table-hover table-bordered table-striped">
+      <thead>
+          <tr>
+              <th>Id</th>
+              <th>task_narrative</th>
+              <th>depth_of_knowledge</th>
+              <th>item_type</th>
+              <th>available_tools</th>
+              <th>accessibility_concerns</th>
+              <th>task_model_variables</th>
+              <th>passage_stimulus_spec_code</th>
+              <th>common_errors_misconceptions</th>
+              <th>tei_guidelines</th>
+              <th>task_model_notes</th>
+              <th>example_items</th>
+              <th>rubric_scoring_rules</th>
+              <th>item_authoring_tips</th>
+              <th>stem_requirements</th>
+              <th>key_requirements</th>
+              <th>distractor_requirements</th>
+              <th>common_authoring_problems_requirements</th>
+          </tr>
+      </thead>
+      <tbody>
+      {% for task_model in task_models %}
+          <tr>
+            <td>{{ task_model.task_narrative }}</td>
+            <td>{{ task_model.depth_of_knowledge }}</td>
+            <td>{{ task_model.item_type }}</td>
+            <td>{{ task_model.available_tools }}</td>
+            <td>{{ task_model.accessibility_concerns }}</td>
+            <td>{{ task_model.task_model_variables }}</td>
+            <td>{{ task_model.passage_stimulus_spec_code }}</td>
+            <td>{{ task_model.common_errors_misconceptions }}</td>
+            <td>{{ task_model.tei_guidelines }}</td>
+            <td>{{ task_model.task_model_notes }}</td>
+            <td>{{ task_model.example_items }}</td>
+            <td>{{ task_model.rubric_scoring_rules }}</td>
+            <td>{{ task_model.item_authoring_tips }}</td>
+            <td>{{ task_model.stem_requirements }}</td>
+            <td>{{ task_model.key_requirements }}</td>
+            <td>{{ task_model.distractor_requirements }}</td>
+            <td>{{ task_model.common_authoring_problems_requirements }}</td>
+          </tr>
+      {% endfor %}
+      </tbody>
+  </table>
+{% endblock %}
