@@ -10,23 +10,24 @@
           <tr>
               <th>Id</th>
               <th>Edit</th>
-              <th>task_narrative</th>
-              <th>depth_of_knowledge</th>
-              <th>item_type</th>
-              <th>available_tools</th>
-              <th>accessibility_concerns</th>
-              <th>task_model_variables</th>
-              <th>passage_stimulus_spec_code</th>
-              <th>common_errors_misconceptions</th>
-              <th>tei_guidelines</th>
-              <th>task_model_notes</th>
-              <th>example_items</th>
-              <th>rubric_scoring_rules</th>
-              <th>item_authoring_tips</th>
-              <th>stem_requirements</th>
-              <th>key_requirements</th>
-              <th>distractor_requirements</th>
-              <th>common_authoring_problems_requirements</th>
+              <th>Delete</th>
+              <th>Task Narrative</th>
+              <th>Depth of Knowledge</th>
+              <th>Item Type</th>
+              <th>Available Tools</th>
+              <th>Accessibility Concerns</th>
+              <th>Variables</th>
+              <th>Passage Stimulus Spec Code</th>
+              <th>Common Errors</th>
+              <th>Tei Guidelines</th>
+              <th>Notes</th>
+              <th>Example Items</th>
+              <th>Rubric Scoring Rules</th>
+              <th>Authoring Tips</th>
+              <th>Stem Reqs</th>
+              <th>Key Reqs</th>
+              <th>Distractor Reqs</th>
+              <th>Authoring Problems Reqs</th>
           </tr>
       </thead>
       <tbody>
@@ -40,6 +41,11 @@
             <td>
               <a href="{{ path('taskmodel_update', {'id': task_model.id}) }}">
                 Edit
+              </a>
+            </td>
+            <td>
+              <a href="{{ path('taskmodel_delete', {'id': task_model.id}) }}">
+                Delete
               </a>
             </td>
             <td>{{ task_model.taskNarrative }}</td>

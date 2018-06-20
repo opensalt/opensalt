@@ -1,8 +1,15 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-  <h1>Task Model List</h1>
-
+  <h1>Task Model</h1>
+  <p>
+    <a href="{{ path('taskmodel_index') }}">Task Model List</a>
+  </p>
+  <p>
+    <a href="{{ path('taskmodel_update', {'id': task_model.id}) }}">
+      Edit
+    </a>
+  </p>
   <table class="table table-condensed table-hover table-bordered table-striped">
       <thead>
           <tr>

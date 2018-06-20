@@ -95,9 +95,9 @@ class TaskModelController extends AbstractController
      *
      * @Route("/{id}", name="taskmodel_show")
      */
-    public function show($id)
+    public function show(TaskModel $taskModel)
     {
-      $taskModel = $this->taskModelRepository->find($id);
+      $taskModel = $this->taskModelRepository->find($taskModel);
 
       return new Response(
         $this->twig->render('framework/task_model/show.html.twig', ['task_model' => $taskModel])
@@ -114,7 +114,6 @@ class TaskModelController extends AbstractController
       $form = $this->formFactory->create(TaskModelType::class, $taskModel);
       $form->handleRequest($request);
       if ($form->isSubmitted() && $form->isValid()) {
-        $this->entityManager->persist($taskModel);
         $this->entityManager->flush();
 
         return new RedirectResponse($this->router->generate('taskmodel_index'));
@@ -128,13 +127,14 @@ class TaskModelController extends AbstractController
     /**
      * Delete a TaskModel entity.
      *
-     * @Route("/{id}", name="taskmodel_delete")
+     * @Route("/delete/{id}", name="taskmodel_delete")
      */
-    public function delete($id)
+    public function delete(TaskModel $taskModel)
     {
-      return new Response(
-        '<html><body>delete</body></html>'
-      );
+      $this->entityManager->remove($taskModel);
+      $this->entityManager->flush();
+
+      return new RedirectResponse($this->router->generate('taskmodel_index'));
     }
 
 }
