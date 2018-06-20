@@ -2,10 +2,14 @@
 
 namespace App\Controller\Framework;
 
+use App\Entity\Framework\TaskModel;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\Framework\TaskModelRepository;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\Request;
+use App\Form\Type\TaskModelType;
 
 /**
  * TaskModel controller.
@@ -24,10 +28,11 @@ class TaskModelController extends AbstractController
      */
     private $taskModelRepository;
 
-    public function __construct(\Twig_Environment $twig, taskModelRepository $taskModelRepository)
+    public function __construct(\Twig_Environment $twig, TaskModelRepository $taskModelRepository, FormFactoryInterface $formFactory)
     {
         $this->twig = $twig;
         $this->taskModelRepository = $taskModelRepository;
+        $this->formFactory = $formFactory;
     }
 
     /**
@@ -48,10 +53,17 @@ class TaskModelController extends AbstractController
      *
      * @Route("/new", name="taskmodel_new")
      */
-    public function create()
+    public function create(Request $request)
     {
+      $taskModel = new TaskModel();
+      $form = $this->formFactory->create(TaskModelType::class, $taskModel);
+      $form->handleRequest($request);
+      if ($form->isSubmitted() && $form->isValid()) {
+
+      }
+
       return new Response(
-        '<html><body>create</body></html>'
+        $this->twig->render('framework/task_model/create.html.twig', ['form' => $form->createView()])
       );
     }
 
