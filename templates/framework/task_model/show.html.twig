@@ -27,13 +27,8 @@
           </tr>
       </thead>
       <tbody>
-      {% for task_model in task_models %}
           <tr>
-            <td>
-              <a href="{{ path('taskmodel_show', {'id': task_model.id}) }}">
-                {{ task_model.id }}
-              </a>
-            </td>
+            <td>{{ task_model.id }}</td>
             <td>{{ task_model.taskNarrative }}</td>
             <td>{{ task_model.depthOfKnowledge }}</td>
             <td>{{ task_model.itemType }}</td>
@@ -52,7 +47,6 @@
             <td>{{ task_model.distractorRequirements }}</td>
             <td>{{ task_model.commonAuthoringProblemsRequirements }}</td>
           </tr>
-      {% endfor %}
       </tbody>
   </table>
 {% endblock %}

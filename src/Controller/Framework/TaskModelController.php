@@ -97,8 +97,10 @@ class TaskModelController extends AbstractController
      */
     public function show($id)
     {
+      $taskModel = $this->taskModelRepository->find($id);
+
       return new Response(
-        '<html><body>show</body></html>'
+        $this->twig->render('framework/task_model/show.html.twig', ['task_model' => $taskModel])
       );
     }
 
