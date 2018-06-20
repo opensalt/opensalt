@@ -9,6 +9,7 @@
       <thead>
           <tr>
               <th>Id</th>
+              <th>Edit</th>
               <th>task_narrative</th>
               <th>depth_of_knowledge</th>
               <th>item_type</th>
@@ -34,6 +35,11 @@
             <td>
               <a href="{{ path('taskmodel_show', {'id': task_model.id}) }}">
                 {{ task_model.id }}
+              </a>
+            </td>
+            <td>
+              <a href="{{ path('taskmodel_update', {'id': task_model.id}) }}">
+                Edit
               </a>
             </td>
             <td>{{ task_model.taskNarrative }}</td>

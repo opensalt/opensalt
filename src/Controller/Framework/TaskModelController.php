@@ -107,12 +107,21 @@ class TaskModelController extends AbstractController
     /**
      * Update a TaskModel entity.
      *
-     * @Route("/{id}", name="taskmodel_update")
+     * @Route("/edit/{id}", name="taskmodel_update")
      */
-    public function update($id)
+    public function update(TaskModel $taskModel, Request $request)
     {
+      $form = $this->formFactory->create(TaskModelType::class, $taskModel);
+      $form->handleRequest($request);
+      if ($form->isSubmitted() && $form->isValid()) {
+        $this->entityManager->persist($taskModel);
+        $this->entityManager->flush();
+
+        return new RedirectResponse($this->router->generate('taskmodel_index'));
+      }
+
       return new Response(
-        '<html><body>update</body></html>'
+        $this->twig->render('framework/task_model/create.html.twig', ['form' => $form->createView()])
       );
     }
 
