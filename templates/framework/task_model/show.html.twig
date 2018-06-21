@@ -2,58 +2,28 @@
 
 {% block body %}
   <h1>Task Model</h1>
-  <p>
-    <a href="{{ path('taskmodel_index') }}">Task Model List</a>
-  </p>
-  <p>
-    <a href="{{ path('taskmodel_update', {'id': task_model.id}) }}">
-      Edit
-    </a>
-  </p>
-  <table class="table table-condensed table-hover table-bordered table-striped">
-      <thead>
-          <tr>
-              <th>Id</th>
-              <th>task_narrative</th>
-              <th>depth_of_knowledge</th>
-              <th>item_type</th>
-              <th>available_tools</th>
-              <th>accessibility_concerns</th>
-              <th>task_model_variables</th>
-              <th>passage_stimulus_spec_code</th>
-              <th>common_errors_misconceptions</th>
-              <th>tei_guidelines</th>
-              <th>task_model_notes</th>
-              <th>example_items</th>
-              <th>rubric_scoring_rules</th>
-              <th>item_authoring_tips</th>
-              <th>stem_requirements</th>
-              <th>key_requirements</th>
-              <th>distractor_requirements</th>
-              <th>common_authoring_problems_requirements</th>
-          </tr>
-      </thead>
-      <tbody>
-          <tr>
-            <td>{{ task_model.id }}</td>
-            <td>{{ task_model.taskNarrative }}</td>
-            <td>{{ task_model.depthOfKnowledge }}</td>
-            <td>{{ task_model.itemType }}</td>
-            <td>{{ task_model.availableTools }}</td>
-            <td>{{ task_model.accessibilityConcerns }}</td>
-            <td>{{ task_model.taskModelVariables }}</td>
-            <td>{{ task_model.passageStimulusSpecCode }}</td>
-            <td>{{ task_model.commonErrorsMisconceptions }}</td>
-            <td>{{ task_model.teiGuidelines }}</td>
-            <td>{{ task_model.taskModelNotes }}</td>
-            <td>{{ task_model.exampleItems }}</td>
-            <td>{{ task_model.rubricScoringRules }}</td>
-            <td>{{ task_model.itemAuthoringTips }}</td>
-            <td>{{ task_model.stemRequirements }}</td>
-            <td>{{ task_model.keyRequirements }}</td>
-            <td>{{ task_model.distractorRequirements }}</td>
-            <td>{{ task_model.commonAuthoringProblemsRequirements }}</td>
-          </tr>
-      </tbody>
-  </table>
+  <ul>
+    <li><a href="{{ path('taskmodel_index') }}">Task Model List</a></li>
+    <li><a href="{{ path('taskmodel_update', {'id': task_model.id}) }}">Edit</a></li>
+  </ul>
+  <div>
+    <strong>Id</strong>: {{ task_model.id }}<br>
+    <strong>Task Narrative</strong>: {{ task_model.taskNarrative }}<br>
+    <strong>Depth of Knowledge</strong>: {{ task_model.depthOfKnowledge }}<br>
+    <strong>Item Type</strong>: {{ task_model.itemType }}<br>
+    <strong>Available Tools</strong>: {{ task_model.availableTools }}<br>
+    <strong>Accessibility Concerns</strong>: {{ task_model.accessibilityConcerns }}<br>
+    <strong>Variables</strong>: {{ task_model.taskModelVariables }}<br>
+    <strong>Passage Stimulus Spec Code</strong>: {{ task_model.passageStimulusSpecCode }}<br>
+    <strong>Common Errors</strong>: {{ task_model.commonErrorsMisconceptions }}<br>
+    <strong>Tei Guidelines</strong>: {{ task_model.teiGuidelines }}<br>
+    <strong>Notes</strong>: {{ task_model.taskModelNotes }}<br>
+    <strong>Example Items</strong>: {{ task_model.exampleItems }}<br>
+    <strong>Rubric Scoring Rules</strong>: {{ task_model.rubricScoringRules }}<br>
+    <strong>Authoring Tips</strong>: {{ task_model.itemAuthoringTips }}<br>
+    <strong>Stem Reqs</strong>: {{ task_model.stemRequirements }}<br>
+    <strong>Key Reqs</strong>: {{ task_model.keyRequirements }}<br>
+    <strong>Distractor Reqs</strong>: {{ task_model.distractorRequirements }}<br>
+    <strong>Authoring Problems Reqs</strong>: {{ task_model.commonAuthoringProblemsRequirements }}<br>
+  </div>
 {% endblock %}
