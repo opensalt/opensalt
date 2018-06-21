@@ -17,6 +17,14 @@ class TaskModel
     private $id;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Framework\LsItem", inversedBy="taskModels")
+     * @ORM\JoinColumn(nullable=false)
+     *
+     * Each task model may have one item
+     */
+    private $lsItem;
+
+    /**
      * @ORM\ Column(type="text")
      */
     private $taskNarrative;
@@ -105,6 +113,18 @@ class TaskModel
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getLsItem(): ?LsItem
+    {
+        return $this->lsItem;
+    }
+
+    public function setLsItem(?LsItem $lsItem): self
+    {
+        $this->lsItem = $lsItem;
+
+        return $this;
     }
 
     /**
@@ -426,7 +446,7 @@ class TaskModel
     {
       $this->itemAuthoringTips = $itemAuthoringTips;
     }
-    
+
     /**
      * Get commonAuthoringProblemsRequirements
      *

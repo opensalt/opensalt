@@ -126,6 +126,11 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $lsDoc;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Framework\TaskModel", mappedBy="lsItem")
+     */
+    private $taskModels;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="human_coding_scheme", type="string", length=50, nullable=true)
