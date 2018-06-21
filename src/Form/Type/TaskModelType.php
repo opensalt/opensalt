@@ -13,6 +13,7 @@ class TaskModelType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('lsItem')
             ->add('taskNarrative')
             ->add('depthOfKnowledge')
             ->add('itemType')

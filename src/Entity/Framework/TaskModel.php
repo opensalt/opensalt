@@ -115,16 +115,14 @@ class TaskModel
         return $this->id;
     }
 
-    public function getLsItem(): ?LsItem
+    public function getLsItem()
     {
         return $this->lsItem;
     }
 
-    public function setLsItem(?LsItem $lsItem): self
+    public function setLsItem($lsItem)
     {
         $this->lsItem = $lsItem;
-
-        return $this;
     }
 
     /**

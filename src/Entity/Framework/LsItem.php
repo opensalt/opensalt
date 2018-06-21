@@ -383,6 +383,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         $this->associations = new ArrayCollection();
         $this->inverseAssociations = new ArrayCollection();
         $this->changedAt = $this->getUpdatedAt();
+        $this->taskModels = new ArrayCollection();
     }
 
     /**
@@ -1420,5 +1421,13 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         $this->criteria = $criteria;
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTaskModels()
+    {
+      return $this->taskModels;
     }
 }
