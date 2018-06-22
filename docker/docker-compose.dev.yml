@@ -45,6 +45,10 @@ services:
       MAIL_FEATURE_FROM_EMAIL:
       GOOGLE_CAPTCHA_SITE_KEY:
       GOOGLE_CAPTCHA_SECRET_KEY:
+      AWS_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
+      AWS_S3_BUCKET:
+      AWS_S3_PREFIX:
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html
