@@ -382,6 +382,70 @@ class LsItemController extends AbstractController
         return $ret;
     }
 
+    /**
+     * Upload attachment to LsItem entity.
+     *
+     * @Route("/{id}/upload-attachment", methods={"GET", "POST"}, name="lsitem_upload_attachment")
+     * @Template()
+     * @Security("is_granted('edit', 'lsItem')")
+     *
+     * @param Request $request
+     * @param LsItem $lsItem
+     * @param User $userj
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
+    public function uploadAttachmentAction(Request $request, LsItem $lsItem, UserInterface $user)
+    {
+        $output = array('uploaded' => false);
+
+        $file = $request->files->get('file');
+        $attachmentTo = $request->get('attachmentTo');
+        $fileName = $file->getClientOriginalName();
+
+        $uploadDir = dirname(_DIR_).'../../../web/uploads/'.$attachmentTo.'/';
+
+        if (!$file_exists($uploadDir) && !is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+
+        if($file->move($uploadDir, $fileName)) {
+            $output['uploaded'] = true;
+            $output['fileName'] = $fileName;
+        }
+
+        return new JsonResponse($output);
+    }
+
+    /**
+     * delete attachment
+     *
+     * @Route("/{id}/delete-attachment", methods={"GET", "POST"}, name="lsitem_delete_attachment")
+     * @Template()
+     * @Security("is_granted('edit', lsItem)")
+     *
+     * @param Request $request
+     * @param LsItem $lsItem
+     * @param User $user
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
+    public function deleteAttachmentAction(Request $request, LsItem $lsItem, UserInterface $user)
+    {
+        $output = array('uploaded' => $false);
+        $file = $request->files->get('file');
+        $attachmentTo = $request->get('attachmentTo');
+        $uploadDir = dirname(_DIR_).'../../../web/uploads/'.$attachmentTo.'/';
+        $fileName = $uploadDir.'/'.$request->get('name');
+        $fs = new Filesystem();
+
+        if ($fs->remove($fileName)) {
+            $output['delete'] = true;
+        }
+
+        return new JsonResponse($output);
+    }
+
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
     {
         $ret = [

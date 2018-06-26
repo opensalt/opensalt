@@ -5,11 +5,11 @@
         <h1>LsItem edit</h1>
     {% endif %}
 
-    {{ form_start(edit_form) }}
+    {{ form_start(edit_form, {'enctype': 'multipart/form-data'}) }}
         {{ form_widget(edit_form) }}
         {% if not app.request.xmlHttpRequest %}
             <p class="text-right">
-                <input class="btn btn-primary" type="submit" value="Save Changes" />
+                <input class="btn btn-primary" type="submit" value="Save Changes" id="item-submit-button"/>
             </p>
         {% endif %}
     {{ form_end(edit_form) }}

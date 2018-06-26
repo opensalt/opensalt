@@ -83,7 +83,9 @@
         "tecnickcom/tcpdf": "6.*",
         "tetranz/select2entity-bundle": "2.*",
         "twig/extensions": "^1.5",
-        "twig/twig": "^2.0"
+        "twig/twig": "^2.0",
+        "oneup/uploader-bundle":"2.0.0",
+        "gregwr/text2png": "dev-master"
     },
     "require-dev": {
         "roave/security-advisories" :"dev-master",
