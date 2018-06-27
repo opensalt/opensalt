@@ -9,7 +9,7 @@ Feature: The excel export contains smart level values
     And I am on the homepage
     When I click "Import framework"
     Then I should see the import dialogue
-    When I click "Import CASE file"
+    When I click "Import CASE® file"
     And I upload the test smartlevel framework
     And I go to the uploaded framework
     And I download the framework excel file

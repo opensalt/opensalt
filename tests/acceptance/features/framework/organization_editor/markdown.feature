@@ -9,7 +9,7 @@ Feature: A framework with markdown can be loaded
     And I am on the homepage
     When I click "Import framework"
     Then I should see the import dialogue
-    When I click "Import CASE file"
+    When I click "Import CASE® file"
     And I upload the markdown CASE file
     And I go to the uploaded framework
     Then I should see math in the framework
