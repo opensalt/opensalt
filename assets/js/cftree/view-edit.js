@@ -461,6 +461,13 @@ apx.edit.prepareExemplarModal = function() {
         $exemplarModal.find('.modal-body .errors').removeClass('alert').removeClass('alert-danger').html('');
     });
     $exemplarModal.find('.btn-save').on('click', function(e) {
+        // determine which radio button was checked (url or file upload)
+        if ($('#exemplar-url-radio').is(':checked')) {
+          alert("#exemplar-url-radio checked");
+        } else {
+          alert("#exemplar-file-radio checked");
+        }
+        
         let ajaxData = {
             exemplarUrl: $("#addExemplarFormUrl").val(),
             exemplarDescription: $("#addExemplarFormDescription").val(),
