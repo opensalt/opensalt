@@ -21,10 +21,12 @@ class AddCommentHandler extends BaseCommentHandler
         $user = $command->getUser();
         $content = $command->getContent();
         $parentId = $command->getParentId();
+        $fileUrl = $command->getFileUrl();
+        $mimeType = $command->getMimeType();
 
         $repo = $this->em->getRepository(Comment::class);
 
-        $comment = $repo->addComment($itemType, $itemId, $user, $content, $parentId);
+        $comment = $repo->addComment($itemType, $itemId, $user, $content, $fileUrl, $mimeType, $parentId);
 
         $command->setComment($comment);
 
