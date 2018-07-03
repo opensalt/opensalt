@@ -463,16 +463,26 @@ apx.edit.prepareExemplarModal = function() {
     $exemplarModal.find('.btn-save').on('click', function(e) {
         // determine which radio button was checked (url or file upload)
         if ($('#exemplar-url-radio').is(':checked')) {
-          alert("#exemplar-url-radio checked");
+          console.log("#exemplar-url-radio checked");
+          var ajaxData = {
+              exemplarUrl: $("#addExemplarFormUrl").val(),
+              exemplarDescription: $("#addExemplarFormDescription").val(),
+              associationType: "Exemplar"
+          };
         } else {
-          alert("#exemplar-file-radio checked");
+          console.log("#exemplar-file-radio checked");
+          // upload file to aws
+          // get return url and set it to var awsUrl
+          var awsUrl = "https://google.com"
+
+          var ajaxData = {
+              exemplarUrl: awsUrl,
+              exemplarDescription: $("#addExemplarFormDescription").val(),
+              associationType: "Exemplar"
+          };
         }
-        
-        let ajaxData = {
-            exemplarUrl: $("#addExemplarFormUrl").val(),
-            exemplarDescription: $("#addExemplarFormDescription").val(),
-            associationType: "Exemplar"
-        };
+
+        console.log(ajaxData);
 
         if (ajaxData.exemplarUrl === "") {
             $exemplarModal.find('.modal-body .errors').addClass('alert').addClass('alert-danger').html("You must enter a URL to create an exemplar.");
