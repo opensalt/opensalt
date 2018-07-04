@@ -7,7 +7,7 @@ Feature: Create new user account password should be 8 characters long
         And I follow "Sign up"
 
         Then I should see "Create new account"
-        Then I fill in the "Email Address" with "user@opensalt.com"
+        Then I fill in the "Username (Email address)" with "user@opensalt.com"
         Then I fill in the "Password" with "Password123!"
         Then I fill in the "Confirm Password" with "password"
         Then I click "Submit"
@@ -20,7 +20,7 @@ Feature: Create new user account password should be 8 characters long
         And I follow "Sign up"
 
         Then I should see "Create new account"
-        Then I fill in the "Email Address" with "user@opensalt.com"
+        Then I fill in the "Username (Email address)" with "user@opensalt.com"
         Then I fill in the "Password" with "password"
         Then I fill in the "Confirm Password" with "password"
         Then I click "Submit"
@@ -33,7 +33,7 @@ Feature: Create new user account password should be 8 characters long
         And I follow "Sign up"
 
         Then I should see "Create new account"
-        Then I fill in the "Email Address" with "user@opensalt.com"
+        Then I fill in the "Username (Email address)" with "user@opensalt.com"
         Then I fill in the "Password" with "pass@1"
         Then I fill in the "Confirm Password" with "pass@1"
         Then I click "Submit"
