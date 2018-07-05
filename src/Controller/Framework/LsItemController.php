@@ -382,6 +382,25 @@ class LsItemController extends AbstractController
         return $ret;
     }
 
+    /**
+     * Upload attachment to LsItem entity.
+     *
+     * @Route("/{id}/upload_attachment", methods={"POST"}, name="lsitem_upload_attachment")
+     * @Template()
+     * @Security("is_granted('edit', lsItem)")
+     *
+     * @param Request $request
+     * @param LsItem $lsItem
+     * @param User $user
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
+    public function uploadAttachment(Request $request, LsItem $lsItem, UserInterface $user)
+    {
+        var_dump($request->files);
+        var_dump($request->get('attachmentTo'));
+    }
+
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
     {
         $ret = [
