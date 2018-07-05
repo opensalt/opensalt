@@ -32,7 +32,7 @@ class SignupType extends AbstractType
         $builder
             ->add('username', TextType::class, [
                 'attr' => ['class' => 'form-control'],
-                'label' => 'Email Address',
+                'label' => 'Username (Email address)',
             ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,

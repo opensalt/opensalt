@@ -7,7 +7,7 @@ Feature: Create new account validations
         And I follow "Sign up"
 
         Then I should see "Create new account"
-        Then I fill in the "Email Address" with "username"
+        Then I fill in the "Username (Email address)" with "username"
         Then I fill in the "Password" with "Password123!"
         Then I fill in the "Confirm Password" with "Password123!"
         Then I select option "3" from "Organization"
@@ -21,7 +21,7 @@ Feature: Create new account validations
         And I follow "Sign up"
 
         Then I should see "Create new account"
-        Then I fill in the "Email Address" with "user@opensalt.com"
+        Then I fill in the "Username (Email address)" with "user@opensalt.com"
         Then I fill in the "Password" with "Password123!"
         Then I fill in the "Confirm Password" with "password"
         Then I select option "3" from "Organization"
@@ -35,7 +35,7 @@ Feature: Create new account validations
         And I follow "Sign up"
 
         Then I should see "Create new account"
-        Then I fill in the "Email Address" with "user@opensalt.com"
+        Then I fill in the "Username (Email address)" with "user@opensalt.com"
         Then I fill in the "Password" with "password"
         Then I fill in the "Confirm Password" with "password"
         Then I select option "3" from "Organization"
