@@ -21,6 +21,7 @@
     "font-awesome": "^4.7.0",
     "github-markdown-css": "^2.10.0",
     "html5-boilerplate": "^6.0.1",
+    "inline-attachment": "^2.0.3",
     "jquery": "^3.3.1",
     "jquery-comments": "https://github.com/Viima/jquery-comments/archive/1.2.0.tar.gz",
     "jquery-contextmenu": "^2.2.4",
