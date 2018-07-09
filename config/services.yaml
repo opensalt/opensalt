@@ -41,10 +41,10 @@ parameters:
     env(GOOGLE_CAPTCHA_SITE_KEY): null
     env(GOOGLE_CAPTCHA_SECRET_KEY): null
     env(SESSION_MAX_IDLE_TIME): 3600
-    env(AWS_ACCESS_KEY_ID)=: null
-    env(AWS_SECRET_ACCESS_KEY)=: null
-    env(AWS_PREFIX)=: null
-    env(AWS_S3_BUCKET)=: null
+    env(AWS_ACCESS_KEY_ID): null
+    env(AWS_SECRET_ACCESS_KEY): null
+    env(AWS_PREFIX): null
+    env(AWS_S3_BUCKET): null
 
     locale: en
     database_host: '%env(MYSQL_HOST)%'
