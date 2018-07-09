@@ -269,7 +269,7 @@ class CommentsController extends AbstractController
         $file = $request->files->get('file');
 
         if ($file->isValid()) {
-            $fileUrl = $aws->uploadFile($file);
+            $fileUrl = $aws->uploadFile($file, 'comments');
             $fileMimeType = $file->getMimeType();
         }
 

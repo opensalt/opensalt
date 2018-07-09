@@ -31,6 +31,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\Aws;
 
 /**
  * LsItem controller.
@@ -395,10 +397,16 @@ class LsItemController extends AbstractController
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function uploadAttachment(Request $request, LsItem $lsItem, UserInterface $user)
+    public function uploadAttachment(Request $request, LsItem $lsItem, UserInterface $user, Aws $aws)
     {
-        var_dump($request->files);
-        var_dump($request->get('attachmentTo'));
+        $file = $request->files->get('file');
+        $fileUrl = $file->getClientOriginalName().rand(1, 100);
+
+        if ($file->isValid()) {
+            $fileUrl = $aws->uploadFile($file, 'inline');
+        }
+
+        return new JsonResponse(['filename' => $fileUrl]);
     }
 
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response

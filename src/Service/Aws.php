@@ -12,13 +12,15 @@ class Aws
     private $secret;
     private $bucket;
     private $prefix;
+    private $cloudfrontDomain;
 
-    public function __construct(string $awsKey = null, string $secret = null, string $bucket = null, string $prefix = null)
+    public function __construct(string $awsKey = null, string $secret = null, string $bucket = null, string $prefix = null, string $cloudfrontDomain = null)
     {
         $this->awsKey = $awsKey;
         $this->secret = $secret;
         $this->bucket = $bucket;
         $this->awsPrefix = $prefix;
+        $this->cloudfrontDomain = $cloudfrontDomain;
     }
 
     public function filesystem () {
@@ -37,15 +39,15 @@ class Aws
         return $filesystem;
     }
 
-    public function uploadFile ($file) {
+    public function uploadFile ($file, $dir) {
         $filesystem = $this->filesystem();
-        $path = '/comments/'.$file->getClientOriginalName();
+        $path = '/'.$dir.'/'.$file->getClientOriginalName();
 
         $stream = fopen($file->getRealPath(), 'r+');
         $filesystem->writeStream($path, $stream, ['visibility' => 'public']);
         fclose($stream);
 
-        return $path;
+        return $this->cloudfrontDomain.$path;
     }
 
     public function retrieveFile ($path) {
@@ -58,6 +60,7 @@ class Aws
 
     public function listContent ($path) {
         $filesystem = $this->filesystem();
+        $recursive = true;
 
         $contents = $filesystem->listContents($path, $recursive);
     }

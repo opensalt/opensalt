@@ -45,6 +45,7 @@ parameters:
     env(AWS_SECRET_ACCESS_KEY): null
     env(AWS_PREFIX): null
     env(AWS_S3_BUCKET): null
+    env(AWS_CLOUDFRONT_DOMAIN): null
 
     locale: en
     database_host: '%env(MYSQL_HOST)%'
@@ -86,6 +87,7 @@ parameters:
     aws_secret: '%env(AWS_SECRET_ACCESS_KEY)%'
     aws_prefix: '%env(AWS_S3_PREFIX)%'
     aws_bucket: '%env(AWS_S3_BUCKET)%'
+    aws_cloudfront_domain: '%env(AWS_CLOUDFRONT_DOMAIN)%'
 
 services:
     # default configuration for services in *this* file
@@ -159,6 +161,7 @@ services:
             $secret: '%aws_secret%'
             $bucket: '%aws_bucket%'
             $prefix: '%aws_prefix%'
+            $cloudfrontDomain: '%aws_cloudfront_domain%'
 
     # Aliased services
     Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'
