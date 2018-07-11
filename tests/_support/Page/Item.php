@@ -136,6 +136,12 @@ class Item implements Context
         $I->remember($requestedItem.'-identifier', $key);
 
         $I->amOnPage($frameworkUrl);
+        try {
+            $I->waitForElementVisible('#modalSpinner', 10);
+        } catch (\Exception $e) {
+            // Ignore if not seen
+        }
+        $I->waitForElementNotVisible('#modalSpinner', 120);
     }
 
     /**

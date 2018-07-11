@@ -104,8 +104,8 @@ class User implements Context
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
         $I->click('th.sorting_asc');
-        $I->see('Approve', "//td[text()='{$username}']/..//input[@value='Approve']");
-        $I->see('Reject', "//td[text()='{$username}']/..//input[@value='Reject']");
+        $I->seeElement("//td[text()='{$username}']/..//input[@value='Approve']");
+        $I->seeElement("//td[text()='{$username}']/..//input[@value='Reject']");
     }
 
     /**
