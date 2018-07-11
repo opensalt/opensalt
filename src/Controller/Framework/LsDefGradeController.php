@@ -7,6 +7,7 @@ use App\Command\Framework\AddGradeCommand;
 use App\Command\Framework\DeleteGradeCommand;
 use App\Command\Framework\UpdateGradeCommand;
 use App\Form\Type\LsDefGradeType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -48,6 +49,7 @@ class LsDefGradeController extends AbstractController
      *
      * @Route("/new", methods={"GET", "POST"}, name="lsdef_grade_new")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      *
@@ -101,6 +103,7 @@ class LsDefGradeController extends AbstractController
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_grade_edit")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefGrade $lsDefGrade
@@ -135,6 +138,7 @@ class LsDefGradeController extends AbstractController
      * Deletes a LsDefGrade entity.
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_grade_delete")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefGrade $lsDefGrade

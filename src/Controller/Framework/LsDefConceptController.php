@@ -7,6 +7,7 @@ use App\Command\Framework\AddConceptCommand;
 use App\Command\Framework\DeleteConceptCommand;
 use App\Command\Framework\UpdateConceptCommand;
 use App\Form\Type\LsDefConceptType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -49,6 +50,7 @@ class LsDefConceptController extends AbstractController
      *
      * @Route("/new", methods={"GET", "POST"}, name="lsdef_concept_new")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      *
@@ -102,6 +104,7 @@ class LsDefConceptController extends AbstractController
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_concept_edit")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefConcept $lsDefConcept
@@ -136,6 +139,7 @@ class LsDefConceptController extends AbstractController
      * Deletes a LsDefConcept entity.
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_concept_delete")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefConcept $lsDefConcept
