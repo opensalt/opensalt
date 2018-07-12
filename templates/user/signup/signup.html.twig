@@ -43,7 +43,7 @@
         var orgs = [];
 
         var errorContent = '<span class="help-block">' +
-        '<ul class="list-unstyled"><li><span class="glyphicon glyphicon-exclamation-sign"></span> Choose this org from the dropdown' +
+        '<ul class="list-unstyled"><li><span class="glyphicon glyphicon-exclamation-sign"></span> Choose this organization from the Organization list' +
         '</li></ul></span>';
 
         function removeError() {
@@ -53,13 +53,12 @@
         }
 
         $('#signup_org option').each(function() {
-            orgs.push(this.text);
+            if (this.value) {
+                orgs.push(this.text);
+            }
         });
 
-        $org.change(function() {
-            removeError();
-            $newOrg.val('');
-
+        function showHideOtherOrg() {
             if ($org.val() === 'other') {
                 $('.signup_new_org').show();
                 $('.js-add-org-message').hide('fast');
@@ -69,6 +68,18 @@
                 $('.js-add-org-message').show('fast');
                 $('#signup_newOrg').attr('required', false);
             }
+        }
+
+        if ($newOrg.val() !== '') {
+            $org.val('other');
+            showHideOtherOrg();
+        }
+
+        $org.change(function() {
+            removeError();
+            $newOrg.val('');
+
+            showHideOtherOrg();
         });
 
         $newOrg.on('blur', function() {

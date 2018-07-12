@@ -65,6 +65,7 @@ class SignupType extends AbstractType
                 'label' => 'Organization',
                 'class' => 'App\Entity\User\Organization',
                 'choice_label' => 'name',
+                'placeholder' => '- Select Your Organization -',
             ])
             ->add('newOrg', TextType::class, [
                 'label' => 'New Organization',
@@ -75,7 +76,7 @@ class SignupType extends AbstractType
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $data = $event->getData();
 
-                if ($data['org'] === 'other') {
+                if ($data['org'] === 'other' || $data['org'] === '') {
                     unset($data['org']);
                     $event->setData($data);
                 }
@@ -96,6 +97,6 @@ class SignupType extends AbstractType
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
         $newOrg = new ChoiceView([], 'other', 'Other');
-        $view->children['org']->vars['choices'][] = $newOrg;
+        array_unshift($view->children['org']->vars['choices'], $newOrg);
     }
 }
