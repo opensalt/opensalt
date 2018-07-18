@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use App\Service\Aws;
+use App\Service\BucketService;
 
 /**
  * @Toggle("comments")
@@ -48,9 +48,9 @@ class CommentsController extends AbstractController
      *
      * @Security("is_granted('comment')")
      */
-    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user, Aws $aws)
+    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user, BucketService $bucket)
     {
-        return $this->addComment($request, 'document', $doc, $user, $aws);
+        return $this->addComment($request, 'document', $doc, $user, $bucket);
     }
 
     /**
@@ -255,7 +255,7 @@ class CommentsController extends AbstractController
      *
      * @return JsonResponse
      */
-    private function addComment(Request $request, string $itemType, $item, UserInterface $user, Aws $aws): Response
+    private function addComment(Request $request, string $itemType, $item, UserInterface $user, $bucket): Response
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -269,7 +269,7 @@ class CommentsController extends AbstractController
         $file = $request->files->get('file');
 
         if ($file->isValid()) {
-            $fileUrl = $aws->uploadFile($file);
+            $fileUrl = $bucket->uploadFile($file, 'comments');
             $fileMimeType = $file->getMimeType();
         }
 

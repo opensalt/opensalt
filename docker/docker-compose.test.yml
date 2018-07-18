@@ -45,7 +45,13 @@ services:
       MAIL_FEATURE_FROM_EMAIL:
       GOOGLE_CAPTCHA_SITE_KEY:
       GOOGLE_CAPTCHA_SECRET_KEY:
-    volumes_from:
+      AWS_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
+      AWS_S3_PREFIX:
+      AWS_S3_BUCKET:
+      AWS_CLOUDFRONT_DOMAIN:
+      BUCKET_PROVIDER:
+      volumes_from:
       - app
     working_dir: /var/www/html
 

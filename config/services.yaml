@@ -41,10 +41,12 @@ parameters:
     env(GOOGLE_CAPTCHA_SITE_KEY): null
     env(GOOGLE_CAPTCHA_SECRET_KEY): null
     env(SESSION_MAX_IDLE_TIME): 3600
-    env(AWS_ACCESS_KEY_ID)=: null
-    env(AWS_SECRET_ACCESS_KEY)=: null
-    env(AWS_PREFIX)=: null
-    env(AWS_S3_BUCKET)=: null
+    env(AWS_ACCESS_KEY_ID): null
+    env(AWS_SECRET_ACCESS_KEY): null
+    env(AWS_S3_PREFIX): null
+    env(AWS_S3_BUCKET): null
+    env(AWS_CLOUDFRONT_DOMAIN): null
+    env(BUCKET_PROVIDER): null
 
     locale: en
     database_host: '%env(MYSQL_HOST)%'
@@ -86,6 +88,8 @@ parameters:
     aws_secret: '%env(AWS_SECRET_ACCESS_KEY)%'
     aws_prefix: '%env(AWS_S3_PREFIX)%'
     aws_bucket: '%env(AWS_S3_BUCKET)%'
+    aws_cloudfront_domain: '%env(AWS_CLOUDFRONT_DOMAIN)%'
+    bucket_provider: '%env(BUCKET_PROVIDER)%'
 
 services:
     # default configuration for services in *this* file
@@ -152,13 +156,11 @@ services:
         resource: '../vendor/symfony/swiftmailer-bundle/Command'
         tags: ['console.command']
 
-    App\Service\Aws:
-        class: App\Service\Aws
-        arguments:
-            $awsKey: '%aws_key%'
-            $secret: '%aws_secret%'
-            $bucket: '%aws_bucket%'
-            $prefix: '%aws_prefix%'
+    League\Flysystem\Filesystem:
+        class: 'League\Flysystem\Filesystem'
+
+    League\Flysystem\AdapterInterface:
+        factory: 'App\Service\BucketFactory:filesystem'
 
     # Aliased services
     Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'

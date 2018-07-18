@@ -15,7 +15,7 @@ final class Version20180619023134 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE salt_comment ADD file_url LONGTEXT NOT NULL, ADD file_mime_type LONGTEXT NOT NULL');
+        $this->addSql('ALTER TABLE salt_comment ADD file_url LONGTEXT DEFAULT NULL, ADD file_mime_type LONGTEXT DEFAULT NULL');
     }
 
     public function down(Schema $schema) : void

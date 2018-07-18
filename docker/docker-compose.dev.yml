@@ -49,6 +49,8 @@ services:
       AWS_SECRET_ACCESS_KEY:
       AWS_S3_BUCKET:
       AWS_S3_PREFIX:
+      AWS_CLOUDFRONT_DOMAIN:
+      BUCKET_PROVIDER:
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html

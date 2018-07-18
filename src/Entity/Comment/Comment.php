@@ -112,14 +112,14 @@ class Comment
     /**
      * @var string
      *
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $fileUrl;
 
     /**
      * @var string
      *
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $fileMimeType;
 
@@ -464,7 +464,7 @@ class Comment
      */
     public function setFileUrl($fileUrl): Comment
     {
-        $this->fileUrl = 'https://d34t4zune800sm.cloudfront.net'.$fileUrl;
+        $this->fileUrl = $fileUrl;
 
         return $this;
     }

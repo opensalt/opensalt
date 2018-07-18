@@ -1,4 +1,7 @@
 {
+    "aws/aws-sdk-php": {
+        "version": "3.61.6"
+    },
     "behat/gherkin": {
         "version": "v4.5.1"
     },
@@ -226,6 +229,9 @@
     },
     "league/flysystem": {
         "version": "1.0.45"
+    },
+    "league/flysystem-aws-s3-v3": {
+        "version": "1.0.19"
     },
     "league/oauth2-client": {
         "version": "1.4.2"
