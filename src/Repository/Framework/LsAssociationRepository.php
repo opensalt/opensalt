@@ -65,6 +65,18 @@ class LsAssociationRepository extends ServiceEntityRepository
         return $deleted;
     }
 
+    public function findAllChildAssociationsFor(string $identifier)
+    {
+        $qry = $this->createQueryBuilder('a')
+            ->where('a.destinationNodeIdentifier = :identifier')
+            ->andWhere('a.type = :type')
+            ->setParameter('identifier', $identifier)
+            ->setParameter('type', LsAssociation::CHILD_OF)
+            ->getQuery();
+
+        return $qry->getResult();
+    }
+
     public function findAllAssociationsFor($id)
     {
         $item = $this->getEntityManager()->getRepository(LsItem::class)
