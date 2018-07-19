@@ -40,6 +40,7 @@ services:
       MAILER_AUTH_MODE:
       MAILER_PORT:
       COMMENTS_FEATURE:
+      COMMENT_ATTACHMENTS:
       CREATE_ACCOUNT_FEATURE:
       USE_MAIL_FEATURE:
       MAIL_FEATURE_FROM_EMAIL:
@@ -51,7 +52,8 @@ services:
       AWS_S3_BUCKET:
       AWS_CLOUDFRONT_DOMAIN:
       BUCKET_PROVIDER:
-      volumes_from:
+      LOCAL_FILESYSTEM_PATH:
+    volumes_from:
       - app
     working_dir: /var/www/html
 

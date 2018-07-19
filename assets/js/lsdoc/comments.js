@@ -14,7 +14,7 @@ var CommentSystem = (function (){
         $('.js-comments-container').comments({
             profilePictureUrl: '',
             enableDeletingCommentWithReplies: true,
-            enableAttachments: true,
+            enableAttachments: COMMENT_ATTACHMENTS,
             getComments: function (success, error) {
                 $.ajax({
                     type: 'get',
@@ -137,7 +137,7 @@ var CommentSystem = (function (){
                     });
 
                     $.ajax({
-                        url: '/app_dev.php/comments/'+commentItem.itemType+'/'+commentItem.itemId,
+                        url: '/comments/'+commentItem.itemType+'/'+commentItem.itemId,
                         type: 'POST',
                         data: formData,
                         cache: false,

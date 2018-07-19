@@ -19,21 +19,20 @@ class BucketFactory {
     }
 
     public function filesystem () {
-        $adapter = new Local('/tmp/attachments');
-
         if ($this->params->get('bucket_provider') == 'S3') {
             $client = new S3Client([
                 'credentials' => [
                     'key' => $this->params->get('aws_key'),
                     'secret' => $this->params->get('aws_secret'),
                 ],
-                'region' => 'us-east-1',
+                'region' => $this->params->get('aws_region'),
                 'version' => 'latest'
             ]);
 
-            $adapter = new AwsS3Adapter($client, $this->params->get('aws_bucket'), $this->params->get('aws_prefix'));
+            return new AwsS3Adapter($client, $this->params->get('aws_bucket'), $this->params->get('aws_prefix'));
         }
 
-        return $adapter;
+        $path = $this->params->get('local_filesystem_path');
+        return new Local($path);
     }
 }

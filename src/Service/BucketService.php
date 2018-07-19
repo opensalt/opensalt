@@ -22,18 +22,4 @@ class BucketService
 
         return $path;
     }
-
-    public function retrieveFile ($path) {
-        $filesystem = $this->filesystem;
-
-        $stream = $filesystem->readStream($path);
-        $contents = stream_get_contents($stream);
-        fclose($stream);
-    }
-
-    public function listContent ($path) {
-        $filesystem = $this->filesystem;
-
-        $contents = $filesystem->listContents($path, $recursive);
-    }
 }

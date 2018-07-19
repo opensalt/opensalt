@@ -23,6 +23,7 @@ parameters:
     env(GITHUB_CLIENT_ID): null
     env(GITHUB_CLIENT_SECRET): null
     env(COMMENTS_FEATURE): inactive
+    env(COMMENT_ATTACHMENTS): inactive
     env(CREATE_ACCOUNT_FEATURE): inactive
     env(USE_MAIL_FEATURE): inactive
     env(MAIL_FEATURE_FROM_EMAIL): null
@@ -47,6 +48,7 @@ parameters:
     env(AWS_S3_BUCKET): null
     env(AWS_CLOUDFRONT_DOMAIN): null
     env(BUCKET_PROVIDER): null
+    env(LOCAL_FILESYSTEM_PATH): null
 
     locale: en
     database_host: '%env(MYSQL_HOST)%'
@@ -70,6 +72,7 @@ parameters:
     brand_link_url: '%env(BRAND_LINK_URL)%'
     brand_link_style: '%env(BRAND_LINK_STYLE)%'
     comments_feature: '%env(COMMENTS_FEATURE)%'
+    comment_attachments: '%env(COMMENT_ATTACHMENTS)%'
     firebase_api_key: '%env(FIREBASE_API_KEY)%'
     firebase_db_url: '%env(FIREBASE_DB_URL)%'
     firebase_auth_domain: '%env(FIREBASE_AUTH_DOMAIN)%'
@@ -90,6 +93,7 @@ parameters:
     aws_bucket: '%env(AWS_S3_BUCKET)%'
     aws_cloudfront_domain: '%env(AWS_CLOUDFRONT_DOMAIN)%'
     bucket_provider: '%env(BUCKET_PROVIDER)%'
+    local_filesystem_path: '%env(LOCAL_FILESYSTEM_PATH)%'
 
 services:
     # default configuration for services in *this* file
