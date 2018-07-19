@@ -7,6 +7,7 @@ use App\Command\Framework\AddItemTypeCommand;
 use App\Command\Framework\DeleteItemTypeCommand;
 use App\Command\Framework\UpdateItemTypeCommand;
 use App\Form\Type\LsDefItemTypeType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
@@ -82,6 +83,7 @@ class LsDefItemTypeController extends AbstractController
      *
      * @Route("/new", methods={"GET", "POST"}, name="lsdef_item_type_new")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      *
@@ -135,6 +137,7 @@ class LsDefItemTypeController extends AbstractController
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_item_type_edit")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefItemType $lsDefItemType
@@ -169,6 +172,7 @@ class LsDefItemTypeController extends AbstractController
      * Deletes a LsDefItemType entity.
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_item_type_delete")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefItemType $lsDefItemType

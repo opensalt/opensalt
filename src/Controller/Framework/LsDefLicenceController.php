@@ -7,6 +7,7 @@ use App\Command\Framework\AddLicenceCommand;
 use App\Command\Framework\DeleteLicenceCommand;
 use App\Command\Framework\UpdateLicenceCommand;
 use App\Form\Type\LsDefLicenceType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -69,6 +70,7 @@ class LsDefLicenceController extends AbstractController
      *
      * @Route("/new", methods={"GET", "POST"}, name="lsdef_licence_new")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      *
@@ -122,6 +124,7 @@ class LsDefLicenceController extends AbstractController
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_licence_edit")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefLicence $lsDefLicence
@@ -156,6 +159,7 @@ class LsDefLicenceController extends AbstractController
      * Deletes a LsDefLicence entity.
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_licence_delete")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefLicence $lsDefLicence

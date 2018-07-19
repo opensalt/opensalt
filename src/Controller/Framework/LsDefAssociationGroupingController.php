@@ -7,6 +7,7 @@ use App\Command\Framework\AddAssociationGroupCommand;
 use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\UpdateAssociationGroupCommand;
 use App\Form\Type\LsDefAssociationGroupingType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -49,6 +50,7 @@ class LsDefAssociationGroupingController extends AbstractController
      *
      * @Route("/new", methods={"GET", "POST"}, name="lsdef_association_grouping_new")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      *
@@ -113,6 +115,7 @@ class LsDefAssociationGroupingController extends AbstractController
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_association_grouping_edit")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefAssociationGrouping $associationGrouping
@@ -147,6 +150,7 @@ class LsDefAssociationGroupingController extends AbstractController
      * Deletes a LsDefAssociationGrouping entity.
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_association_grouping_delete")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefAssociationGrouping $associationGrouping
