@@ -47,7 +47,7 @@ class Aws
         $filesystem->writeStream($path, $stream, ['visibility' => 'public']);
         fclose($stream);
 
-        return $this->cloudfrontDomain.$path;
+        return 'https://'.$this->cloudfrontDomain.$this->awsPrefix.$path;
     }
 
     public function retrieveFile ($path) {
