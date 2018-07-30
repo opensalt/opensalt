@@ -11,7 +11,7 @@ class Aws
     private $awsKey;
     private $secret;
     private $bucket;
-    private $prefix;
+    private $awsPrefix;
     private $cloudfrontDomain;
 
     public function __construct(string $awsKey = null, string $secret = null, string $bucket = null, string $prefix = null, string $cloudfrontDomain = null)
