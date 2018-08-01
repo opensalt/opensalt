@@ -14,7 +14,7 @@ class BucketService
 
     public function uploadFile ($file, $dir) {
         $filesystem = $this->filesystem;
-        $path = "/$dir/".$file->getClientOriginalName();
+        $path = "/$dir/".$file->getClientOriginalName().rand();
 
         $stream = fopen($file->getRealPath(), 'r+');
         $filesystem->writeStream($path, $stream, ['visibility' => 'public']);

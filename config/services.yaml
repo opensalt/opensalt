@@ -45,6 +45,7 @@ parameters:
     env(AWS_ACCESS_KEY_ID): null
     env(AWS_SECRET_ACCESS_KEY): null
     env(AWS_S3_PREFIX): null
+    env(AWS_S3_REGION): null
     env(AWS_S3_BUCKET): null
     env(AWS_CLOUDFRONT_DOMAIN): null
     env(BUCKET_PROVIDER): null
@@ -90,6 +91,7 @@ parameters:
     aws_key: '%env(AWS_ACCESS_KEY_ID)%'
     aws_secret: '%env(AWS_SECRET_ACCESS_KEY)%'
     aws_prefix: '%env(AWS_S3_PREFIX)%'
+    aws_region: '%env(AWS_S3_REGION)%'
     aws_bucket: '%env(AWS_S3_BUCKET)%'
     aws_cloudfront_domain: '%env(AWS_CLOUDFRONT_DOMAIN)%'
     bucket_provider: '%env(BUCKET_PROVIDER)%'

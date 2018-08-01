@@ -120,9 +120,11 @@ var CommentSystem = (function (){
                     responses++;
 
                     if (responses == commentArray.length) {
-                        error();
-                    } else {
-                        success(successfulUploads);
+                        if (successfulUploads.length == 0) {
+                            error();
+                        } else {
+                            success(successfulUploads);
+                        }
                     }
                 }
 
