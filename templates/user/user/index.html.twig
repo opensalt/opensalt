@@ -42,7 +42,7 @@
                     <td>
                         {{ user.status }}
                     </td>
-                    <td class="text-center">
+                    <td class="">
                         <ul class="list-inline">
                                 <li>
                                     <a class="btn btn-primary" href="{{ path('admin_user_show', { 'id': user.id }) }}">show</a>
@@ -54,17 +54,25 @@
                                 {% endif %}
                                 {% if user.pending %}
                                     <li>
-                                        <a class="btn btn-primary" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Approve</a>
+                                        {{ form_start(activate_form[user.id]) }}
+                                            <input class="btn btn-primary" type="submit" value="Approve">
+                                        {{ form_end(activate_form[user.id]) }}
                                     </li>
                                     <li>
-                                        <a class="btn btn-danger" href="{{ path('admin_user_reject', { 'id': user.id }) }}">Reject</a>
+                                        {{ form_start(reject_form[user.id]) }}
+                                            <input class="btn btn-danger" type="submit" value="Reject">
+                                        {{ form_end(reject_form[user.id]) }}
                                     </li>
                                 {% else %}
                                   <li>
                                     {% if user.suspended %}
-                                      <a class="btn btn-default" href="{{ path('admin_user_activate', { 'id': user.id }) }}">Unsuspend</a>
+                                        {{ form_start(activate_form[user.id]) }}
+                                            <input class="btn btn-default" type="submit" value="Unsuspend">
+                                        {{ form_end(activate_form[user.id]) }}
                                     {% else %}
-                                      <a class="btn btn-default" href="{{ path('admin_user_suspend', { 'id': user.id }) }}">Suspend</a>
+                                        {{ form_start(suspend_form[user.id]) }}
+                                            <input class="btn btn-default" type="submit" value="Suspend">
+                                        {{ form_end(suspend_form[user.id]) }}
                                     {% endif %}
                                   </li>
                                 {% endif %}

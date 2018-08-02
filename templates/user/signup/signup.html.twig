@@ -1,5 +1,9 @@
 {% extends 'base.html.twig' %}
 
+{% form_theme form _self %}
+{% block form_label_class -%}col-sm-3{%- endblock form_label_class %}
+{% block form_group_class -%}col-sm-9{%- endblock form_group_class %}
+
 {% block body %}
     <div class="container">
     <h1>Create new account</h1>
@@ -11,8 +15,8 @@
 
         {{ form_row(form.org) }}
         <div class="form-group js-add-org-message">
-            <div class="col-sm-2"></div>
-            <div class="col-sm-10">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-9">
                 <i>If your organization is not in the list, select Other to add it.</i>
             </div>
         </div>
@@ -39,7 +43,7 @@
         var orgs = [];
 
         var errorContent = '<span class="help-block">' +
-        '<ul class="list-unstyled"><li><span class="glyphicon glyphicon-exclamation-sign"></span> Choose this org from the dropdown' +
+        '<ul class="list-unstyled"><li><span class="glyphicon glyphicon-exclamation-sign"></span> Choose this organization from the Organization list' +
         '</li></ul></span>';
 
         function removeError() {
@@ -49,13 +53,12 @@
         }
 
         $('#signup_org option').each(function() {
-            orgs.push(this.text);
+            if (this.value) {
+                orgs.push(this.text);
+            }
         });
 
-        $org.change(function() {
-            removeError();
-            $newOrg.val('');
-
+        function showHideOtherOrg() {
             if ($org.val() === 'other') {
                 $('.signup_new_org').show();
                 $('.js-add-org-message').hide('fast');
@@ -65,6 +68,18 @@
                 $('.js-add-org-message').show('fast');
                 $('#signup_newOrg').attr('required', false);
             }
+        }
+
+        if ($newOrg.val() !== '') {
+            $org.val('other');
+            showHideOtherOrg();
+        }
+
+        $org.change(function() {
+            removeError();
+            $newOrg.val('');
+
+            showHideOtherOrg();
         });
 
         $newOrg.on('blur', function() {

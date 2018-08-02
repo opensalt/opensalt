@@ -104,8 +104,8 @@ class User implements Context
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
         $I->click('th.sorting_asc');
-        $I->see('Approve', "//td[text()='{$username}']/..//a[text()='Approve']");
-        $I->see('Reject', "//td[text()='{$username}']/..//a[text()='Reject']");
+        $I->seeElement("//td[text()='{$username}']/..//input[@value='Approve']");
+        $I->seeElement("//td[text()='{$username}']/..//input[@value='Reject']");
     }
 
     /**
@@ -176,7 +176,7 @@ class User implements Context
 
         $I->amOnPage('/admin/user/');
         $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//a[text()='Suspend']");
+        $I->click("//td[text()='{$username}']/..//input[@value='Suspend']");
         $I->dontSee('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
 
@@ -190,7 +190,7 @@ class User implements Context
 
         $I->amOnPage('/admin/user/');
         $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//a[text()='Unsuspend']");
+        $I->click("//td[text()='{$username}']/..//input[@value='Unsuspend']");
         $I->see('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
 
@@ -282,7 +282,7 @@ class User implements Context
         $username = $this->userName;
         $I->amOnPage('/admin/user');
         $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//a[text()='Approve']");
+        $I->click("//td[text()='{$username}']/..//input[@value='Approve']");
     }
 
     /**
@@ -331,7 +331,7 @@ class User implements Context
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
         $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//a[text()='Reject']");
+        $I->click("//td[text()='{$username}']/..//input[@value='Reject']");
     }
 
     /**

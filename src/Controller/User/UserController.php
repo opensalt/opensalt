@@ -13,6 +13,7 @@ use App\Entity\User\User;
 use App\Form\Type\UserType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -65,8 +66,20 @@ class UserController extends AbstractController
             $users = $em->getRepository(User::class)
                 ->findByOrg($this->getUser()->getOrg());
         }
+
+        $suspendForm = [];
+        $activateForm = [];
+        $rejectForm = [];
+        foreach ($users as $user) {
+            $suspendForm[$user->getId()] = $this->createSuspendForm($user)->createView();
+            $activateForm[$user->getId()] = $this->createActivateForm($user)->createView();
+            $rejectForm[$user->getId()] = $this->createRejectForm($user)->createView();
+        }
         return [
             'users' => $users,
+            'suspend_form' => $suspendForm,
+            'activate_form' => $activateForm,
+            'reject_form' => $rejectForm,
         ];
     }
 
@@ -180,7 +193,7 @@ class UserController extends AbstractController
     /**
      * Suspend a user
      *
-     * @Route("/{id}/suspend", methods={"GET"}, name="admin_user_suspend")
+     * @Route("/{id}/suspend", methods={"POST"}, name="admin_user_suspend")
      * @Security("is_granted('manage', targetUser)")
      *
      * @param Request $request
@@ -188,9 +201,15 @@ class UserController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function suspendAction(Request $request, User $targetUser) {
-        $command = new SuspendUserCommand($targetUser);
-        $this->sendCommand($command);
+    public function suspendAction(Request $request, User $targetUser): RedirectResponse
+    {
+        $form = $this->createSuspendForm($targetUser);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $command = new SuspendUserCommand($targetUser);
+            $this->sendCommand($command);
+        }
 
         return $this->redirectToRoute('admin_user_index');
     }
@@ -198,7 +217,7 @@ class UserController extends AbstractController
     /**
      * Activate a user
      *
-     * @Route("/{id}/activate", methods={"GET"}, name="admin_user_activate")
+     * @Route("/{id}/activate", methods={"POST"}, name="admin_user_activate")
      * @Security("is_granted('manage', targetUser)")
      *
      * @param Request $request
@@ -206,9 +225,15 @@ class UserController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function activateAction(Request $request, User $targetUser) {
-        $command = new ActivateUserCommand($targetUser);
-        $this->sendCommand($command);
+    public function activateAction(Request $request, User $targetUser): RedirectResponse
+    {
+        $form = $this->createActivateForm($targetUser);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $command = new ActivateUserCommand($targetUser);
+            $this->sendCommand($command);
+        }
 
         // Send email after user has been approved
         try {
@@ -218,6 +243,29 @@ class UserController extends AbstractController
             throw new \RuntimeException('A valid email address must be given.');
         } catch (\Exception $e) {
             // Do not throw an error to the client if the email could not be sent
+        }
+
+        return $this->redirectToRoute('admin_user_index');
+    }
+
+    /**
+     * Reject a user
+     *
+     * @Route("/{id}/reject", methods={"POST"}, name="admin_user_reject")
+     * @Security("is_granted('manage', targetUser)")
+     *
+     * @param User $targetUser
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function rejectAction(Request $request, User $targetUser): RedirectResponse
+    {
+        $form = $this->createRejectForm($targetUser);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $command = new SuspendUserCommand($targetUser);
+            $this->sendCommand($command);
         }
 
         return $this->redirectToRoute('admin_user_index');
@@ -234,7 +282,7 @@ class UserController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function deleteAction(Request $request, User $targetUser)
+    public function deleteAction(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createDeleteForm($targetUser);
         $form->handleRequest($request);
@@ -245,6 +293,51 @@ class UserController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_user_index');
+    }
+
+    /**
+     * Creates a form to suspend a user entity.
+     *
+     * @param User $targetUser The user entity
+     *
+     * @return \Symfony\Component\Form\FormInterface The form
+     */
+    private function createSuspendForm(User $targetUser): FormInterface
+    {
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('admin_user_suspend', array('id' => $targetUser->getId())))
+            ->setMethod('POST')
+            ->getForm();
+    }
+
+    /**
+     * Creates a form to activate a user entity.
+     *
+     * @param User $targetUser The user entity
+     *
+     * @return \Symfony\Component\Form\FormInterface The form
+     */
+    private function createActivateForm(User $targetUser): FormInterface
+    {
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('admin_user_activate', array('id' => $targetUser->getId())))
+            ->setMethod('POST')
+            ->getForm();
+    }
+
+    /**
+     * Creates a form to reject a user entity.
+     *
+     * @param User $targetUser The user entity
+     *
+     * @return \Symfony\Component\Form\FormInterface The form
+     */
+    private function createRejectForm(User $targetUser): FormInterface
+    {
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('admin_user_reject', array('id' => $targetUser->getId())))
+            ->setMethod('POST')
+            ->getForm();
     }
 
     /**
@@ -260,23 +353,6 @@ class UserController extends AbstractController
             ->setAction($this->generateUrl('admin_user_delete', array('id' => $targetUser->getId())))
             ->setMethod('DELETE')
             ->getForm();
-    }
-
-    /**
-     * Reject a user
-     *
-     * @Route("/{id}/reject", methods={"GET"}, name="admin_user_reject")
-     * @Security("is_granted('manage', targetUser)")
-     *
-     * @param User $targetUser
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     */
-    public function rejectAction(User $targetUser) {
-        $command = new SuspendUserCommand($targetUser);
-        $this->sendCommand($command);
-
-        return $this->redirectToRoute('admin_user_index');
     }
 
 }

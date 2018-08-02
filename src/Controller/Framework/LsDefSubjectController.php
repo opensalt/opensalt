@@ -7,6 +7,7 @@ use App\Command\Framework\AddSubjectCommand;
 use App\Command\Framework\DeleteSubjectCommand;
 use App\Command\Framework\UpdateSubjectCommand;
 use App\Form\Type\LsDefSubjectType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -74,6 +75,7 @@ class LsDefSubjectController extends AbstractController
      *
      * @Route("/new", methods={"GET", "POST"}, name="lsdef_subject_new")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      *
@@ -127,6 +129,7 @@ class LsDefSubjectController extends AbstractController
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_subject_edit")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefSubject $lsDefSubject
@@ -161,6 +164,7 @@ class LsDefSubjectController extends AbstractController
      * Deletes a LsDefSubject entity.
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_subject_delete")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefSubject $lsDefSubject

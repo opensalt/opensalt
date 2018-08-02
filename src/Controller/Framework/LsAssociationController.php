@@ -8,6 +8,7 @@ use App\Command\Framework\AddExemplarToItemCommand;
 use App\Command\Framework\AddTreeAssociationCommand;
 use App\Command\Framework\DeleteAssociationCommand;
 use App\Command\Framework\UpdateAssociationCommand;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -57,6 +58,7 @@ class LsAssociationController extends AbstractController
      * @Route("/new/{sourceLsItem}", methods={"GET", "POST"}, name="lsassociation_new")
      * @Route("/new/{sourceLsItem}/{assocGroup}", methods={"GET", "POST"}, name="lsassociation_new_ag")
      * @Template()
+     * @Security("is_granted('add-association-to', sourceLsItem)")
      *
      * @param Request $request
      * @param LsItem|null $sourceLsItem
@@ -120,6 +122,7 @@ class LsAssociationController extends AbstractController
      * Creates a new LsAssociation entity -- tree-view version, called via ajax
      *
      * @Route("/treenew/{lsDoc}", methods={"POST"}, name="lsassociation_tree_new")
+     * @Security("is_granted('add-association-to', lsDoc)")
      *
      * @param Request $request
      * @param LsDoc $lsDoc  : the document we're adding the association to
@@ -157,6 +160,7 @@ class LsAssociationController extends AbstractController
      * Creates a new LsAssociation entity for an exemplar
      *
      * @Route("/treenewexemplar/{originLsItem}", methods={"GET", "POST"}, name="lsassociation_tree_new_exemplar")
+     * @Security("is_granted('edit', originLsItem)")
      *
      * @param Request $request
      * @param LsItem $originLsItem
@@ -215,6 +219,7 @@ class LsAssociationController extends AbstractController
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsassociation_edit")
      * @Template()
+     * @Security("is_granted('edit', lsAssociation)")
      *
      * @param Request $request
      * @param LsAssociation $lsAssociation
@@ -249,6 +254,7 @@ class LsAssociationController extends AbstractController
      * Deletes a LsAssociation entity.
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsassociation_delete")
+     * @Security("is_granted('edit', lsAssociation)")
      *
      * @param Request $request
      * @param LsAssociation $lsAssociation
@@ -273,6 +279,7 @@ class LsAssociationController extends AbstractController
      *
      * @Route("/{id}/remove", methods={"POST"}, name="lsassociation_remove")
      * @Template()
+     * @Security("is_granted('edit', lsAssociation)")
      *
      * @param \App\Entity\Framework\LsAssociation $lsAssociation
      *

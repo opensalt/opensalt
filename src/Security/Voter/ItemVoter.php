@@ -9,7 +9,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class StandardVoter extends Voter
+class ItemVoter extends Voter
 {
     public const ADD_TO = 'add-standard-to';
     public const EDIT = 'edit';
@@ -90,13 +90,8 @@ class StandardVoter extends Voter
 
     /**
      * Validate if a user can add a standard to a document.
-     *
-     * @param LsDoc|null $lsDoc
-     * @param TokenInterface $token
-     *
-     * @return bool
      */
-    private function canAddTo(LsDoc $lsDoc = null, TokenInterface $token): bool
+    private function canAddTo(?LsDoc $lsDoc, TokenInterface $token): bool
     {
         if (null !== $lsDoc) {
             // Check if the user can edit the document
@@ -113,13 +108,8 @@ class StandardVoter extends Voter
         return false;
     }
 
-    /*
-    * Validate if a user can edit a standard.
-    *
-     * @param LsItem $item
-     * @param TokenInterface $token
-     *
-     * @return bool
+    /**
+     * Validate if a user can edit a standard.
      */
     private function canEdit(LsItem $item, TokenInterface $token): bool
     {
