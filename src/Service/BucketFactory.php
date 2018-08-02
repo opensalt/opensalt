@@ -6,11 +6,10 @@ use Aws\S3\S3Client;
 use League\Flysystem\Filesystem;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Adapter\Local;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class BucketFactory {
-
+class BucketFactory
+{
     private $params;
 
     public function __construct(ParameterBagInterface $params)

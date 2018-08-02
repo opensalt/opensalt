@@ -12,7 +12,7 @@ class BucketService
         $this->filesystem = $filesystem;
     }
 
-    public function uploadFile ($file, $dir) {
+    public function uploadFile (string $file, string $dir) {
         $filesystem = $this->filesystem;
         $path = "/$dir/".$file->getClientOriginalName().rand();
 

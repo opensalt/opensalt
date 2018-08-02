@@ -264,7 +264,7 @@ class CommentsController extends AbstractController
         $parentId = $request->request->get('parent');
         $content = $request->request->get('content');
         $fileUrl = null;
-        $mimeType = null;
+        $fileMimeType = null;
 
         $file = $request->files->get('file');
 
@@ -273,7 +273,7 @@ class CommentsController extends AbstractController
             $fileMimeType = $file->getMimeType();
         }
 
-        $command = new AddCommentCommand($itemType, $item, $user, $content, $fileUrl, $mimeType, (int) $parentId);
+        $command = new AddCommentCommand($itemType, $item, $user, $content, $fileUrl, $fileMimeType, (int) $parentId);
         $this->sendCommand($command);
 
         $comment = $command->getComment();

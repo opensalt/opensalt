@@ -63,7 +63,6 @@ class AddCommentCommand extends BaseCommand
     private $comment;
 
     /**
-     *
      * @var string
      *
      * @Assert\Type("string")
