@@ -101,6 +101,9 @@
             "ref": "c1431086fec31f17fbcfe6d6d7e92059458facc1"
         }
     },
+    "doctrine/event-manager": {
+        "version": "v1.0.0"
+    },
     "doctrine/inflector": {
         "version": "v1.3.0"
     },
@@ -115,6 +118,12 @@
     },
     "doctrine/orm": {
         "version": "v2.6.1"
+    },
+    "doctrine/persistence": {
+        "version": "v1.0.0"
+    },
+    "doctrine/reflection": {
+        "version": "v1.0.0"
     },
     "egulias/email-validator": {
         "version": "2.1.4"
@@ -232,6 +241,15 @@
     },
     "league/oauth2-github": {
         "version": "0.2.2"
+    },
+    "lightsaml/lightsaml": {
+        "version": "1.4.1"
+    },
+    "lightsaml/sp-bundle": {
+        "version": "1.2.0"
+    },
+    "lightsaml/symfony-bridge": {
+        "version": "1.3.0"
     },
     "matthimatiker/opcache-bundle": {
         "version": "0.7.0"
@@ -385,6 +403,9 @@
     },
     "roave/security-advisories": {
         "version": "dev-master"
+    },
+    "robrichards/xmlseclibs": {
+        "version": "3.0.1"
     },
     "sebastian/code-unit-reverse-lookup": {
         "version": "1.0.1"
