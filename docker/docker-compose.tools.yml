@@ -56,7 +56,7 @@ services:
   composer:
     #build:
     #  context: ./composer
-    image: opensalt/composer:1.6-7.2
+    image: opensalt/composer:1.7-7.2
     environment:
       MYSQL_DATABASE:
       MYSQL_USER:
