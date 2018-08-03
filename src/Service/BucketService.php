@@ -8,12 +8,12 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class BucketService
 {
     private $filesystem;
-    private $cloudfrontDomain;
+    private $attachmentUrlPrefix;
 
-    public function __construct(Filesystem $filesystem, ?string $cloudfrontDomain)
+    public function __construct(Filesystem $filesystem, ?string $attachmentUrlPrefix)
     {
         $this->filesystem = $filesystem;
-        $this->cloudfrontDomain = $cloudfrontDomain;
+        $this->attachmentUrlPrefix = $attachmentUrlPrefix;
     }
 
     public function uploadFile(UploadedFile $file, string $dir): string
@@ -26,6 +26,6 @@ class BucketService
         $filesystem->writeStream($path, $stream, ['visibility' => 'public']);
         fclose($stream);
 
-        return ($this->cloudfrontDomain ?? '').$path;
+        return ($this->attachmentUrlPrefix ?? '').$path;
     }
 }

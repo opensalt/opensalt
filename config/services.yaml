@@ -47,7 +47,7 @@ parameters:
     env(AWS_S3_PREFIX): null
     env(AWS_S3_REGION): null
     env(AWS_S3_BUCKET): null
-    env(AWS_CLOUDFRONT_DOMAIN): null
+    env(ATTACHMENT_URL_PREFIX): null
     env(BUCKET_PROVIDER): null
     env(LOCAL_FILESYSTEM_PATH): null
 
@@ -93,7 +93,7 @@ parameters:
     aws_prefix: '%env(AWS_S3_PREFIX)%'
     aws_region: '%env(AWS_S3_REGION)%'
     aws_bucket: '%env(AWS_S3_BUCKET)%'
-    aws_cloudfront_domain: '%env(AWS_CLOUDFRONT_DOMAIN)%'
+    attachment_url_prefix: '%env(ATTACHMENT_URL_PREFIX)%'
     bucket_provider: '%env(BUCKET_PROVIDER)%'
     local_filesystem_path: '%env(LOCAL_FILESYSTEM_PATH)%'
 
@@ -159,7 +159,7 @@ services:
 
     App\Service\BucketService:
         arguments:
-            $cloudfrontDomain: '%aws_cloudfront_domain%'
+            $attachmentUrlPrefix: '%attachment_url_prefix%'
 
     # Workarounds for 3.4 deprecations
     Symfony\Bundle\SwiftmailerBundle\Command\:
