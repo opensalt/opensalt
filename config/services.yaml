@@ -157,6 +157,10 @@ services:
     App\Service\CodeceptionBridge:
         public: true
 
+    App\Service\BucketService:
+        arguments:
+            $cloudfrontDomain: '%aws_cloudfront_domain%'
+
     # Workarounds for 3.4 deprecations
     Symfony\Bundle\SwiftmailerBundle\Command\:
         resource: '../vendor/symfony/swiftmailer-bundle/Command'

@@ -58,9 +58,9 @@ class CommentsController extends AbstractController
      *
      * @Security("is_granted('comment')")
      */
-    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user)
+    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user, BucketService $bucket)
     {
-        return $this->addComment($request, 'item', $item, $user);
+        return $this->addComment($request, 'item', $item, $user, $bucket);
     }
 
     /**
@@ -269,7 +269,7 @@ class CommentsController extends AbstractController
         $file = $request->files->get('file');
 
         if ($file->isValid()) {
-            $fileUrl = $bucket->uploadFile($file, 'comments');
+            $fileUrl = $bucket->uploadFile($file, 'attachments/comments');
             $fileMimeType = $file->getMimeType();
         }
 
