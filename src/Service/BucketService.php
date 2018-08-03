@@ -16,7 +16,7 @@ class BucketService
         $this->cloudfrontDomain = $cloudfrontDomain;
     }
 
-    public function uploadFile (UploadedFile $file, string $dir)
+    public function uploadFile(UploadedFile $file, string $dir): string
     {
         $filesystem = $this->filesystem;
         $name = explode(".", $file->getClientOriginalName())[0].rand();

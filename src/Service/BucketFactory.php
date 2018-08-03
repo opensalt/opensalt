@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use Aws\S3\S3Client;
-use League\Flysystem\Filesystem;
+use League\Flysystem\AdapterInterface;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Adapter\Local;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -17,8 +17,9 @@ class BucketFactory
         $this->params = $params;
     }
 
-    public function filesystem () {
-        if ($this->params->get('bucket_provider') == 'S3') {
+    public function filesystem(): AdapterInterface
+    {
+        if ('S3' === $this->params->get('bucket_provider')) {
             $client = new S3Client([
                 'credentials' => [
                     'key' => $this->params->get('aws_key'),
@@ -32,6 +33,7 @@ class BucketFactory
         }
 
         $path = $this->params->get('local_filesystem_path');
+
         return new Local($path);
     }
 }
