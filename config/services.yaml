@@ -161,6 +161,13 @@ services:
             $privateKey: '%firebase_private_key%'
             $dbUri: '%firebase_db_url%'
 
+    # adfs services
+    id_store:
+        class: AppBundle\Store\IdStore
+        arguments:
+            - "@=service('doctrine').getManager()"
+            - "@lightsaml.system.time_provider"
+
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
         arguments:
