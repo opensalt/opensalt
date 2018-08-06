@@ -12,4 +12,4 @@ light_saml_symfony_bridge:
                 - "%kernel.root_dir%/../vendor/lightsaml/lightsaml/web/sp/openidp.feide.no.xml"
                 - "%kernel.root_dir%/../vendor/lightsaml/lightsaml/web/sp/testshib-providers.xml"
     store:
-        id_state: id_store  # name of id store service created in step 6
+        id_state: id_store # IdStore  name of id store service created in step 6 

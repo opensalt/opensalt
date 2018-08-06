@@ -1,8 +1,8 @@
 <?php
-// src/AppBundle/Store/IdStore.php
-namespace AppBundle\Store;
 
-use AppBundle\Entity\IdEntry;
+namespace App\Store;
+
+use App\Entity\User\IdEntry;
 use Doctrine\Common\Persistence\ObjectManager;
 use LightSaml\Provider\TimeProvider\TimeProviderInterface;
 use LightSaml\Store\Id\IdStoreInterface;

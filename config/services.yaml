@@ -163,7 +163,7 @@ services:
 
     # adfs services
     id_store:
-        class: AppBundle\Store\IdStore
+        class: App\Store\IdStore
         arguments:
             - "@=service('doctrine').getManager()"
             - "@lightsaml.system.time_provider"

@@ -1,6 +1,6 @@
 <?php
-// src/AppBundle/Entity/IdEntry.php
-namespace AppBundle\Entity;
+
+namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
