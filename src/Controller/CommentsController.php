@@ -25,6 +25,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\Service\BucketService;
+use Qandidate\Toggle\ContextFactory;
+use Qandidate\Toggle\ToggleManager;
 
 /**
  * @Toggle("comments")
@@ -37,10 +39,14 @@ class CommentsController extends AbstractController
      * @var SerializerInterface
      */
     private $serializer;
+    private $manager;
+    private $context;
 
-    public function __construct(SerializerInterface $serializer)
+    public function __construct(SerializerInterface $serializer, ToggleManager $manager, ContextFactory $contextFactory)
     {
         $this->serializer = $serializer;
+        $this->manager = $manager;
+        $this->context = $contextFactory->createContext();
     }
 
     /**
@@ -266,11 +272,13 @@ class CommentsController extends AbstractController
         $fileUrl = null;
         $fileMimeType = null;
 
-        $file = $request->files->get('file');
+        if ($this->manager->active('comment_attachments', $this->context)) {
+            $file = $request->files->get('file');
 
-        if ($file->isValid()) {
-            $fileUrl = $bucket->uploadFile($file, 'comments');
-            $fileMimeType = $file->getMimeType();
+            if ($file->isValid()) {
+                $fileUrl = $bucket->uploadFile($file, 'comments');
+                $fileMimeType = $file->getMimeType();
+            }
         }
 
         $command = new AddCommentCommand($itemType, $item, $user, $content, $fileUrl, $fileMimeType, (int) $parentId);
