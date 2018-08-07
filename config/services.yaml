@@ -168,6 +168,12 @@ services:
             - "@=service('doctrine').getManager()"
             - "@lightsaml.system.time_provider"
 
+    user_creator:
+        class: App\Security\User\UserCreator
+        arguments:
+            - "@=service('doctrine').getManager()"
+            - "@lightsaml_sp.username_mapper.simple"
+
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
         arguments:
