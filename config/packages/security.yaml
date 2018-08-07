@@ -61,6 +61,14 @@ security:
                 always_use_default_target_path: false
                 use_referer: true
 
+            light_saml_sp:
+                provider: db_provider
+                user_creator: user_creator
+                login_path: /saml/login
+                check_path: /saml/login_check
+                default_target_path: /
+                require_previous_session: true
+
             logout:
                 path: /logout
                 target: salt_index
