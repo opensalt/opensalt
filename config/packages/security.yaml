@@ -17,6 +17,7 @@ security:
         local_db_provider:
             entity:
                 class: App\Entity\User\User
+                property: username
 
         in_memory:
             memory: ~
