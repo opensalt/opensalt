@@ -82,6 +82,8 @@ security:
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/logout, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # added this line and need to integrate access control with current system
+        - { path: ^/secure, roles: ROLE_USER }
 
 services:
     salt.authentication.json_form_entry_point:
