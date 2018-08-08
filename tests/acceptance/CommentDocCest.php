@@ -218,12 +218,18 @@ class CommentDocCest
 
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
+
         $I->click('.jquery-comments .commenting-field .textarea-wrapper .textarea');
-        $I->attachFile('.js-comments-container .commenting-field input[type=file]', 'opensalt.png');
+        $I->attachFile('.js-comments-container .commenting-field input[type=file]', 'comment_attach.txt');
         $I->waitForJS('return $.active == 0', 120);
         $I->click('.jquery-comments .navigation li:last-child');
-        $I->makeScreenshot('attach_file');
 
         $I->dontSee('No attachments');
+
+        $url = $I->grabAttributeFrom('#attachment-list li:first-child .attachment', 'href');
+        $attachmentFile = file_get_contents($I->download($url));
+
+        $I->assertContains('attachs are working', $attachmentFile);
+
     }
 }
