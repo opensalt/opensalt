@@ -35,8 +35,8 @@ class CommentRepository extends ServiceEntityRepository
     {
         $comment = new Comment();
         $comment->setContent(trim($content));
-        $comment->setFileUrl(trim($fileUrl));
-        $comment->setFileMimeType(trim($mimeType));
+        $comment->setFileUrl($fileUrl);
+        $comment->setFileMimeType($mimeType);
         $comment->setUser($user);
 
         if ('item' === $itemType) {

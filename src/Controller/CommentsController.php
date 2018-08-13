@@ -121,7 +121,7 @@ class CommentsController extends AbstractController
      *
      * @Security("is_granted('comment')")
      */
-    public function upvoteAction(Comment $comment, UserInterface $user)
+    public function upvoteAction(Comment $comment, UserInterface $user = null)
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -275,7 +275,7 @@ class CommentsController extends AbstractController
         if ($this->manager->active('comment_attachments', $this->context)) {
             $file = $request->files->get('file');
 
-            if ($file->isValid()) {
+            if (!is_null($file) && $file->isValid()) {
                 $fileUrl = $bucket->uploadFile($file, 'comments');
                 $fileMimeType = $file->getMimeType();
             }
