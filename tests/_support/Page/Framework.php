@@ -198,7 +198,7 @@ class Framework implements Context
     {
         $I = $this->I;
 
-        $I->waitForElementVisible('#wizard .btn-import-framework');
+        $I->waitForElementVisible('#wizard .btn-import-case');
 
         return $this;
     }
