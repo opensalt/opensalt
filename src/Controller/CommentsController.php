@@ -191,8 +191,11 @@ class CommentsController extends AbstractController
 
                 case 'item':
                     $lsItem = $lsItemRepo->find($itemId);
-                    $childIds=$lsItem->getDescendantIds();
-                    $childIds[] = $itemId;
+
+                    if (!is_null($lsItem)) {
+                        $childIds = $lsItem->getDescendantIds();
+                        $childIds[] = $itemId;
+                    }
                     break;
             }
 
