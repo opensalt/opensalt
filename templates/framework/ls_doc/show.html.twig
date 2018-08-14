@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>CASE® Framework</h1>
+
+    <table class="table table-condensed table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Internal Id</th>
+                <td>{{ lsDoc.id }}</td>
+            </tr>
+            <tr>
+                <th>Uri</th>
+                <td>{{ lsDoc.uri }}</td>
+            </tr>
+            <tr>
+                <th>Identifier</th>
+                <td>{{ lsDoc.identifier }}</td>
+            </tr>
+            <tr>
+                <th>Official Uri</th>
+                <td>{{ lsDoc.officialUri }}</td>
+            </tr>
+            <tr>
+                <th>Creator</th>
+                <td>{{ lsDoc.creator }}</td>
+            </tr>
+            <tr>
+                <th>Publisher</th>
+                <td>{{ lsDoc.publisher }}</td>
+            </tr>
+            <tr>
+                <th>Owning Organization</th>
+                <td>{{ lsDoc.org.name|default('') }}</td>
+            </tr>
+            <tr>
+                <th>Owning User</th>
+                <td>{{ lsDoc.user.username|default('') }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ lsDoc.title }}</td>
+            </tr>
+            <tr>
+                <th>Version</th>
+                <td>{{ lsDoc.version }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ lsDoc.description }}</td>
+            </tr>
+            <tr>
+                <th>Subject</th>
+                <td>{{ lsDoc.subject }}</td>
+            </tr>
+            <tr>
+                <th>Subject Uri</th>
+                <td>{{ lsDoc.subjectUri }}</td>
+            </tr>
+            <tr>
+                <th>Language</th>
+                <td>{{ lsDoc.language }}</td>
+            </tr>
+            <tr>
+                <th>Adoption Status</th>
+                <td>{{ lsDoc.adoptionStatus }}</td>
+            </tr>
+            <tr>
+                <th>Status start</th>
+                <td>{% if lsDoc.statusStart %}{{ lsDoc.statusStart|date('Y-m-d') }}{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Status end</th>
+                <td>{% if lsDoc.statusEnd %}{{ lsDoc.statusEnd|date('Y-m-d') }}{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Top LSItems</th>
+                <td>
+                    <ul class="list-unstyled">
+                        {% for item in lsDoc.topLSItems %}
+                            <li>
+                                <a href="{{ path('lsitem_show', { 'id': item.id }) }}">{{ item.uri }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <th>Note</th>
+                <td>{{ lsDoc.note }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul class="list-inline">
+        <li>
+            <a class="btn btn-primary" href="{{ path('lsdoc_index') }}">Back to the list</a>
+        </li>
+        {% if is_granted('edit', lsDoc) %}
+            <li>
+                <a class="btn btn-default" href="{{ path('lsdoc_edit', { 'id': lsDoc.id }) }}">Edit</a>
+            </li>
+        {% endif %}
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdoc_export', { 'id': lsDoc.id }) }}">Export</a>
+        </li>
+        {% if is_granted('manage_editors', lsDoc) %}
+            <li>
+                <a class="btn btn-default" href="{{ path('framework_acl_edit', { 'id': lsDoc.id }) }}">Manage Access</a>
+            </li>
+        {% endif %}
+        {% if is_granted('delete', lsDoc) %}
+            <li>
+                {{ form_start(delete_form) }}
+                    <input class="btn btn-danger" type="submit" value="Delete">
+                {{ form_end(delete_form) }}
+            </li>
+        {% endif %}
+    </ul>
+{% endblock %}

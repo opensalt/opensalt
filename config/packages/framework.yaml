@@ -1,0 +1,50 @@
+framework:
+    secret: '%secret%'
+    csrf_protection: true
+    #http_method_override: true
+
+    # Enables session support. Note that the session will ONLY be started if you read or write from it.
+    # Remove or comment this section to explicitly disable session support.
+    session:
+        # handler_id set to null will use default session handler from php.ini
+        #handler_id:  ~
+        handler_id:  session.handler.pdo
+        #handler_id:  nelmio_security.session.handler
+        #save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
+        name: session
+        cookie_lifetime: 0
+        #cookie_secure: true
+        cookie_httponly: true
+        gc_maxlifetime: 86400
+        gc_probability: 25
+        gc_divisor:     100
+        metadata_update_threshold: 120
+    #esi: true
+    fragments: true
+    php_errors:
+        log: true
+
+    request:
+      formats:
+        jsonapi: 'application/vnd.api+json'
+        csv: ['text/csv', 'text/plain']
+
+    assets:
+        version: '180451'
+        packages:
+          encore:
+            json_manifest_path: '%kernel.project_dir%/web/build/manifest.json'
+    cache:
+        # Put the unique name of your app here: the prefix seed
+        # is used to compute stable namespaces for cache keys.
+        #prefix_seed: your_vendor_name/app_name
+
+        # The app cache caches to the filesystem by default.
+        # Other options include:
+
+        # Redis
+        #app: cache.adapter.redis
+        #default_redis_provider: redis://localhost
+
+        # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
+        #app: cache.adapter.apcu

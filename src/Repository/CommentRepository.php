@@ -31,16 +31,20 @@ class CommentRepository extends ServiceEntityRepository
      *
      * @return Comment
      */
-    public function addComment(string $itemType, $itemId, User $user, string $content, $parentId = null)
+    public function addComment(string $itemType, $itemId, User $user, ?string $content = null, ?string $fileUrl = null, ?string $mimeType = null, $parentId = null)
     {
         $comment = new Comment();
         $comment->setContent(trim($content));
+        $comment->setFileUrl($fileUrl);
+        $comment->setFileMimeType($mimeType);
         $comment->setUser($user);
+
         if ('item' === $itemType) {
             $comment->setItem($itemId);
         } else {
             $comment->setDocument($itemId);
         }
+
         $comment->setCreatedByCurrentUser(true);
 
         $parent = $this->find($parentId);

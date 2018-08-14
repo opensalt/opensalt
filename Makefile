@@ -71,6 +71,7 @@ encore-build: encore
 
 node_modules: yarn.lock package.json
 	docker run --rm -u $(shell id -u):$(shell id -g) -v $(shell pwd):/app --workdir /app node:9-alpine yarn install --non-interactive
+	touch node_modules
 yarn-install: node_modules
 .PHONY: yarn-install
 
@@ -82,10 +83,21 @@ assets-install:
 build: vendor encore-build assets-install cache-clear
 .PHONY: build
 
-update: build migrate
+force-vendor:
+	touch -c composer.lock
+.PHONY: force-vendor
+
+force-node-modules:
+	touch -c yarn.lock
+.PHONY: force-node-modules
+
+force-build: force-vendor force-node-modules build
+.PHONY: force-build
+
+update: force-build migrate
 .PHONY: update
 
-install: cache-clear build
+install: cache-clear force-build
 .PHONY: install
 
 # DB commands

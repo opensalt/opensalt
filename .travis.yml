@@ -9,7 +9,7 @@ sudo: required
 env:
   global:
     - COMMIT=${TRAVIS_COMMIT::8}
-    - DOCKER_COMPOSE_VERSION=1.16.1
+    - DOCKER_COMPOSE_VERSION=1.21.2
     - FIREBASE_PREFIX=${FIREBASE_PREFIX:-travis}-${TRAVIS_BUILD_NUMBER}
 
 language: php
@@ -46,6 +46,8 @@ install:
 
 # Create docker image with the running code
 before_script:
+  - mkdir public/attachments/
+  - chmod 777 public/attachments/
   - ./docker/app/build.sh
   - docker-compose -f docker/docker-compose.yml up -d
   - sleep 30

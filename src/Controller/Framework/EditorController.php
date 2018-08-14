@@ -4,8 +4,7 @@ namespace App\Controller\Framework;
 
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Util\Compare;
@@ -19,8 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 class EditorController extends AbstractController
 {
     /**
-     * @Route("/", defaults={"_format"="html"}, name="editor_index")
-     * @Method("GET")
+     * @Route("/", methods={"GET"}, defaults={"_format"="html"}, name="editor_index")
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -30,8 +28,7 @@ class EditorController extends AbstractController
     }
 
     /**
-     * @Route("/doc/{id}.{_format}", defaults={"_format" = "html"}, name="editor_lsdoc")
-     * @Method("GET")
+     * @Route("/doc/{id}.{_format}", methods={"GET"}, defaults={"_format" = "html"}, name="editor_lsdoc")
      * @Template()
      *
      * @param \App\Entity\Framework\LsDoc $lsDoc
@@ -49,8 +46,7 @@ class EditorController extends AbstractController
     }
 
     /**
-     * @Route("/item/{id}.{_format}", defaults={"_format" = "html"}, name="editor_lsitem")
-     * @Method("GET")
+     * @Route("/item/{id}.{_format}", methods={"GET"}, defaults={"_format" = "html"}, name="editor_lsitem")
      * @Template()
      *
      * @param \App\Entity\Framework\LsItem $lsItem
@@ -68,9 +64,8 @@ class EditorController extends AbstractController
     }
 
     /**
-     * @Route("/render/{id}.{_format}", defaults={"highlight"=null, "_format"="html"}, name="editor_render_document_only")
-     * @Route("/render/{id}/{highlight}.{_format}", defaults={"highlight"=null, "_format"="html"}, name="editor_render")
-     * @Method("GET")
+     * @Route("/render/{id}.{_format}", methods={"GET"}, defaults={"highlight"=null, "_format"="html"}, name="editor_render_document_only")
+     * @Route("/render/{id}/{highlight}.{_format}", methods={"GET"}, defaults={"highlight"=null, "_format"="html"}, name="editor_render")
      * @Template()
      *
      * @param \App\Entity\Framework\LsDoc $lsDoc

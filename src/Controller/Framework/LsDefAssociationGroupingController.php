@@ -7,13 +7,13 @@ use App\Command\Framework\AddAssociationGroupCommand;
 use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\UpdateAssociationGroupCommand;
 use App\Form\Type\LsDefAssociationGroupingType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use App\Entity\Framework\LsDefAssociationGrouping;
 
@@ -29,8 +29,7 @@ class LsDefAssociationGroupingController extends AbstractController
     /**
      * Lists all LsDefAssociationGrouping entities.
      *
-     * @Route("/", name="lsdef_association_grouping_index")
-     * @Method("GET")
+     * @Route("/", methods={"GET"}, name="lsdef_association_grouping_index")
      * @Template()
      *
      * @return array
@@ -49,9 +48,9 @@ class LsDefAssociationGroupingController extends AbstractController
     /**
      * Creates a new LsDefAssociationGrouping entity.
      *
-     * @Route("/new", name="lsdef_association_grouping_new")
-     * @Method({"GET", "POST"})
+     * @Route("/new", methods={"GET", "POST"}, name="lsdef_association_grouping_new")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      *
@@ -94,8 +93,7 @@ class LsDefAssociationGroupingController extends AbstractController
     /**
      * Finds and displays a LsDefAssociationGrouping entity.
      *
-     * @Route("/{id}", name="lsdef_association_grouping_show")
-     * @Method("GET")
+     * @Route("/{id}", methods={"GET"}, name="lsdef_association_grouping_show")
      * @Template()
      *
      * @param LsDefAssociationGrouping $associationGrouping
@@ -115,9 +113,9 @@ class LsDefAssociationGroupingController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefAssociationGrouping entity.
      *
-     * @Route("/{id}/edit", name="lsdef_association_grouping_edit")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_association_grouping_edit")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefAssociationGrouping $associationGrouping
@@ -151,8 +149,8 @@ class LsDefAssociationGroupingController extends AbstractController
     /**
      * Deletes a LsDefAssociationGrouping entity.
      *
-     * @Route("/{id}", name="lsdef_association_grouping_delete")
-     * @Method("DELETE")
+     * @Route("/{id}", methods={"DELETE"}, name="lsdef_association_grouping_delete")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefAssociationGrouping $associationGrouping

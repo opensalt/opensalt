@@ -7,14 +7,14 @@ use Behat\Gherkin\Node\TableNode;
 use Codeception\Exception\Fail;
 use Codeception\Util\Locator;
 use Facebook\WebDriver\Exception\StaleElementReferenceException;
-use PhpSpec\Exception\Example\PendingException;
 use Ramsey\Uuid\Uuid;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class Framework implements Context
 {
     static public $docPath = '/cftree/doc/';
     static public $lsdocPath = '/cfdoc/';
+    static public $creatorsPath = 'api/v1/lor/creators';
+    static public $frameworksByCreatorPath = 'api/v1/lor/frameworksByCreator/';
 
     static public $fwTitle = '#ls_doc_create_title';
     static public $fwCreatorField = '#ls_doc_create_creator';
@@ -30,6 +30,7 @@ class Framework implements Context
     protected $creatorName = 'OpenSALT Testing';
     protected $frameworkData = [];
     protected $id;
+    protected $rememberedCreator;
 
     /**
      * @var \AcceptanceTester
@@ -66,7 +67,7 @@ class Framework implements Context
 
         return $this;
     }
-    
+
 
     /**
      * @Given /^I should see the framework information$/
@@ -173,13 +174,31 @@ class Framework implements Context
     }
 
     /**
+     * @When /^I click on copy from button$/
+     */
+    public function iClickOnCopyFromButton(): Framework
+    {
+        $this->I->click('#copyFrameworkModal_copyLeftBtn');
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see the copy from button active$/
+     */
+    public function iShouldSeeTheCopyFromButtonActive(): Framework
+    {
+        $this->I->click('#copyFrameworkModal_copyLeftBtn');
+        return $this;
+    }
+
+    /**
      * @Then /^I should see the import dialogue$/
      */
     public function iShouldSeeTheImportDialogue(): Framework
     {
         $I = $this->I;
 
-        $I->waitForElementVisible('#wizard .btn-import-framework');
+        $I->waitForElementVisible('#wizard .btn-import-case');
 
         return $this;
     }
@@ -673,6 +692,17 @@ class Framework implements Context
     }
 
     /**
+     * @Given /^I should see a math equation in the framework$/
+     */
+    public function iShouldSeeMathEquationInTheFramework()
+    {
+        $I = $this->I;
+
+        $I->click('//span[text()="MD.Table"]/../../..');
+        $I->seeElement('.lsItemDetails .katex');
+    }
+
+    /**
      * @When /^I display modal to edit framework$/
      */
     public function iDisplayModalToEditFramework() {
@@ -807,6 +837,27 @@ class Framework implements Context
         $I->click('Create a new Framework');
         $I->see('Create New Framework Package');
         $this->iCreateAFramework();
+    }
+
+    /**
+     * @When /^I create a framework with a remembered creator$/
+     */
+    public function iCreateAFrameworkRememberingTheCreator() {
+        $I = $this->I;
+
+        $I->see('Create a new Framework');
+        $I->click('Create a new Framework');
+        $I->see('Create New Framework Package');
+
+        /** @var \Faker\Generator $faker */
+        $faker = \Faker\Factory::create();
+        $this->rememberedCreator = $faker->company;
+        $oldCreator = $this->creatorName;
+        $this->creatorName = $this->rememberedCreator;
+
+        $this->iCreateAFramework();
+
+        $this->creatorName = $oldCreator;
     }
 
     /**
@@ -1202,4 +1253,43 @@ class Framework implements Context
         $I->dontSee('A.B.D ghi');
     }
 
+    /**
+     * @When /^I fetch a list of creators$/
+     */
+    public function iFetchAListOfCreators()
+    {
+        $I = $this->I;
+        $I->haveHttpHeader('Accept', 'application/json');
+        $I->sendGET(static::$creatorsPath);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * @Then /^the remembered creator will be in the list$/
+     */
+    public function theRememberedCreatorWillBeInTheList()
+    {
+        $this->I->seeResponseContainsJson([$this->rememberedCreator]);
+    }
+
+    /**
+     * @When /^I fetch a list of frameworks by the remembered creator$/
+     */
+    public function iFetchAListOfFrameworksByTheRememberedCreator()
+    {
+        $I = $this->I;
+        $I->haveHttpHeader('Accept', 'application/json');
+        $I->sendGET(static::$frameworksByCreatorPath.rawurlencode($this->rememberedCreator));
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * @Then /^the created framework will be in the list$/
+     */
+    public function theCreatedFrameworkWillBeInTheList()
+    {
+        $this->I->seeResponseContainsJson(['title' => $this->rememberedFramework]);
+    }
 }

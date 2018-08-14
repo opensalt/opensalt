@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>LsDefItemType</h1>
+
+    <table class="table table-condensed table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ lsDefItemType.id }}</td>
+            </tr>
+            <tr>
+                <th>Identifier</th>
+                <td>{{ lsDefItemType.identifier }}</td>
+            </tr>
+            <tr>
+                <th>Uri</th>
+                <td>{{ lsDefItemType.uri|local_uri }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ lsDefItemType.title }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ lsDefItemType.description }}</td>
+            </tr>
+            <tr>
+                <th>Code</th>
+                <td>{{ lsDefItemType.code }}</td>
+            </tr>
+            <tr>
+                <th>Hierarchy Code</th>
+                <td>{{ lsDefItemType.hierarchyCode }}</td>
+            </tr>
+            <tr>
+                <th>Extra</th>
+                <td>{{ dump(lsDefItemType.extra) }}{{ lsDefItemType.extra|json_encode(constant('JSON_PRETTY_PRINT')) }}</td>
+            </tr>
+            <tr>
+                <th>Updated At</th>
+                <td>{% if lsDefItemType.updatedAt %}{{ lsDefItemType.updatedAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul class="list-inline text-right">
+        <li>
+            <a class="btn btn-primary" href="{{ path('lsdef_item_type_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdef_item_type_edit', { 'id': lsDefItemType.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input class="btn btn-danger" type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

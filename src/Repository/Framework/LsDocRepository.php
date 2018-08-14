@@ -7,12 +7,15 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\Util\Compare;
 
 /**
  * LsDocRepository
+ *
+ * @method array findByCreator(String $creator)
  */
 class LsDocRepository extends ServiceEntityRepository
 {
@@ -60,13 +63,44 @@ class LsDocRepository extends ServiceEntityRepository
      *
      * @return array|LsDoc[]
      */
-    public function findAllDocuments(?CfDocQuery $query): array
+    public function findAllDocuments(?CfDocQuery $query = null): array
     {
         if (null === $query) {
             $query = new CfDocQuery();
         }
 
         return $this->findBy([], ['id' => 'asc'], $query->getLimit(), $query->getOffset());
+    }
+
+    public function findAllNonPrivateQueryBuilder(): QueryBuilder
+    {
+        return $this->createQueryBuilder('d')
+            ->where('d.adoptionStatus != :status')
+            ->setParameter('status', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT)
+        ;
+    }
+
+    /**
+     * @return array|LsDoc[]
+     */
+    public function findAllNonPrivate(): array
+    {
+        $qb = $this->findAllNonPrivateQueryBuilder();
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @return array|LsDoc[]
+     */
+    public function findNonPrivateByCreator(String $creator): array
+    {
+        $qb = $this->findAllNonPrivateQueryBuilder()
+            ->andWhere('d.creator = :creator')
+            ->setParameter('creator', $creator)
+            ;
+
+        return $qb->getQuery()->getResult();
     }
 
     /**

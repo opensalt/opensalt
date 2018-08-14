@@ -6,12 +6,11 @@ use App\Entity\ChangeEntry;
 use App\Entity\Framework\LsDoc;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class CfPackageController
@@ -23,9 +22,8 @@ class CfPackageController extends AbstractController
     /**
      * Export a CFPackage
      *
-     * @Route("/doc/{id}.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, defaults={"_format"="json"}, name="cfpackage_export")
-     * @Route("/doc/{id}/export.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, defaults={"_format"="json"}, name="cfpackage_export2")
-     * @Method("GET")
+     * @Route("/doc/{id}.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, methods={"GET"}, defaults={"_format"="json"}, name="cfpackage_export")
+     * @Route("/doc/{id}/export.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, methods={"GET"}, defaults={"_format"="json"}, name="cfpackage_export2")
      * @Template()
      */
     public function exportAction(Request $request, LsDoc $lsDoc, SerializerInterface $serializer, $_format = 'json')

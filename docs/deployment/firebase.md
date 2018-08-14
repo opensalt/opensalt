@@ -60,4 +60,4 @@ To set up firebase:
     - FIREBASE_CLIENT_EMAIL - to be the **client_email** from the key file
     - FIREBASE_PRIVATE_KEY - to be the **private_key** from the key file
 16. Restart the docker containers to have the environment variables read
-    - `docker-compose down -v; docker-compose up -d`
+    - `make restart`
