@@ -690,6 +690,12 @@
     {% endblock %}
 
     {% block javascripts %}
+        {% if 'comment_attachments' is active feature %}
+            <script>var COMMENT_ATTACHMENTS = true;</script>
+        {% else %}
+            <script>var COMMENT_ATTACHMENTS = false;</script>
+        {% endif %}
+
         {% if 'comments' is active feature %}
             <script src="{{ asset('build/comments.js', 'encore') }}"></script>
         {% endif %}
