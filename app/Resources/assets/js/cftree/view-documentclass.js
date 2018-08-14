@@ -716,10 +716,10 @@ function ApxDocument(initializer) {
     };
 
     self.getItemUri = function(item) {
-        if (empty(self.doc.uriBase) || empty(item) || empty(item.identifier)) {
+        if (empty(item) || empty(item.uri)) {
             return "?";
         } else {
-            return self.doc.uriBase + item.identifier;
+            return item.uri;
         }
     };
 
