@@ -4,8 +4,7 @@ namespace App\Controller;
 
 use App\Repository\ChangeEntryRepository;
 use App\Entity\Framework\LsDoc;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,8 +30,7 @@ class DocRevisionController extends AbstractController
     }
 
     /**
-     * @Route("/cfdoc/{id}/revisions/{offset}/{limit}", requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="doc_revisions_json")
-     * @Method("GET")
+     * @Route("/cfdoc/{id}/revisions/{offset}/{limit}", methods={"GET"}, requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="doc_revisions_json")
      * @Security("is_granted('edit', doc)")
      */
     public function listDocRevisionsAction(LsDoc $doc, int $offset, int $limit): Response
@@ -64,8 +62,7 @@ class DocRevisionController extends AbstractController
     }
 
     /**
-     * @Route("/cfdoc/{id}/revisions/export", name="doc_revisions_csv")
-     * @Method({"GET"})
+     * @Route("/cfdoc/{id}/revisions/export", name="doc_revisions_csv", methods={"GET"})
      * @Security("is_granted('edit', doc)")
      */
     public function exportDocRevisions(LsDoc $doc): Response

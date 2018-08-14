@@ -8,8 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Form\Type\SignupType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\User\User;
 use App\Entity\User\Organization;
 use App\Command\User\AddUserCommand;
@@ -54,8 +53,7 @@ class SignupController extends AbstractController
     /**
      * Creates a new user entity
      *
-     * @Route("/signup", name="public_user_signup")
-     * @Method({"GET", "POST"})
+     * @Route("/signup", methods={"GET", "POST"}, name="public_user_signup")
      * @Template()
      *
      * @param Request $request

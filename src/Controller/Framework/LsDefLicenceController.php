@@ -7,12 +7,12 @@ use App\Command\Framework\AddLicenceCommand;
 use App\Command\Framework\DeleteLicenceCommand;
 use App\Command\Framework\UpdateLicenceCommand;
 use App\Form\Type\LsDefLicenceType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use App\Entity\Framework\LsDefLicence;
 
@@ -28,8 +28,7 @@ class LsDefLicenceController extends AbstractController
     /**
      * Lists all LsDefLicence entities.
      *
-     * @Route("/", name="lsdef_licence_index")
-     * @Method("GET")
+     * @Route("/", methods={"GET"}, name="lsdef_licence_index")
      * @Template()
      *
      * @return array
@@ -48,8 +47,7 @@ class LsDefLicenceController extends AbstractController
     /**
      * Lists all LsDefLicence entities.
      *
-     * @Route("/list.{_format}", defaults={"_format"="json"}, name="lsdef_licence_index_json")
-     * @Method("GET")
+     * @Route("/list.{_format}", methods={"GET"}, defaults={"_format"="json"}, name="lsdef_licence_index_json")
      * @Template()
      *
      * @param Request $request
@@ -70,9 +68,9 @@ class LsDefLicenceController extends AbstractController
     /**
      * Creates a new LsDefLicence entity.
      *
-     * @Route("/new", name="lsdef_licence_new")
-     * @Method({"GET", "POST"})
+     * @Route("/new", methods={"GET", "POST"}, name="lsdef_licence_new")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      *
@@ -104,8 +102,7 @@ class LsDefLicenceController extends AbstractController
     /**
      * Finds and displays a LsDefLicence entity.
      *
-     * @Route("/{id}", name="lsdef_licence_show")
-     * @Method("GET")
+     * @Route("/{id}", methods={"GET"}, name="lsdef_licence_show")
      * @Template()
      *
      * @param LsDefLicence $lsDefLicence
@@ -125,9 +122,9 @@ class LsDefLicenceController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefLicence entity.
      *
-     * @Route("/{id}/edit", name="lsdef_licence_edit")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_licence_edit")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefLicence $lsDefLicence
@@ -161,8 +158,8 @@ class LsDefLicenceController extends AbstractController
     /**
      * Deletes a LsDefLicence entity.
      *
-     * @Route("/{id}", name="lsdef_licence_delete")
-     * @Method("DELETE")
+     * @Route("/{id}", methods={"DELETE"}, name="lsdef_licence_delete")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefLicence $lsDefLicence

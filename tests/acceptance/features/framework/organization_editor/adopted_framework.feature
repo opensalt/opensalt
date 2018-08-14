@@ -11,7 +11,7 @@ Feature: A framework marked as "Adopted" should not allow edits
     When I click "Import framework"
     Then I should see the import dialogue
 
-    When I click "Import CASE file"
+    When I click "Import CASE® file"
     And I upload the adopted CASE file
     And I go to the uploaded framework
     Then I should not see the button "Manage Association Groups"

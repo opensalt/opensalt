@@ -11,6 +11,7 @@ use Facebook\WebDriver\Exception\StaleElementReferenceException;
 class Item implements Context
 {
     static public $itemPath = '/cftree/item/';
+    static public $exactMatchesPath = 'api/v1/lor/exactMatchIdentifiers/';
 
     protected $rememberedItem;
     protected $itemData = [];
@@ -94,8 +95,9 @@ class Item implements Context
         $I = $this->I;
         $I->waitForText('Add New Child Item', 30);
         $I->see('Add New Child Item');
+        $I->wait(1);
         $I->click('Add New Child Item');
-        $I->waitForElementVisible('#ls_item');
+        $I->waitForElementVisible('#ls_item', 30);
         $I->waitForElementVisible('#ls_item_listEnumInSource');
 
         $I->executeJS("$('#ls_item_fullStatement').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$fullStatement}')");
@@ -121,6 +123,25 @@ class Item implements Context
         }
 
         $I->remember($requestedItem, $item);
+
+        $frameworkUrl = $I->grabFromCurrentUrl('/(.*)/');
+
+        $I->click("//section[@id='tree1Section']//span[@class='item-humanCodingScheme'][text()='{$item}']");
+        $itemId = $I->grabFromCurrentUrl('#/(\d+)$#');
+        $I->remember($requestedItem.'-id', $itemId);
+
+        $uri = $I->grabAttributeFrom('li.lsItemDetailsExtras a', 'href');
+        preg_match('#/([a-f0-9-]{32,36})$#', $uri, $matches);
+        $key = $matches[1];
+        $I->remember($requestedItem.'-identifier', $key);
+
+        $I->amOnPage($frameworkUrl);
+        try {
+            $I->waitForElementVisible('#modalSpinner', 10);
+        } catch (\Exception $e) {
+            // Ignore if not seen
+        }
+        $I->waitForElementNotVisible('#modalSpinner', 120);
     }
 
     /**
@@ -252,6 +273,7 @@ class Item implements Context
 
     /**
      * @Given /^I add a Association$/
+     * @Given /^I add an Association$/
      */
     public function iAddAAssociation()
     {
@@ -265,6 +287,29 @@ class Item implements Context
         $I->waitForElementVisible('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]');
         $I->dragAndDrop('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
         $I->waitForElementVisible('#lsAssociationSwitchDirection');
+        $I->click('Associate');
+    }
+
+    /**
+     * @When /^I add a "([^"]*)" association from "([^"]*)" to "([^"]*)"$/
+     * @When /^I add an "([^"]*)" association from "([^"]*)" to "([^"]*)"$/
+     */
+    public function iAddAnAssociationFromTo($type, $from, $to)
+    {
+        $I = $this->I;
+
+        $rememberedFrom = $I->getRememberedString($from);
+        $rememberedTo = $I->getRememberedString($to);
+
+        $this->iAmOnAnItemPage();
+        $I->waitForElementVisible('#rightSideCopyItemsBtn');
+        $I->click('Create Association');
+        $I->see('Select a Competency Framework Document to view on the right side.');
+        $I->selectOption('#ls_doc_list_lsDoc_right', array('text' => $I->getLastFrameworkTitle() . ' (• DOCUMENT BEING EDITED •)'));
+        $I->waitForElementVisible('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]');
+        $I->dragAndDrop("(//div[@id='viewmode_tree2']/ul/li/ul/li/span//span[text()='{$rememberedFrom}']/../..)[1]", "(//div[@id='viewmode_tree1']/ul/li/ul/li/span//span[text()='{$rememberedTo}']/../..)[1]");
+        $I->waitForElementVisible('#lsAssociationSwitchDirection');
+        $I->selectOption('#associationFormType', array('text' => $type));
         $I->click('Associate');
     }
 
@@ -417,6 +462,26 @@ class Item implements Context
         $I->see('A.B abc');
         $I->see('A.B.C def');
         $I->see('A.B.D ghi');
+    }
+
+    /**
+     * @When /^I get the exact matches of "([^"]*)"$/
+     */
+    public function iGetTheExactMatchesOf($itemName)
+    {
+        $I = $this->I;
+        $I->haveHttpHeader('Accept', 'application/json');
+        $I->sendGET(static::$exactMatchesPath.$I->getRememberedString($itemName.'-identifier'));
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * @When /^I see the identifier for "([^"]*)" in the list of exact matches$/
+     */
+    public function iSeeInTheListOfExactMatches($itemName)
+    {
+        $this->I->seeResponseContainsJson([$this->I->getRememberedString($itemName.'-identifier')]);
     }
 
     protected function waitAndAcceptPopup($tries = 30)

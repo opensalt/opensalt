@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>LsDefAssociationGrouping</h1>
+
+    <table class="table table-condensed table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ lsDefAssociationGrouping.id }}</td>
+            </tr>
+            <tr>
+                <th>Identifier</th>
+                <td>{{ lsDefAssociationGrouping.identifier }}</td>
+            </tr>
+            <tr>
+                <th>Uri</th>
+                <td>{{ lsDefAssociationGrouping.uri|local_uri }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ lsDefAssociationGrouping.title }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ lsDefAssociationGrouping.description }}</td>
+            </tr>
+            <tr>
+                <th>Extra</th>
+                <td>{{ dump(lsDefAssociationGrouping.extra) }}{{ lsDefAssociationGrouping.extra|json_encode(constant('JSON_PRETTY_PRINT')) }}</td>
+            </tr>
+            <tr>
+                <th>Updated At</th>
+                <td>{% if lsDefAssociationGrouping.updatedAt %}{{ lsDefAssociationGrouping.updatedAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul class="list-inline text-right">
+        <li>
+            <a class="btn btn-primary" href="{{ path('lsdef_association_grouping_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdef_association_grouping_edit', { 'id': lsDefAssociationGrouping.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input class="btn btn-danger" type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

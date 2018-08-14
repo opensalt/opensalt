@@ -3,19 +3,21 @@ services:
   phpfpm:
     #build:
     #  context: ./php/fpm
-    image: opensalt/php:7.1-fpm
-    #image: opensalt/php:7.1-fpm-xdebug
+    image: opensalt/php:7.2-fpm
+    #image: opensalt/php:7.2-fpm-xdebug
     depends_on:
       - db
     environment:
+      #XDEBUG_CONFIG: remote_host=Your_IP_Address
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
       MYSQL_HOST: "${MYSQL_HOST:-db}"
-      #XDEBUG_CONFIG: remote_host=Your_IP_Address
+      DB_USE_RDS_CERT:
+      APP_SECRET:
+      COOKIE_SECRET:
       GITHUB_CLIENT_ID:
       GITHUB_CLIENT_SECRET:
-      DB_USE_RDS_CERT:
       BRAND_LOGO_URL:
       BRAND_LOGO_STYLE:
       BRAND_LINK_URL:
@@ -23,7 +25,6 @@ services:
       ALLOW_LOCAL_DEV: "true"
       ALLOW_EXTERNAL_DEV_IPS:
       DEV_COOKIE:
-      COMMENTS_FEATURE:
       FIREBASE_API_KEY:
       FIREBASE_AUTH_DOMAIN:
       FIREBASE_DB_URL:
@@ -38,11 +39,20 @@ services:
       MAILER_PASSWORD:
       MAILER_AUTH_MODE:
       MAILER_PORT:
+      COMMENTS_FEATURE:
+      COMMENT_ATTACHMENTS:
       CREATE_ACCOUNT_FEATURE:
       USE_MAIL_FEATURE:
       MAIL_FEATURE_FROM_EMAIL:
       GOOGLE_CAPTCHA_SITE_KEY:
       GOOGLE_CAPTCHA_SECRET_KEY:
+      AWS_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
+      AWS_S3_BUCKET:
+      AWS_S3_PREFIX:
+      ATTACHMENT_URL_PREFIX:
+      BUCKET_PROVIDER:
+      LOCAL_FILESYSTEM_PATH:
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html
@@ -50,7 +60,7 @@ services:
   nginx:
     #build:
     #  context: ./nginx
-    image: opensalt/nginx:1.13-alpine
+    image: opensalt/nginx:1.15-alpine
     depends_on:
       - phpfpm
     environment:

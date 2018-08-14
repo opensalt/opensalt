@@ -1,4 +1,4 @@
-FROM opensalt/php:7.1-fpm
+FROM opensalt/php:7.2-fpm
 
 # add xdebug
 RUN pecl install xdebug \

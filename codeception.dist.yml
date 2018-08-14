@@ -13,7 +13,6 @@ extensions:
         - Codeception\Extension\Logger
 params:
     - env
-    - app/config/parameters.yml
 class_name: FunctionalTester
 modules:
     enabled:
