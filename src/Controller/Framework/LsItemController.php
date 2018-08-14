@@ -21,6 +21,7 @@ use App\Form\Type\LsDocListType;
 use App\Form\Type\LsItemParentType;
 use App\Form\Type\LsItemType;
 use App\Entity\User\User;
+use App\Service\BucketService;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -29,6 +30,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -393,12 +395,17 @@ class LsItemController extends AbstractController
      * @param LsItem $lsItem
      * @param User $user
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function uploadAttachment(Request $request, LsItem $lsItem, UserInterface $user)
+    public function uploadAttachment(Request $request, LsItem $lsItem, BucketService $bucket)
     {
-        var_dump($request->files);
-        var_dump($request->get('attachmentTo'));
+        $file = $request->files->get('file');
+
+        if (!is_null($file) && $file->isValid()) {
+            $fileUrl = $bucket->uploadFile($file, 'items');
+        }
+
+        return new JsonResponse(['filename' => $fileUrl]);
     }
 
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
