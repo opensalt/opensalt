@@ -35,11 +35,8 @@ class CaseImport
     public function importCaseFile(\stdClass $fileContent): LsDoc
     {
         $em = $this->getEntityManager();
-        $lsDoc = new LsDoc();
+        $lsDoc = new LsDoc($fileContent->CFDocument->identifier);
 
-        if (property_exists($fileContent->CFDocument, 'identifier')) {
-            $lsDoc->setIdentifier($fileContent->CFDocument->identifier);
-        }
         if (property_exists($fileContent->CFDocument, 'uri')) {
             $lsDoc->setUri($fileContent->CFDocument->uri);
         }
@@ -85,12 +82,9 @@ class CaseImport
         $items = [];
         $items[$lsDoc->getIdentifier()] = $lsDoc;
         foreach ($cfItems as $cfItem) {
-            $lsItem = new LsItem();
+            $lsItem = new LsItem($cfItem->identifier);
 
             $lsItem->setLsDoc($lsDoc);
-            if (property_exists($cfItem, 'identifier')) {
-                $lsItem->setIdentifier($cfItem->identifier);
-            }
             if (property_exists($cfItem, 'uri')) {
                 $lsItem->setUri($cfItem->uri);
             }
@@ -197,12 +191,9 @@ class CaseImport
 
         $cfAssociations = $fileContent->CFAssociations;
         foreach ($cfAssociations as $cfAssociation) {
-            $lsAssociation = new LsAssociation();
+            $lsAssociation = new LsAssociation($cfAssociation->identifier);
 
             $lsAssociation->setLsDoc($lsDoc);
-            if (property_exists($cfAssociation, 'identifier')) {
-                $lsAssociation->setIdentifier($cfAssociation->identifier);
-            }
             if (property_exists($cfAssociation, 'uri')) {
                 $lsAssociation->setUri($cfAssociation->uri);
             }
