@@ -265,7 +265,7 @@ const render = (function() {
                     name: "image",
                     action: SimpleMDE.drawImage,
                     className: "fa fa-picture-o",
-                    title: "Inline image",
+                    title: "Insert image via URL or drag and drop an image into the field below",
                 },
                 "table", "horizontal-rule", "|", "preview",
                 "side-by-side", "fullscreen"
