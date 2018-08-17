@@ -43,6 +43,13 @@ class LsItemController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    private $bucketProvider;
+
+    public function __construct(?string $bucketProvider)
+    {
+        $this->bucketProvider = $bucketProvider;
+    }
+
     /**
      * Lists all LsItem entities.
      *
@@ -397,15 +404,18 @@ class LsItemController extends AbstractController
      *
      * @return Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function uploadAttachment(Request $request, LsItem $lsItem, BucketService $bucket)
+    public function uploadAttachmentAction(Request $request, LsItem $lsItem, BucketService $bucket)
     {
-        $file = $request->files->get('file');
+        if (!is_null($this->bucketProvider)) {
+            $file = $request->files->get('file');
 
-        if (!is_null($file) && $file->isValid()) {
-            $fileUrl = $bucket->uploadFile($file, 'items');
+            if (!is_null($file) && $file->isValid()) {
+                $fileUrl = $bucket->uploadFile($file, 'items');
+                return new JsonResponse(['filename' => $fileUrl]);
+            }
         }
 
-        return new JsonResponse(['filename' => $fileUrl]);
+        return new Response(null, Response::HTTP_BAD_REQUEST);
     }
 
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
