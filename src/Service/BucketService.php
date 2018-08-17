@@ -4,16 +4,19 @@ namespace App\Service;
 
 use League\Flysystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use GuzzleHttp\Psr7;
 
 class BucketService
 {
     private $filesystem;
     private $attachmentUrlPrefix;
+    private $bucketPrefix;
 
-    public function __construct(Filesystem $filesystem, ?string $attachmentUrlPrefix)
+    public function __construct(Filesystem $filesystem, ?string $attachmentUrlPrefix, ?string $bucketPrefix)
     {
         $this->filesystem = $filesystem;
         $this->attachmentUrlPrefix = $attachmentUrlPrefix;
+        $this->bucketPrefix = $bucketPrefix;
     }
 
     public function uploadFile(UploadedFile $file, string $dir): string
@@ -21,11 +24,22 @@ class BucketService
         $filesystem = $this->filesystem;
         $name = explode('.', $file->getClientOriginalName())[0].'-'.rand();
         $path = "/$dir/$name.".$file->getClientOriginalExtension();
+        $url = '';
 
-        $stream = fopen($file->getRealPath(), 'rb+');
-        $filesystem->writeStream($path, $stream, ['visibility' => 'public']);
+        $original = Psr7\stream_for(fopen($file->getRealPath(), 'r'));
+        $stream = new Psr7\CachingStream($original);
+
+        $filesystem->write($path, $stream, ['visibility' => 'public']);
         fclose($stream);
 
-        return ($this->attachmentUrlPrefix ?? '').$path;
+        if(!is_null($this->attachmentUrlPrefix)) {
+            $url = 'https://'.$this->attachmentUrlPrefix;
+        }
+
+        if(!is_null($this->bucketPrefix)) {
+            $url .= '/'.$this->bucketPrefix;
+        }
+
+        return $url.$path;
     }
 }

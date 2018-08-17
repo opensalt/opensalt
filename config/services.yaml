@@ -160,6 +160,7 @@ services:
     App\Service\BucketService:
         arguments:
             $attachmentUrlPrefix: '%attachment_url_prefix%'
+            $bucketPrefix: '%aws_prefix%'
 
     # Workarounds for 3.4 deprecations
     Symfony\Bundle\SwiftmailerBundle\Command\:
