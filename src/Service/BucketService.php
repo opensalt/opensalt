@@ -33,7 +33,7 @@ class BucketService
         fclose($stream);
 
         if(!is_null($this->attachmentUrlPrefix)) {
-            $url = 'https://'.$this->attachmentUrlPrefix;
+            $url = $this->attachmentUrlPrefix;
         }
 
         if(!is_null($this->bucketPrefix)) {
