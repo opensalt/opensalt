@@ -30,13 +30,13 @@ class BucketService
         $stream = new Psr7\CachingStream($original);
 
         $filesystem->write($path, $stream, ['visibility' => 'public']);
-        fclose($stream);
+        $stream->close();
 
-        if(!is_null($this->attachmentUrlPrefix)) {
+        if(!empty($this->attachmentUrlPrefix)) {
             $url = $this->attachmentUrlPrefix;
         }
 
-        if(!is_null($this->bucketPrefix)) {
+        if(!empty($this->bucketPrefix)) {
             $url .= '/'.$this->bucketPrefix;
         }
 
