@@ -406,7 +406,7 @@ class LsItemController extends AbstractController
      */
     public function uploadAttachmentAction(Request $request, LsItem $lsItem, BucketService $bucket)
     {
-        if (!is_null($this->bucketProvider)) {
+        if (!empty($this->bucketProvider)) {
             $file = $request->files->get('file');
 
             if (!is_null($file) && $file->isValid()) {
