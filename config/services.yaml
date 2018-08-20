@@ -139,6 +139,10 @@ services:
         arguments:
             $sessionMaxIdleTime: '%session_max_idle_time%'
 
+    App\Controller\Framework\LsItemController:
+        arguments:
+            $bucketProvider: '%bucket_provider%'
+
     App\EventListener\LoginListener:
         class: App\EventListener\LoginListener
         arguments:
