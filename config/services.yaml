@@ -51,6 +51,7 @@ parameters:
     env(ATTACHMENT_URL_PREFIX): null
     env(BUCKET_PROVIDER): null
     env(LOCAL_FILESYSTEM_PATH): null
+    env(FOOTER_LEFT_TEXT): null
 
     locale: en
     database_host: '%env(MYSQL_HOST)%'
@@ -98,6 +99,7 @@ parameters:
     attachment_url_prefix: '%env(ATTACHMENT_URL_PREFIX)%'
     bucket_provider: '%env(BUCKET_PROVIDER)%'
     local_filesystem_path: '%env(LOCAL_FILESYSTEM_PATH)%'
+    footer_left_text: '%env(FOOTER_LEFT_TEXT)%'
 
 services:
     # default configuration for services in *this* file

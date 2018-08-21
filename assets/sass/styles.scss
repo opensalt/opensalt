@@ -82,6 +82,20 @@ footer {
         min-height: auto;
         margin-bottom:0;
         background-color:#78C9E9;
+
+        a {
+            color: #fff;
+        }
+
+        a:hover {
+            text-decoration: none;
+        }
+
+        .navbar-text {
+            color: #fff;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
     }
 
     .navbar-nav > li > a {
