@@ -139,6 +139,10 @@ services:
         arguments:
             $sessionMaxIdleTime: '%session_max_idle_time%'
 
+    App\Controller\Framework\LsItemController:
+        arguments:
+            $bucketProvider: '%bucket_provider%'
+
     App\EventListener\LoginListener:
         class: App\EventListener\LoginListener
         arguments:
@@ -160,6 +164,7 @@ services:
     App\Service\BucketService:
         arguments:
             $attachmentUrlPrefix: '%attachment_url_prefix%'
+            $bucketPrefix: '%aws_prefix%'
 
     # Workarounds for 3.4 deprecations
     Symfony\Bundle\SwiftmailerBundle\Command\:

@@ -1,5 +1,7 @@
 /* global apx */
-window.apx = window.apx||{};
+window.apx = window.apx || {};
+require('inline-attachment/src/inline-attachment.js');
+require('inline-attachment/src/codemirror-4.inline-attachment.js');
 
 /* global empty */
 
@@ -11,22 +13,26 @@ apx.edit = {};
 apx.edit.prepareDocEditModal = function() {
     let $modal = $('#editDocModal');
     $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
-    $modal.on('shown.bs.modal', function(e){
+    $modal.on('shown.bs.modal', function(e) {
         $modal.data('mode', 'open');
         $modal.find('.modal-footer .btn-save').hide();
         $modal.find('.modal-body').load(
             apx.path.lsdoc_edit.replace('ID', apx.lsDocId),
             null,
-            function(responseText, textStatus, jqXHR){
-                $('#ls_doc_licence').select2entity({dropdownParent: $('#ls_doc_licence').closest('div')});
+            function(responseText, textStatus, jqXHR) {
+                $('#ls_doc_licence').select2entity({
+                    dropdownParent: $('#ls_doc_licence').closest('div')
+                });
                 let $docSubjects = $('#ls_doc_subjects');
-                $docSubjects.select2entity({dropdownParent: $docSubjects.closest('div')});
+                $docSubjects.select2entity({
+                    dropdownParent: $docSubjects.closest('div')
+                });
                 if ($modal.find('form[name="ls_doc"]').length) {
                     $modal.find('.modal-footer .btn-save').show();
                 }
             }
         );
-    }).on('hide.bs.modal', function(e){
+    }).on('hide.bs.modal', function(e) {
         $('#ls_doc_subjects').select2('destroy');
         $('#ls_doc_licence').select2('destroy');
 
@@ -37,17 +43,17 @@ apx.edit.prepareDocEditModal = function() {
             });
         }
         $modal.data('mode', 'close');
-    }).on('hidden.bs.modal', function(e){
+    }).on('hidden.bs.modal', function(e) {
         $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
     });
-    $modal.find('.btn-save').on('click', function(e){
+    $modal.find('.btn-save').on('click', function(e) {
         $modal.data('mode', 'save');
         apx.spinner.showModal("Updating document");
         $.ajax({
             url: apx.path.lsdoc_edit.replace('ID', apx.lsDocId),
             method: 'POST',
             data: $modal.find('form[name=ls_doc]').serialize()
-        }).done(function(data, textStatus, jqXHR){
+        }).done(function(data, textStatus, jqXHR) {
             $modal.modal('hide');
             // on successful update, reload the doc
             window.location.reload();
@@ -58,7 +64,7 @@ apx.edit.prepareDocEditModal = function() {
                "adoptionStatus": $("#ls_doc_adoptionStatus").val(),
                };
                */
-        }).fail(function(jqXHR, textStatus, errorThrown){
+        }).fail(function(jqXHR, textStatus, errorThrown) {
             apx.spinner.hideModal();
             $modal.find('.modal-body').html(jqXHR.responseText);
         });
@@ -70,18 +76,18 @@ apx.edit.prepareDocDeleteModal = function() {
     let $ack = $modal.find('#deleteFrameworkAcknowledgement');
     let isDelete = /^"?DELETE"?$/;
     let $btnDelete = $modal.find('.btn-delete');
-    $modal.on('shown.bs.modal', function(e){
+    $modal.on('shown.bs.modal', function(e) {
         $ack.val('');
         $modal.find('.errors').html('');
         $btnDelete.addClass('btn-disabled').attr('disabled', 'disabled');
-        $ack.on('change keyup', function(e){
+        $ack.on('change keyup', function(e) {
             if (isDelete.test($ack.val())) {
                 $btnDelete.removeClass('btn-disabled').removeAttr('disabled');
             } else {
                 $btnDelete.addClass('btn-disabled').attr('disabled', 'disabled');
             }
         });
-        $btnDelete.on('click', function(e){
+        $btnDelete.on('click', function(e) {
             $.ajax({
                 url: apx.path.lsdoc_delete.replace('ID', apx.mainDoc.doc.id),
                 method: 'POST',
@@ -90,10 +96,10 @@ apx.edit.prepareDocDeleteModal = function() {
                     token: $btnDelete.data('token')
                 },
                 dataType: 'json'
-            }).done(function(data, textStatus, jqXHR){
+            }).done(function(data, textStatus, jqXHR) {
                 window.location.href = apx.path.doc_index;
-            }).fail(function(jqXHR, textStatus, errorThrown){
-                $modal.find('.errors').html('<p class="text-danger">Error: '+jqXHR.responseJSON.error.message+'</p>');
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                $modal.find('.errors').html('<p class="text-danger">Error: ' + jqXHR.responseJSON.error.message + '</p>');
             });
         });
     }).on('hidden.bs.modal', function(e) {
@@ -108,8 +114,9 @@ apx.edit.prepareDocDeleteModal = function() {
 apx.edit.prepareItemEditModal = function() {
     let $modal = $('#editItemModal');
     let statementMde, notesMde;
+
     $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
-    $modal.on('shown.bs.modal', function(e){
+    $modal.on('shown.bs.modal', function(e) {
         $modal.data('mode', 'open');
         $modal.find('.modal-footer .btn-save').hide();
         $modal.find('.modal-body').load(
@@ -125,12 +132,24 @@ apx.edit.prepareItemEditModal = function() {
                     },
                     numberDisplayed: 20
                 });
-                $('#ls_item_itemType').select2entity({dropdownParent: $('#ls_item_itemType').closest('div')});
+                $('#ls_item_itemType').select2entity({
+                    dropdownParent: $('#ls_item_itemType').closest('div')
+                });
+
                 statementMde = render.mde($('#ls_item_fullStatement')[0]);
                 notesMde = render.mde($('#ls_item_notes')[0]);
+                var path = '/cfitem/'+apx.mainDoc.currentItem.id+'/upload_attachment';
+
+                inlineAttachment.editors.codemirror4.attach(
+                    statementMde.codemirror, { uploadUrl: path }
+                );
+
+                inlineAttachment.editors.codemirror4.attach(
+                    notesMde.codemirror, { uploadUrl: path }
+                );
             }
         );
-    }).on('hide.bs.modal', function(e){
+    }).on('hide.bs.modal', function(e) {
         $('#ls_item_itemType').select2('destroy');
 
         if ('open' === $modal.data('mode')) {
@@ -149,7 +168,7 @@ apx.edit.prepareItemEditModal = function() {
             }
         }
         $modal.data('mode', 'close');
-    }).on('hidden.bs.modal', function(e){
+    }).on('hidden.bs.modal', function(e) {
         $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
         if (null !== statementMde) {
             statementMde.toTextArea();
@@ -158,7 +177,8 @@ apx.edit.prepareItemEditModal = function() {
             notesMde = null;
         }
     });
-    $modal.find('.btn-save').on('click', function(e){
+
+    $modal.find('.btn-save').on('click', function(e) {
         $modal.data('mode', 'save');
         apx.spinner.showModal("Updating item");
         statementMde.toTextArea();
@@ -169,7 +189,7 @@ apx.edit.prepareItemEditModal = function() {
             url: apx.path.lsitem_edit.replace('ID', apx.mainDoc.currentItem.id),
             method: 'POST',
             data: $modal.find('form[name=ls_item]').serialize()
-        }).done(function(data, textStatus, jqXHR){
+        }).done(function(data, textStatus, jqXHR) {
             let id = apx.mainDoc.currentItem.id;
             if ("undefined" !== typeof apx.locks && "undefined" !== typeof apx.locks.mine && "undefined" !== typeof apx.locks.mine.items[id] && "number" === typeof apx.locks.mine.items[id].warning) {
                 clearTimeout(apx.locks.mine.items[id].warning);
@@ -199,7 +219,7 @@ apx.edit.prepareItemEditModal = function() {
             // then re-render the tree and re-activate the item
             apx.treeDoc1.ftRender1();
             apx.treeDoc1.activateCurrentItem();
-        }).fail(function(jqXHR, textStatus, errorThrown){
+        }).fail(function(jqXHR, textStatus, errorThrown) {
             apx.spinner.hideModal();
             $modal.find('.modal-body').html(jqXHR.responseText);
             $('#ls_item_educationalAlignment').multiselect({
@@ -210,6 +230,15 @@ apx.edit.prepareItemEditModal = function() {
             });
             statementMde = render.mde($('#ls_item_fullStatement')[0]);
             notesMde = render.mde($('#ls_item_notes')[0]);
+            var path = '/cfitem/'+apx.mainDoc.currentItem.id+'/upload_attachment';
+
+            inlineAttachment.editors.codemirror4.attach(
+                statementMde.codemirror, { uploadUrl: path }
+            );
+
+            inlineAttachment.editors.codemirror4.attach(
+                notesMde.codemirror, { uploadUrl: path }
+            );
         });
     });
 };
@@ -233,29 +262,39 @@ apx.edit.prepareAddNewChildModal = function() {
     }
 
     let statementMde,
-        notesMde
-    ;
+        notesMde;
     let $modal = $('#addNewChildModal');
     $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
-    $modal.on('shown.bs.modal', function(e){
+    $modal.on('shown.bs.modal', function(e) {
         $modal.find('.modal-body').load(
             getPath(),
             null,
-            function(responseText, textStatus, jqXHR){
+            function(responseText, textStatus, jqXHR) {
                 $('#ls_item_educationalAlignment').multiselect({
                     optionLabel: function(element) {
                         return $(element).html() + ' - ' + $(element).data('title');
                     },
                     numberDisplayed: 20
                 });
-                $('#ls_item_itemType').select2entity({dropdownParent: $('#ls_item_itemType').closest('div')});
+                $('#ls_item_itemType').select2entity({
+                    dropdownParent: $('#ls_item_itemType').closest('div')
+                });
                 statementMde = render.mde($('#ls_item_fullStatement')[0]);
                 notesMde = render.mde($('#ls_item_notes')[0]);
+                var path = '/cfitem/'+apx.mainDoc.currentItem.id+'/upload_attachment';
+
+                inlineAttachment.editors.codemirror4.attach(
+                    statementMde.codemirror, { uploadUrl: path }
+                );
+
+                inlineAttachment.editors.codemirror4.attach(
+                    notesMde.codemirror, { uploadUrl: path }
+                );
             }
         );
-    }).on('hide.bs.modal', function(e){
+    }).on('hide.bs.modal', function(e) {
         $('#ls_item_itemType').select2('destroy');
-    }).on('hidden.bs.modal', function(e){
+    }).on('hidden.bs.modal', function(e) {
         $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
         if (null !== statementMde) {
             statementMde.toTextArea();
@@ -282,7 +321,7 @@ apx.edit.prepareAddNewChildModal = function() {
 
             // make sure the noItemsInstructions div is hidden
             $("#noItemsInstructions").hide();
-        }).fail(function(jqXHR, textStatus, errorThrown){
+        }).fail(function(jqXHR, textStatus, errorThrown) {
             apx.spinner.hideModal();
             $modal.find('.modal-body').html(jqXHR.responseText);
             $('#ls_item_educationalAlignment').multiselect({
@@ -293,6 +332,15 @@ apx.edit.prepareAddNewChildModal = function() {
             });
             statementMde = render.mde($('#ls_item_fullStatement')[0]);
             notesMde = render.mde($('#ls_item_notes')[0]);
+            var path = '/cfitem/'+apx.mainDoc.currentItem.id+'/upload_attachment';
+
+            inlineAttachment.editors.codemirror4.attach(
+                statementMde.codemirror, { uploadUrl: path }
+            );
+
+            inlineAttachment.editors.codemirror4.attach(
+                notesMde.codemirror, { uploadUrl: path }
+            );
         });
     });
 };
@@ -306,7 +354,9 @@ apx.edit.deleteItems = function(items) {
         ++completed;
         if (completed === items.length) {
             apx.spinner.hideModal();
-            apx.treeDoc1.setCurrentItem({"item": apx.mainDoc.doc});
+            apx.treeDoc1.setCurrentItem({
+                "item": apx.mainDoc.doc
+            });
             apx.treeDoc1.ftRender1();
             apx.treeDoc1.showCurrentItem();
             apx.pushHistoryState();
@@ -346,7 +396,7 @@ apx.edit.deleteItems = function(items) {
                             };
                             assocIdToDelete = a.id;
 
-                        // else this is an isChildOf association for a different group
+                            // else this is an isChildOf association for a different group
                         } else {
                             itemExistsInAnotherGroup = true;
                         }
@@ -366,20 +416,22 @@ apx.edit.deleteItems = function(items) {
                         $.ajax({
                             url: apx.path.doctree_update_items.replace('ID', apx.lsDocId),
                             method: 'POST',
-                            data: {"lsItems": lsItems}
-                        }).done(function (data, textStatus, jqXHR) {
+                            data: {
+                                "lsItems": lsItems
+                            }
+                        }).done(function(data, textStatus, jqXHR) {
                             itemDeleted();
 
-                        }).fail(function (jqXHR, textStatus, errorThrown) {
+                        }).fail(function(jqXHR, textStatus, errorThrown) {
                             alert("An error occurred.");
                             // console.log(jqXHR.responseText);
                         });
                     }
 
-                // else use delete service to delete item
+                    // else use delete service to delete item
                 } else {
                     // delete all assocs for the item
-                    for (let j = item.assocs.length-1; j >= 0; --j) {
+                    for (let j = item.assocs.length - 1; j >= 0; --j) {
                         let a = item.assocs[j];
                         apx.mainDoc.deleteAssociation(a.id);
                     }
@@ -399,10 +451,10 @@ apx.edit.deleteItems = function(items) {
                         // for now at least, we always send "1" in for the "CHILDREN" parameter
                         url: apx.path.lsitem_tree_delete.replace('ID', item.id).replace('CHILDREN', 1),
                         method: 'POST'
-                    }).done(function (data, textStatus, jqXHR) {
+                    }).done(function(data, textStatus, jqXHR) {
                         itemDeleted();
 
-                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
                         alert("An error occurred.");
                         // console.log(jqXHR.responseText);
                     });
@@ -441,12 +493,12 @@ apx.edit.deleteItems = function(items) {
 /** Add an examplar for an item */
 apx.edit.prepareExemplarModal = function() {
     let $exemplarModal = $('#addExemplarModal');
-    $exemplarModal.on('show.bs.modal', function(e){
+    $exemplarModal.on('show.bs.modal', function(e) {
         let title = apx.mainDoc.getItemTitle(apx.mainDoc.currentItem);
         $("#addExemplarOriginTitle").html(title);
         $exemplarModal.find('.modal-body .errors').removeClass('alert').removeClass('alert-danger').html('');
     });
-    $exemplarModal.find('.btn-save').on('click', function(e){
+    $exemplarModal.find('.btn-save').on('click', function(e) {
         let ajaxData = {
             exemplarUrl: $("#addExemplarFormUrl").val(),
             exemplarDescription: $("#addExemplarFormDescription").val(),
@@ -499,7 +551,7 @@ apx.edit.prepareExemplarModal = function() {
             // re-show current item
             apx.mainDoc.showCurrentItem();
 
-        }).fail(function(jqXHR, textStatus, errorThrown){
+        }).fail(function(jqXHR, textStatus, errorThrown) {
             apx.spinner.hideModal();
             $exemplarModal.find('.modal-body .errors').addClass('alert').addClass('alert-danger').html(jqXHR.responseJSON.error.message);
         });
@@ -521,14 +573,14 @@ apx.edit.prepareAssociateModal = function() {
     });
 
     let $associateModal = $('#associateModal');
-    $associateModal.on('shown.bs.modal', function(e){
+    $associateModal.on('shown.bs.modal', function(e) {
         let originItem = apx.edit.createAssociationNodes.droppedNode.data.ref;
         let destItem = apx.edit.createAssociationNodes.draggedNodes[0].data.ref;
 
         // show the origin and destination statements
         let destination = apx.mainDoc.getItemTitle(destItem);
         if (apx.edit.createAssociationNodes.draggedNodes.length > 1) {
-            destination += " <b>+" + (apx.edit.createAssociationNodes.draggedNodes.length-1) + " additional item(s)</b>";
+            destination += " <b>+" + (apx.edit.createAssociationNodes.draggedNodes.length - 1) + " additional item(s)</b>";
         }
         let origin = apx.mainDoc.getItemTitle(originItem);
         $("#lsAssociationDestinationDisplay").html(destination);
@@ -580,9 +632,13 @@ apx.edit.prepareAssociateModal = function() {
                     "externalDoc": originItem.doc.doc.identifier
                 };
             } else if (!empty(originItem.id)) {
-                ajaxData.origin = {"id": originItem.id};
+                ajaxData.origin = {
+                    "id": originItem.id
+                };
             } else {
-                ajaxData.origin = {"identifier": originItem.identifier};
+                ajaxData.origin = {
+                    "identifier": originItem.identifier
+                };
             }
 
             if (destItem.doc.isExternalDoc()) {
@@ -591,9 +647,13 @@ apx.edit.prepareAssociateModal = function() {
                     "externalDoc": destItem.doc.doc.identifier
                 };
             } else if (!empty(destItem.id)) {
-                ajaxData.dest = {"id": destItem.id};
+                ajaxData.dest = {
+                    "id": destItem.id
+                };
             } else {
-                ajaxData.dest = {"identifier": destItem.identifier};
+                ajaxData.dest = {
+                    "identifier": destItem.identifier
+                };
             }
 
             // if an assocGroup is selected via associationFormGroup and isn't default, add it
@@ -662,7 +722,7 @@ apx.edit.prepareAssociateModal = function() {
 
                 // we don't need to update the item details here, because that will happen if/when the user clicks the toggle button to show the item details
 
-            }).fail(function(jqXHR, textStatus, errorThrown){
+            }).fail(function(jqXHR, textStatus, errorThrown) {
                 apx.spinner.hideModal();
                 alert("An error occurred when attempting to save the association.");
             });
@@ -680,10 +740,10 @@ apx.edit.deleteAssociation = function(assocId, callbackFn) {
     $.ajax({
         url: apx.path.lsassociation_remove.replace('ID', assocId),
         method: 'POST'
-    }).done(function(data, textStatus, jqXHR){
+    }).done(function(data, textStatus, jqXHR) {
         apx.spinner.hideModal();
         apx.edit.performDeleteAssociation(assocId, callbackFn);
-    }).fail(function(jqXHR, textStatus, errorThrown){
+    }).fail(function(jqXHR, textStatus, errorThrown) {
         apx.spinner.hideModal();
         alert("An error occurred.");
     });
@@ -770,7 +830,9 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
             let key = siblings[i].key;
 
             // start creating the object for the lsItems hash
-            let o = {"originalKey": key};
+            let o = {
+                "originalKey": key
+            };
 
             // if this is a new node...
             if (key.indexOf("copy-") === 0) {
@@ -790,7 +852,7 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
                         o.copyFromId = copiedItem.id;
                         o.addCopyToTitle = "true";
 
-                    // else *different* assocGroups are chosen on both sides, so:
+                        // else *different* assocGroups are chosen on both sides, so:
                     } else {
                         // If the item already has an isChildOf association for the left-side assocGroup, create a new instance of the item
                         let assocs = apx.treeDoc2.getAssocsForItem(copiedItem, "isChildOf", apx.mainDoc.currentAssocGroup);
@@ -799,8 +861,8 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
                             o.copyFromId = copiedItem.id;
                             o.addCopyToTitle = "true";
 
-                        // Else the item does not have an isChildOf association for this assocGroup,
-                        // so create a new isChildOf relationship for the assocGroup (as directed below), but do *not* create a new instance the item.
+                            // Else the item does not have an isChildOf association for this assocGroup,
+                            // so create a new isChildOf relationship for the assocGroup (as directed below), but do *not* create a new instance the item.
                         } else {
                             console.log("item doesn't exist");
                             // in this case we want to use copiedItem.id as the key for the object in the lsItems hash
@@ -810,12 +872,12 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
                         }
                     }
 
-                // else if different documents, but the other document is on this server...
+                    // else if different documents, but the other document is on this server...
                 } else if (!copiedItem.doc.isExternalDoc()) {
                     // set copyFromId flag so that updateItemAction will copy the item
                     o.copyFromId = copiedItem.id;
 
-                // else different documents, and the treeDoc2 is on a different server...
+                    // else different documents, and the treeDoc2 is on a different server...
                 } else {
                     // TODO: deal with copies from an external document??? In this case we would need to send in the full item, and we'd have to take care of copying children here
                     alert("You cannot currently copy an item from a document on another server.");
@@ -834,13 +896,13 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
                     o.newChildOf.parentId = apx.mainDoc.doc.id;
                     o.newChildOf.parentType = "doc";
 
-                // otherwise the parent is an item
+                    // otherwise the parent is an item
                 } else {
                     o.newChildOf.parentId = siblings[i].parent.data.ref.id;
                     o.newChildOf.parentType = "item";
                 }
 
-            // else it's a sibling of the new item, so just update the sequenceNumber
+                // else it's a sibling of the new item, so just update the sequenceNumber
             } else {
                 // here we want the key to be the item's lsItemId
                 key = siblings[i].data.ref.id;
@@ -865,18 +927,20 @@ apx.edit.copyItems = function(draggedNodes, droppedNode, hitMode) {
         $.ajax({
             url: apx.path.doctree_update_items.replace('ID', apx.lsDocId),
             method: 'POST',
-            data: {"lsItems": lsItems}
-        }).done(function(data, textStatus, jqXHR){
+            data: {
+                "lsItems": lsItems
+            }
+        }).done(function(data, textStatus, jqXHR) {
             // hide spinner
             apx.spinner.hideModal();
             apx.edit.updateItemsAjaxDone(data);
 
-        }).fail(function(jqXHR, textStatus, errorThrown){
+        }).fail(function(jqXHR, textStatus, errorThrown) {
             apx.spinner.hideModal();
             alert("An error occurred.");
             console.log(jqXHR, textStatus, errorThrown);
         });
-    }, 10);    // end of anonymous setTimeout function
+    }, 10); // end of anonymous setTimeout function
 };
 
 apx.moveEnabled = false;
@@ -906,7 +970,9 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
         let item = draggedNode.data.ref;
 
         // initialize the lsItems object for this item
-        lsItems[item.id] = {"originalKey": item.identifier};
+        lsItems[item.id] = {
+            "originalKey": item.identifier
+        };
 
         // delete the old childOf relationship for the draggedNode
         lsItems[item.id].deleteChildOf = {
@@ -946,7 +1012,9 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
         // if this isn't a draggedNode...
         if (!(item.id in lsItems)) {
             // initialize the lsItems object
-            lsItems[item.id] = {"originalKey": item.identifier};
+            lsItems[item.id] = {
+                "originalKey": item.identifier
+            };
 
             // then we just have to update the sequenceNumber
             lsItems[item.id].updateChildOf = {
@@ -954,7 +1022,7 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
                 "sequenceNumber": (i + 1)
             };
 
-        // else it's a draggedNode, so...
+            // else it's a draggedNode, so...
         } else {
             // set the proper sequence number for the newChildOf relationship
             lsItems[item.id].newChildOf.sequenceNumber = (i + 1);
@@ -971,12 +1039,14 @@ apx.edit.moveItems = function(draggedNodes, droppedNode, hitMode) {
     $.ajax({
         url: apx.path.doctree_update_items.replace('ID', apx.lsDocId),
         method: 'POST',
-        data: {"lsItems": lsItems}
-    }).done(function(data, textStatus, jqXHR){
+        data: {
+            "lsItems": lsItems
+        }
+    }).done(function(data, textStatus, jqXHR) {
         apx.spinner.hideModal();
         apx.edit.updateItemsAjaxDone(data);
 
-    }).fail(function(jqXHR, textStatus, errorThrown){
+    }).fail(function(jqXHR, textStatus, errorThrown) {
         apx.spinner.hideModal();
         alert("An error occurred.");
     });
@@ -993,7 +1063,7 @@ apx.edit.updateItemsAjaxDone = function(data) {
     let copiedItem = false;
     for (let i = 0; i < data.length; ++i) {
         let o = data[i];
-        let n = apx.mainDoc.getFt(1).getNodeByKey(o.originalKey+'');
+        let n = apx.mainDoc.getFt(1).getNodeByKey(o.originalKey + '');
         if (n === null) {
             console.log("couldn't get node for " + o.originalKey);
         } else {
@@ -1047,10 +1117,10 @@ apx.edit.updateItemsAjaxDone = function(data) {
                 if (empty(existingAssoc)) {
                     let atts = {
                         "id": o.assocId,
-                        "seq": o.sequenceNumber*1,
+                        "seq": o.sequenceNumber * 1,
                         "originItem": item,
                         "type": "isChildOf",
-                        "destItem": n.parent.data.ref,  // parent item is the node's parent's ref
+                        "destItem": n.parent.data.ref, // parent item is the node's parent's ref
                         "groupId": apx.mainDoc.currentAssocGroup
                     };
                     let a = apx.mainDoc.addAssociation(atts);
@@ -1077,17 +1147,21 @@ apx.edit.updateItemsAjaxDone = function(data) {
 apx.edit.initializeManageAssocGroupButtons = function() {
     // initialize buttons in association group modal
     $('#manageAssocGroupsModal')
-        .off('click', ".assocgroup-edit-btn").on('click', ".assocgroup-edit-btn", function() { apx.edit.editAssocGroup(this); })
-        .off('click', ".assocgroup-delete-btn").on('click', ".assocgroup-delete-btn", function() { apx.edit.deleteAssocGroup(this); });
+        .off('click', ".assocgroup-edit-btn").on('click', ".assocgroup-edit-btn", function() {
+            apx.edit.editAssocGroup(this);
+        })
+        .off('click', ".assocgroup-delete-btn").on('click', ".assocgroup-delete-btn", function() {
+            apx.edit.deleteAssocGroup(this);
+        });
 };
 
 apx.edit.prepareAddAssocGroupModal = function() {
     let $addAssocGroupModal = $('#addAssocGroupModal');
     let $manageAssocGroupsModal = $("#manageAssocGroupsModal");
     $addAssocGroupModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
-    $addAssocGroupModal.on('show.bs.modal', function(e){
+    $addAssocGroupModal.on('show.bs.modal', function(e) {
         $manageAssocGroupsModal.modal('hide');
-    }).on('shown.bs.modal', function(e){
+    }).on('shown.bs.modal', function(e) {
         $('#addAssocGroupModal').find('.modal-body').load(
             apx.path.lsdef_association_grouping_new,
             null,
@@ -1097,7 +1171,7 @@ apx.edit.prepareAddAssocGroupModal = function() {
                 $("#ls_def_association_grouping_lsDoc").closest(".form-group").hide();
             }
         )
-    }).on('hidden.bs.modal', function(e){
+    }).on('hidden.bs.modal', function(e) {
         $('#addAssocGroupModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
     });
     $addAssocGroupModal.find('.btn-save').on('click', function(e) {
@@ -1143,7 +1217,7 @@ apx.edit.prepareAddAssocGroupModal = function() {
             $addAssocGroupModal.modal('hide');
             $manageAssocGroupsModal.modal('show');
 
-        }).fail(function(jqXHR, textStatus, errorThrown){
+        }).fail(function(jqXHR, textStatus, errorThrown) {
             apx.spinner.hideModal();
             $addAssocGroupModal.find('.modal-body').html(jqXHR.responseText);
         });
@@ -1164,7 +1238,7 @@ apx.edit.editAssocGroup = function(btn) {
 
     var $editAssocGroupModal = $('#editAssocGroupModal');
     $editAssocGroupModal.find('.modal-body').html(apx.spinner.html("Loading Form"));
-    $editAssocGroupModal.modal('show').on('shown.bs.modal', function(e){
+    $editAssocGroupModal.modal('show').on('shown.bs.modal', function(e) {
         $('#editAssocGroupModal').find('.modal-body').load(
             apx.path.lsdef_association_grouping_edit.replace('ID', assocGroupId),
             null,
@@ -1174,16 +1248,16 @@ apx.edit.editAssocGroup = function(btn) {
                 $("#ls_def_association_grouping_lsDoc").closest(".form-group").hide();
             }
         )
-    }).on('hidden.bs.modal', function(e){
+    }).on('hidden.bs.modal', function(e) {
         $('#editAssocGroupModal').find('.modal-body').html(apx.spinner.html("Loading Form"));
     });
-    $editAssocGroupModal.find('.btn-save').off().on('click', function(e){
+    $editAssocGroupModal.find('.btn-save').off().on('click', function(e) {
         apx.spinner.showModal("Updating group");
         $.ajax({
             url: apx.path.lsdef_association_grouping_edit.replace('ID', assocGroupId),
             method: 'POST',
             data: $editAssocGroupModal.find('form[name=ls_def_association_grouping]').serialize()
-        }).done(function(data, textStatus, jqXHR){
+        }).done(function(data, textStatus, jqXHR) {
             apx.spinner.hideModal();
             // on successful edit, update the item...
             var title = $("#ls_def_association_grouping_title").val();
@@ -1209,7 +1283,7 @@ apx.edit.editAssocGroup = function(btn) {
             $editAssocGroupModal.modal('hide');
             $("#manageAssocGroupsModal").modal('show');
 
-        }).fail(function(jqXHR, textStatus, errorThrown){
+        }).fail(function(jqXHR, textStatus, errorThrown) {
             apx.spinner.hideModal();
             $editAssocGroupModal.find('.modal-body').html(jqXHR.responseText);
         });
@@ -1230,45 +1304,44 @@ apx.edit.deleteAssocGroup = function(btn) {
 
     // show confirmation modal
     $("#deleteAssocGroupModal").modal()
-    .one('click', '.btn-delete', function() {
-        $(this).closest('.modal').modal('hide');
+        .one('click', '.btn-delete', function() {
+            $(this).closest('.modal').modal('hide');
 
-        // show "Deleting" spinner
-        apx.spinner.showModal("Deleting");
+            // show "Deleting" spinner
+            apx.spinner.showModal("Deleting");
 
-        $.ajax({
-            url: apx.path.lsdef_association_grouping_tree_delete.replace('ID', assocGroupId),
-            method: 'POST'
-        }).done(function (data, textStatus, jqXHR) {
-            // hide the spinner
-            apx.spinner.hideModal();
+            $.ajax({
+                url: apx.path.lsdef_association_grouping_tree_delete.replace('ID', assocGroupId),
+                method: 'POST'
+            }).done(function(data, textStatus, jqXHR) {
+                // hide the spinner
+                apx.spinner.hideModal();
 
-            // remove from the assocGroups array/hash
-            for (var i = 0; i < apx.mainDoc.assocGroups.length; ++i) {
-                if (apx.mainDoc.assocGroups[i].id == assocGroupId) {
-                    apx.mainDoc.assocGroups.splice(i, 1);
-                    break;
+                // remove from the assocGroups array/hash
+                for (var i = 0; i < apx.mainDoc.assocGroups.length; ++i) {
+                    if (apx.mainDoc.assocGroups[i].id == assocGroupId) {
+                        apx.mainDoc.assocGroups.splice(i, 1);
+                        break;
+                    }
                 }
-            }
-            delete apx.mainDoc.assocGroupIdHash[assocGroupId];
+                delete apx.mainDoc.assocGroupIdHash[assocGroupId];
 
-            // re-render the assocGroup menu(s) (this will hide them if necessary)
-            apx.mainDoc.renderAssocGroupMenu($("#treeSideLeft").find(".assocGroupSelect"), 1);
-            if (apx.mainDoc == apx.treeDoc2) {
-                apx.mainDoc.renderAssocGroupMenu($("#treeSideRight").find(".assocGroupSelect"), 2);
-            }
+                // re-render the assocGroup menu(s) (this will hide them if necessary)
+                apx.mainDoc.renderAssocGroupMenu($("#treeSideLeft").find(".assocGroupSelect"), 1);
+                if (apx.mainDoc == apx.treeDoc2) {
+                    apx.mainDoc.renderAssocGroupMenu($("#treeSideRight").find(".assocGroupSelect"), 2);
+                }
 
-            // remove from the manage modal, then reshow it
-            $("tr[data-assocgroupid=" + assocGroupId + "]").remove();
-            $("#manageAssocGroupsModal").modal('show');
+                // remove from the manage modal, then reshow it
+                $("tr[data-assocgroupid=" + assocGroupId + "]").remove();
+                $("#manageAssocGroupsModal").modal('show');
 
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            alert(jqXHR.responseJSON.error.message);
-            apx.spinner.hideModal();
-            $("#manageAssocGroupsModal").modal('show');
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseJSON.error.message);
+                apx.spinner.hideModal();
+                $("#manageAssocGroupsModal").modal('show');
+            });
+        }).one('hidden.bs.modal', function(e) {
+            $(this).off('click', '.btn-delete');
         });
-    }).one('hidden.bs.modal', function(e){
-        $(this).off('click', '.btn-delete');
-    });
 };
-
