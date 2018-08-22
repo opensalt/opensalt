@@ -138,7 +138,7 @@ apx.edit.prepareItemEditModal = function() {
 
                 statementMde = render.mde($('#ls_item_fullStatement')[0]);
                 notesMde = render.mde($('#ls_item_notes')[0]);
-                var path = '/cfitem/'+apx.mainDoc.currentItem.id+'/upload_attachment';
+                var path = '/cfitem/'+apx.mainDoc.doc.id+'/upload_attachment';
 
                 inlineAttachment.editors.codemirror4.attach(
                     statementMde.codemirror, { uploadUrl: path }
@@ -230,7 +230,7 @@ apx.edit.prepareItemEditModal = function() {
             });
             statementMde = render.mde($('#ls_item_fullStatement')[0]);
             notesMde = render.mde($('#ls_item_notes')[0]);
-            var path = '/cfitem/'+apx.mainDoc.currentItem.id+'/upload_attachment';
+            var path = '/cfitem/'+apx.mainDoc.doc.id+'/upload_attachment';
 
             inlineAttachment.editors.codemirror4.attach(
                 statementMde.codemirror, { uploadUrl: path }
@@ -281,7 +281,7 @@ apx.edit.prepareAddNewChildModal = function() {
                 });
                 statementMde = render.mde($('#ls_item_fullStatement')[0]);
                 notesMde = render.mde($('#ls_item_notes')[0]);
-                var path = '/cfitem/'+apx.mainDoc.currentItem.id+'/upload_attachment';
+                var path = '/cfitem/'+apx.mainDoc.doc.id+'/upload_attachment';
 
                 inlineAttachment.editors.codemirror4.attach(
                     statementMde.codemirror, { uploadUrl: path }
@@ -332,7 +332,7 @@ apx.edit.prepareAddNewChildModal = function() {
             });
             statementMde = render.mde($('#ls_item_fullStatement')[0]);
             notesMde = render.mde($('#ls_item_notes')[0]);
-            var path = '/cfitem/'+apx.mainDoc.currentItem.id+'/upload_attachment';
+            var path = '/cfitem/'+apx.mainDoc.doc.id+'/upload_attachment';
 
             inlineAttachment.editors.codemirror4.attach(
                 statementMde.codemirror, { uploadUrl: path }
