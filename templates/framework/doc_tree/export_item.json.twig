@@ -4,7 +4,7 @@
 {# Include id #}
 "id": {{ lsItem.id |json_encode |raw }},
 "identifier": {{ lsItem.identifier |json_encode |raw }},
-{# Leave out uri; we can construct that from the CFDocumentURI and the identifier #}
+"uri": {{ lsItem.uri |local_uri |json_encode |raw }},
 "fstmt": {{ lsItem.fullStatement |json_encode |raw }},
 {% if lsItem.humanCodingScheme is not null %}
 "hcs": {{ lsItem.humanCodingScheme |json_encode |raw }},
