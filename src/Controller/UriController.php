@@ -8,8 +8,7 @@ use App\Entity\Framework\LsItem;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,9 +17,8 @@ class UriController extends AbstractController
     /**
      * Export an LSItem entity.
      *
-     * @Route("/uri/{uri}", requirements={"uri"=".+"}, defaults={"_format"="html"}, name="editor_uri_lookup")
-     * @Route("/uri/", defaults={"_format"="html"}, name="editor_uri_lookup_empty")
-     * @Method("GET")
+     * @Route("/uri/{uri}", methods={"GET"}, requirements={"uri"=".+"}, defaults={"_format"="html"}, name="editor_uri_lookup")
+     * @Route("/uri/", methods={"GET"}, defaults={"_format"="html"}, name="editor_uri_lookup_empty")
      * @Template()
      *
      * @param Request $request
@@ -33,6 +31,7 @@ class UriController extends AbstractController
         $json = false;
 
         $localUri = $uri;
+        $tryIdentifier = null;
 
         if (preg_match('/\.json$/', $uri)) {
             $json = true;
@@ -47,6 +46,7 @@ class UriController extends AbstractController
         // PW: we need to do this check after the json check above
         if (Uuid::isValid($localUri)) {
             // If the uri is just a UUID then assume it is a local one
+            $tryIdentifier = $localUri;
             $localUri = 'local:'.$localUri;
         }
 
@@ -56,15 +56,15 @@ class UriController extends AbstractController
             $localUri = 'local:'.$localUri;
         }
 
-        if ($item = $this->findIfItem($json, $localUri)) {
+        if ($item = $this->findIfItem($json, $localUri, $tryIdentifier)) {
             return $item;
         }
 
-        if ($doc = $this->findIfDoc($json, $localUri)) {
+        if ($doc = $this->findIfDoc($json, $localUri, $tryIdentifier)) {
             return $doc;
         }
 
-        if ($association = $this->findIfAssociation($json, $localUri)) {
+        if ($association = $this->findIfAssociation($json, $localUri, $tryIdentifier)) {
             return $association;
         }
 
@@ -76,13 +76,13 @@ class UriController extends AbstractController
     /**
      * @param $json
      * @param $localUri
+     * @param $tryIdentifier
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
      */
-    private function findIfItem($json, $localUri)
+    private function findIfItem($json, $localUri, $tryIdentifier)
     {
-        $em = $this->getDoctrine()->getManager();
-        $item = $em->getRepository(LsItem::class)->findOneBy(['uri'=>$localUri]);
+        $item = $this->findByUriOrIdentifier(LsItem::class, $localUri, $tryIdentifier);
         if ($item) {
             if ($json) {
                 return $this->forward('App\Controller\Framework\EditorController:viewItemAction', ['id' => $item->getId(), '_format' => 'json']);
@@ -97,13 +97,13 @@ class UriController extends AbstractController
     /**
      * @param $json
      * @param $localUri
+     * @param $tryIdentifier
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
      */
-    private function findIfDoc($json, $localUri)
+    private function findIfDoc($json, $localUri, $tryIdentifier)
     {
-        $em = $this->getDoctrine()->getManager();
-        $doc = $em->getRepository(LsDoc::class)->findOneBy(['uri'=>$localUri]);
+        $doc = $this->findByUriOrIdentifier(LsDoc::class, $localUri, $tryIdentifier);
         if ($doc) {
             if ($json) {
                 //return $this->forward('App\Controller\Framework\EditorController:viewDocAction', ['id' => $doc->getId(), '_format' => 'json']);
@@ -120,13 +120,13 @@ class UriController extends AbstractController
     /**
      * @param $json
      * @param $localUri
+     * @param $tryIdentifier
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
      */
-    private function findIfAssociation($json, $localUri)
+    private function findIfAssociation($json, $localUri, $tryIdentifier)
     {
-        $em = $this->getDoctrine()->getManager();
-        $association = $em->getRepository(LsAssociation::class)->findOneBy(['uri'=>$localUri]);
+        $association = $this->findByUriOrIdentifier(LsAssociation::class, $localUri, $tryIdentifier);
         if ($association) {
             if ($json) {
                 return $this->forward('App\Controller\Framework\LsAssociationController:exportAction', ['id' => $association->getId(), '_format' => 'json']);
@@ -144,5 +144,24 @@ class UriController extends AbstractController
             // TODO: Show a view focused on the association
             return $this->redirectToRoute('lsassociation_show', ['id' => $association->getId()]);
         }
+    }
+
+    /**
+     * @param $class
+     * @param $localUri
+     * @param $tryIdentifier
+     *
+     * @return LsDoc|LsItem|LsAssociation|null
+     */
+    private function findByUriOrIdentifier($class, $localUri, $tryIdentifier) {
+        $repository = $this->getDoctrine()->getManager()->getRepository($class);
+        if(!empty($tryIdentifier)) {
+            $entity = $repository->findOneBy(['identifier' => $tryIdentifier]);
+            if(!empty($entity)) {
+                return $entity;
+            }
+        }
+
+        return $repository->findOneBy(['uri' => $localUri]);
     }
 }

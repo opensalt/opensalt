@@ -1,4 +1,4 @@
-FROM opensalt/php:7.1-cli
+FROM opensalt/php:7.2-cli
 
 # Memory Limit
 RUN echo "memory_limit=-1" > $PHP_INI_DIR/conf.d/memory-limit.ini \
@@ -16,7 +16,7 @@ RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
 ENV COMPOSER_HOME=/composer \
     PATH=/composer/vendor/bin:$PATH \
     COMPOSER_ALLOW_SUPERUSER=1 \
-    COMPOSER_VERSION=1.6.3
+    COMPOSER_VERSION=1.7.0
 
 # Install Composer
 RUN php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php \

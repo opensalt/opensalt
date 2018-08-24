@@ -45,7 +45,6 @@ class AddCommentCommand extends BaseCommand
      * @var string
      *
      * @Assert\Type("string")
-     * @Assert\NotNull()
      */
     private $content;
 
@@ -63,7 +62,16 @@ class AddCommentCommand extends BaseCommand
      */
     private $comment;
 
-    public function __construct(string $itemType, $itemId, User $user, string $content, $parentId = null)
+    /**
+     * @var string
+     *
+     * @Assert\Type("string")
+     */
+    private $fileUrl;
+
+    private $mimeType;
+
+    public function __construct(string $itemType, $itemId, User $user, ?string $content = null, ?string $fileUrl = null, ?string $mimeType = null, $parentId = null)
     {
         $this->itemType = $itemType;
         if ($this->itemType == 'item') {
@@ -74,6 +82,8 @@ class AddCommentCommand extends BaseCommand
         $this->user = $user;
         $this->content = $content;
         $this->parentId = (int) $parentId;
+        $this->fileUrl = $fileUrl;
+        $this->mimeType = $mimeType;
     }
 
     public function getItemType(): string
@@ -96,7 +106,7 @@ class AddCommentCommand extends BaseCommand
         return $this->user;
     }
 
-    public function getContent(): string
+    public function getContent(): ?string
     {
         return $this->content;
     }
@@ -109,6 +119,16 @@ class AddCommentCommand extends BaseCommand
     public function getComment(): ?Comment
     {
         return $this->comment;
+    }
+
+    public function getFileUrl(): ?string
+    {
+        return $this->fileUrl;
+    }
+
+    public function getMimeType(): ?string
+    {
+        return $this->mimeType;
     }
 
     public function setComment(Comment $comment): void

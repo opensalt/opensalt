@@ -9,7 +9,7 @@ Feature: The framework can be uploaded
     And I am on the homepage
     When I click "Import framework"
     Then I should see the import dialogue
-    When I click "Import CASE file"
+    When I click "Import CASE® file"
     And I upload the Item Type CASE file
     And I go to the uploaded framework
     And I download the framework CASE file

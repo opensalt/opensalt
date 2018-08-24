@@ -110,6 +110,20 @@ class Comment
     private $updatedAt;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $fileUrl;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $fileMimeType;
+
+    /**
      * @var bool
      */
     private $createdByCurrentUser;
@@ -439,5 +453,53 @@ class Comment
     public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
+    }
+
+    /**
+     * Set fileUrl
+     *
+     * @param string $fileUrl
+     *
+     * @return Comment
+     */
+    public function setFileUrl($fileUrl): Comment
+    {
+        $this->fileUrl = $fileUrl;
+
+        return $this;
+    }
+
+    /**
+     * Get fileUrl
+     *
+     * @return string
+     */
+    public function getFileUrl(): ?string
+    {
+        return $this->fileUrl;
+    }
+
+    /**
+     * Set fileMimeType
+     *
+     * @param string $fileMimeType
+     *
+     * @return Comment
+     */
+    public function setFileMimeType($fileMimeType): Comment
+    {
+        $this->fileMimeType = $fileMimeType;
+
+        return $this;
+    }
+
+    /**
+     * Get fileMimeType
+     *
+     * @return string
+     */
+    public function getFileMimeType(): string
+    {
+        return $this->fileMimeType;
     }
 }

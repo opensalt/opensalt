@@ -102,6 +102,19 @@ class Login implements Context
         return $this;
     }
 
+    /**
+     * @Then /^I select option "([^"]*)" from "([^"]*)"$/
+     */
+    public function iSelectOptionFrom($optionNumber, $select): Login
+    {
+        $I = $this->I;
+
+        $option = $I->grabValueFrom(".//*[self::select][(./@id = //label[contains(normalize-space(string(.)), '{$select}')]/@for)]/option[{$optionNumber}]");
+        $I->selectOption($select, $option);
+
+        return $this;
+    }
+
     protected function getLoginPage(): \Page\Login
     {
         //$env = $this->scenario->current('env');

@@ -47,7 +47,7 @@ class CommentExportCest
         $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');
         $comment = explode("\n", $csvFile);
         $Acpt->assertGreaterThanOrEqual(1, sizeof($comment));
-        $Acpt->assertContains('Framework Name,Node Address,User,Organization,Comment', $csvFile, 'Exported Document Comments');
+        $Acpt->assertContains('"Framework Name","Node Address",HumanCodingScheme,User,Organization,Comment,"Attachment Url"', $csvFile, 'Exported Document Comments');
     }
 
     public function exportItemCommentCSV(AcceptanceTester $Acpt, Scenario $scenario)
@@ -64,7 +64,7 @@ class CommentExportCest
         $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');
         $comment = explode("\n", $csvFile);
         $Acpt->assertGreaterThanOrEqual(1, sizeof($comment));
-        $Acpt->assertContains('Framework Name,Node Address,HumanCodingScheme,User,Organization,Comment', $csvFile, 'Exported Item Comments');
+        $Acpt->assertContains('"Framework Name","Node Address",HumanCodingScheme,User,Organization,Comment,"Attachment Url"', $csvFile, 'Exported Item Comments');
     }
 
     public function seeTimestampInCommentCSV(AcceptanceTester $Acpt, Scenario $scenario)
@@ -81,7 +81,7 @@ class CommentExportCest
         $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');
         $comment = explode("\n", $csvFile);
         $Acpt->assertGreaterThanOrEqual(1, sizeof($comment));
-        $Acpt->assertContains('Created Date,Updated Date', $csvFile, 'See Timestamp column in document Comment Report');
+        $Acpt->assertContains('"Created Date","Updated Date"', $csvFile, 'See Timestamp column in document Comment Report');
     }
 
 }

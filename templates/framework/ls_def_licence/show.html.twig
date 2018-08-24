@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>LsDefLicence</h1>
+
+    <table class="table table-condensed table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ lsDefLicence.id }}</td>
+            </tr>
+            <tr>
+                <th>Identifier</th>
+                <td>{{ lsDefLicence.identifier }}</td>
+            </tr>
+            <tr>
+                <th>Uri</th>
+                <td>{{ lsDefLicence.uri|local_uri }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ lsDefLicence.title }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ lsDefLicence.description }}</td>
+            </tr>
+            <tr>
+                <th>Licence Text</th>
+                <td>{{ lsDefLicence.licenceText }}</td>
+            </tr>
+            <tr>
+                <th>Extra</th>
+                <td>{{ dump(lsDefLicence.extra) }}{{ lsDefLicence.extra|json_encode(constant('JSON_PRETTY_PRINT')) }}</td>
+            </tr>
+            <tr>
+                <th>Updated At</th>
+                <td>{% if lsDefLicence.updatedAt %}{{ lsDefLicence.updatedAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul class="list-inline text-right">
+        <li>
+            <a class="btn btn-primary" href="{{ path('lsdef_licence_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdef_licence_edit', { 'id': lsDefLicence.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input class="btn btn-danger" type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

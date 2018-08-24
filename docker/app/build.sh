@@ -9,7 +9,13 @@ cd $(dirname $0)/
 
 mkdir -p ../../var/{cache,logs,sessions}
 chmod 777 ../../var/{cache,logs,sessions}
-tar cf app.tar --exclude-vcs --exclude='var/*/*' -C ../.. app bin src var vendor web composer.json composer.lock LICENSE README.md
+tar cf app.tar \
+	--exclude-vcs --exclude='var/*/*' \
+	-C ../.. \
+	assets bin config public src templates translations var vendor web \
+	composer.json composer.lock symfony.lock \
+	package.json webpack.config.js yarn.lock \
+	LICENSE README.md
 docker build \
 	--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 	--build-arg VERSION=`cat ../../VERSION` \

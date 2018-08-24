@@ -2,7 +2,7 @@ actor: FunctionalTester
 modules:
     enabled:
         - Symfony2Module:
-            app_path: 'app'
+            app_path: 'src'
             var_path: 'var'
         - Doctrine2:
             depends: Symfony2Module
