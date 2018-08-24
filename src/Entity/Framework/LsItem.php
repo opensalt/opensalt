@@ -5,6 +5,7 @@ namespace App\Entity\Framework;
 use App\Entity\LockableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
@@ -899,6 +900,16 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
 
         if (null !== $sequenceNumber) {
             $association->setSequenceNumber($sequenceNumber);
+        } else {
+            $childAssocs = $this->getChildrenAssociations();
+            $seq = $childAssocs->count() + 1;
+            foreach ($childAssocs as $childAssoc) {
+                if ($seq <= ($childAssoc->getSequenceNumber() ?? 0)) {
+                    $seq = $childAssoc->getSequenceNumber() + 1;
+                }
+            }
+
+            $association->setSequenceNumber($seq);
         }
 
         if (null !== $assocGroup) {
@@ -912,20 +923,31 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
+     * Get associations pointing from children
+     *
+     * @return \Doctrine\Common\Collections\Collection|LsAssociation[]
+     */
+    public function getChildrenAssociations(): Collection
+    {
+        $criteria = Criteria::create()
+            ->andWhere(Criteria::expr()->eq('type', LsAssociation::CHILD_OF));
+
+        return $this->getInverseAssociations()->matching($criteria);
+    }
+
+    /**
      * Get children
      *
      * @return \Doctrine\Common\Collections\Collection|LsItem[]
      */
     public function getChildren(): Collection
     {
+        $associations = $this->getChildrenAssociations();
         $children = new ArrayCollection();
 
-        $associations = $this->getInverseAssociations();
         foreach ($associations as $association) {
             /** @var LsAssociation $association */
-            if ($association->getType() === LsAssociation::CHILD_OF) {
-                $children->add($association->getOriginLsItem());
-            }
+            $children->add($association->getOriginLsItem());
         }
 
         return $children;

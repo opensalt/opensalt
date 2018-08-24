@@ -5,6 +5,7 @@ namespace App\Entity\Framework;
 use App\Entity\LockableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
@@ -803,6 +804,16 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         $association->setDestinationLsDoc($this);
         if (null !== $sequenceNumber) {
             $association->setSequenceNumber($sequenceNumber);
+        } else {
+            $childAssocs = $this->getChildrenAssociations();
+            $seq = $childAssocs->count() + 1;
+            foreach ($childAssocs as $childAssoc) {
+                if ($seq <= ($childAssoc->getSequenceNumber() ?? 0)) {
+                    $seq = $childAssoc->getSequenceNumber() + 1;
+                }
+            }
+
+            $association->setSequenceNumber($seq);
         }
 
         // PW: set assocGroup if provided and non-null
@@ -832,6 +843,20 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this;
     }
 
+
+    /**
+     * Get associations pointing from children
+     *
+     * @return \Doctrine\Common\Collections\Collection|LsAssociation[]
+     */
+    public function getChildrenAssociations(): Collection
+    {
+        $criteria = Criteria::create()
+            ->andWhere(Criteria::expr()->eq('type', LsAssociation::CHILD_OF));
+
+        return $this->getInverseAssociations()->matching($criteria);
+    }
+
     /**
      * Get topLsItems
      *
@@ -844,7 +869,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         $associations = $this->getInverseAssociations();
         foreach ($associations as $association) {
             /** @var LsAssociation $association */
-            if ($association->getLsDoc()->getId() == $this->getId()) {
+            if ($association->getLsDoc()->getId() === $this->getId()) {
                 if ($association->getType() === LsAssociation::CHILD_OF) {
                     $topAssociations->add($association->getOriginLsItem());
                 }
