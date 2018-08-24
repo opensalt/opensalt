@@ -172,7 +172,7 @@ class CommentsController extends AbstractController
             $handle = fopen('php://output', 'wb+');
             $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
             $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
-            $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
+            $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Attachment Url', 'Created Date', 'Updated Date'];
             fputcsv($handle, $headers);
 
             switch ($itemType) {
@@ -233,6 +233,7 @@ class CommentsController extends AbstractController
                 $comment->getUser()->getUsername(),
                 $comment->getUser()->getOrg()->getName(),
                 $comment->getContent(),
+                $comment->getFileUrl(),
                 $comment->getCreatedAt()->format('Y-m-d H:i:s'),
                 $comment->getUpdatedAt()->format('Y-m-d H:i:s'),
             ];

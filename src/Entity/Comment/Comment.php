@@ -474,7 +474,7 @@ class Comment
      *
      * @return string
      */
-    public function getFileUrl(): string
+    public function getFileUrl(): ?string
     {
         return $this->fileUrl;
     }
