@@ -946,7 +946,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         $children = new ArrayCollection();
 
         foreach ($associations as $association) {
-            /** @var LsAssociation $association */
+            /* @var LsAssociation $association */
             $children->add($association->getOriginLsItem());
         }
 
