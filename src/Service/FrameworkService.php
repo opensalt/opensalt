@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Framework\IdentifiableInterface;
 use App\Entity\Framework\ObjectLock;
 use App\Entity\LockableInterface;
 use App\Exception\AlreadyLockedException;
@@ -321,6 +322,33 @@ class FrameworkService
         $lockRepo = $this->em->getRepository(ObjectLock::class);
 
         $lockRepo->releaseLock($doc, $user);
+    }
+
+    public function getNextChildSequenceNumber(IdentifiableInterface $parent): int
+    {
+        static $lastSeqNums = [];
+
+        $identifier = $parent->getIdentifier();
+
+        if (array_key_exists($identifier, $lastSeqNums)) {
+            return ++$lastSeqNums[$identifier];
+        }
+
+        $assocRepo = $this->em->getRepository(LsAssociation::class);
+
+        /** @var LsAssociation[] $assocs */
+        $assocs = $assocRepo->findAllChildAssociationsFor($identifier);
+
+        $lastSeqNum = 0;
+        foreach ($assocs as $assoc) {
+            if (($assoc->getSequenceNumber() ?? 0) > $lastSeqNum) {
+                $lastSeqNum = $assoc->getSequenceNumber();
+            }
+        }
+
+        $lastSeqNums[$identifier] = ++$lastSeqNum;
+
+        return $lastSeqNums[$identifier];
     }
 
 
