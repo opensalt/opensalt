@@ -26,6 +26,7 @@ parameters:
     env(COMMENT_ATTACHMENTS): inactive
     env(CREATE_ACCOUNT_FEATURE): inactive
     env(USE_MAIL_FEATURE): inactive
+    env(VISUALIZATION_FEATURE): inactive
     env(MAIL_FEATURE_FROM_EMAIL): null
     env(BRAND_LOGO_URL): null
     env(BRAND_LOGO_STYLE): null
@@ -85,6 +86,7 @@ parameters:
     create_account_feature: '%env(CREATE_ACCOUNT_FEATURE)%'
     use_mail_feature: '%env(USE_MAIL_FEATURE)%'
     mail_feature_from_email: '%env(MAIL_FEATURE_FROM_EMAIL)%'
+    visualization_feature: '%env(VISUALIZATION_FEATURE)%'
     google_captcha_site_key: '%env(GOOGLE_CAPTCHA_SITE_KEY)%'
     google_captcha_secret_key: '%env(GOOGLE_CAPTCHA_SECRET_KEY)%'
     session_max_idle_time: '%env(int:SESSION_MAX_IDLE_TIME)%'

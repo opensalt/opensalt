@@ -1292,4 +1292,25 @@ class Framework implements Context
     {
         $this->I->seeResponseContainsJson(['title' => $this->rememberedFramework]);
     }
+
+    /* VISUALIZATION FEATURE */
+
+    /**
+     * @Then /^I should not see the visualization view button$/
+     */
+    public function iShouldNotSeeTheVisualizationViewButton(): Framework
+    {
+        $this->I->dontSee('#displayVisualizationBtn');
+        return $this;
+    }
+
+    /**
+     * @Then /^I should see the visualization view button$/
+     */
+    public function iShouldSeeTheVisualizationViewButton(): Framework
+    {
+        $this->I->seeElement('#displayVisualizationBtn');
+        return $this;
+    }
+    /*************************/
 }
