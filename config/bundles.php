@@ -25,4 +25,5 @@ return [
     Symfony\Bundle\TwigBundle\TwigBundle::class => ['all' => true],
     LightSaml\SymfonyBridgeBundle\LightSamlSymfonyBridgeBundle::class => ['all' => true],
     LightSaml\SpBundle\LightSamlSpBundle::class => ['all' => true],
+    Hslavich\OneloginSamlBundle\HslavichOneloginSamlBundle::class => ['all' => true],
 ];

@@ -2,48 +2,24 @@
 
 namespace App\Security\User;
 
-use App\Entity\User;
+use App\Entity\User\User;
+use App\Entity\User\Organization;
 use Doctrine\Common\Persistence\ObjectManager;
-use LightSaml\Model\Protocol\Response;
-use LightSaml\SpBundle\Security\User\UserCreatorInterface;
-use LightSaml\SpBundle\Security\User\UsernameMapperInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
+use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
+use Doctrine\ORM\EntityManager;
 
-class UserCreator implements UserCreatorInterface
+class UserCreator implements SamlUserFactoryInterface
 {
-    /** @var ObjectManager */
-    private $objectManager;
-
-    /** @var UsernameMapperInterface */
-    private $usernameMapper;
-
-    /**
-     * @param ObjectManager           $objectManager
-     * @param UsernameMapperInterface $usernameMapper
-     */
-    public function __construct($objectManager, $usernameMapper)
+    public function createUser(SamlTokenInterface $token)
     {
-        $this->objectManager = $objectManager;
-        $this->usernameMapper = $usernameMapper;
-    }
-
-    /**
-     * @param Response $response
-     *
-     * @return UserInterface|null
-     */
-    public function createUser(Response $response)
-    {
-        $username = $this->usernameMapper->getUsername($response);
-
+        $attributes = $token->getAttributes();
         $user = new User();
-        $user
-            ->setUsername($username)
-            ->setRoles(['ROLE_USER'])
-        ;
+        $user->setRoles(array('ROLE_USER'));
+        $user->setUsername($token->getUsername());
 
-        $this->objectManager->persist($user);
-        $this->objectManager->flush();
+        // $user->setOrg($entityManager->getRepository(Organization::class)->findBy(array('id' => 1)));
 
         return $user;
     }

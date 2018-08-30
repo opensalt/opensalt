@@ -50,6 +50,8 @@
         "kreait/firebase-php": "~4.7",
         "league/oauth2-github": "^2.0.0",
         "lightsaml/sp-bundle": "^1.2.0",
+        "hslavich/oneloginsaml-bundle": "dev-master",
+        "phpseclib/mcrypt_compat": "^1.0",
         "matthimatiker/opcache-bundle": "^0.7",
         "milo/github-api": "^1.4",
         "namshi/cuzzle": "^2.0",
@@ -135,5 +137,8 @@
         "symfony": {
             "allow-contrib": true
         }
+    },
+    "provide": {
+      "ext-mcrypt": "*"
     }
 }

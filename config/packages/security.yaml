@@ -24,6 +24,12 @@ security:
                 class: App\Entity\User\User
                 property: username
 
+        saml_provider:
+            # Basic provider instantiates a user with default roles
+            saml:
+                user_class: 'App\Entity\User\User'
+                default_roles: ['ROLE_USER']
+
         in_memory:
             memory: ~
 
@@ -66,17 +72,21 @@ security:
                 always_use_default_target_path: false
                 use_referer: true
 
-            light_saml_sp:
-                provider: db_provider
-                user_creator: user_creator
+            saml:
+                # Match SAML attribute 'uid' with username.
+                # Uses getNameId() method by default.
+                # username_attribute: uid
+                # Use the attribute's friendlyName instead of the name
+                use_attribute_friendly_name: true
+                check_path: /saml/acs
                 login_path: /saml/login
-                check_path: /saml/login_check
-                default_target_path: /
-                require_previous_session: true
+                 # User factory service
+                user_factory: saml_user_creator
+                # Persist new user. Doctrine is required.
+                persist_user: true
 
             logout:
-                path: /logout
-                target: salt_index
+                path: /saml/logout
 
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods
@@ -84,6 +94,8 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
+        - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/saml/metadata, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/logout, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }

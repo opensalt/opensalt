@@ -191,6 +191,9 @@
     "guzzlehttp/psr7": {
         "version": "1.4.2"
     },
+    "hslavich/oneloginsaml-bundle": {
+        "version": "dev-master"
+    },
     "jakub-onderka/php-console-color": {
         "version": "0.1"
     },
@@ -293,6 +296,9 @@
     "ocramius/proxy-manager": {
         "version": "2.1.1"
     },
+    "onelogin/php-saml": {
+        "version": "v2.14.0"
+    },
     "paragonie/random_compat": {
         "version": "v2.0.12"
     },
@@ -325,6 +331,12 @@
     },
     "phpoption/phpoption": {
         "version": "1.5.0"
+    },
+    "phpseclib/mcrypt_compat": {
+        "version": "1.0.8"
+    },
+    "phpseclib/phpseclib": {
+        "version": "2.0.11"
     },
     "phpspec/prophecy": {
         "version": "1.7.6"
