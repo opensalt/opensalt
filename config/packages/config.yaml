@@ -5,22 +5,21 @@ hslavich_onelogin_saml:
     #DESTINATION_URL = "https://sso.act.org/adfs/ls/";
     #ISSUER_URL = "https://internalapps-dev.corporate.act.org/rimsweb-play";
     idp:
-        entityId: 'https://adfs.coolmonster.org/adfs/services/trust'
+        entityId: 'https://sso.act.org/adfs/services/trust'
         singleSignOnService:
-            url: 'https://adfs.coolmonster.org/adfs/ls/'
+            url: 'https://sso.act.org/adfs/ls/'
             binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
         singleLogoutService:
-            url: 'https://adfs.coolmonster.org/adfs/ls/'
+            url: 'https://sso.act.org/adfs/ls/'
             binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-        x509cert: 'MIIC5DCCAcygAwIBAgIQHKs2hqVKCrpL4uPhYMFcRTANBgkqhkiG9w0BAQsFADAuMSwwKgYDVQQDEyNBREZTIFNpZ25pbmcgLSBhZGZzLmNvb2xtb25zdGVyLm9yZzAeFw0xODA3MTYyMjA3MTlaFw0xOTA3MTYyMjA3MTlaMC4xLDAqBgNVBAMTI0FERlMgU2lnbmluZyAtIGFkZnMuY29vbG1vbnN0ZXIub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApj06ZbYPe/o6PGVK9dh4vd4HyLJnezRmowiYsTRycuijGSRK8/efMSa4bnnF9XgrnkaC/bBQN3Q0DOCAI68e8oe3l/JdB5bEx47TFcR18D8mehesraPfBZQLl1n/Z3gT6cRkOFo1dP4ffHzWpZ7W8LwttWW8/ywiQpUk3H3nw0veVeRB956hHM1ekd6K21foHV9JfE3K4XbpL526gDaaVeIFwISIgUS+V+S0oH2R7W1hqMaaMLY/tyHKD6+O9tSw8SqrKSWJg1LKkXt1ZhR7AEnl1OFh9PH+AiEiCbqwimO8b7uSPZVZnq1gPssjo2Cm27MR4eOCb7tfGwmyLt8NIwIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQBzfWVFR9ZtbEYUFb/wv+9/Z7lWyg8eYyeHVzvL5BZxL/EghClhoxnlPoOrV9ssy029Da4KrJp5DpLbILQO7M0xgqccliN2oX+zduihdCm2WeX8C+ejC0LAKKNhx3aDnvY5x5CkdBfC3eCPD7hV/NXuCvtyzpB7XqYkvwFSLcfapKVdTbwtJhTkwQYGg3JPmGO48dIV2co5e19rfxBMxTGABgdltjAZRRtljQQOed8ZpxieDvv24gL+IhM9JjxLwTN9ntsyACo60+VEMmhDCD17wfUgwQ4ka3KAllgLD6GYl/OzUSQzlZnubzCuzu1SFlulBnTNuVOipmnFxkCM4EEp'
-
+        x509cert: 'MIIC0jCCAbqgAwIBAgIQTq3nmkJ176tKVCAmEbiMbjANBgkqhkiG9w0BAQsFADAlMSMwIQYDVQQDExpBREZTIFNpZ25pbmcgLSBzc28uYWN0Lm9yZzAeFw0xNzEyMjAxNzMyMjdaFw0xODEyMjAxNzMyMjdaMCUxIzAhBgNVBAMTGkFERlMgU2lnbmluZyAtIHNzby5hY3Qub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnk/o5ctiWs4FMWjW0Z5AwfX1UATXSCJruTaj5ZR3/QxtX/5DuMJYVr45QGZXgUZU0/Bz+D/S97J3EfK/8H5iY7l5kBNzyTHg6kyRCYoMiDpoGv9JCpRfylupqCzHPml3eQpN9pLtJDNHC5InaUPiCfave1W4LE7upJ0AhZ23GY7V1/McFXX6jwENH9cATVTBqEU3C8PGBVRWnV2R1bI6xmY/fdgPbu1AGyZaY/GHktCELutzXUkGfeXm5uXofryDImrPRUzmIYTyKccKG2KZgU3z6AphPEC59bTm6o7DXc+OgV94zeTidhfB/b7k/3hXbiRln8TztCEyoi9fru/RoQIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQAptHHOoFfYaBHNMpIlBQK7ZRrYgb56acMhMFN9d0TCGWuXSxqY/Qw0id79NBdns0CGCJdn/+3NpHjtKO31Eh7ARKSnTKbI8Ajm/hpcKQsW3KrMzUjBxx4Z71KrwbIh7VpH/pwBk5lUjHVUf3OMY/AgEs/0xqENbP3iEr/FJwxiv/cuMJ+B6Sblz1Usauvdy6qd49330ZpPeLzZTz71brLG6+LSi3mKEWvQ4H2+jj+/FilUW60yLGhguR0eHMrCy1dQC9UOd5TMz/+xsdUT9oHD/fGEY8gPP1+c0ufsbuTMLrhpT2WAMQ57YNwM1osu1mgzze4MOssVOnpgqpy0ra61'
     sp:
-        entityId: 'http://localhost/lightsaml/demosp'
+        entityId: 'https://fds-dev.corporate.act.org/saml/'
         assertionConsumerService:
-            url: 'https://127.0.0.1:3003/saml/acs'
+            url: 'https://fds-dev.corporate.act.org/saml/acs'
             binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
         singleLogoutService:
-            url: 'https://127.0.0.1:3003/saml/logout'
+            url: 'https://fds-dev.corporate.act.org/saml/logout'
             binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
         x509cert: 'MIICljCCAX4CCQCEsbugOFrJSTANBgkqhkiG9w0BAQsFADANMQswCQYDVQQGEwJJTjAeFw0xODA4MjgxNDA1MjZaFw0yODA4MjcxNDA1MjZaMA0xCzAJBgNVBAYTAklOMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxLOnabPy8rbDUv5KNUaxtVQQ3PCL0MMwMxzUE4iYd1dPtFDge48Mv71dDBMDQqVuZ3yGER4ThqvpParHR8155rQC+C0hEHCQQDXwy8mXNcp77BL1bEfZiTqxAK1wU4VWkOjG+C7iXX13hX/riGiWfXBEYQHDOzH5jQ+sGD4OKq2DVccajAbr6Gr+uLjNNatgKWcBgVbKzo0qeE5ggAD/gpbNnQ/G6L3aExKl9YLv6qGVU77JPmsFO40UxMj7P6MmZVqf4U3loApew4xOrpzljKi7q9qo8KeeXs7svBKmgYKMIQEPGv2yek0oGf5FLZiPqlS4K87yF6l/nfsH5F4I1wIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQAJSYeW5Y+qudSZ0OOuWDCbODfWW04MDUfJo8S1IOt/PtPOBI+XNc2Ro1WSjyEe68pl32eMOg5GdpvLvGo8nZne6warxR3nUXEdncALV7s6DVrnhyHcl3ZlIBzbVKkj5FbAp/9sZvqLZlPyASYrkB3ePhOegfAW7zLL++1bVt8Th8xGuYjfTnThJeuPnGeSL0KHI8S3YkjIGRcv8CPtIi8RKmfmXYBRKy4gVSUMpvCGH+JcU0XCzUTRqVp5MdeXrEr5xOoeCauUIiTaKDgYszLt7GV+EzYm+TwYekQ5COB4iEOhz+3PrZKg/whLAcMpOW7LTC8jXex7cjGn/YsyNuvi'
         privateKey: 'MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDEs6dps/LytsNS/ko1RrG1VBDc8IvQwzAzHNQTiJh3V0+0UOB7jwy/vV0MEwNCpW5nfIYRHhOGq+k9qsdHzXnmtAL4LSEQcJBANfDLyZc1ynvsEvVsR9mJOrEArXBThVaQ6Mb4LuJdfXeFf+uIaJZ9cERhAcM7MfmND6wYPg4qrYNVxxqMBuvoav64uM01q2ApZwGBVsrOjSp4TmCAAP+Cls2dD8bovdoTEqX1gu/qoZVTvsk+awU7jRTEyPs/oyZlWp/hTeWgCl7DjE6unOWMqLur2qjwp55ezuy8EqaBgowhAQ8a/bJ6TSgZ/kUtmI+qVLgrzvIXqX+d+wfkXgjXAgMBAAECggEARcd5v1zP9dxyBDIjfyzaA/qTlN1crC1iHu++KEPP2p5FrzD1wb9ohWiW5p6kDHOFa/7XzKC/yomXz4GS+lzhPr9jQkk4Lo3QDodUKecU1kdDmObM26HNgQoqGpRsgaSOpg997jMrqIDG8rwDgTuhD1TRXRxz9r7uyWTi5yK0gdy2cq66kynJKn1kFVMSAd3Y4RvbV5xrRb3cRPGGovQ9curPM0iz7kgsdbti55HAB5pplS82bzezw2Wuxz+DnnKFW+iNSARbMmw69omC4usbnoUDofPelgbF8bL7rB7uvErBtT25iKP+Xx3XPZ1kYNe6aSOfAnYDGKt9JiqwYIAKsQKBgQDuw17QTy/Ctp+CxmDgrhA7YdHhaNeo9qTRtxlBGqdpMqoWbaDKFxC31KV8t7VBDtYkofbyMWQ3nZSFVe09X/ofy/B+MeIyv6vwfWdREV+e512k8jSKIAKJao0RHy7n63j/Nnm+jY4mVSQfA9AAglog65FMK7jZbKjWJMxQFmc2KQKBgQDS5vBJbIxTMwWgzeqn6I+9JHcSHgbhP/CxbibvDSPvn14ptkcwzZ9+YweID0B1HJ+5PaiShfYcQhaedtD2kiaT8hbGRlg03cxtvKzU3jHUUfmz/7gEyR7HO1BBpxn0TrCtyN+dvLZOMd1q31DaxXiwsV+U2eCK6bdRduTZQ/0m/wKBgE9kZ4Kc0iTM1P2HOW98calNPZzWX9+vI98YIy2iz0gLsMMEcRLB2K1H6D8wVvTrGgnUUWj3Q3u6ykgL6nceEu2/wpgzviNh2Kp/CHvMax9Lj7fpUc8cFbvb0kx/MfmsMu+qDZFvQHU+mmQ1wFRrA80uh4Hsh+rEVt/eHJIE4Q0BAoGAUU0VdDiUH76bfNHkk7XjM1bLUACjRlIPx1ZfS+gU4lrdQdcyum2J/n7OeHTotDzElfRe950MsvgHIC9Nfr/4fy/j96tGdZrLI8KIHcdKDj9Ls0fw+GdPph4HYke4iaWMFnJJQdVtsdcnM/vCf5OAYxz9a7RSCzrtoEnlDpxXCqECgYB/PFs+f8f+pKcfcF+pqcbGrptlTbSzWBAuNdPwDjcin2qhc3baY1Vc4rVq5T7MPY59qP+4ykIfL0xT7ao7g4hkPByY56b17U6n3YScb0XWpV7XKBZ11peEDwS0W7dr6k6KN7hsFgPKzp8JpoTUZDouS/VBBEbHy/mVfvfpwixkHg=='
