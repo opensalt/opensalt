@@ -16,6 +16,7 @@ services:
       BRAND_LOGO_STYLE:
       BRAND_LINK_URL:
       BRAND_LINK_STYLE:
+      FOOTER_LEFT_TEXT:
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html

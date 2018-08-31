@@ -39,3 +39,5 @@ parameters:
     env(FIREBASE_CLIENT_EMAIL): ~
     env(FIREBASE_PRIVATE_KEY): ~
     env(FIREBASE_PREFIX): opensalt
+
+    env(FOOTER_LEFT_TEXT): ~
