@@ -101,6 +101,9 @@
                 {%- block footer -%}
                     <nav class="navbar navbar-default">
                         <div class="container-fluid">
+                            <div class="navbar-text navbar-left">
+                                {{ footer_left_text|raw }}
+                            </div>
                             <ul class="nav navbar-nav navbar-right">
                                 <li><a href="{{ url('site_about') }}">About OpenSALT</a></li>
                             </ul>
