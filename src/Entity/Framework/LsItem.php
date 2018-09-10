@@ -150,15 +150,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $listEnumInSource;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="rank", type="bigint", nullable=true)
-     *
-     * @Serializer\Exclude()
-     */
-    private $rank;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="full_statement", type="text", nullable=false)
@@ -1136,26 +1127,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     public function setLsDocIdentifier(?string $lsDocIdentifier): LsItem
     {
         $this->lsDocIdentifier = $lsDocIdentifier;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getRank(): ?int
-    {
-        return $this->rank;
-    }
-
-    /**
-     * @param int $rank
-     *
-     * @return LsItem
-     */
-    public function setRank(?int $rank): LsItem
-    {
-        $this->rank = $rank;
 
         return $this;
     }

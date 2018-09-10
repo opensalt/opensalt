@@ -428,7 +428,7 @@ class DocTreeController extends AbstractController
             }
         }
 
-        Compare::sortArrayByFields($orphaned, ['rank', 'listEnumInSource', 'humanCodingScheme']);
+        Compare::sortArrayByFields($orphaned, ['sequenceNumber', 'listEnumInSource', 'humanCodingScheme']);
 
         return [
             'topItemIds' => $topChildren,

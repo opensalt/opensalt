@@ -40,16 +40,30 @@ class Compare
      */
     public static function arrayCompare($a, $b, $key, $setValueIsLower = true): int
     {
-        if (!isset($a[$key]) && !isset($b[$key])) {
-            return 0;
-        }
+        if ($key === 'sequenceNumber') {
+            if(!isset($a['associations']) && !isset($b['associations'])) {
+                return 0;
+            }
 
-        if (0 !== ($ret = self::isSetInArray($a, $b, $key, $setValueIsLower))) {
-            return $ret;
-        }
+            if (0 !== ($ret = self::sequenceNumberIsSetInArray($a, $b, $key, $setValueIsLower))) {
+                return $ret;
+            }
 
-        $x = $a[$key];
-        $y = $b[$key];
+            $x = array_values($a['associations'])[0]['sequenceNumber'];
+            $y = array_values($b['associations'])[0]['sequenceNumber'];
+        } else {
+
+            if (!isset($a[$key]) && !isset($b[$key])) {
+                return 0;
+            }
+
+            if (0 !== ($ret = self::isSetInArray($a, $b, $key, $setValueIsLower))) {
+                return $ret;
+            }
+
+            $x = $a[$key];
+            $y = $b[$key];
+        }
 
         if ((string) $x === (string) $y) {
             return 0;
@@ -101,6 +115,25 @@ class Compare
         }
 
         if (isset($b[$key])) {
+            return 1*$dir;
+        }
+
+        return 0;
+    }
+
+    public static function sequenceNumberIsSetInArray($a, $b, $setValueIsLower = true): int
+    {
+        $dir = ($setValueIsLower ? 1 : -1);
+
+        if (isset(array_values($a['associations'])[0]['sequenceNumber'])) {
+            if (isset(array_values($b['associations'])[0]['sequenceNumber'])) {
+                return 0;
+            }
+
+            return -1*$dir;
+        }
+
+        if (isset(array_values($b['associations'])[0]['sequenceNumber'])) {
             return 1*$dir;
         }
 
