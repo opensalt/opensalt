@@ -26,6 +26,7 @@ const apxScripts = [
     assetsDir+'/js/cftree/view-trees.js',
     assetsDir+'/js/cftree/view-edit.js',
     assetsDir+'/js/cftree/view-modes.js',
+    assetsDir+'/js/cftree/view-visualization-mode.js',
     assetsDir+'/js/cftree/viewx.js',
     assetsDir+'/js/cftree/apxglobal.js',
     assetsDir+'/js/cftree/copy-framework.js'

@@ -112,6 +112,7 @@ apx.initialize = function() {
     $("#displayTreeBtn").on('click', function() { apx.viewMode.showTreeView("button"); });
     $("#displayAssocBtn").on('click', function() { apx.viewMode.showAssocView("button"); });
     $("#displayLogBtn").on('click', function() { apx.viewMode.showLogView("button"); });
+    $("#displayVisualizationBtn").on('click', function() { apx.viewMode.visualizationView("button"); });
 
     // implement enableMoveCheckbox
     $("#enableMoveCheckbox").on('click', function() { apx.edit.enableMove(this); });
@@ -136,6 +137,8 @@ apx.initialize = function() {
         // else show docTitleRow, header, and footer
         $("header, #docTitleRow, footer").show();
     }
+
+    apx.viewMode.fillOutVisualizationView();
 
     ///////////////////////////////////////////////////////////////////////////////
     // MAINDOC
@@ -214,6 +217,10 @@ apx.initialize = function() {
             apx.viewMode.showAssocView("pageLoaded");
             apx.viewMode.lastViewButtonPushed = "assoc";
             apx.viewMode.initialView = "assocView";
+        } else if (window.location.href.search(/\/vv$/) > -1) {
+            apx.viewMode.visualizationView("pageLoaded");
+            apx.viewMode.lastViewButtonPushed = "visualization";
+            apx.viewMode.initialView = "visualization";
         } else if (window.location.href.search(/\/lv$/) > -1) {
             apx.viewMode.showLogView("pageLoaded");
             apx.viewMode.lastViewButtonPushed = "log";
@@ -1107,6 +1114,10 @@ apx.pushHistoryState = function() {
             if (apx.viewMode.currentView === "log") {
                 // add "/lv" to path if the log view
                 path += "/lv";
+            }
+            if (apx.viewMode.currentView === "visualization") {
+                // add "/vv" to path if the visualization view
+                path += "/vv";
             }
             state.lsItemId = null;
         } else {

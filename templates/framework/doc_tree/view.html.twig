@@ -7,6 +7,43 @@
     {% if 'comments' is active feature %}
         <link rel="stylesheet" href="{{ asset('build/commentscss.css', 'encore') }}"/>
     {% endif %}
+    <style>
+
+    svg {
+        font: 12px sans-serif;
+    }
+
+    text {
+        pointer-events: none;
+    }
+
+    .inner_node rect {
+        pointer-events: all;
+    }
+
+    .inner_node rect.highlight {
+        stroke: #315B7E;
+        stroke-width: 2px;
+    }
+
+    .outer_node circle {
+        fill: #fff;
+        stroke: steelblue;
+        stroke-width: 1.5px;
+        pointer-events: all;
+    }
+
+    .outer_node circle.highlight
+    {
+        stroke: #315B7E;
+        stroke-width: 2px;
+    }
+
+    .link {
+        fill: none;
+    }
+
+    </style>	
 {% endblock %}
 
 {% block body %}
@@ -344,6 +381,26 @@
         </div>
     </div>
 
+
+    <div class="row main-view log-view" id="visualizationView" style="display:none;">
+        <div class="col-sm-10">
+            <div class="col-sm-12">
+                <div class="row">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <b>Association Type Select:</b>
+                            <div class="btn-group" id="visualizationButtonGroup" role="group" aria-label="..."></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="graph" class="conceptmap" ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row main-view log-view" id="logView" style="display:none;">
         <div class="col-sm-12">
@@ -758,6 +815,7 @@
 
             apx.path.doctree_cfpackage_export = '{{ path('doctree_cfpackage_export', {'id':'ID'}) }}';
             apx.path.doctree_retrieve_document = '{{ path('doctree_retrieve_document', {'id':'ID'}) }}';
+            apx.path.doctree_retrieve_document_visualization = '{{ path('doctree_retrieve_document_visualization', {'id':'ID'}) }}';
 
             //////////////////////////////////
             function initialize() {
