@@ -237,6 +237,45 @@ class DocTreeController extends AbstractController
     }
 
     /**
+     * Retrieve a CFPackage from the given document identifier, then use d3 format
+     *
+     * @Route("/retrieve_document_visualization/{id}", name="doctree_retrieve_document_visualization", methods={"GET"})
+     */
+    public function retrieveDocumentVisualizationAction(Request $request, ?LsDoc $lsDoc = null)
+    {
+        $items = array();
+        $links = array();
+        $themes = array();
+        $perspectives = [];
+        foreach($lsDoc->getLsItems() as $lsItem){
+            $links = [];
+            $associations = $lsItem->getAssociations();
+
+            foreach($associations as $association){
+                if(LsAssociation::CHILD_OF !== $association->getType()){
+                    $linkAssoc = $association->getDestination();
+
+                    if($linkAssoc instanceof LsItem){
+                        $text = substr($linkAssoc->getFullStatement(), 0, 20);
+                        $links[] = [$text, $association->getType()];
+                        $themes[] = ["name" => $text,
+                            "type" => "theme",
+                            "slug" => $association->getIdentifier(),
+                            "description" => $association->getType()
+                        ];
+                    }
+                }
+            }
+            if( count($links) > 0){
+                $items[] = ["name" => substr($lsItem->getFullStatement(), 0, 20), "links" => $links, "type" => "ditem"];
+            }
+        }
+
+        $response = new JsonResponse(array('ditems' => $items, "themes" => $themes, "perspectives" => $perspectives));
+        return $response;
+    }
+
+    /**
      * Retrieve a CFPackage from the given document identifier, then use exportAction to export it
      *
      * @Route("/retrievedocument/{id}", name="doctree_retrieve_document", methods={"GET"})

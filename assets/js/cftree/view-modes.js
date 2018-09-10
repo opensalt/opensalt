@@ -9,6 +9,7 @@ apx.viewMode = {};
 
 apx.viewMode.initialView = "tree";
 apx.viewMode.currentView = "tree";
+apx.viewMode.visualizationDocument = {};
 apx.viewMode.lastViewButtonPushed = "tree";
 
 apx.viewMode.showTreeView = function(context) {
@@ -367,6 +368,30 @@ apx.viewMode.showAssocView = function(context) {
     $("#assocView").show();
 };
 
+apx.viewMode.visualizationView = function(context) {
+    apx.viewMode.currentView = "visualization";
+
+    // if the user clicked the button to show this view, or clicked an item from the associations table
+    if (context === "button") {
+        // if the user clicked the button and the last view button pushed wasn't tree...
+        if (context === "button" && apx.viewMode.lastViewButtonPushed !== "visualization") {
+            // then the user must have been in another view, then clicked the button to go to this view, so push a history state
+            apx.pushHistoryState();
+        }
+        // set viewMode.lastViewButtonPushed to "log"
+        apx.viewMode.lastViewButtonPushed = "visualization";
+    }
+
+    // set buttons appropriately
+    $(".view-btn").removeClass("btn-primary").blur();
+    $("#displayVisualizationBtn").addClass("btn-primary").blur();
+
+    // hide the assocView and show the treeView
+    $(".main-view").hide();
+    $("#visualizationView").show();
+
+};
+
 apx.viewMode.showLogView = function(context) {
     apx.viewMode.currentView = "log";
 
@@ -445,7 +470,7 @@ apx.chooserMode.initialize = function() {
     $("#tree1Instructions").hide();
     $("#treeRightSideMode").hide();
     $("#itemOptionsWrapper").hide();
-    
+
     // PW: Added 12/8/2017 to compensate for updated "container toggles"
     $("#treeSideLeft").width("100%");
     $(".toggle-container-left").hide();

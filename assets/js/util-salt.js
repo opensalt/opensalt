@@ -1,3 +1,12 @@
+const lodashArray = require('lodash/array');
+global.lArray = lodashArray;
+
+const lodashLang = require('lodash/lang');
+global.lLang = lodashLang;
+
+const lodashCollection = require('lodash/collection');
+global.lCollection = lodashCollection;
+
 const utilSalt = (function () {
     function simplify(string) {
         return string.match(/[a-zA-Z]*/g).join("").toLowerCase();
@@ -12,10 +21,7 @@ const utilSalt = (function () {
     }
 
     function chunk(array, n) {
-        if (!this.length) {
-            return [];
-        }
-        return [this.slice(0, n)].concat(this.slice(n).chunk(n));
+        global.lArray.chunk(array, n);
     }
 
     function spinnerHtml(msg) {
