@@ -90,7 +90,7 @@ class EditorController extends AbstractController
                 unset($orphaned[$id]);
             }
         }
-        Compare::sortArrayByFields($orphaned, ['sequenceNumber', 'listEnumInSource', 'humanCodingScheme']);
+        Compare::sortArrayByFields($orphaned, ['listEnumInSource', 'humanCodingScheme']);
 
         return [
             'topItemIds'=>$topChildren,

@@ -45,12 +45,12 @@ class Compare
                 return 0;
             }
 
-            if (0 !== ($ret = self::sequenceNumberIsSetInArray($a, $b, $key, $setValueIsLower))) {
+            if (0 !== ($ret = self::sequenceNumberIsSetInArray($a, $b, $setValueIsLower))) {
                 return $ret;
             }
 
-            $x = array_values($a['associations'])[0]['sequenceNumber'];
-            $y = array_values($b['associations'])[0]['sequenceNumber'];
+            $x = current($a['associations'])['sequenceNumber'];
+            $y = current($b['associations'])['sequenceNumber'];
         } else {
 
             if (!isset($a[$key]) && !isset($b[$key])) {
@@ -106,37 +106,19 @@ class Compare
     {
         $dir = ($setValueIsLower ? 1 : -1);
 
-        if (isset($a[$key])) {
-            if (isset($b[$key])) {
-                return 0;
-            }
+        $x = isset($a[$key]) ? 1 : 0;
+        $y = isset($b[$key]) ? 1 : 0;
 
-            return -1*$dir;
-        }
-
-        if (isset($b[$key])) {
-            return 1*$dir;
-        }
-
-        return 0;
+        return ($y - $x) * $dir;
     }
 
     public static function sequenceNumberIsSetInArray($a, $b, $setValueIsLower = true): int
     {
         $dir = ($setValueIsLower ? 1 : -1);
 
-        if (isset(array_values($a['associations'])[0]['sequenceNumber'])) {
-            if (isset(array_values($b['associations'])[0]['sequenceNumber'])) {
-                return 0;
-            }
+        $x = current($a['associations'])['sequenceNumber'] ?? 0;
+        $y = current($b['associations'])['sequenceNumber'] ?? 0;
 
-            return -1*$dir;
-        }
-
-        if (isset(array_values($b['associations'])[0]['sequenceNumber'])) {
-            return 1*$dir;
-        }
-
-        return 0;
+        return ($y - $x) * $dir;
     }
 }

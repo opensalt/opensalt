@@ -80,9 +80,9 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
             $item->setListEnumInSource($i);
 
             if (!empty($rec[3]) && !empty($items[$rec[3]])) {
-                $item->addParent($items[$rec[3]]);
+                $item->addParent($items[$rec[3]], $i++);
             } else {
-                $item->addParent($doc);
+                $item->addParent($doc, $i++);
             }
 
             $item->setAbbreviatedStatement($rec[4] ?? null);
