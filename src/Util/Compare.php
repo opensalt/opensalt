@@ -41,16 +41,7 @@ class Compare
     public static function arrayCompare($a, $b, $key, $setValueIsLower = true): int
     {
         if ($key === 'sequenceNumber') {
-            if(!isset($a['associations']) && !isset($b['associations'])) {
-                return 0;
-            }
-
-            if (0 !== ($ret = self::sequenceNumberIsSetInArray($a, $b, $setValueIsLower))) {
-                return $ret;
-            }
-
-            $x = current($a['associations'])['sequenceNumber'];
-            $y = current($b['associations'])['sequenceNumber'];
+            return self::sequenceNumberIsSetInArray($a, $b, $setValueIsLower);
         } else {
 
             if (!isset($a[$key]) && !isset($b[$key])) {
@@ -109,7 +100,7 @@ class Compare
         $x = isset($a[$key]) ? 1 : 0;
         $y = isset($b[$key]) ? 1 : 0;
 
-        return ($y - $x) * $dir;
+        return ($x - $y) * $dir;
     }
 
     public static function sequenceNumberIsSetInArray($a, $b, $setValueIsLower = true): int
@@ -119,6 +110,6 @@ class Compare
         $x = current($a['associations'])['sequenceNumber'] ?? 0;
         $y = current($b['associations'])['sequenceNumber'] ?? 0;
 
-        return ($y - $x) * $dir;
+        return ($x - $y) * $dir;
     }
 }
