@@ -42,19 +42,18 @@ class Compare
     {
         if ($key === 'sequenceNumber') {
             return self::sequenceNumberIsSetInArray($a, $b, $setValueIsLower);
-        } else {
-
-            if (!isset($a[$key]) && !isset($b[$key])) {
-                return 0;
-            }
-
-            if (0 !== ($ret = self::isSetInArray($a, $b, $key, $setValueIsLower))) {
-                return $ret;
-            }
-
-            $x = $a[$key];
-            $y = $b[$key];
         }
+
+        if (!isset($a[$key]) && !isset($b[$key])) {
+            return 0;
+        }
+
+        if (0 !== ($ret = self::isSetInArray($a, $b, $key, $setValueIsLower))) {
+            return $ret;
+        }
+
+        $x = $a[$key];
+        $y = $b[$key];
 
         if ((string) $x === (string) $y) {
             return 0;

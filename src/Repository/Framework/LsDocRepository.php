@@ -476,14 +476,10 @@ xENDx;
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE i.lsDoc = :lsDocId
-            ORDER BY i.rank ASC, i.listEnumInSource ASC, i.humanCodingScheme,
-                     adi.rank ASC, adi.listEnumInSource ASC, adi.humanCodingScheme
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult($format);
-
-        return $results;
+        return $query->getResult($format);
     }
 
     /**
@@ -784,17 +780,19 @@ xENDx;
     public function findItemsForExportDoc(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
     {
         $query = $this->getEntityManager()->createQuery('
-            SELECT i, t
+            SELECT i, t,
+              CASE WHEN a.sequenceNumber IS NULL THEN 1 ELSE 0 END as HIDDEN seq_is_null,
+              a.sequenceNumber as HIDDEN seq
             FROM App\Entity\Framework\LsItem i INDEX BY i.id
             LEFT JOIN i.itemType t
+            LEFT JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
             WHERE i.lsDoc = :lsDocId
-            ORDER BY i.rank ASC, i.listEnumInSource ASC, i.humanCodingScheme
+            ORDER BY seq_is_null ASC, seq ASC, i.listEnumInSource ASC, i.humanCodingScheme
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
+        $query->setParameter('childOfType', LsAssociation::CHILD_OF);
 
-        $results = $query->getResult($format);
-
-        return $results;
+        return $query->getResult($format);
     }
 
     /**
