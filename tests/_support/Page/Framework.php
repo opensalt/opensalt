@@ -1249,7 +1249,8 @@ class Framework implements Context
         $I->see('Import Spreadsheet file');
         $I->attachFile('input#excel-url', $filename.'.xlsx');
         $I->click('Import Framework');
-        $I->waitForJS('return $.active == 0', 5);
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 5);
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : 0) === 0 && $("#tree1Section div.treeDiv ul").length > 0;', 10);
         $I->see('Framework updated');
         $I->see('T Item updated');
         $I->dontSee('A.B abc');

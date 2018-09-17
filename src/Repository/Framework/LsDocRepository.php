@@ -168,8 +168,6 @@ class LsDocRepository extends ServiceEntityRepository
             }
         }
 
-        $this->rankItems($results);
-
         foreach ($results as $key => $result) {
             if (!empty($results[$key]['children'])) {
                 $this->rankItems($results[$key]['children']);

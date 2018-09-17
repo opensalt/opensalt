@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Framework\LsDoc;
+use App\Util\Compare;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -35,6 +36,8 @@ class ExcelExport
 
         $smartLevel = [];
 
+        $items['_'] = ['children'=>[]];
+
         $i = 0;
         foreach ($topChildren as $id) {
             $smartLevel[$id] = ++$i;
@@ -43,7 +46,10 @@ class ExcelExport
             if (count($item['children']) > 0) {
                 $this->getSmartLevel($item['children'], $id, $items, $smartLevel);
             }
+
+            $items['_']['children'][] = $items[$id];
         }
+        Compare::sortArrayByFields($items['_']['children'], ['sequenceNumber', 'listEnumInSource', 'humanCodingScheme']);
 
         $phpExcelObject = new Spreadsheet();
 
@@ -148,17 +154,7 @@ class ExcelExport
             ->setTitle('CF Item');
 
         $j = 2;
-        foreach ($items as $item) {
-            $this->addItemRow($activeSheet, $j, $item);
-            if (array_key_exists($item['id'], $smartLevel)) {
-                $activeSheet->setCellValueExplicit(
-                    'D'.$j,
-                    $smartLevel[$item['id']],
-                    DataType::TYPE_STRING
-                );
-            }
-            ++$j;
-        }
+        $this->addItemRows($items['_']['children'], $activeSheet, $j, $smartLevel);
 
         $phpExcelObject->createSheet();
         $activeSheet = $phpExcelObject->setActiveSheetIndex(2);
@@ -176,7 +172,25 @@ class ExcelExport
         $j = 2;
         foreach ($associations as $association) {
             $this->addAssociationRow($activeSheet, $j, $association);
+        }
+    }
+
+    protected function addItemRows(array $set, Worksheet $activeSheet, int &$j, array $smartLevel): void
+    {
+        foreach ($set as $item) {
+            $this->addItemRow($activeSheet, $j, $item);
+            if (array_key_exists($item['id'], $smartLevel)) {
+                $activeSheet->setCellValueExplicit(
+                    'D'.$j,
+                    $smartLevel[$item['id']],
+                    DataType::TYPE_STRING
+                );
+            }
             ++$j;
+
+            if (!empty($item['children'])) {
+                $this->addItemRows($item['children'], $activeSheet, $j, $smartLevel);
+            }
         }
     }
 
