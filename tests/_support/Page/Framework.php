@@ -1232,7 +1232,11 @@ class Framework implements Context
         $sheet->setCellValue('C2', 'T');
         $sheet->setCellValue('F2', '');
 
-        $sheet->removeRow(3);
+        $sheet->setCellValue('B3', 'New full statement');
+        $sheet->setCellValue('C3', 'U');
+        $sheet->setCellValue('F3', '');
+
+        $sheet->removeRow(4);
 
         $writer = \PHPOffice\PhpSpreadsheet\IOFactory::createWriter($ss, 'Xlsx');
         $writer->save(codecept_data_dir().''.$filename.'.xlsx');

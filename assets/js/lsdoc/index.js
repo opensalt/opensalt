@@ -347,8 +347,6 @@ var SaltLocal = (function () {
 
         if (window.File && window.FileReader && window.FileList && window.Blob) {
             for (var i = 0; f = files[i]; i++) {
-                console.log('name:', escape(f.name), '- type:', f.type || 'n/a', '- size:', f.size,
-                        'bytes', '- lastModified:', f.lastModified ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
 
                 var reader = new FileReader();
                 if (isTypeValid(f.name)) {
