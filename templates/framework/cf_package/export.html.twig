@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends base_template %}
 
 {% block body %}
 <p>This should export a zip file with the rendered html (including all necessary html, css, etc. files) of the Competency Framework document’s “tree view” ({{ url('doc_tree_view', {'slug':lsDoc.slug}) }}). See export.json.twig for the data to be rendered.</p>
