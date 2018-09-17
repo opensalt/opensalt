@@ -17,9 +17,11 @@ class AddItemHandler extends BaseFrameworkHandler
         $item = $command->getItem();
 
         if ($command->getParent()) {
-            $command->getParent()->addChild($item, $command->getAssocGroup());
+            $seqNum = $this->framework->getNextChildSequenceNumber($command->getParent());
+            $command->getParent()->addChild($item, $command->getAssocGroup(), $seqNum);
         } else {
-            $command->getDoc()->addTopLsItem($item, $command->getAssocGroup());
+            $seqNum = $this->framework->getNextChildSequenceNumber($command->getDoc());
+            $command->getDoc()->addTopLsItem($item, $command->getAssocGroup(), $seqNum);
         }
 
         $this->validate($command, $item);

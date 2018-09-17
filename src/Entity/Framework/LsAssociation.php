@@ -10,7 +10,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * LsAssociation
  *
- * @ORM\Table(name="ls_association")
+ * @ORM\Table(name="ls_association",
+ *     indexes={
+ *         @ORM\Index(name="dest_id_idx", columns={"destination_node_identifier"}),
+ *         @ORM\Index(name="orig_id_idx", columns={"origin_node_identifier"}),
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\Framework\LsAssociationRepository")
  *
  * @Serializer\VirtualProperty(

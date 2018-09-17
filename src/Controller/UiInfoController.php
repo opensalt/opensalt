@@ -104,6 +104,7 @@ class UiInfoController extends AbstractController
         return [
             'id' => $doc->getId(),
             'identifier' => $doc->getIdentifier(),
+            'uri' => $doc->getUri(),
             'title' => $doc->getTitle(),
             'officialSourceURL' => $doc->getOfficialUri(),
             'creator' => $doc->getCreator(),
@@ -137,6 +138,7 @@ class UiInfoController extends AbstractController
         $ret = [
             'id' => $item->getId(),
             'identifier' => $item->getIdentifier(),
+            'uri' => $item->getUri(),
             'fullStatement' => $item->getFullStatement(),
             'humanCodingScheme' => $item->getHumanCodingScheme(),
             'listEnumInSource' => $item->getListEnumInSource(),
@@ -159,6 +161,7 @@ class UiInfoController extends AbstractController
                     'assocDoc' => $assoc->getLsDocIdentifier(),
                     'assocId' => $assoc->getId(),
                     'identifier' => $assoc->getIdentifier(),
+                    'uri' => $assoc->getUri(),
                     //'groupId' => (null !== $assoc->getGroup()) ? $assoc->getGroup()->getId() : null,
                     'dest' => ['doc' => $assoc->getLsDocIdentifier(), 'item' => $destItem, 'uri' => $destItem],
                 ];

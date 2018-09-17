@@ -396,7 +396,7 @@ class LsItemController extends AbstractController
      *
      * @Route("/{id}/upload_attachment", methods={"POST"}, name="lsitem_upload_attachment")
      * @Template()
-     * @Security("is_granted('edit', lsItem)")
+     * @Security("is_granted('add-standard-to', doc)")
      *
      * @param Request $request
      * @param LsItem $lsItem
@@ -404,7 +404,7 @@ class LsItemController extends AbstractController
      *
      * @return Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function uploadAttachmentAction(Request $request, LsItem $lsItem, BucketService $bucket)
+    public function uploadAttachmentAction(Request $request, LsDoc $doc, BucketService $bucket)
     {
         if (!empty($this->bucketProvider)) {
             $file = $request->files->get('file');
@@ -423,6 +423,7 @@ class LsItemController extends AbstractController
         $ret = [
             'id' => $item->getId(),
             'identifier' => $item->getIdentifier(),
+            'uri' => $item->getUri(),
             'fullStatement' => $item->getFullStatement(),
             'humanCodingScheme' => $item->getHumanCodingScheme(),
             'listEnumInSource' => $item->getListEnumInSource(),
