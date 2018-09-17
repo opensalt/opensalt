@@ -45,6 +45,7 @@ parameters:
     google_captcha_secret_key: '%env(GOOGLE_CAPTCHA_SECRET_KEY)%'
     env(SESSION_MAX_IDLE_TIME): 3600
     session_max_idle_time: '%env(int:SESSION_MAX_IDLE_TIME)%'
+    base_template: 'base.html.twig'
 
 framework:
     #esi:             ~
@@ -107,6 +108,7 @@ twig:
       firebase_project_id: "%firebase_project_id%"
       firebase_prefix: "%firebase_prefix%"
       google_captcha_site_key: '%google_captcha_site_key%'
+      base_template: '%base_template%'
 
 services:
     twig.extension.text:
