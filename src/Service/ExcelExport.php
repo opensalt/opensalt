@@ -172,6 +172,7 @@ class ExcelExport
         $j = 2;
         foreach ($associations as $association) {
             $this->addAssociationRow($activeSheet, $j, $association);
+            ++$j;
         }
     }
 

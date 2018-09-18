@@ -1228,15 +1228,15 @@ class Framework implements Context
         $sheet->setCellValue('C2', 'Framework updated');
 
         $sheet = $ss->getSheetByName('CF Item');
-        $sheet->setCellValue('B2', 'Item updated');
-        $sheet->setCellValue('C2', 'T');
-        $sheet->setCellValue('F2', '');
-
-        $sheet->setCellValue('B3', 'New full statement');
-        $sheet->setCellValue('C3', 'U');
+        $sheet->setCellValue('B3', 'Item updated');
+        $sheet->setCellValue('C3', 'T');
         $sheet->setCellValue('F3', '');
 
-        $sheet->removeRow(4);
+        $sheet->setCellValue('B4', 'New full statement');
+        $sheet->setCellValue('C4', 'U');
+        $sheet->setCellValue('F4', '');
+
+        $sheet->removeRow(5);
 
         $writer = \PHPOffice\PhpSpreadsheet\IOFactory::createWriter($ss, 'Xlsx');
         $writer->save(codecept_data_dir().''.$filename.'.xlsx');
