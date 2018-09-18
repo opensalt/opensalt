@@ -1228,15 +1228,17 @@ class Framework implements Context
         $sheet->setCellValue('C2', 'Framework updated');
 
         $sheet = $ss->getSheetByName('CF Item');
-        $sheet->setCellValue('B3', 'Item updated');
+        $sheet->setCellValue('B3', 'Item updated'); // Change A.B
         $sheet->setCellValue('C3', 'T');
         $sheet->setCellValue('F3', '');
 
-        $sheet->setCellValue('B4', 'New full statement');
+        $sheet->setCellValue('B4', 'New full statement'); // Change A.B.C
         $sheet->setCellValue('C4', 'U');
         $sheet->setCellValue('F4', '');
 
-        $sheet->removeRow(5);
+        // Leave A.B.C.L alone
+
+        $sheet->removeRow(6); // remove A.B.D
 
         $writer = \PHPOffice\PhpSpreadsheet\IOFactory::createWriter($ss, 'Xlsx');
         $writer->save(codecept_data_dir().''.$filename.'.xlsx');
@@ -1244,18 +1246,33 @@ class Framework implements Context
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#updateFrameworkModal"]', 120);
         $I->see('Update Framework');
-        $I->click('Update Framework');
-        $I->waitForElementVisible('#updateFrameworkModal');
+        try {
+            $I->click('Update Framework');
+            $I->waitForElementVisible('#updateFrameworkModal', 10);
+        } catch (\Exception $e) {
+            $I->click('Update Framework');
+            $I->waitForElementVisible('#updateFrameworkModal', 20);
+        }
         $I->see('Import Spreadsheet file');
         $I->attachFile('input#excel-url', $filename.'.xlsx');
         $I->click('Import Framework');
-        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 5);
+        $I->waitForElementNotVisible('#updateFrameworkModal', 60);
+        try {
+            $I->waitForElementVisible('#modalSpinner', 10);
+        } catch (\Exception $e) {
+            // Might have been too quick
+        }
+        $I->waitForElementNotVisible('#modalSpinner', 60);
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 30);
         $I->waitForJS('return (("undefined" === typeof $) ? 1 : 0) === 0 && $("#tree1Section div.treeDiv ul").length > 0;', 10);
+        $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
         $I->see('Framework updated');
+        $I->dontSee('A.B abc'); // Changed to T ...
         $I->see('T Item updated');
-        $I->dontSee('A.B abc');
-        $I->dontSee('A.B.C def');
-        $I->dontSee('A.B.D ghi');
+        $I->dontSee('A.B.C def'); // Changed to U ...
+        $I->see('U New full statement');
+        $I->dontSee('A.B.D ghi'); // Removed;
+        $I->see('A.B.C.L jkl'); // Left alone
     }
 
     /**

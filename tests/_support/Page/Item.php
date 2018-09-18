@@ -447,14 +447,21 @@ class Item implements Context
     {
         $I = $this->I;
 
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : 0) === 0 && $.active === 0 && $("#tree1Section div.treeDiv ul").length > 0;', 10);
         $I->see('Import Children');
-        $I->click('Import Children');
-        $I->waitForElementVisible('#addChildrenModal', 120);
+        try {
+            $I->click('Import Children');
+            $I->waitForElementVisible('#addChildrenModal', 10);
+        } catch (\Exception $e) {
+            $I->click('Import Children');
+            $I->waitForElementVisible('#addChildrenModal', 15);
+        }
         $I->see('Import Items');
         $I->attachFile('input#file-url', 'children.csv');
         $I->click('.btn-import-csv');
-        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 10);
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 15);
 
+        $I->waitForElementNotVisible('#addChildrenModal', 120);
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
 
@@ -462,6 +469,7 @@ class Item implements Context
         $I->see('A.B abc');
         $I->see('A.B.C def');
         $I->see('A.B.D ghi');
+        $I->see('A.B.C.L jkl');
     }
 
     /**
