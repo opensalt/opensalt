@@ -154,7 +154,7 @@ class ExcelExport
             ->setTitle('CF Item');
 
         $j = 2;
-        $this->addItemRows($items['_']['children'], $activeSheet, $j, $smartLevel);
+        $this->addItemRows($items['_']['children'], $activeSheet, $j, $items, $smartLevel);
 
         $phpExcelObject->createSheet();
         $activeSheet = $phpExcelObject->setActiveSheetIndex(2);
@@ -174,11 +174,14 @@ class ExcelExport
             $this->addAssociationRow($activeSheet, $j, $association);
             ++$j;
         }
+
+        $phpExcelObject->setActiveSheetIndex(0);
     }
 
-    protected function addItemRows(array $set, Worksheet $activeSheet, int &$j, array $smartLevel): void
+    protected function addItemRows(array $set, Worksheet $activeSheet, int &$j, array $items, array $smartLevel): void
     {
-        foreach ($set as $item) {
+        foreach ($set as $child) {
+            $item = $items[$child['id']];
             $this->addItemRow($activeSheet, $j, $item);
             if (array_key_exists($item['id'], $smartLevel)) {
                 $activeSheet->setCellValueExplicit(
@@ -189,8 +192,8 @@ class ExcelExport
             }
             ++$j;
 
-            if (!empty($item['children'])) {
-                $this->addItemRows($item['children'], $activeSheet, $j, $smartLevel);
+            if (count($item['children']) > 0) {
+                $this->addItemRows($item['children'], $activeSheet, $j, $items, $smartLevel);
             }
         }
     }
