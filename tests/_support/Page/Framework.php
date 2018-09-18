@@ -1228,11 +1228,15 @@ class Framework implements Context
         $sheet->setCellValue('C2', 'Framework updated');
 
         $sheet = $ss->getSheetByName('CF Item');
-        $sheet->setCellValue('B2', 'Item updated');
-        $sheet->setCellValue('C2', 'T');
-        $sheet->setCellValue('F2', '');
+        $sheet->setCellValue('B3', 'Item updated');
+        $sheet->setCellValue('C3', 'T');
+        $sheet->setCellValue('F3', '');
 
-        $sheet->removeRow(3);
+        $sheet->setCellValue('B4', 'New full statement');
+        $sheet->setCellValue('C4', 'U');
+        $sheet->setCellValue('F4', '');
+
+        $sheet->removeRow(5);
 
         $writer = \PHPOffice\PhpSpreadsheet\IOFactory::createWriter($ss, 'Xlsx');
         $writer->save(codecept_data_dir().''.$filename.'.xlsx');
@@ -1245,7 +1249,8 @@ class Framework implements Context
         $I->see('Import Spreadsheet file');
         $I->attachFile('input#excel-url', $filename.'.xlsx');
         $I->click('Import Framework');
-        $I->waitForJS('return $.active == 0', 5);
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 5);
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : 0) === 0 && $("#tree1Section div.treeDiv ul").length > 0;', 10);
         $I->see('Framework updated');
         $I->see('T Item updated');
         $I->dontSee('A.B abc');

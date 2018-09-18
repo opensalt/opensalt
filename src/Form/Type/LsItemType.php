@@ -67,23 +67,6 @@ class LsItemType extends AbstractType
                         ;
                 },
             ])
-//            ->add('educationalAlignment', EntityType::class, [
-//                'class' => 'App\Entity\Framework\LsItem',
-//                'label' => 'Education Level',
-//                'choice_label' => 'label',
-//                'required' => false,
-//                'group_by' => function($val, $key, $index) {
-//                    /** @var LsItem $val */
-//                    return $val->getLsDoc()->getTitle();
-//                },
-//                'multiple' => true,
-//                //'expanded' => true,
-//                'query_builder' => function (EntityRepository $er) {
-//                    /** @var LsItemRepository $er */
-//                    return $er->createGradeSelectListQueryBuilder();
-//                }
-//            ])
-            //->add('type')
             ->add('itemType', Select2EntityType::class, [
                 'multiple' => false,
                 'remote_route' => 'lsdef_item_type_index_json',
@@ -100,15 +83,6 @@ class LsItemType extends AbstractType
             ])
             ->add('licenceUri')
             ->add('notes')
-
-            /*
-            ->add('changedAt', 'Symfony\Component\Form\Extension\Core\Type\DateTimeType', [
-                'required' => false,
-                //'widget' => 'single_text',
-                'date_widget' => 'single_text',
-                'time_widget' => 'single_text',
-            ])
-            */
         ;
 
         $builder->get('educationalAlignment')
