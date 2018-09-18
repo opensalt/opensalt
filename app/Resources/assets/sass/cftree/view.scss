@@ -170,16 +170,16 @@ span.fancytree-title {
     background-color: $brand-header-light;
     border:3px solid $brand-header;
     color:$text-color;
-}
 
-#docStatus.docStatus-Draft {
-    background-color: lighten($doc-status-draft, 30%);
-    border:3px solid $doc-status-draft;
-}
+    .docStatus-Draft, .docStatus-Private {
+        background-color: lighten($doc-status-draft, 30%);
+        border:3px solid $doc-status-draft;
+    }
 
-#docStatus.docStatus-Deprecated {
-    background-color: lighten($doc-status-deprecated, 30%);
-    border:3px solid $doc-status-deprecated;
+    .docStatus-Deprecated {
+        background-color: lighten($doc-status-deprecated, 30%);
+        border:3px solid $doc-status-deprecated;
+    }
 }
 
 .itemTitle {
@@ -226,7 +226,7 @@ span.fancytree-title {
 
 #itemSection {
     display:none;
-    background-color: lighten($brand-info, 20%);
+    background-color: lighten($brand-info, 30%);
     border:3px solid $brand-info;
 }
 
@@ -364,7 +364,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     text-align:center;
     margin-left:auto;
     margin-right:auto;
-    background-color:$neutral-bg-light;
+    background-color:$neutral-bg;
     color:$white;
     padding:8px;
     border-radius:5px;
