@@ -22,6 +22,7 @@ coverage
 
 # build directories
 build
+!upath/build
 
 # build scripts
 Makefile
