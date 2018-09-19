@@ -839,35 +839,34 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      */
     public function getTopLsItems()
     {
-        $topAssociations = new ArrayCollection();
+        $topAssociations = [];
 
         $associations = $this->getInverseAssociations();
         foreach ($associations as $association) {
             /** @var LsAssociation $association */
-            if ($association->getLsDoc()->getId() == $this->getId()) {
+            if (null === $association->getLsDoc() || null === $association->getOriginLsItem()) {
+                continue;
+            }
+
+            if ($association->getLsDoc()->getId() === $this->getId()) {
                 if ($association->getType() === LsAssociation::CHILD_OF) {
-                    $topAssociations->add($association->getOriginLsItem());
+                    $topAssociations[] = [
+                        'sequenceNumber' => $association->getSequenceNumber(),
+                        'enum' => $association->getOriginLsItem()->getListEnumInSource(),
+                        'hcs' => $association->getOriginLsItem()->getHumanCodingScheme(),
+                        'item' => $association->getOriginLsItem(),
+                    ];
                 }
             }
         }
 
-        $iterator = $topAssociations->getIterator();
-        $iterator->uasort(function (LsItem $a, LsItem $b) {
-            // rank
-            if (!empty($a->getRank()) && !empty($b->getRank())) {
-                if ($a->getRank() !== $b->getRank()) {
-                    return ($a < $b) ? -1 : 1;
-                } // else fall through to next check
-            } elseif (!empty($a->getRank()) || !empty($b->getRank())) {
-                return (!empty($a->getRank())) ? -1 : 1;
-            }
+        Compare::sortArrayByFields($topAssociations, ['sequenceNumber', 'enum', 'hcs']);
 
-            // listEnumInSource
-            // humanCodingScheme
+        $orderedList = array_map(function ($rec) {
+            return $rec['item'];
+        }, $topAssociations);
 
-            return 0;
-        });
-        $topAssociations = new ArrayCollection(iterator_to_array($iterator));
+        $topAssociations = new ArrayCollection($orderedList);
 
         return $topAssociations;
     }
@@ -877,24 +876,13 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      *
      * @return array|int[]
      */
-    public function getTopLsItemIds()
+    public function getTopLsItemIds(): array
     {
-        $items = $this->getTopLsItems()->map(function (LsItem $item) {
-            return [
-                'id' => $item->getId(),
-                'rank' => $item->getRank(),
-                'listEnumInSource' => $item->getListEnumInSource(),
-                'humanCodingScheme' => $item->getHumanCodingScheme(),
-            ];
+        $ids = $this->getTopLsItems()->map(function (LsItem $item) {
+            return $item->getId();
         })->toArray();
-        Compare::sortArrayByFields($items, ['rank', 'listEnumInSource', 'humanCodingScheme']);
-        $items = new ArrayCollection($items);
 
-        $ids = $items->map(function ($item) {
-            return $item['id'];
-        });
-
-        return $ids->toArray();
+        return $ids;
     }
 
     /**
