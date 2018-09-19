@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends base_template %}
 
 {% block body %}
     {% include 'framework/ls_doc/export.json.twig' with {'lsDoc':lsDoc, 'items': items} %}
