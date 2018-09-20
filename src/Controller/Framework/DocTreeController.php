@@ -257,17 +257,27 @@ class DocTreeController extends AbstractController
 
                     if($linkAssoc instanceof LsItem){
                         $text = substr($linkAssoc->getFullStatement(), 0, 20);
-                        $links[] = [$text, $association->getType()];
+                        $links[] = [
+                            "name" => $text, 
+                            "type" => $association->getType(), 
+                            "id" => $association->getIdentifier()
+                        ];
                         $themes[] = ["name" => $text,
                             "type" => "theme",
                             "slug" => $association->getIdentifier(),
-                            "description" => $association->getType()
+                            "description" => $association->getType(),
+                            "dest" => $association->getDestinationNodeIdentifier(),
+                            "origin" => $association->getOriginNodeIdentifier()
                         ];
                     }
                 }
             }
             if( count($links) > 0){
-                $items[] = ["name" => substr($lsItem->getFullStatement(), 0, 20), "links" => $links, "type" => "ditem"];
+                $items[] = [
+                    "name" => substr($lsItem->getFullStatement(), 0, 20),
+                    "id" => $lsItem->getIdentifier(), 
+                    "links" => $links, "type" => "ditem"
+                ];
             }
         }
 
