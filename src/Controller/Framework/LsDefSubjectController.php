@@ -59,11 +59,8 @@ class LsDefSubjectController extends AbstractController
         // ?page_limit=N&q=SEARCHTEXT
         $em = $this->getDoctrine()->getManager();
 
-        $objects = $em->getRepository(LsDefSubject::class)->getList();
-
-//        $want = $request->query->get('q');
-//        if (!array_key_exists($want, $lsDefItemTypes)) {
-//        }
+        $search = $request->query->get('q');
+        $objects = $em->getRepository(LsDefSubject::class)->getList($search);
 
         return [
             'objects' => $objects,
