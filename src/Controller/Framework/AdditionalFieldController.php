@@ -17,7 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * AdditionalField controller.
  *
- * @Route("/additonalfields")
+ * @Route("/additionalfields")
  */
 class AdditionalFieldController extends AbstractController
 {
