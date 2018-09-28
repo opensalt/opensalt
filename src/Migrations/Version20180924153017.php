@@ -16,7 +16,6 @@ final class Version20180924153017 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('CREATE TABLE additional_field (id INT AUTO_INCREMENT NOT NULL, name TINYTEXT NOT NULL, applies_to TINYTEXT NOT NULL, display_name TINYTEXT NOT NULL, type TINYTEXT NOT NULL, type_info LONGTEXT NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
-        $this->addSql('DROP TABLE id_entries');
     }
 
     public function down(Schema $schema) : void
@@ -24,7 +23,6 @@ final class Version20180924153017 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('CREATE TABLE id_entries (entity_id VARCHAR(255) NOT NULL COLLATE utf8mb4_unicode_ci, id VARCHAR(255) NOT NULL COLLATE utf8mb4_unicode_ci, expiry_timestamp INT NOT NULL, PRIMARY KEY(entity_id, id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
         $this->addSql('DROP TABLE additional_field');
     }
 }
