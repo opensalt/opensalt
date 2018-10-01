@@ -134,7 +134,7 @@ class AdditionalFieldController extends AbstractController
       $this->entityManager->remove($additionalField);
       $this->entityManager->flush();
 
-      return new RedirectResponse($this->router->generate('additional_index'));
+      return new RedirectResponse($this->router->generate('additionalfield_index'));
     }
 
 }
