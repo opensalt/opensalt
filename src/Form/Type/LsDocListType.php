@@ -3,20 +3,50 @@
 namespace App\Form\Type;
 
 use App\Entity\Framework\LsDoc;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class LsDocListType extends AbstractType
 {
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    private $authChecker;
+
+    public function __construct(EntityManagerInterface $em, AuthorizationCheckerInterface $authChecker)
+    {
+        $this->em = $em;
+        $this->authChecker = $authChecker;
+    }
+
     /**
      * @param FormBuilderInterface $builder
      * @param array $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $repo = $this->em->getRepository(LsDoc::class);
+        $list = $repo->createQueryBuilder('d')
+            ->addOrderBy('d.creator', 'ASC')
+            ->addOrderBy('d.title', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+
+        foreach ($list as $i => $doc) {
+            if (!$this->authChecker->isGranted('view', $doc)) {
+                unset($list[$i]);
+            }
+        }
+
         $builder
             ->add('lsDoc', EntityType::class, [
                 'label' => 'Document:',
@@ -38,13 +68,8 @@ class LsDocListType extends AbstractType
                 },
                 'required' => false,
                 'multiple' => false,
-                'class' => 'App\Entity\Framework\LsDoc',
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('d')
-                        ->addOrderBy('d.creator', 'ASC')
-                        ->addOrderBy('d.title', 'ASC')
-                        ;
-                },
+                'class' => LsDoc::class,
+                'choices' => $list,
             ])
         ;
     }
