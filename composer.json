@@ -62,7 +62,7 @@
         "ramsey/uuid": "^3.7",
         "ramsey/uuid-doctrine": "^1.4",
         "sensio/framework-extra-bundle": "^5.0.0",
-        "simplethings/entity-audit-bundle": "^1.0",
+        "simplethings/entity-audit-bundle": "1.0.6",
         "stof/doctrine-extensions-bundle": "^1.3",
         "symfony/asset": "*",
         "symfony/console": "*",
