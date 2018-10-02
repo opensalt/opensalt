@@ -20,4 +20,6 @@ twig:
       firebase_prefix: "%firebase_prefix%"
       google_captcha_site_key: "%google_captcha_site_key%"
       footer_left_text: "%footer_left_text%"
+      base_template: '%base_template%'
+
 

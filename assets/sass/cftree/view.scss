@@ -91,7 +91,7 @@ body{
     margin: auto;
     font-size: 14px;
     cursor: pointer;
-    color: #ccc;
+    color: $text-color-light;
     display:none;
 }
 
@@ -138,9 +138,9 @@ span.fancytree-title {
 #docTitleWrapper {
     padding: 10px 15px;
     margin-bottom: 20px;
-    border:3px solid #E6793A;
-    background-color:#f9ddcd;
-    color:#000;
+    border:3px solid $brand-header-alternate;
+    background-color: $brand-header-alternate-light;
+    color:$black;
     border-radius: 4px;
     font-size:1.6em;
     font-weight:bold;
@@ -167,30 +167,19 @@ span.fancytree-title {
     font-size:1.6em;
     font-weight:bold;
     text-align:center;
-    background-color: #d9f2fb;
-    border:3px solid #78C9E9;
-}
+    background-color: $brand-header-light;
+    border:3px solid $brand-header;
+    color:$text-color;
 
-.docStatus-Draft {
-    background-color: #ffe;
-    border:3px solid #ec0;
-}
-#docStatus.docStatus-Draft {
-    color:#444;
-}
+    .docStatus-Draft, .docStatus-Private {
+        background-color: lighten($doc-status-draft, 30%);
+        border:3px solid $doc-status-draft;
+    }
 
-.docStatus-Adopted {
-}
-#docStatus.docStatus-Adopted {
-    color:#444;
-}
-
-.docStatus-Deprecated {
-    background-color: #fee;
-    border:3px solid #933;
-}
-#docStatus.docStatus-Deprecated {
-    color:#933;
+    .docStatus-Deprecated {
+        background-color: lighten($doc-status-deprecated, 30%);
+        border:3px solid $doc-status-deprecated;
+    }
 }
 
 .itemTitle {
@@ -203,7 +192,7 @@ span.fancytree-title {
     margin-right: 1%;
     margin-left:-5px;
     padding: 5px;
-    background-color: #fff;
+    background-color: $white;
     border-radius: 4px;
     display: inline-block;
 }
@@ -230,15 +219,15 @@ span.fancytree-title {
 
 .lessImportant {
     font-size:.85em;
-    color:#999;
+    color:$text-color-light;
     padding-left:5px;
     white-space:nowrap;
 }
 
 #itemSection {
     display:none;
-    background-color: #d9f2fb;
-    border:3px solid #78C9E9;
+    background-color: lighten($brand-info, 30%);
+    border:3px solid $brand-info;
 }
 
 .itemOptions {
@@ -272,7 +261,7 @@ span.fancytree-title {
 }
 
 .fancytree-drag-helper {
-    background-color:#fff;
+    background-color:$white;
     opacity:0.8;
     padding:5px;
 }
@@ -310,8 +299,8 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 }
 
 .lsAssociationItemDisplay {
-    background-color:#666;
-    color:#fff;
+    background-color:$neutral-bg;
+    color:$white;
     border-radius:4px;
     padding:10px;
 }
@@ -332,7 +321,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 
 .treeHasAssociation img {
     height: 10px;
-    background-color: #fff;
+    background-color: $white;
     vertical-align:baseline;
 }
 
@@ -375,8 +364,8 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     text-align:center;
     margin-left:auto;
     margin-right:auto;
-    background-color:#777;
-    color:#fff;
+    background-color:$neutral-bg;
+    color:$white;
     padding:8px;
     border-radius:5px;
 }
@@ -410,7 +399,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     top:0;
     width:100%;
     height:100vh;
-    background-color:#fff;
+    background-color:$white;
     opacity:0.8;
 }
 
@@ -544,7 +533,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     top:0;
     height:100vh;
     width:100vw;
-    background-color:#ccc;
+    background-color:$neutral-bg-light;
     opacity:0.8;
     display:none;
 }
@@ -596,7 +585,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 }
 
 #dragbar{
-    background-color:#D5D5D5;
+    background-color:$dragbar-bg;
     height:100%;
     float: right;
     width: 5px;
