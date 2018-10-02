@@ -126,6 +126,11 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $lsDoc;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Framework\TaskModel", mappedBy="lsItem")
+     */
+    private $taskModels;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="human_coding_scheme", type="string", length=50, nullable=true)
@@ -369,6 +374,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         $this->associations = new ArrayCollection();
         $this->inverseAssociations = new ArrayCollection();
         $this->changedAt = $this->getUpdatedAt();
+        $this->taskModels = new ArrayCollection();
     }
 
     /**
@@ -1386,5 +1392,13 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         $this->criteria = $criteria;
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTaskModels()
+    {
+      return $this->taskModels;
     }
 }

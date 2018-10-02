@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <h1>Task Model</h1>
+  <ul>
+    <li><a href="{{ path('taskmodel_index') }}">Task Model List</a></li>
+    <li><a href="{{ path('taskmodel_update', {'id': task_model.id}) }}">Edit</a></li>
+  </ul>
+  <div>
+    <strong>Id</strong>: {{ task_model.id }}<br>
+    <strong>LsItem</strong>: {{ task_model.lsItem }}<br>
+    <strong>Task Narrative</strong>: {{ task_model.taskNarrative }}<br>
+    <strong>Depth of Knowledge</strong>: {{ task_model.depthOfKnowledge }}<br>
+    <strong>Item Type</strong>: {{ task_model.itemType }}<br>
+    <strong>Available Tools</strong>: {{ task_model.availableTools }}<br>
+    <strong>Accessibility Concerns</strong>: {{ task_model.accessibilityConcerns }}<br>
+    <strong>Variables</strong>: {{ task_model.taskModelVariables }}<br>
+    <strong>Passage Stimulus Spec Code</strong>: {{ task_model.passageStimulusSpecCode }}<br>
+    <strong>Common Errors</strong>: {{ task_model.commonErrorsMisconceptions }}<br>
+    <strong>Tei Guidelines</strong>: {{ task_model.teiGuidelines }}<br>
+    <strong>Notes</strong>: {{ task_model.taskModelNotes }}<br>
+    <strong>Example Items</strong>: {{ task_model.exampleItems }}<br>
+    <strong>Rubric Scoring Rules</strong>: {{ task_model.rubricScoringRules }}<br>
+    <strong>Authoring Tips</strong>: {{ task_model.itemAuthoringTips }}<br>
+    <strong>Stem Reqs</strong>: {{ task_model.stemRequirements }}<br>
+    <strong>Key Reqs</strong>: {{ task_model.keyRequirements }}<br>
+    <strong>Distractor Reqs</strong>: {{ task_model.distractorRequirements }}<br>
+    <strong>Authoring Problems Reqs</strong>: {{ task_model.commonAuthoringProblemsRequirements }}<br>
+  </div>
+{% endblock %}

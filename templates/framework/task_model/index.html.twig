@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <h1>Task Model List</h1>
+  <p>
+    <a href="{{ path('taskmodel_new') }}">Add Task Model</a>
+  </p>
+  <table class="table table-condensed table-hover table-bordered table-striped">
+      <thead>
+          <tr>
+              <th>Id</th>
+              <th>Edit</th>
+              <th>Delete</th>
+              <th>LsItem</th>
+              <th>Task Narrative</th>
+              <th>Depth of Knowledge</th>
+              <th>Item Type</th>
+              <th>Available Tools</th>
+              <th>Accessibility Concerns</th>
+              <th>Variables</th>
+              <th>Passage Stimulus Spec Code</th>
+              <th>Common Errors</th>
+              <th>Tei Guidelines</th>
+              <th>Notes</th>
+              <th>Example Items</th>
+              <th>Rubric Scoring Rules</th>
+              <th>Authoring Tips</th>
+              <th>Stem Reqs</th>
+              <th>Key Reqs</th>
+              <th>Distractor Reqs</th>
+              <th>Authoring Problems Reqs</th>
+          </tr>
+      </thead>
+      <tbody>
+      {% for task_model in task_models %}
+          <tr>
+            <td>
+              <a href="{{ path('taskmodel_show', {'id': task_model.id}) }}">
+                {{ task_model.id }}
+              </a>
+            </td>
+            <td>
+              <a href="{{ path('taskmodel_update', {'id': task_model.id}) }}">
+                Edit
+              </a>
+            </td>
+            <td>
+              <a href="{{ path('taskmodel_delete', {'id': task_model.id}) }}">
+                Delete
+              </a>
+            </td>
+            <td>{{ task_model.lsItem }}</td>
+            <td>{{ task_model.taskNarrative }}</td>
+            <td>{{ task_model.depthOfKnowledge }}</td>
+            <td>{{ task_model.itemType }}</td>
+            <td>{{ task_model.availableTools }}</td>
+            <td>{{ task_model.accessibilityConcerns }}</td>
+            <td>{{ task_model.taskModelVariables }}</td>
+            <td>{{ task_model.passageStimulusSpecCode }}</td>
+            <td>{{ task_model.commonErrorsMisconceptions }}</td>
+            <td>{{ task_model.teiGuidelines }}</td>
+            <td>{{ task_model.taskModelNotes }}</td>
+            <td>{{ task_model.exampleItems }}</td>
+            <td>{{ task_model.rubricScoringRules }}</td>
+            <td>{{ task_model.itemAuthoringTips }}</td>
+            <td>{{ task_model.stemRequirements }}</td>
+            <td>{{ task_model.keyRequirements }}</td>
+            <td>{{ task_model.distractorRequirements }}</td>
+            <td>{{ task_model.commonAuthoringProblemsRequirements }}</td>
+          </tr>
+      {% endfor %}
+      </tbody>
+  </table>
+{% endblock %}
