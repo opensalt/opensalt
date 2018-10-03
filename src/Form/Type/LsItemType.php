@@ -88,6 +88,21 @@ class LsItemType extends AbstractType
         $builder->get('educationalAlignment')
             ->addModelTransformer(new EducationAlignmentTransformer($this->em))
             ;
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            // 1. Check if any records exist on additional_field table where appliesTo = lsItem
+            // 2. If any exist add those fields to the form.
+
+             // $product = $event->getData();
+             // $form = $event->getForm();
+             //
+             // // checks if the Product object is "new"
+             // // If no data is passed to the form, the data is "null".
+             // // This should be considered a new "Product"
+             // if (!$product || null === $product->getId()) {
+             //     $form->add('name', TextType::class);
+             // }
+         });
     }
 
     /**

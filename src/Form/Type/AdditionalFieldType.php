@@ -15,9 +15,9 @@ class AdditionalFieldType extends AbstractType
         $builder
             ->add('name')
             ->add('displayName')
-            ->add('appliesTo')
+            ->add('appliesTo', null, ['data' => 'lsitem'])
             ->add('type')
-            ->add('typeInfo')
+            ->add('typeInfo', null, ['required' => false])
             ->add('save', SubmitType::class);
     }
 
