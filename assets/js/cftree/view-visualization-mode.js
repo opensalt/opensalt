@@ -356,6 +356,8 @@ apx.viewMode.loadConceptMap = (data) => {
     var il = data.inner.length;
     var ol = data.outer.length;
 
+    var height = il*rect_height + 250;
+
     var inner_y = d3.scale.linear()
         .domain([0, il])
         .range([-(il * rect_height)/2, (il * rect_height)/2]);
@@ -393,7 +395,6 @@ apx.viewMode.loadConceptMap = (data) => {
     {
         var listItem = lCollection.find(apx.viewMode.visualizationDocument.ditems, {id: inner.identifier});
         var id = lArray.intersection(lCollection.map(listItem.links, 'id'), outer.identifier);
-        debugger;
         if (id[0]) {
             item = lCollection.find(listItem.links, { id: id[0] });
             var associationType = item.type;
@@ -424,9 +425,9 @@ apx.viewMode.loadConceptMap = (data) => {
 
     var svg = d3.select("#graph").append("svg")
         .attr("width", diameter)
-        .attr("height", diameter)
+        .attr("height", height)
         .append("g")
-        .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+        .attr("transform", "translate(" + diameter / 2 + "," + height / 2 + ")");
 
 
     // links

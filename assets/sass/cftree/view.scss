@@ -591,3 +591,9 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     width: 5px;
     cursor: col-resize;
 }
+
+#displayVisualizationBtn::after {
+    content: " (Beta)";
+    color: lightgray;
+    font-size: 10px;
+}
