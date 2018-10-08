@@ -15,6 +15,8 @@ use Symfony\Component\Form\Extension\Core\Type\LanguageType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 class LsItemType extends AbstractType
 {
@@ -93,15 +95,11 @@ class LsItemType extends AbstractType
             // 1. Check if any records exist on additional_field table where appliesTo = lsItem
             // 2. If any exist add those fields to the form.
 
-             // $product = $event->getData();
-             // $form = $event->getForm();
-             //
-             // // checks if the Product object is "new"
-             // // If no data is passed to the form, the data is "null".
-             // // This should be considered a new "Product"
-             // if (!$product || null === $product->getId()) {
-             //     $form->add('name', TextType::class);
-             // }
+            $data = $event->getData();
+            $form = $event->getForm();
+
+            // throws error because it's not on the entity
+            // $form->add('test');
          });
     }
 
