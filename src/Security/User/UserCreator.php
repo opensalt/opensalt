@@ -19,7 +19,7 @@ class UserCreator implements SamlUserFactoryInterface
 
     public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $em;
+        $this->em = $entityManager;
     }
 
     /**
