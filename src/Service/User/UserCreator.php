@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Security\User;
+namespace App\Service\User;
 
 use App\Entity\User\User;
 use App\Entity\User\Organization;
@@ -9,25 +9,29 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityManager;
 
 class UserCreator implements SamlUserFactoryInterface
 {
     /**
-    * @var EntityManagerInterface
-    */
+     * @var EntityManagerInterface
+     */
     private $em;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    private $org;
+
+    public function __construct(EntityManagerInterface $em, $org)
     {
-        $this->em = $entityManager;
+        $this->em = $em;
+        $this->org = $org;
     }
 
     /**
      * @return EntityManagerInterface
      */
-    protected function getEntityManager(): EntityManagerInterface
+    protected function getEntityManager(): EntityManager
     {
-        return $this->entityManager;
+        return $this->em;
     }
 
     public function createUser(SamlTokenInterface $token)
@@ -37,7 +41,7 @@ class UserCreator implements SamlUserFactoryInterface
         $user->setRoles(array('ROLE_USER'));
         $user->setUsername($token->getUsername());
 
-        $user->setOrg($entityManager->getRepository(Organization::class)->findBy(array('id' => 1)));
+        $user->setOrg($this->em->getRepository(Organization::class)->findBy(array('id' => $this->org))[0]);
 
         return $user;
     }
