@@ -169,9 +169,10 @@ services:
             - "@lightsaml.system.time_provider"
 
     saml_user_creator:
-        class: App\Security\User\UserCreator
+        class: App\Service\User\UserCreator
         arguments:
-            - "@doctrine.orm.entity_manager"
+            $em: "@=service('doctrine').getManager()"
+            $org: '%env(SSO_ORGANIZATION)%'
 
 
     session.handler.pdo:
