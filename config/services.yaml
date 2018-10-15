@@ -40,8 +40,9 @@ parameters:
     env(FIREBASE_PREFIX): opensalt
     env(GOOGLE_CAPTCHA_SITE_KEY): null
     env(GOOGLE_CAPTCHA_SECRET_KEY): null
-    env(SESSION_MAX_IDLE_TIME): 3600
-
+    env(SESSION_MAX_IDLE_TIME): 360 
+    env(SSO_ORGANIZATION): 2
+    
     locale: en
     database_host: '%env(MYSQL_HOST)%'
     database_port: '%env(int:MYSQL_PORT)%'

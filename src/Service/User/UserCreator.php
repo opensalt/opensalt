@@ -38,7 +38,7 @@ class UserCreator implements SamlUserFactoryInterface
     {
         $attributes = $token->getAttributes();
         $user = new User();
-        $user->setRoles(array('ROLE_USER'));
+        $user->setRoles(array('ROLE_EDITOR'));
         $user->setUsername($token->getUsername());
 
         $user->setOrg($this->em->getRepository(Organization::class)->findBy(array('id' => $this->org))[0]);

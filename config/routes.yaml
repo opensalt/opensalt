@@ -3,7 +3,7 @@ lightsaml_sp:
     prefix: saml
 
 logout:
-    path: /logout
+    path: /saml/logout
 
 #index:
 #    path: /
