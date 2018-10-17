@@ -18,18 +18,20 @@ with docker installed.
 Installation
 ------------
 
-1. Install Docker from [here](https://www.docker.com/products/docker)
+1. Initial Installation
+
+  Install Docker from [here](https://www.docker.com/products/docker)
    and Docker Compose from [here](https://docs.docker.com/compose/install/)
   - [Docker for Mac notes](./docs/DOCKER_FOR_MAC.md)
 
-  > **Note: the rest of the following can be automated by running `./local-dev/initial_dev_install.sh`**
+2. Run: `./local-dev/initial_dev_install.sh`**
 
-  > Once the application is running:
-  > To create an organization use `./bin/console salt:org:add [organization name]`
-  > To create a user use `./bin/console salt:user:add [username] [--password="secret"] [--role="rolename"]`
-  > > The *initial_dev_install.sh* command creates an initial super admin "admin" with password "secret"
+  Note: Once the application is running:
+  To create an organization use `./bin/console salt:org:add [organization name]`
+  To create a user use `./bin/console salt:user:add [username] [--password="secret"] [--role="rolename"]`
+  > The *initial_dev_install.sh* command creates an initial super admin "admin" with password "secret"
 
-  > `./bin/build.sh` also does much of the following, for doing a "build" after one has started development
+  `./bin/build.sh` also does much of the following, for doing a "build" after one has started development
 
 2. Create env file and docker-compose file
   ```
