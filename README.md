@@ -14,6 +14,8 @@ The code is intended to run using a set of docker containers using
 docker-compose so that it can be easily deployed in any Linux environment
 with docker installed.
 
+Note that there have been installation problems noted on Virtual Machines and no proposed solutions. 
+
 
 Installation
 ------------
