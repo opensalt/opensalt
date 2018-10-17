@@ -45,24 +45,20 @@ Installation
   - The `PORT` specified is what is used in step 7 below
 
 4. Start the application
-  ```
-  make up
-  ```
-    * To stop the application
 
-    ```
-    make down
-    ```
+  `make up`
+
+ * To stop the application
+
+  `make down`
 
 5. Install libraries with composer/yarn and build application
-  ```
-  make force-build
-  ```
+
+  `make force-build`
 
 6. Run database migrations
-  ```
-  make migrate
-  ```
+
+  `make migrate`
 
 7. [http://127.0.0.1:3000/app_dev.php/](http://127.0.0.1:3000/app_dev.php/) should show the initial screen with debug turned on
   - Note that the port here should be the value of `PORT` in the `.env` file (default being 3000)
