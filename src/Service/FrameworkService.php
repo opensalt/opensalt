@@ -158,28 +158,30 @@ class FrameworkService
             if (null === $originItem) {
                 throw new \InvalidArgumentException('origin id is not a valid id');
             }
+            $association->setOrigin($originItem);
         } else {
             if (!empty($origin['externalDoc'])) {
                 $doc->setExternalDocAutoLoad($origin['externalDoc'], 'true');
                 $this->em->persist($doc);
             }
             $originItem = $origin['identifier'];
+            $association->setOrigin($origin['uri'], $originItem);
         }
-        $association->setOrigin($originItem);
 
         if (!empty($dest['id'])) {
             $destItem = $itemRepo->findOneBy(['id'=>$dest['id']]);
             if (null === $destItem) {
                 throw new \InvalidArgumentException('destination id is not a valid id');
             }
+            $association->setDestination($destItem);
         } else {
             if (!empty($dest['externalDoc'])) {
                 $doc->setExternalDocAutoLoad($dest['externalDoc'], 'true');
                 $this->em->persist($doc);
             }
             $destItem = $dest['identifier'];
+            $association->setDestination($dest['uri'], $destItem);
         }
-        $association->setDestination($destItem);
 
         // set assocGroup if provided
         if (null !== $assocGroup) {
