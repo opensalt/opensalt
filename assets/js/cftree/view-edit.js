@@ -629,6 +629,7 @@ apx.edit.prepareAssociateModal = function() {
             if (originItem.doc.isExternalDoc()) {
                 ajaxData.origin = {
                     "identifier": originItem.identifier,
+                    "uri": originItem.uri,
                     "externalDoc": originItem.doc.doc.identifier
                 };
             } else if (!empty(originItem.id)) {
@@ -637,13 +638,15 @@ apx.edit.prepareAssociateModal = function() {
                 };
             } else {
                 ajaxData.origin = {
-                    "identifier": originItem.identifier
+                    "identifier": originItem.identifier,
+                    "uri": originItem.uri
                 };
             }
 
             if (destItem.doc.isExternalDoc()) {
                 ajaxData.dest = {
                     "identifier": destItem.identifier,
+                    "uri": destItem.uri,
                     "externalDoc": destItem.doc.doc.identifier
                 };
             } else if (!empty(destItem.id)) {
@@ -652,7 +655,8 @@ apx.edit.prepareAssociateModal = function() {
                 };
             } else {
                 ajaxData.dest = {
-                    "identifier": destItem.identifier
+                    "identifier": destItem.identifier,
+                    "uri": destItem.uri
                 };
             }
 
@@ -691,7 +695,7 @@ apx.edit.prepareAssociateModal = function() {
                     "dest": {
                         "doc": this.dest.doc.doc.identifier,
                         "item": this.dest.identifier,
-                        "uri": this.dest.identifier
+                        "uri": this.dest.uri
                     },
                     "groupId": this.assocGroup
                 };

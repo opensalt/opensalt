@@ -6,9 +6,6 @@ use App\Entity\Framework\LsDefSubject;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
-/**
- * LsDefSubjectRepository
- */
 class LsDefSubjectRepository extends AbstractLsDefinitionRepository
 {
     public function __construct(RegistryInterface $registry)
@@ -19,10 +16,15 @@ class LsDefSubjectRepository extends AbstractLsDefinitionRepository
     /**
      * @return array|LsDefSubject[]|ArrayCollection
      */
-    public function getList()
+    public function getList(?string $search = null): array
     {
         $qb = $this->createQueryBuilder('s', 's.title')
             ->orderBy('s.title');
+
+        if (null !== $search) {
+            $qb->andWhere('s.title LIKE :search')
+                ->setParameter('search', "%$search%");
+        }
 
         return $qb->getQuery()->getResult();
     }
