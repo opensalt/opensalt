@@ -39,6 +39,9 @@ class AddTreeAssociationCommand extends BaseCommand
      *         "identifier" = {
      *             @Assert\Type("string")
      *         },
+     *         "uri" = {
+     *             @Assert\Type("string")
+     *         },
      *         "externalDoc" = {
      *             @Assert\Type("string")
      *         }
@@ -59,6 +62,9 @@ class AddTreeAssociationCommand extends BaseCommand
      *             @Assert\Type("string")
      *         },
      *         "identifier" = {
+     *             @Assert\Type("string")
+     *         },
+     *         "uri" = {
      *             @Assert\Type("string")
      *         },
      *         "externalDoc" = {
