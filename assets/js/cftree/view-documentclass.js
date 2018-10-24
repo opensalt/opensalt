@@ -1501,6 +1501,7 @@ function ApxDocument(initializer) {
 
             for (key in attributes = {
                 'uri': 'CASE Item URI',
+                'identifier': 'CASE Item GUID',
                 'le': 'List Enumeration in Source',
                 'cku': 'Concept Keywords URI',
                 'lang': 'Language',
