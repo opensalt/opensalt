@@ -1357,7 +1357,8 @@ function ApxDocument(initializer) {
             let key, attributes, val;
             for (key in attributes = {
                 'officialSourceURL': 'Official URL',
-                'uri': 'CASE Framework URL',
+                'uri': 'CASE URI',
+                'identifier': 'CASE Identifier',
                 'creator': 'Creator',
                 'description': 'Description',
                 'subjects': 'Subject',
@@ -1500,7 +1501,8 @@ function ApxDocument(initializer) {
             }
 
             for (key in attributes = {
-                'uri': 'CASE Item URI',
+                'uri': 'CASE URI',
+                'identifier': 'CASE Identifier',
                 'le': 'List Enumeration in Source',
                 'cku': 'Concept Keywords URI',
                 'lang': 'Language',
