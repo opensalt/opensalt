@@ -3,12 +3,9 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsAssociation;
-use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsDocAttribute;
 use App\Entity\Framework\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
-use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -21,28 +18,6 @@ class LsItemRepository extends ServiceEntityRepository
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, LsItem::class);
-    }
-
-    /**
-     * @param LsDoc $lsDoc
-     *
-     * @return array
-     */
-    public function findAllForDoc(LsDoc $lsDoc)
-    {
-        return $this->findAllForDocQueryBuilder($lsDoc)->getQuery()->getResult();
-    }
-
-    public function findAllForDocWithAssociations(LsDoc $lsDoc)
-    {
-        $qry = $this->findAllForDocQueryBuilder($lsDoc);
-        $qry->leftJoin('fa.destinationLsItem', 'fad')
-            ->leftJoin('fa.originLsItem', 'fao')
-            ->leftJoin('ia.originLsItem', 'iao')
-            ->leftJoin('ia.destinationLsItem', 'iad')
-            ;
-
-        return $qry->getQuery()->getResult();
     }
 
     /**
@@ -83,22 +58,6 @@ class LsItemRepository extends ServiceEntityRepository
             ->setParameter('lsDocId', $lsDocId)
             ;
         return $qry->getQuery()->getResult();
-    }
-
-    public function findAllForDocQueryBuilder(LsDoc $lsDoc): QueryBuilder
-    {
-        $qry = $this->createQueryBuilder('i')
-            ->leftJoin('i.associations', 'fa')
-            ->leftJoin('i.inverseAssociations', 'ia')
-            ->leftJoin('i.itemType', 'item_type')
-            ->where('i.lsDoc = :lsDoc')
-            ->orderBy('i.rank', 'ASC')
-            ->addOrderBy('i.listEnumInSource', 'ASC')
-            ->addOrderBy('i.humanCodingScheme', 'ASC')
-            ->setParameter('lsDoc', $lsDoc->getId())
-            ;
-
-        return $qry;
     }
 
     /**
@@ -195,26 +154,5 @@ class LsItemRepository extends ServiceEntityRepository
         }
 
         return $matched;
-    }
-
-    public function createGradeSelectListQueryBuilder(): QueryBuilder
-    {
-        return $this->createQueryBuilder('i')
-            ->join('i.associations', 'a', 'WITH', 'a.type = :isChild')
-            ->leftJoin('a.destinationLsItem', 'dest')
-            ->leftJoin('dest.associations', 'desta', 'WITH', 'desta.type = :isChild')
-            ->leftJoin('desta.destinationLsItem', 'dest2')
-            ->join('a.lsDoc', 'd')
-            ->join('d.attributes', 'attributes')
-            ->andWhere('attributes.attribute = :isGradeLevels')
-            ->andWhere("attributes.value = 'yes'")
-            ->orderBy('i.rank', 'ASC')
-            ->addOrderBy('i.listEnumInSource', 'ASC')
-            ->addOrderBy('i.humanCodingScheme', 'ASC')
-            ->setParameters([
-                'isChild' => LsAssociation::CHILD_OF,
-                'isGradeLevels' => LsDocAttribute::IS_GRADE_LEVELS
-            ])
-            ;
     }
 }

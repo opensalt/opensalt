@@ -1,6 +1,6 @@
 COMMIT="$(shell git describe --always --match='x' --dirty=-x 2>/dev/null || date "+%Y%m%d%H%M")"
 TAG="$(shell git describe --always --match='[0-9].[0-9]*' --dirty=-x 2>/dev/null || date "+%Y%m%d%H%M")"
-
+PROJ_DIR ?= $(shell pwd)
 
 default:
 	@echo "You need to supply an argument to make"
@@ -63,14 +63,14 @@ js: encore cache-clear
 .PHONY: js
 
 encore: yarn-install
-	docker run --rm -u $(shell id -u):$(shell id -g) -v $(shell pwd):/app --workdir /app node:9-alpine ./node_modules/.bin/encore production
+	docker run --rm -u $(shell id -u):$(shell id -g) -v $(PROJ_DIR):/app --workdir /app node:9-alpine ./node_modules/.bin/encore production
 encore-dev: yarn-install
-	docker run --rm -u $(shell id -u):$(shell id -g) -v $(shell pwd):/app --workdir /app node:9-alpine ./node_modules/.bin/encore dev
+	docker run --rm -u $(shell id -u):$(shell id -g) -v $(PROJ_DIR):/app --workdir /app node:9-alpine ./node_modules/.bin/encore dev
 encore-build: encore
 .PHONY: encore encore-dev encore-build
 
 node_modules: yarn.lock package.json
-	docker run --rm -u $(shell id -u):$(shell id -g) -v $(shell pwd):/app --workdir /app node:9-alpine yarn install --non-interactive
+	docker run --rm -u $(shell id -u):$(shell id -g) -v $(PROJ_DIR):/app --workdir /app node:9-alpine yarn install --non-interactive
 	touch node_modules
 yarn-install: node_modules
 .PHONY: yarn-install

@@ -121,8 +121,6 @@ class LsDocRepository extends ServiceEntityRepository
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE i.lsDoc = :lsDocId
-            ORDER BY i.rank ASC, i.listEnumInSource ASC, i.humanCodingScheme,
-                     adi.rank ASC, adi.listEnumInSource ASC, adi.humanCodingScheme
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
@@ -138,15 +136,14 @@ class LsDocRepository extends ServiceEntityRepository
                 if (!empty($association['destinationLsItem'])) {
                     $parent = $association['destinationLsItem'];
                     $results[$parent['id']]['children'][] = $result;
+
                     if (!empty($association['group'])) {
-                        //$results[$key]['parents'][$parent['id']][] = ['group' => $association['group']['title']];
                         $results[$key]['assoc'][$parent['id']] = [
                             'id' => $association['id'],
                             'sequenceNumber' => $association['sequenceNumber'],
                             'group' => $association['group']['id'],
                         ];
                     } else {
-                        //$results[$key]['parents'][$parent['id']][] = ['group' => $association['groupName']];
                         $results[$key]['assoc'][$parent['id']] = [
                             'id' => $association['id'],
                             'sequenceNumber' => $association['sequenceNumber'],
@@ -155,14 +152,12 @@ class LsDocRepository extends ServiceEntityRepository
                     }
                 } elseif (!empty($association['destinationLsDoc'])) {
                     if (!empty($association['group'])) {
-                        // $results[$key]['parents']['doc'][] = ['group' => $association['group']['title']];
                         $results[$key]['assoc']['doc'] = [
                             'id' => $association['id'],
                             'sequenceNumber' => $association['sequenceNumber'],
                             'group' => $association['group']['id'],
                         ];
                     } else {
-                        //$results[$key]['parents']['doc'][] = ['group' => $association['groupName']];
                         $results[$key]['assoc']['doc'] = [
                             'id' => $association['id'],
                             'sequenceNumber' => $association['sequenceNumber'],
@@ -172,8 +167,6 @@ class LsDocRepository extends ServiceEntityRepository
                 }
             }
         }
-
-        $this->rankItems($results);
 
         foreach ($results as $key => $result) {
             if (!empty($results[$key]['children'])) {
@@ -194,7 +187,7 @@ class LsDocRepository extends ServiceEntityRepository
      */
     private function rankItems(array &$itemArray)
     {
-        Compare::sortArrayByFields($itemArray, ['rank', 'listEnumInSource', 'humanCodingScheme']);
+        Compare::sortArrayByFields($itemArray, ['sequenceNumber', 'listEnumInSource', 'humanCodingScheme']);
     }
 
     /**
@@ -235,7 +228,6 @@ class LsDocRepository extends ServiceEntityRepository
             JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
             JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE i.lsDoc = :lsDocId
-            ORDER BY i.rank ASC, i.listEnumInSource ASC, i.humanCodingScheme ASC
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
@@ -482,14 +474,10 @@ xENDx;
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE i.lsDoc = :lsDocId
-            ORDER BY i.rank ASC, i.listEnumInSource ASC, i.humanCodingScheme,
-                     adi.rank ASC, adi.listEnumInSource ASC, adi.humanCodingScheme
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult($format);
-
-        return $results;
+        return $query->getResult($format);
     }
 
     /**
@@ -790,17 +778,19 @@ xENDx;
     public function findItemsForExportDoc(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
     {
         $query = $this->getEntityManager()->createQuery('
-            SELECT i, t
+            SELECT i, t,
+              CASE WHEN a.sequenceNumber IS NULL THEN 1 ELSE 0 END as HIDDEN seq_is_null,
+              a.sequenceNumber as HIDDEN seq
             FROM App\Entity\Framework\LsItem i INDEX BY i.id
             LEFT JOIN i.itemType t
+            LEFT JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
             WHERE i.lsDoc = :lsDocId
-            ORDER BY i.rank ASC, i.listEnumInSource ASC, i.humanCodingScheme
+            ORDER BY seq_is_null ASC, seq ASC, i.listEnumInSource ASC, i.humanCodingScheme
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
+        $query->setParameter('childOfType', LsAssociation::CHILD_OF);
 
-        $results = $query->getResult($format);
-
-        return $results;
+        return $query->getResult($format);
     }
 
     /**

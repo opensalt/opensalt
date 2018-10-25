@@ -7,7 +7,7 @@ html,body {
 .container--main {
     min-height: 100%;
     padding-bottom: 36px;
-    position: relative;;
+    position: relative;
     width: auto !important;
     max-width: 1500px;
 }
@@ -15,12 +15,12 @@ html,body {
 header {
     .navbar-default {
         border-width:0;
-        background-color:#78C9E9;
+        background-color:$brand-header;
     }
 
     .navbar-brand {
         padding:5px;
-        background-color:#fff;
+        background-color:$white;
         border-radius:4px;
         margin:10px 15px 10px -5px !important;
         height:inherit;
@@ -36,23 +36,19 @@ header {
         }
 
         &.btn-login {
-            @include button-variant(#fff, transparent, transparent);
+            @include button-variant($white, transparent, transparent);
 
             &:hover {
-                color: #23527c;
-                background-color: #e6e6e6;
-                border-color: #adadad;
+                color: darken($brand-primary, 6.5%);
+                background-color: $neutral-bg-light;
+                border-color: darken($neutral-bg-light, 10%);
             }
         }
 
         &.btn-signup {
-            @include button-variant(#fff, #f37321, darken(#f37321, 5%));
+            @include button-variant($btn-signup-color, $btn-signup-bg, $btn-signup-border);
 
             margin-right: 5px;
-
-            &:hover {
-                background-color: #ee650d;
-            }
         }
     }
 }
@@ -81,7 +77,21 @@ footer {
         border-width: 0;
         min-height: auto;
         margin-bottom:0;
-        background-color:#78C9E9;
+        background-color:$brand-header;
+
+        a {
+            color: $white;
+        }
+
+        a:hover {
+            text-decoration: none;
+        }
+
+        .navbar-text {
+            color: $white;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
     }
 
     .navbar-nav > li > a {
@@ -91,12 +101,12 @@ footer {
 }
 
 .navbar-default .navbar-nav > li > a, .navbar-default .navbar-nav > li > a:hover {
-    color:#fff;
+    color:$white;
 }
 
 label.required:before {
     content: '*';
-    color: red;
+    color: $brand-danger;
 }
 
 .panel-component .panel-body {

@@ -21,6 +21,7 @@ use App\Form\Type\LsDocListType;
 use App\Form\Type\LsItemParentType;
 use App\Form\Type\LsItemType;
 use App\Entity\User\User;
+use App\Service\BucketService;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -29,6 +30,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -40,6 +42,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class LsItemController extends AbstractController
 {
     use CommandDispatcherTrait;
+
+    private $bucketProvider;
+
+    public function __construct(?string $bucketProvider)
+    {
+        $this->bucketProvider = $bucketProvider;
+    }
 
     /**
      * Lists all LsItem entities.
@@ -382,11 +391,39 @@ class LsItemController extends AbstractController
         return $ret;
     }
 
+    /**
+     * Upload attachment to LsItem entity.
+     *
+     * @Route("/{id}/upload_attachment", methods={"POST"}, name="lsitem_upload_attachment")
+     * @Template()
+     * @Security("is_granted('add-standard-to', doc)")
+     *
+     * @param Request $request
+     * @param LsItem $lsItem
+     * @param User $user
+     *
+     * @return Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function uploadAttachmentAction(Request $request, LsDoc $doc, BucketService $bucket)
+    {
+        if (!empty($this->bucketProvider)) {
+            $file = $request->files->get('file');
+
+            if (!is_null($file) && $file->isValid()) {
+                $fileUrl = $bucket->uploadFile($file, 'items');
+                return new JsonResponse(['filename' => $fileUrl]);
+            }
+        }
+
+        return new Response(null, Response::HTTP_BAD_REQUEST);
+    }
+
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
     {
         $ret = [
             'id' => $item->getId(),
             'identifier' => $item->getIdentifier(),
+            'uri' => $item->getUri(),
             'fullStatement' => $item->getFullStatement(),
             'humanCodingScheme' => $item->getHumanCodingScheme(),
             'listEnumInSource' => $item->getListEnumInSource(),

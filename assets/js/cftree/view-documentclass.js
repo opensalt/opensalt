@@ -716,11 +716,19 @@ function ApxDocument(initializer) {
     };
 
     self.getItemUri = function(item) {
-        if (empty(self.doc.uriBase) || empty(item) || empty(item.identifier)) {
+        if(empty(item)) {
             return "?";
-        } else {
+        }
+
+        if(!empty(item.uri)) {
+            return item.uri;
+        }
+
+        if(!empty(self.doc.uriBase) && !empty(item.identifier)) {
             return self.doc.uriBase + item.identifier;
         }
+
+        return "?";
     };
 
     self.getItemTitleBlock = function(item, requireFullStatement) {

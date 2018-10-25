@@ -209,4 +209,27 @@ class CommentDocCest
         $I->click('.jquery-comments .commenting-field .textarea-wrapper .control-row .delete');
         $I->dontSee('acceptance doc replied comment '.sq($I->getDocId()), '.comment-wrapper .wrapper .content');
     }
+
+    public function uploadAttachment(AcceptanceTester $I, Scenario $scenario)
+    {
+        $I->getLastFrameworkId();
+        $loginPage = new Login($I, $scenario);
+        $loginPage->loginAsRole('Editor');
+
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
+
+        $I->click('.jquery-comments .commenting-field .textarea-wrapper .textarea');
+        $I->attachFile('.js-comments-container .commenting-field input[type=file]', 'comment_attach.txt');
+        $I->waitForJS('return $.active == 0', 120);
+        $I->click('.jquery-comments .navigation li:last-child');
+
+        $I->dontSee('No attachments');
+
+        $url = $I->grabAttributeFrom('#attachment-list li:first-child .attachment', 'href');
+        $attachmentFile = file_get_contents($I->download($url));
+
+        $I->assertContains('attachs are working', $attachmentFile);
+
+    }
 }

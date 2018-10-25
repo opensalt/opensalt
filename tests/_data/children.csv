@@ -1,5 +1,5 @@
-Identifier,fullStatement,HumanCodingScheme,sequenceNumber,Abbreviated Statement,ConceptKeywords,Notes,Language,Education Level,CFItemType,License,CFAssociationGroupIdentifier,Is Child Of,IsPartOf,replacedBy,Exemplar,hasSkillLevel,isExactMatchOf
-,full statement A,A.B,,abc,,notes,en,,Career Pathway,,,,,,,,
-,full statement B,A.B.C,,def,,notes,en,,Career Pathway,,,,,,,,
-,full statement C,A.B.D,,ghi,,notes,en,,Career Pathway,,,,,,,,
-
+Identifier,fullStatement,HumanCodingScheme,sequenceNumber,Abbreviated Statement,ConceptKeywords,Notes,Language,Education Level,CFItemType,License,CFAssociationGroupIdentifier,Is Child Of,IsPartOf,replacedBy,Exemplar,hasSkillLevel,isExactMatchOf,Precedes,Is Peer Of,Is Related To
+,full statement A,A.B,2,abc,,notes,en,,Career Pathway,,,,,,,,,,,
+,full statement B,A.B.C,1,def,,notes,en,,Career Pathway,,,,,,,,,,,
+,full statement C,A.B.D,2,ghi,,notes,en,,Career Pathway,,,,,,,,,,,
+,full statement D,A.B.C.L,1,jkl,,notes,en,,Career Pathway,,,,,,,,,,,

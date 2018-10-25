@@ -1,7 +1,7 @@
 const Encore = require('@symfony/webpack-encore');
 const path = require('path');
 
-const vendorDir = './vendor';
+//const vendorDir = './vendor';
 const npmDir = './node_modules/';
 const assetsDir = './assets';
 const buildDir = './public/build';
@@ -51,7 +51,8 @@ const mainScripts = [
     //npmDir+'/ui-contextmenu/jquery.ui-contextmenu.js',
     npmDir+'/bootstrap-multiselect/dist/js/bootstrap-multiselect.js',
     npmDir+'/select2/dist/js/select2.full.js',
-    vendorDir+'/tetranz/select2entity-bundle/Tetranz/Select2EntityBundle/Resources/public/js/select2entity.js',
+    //vendorDir+'/tetranz/select2entity-bundle/Tetranz/Select2EntityBundle/Resources/public/js/select2entity.js',
+    npmDir+'/select2entity-bundle/Resources/public/js/select2entity.js',
     npmDir+'/twbs-pagination/jquery.twbsPagination.js',
     npmDir+'/bootstrap-notify/bootstrap-notify.min.js',
     assetsDir+'/js/application.js',

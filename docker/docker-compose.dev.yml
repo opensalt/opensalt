@@ -22,6 +22,7 @@ services:
       BRAND_LOGO_STYLE:
       BRAND_LINK_URL:
       BRAND_LINK_STYLE:
+      FOOTER_LEFT_TEXT:
       ALLOW_LOCAL_DEV: "true"
       ALLOW_EXTERNAL_DEV_IPS:
       DEV_COOKIE:
@@ -40,11 +41,21 @@ services:
       MAILER_AUTH_MODE:
       MAILER_PORT:
       COMMENTS_FEATURE:
+      VISUALIZATION_FEATURE:
+      COMMENT_ATTACHMENTS:
       CREATE_ACCOUNT_FEATURE:
       USE_MAIL_FEATURE:
       MAIL_FEATURE_FROM_EMAIL:
       GOOGLE_CAPTCHA_SITE_KEY:
       GOOGLE_CAPTCHA_SECRET_KEY:
+      AWS_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
+      AWS_S3_BUCKET:
+      AWS_S3_REGION:
+      AWS_S3_PREFIX:
+      ATTACHMENT_URL_PREFIX:
+      BUCKET_PROVIDER:
+      LOCAL_FILESYSTEM_PATH:
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html

@@ -46,6 +46,8 @@ install:
 
 # Create docker image with the running code
 before_script:
+  - mkdir public/attachments/
+  - chmod 777 public/attachments/
   - ./docker/app/build.sh
   - docker-compose -f docker/docker-compose.yml up -d
   - sleep 30

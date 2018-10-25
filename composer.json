@@ -23,6 +23,10 @@
             "url": "https://github.com/PCGGenEd/faker-context"
         },
         {
+            "type": "vcs",
+            "url": "https://github.com/opensalt/EntityAuditBundle"
+        },
+        {
             "type": "package",
             "package": {
                 "name": "firebase",
@@ -37,7 +41,8 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.1.3",
+        "php": "^7.2.8",
+        "ext-ctype": "*",
         "ext-iconv": "*",
         "csa/guzzle-bundle": "^3.0",
         "doctrine/doctrine-bundle": "^1.6",
@@ -48,6 +53,7 @@
         "google/recaptcha": "~1.1",
         "jms/serializer-bundle": "^2.3.1",
         "kreait/firebase-php": "~4.7",
+        "league/flysystem-aws-s3-v3": "^1.0",
         "league/oauth2-github": "^2.0.0",
         "lightsaml/sp-bundle": "^1.2.0",
         "hslavich/oneloginsaml-bundle": "dev-master",
@@ -63,25 +69,24 @@
         "ramsey/uuid": "^3.7",
         "ramsey/uuid-doctrine": "^1.4",
         "sensio/framework-extra-bundle": "^5.0.0",
-        "simplethings/entity-audit-bundle": "^1.0",
+        "simplethings/entity-audit-bundle": "dev-fixes-1.0.9-object-instead-of-string as 1.0.9",
         "stof/doctrine-extensions-bundle": "^1.3",
-        "symfony/asset": "^4.0",
-        "symfony/console": "^4.0",
-        "symfony/flex": "^1.0",
-        "symfony/form": "^4.0",
-        "symfony/framework-bundle": "^4.0",
-        "symfony/lts": "^4@dev",
+        "symfony/asset": "*",
+        "symfony/console": "*",
+        "symfony/flex": "^1.1",
+        "symfony/form": "*",
+        "symfony/framework-bundle": "*",
         "symfony/monolog-bundle": "^3.1",
         "symfony/polyfill-apcu": "^1.0",
         "symfony/polyfill-iconv": "^1.0",
         "symfony/profiler-pack": "^1.0",
-        "symfony/security-bundle": "^4.0",
-        "symfony/security-csrf": "^4.0",
+        "symfony/security-bundle": "*",
+        "symfony/security-csrf": "*",
         "symfony/swiftmailer-bundle": "^3.2",
-        "symfony/translation": "^4.0",
-        "symfony/twig-bundle": "^4.0",
-        "symfony/validator": "^4.0",
-        "symfony/yaml": "^4.0",
+        "symfony/translation": "*",
+        "symfony/twig-bundle": "*",
+        "symfony/validator": "*",
+        "symfony/yaml": "*",
         "tecnickcom/tcpdf": "6.*",
         "tetranz/select2entity-bundle": "2.*",
         "twig/extensions": "^1.5",
@@ -135,7 +140,8 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": true
+            "allow-contrib": true,
+            "require": "4.1.*"
         }
     },
     "provide": {
