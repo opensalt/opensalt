@@ -258,30 +258,30 @@ class DocTreeController extends AbstractController
                     if($linkAssoc instanceof LsItem){
                         $text = substr($linkAssoc->getFullStatement(), 0, 20);
                         $links[] = [
-                            "name" => $text, 
-                            "type" => $association->getType(), 
-                            "id" => $association->getIdentifier()
+                            'name' => $text,
+                            'type' => $association->getType(),
+                            'id' => $association->getIdentifier()
                         ];
-                        $themes[] = ["name" => $text,
-                            "type" => "theme",
-                            "slug" => $association->getIdentifier(),
-                            "description" => $association->getType(),
-                            "dest" => $association->getDestinationNodeIdentifier(),
-                            "origin" => $association->getOriginNodeIdentifier()
+                        $themes[] = ['name' => $text,
+                            'type' => 'theme',
+                            'slug' => $association->getIdentifier(),
+                            'description' => $association->getType(),
+                            'dest' => $association->getDestinationNodeIdentifier(),
+                            'origin' => $association->getOriginNodeIdentifier()
                         ];
                     }
                 }
             }
-            if( count($links) > 0){
+            if(count($links) > 0){
                 $items[] = [
-                    "name" => substr($lsItem->getFullStatement(), 0, 20),
-                    "id" => $lsItem->getIdentifier(), 
-                    "links" => $links, "type" => "ditem"
+                    'name' => substr($lsItem->getFullStatement(), 0, 20),
+                    'id' => $lsItem->getIdentifier(),
+                    'links' => $links, 'type' => 'ditem'
                 ];
             }
         }
 
-        $response = new JsonResponse(array('ditems' => $items, "themes" => $themes, "perspectives" => $perspectives));
+        $response = new JsonResponse(array('ditems' => $items, 'themes' => $themes, 'perspectives' => $perspectives));
         return $response;
     }
 
