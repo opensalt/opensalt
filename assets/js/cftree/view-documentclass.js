@@ -1495,7 +1495,9 @@ function ApxDocument(initializer) {
                         // TODO: deal with ck, el, itp
                         html += '<li class="list-group-item">'
                             + '<strong>' + attributes[key] + ':</strong> '
-                            + render.escaped(val)
+                            + '<span class="item-' + key + '">'
+                              + render.escaped(val)
+                              + '</span>'
                             + '</li>'
                         ;
                     }
