@@ -1,3 +1,15 @@
+/* global empty */
+
+/* global render */
+/* global apx */
+window.apx = window.apx||{};
+/* global lLang */
+window.lLang = window.lLang||{};
+/* global lArray */
+window.lArray = window.lArray||{};
+/* global lCollection */
+window.lCollection = window.lCollection||{};
+
 // Colors by association type
 const ASSOC_COLORS = {
     IsRelatedTo: "#FF0000",
@@ -9,8 +21,8 @@ const ASSOC_COLORS = {
 
 // filterByType will remove the concept map tags
 apx.viewMode.removeConceptMap = () => {
-    $('#graph').html('');
-}
+    $("#graph").html("");
+};
 
 // filterByType will load the concept map
 // with the association selected
@@ -36,33 +48,32 @@ apx.viewMode.loadAllVisualizations = () => {
     const parsedData = apx.viewMode.parseData(data);
 
     apx.viewMode.removeConceptMap();    
-    apx.viewMode.loadConceptMap(parsedData)
-
-}
+    apx.viewMode.loadConceptMap(parsedData);
+};
 
 // initFilters will initilize the assocs types buttons with filter event
 apx.viewMode.initFilters = () => {
     const vDocument = apx.viewMode.visualizationDocument;
     
     // Iterate over all assocs types
-    lArray.uniqBy(vDocument.themes, 'description').map(function(theme){
-        const color = ASSOC_COLORS[theme.description.split(" ").join('')];  
+    lArray.uniqBy(vDocument.themes, "description").map(function(theme){
+        const color = ASSOC_COLORS[theme.description.split(" ").join("")];  
 
-        $('#visualizationButtonGroup').append('<button type="button"'
+        $("#visualizationButtonGroup").append('<button type="button"'
             + 'style="box-shadow: inset 0 -2px 0 '+color+';"'
             + 'class="associationTypeFilter view-btn btn btn-default">'
-            + theme.description +'</button>')
+            + theme.description +"</button>");
     });
 
-    $('#visualizationButtonGroup').append('<button type="button"'
+    $("#visualizationButtonGroup").append('<button type="button"'
         + 'class="associationTypeFilter view-btn btn btn-default">'
-        + "Show All" +'</button>')
+        + "Show All" + "</button>");
 
     
-    $('.btn.associationTypeFilter').on('click', function(){
+    $(".btn.associationTypeFilter").on("click", function(){
         const type = $(this).html();
 
-        if (type === 'Show All') {
+        if (type === "Show All") {
             apx.viewMode.loadAllVisualizations();
         } else {
             apx.viewMode.filterByType(type);
@@ -73,7 +84,7 @@ apx.viewMode.initFilters = () => {
 // fillOutVisualizationView will request for document tree info for concept map
 apx.viewMode.fillOutVisualizationView = () => {
     const url = apx.path.doctree_retrieve_document_visualization;
-    const path = url.replace('ID', apx.lsDocId);
+    const path = url.replace("ID", apx.lsDocId);
 
     $.get(path, function(data) {
         apx.viewMode.visualizationDocument = data;
@@ -90,7 +101,7 @@ apx.viewMode.parseData = function(data) {
         return [item.name, item.links, item.id];
     });
     return parsedData;
-}
+};
 
 // Use ApxDocument.showDocument logic to render document details and assocs
 apx.viewMode.renderDocument = (item) => {
@@ -103,38 +114,38 @@ apx.viewMode.renderDocument = (item) => {
     let html = "";
     let key, attributes, val;
     for (key in attributes = { 
-        'fstmt': 'Full Statement',
-        'ck': 'Concept Keywords',
-        'el': 'Education Level',
-        'itp': 'Type',
-        'notes': 'Notes'
+        "fstmt": "Full Statement",
+        "ck": "Concept Keywords",
+        "el": "Education Level",
+        "itp": "Type",
+        "notes": "Notes"
     }) {
         if (!empty(item[key])) {
             val = item[key];
-            if (key === 'fstmt' || key === 'notes') {
+            if (key === "fstmt" || key === "notes") {
                 html += '<li class="list-group-item markdown-body">'
-                    + '<strong>' + attributes[key] + ':</strong> '
+                    + "<strong>" + attributes[key] + ":</strong> "
                     + render.block(val)
-                    + '</li>'
+                    + "</li>"
                 ;
             } else {
                 // TODO: deal with ck, el, itp
                 html += '<li class="list-group-item">'
-                    + '<strong>' + attributes[key] + ':</strong> '
+                    + "<strong>" + attributes[key] + ":</strong> "
                     + render.escaped(val)
-                    + '</li>'
+                    + "</li>"
                 ;
             }
         }
     }
 
     for (key in attributes = {
-        'uri': 'CASE Item URI',
-        'le': 'List Enumeration in Source',
-        'cku': 'Concept Keywords URI',
-        'lang': 'Language',
-        'licenceUri': 'Licence URI',
-        'mod': 'Last Changed'
+        "uri": "CASE Item URI",
+        "le": "List Enumeration in Source",
+        "cku": "Concept Keywords URI",
+        "lang": "Language",
+        "licenceUri": "Licence URI",
+        "mod": "Last Changed"
     }) {
         if (!empty(item[key]) || key === "uri") {
             val = item[key];
@@ -144,15 +155,15 @@ apx.viewMode.renderDocument = (item) => {
             if (key === "uri") {
                 val = apx.mainDoc.getItemUri(item);
                 html += '<li class="list-group-item lsItemDetailsExtras">'
-                    + '<strong>' + attributes[key] + ':</strong> '
+                    + "<strong>" + attributes[key] + ":</strong> "
                     + render.inlineLinked(val)
-                    + '</li>'
+                    + "</li>"
                 ;
             } else {
                 html += '<li class="list-group-item lsItemDetailsExtras">'
-                    + '<strong>' + attributes[key] + ':</strong> '
+                    + "<strong>" + attributes[key] + ":</strong> "
                     + render.escaped(val)
-                    + '</li>'
+                    + "</li>"
                 ;
             }
         }
@@ -168,14 +179,6 @@ apx.viewMode.renderDocument = (item) => {
     for (let i = 0; i < item.assocs.length; ++i) {
         assocs.push(item.assocs[i]);
     }
-    /* if (self !== apx.mainDoc) {
-        let mdi = apx.mainDoc.itemHash[item.identifier];
-        if (!empty(mdi)) {
-            for (let i = 0; i < mdi.assocs.length; ++i) {
-                assocs.push(mdi.assocs[i]);
-            }
-        }
-    } */
 
     // now if we have any assocs go through them...
     html = "";
@@ -198,14 +201,14 @@ apx.viewMode.renderDocument = (item) => {
         for (let i = 0; i < assocs.length; ++i) {
             let a = assocs[i];
 
-            if (a.type === 'isChildOf') {
+            if (a.type === "isChildOf") {
                 continue;
             }
 
             if (a.type !== lastType || a.inverse !== lastInverse) {
                 // close previous type section if we already opened one
                 if (lastType !== "") {
-                    html += '</div></div></div></section>';
+                    html += "</div></div></div></section>";
                 }
 
                 // open type section
@@ -215,7 +218,7 @@ apx.viewMode.renderDocument = (item) => {
                     icon = '<img class="association-panel-icon" src="/assets/img/association-icon.png">';
                 }
                 html += '<section class="panel panel-default panel-component item-component">'
-                    + '<div class="panel-heading">' + icon + render.escaped(title) + '</div>'
+                    + '<div class="panel-heading">' + icon + render.escaped(title) + "</div>"
                     + '<div class="panel-body"><div><div class="list-group">'
                 ;
 
@@ -245,22 +248,22 @@ apx.viewMode.renderDocument = (item) => {
                         groupName = apx.mainDoc.assocGroupIdHash[a.groupId].title;
                     }
                 }
-                html += '<span class="label label-default">' + render.escaped(groupName) + '</span>';
+                html += '<span class="label label-default">' + render.escaped(groupName) + "</span>";
             }
 
             html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
                 + '<span class="itemDetailsAssociationTitle">'
                 + apx.mainDoc.associationDestItemTitle(a)
-                + '</span>'
-                + '</a>'
+                + "</span>"
+                + "</a>"
             ;
         }
         // close final type section
-        html += '</div></div></div></section>';
+        html += "</div></div></div></section>";
     }
     // End of code composing associations
     $(".lsItemAssociationsView").html(html);
-}
+};
 
 
 apx.viewMode.loadConceptMap = (data) => {
@@ -272,7 +275,7 @@ apx.viewMode.loadConceptMap = (data) => {
     // inner:
     // links: { inner: outer: }
 
-    const d3 = require('d3');
+    const d3 = require("d3");
 
     let outer = d3.map();
     let inner = [];
@@ -280,25 +283,27 @@ apx.viewMode.loadConceptMap = (data) => {
 
     let outerId = [0];
 
-    data.forEach(d => {
+    data.forEach((d) => {
 
-        if (d == null)
+        if (d == null) {
             return;
+        }
 
-        i = { id: 'i' + inner.length, name: d[0], related_links: [], identifier: d[2] };
-        i.related_nodes = [i.id];
+        let i = { id: "i" + inner.length, name: d[0], relatedLinks: [], identifier: d[2] };
+        i.relatedNodes = [i.id];
         inner.push(i);
 
-        if (!Array.isArray(d[1]))
+        if (!Array.isArray(d[1])) {
             d[1] = [d[1]];
+        }
 
         d[1].forEach(function(d1){
             
-            o = outer.get(d1.name);
+            let o = outer.get(d1.name);
 
             if (o == null) {
-                o = { name: d1.name,	id: 'o' + outerId[0], related_links: [], identifier: [d1.id] };
-                o.related_nodes = [o.id];
+                o = { name: d1.name,	id: "o" + outerId[0], relatedLinks: [], identifier: [d1.id] };
+                o.relatedNodes = [o.id];
                 outerId[0] = outerId[0] + 1;
 
                 outer.set(d1.name, o);
@@ -307,22 +312,22 @@ apx.viewMode.loadConceptMap = (data) => {
             }
 
             // create the links
-            l = { id: 'l-' + i.id + '-' + o.id, inner: i, outer: o }
+            let l = { id: "l-" + i.id + "-" + o.id, inner: i, outer: o };
             links.push(l);
 
             // and the relationships
-            i.related_nodes.push(o.id);
-            i.related_links.push(l.id);
-            o.related_nodes.push(i.id);
-            o.related_links.push(l.id);
+            i.relatedNodes.push(o.id);
+            i.relatedLinks.push(l.id);
+            o.relatedNodes.push(i.id);
+            o.relatedLinks.push(l.id);
         });
     });
 
     data = {
-        inner: inner,
+        inner,
         outer: outer.values(),
-        links: links
-    }
+        links
+    };
 
     outer = data.outer;
     data.outer = Array(outer.length);
@@ -333,76 +338,78 @@ apx.viewMode.loadConceptMap = (data) => {
 
     for (var i = 0; i < data.outer.length; ++i)
     {
-        if (i % 2 == 1)
+        if (i % 2 === 1) {
             data.outer[i2--] = outer[i];
-        else
+        } else {
             data.outer[i1++] = outer[i];
+        }
     }
 
     // from d3 colorbrewer:
     // This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/).
-    var colors = ["#a50026","#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4","#313695"]
+    var colors = ["#a50026","#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4","#313695"];
     var color = d3.scale.linear()
         .domain([60, 220])
         .range([colors.length-1, 0])
         .clamp(true);
 
     var diameter = 1020;
-    var rect_width = 140;
-    var rect_height = 32;
+    var rectWidth = 140;
+    var rectHeight = 32;
 
-    var link_width = "1px";
+    var linkWidth = "1px";
 
     var il = data.inner.length;
     var ol = data.outer.length;
 
-    var height = il*rect_height + 250;
+    var height = il*rectHeight + 250;
 
-    var inner_y = d3.scale.linear()
+    var innerY = d3.scale.linear()
         .domain([0, il])
-        .range([-(il * rect_height)/2, (il * rect_height)/2]);
+        .range([-(il * rectHeight)/2, (il * rectHeight)/2]);
 
-    mid = (data.outer.length/2.0)
-    var outer_x = d3.scale.linear()
+    var mid = (data.outer.length/2.0);
+    var outerX = d3.scale.linear()
         .domain([0, mid, mid, data.outer.length])
         .range([15, 170, 190 ,355]);
 
-    var outer_y = d3.scale.linear()
+    var outerY = d3.scale.linear()
         .domain([0, data.outer.length])
         .range([0, diameter / 2 - 120]);
 
 
     // setup positioning
     data.outer = data.outer.map(function(d, i) {
-        d.x = outer_x(i);
+        d.x = outerX(i);
         d.y = diameter/3;
         return d;
     });
 
     data.inner = data.inner.map(function(d, i) {
-        d.x = -(rect_width / 2);
-        d.y = inner_y(i);
+        d.x = -(rectWidth / 2);
+        d.y = innerY(i);
         return d;
     });
 
 
     function getColor(d)
     {
-        return '#b3d4fc';
+        return "#b3d4fc";
     }
 
     function getColorByRelation(inner, outer)
     {
         var listItem = lCollection.find(apx.viewMode.visualizationDocument.ditems, {id: inner.identifier});
-        var id = lArray.intersection(lCollection.map(listItem.links, 'id'), outer.identifier);
+        var id = lArray.intersection(lCollection.map(listItem.links, "id"), outer.identifier);
         if (id[0]) {
-            item = lCollection.find(listItem.links, { id: id[0] });
+            let item = lCollection.find(listItem.links, { id: id[0] });
             var associationType = item.type;
-            if (typeof(ASSOC_COLORS[associationType.split(' ').join('')]) === 'undefined')
-                return '#dddddd';
-            return ASSOC_COLORS[associationType.split(' ').join('')];
+            if (typeof(ASSOC_COLORS[associationType.split(" ").join("")]) === "undefined") {
+                return "#dddddd";                
+            }
+            return ASSOC_COLORS[associationType.split(" ").join("")];
         }
-        return '#dddddd';
+        return "#dddddd";
     }
 
     // Can't just use d3.svg.diagonal because one edge is in normal space, the
@@ -415,11 +422,52 @@ apx.viewMode.loadConceptMap = (data) => {
         return ((x - 90) / 180 * Math.PI) - (Math.PI/2);
     }
 
+
+    function clickInner(d) {
+        const item = lCollection.find(apx.mainDoc.items, { identifier: d.identifier });
+
+        // Remove inverse associations before render item
+        lArray.remove(item.assocs, { inverse: true });
+        apx.viewMode.renderDocument(item);
+    }
+
+    function clickOuter(d) {
+        const item = lCollection.find(apx.mainDoc.assocs, { identifier: d.identifier[0] });
+        const itemDestination = lCollection.find(apx.mainDoc.items, { identifier: item.dest.item});
+        lArray.remove(itemDestination.assocs, { inverse: true });
+        apx.viewMode.renderDocument(itemDestination);
+    }
+
+    function mouseover(d) {
+        // bring to front
+        d3.selectAll(".links .link").sort(function(a, b){ return d.relatedLinks.indexOf(a.id); });
+
+        var i;
+        for (i = 0; i < d.relatedNodes.length; i++) {
+            d3.select("#" + d.relatedNodes[i] + "-txt").attr("font-weight", "bold");
+        }
+
+        for (i = 0; i < d.relatedLinks.length; i++) {
+            d3.select("#" + d.relatedLinks[i]).attr("stroke-width", "5px");
+        }
+    }
+
+    function mouseout(d) {
+        var i;
+        for (i = 0; i < d.relatedNodes.length; i++) {
+            d3.select("#" + d.relatedNodes[i] + "-txt").attr("font-weight", "normal");
+        }
+
+        for (i = 0; i < d.relatedLinks.length; i++) {
+            d3.select("#" + d.relatedLinks[i]).attr("stroke-width", linkWidth);
+        }
+    }
+
     var diagonal = d3.svg.diagonal()
         .source(function(d) { return {"x": d.outer.y * Math.cos(projectX(d.outer.x)),
                                     "y": -d.outer.y * Math.sin(projectX(d.outer.x))}; })
-        .target(function(d) { return {"x": d.inner.y + rect_height/2,
-                                    "y": d.outer.x > 180 ? d.inner.x : d.inner.x + rect_width}; })
+        .target(function(d) { return {"x": d.inner.y + rectHeight/2,
+                                    "y": d.outer.x > 180 ? d.inner.x : d.inner.x + rectWidth}; })
         .projection(function(d) { return [d.y, d.x]; });
 
 
@@ -431,18 +479,18 @@ apx.viewMode.loadConceptMap = (data) => {
 
 
     // links
-    var link = svg.append('g').attr('class', 'links').selectAll(".link")
+    var link = svg.append("g").attr("class", "links").selectAll(".link")
         .data(data.links)
-        .enter().append('path')
-        .attr('class', 'link')
-        .attr('id', function(d) { return d.id })
+        .enter().append("path")
+        .attr("class", "link")
+        .attr("id", function(d) { return d.id; })
         .attr("d", diagonal)
-        .attr('stroke', function(d) { return getColorByRelation(d.inner, d.outer); })
-        .attr('stroke-width', link_width);
+        .attr("stroke", function(d) { return getColorByRelation(d.inner, d.outer); })
+        .attr("stroke-width", linkWidth);
 
     // outer nodes
 
-    var onode = svg.append('g').selectAll(".outer_node")
+    var onode = svg.append("g").selectAll(".outer_node")
         .data(data.outer)
         .enter().append("g")
         .attr("class", "outer_node")
@@ -452,15 +500,15 @@ apx.viewMode.loadConceptMap = (data) => {
         .on("mouseout", mouseout);
 
     onode.append("circle")
-        .attr('id', function(d) { return d.id })
+        .attr("id", function(d) { return d.id })
         .attr("r", 4.5);
 
     onode.append("circle")
-        .attr('r', 20)
-        .attr('visibility', 'hidden');
+        .attr("r", 20)
+        .attr("visibility", "hidden");
 
     onode.append("text")
-        .attr('id', function(d) { return d.id + '-txt'; })
+        .attr("id", function(d) { return d.id + "-txt"; })
         .attr("dy", ".31em")
         .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
         .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
@@ -469,7 +517,7 @@ apx.viewMode.loadConceptMap = (data) => {
 
     // inner nodes
 
-    var inode = svg.append('g').selectAll(".inner_node")
+    var inode = svg.append("g").selectAll(".inner_node")
         .data(data.inner)
         .enter().append("g")
         .attr("class", "inner_node")
@@ -478,59 +526,21 @@ apx.viewMode.loadConceptMap = (data) => {
         .on("mouseover", mouseover)
         .on("mouseout", mouseout);
 
-    inode.append('rect')
-        .attr('width', rect_width)
-        .attr('height', rect_height)
-        .attr('style', 'stroke:white;stroke-width:1')
-        .attr('id', function(d) { return d.id; })
-        .attr('fill', function(d) { return getColor(d); });
+    inode.append("rect")
+        .attr("width", rectWidth)
+        .attr("height", rectHeight)
+        .attr("style", "stroke:white;stroke-width:1")
+        .attr("id", function(d) { return d.id; })
+        .attr("fill", function(d) { return getColor(d); });
 
     inode.append("text")
-        .attr('id', function(d) { return d.id + '-txt'; })
-        .attr('text-anchor', 'middle')
-        .attr("transform", "translate(" + rect_width/2 + ", " + rect_height * .75 + ")")
+        .attr("id", function(d) { return d.id + "-txt"; })
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate(" + rectWidth/2 + ", " + rectHeight * .75 + ")")
         .text(function(d) { return d.name; });
 
     // need to specify x/y/etc
 
     d3.select(self.frameElement).style("height", diameter - 150 + "px");
 
-    function clickInner(d) {
-        const item = lCollection.find(apx.mainDoc.items, { identifier: d.identifier });
-
-        // Remove inverse associations before render item
-        lArray.remove(item.assocs, { inverse: true })
-        apx.viewMode.renderDocument(item);
-    }
-
-    function clickOuter(d) {
-        const item = lCollection.find(apx.mainDoc.assocs, { identifier: d.identifier[0] });
-        const itemDestination = lCollection.find(apx.mainDoc.items, { identifier: item.dest.item})
-        lArray.remove(itemDestination.assocs, { inverse: true })
-        apx.viewMode.renderDocument(itemDestination);
-    }
-
-    function mouseover(d) {
-        // bring to front
-        d3.selectAll('.links .link').sort(function(a, b){ return d.related_links.indexOf(a.id); });
-
-        for (var i = 0; i < d.related_nodes.length; i++)
-        {
-            // d3.select('#' + d.related_nodes[i]).classed('highlight', true);
-            d3.select('#' + d.related_nodes[i] + '-txt').attr("font-weight", 'bold');
-        }
-
-        for (var i = 0; i < d.related_links.length; i++)
-            d3.select('#' + d.related_links[i]).attr('stroke-width', '5px');
-    }
-
-    function mouseout(d) {
-        for (var i = 0; i < d.related_nodes.length; i++) {
-            // d3.select('#' + d.related_nodes[i]).classed('highlight', false);
-            d3.select('#' + d.related_nodes[i] + '-txt').attr("font-weight", 'normal');
-        }
-
-        for (var i = 0; i < d.related_links.length; i++)
-            d3.select('#' + d.related_links[i]).attr('stroke-width', link_width);
-    }
 }

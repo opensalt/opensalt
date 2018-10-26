@@ -1,10 +1,10 @@
-const lodashArray = require('lodash/array');
+const lodashArray = require("lodash/array");
 global.lArray = lodashArray;
 
-const lodashLang = require('lodash/lang');
+const lodashLang = require("lodash/lang");
 global.lLang = lodashLang;
 
-const lodashCollection = require('lodash/collection');
+const lodashCollection = require("lodash/collection");
 global.lCollection = lodashCollection;
 
 const utilSalt = (function () {
