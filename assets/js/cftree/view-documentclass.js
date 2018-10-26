@@ -1357,8 +1357,8 @@ function ApxDocument(initializer) {
             let key, attributes, val;
             for (key in attributes = {
                 'officialSourceURL': 'Official URL',
-                'uri': 'CASE URI',
-                'identifier': 'CASE Identifier',
+                'uri': 'Framework URI',
+                'identifier': 'Identifier',
                 'creator': 'Creator',
                 'description': 'Description',
                 'subjects': 'Subject',
@@ -1475,8 +1475,8 @@ function ApxDocument(initializer) {
             let html = "";
             let key, attributes, val;
             for (key in attributes = {
-                'uri': 'CASE URI',
-                'identifier': 'CASE Identifier',
+                'uri': 'URI',
+                'identifier': 'Identifier',
                 'fstmt': 'Full Statement',
                 'ck': 'Concept Keywords',
                 'el': 'Education Level',
