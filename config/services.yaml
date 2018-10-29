@@ -42,7 +42,7 @@ parameters:
     env(FIREBASE_PREFIX): opensalt
     env(GOOGLE_CAPTCHA_SITE_KEY): null
     env(GOOGLE_CAPTCHA_SECRET_KEY): null
-    env(SESSION_MAX_IDLE_TIME): 0
+    env(SESSION_MAX_IDLE_TIME): 3600
     env(SSO_ORGANIZATION): 2
     env(AWS_ACCESS_KEY_ID): null
     env(AWS_SECRET_ACCESS_KEY): null
