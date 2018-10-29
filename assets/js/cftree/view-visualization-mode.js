@@ -500,7 +500,7 @@ apx.viewMode.loadConceptMap = (data) => {
         .on("mouseout", mouseout);
 
     onode.append("circle")
-        .attr("id", function(d) { return d.id })
+        .attr("id", function(d) { return d.id; })
         .attr("r", 4.5);
 
     onode.append("circle")
@@ -521,7 +521,7 @@ apx.viewMode.loadConceptMap = (data) => {
         .data(data.inner)
         .enter().append("g")
         .attr("class", "inner_node")
-        .attr("transform", function(d, i) { return "translate(" + d.x + "," + d.y + ")"})
+        .attr("transform", function(d, i) { return "translate(" + d.x + "," + d.y + ")"; })
         .on("click", clickInner)
         .on("mouseover", mouseover)
         .on("mouseout", mouseout);
@@ -543,4 +543,4 @@ apx.viewMode.loadConceptMap = (data) => {
 
     d3.select(self.frameElement).style("height", diameter - 150 + "px");
 
-}
+};
