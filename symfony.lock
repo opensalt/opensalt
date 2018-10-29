@@ -2,13 +2,37 @@
     "aws/aws-sdk-php": {
         "version": "3.69.14"
     },
+    "hslavich/oneloginsaml-bundle": {
+        "version": "dev-master"
+    },
     "kreait/gcp-metadata": {
         "version": "1.0.1"
     },
     "league/flysystem-aws-s3-v3": {
         "version": "1.0.21"
     },
+    "lightsaml/lightsaml": {
+        "version": "1.4.1"
+    },
+    "lightsaml/sp-bundle": {
+        "version": "1.2.0"
+    },
+    "lightsaml/symfony-bridge": {
+        "version": "1.3.0"
+    },
     "markbaker/complex": {
         "version": "1.4.7"
+    },
+    "onelogin/php-saml": {
+        "version": "v2.14.0"
+    },
+    "phpseclib/mcrypt_compat": {
+        "version": "1.0.8"
+    },
+    "phpseclib/phpseclib": {
+        "version": "2.0.11"
+    },
+    "robrichards/xmlseclibs": {
+        "version": "3.0.2"
     }
 }
