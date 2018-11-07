@@ -2,7 +2,30 @@
 namespace App\DTO;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class ChangeLsItemData {
+class LsItemAdditionalFieldFormObject {
+    /**
+     * @var string
+     * @Assert\NotBlank()
+     * @Assert\Length(max=300)
+     *
+     * @Serializer\Exclude()
+     */
+    private $lsDocIdentifier;
+
+    /**
+     * @var string
+     * @ORM\Column(name="ls_doc_uri", type="string", length=300, nullable=true)
+     * @Assert\Length(max=300)
+     */
+    private $lsDocUri;
+
+    /**
+     * @var LsDoc
+     * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="lsItems")
+     * @Assert\NotBlank()
+     */
+    private $lsDoc;
+
     /**
      * @var string
      * @Assert\NotBlank()
@@ -68,4 +91,34 @@ class ChangeLsItemData {
      * @Assert\Length(max=20)
      */
     public $notes;
+
+    /**
+     * Set lsDoc
+     *
+     * @param LsDoc $lsDoc
+     *
+     * @return LsItem
+     */
+    public function setLsDoc(LsDoc $lsDoc): LsItem
+    {
+        $this->lsDoc = $lsDoc;
+        $this->lsDocUri = $lsDoc->getUri();
+        $this->lsDocIdentifier = $lsDoc->getIdentifier();
+
+        return $this;
+    }
+
+    /**
+     * Set lsDocUri
+     *
+     * @param string $lsDocUri
+     *
+     * @return LsItem
+     */
+    public function setLsDocUri(?string $lsDocUri): LsItem
+    {
+        $this->lsDocUri = $lsDocUri;
+
+        return $this;
+    }
 }

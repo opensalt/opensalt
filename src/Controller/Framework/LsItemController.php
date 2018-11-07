@@ -22,6 +22,8 @@ use App\Form\Type\LsItemParentType;
 use App\Form\Type\LsItemType;
 use App\Entity\User\User;
 use App\Service\BucketService;
+use App\DTO\CustomLsItemData;
+use App\DTO\LsItemAdditionalFieldFormObject;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -88,12 +90,16 @@ class LsItemController extends AbstractController
     {
         $ajax = $request->isXmlHttpRequest();
 
-        $lsItem = new LsItem();
+        // additonal fields stuff
+        // create an instance of an empty CreateArticleRequest
+        $customLsItemData = new LsItemAdditionalFieldFormObject();
 
-        $lsItem->setLsDoc($doc);
-        $lsItem->setLsDocUri($doc->getUri());
+        // set lsdoc fields
+        $customLsItemData->setLsDoc($doc);
+        $customLsItemData->setLsDocUri($doc->getUri());
 
-        $form = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
+        // create a form but with a request object instead of entity
+        $form = $this->createForm(ArticleFormType::class, $customLsItemData, ['ajax' => $ajax]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
