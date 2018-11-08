@@ -1,6 +1,7 @@
 <?php
 namespace App\DTO;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Framework\LsDoc;
 
 class LsItemAdditionalFieldFormObject {
     /**
