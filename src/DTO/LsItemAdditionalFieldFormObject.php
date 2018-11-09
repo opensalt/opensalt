@@ -100,7 +100,7 @@ class LsItemAdditionalFieldFormObject {
      *
      * @return LsItem
      */
-    public function setLsDoc(LsDoc $lsDoc): LsItem
+    public function setLsDoc(LsDoc $lsDoc): LsItemAdditionalFieldFormObject
     {
         $this->lsDoc = $lsDoc;
         $this->lsDocUri = $lsDoc->getUri();
@@ -116,7 +116,7 @@ class LsItemAdditionalFieldFormObject {
      *
      * @return LsItem
      */
-    public function setLsDocUri(?string $lsDocUri): LsItem
+    public function setLsDocUri(?string $lsDocUri): LsItemAdditionalFieldFormObject
     {
         $this->lsDocUri = $lsDocUri;
 
