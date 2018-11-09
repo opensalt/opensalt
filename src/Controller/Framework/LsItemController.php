@@ -20,6 +20,7 @@ use App\Form\Command\CopyToLsDocCommand;
 use App\Form\Type\LsDocListType;
 use App\Form\Type\LsItemParentType;
 use App\Form\Type\LsItemType;
+use App\Form\Type\LsItemAdditionalFieldType;
 use App\Entity\User\User;
 use App\Service\BucketService;
 use App\DTO\CustomLsItemData;
@@ -99,7 +100,7 @@ class LsItemController extends AbstractController
         $customLsItemData->setLsDocUri($doc->getUri());
 
         // create a form but with a request object instead of entity
-        $form = $this->createForm(ArticleFormType::class, $customLsItemData, ['ajax' => $ajax]);
+        $form = $this->createForm(LsItemAdditionalFieldType::class, $customLsItemData, ['ajax' => $ajax]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
