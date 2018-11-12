@@ -4,6 +4,9 @@ namespace App\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 class LsItemAdditionalFieldType extends AbstractType
 {
@@ -80,5 +83,16 @@ class LsItemAdditionalFieldType extends AbstractType
             // throws error because it's not on the entity
             // $form->add('test');
         });
+    }
+
+    /**
+     * @param OptionsResolver $resolver
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'data_class' => 'App\Entity\Framework\LsItem',
+            'ajax' => false,
+        ]);
     }
 }
