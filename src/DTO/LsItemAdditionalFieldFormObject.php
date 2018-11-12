@@ -2,8 +2,13 @@
 namespace App\DTO;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Framework\LsDoc;
+use JMS\Serializer\Annotation as Serializer;
+use Doctrine\ORM\Mapping as ORM;
+use App\Entity\LockableInterface;
+use App\Entity\Framework\AbstractLsBase;
+use App\Entity\Framework\CaseApiInterface;
 
-class LsItemAdditionalFieldFormObject {
+class LsItemAdditionalFieldFormObject extends AbstractLsBase implements CaseApiInterface, LockableInterface {
     /**
      * @var string
      * @Assert\NotBlank()
