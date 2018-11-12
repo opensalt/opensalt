@@ -100,7 +100,7 @@ class LsItemController extends AbstractController
         $customLsItemData->setLsDocUri($doc->getUri());
 
         // create a form but with a request object instead of entity
-        $form = $this->createForm(LsItemAdditionalFieldType::class, $customLsItemData, ['ajax' => $ajax, 'data_class' => null]);
+        $form = $this->createForm(LsItemAdditionalFieldType::class, $customLsItemData, ['ajax' => $ajax]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
