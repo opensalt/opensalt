@@ -103,7 +103,7 @@ class LsItemAdditionalFieldFormObject extends AbstractLsBase implements CaseApiI
      *
      * @param LsDoc $lsDoc
      *
-     * @return LsItem
+     * @return LsItemAdditionalFieldFormObject
      */
     public function setLsDoc(LsDoc $lsDoc): LsItemAdditionalFieldFormObject
     {
@@ -112,6 +112,16 @@ class LsItemAdditionalFieldFormObject extends AbstractLsBase implements CaseApiI
         $this->lsDocIdentifier = $lsDoc->getIdentifier();
 
         return $this;
+    }
+
+    /**
+     * Get lsDoc
+     *
+     * @return LsDoc
+     */
+    public function getLsDoc(): LsDoc
+    {
+        return $this->lsDoc;
     }
 
     /**
@@ -126,5 +136,15 @@ class LsItemAdditionalFieldFormObject extends AbstractLsBase implements CaseApiI
         $this->lsDocUri = $lsDocUri;
 
         return $this;
+    }
+
+    /**
+     * Get lsDocUri
+     *
+     * @return string
+     */
+    public function getLsDocUri(): ?string
+    {
+        return $this->lsDocUri;
     }
 }
