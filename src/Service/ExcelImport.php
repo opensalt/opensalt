@@ -9,6 +9,7 @@ use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\AdditionalField;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Ramsey\Uuid\Uuid;
@@ -227,6 +228,19 @@ class ExcelImport
             // col 11 - item type
             // col 12 - licence
 
+            $extra = $item->getExtra();
+            $highestColumn = $sheet->getHighestColumn();
+
+            for ($column=13; $column < 16; ++$column) {
+                $header = $this->getCellValueOrNull($sheet, $column, 1);
+
+                if ($this->isCustomField($header, 'lsitem')) {
+                    $customField = [$header => $this->getCellValueOrNull($sheet, $column, $row)];
+                    array_push($extra, json_encode($customField));
+                    $item->setExtra($extra);
+                }
+            }
+
             $this->getEntityManager()->persist($item);
         }
 
@@ -354,5 +368,17 @@ class ExcelImport
                 $repo->$remove($element);
             }
         }
+    }
+
+    private function isCustomField($name, $type)
+    {
+        $cField = $this->getEntityManager()->getRepository(AdditionalField::class)
+            ->findBy(['name' => $name, 'appliesTo' => $type]);
+
+        if (count($cField) > 0) {
+            return true;
+        }
+
+        return false;
     }
 }
