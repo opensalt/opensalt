@@ -229,7 +229,6 @@ class ExcelImport
             // col 12 - licence
 
             $extra = $item->getExtra();
-            $highestColumn = $sheet->getHighestColumn();
 
             for ($column=13; $column < 16; ++$column) {
                 $header = $this->getCellValueOrNull($sheet, $column, 1);
