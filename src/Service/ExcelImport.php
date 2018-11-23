@@ -37,7 +37,6 @@ class ExcelImport
         /** @var LsItem[] $items */
         $items = [];
         $itemSmartLevels = [];
-        $associations = [];
         $children = [];
 
         /** @var LsItem[] $smartLevels */
@@ -101,10 +100,6 @@ class ExcelImport
         for ($i = 2; $i <= $lastRow; ++$i) {
             $association = $this->saveAssociation($sheet, $doc, $i, $items, $children);
             $associationsIdentifiers[$this->getCellValueOrNull($sheet, 1, $i)] = null;
-
-            if (null !== $association) {
-                $associations[$association->getIdentifier()] = $association;
-            }
         }
 
         $this->checkRemovedElements($doc, $items, 'items');
