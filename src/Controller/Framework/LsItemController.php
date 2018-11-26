@@ -105,6 +105,8 @@ class LsItemController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
+
+                $lsItem = new LsItem();
                 $command = new AddItemCommand($lsItem, $doc, $parent, $assocGroup);
                 $this->sendCommand($command);
 
@@ -123,7 +125,7 @@ class LsItemController extends AbstractController
         }
 
         $ret = [
-            'lsItem' => $lsItem,
+            'lsItem' => $customLsItemData,
             'form' => $form->createView(),
         ];
 

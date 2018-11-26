@@ -2,7 +2,13 @@
 
 namespace App\Form\Type;
 
+use App\Entity\Framework\AdditionalField;
+use App\Entity\Framework\LsDoc;
+use App\Repository\Framework\AdditionalFieldRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\FormEvent;
@@ -10,6 +16,16 @@ use Symfony\Component\Form\FormEvents;
 
 class LsItemAdditionalFieldType extends AbstractType
 {
+
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
 
     /**
      * @param FormBuilderInterface $builder
@@ -22,6 +38,16 @@ class LsItemAdditionalFieldType extends AbstractType
                 ->add('uri')
                 ->add('lsDoc')
             ;
+
+            $builder->get('lsDoc')->addModelTransformer(new CallbackTransformer(
+                function (LsDoc $model) {
+                    return $model->getUri();
+                },
+                function (string $uri) {
+                    $doc = $this->entityManager->getRepository(LsDoc::class)->findOneBy(['uri' => $uri]);
+                    return $doc;
+                }
+            ));
         }
 
         $builder
@@ -73,6 +99,7 @@ class LsItemAdditionalFieldType extends AbstractType
         //     ->addModelTransformer(new EducationAlignmentTransformer($this->em))
         //     ;
 
+
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             // 1. Check if any records exist on additional_field table where appliesTo = lsItem
             // 2. If any exist add those fields to the form.
@@ -80,8 +107,27 @@ class LsItemAdditionalFieldType extends AbstractType
             $data = $event->getData();
             $form = $event->getForm();
 
-            // throws error because it's not on the entity
-            // $form->add('test');
+            $fields = $this->entityManager->getRepository(AdditionalField::class)->findBy(['appliesTo' => 'lsItem']);
+
+            /** @var AdditionalField $field */
+            foreach ($fields as $field) {
+                $form->add($field->getName(), TextType::class, [
+                    'label' => $field->getDisplayName(),
+                ]);
+
+                $data->{$field->getName()} = null;
+            }
+
+            $event->setData($data);
+        });
+
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            // 1. Check if any records exist on additional_field table where appliesTo = lsItem
+            // 2. If any exist add those fields to the form.
+            $data = $event->getData();
+            $form = $event->getForm();
+
+
         });
     }
 

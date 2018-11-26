@@ -98,6 +98,8 @@ class LsItemAdditionalFieldFormObject extends AbstractLsBase implements CaseApiI
      */
     public $notes;
 
+    public $additionalFields = [];
+
     /**
      * Set lsDoc
      *
@@ -146,5 +148,19 @@ class LsItemAdditionalFieldFormObject extends AbstractLsBase implements CaseApiI
     public function getLsDocUri(): ?string
     {
         return $this->lsDocUri;
+    }
+
+    public function __set(string $name, $value)
+    {
+        $this->additionalFields[$name] = $value;
+    }
+
+    public function __get(string $name)
+    {
+        if (!isset($this->additionalFields[$name])) {
+            return null;
+        }
+
+        return $this->additionalFields[$name];
     }
 }
