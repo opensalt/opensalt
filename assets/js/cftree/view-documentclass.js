@@ -1528,6 +1528,18 @@ function ApxDocument(initializer) {
                     }
                 }
             }
+
+            if ('customFields' in item) {
+                var data = JSON.parse(item.customFields);
+
+                for (key in data) {
+                    html += '<li class="list-group-item lsItemDetailsExtras">'
+                        + '<strong>' + key + ':</strong> '
+                        + render.escaped(data[key])
+                        + '</li>'
+                    ;
+                }
+            }
             $jq.find("ul").html(html);
 
             /////////////////////////////////////
