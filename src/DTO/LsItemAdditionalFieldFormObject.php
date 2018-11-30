@@ -1,14 +1,13 @@
 <?php
 namespace App\DTO;
+use App\Entity\Framework\LsItem;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Framework\LsDoc;
 use JMS\Serializer\Annotation as Serializer;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\LockableInterface;
-use App\Entity\Framework\AbstractLsBase;
-use App\Entity\Framework\CaseApiInterface;
 
-class LsItemAdditionalFieldFormObject extends AbstractLsBase implements CaseApiInterface, LockableInterface {
+class LsItemAdditionalFieldFormObject
+{
     /**
      * @var string
      * @Assert\NotBlank()
@@ -72,24 +71,6 @@ class LsItemAdditionalFieldFormObject extends AbstractLsBase implements CaseApiI
      * @var string
      * @Assert\Length(max=20)
      */
-    public $language;
-
-    /**
-     * @var string
-     * @Assert\Length(max=20)
-     */
-    public $educationalAlignment;
-
-    /**
-     * @var string
-     * @Assert\Length(max=20)
-     */
-    public $itemType;
-
-    /**
-     * @var string
-     * @Assert\Length(max=20)
-     */
     public $licenceUri;
 
     /**
@@ -99,6 +80,11 @@ class LsItemAdditionalFieldFormObject extends AbstractLsBase implements CaseApiI
     public $notes;
 
     public $additionalFields = [];
+
+    /**
+     * @var LsItem
+     */
+    private $lsItem;
 
     /**
      * Set lsDoc
@@ -150,6 +136,86 @@ class LsItemAdditionalFieldFormObject extends AbstractLsBase implements CaseApiI
         return $this->lsDocUri;
     }
 
+    /**
+     * @return string
+     */
+    public function getLsDocIdentifier(): string
+    {
+        return $this->lsDocIdentifier;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullStatement(): ?string
+    {
+        return $this->fullStatement;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHumanCodingScheme(): ?string
+    {
+        return $this->humanCodingScheme;
+    }
+
+    /**
+     * @return string
+     */
+    public function getListEnumInSource(): ?string
+    {
+        return $this->listEnumInSource;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAbbreviatedStatement(): ?string
+    {
+        return $this->abbreviatedStatement;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConceptKeywords(): ?string
+    {
+        return $this->conceptKeywords;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConceptKeywordsUri(): ?string
+    {
+        return $this->conceptKeywordsUri;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLicenceUri(): ?string
+    {
+        return $this->licenceUri;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAdditionalFields(): array
+    {
+        return $this->additionalFields;
+    }
+
     public function __set(string $name, $value)
     {
         $this->additionalFields[$name] = $value;
@@ -162,5 +228,26 @@ class LsItemAdditionalFieldFormObject extends AbstractLsBase implements CaseApiI
         }
 
         return $this->additionalFields[$name];
+    }
+
+    public function lsItem(): LsItem
+    {
+        if (null === $this->lsItem) {
+            $data = $this;
+            $item = $this->lsDoc->createItem();
+            $item->setFullStatement($data->getFullStatement());
+            $item->setAbbreviatedStatement($data->getAbbreviatedStatement());
+            $item->setListEnumInSource($data->getListEnumInSource());
+            $item->setConceptKeywords($data->getConceptKeywords());
+            $item->setConceptKeywordsUri($data->getConceptKeywordsUri());
+            $item->setLicenceUri($data->getLicenceUri());
+            $item->setNotes($data->getNotes());
+            $item->setExtra($data->getAdditionalFields());
+
+            $this->lsItem = $item;
+        }
+
+        return $this->lsItem;
+
     }
 }

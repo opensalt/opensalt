@@ -3,17 +3,13 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
+use App\DTO\LsItemAdditionalFieldFormObject;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 
 class AddItemCommand extends BaseCommand
 {
-    /**
-     * @var LsItem
-     */
-    private $item;
-
     /**
      * @var LsDoc
      */
@@ -28,18 +24,17 @@ class AddItemCommand extends BaseCommand
      * @var LsDefAssociationGrouping
      */
     private $assocGroup;
+    /**
+     * @var LsItemAdditionalFieldFormObject
+     */
+    private $additionalFieldFormObject;
 
-    public function __construct(LsItem $item, LsDoc $doc, ?LsItem $parent = null, ?LsDefAssociationGrouping $assocGroup = null)
+    public function __construct(LsItemAdditionalFieldFormObject $additionalFieldFormObject, LsDoc $doc, ?LsItem $parent = null, ?LsDefAssociationGrouping $assocGroup = null)
     {
-        $this->item = $item;
         $this->doc = $doc;
         $this->parent = $parent;
         $this->assocGroup = $assocGroup;
-    }
-
-    public function getItem(): LsItem
-    {
-        return $this->item;
+        $this->additionalFieldFormObject = $additionalFieldFormObject;
     }
 
     public function getDoc(): LsDoc
@@ -56,4 +51,13 @@ class AddItemCommand extends BaseCommand
     {
         return $this->assocGroup;
     }
+
+    /**
+     * @return LsItemAdditionalFieldFormObject
+     */
+    public function getAdditionalFieldFormObject(): LsItemAdditionalFieldFormObject
+    {
+        return $this->additionalFieldFormObject;
+    }
+
 }

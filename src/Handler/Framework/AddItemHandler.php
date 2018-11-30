@@ -14,7 +14,11 @@ class AddItemHandler extends BaseFrameworkHandler
         /** @var AddItemCommand $command */
         $command = $event->getCommand();
 
-        $item = $command->getItem();
+        $item = $command->getAdditionalFieldFormObject()->lsItem();
+
+        if (null === $command->getDoc()) {
+            throw new \LogicException('Cannot find doc');
+        }
 
         if ($command->getParent()) {
             $seqNum = $this->framework->getNextChildSequenceNumber($command->getParent());

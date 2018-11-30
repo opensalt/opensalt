@@ -18,9 +18,9 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Form\Command\ChangeLsItemParentCommand;
 use App\Form\Command\CopyToLsDocCommand;
 use App\Form\Type\LsDocListType;
+use App\Form\Type\LsItemAdditionalFieldType;
 use App\Form\Type\LsItemParentType;
 use App\Form\Type\LsItemType;
-use App\Form\Type\LsItemAdditionalFieldType;
 use App\Entity\User\User;
 use App\Service\BucketService;
 use App\DTO\CustomLsItemData;
@@ -89,6 +89,7 @@ class LsItemController extends AbstractController
      */
     public function newAction(Request $request, LsDoc $doc, LsItem $parent = null, LsDefAssociationGrouping $assocGroup = null)
     {
+
         $ajax = $request->isXmlHttpRequest();
 
         // additonal fields stuff
@@ -106,19 +107,18 @@ class LsItemController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
 
-                $lsItem = new LsItem();
-                $command = new AddItemCommand($lsItem, $doc, $parent, $assocGroup);
+                $command = new AddItemCommand($customLsItemData, $doc, $parent, $assocGroup);
                 $this->sendCommand($command);
 
                 // retrieve isChildOf assoc id for the new item
-                $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $lsItem]);
+                $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $customLsItemData->lsItem()]);
 
                 if ($ajax) {
                     // if ajax call, return the item as json
-                    return $this->generateItemJsonResponse($lsItem, $assoc);
+                    return $this->generateItemJsonResponse($customLsItemData->lsItem(), $assoc);
                 }
 
-                return $this->redirectToRoute('lsitem_show', array('id' => $lsItem->getId()));
+                return $this->redirectToRoute('lsitem_show', array('id' => $customLsItemData->lsItem()->getId()));
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding new item: '.$e->getMessage()));
             }

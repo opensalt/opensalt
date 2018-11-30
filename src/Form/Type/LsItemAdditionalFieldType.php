@@ -4,7 +4,6 @@ namespace App\Form\Type;
 
 use App\Entity\Framework\AdditionalField;
 use App\Entity\Framework\LsDoc;
-use App\Repository\Framework\AdditionalFieldRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -113,6 +112,7 @@ class LsItemAdditionalFieldType extends AbstractType
             foreach ($fields as $field) {
                 $form->add($field->getName(), TextType::class, [
                     'label' => $field->getDisplayName(),
+                    'required' => false,
                 ]);
 
                 $data->{$field->getName()} = null;

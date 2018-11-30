@@ -123,7 +123,7 @@ apx.edit.prepareItemEditModal = function() {
             apx.path.lsitem_edit.replace('ID', apx.mainDoc.currentItem.id),
             null,
             function(responseText, textStatus, jqXHR) {
-                if ($modal.find('form[name="ls_item"]').length) {
+                if ($modal.find('form[name="ls_item"],form[name="ls_item_additional_field"]').length) {
                     $modal.find('.modal-footer .btn-save').show();
                 }
                 $('#ls_item_educationalAlignment').multiselect({
@@ -136,8 +136,8 @@ apx.edit.prepareItemEditModal = function() {
                     dropdownParent: $('#ls_item_itemType').closest('div')
                 });
 
-                statementMde = render.mde($('#ls_item_fullStatement')[0]);
-                notesMde = render.mde($('#ls_item_notes')[0]);
+                statementMde = render.mde($('#ls_item_additional_field_fullStatement')[0]);
+                notesMde = render.mde($('#ls_item_additional_field_notes')[0]);
                 var path = '/cfitem/'+apx.mainDoc.doc.id+'/upload_attachment';
 
                 inlineAttachment.editors.codemirror4.attach(
@@ -228,8 +228,8 @@ apx.edit.prepareItemEditModal = function() {
                 },
                 numberDisplayed: 20
             });
-            statementMde = render.mde($('#ls_item_fullStatement')[0]);
-            notesMde = render.mde($('#ls_item_notes')[0]);
+            statementMde = render.mde($('#ls_item_additionl_field_fullStatement')[0]);
+            notesMde = render.mde($('#ls_item_additional_field_notes')[0]);
             var path = '/cfitem/'+apx.mainDoc.doc.id+'/upload_attachment';
 
             inlineAttachment.editors.codemirror4.attach(
@@ -279,8 +279,8 @@ apx.edit.prepareAddNewChildModal = function() {
                 $('#ls_item_itemType').select2entity({
                     dropdownParent: $('#ls_item_itemType').closest('div')
                 });
-                statementMde = render.mde($('#ls_item_fullStatement')[0]);
-                notesMde = render.mde($('#ls_item_notes')[0]);
+                statementMde = render.mde($('#ls_item_additional_field_fullStatement')[0]);
+                notesMde = render.mde($('#ls_item_additional_field_notes')[0]);
                 var path = '/cfitem/'+apx.mainDoc.doc.id+'/upload_attachment';
 
                 inlineAttachment.editors.codemirror4.attach(
@@ -305,14 +305,18 @@ apx.edit.prepareAddNewChildModal = function() {
     });
     $modal.find('.btn-save').on('click', function(e) {
         apx.spinner.showModal("Creating item");
-        statementMde.toTextArea();
+        if (statementMde) {
+            statementMde.toTextArea();
+        }
         statementMde = null;
-        notesMde.toTextArea();
+        if (notesMde) {
+            notesMde.toTextArea();
+        }
         notesMde = null;
         $.ajax({
             url: getPath(),
             method: 'POST',
-            data: $modal.find('form[name=ls_item]').serialize()
+            data: $modal.find('form').serialize()
         }).done(function(data, textStatus, jqXHR) {
             apx.spinner.hideModal();
             $modal.modal('hide');
@@ -330,8 +334,8 @@ apx.edit.prepareAddNewChildModal = function() {
                 },
                 numberDisplayed: 20
             });
-            statementMde = render.mde($('#ls_item_fullStatement')[0]);
-            notesMde = render.mde($('#ls_item_notes')[0]);
+            statementMde = render.mde($('#ls_item_additional_field_fullStatement')[0]);
+            notesMde = render.mde($('#ls_item_additional_field_notes')[0]);
             var path = '/cfitem/'+apx.mainDoc.doc.id+'/upload_attachment';
 
             inlineAttachment.editors.codemirror4.attach(
