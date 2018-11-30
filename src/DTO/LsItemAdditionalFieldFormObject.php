@@ -232,8 +232,11 @@ class LsItemAdditionalFieldFormObject
 
     public function lsItem(): LsItem
     {
+        $customFieldArray = array();
+
         if (null === $this->lsItem) {
             $data = $this;
+            array_push($customFieldArray, json_encode($data->getAdditionalFields()));
             $item = $this->lsDoc->createItem();
             $item->setFullStatement($data->getFullStatement());
             $item->setAbbreviatedStatement($data->getAbbreviatedStatement());
@@ -242,7 +245,7 @@ class LsItemAdditionalFieldFormObject
             $item->setConceptKeywordsUri($data->getConceptKeywordsUri());
             $item->setLicenceUri($data->getLicenceUri());
             $item->setNotes($data->getNotes());
-            $item->setExtra($data->getAdditionalFields());
+            $item->setExtra($customFieldArray);
 
             $this->lsItem = $item;
         }
