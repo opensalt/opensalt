@@ -75,7 +75,7 @@ class LsItemAdditionalFieldFormObject
 
     /**
      * @var string
-     * @Assert\Length(max=20)
+     * @Assert\Length(max=600)
      */
     public $notes;
 
