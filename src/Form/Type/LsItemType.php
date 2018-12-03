@@ -15,8 +15,6 @@ use Symfony\Component\Form\Extension\Core\Type\LanguageType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 
 class LsItemType extends AbstractType
 {
@@ -90,17 +88,6 @@ class LsItemType extends AbstractType
         $builder->get('educationalAlignment')
             ->addModelTransformer(new EducationAlignmentTransformer($this->em))
             ;
-
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-            // 1. Check if any records exist on additional_field table where appliesTo = lsItem
-            // 2. If any exist add those fields to the form.
-
-            $data = $event->getData();
-            $form = $event->getForm();
-
-            // throws error because it's not on the entity
-            // $form->add('test');
-         });
     }
 
     /**
