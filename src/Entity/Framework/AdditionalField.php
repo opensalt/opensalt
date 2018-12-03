@@ -17,27 +17,27 @@ class AdditionalField
     private $id;
 
     /**
-     * @ORM\ Column(type="text", length=255)
+     * @ORM\ Column(type="string", length=255)
      */
     private $name;
 
     /**
-     * @ORM\ Column(type="text", length=255)
+     * @ORM\ Column(type="string", length=255)
      */
     private $appliesTo;
 
     /**
-     * @ORM\ Column(type="text", length=255)
+     * @ORM\ Column(type="string", length=255)
      */
     private $displayName;
 
     /**
-     * @ORM\ Column(type="text", length=255)
+     * @ORM\ Column(type="string", length=255)
      */
     private $type;
 
     /**
-     * @ORM\ Column(type="text")
+     * @ORM\ Column(type="string", nullable=true)
      */
     private $typeInfo;
 
