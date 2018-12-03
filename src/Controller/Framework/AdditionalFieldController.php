@@ -13,11 +13,13 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\Type\AdditionalFieldType;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * AdditionalField controller.
  *
  * @Route("/additionalfields")
+ * @IsGranted("SUPER_USER")
  */
 class AdditionalFieldController extends AbstractController
 {
