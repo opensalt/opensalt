@@ -1530,12 +1530,10 @@ function ApxDocument(initializer) {
             }
 
             if ('customFields' in item) {
-                var data = JSON.parse(item.customFields);
-
-                for (key in data) {
+                for (key in item.customFields) {
                     html += '<li class="list-group-item lsItemDetailsExtras">'
                         + '<strong>' + key + ':</strong> '
-                        + render.escaped(data[key])
+                        + render.escaped(item.customFields[key])
                         + '</li>'
                     ;
                 }

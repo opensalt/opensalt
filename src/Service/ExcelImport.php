@@ -234,8 +234,11 @@ class ExcelImport
                 $header = $this->getCellValueOrNull($sheet, $column, 1);
 
                 if ($this->isCustomField($header, 'lsitem')) {
-                    $customField = [$header => $this->getCellValueOrNull($sheet, $column, $row)];
-                    array_push($extra, json_encode($customField));
+                    if (empty($extra['customFields'])) {
+                        $extra['customFields'] = [];
+                    }
+
+                    $extra['customFields'][$header] = $this->getCellValueOrNull($sheet, $column, $row);
                     $item->setExtra($extra);
                 }
             }
