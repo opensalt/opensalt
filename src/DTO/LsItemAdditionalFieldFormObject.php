@@ -250,4 +250,35 @@ class LsItemAdditionalFieldFormObject
         return $this->lsItem;
 
     }
+
+    public static function editLsItem(LsItem $lsItem): self
+    {
+        // create an instance of class LsItemAdditionalFieldFormObject
+        $item = new self();
+        // $data = $lsItem;
+
+        $item = $lsItem->lsDoc->createItem();
+        $item->setFullStatement($lsItem->getFullStatement());
+        $item->setAbbreviatedStatement($lsItem->getAbbreviatedStatement());
+        $item->setListEnumInSource($lsItem->getListEnumInSource());
+        $item->setConceptKeywords($lsItem->getConceptKeywords());
+        $item->setConceptKeywordsUri($lsItem->getConceptKeywordsUri());
+        $item->setLicenceUri($lsItem->getLicenceUri());
+        $item->setNotes($lsItem->getNotes());
+
+        // Additional Fields
+        // query extra column
+        // get JSON object
+        // get field names and values and set to edit form
+        // on save encode add fields and save to extra
+
+        // $customFieldArray = array();
+        // array_push($customFieldArray, json_encode($data->getAdditionalFields()));
+        // $item->setExtra($customFieldArray);
+
+        $lsItem->lsItem = $item;
+
+        return $lsItem->lsItem;
+    }
+
 }
