@@ -189,8 +189,12 @@ class LsItemController extends AbstractController
             );
         }
 
+        // pre-populate the UpdateArticleRequest instance with the data from the article
+        $updateLsItemRequest = LsItemAdditionalFieldFormObject::editLsItem($lsItem);
+
         $deleteForm = $this->createDeleteForm($lsItem);
-        $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
+        // $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
+        $editForm = $this->createForm(LsItemAdditionalFieldType::class, $lsItem, ['ajax' => $ajax]);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
