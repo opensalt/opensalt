@@ -108,9 +108,10 @@ class FrameworkAccessVoter extends Voter
 
     private function canEditFramework(LsDoc $subject, TokenInterface $token)
     {
-        // Allow editing if the user is a super-editor
-        if ($this->decisionManager->decide($token, ['ROLE_SUPER_EDITOR'])) {
-            return true;
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            // If the user is not logged in then deny access
+            return false;
         }
 
         // Do not allow editing if the user is not an editor
@@ -118,10 +119,9 @@ class FrameworkAccessVoter extends Voter
             return false;
         }
 
-        $user = $token->getUser();
-        if (!$user instanceof User) {
-            // If the user is not logged in then deny access
-            return false;
+        // Allow editing if the user is a super-editor
+        if ($this->decisionManager->decide($token, ['ROLE_SUPER_EDITOR'])) {
+            return true;
         }
 
         // Allow the owner to edit the framework

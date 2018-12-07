@@ -13,11 +13,11 @@ class SiteVersionListener implements EventSubscriberInterface
     /**
      * @var string
      */
-    public $rootDir;
+    public $projectDir;
 
-    public function __construct(string $rootDir)
+    public function __construct(string $projectDir)
     {
-        $this->rootDir = $rootDir;
+        $this->projectDir = $projectDir;
     }
 
     public static function getSubscribedEvents()
@@ -33,13 +33,13 @@ class SiteVersionListener implements EventSubscriberInterface
 
         $cache = new ApcuCache('opensalt');
         if (!$fullVersion = $cache->get('version')) {
-            $rootDir = $this->rootDir;
-            $webDir = \dirname($rootDir).'/web';
+            $projectDir = $this->projectDir;
+            $webDir = $this->projectDir.'/public';
 
             if (file_exists($webDir.'/version.txt')) {
                 $fullVersion = trim(file_get_contents($webDir.'/version.txt'));
-            } elseif (file_exists($rootDir.'/../VERSION')) {
-                $fullVersion = trim(file_get_contents($rootDir.'/../VERSION'));
+            } elseif (file_exists($projectDir.'/VERSION')) {
+                $fullVersion = trim(file_get_contents($projectDir.'/VERSION'));
             } else {
                 $fullVersion = 'UNKNOWN';
             }

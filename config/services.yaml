@@ -111,7 +111,7 @@ services:
                             # fetching services directly from the container via $container->get() won't work.
                             # The best practice is to be explicit about your dependencies anyway.
         bind:
-            $rootDir: '%kernel.root_dir%'
+            $projectDir: '%kernel.project_dir%'
             $mailFromEmail: '%mail_feature_from_email%'
             $firebasePrefix: '%firebase_prefix%'
             $guzzleJsonClient: '@csa_guzzle.client.json'

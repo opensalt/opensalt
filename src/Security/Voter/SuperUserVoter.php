@@ -28,8 +28,8 @@ class SuperUserVoter extends Voter
      */
     protected function supports($attribute, $subject)
     {
-        // Do not support the role check we are doing in voteOnAttribute
-        if ($attribute === 'ROLE_SUPER_USER') {
+        // Pass on ROLE_* checks
+        if (0 === strpos($attribute, 'ROLE_')) {
             return false;
         }
 
