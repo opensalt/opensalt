@@ -225,6 +225,18 @@ class ExcelExport
         foreach ($columns as $column => $field) {
             $this->addCellIfExists($sheet, $column, $y, $row, $field);
         }
+
+        if (!empty($row['extra']['customFields'])) {
+            $customFields = $row['extra']['customFields'];
+            $columns = ['M', 'N', 'O'];
+            $c = 0;
+
+            foreach ($customFields as $field => $value) {
+                $sheet->setCellValue("$columns[$c]1", $field);
+                $sheet->setCellValue("$columns[$c]$y", $value);
+                ++$c;
+            }
+        }
     }
 
     /**
