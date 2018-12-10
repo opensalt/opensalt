@@ -1357,7 +1357,8 @@ function ApxDocument(initializer) {
             let key, attributes, val;
             for (key in attributes = {
                 'officialSourceURL': 'Official URL',
-                'uri': 'CASE Framework URL',
+                'uri': 'Framework URI',
+                'identifier': 'Identifier',
                 'creator': 'Creator',
                 'description': 'Description',
                 'subjects': 'Subject',
@@ -1474,6 +1475,8 @@ function ApxDocument(initializer) {
             let html = "";
             let key, attributes, val;
             for (key in attributes = {
+                'uri': 'URI',
+                'identifier': 'Identifier',
                 'fstmt': 'Full Statement',
                 'ck': 'Concept Keywords',
                 'el': 'Education Level',
@@ -1492,7 +1495,9 @@ function ApxDocument(initializer) {
                         // TODO: deal with ck, el, itp
                         html += '<li class="list-group-item">'
                             + '<strong>' + attributes[key] + ':</strong> '
-                            + render.escaped(val)
+                            + '<span class="item-' + key + '">'
+                              + render.escaped(val)
+                              + '</span>'
                             + '</li>'
                         ;
                     }
@@ -1500,7 +1505,6 @@ function ApxDocument(initializer) {
             }
 
             for (key in attributes = {
-                'uri': 'CASE Item URI',
                 'le': 'List Enumeration in Source',
                 'cku': 'Concept Keywords URI',
                 'lang': 'Language',

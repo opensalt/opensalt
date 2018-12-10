@@ -38,7 +38,6 @@ class ExcelImport
         /** @var LsItem[] $items */
         $items = [];
         $itemSmartLevels = [];
-        $associations = [];
         $children = [];
 
         /** @var LsItem[] $smartLevels */
@@ -75,7 +74,7 @@ class ExcelImport
                 $seq = null;
             }
 
-            if (array_key_exists($parentLevel, $smartLevels)) {
+            if (array_key_exists($parentLevel, $itemSmartLevels)) {
                 $smartLevels[$parentLevel]->addChild($item, null, $seq);
                 $children[$item->getIdentifier()] = $doc->getIdentifier();
             } else {
@@ -97,15 +96,15 @@ class ExcelImport
 
         $sheet = $phpExcelObject->getSheetByName('CF Association');
         $lastRow = $sheet->getHighestRow();
+        $associationsIdentifiers = [];
+
         for ($i = 2; $i <= $lastRow; ++$i) {
             $association = $this->saveAssociation($sheet, $doc, $i, $items, $children);
-            if (null !== $association) {
-                $associations[$association->getIdentifier()] = $association;
-            }
+            $associationsIdentifiers[$this->getCellValueOrNull($sheet, 1, $i)] = null;
         }
 
         $this->checkRemovedElements($doc, $items, 'items');
-        $this->checkRemovedElements($doc, $associations, 'associations');
+        $this->checkRemovedElements($doc, $associationsIdentifiers, 'associations');
 
         return $doc;
     }

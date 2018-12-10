@@ -130,9 +130,7 @@ class Item implements Context
         $itemId = $I->grabFromCurrentUrl('#/(\d+)$#');
         $I->remember($requestedItem.'-id', $itemId);
 
-        $uri = $I->grabAttributeFrom('li.lsItemDetailsExtras a', 'href');
-        preg_match('#/([a-f0-9-]{32,36})$#', $uri, $matches);
-        $key = $matches[1];
+        $key = $I->grabTextFrom('div.lsItemDetails li.list-group-item .item-identifier');
         $I->remember($requestedItem.'-identifier', $key);
 
         $I->amOnPage($frameworkUrl);
