@@ -19,7 +19,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  * AdditionalField controller.
  *
  * @Route("/additionalfields")
- * @IsGranted("ROLE_SUPER_USER")
  */
 class AdditionalFieldController extends AbstractController
 {
@@ -61,6 +60,7 @@ class AdditionalFieldController extends AbstractController
      * List all AdditionalField entities.
      *
      * @Route("/", name="additionalfield_index")
+     * @IsGranted("ROLE_SUPER_USER")
      */
     public function index()
     {
