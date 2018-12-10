@@ -60,7 +60,6 @@ class AdditionalFieldController extends AbstractController
      * List all AdditionalField entities.
      *
      * @Route("/", name="additionalfield_index")
-     * @IsGranted("ROLE_SUPER_USER")
      */
     public function index()
     {
