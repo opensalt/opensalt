@@ -93,7 +93,6 @@ class LsItemType extends AbstractType
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             // Check if any records exist on additional_field table where appliesTo = lsitem
             // If any exist add those fields to the form.
-            $data = $event->getData();
             $form = $event->getForm();
 
             $fields = $this->em->getRepository(AdditionalField::class)->findBy(['appliesTo' => 'lsitem']);

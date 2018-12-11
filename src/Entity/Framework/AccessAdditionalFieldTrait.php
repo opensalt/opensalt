@@ -4,6 +4,10 @@ namespace App\Entity\Framework;
 
 trait AccessAdditionalFieldTrait
 {
+    abstract public function getExtra(): array;
+    abstract public function getExtraProperty(string $property);
+    abstract public function setExtraProperty(string $property, $value);
+
     protected function getAdditionalField(string $name)
     {
         $extra = $this->getExtra();
