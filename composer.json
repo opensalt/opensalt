@@ -44,6 +44,7 @@
         "php": "^7.2.8",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-json": "*",
         "csa/guzzle-bundle": "^3.0",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-cache-bundle": "^1.2",
