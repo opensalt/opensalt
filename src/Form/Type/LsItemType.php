@@ -2,6 +2,7 @@
 
 namespace App\Form\Type;
 
+use App\Entity\Framework\AdditionalField;
 use App\Entity\Framework\LsDefGrade;
 use App\Entity\Framework\LsDefItemType;
 use App\Form\DataTransformer\EducationAlignmentTransformer;
@@ -12,9 +13,13 @@ use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\LanguageType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
+use App\Entity\Framework\LsItem;
 
 class LsItemType extends AbstractType
 {
@@ -26,11 +31,7 @@ class LsItemType extends AbstractType
         $this->em = $entityManager;
     }
 
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array $options
-     */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if (!$options['ajax']) {
             $builder
@@ -52,7 +53,7 @@ class LsItemType extends AbstractType
                 'preferred_choices' => ['en', 'es', 'fr'],
             ])
             ->add('educationalAlignment', EntityType::class, [
-                'class' => 'App\Entity\Framework\LsDefGrade',
+                'class' => LsDefGrade::class,
                 'label' => 'Education Level',
                 'choice_label' => 'code',
                 'choice_attr' => function (LsDefGrade $val, $key, $index) {
@@ -88,15 +89,38 @@ class LsItemType extends AbstractType
         $builder->get('educationalAlignment')
             ->addModelTransformer(new EducationAlignmentTransformer($this->em))
             ;
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            // Check if any records exist on additional_field table where appliesTo = lsitem
+            // If any exist add those fields to the form.
+            $data = $event->getData();
+            $form = $event->getForm();
+
+            $fields = $this->em->getRepository(AdditionalField::class)->findBy(['appliesTo' => 'lsitem']);
+
+            /** @var AdditionalField $field */
+            foreach ($fields as $field) {
+                $typeInfo = $field->getTypeInfo();
+
+                switch ($field->getType()) {
+                    case 'string':
+                        $form->add('custom_'.$field->getName(), TextType::class, [
+                            'label' => $field->getDisplayName(),
+                            'required' => !empty($typeInfo['required']),
+                        ]);
+                        break;
+                }
+            }
+        });
     }
 
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => 'App\Entity\Framework\LsItem',
+            'data_class' => LsItem::class,
             'ajax' => false,
         ]);
     }

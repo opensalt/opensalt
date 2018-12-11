@@ -218,7 +218,7 @@ class AbstractLsBase implements IdentifiableInterface
      */
     public function getExtra(): array
     {
-        if ($this->extra === null) {
+        if (null === $this->extra) {
             return [];
         }
 

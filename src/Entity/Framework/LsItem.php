@@ -93,6 +93,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterface
 {
+    use AccessAdditionalFieldTrait;
+
     /**
      * @var string
      *

@@ -3,7 +3,7 @@
 {% block body %}
   <h1>Additional Fields List</h1>
   <p>
-    <a href="{{ path('additionalfield_new') }}">Add Additional Field</a>
+    <a href="{{ path('additional_field_new') }}">Add Additional Field</a>
   </p>
   <table class="table table-condensed table-hover table-bordered table-striped">
       <thead>
@@ -22,17 +22,17 @@
       {% for additional_field in additional_fields %}
           <tr>
             <td>
-              <a href="{{ path('additionalfield_show', {'id': additional_field.id}) }}">
+              <a href="{{ path('additional_field_show', {'id': additional_field.id}) }}">
                 {{ additional_field.id }}
               </a>
             </td>
             <td>
-              <a href="{{ path('additionalfield_update', {'id': additional_field.id}) }}">
+              <a href="{{ path('additional_field_update', {'id': additional_field.id}) }}">
                 Edit
               </a>
             </td>
             <td>
-              <a href="{{ path('additionalfield_delete', {'id': additional_field.id}) }}">
+              <a href="{{ path('additional_field_delete', {'id': additional_field.id}) }}">
                 Delete
               </a>
             </td>
@@ -40,7 +40,7 @@
             <td>{{ additional_field.displayName }}</td>
             <td>{{ additional_field.appliesTo }}</td>
             <td>{{ additional_field.type }}</td>
-            <td>{{ additional_field.typeInfo }}</td>
+            <td>{{ additional_field.typeInfo|json_encode }}</td>
           </tr>
       {% endfor %}
       </tbody>

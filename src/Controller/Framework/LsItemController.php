@@ -18,13 +18,10 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Form\Command\ChangeLsItemParentCommand;
 use App\Form\Command\CopyToLsDocCommand;
 use App\Form\Type\LsDocListType;
-use App\Form\Type\LsItemAdditionalFieldType;
 use App\Form\Type\LsItemParentType;
 use App\Form\Type\LsItemType;
 use App\Entity\User\User;
 use App\Service\BucketService;
-use App\DTO\CustomLsItemData;
-use App\DTO\LsItemAdditionalFieldFormObject;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -89,43 +86,37 @@ class LsItemController extends AbstractController
      */
     public function newAction(Request $request, LsDoc $doc, LsItem $parent = null, LsDefAssociationGrouping $assocGroup = null)
     {
-
         $ajax = $request->isXmlHttpRequest();
 
-        // additonal fields stuff
-        // create an instance of an empty CreateArticleRequest
-        $customLsItemData = new LsItemAdditionalFieldFormObject();
+        $lsItem = new LsItem();
 
-        // set lsdoc fields
-        $customLsItemData->setLsDoc($doc);
-        $customLsItemData->setLsDocUri($doc->getUri());
+        $lsItem->setLsDoc($doc);
+        $lsItem->setLsDocUri($doc->getUri());
 
-        // create a form but with a request object instead of entity
-        $form = $this->createForm(LsItemAdditionalFieldType::class, $customLsItemData, ['ajax' => $ajax]);
+        $form = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-
-                $command = new AddItemCommand($customLsItemData, $doc, $parent, $assocGroup);
+                $command = new AddItemCommand($lsItem, $doc, $parent, $assocGroup);
                 $this->sendCommand($command);
 
                 // retrieve isChildOf assoc id for the new item
-                $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $customLsItemData->lsItem()]);
+                $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $lsItem]);
 
                 if ($ajax) {
                     // if ajax call, return the item as json
-                    return $this->generateItemJsonResponse($customLsItemData->lsItem(), $assoc);
+                    return $this->generateItemJsonResponse($lsItem, $assoc);
                 }
 
-                return $this->redirectToRoute('lsitem_show', array('id' => $customLsItemData->lsItem()->getId()));
+                return $this->redirectToRoute('lsitem_show', array('id' => $lsItem->getId()));
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding new item: '.$e->getMessage()));
             }
         }
 
         $ret = [
-            'lsItem' => $customLsItemData,
+            'lsItem' => $lsItem,
             'form' => $form->createView(),
         ];
 
@@ -189,12 +180,8 @@ class LsItemController extends AbstractController
             );
         }
 
-        // pre-populate the UpdateArticleRequest instance with the data from the article
-        $updateLsItemRequest = LsItemAdditionalFieldFormObject::editLsItem($lsItem);
-
         $deleteForm = $this->createDeleteForm($lsItem);
-        // $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
-        $editForm = $this->createForm(LsItemAdditionalFieldType::class, $lsItem, ['ajax' => $ajax]);
+        $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -414,15 +401,13 @@ class LsItemController extends AbstractController
      * @param Request $request
      * @param LsItem $lsItem
      * @param User $user
-     *
-     * @return Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function uploadAttachmentAction(Request $request, LsDoc $doc, BucketService $bucket)
+    public function uploadAttachmentAction(Request $request, LsDoc $doc, BucketService $bucket): Response
     {
         if (!empty($this->bucketProvider)) {
             $file = $request->files->get('file');
 
-            if (!is_null($file) && $file->isValid()) {
+            if (null !== $file && $file->isValid()) {
                 $fileUrl = $bucket->uploadFile($file, 'items');
                 return new JsonResponse(['filename' => $fileUrl]);
             }

@@ -18,5 +18,4 @@ class AdditionalFieldRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AdditionalField::class);
     }
-    
 }

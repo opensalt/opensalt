@@ -151,6 +151,7 @@ class UiInfoController extends AbstractController
             'itemType' => $item->getItemType(),
             'changedAt' => $item->getChangedAt(),
             'assocData' => [],
+            'extra' => $item->getExtra(),
         ];
 
         if (null !== $assoc) {
