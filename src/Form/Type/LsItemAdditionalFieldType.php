@@ -123,9 +123,8 @@ class LsItemAdditionalFieldType extends AbstractType
                     'required' => false,
                 ]);
 
-                $data->{$field->getName()} = null;
+                //$data->{$field->getName()} = null;
             }
-
             $event->setData($data);
         });
 

@@ -233,52 +233,41 @@ class LsItemAdditionalFieldFormObject
     public function lsItem(): LsItem
     {
         if (null === $this->lsItem) {
-            $data = $this;
-            $item = $this->lsDoc->createItem();
-            $item->setFullStatement($data->getFullStatement());
-            $item->setAbbreviatedStatement($data->getAbbreviatedStatement());
-            $item->setListEnumInSource($data->getListEnumInSource());
-            $item->setConceptKeywords($data->getConceptKeywords());
-            $item->setConceptKeywordsUri($data->getConceptKeywordsUri());
-            $item->setLicenceUri($data->getLicenceUri());
-            $item->setNotes($data->getNotes());
-            $item->setExtra(['customFields' => $data->getAdditionalFields()]);
-
-            $this->lsItem = $item;
+          $this->lsItem = $this->lsDoc->createItem();
         }
+
+        $this->lsItem->setFullStatement($this->getFullStatement());
+        $this->lsItem->setAbbreviatedStatement($this->getAbbreviatedStatement());
+        $this->lsItem->setListEnumInSource($this->getListEnumInSource());
+        $this->lsItem->setConceptKeywords($this->getConceptKeywords());
+        $this->lsItem->setConceptKeywordsUri($this->getConceptKeywordsUri());
+        $this->lsItem->setLicenceUri($this->getLicenceUri());
+        $this->lsItem->setNotes($this->getNotes());
+        $this->lsItem->setExtra(['customFields' => $this->getAdditionalFields()]);
 
         return $this->lsItem;
 
     }
 
-    public static function editLsItem(LsItem $lsItem): self
-    {
-        // create an instance of class LsItemAdditionalFieldFormObject
+    public static function fromlsItem(LsItem $lsItem): self
+    {  
         $item = new self();
-        // $data = $lsItem;
 
-        $item = $lsItem->lsDoc->createItem();
-        $item->setFullStatement($lsItem->getFullStatement());
-        $item->setAbbreviatedStatement($lsItem->getAbbreviatedStatement());
-        $item->setListEnumInSource($lsItem->getListEnumInSource());
-        $item->setConceptKeywords($lsItem->getConceptKeywords());
-        $item->setConceptKeywordsUri($lsItem->getConceptKeywordsUri());
-        $item->setLicenceUri($lsItem->getLicenceUri());
-        $item->setNotes($lsItem->getNotes());
+        $item->fullStatement = $lsItem->getFullStatement();
+        $item->humanCodingScheme = $lsItem->getHumanCodingScheme();
+        $item->listEnumInSource = $lsItem->getListEnumInSource();
+        $item->abbreviatedStatement = $lsItem->getAbbreviatedStatement();
+        $item->conceptKeywords = $lsItem->getConceptKeywords();
+        $item->conceptKeywordsUri = $lsItem->getConceptKeywordsUri();
+        $item->licenceUri = $lsItem->getLicenceUri();
+        $item->notes = $lsItem->getNotes();
+        $item->additionalFields = $lsItem->getExtra()['customFields'];
+        $item->lsDocIdentifier = $lsItem->getLsDocIdentifier();
+        $item->lsDocUri = $lsItem->getLsDocUri();
+        $item->lsDoc = $lsItem->getLsDoc();
+        $item->lsItem = $lsItem;
 
-        // Additional Fields
-        // query extra column
-        // get JSON object
-        // get field names and values and set to edit form
-        // on save encode add fields and save to extra
-
-        // $customFieldArray = array();
-        // array_push($customFieldArray, json_encode($data->getAdditionalFields()));
-        // $item->setExtra($customFieldArray);
-
-        $lsItem->lsItem = $item;
-
-        return $lsItem->lsItem;
+        return $item;
     }
 
 }

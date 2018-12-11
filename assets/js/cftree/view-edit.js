@@ -188,7 +188,7 @@ apx.edit.prepareItemEditModal = function() {
         $.ajax({
             url: apx.path.lsitem_edit.replace('ID', apx.mainDoc.currentItem.id),
             method: 'POST',
-            data: $modal.find('form[name=ls_item]').serialize()
+            data: $modal.find('form[name="ls_item_additional_field"]').serialize()
         }).done(function(data, textStatus, jqXHR) {
             let id = apx.mainDoc.currentItem.id;
             if ("undefined" !== typeof apx.locks && "undefined" !== typeof apx.locks.mine && "undefined" !== typeof apx.locks.mine.items[id] && "number" === typeof apx.locks.mine.items[id].warning) {

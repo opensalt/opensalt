@@ -190,16 +190,16 @@ class LsItemController extends AbstractController
         }
 
         // pre-populate the UpdateArticleRequest instance with the data from the article
-        $updateLsItemRequest = LsItemAdditionalFieldFormObject::editLsItem($lsItem);
+        $updateLsItemRequest = LsItemAdditionalFieldFormObject::fromLsItem($lsItem);
 
         $deleteForm = $this->createDeleteForm($lsItem);
-        // $editForm = $this->createForm(LsItemType::class, $lsItem, ['ajax' => $ajax]);
-        $editForm = $this->createForm(LsItemAdditionalFieldType::class, $lsItem, ['ajax' => $ajax]);
+        $editForm = $this->createForm(LsItemAdditionalFieldType::class, $updateLsItemRequest, ['ajax' => $ajax]);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             try {
-                $command = new UpdateItemCommand($lsItem);
+                $lsItemRequest =  $editForm->getData();
+                $command = new UpdateItemCommand($lsItemRequest->lsItem());
                 $this->sendCommand($command);
 
                 if ($ajax) {
