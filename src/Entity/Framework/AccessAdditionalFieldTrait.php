@@ -23,7 +23,7 @@ trait AccessAdditionalFieldTrait
         $this->setExtraProperty('customFields', $customFields);
     }
 
-    public function __get(string $name)
+    public function __get($name)
     {
         if (0 === strpos($name, 'custom_')) {
             return $this->getAdditionalField(substr($name, 7));
@@ -32,7 +32,7 @@ trait AccessAdditionalFieldTrait
         throw new \BadMethodCallException(sprintf('The property "%s" does not exist.', $name));
     }
 
-    public function __set(string $name, $value): void
+    public function __set($name, $value)
     {
         if (0 === strpos($name, 'custom_')) {
             $this->setAdditionalField(substr($name, 7), $value);
@@ -43,18 +43,18 @@ trait AccessAdditionalFieldTrait
         throw new \BadMethodCallException(sprintf('The property "%s" does not exist.', $name));
     }
 
-    public function __isset(string $name): bool
+    public function __isset($name)
     {
         if (0 === strpos($name, 'custom_')) {
             $customFields = $this->getExtraProperty('customFields') ?? [];
 
-            return array_key_exists(substr($name, 7), $customFields);
+            return null !== $customFields[substr($name, 7)] ?? null;
         }
 
-        throw new \BadMethodCallException(sprintf('The property "%s" does not exist.', $name));
+        return false;
     }
 
-    public function __unset(string $name): void
+    public function __unset($name)
     {
         if (0 === strpos($name, 'custom_')) {
             $customFields = $this->getExtraProperty('customFields') ?? [];
@@ -64,8 +64,5 @@ trait AccessAdditionalFieldTrait
 
             return;
         }
-
-        throw new \BadMethodCallException(sprintf('The property "%s" does not exist.', $name));
     }
-
 }
