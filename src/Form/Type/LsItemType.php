@@ -2,6 +2,7 @@
 
 namespace App\Form\Type;
 
+use App\Entity\Framework\AdditionalField;
 use App\Entity\Framework\LsDefGrade;
 use App\Entity\Framework\LsDefItemType;
 use App\Form\DataTransformer\EducationAlignmentTransformer;
@@ -81,12 +82,16 @@ class LsItemType extends AbstractType
             ])
             ->add('licenceUri')
             ->add('notes')
-            ->add('additional_fields', CustomFieldsType::class, [
+        ;
+
+        $fields = $this->em->getRepository(AdditionalField::class)->findBy(['appliesTo' => 'lsitem']);
+        if (count($fields)) {
+            $builder->add('additional_fields', CustomFieldsType::class, [
                 'applies_to' => 'lsitem',
                 'label' => 'Additional fields',
                 'constraints' => [new Valid()],
-            ])
-        ;
+            ]);
+        }
 
         $builder->get('educationalAlignment')
             ->addModelTransformer(new EducationAlignmentTransformer($this->em))
