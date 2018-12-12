@@ -232,7 +232,7 @@ class ExcelImport
             for ($column=13; $column < 16; ++$column) {
                 $header = $this->getCellValueOrNull($sheet, $column, 1);
 
-                if ($this->isCustomField($header, 'lsitem')) {
+                if ($this->isCustomField($header, LsItem::class)) {
                     if (empty($extra['customFields'])) {
                         $extra['customFields'] = [];
                     }

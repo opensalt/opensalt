@@ -84,10 +84,10 @@ class LsItemType extends AbstractType
             ->add('notes')
         ;
 
-        $fields = $this->em->getRepository(AdditionalField::class)->findBy(['appliesTo' => 'lsitem']);
+        $fields = $this->em->getRepository(AdditionalField::class)->findBy(['appliesTo' => LsItem::class]);
         if (count($fields)) {
             $builder->add('additional_fields', CustomFieldsType::class, [
-                'applies_to' => 'lsitem',
+                'applies_to' => LsItem::class,
                 'label' => 'Additional fields',
                 'constraints' => [new Valid()],
             ]);
@@ -96,7 +96,6 @@ class LsItemType extends AbstractType
         $builder->get('educationalAlignment')
             ->addModelTransformer(new EducationAlignmentTransformer($this->em))
             ;
-
     }
 
     /**

@@ -3,6 +3,9 @@
 namespace App\Form\Type;
 
 use App\Entity\Framework\AdditionalField;
+use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Exception\TransformationFailedException;
@@ -18,9 +21,9 @@ class AdditionalFieldType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $appliesToChoices = [
-            'LsItem' => 'lsitem',
-            'LsAssociation' => 'lsassociation',
-            'LsDoc' => 'lsdoc',
+            'LsItem' => LsItem::class,
+            'LsAssociation' => LsAssociation::class,
+            'LsDoc' => LsDoc::class,
         ];
         $typeChoices = array_combine(AdditionalField::getTypes(), AdditionalField::getTypes());
 
