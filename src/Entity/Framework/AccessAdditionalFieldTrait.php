@@ -4,65 +4,54 @@ namespace App\Entity\Framework;
 
 trait AccessAdditionalFieldTrait
 {
-    abstract public function getExtra(): array;
     abstract public function getExtraProperty(string $property);
     abstract public function setExtraProperty(string $property, $value);
 
-    protected function getAdditionalField(string $name)
+    public function getAdditionalFields(): array
     {
-        $extra = $this->getExtra();
-
-        return $extra['customFields'][$name] ?? null;
+        return $this->getExtraProperty('customFields') ?? [];
     }
 
-    protected function setAdditionalField(string $name, $value): void
+    public function setAdditionalFields(array $values): void
+    {
+        foreach ($values as $key => $value) {
+            if (null === $value) {
+                unset($values[$key]);
+            }
+        }
+
+        if ([] === $values) {
+            $this->setExtraProperty('customFields', null);
+
+            return;
+        }
+
+        $this->setExtraProperty('customFields', $values);
+    }
+
+    public function getAdditionalField(string $name)
     {
         $customFields = $this->getExtraProperty('customFields') ?? [];
 
-        $customFields[$name] = $value;
-        $this->setExtraProperty('customFields', $customFields);
+        return $customFields[$name] ?? null;
     }
 
-    public function __get($name)
+    public function setAdditionalField(string $name, $value): void
     {
-        if (0 === strpos($name, 'custom_')) {
-            return $this->getAdditionalField(substr($name, 7));
-        }
+        $customFields = $this->getExtraProperty('customFields') ?? [];
 
-        throw new \BadMethodCallException(sprintf('The property "%s" does not exist.', $name));
-    }
-
-    public function __set($name, $value)
-    {
-        if (0 === strpos($name, 'custom_')) {
-            $this->setAdditionalField(substr($name, 7), $value);
-
-            return;
-        }
-
-        throw new \BadMethodCallException(sprintf('The property "%s" does not exist.', $name));
-    }
-
-    public function __isset($name)
-    {
-        if (0 === strpos($name, 'custom_')) {
-            $customFields = $this->getExtraProperty('customFields') ?? [];
-
-            return null !== $customFields[substr($name, 7)] ?? null;
-        }
-
-        return false;
-    }
-
-    public function __unset($name)
-    {
-        if (0 === strpos($name, 'custom_')) {
-            $customFields = $this->getExtraProperty('customFields') ?? [];
-
+        if (null === $value) {
             unset($customFields[$name]);
-            $this->setExtraProperty('customFields', $customFields);
+        } else {
+            $customFields[$name] = $value;
+        }
+
+        if ([] === $customFields) {
+            $this->setExtraProperty('customFields', null);
 
             return;
         }
+
+        $this->setExtraProperty('customFields', $customFields);
     }
 }

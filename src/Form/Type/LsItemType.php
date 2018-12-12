@@ -2,7 +2,6 @@
 
 namespace App\Form\Type;
 
-use App\Entity\Framework\AdditionalField;
 use App\Entity\Framework\LsDefGrade;
 use App\Entity\Framework\LsDefItemType;
 use App\Form\DataTransformer\EducationAlignmentTransformer;
@@ -13,11 +12,9 @@ use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\LanguageType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Valid;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 use App\Entity\Framework\LsItem;
 
@@ -84,33 +81,17 @@ class LsItemType extends AbstractType
             ])
             ->add('licenceUri')
             ->add('notes')
+            ->add('additional_fields', CustomFieldsType::class, [
+                'applies_to' => 'lsitem',
+                'label' => 'Additional fields',
+                'constraints' => [new Valid()],
+            ])
         ;
 
         $builder->get('educationalAlignment')
             ->addModelTransformer(new EducationAlignmentTransformer($this->em))
             ;
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-            // Check if any records exist on additional_field table where appliesTo = lsitem
-            // If any exist add those fields to the form.
-            $form = $event->getForm();
-
-            $fields = $this->em->getRepository(AdditionalField::class)->findBy(['appliesTo' => 'lsitem']);
-
-            /** @var AdditionalField $field */
-            foreach ($fields as $field) {
-                $typeInfo = $field->getTypeInfo();
-
-                switch ($field->getType()) {
-                    case 'string':
-                        $form->add('custom_'.$field->getName(), TextType::class, [
-                            'label' => $field->getDisplayName(),
-                            'required' => !empty($typeInfo['required']),
-                        ]);
-                        break;
-                }
-            }
-        });
     }
 
     /**
