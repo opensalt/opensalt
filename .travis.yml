@@ -24,6 +24,10 @@ cache:
 services:
   - docker
 
+addons:
+  sonarcloud:
+    organization: "opensalt"
+
 #apt addons:
 
 before_install:
@@ -54,6 +58,7 @@ before_script:
 
 # Run the tests
 script:
+  - sonar-scanner
   - ./bin/console --env=prod doctrine:migrations:migrate -q --no-interaction
   - ./bin/console --env=prod import:generic-csv tests/_data/test_items.csv
   - echo 'Running tests...' && echo -en 'travis_fold:start:run.tests\\r'
