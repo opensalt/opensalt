@@ -60,14 +60,14 @@ class ExcelImport
 
         for ($i = 2; $i <= $lastRow; ++$i) {
             $item = $this->saveItem($sheet, $doc, $i);
-            if ($item !== null) {
+            if (null !== $item) {
                 $items[$item->getIdentifier()] = $item;
             }
             $smartLevel = (string) $this->getCellValueOrNull($sheet, 4, $i);
 
             if (!empty($smartLevel)) {
                 $smartLevels[$smartLevel] = $item;
-                if ($item !== null) {
+                if (null !== $item) {
                     $itemSmartLevels[$item->getIdentifier()] = $smartLevel;
                 }
             }
@@ -87,7 +87,6 @@ class ExcelImport
                 $smartLevels[$parentLevel]->addChild($item, null, $seq);
                 $children[$item->getIdentifier()] = $doc->getIdentifier();
             } else {
-
                 $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
                     'originLsItem' => $item,
                     'type' => LsAssociation::CHILD_OF,
@@ -123,7 +122,7 @@ class ExcelImport
         $docRepo = $this->getEntityManager()->getRepository(LsDoc::class);
         $doc = $docRepo->findOneByIdentifier($this->getCellValueOrNull($sheet, 1, 2));
 
-        if ($doc !== null) {
+        if (null !== $doc) {
             /* $doc->setIdentifier($this->getCellValueOrNull($sheet, 1, 2)); */
             $doc->setCreator($this->getCellValueOrNull($sheet, 2, 2));
             $doc->setTitle($this->getCellValueOrNull($sheet, 3, 2));
@@ -154,7 +153,7 @@ class ExcelImport
                 )
             );
 
-            if ($this->getCellValueOrNull($sheet, 14, 2) !== null && $this->getCellValueOrNull($sheet, 15, 2) !== null) {
+            if (null !== $this->getCellValueOrNull($sheet, 14, 2) && null !== $this->getCellValueOrNull($sheet, 15, 2)) {
                 $licence = $this->getLicence($sheet);
                 $doc->setLicence($licence);
             }
@@ -187,7 +186,6 @@ class ExcelImport
 
     private function saveItem(Worksheet $sheet, LsDoc $doc, int $row): ?LsItem
     {
-        static $itemTypes = [];
         $item = null;
 
         $identifier = $this->getCellValueOrNull($sheet, 1, $row);
@@ -198,32 +196,11 @@ class ExcelImport
                 ->findOneBy(['identifier' => $identifier, 'lsDocIdentifier' => $doc->getIdentifier()]);
         }
 
-        if ($item === null && !empty($this->getCellValueOrNull($sheet, 2, $row))) {
+        if (null === $item && !empty($this->getCellValueOrNull($sheet, 2, $row))) {
             $item = $doc->createItem($identifier);
         }
 
-        if ($item !== null) {
-            $itemTypeTitle = $this->getCellValueOrNull($sheet, 11, $row);
-
-            if (in_array($itemTypeTitle, $itemTypes, true)) {
-                $itemType = $itemTypes[$itemTypeTitle];
-            } else {
-                $itemType = $this->getEntityManager()->getRepository(LsDefItemType::class)
-                    ->findOneByTitle($itemTypeTitle);
-
-                if (null === $itemType && !empty($itemTypeTitle)) {
-                    $itemType = new LsDefItemType();
-                    $itemType->setTitle($itemTypeTitle);
-                    $itemType->setCode($itemTypeTitle);
-                    $itemType->setHierarchyCode($itemTypeTitle);
-                    $this->getEntityManager()->persist($itemType);
-                }
-
-                $itemTypes[$itemTypeTitle] = $itemType;
-            }
-
-            $item->setItemType($itemType);
-
+        if (null !== $item) {
             $item->setFullStatement($this->getCellValueOrNull($sheet, 2, $row));
             $item->setHumanCodingScheme($this->getCellValueOrNull($sheet, 3, $row));
             // col 4 - smart level
@@ -233,20 +210,15 @@ class ExcelImport
             $item->setNotes($this->getCellValueOrNull($sheet, 8, $row));
             $item->setLanguage($this->getCellValueOrNull($sheet, 9, $row));
             $item->setEducationalAlignment($this->getCellValueOrNull($sheet, 10, $row));
-            // col 11 - item type
+
+            $itemTypeTitle = $this->getCellValueOrNull($sheet, 11, $row);
+            $itemType = $this->findItemType($itemTypeTitle);
+            $item->setItemType($itemType);
+
             // col 12 - licence
 
-            $column = 13;
-
-            while(!is_null($this->getCellValueOrNull($sheet, $column, 1))) {
-                $customField = $this->getCellValueOrNull($sheet, $column, 1);
-
-                if (in_array($customField, static::$customFields)) {
-                    $value = $this->getCellValueOrNull($sheet, $column, $row);
-                    $item->setAdditionalField($customField, $value);
-                }
-                ++$column;
-            }
+            // col 13+ - additional fields
+            $this->addAdditionalFields($row, $item, $sheet);
 
             $this->getEntityManager()->persist($item);
         }
@@ -282,7 +254,7 @@ class ExcelImport
                     ->findOneBy(['identifier' => $fields['identifier'], 'lsDocIdentifier' => $doc->getIdentifier()]);
             }
 
-            if ($association === null) {
+            if (null === $association) {
                 $association = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
                     'originNodeIdentifier' => $fields['originNodeIdentifier'],
                     'type' => $fields['associationType'],
@@ -312,7 +284,7 @@ class ExcelImport
             }
 
             $allTypes = [];
-            foreach(LsAssociation::allTypes() as $type) {
+            foreach (LsAssociation::allTypes() as $type) {
                 $allTypes[] = str_replace(' ', '', strtolower($type));
             }
 
@@ -361,7 +333,7 @@ class ExcelImport
         $findAll = 'findAllItems';
         $remove = 'removeItemAndChildren';
 
-        if ($type === 'associations') {
+        if ('associations' === $type) {
             $repo = $this->getEntityManager()->getRepository(LsAssociation::class);
             $findAll = 'findAllAssociations';
             $remove = 'removeAssociation';
@@ -374,6 +346,45 @@ class ExcelImport
                 $element = $repo->findOneByIdentifier($existingItem['identifier']);
                 $repo->$remove($element);
             }
+        }
+    }
+
+    private function findItemType(?string $itemTypeTitle): ?LsDefItemType
+    {
+        static $itemTypes = [];
+
+        if (in_array($itemTypeTitle, $itemTypes, true)) {
+            return $itemTypes[$itemTypeTitle];
+        }
+
+        $itemType = $this->getEntityManager()->getRepository(LsDefItemType::class)
+            ->findOneByTitle($itemTypeTitle);
+
+        if (null === $itemType || '' === trim($itemTypeTitle)) {
+            $itemType = new LsDefItemType();
+            $itemType->setTitle($itemTypeTitle);
+            $itemType->setCode($itemTypeTitle);
+            $itemType->setHierarchyCode($itemTypeTitle);
+            $this->getEntityManager()->persist($itemType);
+        }
+
+        $itemTypes[$itemTypeTitle] = $itemType;
+
+        return $itemType;
+    }
+
+    private function addAdditionalFields(int $row, LsItem $item, Worksheet $sheet): void
+    {
+        $column = 13;
+
+        while (null !== $this->getCellValueOrNull($sheet, $column, 1)) {
+            $customField = $this->getCellValueOrNull($sheet, $column, 1);
+
+            if (in_array($customField, static::$customFields, true)) {
+                $value = $this->getCellValueOrNull($sheet, $column, $row);
+                $item->setAdditionalField($customField, $value);
+            }
+            ++$column;
         }
     }
 }

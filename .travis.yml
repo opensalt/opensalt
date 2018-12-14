@@ -54,7 +54,6 @@ before_script:
   - chmod 777 public/attachments/
   - ./docker/app/build.sh
   - docker-compose -f docker/docker-compose.yml up -d
-  - sleep 30
 
 # Run the tests
 script:
