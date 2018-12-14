@@ -16,8 +16,7 @@ use Ramsey\Uuid\Uuid;
 
 class ExcelImport
 {
-
-    static $customFields;
+    private static $customFields = null;
 
     /**
      * @var EntityManagerInterface
@@ -27,12 +26,13 @@ class ExcelImport
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-        $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
-            ->findBy(['appliesTo' => LsItem::class]);
-
-        $this->customFields = array_map(function ($cf) {
-            return $cf->getName();
-        }, $customFieldsArray);
+        if (null === static::$customFields) {
+            $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
+                ->findBy(['appliesTo' => LsItem::class]);
+            static::$customFields = array_map(function (AdditionalField $cf) {
+                return $cf->getName();
+            }, $customFieldsArray);
+        }
     }
 
     public function getEntityManager(): EntityManagerInterface
@@ -241,11 +241,11 @@ class ExcelImport
             while(!is_null($this->getCellValueOrNull($sheet, $column, 1))) {
                 $customField = $this->getCellValueOrNull($sheet, $column, 1);
 
-                if (in_array($customField, $this->customFields)) {
+                if (in_array($customField, static::$customFields)) {
                     $value = $this->getCellValueOrNull($sheet, $column, $row);
                     $item->setAdditionalField($customField, $value);
                 }
-                $column++;
+                ++$column;
             }
 
             $this->getEntityManager()->persist($item);
