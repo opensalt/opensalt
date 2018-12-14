@@ -16,6 +16,9 @@ use Ramsey\Uuid\Uuid;
 
 class ExcelImport
 {
+
+    static $customFields;
+
     /**
      * @var EntityManagerInterface
      */
@@ -24,6 +27,12 @@ class ExcelImport
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
+        $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
+            ->findBy(['appliesTo' => LsItem::class]);
+
+        $this->customFields = array_map(function ($cf) {
+            return $cf->getName();
+        }, $customFieldsArray);
     }
 
     public function getEntityManager(): EntityManagerInterface
@@ -227,19 +236,16 @@ class ExcelImport
             // col 11 - item type
             // col 12 - licence
 
-            $extra = $item->getExtra();
+            $column = 13;
 
-            for ($column=13; $column < 16; ++$column) {
-                $header = $this->getCellValueOrNull($sheet, $column, 1);
+            while(!is_null($this->getCellValueOrNull($sheet, $column, 1))) {
+                $customField = $this->getCellValueOrNull($sheet, $column, 1);
 
-                if ($this->isCustomField($header, LsItem::class)) {
-                    if (empty($extra['customFields'])) {
-                        $extra['customFields'] = [];
-                    }
-
-                    $extra['customFields'][$header] = $this->getCellValueOrNull($sheet, $column, $row);
-                    $item->setExtra($extra);
+                if (in_array($customField, $this->customFields)) {
+                    $value = $this->getCellValueOrNull($sheet, $column, $row);
+                    $item->setAdditionalField($customField, $value);
                 }
+                $column++;
             }
 
             $this->getEntityManager()->persist($item);
@@ -369,17 +375,5 @@ class ExcelImport
                 $repo->$remove($element);
             }
         }
-    }
-
-    private function isCustomField($name, $type)
-    {
-        $cField = $this->getEntityManager()->getRepository(AdditionalField::class)
-            ->findBy(['name' => $name, 'appliesTo' => $type]);
-
-        if (count($cField) > 0) {
-            return true;
-        }
-
-        return false;
     }
 }
