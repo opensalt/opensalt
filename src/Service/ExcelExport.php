@@ -3,6 +3,8 @@
 namespace App\Service;
 
 use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
+use App\Entity\Framework\AdditionalField;
 use App\Util\Compare;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -11,6 +13,8 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ExcelExport
 {
+    private static $customFields = null;
+
     /**
      * @var EntityManagerInterface
      */
@@ -19,6 +23,13 @@ class ExcelExport
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
+        if (null === static::$customFields) {
+            $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
+                ->findBy(['appliesTo' => LsItem::class]);
+            static::$customFields = array_map(function (AdditionalField $cf) {
+                return $cf->getName();
+            }, $customFieldsArray);
+        }
     }
 
     public function getEntityManager(): EntityManagerInterface
@@ -153,6 +164,9 @@ class ExcelExport
             ->setCellValue('L1', 'license')
             ->setTitle('CF Item');
 
+        //additionalfields
+        $this->setAdditionalFields($activeSheet);
+
         $j = 2;
         $this->addItemRows($items['_']['children'], $activeSheet, $j, $items, $smartLevel);
 
@@ -227,14 +241,21 @@ class ExcelExport
         }
 
         if (!empty($row['extra']['customFields'])) {
-            $customFields = $row['extra']['customFields'];
-            $columns = ['M', 'N', 'O'];
-            $c = 0;
+            $customFieldsData = $row['extra']['customFields'];
 
-            foreach ($customFields as $field => $value) {
-                $sheet->setCellValue("$columns[$c]1", $field);
-                $sheet->setCellValue("$columns[$c]$y", $value);
-                ++$c;
+            foreach ($customFieldsData as $field => $value) {
+                $col = 13;
+                $notFound = true;
+
+                while ($notFound) {
+                    $cfHeader = $sheet->getCellByColumnAndRow($col, 1);
+
+                    if ($field == $cfHeader->getValue()) {
+                        $sheet->setCellValueByColumnAndRow($col, $y, $value);
+                        $notFound = false;
+                    }
+                    ++$col;
+                }
             }
         }
     }
@@ -285,6 +306,18 @@ class ExcelExport
         }
         if (array_key_exists($field, $row) && null !== $row[$field]) {
             $sheet->setCellValue($x.$y, $row[$field]);
+        }
+    }
+
+    protected function setAdditionalFields(Worksheet $sheet): void
+    {
+        $column = 13;
+
+        if (count(static::$customFields) > 0) {
+            foreach (static::$customFields as $cf) {
+                $sheet->setCellValueByColumnAndRow($column, 1, $cf);
+                ++$column;
+            }
         }
     }
 }
