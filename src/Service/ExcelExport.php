@@ -10,10 +10,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class ExcelExport
 {
-    private static $customFields = null;
+    private static $customItemFields;
 
     /**
      * @var EntityManagerInterface
@@ -23,10 +24,10 @@ class ExcelExport
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-        if (null === static::$customFields) {
+        if (null === static::$customItemFields) {
             $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
                 ->findBy(['appliesTo' => LsItem::class]);
-            static::$customFields = array_map(function (AdditionalField $cf) {
+            static::$customItemFields = array_map(function (AdditionalField $cf) {
                 return $cf->getName();
             }, $customFieldsArray);
         }
@@ -47,7 +48,7 @@ class ExcelExport
 
         $smartLevel = [];
 
-        $items['_'] = ['children'=>[]];
+        $items['_'] = ['children' => []];
 
         $i = 0;
         foreach ($topChildren as $id) {
@@ -86,13 +87,7 @@ class ExcelExport
     }
 
     /**
-     * Export a CASE file
-     *
-     * @param LsDoc $cfDoc
-     * @param array $items
-     * @param array $associations
-     * @param array $smartLevel
-     * @param Spreadsheet $phpExcelObject
+     * Export a CASE file.
      *
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
@@ -100,14 +95,13 @@ class ExcelExport
     {
         $licenseTitle = '';
         $licenseText = '';
-        $licenseUri = '';
         $phpExcelObject->getProperties()
             ->setCreator('OpenSALT')
-            ->setTitle('case');
+            ->setTitle('case')
+        ;
 
         $license = $cfDoc->getLicence();
-        if($license){
-            $licenseUri = $license->getUri();
+        if ($license) {
             $licenseTitle = $license->getTitle();
             $licenseText = $license->getLicenceText();
         }
@@ -164,7 +158,7 @@ class ExcelExport
             ->setCellValue('L1', 'license')
             ->setTitle('CF Item');
 
-        //additionalfields
+        // add additional fields to worksheet
         $this->setAdditionalFields($activeSheet);
 
         $j = 2;
@@ -212,100 +206,65 @@ class ExcelExport
         }
     }
 
-    /**
-     * Add item row to worksheet
-     *
-     * @param Worksheet $sheet
-     * @param int $y
-     * @param array $row
-     */
-    protected function addItemRow(Worksheet $sheet, int $y, array $row): void
+    protected function addItemRow(Worksheet $sheet, int $row, array $rowData): void
     {
         $columns = [
-            'A' => 'identifier',
-            'B' => 'fullStatement',
-            'C' => 'humanCodingScheme',
-            'D' => 'smartLevel',
-            'E' => 'listEnumInSource',
-            'F' => 'abbreviatedStatement',
-            'G' => 'conceptKeywords',
-            'H' => 'notes',
-            'I' => 'language',
-            'J' => 'educationalAlignment',
-            'K' => ['itemType', 'title'],
-            'L' => 'license',
+            'A' => '[identifier]',
+            'B' => '[fullStatement]',
+            'C' => '[humanCodingScheme]',
+            'D' => '[smartLevel]',
+            'E' => '[listEnumInSource]',
+            'F' => '[abbreviatedStatement]',
+            'G' => '[conceptKeywords]',
+            'H' => '[notes]',
+            'I' => '[language]',
+            'J' => '[educationalAlignment]',
+            'K' => '[itemType][title]',
+            'L' => '[license]',
         ];
 
-        foreach ($columns as $column => $field) {
-            $this->addCellIfExists($sheet, $column, $y, $row, $field);
+        end($columns);
+        $lastCol = key($columns);
+        foreach (static::$customItemFields as $customField) {
+            $columns[++$lastCol] = "[extra][customFields][{$customField}]";
         }
 
-        if (!empty($row['extra']['customFields'])) {
-            $customFieldsData = $row['extra']['customFields'];
-
-            foreach ($customFieldsData as $field => $value) {
-                $col = 13;
-                $notFound = true;
-
-                while ($notFound) {
-                    $cfHeader = $sheet->getCellByColumnAndRow($col, 1);
-
-                    if ($field == $cfHeader->getValue()) {
-                        $sheet->setCellValueByColumnAndRow($col, $y, $value);
-                        $notFound = false;
-                    }
-                    ++$col;
-                }
-            }
+        foreach ($columns as $column => $field) {
+            $this->addCellIfExists($sheet, $column, $row, $rowData, $field);
         }
     }
 
-    /**
-     * Add association row to worksheet
-     *
-     * @param Worksheet $sheet
-     * @param int $y
-     * @param array $row
-     */
-    protected function addAssociationRow(Worksheet $sheet, int $y, array $row): void
+    protected function addAssociationRow(Worksheet $sheet, int $row, array $rowData): void
     {
         $columns = [
-            'A' => 'identifier',
-            'B' => 'originNodeIdentifier',
-            'C' => ['originLsItem', 'humanCodingScheme'],
-            'D' => 'type',
-            'E' => ['destinationLsItem', 'humanCodingScheme'],
-            'F' => 'destinationNodeIdentifier',
-            'G' => 'group',
-            'H' => 'groupName',
+            'A' => '[identifier]',
+            'B' => '[originNodeIdentifier]',
+            'C' => '[originLsItem][humanCodingScheme]',
+            'D' => '[type]',
+            'E' => '[destinationLsItem][humanCodingScheme]',
+            'F' => '[destinationNodeIdentifier]',
+            'G' => '[group]',
+            'H' => '[groupName]',
         ];
 
         foreach ($columns as $column => $field) {
-            $this->addCellIfExists($sheet, $column, $y, $row, $field);
+            $this->addCellIfExists($sheet, $column, $row, $rowData, $field);
         }
     }
 
-    /**
-     * Fill in a cell if there is a value
-     *
-     * @param Worksheet $sheet
-     * @param string $x
-     * @param int $y
-     * @param array $row
-     * @param string|array $field
-     */
-    protected function addCellIfExists(Worksheet $sheet, string $x, int $y, array $row, $field): void
+    protected function addCellIfExists(Worksheet $sheet, string $col, int $row, array $rowData, string $propertyPath): void
     {
-        if (is_array($field)) {
-            if (array_key_exists($field[0], $row) && null !== $row[$field[0]]) {
-                $row = $row[$field[0]];
-                $field = $field[1];
-            } else {
-                return;
-            }
+        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+
+        try {
+            $value = $propertyAccessor->getValue($rowData, $propertyPath);
+        } catch (\Exception $e) {
+            // Treat value as unset if the path to it does not work
+            return;
         }
-        if (array_key_exists($field, $row) && null !== $row[$field]) {
-            $sheet->setCellValue($x.$y, $row[$field]);
+
+        if (null !== $value) {
+            $sheet->setCellValue($col.$row, $value);
         }
     }
 
@@ -313,8 +272,8 @@ class ExcelExport
     {
         $column = 13;
 
-        if (count(static::$customFields) > 0) {
-            foreach (static::$customFields as $cf) {
+        if (count(static::$customItemFields) > 0) {
+            foreach (static::$customItemFields as $cf) {
                 $sheet->setCellValueByColumnAndRow($column, 1, $cf);
                 ++$column;
             }
