@@ -12,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
-class ExcelExport
+final class ExcelExport
 {
     private static $customItemFields;
 
@@ -24,10 +24,10 @@ class ExcelExport
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-        if (null === static::$customItemFields) {
+        if (null === self::$customItemFields) {
             $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
                 ->findBy(['appliesTo' => LsItem::class]);
-            static::$customItemFields = array_map(function (AdditionalField $cf) {
+            self::$customItemFields = array_map(function (AdditionalField $cf) {
                 return $cf->getName();
             }, $customFieldsArray);
         }
@@ -225,8 +225,8 @@ class ExcelExport
 
         end($columns);
         $lastCol = key($columns);
-        foreach (static::$customItemFields as $customField) {
-            $columns[++$lastCol] = "[extra][customFields][{$customField}]";
+        foreach (self::$customItemFields as $customField) {
+            $columns[++$lastCol] = sprintf('[extra][customFields][%s]', $customField);
         }
 
         foreach ($columns as $column => $field) {
@@ -272,8 +272,8 @@ class ExcelExport
     {
         $column = 13;
 
-        if (count(static::$customItemFields) > 0) {
-            foreach (static::$customItemFields as $cf) {
+        if (count(self::$customItemFields) > 0) {
+            foreach (self::$customItemFields as $cf) {
                 $sheet->setCellValueByColumnAndRow($column, 1, $cf);
                 ++$column;
             }

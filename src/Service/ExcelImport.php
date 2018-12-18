@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Ramsey\Uuid\Uuid;
 
-class ExcelImport
+final class ExcelImport
 {
     private static $customFields = null;
 
@@ -26,10 +26,10 @@ class ExcelImport
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-        if (null === static::$customFields) {
+        if (null === self::$customFields) {
             $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
                 ->findBy(['appliesTo' => LsItem::class]);
-            static::$customFields = array_map(function (AdditionalField $cf) {
+            self::$customFields = array_map(function (AdditionalField $cf) {
                 return $cf->getName();
             }, $customFieldsArray);
         }
@@ -384,7 +384,7 @@ class ExcelImport
         while (null !== $this->getCellValueOrNull($sheet, $column, 1)) {
             $customField = $this->getCellValueOrNull($sheet, $column, 1);
 
-            if (in_array($customField, static::$customFields, true)) {
+            if (null !== $customField && in_array($customField, self::$customFields, true)) {
                 $value = $this->getCellValueOrNull($sheet, $column, $row);
                 $item->setAdditionalField($customField, $value);
             }
