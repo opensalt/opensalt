@@ -353,6 +353,10 @@ class ExcelImport
     {
         static $itemTypes = [];
 
+        if (null === $itemTypeTitle || '' === trim($itemTypeTitle)) {
+            return null;
+        }
+
         if (in_array($itemTypeTitle, $itemTypes, true)) {
             return $itemTypes[$itemTypeTitle];
         }
@@ -360,7 +364,7 @@ class ExcelImport
         $itemType = $this->getEntityManager()->getRepository(LsDefItemType::class)
             ->findOneByTitle($itemTypeTitle);
 
-        if (null === $itemType || '' === trim($itemTypeTitle)) {
+        if (null === $itemType) {
             $itemType = new LsDefItemType();
             $itemType->setTitle($itemTypeTitle);
             $itemType->setCode($itemTypeTitle);
