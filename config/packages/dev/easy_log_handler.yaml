@@ -2,6 +2,7 @@ services:
     EasyCorp\EasyLog\EasyLogHandler:
         public: false
         arguments: ['%kernel.logs_dir%/%kernel.environment%.log']
+        #arguments: ['php://stdout']
 
 #// FIXME: How to add this configuration automatically without messing up with the monolog configuration?
 #monolog:

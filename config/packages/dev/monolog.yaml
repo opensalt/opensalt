@@ -6,6 +6,14 @@ monolog:
             path: "php://stdout"
             level: debug
             channels: ["!event"]
+#        buffered:
+#            type:     buffer
+#            handler:  easylog
+#            channels: ['!event']
+#            level:    debug
+#        easylog:
+#            type: service
+#            id:   EasyCorp\EasyLog\EasyLogHandler
         # uncomment to get logging in your browser
         # you may have to allow bigger header sizes in your Web server configuration
         #firephp:
