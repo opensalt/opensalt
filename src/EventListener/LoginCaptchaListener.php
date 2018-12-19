@@ -8,7 +8,7 @@ use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use ReCaptcha\ReCaptcha;
 use Symfony\Component\Security\Http\SecurityEvents;
 
-class LoginListener implements EventSubscriberInterface
+class LoginCaptchaListener implements EventSubscriberInterface
 {
     private $captchaSecret;
 

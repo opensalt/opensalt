@@ -148,8 +148,8 @@ services:
         arguments:
             $bucketProvider: '%bucket_provider%'
 
-    App\EventListener\LoginListener:
-        class: App\EventListener\LoginListener
+    App\EventListener\LoginCaptchaListener:
+        class: App\EventListener\LoginCaptchaListener
         arguments:
             $captchaSecret: '%google_captcha_secret_key%'
 
