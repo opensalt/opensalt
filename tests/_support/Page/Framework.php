@@ -1396,9 +1396,9 @@ class Framework implements Context
     }
 
     /**
-     * @Then /^I create a custom field$/
+     * @Then /^I create the custom field "([^"]*)"$/
      */
-    public function iCreateACustomField()
+    public function iCreateACustomField($additionalField)
     {
         $I = $this->I;
 
@@ -1407,28 +1407,25 @@ class Framework implements Context
         $I->see('Add Additional Field');
         $I->click('Add Additional Field');
 
-        $I->fillField('#additional_field_name', 'test_additionalfield');
-        $I->fillField('#additional_field_displayName', 'test_additionalfield');
+        $I->fillField('#additional_field_name', $additionalField);
+        $I->fillField('#additional_field_displayName', $additionalField);
+        $I->selectOption('#additional_field_appliesTo', 'LsItem');
         $I->click('#additional_field_save');
-        $I->wait(5);
 
-        $I->see('test_additionalfield', Locator::combine('//table/tbody/tr', -1));
+        $I->see($additionalField, Locator::combine('//table/tbody/tr', -1));
     }
 
     /**
-     * @Then /^I delete the custom field$/
-     * @Then /^I delete a custom field$/
+     * @Then /^I delete the custom field "([^"]*)"$/
      */
-    public function iDeleteACustomField()
+    public function iDeleteACustomField($additionalField)
     {
         $I = $this->I;
 
         $I->amOnPage(self::$additionalFieldPath);
-        $I->see('test_additionalfield');
+        $I->see($additionalField);
 
-        $I->click('Delete', Locator::combine('//table/tbody/tr', -1));
-        $I->wait(5);
-
-        $I->dontSee('test_additionalfield');
+        $I->click('Delete', '//table/tbody/tr[td[4][text()="'.$additionalField.'"]]');
+        $I->dontSee($additionalField);
     }
 }
