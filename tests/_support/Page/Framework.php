@@ -1414,4 +1414,21 @@ class Framework implements Context
 
         $I->see('test_additionalfield', Locator::combine('//table/tbody/tr', -1));
     }
+
+    /**
+     * @Then /^I delete the custom field$/
+     * @Then /^I delete a custom field$/
+     */
+    public function iDeleteACustomField()
+    {
+        $I = $this->I;
+
+        $I->amOnPage(self::$additionalFieldPath);
+        $I->see('test_additionalfield');
+
+        $I->click('Delete', Locator::combine('//table/tbody/tr', -1));
+        $I->wait(5);
+
+        $I->dontSee('test_additionalfield');
+    }
 }

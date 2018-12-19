@@ -12,3 +12,6 @@ Feature: create custom fields
         Then I should see the framework
         Then I download the framework excel file
         Then I add custom fields via spreadsheet
+
+        Then I delete the framework
+        Then I delete the custom field
