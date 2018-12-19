@@ -15,6 +15,7 @@ class Framework implements Context
     static public $lsdocPath = '/cfdoc/';
     static public $creatorsPath = 'api/v1/lor/creators';
     static public $frameworksByCreatorPath = 'api/v1/lor/frameworksByCreator/';
+    static public $additionalFieldPath = '/additionalfield';
 
     static public $fwTitle = '#ls_doc_create_title';
     static public $fwCreatorField = '#ls_doc_create_creator';
@@ -1276,6 +1277,65 @@ class Framework implements Context
     }
 
     /**
+     * @Then /^I add custom fields via spreadsheet$/
+     */
+    public function spreadsheetCustomFields()
+    {
+        $I = $this->I;
+
+        //$data = file_get_contents(codecept_data_dir().'Utf8TestFramework.json');
+        $filename = str_replace(codecept_output_dir(), '', $this->filename);
+        rename($this->filename, codecept_data_dir().''.$filename.'.xlsx');
+
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile(codecept_data_dir().''.$filename.'.xlsx');
+        $ss = $reader->load(codecept_data_dir().''.$filename.'.xlsx');
+
+        $sheet = $ss->getSheetByName('CF Item');
+        $sheet->setCellValue('M2', 'spreadsheet_custom_field');
+        $sheet->setCellValue('B2', 'item custom field'); // change name to find it more easy in the UI
+        $sheet->setCellValue('C2', ''); //remove the humanCodingScheme to find the item by the full statement
+        $sheet->setCellValue('F2', ''); //remove the abbreviatedStatement to find the item by the full statement
+
+        $writer = \PHPOffice\PhpSpreadsheet\IOFactory::createWriter($ss, 'Xlsx');
+        $writer->save(codecept_data_dir().''.$filename.'.xlsx');
+
+        $I->amOnPage(self::$docPath.$I->getDocId());
+        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#updateFrameworkModal"]', 120);
+        $I->see('Update Framework');
+
+        try {
+            $I->click('Update Framework');
+            $I->waitForElementVisible('#updateFrameworkModal', 10);
+        } catch (\Exception $e) {
+            $I->click('Update Framework');
+            $I->waitForElementVisible('#updateFrameworkModal', 20);
+        }
+
+        $I->see('Import Spreadsheet file');
+        $I->attachFile('input#excel-url', $filename.'.xlsx');
+        $I->click('Import Framework');
+        $I->waitForElementNotVisible('#updateFrameworkModal', 60);
+
+        try {
+            $I->waitForElementVisible('#modalSpinner', 10);
+        } catch (\Exception $e) {
+            // Might have been too quick
+        }
+
+        $I->waitForElementNotVisible('#modalSpinner', 60);
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 30);
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : 0) === 0 && $("#tree1Section div.treeDiv ul").length > 0;', 10);
+        $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
+
+        $I->see('item custom field');
+        $I->executeJS("$('.fancytree-title').click()");
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 30);
+        $I->click('More Info');
+        $I->see('test_additionalfield');
+        $I->see('spreadsheet_custom_field');
+    }
+
+    /**
      * @When /^I fetch a list of creators$/
      */
     public function iFetchAListOfCreators()
@@ -1334,5 +1394,24 @@ class Framework implements Context
         $this->I->seeElement('#displayVisualizationBtn');
         return $this;
     }
-    /*************************/
+
+    /**
+     * @Then /^I create a custom field$/
+     */
+    public function iCreateACustomField()
+    {
+        $I = $this->I;
+
+        $I->amOnPage(self::$additionalFieldPath);
+
+        $I->see('Add Additional Field');
+        $I->click('Add Additional Field');
+
+        $I->fillField('#additional_field_name', 'test_additionalfield');
+        $I->fillField('#additional_field_displayName', 'test_additionalfield');
+        $I->click('#additional_field_save');
+        $I->wait(5);
+
+        $I->see('test_additionalfield', Locator::combine('//table/tbody/tr', -1));
+    }
 }
