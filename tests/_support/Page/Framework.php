@@ -1398,7 +1398,7 @@ class Framework implements Context
     /**
      * @Then /^I create the custom field "([^"]*)"$/
      */
-    public function iCreateACustomField($additionalField)
+    public function iCreateTheCustomField($additionalField)
     {
         $I = $this->I;
 
