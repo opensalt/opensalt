@@ -62,7 +62,6 @@ class Item implements Context
      * @Given /^I add an item$/
      * @Given /^I add a another Item$/
      * @Given /^I add another Item$/
-     * @Then /^I add an item with the custom field "([^"]*)" and value "([^"]*)"$/
      * @Then /^I add "([^"]*)" item with custom field "([^"]*)" and value "([^"]*)"$/
      */
     public function iAddItem($item = 'Test Item', $additionalField = null, $value = null)

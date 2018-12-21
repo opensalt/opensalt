@@ -40,10 +40,9 @@ trait AccessAdditionalFieldTrait
     {
         $customFields = $this->getExtraProperty('customFields') ?? [];
 
+        $customFields[$name] = $value;
         if (null === $value) {
             unset($customFields[$name]);
-        } else {
-            $customFields[$name] = $value;
         }
 
         if ([] === $customFields) {
