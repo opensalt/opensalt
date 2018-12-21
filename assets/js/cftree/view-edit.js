@@ -305,9 +305,13 @@ apx.edit.prepareAddNewChildModal = function() {
     });
     $modal.find('.btn-save').on('click', function(e) {
         apx.spinner.showModal("Creating item");
-        statementMde.toTextArea();
+        if (statementMde) {
+            statementMde.toTextArea();
+        }
         statementMde = null;
-        notesMde.toTextArea();
+        if (notesMde) {
+            notesMde.toTextArea();
+        }
         notesMde = null;
         $.ajax({
             url: getPath(),

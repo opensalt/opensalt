@@ -15,7 +15,8 @@ use App\Util\Compare;
 /**
  * LsDocRepository
  *
- * @method array findByCreator(String $creator)
+ * @method LsDoc[]|array findByCreator(String $creator)
+ * @method LsDoc|null findOneByIdentifier(string $identifier)
  */
 class LsDocRepository extends ServiceEntityRepository
 {

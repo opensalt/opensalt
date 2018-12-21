@@ -62,8 +62,9 @@ class Item implements Context
      * @Given /^I add an item$/
      * @Given /^I add a another Item$/
      * @Given /^I add another Item$/
+     * @Then /^I add "([^"]*)" item with custom field "([^"]*)" and value "([^"]*)"$/
      */
-    public function iAddItem($item = 'Test Item')
+    public function iAddItem($item = 'Test Item', $additionalField = null, $value = null)
     {
         $requestedItem = $item;
 
@@ -109,6 +110,11 @@ class Item implements Context
         $I->selectOption('ls_item[language]', array('value' => $this->itemData['language']));
         $I->fillField('#ls_item_licenceUri', $licUri);
         $I->executeJS("$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')");
+
+        if (!is_null($additionalField) && !empty($additionalField)) {
+            $I->see($additionalField);
+            $I->fillField('#ls_item_additional_fields_'.$additionalField, $value);
+        }
 
         $I->click('Create');
         $I->waitForElementNotVisible('#editItemModal');
@@ -503,5 +509,20 @@ class Item implements Context
                 $this->I->wait(1);
             }
         }
+    }
+
+    /**
+     * @Then /^I see the additional field "([^"]*)" in the item "([^"]*)" with value "([^"]*)"$/
+     */
+    public function iSeeTheCustomFieldInTheItem($additionalField, $item, $value)
+    {
+        $I = $this->I;
+
+        $I->see($item);
+        $I->executeJS("$('.fancytree-title').click()");
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 30);
+        $I->click('More Info');
+        $I->see($additionalField);
+        $I->see($value);
     }
 }
