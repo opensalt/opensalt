@@ -401,15 +401,13 @@ class LsItemController extends AbstractController
      * @param Request $request
      * @param LsItem $lsItem
      * @param User $user
-     *
-     * @return Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function uploadAttachmentAction(Request $request, LsDoc $doc, BucketService $bucket)
+    public function uploadAttachmentAction(Request $request, LsDoc $doc, BucketService $bucket): Response
     {
         if (!empty($this->bucketProvider)) {
             $file = $request->files->get('file');
 
-            if (!is_null($file) && $file->isValid()) {
+            if (null !== $file && $file->isValid()) {
                 $fileUrl = $bucket->uploadFile($file, 'items');
                 return new JsonResponse(['filename' => $fileUrl]);
             }
@@ -435,14 +433,15 @@ class LsItemController extends AbstractController
             'educationalAlignment' => $item->getEducationalAlignment(),
             'itemType' => $item->getItemType(),
             'changedAt' => $item->getChangedAt(),
-            'extra' => [],
+            'extra' => $item->getExtra(),
+            'assocData' => [],
         ];
 
         if (null !== $assoc) {
             $destItem = $assoc->getDestinationNodeIdentifier();
 
             if (null !== $destItem) {
-                $ret['extra'] = [
+                $ret['assocData'] = [
                     'assocDoc' => $assoc->getLsDocIdentifier(),
                     'assocId' => $assoc->getId(),
                     'identifier' => $assoc->getIdentifier(),
@@ -450,10 +449,10 @@ class LsItemController extends AbstractController
                     'dest' => ['doc' => $assoc->getLsDocIdentifier(), 'item' => $destItem, 'uri' => $destItem],
                 ];
                 if ($assoc->getGroup()) {
-                    $ret['extra']['groupId'] = $assoc->getGroup()->getId();
+                    $ret['assocData']['groupId'] = $assoc->getGroup()->getId();
                 }
                 if ($assoc->getSequenceNumber()) {
-                    $ret['extra']['seq'] = $assoc->getSequenceNumber();
+                    $ret['assocData']['seq'] = $assoc->getSequenceNumber();
                 }
             }
         }

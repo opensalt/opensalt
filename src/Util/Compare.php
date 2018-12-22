@@ -106,8 +106,8 @@ class Compare
     {
         $dir = ($setValueIsLower ? 1 : -1);
 
-        $x = current($a['associations'])['sequenceNumber'] ?? 0;
-        $y = current($b['associations'])['sequenceNumber'] ?? 0;
+        $x = $a['sequenceNumber'] ?? current($a['associations'] ?? [])['sequenceNumber'] ?? 0;
+        $y = $b['sequenceNumber'] ?? current($b['associations'] ?? [])['sequenceNumber'] ?? 0;
 
         return ($x - $y) * $dir;
     }

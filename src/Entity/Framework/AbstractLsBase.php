@@ -218,6 +218,10 @@ class AbstractLsBase implements IdentifiableInterface
      */
     public function getExtra(): array
     {
+        if (null === $this->extra) {
+            return [];
+        }
+
         return $this->extra;
     }
 
@@ -251,7 +255,11 @@ class AbstractLsBase implements IdentifiableInterface
      */
     public function setExtraProperty(string $property, $value)
     {
-        $this->extra[$property] = $value;
+        if (null === $value) {
+            unset($this->extra[$property]);
+        } else {
+            $this->extra[$property] = $value;
+        }
 
         return $this;
     }

@@ -1532,6 +1532,16 @@ function ApxDocument(initializer) {
                     }
                 }
             }
+
+            if ('customFields' in item) {
+                for (key in item.customFields) {
+                    html += '<li class="list-group-item lsItemCustomFields lsItemDetailsExtras">'
+                        + '<strong>' + key + ':</strong> '
+                        + render.escaped(item.customFields[key])
+                        + '</li>'
+                    ;
+                }
+            }
             $jq.find("ul").html(html);
 
             /////////////////////////////////////
