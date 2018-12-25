@@ -28,7 +28,6 @@ class AssociationVoter extends Voter
         $this->decisionManager = $decisionManager;
     }
 
-
     /**
      * Determines if the attribute and subject are supported by this voter.
      *
@@ -46,7 +45,7 @@ class AssociationVoter extends Voter
         switch ($attribute) {
             case self::ADD_TO:
                 // User can add to a specific doc or "some doc"
-                if ($subject instanceof LsDoc || $subject instanceof LsItem || $subject === null) {
+                if ($subject instanceof LsDoc || $subject instanceof LsItem || null === $subject) {
                     return true;
                 }
                 break;
@@ -127,7 +126,7 @@ class AssociationVoter extends Voter
     }
 
     /**
-     * Validate if a user can create an association
+     * Validate if a user can create an association.
      */
     private function canCreate(TokenInterface $token): bool
     {
