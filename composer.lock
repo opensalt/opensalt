@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "54c2d500db2f067f88cf9703e8d89ca8",
+    "content-hash": "312697870428f5bdfa78113d54f0f418",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -135,16 +135,16 @@
         },
         {
             "name": "csa/guzzle-bundle",
-            "version": "v3.1.0",
+            "version": "dev-patch-1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/csarrazi/CsaGuzzleBundle.git",
-                "reference": "7a69201bb5f1c60e11ca6a1e00f630ca0fe47806"
+                "url": "https://github.com/antograssiot/CsaGuzzleBundle.git",
+                "reference": "d3f937c5c74cf8dc313d871ff9613ba7a1138908"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/csarrazi/CsaGuzzleBundle/zipball/7a69201bb5f1c60e11ca6a1e00f630ca0fe47806",
-                "reference": "7a69201bb5f1c60e11ca6a1e00f630ca0fe47806",
+                "url": "https://api.github.com/repos/antograssiot/CsaGuzzleBundle/zipball/d3f937c5c74cf8dc313d871ff9613ba7a1138908",
+                "reference": "d3f937c5c74cf8dc313d871ff9613ba7a1138908",
                 "shasum": ""
             },
             "require": {
@@ -153,17 +153,17 @@
                 "csa/guzzle-stopwatch-middleware": "^1.0.0",
                 "guzzlehttp/guzzle": "^6.1",
                 "php": "^7.1",
-                "symfony/dependency-injection": "^2.8|^3.0|^4.0",
-                "symfony/filesystem": "^2.8|^3.0|^4.0",
-                "symfony/framework-bundle": "^2.8|^3.0|^4.0",
-                "twig/twig": "^1.34|^2.4"
+                "symfony/dependency-injection": "^2.8 || ^3.0 || ^4.0",
+                "symfony/filesystem": "^2.8 || ^3.0 || ^4.0",
+                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
+                "twig/twig": "^1.34 || ^2.4"
             },
             "require-dev": {
                 "namshi/cuzzle": "^2.0",
                 "phpunit/phpunit": "^7.0",
-                "symfony/phpunit-bridge": "^2.8|^3.0|^4.0",
-                "symfony/web-profiler-bundle": "^2.8|^3.0|^4.0",
-                "symfony/yaml": "^2.8|^3.0|^4.0"
+                "symfony/phpunit-bridge": "^2.8 || ^3.0 || ^4.0",
+                "symfony/web-profiler-bundle": "^2.8 || ^3.0 || ^4.0",
+                "symfony/yaml": "^2.8 || ^3.0 || ^4.0"
             },
             "suggest": {
                 "doctrine/cache": "Allows caching of responses",
@@ -175,7 +175,7 @@
             "extra": {
                 "branch-alias": {
                     "dev-2.x": "2.3-dev",
-                    "dev-master": "3.1-dev"
+                    "dev-master": "3.2-dev"
                 }
             },
             "autoload": {
@@ -183,7 +183,11 @@
                     "Csa\\Bundle\\GuzzleBundle\\": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Csa\\Bundle\\GuzzleBundle\\Tests\\": "tests"
+                }
+            },
             "license": [
                 "Apache-2.0"
             ],
@@ -194,7 +198,10 @@
                 }
             ],
             "description": "A bundle integrating GuzzleHttp >= 4.0",
-            "time": "2018-06-06T07:53:05+00:00"
+            "support": {
+                "source": "https://github.com/antograssiot/CsaGuzzleBundle/tree/patch-1"
+            },
+            "time": "2018-12-06T10:44:51+00:00"
         },
         {
             "name": "csa/guzzle-cache-middleware",
@@ -3309,16 +3316,16 @@
         },
         {
             "name": "matthimatiker/opcache-bundle",
-            "version": "0.7.1",
+            "version": "dev-symfony-config-deprecation",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Matthimatiker/OpcacheBundle.git",
-                "reference": "c0e7c7400d40ff9da64c9855097f7581d731fcb9"
+                "url": "https://github.com/opensalt/OpcacheBundle.git",
+                "reference": "c268217f46023eb1556b3d49a075500eae4218bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Matthimatiker/OpcacheBundle/zipball/c0e7c7400d40ff9da64c9855097f7581d731fcb9",
-                "reference": "c0e7c7400d40ff9da64c9855097f7581d731fcb9",
+                "url": "https://api.github.com/repos/opensalt/OpcacheBundle/zipball/c268217f46023eb1556b3d49a075500eae4218bd",
+                "reference": "c268217f46023eb1556b3d49a075500eae4218bd",
                 "shasum": ""
             },
             "require": {
@@ -3341,7 +3348,6 @@
                     "Matthimatiker\\OpcacheBundle\\": "."
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3353,7 +3359,10 @@
                 }
             ],
             "description": "Displays the state of the PHP opcache in the Symfony profiler toolbar.",
-            "time": "2018-05-28T17:35:02+00:00"
+            "support": {
+                "source": "https://github.com/opensalt/OpcacheBundle/tree/symfony-config-deprecation"
+            },
+            "time": "2018-12-27T20:55:56+00:00"
         },
         {
             "name": "milo/github-api",
@@ -3583,16 +3592,16 @@
         },
         {
             "name": "nelmio/cors-bundle",
-            "version": "1.5.4",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioCorsBundle.git",
-                "reference": "548dc8ebd3984acd2f6d8787ab1dac2e9aa14254"
+                "reference": "c8c1d9907c33aaadf91fa04a4aa800951e7b9d80"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioCorsBundle/zipball/548dc8ebd3984acd2f6d8787ab1dac2e9aa14254",
-                "reference": "548dc8ebd3984acd2f6d8787ab1dac2e9aa14254",
+                "url": "https://api.github.com/repos/nelmio/NelmioCorsBundle/zipball/c8c1d9907c33aaadf91fa04a4aa800951e7b9d80",
+                "reference": "c8c1d9907c33aaadf91fa04a4aa800951e7b9d80",
                 "shasum": ""
             },
             "require": {
@@ -3637,24 +3646,24 @@
                 "cors",
                 "crossdomain"
             ],
-            "time": "2017-12-11T18:41:54+00:00"
+            "time": "2018-12-11T09:27:26+00:00"
         },
         {
             "name": "nelmio/security-bundle",
-            "version": "2.5.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioSecurityBundle.git",
-                "reference": "fe1d31eb23c13e0918de9a66df9d315648c5d3d1"
+                "reference": "ee418f1886200c721cdfe96e62f375be50b75c79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/fe1d31eb23c13e0918de9a66df9d315648c5d3d1",
-                "reference": "fe1d31eb23c13e0918de9a66df9d315648c5d3d1",
+                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/ee418f1886200c721cdfe96e62f375be50b75c79",
+                "reference": "ee418f1886200c721cdfe96e62f375be50b75c79",
                 "shasum": ""
             },
             "require": {
-                "paragonie/random_compat": "~1.0|~2.0",
+                "paragonie/random_compat": "~1.0|~2.0|9.99.99",
                 "symfony/framework-bundle": "~2.3|~3.0|~4.0",
                 "symfony/security": "~2.3|~3.0|~4.0",
                 "ua-parser/uap-php": "^3.4.4"
@@ -3672,7 +3681,7 @@
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.4.x-dev"
+                    "dev-master": "2.5.x-dev"
                 }
             },
             "autoload": {
@@ -3698,7 +3707,7 @@
             "keywords": [
                 "security"
             ],
-            "time": "2018-03-21T14:33:42+00:00"
+            "time": "2018-12-17T09:53:41+00:00"
         },
         {
             "name": "ocramius/package-versions",
@@ -4704,16 +4713,16 @@
         },
         {
             "name": "qandidate/toggle-bundle",
-            "version": "1.1.1",
+            "version": "dev-symfony-config-deprecation",
             "source": {
                 "type": "git",
-                "url": "https://github.com/qandidate-labs/qandidate-toggle-bundle.git",
-                "reference": "bda37ea635ea0ffef058b660db8b1ee3fb99c94f"
+                "url": "https://github.com/opensalt/qandidate-toggle-bundle.git",
+                "reference": "ec0d90ce3a49eeb5716bed8c1df084b1e59b23a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/qandidate-labs/qandidate-toggle-bundle/zipball/bda37ea635ea0ffef058b660db8b1ee3fb99c94f",
-                "reference": "bda37ea635ea0ffef058b660db8b1ee3fb99c94f",
+                "url": "https://api.github.com/repos/opensalt/qandidate-toggle-bundle/zipball/ec0d90ce3a49eeb5716bed8c1df084b1e59b23a2",
+                "reference": "ec0d90ce3a49eeb5716bed8c1df084b1e59b23a2",
                 "shasum": ""
             },
             "require": {
@@ -4747,7 +4756,6 @@
                     "Qandidate\\Bundle\\ToggleBundle\\": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4762,7 +4770,10 @@
                 }
             ],
             "description": "This Bundle provides the integration with qandidate/toggle. It provides the services and configuration you need to implement feature toggles in your Symfony application.",
-            "time": "2018-08-11T09:47:23+00:00"
+            "support": {
+                "source": "https://github.com/opensalt/qandidate-toggle-bundle/tree/symfony-config-deprecation"
+            },
+            "time": "2018-12-27T21:13:31+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -5064,12 +5075,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/opensalt/EntityAuditBundle.git",
-                "reference": "da99b9d6930bd48b52727cb3a6b8bfaa1ca8eb67"
+                "reference": "7428d23a37ffb4215ac5b1dfce59368cbf4cffdb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opensalt/EntityAuditBundle/zipball/da99b9d6930bd48b52727cb3a6b8bfaa1ca8eb67",
-                "reference": "da99b9d6930bd48b52727cb3a6b8bfaa1ca8eb67",
+                "url": "https://api.github.com/repos/opensalt/EntityAuditBundle/zipball/7428d23a37ffb4215ac5b1dfce59368cbf4cffdb",
+                "reference": "7428d23a37ffb4215ac5b1dfce59368cbf4cffdb",
                 "shasum": ""
             },
             "require": {
@@ -5115,20 +5126,20 @@
             "support": {
                 "source": "https://github.com/opensalt/EntityAuditBundle/tree/fixes-1.0.9-object-instead-of-string"
             },
-            "time": "2018-10-02T20:25:34+00:00"
+            "time": "2018-12-27T20:09:36+00:00"
         },
         {
             "name": "stof/doctrine-extensions-bundle",
-            "version": "v1.3.0",
+            "version": "dev-avoid-deprecated-calls",
             "source": {
                 "type": "git",
-                "url": "https://github.com/stof/StofDoctrineExtensionsBundle.git",
-                "reference": "46db71ec7ffee9122eca3cdddd4ef8d84bae269c"
+                "url": "https://github.com/odolbeau/StofDoctrineExtensionsBundle.git",
+                "reference": "6b5e25c59043aa1a2f907c68d0a7ce37b98fc4f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stof/StofDoctrineExtensionsBundle/zipball/46db71ec7ffee9122eca3cdddd4ef8d84bae269c",
-                "reference": "46db71ec7ffee9122eca3cdddd4ef8d84bae269c",
+                "url": "https://api.github.com/repos/odolbeau/StofDoctrineExtensionsBundle/zipball/6b5e25c59043aa1a2f907c68d0a7ce37b98fc4f4",
+                "reference": "6b5e25c59043aa1a2f907c68d0a7ce37b98fc4f4",
                 "shasum": ""
             },
             "require": {
@@ -5155,7 +5166,6 @@
                     "Stof\\DoctrineExtensionsBundle\\": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5180,7 +5190,10 @@
                 "translatable",
                 "tree"
             ],
-            "time": "2017-12-24T16:06:50+00:00"
+            "support": {
+                "source": "https://github.com/odolbeau/StofDoctrineExtensionsBundle/tree/avoid-deprecated-calls"
+            },
+            "time": "2018-12-27T11:18:53+00:00"
         },
         {
             "name": "superbalist/flysystem-google-storage",
@@ -8374,17 +8387,17 @@
         },
         {
             "name": "tetranz/select2entity-bundle",
-            "version": "v2.9.5",
+            "version": "dev-symfony-config-deprecation",
             "target-dir": "Tetranz/Select2EntityBundle",
             "source": {
                 "type": "git",
-                "url": "https://github.com/tetranz/select2entity-bundle.git",
-                "reference": "c57281f4af06ca0c7e74c27fcc4bf8c95a1beaad"
+                "url": "https://github.com/opensalt/select2entity-bundle.git",
+                "reference": "1d66d148314fbc01e2b1d53c1020f3a5dff5c6a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tetranz/select2entity-bundle/zipball/c57281f4af06ca0c7e74c27fcc4bf8c95a1beaad",
-                "reference": "c57281f4af06ca0c7e74c27fcc4bf8c95a1beaad",
+                "url": "https://api.github.com/repos/opensalt/select2entity-bundle/zipball/1d66d148314fbc01e2b1d53c1020f3a5dff5c6a2",
+                "reference": "1d66d148314fbc01e2b1d53c1020f3a5dff5c6a2",
                 "shasum": ""
             },
             "require": {
@@ -8400,7 +8413,6 @@
                     "Tetranz\\Select2EntityBundle": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -8417,7 +8429,10 @@
                 "symfony",
                 "typeahead"
             ],
-            "time": "2018-03-05T02:52:46+00:00"
+            "support": {
+                "source": "https://github.com/opensalt/select2entity-bundle/tree/symfony-config-deprecation"
+            },
+            "time": "2018-12-27T20:32:52+00:00"
         },
         {
             "name": "twig/extensions",
@@ -11975,16 +11990,16 @@
         },
         {
             "name": "theofidry/psysh-bundle",
-            "version": "v3.5.0",
+            "version": "dev-symfony-config-deprecation",
             "source": {
                 "type": "git",
-                "url": "https://github.com/theofidry/PsyshBundle.git",
-                "reference": "23af358bd732c0eb2c32c0a3c8e328bf0eb4d33e"
+                "url": "https://github.com/opensalt/PsyshBundle.git",
+                "reference": "02fe264928bc4e768924022d5d0be910a671c26a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/theofidry/PsyshBundle/zipball/23af358bd732c0eb2c32c0a3c8e328bf0eb4d33e",
-                "reference": "23af358bd732c0eb2c32c0a3c8e328bf0eb4d33e",
+                "url": "https://api.github.com/repos/opensalt/PsyshBundle/zipball/02fe264928bc4e768924022d5d0be910a671c26a",
+                "reference": "02fe264928bc4e768924022d5d0be910a671c26a",
                 "shasum": ""
             },
             "require": {
@@ -12006,7 +12021,11 @@
                     "src/psysh.php"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Fidry\\PsyshBundle\\": "tests"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -12030,7 +12049,10 @@
                 "shell",
                 "symfony"
             ],
-            "time": "2018-11-13T08:27:36+00:00"
+            "support": {
+                "source": "https://github.com/opensalt/PsyshBundle/tree/symfony-config-deprecation"
+            },
+            "time": "2018-12-27T21:21:50+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -12075,16 +12097,60 @@
     ],
     "aliases": [
         {
+            "alias": "3.1.0",
+            "alias_normalized": "3.1.0.0",
+            "version": "dev-patch-1",
+            "package": "csa/guzzle-bundle"
+        },
+        {
+            "alias": "0.7.1",
+            "alias_normalized": "0.7.1.0",
+            "version": "dev-symfony-config-deprecation",
+            "package": "matthimatiker/opcache-bundle"
+        },
+        {
+            "alias": "1.1.1",
+            "alias_normalized": "1.1.1.0",
+            "version": "dev-symfony-config-deprecation",
+            "package": "qandidate/toggle-bundle"
+        },
+        {
             "alias": "1.0.9",
             "alias_normalized": "1.0.9.0",
             "version": "dev-fixes-1.0.9-object-instead-of-string",
             "package": "simplethings/entity-audit-bundle"
+        },
+        {
+            "alias": "1.3.0",
+            "alias_normalized": "1.3.0.0",
+            "version": "dev-avoid-deprecated-calls",
+            "package": "stof/doctrine-extensions-bundle"
+        },
+        {
+            "alias": "2.9.5",
+            "alias_normalized": "2.9.5.0",
+            "version": "dev-symfony-config-deprecation",
+            "package": "tetranz/select2entity-bundle"
+        },
+        {
+            "alias": "3.5.0",
+            "alias_normalized": "3.5.0.0",
+            "version": "dev-symfony-config-deprecation",
+            "package": "theofidry/psysh-bundle"
         }
     ],
     "minimum-stability": "dev",
     "stability-flags": {
+        "csa/guzzle-bundle": 20,
+        "matthimatiker/opcache-bundle": 20,
+        "nelmio/cors-bundle": 20,
+        "nelmio/security-bundle": 20,
+        "qandidate/toggle-bundle": 20,
         "simplethings/entity-audit-bundle": 20,
-        "roave/security-advisories": 20
+        "stof/doctrine-extensions-bundle": 20,
+        "tetranz/select2entity-bundle": 20,
+        "roave/security-advisories": 20,
+        "theofidry/psysh-bundle": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
