@@ -63,11 +63,8 @@ class DocTreeController extends AbstractController
      * @Entity("lsDoc", expr="repository.findOneBySlug(slug)")
      * @Template()
      */
-    public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, UserInterface $user = null, $_format = 'html', $lsItemId = null, $assocGroup = null)
+    public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, $_format = 'html', $lsItemId = null, $assocGroup = null)
     {
-        // get form field for selecting a document (for tree2)
-        $form = $this->createForm(LsDocListType::class, null, ['ajax' => false]);
-
         $em = $this->getDoctrine()->getManager();
 
         // Get all association groups (for all documents);
@@ -97,18 +94,23 @@ class DocTreeController extends AbstractController
 
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,
-            'docList' => $form->createView(),
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => $lsDefAssociationGroupings,
         ];
 
         if ($editorRights) {
+            // get form field for selecting a document (for tree2)
+            $docList = $this->createForm(LsDocListType::class, null, ['ajax' => false])->createView();
+            $ret['docList'] = $docList;
+
             // get list of all documents
             $docs = $em->getRepository(LsDoc::class)->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
             $lsDocs = [];
+            /** @var LsDoc $doc */
             foreach ($docs as $doc) {
-                if ($authChecker->isGranted('view', $doc)) {
+                // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
+                if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus() || $authChecker->isGranted('view', $doc)) {
                     $lsDocs[] = $doc;
                 }
             }
