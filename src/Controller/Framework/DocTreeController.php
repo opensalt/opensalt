@@ -104,36 +104,8 @@ class DocTreeController extends AbstractController
             $docList = $this->createForm(LsDocListType::class, null, ['ajax' => false])->createView();
             $ret['docList'] = $docList;
 
-            // get list of all documents
-            $docs = $em->getRepository(LsDoc::class)->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
-            $lsDocs = [];
-            /** @var LsDoc $doc */
-            foreach ($docs as $doc) {
-                // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
-                if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus() || $authChecker->isGranted('view', $doc)) {
-                    $lsDocs[] = $doc;
-                }
-            }
-            $ret['lsDocs'] = $lsDocs;
-
-            $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
-            if ($user instanceof User) {
-                $locks = $em->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
-                foreach ($locks as $lock) {
-                    if ($lock->getUser() === $user) {
-                        $expiry = false;
-                    } else {
-                        $expiry = (int) $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
-                    }
-                    if (LsDoc::class === $lock->getObjectType()) {
-                        $docLocks['docs'][$lock->getObjectId()] = $expiry;
-                    }
-                    if (LsItem::class === $lock->getObjectType()) {
-                        $docLocks['items'][$lock->getObjectId()] = $expiry;
-                    }
-                }
-            }
-            $ret['locks'] = $docLocks;
+            $ret['lsDocs'] = $this->getViewableDocList($authChecker);
+            $ret['locks'] = $this->getLocks($lsDoc, $user);
         }
 
         return $ret;
@@ -611,5 +583,53 @@ class DocTreeController extends AbstractController
 
         // if not found in externalDocs, error
         return new Response('Document not found.', Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * Get a list of all documents viewable by the current user.
+     */
+    private function getViewableDocList(AuthorizationCheckerInterface $authChecker): array
+    {
+        $lsDocs = [];
+
+        $docs = $this->getDoctrine()->getRepository(LsDoc::class)->findBy([], ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']);
+        /** @var LsDoc $doc */
+        foreach ($docs as $doc) {
+            // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus() || $authChecker->isGranted('view', $doc)) {
+                $lsDocs[] = $doc;
+            }
+        }
+
+        return $lsDocs;
+    }
+
+    /**
+     * Get a list of all locks for the document.
+     */
+    private function getLocks(LsDoc $lsDoc, ?UserInterface $user): array
+    {
+        $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
+        if ($user instanceof User) {
+            $locks = $this->getDoctrine()->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
+            foreach ($locks as $lock) {
+                $expiry = false;
+                if ($lock->getUser() !== $user) {
+                    $expiry = (int) $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
+                }
+
+                switch ($lock->getObjectType()) {
+                    case LsDoc::class:
+                        $docLocks['docs'][$lock->getObjectId()] = $expiry;
+                        break;
+
+                    case LsItem::class:
+                        $docLocks['items'][$lock->getObjectId()] = $expiry;
+                        break;
+                }
+            }
+        }
+
+        return $docLocks;
     }
 }

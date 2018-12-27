@@ -15,7 +15,7 @@ class CommentVoter extends Voter
     public const DELETE = 'comment_delete';
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function supports($attribute, $subject)
     {
@@ -36,7 +36,7 @@ class CommentVoter extends Voter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
