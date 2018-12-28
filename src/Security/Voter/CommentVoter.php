@@ -55,11 +55,9 @@ class CommentVoter extends Voter
         switch ($attribute) {
             case self::COMMENT:
                 return $this->canComment();
-
             case self::UPDATE:
             case self::DELETE:
                 return $this->canUpdate($user, $subject);
-
             default:
                 return false;
         }
