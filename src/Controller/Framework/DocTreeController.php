@@ -618,14 +618,12 @@ class DocTreeController extends AbstractController
                     $expiry = (int) $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
                 }
 
-                switch ($lock->getObjectType()) {
-                    case LsDoc::class:
-                        $docLocks['docs'][$lock->getObjectId()] = $expiry;
-                        break;
+                if (LsDoc::class === $lock->getObjectType()) {
+                    $docLocks['docs'][$lock->getObjectId()] = $expiry;
+                }
 
-                    case LsItem::class:
-                        $docLocks['items'][$lock->getObjectId()] = $expiry;
-                        break;
+                if (LsItem::class === $lock->getObjectType()) {
+                    $docLocks['items'][$lock->getObjectId()] = $expiry;
                 }
             }
         }
