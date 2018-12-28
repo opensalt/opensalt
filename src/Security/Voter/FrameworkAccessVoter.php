@@ -8,7 +8,6 @@ use App\Entity\User\UserDocAcl;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Role\Role;
-use Symfony\Component\Security\Core\Role\RoleHierarchy;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 
 class FrameworkAccessVoter extends Voter
@@ -21,7 +20,7 @@ class FrameworkAccessVoter extends Voter
     public const FRAMEWORK = 'lsdoc';
 
     /**
-     * @var RoleHierarchy
+     * @var RoleHierarchyInterface
      */
     private $roleHierarchy;
 

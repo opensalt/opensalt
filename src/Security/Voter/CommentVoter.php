@@ -40,6 +40,11 @@ class CommentVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
+        // All users (including anonymous) can view comments
+        if (self::VIEW === $attribute) {
+            return $this->canView();
+        }
+
         $user = $token->getUser();
 
         if (!$user instanceof User) {
@@ -50,23 +55,18 @@ class CommentVoter extends Voter
         switch ($attribute) {
             case self::COMMENT:
                 return $this->canComment();
-                break;
-
-            case self::VIEW:
-                return $this->canView();
-                break;
 
             case self::UPDATE:
             case self::DELETE:
                 return $this->canUpdate($user, $subject);
-                break;
-        }
 
-        return false;
+            default:
+                return false;
+        }
     }
 
     /**
-     * All logged in users can view comments.
+     * All users (including anonymous) can view comments.
      */
     private function canView(): bool
     {
