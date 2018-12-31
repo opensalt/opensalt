@@ -20,10 +20,6 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/opensalt/PsyshBundle"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/opensalt/qandidate-toggle-bundle"
         },
         {
@@ -137,7 +133,7 @@
         "escapestudios/symfony2-coding-standard": "^3.1",
         "friendsofphp/php-cs-fixer": "^2.10",
         "ericmartel/codeception-email-mailtrap": "^1.0",
-        "theofidry/psysh-bundle": "dev-symfony-config-deprecation as 3.5.0"
+        "theofidry/psysh-bundle": "dev-master#8e9a0c317663d7981888eca669f6529b3d8a5400 as 3.5.0.1"
     },
     "replace": {
         "paragonie/random_compat": "2.*",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "312697870428f5bdfa78113d54f0f418",
+    "content-hash": "ce331fe11c25d658c711ade8b9340080",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -10879,7 +10879,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-12-23T19:42:44+00:00"
+            "time": "2018-12-28T16:50:10+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -11990,16 +11990,16 @@
         },
         {
             "name": "theofidry/psysh-bundle",
-            "version": "dev-symfony-config-deprecation",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/opensalt/PsyshBundle.git",
-                "reference": "02fe264928bc4e768924022d5d0be910a671c26a"
+                "url": "https://github.com/theofidry/PsyshBundle.git",
+                "reference": "8e9a0c317663d7981888eca669f6529b3d8a5400"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opensalt/PsyshBundle/zipball/02fe264928bc4e768924022d5d0be910a671c26a",
-                "reference": "02fe264928bc4e768924022d5d0be910a671c26a",
+                "url": "https://api.github.com/repos/theofidry/PsyshBundle/zipball/8e9a0c317663d7981888eca669f6529b3d8a5400",
+                "reference": "8e9a0c317663d7981888eca669f6529b3d8a5400",
                 "shasum": ""
             },
             "require": {
@@ -12021,11 +12021,7 @@
                     "src/psysh.php"
                 ]
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Fidry\\PsyshBundle\\": "tests"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -12049,10 +12045,7 @@
                 "shell",
                 "symfony"
             ],
-            "support": {
-                "source": "https://github.com/opensalt/PsyshBundle/tree/symfony-config-deprecation"
-            },
-            "time": "2018-12-27T21:21:50+00:00"
+            "time": "2018-12-29T20:40:33+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -12133,9 +12126,9 @@
             "package": "tetranz/select2entity-bundle"
         },
         {
-            "alias": "3.5.0",
-            "alias_normalized": "3.5.0.0",
-            "version": "dev-symfony-config-deprecation",
+            "alias": "3.5.0.1",
+            "alias_normalized": "3.5.0.1",
+            "version": "9999999-dev",
             "package": "theofidry/psysh-bundle"
         }
     ],
