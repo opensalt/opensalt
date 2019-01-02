@@ -20,10 +20,6 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/opensalt/qandidate-toggle-bundle"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/opensalt/OpcacheBundle"
         },
         {
@@ -83,7 +79,7 @@
         "nelmio/security-bundle": "dev-master",
         "phpoffice/phpspreadsheet": "^1.1.0",
         "phpoffice/phpword": "^0.14.0",
-        "qandidate/toggle-bundle": "dev-symfony-config-deprecation as 1.1.1",
+        "qandidate/toggle-bundle": "~1.1.2",
         "ramsey/uuid": "^3.7",
         "ramsey/uuid-doctrine": "^1.4",
         "sensio/framework-extra-bundle": "^5.1",

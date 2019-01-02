@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce331fe11c25d658c711ade8b9340080",
+    "content-hash": "fa79a3f7c13fda68445b86af638d6c57",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -4713,16 +4713,16 @@
         },
         {
             "name": "qandidate/toggle-bundle",
-            "version": "dev-symfony-config-deprecation",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/opensalt/qandidate-toggle-bundle.git",
-                "reference": "ec0d90ce3a49eeb5716bed8c1df084b1e59b23a2"
+                "url": "https://github.com/qandidate-labs/qandidate-toggle-bundle.git",
+                "reference": "20bc97257c56102c7c0c70a02d83a0a33b9f7598"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opensalt/qandidate-toggle-bundle/zipball/ec0d90ce3a49eeb5716bed8c1df084b1e59b23a2",
-                "reference": "ec0d90ce3a49eeb5716bed8c1df084b1e59b23a2",
+                "url": "https://api.github.com/repos/qandidate-labs/qandidate-toggle-bundle/zipball/20bc97257c56102c7c0c70a02d83a0a33b9f7598",
+                "reference": "20bc97257c56102c7c0c70a02d83a0a33b9f7598",
                 "shasum": ""
             },
             "require": {
@@ -4756,6 +4756,7 @@
                     "Qandidate\\Bundle\\ToggleBundle\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4770,10 +4771,7 @@
                 }
             ],
             "description": "This Bundle provides the integration with qandidate/toggle. It provides the services and configuration you need to implement feature toggles in your Symfony application.",
-            "support": {
-                "source": "https://github.com/opensalt/qandidate-toggle-bundle/tree/symfony-config-deprecation"
-            },
-            "time": "2018-12-27T21:13:31+00:00"
+            "time": "2019-01-02T08:58:54+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -12102,12 +12100,6 @@
             "package": "matthimatiker/opcache-bundle"
         },
         {
-            "alias": "1.1.1",
-            "alias_normalized": "1.1.1.0",
-            "version": "dev-symfony-config-deprecation",
-            "package": "qandidate/toggle-bundle"
-        },
-        {
             "alias": "1.0.9",
             "alias_normalized": "1.0.9.0",
             "version": "dev-fixes-1.0.9-object-instead-of-string",
@@ -12138,7 +12130,6 @@
         "matthimatiker/opcache-bundle": 20,
         "nelmio/cors-bundle": 20,
         "nelmio/security-bundle": 20,
-        "qandidate/toggle-bundle": 20,
         "simplethings/entity-audit-bundle": 20,
         "stof/doctrine-extensions-bundle": 20,
         "tetranz/select2entity-bundle": 20,
