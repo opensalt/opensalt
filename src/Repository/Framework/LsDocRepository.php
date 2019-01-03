@@ -15,6 +15,7 @@ use App\Util\Compare;
 /**
  * LsDocRepository
  *
+ * @method LsDoc|null find(int $id)
  * @method LsDoc[]|array findByCreator(String $creator)
  * @method LsDoc|null findOneByIdentifier(string $identifier)
  */
@@ -350,11 +351,7 @@ xENDx;
         $progressCallback('Done');
     }
 
-    /**
-     * @param LsDoc $fromDoc
-     * @param LsDoc $toDoc
-     */
-    public function copyDocumentContentToDoc(LsDoc $fromDoc, LsDoc $toDoc, $exactMatchAssocs = false)
+    public function copyDocumentContentToDoc(LsDoc $fromDoc, LsDoc $toDoc, $exactMatchAssocs = false): void
     {
         foreach ($fromDoc->getTopLsItems() as $oldItem) {
             $newItem = $oldItem->copyToLsDoc($toDoc, null, $exactMatchAssocs);
@@ -365,7 +362,7 @@ xENDx;
     public function makeDerivative(LsDoc $oldLsDoc, $newLsDoc = null): LsDoc
     {
         $em = $this->getEntityManager();
-        if(null === $newLsDoc) {
+        if (null === $newLsDoc) {
             $newLsDoc = new LsDoc();
             $newLsDoc->setTitle($oldLsDoc->getTitle().' - Derivated');
             $newLsDoc->setCreator($oldLsDoc->getCreator());
@@ -379,7 +376,7 @@ xENDx;
             $newLsDoc->setLicence($oldLsDoc->getLicence());
         }
 
-        foreach($oldLsDoc->getAssociationGroupings() as $assocGroup) {
+        foreach ($oldLsDoc->getAssociationGroupings() as $assocGroup) {
             $assocGroup->duplicateToLsDoc($newLsDoc);
         }
 

@@ -23,20 +23,13 @@ class CopyController extends AbstractController
     /**
      * @Route("/framework/{id}", name="copy_framework_content", methods={"POST"})
      * @Security("is_granted('edit', lsDoc)")
-     *
-     * @param Request $request
-     * @param LsDoc $lsDoc
-     * @param LsDoc $toLsDoc
-     *
-     * @return array
      */
-    public function frameworkAction(Request $request, LsDoc $lsDoc)
+    public function frameworkAction(Request $request, LsDoc $lsDoc): JsonResponse
     {
         $eManager = $this->getDoctrine()->getManager();
 
         $type = $request->request->get('type');
-        $frameworkToCopy = $request->request->get('frameworkToCopy');
-
+        $frameworkToCopy = $request->request->get('copyToFramework');
         $toLsDoc = $eManager->getRepository(LsDoc::class)->find($frameworkToCopy);
 
         $command = new CopyFrameworkCommand($lsDoc, $toLsDoc, $type);
@@ -46,8 +39,7 @@ class CopyController extends AbstractController
             'message' => 'Framework successful copied!',
             'docDestinationId' => $frameworkToCopy,
             'frameworkToCopy' => $toLsDoc->getTitle(),
-            'type' => $type
+            'type' => $type,
         ]);
     }
-
 }
