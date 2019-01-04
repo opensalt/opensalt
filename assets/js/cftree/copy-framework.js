@@ -1,40 +1,41 @@
 $(document).ready(function(){
     var apx = window.apx||{};
     var utilSalt = require("util-salt");
-    var sourceCustomValue = null;
-    var customParams = null;
 
     apx.copyFramework = {
         init() {
-            $("#copyFrameworkModal_copyRightBtn, #copyFrameworkModal_copyLeftBtn").click(function(e){
-                e.preventDefault();
-            });
-            $("#copyFrameworkModal #copyType, #copyFrameworkModal #copyAndAssociateType").click(function(e){
-                apx.copyFramework.setCustomParams();
-            });
             $("#copyFrameworkModal_copyLeftBtn").click(function(e){
-                apx.copyFramework.copyFrameworkToLeft(this);
+                e.preventDefault();
+                apx.copyFramework.copyFrameworkToLeft();
             });
             $("#copyFrameworkModal_copyRightBtn").click(function(e){
-                apx.copyFramework.copyFrameworkToRight(this);
+                e.preventDefault();
+                apx.copyFramework.copyFrameworkToRight();
             });
             $("#copyFrameworkForm").submit(function(e){
                 e.preventDefault();
-                apx.copyFramework.copyFrameworkRequest($(this).serialize());
+                apx.copyFramework.copyFrameworkRequest();
             });
         },
 
-        copyFrameworkRequest(params) {
-            var sourceDocRequest = null;
-            var paramsDocRequest = null;
+        copyFrameworkRequest() {
             $("#copyFrameworkModal .file-loading .row .col-md-12").html(utilSalt.spinner("Copying Document"));
             $("#copyFrameworkModal .contentModal").addClass("hidden");
             $("#copyFrameworkModal .file-loading").removeClass("hidden");
 
-            sourceDocRequest = (sourceCustomValue == null ? apx.lsDocId : sourceCustomValue);
-            paramsDocRequest = (customParams == null ? params : jQuery.param(customParams));
+            let selectedDoc = $('#js-framework-to-copy').val();
 
-            $.post("/copy/framework/" + sourceDocRequest, paramsDocRequest, function(data){
+            let sourceDoc= apx.lsDocId;
+            let destinationDoc = selectedDoc;
+            if ($("#copyFrameworkModal_copyLeftBtn").hasClass('active')) {
+                sourceDoc = selectedDoc;
+                destinationDoc = apx.lsDocId;
+            }
+
+            $.post(apx.path.doc_copy.replace('ID', sourceDoc), {
+                copyToFramework: destinationDoc,
+                type: ($("#copyType").is(":checked") ? 'copy' : 'copyAndAssociate')
+            }, function(data){
                 apx.copyFramework.copyFrameworkRequestSuccess(data);
             })
             .fail(function(data){
@@ -44,7 +45,7 @@ $(document).ready(function(){
 
         copyFrameworkRequestSuccess(data) {
             $("#copyFrameworkModal .alert-success").find("a.js-docDestination")
-                .attr("href", "/cftree/doc/" + data.docDestinationId);
+                .attr("href", apx.path.lsDoc.replace('ID', data.docDestinationId));
             $("#copyFrameworkModal .alert-success").removeClass("hidden");
             $("#copyFrameworkModal .file-loading").addClass("hidden");
             apx.copyFramework.resetModalAfterRequest();
@@ -56,25 +57,14 @@ $(document).ready(function(){
             apx.copyFramework.resetModalAfterRequest();
         },
 
-        copyFrameworkToLeft(element) {
-            apx.copyFramework.setCustomParams();
-            $(element).addClass('active');
+        copyFrameworkToLeft() {
+            $("#copyFrameworkModal_copyLeftBtn").addClass('active');
             $("#copyFrameworkModal_copyRightBtn").removeClass('active');
         },
 
-        copyFrameworkToRight(element) {
-            sourceCustomValue = null;
-            customParams = null;
-            $(element).addClass('active');
+        copyFrameworkToRight() {
+            $("#copyFrameworkModal_copyRightBtn").addClass('active');
             $("#copyFrameworkModal_copyLeftBtn").removeClass('active');
-        },
-
-        setCustomParams() {
-            sourceCustomValue = $('#js-framework-to-copy').val();
-            customParams = {
-                frameworkToCopy: apx.lsDocId,
-                type: ($("#copyType").is(":checked") ? 'copy' : 'copyAndAssociate')
-            };
         },
 
         resetModalAfterRequest(data) {
