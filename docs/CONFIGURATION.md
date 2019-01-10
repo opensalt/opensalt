@@ -47,6 +47,6 @@ Read the [docs/deployments/firebase.md](./deployments/firebase.md) file to see h
 
 ### Additional Fields
 
-For the purpose of increasing presentation appeal, OpenSALT allows for additional fields in release 2.2. To add additional fields to CfItem, navigate to /additionalfield and add a field with LsItem in the dropdown.
+For the purpose of increasing presentation appeal, OpenSALT allows for additional fields in release 2.2. To add additional fields to CfItem, navigate to /additionalfield as a logged in SuperUser and add a field with LsItem in the dropdown.
 
-Any additional fields will automatically be added to the spreadsheet Update and export files. At this time additional fields for LsDoc and LsAssociation are not supported on the UI or backend. 
+Any additional fields will automatically be added to the spreadsheet export file and be read by the Spreadsheet Update feature. At this time additional fields for LsDoc and LsAssociation are not supported on the UI or backend. 
