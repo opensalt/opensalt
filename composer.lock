@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fa79a3f7c13fda68445b86af638d6c57",
+    "content-hash": "5b8c7d21f2872c223c823c254f7265a8",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -135,16 +135,16 @@
         },
         {
             "name": "csa/guzzle-bundle",
-            "version": "dev-patch-1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/antograssiot/CsaGuzzleBundle.git",
-                "reference": "d3f937c5c74cf8dc313d871ff9613ba7a1138908"
+                "url": "https://github.com/csarrazi/CsaGuzzleBundle.git",
+                "reference": "1fd76350ecaddc0123ad8ddbf1fb51d9cc81c881"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/antograssiot/CsaGuzzleBundle/zipball/d3f937c5c74cf8dc313d871ff9613ba7a1138908",
-                "reference": "d3f937c5c74cf8dc313d871ff9613ba7a1138908",
+                "url": "https://api.github.com/repos/csarrazi/CsaGuzzleBundle/zipball/1fd76350ecaddc0123ad8ddbf1fb51d9cc81c881",
+                "reference": "1fd76350ecaddc0123ad8ddbf1fb51d9cc81c881",
                 "shasum": ""
             },
             "require": {
@@ -183,11 +183,7 @@
                     "Csa\\Bundle\\GuzzleBundle\\": "src"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Csa\\Bundle\\GuzzleBundle\\Tests\\": "tests"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Apache-2.0"
             ],
@@ -198,10 +194,7 @@
                 }
             ],
             "description": "A bundle integrating GuzzleHttp >= 4.0",
-            "support": {
-                "source": "https://github.com/antograssiot/CsaGuzzleBundle/tree/patch-1"
-            },
-            "time": "2018-12-06T10:44:51+00:00"
+            "time": "2018-11-19T06:37:03+00:00"
         },
         {
             "name": "csa/guzzle-cache-middleware",
@@ -10957,7 +10950,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-12-30T13:00:21+00:00"
+            "time": "2019-01-08T04:52:50+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -12168,9 +12161,9 @@
     ],
     "aliases": [
         {
-            "alias": "3.1.0",
-            "alias_normalized": "3.1.0.0",
-            "version": "dev-patch-1",
+            "alias": "3.1.0.1",
+            "alias_normalized": "3.1.0.1",
+            "version": "9999999-dev",
             "package": "csa/guzzle-bundle"
         },
         {

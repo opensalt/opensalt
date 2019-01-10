@@ -32,10 +32,6 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/antograssiot/CsaGuzzleBundle"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/PCGGenEd/faker-context"
         },
         {
@@ -61,7 +57,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "csa/guzzle-bundle": "dev-patch-1 as 3.1.0",
+        "csa/guzzle-bundle": "dev-master#1fd76350ecaddc0123ad8ddbf1fb51d9cc81c881 as 3.1.0.1",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-cache-bundle": "^1.2",
         "doctrine/doctrine-fixtures-bundle": "^3.0",
