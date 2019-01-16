@@ -965,7 +965,18 @@ class Framework implements Context
      * @Given /^I upload an excel file$/
      */
     public function iUploadAnExcelFile() {
-        throw new PendingException();
+        $I = $this->I;
+
+        $I->waitForElementVisible('#excel-url');
+
+        $I->attachFile('input#excel-url', str_replace(codecept_data_dir(), '', 'spreadsheet_import_sample.xlsx'));
+        $I->click('#spreadsheet > a:nth-child(4)');
+        $I->waitForElementNotVisible('#wizard', 60);
+
+        $this->creatorName = 'CreatorTest';
+        $this->rememberedFramework = 'Sample Framework';
+
+        $I->see('CreatorTest', '.fancytree-title');
     }
 
     /**
@@ -1427,5 +1438,41 @@ class Framework implements Context
 
         $I->click('Delete', '//table/tbody/tr[td[4][text()="'.$additionalField.'"]]');
         $I->dontSee($additionalField);
+    }
+
+    /**
+     * @Then /^I should see the framework created with the spreadsheet data$/
+     */
+    public function importFrameworkSpreadsheet()
+    {
+        $I = $this->I;
+
+        $I->see($this->rememberedFramework);
+
+        $I->see('S Statement 1');
+        $I->see('S.1 Statement 2');
+        $I->see('S.2 Statement 3');
+        $I->see('S.2.1 Statement 4');
+    }
+
+    /**
+     * @Given /^I visit the uploaded framework$/
+     */
+    public function iVisitTheUploadedFramework(): Framework
+    {
+        $I = $this->I;
+        $creatorName = $this->creatorName;
+
+        $I->iAmOnTheHomepage();
+        $I->click("//span[text()='{$creatorName}']/../..");
+
+        $frameworkName = $this->rememberedFramework;
+        $I->waitForElementVisible("//span[text()='{$frameworkName}']");
+        $I->click("//span[text()='{$frameworkName}']/../..");
+
+        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
+
+        return $this;
     }
 }
