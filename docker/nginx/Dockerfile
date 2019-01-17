@@ -1,4 +1,4 @@
-FROM nginx:1.15.7-alpine
+FROM nginx:1.15-alpine
 
 RUN rm -rf /etc/nginx
 COPY etc/nginx/ /etc/nginx/
