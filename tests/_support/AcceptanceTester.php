@@ -227,9 +227,10 @@ class AcceptanceTester extends \Codeception\Actor implements Context
             }
         }
 
-        $itemPage = $this->fetchRedirect('/uri/'.$lastItem['identifier']);
-        if (null === $itemPage) {
-            $itemPage = $this->fetchRedirect('/uri/'.$lastItem['uri']);
+        try {
+            $itemPage = $this->fetch('/uri/'.$lastItem['identifier'], 'text/html');
+        } catch (\Exception $e) {
+            $itemPage = null;
         }
         if (null === $itemPage) {
             /* @todo Create a item if none found */
