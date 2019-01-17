@@ -238,7 +238,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
             throw new LogicException('No item could be found');
         }
 
-        if (1 === preg_match('#/cftree/item/(.*)#', $itemPage, $matches)) {
+        if (1 === preg_match('#/cftree/item/(\d+)#', $itemPage, $matches)) {
             $this->lsItemId = $matches[1];
             return $this->lsItemId;
         }
