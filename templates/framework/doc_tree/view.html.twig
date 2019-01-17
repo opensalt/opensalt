@@ -727,6 +727,7 @@
 
             // establish paths
             apx.path = apx.path || {};
+            apx.path.uri = '{{ path('uri_lookup', {'uri': 'ID'}) }}';
             apx.path.doc_index = '{{ path('lsdoc_index') }}';
             apx.path.lsDoc = '{{ path('doc_tree_view', {'slug':'ID'}) }}';
             apx.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';

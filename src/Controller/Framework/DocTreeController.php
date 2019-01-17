@@ -39,6 +39,8 @@ class DocTreeController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    private const ETAG_SEED = '1';
+
     /**
      * @var ClientInterface
      */
@@ -186,7 +188,7 @@ class DocTreeController extends AbstractController
         if (false !== $lastChange && null !== $lastChange['changed_at']) {
             $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
         }
-        $response->setEtag(md5($lastModified->format('U.u')), true);
+        $response->setEtag(md5($lastModified->format('U.u').self::ETAG_SEED), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(0);
         $response->setSharedMaxAge(0);
@@ -200,7 +202,7 @@ class DocTreeController extends AbstractController
 
         $items = $this->getDoctrine()->getRepository(LsDoc::class)->findItemsForExportDoc($lsDoc);
         $associations = $this->getDoctrine()->getRepository(LsDoc::class)->findAssociationsForExportDoc($lsDoc);
-        $assocGroups = $this->getDoctrine()->getRepository(LsDefAssociationGrouping::class)->findBy(['lsDoc'=>$lsDoc]);
+        $assocGroups = $this->getDoctrine()->getRepository(LsDefAssociationGrouping::class)->findBy(['lsDoc' => $lsDoc]);
         $associatedDocs = array_merge(
             $lsDoc->getExternalDocs(),
             $this->getDoctrine()->getRepository(LsDoc::class)->findAssociatedDocs($lsDoc)
@@ -237,7 +239,7 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * Retrieve a CFPackage from the given document identifier, then use exportAction to export it
+     * Retrieve a CFPackage from the given document identifier, then use exportAction to export it.
      *
      * @Route("/retrievedocument/{id}", name="doctree_retrieve_document", methods={"GET"})
      * @Route("/retrievedocument/url", name="doctree_retrieve_document_by_url", methods={"GET"}, defaults={"id"=null})
@@ -592,7 +594,7 @@ class DocTreeController extends AbstractController
             $json = json_decode($content, true);
             $lastModified = new \DateTime($json['CFDocument']['lastChangeDateTime'], new \DateTimeZone('UTC'));
 
-            $response->setEtag(md5($lastModified->format('U')), true);
+            $response->setEtag(md5($lastModified->format('U.u').self::ETAG_SEED), true);
             $response->setLastModified($lastModified);
             $response->setMaxAge(0);
             $response->setSharedMaxAge(0);

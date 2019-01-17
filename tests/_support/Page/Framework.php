@@ -872,7 +872,7 @@ class Framework implements Context
 
         $I->see('Official URL:');
         $I->see($this->frameworkData['officialUri']);
-        $I->see('URI:');
+        $I->see('Identifier:');
         $I->see('Creator:');
         $I->see($this->frameworkData['creator']);
         $I->see('Publisher:');

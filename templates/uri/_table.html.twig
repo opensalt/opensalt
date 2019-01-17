@@ -1,0 +1,46 @@
+{% set isNumeric = true %}
+{% for key in data|keys %}
+    {% if isNumeric and key is not numeric %}{% set isNumeric = false %}{% endif %}
+{% endfor %}
+<table class="table {% if not isNumeric %}table-bordered {% endif %}table-striped table-hover" style="padding:0; margin-bottom:0;">
+    {% for key, val in data %}
+        {% set isIterable = val is iterable %}
+        {% set isChildNumeric = false %}
+        {% for childKey in val|keys %}
+            {% if (not isChildNumeric) and (childKey is numeric) %}{% set isChildNumeric = true %}{% endif %}
+        {% endfor %}
+        <tr>
+            {% if not isNumeric %}
+                <th rowspan="{{ (isIterable and isChildNumeric) ? val|keys|length : 1 }}">{{ key }}</th>
+            {% endif %}
+            {% if isChildNumeric %}
+                <td {% if isNumeric %}style="border-top: none; padding:0;"{% endif %}>
+                    {% if isIterable %}
+                        {{ include('uri/_table.html.twig', {data: [val|first]}) }}
+                    {% else %}
+                        {{ val|first |trim }}
+                    {% endif %}
+                </td>
+                {% for childKey, childVal in val|slice(1, (val|length - 1)) %}
+                    </tr><tr>
+                    <td {% if isNumeric %}style="border-top: none; padding:0;"{% endif %}>
+                        {% if isIterable %}
+                            {{ include('uri/_table.html.twig', {data: [childVal]}) }}
+                        {% else %}
+                            {{ childVal |trim }}
+                        {% endif %}
+                    </td>
+                    {% if not loop.last %}</tr>{% endif %}
+                {% endfor %}
+            {% else %}
+                <td {% if isNumeric %}style="border-top: none; padding:0;"{% endif %}>
+                    {% if isIterable %}
+                        {{ include('uri/_table.html.twig', {data: val}) }}
+                    {% else %}
+                        {{ val |trim }}
+                    {% endif %}
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+</table>

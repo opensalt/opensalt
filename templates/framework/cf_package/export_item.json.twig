@@ -3,7 +3,7 @@
 {# TODO: CFDocument URI as API endpoint #}
         "CFDocumentURI": {{ lsItem.lsDocUri|local_uri |json_encode |raw }},
         "identifier": {{ lsItem.identifier |json_encode |raw }},
-        "uri": {{ lsItem.uri|local_uri |json_encode |raw }},
+        "uri": {{ object_uri(lsItem) |json_encode |raw }},
 {#- organizationCOmpetencyCode -#}
 {#- competencyEffectiveDate -#}
 {#- competencyTerminationDate -#}
