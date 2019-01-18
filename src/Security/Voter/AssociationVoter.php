@@ -45,26 +45,16 @@ class AssociationVoter extends Voter
         switch ($attribute) {
             case self::ADD_TO:
                 // User can add to a specific doc or "some doc"
-                if ($subject instanceof LsDoc || $subject instanceof LsItem || null === $subject) {
-                    return true;
-                }
-                break;
-
+                return $subject instanceof LsDoc || $subject instanceof LsItem || null === $subject;
             case self::CREATE:
                 // User can create an association
-                if (static::ASSOCIATION === $subject) {
-                    return true;
-                }
-                break;
-
+                return static::ASSOCIATION === $subject;
             case self::EDIT:
                 // User can edit the LsAssociation
-                if ($subject instanceof LsAssociation) {
-                    return true;
-                }
+                return $subject instanceof LsAssociation;
+            default:
+                return false;
         }
-
-        return false;
     }
 
     /**
@@ -88,18 +78,13 @@ class AssociationVoter extends Voter
         switch ($attribute) {
             case self::ADD_TO:
                 return $this->canAddTo($subject, $token);
-                break;
-
             case self::CREATE:
                 return (static::ASSOCIATION === $subject) && $this->canCreate($token);
-                break;
-
             case self::EDIT:
                 return $this->canEdit($subject, $token);
-                break;
+            default:
+                return false;
         }
-
-        return false;
     }
 
     /**
