@@ -11,7 +11,7 @@ Feature: The framework can be uploaded as Excel
 
     When I click "Import framework"
     Then I should see the import dialogue
-    When I click "/html/body/div[1]/main/div[3]/div/div/div[2]/div[1]/div/ul/li[2]/a"
+    When I click "Import Spreadsheet"
     And I upload an excel file
     And I visit the uploaded framework
     Then I should see the framework created with the spreadsheet data

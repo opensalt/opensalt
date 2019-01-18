@@ -970,7 +970,7 @@ class Framework implements Context
         $I->waitForElementVisible('#excel-url');
 
         $I->attachFile('input#excel-url', str_replace(codecept_data_dir(), '', 'spreadsheet_import_sample.xlsx'));
-        $I->click('#spreadsheet > a:nth-child(4)');
+        $I->click('.btn-import-spreadsheet');
         $I->waitForElementNotVisible('#wizard', 60);
 
         $this->creatorName = 'CreatorTest';
