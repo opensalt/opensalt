@@ -122,50 +122,50 @@ final class ExcelImport
         $docRepo = $this->getEntityManager()->getRepository(LsDoc::class);
         $doc = $docRepo->findOneByIdentifier($this->getCellValueOrNull($sheet, 1, 2));
 
-        if (null !== $doc) {
-            /* $doc->setIdentifier($this->getCellValueOrNull($sheet, 1, 2)); */
-            $doc->setCreator($this->getCellValueOrNull($sheet, 2, 2));
-            $doc->setTitle($this->getCellValueOrNull($sheet, 3, 2));
-            // col 4 - lastChangeDate
-            $doc->setOfficialUri($this->getCellValueOrNull($sheet, 5, 2));
-            $doc->setPublisher($this->getCellValueOrNull($sheet, 6, 2));
-            $doc->setDescription($this->getCellValueOrNull($sheet, 7, 2));
-            $doc->setSubject($this->getCellValueOrNull($sheet, 8, 2));
-            $doc->setLanguage($this->getCellValueOrNull($sheet, 9, 2));
-            $doc->setVersion($this->getCellValueOrNull($sheet, 10, 2));
-            if (!empty($this->getCellValueOrNull($sheet, 11, 2))) {
-                $doc->setAdoptionStatus($this->getCellValueOrNull($sheet, 11, 2));
-            }
-            $doc->setStatusStart(
-                new \DateTime(
-                    \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
-                        $this->getCellValueOrNull($sheet, 12, 2),
-                        'YYYY-MM-DD'
-                    )
-                )
-            );
-            $doc->setStatusEnd(
-                new \DateTime(
-                    \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
-                        $this->getCellValueOrNull($sheet, 13, 2),
-                        'YYYY-MM-DD'
-                    )
-                )
-            );
-
-            if (null !== $this->getCellValueOrNull($sheet, 14, 2) && null !== $this->getCellValueOrNull($sheet, 15, 2)) {
-                $licence = $this->getLicence($sheet);
-                $doc->setLicence($licence);
-            }
-
-            $doc->setNote($this->getCellValueOrNull($sheet, 16, 2));
-
-            $this->getEntityManager()->persist($doc);
-
-            return $doc;
+        if (null === $doc) {
+            $doc = new LsDoc();
         }
 
-        return null;
+        /* $doc->setIdentifier($this->getCellValueOrNull($sheet, 1, 2)); */
+        $doc->setCreator($this->getCellValueOrNull($sheet, 2, 2));
+        $doc->setTitle($this->getCellValueOrNull($sheet, 3, 2));
+        // col 4 - lastChangeDate
+        $doc->setOfficialUri($this->getCellValueOrNull($sheet, 5, 2));
+        $doc->setPublisher($this->getCellValueOrNull($sheet, 6, 2));
+        $doc->setDescription($this->getCellValueOrNull($sheet, 7, 2));
+        $doc->setSubject($this->getCellValueOrNull($sheet, 8, 2));
+        $doc->setLanguage($this->getCellValueOrNull($sheet, 9, 2));
+        $doc->setVersion($this->getCellValueOrNull($sheet, 10, 2));
+        if (!empty($this->getCellValueOrNull($sheet, 11, 2))) {
+            $doc->setAdoptionStatus($this->getCellValueOrNull($sheet, 11, 2));
+        }
+        $doc->setStatusStart(
+            new \DateTime(
+                \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
+                    $this->getCellValueOrNull($sheet, 12, 2),
+                    'YYYY-MM-DD'
+                )
+            )
+        );
+        $doc->setStatusEnd(
+            new \DateTime(
+                \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
+                    $this->getCellValueOrNull($sheet, 13, 2),
+                    'YYYY-MM-DD'
+                )
+            )
+        );
+
+        if (null !== $this->getCellValueOrNull($sheet, 14, 2) && null !== $this->getCellValueOrNull($sheet, 15, 2)) {
+            $licence = $this->getLicence($sheet);
+            $doc->setLicence($licence);
+        }
+
+        $doc->setNote($this->getCellValueOrNull($sheet, 16, 2));
+
+        $this->getEntityManager()->persist($doc);
+
+        return $doc;
     }
 
     private function getLicence(Worksheet $sheet): LsDefLicence
