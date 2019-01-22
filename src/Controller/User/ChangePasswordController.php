@@ -56,7 +56,7 @@ class ChangePasswordController extends AbstractController
 
             $this->addFlash('success', 'Your password has been changed.');
 
-            return $this->redirectToRoute('editor_index');
+            return $this->redirectToRoute('salt_index');
         }
 
         return [

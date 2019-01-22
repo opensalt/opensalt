@@ -19,7 +19,7 @@ framework:
         gc_probability: 25
         gc_divisor:     100
         metadata_update_threshold: 120
-    #esi: true
+    esi: true
     fragments: true
     php_errors:
         log: true

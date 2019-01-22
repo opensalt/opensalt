@@ -1357,7 +1357,6 @@ function ApxDocument(initializer) {
             let key, attributes, val;
             for (key in attributes = {
                 'officialSourceURL': 'Official URL',
-                'uri': 'Framework URI',
                 'identifier': 'Identifier',
                 'creator': 'Creator',
                 'description': 'Description',
@@ -1393,13 +1392,13 @@ function ApxDocument(initializer) {
                         let $val = $('<div>' + val + '</div>');
                         $('a', $val).attr('target', '_blank');
                         val = $val.html();
-                    } else if (key === 'uri') {
-                        val = render.inlineLinked(self.getItemUri(item));
-
-                        // add target=_blank
-                        let $val = $('<div>' + val + '</div>');
-                        $('a', $val).attr('target', '_blank');
-                        val = $val.html();
+                    } else if (key === 'identifier') {
+                        val = $('<div>').append(
+                            $('<a>', {
+                                href: apx.path.uri.replace('ID', val),
+                                text: render.escaped(val)
+                            })
+                        ).html();
                     } else {
                         val = render.escaped(val);
                     }
@@ -1475,9 +1474,8 @@ function ApxDocument(initializer) {
             let html = "";
             let key, attributes, val;
             for (key in attributes = {
-                'uri': 'URI',
-                'identifier': 'Identifier',
                 'fstmt': 'Full Statement',
+                'identifier': 'Identifier',
                 'ck': 'Concept Keywords',
                 'el': 'Education Level',
                 'itp': 'Type',
@@ -1489,6 +1487,21 @@ function ApxDocument(initializer) {
                         html += '<li class="list-group-item markdown-body">'
                             + '<strong>' + attributes[key] + ':</strong> '
                             + render.block(val)
+                            + '</li>'
+                        ;
+                    } else if (key === 'identifier') {
+                        val = $('<div>').append(
+                            $('<a>', {
+                                href: apx.path.uri.replace('ID', val),
+                                text: render.escaped(val)
+                            })
+                        ).html();
+
+                        html += '<li class="list-group-item">'
+                            + '<strong>' + attributes[key] + ':</strong> '
+                            + '<span class="item-' + key + '">'
+                              + val
+                              + '</span>'
                             + '</li>'
                         ;
                     } else {
@@ -1511,25 +1524,25 @@ function ApxDocument(initializer) {
                 'licenceUri': 'Licence URI',
                 'mod': 'Last Changed'
             }) {
-                if (!empty(item[key]) || key === "uri") {
+                if (!empty(item[key])) {
                     val = item[key];
 
                     // TODO: deal with cku, licenceUri
                     // for uri, get it from the ApxDocument
-                    if (key === "uri") {
-                        val = self.getItemUri(item);
-                        html += '<li class="list-group-item lsItemDetailsExtras">'
-                            + '<strong>' + attributes[key] + ':</strong> '
-                            + render.inlineLinked(val)
-                            + '</li>'
-                        ;
-                    } else {
-                        html += '<li class="list-group-item lsItemDetailsExtras">'
-                            + '<strong>' + attributes[key] + ':</strong> '
-                            + render.escaped(val)
-                            + '</li>'
-                        ;
-                    }
+ 
+                    val = render.escaped(val);
+
+                    html += $('<div>').append(
+                        $('<li>', {
+                            'class': 'list-group-item lsItemDetailsExtras'
+                        }).append(
+                            $('<strong>', {
+                                text: attributes[key] + ':'
+                            }),
+                            ' ',
+                            val
+                        )
+                    ).html();
                 }
             }
 
