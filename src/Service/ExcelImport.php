@@ -83,7 +83,7 @@ final class ExcelImport
                 $seq = null;
             }
 
-            if (array_key_exists($parentLevel, $itemSmartLevels)) {
+            if (in_array($parentLevel, $itemSmartLevels)) {
                 $smartLevels[$parentLevel]->addChild($item, null, $seq);
                 $children[$item->getIdentifier()] = $doc->getIdentifier();
             } else {
