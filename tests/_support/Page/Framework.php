@@ -1448,6 +1448,7 @@ class Framework implements Context
         $I = $this->I;
 
         $I->see($this->rememberedFramework);
+        $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
 
         $I->see('S Statement 1');
         $I->see('S.1 Statement 2');
