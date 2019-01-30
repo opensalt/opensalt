@@ -44,6 +44,9 @@ fs.writeFileSync('./build/js/apx.js', apxScripts.map((f) => {
 
 const mainScripts = [
     npmDir+'/datatables.net/js/jquery.dataTables.js',
+    npmDir+'/jszip/dist/jszip.js',
+    npmDir+'/datatables.net-buttons-dt',
+    npmDir+'/datatables.net-buttons/js/buttons.html5.js',
     npmDir+'/datatables.net-bs/js/dataTables.bootstrap.js',
     npmDir+'/datatables.net-fixedheader/js/dataTables.fixedHeader.js',
     npmDir+'/datatables.net-scroller/js/dataTables.scroller.js',

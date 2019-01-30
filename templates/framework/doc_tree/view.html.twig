@@ -317,33 +317,22 @@
         </div>
     </div>
 
+    <label for="filterType">
+        Association Types
+        <select id="filterType" multiple style="width: 300px;">
+            <option value="Is Child Of">Is Child Of</option>
+            <option value="Exact Match Of">Exact Match Of</option>
+            <option value="Exemplar">Exemplar</option>
+            <option value="Is Related To">Is Related To</option>
+            <option value="Precedes">Precedes</option>
+            <option value="Is Peer Of">Is Peer Of</option>
+            <option value="Is Part Of">Is Part Of</option>
+            <option value="Has Skill Level">Has Skill Level</option>
+            <option value="Replaced By">Replaced By</option>
+        </select>
+    </label>
 
-    <div class="row main-view assoc-view" id="assocView">
-        <div class="col-sm-12">
-            <!-- <h3>Associations:</h3> -->
-            <div id="assocViewTableFilters" style="display:none">
-                <div class="assocViewTableTypeFilters">
-                    <div class="assocViewTableTypeFiltersHeader">Association Types:</div>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowChild"> Is Child Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExact" checked> Exact Match Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExemplar" checked> Exemplar</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsRelatedTo" checked> Is Related To</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowPrecedes" checked> Precedes</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsPeerOf" checked> Is Peer Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsPartOf" checked> Is Part Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowHasSkillLevel" checked> Has Skill Level</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowReplacedBy" checked> Replaced By</label><br>
-                </div>
-
-                <div class="assocViewTableGroupFilters">
-                    <div class="assocViewTableGroupFiltersHeader">Association Groups:</div>
-                    <label class="avGroupFilter"><input type="checkbox" data-group-id="0" checked> " Default Group "</label><br>
-                </div>
-            </div>
-            <table id="assocViewTable" class="table table-striped table-bordered table-hover display"></table>
-        </div>
-    </div>
-
+    <table id="assocViewTable" class="table table-striped table-bordered table-hover display"></table>
 
     <div class="row main-view log-view" id="logView" style="display:none;">
         <div class="col-sm-12">
@@ -717,6 +706,7 @@
 
         {% autoescape 'js' %}
         <script>
+            $('#filterType').select2({width: 'resolve'});
             // loaded docid and initial lsItem and assocGroup to show
             apx.lsDocId = {{ lsDocId |json_encode |raw }};
             apx.initialLsItemId = {{ lsItemId |default(null) |json_encode |raw }};
