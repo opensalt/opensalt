@@ -25,8 +25,17 @@ use App\Util\Compare;
  * @UniqueEntity("identifier")
  *
  * @Serializer\VirtualProperty(
+ *     "uri",
+ *     exp="service('App\\Service\\Api1Uris').getApiUrl(object)",
+ *     options={
+ *         @Serializer\SerializedName("uri"),
+ *         @Serializer\Expose()
+ *     }
+ * )
+ *
+ * @Serializer\VirtualProperty(
  *     "cfPackageUri",
- *     exp="service('App\\Service\\Api1Uris').getLinkUri(object, service('App\\Service\\Api1RouteMap').getForClass('App\\Entity\\Framework\\Package'))",
+ *     exp="service('App\\Service\\Api1Uris').getLinkUri(object, 'api_v1p0_cfpackage')",
  *     options={
  *         @Serializer\SerializedName("CFPackageURI"),
  *         @Serializer\Expose()
@@ -271,6 +280,16 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @Serializer\Exclude()
      */
     private $licence;
+
+    /**
+     * @var LsDefFrameworkType
+     *
+     * @ORM\ManyToOne(targetEntity="LsDefFrameworkType", cascade = {"persist"})
+     * @ORM\JoinColumn(name="frameworktype_id", referencedColumnName="id", nullable=true)
+     *
+     * @Serializer\Exclude()
+     */
+    private $frameworkType;
 
     /**
      * @var string
@@ -1417,6 +1436,26 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     public function setLicence($licence): LsDoc
     {
         $this->licence = $licence;
+
+        return $this;
+    }
+
+    /**
+     * @return LsDefFrameworkType|null
+     */
+    public function getFrameworkType(): ?LsDefFrameworkType
+    {
+        return $this->frameworkType;
+    }
+
+    /**
+     * @param LsDefFrameworkType $frameworkType
+     *
+     * @return LsDoc
+     */
+    public function setFrameworkType($frameworkType): LsDoc
+    {
+        $this->frameworkType = $frameworkType;
 
         return $this;
     }

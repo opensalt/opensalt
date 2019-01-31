@@ -2,9 +2,13 @@
 
 namespace App\Form\Type;
 
+use App\Entity\Framework\LsDefFrameworkType;
 use App\Entity\Framework\LsDoc;
+use App\Form\DataListLoader;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
@@ -118,7 +122,32 @@ abstract class AbstractLsDocCreateType extends AbstractType
                     'tag_separators' => ',',
                 ],
             ])
+            ->add('frameworkType', DatalistType::class , [
+                'required' => false,
+                'label' => 'Framework Type',
+                'class' => \App\Entity\Framework\LsDefFrameworkType::class,
+                'choice_label' => 'value',
+                'attr'=>['autocomplete' => 'off'],
+            ])
         ;
+
+        $builder->get('frameworkType')
+            ->resetViewTransformers()
+            ->resetModelTransformers()
+            ->addModelTransformer(new CallbackTransformer(
+                function ($frameworkType) {
+                    return $frameworkType ? $frameworkType->getValue() : '';
+                },
+                function ($frameworkType) {
+                    if ($frameworkType === null) {
+                        return null;
+                    } else {
+                        $object = new LsDefFrameworkType();
+                        $object->setValue($frameworkType);
+                        return $object;
+                    }
+                }
+            ));
 
         /*
         if (!$options['ajax']) {
