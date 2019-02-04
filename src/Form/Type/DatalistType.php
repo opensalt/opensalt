@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Form\Type;
-
 
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
