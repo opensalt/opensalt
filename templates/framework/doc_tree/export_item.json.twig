@@ -4,7 +4,7 @@
 {# Include id #}
 "id": {{ lsItem.id |json_encode |raw }},
 "identifier": {{ lsItem.identifier |json_encode |raw }},
-"uri": {{ lsItem.uri |local_uri |json_encode |raw }},
+"uri": {{ uri_for_identifier(lsItem.identifier) |json_encode |raw }},
 "fstmt": {{ lsItem.fullStatement |json_encode |raw }},
 {% if lsItem.humanCodingScheme is not null %}
 "hcs": {{ lsItem.humanCodingScheme |json_encode |raw }},
@@ -17,7 +17,7 @@
 {% endif %}
 {% if lsItem.conceptKeywords is not null %}
 "ck": {{ lsItem.conceptKeywords |json_encode |raw }},
-"cku": {{ lsItem.conceptKeywordsUri|local_uri |json_encode |raw }},
+"cku": {{ null |json_encode |raw }},{# Concept Keyword URI needs to be fixed up -- using concepts attr #}
 {% endif %}
 {% if lsItem.notes is not null %}
 "notes": {{ lsItem.notes |json_encode |raw }},

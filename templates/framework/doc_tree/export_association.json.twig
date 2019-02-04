@@ -16,13 +16,19 @@
 "origin": {
 "doc": {{ lsAssociation.originLsItem.lsDocIdentifier |default("?") |json_encode |raw }},
 "item": {{ lsAssociation.originNodeIdentifier |json_encode |raw }},
-"uri": {{ lsAssociation.originNodeUri |json_encode |raw }}
+"uri": {{ uri_for_identifier(lsAssociation.originNodeIdentifier) |json_encode |raw }}
 },
 "type": {{ (lsAssociation.type|slice(0,1)|lower~lsAssociation.type|slice(1))|replace({' ': ''}) |json_encode |raw }},
 "dest": {
-"doc": {% if lsAssociation.type == 'Exemplar' %} "-" {% else %} {{ lsAssociation.destinationLsItem.lsDocIdentifier |default(lsAssociation.destinationLsDoc.identifier |default("?")) |json_encode |raw }} {% endif %},
-"item": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
-"uri": {{ lsAssociation.destinationNodeUri |json_encode |raw }}
+{% if lsAssociation.type == 'Exemplar' %}
+    "doc": "-",
+    "item": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
+    "uri": {{ lsAssociation.destinationNodeUri |json_encode | raw }}
+{% else %}
+    "doc": {{ lsAssociation.destinationLsItem.lsDocIdentifier |default(lsAssociation.destinationLsDoc.identifier |default("?")) |json_encode |raw }},
+    "item": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
+    "uri": {{ uri_for_identifier(lsAssociation.destinationNodeIdentifier) |json_encode |raw }}
+{% endif %}
 },
 "mod": {{ lsAssociation.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
 }

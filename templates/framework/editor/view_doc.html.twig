@@ -41,8 +41,8 @@
                                         {% for subject in value %}
                                             {%- if not loop.first %}, {% endif %}{{ subject.title }}
                                         {%- endfor %}
-                                    {% elseif field == 'uri' %}
-                                        <a href="{{ value|local_uri }}">{{ value|local_remote_uri }}</a>
+                                    {% elseif field == 'identifier' %}
+                                        <a href="{{ object_uri(lsDoc) }}">{{ value|local_remote_uri }}</a>
                                     {% else %}
                                         {{ value }}
                                     {% endif %}

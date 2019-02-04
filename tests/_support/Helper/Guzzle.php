@@ -64,7 +64,7 @@ class Guzzle extends \Codeception\Module
         return \GuzzleHttp\json_decode($this->fetch($url), true);
     }
 
-    public function fetch(string $url): string
+    public function fetch(string $url, string $accept = 'application/json'): string
     {
         $baseUrl = $this->getWebDriver()->_getUrl();
         $session = $this->getWebDriver()->grabCookie('session');
@@ -83,7 +83,7 @@ class Guzzle extends \Codeception\Module
 
         $headers = [
             'User-Agent' => 'OpenSALT Testing/1.0',
-            'Accept' => 'application/json',
+            'Accept' => $accept,
         ];
 
         $cookies = CookieJar::fromArray([
