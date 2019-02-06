@@ -101,6 +101,7 @@ parameters:
     local_filesystem_path: '%env(LOCAL_FILESYSTEM_PATH)%'
     footer_left_text: '%env(FOOTER_LEFT_TEXT)%'
     base_template: 'base.html.twig'
+    assets_version: '190202'
     
 services:
     # default configuration for services in *this* file
@@ -117,6 +118,7 @@ services:
             $guzzleJsonClient: '@csa_guzzle.client.json'
             $kernelEnv: '%kernel.environment%'
             $externalDocCache: '@salt.cache.external_docs'
+            $assetsVersion: '%assets_version%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

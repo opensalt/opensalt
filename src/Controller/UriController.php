@@ -23,10 +23,16 @@ class UriController extends AbstractController
      */
     private $objectHelper;
 
-    public function __construct(SerializerInterface $serializer, IdentifiableObjectHelper $uriHelper)
+    /**
+     * @var string
+     */
+    private $assetsVersion;
+
+    public function __construct(SerializerInterface $serializer, IdentifiableObjectHelper $uriHelper, string $assetsVersion)
     {
         $this->serializer = $serializer;
         $this->objectHelper = $uriHelper;
+        $this->assetsVersion = $assetsVersion;
     }
 
     /**
@@ -120,7 +126,7 @@ class UriController extends AbstractController
     {
         $response = new Response();
 
-        $response->setEtag(md5($lastModified->format('U.u')), true);
+        $response->setEtag(md5($lastModified->format('U.u').$this->assetsVersion), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(60);
         $response->setSharedMaxAge(60);

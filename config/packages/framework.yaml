@@ -30,7 +30,7 @@ framework:
         csv: ['text/csv', 'text/plain']
 
     assets:
-        version: '180451'
+        version: '%assets_version%'
         packages:
           encore:
             json_manifest_path: '%kernel.project_dir%/web/build/manifest.json'
