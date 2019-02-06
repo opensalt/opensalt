@@ -128,8 +128,8 @@ class AssociationVoter extends Voter
      */
     private function canEdit(LsAssociation $association, TokenInterface $token): bool
     {
-        if (null !== $association->getLsDoc() && !$association->getLsDoc()->canEdit()) {
-            // The framework is not editable
+        if (false === $this->canAddTo($association->getLsDoc(), $token)) {
+            // Cannot add associations to the framework
             return false;
         }
 
