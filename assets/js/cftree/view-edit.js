@@ -27,6 +27,7 @@ apx.edit.prepareDocEditModal = function() {
                 $docSubjects.select2entity({
                     dropdownParent: $docSubjects.closest('div')
                 });
+
                 if ($modal.find('form[name="ls_doc"]').length) {
                     $modal.find('.modal-footer .btn-save').show();
                 }
@@ -66,7 +67,17 @@ apx.edit.prepareDocEditModal = function() {
                */
         }).fail(function(jqXHR, textStatus, errorThrown) {
             apx.spinner.hideModal();
+            $('#ls_doc_subjects').select2('destroy');
+            $('#ls_doc_licence').select2('destroy');
             $modal.find('.modal-body').html(jqXHR.responseText);
+
+            $('#ls_doc_licence').select2entity({
+                dropdownParent: $('#ls_doc_licence').closest('div')
+            });
+            let $docSubjects = $('#ls_doc_subjects');
+            $docSubjects.select2entity({
+                dropdownParent: $docSubjects.closest('div')
+            });
         });
     });
 };
@@ -221,12 +232,17 @@ apx.edit.prepareItemEditModal = function() {
             apx.treeDoc1.activateCurrentItem();
         }).fail(function(jqXHR, textStatus, errorThrown) {
             apx.spinner.hideModal();
+            $('#ls_item_itemType').select2('destroy');
             $modal.find('.modal-body').html(jqXHR.responseText);
+
             $('#ls_item_educationalAlignment').multiselect({
                 optionLabel: function(element) {
                     return $(element).html() + ' - ' + $(element).data('title');
                 },
                 numberDisplayed: 20
+            });
+            $('#ls_item_itemType').select2entity({
+                dropdownParent: $('#ls_item_itemType').closest('div')
             });
             statementMde = render.mde($('#ls_item_fullStatement')[0]);
             notesMde = render.mde($('#ls_item_notes')[0]);
@@ -327,12 +343,17 @@ apx.edit.prepareAddNewChildModal = function() {
             $("#noItemsInstructions").hide();
         }).fail(function(jqXHR, textStatus, errorThrown) {
             apx.spinner.hideModal();
+            $('#ls_item_itemType').select2('destroy');
             $modal.find('.modal-body').html(jqXHR.responseText);
+
             $('#ls_item_educationalAlignment').multiselect({
                 optionLabel: function(element) {
                     return $(element).html() + ' - ' + $(element).data('title');
                 },
                 numberDisplayed: 20
+            });
+            $('#ls_item_itemType').select2entity({
+                dropdownParent: $('#ls_item_itemType').closest('div')
             });
             statementMde = render.mde($('#ls_item_fullStatement')[0]);
             notesMde = render.mde($('#ls_item_notes')[0]);
