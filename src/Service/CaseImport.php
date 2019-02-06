@@ -34,6 +34,8 @@ class CaseImport
      */
     public function importCaseFile(\stdClass $fileContent): LsDoc
     {
+        set_time_limit(180); // increase time limit for large files
+
         $em = $this->getEntityManager();
         $lsDoc = new LsDoc($fileContent->CFDocument->identifier);
 

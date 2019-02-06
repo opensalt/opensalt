@@ -973,10 +973,10 @@ class Framework implements Context
         $I->click('.btn-import-spreadsheet');
         $I->waitForElementNotVisible('#wizard', 60);
 
-        $this->creatorName = 'CreatorTest';
-        $this->rememberedFramework = 'Sample Framework';
+        $this->creatorName = 'ImportSpreadsheet';
+        $this->rememberedFramework = 'SampleFramework';
 
-        $I->see('CreatorTest', '.fancytree-title');
+        $I->see('ImportSpreadsheet', '.fancytree-title');
     }
 
     /**
@@ -1454,6 +1454,25 @@ class Framework implements Context
         $I->see('S.1 Statement 2');
         $I->see('S.2 Statement 3');
         $I->see('S.2.1 Statement 4');
+
+        $I->click('#displayAssocBtn');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowChild"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowExact"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowExemplar"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowIsRelatedTo"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowPrecedes"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowIsPeerOf"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowIsPartOf"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowHasSkillLevel"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowReplacedBy"]');
+
+        $I->see('Is Child Of', '//table[@id="assocViewTable"]');
+        $I->see('Exact Match Of', '//table[@id="assocViewTable"]');
+        $I->see('Precedes', '//table[@id="assocViewTable"]');
+        $I->see('Is Peer Of', '//table[@id="assocViewTable"]');
+        $I->see('Is Part Of', '//table[@id="assocViewTable"]');
+        $I->see('Has Skill Level', '//table[@id="assocViewTable"]');
+        $I->see('Replaced By', '//table[@id="assocViewTable"]');
     }
 
     /**
