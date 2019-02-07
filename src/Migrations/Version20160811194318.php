@@ -13,9 +13,9 @@ class Version20160811194318 extends AbstractMigration
     /**
      * @param \Doctrine\DBAL\Schema\Schema $schema
      *
-     * @throws \Doctrine\DBAL\Migrations\AbortMigrationException
+     * @throws \Doctrine\Migrations\Exception\AbortMigration
      */
-    public function up(Schema $schema)
+    public function up(Schema $schema): void
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
@@ -46,7 +46,7 @@ ALTER TABLE ls_item
      *
      * @throws \Doctrine\DBAL\Migrations\AbortMigrationException
      */
-    public function down(Schema $schema)
+    public function down(Schema $schema): void
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 

@@ -145,7 +145,7 @@ class LsAssociationController extends AbstractController
      * Creates a new LsAssociation entity for an exemplar.
      *
      * @Route("/treenewexemplar/{originLsItem}", methods={"GET", "POST"}, name="lsassociation_tree_new_exemplar")
-     * @Security("is_granted('edit', originLsItem)")
+     * @Security("is_granted('add-association-to', originLsItem)")
      *
      * @throws \InvalidArgumentException
      */

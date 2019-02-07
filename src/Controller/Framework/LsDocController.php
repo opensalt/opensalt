@@ -60,18 +60,21 @@ class LsDocController extends AbstractController
      *
      * @return array
      */
-    public function indexAction()
+    public function indexAction(?UserInterface $user = null)
     {
         $em = $this->getDoctrine()->getManager();
 
+        /** @var LsDoc[] $results */
         $results = $em->getRepository(LsDoc::class)->findBy(
             [],
             ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']
         );
 
         $lsDocs = [];
+        $loggedIn = $user instanceof User;
         foreach ($results as $lsDoc) {
-            if ($this->authChecker->isGranted('view', $lsDoc)) {
+            // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus() || ($loggedIn && $this->authChecker->isGranted('view', $lsDoc))) {
                 $lsDocs[] = $lsDoc;
             }
         }

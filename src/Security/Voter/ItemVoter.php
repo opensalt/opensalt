@@ -42,7 +42,7 @@ class ItemVoter extends Voter
         switch ($attribute) {
             case self::ADD_TO:
                 // User can add to a specific doc or "some doc"
-                if ($subject instanceof LsDoc || $subject === null) {
+                if ($subject instanceof LsDoc || null === $subject) {
                     return true;
                 }
                 break;
