@@ -4,7 +4,7 @@ Feature: Adding, viewing and deleting a association management
   I need to see a all of the fields
 
   @organization-admin @association @add-association @1016-1501 @duplicate
-  Scenario: 1016-1501 An organization-admin can add a association group
+  Scenario: 1016-1501 An organization-admin can add a association
     Given I log in as a user with role "Admin"
     Then I create a framework
     And I add a Item

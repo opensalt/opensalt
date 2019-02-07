@@ -33,10 +33,16 @@ class CaseV1P0Controller extends AbstractController
      */
     protected $serializer;
 
-    public function __construct(LoggerInterface $logger, SerializerInterface $serializer)
+    /**
+     * @var string
+     */
+    private $assetsVersion;
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer, string $assetsVersion)
     {
         $this->logger = $logger;
         $this->serializer = $serializer;
+        $this->assetsVersion = $assetsVersion;
     }
 
     /**
@@ -209,7 +215,7 @@ class CaseV1P0Controller extends AbstractController
     {
         $response = new Response();
 
-        $response->setEtag(md5($lastModified->format('U.u')), true);
+        $response->setEtag(md5($lastModified->format('U.u').$this->assetsVersion), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(60);
         $response->setSharedMaxAge(60);

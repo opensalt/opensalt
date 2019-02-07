@@ -13,11 +13,11 @@ class SiteVersionListener implements EventSubscriberInterface
     /**
      * @var string
      */
-    public $rootDir;
+    public $projectDir;
 
-    public function __construct(string $rootDir)
+    public function __construct(string $projectDir)
     {
-        $this->rootDir = $rootDir;
+        $this->projectDir = $projectDir;
     }
 
     public static function getSubscribedEvents()
@@ -31,23 +31,33 @@ class SiteVersionListener implements EventSubscriberInterface
             return;
         }
 
-        $cache = new ApcuCache('opensalt');
-        if (!$fullVersion = $cache->get('version')) {
-            $rootDir = $this->rootDir;
-            $webDir = \dirname($rootDir).'/web';
-
-            if (file_exists($webDir.'/version.txt')) {
-                $fullVersion = trim(file_get_contents($webDir.'/version.txt'));
-            } elseif (file_exists($rootDir.'/../VERSION')) {
-                $fullVersion = trim(file_get_contents($rootDir.'/../VERSION'));
-            } else {
-                $fullVersion = 'UNKNOWN';
-            }
-
-            $cache->set('version', $fullVersion, 3600);
-        }
+        $fullVersion = $this->getFullVersion();
 
         $response = $event->getResponse();
         $response->headers->set('X-OpenSALT', $fullVersion);
+    }
+
+    private function getFullVersion(): string
+    {
+        $cache = new ApcuCache('opensalt');
+        if (!$fullVersion = $cache->get('version')) {
+            $fullVersion = $this->getUncachedVersion();
+            $cache->set('version', $fullVersion, 3600);
+        }
+
+        return $fullVersion;
+    }
+
+    private function getUncachedVersion(): string
+    {
+        if (file_exists($this->projectDir.'/public/version.txt')) {
+            return trim(file_get_contents($this->projectDir.'/public/version.txt'));
+        }
+
+        if (file_exists($this->projectDir.'/VERSION')) {
+            return trim(file_get_contents($this->projectDir.'/VERSION'));
+        }
+
+        return 'UNKNOWN';
     }
 }

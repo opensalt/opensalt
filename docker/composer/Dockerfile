@@ -1,9 +1,9 @@
 FROM opensalt/php:7.2-cli
 
 # Memory Limit
-RUN echo "memory_limit=-1" > $PHP_INI_DIR/conf.d/memory-limit.ini \
-    && echo "date.timezone=${PHP_TIMEZONE:-UTC}" > $PHP_INI_DIR/conf.d/date_timezone.ini \
-    && echo "always_populate_raw_post_data=-1" > $PHP_INI_DIR/conf.d/always_populate_raw_post_data.ini
+RUN echo "memory_limit=-1" > "${PHP_INI_DIR}/conf.d/memory-limit.ini" \
+    && echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "${PHP_INI_DIR}/conf.d/date_timezone.ini" \
+    && echo "always_populate_raw_post_data=-1" > "${PHP_INI_DIR}/conf.d/always_populate_raw_post_data.ini"
 
 # Setup the Composer installer
 RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \

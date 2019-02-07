@@ -9,13 +9,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class AboutController extends AbstractController
 {
     /**
-     * @var string Value of kernel.root_dir
+     * @var string Value of kernel.project_dir
      */
-    protected $rootDir;
+    protected $projectDir;
 
-    public function __construct(string $rootDir)
+    public function __construct(string $projectDir)
     {
-        $this->rootDir = $rootDir;
+        $this->$projectDir = $projectDir;
     }
 
     /**
@@ -24,13 +24,10 @@ class AboutController extends AbstractController
      */
     public function aboutAction()
     {
-        $rootDir = $this->rootDir;
-        $webDir = dirname($rootDir).'/web';
-
-        if (file_exists($webDir.'/version.txt')) {
-            $fullVersion = trim(file_get_contents($webDir.'/version.txt'));
-        } elseif (file_exists($rootDir.'/../VERSION')) {
-            $fullVersion = trim(file_get_contents($rootDir.'/../VERSION'));
+        if (file_exists($this->projectDir.'/public/version.txt')) {
+            $fullVersion = trim(file_get_contents($this->projectDir.'/public/version.txt'));
+        } elseif (file_exists($this->projectDir.'/VERSION')) {
+            $fullVersion = trim(file_get_contents($this->projectDir.'/VERSION'));
         } else {
             $fullVersion = 'UNKNOWN';
         }

@@ -20,7 +20,7 @@ class Notification implements Context
     /**
      * @Given /^I select the document$/
      */
-    public function iSelectTheDocument()
+    public function iSelectTheDocument(): void
     {
         $I = $this->I;
 
@@ -37,7 +37,7 @@ class Notification implements Context
     /**
      * @Given /^I select the item$/
      */
-    public function iSelectTheItem()
+    public function iSelectTheItem(): void
     {
         $I = $this->I;
 
@@ -54,14 +54,14 @@ class Notification implements Context
     /**
      * @Then /^I see the Document buttons disabled$/
      */
-    public function iSeeTheDocumentButtonsDisabled()
+    public function iSeeTheDocumentButtonsDisabled(): void
     {
         $I = $this->I;
 
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\AcceptanceTester $I) {
-                $I->waitForElementChange('button[data-target="#editDocModal"]', function(WebDriverElement $el) {
+                $I->waitForElementChange('button[data-target="#editDocModal"]', function (WebDriverElement $el) {
                     return false !== strpos($el->getAttribute('class'), 'disabled');
                 }, 30);
                 $I->see('Edit', '.disabled');
@@ -76,14 +76,14 @@ class Notification implements Context
     /**
      * @Then /^I see a notification of editing "([^"]*)"$/
      */
-    public function iSeeANotificationOfEditing($type)
+    public function iSeeANotificationOfEditing(string $type): void
     {
         $I = $this->I;
 
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\AcceptanceTester $I) use ($type) {
-                $I->see($type, '.alert-info');//TODO: need to get the name of the Document/Item to check in the message
+                $I->see($type, '.alert-info'); //TODO: need to get the name of the Document/Item to check in the message
             }
         );
     }
@@ -91,7 +91,7 @@ class Notification implements Context
     /**
      * @Then /^I see a notification New "([^"]*)"$/
      */
-    public function iSeeANotificationOfNew($type)
+    public function iSeeANotificationOfNew(string $type): void
     {
         $I = $this->I;
 
@@ -106,20 +106,20 @@ class Notification implements Context
     /**
      * @Then /^I see a notification modified "([^"]*)"$/
      */
-    public function iSeeANotificationOfModified($type)
+    public function iSeeANotificationOfModified(string $type): void
     {
         $I = $this->I;
 
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\AcceptanceTester $I) use ($type) {
-                // Look for notification, might take a few seconds to show up (allow 10)
-                for ($i = 0; $i < 9; $i++) {
+                // Look for notification, might take a few seconds to show up
+                for ($i = 0; $i < 32; ++$i) {
                     try {
                         $I->see($type, '.alert-info');
 
                         return;
-                    } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+                    } catch (\Exception $e) {
                         $I->wait(1);
                     }
                 }
@@ -132,14 +132,14 @@ class Notification implements Context
     /**
      * @Given /^I see the Document buttons enabled$/
      */
-    public function iSeeTheDocumentButtonsEnabled()
+    public function iSeeTheDocumentButtonsEnabled(): void
     {
         $I = $this->I;
 
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\AcceptanceTester $I) {
-                $I->waitForElementChange('button[data-target="#editDocModal"]', function(WebDriverElement $el) {
+                $I->waitForElementChange('button[data-target="#editDocModal"]', function (WebDriverElement $el) {
                     return false === strpos($el->getAttribute('class'), 'disabled');
                 }, 30);
                 $I->dontSee('Edit', '.disabled');
@@ -154,14 +154,14 @@ class Notification implements Context
     /**
      * @Given /^I see the Item buttons disabled$/
      */
-    public function iSeeTheItemButtonsDisabled()
+    public function iSeeTheItemButtonsDisabled(): void
     {
         $I = $this->I;
 
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\AcceptanceTester $I) {
-                $I->waitForElementChange('button[data-target="#editItemModal"]', function(WebDriverElement $el) {
+                $I->waitForElementChange('button[data-target="#editItemModal"]', function (WebDriverElement $el) {
                     return false !== strpos($el->getAttribute('class'), 'disabled');
                 }, 30);
                 $I->see('Edit', '.disabled');
@@ -175,14 +175,14 @@ class Notification implements Context
     /**
      * @Given /^I see the Item buttons enabled$/
      */
-    public function iSeeTheItemButtonsEnabled()
+    public function iSeeTheItemButtonsEnabled(): void
     {
         $I = $this->I;
 
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\AcceptanceTester $I) {
-                $I->waitForElementChange('button[data-target="#editItemModal"]', function(WebDriverElement $el) {
+                $I->waitForElementChange('button[data-target="#editItemModal"]', function (WebDriverElement $el) {
                     return false === strpos($el->getAttribute('class'), 'disabled');
                 }, 30);
                 $I->dontSee('Edit', '.disabled');

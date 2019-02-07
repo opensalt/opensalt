@@ -31,12 +31,17 @@ class LorSupportController extends AbstractController
      * @var LsItemRepository
      */
     private $itemRepository;
+    /**
+     * @var string
+     */
+    private $assetsVersion;
 
-    public function __construct(LoggerInterface $logger, LsDocRepository $docRepository, LsItemRepository $itemRepository)
+    public function __construct(LoggerInterface $logger, LsDocRepository $docRepository, LsItemRepository $itemRepository, string $assetsVersion)
     {
         $this->logger = $logger;
         $this->docRepository = $docRepository;
         $this->itemRepository = $itemRepository;
+        $this->assetsVersion = $assetsVersion;
     }
 
     /**
@@ -146,7 +151,7 @@ class LorSupportController extends AbstractController
     {
         $response = new JsonResponse();
 
-        $response->setEtag(md5($lastModified->format('U.u')), true);
+        $response->setEtag(md5($lastModified->format('U.u').$this->assetsVersion), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(60);
         $response->setSharedMaxAge(60);
