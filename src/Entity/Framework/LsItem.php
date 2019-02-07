@@ -316,8 +316,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      *
-     * @Assert\DateTime()
-     *
      * @Serializer\Exclude()
      */
     private $changedAt;

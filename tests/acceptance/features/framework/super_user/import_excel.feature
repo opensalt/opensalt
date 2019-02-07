@@ -3,9 +3,9 @@ Feature: The framework can be uploaded as Excel
   As an organization-editor
   I need to upload a Excel file of the framework
 
-  @organization-editor @framework @excel
+  @super-user @framework @excel @duplicate @1013-1214
   Scenario: 1013-1214 A Excel file can be uploaded and downloaded
-    Given I log in as a user with role "Editor"
+    Given I log in as a user with role "Super-User"
     And I am on the homepage
     Then I should see "Import framework" button
 
@@ -15,3 +15,5 @@ Feature: The framework can be uploaded as Excel
     And I upload an excel file
     And I visit the uploaded framework
     Then I should see the framework created with the spreadsheet data
+
+    Then I delete the framework
