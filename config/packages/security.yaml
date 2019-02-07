@@ -44,25 +44,13 @@ security:
             provider: local_db_provider
             user_checker: App\Security\UserChecker
 
-            entry_point: salt.authentication.json_form_entry_point
-
-            # activate different ways to authenticate
-
-            # http://symfony.com/doc/current/book/security.html#a-configuring-how-your-users-will-authenticate
-            # http_basic: ~
-
-            # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
-            form_login:
-                login_path: login
-                check_path: login
-                csrf_token_generator: security.csrf.token_manager
-                default_target_path: salt_index
-                always_use_default_target_path: false
-                use_referer: true
-
             logout:
                 path: /logout
                 target: salt_index
+
+            guard:
+                authenticators:
+                    - App\Security\LoginFormAuthenticator
 
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods
@@ -74,9 +62,3 @@ security:
         - { path: ^/logout, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
-services:
-    salt.authentication.json_form_entry_point:
-        class: App\Security\EntryPoint\JsonFormAuthenticationEntryPoint
-        parent: security.authentication.form_entry_point.main
-        autowire: true
-        public: true

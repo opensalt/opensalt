@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Organization controller.
  *
  * @Route("admin/organization")
- * @Security("has_role('ROLE_SUPER_USER')")
+ * @Security("is_granted('ROLE_SUPER_USER')")
  */
 class OrganizationController extends AbstractController
 {

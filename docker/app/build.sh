@@ -17,9 +17,9 @@ tar cf app.tar \
 	package.json webpack.config.js yarn.lock \
 	LICENSE README.md
 docker build \
-	--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-	--build-arg VERSION=`cat ../../VERSION` \
-	--build-arg VCS_URL=`git config --get remote.origin.url` \
+	--build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+	--build-arg VERSION=$(cat ../../VERSION) \
+	--build-arg VCS_URL=$(git config --get remote.origin.url) \
 	--build-arg VCS_REF=$COMMIT \
 	-t opensalt/app:$COMMIT .
 rm -rf app.tar

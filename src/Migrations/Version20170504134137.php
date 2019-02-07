@@ -14,7 +14,7 @@ class Version20170504134137 extends AbstractMigration
     /**
      * @param Schema $schema
      */
-    public function up(Schema $schema)
+    public function up(Schema $schema): void
     {
         $cacheAdapter = new PdoAdapter($this->connection);
 
@@ -26,7 +26,7 @@ class Version20170504134137 extends AbstractMigration
     /**
      * @param Schema $schema
      */
-    public function down(Schema $schema)
+    public function down(Schema $schema): void
     {
         $this->addSql('DROP TABLE cache_items');
     }

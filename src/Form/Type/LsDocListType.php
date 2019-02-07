@@ -41,8 +41,10 @@ class LsDocListType extends AbstractType
             ->getResult()
         ;
 
+        /** @var LsDoc $doc */
         foreach ($list as $i => $doc) {
-            if (!$this->authChecker->isGranted('view', $doc)) {
+            // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $doc->getAdoptionStatus() && !$this->authChecker->isGranted('view', $doc)) {
                 unset($list[$i]);
             }
         }

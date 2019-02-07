@@ -1,7 +1,6 @@
 preset: symfony
 
 enabled:
-    - no_blank_lines_after_return
     - no_short_echo_tag
     - no_php4_constructor
 
@@ -46,6 +45,7 @@ disabled:
     #- no_alias_functions
     #- no_blank_lines_after_class_opening
     #- no_blank_lines_after_phpdoc
+    - no_blank_lines_after_return
     #- no_blank_lines_after_throw
     #- no_blank_lines_between_imports
     #- no_closing_tag

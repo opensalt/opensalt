@@ -9,7 +9,7 @@ use Doctrine\DBAL\Schema\Schema;
 
 class Version20180108162841 extends AbstractMigration
 {
-    public function up(Schema $schema)
+    public function up(Schema $schema): void
     {
         $this->addSql('
 CREATE TEMPORARY TABLE audit_doc
@@ -154,7 +154,7 @@ FROM salt_user_doc_acl;
         ');
     }
 
-    public function down(Schema $schema)
+    public function down(Schema $schema): void
     {
         $this->addSql('
 TRUNCATE audit_ls_doc;

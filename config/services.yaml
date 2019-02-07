@@ -101,6 +101,7 @@ parameters:
     local_filesystem_path: '%env(LOCAL_FILESYSTEM_PATH)%'
     footer_left_text: '%env(FOOTER_LEFT_TEXT)%'
     base_template: 'base.html.twig'
+    assets_version: '190202'
     
 services:
     # default configuration for services in *this* file
@@ -111,12 +112,13 @@ services:
                             # fetching services directly from the container via $container->get() won't work.
                             # The best practice is to be explicit about your dependencies anyway.
         bind:
-            $rootDir: '%kernel.root_dir%'
+            $projectDir: '%kernel.project_dir%'
             $mailFromEmail: '%mail_feature_from_email%'
             $firebasePrefix: '%firebase_prefix%'
             $guzzleJsonClient: '@csa_guzzle.client.json'
             $kernelEnv: '%kernel.environment%'
             $externalDocCache: '@salt.cache.external_docs'
+            $assetsVersion: '%assets_version%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -148,8 +150,8 @@ services:
         arguments:
             $bucketProvider: '%bucket_provider%'
 
-    App\EventListener\LoginListener:
-        class: App\EventListener\LoginListener
+    App\EventListener\LoginCaptchaListener:
+        class: App\EventListener\LoginCaptchaListener
         arguments:
             $captchaSecret: '%google_captcha_secret_key%'
 
