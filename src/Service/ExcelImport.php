@@ -10,6 +10,7 @@ use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\AdditionalField;
+use App\Util\EducationLevelSet;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Ramsey\Uuid\Uuid;
@@ -211,7 +212,7 @@ final class ExcelImport
             $item->setConceptKeywords($this->getCellValueOrNull($sheet, 7, $row));
             $item->setNotes($this->getCellValueOrNull($sheet, 8, $row));
             $item->setLanguage($this->getCellValueOrNull($sheet, 9, $row));
-            $item->setEducationalAlignment($this->getCellValueOrNull($sheet, 10, $row));
+            $this->setEducationalAlignment($item, $this->getCellValueOrNull($sheet, 10, $row));
 
             $itemTypeTitle = $this->getCellValueOrNull($sheet, 11, $row);
             $itemType = $this->findItemType($itemTypeTitle);
@@ -393,5 +394,10 @@ final class ExcelImport
             }
             ++$column;
         }
+    }
+
+    private function setEducationalAlignment(LsItem $item, ?string $passedGradeString): void
+    {
+        $item->setEducationalAlignment(EducationLevelSet::fromString($passedGradeString)->toString());
     }
 }
