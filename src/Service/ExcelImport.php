@@ -42,6 +42,8 @@ final class ExcelImport
 
     public function importExcel(string $excelFilePath): LsDoc
     {
+        set_time_limit(180); // increase time limit for large files
+
         $phpExcelObject = \PhpOffice\PhpSpreadsheet\IOFactory::load($excelFilePath);
 
         /** @var LsItem[] $items */
@@ -245,72 +247,73 @@ final class ExcelImport
             $fields[$name] = $this->getCellValueOrNull($sheet, $col, $row);
         }
 
-        if (!array_key_exists((string) $fields['originNodeIdentifier'], $children)) {
+        if (LsAssociation::CHILD_OF === $fields['associationType'] && array_key_exists((string) $fields['originNodeIdentifier'], $children)) {
+            return null;
+        }
 
-            if (empty($fields['identifier'])) {
-                $fields['identifier'] = null;
-            } elseif (Uuid::isValid($fields['identifier'])) {
-                $association = $this->getEntityManager()->getRepository(LsAssociation::class)
-                    ->findOneBy(['identifier' => $fields['identifier'], 'lsDocIdentifier' => $doc->getIdentifier()]);
-            }
+        if (empty($fields['identifier'])) {
+            $fields['identifier'] = null;
+        } elseif (Uuid::isValid($fields['identifier'])) {
+            $association = $this->getEntityManager()->getRepository(LsAssociation::class)
+                ->findOneBy(['identifier' => $fields['identifier'], 'lsDocIdentifier' => $doc->getIdentifier()]);
+        }
+
+        if (null === $association) {
+            $association = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
+                'originNodeIdentifier' => $fields['originNodeIdentifier'],
+                'type' => $fields['associationType'],
+                'destinationNodeIdentifier' => $fields['destinationNodeIdentifier']
+            ]);
 
             if (null === $association) {
-                $association = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
-                    'originNodeIdentifier' => $fields['originNodeIdentifier'],
-                    'type' => $fields['associationType'],
-                    'destinationNodeIdentifier' => $fields['destinationNodeIdentifier']
-                ]);
-
-                if (null === $association) {
-                    $association = $doc->createAssociation($fields['identifier']);
-                }
+                $association = $doc->createAssociation($fields['identifier']);
             }
-
-            if (array_key_exists((string) $fields['originNodeIdentifier'], $items)) {
-                $association->setOrigin($items[$fields['originNodeIdentifier']]);
-            } else {
-                $ref = 'data:text/x-ref-unresolved,'.$fields['originNodeIdentifier'];
-                $association->setOrigin($ref, $fields['originNodeIdentifier']);
-            }
-
-            if (array_key_exists((string) $fields['destinationNodeIdentifier'], $items)) {
-                $association->setDestination($items[$fields['destinationNodeIdentifier']]);
-            } elseif ($item = $itemRepo->findOneByIdentifier($fields['destinationNodeIdentifier'])) {
-                $items[$item->getIdentifier()] = $item;
-                $association->setDestination($item);
-            } else {
-                $ref = 'data:text/x-ref-unresolved,'.$fields['destinationNodeIdentifier'];
-                $association->setDestination($ref, $fields['destinationNodeIdentifier']);
-            }
-
-            $allTypes = [];
-            foreach (LsAssociation::allTypes() as $type) {
-                $allTypes[] = str_replace(' ', '', strtolower($type));
-            }
-
-            $associationType = str_replace(' ', '', strtolower($fields['associationType']));
-
-            if (in_array($associationType, $allTypes, true)) {
-                $association->setType($fields['associationType']);
-            } else {
-                $log = new ImportLog();
-                $log->setLsDoc($doc);
-                $log->setMessageType('error');
-                $log->setMessage("Invalid Association Type ({$associationType} on row {$row}.");
-
-                return null;
-            }
-
-            if (!empty($fields['associationGroupIdentifier'])) {
-                $associationGrouping = new LsDefAssociationGrouping();
-                $associationGrouping->setLsDoc($doc);
-                $associationGrouping->setTitle($fields['associationGroupName']);
-                $association->setGroup($associationGrouping);
-                $this->getEntityManager()->persist($associationGrouping);
-            }
-
-            $this->getEntityManager()->persist($association);
         }
+
+        if (array_key_exists((string) $fields['originNodeIdentifier'], $items)) {
+            $association->setOrigin($items[$fields['originNodeIdentifier']]);
+        } else {
+            $ref = 'data:text/x-ref-unresolved,'.$fields['originNodeIdentifier'];
+            $association->setOrigin($ref, $fields['originNodeIdentifier']);
+        }
+
+        if (array_key_exists((string) $fields['destinationNodeIdentifier'], $items)) {
+            $association->setDestination($items[$fields['destinationNodeIdentifier']]);
+        } elseif ($item = $itemRepo->findOneByIdentifier($fields['destinationNodeIdentifier'])) {
+            $items[$item->getIdentifier()] = $item;
+            $association->setDestination($item);
+        } else {
+            $ref = 'data:text/x-ref-unresolved,'.$fields['destinationNodeIdentifier'];
+            $association->setDestination($ref, $fields['destinationNodeIdentifier']);
+        }
+
+        $allTypes = [];
+        foreach (LsAssociation::allTypes() as $type) {
+            $allTypes[] = str_replace(' ', '', strtolower($type));
+        }
+
+        $associationType = str_replace(' ', '', strtolower($fields['associationType']));
+
+        if (in_array($associationType, $allTypes, true)) {
+            $association->setType($fields['associationType']);
+        } else {
+            $log = new ImportLog();
+            $log->setLsDoc($doc);
+            $log->setMessageType('error');
+            $log->setMessage("Invalid Association Type ({$associationType} on row {$row}.");
+
+            return null;
+        }
+
+        if (!empty($fields['associationGroupIdentifier'])) {
+            $associationGrouping = new LsDefAssociationGrouping();
+            $associationGrouping->setLsDoc($doc);
+            $associationGrouping->setTitle($fields['associationGroupName']);
+            $association->setGroup($associationGrouping);
+            $this->getEntityManager()->persist($associationGrouping);
+        }
+
+        $this->getEntityManager()->persist($association);
 
         return $association;
     }
