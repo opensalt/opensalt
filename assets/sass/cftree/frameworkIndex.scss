@@ -3,10 +3,23 @@
         span.fancytree-icon {
             @extend .material-icons;
             background-image: none;
-            color: #1e427f;
+            // color: #626366;
 
             &::after {
                 content: "account_balance";
+                font-size: 18px;
+            }
+        }
+    }
+
+    .folder-version {
+        span.fancytree-icon {
+            @extend .material-icons;
+            background-image: none;
+            // color: #626366;
+
+            &::after {
+                content: "account_balance_wallet";
                 font-size: 18px;
             }
         }

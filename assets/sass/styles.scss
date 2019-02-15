@@ -26,7 +26,7 @@ header {
         height:inherit;
 
         img {
-            height:60px;
+            height:20px;
         }
     }
 
@@ -68,12 +68,10 @@ footer {
     bottom: 0;
     height: 36px;
     left: 0;
-    position: absolute;
     width: 100%;
-    padding: 0 15px;
 
     .navbar-default {
-        border-radius:4px 4px 0 0;
+        border-radius: 0;
         border-width: 0;
         min-height: auto;
         margin-bottom:0;

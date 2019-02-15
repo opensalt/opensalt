@@ -454,11 +454,13 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     .fancytree-exp-n span.fancytree-icon, .fancytree-exp-n span.fancytree-icon:hover,
     .fancytree-exp-nl span.fancytree-icon, .fancytree-exp-nl span.fancytree-icon:hover
     {
-        background-image: url('#{$salt-view-font-path}/assets/img/doc.png');
-        background-position: inherit;
-        background-size: 20px;
-        width:20px;
-        height:24px;
+        @extend .material-icons;
+        background-image: none;
+
+        &::after {
+            content: "format_align_justify";
+            font-size: 18px;
+        }
     }
 
     // hide folders that aren't showing any items

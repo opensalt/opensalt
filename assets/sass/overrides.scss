@@ -35,14 +35,20 @@ span.fancytree-node {
             }
         }
 
+        span.folder-version {
+            span.fancytree-title {
+                color: $text-color;
+            }
+        }
+
         span.fancytree-folder {
             span.fancytree-title {
-                font-weight: bold;
+                // font-weight: bold;
                 color: $text-color;
             }
         }
     }
-    
+
     .salt-framework-link span.fancytree-title:hover {
         text-decoration: $link-hover-decoration;
         color: $link-hover-color;

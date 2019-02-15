@@ -55,7 +55,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ->add('description', null, [
                 'disabled' => $disableAsAdopted,
             ])
-            //->add('subject')
+            ->add('subject')
             //->add('subjectUri')
             ->add('subjects', Select2EntityType::class, [
                 'disabled' => $disableAsAdopted,

@@ -67,7 +67,7 @@ class LsDocController extends AbstractController
         /** @var LsDoc[] $results */
         $results = $em->getRepository(LsDoc::class)->findBy(
             [],
-            ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']
+            ['subject' => 'ASC', 'version' => 'ASC', 'creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']
         );
 
         $lsDocs = [];
@@ -75,7 +75,7 @@ class LsDocController extends AbstractController
         foreach ($results as $lsDoc) {
             // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
             if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus() || ($loggedIn && $this->authChecker->isGranted('view', $lsDoc))) {
-                $lsDocs[] = $lsDoc;
+                $lsDocs[$lsDoc->getSubject()][$lsDoc->getVersion()][$lsDoc->getCreator()][] = $lsDoc;
             }
         }
 

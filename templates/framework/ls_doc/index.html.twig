@@ -1,39 +1,88 @@
 {% extends base_template %}
 
 {% block bodyclasses %}{{ parent() }}{% endblock %}
-{% block body %}
-    <h1>Competency Frameworks
-        {% if is_granted('create', 'lsdoc') %}
-            <ul class="list-inline pull-right">
-                <li>
-                    <a class="btn btn-default" href="{{ path('lsdoc_new') }}">Create a new Framework</a>
-                </li>
-                <li>
-                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#wizard">Import framework</button>
-                </li>
-            </ul>
-        {% endif %}
-    </h1>
-
-    <div id="competencyTree">
-        {% set lastCreator = '' %}
-        <ul id="comptencyTreeData" style="display:none;">
-            {% for framework in lsDocs %}
-                {% if framework.creator != lastCreator %}
-                    {% if not loop.first %}</ul></li>{% endif %}
-                        <li class="folder">{{ framework.creator }}<ul>
-                                {% set lastCreator = framework.creator %}
-                    {% endif %}
-                    <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'slug': framework.slug }) }}">{{ framework.title }}</a></li>
-                    {% if loop.last == true and framework.creator != '' %}
-                        </ul></li>
-                    {% endif %}
-                {% endfor %}
-                </ul>
-    </div>
-    {% include 'framework/ls_doc/wizard.html.twig' %}
+{% block navbar_left_items %}
+    {% if is_granted('create', 'lsdoc') %}
+        <ul class="nav navbar-nav">
+            <li>
+                <a href="{{ path('lsdoc_new') }}">New Framework</a>
+            </li>
+            <li>
+                <a href="#" data-toggle="modal" data-target="#wizard">Import framework</a>
+                {% include 'framework/ls_doc/wizard.html.twig' %}
+            </li>
+        </ul>
+    {% endif %}
 {% endblock %}
+{% block body %}
+<h1>The ACT Holistic Framework</h1>
+<br>
 
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Competency Frameworks
+            </div>
+            <div class="panel-body">
+                <div id="competencyTree">
+                    <ul id="comptencyTreeData" style="display:none">
+                        {% for subject in lsDocs|keys if subject != '' %}
+                            <li class="folder folder-version">{{ subject }}<ul>
+                            {% for version in lsDocs[subject]|keys if version != '' %}
+                                <li class="folder folder-version">{{ version }}<ul>
+                                {% for creator in lsDocs[subject][version]|keys %}
+                                    <li class="folder">{{ creator }}<ul>
+                                    {% for framework in lsDocs[subject][version][creator] %}
+                                        <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'slug': framework.slug }) }}">{{ framework.title }}</a></li>
+                                    {% endfor %}
+                                    </ul></li>
+                                {% endfor %}
+                                </ul></li>
+                            {% endfor %}
+
+                            {% for version in lsDocs[subject]|keys if version == '' %}
+                                {% for creator in lsDocs[subject][version]|keys %}
+                                    <li class="folder">{{ creator }}<ul>
+                                    {% for framework in lsDocs[subject][version][creator] %}
+                                        <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'slug': framework.slug }) }}">{{ framework.title }}</a></li>
+                                    {% endfor %}
+                                    </ul></li>
+                                {% endfor %}
+                            {% endfor %}
+                            </ul></li>
+                        {% endfor %}
+
+                        {% if lsDocs[''] is defined %}
+                            {% for version in lsDocs['']|keys if version != '' %}
+                                <li class="folder folder-version">{{version}}<ul>
+                                {% for creator in lsDocs[''][version]|keys %}
+                                    <li class="folder">{{creator}}<ul>
+                                    {% for framework in lsDocs[''][version][creator] %}
+                                        <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'slug': framework.slug }) }}">{{ framework.title }}</a></li>
+                                    {% endfor %}
+                                    </ul></li>
+                                {% endfor %}
+                                </ul></li>
+                            {% endfor %}
+
+                            {% if lsDocs[''][''] is defined %}
+                                {% for creator in lsDocs['']['']|keys %}
+                                    <li class="folder">{{creator}}<ul>
+                                    {% for framework in lsDocs[''][''][creator] %}
+                                        <li class="salt-framework-link"><a href="{{ path('doc_tree_view', { 'slug': framework.slug }) }}">{{ framework.title }}</a></li>
+                                    {% endfor %}
+                                    </ul></li>
+                                {% endfor %}
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 {% block javascripts %}
 <script>
     $('#competencyTree').fancytree({
