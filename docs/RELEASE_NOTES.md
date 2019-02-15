@@ -12,11 +12,12 @@ Release Notes
 
 ### Improvements
 - [Update Framework Tool by Spreadsheet can match with associations](http://docs.opensalt.org/en/latest/index.html#h10414a76521969321d1aa7b43555d12)
-- Import Framework via Spreadsheet is back 
+- Import Framework via Spreadsheet is back
+- Ability to add a left side footer 
 
 ### Fixes
 - Order on the UI and backend uses SequenceNumber
-
+- CfDef pages secured
 
 
 2.1.1 ([Full issue and PR list](https://github.com/opensalt/opensalt/issues?&q=milestone%3A2.1+is%3Aclosed))
