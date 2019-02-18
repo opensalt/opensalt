@@ -67,7 +67,7 @@ services:
   composer:
     #build:
     #  context: ./composer
-    image: opensalt/composer:1.8-7.3
+    image: opensalt/php:7.3-fpm
     environment:
       MYSQL_DATABASE:
       MYSQL_USER:
@@ -80,6 +80,7 @@ services:
       - "${PROJ_DIR:-..}/docker/data/composer/root-user:/root/composer"
       - "${PROJ_DIR:-..}/docker/data/composer/passwd.tmp:/etc/passwd"
     working_dir: /var/www/html
+    entrypoint: [ "composer", "--ansi" ]
     command: [ "-q" ]
 
   gulp:
