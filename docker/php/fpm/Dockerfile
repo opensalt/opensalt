@@ -16,6 +16,9 @@ RUN	apt-get -o 'Acquire::CompressionTypes::Order::="gz"' update \
 	  libicu-dev \
 	  libzip-dev \
 	  unzip \
+	  curl \
+	  wget \
+	  git \
 	&& docker-php-ext-configure gd --with-freetype-dir=/usr/lib/x86_64-linux-gnu --with-jpeg-dir \
 	&& docker-php-ext-install -j$(nproc) \
 	  bz2 \
