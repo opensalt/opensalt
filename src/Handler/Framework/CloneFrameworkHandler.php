@@ -6,14 +6,17 @@ use App\Command\Framework\CopyFrameworkCommand;
 use App\Event\CommandEvent;
 use App\Handler\BaseDoctrineHandler;
 use App\Entity\Framework\LsDoc;
+use App\Repository\Framework\LsDocRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CloneFrameworkHandler extends BaseDoctrineHandler
 {
-    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager)
+    private $repository;
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, LsDocRepository $repository)
     {
+        $this->repository = $repository;
         parent::__construct($validator, $entityManager);
     }
 
@@ -22,6 +25,9 @@ class CloneFrameworkHandler extends BaseDoctrineHandler
         /** @var CopyFrameworkCommand $command */
         $command = $event->getCommand();
         $this->validate($command, $command);
+        $newDoc->setFrameworkType(null);
+
+        $this->repository->copyDocumentContentToDoc($doc, $newDoc, false);
 
         /** @var LsDoc $doc */
         $doc = $command->getDoc();
