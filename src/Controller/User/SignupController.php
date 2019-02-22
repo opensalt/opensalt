@@ -81,8 +81,8 @@ class SignupController extends AbstractController
                 $org = new Organization();
                 $org->setName($form['newOrg']->getData());
 
+                $commandOrg = new AddOrganizationCommand($org);
                 try {
-                    $commandOrg = new AddOrganizationCommand($org);
                     $this->sendCommand($commandOrg);
 
                     $targetUser->setOrg($org);
