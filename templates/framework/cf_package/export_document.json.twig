@@ -1,7 +1,7 @@
 {% block body %}
     {
         "identifier": {{ lsDoc.identifier |json_encode |raw }},
-        "uri": {{ lsDoc.uri|local_uri |json_encode |raw }},
+        "uri": {{ object_uri(lsDoc) |json_encode |raw }},
         "creator": {{ lsDoc.creator |json_encode |raw }},
         "title": {{ lsDoc.title |json_encode |raw }},
         {% if lsDoc.officialUri is not null -%}
@@ -47,6 +47,6 @@
         {%- endif %}
         "lastChangeDateTime": {{ lsDoc.updatedAt|date('c') |replace({'+00:00':''}) |json_encode |raw }},
         {# TODO: CFPackage URI #}
-        "CFPackageURI": {{ lsDoc.uri|local_uri |json_encode |raw }}
+        "CFPackageURI": {{ object_uri(lsDoc, 'api_v1p0_cfpackage') |json_encode |raw }}
     }
 {% endblock %}

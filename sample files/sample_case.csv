@@ -1,11 +1,11 @@
-Identifier,fullStatement,Human Coding Scheme,sequenceNumber,Abbreviated Statement,ConceptKeywords,Notes,Language,educationLevel,CFItemType,License,CFAssociationGroupIdentifier,Is Child Of,IsPartOf,replacedBy,Exemplar,hasSkillLevel,IsRelatedTo,IsExactMatchOf
-Math,Everything about math,M,1,,,Math,en,3,Item,,,,,,,,,http://asn.jesandco.org/resources/S1143417
-Math.Fractions,Fractions are rational numbers - this standard group explores those concepts,M.F,1,Math,,Testing,en,3,Item,,,M,,,,,CCSS.Math.Content.HSF-IF.C.8b,
-Math.Fractions.Cluster1,Students understand operations on fractions.,M.F.1-2,1,Math.Fractions,,More Testing,en,3,Item,,,M.F,,,,,http://asn.jesandco.org/resources/S1143417,
-Math.Fractions.Cluster1.Standard1,Students understand that fractions are closed under the four operations,M.F.1-2.S1,1,Math.Fractions.Cluster1,,,en,3,Item,,,M.F.1-2,,,https://www.opened.com/video/classify-and-order-real-numbers-using-subsets/801540,,,
-Math.Fractions.Cluster1.Standard1a,Students can add or subtract fractions,M.F.1-2.S1a,1,Math.Fractions.Cluster1.Standard1,,,en,3,Item,,,M.F.1-2.S1,,,,,,
-Math.Fractions.Cluster1.Standard1b,Students can multiply or divide fractions,M.F.1-2.S1b,1,Math.Fractions.Cluster1.Standard1,,,en,3,Item,,,M.F.1-2.S1,,,,,CCSS.MATH.CONTENT.1.G.A.1,
-Math.Fractions.Cluster2,Students are able to distinguish between rational and irrational numbers,M.F.C2,2,Math.Fractions,,Random Testing of text,en,3,Item,,,M.F,,,,,,
-Math.Fractions.Cluster2.Standard1,If a fraction repeats it is irrational,M.F.C2.S1,1,Math.Fractions.Cluster2,,,en,3,Item,,,M.F.C2,,,,,,
-Math.Exponents,Exponents,M.E,2,,,,en,3,Item,,,,,,,,,
-Math.Exponents.Cluster1,Exponent 1,M.E.C1,1,,,,en,3,Item,,,,,,,,,
+"Identifier","fullStatement","Human Coding Scheme","sequenceNumber","Abbreviated Statement","ConceptKeywords","Notes","Is Child Of","IsPartOf","replacedBy","Exemplar","hasSkillLevel","IsRelatedTo"
+"Math","Everything about math","M","1","","","Math","","","","","",""
+"Math.Fractions","Fractions are rational numbers - this standard group explores those concepts","M.F","1","Math","","Testing","M","","","","","CCSS.Math.Content.HSF-IF.C.8b"
+"Math.Fractions.Cluster1","Students understand operations on fractions.","M.F.1-2","1","Math.Fractions","","More Testing","M.F","","","","","http://asn.jesandco.org/resources/S1143417"
+"Math.Fractions.Cluster1.Standard1","Students understand that fractions are closed under the four operations","M.F.1-2.S1","1","Math.Fractions.Cluster1","","","M.F.1-2","","","https://www.opened.com/video/classify-and-order-real-numbers-using-subsets/801540","",""
+"Math.Fractions.Cluster1.Standard1a","Students can add or subtract fractions","M.F.1-2.S1a","1","Math.Fractions.Cluster1.Standard1","","","M.F.1-2.S1","","","","",""
+"Math.Fractions.Cluster1.Standard1b","Students can multiply or divide fractions","M.F.1-2.S1b","1","Math.Fractions.Cluster1.Standard1","","","M.F.1-2.S1","","","","","CCSS.MATH.CONTENT.1.G.A.1"
+"Math.Fractions.Cluster2","Students are able to distinguish between rational and irrational numbers","M.F.C2","2","Math.Fractions","","Random Testing of text","M.F","","","","",""
+"Math.Fractions.Cluster2.Standard1","If a fraction repeats it is irrational","M.F.C2.S1","1","Math.Fractions.Cluster2","","","M.F.C2","","","","",""
+"Math.Exponents","Exponents","M.E","2","","","","","","","","",""
+"Math.Exponents.Cluster1","Exponent 1","M.E.C1","1","","","","","","","","",""

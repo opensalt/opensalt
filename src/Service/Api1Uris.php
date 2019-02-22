@@ -2,106 +2,82 @@
 
 namespace App\Service;
 
-use App\Entity\Framework\CfRubric;
-use App\Entity\Framework\CfRubricCriterion;
-use App\Entity\Framework\CfRubricCriterionLevel;
 use App\Entity\Framework\IdentifiableInterface;
 use App\Entity\Framework\LsAssociation;
-use App\Entity\Framework\LsDefAssociationGrouping;
-use App\Entity\Framework\LsDefConcept;
-use App\Entity\Framework\LsDefItemType;
-use App\Entity\Framework\LsDefLicence;
-use App\Entity\Framework\LsDefSubject;
-use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsItem;
+use App\Entity\Framework\Package;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class Api1Uris
 {
-    public static $classMap = [
-        LsDoc::class => 'api_v1p0_cfdocument',
-        LsItem::class => 'api_v1p0_cfitem',
-        LsDefItemType::class => 'api_v1p0_cfitemtype',
-        LsAssociation::class => 'api_v1p0_cfassociation',
-        LsDefAssociationGrouping::class => 'api_v1p0_cfassociationgrouping',
-        LsDefConcept::class => 'api_v1p0_cfconcept',
-        LsDefLicence::class => 'api_v1p0_cflicense',
-        LsDefSubject::class => 'api_v1p0_cfsubject',
-        CfRubric::class => 'api_v1p0_cfrubric',
-        CfRubricCriterion::class => 'api_v1p0_cfrubriccriterion',
-        CfRubricCriterionLevel::class => 'api_v1p0_cfrubriccriterionlevel',
-    ];
-
     /**
      * @var RouterInterface
      */
     private $router;
 
-    public function __construct(RouterInterface $router)
+    /**
+     * @var UriGenerator
+     */
+    private $uriGenerator;
+
+    public function __construct(RouterInterface $router, UriGenerator $uriGenerator)
     {
         $this->router = $router;
+        $this->uriGenerator = $uriGenerator;
     }
 
-    /**
-     * @param mixed $obj
-     * @param string|null $route
-     *
-     * @return null|string
-     */
+    public function getUri(?IdentifiableInterface $obj, ?string $route = null): ?string
+    {
+        return $this->generateUri($obj, $route, false);
+    }
+
     public function getApiUrl(?IdentifiableInterface $obj, ?string $route = null): ?string
     {
-        // Only get one URI
-        if (is_array($obj)) {
-            $obj = current($obj);
+        return $this->generateUri($obj, $route, true);
+    }
+
+    public function getApiUriForIdentifier(string $id, string $route): string
+    {
+        if (null === $route) {
+            return null;
         }
 
-        // If no object then don't return a route
+        return $this->router->generate($route, ['id' => $id], UrlGeneratorInterface::ABSOLUTE_URL);
+    }
+
+    protected function generateUri(?IdentifiableInterface $obj, ?string $route = null, bool $isApiLink = false): ?string
+    {
         if (null === $obj) {
             return null;
         }
 
         $uri = $obj->getUri();
 
-        if (empty($uri)) {
-            return null;
-        }
-
         if (!preg_match('/^local:/', $uri)) {
-            if ('api_v1p0_cfpackage' === $route) {
-                // Since we don't store the CF Package URI patch it
-                $uri = str_replace('CFDocuments', 'CFPackages', $uri);
-            }
-            return $uri;
+            return $this->generateRemoteUri($uri, $route);
         }
 
-        $id = $obj->getIdentifier();
+        if (!$isApiLink) {
+            return $this->uriGenerator->getUri($obj, $route);
+        }
 
         if (null === $route) {
-            $class = get_class($obj);
-            $class = str_replace('Proxies\\__CG__\\', '', $class);
-            if (!in_array($class, static::$classMap, true)) {
-                $route = static::$classMap[$class];
-            }
+            $route = Api1RouteMap::getForObject($obj);
         }
 
-        if (empty($route)) {
-            return null;
-        }
-
-        return $this->getApiUriForIdentifier($id, $route);
+        return $this->getApiUriForIdentifier($obj->getIdentifier(), $route);
     }
 
-    public function getApiUriForIdentifier(string $id, string $route): string
+    protected function generateRemoteUri(string $uri, ?string $route = null): string
     {
-        return $this->router->generate($route, ['id' => $id], UrlGeneratorInterface::ABSOLUTE_URL);
+        if (Api1RouteMap::getForClass(Package::class) === $route) {
+            // Since we don't store the CF Package URI patch it
+            $uri = str_replace('CFDocuments', 'CFPackages', $uri);
+        }
+
+        return $uri;
     }
 
-    /**
-     * @param string|null $csv
-     *
-     * @return array|null
-     */
     public function splitByComma(?string $csv): ?array
     {
         if (null === $csv) {
@@ -117,19 +93,9 @@ class Api1Uris
         return $values;
     }
 
-    /**
-     * @param iterable|null $objs
-     *
-     * @return array
-     */
-    public function getLinkUriList(?iterable $objs)
+    public function getLinkUriList(iterable $objs): ?array
     {
-        if (null === $objs) {
-            return null;
-        }
-
         $list = [];
-
         foreach ($objs as $obj) {
             $list[] = $this->getLinkUri($obj);
         }
@@ -137,67 +103,57 @@ class Api1Uris
         return $list;
     }
 
-    /**
-     * @param mixed $obj
-     * @param null|string $route
-     *
-     * @return array|null
-     */
     public function getLinkUri(?IdentifiableInterface $obj, ?string $route = null): ?array
     {
         if (null === $obj) {
             return null;
         }
 
-        if (method_exists($obj, 'getHumanCodingScheme')) {
-            $title = $obj->getHumanCodingScheme();
-        }
-        if (empty($title) && method_exists($obj, 'getShortStatement')) {
-            $title = $obj->getShortStatement();
-        }
-        if (empty($title) && method_exists($obj, 'getTitle')) {
-            $title = $obj->getTitle();
-        }
-        if (empty($title) && method_exists($obj, 'getName')) {
-            $title = $obj->getName();
-        }
+        $descriptors = [
+            'getHumanCodingScheme',
+            'getShortStatement',
+            'getTitle',
+            'getName',
+        ];
 
-        if (empty($title)) {
-            $title = 'Linked Reference';
+        foreach ($descriptors as $descriptor) {
+            if (method_exists($obj, $descriptor) && !empty($title = $obj->{$descriptor}())) {
+                return [
+                    'title' => $title,
+                    'identifier' => $obj->getIdentifier(),
+                    'uri' => $this->getUri($obj, $route),
+                ];
+            }
         }
 
         return [
-            'title' => $title,
+            'title' => 'Linked Reference',
             'identifier' => $obj->getIdentifier(),
-            'uri' => $this->getApiUrl($obj, $route),
+            'uri' => $this->getUri($obj, $route),
         ];
     }
 
     public function getNodeLinkUri($selector, LsAssociation $obj): ?array
     {
+        $selector = ucfirst($selector);
+
         if (null === $obj) {
             return null;
         }
 
-        $title = $selector;
-
-        if ('origin' === $selector) {
-            $uri = $obj->getOrigin();
-            if (is_object($uri)) {
-                return $this->getLinkUri($uri);
-            }
-            $identifier = $obj->getOriginNodeIdentifier();
-        } else {
-            $uri = $obj->getDestination();
-            if (is_object($uri)) {
-                return $this->getLinkUri($uri);
-            }
-            $identifier = $obj->getDestinationNodeIdentifier();
+        if (!in_array($selector, ['Origin', 'Destination'])) {
+            throw new \InvalidArgumentException('Selector may only be "Origin" or "Destination"');
         }
 
+        $uri = $obj->{'get'.$selector}();
+        if (is_object($uri)) {
+            return $this->getLinkUri($uri);
+        }
+
+        $identifier = $obj->{'get'.$selector.'NodeIdentifier'}();
 
         return [
-            'title' => ucfirst($title).' Node',
+            'title' => $selector.' node',
             'identifier' => $identifier,
             'uri' => $uri,
         ];

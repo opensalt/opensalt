@@ -1,7 +1,7 @@
 {% block body %}
     {
         "identifier": {{ lsItemType.identifier |json_encode |raw }},
-        "uri": {{ lsItemType.uri|local_uri |json_encode |raw }},
+        "uri": {{ uri_for_identifier(lsItemType.identifier) |json_encode |raw }},
         "title": {{ lsItemType.title |json_encode |raw }},
         "description": {{ lsItemType.description |json_encode |raw }},
         "hierarchyCode": {{ lsItemType.hierarchyCode |json_encode |raw }},

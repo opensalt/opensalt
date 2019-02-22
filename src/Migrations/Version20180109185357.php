@@ -9,7 +9,7 @@ use Doctrine\DBAL\Schema\Schema;
 
 class Version20180109185357 extends AbstractMigration
 {
-    public function up(Schema $schema)
+    public function up(Schema $schema): void
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
@@ -18,7 +18,7 @@ class Version20180109185357 extends AbstractMigration
         $this->addSql('ALTER TABLE salt_object_lock ADD CONSTRAINT FK_247092F895648BC FOREIGN KEY (doc_id) REFERENCES ls_doc (id)');
     }
 
-    public function down(Schema $schema)
+    public function down(Schema $schema): void
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 

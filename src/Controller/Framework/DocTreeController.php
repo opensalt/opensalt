@@ -39,6 +39,8 @@ class DocTreeController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    private const ETAG_SEED = '1';
+
     /**
      * @var ClientInterface
      */
@@ -63,11 +65,8 @@ class DocTreeController extends AbstractController
      * @Entity("lsDoc", expr="repository.findOneBySlug(slug)")
      * @Template()
      */
-    public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, UserInterface $user = null, $_format = 'html', $lsItemId = null, $assocGroup = null)
+    public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, $_format = 'html', $lsItemId = null, $assocGroup = null)
     {
-        // get form field for selecting a document (for tree2)
-        $form = $this->createForm(LsDocListType::class, null, ['ajax' => false]);
-
         $em = $this->getDoctrine()->getManager();
 
         // Get all association groups (for all documents);
@@ -97,41 +96,18 @@ class DocTreeController extends AbstractController
 
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,
-            'docList' => $form->createView(),
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => $lsDefAssociationGroupings,
         ];
 
         if ($editorRights) {
-            // get list of all documents
-            $docs = $em->getRepository(LsDoc::class)->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
-            $lsDocs = [];
-            foreach ($docs as $doc) {
-                if ($authChecker->isGranted('view', $doc)) {
-                    $lsDocs[] = $doc;
-                }
-            }
-            $ret['lsDocs'] = $lsDocs;
+            // get form field for selecting a document (for tree2)
+            $docList = $this->createForm(LsDocListType::class, null, ['ajax' => false])->createView();
+            $ret['docList'] = $docList;
 
-            $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
-            if ($user instanceof User) {
-                $locks = $em->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
-                foreach ($locks as $lock) {
-                    if ($lock->getUser() === $user) {
-                        $expiry = false;
-                    } else {
-                        $expiry = (int) $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
-                    }
-                    if (LsDoc::class === $lock->getObjectType()) {
-                        $docLocks['docs'][$lock->getObjectId()] = $expiry;
-                    }
-                    if (LsItem::class === $lock->getObjectType()) {
-                        $docLocks['items'][$lock->getObjectId()] = $expiry;
-                    }
-                }
-            }
-            $ret['locks'] = $docLocks;
+            $ret['lsDocs'] = $this->getViewableDocList($authChecker);
+            $ret['locks'] = $this->getLocks($lsDoc, $user);
         }
 
         return $ret;
@@ -186,7 +162,7 @@ class DocTreeController extends AbstractController
         if (false !== $lastChange && null !== $lastChange['changed_at']) {
             $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
         }
-        $response->setEtag(md5($lastModified->format('U.u')), true);
+        $response->setEtag(md5($lastModified->format('U.u').self::ETAG_SEED), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(0);
         $response->setSharedMaxAge(0);
@@ -200,7 +176,7 @@ class DocTreeController extends AbstractController
 
         $items = $this->getDoctrine()->getRepository(LsDoc::class)->findItemsForExportDoc($lsDoc);
         $associations = $this->getDoctrine()->getRepository(LsDoc::class)->findAssociationsForExportDoc($lsDoc);
-        $assocGroups = $this->getDoctrine()->getRepository(LsDefAssociationGrouping::class)->findBy(['lsDoc'=>$lsDoc]);
+        $assocGroups = $this->getDoctrine()->getRepository(LsDefAssociationGrouping::class)->findBy(['lsDoc' => $lsDoc]);
         $associatedDocs = array_merge(
             $lsDoc->getExternalDocs(),
             $this->getDoctrine()->getRepository(LsDoc::class)->findAssociatedDocs($lsDoc)
@@ -237,7 +213,7 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * Retrieve a CFPackage from the given document identifier, then use exportAction to export it
+     * Retrieve a CFPackage from the given document identifier, then use exportAction to export it.
      *
      * @Route("/retrievedocument/{id}", name="doctree_retrieve_document", methods={"GET"})
      * @Route("/retrievedocument/url", name="doctree_retrieve_document_by_url", methods={"GET"}, defaults={"id"=null})
@@ -592,7 +568,7 @@ class DocTreeController extends AbstractController
             $json = json_decode($content, true);
             $lastModified = new \DateTime($json['CFDocument']['lastChangeDateTime'], new \DateTimeZone('UTC'));
 
-            $response->setEtag(md5($lastModified->format('U')), true);
+            $response->setEtag(md5($lastModified->format('U.u').self::ETAG_SEED), true);
             $response->setLastModified($lastModified);
             $response->setMaxAge(0);
             $response->setSharedMaxAge(0);
@@ -609,5 +585,51 @@ class DocTreeController extends AbstractController
 
         // if not found in externalDocs, error
         return new Response('Document not found.', Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * Get a list of all documents viewable by the current user.
+     */
+    private function getViewableDocList(AuthorizationCheckerInterface $authChecker): array
+    {
+        $lsDocs = [];
+
+        $docs = $this->getDoctrine()->getRepository(LsDoc::class)->findBy([], ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']);
+        /** @var LsDoc $doc */
+        foreach ($docs as $doc) {
+            // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus() || $authChecker->isGranted('view', $doc)) {
+                $lsDocs[] = $doc;
+            }
+        }
+
+        return $lsDocs;
+    }
+
+    /**
+     * Get a list of all locks for the document.
+     */
+    private function getLocks(LsDoc $lsDoc, ?UserInterface $user): array
+    {
+        $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
+        if ($user instanceof User) {
+            $locks = $this->getDoctrine()->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
+            foreach ($locks as $lock) {
+                $expiry = false;
+                if ($lock->getUser() !== $user) {
+                    $expiry = (int) $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
+                }
+
+                if (LsDoc::class === $lock->getObjectType()) {
+                    $docLocks['docs'][$lock->getObjectId()] = $expiry;
+                }
+
+                if (LsItem::class === $lock->getObjectType()) {
+                    $docLocks['items'][$lock->getObjectId()] = $expiry;
+                }
+            }
+        }
+
+        return $docLocks;
     }
 }

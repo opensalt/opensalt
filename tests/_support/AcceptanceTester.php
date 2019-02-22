@@ -2,10 +2,9 @@
 
 use Behat\Behat\Context\Context;
 use Facebook\WebDriver\WebDriverElement;
-use PhpSpec\Exception\Example\PendingException;
 
 /**
- * Inherited Methods
+ * Inherited Methods.
  *
  * @method void wantToTest($text)
  * @method void wantTo($text)
@@ -24,8 +23,8 @@ class AcceptanceTester extends \Codeception\Actor implements Context
 {
     use _generated\AcceptanceTesterActions;
 
-    static protected $documentsApi = '/ims/case/v1p0/CFDocuments?limit=1000';
-    static protected $packagesApi = '/ims/case/v1p0/CFPackages/';
+    protected static $documentsApi = '/ims/case/v1p0/CFDocuments?limit=1000';
+    protected static $packagesApi = '/ims/case/v1p0/CFPackages/';
 
     private $lsDocId = null;
     private $lsItemId = null;
@@ -144,47 +143,57 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         return $this->lsDocId;
     }
 
-    public function setDocId($id){
-      $this->lsDocId = $id;
+    public function setDocId($id)
+    {
+        $this->lsDocId = $id;
     }
+
     public function getLastFrameworkId(): string
     {
-      $documents = $this->fetchJson(self::$documentsApi);
-      $documents = $documents['CFDocuments'] ?? [];
+        $documents = $this->fetchJson(self::$documentsApi);
+        $documents = $documents['CFDocuments'] ?? [];
 
-      if (0 === count($documents)) {
-        /* @todo Create a framework if none found */
+        if (0 === count($documents)) {
+            /* @todo Create a framework if none found */
 
-        throw new LogicException('No framework could be found');
-      }
-
-      $lastDoc = $documents[0];
-      foreach ($documents as $document) {
-        if (($document['adoptionStatus'] ?? 'Draft') !== 'Draft') {
-          continue;
+            throw new LogicException('No framework could be found');
         }
 
-        if ($lastDoc['lastChangeDateTime'] < $document['lastChangeDateTime']) {
-          $lastDoc = $document;
+        $lastDoc = $documents[0];
+        foreach ($documents as $document) {
+            if (($document['adoptionStatus'] ?? 'Draft') !== 'Draft') {
+                continue;
+            }
+
+            if ($lastDoc['lastChangeDateTime'] < $document['lastChangeDateTime']) {
+                $lastDoc = $document;
+            }
         }
-      }
 
-      $docPage = $this->fetchRedirect('/uri/'.$lastDoc['identifier']);
-      if (null === $docPage) {
-        $docPage = $this->fetchRedirect('/uri/'.$lastDoc['uri']);
-      }
-      if (null === $docPage) {
-        /* @todo Create a framework if none found */
+        try {
+            $docPage = $this->fetch('/uri/'.$lastDoc['identifier'], 'text/html');
+        } catch (\Exception $e) {
+            $docPage = null;
+        }
 
-        throw new LogicException('No framework could be found');
-      }
+        if (null === $docPage) {
+            /* @todo Create a framework if none found */
 
-      if (1 === preg_match('#/cftree/doc/(.*)#', $docPage, $matches)) {
-        $this->lsDocId = $matches[1];
-        return $this->lsDocId;
-      }
+            throw new LogicException('No framework could be found');
+        }
 
-      throw new LogicException('Framework id could not be found');
+        if (1 === preg_match('#/cftree/doc/(\d+)#', $docPage, $matches)) {
+            $this->lsDocId = $matches[1];
+
+            return $this->lsDocId;
+        }
+
+        throw new LogicException('Framework id could not be found');
+    }
+
+    public function rememberDocIdFromUrl(): void
+    {
+        $this->lsDocId = $this->grabFromCurrentUrl('#/(\d+)$#');
     }
 
     public function getLastItemId()
@@ -223,9 +232,10 @@ class AcceptanceTester extends \Codeception\Actor implements Context
             }
         }
 
-        $itemPage = $this->fetchRedirect('/uri/'.$lastItem['identifier']);
-        if (null === $itemPage) {
-            $itemPage = $this->fetchRedirect('/uri/'.$lastItem['uri']);
+        try {
+            $itemPage = $this->fetch('/uri/'.$lastItem['identifier'], 'text/html');
+        } catch (\Exception $e) {
+            $itemPage = null;
         }
         if (null === $itemPage) {
             /* @todo Create a item if none found */
@@ -233,7 +243,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
             throw new LogicException('No item could be found');
         }
 
-        if (1 === preg_match('#/cftree/item/(.*)#', $itemPage, $matches)) {
+        if (1 === preg_match('#/cftree/item/(\d+)#', $itemPage, $matches)) {
             $this->lsItemId = $matches[1];
             return $this->lsItemId;
         }
@@ -255,7 +265,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         $this->click('.jquery-comments .commenting-field .textarea-wrapper .textarea');
         $this->fillField('.textarea', $content);
         $this->click('.jquery-comments .commenting-field .textarea-wrapper .control-row .send');
-        $this->waitForElementChange('.comment-wrapper .wrapper .content', function(WebDriverElement $el) {
+        $this->waitForElementChange('.comment-wrapper .wrapper .content', function (WebDriverElement $el) {
             return $el->isDisplayed();
         }, 2);
     }

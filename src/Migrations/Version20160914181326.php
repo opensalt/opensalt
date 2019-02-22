@@ -14,7 +14,7 @@ class Version20160914181326 extends AbstractMigration
     /**
      * @param Schema $schema
      */
-    public function up(Schema $schema)
+    public function up(Schema $schema): void
     {
         $isGradeLevels = LsDocAttribute::IS_GRADE_LEVELS;
 
@@ -30,7 +30,7 @@ VALUES
     /**
      * @param Schema $schema
      */
-    public function down(Schema $schema)
+    public function down(Schema $schema): void
     {
         // Ignore on downgrade
     }

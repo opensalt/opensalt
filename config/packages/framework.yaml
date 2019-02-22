@@ -10,7 +10,7 @@ framework:
         #handler_id:  ~
         handler_id:  session.handler.pdo
         #handler_id:  nelmio_security.session.handler
-        #save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
+        #save_path:   "%kernel.project_dir%/var/sessions/%kernel.environment%"
         name: session
         cookie_lifetime: 0
         #cookie_secure: true
@@ -19,7 +19,7 @@ framework:
         gc_probability: 25
         gc_divisor:     100
         metadata_update_threshold: 120
-    #esi: true
+    esi: true
     fragments: true
     php_errors:
         log: true
@@ -30,7 +30,7 @@ framework:
         csv: ['text/csv', 'text/plain']
 
     assets:
-        version: '180451'
+        version: '%assets_version%'
         packages:
           encore:
             json_manifest_path: '%kernel.project_dir%/web/build/manifest.json'

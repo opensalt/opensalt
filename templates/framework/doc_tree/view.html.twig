@@ -404,12 +404,11 @@
                                         <select id="js-framework-to-copy" class="form-control" name="frameworkToCopy">
                                             {% for framework in lsDocs %}
                                                 {% if framework.creator != lastCreator %}
-                                                    {% if not loop.first %}</ul></li>{% endif %}
                                                     <optgroup label="{{ framework.creator }}">
                                                     {% set lastCreator = framework.creator %}
                                                 {% endif %}
                                                 {% if framework.title != lsDocTitle %}
-                                                    <option value="{{ framework.id }}">{{ framework.title }}</a></li>
+                                                    <option value="{{ framework.id }}">{{ framework.title }}</option>
                                                 {% endif %}
                                                 {% if loop.last == true and framework.creator != '' %}
                                                     </optgroup>
@@ -717,6 +716,7 @@
 
             // establish paths
             apx.path = apx.path || {};
+            apx.path.uri = '{{ path('uri_lookup', {'uri': 'ID'}) }}';
             apx.path.doc_index = '{{ path('lsdoc_index') }}';
             apx.path.lsDoc = '{{ path('doc_tree_view', {'slug':'ID'}) }}';
             apx.path.lsItem = '{{ path('doc_tree_item_view', {'id':'ID'}) }}';

@@ -3,17 +3,18 @@
 namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class PdfExportController extends Controller
+class PdfExportController extends AbstractController
 {
     use CommandDispatcherTrait;
+
     /**
      * @Route("/cfdoc/{id}/pdf", methods={"GET"}, name="export_pdf_file")
      */

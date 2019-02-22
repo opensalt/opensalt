@@ -10,7 +10,7 @@ class Version20160921225507 extends AbstractMigration
     /**
      * @param Schema $schema
      */
-    public function up(Schema $schema)
+    public function up(Schema $schema): void
     {
         $filename = __DIR__.'/../../src/DataFixtures/Data/USGrades.csv';
 
@@ -36,7 +36,7 @@ VALUES
     /**
      * @param Schema $schema
      */
-    public function down(Schema $schema)
+    public function down(Schema $schema): void
     {
     }
 }

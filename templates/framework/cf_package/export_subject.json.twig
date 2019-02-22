@@ -2,7 +2,7 @@
     {
         "title": {{ subject.title |json_encode |raw }}
         ,"identifier": {{ subject.identifier |json_encode |raw }}
-        ,"uri": {{ subject.uri|local_remote_uri |json_encode |raw }}
+        ,"uri": {{ object_uri(subject) |json_encode |raw }}
         {% if subject.description is not empty -%}
             ,"description": {{ subject.description |json_encode |raw }}
         {%- endif %}
