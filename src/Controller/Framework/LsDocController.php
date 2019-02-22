@@ -112,14 +112,7 @@ class LsDocController extends AbstractController
         ];
     }
 
-    /**
-     * @param string $urlPrefix
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    protected function loadDocumentsFromServer(string $urlPrefix)
+    protected function loadDocumentsFromServer(string $urlPrefix): \Psr\Http\Message\ResponseInterface
     {
         $list = $this->guzzleJsonClient->request(
             'GET',

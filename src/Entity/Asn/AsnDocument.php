@@ -4,9 +4,6 @@ namespace App\Entity\Asn;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
-/**
- * AsnDocument
- */
 class AsnDocument
 {
     /**
@@ -24,18 +21,12 @@ class AsnDocument
      */
     public $standards;
 
-
     public function __construct()
     {
         $this->standards = new ArrayCollection();
     }
 
-    /**
-     * @param $arr
-     *
-     * @return AsnDocument
-     */
-    public static function fromArray($arr)
+    public static function fromArray($arr): self
     {
         /** @var AsnDocument $doc */
         $doc = new static();
@@ -56,12 +47,9 @@ class AsnDocument
     }
 
     /**
-     * @param string $key
-     * @param array $val
-     *
      * @return AsnDocumentMetadata|AsnStandardDocument|AsnStandard|null
      */
-    public function recordFromArray($key, $val)
+    public function recordFromArray(string $key, array $val)
     {
         $rec = null;
 
@@ -97,91 +85,56 @@ class AsnDocument
         return $rec;
     }
 
-    /**
-     * @param $json
-     *
-     * @return AsnDocument
-     */
-    public static function fromJson($json)
+    public static function fromJson(string $json): self
     {
         $arr = json_decode($json, true);
 
         return self::fromArray($arr);
     }
 
-    /**
-     * Set metadata
-     *
-     * @param AsnDocumentMetadata $metadata
-     *
-     * @return AsnDocument
-     */
-    public function setMetadata($metadata)
+    public function setMetadata(AsnDocumentMetadata $metadata): self
     {
         $this->metadata = $metadata;
 
         return $this;
     }
 
-    /**
-     * Get metadata
-     *
-     * @return AsnDocumentMetadata
-     */
-    public function getMetadata()
+    public function getMetadata(): AsnDocumentMetadata
     {
         return $this->metadata;
     }
 
-    /**
-     * Set standardDocument
-     *
-     * @param AsnStandardDocument $standardDocument
-     *
-     * @return AsnDocument
-     */
-    public function setStandardDocument($standardDocument)
+    public function setStandardDocument(AsnStandardDocument $standardDocument): self
     {
         $this->standardDocument = $standardDocument;
 
         return $this;
     }
 
-    /**
-     * Get standardDocument
-     *
-     * @return AsnStandardDocument
-     */
-    public function getStandardDocument()
+    public function getStandardDocument(): AsnStandardDocument
     {
         return $this->standardDocument;
     }
 
     /**
-     * Set standards
-     *
      * @param AsnStandard[]|ArrayCollection $standards
-     *
-     * @return AsnDocument
      */
-    public function setStandards($standards)
+    public function setStandards($standards): self
     {
         $this->standards = $standards;
 
         return $this;
     }
 
-    public function addStandard($standard)
+    public function addStandard($standard): void
     {
         $this->standards->add($standard);
     }
 
     /**
-     * Get standards
-     *
      * @return AsnStandard[]|ArrayCollection
      */
-    public function getStandards()
+    public function getStandards(): ArrayCollection
     {
         return $this->standards;
     }

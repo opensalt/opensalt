@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "27f921ac932d444180fe52780bfe5aae",
+    "content-hash": "df5b6d2550e3dcb028c015658fe563a7",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -11034,16 +11034,16 @@
         },
         {
             "name": "phpstan/phpstan-doctrine",
-            "version": "0.11.1",
+            "version": "dev-fix/52-find-by-methods",
             "source": {
                 "type": "git",
-                "url": "https://github.com/phpstan/phpstan-doctrine.git",
-                "reference": "977df27bbd8b0c1de02f70b3086f057bf500a941"
+                "url": "https://github.com/opensalt/phpstan-doctrine.git",
+                "reference": "28658b5ced7fdf221d459ce84a5499c0d25734aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-doctrine/zipball/977df27bbd8b0c1de02f70b3086f057bf500a941",
-                "reference": "977df27bbd8b0c1de02f70b3086f057bf500a941",
+                "url": "https://api.github.com/repos/opensalt/phpstan-doctrine/zipball/28658b5ced7fdf221d459ce84a5499c0d25734aa",
+                "reference": "28658b5ced7fdf221d459ce84a5499c0d25734aa",
                 "shasum": ""
             },
             "require": {
@@ -11083,12 +11083,19 @@
                     "PHPStan\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "classmap": [
+                    "tests/"
+                ]
+            },
             "license": [
                 "MIT"
             ],
             "description": "Doctrine extensions for PHPStan",
-            "time": "2019-02-13T13:06:29+00:00"
+            "support": {
+                "source": "https://github.com/opensalt/phpstan-doctrine/tree/fix/52-find-by-methods"
+            },
+            "time": "2019-02-21T00:50:16+00:00"
         },
         {
             "name": "phpstan/phpstan-symfony",
@@ -13007,6 +13014,12 @@
             "package": "tetranz/select2entity-bundle"
         },
         {
+            "alias": "0.11.1.1",
+            "alias_normalized": "0.11.1.1",
+            "version": "dev-fix/52-find-by-methods",
+            "package": "phpstan/phpstan-doctrine"
+        },
+        {
             "alias": "3.5.0.1",
             "alias_normalized": "3.5.0.1",
             "version": "9999999-dev",
@@ -13023,6 +13036,7 @@
         "stof/doctrine-extensions-bundle": 20,
         "tetranz/select2entity-bundle": 20,
         "roave/security-advisories": 20,
+        "phpstan/phpstan-doctrine": 20,
         "theofidry/psysh-bundle": 20
     },
     "prefer-stable": true,

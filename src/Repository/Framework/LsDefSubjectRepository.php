@@ -3,7 +3,6 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefSubject;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 class LsDefSubjectRepository extends AbstractLsDefinitionRepository
@@ -14,7 +13,7 @@ class LsDefSubjectRepository extends AbstractLsDefinitionRepository
     }
 
     /**
-     * @return array|LsDefSubject[]|ArrayCollection
+     * @return array|LsDefSubject[]
      */
     public function getList(?string $search = null): array
     {

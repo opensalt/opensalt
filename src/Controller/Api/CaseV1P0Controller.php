@@ -204,12 +204,7 @@ class CaseV1P0Controller extends AbstractController
     }
 
     /**
-     * Generate a base response
-     *
-     * @param Response $response
-     * @param \DateTimeInterface $lastModified
-     *
-     * @return Response
+     * Generate a base response.
      */
     protected function generateBaseReponse(\DateTimeInterface $lastModified): Response
     {

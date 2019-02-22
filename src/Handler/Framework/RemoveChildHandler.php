@@ -29,7 +29,6 @@ class RemoveChildHandler extends BaseDoctrineHandler
         }
 
         if (!empty($removedList)) {
-            $association = reset($removedList);
             $fromTitle = $this->getTitle($association->getOrigin());
             $toTitle = $this->getTitle($association->getDestination());
             $notification = new NotificationEvent(
