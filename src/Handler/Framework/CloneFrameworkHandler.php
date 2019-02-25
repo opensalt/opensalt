@@ -25,15 +25,15 @@ class CloneFrameworkHandler extends BaseDoctrineHandler
         /** @var CopyFrameworkCommand $command */
         $command = $event->getCommand();
         $this->validate($command, $command);
-        $newDoc->setFrameworkType(null);
-
-        $this->repository->copyDocumentContentToDoc($doc, $newDoc, false);
 
         /** @var LsDoc $doc */
         $doc = $command->getDoc();
 
         $newDoc = clone $doc;
         $newDoc->setTitle('Clone '.$newDoc->getTitle());
+        $newDoc->setFrameworkType(null);
+
+        $this->repository->copyDocumentContentToDoc($doc, $newDoc, false);
         $this->em->persist($newDoc);
     }
 }
