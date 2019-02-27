@@ -15,7 +15,7 @@ class AboutController extends AbstractController
 
     public function __construct(string $projectDir)
     {
-        $this->$projectDir = $projectDir;
+        $this->projectDir = $projectDir;
     }
 
     /**
