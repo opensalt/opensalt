@@ -29,7 +29,8 @@ use App\Util\Compare;
  *     exp="service('App\\Service\\Api1Uris').getLinkUri(object, service('App\\Service\\Api1RouteMap').getForClass('App\\Entity\\Framework\\Package'))",
  *     options={
  *         @Serializer\SerializedName("CFPackageURI"),
- *         @Serializer\Expose()
+ *         @Serializer\Expose(),
+ *         @Serializer\Groups({"LsDoc"})
  *     }
  * )
  *

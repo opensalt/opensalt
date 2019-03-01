@@ -167,7 +167,7 @@ class CaseV1P0Controller extends AbstractController
                 'CFAssociations' => $associations,
             ],
             $request->getRequestFormat('json'),
-            SerializationContext::create()->setGroups(['Default', 'CfItemAssociations'])
+            SerializationContext::create()->setGroups(['Default', 'CfItemAssociations', 'LsItem'])
         ));
         $response->headers->set('X-Total-Count', count($associations));
 
