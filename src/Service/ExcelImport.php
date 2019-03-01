@@ -86,9 +86,20 @@ final class ExcelImport
                 $seq = null;
             }
 
-            if (in_array($parentLevel, $itemSmartLevels)) {
-                $smartLevels[$parentLevel]->addChild($item, null, $seq);
-                $children[$item->getIdentifier()] = $doc->getIdentifier();
+            $children[$item->getIdentifier()] = $doc->getIdentifier();
+
+            if (in_array($parentLevel, $itemSmartLevels, true)) {
+                $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
+                    'originLsItem' => $item,
+                    'type' => LsAssociation::CHILD_OF,
+                    'destinationLsItem' => $smartLevels[$parentLevel],
+                ]);
+
+                if (null === $assoc) {
+                    $smartLevels[$parentLevel]->addChild($item, null, $seq);
+                } else {
+                    $assoc->setSequenceNumber($seq);
+                }
             } else {
                 $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
                     'originLsItem' => $item,
@@ -98,7 +109,6 @@ final class ExcelImport
 
                 if (null === $assoc) {
                     $doc->createChildItem($item, null, $seq);
-                    $children[$item->getIdentifier()] = $doc->getIdentifier();
                 } else {
                     $assoc->setSequenceNumber($seq);
                 }
