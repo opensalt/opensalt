@@ -4,6 +4,8 @@ namespace App\Form\Type;
 
 use App\Entity\Framework\LsDefFrameworkType;
 use App\Entity\Framework\LsDoc;
+use App\Repository\Framework\LsDocRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -14,11 +16,27 @@ use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 abstract class AbstractLsDocCreateType extends AbstractType
 {
     /**
+     * @var EntityManagerInterface
+     */
+    protected $em;
+
+    /**
+     * AbstractLsDocCreateType constructor.
+     * @param EntityManagerInterface $em
+     */
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
+    /**
      * @param FormBuilderInterface $builder
      * @param array $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $em = $this->em;
+
         /** @var LsDoc $doc */
         $doc = $builder->getData();
         $exists = $doc->getId() ? true : false;
@@ -133,13 +151,14 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ->resetViewTransformers()
             ->resetModelTransformers()
             ->addModelTransformer(new CallbackTransformer(
-                function ($frameworkType) {
+                function ($frameworkType) use ($em) {
                     return $frameworkType ? $frameworkType->getValue() : '';
                 },
                 function ($frameworkType) {
                     if ($frameworkType === null) {
                         return null;
-                    } else {
+                    }
+
                         $object = new LsDefFrameworkType();
                         $object->setValue($frameworkType);
                         return $object;
