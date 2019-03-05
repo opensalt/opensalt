@@ -157,8 +157,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
                 function ($frameworkType) {
                     if ($frameworkType === null) {
                         return null;
-                    }
-
+                    } else {
                         $object = new LsDefFrameworkType();
                         $object->setValue($frameworkType);
                         return $object;
