@@ -176,6 +176,8 @@ apx.viewMode.showAssocView = function(context) {
                 }
             }
 
+            arr.push($("#associationRemoveBtn").html());
+
             // push row array onto dataSet array
             dataSet.push(arr);
         }
@@ -184,12 +186,14 @@ apx.viewMode.showAssocView = function(context) {
         let columns = [
             { "title": "Origin", "className": "avTitleCell" },
             { "title": "Association Type", "className": "avTypeCell" },
-            { "title": "Destination", "className": "avTitleCell" }
+            { "title": "Destination", "className": "avTitleCell" },
         ];
         // add group if we have any
         if (apx.mainDoc.assocGroups.length > 0) {
             columns.push({"title": "Association Group", "className": "avGroupCell"});
         }
+
+        columns.push({"title": "Remove", "className": "avActionCell"});
 
         // populate the table
         let datatable = $("#assocViewTable").DataTable({
@@ -199,7 +203,12 @@ apx.viewMode.showAssocView = function(context) {
             "lengthMenu": [ [ 25, 100, 500, -1 ], [25, 100, 500, "All"]],
             "pageLength": 100,
             "dom": 'lBfrtip',
-            "buttons": ['excelHtml5', 'csvHtml5'],
+            "buttons": [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export Table'
+                }
+            ],
         });
 
         let filterTable = function (value) {

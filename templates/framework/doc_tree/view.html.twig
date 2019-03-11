@@ -251,7 +251,7 @@
 
                             <div id="associationRemoveBtn" style="display:none">
                                 {% if editorRights and not isDeprecated %}
-                                    <span class="pull-right" style="margin-left:5px"><span role="button" class="btn btn-xs btn-default btn-remove-association"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Remove</span></span></span>
+                                    <span role="button" class="btn btn-xs btn-default btn-remove-association"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Remove</span></span>
                                 {% endif %}
                             </div>
                         </div>  <!-- itemInfo -->
@@ -319,19 +319,12 @@
 
     <label for="filterType">
         Association Types
-        <select id="filterType" multiple style="width: 300px;">
-            <option value="Is Child Of">Is Child Of</option>
-            <option value="Exact Match Of">Exact Match Of</option>
-            <option value="Exemplar">Exemplar</option>
-            <option value="Is Related To">Is Related To</option>
-            <option value="Precedes">Precedes</option>
-            <option value="Is Peer Of">Is Peer Of</option>
-            <option value="Is Part Of">Is Part Of</option>
-            <option value="Has Skill Level">Has Skill Level</option>
-            <option value="Replaced By">Replaced By</option>
-        </select>
+        <select id="filterType" multiple style="width: 500px;"></select>
     </label>
-
+    <label for="filterGroup">
+        Association Groups
+        <select id="filterGroup" multiple style="width: 500px;"></select>
+    </label>
     <table id="assocViewTable" class="table table-striped table-bordered table-hover display"></table>
 
     <div class="row main-view log-view" id="logView" style="display:none;">
@@ -705,7 +698,89 @@
 
         {% autoescape 'js' %}
         <script>
-            $('#filterType').select2({width: 'resolve'});
+            let assocTypesData = [
+                {
+                    id: 'Is Child Of',
+                    text: 'Is Child Of'
+                },
+                {
+                    id: 'Exact Match Of',
+                    text: 'Exact Match Of'
+                },
+                {
+                    id: 'Exemplar',
+                    text: 'Exemplar'
+                },
+                {
+                    id: 'Is Related To',
+                    text: 'Is Related To'
+                },
+                {
+                    id: 'Precedes',
+                    text: 'Precedes'
+                },
+                {
+                    id: 'Is Peer Of',
+                    text: 'Is Peer Of'
+                },
+                {
+                    id: 'Is Part Of',
+                    text: 'Is Part Of'
+                },
+                {
+                    id: 'Has Skill Level',
+                    text: 'Has Skill Level'
+                },
+                {
+                    id: 'Replaced By',
+                    text: 'Replaced By'
+                },
+                {
+                    id: 'Is Parent Of',
+                    text: 'Is Parent Of'
+                },
+                {
+                    id: 'Matched From',
+                    text: 'Matchec From'
+                },
+                {
+                    id: 'Related From',
+                    text: 'Related From'
+                },
+                {
+                    id: 'Has Part',
+                    text: 'Has Part'
+                },
+                {
+                    id: 'Replaces',
+                    text: 'Replaces'
+                },
+                {
+                    id: 'Has Predecessor',
+                    text: 'Has Predecessor'
+                },
+                {
+                    id: 'Skill Level For',
+                    text: 'Skill Level For'
+                },
+                {
+                    id: 'Is Peer Of',
+                    text: 'Is Peer Of'
+                },
+                {
+                    id: 'Exemplar For',
+                    text: 'Exemplar For'
+                },
+            ];
+
+            $('#filterType').select2({
+                width: 'resolve',
+                data: assocTypesData
+            });
+            $('#filterGroup').select2({
+                width: 'resolve',
+            });
+
             // loaded docid and initial lsItem and assocGroup to show
             apx.lsDocId = {{ lsDocId |json_encode |raw }};
             apx.initialLsItemId = {{ lsItemId |default(null) |json_encode |raw }};
