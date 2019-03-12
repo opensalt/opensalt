@@ -35,10 +35,6 @@
             "url": "https://github.com/opensalt/EntityAuditBundle"
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/opensalt/phpstan-doctrine.git"
-        },
-        {
             "type": "package",
             "package": {
                 "name": "firebase",
@@ -57,7 +53,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "csa/guzzle-bundle": "dev-master#1fd76350ecaddc0123ad8ddbf1fb51d9cc81c881 as 3.1.0.1",
+        "csa/guzzle-bundle": "^3.1.1",
         "doctrine/doctrine-bundle": "^1.10",
         "doctrine/doctrine-cache-bundle": "^1.2",
         "doctrine/doctrine-fixtures-bundle": "^3.0",
@@ -121,13 +117,13 @@
             "codeception/c3": "2.*",
 
         "phpstan/phpstan-symfony": "^0.11",
-        "phpstan/phpstan-doctrine": "dev-fix/52-find-by-methods as 0.11.1.1",
+        "phpstan/phpstan-doctrine": "^0.11.2",
 
         "squizlabs/php_codesniffer": "^3.2",
         "escapestudios/symfony2-coding-standard": "^3.1",
         "friendsofphp/php-cs-fixer": "^2.10",
         "ericmartel/codeception-email-mailtrap": "^1.0",
-        "theofidry/psysh-bundle": "dev-master#8e9a0c317663d7981888eca669f6529b3d8a5400 as 3.5.0.1"
+        "theofidry/psysh-bundle": "^3.5.1"
     },
     "replace": {
         "paragonie/random_compat": "2.*",
