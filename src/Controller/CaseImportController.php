@@ -8,7 +8,6 @@ use App\Entity\User\User;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,12 +16,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class CaseImportController extends AbstractController
 {
     use CommandDispatcherTrait;
-
-    public function __construct(ContainerInterface $container = null)
-    {
-        // event_dispatcher
-        $this->setContainer($container);
-    }
 
     /**
      * @Route("/salt/case/import", name="import_case_file")

@@ -348,7 +348,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      */
     private $criteria;
 
-
     /**
      * LsItem constructor.
      *

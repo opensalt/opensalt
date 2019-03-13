@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6d5d2caf3fe4f66e57f506ddbfb6ba9b",
+    "content-hash": "4b36484f321f816c3bf224beebbcb615",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -3722,7 +3722,7 @@
         },
         {
             "name": "nelmio/cors-bundle",
-            "version": "dev-master",
+            "version": "1.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioCorsBundle.git",
@@ -13071,7 +13071,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "matthimatiker/opcache-bundle": 20,
-        "nelmio/cors-bundle": 20,
         "nelmio/security-bundle": 20,
         "simplethings/entity-audit-bundle": 20,
         "stof/doctrine-extensions-bundle": 20,

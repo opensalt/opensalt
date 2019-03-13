@@ -6,7 +6,7 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * LsDefAssociationGroupingRepository
+ * @method LsDefAssociationGrouping|null findOneByIdentifier(string $identifier)
  */
 class LsDefAssociationGroupingRepository extends AbstractLsDefinitionRepository
 {
@@ -14,5 +14,4 @@ class LsDefAssociationGroupingRepository extends AbstractLsDefinitionRepository
     {
         parent::__construct($registry, LsDefAssociationGrouping::class);
     }
-
 }
