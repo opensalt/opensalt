@@ -396,7 +396,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      */
     protected $ownedBy;
 
-
     /**
      * @param string|Uuid|null $identifier
      */
@@ -510,7 +509,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this;
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
