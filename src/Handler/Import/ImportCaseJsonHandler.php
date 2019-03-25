@@ -26,6 +26,8 @@ class ImportCaseJsonHandler extends AbstractDoctrineHandler
 
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
+        ini_set('memory_limit', '2G');
+        set_time_limit(900);
         /** @var ImportCaseJsonCommand $command */
         $command = $event->getCommand();
         $this->validate($command, $command);
