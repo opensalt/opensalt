@@ -7,10 +7,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class LsDocCreateType extends AbstractLsDocCreateType
 {
-    /**
-     * @param FormBuilderInterface $builder
-     */
-    protected function addOwnership(FormBuilderInterface $builder)
+    protected function addOwnership(FormBuilderInterface $builder): void
     {
         $builder
             ->add('ownedBy', ChoiceType::class, [

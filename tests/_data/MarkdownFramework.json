@@ -3,11 +3,6 @@
     "uri": "http://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000",
     "identifier": "d0000000-0000-0000-0000-000000000000",
     "lastChangeDateTime": "2017-10-24T17:19:51+00:00",
-    "CFPackageURI": {
-      "title": "Test Markdown Framework",
-      "identifier": "d0000000-0000-0000-0000-000000000000",
-      "uri": "http://server/ims/case/v1p0/CFPackages/d0000000-0000-0000-0000-000000000000"
-    },
     "creator": "OpenSALT Testing",
     "title": "Test Markdown Framework"
   },
@@ -16,11 +11,6 @@
       "uri": "http://server/ims/case/v1p0/CFItems/c496e222-b8df-11e7-ba24-039ffdae3771",
       "identifier": "c496e222-b8df-11e7-ba24-039ffdae3771",
       "lastChangeDateTime": "2017-10-24T17:21:27+00:00",
-      "CFDocumentURI": {
-        "title": "Test Markdown Framework",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "http://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "humanCodingScheme": "MD.Table",
       "fullStatement": "This contains a _table_ in markdown:\r\n\r\n| Column 1 | Column 2 |\r\n| --- | --- |\r\n| data 1 | data 2|\r\n\r\n Here is a math equation $x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$"
     },
@@ -28,11 +18,6 @@
       "uri": "http://server/ims/case/v1p0/CFItems/a5eafca0-b8df-11e7-8d17-8dc52d8205bc",
       "identifier": "a5eafca0-b8df-11e7-8d17-8dc52d8205bc",
       "lastChangeDateTime": "2017-10-24T17:20:35+00:00",
-      "CFDocumentURI": {
-        "title": "Test Markdown Framework",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "http://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "humanCodingScheme": "MD.Math",
       "fullStatement": "This contains math markdown: $x^2$"
     }
@@ -42,11 +27,6 @@
       "uri": "http://server/ims/case/v1p0/CFAssociations/a5eb02f4-b8df-11e7-b06e-b17e31351e5a",
       "identifier": "a5eb02f4-b8df-11e7-b06e-b17e31351e5a",
       "lastChangeDateTime": "2017-10-24T17:20:35+00:00",
-      "CFDocumentURI": {
-        "title": "Test Markdown Framework",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "http://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "MD.Math",
         "identifier": "a5eafca0-b8df-11e7-8d17-8dc52d8205bc",
@@ -63,11 +43,6 @@
       "uri": "http://server/ims/case/v1p0/CFAssociations/c496e718-b8df-11e7-b712-1f8220b52d15",
       "identifier": "c496e718-b8df-11e7-b712-1f8220b52d15",
       "lastChangeDateTime": "2017-10-24T17:21:27+00:00",
-      "CFDocumentURI": {
-        "title": "Test Markdown Framework",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "http://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "MD.Table",
         "identifier": "c496e222-b8df-11e7-ba24-039ffdae3771",

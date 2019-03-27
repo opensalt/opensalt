@@ -45,7 +45,7 @@ class LsAssociationType extends AbstractType
                 'choice_label' => 'title',
                 'required' => false,
                 'multiple' => false,
-                'class' => 'App\Entity\Framework\LsDoc',
+                'class' => LsDoc::class,
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('d')
                         ->orderBy('d.title', 'ASC');

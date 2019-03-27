@@ -6,9 +6,8 @@ use App\Entity\Framework\LsDefItemType;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * LsDefItemTypeRepository
- *
  * @method null|LsDefItemType findOneByTitle(string $title)
+ * @method LsDefItemType|null findOneByIdentifier(string $identifier)
  */
 class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
 {

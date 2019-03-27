@@ -74,7 +74,7 @@ class AddCommentCommand extends BaseCommand
     public function __construct(string $itemType, $itemId, User $user, ?string $content = null, ?string $fileUrl = null, ?string $mimeType = null, $parentId = null)
     {
         $this->itemType = $itemType;
-        if ($this->itemType == 'item') {
+        if ($this->itemType === 'item') {
             $this->item = $itemId;
         } else {
             $this->document = $itemId;

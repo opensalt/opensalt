@@ -24,7 +24,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getLsDoc())",
  *     options={
  *         @Serializer\SerializedName("CFDocumentURI"),
- *         @Serializer\Expose()
+ *         @Serializer\Expose(),
+ *         @Serializer\Groups({"LsItem"})
  *     }
  * )
  *
@@ -347,7 +348,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      */
     private $criteria;
 
-
     /**
      * LsItem constructor.
      *
@@ -396,14 +396,14 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @throws \UnexpectedValueException
      */
-    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, $exactMatchAssocs = true): LsItem
+    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, bool $exactMatchAssocs = true): LsItem
     {
         $newItem = clone $this;
 
         $newItem->setLsDoc($newLsDoc);
 
         // Add an "Exact" relationship to the original
-        if ($exactMatchAssocs){
+        if ($exactMatchAssocs) {
             $exactMatch = $newLsDoc->createAssociation();
             $exactMatch->setOrigin($newItem);
             $exactMatch->setType(LsAssociation::EXACT_MATCH_OF);

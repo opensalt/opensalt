@@ -65,10 +65,7 @@ class LsDocController extends AbstractController
         $em = $this->getDoctrine()->getManager();
 
         /** @var LsDoc[] $results */
-        $results = $em->getRepository(LsDoc::class)->findBy(
-            [],
-            ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']
-        );
+        $results = $em->getRepository(LsDoc::class)->findForList();
 
         $lsDocs = [];
         $loggedIn = $user instanceof User;
@@ -112,14 +109,7 @@ class LsDocController extends AbstractController
         ];
     }
 
-    /**
-     * @param string $urlPrefix
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    protected function loadDocumentsFromServer(string $urlPrefix)
+    protected function loadDocumentsFromServer(string $urlPrefix): \Psr\Http\Message\ResponseInterface
     {
         $list = $this->guzzleJsonClient->request(
             'GET',
@@ -142,8 +132,6 @@ class LsDocController extends AbstractController
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
-     * @param Request $request
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
@@ -159,7 +147,7 @@ class LsDocController extends AbstractController
 
                 return $this->redirectToRoute(
                     'doc_tree_view',
-                    array('slug' => $lsDoc->getSlug())
+                    ['slug' => $lsDoc->getSlug()]
                 );
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding new document: '.$e->getMessage()));

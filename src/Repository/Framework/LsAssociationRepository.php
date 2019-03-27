@@ -18,7 +18,8 @@ class LsAssociationRepository extends ServiceEntityRepository
         parent::__construct($registry, LsAssociation::class);
     }
 
-    public function removeAssociation(LsAssociation $lsAssociation) {
+    public function removeAssociation(LsAssociation $lsAssociation): void
+    {
         $this->_em->remove($lsAssociation);
         $origin = $lsAssociation->getOrigin();
         if (is_object($origin)) {
@@ -31,11 +32,12 @@ class LsAssociationRepository extends ServiceEntityRepository
     }
 
     /**
-     * Remove all associations of a specific type from the object
+     * Remove all associations of a specific type from the object.
      *
-     * @param $object LsItem|LsDoc
+     * @param LsItem|LsDoc $object
      */
-    public function removeAllAssociations($object) {
+    public function removeAllAssociations($object): void
+    {
         foreach ($object->getAssociations() as $association) {
             $this->removeAssociation($association);
         }
@@ -45,10 +47,10 @@ class LsAssociationRepository extends ServiceEntityRepository
     }
 
     /**
-     * Remove all associations of a specific type from the object
+     * Remove all associations of a specific type from the object.
      *
-     * @param $object LsItem|LsDoc
-     * @param $type string
+     * @param LsItem|LsDoc $object
+     * @param string $type
      *
      * @return LsAssociation[]
      */
