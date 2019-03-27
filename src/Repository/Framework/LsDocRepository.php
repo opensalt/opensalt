@@ -30,9 +30,8 @@ class LsDocRepository extends ServiceEntityRepository
     public function findForList(): array
     {
         return $this->createQueryBuilder('d')
-            ->addSelect('d, s, m')
+            ->addSelect('d, s')
             ->leftJoin('d.subjects', 's')
-            ->leftJoin('d.mirror', 'm')
             ->orderBy('d.creator', 'ASC')
             ->addOrderBy('d.title', 'ASC')
             ->addOrderBy('d.adoptionStatus', 'ASC')
