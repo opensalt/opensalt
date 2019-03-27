@@ -6,7 +6,9 @@
     "autoload": {
         "psr-4": {
             "App\\": "src/"
-        }
+        },
+        "exclude-from-classmap": [
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -23,7 +23,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getLsDoc())",
  *     options={
  *         @Serializer\SerializedName("CFDocumentURI"),
- *         @Serializer\Expose()
+ *         @Serializer\Expose(),
+ *         @Serializer\Groups({"LsAssociation"})
  *     }
  * )
  *

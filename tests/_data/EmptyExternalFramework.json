@@ -3,11 +3,6 @@
     "uri": "https://remote.server.com/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000",
     "identifier": "d0000000-0000-0000-0000-000000000000",
     "lastChangeDateTime": "2017-08-24T16:00:53+00:00",
-    "CFPackageURI": {
-      "title": "Test Framework External Empty",
-      "identifier": "d0000000-0000-0000-0000-000000000000",
-      "uri": "https://remote.server.com/ims/case/v1p0/CFPackages/d0000000-0000-0000-0000-000000000000"
-    },
     "creator": "OpenSALT Testing",
     "title": "Test Framework External Empty"
   },

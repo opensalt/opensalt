@@ -3,11 +3,6 @@
     "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000",
     "identifier": "d0000000-0000-0000-0000-000000000000",
     "lastChangeDateTime": "2017-09-22T23:13:54+00:00",
-    "CFPackageURI": {
-      "title": "UTF8 𝑑 Test",
-      "identifier": "d0000000-0000-0000-0000-000000000000",
-      "uri": "https://server/ims/case/v1p0/CFPackages/d0000000-0000-0000-0000-000000000000"
-    },
     "creator": "OpenSALT Testing",
     "title": "UTF8 𝑑 Test"
   },
@@ -16,11 +11,6 @@
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000001",
       "identifier": "00000000-0000-0000-0000-000000000001",
       "lastChangeDateTime": "2017-09-22T23:15:13+00:00",
-      "CFDocumentURI": {
-        "title": "UTF8 𝑑 Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 𝑑 1"
     }
   ],
@@ -29,11 +19,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000001",
       "identifier": "a0000000-0000-0000-0000-000000000001",
       "lastChangeDateTime": "2017-09-22T23:14:07+00:00",
-      "CFDocumentURI": {
-        "title": "UTF8 𝑑 Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 𝑑 1",
         "identifier": "00000000-0000-0000-0000-000000000001",

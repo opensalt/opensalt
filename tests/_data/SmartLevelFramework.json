@@ -3,11 +3,6 @@
     "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000",
     "identifier": "d0000000-0000-0000-0000-000000000000",
     "lastChangeDateTime": "2017-09-22T23:13:54+00:00",
-    "CFPackageURI": {
-      "title": "SmartLevel Test",
-      "identifier": "d0000000-0000-0000-0000-000000000000",
-      "uri": "https://server/ims/case/v1p0/CFPackages/d0000000-0000-0000-0000-000000000000"
-    },
     "creator": "OpenSALT Testing",
     "title": "SmartLevel Test"
   },
@@ -16,154 +11,84 @@
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000001",
       "identifier": "00000000-0000-0000-0000-000000000001",
       "lastChangeDateTime": "2017-09-22T23:15:13+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 1"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000002",
       "identifier": "00000000-0000-0000-0000-000000000002",
       "lastChangeDateTime": "2017-09-22T23:15:20+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 2"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000003",
       "identifier": "00000000-0000-0000-0000-000000000003",
       "lastChangeDateTime": "2017-09-22T23:15:01+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 1.1"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000004",
       "identifier": "00000000-0000-0000-0000-000000000004",
       "lastChangeDateTime": "2017-09-22T23:15:33+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 1.2"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000005",
       "identifier": "00000000-0000-0000-0000-000000000005",
       "lastChangeDateTime": "2017-09-22T23:15:39+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 1.3"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000006",
       "identifier": "00000000-0000-0000-0000-000000000006",
       "lastChangeDateTime": "2017-09-22T23:15:46+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 1.4"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000007",
       "identifier": "00000000-0000-0000-0000-000000000007",
       "lastChangeDateTime": "2017-09-22T23:15:51+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 1.5"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000008",
       "identifier": "00000000-0000-0000-0000-000000000008",
       "lastChangeDateTime": "2017-09-22T23:15:58+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 1.6"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000009",
       "identifier": "00000000-0000-0000-0000-000000000009",
       "lastChangeDateTime": "2017-09-22T23:16:03+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 1.7"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000010",
       "identifier": "00000000-0000-0000-0000-000000000010",
       "lastChangeDateTime": "2017-09-22T23:16:10+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 1.8"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000011",
       "identifier": "00000000-0000-0000-0000-000000000011",
       "lastChangeDateTime": "2017-09-22T23:16:16+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 1.9"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000012",
       "identifier": "00000000-0000-0000-0000-000000000012",
       "lastChangeDateTime": "2017-09-22T23:16:23+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 1.10"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000013",
       "identifier": "00000000-0000-0000-0000-000000000013",
       "lastChangeDateTime": "2017-09-22T23:16:32+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 2.1"
     },
     {
       "uri": "https://server/ims/case/v1p0/CFItems/00000000-0000-0000-0000-000000000014",
       "identifier": "00000000-0000-0000-0000-000000000014",
       "lastChangeDateTime": "2017-09-22T23:16:32+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "fullStatement": "Item 2.2"
     }
   ],
@@ -172,11 +97,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000001",
       "identifier": "a0000000-0000-0000-0000-000000000001",
       "lastChangeDateTime": "2017-09-22T23:14:07+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 1",
         "identifier": "00000000-0000-0000-0000-000000000001",
@@ -193,11 +113,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000002",
       "identifier": "a0000000-0000-0000-0000-000000000002",
       "lastChangeDateTime": "2017-09-22T23:14:36+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 2",
         "identifier": "00000000-0000-0000-0000-000000000002",
@@ -214,11 +129,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000003",
       "identifier": "a0000000-0000-0000-0000-000000000003",
       "lastChangeDateTime": "2017-09-22T23:15:01+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 1.1",
         "identifier": "00000000-0000-0000-0000-000000000003",
@@ -235,11 +145,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000004",
       "identifier": "a0000000-0000-0000-0000-000000000004",
       "lastChangeDateTime": "2017-09-22T23:15:33+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 1.2",
         "identifier": "00000000-0000-0000-0000-000000000004",
@@ -256,11 +161,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000005",
       "identifier": "a0000000-0000-0000-0000-000000000005",
       "lastChangeDateTime": "2017-09-22T23:15:39+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 1.3",
         "identifier": "00000000-0000-0000-0000-000000000005",
@@ -277,11 +177,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000006",
       "identifier": "a0000000-0000-0000-0000-000000000006",
       "lastChangeDateTime": "2017-09-22T23:15:46+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 1.4",
         "identifier": "00000000-0000-0000-0000-000000000006",
@@ -298,11 +193,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000007",
       "identifier": "a0000000-0000-0000-0000-000000000007",
       "lastChangeDateTime": "2017-09-22T23:15:51+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 1.5",
         "identifier": "00000000-0000-0000-0000-000000000007",
@@ -319,11 +209,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000008",
       "identifier": "a0000000-0000-0000-0000-000000000008",
       "lastChangeDateTime": "2017-09-22T23:15:58+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 1.6",
         "identifier": "00000000-0000-0000-0000-000000000008",
@@ -340,11 +225,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000009",
       "identifier": "a0000000-0000-0000-0000-000000000009",
       "lastChangeDateTime": "2017-09-22T23:16:03+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 1.7",
         "identifier": "00000000-0000-0000-0000-000000000009",
@@ -361,11 +241,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000010",
       "identifier": "a0000000-0000-0000-0000-000000000010",
       "lastChangeDateTime": "2017-09-22T23:16:10+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 1.8",
         "identifier": "00000000-0000-0000-0000-000000000010",
@@ -382,11 +257,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000011",
       "identifier": "a0000000-0000-0000-0000-000000000011",
       "lastChangeDateTime": "2017-09-22T23:16:16+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 1.9",
         "identifier": "00000000-0000-0000-0000-000000000011",
@@ -403,11 +273,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000012",
       "identifier": "a0000000-0000-0000-0000-000000000012",
       "lastChangeDateTime": "2017-09-22T23:16:23+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 1.10",
         "identifier": "00000000-0000-0000-0000-000000000012",
@@ -424,11 +289,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000013",
       "identifier": "a0000000-0000-0000-0000-000000000013",
       "lastChangeDateTime": "2017-09-22T23:16:32+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 2.1",
         "identifier": "00000000-0000-0000-0000-000000000013",
@@ -445,11 +305,6 @@
       "uri": "https://server/ims/case/v1p0/CFAssociations/a0000000-0000-0000-0000-000000000014",
       "identifier": "a0000000-0000-0000-0000-000000000014",
       "lastChangeDateTime": "2017-09-22T23:16:32+00:00",
-      "CFDocumentURI": {
-        "title": "SmartLevel Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "https://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "Item 2.2",
         "identifier": "00000000-0000-0000-0000-000000000014",
