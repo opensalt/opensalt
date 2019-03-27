@@ -13,17 +13,31 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\Util\Compare;
 
 /**
- * LsDocRepository
+ * LsDocRepository.
  *
  * @method LsDoc|null find(int $id)
- * @method LsDoc[]|array findByCreator(String $creator)
+ * @method LsDoc[]|array findByCreator(string $creator)
  * @method LsDoc|null findOneByIdentifier(string $identifier)
+ * @method LsDoc|null findOneBy(array $criteria, array $orderBy = null)
  */
 class LsDocRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, LsDoc::class);
+    }
+
+    public function findForList(): array
+    {
+        return $this->createQueryBuilder('d')
+            ->addSelect('d, s, m')
+            ->leftJoin('d.subjects', 's')
+            ->leftJoin('d.mirror', 'm')
+            ->orderBy('d.creator', 'ASC')
+            ->addOrderBy('d.title', 'ASC')
+            ->addOrderBy('d.adoptionStatus', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
     /**

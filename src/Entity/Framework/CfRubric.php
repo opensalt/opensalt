@@ -44,9 +44,9 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
      */
     private $criteria;
 
-    public function __construct()
+    public function __construct($identifier = null)
     {
-        parent::__construct();
+        parent::__construct($identifier);
         $this->criteria = new ArrayCollection();
     }
 
@@ -87,6 +87,9 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
      */
     public function setCriteria($criteria): CfRubric
     {
+        if (is_array($criteria)) {
+            $criteria = new ArrayCollection($criteria);
+        }
         $this->criteria = $criteria;
 
         return $this;

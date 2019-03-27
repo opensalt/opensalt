@@ -10,7 +10,7 @@ class LsDocType extends AbstractLsDocCreateType
     /**
      * @param FormBuilderInterface $builder
      */
-    protected function addOwnership(FormBuilderInterface $builder)
+    protected function addOwnership(FormBuilderInterface $builder): void
     {
         $builder
             // TODO: These are placeholder, they should be determined upon creation with a choice of Org or User ownership

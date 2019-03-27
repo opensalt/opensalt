@@ -2,6 +2,8 @@
 
 namespace App\Form\Type;
 
+use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -13,11 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 
 abstract class AbstractLsDocCreateType extends AbstractType
 {
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array $options
-     */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /** @var LsDoc $doc */
         $doc = $builder->getData();
@@ -61,7 +59,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
                 'disabled' => $disableAsAdopted,
                 'multiple' => true,
                 'remote_route' => 'lsdef_subject_index_json',
-                'class' => 'App\Entity\Framework\LsDefSubject',
+                'class' => LsDefSubject::class,
                 'primary_key' => 'id',
                 'text_property' => 'title',
                 'minimum_input_length' => 0,
@@ -105,7 +103,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
                 'disabled' => $disableAsAdopted,
                 'multiple' => false,
                 'remote_route' => 'lsdef_licence_index_json',
-                'class' => 'App\Entity\Framework\LsDefLicence',
+                'class' => LsDefLicence::class,
                 'primary_key' => 'id',
                 'text_property' => 'title',
                 'minimum_input_length' => 0,
@@ -132,14 +130,14 @@ abstract class AbstractLsDocCreateType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults(array(
-            'data_class' => 'App\Entity\Framework\LsDoc',
+        $resolver->setDefaults([
+            'data_class' => LsDoc::class,
             'ajax' => false,
             //'csrf_protection' => false,
-        ));
+        ]);
     }
 
-    abstract protected function addOwnership(FormBuilderInterface $builder);
+    abstract protected function addOwnership(FormBuilderInterface $builder): void;
 }
