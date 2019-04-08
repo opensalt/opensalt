@@ -6,7 +6,6 @@ use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDefFrameworkType;
 use App\Entity\Framework\LsDoc;
-use App\Repository\Framework\LsDocRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
