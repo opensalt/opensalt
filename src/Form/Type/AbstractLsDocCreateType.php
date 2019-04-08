@@ -25,6 +25,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
 
     /**
      * AbstractLsDocCreateType constructor.
+     *
      * @param EntityManagerInterface $em
      */
     public function __construct(EntityManagerInterface $em)
