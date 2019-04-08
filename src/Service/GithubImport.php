@@ -68,7 +68,6 @@ class GithubImport
     /**
      * Save an Github document into a LsDoc/LsItem hierarchy
      *
-     * @param array $lsDocKeys
      * @param array $lsItemKeys
      * @param array $content
      * @param array $missingFieldsLog

@@ -410,7 +410,7 @@ var SaltLocal = (function () {
                     },
                     error: function () {
                         $('.tab-content').removeClass('hidden');
-                        $('.case-error-msg').html('Error while importing the file');
+                        $('.case-error-msg').html("We're sorry, we cannot load this document. Please ensure this document is not already on the server, or see the Spreadsheet loading guide at docs.opensalt.org");
                         $('.case-error-msg').removeClass('hidden');
                         $('.file-loading').addClass('hidden');
                     }

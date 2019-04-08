@@ -6,8 +6,9 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Symfony\Component\Security\Core\Role\Role;
+use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 
 class FrameworkAccessVoter extends Voter
 {
@@ -19,13 +20,13 @@ class FrameworkAccessVoter extends Voter
     public const FRAMEWORK = 'lsdoc';
 
     /**
-     * @var AccessDecisionManagerInterface
+     * @var RoleHierarchyInterface
      */
-    private $decisionManager;
+    private $roleHierarchy;
 
-    public function __construct(AccessDecisionManagerInterface $decisionManager)
+    public function __construct(RoleHierarchyInterface $roleHierarchy)
     {
-        $this->decisionManager = $decisionManager;
+        $this->roleHierarchy = $roleHierarchy;
     }
 
     /**
@@ -90,7 +91,9 @@ class FrameworkAccessVoter extends Voter
 
     private function canCreateFramework(TokenInterface $token)
     {
-        if ($this->decisionManager->decide($token, ['ROLE_EDITOR'])) {
+        $hasRoles = $this->roleHierarchy->getReachableRoles($token->getRoles());
+
+        if (in_array(new Role('ROLE_EDITOR'), $hasRoles, false)) {
             return true;
         }
 
@@ -108,20 +111,22 @@ class FrameworkAccessVoter extends Voter
 
     private function canEditFramework(LsDoc $subject, TokenInterface $token)
     {
-        // Allow editing if the user is a super-editor
-        if ($this->decisionManager->decide($token, ['ROLE_SUPER_EDITOR'])) {
-            return true;
-        }
-
-        // Do not allow editing if the user is not an editor
-        if (!$this->decisionManager->decide($token, ['ROLE_EDITOR'])) {
-            return false;
-        }
-
         $user = $token->getUser();
         if (!$user instanceof User) {
             // If the user is not logged in then deny access
             return false;
+        }
+
+        $hasRoles = $this->roleHierarchy->getReachableRoles($token->getRoles());
+
+        // Do not allow editing if the user is not an editor
+        if (!in_array(new Role('ROLE_EDITOR'), $hasRoles, false)) {
+            return false;
+        }
+
+        // Allow editing if the user is a super-editor
+        if (in_array(new Role('ROLE_SUPER_EDITOR'), $hasRoles, false)) {
+            return true;
         }
 
         // Allow the owner to edit the framework

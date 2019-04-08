@@ -105,9 +105,9 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
     /**
      * Constructor.
      */
-    public function __construct()
+    public function __construct($identifier = null)
     {
-        parent::__construct();
+        parent::__construct($identifier);
         $this->levels = new ArrayCollection();
     }
 
@@ -246,6 +246,9 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      */
     public function setLevels($levels): CfRubricCriterion
     {
+        if (is_array($levels)) {
+            $levels = new ArrayCollection($levels);
+        }
         $this->levels = $levels;
 
         return $this;

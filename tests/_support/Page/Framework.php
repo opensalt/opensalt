@@ -11,17 +11,17 @@ use Ramsey\Uuid\Uuid;
 
 class Framework implements Context
 {
-    static public $docPath = '/cftree/doc/';
-    static public $lsdocPath = '/cfdoc/';
-    static public $creatorsPath = 'api/v1/lor/creators';
-    static public $frameworksByCreatorPath = 'api/v1/lor/frameworksByCreator/';
-    static public $additionalFieldPath = '/additionalfield';
+    public static $docPath = '/cftree/doc/';
+    public static $lsdocPath = '/cfdoc/';
+    public static $creatorsPath = 'api/v1/lor/creators';
+    public static $frameworksByCreatorPath = 'api/v1/lor/frameworksByCreator/';
+    public static $additionalFieldPath = '/additionalfield';
 
-    static public $fwTitle = '#ls_doc_create_title';
-    static public $fwCreatorField = '#ls_doc_create_creator';
-    //    static public $frameworkCreatorValue = 'PCG QA Testing';
+    public static $fwTitle = '#ls_doc_create_title';
+    public static $fwCreatorField = '#ls_doc_create_creator';
+    //    public static $frameworkCreatorValue = 'PCG QA Testing';
 
-    static protected $failedCreateCount = 0;
+    protected static $failedCreateCount = 0;
 
     protected $filename;
     protected $rememberedFramework;
@@ -69,7 +69,6 @@ class Framework implements Context
         return $this;
     }
 
-
     /**
      * @Given /^I should see the framework information$/
      */
@@ -93,7 +92,6 @@ class Framework implements Context
         $I->waitForElementVisible('#exportModal a.btn-export-case');
         $url = $I->grabAttributeFrom('#exportModal a.btn-export-case', 'href');
 
-
         $this->filename = $I->download($url);
 
         return $this;
@@ -116,7 +114,6 @@ class Framework implements Context
 
         return $this;
     }
-
 
     /**
      * @When /^I click on copy framework modal button$/
@@ -223,7 +220,7 @@ class Framework implements Context
 
         $data = str_replace([
             'Test Framework External Empty',
-            'd0000000-0000-0000-0000-000000000000'
+            'd0000000-0000-0000-0000-000000000000',
         ], [$name, $uuid], $data);
         $this->uploadedFramework = $data;
 
@@ -310,7 +307,7 @@ class Framework implements Context
 
     public function arrayDiff(array $arr1, array $arr2, array $allowedDiffs = []): array
     {
-        $diff = array();
+        $diff = [];
 
         // Check the similarities
         foreach ($arr1 as $k1 => $v1) {
@@ -322,23 +319,23 @@ class Framework implements Context
                     $changes = $this->arrayDiff($v1, $v2, $allowedDiffs);
                     if (\count($changes) > 0 && !\in_array($k1, $allowedDiffs, true)) {
                         // If we have no change, simply ignore
-                        $diff[$k1] = array('upd' => $changes);
+                        $diff[$k1] = ['upd' => $changes];
                     }
                     unset($arr2[$k1]); // don't forget
-                } else if ($v2 === $v1) {
+                } elseif ($v2 === $v1) {
                     // unset the value on the second array
                     // for the "surplus"
                     unset($arr2[$k1]);
                 } else {
                     // Don't mind if arrays or not.
                     if (!\in_array($k1, $allowedDiffs, true)) {
-                        $diff[$k1] = array('old' => $v1, 'new' => $v2);
+                        $diff[$k1] = ['old' => $v1, 'new' => $v2];
                     }
                     unset($arr2[$k1]);
                 }
             } else {
                 // remove information
-                $diff[$k1] = array('old' => $v1);
+                $diff[$k1] = ['old' => $v1];
             }
         }
 
@@ -346,7 +343,7 @@ class Framework implements Context
         reset($arr2); // Don't argue it's unnecessary (even I believe you)
         foreach ($arr2 as $k => $v) {
             // OK, it is quite stupid my friend
-            $diff[$k] = array('new' => $v);
+            $diff[$k] = ['new' => $v];
         }
 
         return $diff;
@@ -516,7 +513,7 @@ class Framework implements Context
         $this->creatorName = 'OpenSALT Testing';
 
         $origValues = [
-            "Test Markdown Framework",
+            'Test Markdown Framework',
             'd0000000-0000-0000-0000-000000000000',
         ];
         $replacements = [
@@ -572,7 +569,7 @@ class Framework implements Context
         $this->rememberedFramework = $name;
 
         $origValues = [
-            "Sequence Number Test",
+            'Sequence Number Test',
             'd0000000-0000-0000-0000-000000000000',
         ];
         $replacements = [
@@ -618,7 +615,7 @@ class Framework implements Context
     public function iFillInAnASNDocumentIdentifier(): Framework
     {
         $asnDocs = file(codecept_data_dir('SampleASNDocList.txt'));
-        $this->importedAsnDoc = trim($asnDocs[random_int(0, count($asnDocs) -1)]);
+        $this->importedAsnDoc = trim($asnDocs[random_int(0, count($asnDocs) - 1)]);
 
         $this->I->fillField('#asn-url', $this->importedAsnDoc);
 
@@ -637,7 +634,7 @@ class Framework implements Context
         $I->click('//span[text()="Imported from ASN"]/../..');
         $docList = $I->grabMultiple('//span[text()="Imported from ASN"]/../../ul/li/span/span[@class="fancytree-title"]');
 
-        $I->assertEquals(count($this->importedAsnList)+1, count($docList), 'Count of imported ASN documents did not increase by 1');
+        $I->assertEquals(count($this->importedAsnList) + 1, count($docList), 'Count of imported ASN documents did not increase by 1');
 
         return $this;
     }
@@ -673,7 +670,7 @@ class Framework implements Context
     /**
      * @Given /^I should see a table in the framework$/
      */
-    public function iShouldSeeTablesInTheFramework()
+    public function iShouldSeeTablesInTheFramework(): void
     {
         $I = $this->I;
 
@@ -684,7 +681,7 @@ class Framework implements Context
     /**
      * @Given /^I should see an underline in the framework$/
      */
-    public function iShouldSeeUnderlineInTheFramework()
+    public function iShouldSeeUnderlineInTheFramework(): void
     {
         $I = $this->I;
 
@@ -695,7 +692,7 @@ class Framework implements Context
     /**
      * @Given /^I should see a math equation in the framework$/
      */
-    public function iShouldSeeMathEquationInTheFramework()
+    public function iShouldSeeMathEquationInTheFramework(): void
     {
         $I = $this->I;
 
@@ -706,7 +703,8 @@ class Framework implements Context
     /**
      * @When /^I display modal to edit framework$/
      */
-    public function iDisplayModalToEditFramework() {
+    public function iDisplayModalToEditFramework(): Framework
+    {
         $I = $this->I;
 
         $this->iGoToTheFrameworkDocument();
@@ -720,7 +718,8 @@ class Framework implements Context
     /**
      * @Then /^I should see licence edit drop-down$/
      */
-    public function iShouldSeeLicenceEditDropDown() {
+    public function iShouldSeeLicenceEditDropDown(): void
+    {
         $I = $this->I;
 
         $I->waitForElementVisible('#ls_doc_licence');
@@ -729,7 +728,8 @@ class Framework implements Context
     /**
      * @Then /^I should see licence drop-down$/
      */
-    public function iShouldSeeLicenceDropDown() {
+    public function iShouldSeeLicenceDropDown(): void
+    {
         $I = $this->I;
 
         $I->seeElement('#ls_doc_create_licence');
@@ -738,18 +738,19 @@ class Framework implements Context
     /**
      * @Given /^I should see an alpha ordered list in the framework$/
      */
-    public function iShouldSeeAlphaOrderedListInTheFramework(){
+    public function iShouldSeeAlphaOrderedListInTheFramework(): void
+    {
         $I = $this->I;
 
         $I->click('//span[text()="MD.Table"]/../../..');
         $I->seeElement(".lsItemDetails ol {type: 'I'}");
-
     }
 
     /**
      * @Then /^I should see "([^"]*)" button$/
      */
-    public function iShouldSeeButton($buttonText) {
+    public function iShouldSeeButton($buttonText): void
+    {
         $I = $this->I;
 
         $I->see($buttonText);
@@ -758,7 +759,8 @@ class Framework implements Context
     /**
      * @Given /^I click the "([^"]*)" button$/
      */
-    public function iClickTheButton($button) {
+    public function iClickTheButton($button): void
+    {
         $I = $this->I;
 
         $I->click($button);
@@ -767,7 +769,8 @@ class Framework implements Context
     /**
      * @When /^I create a "([^"]*)" framework$/
      */
-    public function iCreateAFramework($framework = 'Test Framework') {
+    public function iCreateAFramework($framework = 'Test Framework'): void
+    {
         $I = $this->I;
 
         $I->amGoingTo('submit a filled in framework create form');
@@ -807,8 +810,8 @@ class Framework implements Context
         $I->fillField('#ls_doc_create_version', $this->frameworkData['version']);
         $I->fillField('#ls_doc_create_description', $description);
         //       $I->selectOption('.select2-search__field', array('text' => 'Math')); //Subject field
-        $I->selectOption('ls_doc_create[language]', array('value' => $this->frameworkData['language']));
-        $I->selectOption('ls_doc_create[adoptionStatus]', array('value' => $this->frameworkData['adoptionStatus']));
+        $I->selectOption('ls_doc_create[language]', ['value' => $this->frameworkData['language']]);
+        $I->selectOption('ls_doc_create[adoptionStatus]', ['value' => $this->frameworkData['adoptionStatus']]);
         $I->fillField('#ls_doc_create_note', $note);
         // Choose one license
         $I->click(Locator::lastElement('.select2-container--bootstrap'));
@@ -820,7 +823,7 @@ class Framework implements Context
         try {
             $I->waitForElementVisible('#docTitle', 30);
         } catch (\Exception $e) {
-            static::$failedCreateCount++;
+            ++static::$failedCreateCount;
             throw $e;
         }
 
@@ -831,7 +834,8 @@ class Framework implements Context
     /**
      * @When /^I create a framework$/
      */
-    public function iCreateAFramework1() {
+    public function iCreateAFramework1(): void
+    {
         $I = $this->I;
 
         $I->see('Create a new Framework');
@@ -843,7 +847,8 @@ class Framework implements Context
     /**
      * @When /^I create a framework with a remembered creator$/
      */
-    public function iCreateAFrameworkRememberingTheCreator() {
+    public function iCreateAFrameworkRememberingTheCreator(): void
+    {
         $I = $this->I;
 
         $I->see('Create a new Framework');
@@ -865,7 +870,8 @@ class Framework implements Context
      * @Given /^I should see the framework$/
      * @Given /^I should see the framework data$/
      */
-    public function iShouldSeeFramework() {
+    public function iShouldSeeFramework(): void
+    {
         $I = $this->I;
 
         $I->waitForElementVisible('.itemTitleSpan');
@@ -888,7 +894,8 @@ class Framework implements Context
     /**
      * @Given /^I delete the framework$/
      */
-    public function iDeleteFramework() {
+    public function iDeleteFramework(): void
+    {
         $I = $this->I;
 
         $I->amOnPage(self::$lsdocPath.$I->getDocId());
@@ -899,7 +906,8 @@ class Framework implements Context
     /**
      * @Given /^I edit the field in framework$/
      */
-    public function iEditTheFieldInFramework($field, $data) {
+    public function iEditTheFieldInFramework($field, $data): void
+    {
         $I = $this->I;
         $map = [
             'Title' => '#ls_doc_title',
@@ -921,29 +929,30 @@ class Framework implements Context
             'Description' => 'description',
             'Language' => 'language',
             'Adoption Status' => 'adoptionStatus',
-            'Note' =>   'note',
+            'Note' => 'note',
         ];
 
-        if (in_array($field, ['Language', 'Adoption Status'])){
-            $I->selectOption($map[$field], array('value' => $data));
-        }
-        else {
+        if (in_array($field, ['Language', 'Adoption Status'])) {
+            $I->selectOption($map[$field], ['value' => $data]);
+        } else {
             $I->fillField($map[$field], $data);
         }
 
         $this->frameworkData[$dataMap[$field]] = $data;
     }
 
-    public function iGoToTheFrameworkDocument(){
+    public function iGoToTheFrameworkDocument(): void
+    {
         $I = $this->I;
 
         $I->amOnPage(self::$docPath.$I->getDocId());
-
     }
+
     /**
      * @Given /^I edit the fields in a framework$/
      */
-    public function iEditTheFieldsInFramework(TableNode $table) {
+    public function iEditTheFieldsInFramework(TableNode $table): Framework
+    {
         $I = $this->I;
 
         $this->iGoToTheFrameworkDocument();
@@ -964,7 +973,8 @@ class Framework implements Context
     /**
      * @Given /^I upload an excel file$/
      */
-    public function iUploadAnExcelFile() {
+    public function iUploadAnExcelFile(): void
+    {
         $I = $this->I;
 
         $I->waitForElementVisible('#excel-url');
@@ -973,16 +983,16 @@ class Framework implements Context
         $I->click('.btn-import-spreadsheet');
         $I->waitForElementNotVisible('#wizard', 60);
 
-        $this->creatorName = 'CreatorTest';
-        $this->rememberedFramework = 'Sample Framework';
+        $this->creatorName = 'ImportSpreadsheet';
+        $this->rememberedFramework = 'SampleFramework';
 
-        $I->see('CreatorTest', '.fancytree-title');
+        $I->see('ImportSpreadsheet', '.fancytree-title');
     }
 
     /**
      * @Given /^I upload the adopted CASE file$/
      */
-    public function iUploadTheAdoptedCASEFile()
+    public function iUploadTheAdoptedCASEFile(): Framework
     {
         $I = $this->I;
 
@@ -995,7 +1005,7 @@ class Framework implements Context
         $this->rememberedFramework = $name;
 
         $origValues = [
-            "Adopted Test",
+            'Adopted Test',
             'd0000000-0000-0000-0000-000000000000',
         ];
         $replacements = [
@@ -1038,7 +1048,7 @@ class Framework implements Context
     /**
      * @When /^I click the first item in the framework$/
      */
-    public function iClickTheFirstItemInTheFramework()
+    public function iClickTheFirstItemInTheFramework(): Framework
     {
         $I = $this->I;
 
@@ -1050,7 +1060,7 @@ class Framework implements Context
     /**
      * @Then /^I should see "([^"]*)" as the first item in the tree's HCS value$/
      */
-    public function iShouldSeeAsTheFirstItem(string $hcsValue)
+    public function iShouldSeeAsTheFirstItem(string $hcsValue): void
     {
         $I = $this->I;
 
@@ -1062,7 +1072,7 @@ class Framework implements Context
     /**
      * @Then /^I search for "([^"]*)" in the framework$/
      */
-    public function iSearchForInTheFramework($item)
+    public function iSearchForInTheFramework($item): void
     {
         $I = $this->I;
 
@@ -1075,11 +1085,11 @@ class Framework implements Context
     /**
      * @Given /^I should not see "([^"]*)" in results$/
      */
-    public function iShouldNotSeeInSearchResults($item)
+    public function iShouldNotSeeInSearchResults(string $item): void
     {
         $I = $this->I;
 
-        for ($i = 0; $i < 4; $i++) {
+        for ($i = 0; $i < 4; ++$i) {
             try {
                 $I->dontSee($item, '#tree1Section');
 
@@ -1097,7 +1107,7 @@ class Framework implements Context
     /**
      * @Given /^I edit the fields in a framework without saving the changes$/
      */
-    public function iEditTheFieldsInAFrameworkWithoutSavingTheChanges(TableNode $table)
+    public function iEditTheFieldsInAFrameworkWithoutSavingTheChanges(TableNode $table): Framework
     {
         $I = $this->I;
 
@@ -1117,7 +1127,7 @@ class Framework implements Context
     /**
      * @Given /^I see the Log View button in the title section$/
      */
-    public function iSeeTheSelectorInTitleSection()
+    public function iSeeTheSelectorInTitleSection(): void
     {
         $this->I->seeElement('#displayLogBtn');
     }
@@ -1125,7 +1135,7 @@ class Framework implements Context
     /**
      * @Given /^I upload the Item Type CASE file$/
      */
-    public function iUploadTheItemTypeCASEFile()
+    public function iUploadTheItemTypeCASEFile(): Framework
     {
         $I = $this->I;
 
@@ -1225,7 +1235,7 @@ class Framework implements Context
     /**
      * @Then /^I update the framework via spreadsheet$/
      */
-    public function updateFrameworkSpreadsheet()
+    public function updateFrameworkSpreadsheet(): void
     {
         $I = $this->I;
 
@@ -1290,7 +1300,7 @@ class Framework implements Context
     /**
      * @Then /^I add custom fields via spreadsheet$/
      */
-    public function spreadsheetCustomFields()
+    public function spreadsheetCustomFields(): void
     {
         $I = $this->I;
 
@@ -1349,7 +1359,7 @@ class Framework implements Context
     /**
      * @When /^I fetch a list of creators$/
      */
-    public function iFetchAListOfCreators()
+    public function iFetchAListOfCreators(): void
     {
         $I = $this->I;
         $I->haveHttpHeader('Accept', 'application/json');
@@ -1361,7 +1371,7 @@ class Framework implements Context
     /**
      * @Then /^the remembered creator will be in the list$/
      */
-    public function theRememberedCreatorWillBeInTheList()
+    public function theRememberedCreatorWillBeInTheList(): void
     {
         $this->I->seeResponseContainsJson([$this->rememberedCreator]);
     }
@@ -1369,7 +1379,7 @@ class Framework implements Context
     /**
      * @When /^I fetch a list of frameworks by the remembered creator$/
      */
-    public function iFetchAListOfFrameworksByTheRememberedCreator()
+    public function iFetchAListOfFrameworksByTheRememberedCreator(): void
     {
         $I = $this->I;
         $I->haveHttpHeader('Accept', 'application/json');
@@ -1381,7 +1391,7 @@ class Framework implements Context
     /**
      * @Then /^the created framework will be in the list$/
      */
-    public function theCreatedFrameworkWillBeInTheList()
+    public function theCreatedFrameworkWillBeInTheList(): void
     {
         $this->I->seeResponseContainsJson(['title' => $this->rememberedFramework]);
     }
@@ -1409,7 +1419,7 @@ class Framework implements Context
     /**
      * @Then /^I create the custom field "([^"]*)"$/
      */
-    public function iCreateTheCustomField($additionalField)
+    public function iCreateTheCustomField($additionalField): void
     {
         $I = $this->I;
 
@@ -1429,7 +1439,7 @@ class Framework implements Context
     /**
      * @Then /^I delete the custom field "([^"]*)"$/
      */
-    public function iDeleteACustomField($additionalField)
+    public function iDeleteACustomField($additionalField): void
     {
         $I = $this->I;
 
@@ -1443,16 +1453,36 @@ class Framework implements Context
     /**
      * @Then /^I should see the framework created with the spreadsheet data$/
      */
-    public function importFrameworkSpreadsheet()
+    public function importFrameworkSpreadsheet(): void
     {
         $I = $this->I;
 
         $I->see($this->rememberedFramework);
+        $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
 
         $I->see('S Statement 1');
         $I->see('S.1 Statement 2');
         $I->see('S.2 Statement 3');
         $I->see('S.2.1 Statement 4');
+
+        $I->click('#displayAssocBtn');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowChild"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowExact"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowExemplar"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowIsRelatedTo"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowPrecedes"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowIsPeerOf"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowIsPartOf"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowHasSkillLevel"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowReplacedBy"]');
+
+        $I->see('Is Child Of', '//table[@id="assocViewTable"]');
+        $I->see('Exact Match Of', '//table[@id="assocViewTable"]');
+        $I->see('Precedes', '//table[@id="assocViewTable"]');
+        $I->see('Is Peer Of', '//table[@id="assocViewTable"]');
+        $I->see('Is Part Of', '//table[@id="assocViewTable"]');
+        $I->see('Has Skill Level', '//table[@id="assocViewTable"]');
+        $I->see('Replaced By', '//table[@id="assocViewTable"]');
     }
 
     /**
@@ -1472,6 +1502,8 @@ class Framework implements Context
 
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
+
+        $I->rememberDocIdFromUrl();
 
         return $this;
     }

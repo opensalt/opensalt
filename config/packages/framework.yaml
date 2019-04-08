@@ -10,7 +10,7 @@ framework:
         #handler_id:  ~
         handler_id:  session.handler.pdo
         #handler_id:  nelmio_security.session.handler
-        #save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
+        #save_path:   "%kernel.project_dir%/var/sessions/%kernel.environment%"
         name: session
         cookie_lifetime: 0
         #cookie_secure: true
@@ -30,21 +30,7 @@ framework:
         csv: ['text/csv', 'text/plain']
 
     assets:
-        version: '180451'
+        version: '%assets_version%'
         packages:
           encore:
             json_manifest_path: '%kernel.project_dir%/web/build/manifest.json'
-    cache:
-        # Put the unique name of your app here: the prefix seed
-        # is used to compute stable namespaces for cache keys.
-        #prefix_seed: your_vendor_name/app_name
-
-        # The app cache caches to the filesystem by default.
-        # Other options include:
-
-        # Redis
-        #app: cache.adapter.redis
-        #default_redis_provider: redis://localhost
-
-        # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
-        #app: cache.adapter.apcu

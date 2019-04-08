@@ -13,7 +13,7 @@ class Version20160914202820 extends AbstractMigration
     /**
      * @param Schema $schema
      */
-    public function up(Schema $schema)
+    public function up(Schema $schema): void
     {
         $this->addSql("
 UPDATE ls_doc
@@ -35,7 +35,7 @@ UPDATE ls_item
     /**
      * @param Schema $schema
      */
-    public function down(Schema $schema)
+    public function down(Schema $schema): void
     {
         // No backwards compatibility
         $this->abortIf(true, 'Cannot revert this chagne');

@@ -33,10 +33,16 @@ class CaseV1P0Controller extends AbstractController
      */
     protected $serializer;
 
-    public function __construct(LoggerInterface $logger, SerializerInterface $serializer)
+    /**
+     * @var string
+     */
+    private $assetsVersion;
+
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer, string $assetsVersion)
     {
         $this->logger = $logger;
         $this->serializer = $serializer;
+        $this->assetsVersion = $assetsVersion;
     }
 
     /**
@@ -161,7 +167,7 @@ class CaseV1P0Controller extends AbstractController
                 'CFAssociations' => $associations,
             ],
             $request->getRequestFormat('json'),
-            SerializationContext::create()->setGroups(['Default', 'CfItemAssociations'])
+            SerializationContext::create()->setGroups(['Default', 'CfItemAssociations', 'LsItem'])
         ));
         $response->headers->set('X-Total-Count', count($associations));
 
@@ -198,18 +204,13 @@ class CaseV1P0Controller extends AbstractController
     }
 
     /**
-     * Generate a base response
-     *
-     * @param Response $response
-     * @param \DateTimeInterface $lastModified
-     *
-     * @return Response
+     * Generate a base response.
      */
     protected function generateBaseReponse(\DateTimeInterface $lastModified): Response
     {
         $response = new Response();
 
-        $response->setEtag(md5($lastModified->format('U.u')), true);
+        $response->setEtag(md5($lastModified->format('U.u').$this->assetsVersion), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(60);
         $response->setSharedMaxAge(60);

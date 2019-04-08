@@ -2,6 +2,8 @@
 
 namespace App\Form\Type;
 
+use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDefFrameworkType;
 use App\Entity\Framework\LsDoc;
 use App\Repository\Framework\LsDocRepository;
@@ -12,6 +14,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
+use Symfony\Component\Form\Extension\Core\Type\LanguageType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 
 abstract class AbstractLsDocCreateType extends AbstractType
 {
@@ -33,7 +37,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $em = $this->em;
 
@@ -79,7 +83,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
                 'disabled' => $disableAsAdopted,
                 'multiple' => true,
                 'remote_route' => 'lsdef_subject_index_json',
-                'class' => 'App\Entity\Framework\LsDefSubject',
+                'class' => LsDefSubject::class,
                 'primary_key' => 'id',
                 'text_property' => 'title',
                 'minimum_input_length' => 0,
@@ -94,7 +98,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
                     'tag_separators' => ',',
                 ],
             ])
-            ->add('language', 'Symfony\Component\Form\Extension\Core\Type\LanguageType', [
+            ->add('language', LanguageType::class, [
                 'disabled' => $disableAsAdopted,
                 'required' => false,
                 'label' => 'Language',
@@ -109,11 +113,11 @@ abstract class AbstractLsDocCreateType extends AbstractType
                     'Deprecated' => LsDoc::ADOPTION_STATUS_DEPRECATED,
                 ],
             ])
-            ->add('statusStart', 'Symfony\Component\Form\Extension\Core\Type\DateType', [
+            ->add('statusStart', DateType::class, [
                 'required' => false,
                 'widget' => 'single_text',
             ])
-            ->add('statusEnd', 'Symfony\Component\Form\Extension\Core\Type\DateType', [
+            ->add('statusEnd', DateType::class, [
                 'required' => false,
                 'widget' => 'single_text',
             ])
@@ -123,7 +127,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
                 'disabled' => $disableAsAdopted,
                 'multiple' => false,
                 'remote_route' => 'lsdef_licence_index_json',
-                'class' => 'App\Entity\Framework\LsDefLicence',
+                'class' => LsDefLicence::class,
                 'primary_key' => 'id',
                 'text_property' => 'title',
                 'minimum_input_length' => 0,
@@ -179,14 +183,14 @@ abstract class AbstractLsDocCreateType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults(array(
-            'data_class' => 'App\Entity\Framework\LsDoc',
+        $resolver->setDefaults([
+            'data_class' => LsDoc::class,
             'ajax' => false,
             //'csrf_protection' => false,
-        ));
+        ]);
     }
 
-    abstract protected function addOwnership(FormBuilderInterface $builder);
+    abstract protected function addOwnership(FormBuilderInterface $builder): void;
 }

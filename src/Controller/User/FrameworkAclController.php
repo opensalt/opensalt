@@ -66,6 +66,7 @@ class FrameworkAclController extends AbstractController
         }
 
         $acls = $lsDoc->getDocAcls();
+        /** @var \ArrayIterator $iterator */
         $iterator = $acls->getIterator();
         $iterator->uasort(function (UserDocAcl $a, UserDocAcl $b) {
             return strcasecmp($a->getUser()->getUsername(), $b->getUser()->getUsername());

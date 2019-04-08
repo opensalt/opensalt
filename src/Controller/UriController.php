@@ -23,10 +23,16 @@ class UriController extends AbstractController
      */
     private $objectHelper;
 
-    public function __construct(SerializerInterface $serializer, IdentifiableObjectHelper $uriHelper)
+    /**
+     * @var string
+     */
+    private $assetsVersion;
+
+    public function __construct(SerializerInterface $serializer, IdentifiableObjectHelper $uriHelper, string $assetsVersion)
     {
         $this->serializer = $serializer;
         $this->objectHelper = $uriHelper;
+        $this->assetsVersion = $assetsVersion;
     }
 
     /**
@@ -63,7 +69,13 @@ class UriController extends AbstractController
         $obj = $this->objectHelper->findObjectByIdentifier($uri);
 
         if (null === $obj) {
-            return $this->render('uri/uri_not_found.html.twig', ['uri' => $uri]);
+            if ('html' === $request->getRequestFormat()) {
+                return $this->render('uri/uri_not_found.html.twig', ['uri' => $uri], new Response('', Response::HTTP_NOT_FOUND));
+            }
+
+            return new JsonResponse([
+                'error' => sprintf('Object with identifier "%s" was not found', $uri),
+            ], Response::HTTP_NOT_FOUND);
         }
 
         if ($isPackage && 'json' === $request->getRequestFormat()) {
@@ -120,7 +132,7 @@ class UriController extends AbstractController
     {
         $response = new Response();
 
-        $response->setEtag(md5($lastModified->format('U.u')), true);
+        $response->setEtag(md5($lastModified->format('U.u').$this->assetsVersion), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(60);
         $response->setSharedMaxAge(60);

@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * LsDefLicenceRepository
+ * @method LsDefLicence|null findOneByIdentifier(string $identifier)
  */
 class LsDefLicenceRepository extends AbstractLsDefinitionRepository
 {

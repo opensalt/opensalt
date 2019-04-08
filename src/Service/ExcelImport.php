@@ -10,6 +10,7 @@ use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\AdditionalField;
+use App\Util\EducationLevelSet;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Ramsey\Uuid\Uuid;
@@ -42,6 +43,8 @@ final class ExcelImport
 
     public function importExcel(string $excelFilePath): LsDoc
     {
+        set_time_limit(180); // increase time limit for large files
+
         $phpExcelObject = \PhpOffice\PhpSpreadsheet\IOFactory::load($excelFilePath);
 
         /** @var LsItem[] $items */
@@ -83,9 +86,20 @@ final class ExcelImport
                 $seq = null;
             }
 
-            if (array_key_exists($parentLevel, $itemSmartLevels)) {
-                $smartLevels[$parentLevel]->addChild($item, null, $seq);
-                $children[$item->getIdentifier()] = $doc->getIdentifier();
+            $children[$item->getIdentifier()] = $doc->getIdentifier();
+
+            if (in_array($parentLevel, $itemSmartLevels, true)) {
+                $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
+                    'originLsItem' => $item,
+                    'type' => LsAssociation::CHILD_OF,
+                    'destinationLsItem' => $smartLevels[$parentLevel],
+                ]);
+
+                if (null === $assoc) {
+                    $smartLevels[$parentLevel]->addChild($item, null, $seq);
+                } else {
+                    $assoc->setSequenceNumber($seq);
+                }
             } else {
                 $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
                     'originLsItem' => $item,
@@ -95,7 +109,6 @@ final class ExcelImport
 
                 if (null === $assoc) {
                     $doc->createChildItem($item, null, $seq);
-                    $children[$item->getIdentifier()] = $doc->getIdentifier();
                 } else {
                     $assoc->setSequenceNumber($seq);
                 }
@@ -209,7 +222,7 @@ final class ExcelImport
             $item->setConceptKeywords($this->getCellValueOrNull($sheet, 7, $row));
             $item->setNotes($this->getCellValueOrNull($sheet, 8, $row));
             $item->setLanguage($this->getCellValueOrNull($sheet, 9, $row));
-            $item->setEducationalAlignment($this->getCellValueOrNull($sheet, 10, $row));
+            $this->setEducationalAlignment($item, $this->getCellValueOrNull($sheet, 10, $row));
 
             $itemTypeTitle = $this->getCellValueOrNull($sheet, 11, $row);
             $itemType = $this->findItemType($itemTypeTitle);
@@ -245,72 +258,73 @@ final class ExcelImport
             $fields[$name] = $this->getCellValueOrNull($sheet, $col, $row);
         }
 
-        if (!array_key_exists((string) $fields['originNodeIdentifier'], $children)) {
+        if (LsAssociation::CHILD_OF === $fields['associationType'] && array_key_exists((string) $fields['originNodeIdentifier'], $children)) {
+            return null;
+        }
 
-            if (empty($fields['identifier'])) {
-                $fields['identifier'] = null;
-            } elseif (Uuid::isValid($fields['identifier'])) {
-                $association = $this->getEntityManager()->getRepository(LsAssociation::class)
-                    ->findOneBy(['identifier' => $fields['identifier'], 'lsDocIdentifier' => $doc->getIdentifier()]);
-            }
+        if (empty($fields['identifier'])) {
+            $fields['identifier'] = null;
+        } elseif (Uuid::isValid($fields['identifier'])) {
+            $association = $this->getEntityManager()->getRepository(LsAssociation::class)
+                ->findOneBy(['identifier' => $fields['identifier'], 'lsDocIdentifier' => $doc->getIdentifier()]);
+        }
+
+        if (null === $association) {
+            $association = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
+                'originNodeIdentifier' => $fields['originNodeIdentifier'],
+                'type' => $fields['associationType'],
+                'destinationNodeIdentifier' => $fields['destinationNodeIdentifier']
+            ]);
 
             if (null === $association) {
-                $association = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
-                    'originNodeIdentifier' => $fields['originNodeIdentifier'],
-                    'type' => $fields['associationType'],
-                    'destinationNodeIdentifier' => $fields['destinationNodeIdentifier']
-                ]);
-
-                if (null === $association) {
-                    $association = $doc->createAssociation($fields['identifier']);
-                }
+                $association = $doc->createAssociation($fields['identifier']);
             }
-
-            if (array_key_exists((string) $fields['originNodeIdentifier'], $items)) {
-                $association->setOrigin($items[$fields['originNodeIdentifier']]);
-            } else {
-                $ref = 'data:text/x-ref-unresolved,'.$fields['originNodeIdentifier'];
-                $association->setOrigin($ref, $fields['originNodeIdentifier']);
-            }
-
-            if (array_key_exists((string) $fields['destinationNodeIdentifier'], $items)) {
-                $association->setDestination($items[$fields['destinationNodeIdentifier']]);
-            } elseif ($item = $itemRepo->findOneByIdentifier($fields['destinationNodeIdentifier'])) {
-                $items[$item->getIdentifier()] = $item;
-                $association->setDestination($item);
-            } else {
-                $ref = 'data:text/x-ref-unresolved,'.$fields['destinationNodeIdentifier'];
-                $association->setDestination($ref, $fields['destinationNodeIdentifier']);
-            }
-
-            $allTypes = [];
-            foreach (LsAssociation::allTypes() as $type) {
-                $allTypes[] = str_replace(' ', '', strtolower($type));
-            }
-
-            $associationType = str_replace(' ', '', strtolower($fields['associationType']));
-
-            if (in_array($associationType, $allTypes, true)) {
-                $association->setType($fields['associationType']);
-            } else {
-                $log = new ImportLog();
-                $log->setLsDoc($doc);
-                $log->setMessageType('error');
-                $log->setMessage("Invalid Association Type ({$associationType} on row {$row}.");
-
-                return null;
-            }
-
-            if (!empty($fields['associationGroupIdentifier'])) {
-                $associationGrouping = new LsDefAssociationGrouping();
-                $associationGrouping->setLsDoc($doc);
-                $associationGrouping->setTitle($fields['associationGroupName']);
-                $association->setGroup($associationGrouping);
-                $this->getEntityManager()->persist($associationGrouping);
-            }
-
-            $this->getEntityManager()->persist($association);
         }
+
+        if (array_key_exists((string) $fields['originNodeIdentifier'], $items)) {
+            $association->setOrigin($items[$fields['originNodeIdentifier']]);
+        } else {
+            $ref = 'data:text/x-ref-unresolved,'.$fields['originNodeIdentifier'];
+            $association->setOrigin($ref, $fields['originNodeIdentifier']);
+        }
+
+        if (array_key_exists((string) $fields['destinationNodeIdentifier'], $items)) {
+            $association->setDestination($items[$fields['destinationNodeIdentifier']]);
+        } elseif ($item = $itemRepo->findOneByIdentifier($fields['destinationNodeIdentifier'])) {
+            $items[$item->getIdentifier()] = $item;
+            $association->setDestination($item);
+        } else {
+            $ref = 'data:text/x-ref-unresolved,'.$fields['destinationNodeIdentifier'];
+            $association->setDestination($ref, $fields['destinationNodeIdentifier']);
+        }
+
+        $allTypes = [];
+        foreach (LsAssociation::allTypes() as $type) {
+            $allTypes[] = str_replace(' ', '', strtolower($type));
+        }
+
+        $associationType = str_replace(' ', '', strtolower($fields['associationType']));
+
+        if (in_array($associationType, $allTypes, true)) {
+            $association->setType($fields['associationType']);
+        } else {
+            $log = new ImportLog();
+            $log->setLsDoc($doc);
+            $log->setMessageType('error');
+            $log->setMessage("Invalid Association Type ({$associationType} on row {$row}.");
+
+            return null;
+        }
+
+        if (!empty($fields['associationGroupIdentifier'])) {
+            $associationGrouping = new LsDefAssociationGrouping();
+            $associationGrouping->setLsDoc($doc);
+            $associationGrouping->setTitle($fields['associationGroupName']);
+            $association->setGroup($associationGrouping);
+            $this->getEntityManager()->persist($associationGrouping);
+        }
+
+        $this->getEntityManager()->persist($association);
 
         return $association;
     }
@@ -390,5 +404,10 @@ final class ExcelImport
             }
             ++$column;
         }
+    }
+
+    private function setEducationalAlignment(LsItem $item, ?string $passedGradeString): void
+    {
+        $item->setEducationalAlignment(EducationLevelSet::fromString($passedGradeString)->toString());
     }
 }

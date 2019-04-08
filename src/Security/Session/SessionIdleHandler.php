@@ -24,19 +24,7 @@ class SessionIdleHandler
 
     public function onKernelRequest(GetResponseEvent $event): void
     {
-        if (!$event->isMasterRequest()) {
-            return;
-        }
-
-        if (null === $this->securityToken->getToken()) {
-            return;
-        }
-
-        if (!$this->securityContext->isGranted('IS_AUTHENTICATED_FULLY')) {
-            return;
-        }
-
-        if (0 >= $this->maxIdleTime) {
+        if (!$this->isProcessable($event)) {
             return;
         }
 
@@ -69,5 +57,26 @@ class SessionIdleHandler
         }
 
         throw new AccessDeniedException($msg);
+    }
+
+    protected function isProcessable(GetResponseEvent $event): bool
+    {
+        if (!$event->isMasterRequest()) {
+            return false;
+        }
+
+        if (null === $this->securityToken->getToken()) {
+            return false;
+        }
+
+        if (!$this->securityContext->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return false;
+        }
+
+        if (0 >= $this->maxIdleTime) {
+            return false;
+        }
+
+        return true;
     }
 }

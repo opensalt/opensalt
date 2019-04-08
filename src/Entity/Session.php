@@ -39,10 +39,7 @@ class Session
      */
     private $lifetime;
 
-    /**
-     * @return string
-     */
-    public function getId()
+    public function getId(): string
     {
         if (is_resource($this->id)) {
             $this->id = stream_get_contents($this->id);
@@ -51,9 +48,11 @@ class Session
         return $this->id;
     }
 
-    /**
-     * @return int
-     */
+    public function getData(): string
+    {
+        return $this->data;
+    }
+
     public function getLastUsed(): int
     {
         return $this->lastUsed;
@@ -64,9 +63,6 @@ class Session
         return \DateTimeImmutable::createFromFormat('U', $this->getLastUsed());
     }
 
-    /**
-     * @return int
-     */
     public function getLifetime(): int
     {
         return $this->lifetime;

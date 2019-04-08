@@ -191,6 +191,11 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         throw new LogicException('Framework id could not be found');
     }
 
+    public function rememberDocIdFromUrl(): void
+    {
+        $this->lsDocId = $this->grabFromCurrentUrl('#/(\d+)$#');
+    }
+
     public function getLastItemId()
     {
         $documents = $this->fetchJson(self::$documentsApi);

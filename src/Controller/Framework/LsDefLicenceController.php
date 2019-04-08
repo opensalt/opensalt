@@ -49,12 +49,8 @@ class LsDefLicenceController extends AbstractController
      *
      * @Route("/list.{_format}", methods={"GET"}, defaults={"_format"="json"}, name="lsdef_licence_index_json")
      * @Template()
-     *
-     * @param Request $request
-     *
-     * @return array
      */
-    public function jsonListAction()
+    public function jsonListAction(): array
     {
         $em = $this->getDoctrine()->getManager();
 
