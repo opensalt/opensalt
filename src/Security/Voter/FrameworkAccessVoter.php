@@ -71,19 +71,15 @@ class FrameworkAccessVoter extends Voter
         switch ($attribute) {
             case self::CREATE:
                 return (static::FRAMEWORK === $subject) && $this->canCreateFramework($token);
-                break;
 
             case self::VIEW:
                 return $this->canViewFramework($subject, $token);
-                break;
 
             case self::EDIT:
                 return $this->canEditFramework($subject, $token);
-                break;
 
             case self::DELETE:
                 return $this->canDeleteFramework($subject, $token);
-                break;
         }
 
         return false;
