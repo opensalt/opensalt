@@ -145,7 +145,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ->add('frameworkType', DatalistType::class, [
                 'required' => false,
                 'label' => 'Framework Type',
-                'class' => \App\Entity\Framework\LsDefFrameworkType::class,
+                'class' => LsDefFrameworkType::class,
                 'choice_label' => 'value',
                 'attr'=>['autocomplete' => 'off'],
             ])
