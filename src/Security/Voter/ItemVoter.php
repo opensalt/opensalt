@@ -78,11 +78,9 @@ class ItemVoter extends Voter
         switch ($attribute) {
             case self::ADD_TO:
                 return $this->canAddTo($subject, $token);
-                break;
 
             case self::EDIT:
                 return $this->canEdit($subject, $token);
-                break;
         }
 
         return false;
