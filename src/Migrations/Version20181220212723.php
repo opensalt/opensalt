@@ -26,7 +26,6 @@ final class Version20181220212723 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('DROP INDEX IDX_9AE8CF1F3C4C17B2 ON ls_doc');
         $this->addSql('ALTER TABLE ls_doc DROP frameworktype_id');
     }
 }
