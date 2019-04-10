@@ -20,7 +20,6 @@ class LsDefFrameworkTypeRepository extends ServiceEntityRepository
         parent::__construct($registry, LsDefFrameworkType::class);
     }
 
-
     /**
      * @return array|LsDefFrameworkType[]|ArrayCollection
      */
