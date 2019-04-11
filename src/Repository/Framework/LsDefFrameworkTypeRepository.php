@@ -21,7 +21,7 @@ class LsDefFrameworkTypeRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array|LsDefFrameworkType[]|ArrayCollection
+     * @return array|LsDefFrameworkType[]
      */
     public function getList()
     {
