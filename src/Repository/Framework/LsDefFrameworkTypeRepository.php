@@ -4,7 +4,6 @@ namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefFrameworkType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
