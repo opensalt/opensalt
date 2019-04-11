@@ -25,15 +25,6 @@ use App\Util\Compare;
  * @UniqueEntity("identifier")
  *
  * @Serializer\VirtualProperty(
- *     "uri",
- *     exp="service('App\\Service\\Api1Uris').getApiUrl(object)",
- *     options={
- *         @Serializer\SerializedName("uri"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
  *     "cfPackageUri",
  *     exp="service('App\\Service\\Api1Uris').getLinkUri(object, 'api_v1p0_cfpackage')",
  *     options={
