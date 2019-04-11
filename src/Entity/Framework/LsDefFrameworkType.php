@@ -20,7 +20,7 @@ class LsDefFrameworkType
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $value;
+    private $frameworkType;
 
     public function getId(): ?int
     {
@@ -29,12 +29,12 @@ class LsDefFrameworkType
 
     public function getValue(): ?string
     {
-        return $this->value;
+        return $this->frameworkType;
     }
 
-    public function setValue(string $value): self
+    public function setValue(string $frameworkType): self
     {
-        $this->value = $value;
+        $this->frameworkType = $frameworkType;
 
         return $this;
     }
