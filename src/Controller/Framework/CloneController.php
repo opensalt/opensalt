@@ -22,7 +22,7 @@ class CloneController extends AbstractController
 
     /**
      * @Route("/framework/{id}", name="clone_framework", methods={"GET"})
-     * @Security("is_granted('create', lsDoc)")
+     * @Security("is_granted('edit', lsDoc) and is_granted('create', 'lsdoc')")
      */
     public function frameworkAction(Request $request, LsDoc $lsDoc): Response
     {
