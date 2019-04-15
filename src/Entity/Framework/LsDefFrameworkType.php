@@ -27,12 +27,12 @@ class LsDefFrameworkType
         return $this->id;
     }
 
-    public function getValue(): ?string
+    public function getFrameworkType(): ?string
     {
         return $this->frameworkType;
     }
 
-    public function setValue(string $frameworkType): self
+    public function setFrameworkType(string $frameworkType): self
     {
         $this->frameworkType = $frameworkType;
 
