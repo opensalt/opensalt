@@ -6,9 +6,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="ls_def_framework_type")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\LsDefFrameworkTypeRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\Framework\FrameworkTypeRepository")
  */
-class LsDefFrameworkType
+class FrameworkType
 {
     /**
      * @ORM\Id()

@@ -4,7 +4,7 @@ namespace App\Form\Type;
 
 use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefSubject;
-use App\Entity\Framework\LsDefFrameworkType;
+use App\Entity\Framework\FrameworkType;
 use App\Entity\Framework\LsDoc;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
@@ -145,7 +145,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ->add('frameworkType', DatalistType::class, [
                 'required' => false,
                 'label' => 'Framework Type',
-                'class' => LsDefFrameworkType::class,
+                'class' => FrameworkType::class,
                 'choice_label' => 'value',
                 'attr'=>['autocomplete' => 'off'],
             ])
@@ -163,10 +163,10 @@ abstract class AbstractLsDocCreateType extends AbstractType
                         return null;
                     }
 
-                    $object = $em->getRepository(LsDefFrameworkType::class)->findOneBy(['value' => $frameworkType]);
+                    $object = $em->getRepository(FrameworkType::class)->findOneBy(['value' => $frameworkType]);
 
                     if($object === null) {
-                        $object = new LsDefFrameworkType();
+                        $object = new FrameworkType();
                         $object->setFrameworkType($frameworkType);
                     }
                     return $object;

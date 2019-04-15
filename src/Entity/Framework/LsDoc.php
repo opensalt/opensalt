@@ -274,9 +274,9 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $licence;
 
     /**
-     * @var LsDefFrameworkType
+     * @var FrameworkType
      *
-     * @ORM\ManyToOne(targetEntity="LsDefFrameworkType", cascade = {"persist"})
+     * @ORM\ManyToOne(targetEntity="FrameworkType", cascade = {"persist"})
      * @ORM\JoinColumn(name="frameworktype_id", referencedColumnName="id", nullable=true)
      *
      * @Serializer\Exclude()
@@ -1143,15 +1143,15 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @return LsDefFrameworkType|null
+     * @return FrameworkType|null
      */
-    public function getFrameworkType(): ?LsDefFrameworkType
+    public function getFrameworkType(): ?FrameworkType
     {
         return $this->frameworkType;
     }
 
     /**
-     * @param LsDefFrameworkType $frameworkType
+     * @param FrameworkType $frameworkType
      *
      * @return LsDoc
      */
