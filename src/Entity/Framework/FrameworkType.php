@@ -5,7 +5,7 @@ namespace App\Entity\Framework;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table(name="ls_def_framework_type")
+ * @ORM\Table(name="framework_type")
  * @ORM\Entity(repositoryClass="App\Repository\Framework\FrameworkTypeRepository")
  */
 class FrameworkType
