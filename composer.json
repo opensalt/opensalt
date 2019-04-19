@@ -111,7 +111,7 @@
 
         "codeception/codeception": "^2.3",
             "codeception/specify": "~0.4",
-            "codeception/verify": "~0.3",
+            "codeception/verify": "~1.0",
             "flow/jsonpath": "~0.3",
             "league/factory-muffin": "~3.0",
             "league/factory-muffin-faker": "~2.0",
