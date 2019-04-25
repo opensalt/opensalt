@@ -218,6 +218,9 @@
     "hoa/consistency": {
         "version": "1.17.05.02"
     },
+    "hoa/console": {
+        "version": "3.17.05.02"
+    },
     "hoa/event": {
         "version": "1.17.01.13"
     },

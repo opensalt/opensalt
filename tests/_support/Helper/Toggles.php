@@ -2,8 +2,8 @@
 
 namespace Helper;
 
-use Codeception\Exception\Skip;
 use Codeception\Module\Symfony;
+use PHPUnit\Framework\SkippedTestError;
 use Qandidate\Toggle\ContextFactory;
 use Qandidate\Toggle\ToggleManager;
 
@@ -39,7 +39,7 @@ class Toggles extends \Codeception\Module
         }
 
         if (!$enabled[$feature]) {
-            throw new Skip(sprintf('"%s" feature is disabled', $feature));
+            throw new SkippedTestError(sprintf('"%s" feature is disabled', $feature));
         }
     }
 }
