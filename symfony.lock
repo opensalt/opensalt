@@ -817,8 +817,5 @@
     },
     "zendframework/zend-eventmanager": {
         "version": "3.2.1"
-    },
-    "zendframework/zend-stdlib": {
-        "version": "3.2.0"
     }
 }
