@@ -9905,29 +9905,31 @@
         },
         {
             "name": "fzaninotto/faker",
-            "version": "v1.6.0",
+            "version": "v1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "44f9a286a04b80c76a4e5fb7aad8bb539b920123"
+                "reference": "f72816b43e74063c8b10357394b6bba8cb1c10de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/44f9a286a04b80c76a4e5fb7aad8bb539b920123",
-                "reference": "44f9a286a04b80c76a4e5fb7aad8bb539b920123",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/f72816b43e74063c8b10357394b6bba8cb1c10de",
+                "reference": "f72816b43e74063c8b10357394b6bba8cb1c10de",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3.3|^7.0"
+                "php": "^5.3.3 || ^7.0"
             },
             "require-dev": {
                 "ext-intl": "*",
-                "phpunit/phpunit": "~4.0",
-                "squizlabs/php_codesniffer": "~1.5"
+                "phpunit/phpunit": "^4.8.35 || ^5.7",
+                "squizlabs/php_codesniffer": "^1.5"
             },
             "type": "library",
             "extra": {
-                "branch-alias": []
+                "branch-alias": {
+                    "dev-master": "1.8-dev"
+                }
             },
             "autoload": {
                 "psr-4": {
@@ -9949,7 +9951,7 @@
                 "faker",
                 "fixtures"
             ],
-            "time": "2016-04-29T12:21:54+00:00"
+            "time": "2018-07-12T10:23:15+00:00"
         },
         {
             "name": "jakub-onderka/php-console-color",
@@ -10156,20 +10158,20 @@
         },
         {
             "name": "league/factory-muffin-faker",
-            "version": "v2.0.0",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/factory-muffin-faker.git",
-                "reference": "61e0e40356edee0502f379cc85ca74e4234c687c"
+                "reference": "eea89951bd990fa9c51dadc7e96a1e7bad026ddf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/factory-muffin-faker/zipball/61e0e40356edee0502f379cc85ca74e4234c687c",
-                "reference": "61e0e40356edee0502f379cc85ca74e4234c687c",
+                "url": "https://api.github.com/repos/thephpleague/factory-muffin-faker/zipball/eea89951bd990fa9c51dadc7e96a1e7bad026ddf",
+                "reference": "eea89951bd990fa9c51dadc7e96a1e7bad026ddf",
                 "shasum": ""
             },
             "require": {
-                "fzaninotto/faker": "1.6.*",
+                "fzaninotto/faker": "1.6.*|1.7.*|1.8.*",
                 "php": ">=5.4.0"
             },
             "require-dev": {
@@ -10178,7 +10180,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.0-dev"
+                    "dev-master": "2.1-dev"
                 }
             },
             "autoload": {
@@ -10203,7 +10205,7 @@
                 "faker",
                 "testing"
             ],
-            "time": "2016-05-13T10:47:29+00:00"
+            "time": "2019-04-24T20:44:52+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -10451,7 +10453,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -10511,7 +10513,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
