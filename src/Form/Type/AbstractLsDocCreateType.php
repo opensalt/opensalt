@@ -163,7 +163,8 @@ abstract class AbstractLsDocCreateType extends AbstractType
                         return null;
                     }
 
-                    $object = $em->getRepository(FrameworkType::class)->findOneBy(['value' => $frameworkType]);
+                    // $object = $em->getRepository(FrameworkType::class)->findOneBy(['value' => $frameworkType]);
+                    $object = $em->getRepository(FrameworkType::class)->findOneBy(['id' => $frameworkType]);
 
                     if($object === null) {
                         $object = new FrameworkType();
