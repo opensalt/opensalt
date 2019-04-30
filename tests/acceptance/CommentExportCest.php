@@ -22,6 +22,8 @@ class CommentExportCest
         $Acpt->getLastFrameworkId();
         $Acpt->amOnPage(self::$docPath.$Acpt->getDocId());
         $Acpt->waitForElementNotVisible('#modalSpinner', 120);
+
+        $Acpt->waitForElementVisible('.export_csv_comment', 30);
         $Acpt->see('Export Comments');
     }
 
