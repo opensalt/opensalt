@@ -147,7 +147,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
                 'label' => 'Framework Type',
                 'class' => FrameworkType::class,
                 'choice_label' => 'value',
-                'attr'=>['autocomplete' => 'off'],
+                'attr' => ['autocomplete' => 'off'],
             ])
         ;
 
@@ -155,18 +155,17 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ->resetViewTransformers()
             ->resetModelTransformers()
             ->addModelTransformer(new CallbackTransformer(
-                function ($frameworkType) {
+                static function (FrameworkType $frameworkType) {
                     return $frameworkType ? $frameworkType->getFrameworkType() : '';
                 },
-                function ($frameworkType) use ($em) {
-                    if ($frameworkType === null) {
+                static function (?FrameworkType $frameworkType) use ($em) {
+                    if (null === $frameworkType) {
                         return null;
                     }
 
-                    // $object = $em->getRepository(FrameworkType::class)->findOneBy(['value' => $frameworkType]);
                     $object = $em->getRepository(FrameworkType::class)->findOneBy(['id' => $frameworkType]);
 
-                    if($object === null) {
+                    if (null === $object) {
                         $object = new FrameworkType();
                         $object->setFrameworkType($frameworkType);
                     }
