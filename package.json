@@ -22,7 +22,7 @@
     "github-markdown-css": "^2.10.0",
     "html5-boilerplate": "6.0.1",
     "inline-attachment": "^2.0.3",
-    "jquery": "^3.3.1",
+    "jquery": "^3.4.1",
     "jquery-comments": "https://github.com/Viima/jquery-comments/archive/1.2.0.tar.gz",
     "jquery-contextmenu": "^2.2.4",
     "jquery-migrate": "^3.0.1",
@@ -41,7 +41,8 @@
     "simplemde": "^1.11.2",
     "swagger-ui-dist": "^3.15.0",
     "twbs-pagination": "^1.4.1",
-    "ui-contextmenu": "^1.12.0"
+    "ui-contextmenu": "^1.12.0",
+    "yarn-deduplicate": "^1.1.1"
   },
   "devDependencies": {
     "@symfony/webpack-encore": "^0.19.0",

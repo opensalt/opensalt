@@ -61,7 +61,7 @@ services:
     working_dir: /var/www/html
 
   nginx:
-    image: opensalt/nginx:1.15-alpine
+    image: opensalt/nginx:1.16-alpine
     depends_on:
       - phpfpm
     environment:
