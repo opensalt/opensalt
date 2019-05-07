@@ -245,10 +245,18 @@ class DocTreeController extends AbstractController
         // Check the cache for the document
         $cache = $this->externalDocCache;
         $cacheDoc = $cache->getItem(rawurlencode($url));
-        if ($cacheDoc->isHit()) {
+        $token = null;
+        // if ($cacheDoc->isHit()) {
             $s = $cacheDoc->get();
-        } else {
-            // first check to see if this url returns a valid document (function taken from notes of php file_exists)
+        // } else {
+            // Check for CASE urls:
+	        if( $this->isCaseUrl( $url ) ) {
+	        	$token = $this->retrieveDocumentToken();
+	        	error_log( print_r( $token, true ) );
+	        } else {
+	        	error_log( 'thud' );
+	        }
+        	// first check to see if this url returns a valid document (function taken from notes of php file_exists)
             $extDoc = $this->guzzleJsonClient->request(
                 'GET',
                 $url,
@@ -280,7 +288,7 @@ class DocTreeController extends AbstractController
             $cacheDoc->set($s);
             $cacheDoc->expiresAfter(new \DateInterval('PT30M'));
             $cache->save($cacheDoc);
-        }
+        // }
         if (!empty($s)) {
             // if $lsDoc is not empty, get the document's identifier and title and save to the $lsDoc's externalDocs
             if (null !== $lsDoc) {
@@ -331,6 +339,42 @@ class DocTreeController extends AbstractController
         // http://127.0.0.1:3000/app_dev.php/uri/731cf3e4-43a2-4aa0-b2a7-87a49dac5374.json
         // https://salt-staging.edplancms.com/uri/b821b70d-d46c-519b-b5cc-ca2260fc31f8.json
         // https://salt-staging.edplancms.com/cfpackage/doc/11/export
+    }
+
+    protected function isCaseUrl( $url ) {
+	    $breakout = null;
+    	// @see:https://regex101.com/r/xS0iY6/1
+	    preg_match(
+    		'|(?<protocol>\w*)\:\/\/(?:(?:(?<thld>[\w\-]*)(?:\.))?(?<sld>[\w\-]*))\.(?<tld>\w*)(?:\:(?<port>\d*))?|',
+		    $url,
+		    $breakout
+	    );
+    	if( ! empty( $breakout ) && $breakout['thld'] == 'casenetwork' ) {
+    		return true;
+	    }
+    	return false;
+    }
+
+    protected function retrieveDocumentToken() {
+	    $extDoc = $this->guzzleJsonClient->request(
+		    'POST',
+		    'https://oauth2-case.imsglobal.org/oauth2server/clienttoken',
+		    [
+			    'debug' => true,
+		    	'timeout' => 60,
+			    'headers' => [
+			    	'Authorize' => 'Basic YWN0Lm9yZzoydlRUdHVHdWJpV0R6',
+				    'Content-Type' => 'application/x-www-form-urlencoded',
+				    'Accept' => 'application/json',
+			    ],
+			    'http_errors' => false,
+			    /* 'form_params' => [
+			    	'grant_type' => 'client_credentials',
+				    'scope' => 'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/all.readonly'
+			    ] */
+		    ]
+	    );
+	    return $extDoc;
     }
 
 
