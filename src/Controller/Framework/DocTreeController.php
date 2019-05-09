@@ -17,6 +17,7 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Form\Type\LsDocListType;
 use App\Entity\User\User;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\RequestException as RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -241,65 +242,78 @@ class DocTreeController extends AbstractController
         return new Response('Document not found.', Response::HTTP_NOT_FOUND);
     }
 
-    protected function exportExternalDocument($url, ?LsDoc $lsDoc = null) {
-        // Check the cache for the document
-        $cache = $this->externalDocCache;
+	/**
+	 * @param $url
+	 * @param LsDoc|null $lsDoc
+	 *
+	 * @return Response
+	 * @throws \Exception
+	 */
+	protected function exportExternalDocument($url, ?LsDoc $lsDoc = null) {
+	    $extDoc   = null;
+	    $token    = null;
+	    $headers  = array(
+	    	'Accept' => 'application/json'
+	    );
+    	// Check the cache for the document
+        $cache    = $this->externalDocCache;
         $cacheDoc = $cache->getItem(rawurlencode($url));
-        $token = null;
         // if ($cacheDoc->isHit()) {
-            $s = $cacheDoc->get();
+            $document = $cacheDoc->get();
         // } else {
             // Check for CASE urls:
 	        if( $this->isCaseUrl( $url ) ) {
-	        	$token = $this->retrieveDocumentToken();
-	        	error_log( print_r( $token, true ) );
-	        } else {
-	        	error_log( 'thud' );
+	        	$token   = $this->retrieveDocumentToken();
+	        	$auth    = sprintf( 'Bearer %document', $token->access_token );
+		        $headers = array_merge( array( 'Authorization' => $auth ), $headers );
 	        }
-        	// first check to see if this url returns a valid document (function taken from notes of php file_exists)
-            $extDoc = $this->guzzleJsonClient->request(
-                'GET',
-                $url,
-                [
-                    'timeout' => 60,
-                    'headers' => [
-                        'Accept' => 'application/json',
-                    ],
-                    'http_errors' => false,
-                ]
-            );
-            if ($extDoc->getStatusCode() === 404) {
-                return new Response(
-                    'Document not found.',
-                    Response::HTTP_NOT_FOUND
-                );
-            }
-            if ($extDoc->getStatusCode() !== 200) {
-                return new Response(
-                    $extDoc->getReasonPhrase(),
-                    $extDoc->getStatusCode()
-                );
-            }
+	        // Query for the document:
+	        try {
+		        $extDoc = $this->guzzleJsonClient->request(
+			        'GET',
+			        $url,
+			        [
+				        'timeout'     => 60,
+				        'headers'     => $headers,
+				        'http_errors' => true,
+			        ]
+		        );
+	        } catch( RequestException $e ) {
+		        $error = $e->getResponse();
+		        error_log($error);
+	        	return new Response(
+			        'Document not found.',
+			        Response::HTTP_NOT_FOUND
+		        );
+	        } catch( \Exception $e ) {
+		        $error = $e->getMessage();
+		        error_log($error);
+		        return new Response(
+			        'Document not found.',
+			        Response::HTTP_NOT_FOUND
+		        );
+	        }
 
             // file exists, so get it
-            $s = $extDoc->getBody()->getContents();
+            $document = json_decode( $extDoc->getBody()->getContents() );
+	        error_log($document);
 
             // Save document in cache for 30 minutes (arbitrary time period)
-            $cacheDoc->set($s);
+            $cacheDoc->set($document);
             $cacheDoc->expiresAfter(new \DateInterval('PT30M'));
             $cache->save($cacheDoc);
         // }
-        if (!empty($s)) {
-            // if $lsDoc is not empty, get the document's identifier and title and save to the $lsDoc's externalDocs
+        if (!empty($document)) {
+            // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
             if (null !== $lsDoc) {
-                // This might not be the most elegant way to get  way to get the doc's identifier and id, but it should work
+            	// This might not be the most elegant way to get  way to get the doc'document identifier and id, but it should work
                 $identifier = '';
-                if (preg_match("/\"identifier\"\s*:\s*\"(.+?)\"/", $s, $matches)) {
+                if (preg_match("/\"identifier\"\s*:\s*\"(.+?)\"/", $document, $matches)) {
                     $identifier = $matches[1];
                 }
 
                 $title = '';
-                if (preg_match("/\"title\"\s*:\s*\"([\s\S]+?)\"/", $s, $matches)) {
+                if (preg_match("/\"title\"\s*:\s*\"([\s\S]+?)\"/", $document, $matches)) {
                     $title = $matches[1];
                 }
 
@@ -326,7 +340,7 @@ class DocTreeController extends AbstractController
             }
 
             // now return the file
-            $response = new Response($s);
+            $response = new Response($document);
             $response->headers->set('Content-Type', 'application/json');
             $response->headers->set('Pragma', 'no-cache');
 
@@ -349,31 +363,40 @@ class DocTreeController extends AbstractController
 		    $url,
 		    $breakout
 	    );
-    	if( ! empty( $breakout ) && $breakout['thld'] == 'casenetwork' ) {
+    	if( ! empty( $breakout ) && $breakout['thld'] == 'beta' && $breakout['sld'] == 'casenetwork' ) {
     		return true;
 	    }
     	return false;
     }
 
     protected function retrieveDocumentToken() {
-	    $extDoc = $this->guzzleJsonClient->request(
-		    'POST',
-		    'https://oauth2-case.imsglobal.org/oauth2server/clienttoken',
-		    [
-			    'debug' => true,
-		    	'timeout' => 60,
-			    'headers' => [
-			    	'Authorize' => 'Basic YWN0Lm9yZzoydlRUdHVHdWJpV0R6',
-				    'Content-Type' => 'application/x-www-form-urlencoded',
-				    'Accept' => 'application/json',
-			    ],
-			    'http_errors' => false,
-			    /* 'form_params' => [
-			    	'grant_type' => 'client_credentials',
-				    'scope' => 'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/all.readonly'
-			    ] */
-		    ]
-	    );
+	    $extDoc = null;
+    	try {
+		    $response = $this->guzzleJsonClient->request(
+			    'POST',
+			    'https://oauth2-case.imsglobal.org/oauth2server/clienttoken',
+			    [
+				    'debug'       => true,
+				    'timeout'     => 6000,
+				    'headers'     => [
+					    'Authorization' => 'Basic YWN0Lm9yZzoydlRUdHVHdWJpV0R6',
+					    'Content-Type'  => 'application/x-www-form-urlencoded',
+					    'Accept'        => '*/*',
+					    'User-Agent'    => 'SomeRandomText'
+				    ],
+				    'http_errors' => true,
+				    'form_params' => [
+						'grant_type' => 'client_credentials',
+						'scope' => 'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/all.readonly'
+					]
+			    ]
+		    );
+		    $extDoc = json_decode( $response->getBody() );
+	    } catch( RequestException $e ) {
+    		$extDoc = $e->getResponse();
+	    } catch( \Exception $e ) {
+	    	$extDoc = $e->getMessage();
+	    }
 	    return $extDoc;
     }
 
