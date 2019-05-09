@@ -10275,16 +10275,16 @@
         },
         {
             "name": "escapestudios/symfony2-coding-standard",
-            "version": "3.6.0",
+            "version": "3.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/djoos/Symfony-coding-standard.git",
-                "reference": "a526278d0864e4d4756f0879576a5abe39e2e2c0"
+                "reference": "a00d1db4ad6f68d2cb9eb2c57170f26d3b330d82"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/a526278d0864e4d4756f0879576a5abe39e2e2c0",
-                "reference": "a526278d0864e4d4756f0879576a5abe39e2e2c0",
+                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/a00d1db4ad6f68d2cb9eb2c57170f26d3b330d82",
+                "reference": "a00d1db4ad6f68d2cb9eb2c57170f26d3b330d82",
                 "shasum": ""
             },
             "require": {
@@ -10324,7 +10324,7 @@
                 "phpcs",
                 "symfony"
             ],
-            "time": "2019-04-23T09:06:38+00:00"
+            "time": "2019-05-09T07:40:38+00:00"
         },
         {
             "name": "facebook/webdriver",
