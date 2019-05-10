@@ -346,7 +346,7 @@ class DocTreeController extends AbstractController
 	            ]
             );
 
-            // return $response;
+            return $response;
         }
 
         // if we get to here, error
@@ -374,14 +374,15 @@ class DocTreeController extends AbstractController
     protected function retrieveDocumentToken() {
 	    $extDoc = null;
     	try {
-		    $response = $this->guzzleJsonClient->request(
+		    $auth     = sprintf('Basic %s', getenv('CASE_NETWORK_SECRET'));
+		    error_log($auth);
+    		$response = $this->guzzleJsonClient->request(
 			    'POST',
-			    'https://oauth2-case.imsglobal.org/oauth2server/clienttoken',
+			    getenv('CASE_TOKEN_SERVER'),
 			    [
-				    'debug'       => true,
 				    'timeout'     => 6000,
 				    'headers'     => [
-					    'Authorization' => 'Basic YWN0Lm9yZzoydlRUdHVHdWJpV0R6',
+					    'Authorization' => $auth,
 					    'Content-Type'  => 'application/x-www-form-urlencoded',
 					    'Accept'        => '*/*',
 					    'User-Agent'    => 'SomeRandomText'
@@ -389,18 +390,19 @@ class DocTreeController extends AbstractController
 				    'http_errors' => true,
 				    'form_params' => [
 						'grant_type' => 'client_credentials',
-						'scope' => 'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/all.readonly'
+						'scope' => getenv('CASE_NETWORK_SCOPE')
 					]
 			    ]
 		    );
 		    $extDoc = json_decode( $response->getBody() );
 	    } catch( RequestException $e ) {
-		    return new Response(
-			    'Document not found.',
+		    $message = $e->getHandlerContext();
+    		return new Response(
+			    $message['error'],
 			    Response::HTTP_NOT_FOUND
 		    );
 	    } catch( \Exception $e ) {
-		    return new Response(
+    		return new Response(
 			    'Document not found.',
 			    Response::HTTP_NOT_FOUND
 		    );
