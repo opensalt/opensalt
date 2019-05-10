@@ -213,12 +213,17 @@ class DocTreeController extends AbstractController
         return $response;
     }
 
-    /**
-     * Retrieve a CFPackage from the given document identifier, then use exportAction to export it.
-     *
-     * @Route("/retrievedocument/{id}", name="doctree_retrieve_document", methods={"GET"})
-     * @Route("/retrievedocument/url", name="doctree_retrieve_document_by_url", methods={"GET"}, defaults={"id"=null})
-     */
+	/**
+	 * Retrieve a CFPackage from the given document identifier, then use exportAction to export it.
+	 *
+	 * @Route("/retrievedocument/{id}", name="doctree_retrieve_document", methods={"GET"})
+	 * @Route("/retrievedocument/url", name="doctree_retrieve_document_by_url", methods={"GET"}, defaults={"id"=null})
+	 * @param Request $request
+	 * @param LsDoc|null $lsDoc
+	 *
+	 * @return Response
+	 * @throws \Exception
+	 */
     public function retrieveDocumentAction(Request $request, ?LsDoc $lsDoc = null)
     {
         // $request could contain an id...
@@ -235,7 +240,7 @@ class DocTreeController extends AbstractController
 
         // or a url...
         if ($url = $request->query->get('url')) {
-            // try to load the url, noting that we should save a record of it in externalDocs if found
+        	// try to load the url, noting that we should save a record of it in externalDocs if found
             return $this->exportExternalDocument($url, $lsDoc);
         }
 
@@ -250,7 +255,7 @@ class DocTreeController extends AbstractController
 	 * @throws \Exception
 	 */
 	protected function exportExternalDocument($url, ?LsDoc $lsDoc = null) {
-	    $extDoc   = null;
+		$extDoc   = null;
 	    $token    = null;
 	    $headers  = array(
 	    	'Accept' => 'application/json'
@@ -264,7 +269,7 @@ class DocTreeController extends AbstractController
             // Check for CASE urls:
 	        if( $this->isCaseUrl( $url ) ) {
 	        	$token   = $this->retrieveDocumentToken();
-	        	$auth    = sprintf( 'Bearer %document', $token->access_token );
+	        	$auth    = sprintf( 'Bearer %s', $token->access_token );
 		        $headers = array_merge( array( 'Authorization' => $auth ), $headers );
 	        }
 	        // Query for the document:
@@ -280,23 +285,21 @@ class DocTreeController extends AbstractController
 		        );
 	        } catch( RequestException $e ) {
 		        $error = $e->getResponse();
-		        error_log($error);
 	        	return new Response(
-			        'Document not found.',
+			        $error,
 			        Response::HTTP_NOT_FOUND
 		        );
 	        } catch( \Exception $e ) {
 		        $error = $e->getMessage();
 		        error_log($error);
 		        return new Response(
-			        'Document not found.',
+			        $error,
 			        Response::HTTP_NOT_FOUND
 		        );
 	        }
 
             // file exists, so get it
             $document = json_decode( $extDoc->getBody()->getContents() );
-	        error_log($document);
 
             // Save document in cache for 30 minutes (arbitrary time period)
             $cacheDoc->set($document);
@@ -305,26 +308,19 @@ class DocTreeController extends AbstractController
         // }
         if (!empty($document)) {
             // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
-            if (null !== $lsDoc) {
-            	// This might not be the most elegant way to get  way to get the doc'document identifier and id, but it should work
-                $identifier = '';
-                if (preg_match("/\"identifier\"\s*:\s*\"(.+?)\"/", $document, $matches)) {
-                    $identifier = $matches[1];
-                }
-
-                $title = '';
-                if (preg_match("/\"title\"\s*:\s*\"([\s\S]+?)\"/", $document, $matches)) {
-                    $title = $matches[1];
-                }
+            /* if (null !== $lsDoc) {
+            	$title      = $document->CFDocument->title;
+	            $identifier = $document->CFDocument->identifier;
 
                 // if we found the identifier and title, save the ad
                 if (!empty($identifier) && !empty($title)) {
-                    // see if the doc is already there; if so, we don't want to change the "autoLoad" parameter, but we should still update the title/url if necessary
+
+                	// see if the doc is already there; if so, we don't want to change the "autoLoad" parameter, but we should still update the title/url if necessary
                     $externalDocs = $lsDoc->getExternalDocs();
 
                     $autoLoad = 'false';
                     if (!empty($externalDocs[$identifier])) {
-                        $autoLoad = $externalDocs[$identifier]['autoLoad'];
+                    	$autoLoad = $externalDocs[$identifier]['autoLoad'];
                     }
 
                     // if this is a new doc or anything has changed, save it
@@ -333,18 +329,24 @@ class DocTreeController extends AbstractController
                         || $externalDocs[$identifier]['url'] !== $url
                         || $externalDocs[$identifier]['title'] !== $title
                     ) {
-                        $command = new AddExternalDocCommand($lsDoc, $identifier, $autoLoad, $url, $title);
+                    	$command = new AddExternalDocCommand($lsDoc, $identifier, $autoLoad, $url, $title);
                         $this->sendCommand($command);
                     }
                 }
             }
+            */
 
             // now return the file
-            $response = new Response($document);
-            $response->headers->set('Content-Type', 'application/json');
-            $response->headers->set('Pragma', 'no-cache');
+            $response = new Response(
+	            json_encode($document),
+	            Response::HTTP_OK,
+	            [
+	            	'Content-Type' => 'application/json',
+		            'Pragma'       => 'no-cache'
+	            ]
+            );
 
-            return $response;
+            // return $response;
         }
 
         // if we get to here, error
@@ -393,9 +395,15 @@ class DocTreeController extends AbstractController
 		    );
 		    $extDoc = json_decode( $response->getBody() );
 	    } catch( RequestException $e ) {
-    		$extDoc = $e->getResponse();
+		    return new Response(
+			    'Document not found.',
+			    Response::HTTP_NOT_FOUND
+		    );
 	    } catch( \Exception $e ) {
-	    	$extDoc = $e->getMessage();
+		    return new Response(
+			    'Document not found.',
+			    Response::HTTP_NOT_FOUND
+		    );
 	    }
 	    return $extDoc;
     }
