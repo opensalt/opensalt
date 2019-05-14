@@ -263,9 +263,9 @@ class DocTreeController extends AbstractController
         // Check the cache for the document
         $cache    = $this->externalDocCache;
         $cacheDoc = $cache->getItem(rawurlencode($url));
-        // if ($cacheDoc->isHit()) {
+        if ($cacheDoc->isHit()) {
             $document = $cacheDoc->get();
-        // } else {
+        } else {
             // Check for CASE urls:
             if( $this->isCaseUrl( $url ) ) {
                 $token   = $this->retrieveDocumentToken();
@@ -305,7 +305,7 @@ class DocTreeController extends AbstractController
             $cacheDoc->set($document);
             $cacheDoc->expiresAfter(new \DateInterval('PT30M'));
             $cache->save($cacheDoc);
-        // }
+        }
         if (!empty($document)) {
             // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
             /* if (null !== $lsDoc) {
