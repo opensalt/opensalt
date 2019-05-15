@@ -56,9 +56,9 @@ services:
       ATTACHMENT_URL_PREFIX:
       BUCKET_PROVIDER:
       LOCAL_FILESYSTEM_PATH:
-      CASE_NETWORK_SECRET:
-      CASE_TOKEN_SERVER:
-      CASE_NETWORK_SCOPE:
+      CASE_NETWORK_SECRET: "${CASE_NETWORK_SECRET}"
+      CASE_TOKEN_SERVER: "${CASE_TOKEN_SERVER}"
+      CASE_NETWORK_SCOPE: "${CASE_NETWORK_SCOPE}"
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html
@@ -72,6 +72,7 @@ services:
     environment:
       UPSTREAM_HOST: phpfpm:9000
     ports:
+      - "${PORT:-3000}:80"
     volumes:
       - *project_root
     working_dir: /var/www/html
@@ -83,8 +84,6 @@ services:
 
   db:
     image: percona:${MYSQL_VERSION}
-    ports:
-      - "3306:3306"
     volumes:
       - "${PROJ_DIR:-..}/docker/data/mysql:/var/lib/mysql"
       - "${PROJ_DIR:-..}/docker/mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro"
