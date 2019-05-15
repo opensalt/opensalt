@@ -257,6 +257,7 @@ class DocTreeController extends AbstractController
     protected function exportExternalDocument($url, ?LsDoc $lsDoc = null) {
         $extDoc   = null;
         $token    = null;
+        $document = null;
         $headers  = array(
             'Accept' => 'application/json'
         );
@@ -308,33 +309,32 @@ class DocTreeController extends AbstractController
         }
         if (!empty($document)) {
             // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
-            /* if (null !== $lsDoc) {
-                $title      = $document->CFDocument->title;
-                $identifier = $document->CFDocument->identifier;
+            if (null !== $lsDoc) {
+	            $title      = $document->CFDocument->title;
+	            $identifier = $document->CFDocument->identifier;
 
-                // if we found the identifier and title, save the ad
-                if (!empty($identifier) && !empty($title)) {
+	            // if we found the identifier and title, save the ad
+	            if ( ! empty( $identifier ) && ! empty( $title ) ) {
 
-                    // see if the doc is already there; if so, we don't want to change the "autoLoad" parameter, but we should still update the title/url if necessary
-                    $externalDocs = $lsDoc->getExternalDocs();
+		            // see if the doc is already there; if so, we don't want to change the "autoLoad" parameter, but we should still update the title/url if necessary
+		            $externalDocs = $lsDoc->getExternalDocs();
 
-                    $autoLoad = 'false';
-                    if (!empty($externalDocs[$identifier])) {
-                        $autoLoad = $externalDocs[$identifier]['autoLoad'];
-                    }
+		            $autoLoad = 'false';
+		            if ( ! empty( $externalDocs[ $identifier ] ) ) {
+			            $autoLoad = $externalDocs[ $identifier ]['autoLoad'];
+		            }
 
-                    // if this is a new doc or anything has changed, save it
-                    if (empty($externalDocs[$identifier])
-                        || $externalDocs[$identifier]['autoLoad'] !== $autoLoad
-                        || $externalDocs[$identifier]['url'] !== $url
-                        || $externalDocs[$identifier]['title'] !== $title
-                    ) {
-                        $command = new AddExternalDocCommand($lsDoc, $identifier, $autoLoad, $url, $title);
-                        $this->sendCommand($command);
-                    }
-                }
+		            // if this is a new doc or anything has changed, save it
+		            if ( empty( $externalDocs[ $identifier ] )
+		                 || $externalDocs[ $identifier ]['autoLoad'] !== $autoLoad
+		                 || $externalDocs[ $identifier ]['url'] !== $url
+		                 || $externalDocs[ $identifier ]['title'] !== $title
+		            ) {
+			            $command = new AddExternalDocCommand( $lsDoc, $identifier, $autoLoad, $url, $title );
+			            $this->sendCommand( $command );
+		            }
+	            }
             }
-            */
 
             // now return the file
             $response = new Response(
