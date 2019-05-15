@@ -258,6 +258,7 @@ class DocTreeController extends AbstractController
         $extDoc   = null;
         $token    = null;
         $document = null;
+        $response = null;
         $headers  = array(
             'Accept' => 'application/json'
         );
@@ -287,14 +288,13 @@ class DocTreeController extends AbstractController
             } catch( RequestException $e ) {
                 $error = $e->getResponse();
                 return new Response(
-                    $error,
+                    $error->getReasonPhrase(),
                     Response::HTTP_NOT_FOUND
                 );
             } catch( \Exception $e ) {
                 $error = $e->getMessage();
-                error_log($error);
                 return new Response(
-                    $error,
+	                $error,
                     Response::HTTP_NOT_FOUND
                 );
             }
@@ -338,7 +338,8 @@ class DocTreeController extends AbstractController
 
             // now return the file
             $response = new Response(
-                json_encode($document),
+                // 'Oh, hey!',
+            	json_encode($document),
                 Response::HTTP_OK,
                 [
                     'Content-Type' => 'application/json',
