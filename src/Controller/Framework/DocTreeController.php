@@ -299,8 +299,7 @@ class DocTreeController extends AbstractController
                 );
             }
 
-            // file exists, so get it
-            $document = json_decode( $extDoc->getBody()->getContents() );
+            $document = $extDoc->getBody()->getContents();
 
             // Save document in cache for 30 minutes (arbitrary time period)
             $cacheDoc->set($document);
@@ -308,6 +307,7 @@ class DocTreeController extends AbstractController
             $cache->save($cacheDoc);
         }
         if (!empty($document)) {
+            $document = json_decode( $document );
             // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
             if (null !== $lsDoc) {
 	            $title      = $document->CFDocument->title;
@@ -359,17 +359,22 @@ class DocTreeController extends AbstractController
     }
 
     protected function isCaseUrl( $url ) {
-        $breakout = null;
-        // @see:https://regex101.com/r/xS0iY6/1
-        preg_match(
-            '|(?<protocol>\w*)\:\/\/(?:(?:(?<thld>[\w\-]*)(?:\.))?(?<sld>[\w\-]*))\.(?<tld>\w*)(?:\:(?<port>\d*))?|',
-            $url,
-            $breakout
-        );
-        if( ! empty( $breakout ) && $breakout['thld'] == 'beta' && $breakout['sld'] == 'casenetwork' ) {
-            return true;
-        }
-        return false;
+	    try {
+		    $extDoc = $this->guzzleJsonClient->request(
+			    'GET',
+			    $url,
+			    [
+				    'timeout'     => 60,
+				    'headers'     => array('Content-Type' => 'application/json'),
+				    'http_errors' => true,
+			    ]
+		    );
+	    } catch( RequestException $e ) {
+		    $error = $e->getResponse();
+	    	error_log( $error->getReasonPhrase() );
+	    	return true;
+	    }
+	    return false;
     }
 
     protected function retrieveDocumentToken() {
