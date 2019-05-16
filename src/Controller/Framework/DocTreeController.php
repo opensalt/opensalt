@@ -47,15 +47,27 @@ class DocTreeController extends AbstractController
      */
     private $guzzleJsonClient;
 
+    protected $caseNetworkSecret;
+    protected $caseNetworkScope;
+    protected $caseTokenServer;
+
     /**
      * @var PdoAdapter
      */
     private $externalDocCache;
 
-    public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache)
+    public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache /*, string $caseNetworkSecret, string $caseNetworkScope, string $caseTokenServer */)
     {
-        $this->guzzleJsonClient = $guzzleJsonClient;
-        $this->externalDocCache = $externalDocCache;
+        $this->guzzleJsonClient  = $guzzleJsonClient;
+        $this->externalDocCache  = $externalDocCache;
+        /*
+        $this->caseNetworkSecret = $caseNetworkSecret;
+        $this->caseTokenServer   = $caseTokenServer;
+        $this->caseNetworkScope  = $caseNetworkScope;
+        */
+	    $this->caseNetworkSecret = getenv('CASE_NETWORK_SECRET');
+	    $this->caseTokenServer   = getenv('CASE_TOKEN_SERVER');
+	    $this->caseNetworkScope  = getenv('CASE_NETWORK_SCOPE');
     }
 
     /**
@@ -265,9 +277,9 @@ class DocTreeController extends AbstractController
         // Check the cache for the document
         $cache    = $this->externalDocCache;
         $cacheDoc = $cache->getItem(rawurlencode($url));
-        if ($cacheDoc->isHit()) {
+        // if ($cacheDoc->isHit()) {
             $document = $cacheDoc->get();
-        } else {
+        // } else {
             // Check for CASE urls:
             if( $this->isCaseUrl( $url ) ) {
                 $token   = $this->retrieveDocumentToken();
@@ -305,7 +317,7 @@ class DocTreeController extends AbstractController
             $cacheDoc->set($document);
             $cacheDoc->expiresAfter(new \DateInterval('PT30M'));
             $cache->save($cacheDoc);
-        }
+        // }
         if (!empty($document)) {
             $document = json_decode( $document );
             // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
@@ -380,11 +392,11 @@ class DocTreeController extends AbstractController
     protected function retrieveDocumentToken() {
         $extDoc = null;
         try {
-            $auth     = sprintf('Basic %s', getenv('CASE_NETWORK_SECRET'));
+            $auth     = sprintf('Basic %s', $this->caseNetworkSecret);
             error_log($auth);
             $response = $this->guzzleJsonClient->request(
                 'POST',
-                getenv('CASE_TOKEN_SERVER'),
+	            $this->caseTokenServer,
                 [
                     'timeout'     => 6000,
                     'headers'     => [
@@ -396,7 +408,7 @@ class DocTreeController extends AbstractController
                     'http_errors' => true,
                     'form_params' => [
                         'grant_type' => 'client_credentials',
-                        'scope' => getenv('CASE_NETWORK_SCOPE')
+                        'scope' => $this->caseNetworkScope
                     ]
                 ]
             );
