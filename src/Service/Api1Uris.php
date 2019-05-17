@@ -152,6 +152,10 @@ class Api1Uris
 
         $identifier = $obj->{'get'.$selector.'NodeIdentifier'}();
 
+        if (preg_match('/^local:/', $uri)) {
+            $uri = $this->uriGenerator->getPublicUriForIdentifier($identifier);
+        }
+
         return [
             'title' => $selector.' node',
             'identifier' => $identifier,
