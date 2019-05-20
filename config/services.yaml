@@ -185,6 +185,15 @@ services:
             $attachmentUrlPrefix: '%attachment_url_prefix%'
             $bucketPrefix: '%aws_prefix%'
 
+    #
+    App\Controller\Framework\DocTreeController:
+        arguments:
+            $guzzleJsonClient: '@csa_guzzle.client.json'
+            $externalDocCache: '@salt.cache.external_docs'
+            $caseNetworkSecret: '%case_network_secret%'
+            $caseTokenServer: '%case_token_server%'
+            $caseNetworkScope: "%case_network_scope%"
+
     # Workarounds for 3.4 deprecations
     Symfony\Bundle\SwiftmailerBundle\Command\:
         resource: '../vendor/symfony/swiftmailer-bundle/Command'
