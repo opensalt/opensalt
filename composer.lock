@@ -3561,16 +3561,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "4.21.1",
+            "version": "4.22.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "e9b33a4893c721b22fe34bef2993c6e8a8b99bc3"
+                "reference": "bdda9fbedc16eef118f8a18798a69c88d7cb9ab1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/e9b33a4893c721b22fe34bef2993c6e8a8b99bc3",
-                "reference": "e9b33a4893c721b22fe34bef2993c6e8a8b99bc3",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/bdda9fbedc16eef118f8a18798a69c88d7cb9ab1",
+                "reference": "bdda9fbedc16eef118f8a18798a69c88d7cb9ab1",
                 "shasum": ""
             },
             "require": {
@@ -3628,7 +3628,7 @@
                 "google",
                 "sdk"
             ],
-            "time": "2019-05-14T10:15:17+00:00"
+            "time": "2019-05-26T00:00:05+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
@@ -3734,32 +3734,29 @@
         },
         {
             "name": "lcobucci/jwt",
-            "version": "3.2.5",
+            "version": "3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lcobucci/jwt.git",
-                "reference": "82be04b4753f8b7693b62852b7eab30f97524f9b"
+                "reference": "a11ec5f4b4d75d1fcd04e133dede4c317aac9e18"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/82be04b4753f8b7693b62852b7eab30f97524f9b",
-                "reference": "82be04b4753f8b7693b62852b7eab30f97524f9b",
+                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/a11ec5f4b4d75d1fcd04e133dede4c317aac9e18",
+                "reference": "a11ec5f4b4d75d1fcd04e133dede4c317aac9e18",
                 "shasum": ""
             },
             "require": {
+                "ext-mbstring": "*",
                 "ext-openssl": "*",
-                "php": ">=5.5"
+                "php": "^5.6 || ^7.0"
             },
             "require-dev": {
-                "mdanter/ecc": "~0.3.1",
                 "mikey179/vfsstream": "~1.5",
                 "phpmd/phpmd": "~2.2",
                 "phpunit/php-invoker": "~1.1",
-                "phpunit/phpunit": "~4.5",
+                "phpunit/phpunit": "^5.7 || ^7.3",
                 "squizlabs/php_codesniffer": "~2.3"
-            },
-            "suggest": {
-                "mdanter/ecc": "Required to use Elliptic Curves based algorithms."
             },
             "type": "library",
             "extra": {
@@ -3788,20 +3785,20 @@
                 "JWS",
                 "jwt"
             ],
-            "time": "2018-11-11T12:22:26+00:00"
+            "time": "2019-05-24T18:30:49+00:00"
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.51",
+            "version": "1.0.52",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "755ba7bf3fb9031e6581d091db84d78275874396"
+                "reference": "c5a5097156387970e6f0ccfcdf03f752856f3391"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/755ba7bf3fb9031e6581d091db84d78275874396",
-                "reference": "755ba7bf3fb9031e6581d091db84d78275874396",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/c5a5097156387970e6f0ccfcdf03f752856f3391",
+                "reference": "c5a5097156387970e6f0ccfcdf03f752856f3391",
                 "shasum": ""
             },
             "require": {
@@ -3872,7 +3869,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2019-03-30T13:22:34+00:00"
+            "time": "2019-05-20T20:21:14+00:00"
         },
         {
             "name": "league/flysystem-aws-s3-v3",
@@ -11153,7 +11150,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -11213,7 +11210,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
@@ -12402,12 +12399,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "73398309c6b11d09275e47224f9ad301ba661f74"
+                "reference": "4c0ba8a35f1f12dd9236452e9fae4346b0bf2a56"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/73398309c6b11d09275e47224f9ad301ba661f74",
-                "reference": "73398309c6b11d09275e47224f9ad301ba661f74",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/4c0ba8a35f1f12dd9236452e9fae4346b0bf2a56",
+                "reference": "4c0ba8a35f1f12dd9236452e9fae4346b0bf2a56",
                 "shasum": ""
             },
             "conflict": {
@@ -12516,7 +12513,9 @@
                 "stormpath/sdk": ">=0,<9.9.99",
                 "swiftmailer/swiftmailer": ">=4,<5.4.5",
                 "sylius/admin-bundle": ">=1,<1.0.17|>=1.1,<1.1.9|>=1.2,<1.2.2",
-                "sylius/sylius": ">=1,<1.0.17|>=1.1,<1.1.9|>=1.2,<1.2.2",
+                "sylius/grid": ">=1,<1.1.19|>=1.2,<1.2.18|>=1.3,<1.3.13|>=1.4,<1.4.5|>=1.5,<1.5.1",
+                "sylius/grid-bundle": ">=1,<1.1.19|>=1.2,<1.2.18|>=1.3,<1.3.13|>=1.4,<1.4.5|>=1.5,<1.5.1",
+                "sylius/sylius": ">=1,<1.1.18|>=1.2,<1.2.17|>=1.3,<1.3.12|>=1.4,<1.4.4",
                 "symfony/cache": ">=3.2,<3.4.26|>=4,<4.1.12|>=4.2,<4.2.7",
                 "symfony/dependency-injection": ">=2,<2.0.17|>=2.7,<2.7.51|>=2.8,<2.8.50|>=3,<3.4.26|>=4,<4.1.12|>=4.2,<4.2.7",
                 "symfony/form": ">=2.3,<2.3.35|>=2.4,<2.6.12|>=2.7,<2.7.50|>=2.8,<2.8.49|>=3,<3.4.20|>=4,<4.0.15|>=4.1,<4.1.9|>=4.2,<4.2.1",
@@ -12603,7 +12602,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2019-05-17T16:29:20+00:00"
+            "time": "2019-05-23T20:42:12+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
