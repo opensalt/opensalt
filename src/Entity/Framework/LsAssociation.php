@@ -521,9 +521,20 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
 
     public function setType(?string $type): self
     {
-        $this->type = $type;
+        if (in_array($type, self::allTypes(), true)) {
+            $this->type = $type;
 
-        return $this;
+            return $this;
+        }
+
+        $newType = $this->coerceType($type);
+        if (null !== $newType) {
+            $this->type = $type;
+
+            return $this;
+        }
+
+        throw new \InvalidArgumentException('Invalid association type passed: '.$type);
     }
 
     public function getType(): ?string
@@ -537,6 +548,23 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     public function getNormalizedType(): string
     {
         return lcfirst(str_replace(' ', '', $this->type ?? ''));
+    }
+
+    /**
+     * Coerce a type string into the correct format for use with setType().
+     */
+    public function coerceType(?string $type): ?string
+    {
+        $allTypes = self::allTypes();
+        $testNewType = preg_replace('/ +/', '', strtolower($type));
+        foreach ($allTypes as $allowedType) {
+            $testAllowedType = preg_replace('/ +/', '', strtolower($allowedType));
+            if ($testNewType === $testAllowedType) {
+                return $allowedType;
+            }
+        }
+
+        return null;
     }
 
     public function setOriginLsDoc(?LsDoc $originLsDoc = null): self
