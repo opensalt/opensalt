@@ -47,28 +47,23 @@ class DocTreeController extends AbstractController
      */
     private $guzzleJsonClient;
 
-    protected $caseNetworkSecret;
-    protected $caseNetworkScope;
-    protected $caseTokenServer;
+	private $caseNetworkSecret;
+	private $caseNetworkScope;
+	private $caseTokenServer;
 
     /**
      * @var PdoAdapter
      */
     private $externalDocCache;
 
-    public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache /*, string $caseNetworkSecret, string $caseNetworkScope, string $caseTokenServer */)
-    {
-        $this->guzzleJsonClient  = $guzzleJsonClient;
-        $this->externalDocCache  = $externalDocCache;
-        /*
-        $this->caseNetworkSecret = $caseNetworkSecret;
-        $this->caseTokenServer   = $caseTokenServer;
-        $this->caseNetworkScope  = $caseNetworkScope;
-        */
-	    $this->caseNetworkSecret = getenv('CASE_NETWORK_SECRET');
-	    $this->caseTokenServer   = getenv('CASE_TOKEN_SERVER');
-	    $this->caseNetworkScope  = getenv('CASE_NETWORK_SCOPE');
-    }
+	public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache)
+	{
+		$this->guzzleJsonClient = $guzzleJsonClient;
+		$this->externalDocCache = $externalDocCache;
+		$this->caseNetworkSecret = getenv( CASE_NETWORK_SECRET );
+		$this->caseTokenServer = getenv( CASE_TOKEN_SERVER );
+		$this->caseNetworkScope = getenv( CASE_NETWORK_SCOPE );
+	}
 
     /**
      * @Route("/doc/{slug}", name="doc_tree_view", methods={"GET"}, requirements={"slug"="[a-zA-Z0-9.-]+"}, defaults={"lsItemId"=null})
@@ -157,7 +152,6 @@ class DocTreeController extends AbstractController
         ]);
     }
 
-///////////////////////////////////////////////
 
     /**
      * Export a CFPackage in a special json format designed for efficiently loading the package's data to the OpenSALT doctree client
@@ -277,9 +271,9 @@ class DocTreeController extends AbstractController
         // Check the cache for the document
         $cache    = $this->externalDocCache;
         $cacheDoc = $cache->getItem(rawurlencode($url));
-        // if ($cacheDoc->isHit()) {
+        if ($cacheDoc->isHit()) {
             $document = $cacheDoc->get();
-        // } else {
+        } else {
             // Check for CASE urls:
             if( $this->isCaseUrl( $url ) ) {
                 $token   = $this->retrieveDocumentToken();
@@ -317,7 +311,7 @@ class DocTreeController extends AbstractController
             $cacheDoc->set($document);
             $cacheDoc->expiresAfter(new \DateInterval('PT30M'));
             $cache->save($cacheDoc);
-        // }
+        }
         if (!empty($document)) {
             $document = json_decode( $document );
             // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
