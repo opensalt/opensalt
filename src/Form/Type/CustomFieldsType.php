@@ -23,7 +23,7 @@ class CustomFieldsType extends AbstractType
         $this->em = $entityManager;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $appliesTo = $options['applies_to'];
 
@@ -57,7 +57,7 @@ class CustomFieldsType extends AbstractType
         });
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'applies_to' => null,
