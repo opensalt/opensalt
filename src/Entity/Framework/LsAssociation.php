@@ -64,6 +64,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class LsAssociation extends AbstractLsBase implements CaseApiInterface
 {
+    use AccessAdditionalFieldTrait;
+
     public const CHILD_OF = 'Is Child Of';
 
     public const EXACT_MATCH_OF = 'Exact Match Of';
