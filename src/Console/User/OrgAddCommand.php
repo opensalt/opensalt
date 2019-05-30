@@ -63,7 +63,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         }
 
         $command = new AddOrganizationByNameCommand($org);
-        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
         $output->writeln('The organization "%s" has been added.');
     }

@@ -10,7 +10,7 @@ security:
 
     encoders:
         App\Entity\User\User:
-            algorithm: bcrypt
+            algorithm: auto
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:

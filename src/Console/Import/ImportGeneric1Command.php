@@ -30,7 +30,7 @@ class ImportGeneric1Command extends BaseDispatchingCommand
         $filename = $input->getArgument('filename');
 
         $command = new ImportGenericCsvCommand($filename, $input->getOption('creator'), $input->getOption('title'));
-        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
         $output->writeln('Done.');
     }

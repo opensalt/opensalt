@@ -44,7 +44,7 @@ abstract class UserRoleCommand extends BaseDispatchingCommand
         $username = trim($input->getArgument('username'));
 
         $command = new $commandClass($username, $role);
-        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
         return 0;
     }
