@@ -79,7 +79,7 @@ class User implements UserInterface, \Serializable, EquatableInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="password", type="string", length=64, nullable=true)
+     * @ORM\Column(name="password", type="string", nullable=true)
      */
     protected $password;
 

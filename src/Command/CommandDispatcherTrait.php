@@ -39,8 +39,8 @@ trait CommandDispatcherTrait
         }
 
         $dispatcher->dispatch(
-            CommandEvent::class,
-            new CommandEvent($command)
+            new CommandEvent($command),
+            CommandEvent::class
         );
     }
 }

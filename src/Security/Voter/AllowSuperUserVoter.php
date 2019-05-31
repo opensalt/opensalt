@@ -4,7 +4,6 @@ namespace App\Security\Voter;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
-use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 
 class AllowSuperUserVoter implements VoterInterface
@@ -31,12 +30,12 @@ class AllowSuperUserVoter implements VoterInterface
      *
      * @return int either ACCESS_GRANTED, ACCESS_ABSTAIN, or ACCESS_DENIED
      */
-    public function vote(TokenInterface $token, $subject, array $attributes)
+    public function vote(TokenInterface $token, $subject, array $attributes): bool
     {
         // abstain vote by default in case none of the attributes are supported
         $vote = VoterInterface::ACCESS_ABSTAIN;
 
-        $hasRoles = $this->roleHierarchy->getReachableRoles($token->getRoles());
+        $hasRoles = $this->roleHierarchy->getReachableRoleNames($token->getRoleNames());
 
         foreach ($attributes as $attribute) {
             if ($this->isCheckable($attribute, $hasRoles)) {
@@ -64,9 +63,9 @@ class AllowSuperUserVoter implements VoterInterface
 
     protected function isSuperUser(array $hasRoles): bool
     {
-        /** @var Role $hasRole */
+        /** @var string $hasRole */
         foreach ($hasRoles as $hasRole) {
-            if ('ROLE_SUPER_USER' === $hasRole->getRole()) {
+            if ('ROLE_SUPER_USER' === $hasRole) {
                 return true;
             }
         }

@@ -4,7 +4,7 @@ namespace App\Event;
 
 use App\Entity\Framework\AbstractLsBase;
 use App\Entity\Framework\LsDoc;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class NotificationEvent extends Event
 {

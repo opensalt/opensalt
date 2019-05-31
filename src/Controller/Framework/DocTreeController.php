@@ -58,14 +58,14 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * @Route("/doc/{slug}.{_format}", name="doc_tree_view", methods={"GET"}, defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{slug}/av.{_format}", name="doc_tree_view_av", methods={"GET"}, defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{slug}/lv.{_format}", name="doc_tree_view_log", methods={"GET"}, defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{slug}/{assocGroup}.{_format}", name="doc_tree_view_ag", methods={"GET"}, defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{slug}", name="doc_tree_view", methods={"GET"}, requirements={"slug"="[a-zA-Z0-9.-]+"}, defaults={"lsItemId"=null})
+     * @Route("/doc/{slug}/av", name="doc_tree_view_av", methods={"GET"}, requirements={"slug"="[a-zA-Z0-9.-]+"}, defaults={"lsItemId"=null})
+     * @Route("/doc/{slug}/lv", name="doc_tree_view_log", methods={"GET"}, requirements={"slug"="[a-zA-Z0-9.-]+"}, defaults={"lsItemId"=null})
+     * @Route("/doc/{slug}/{assocGroup}", name="doc_tree_view_ag", methods={"GET"}, requirements={"slug"="[a-zA-Z0-9.-]+"}, defaults={"lsItemId"=null})
      * @Entity("lsDoc", expr="repository.findOneBySlug(slug)")
      * @Template()
      */
-    public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, $_format = 'html', $lsItemId = null, $assocGroup = null)
+    public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, $lsItemId = null, $assocGroup = null)
     {
         $em = $this->getDoctrine()->getManager();
 

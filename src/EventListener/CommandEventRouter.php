@@ -82,7 +82,7 @@ class CommandEventRouter implements EventSubscriberInterface
         $this->logger->info('Routing command', ['command' => \get_class($command)]);
 
         try {
-            $dispatcher->dispatch(\get_class($command), $event);
+            $dispatcher->dispatch($event, \get_class($command));
 
             if ($command->getValidationErrors()) {
                 $errorString = (string) $command->getValidationErrors();
@@ -143,7 +143,7 @@ class CommandEventRouter implements EventSubscriberInterface
 
     protected function sendNotification(EventDispatcherInterface $dispatcher, NotificationEvent $notification): void
     {
-        $dispatcher->dispatch(NotificationEvent::class, $notification);
+        $dispatcher->dispatch($notification, NotificationEvent::class);
     }
 
     protected function getCurrentUser(): ?User
