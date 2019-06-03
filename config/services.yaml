@@ -224,3 +224,19 @@ services:
             $connOrDsn: '@doctrine.dbal.default_connection'
             $namespace: 'externalDoc-'
             $defaultLifetime: 0
+
+    # Overrides
+    # Override vendor/theofidry/psysh-bundle/resources/config/test.xml test.client service
+    #          as it uses the deprecated Symfony\Bundle\FrameworkBundle\Client class
+    test.client:
+        class: 'Symfony\Bundle\FrameworkBundle\KernelBrowser'
+        public: true
+        arguments:
+            - '@kernel'
+            - []
+            - '@test.client.history'
+            - '@test.client.cookiejar'
+    test.client.history:
+        class: 'Symfony\Component\BrowserKit\History'
+    test.client.cookiejar:
+        class: 'Symfony\Component\BrowserKit\CookieJar'

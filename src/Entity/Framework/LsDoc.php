@@ -210,6 +210,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @Serializer\Expose("object.getSubjects().count()>0")
      * @Serializer\SerializedName("subject")
      * @Serializer\Type("array<string>")
+     * @Serializer\Accessor(getter="getSubjectTextArray")
      */
     private $subjects;
 
@@ -1182,5 +1183,16 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         $association->setLsDoc($this);
 
         return $association;
+    }
+
+    public function getSubjectTextArray(): array
+    {
+        $subjects = [];
+
+        foreach ($this->subjects as $subject) {
+            $subjects[] = $subject->getTitle();
+        }
+
+        return $subjects;
     }
 }

@@ -35,7 +35,7 @@ class ImportCaseJsonCommand extends BaseDoctrineCommand
 
         $command = new \App\Command\Import\ImportCaseJsonCommand($fileContent, $org);
 //        $command = new ImportGenericCsvCommand($filename, $input->getOption('creator'), $input->getOption('title'));
-        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
         $output->writeln('Done.');
     }

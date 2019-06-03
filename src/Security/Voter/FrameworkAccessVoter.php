@@ -7,7 +7,6 @@ use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 
 class FrameworkAccessVoter extends Voter
@@ -66,7 +65,7 @@ class FrameworkAccessVoter extends Voter
      *
      * @return bool
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         switch ($attribute) {
             case self::CREATE:
@@ -85,18 +84,18 @@ class FrameworkAccessVoter extends Voter
         return false;
     }
 
-    private function canCreateFramework(TokenInterface $token)
+    private function canCreateFramework(TokenInterface $token): bool
     {
-        $hasRoles = $this->roleHierarchy->getReachableRoles($token->getRoles());
+        $hasRoles = $this->roleHierarchy->getReachableRoleNames($token->getRoleNames());
 
-        if (in_array(new Role('ROLE_EDITOR'), $hasRoles, false)) {
+        if (in_array('ROLE_EDITOR', $hasRoles, false)) {
             return true;
         }
 
         return false;
     }
 
-    private function canViewFramework(LsDoc $subject, TokenInterface $token)
+    private function canViewFramework(LsDoc $subject, TokenInterface $token): bool
     {
         if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $subject->getAdoptionStatus()) {
             return true;
@@ -105,7 +104,7 @@ class FrameworkAccessVoter extends Voter
         return $this->canEditFramework($subject, $token);
     }
 
-    private function canEditFramework(LsDoc $subject, TokenInterface $token)
+    private function canEditFramework(LsDoc $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
         if (!$user instanceof User) {
@@ -113,15 +112,15 @@ class FrameworkAccessVoter extends Voter
             return false;
         }
 
-        $hasRoles = $this->roleHierarchy->getReachableRoles($token->getRoles());
+        $hasRoles = $this->roleHierarchy->getReachableRoleNames($token->getRoleNames());
 
         // Do not allow editing if the user is not an editor
-        if (!in_array(new Role('ROLE_EDITOR'), $hasRoles, false)) {
+        if (!in_array('ROLE_EDITOR', $hasRoles, false)) {
             return false;
         }
 
         // Allow editing if the user is a super-editor
-        if (in_array(new Role('ROLE_SUPER_EDITOR'), $hasRoles, false)) {
+        if (in_array('ROLE_SUPER_EDITOR', $hasRoles, false)) {
             return true;
         }
 
@@ -142,7 +141,7 @@ class FrameworkAccessVoter extends Voter
         return $user->getOrg() === $subject->getOrg();
     }
 
-    private function canDeleteFramework(LsDoc $subject, TokenInterface $token)
+    private function canDeleteFramework(LsDoc $subject, TokenInterface $token): bool
     {
         return $this->canEditFramework($subject, $token);
     }

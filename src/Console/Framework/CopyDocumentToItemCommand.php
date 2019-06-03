@@ -62,7 +62,7 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
         };
 
         $command = new CopyDocumentToItemEventCommand($oldDoc, $newDoc, $callback);
-        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
         $output->writeln('<info>Duplicated.</info>');
     }

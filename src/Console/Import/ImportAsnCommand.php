@@ -33,7 +33,7 @@ class ImportAsnCommand extends BaseDispatchingCommand
 
         try {
             $command = new ImportAsnFromUrlCommand($asnId, $creator);
-            $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
+            $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
             $output->writeln('<info>Done.</info>');
         } catch (\Exception $e) {
