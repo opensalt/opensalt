@@ -60,9 +60,9 @@ class DocTreeController extends AbstractController
 	{
 		$this->guzzleJsonClient = $guzzleJsonClient;
 		$this->externalDocCache = $externalDocCache;
-		$this->caseNetworkSecret = getenv( CASE_NETWORK_SECRET );
-		$this->caseTokenServer = getenv( CASE_TOKEN_SERVER );
-		$this->caseNetworkScope = getenv( CASE_NETWORK_SCOPE );
+		$this->caseNetworkSecret = getenv( 'CASE_NETWORK_SECRET' );
+		$this->caseTokenServer = getenv( 'CASE_TOKEN_SERVER' );
+		$this->caseNetworkScope = getenv( 'CASE_NETWORK_SCOPE' );
 	}
 
     /**
