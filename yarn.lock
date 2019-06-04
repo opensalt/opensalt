@@ -3614,8 +3614,8 @@ markdown-it@^8.4.1:
     uc.micro "^1.0.5"
 
 marked@*:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/marked/-/marked-0.5.0.tgz#9e590bad31584a48ff405b33ab1c0dd25172288e"
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-0.6.2.tgz#c574be8b545a8b48641456ca1dbe0e37b6dccc1a"
 
 match-at@^0.1.0:
   version "0.1.1"
