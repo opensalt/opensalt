@@ -4545,12 +4545,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioSecurityBundle.git",
-                "reference": "e2405b0a95879762fc1ed1a1b9466399a307c0ec"
+                "reference": "c50e75b3d459a442c511f34fa6ccd53084aff95e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/e2405b0a95879762fc1ed1a1b9466399a307c0ec",
-                "reference": "e2405b0a95879762fc1ed1a1b9466399a307c0ec",
+                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/c50e75b3d459a442c511f34fa6ccd53084aff95e",
+                "reference": "c50e75b3d459a442c511f34fa6ccd53084aff95e",
                 "shasum": ""
             },
             "require": {
@@ -4598,7 +4598,7 @@
             "keywords": [
                 "security"
             ],
-            "time": "2019-04-03T13:46:20+00:00"
+            "time": "2019-05-31T14:42:11+00:00"
         },
         {
             "name": "ocramius/package-versions",
@@ -9590,16 +9590,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v2.11.0",
+            "version": "v2.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "c344879ae57dc1487b1df3e3d8325936125ba2cc"
+                "reference": "0418e17113266e84c03ccf758680af8abc4b22dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/c344879ae57dc1487b1df3e3d8325936125ba2cc",
-                "reference": "c344879ae57dc1487b1df3e3d8325936125ba2cc",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/0418e17113266e84c03ccf758680af8abc4b22dc",
+                "reference": "0418e17113266e84c03ccf758680af8abc4b22dc",
                 "shasum": ""
             },
             "require": {
@@ -9610,7 +9610,7 @@
             "require-dev": {
                 "psr/container": "^1.0",
                 "symfony/debug": "^2.7",
-                "symfony/phpunit-bridge": "^3.4.19|^4.1.8"
+                "symfony/phpunit-bridge": "^3.4.19|^4.1.8|^5.0"
             },
             "type": "library",
             "extra": {
@@ -9653,7 +9653,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2019-05-31T06:21:42+00:00"
+            "time": "2019-06-04T11:32:47+00:00"
         },
         {
             "name": "ua-parser/uap-php",
@@ -11401,7 +11401,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -11461,7 +11461,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
