@@ -365,19 +365,8 @@ class DocTreeController extends AbstractController
     }
 
     protected function isCaseUrl( $url ) {
-	    try {
-		    $extDoc = $this->guzzleJsonClient->request(
-			    'GET',
-			    $url,
-			    [
-				    'timeout'     => 60,
-				    'headers'     => array('Content-Type' => 'application/json'),
-				    'http_errors' => true,
-			    ]
-		    );
-	    } catch( RequestException $e ) {
-		    $error = $e->getResponse();
-	    	error_log( $error->getReasonPhrase() );
+	    preg_match( 'casenetwork.imsglobal.org', $url, $matches );
+	    if( ! empty( $matches ) ) {
 	    	return true;
 	    }
 	    return false;
