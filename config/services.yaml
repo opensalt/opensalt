@@ -243,9 +243,6 @@ services:
         arguments:
             $guzzleJsonClient: '@csa_guzzle.client.json'
             $externalDocCache: '@salt.cache.external_docs'
-            $caseNetworkSecret: '%case_network_secret%'
-            $caseNetworkScope: '%case_network_scope%'
-            $caseTokenServer: '%case_token_server%'
 
     # LS Item Controller
     App\Controller\Framework\LsItemController:
