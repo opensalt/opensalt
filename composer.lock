@@ -2174,16 +2174,16 @@
         },
         {
             "name": "google/cloud-core",
-            "version": "v1.28.0",
+            "version": "v1.28.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-cloud-php-core.git",
-                "reference": "d32db261499d28268f9ed97834e7aca829df5b53"
+                "reference": "1663b311f93f7b0421c3426e6f6bab68dd7738f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-core/zipball/d32db261499d28268f9ed97834e7aca829df5b53",
-                "reference": "d32db261499d28268f9ed97834e7aca829df5b53",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-core/zipball/1663b311f93f7b0421c3426e6f6bab68dd7738f9",
+                "reference": "1663b311f93f7b0421c3426e6f6bab68dd7738f9",
                 "shasum": ""
             },
             "require": {
@@ -2198,6 +2198,7 @@
             },
             "require-dev": {
                 "erusev/parsedown": "^1.6",
+                "google/common-protos": "^1.0",
                 "google/gax": "^1.0",
                 "opis/closure": "^3",
                 "phpdocumentor/reflection": "^3.0",
@@ -2230,20 +2231,20 @@
                 "Apache-2.0"
             ],
             "description": "Google Cloud PHP shared dependency, providing functionality useful to all components.",
-            "time": "2019-04-16T20:44:33+00:00"
+            "time": "2019-06-03T20:07:05+00:00"
         },
         {
             "name": "google/cloud-storage",
-            "version": "v1.12.1",
+            "version": "v1.12.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-cloud-php-storage.git",
-                "reference": "a252e2012ea875e873b6d146159e54edb8fa4544"
+                "reference": "560d95f0fced07892b6a7dfd7bb690accb86f9c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-storage/zipball/a252e2012ea875e873b6d146159e54edb8fa4544",
-                "reference": "a252e2012ea875e873b6d146159e54edb8fa4544",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-storage/zipball/560d95f0fced07892b6a7dfd7bb690accb86f9c2",
+                "reference": "560d95f0fced07892b6a7dfd7bb690accb86f9c2",
                 "shasum": ""
             },
             "require": {
@@ -2280,7 +2281,7 @@
                 "Apache-2.0"
             ],
             "description": "Cloud Storage Client for PHP",
-            "time": "2019-05-02T16:40:15+00:00"
+            "time": "2019-06-03T20:07:05+00:00"
         },
         {
             "name": "google/recaptcha",
@@ -3561,16 +3562,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "4.22.0",
+            "version": "4.23.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "bdda9fbedc16eef118f8a18798a69c88d7cb9ab1"
+                "reference": "1581d34de5cf0aa2c35be56665e808452626f24a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/bdda9fbedc16eef118f8a18798a69c88d7cb9ab1",
-                "reference": "bdda9fbedc16eef118f8a18798a69c88d7cb9ab1",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/1581d34de5cf0aa2c35be56665e808452626f24a",
+                "reference": "1581d34de5cf0aa2c35be56665e808452626f24a",
                 "shasum": ""
             },
             "require": {
@@ -3628,7 +3629,7 @@
                 "google",
                 "sdk"
             ],
-            "time": "2019-05-26T00:00:05+00:00"
+            "time": "2019-06-05T18:09:29+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
@@ -4545,12 +4546,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioSecurityBundle.git",
-                "reference": "e2405b0a95879762fc1ed1a1b9466399a307c0ec"
+                "reference": "c50e75b3d459a442c511f34fa6ccd53084aff95e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/e2405b0a95879762fc1ed1a1b9466399a307c0ec",
-                "reference": "e2405b0a95879762fc1ed1a1b9466399a307c0ec",
+                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/c50e75b3d459a442c511f34fa6ccd53084aff95e",
+                "reference": "c50e75b3d459a442c511f34fa6ccd53084aff95e",
                 "shasum": ""
             },
             "require": {
@@ -4598,7 +4599,7 @@
             "keywords": [
                 "security"
             ],
-            "time": "2019-04-03T13:46:20+00:00"
+            "time": "2019-05-31T14:42:11+00:00"
         },
         {
             "name": "ocramius/package-versions",
@@ -11401,7 +11402,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -11461,7 +11462,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
