@@ -365,10 +365,12 @@ class DocTreeController extends AbstractController
     }
 
     protected function isCaseUrl( $url ) {
-	    preg_match( 'casenetwork.imsglobal.org', $url, $matches );
+	    preg_match( '|casenetwork\.imsglobal\.org|', $url, $matches );
 	    if( ! empty( $matches ) ) {
-	    	return true;
+	    	error_log('Ayup');
+		return true;
 	    }
+	    error_log('Nope.');
 	    return false;
     }
 
