@@ -205,11 +205,11 @@
                                             <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editDocModal" data-alt-document-disabled="true">
                                                 Edit
                                             </button>
-                                            {% if isDraft %}
+                                        {% endif %}
+                                        {% if editorRights and not isDeprecated %}
                                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#manageAssocGroupsModal" data-alt-document-disabled="true">
                                                     Manage Association Groups
                                                 </button>
-                                            {% endif %}
                                         {% endif %}
                                         {% if manageEditorsRights %}
                                             <a href="{{ path('framework_acl_edit', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Manage Access</a>
