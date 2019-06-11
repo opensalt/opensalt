@@ -55,6 +55,7 @@ COPY \
     short_tag.ini \
     opcache.ini \
     log.ini \
+    no-expose.ini \
         /usr/local/etc/php/conf.d/
 
 # Install and configure composer
