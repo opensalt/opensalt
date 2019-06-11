@@ -11,7 +11,7 @@ use Facebook\WebDriver\Exception\StaleElementReferenceException;
 class Item implements Context
 {
     static public $itemPath = '/cftree/item/';
-    static public $exactMatchesPath = 'api/v1/lor/exactMatchIdentifiers/';
+    static public $exactMatchesPath = '/api/v1/lor/exactMatchIdentifiers/';
 
     protected $rememberedItem;
     protected $itemData = [];

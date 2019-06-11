@@ -2,4 +2,4 @@
 
 cd $(dirname $0)/..
 
-SYMFONY_DEPRECATIONS_HELPER=disabled ./vendor/bin/codecept "$@"
+SYMFONY_DEPRECATIONS_HELPER="max[self]=0&verbose=0" ./vendor/bin/codecept "$@"
