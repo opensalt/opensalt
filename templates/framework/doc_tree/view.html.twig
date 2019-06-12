@@ -415,7 +415,7 @@
                                         {% set lastCreator = '' %}
                                         <select id="js-framework-to-copy" class="form-control" name="frameworkToCopy">
                                             {% for framework in lsDocs %}
-                                                {% if framework.adoptionStatus != 'adopted' %}
+                                                {% if framework.adoptionStatus != 'Adopted' %}
                                                     {% if framework.creator != lastCreator %}
                                                         <optgroup label="{{ framework.creator }}">
                                                         {% set lastCreator = framework.creator %}
