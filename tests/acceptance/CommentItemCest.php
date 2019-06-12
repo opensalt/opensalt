@@ -39,6 +39,7 @@ class CommentItemCest
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$itemPath.$I->getItemId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementVisible('.commenting-field', 120);
         $I->seeElement('.commenting-field');
     }
 

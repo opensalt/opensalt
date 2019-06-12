@@ -3,11 +3,6 @@
     "uri": "http://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000",
     "identifier": "d0000000-0000-0000-0000-000000000000",
     "lastChangeDateTime": "2017-11-03T23:00:33+00:00",
-    "CFPackageURI": {
-      "title": "Sequence Number Test",
-      "identifier": "d0000000-0000-0000-0000-000000000000",
-      "uri": "http://server/ims/case/v1p0/CFPackages/d0000000-0000-0000-0000-000000000000"
-    },
     "creator": "OpenSALT Testing",
     "title": "Sequence Number Test"
   },
@@ -16,11 +11,6 @@
       "uri": "http://server/ims/case/v1p0/CFItems/e144c2e6-c0ea-11e7-95f7-5d664f4d8844",
       "identifier": "e144c2e6-c0ea-11e7-95f7-5d664f4d8844",
       "lastChangeDateTime": "2017-11-03T23:02:07+00:00",
-      "CFDocumentURI": {
-        "title": "Sequence Number Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "http://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "humanCodingScheme": "SNT.1",
       "fullStatement": "First Added Item"
     },
@@ -28,11 +18,6 @@
       "uri": "http://server/ims/case/v1p0/CFItems/ea98ab46-c0ea-11e7-820f-a71b35976453",
       "identifier": "ea98ab46-c0ea-11e7-820f-a71b35976453",
       "lastChangeDateTime": "2017-11-03T23:02:07+00:00",
-      "CFDocumentURI": {
-        "title": "Sequence Number Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "http://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "humanCodingScheme": "SNT.2",
       "fullStatement": "Second added item, but should be first"
     }
@@ -42,11 +27,6 @@
       "uri": "http://server/ims/case/v1p0/CFAssociations/0434307a-c0eb-11e7-bad9-1f2b8d8c4f6f",
       "identifier": "0434307a-c0eb-11e7-bad9-1f2b8d8c4f6f",
       "lastChangeDateTime": "2017-11-03T23:02:07+00:00",
-      "CFDocumentURI": {
-        "title": "Sequence Number Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "http://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "SNT.1",
         "identifier": "e144c2e6-c0ea-11e7-95f7-5d664f4d8844",
@@ -64,11 +44,6 @@
       "uri": "http://server/ims/case/v1p0/CFAssociations/ea98af74-c0ea-11e7-aa16-9fb3d6294ee4",
       "identifier": "ea98af74-c0ea-11e7-aa16-9fb3d6294ee4",
       "lastChangeDateTime": "2017-11-03T23:02:07+00:00",
-      "CFDocumentURI": {
-        "title": "Sequence Number Test",
-        "identifier": "d0000000-0000-0000-0000-000000000000",
-        "uri": "http://server/ims/case/v1p0/CFDocuments/d0000000-0000-0000-0000-000000000000"
-      },
       "originNodeURI": {
         "title": "SNT.2",
         "identifier": "ea98ab46-c0ea-11e7-820f-a71b35976453",

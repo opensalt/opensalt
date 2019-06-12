@@ -54,7 +54,7 @@ class UserSetPasswordCommand extends BaseDispatchingCommand
         $password = trim($input->getArgument('password'));
 
         $command = new SetUserPasswordCommand($username, $password);
-        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
         $newPassword = $command->getPlainPassword();
 
         if (empty($password)) {

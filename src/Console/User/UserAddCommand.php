@@ -123,7 +123,7 @@ class UserAddCommand extends BaseDoctrineCommand
         }
 
         $command = new AddUserByNameCommand($username, $orgObj, $password, $role);
-        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
         $newPassword = $command->getNewPassword();
 
         if (empty($password)) {

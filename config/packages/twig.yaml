@@ -7,6 +7,7 @@ twig:
     form_themes:
         - 'bootstrap_3_horizontal_layout.html.twig'
         - '@TetranzSelect2Entity/Form/fields.html.twig'
+        - 'form/fields.html.twig'
     globals:
       github_client_id: "%github_client_id%"
       brand_logo_url: "%brand_logo_url%"

@@ -106,7 +106,9 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
                         'message' => 'Authentication Required',
                         'code' => 'AUTH-REQ',
                     ],
-                ], Response::HTTP_UNAUTHORIZED);
+                ],
+                Response::HTTP_UNAUTHORIZED
+            );
         }
 
         return parent::start($request, $authException);

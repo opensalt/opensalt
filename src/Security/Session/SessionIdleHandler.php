@@ -3,7 +3,7 @@
 namespace App\Security\Session;
 
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -22,7 +22,7 @@ class SessionIdleHandler
         $this->maxIdleTime = $sessionMaxIdleTime;
     }
 
-    public function onKernelRequest(GetResponseEvent $event): void
+    public function onKernelRequest(RequestEvent $event): void
     {
         if (!$this->isProcessable($event)) {
             return;
@@ -59,7 +59,7 @@ class SessionIdleHandler
         throw new AccessDeniedException($msg);
     }
 
-    protected function isProcessable(GetResponseEvent $event): bool
+    protected function isProcessable(RequestEvent $event): bool
     {
         if (!$event->isMasterRequest()) {
             return false;

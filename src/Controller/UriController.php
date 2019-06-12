@@ -69,7 +69,13 @@ class UriController extends AbstractController
         $obj = $this->objectHelper->findObjectByIdentifier($uri);
 
         if (null === $obj) {
-            return $this->render('uri/uri_not_found.html.twig', ['uri' => $uri]);
+            if ('html' === $request->getRequestFormat()) {
+                return $this->render('uri/uri_not_found.html.twig', ['uri' => $uri], new Response('', Response::HTTP_NOT_FOUND));
+            }
+
+            return new JsonResponse([
+                'error' => sprintf('Object with identifier "%s" was not found', $uri),
+            ], Response::HTTP_NOT_FOUND);
         }
 
         if ($isPackage && 'json' === $request->getRequestFormat()) {

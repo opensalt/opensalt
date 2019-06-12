@@ -5,7 +5,7 @@ LATEST := ${NAME}:latest-fpm-xdebug
  
 .PHONY: build push login
 build:
-	@docker build -t ${IMG} .
+	@docker build --pull -t ${IMG} .
 	@docker tag ${IMG} ${LATEST}
  
 push:

@@ -31,7 +31,7 @@ class LsDocListType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $repo = $this->em->getRepository(LsDoc::class);
         $list = $repo->createQueryBuilder('d')
@@ -52,7 +52,7 @@ class LsDocListType extends AbstractType
         $builder
             ->add('lsDoc', EntityType::class, [
                 'label' => 'Document:',
-                'choice_label' => function(LsDoc $val) {
+                'choice_label' => function (LsDoc $val) {
                     $title = $val->getTitle();
                     if (strlen($title) > 60) {
                         return mb_substr($val->getTitle(), 0, 59)."\u{2026}";
@@ -60,7 +60,7 @@ class LsDocListType extends AbstractType
 
                     return $title;
                 },
-                'group_by' => function(LsDoc $val) {
+                'group_by' => function (LsDoc $val) {
                     $creator = $val->getCreator();
                     if (strlen($creator) > 60) {
                         return mb_substr($val->getCreator(), 0, 59)."\u{2026}";
@@ -79,7 +79,7 @@ class LsDocListType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'ajax' => false,

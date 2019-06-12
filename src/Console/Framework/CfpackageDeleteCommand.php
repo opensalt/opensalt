@@ -58,7 +58,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
         };
 
         $command = new DeleteDocumentCommand($lsDoc, $callback);
-        $this->dispatcher->dispatch(CommandEvent::class, new CommandEvent($command));
+        $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
         $output->writeln('<info>Deleted.</info>');
     }

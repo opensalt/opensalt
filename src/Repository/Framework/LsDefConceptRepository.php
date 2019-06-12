@@ -6,7 +6,7 @@ use App\Entity\Framework\LsDefConcept;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * LsDefConceptRepository
+ * @method LsDefConcept|null findOneByIdentifier(string $identifier)
  */
 class LsDefConceptRepository extends AbstractLsDefinitionRepository
 {
@@ -14,5 +14,4 @@ class LsDefConceptRepository extends AbstractLsDefinitionRepository
     {
         parent::__construct($registry, LsDefConcept::class);
     }
-
 }

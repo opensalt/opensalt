@@ -4,7 +4,7 @@ services:
     image: opensalt/app:${COMMIT}
 
   phpfpm:
-    image: opensalt/php:7.2-fpm
+    image: opensalt/php:7.3-fpm
     depends_on:
       - db
     environment:
@@ -61,7 +61,7 @@ services:
     working_dir: /var/www/html
 
   nginx:
-    image: opensalt/nginx:1.15-alpine
+    image: opensalt/nginx:1.16-alpine
     depends_on:
       - phpfpm
     environment:

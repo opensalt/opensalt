@@ -1,0 +1,11 @@
+{% block datalist_widget %}
+    <input {{ block('widget_attributes') }} list="{{ form.vars.id }}_list" value="{{ form.vars.value }}"  maxlength="300" class="form-control"/>
+    <datalist id="{{ form.vars.id }}_list">
+        {% for choice in choices %}
+            <option>
+                {{ choice.label }}
+            </option>
+        {% endfor %}
+    </datalist>
+{% endblock %}
+

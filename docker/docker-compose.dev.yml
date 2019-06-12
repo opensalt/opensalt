@@ -3,8 +3,8 @@ services:
   phpfpm:
     #build:
     #  context: ./php/fpm
-    image: opensalt/php:7.2-fpm
-    #image: opensalt/php:7.2-fpm-xdebug
+    image: opensalt/php:7.3-fpm
+    #image: opensalt/php:7.3-fpm-xdebug
     depends_on:
       - db
     environment:
@@ -63,7 +63,7 @@ services:
   nginx:
     #build:
     #  context: ./nginx
-    image: opensalt/nginx:1.15-alpine
+    image: opensalt/nginx:1.16-alpine
     depends_on:
       - phpfpm
     environment:

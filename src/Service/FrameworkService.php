@@ -54,10 +54,6 @@ class FrameworkService
     }
 
     /**
-     * @param LsDoc $doc
-     *
-     * @return LsDoc
-     *
      * @throws \InvalidArgumentException
      */
     public function addDocument(LsDoc $doc): LsDoc
@@ -511,8 +507,6 @@ class FrameworkService
     /**
      * Get a user from the Security Token Storage.
      *
-     * @return mixed
-     *
      * @see TokenInterface::getUser()
      */
     protected function getCurrentUser(): ?User
@@ -521,7 +515,9 @@ class FrameworkService
             return null;
         }
 
-        if (!is_object($user = $token->getUser())) {
+        $user = $token->getUser();
+
+        if (!$user instanceof User) {
             // e.g. anonymous authentication
             return null;
         }

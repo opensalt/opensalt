@@ -56,6 +56,10 @@ Installation
   ```
   make force-build
   ```
+  * Linux users should note that a new user group, `docker`, has been created. The user that will interact with the Docker service will need to be in this group.
+  * Linux users also set the MySQL folder permissions: `chmod -R 777 docker/data/mysql`
+  * Linux users should set the cache directory permssions: `chmod 777 var/cache`
+
 
 6. Run database migrations
   ```
@@ -64,6 +68,11 @@ Installation
 
 7. [http://127.0.0.1:3000/app_dev.php/](http://127.0.0.1:3000/app_dev.php/) should show the initial screen with debug turned on
   - Note that the port here should be the value of `PORT` in the `.env` file (default being 3000)
+
+8. If you have run these manual tasks, you will also need to create the administrative account and password for the system:
+    ```
+    ./bin/console salt:user:add admin Unknown --password=secret --role=super-user
+    ```
 
 
 Other Docs

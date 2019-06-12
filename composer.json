@@ -6,7 +6,9 @@
     "autoload": {
         "psr-4": {
             "App\\": "src/"
-        }
+        },
+        "exclude-from-classmap": [
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -49,41 +51,41 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.2.8",
+        "php": "^7.3.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "csa/guzzle-bundle": "dev-master#1fd76350ecaddc0123ad8ddbf1fb51d9cc81c881 as 3.1.0.1",
+        "csa/guzzle-bundle": "^3.1.1",
         "doctrine/doctrine-bundle": "^1.10",
         "doctrine/doctrine-cache-bundle": "^1.2",
         "doctrine/doctrine-fixtures-bundle": "^3.0",
         "doctrine/doctrine-migrations-bundle": "^2.0",
         "doctrine/orm": "^2.6",
         "google/recaptcha": "~1.1",
-        "jms/serializer-bundle": "^2.3.1",
+        "jms/serializer-bundle": "^3.3.0",
         "kreait/firebase-php": "~4.7",
         "league/flysystem-aws-s3-v3": "^1.0",
         "league/oauth2-github": "^2.0.0",
         "matthimatiker/opcache-bundle": "dev-symfony-config-deprecation as 0.7.1.1",
         "milo/github-api": "^1.4",
         "namshi/cuzzle": "^2.0",
-        "nelmio/cors-bundle": "dev-master",
+        "nelmio/cors-bundle": "^1.5.5",
         "nelmio/security-bundle": "dev-master",
         "phpoffice/phpspreadsheet": "^1.1.0",
-        "phpoffice/phpword": "^0.14.0",
+        "phpoffice/phpword": "^0.16.0",
         "qandidate/toggle-bundle": "~1.1.2",
         "ramsey/uuid": "^3.7",
         "ramsey/uuid-doctrine": "^1.4",
-        "sensio/framework-extra-bundle": "^5.1",
+        "sensio/framework-extra-bundle": "^5.3",
         "simplethings/entity-audit-bundle": "dev-fixes-1.0.9-object-instead-of-string as 1.0.9.2",
         "stof/doctrine-extensions-bundle": "dev-master#9b47596daa0fd33218687d0b91e7d016e536379 as 1.3.0.1",
         "symfony/asset": "*",
         "symfony/console": "*",
         "symfony/expression-language": "*",
-        "symfony/flex": "^1.1",
+        "symfony/flex": "^1.2",
         "symfony/form": "*",
         "symfony/framework-bundle": "*",
-        "symfony/monolog-bundle": "^3.1",
+        "symfony/monolog-bundle": "^3.3",
         "symfony/process": "*",
         "symfony/profiler-pack": "*",
         "symfony/security-bundle": "*",
@@ -95,7 +97,7 @@
         "symfony/validator": "*",
         "symfony/web-link": "*",
         "symfony/yaml": "*",
-        "tecnickcom/tcpdf": "6.*",
+        "tecnickcom/tcpdf": "^6.2",
         "tetranz/select2entity-bundle": "dev-symfony-config-deprecation as 2.9.5.1",
         "twig/extensions": "^1.5",
         "twig/twig": "^2.0"
@@ -107,25 +109,30 @@
         "symfony/maker-bundle": "^1.5",
         "symfony/phpunit-bridge": "^4.0",
 
-        "codeception/codeception": "^2.3",
-            "codeception/specify": "~0.4",
-            "codeception/verify": "~0.3",
-            "flow/jsonpath": "~0.3",
+        "codeception/codeception": "^3.0",
+            "codeception/specify": "^1.1",
+            "codeception/verify": "^1.0",
+            "flow/jsonpath": "~0.4",
             "league/factory-muffin": "~3.0",
             "league/factory-muffin-faker": "~2.0",
             "phpunit/phpunit": "~7.5",
             "codeception/c3": "2.*",
+            "vlucas/phpdotenv": "^3.3.3",
 
-        "squizlabs/php_codesniffer": "^3.2",
+        "phpstan/phpstan-symfony": "^0.11.5",
+        "phpstan/phpstan-doctrine": "^0.11.2",
+
+        "squizlabs/php_codesniffer": "^3.4.1",
         "escapestudios/symfony2-coding-standard": "^3.1",
         "friendsofphp/php-cs-fixer": "^2.10",
         "ericmartel/codeception-email-mailtrap": "^1.0",
-        "theofidry/psysh-bundle": "dev-master#8e9a0c317663d7981888eca669f6529b3d8a5400 as 3.5.0.1"
+        "theofidry/psysh-bundle": "^3.5.1"
     },
     "replace": {
         "paragonie/random_compat": "2.*",
         "symfony/polyfill-ctype": "*",
         "symfony/polyfill-iconv": "*",
+        "symfony/polyfill-php73": "*",
         "symfony/polyfill-php72": "*",
         "symfony/polyfill-php71": "*",
         "symfony/polyfill-php70": "*",
@@ -155,7 +162,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "4.2.*"
+            "require": "4.3.*"
         }
     }
 }

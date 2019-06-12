@@ -20,7 +20,7 @@ class SendAdminNotificationEmailHandler extends AbstractEmailHandler
                     'emails/admin_notification.html.twig',
                     [
                         'username' => $userName,
-                        'organization' => $organization
+                        'organization' => $organization,
                     ] // pass values to the template
                 ),
                 'text/html'

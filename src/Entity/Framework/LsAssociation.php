@@ -8,8 +8,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * LsAssociation
- *
  * @ORM\Table(name="ls_association",
  *     indexes={
  *         @ORM\Index(name="dest_id_idx", columns={"destination_node_identifier"}),
@@ -23,7 +21,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getLsDoc())",
  *     options={
  *         @Serializer\SerializedName("CFDocumentURI"),
- *         @Serializer\Expose()
+ *         @Serializer\Expose(),
+ *         @Serializer\Groups({"LsAssociation"})
  *     }
  * )
  *
@@ -65,6 +64,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class LsAssociation extends AbstractLsBase implements CaseApiInterface
 {
+    use AccessAdditionalFieldTrait;
+
     public const CHILD_OF = 'Is Child Of';
 
     public const EXACT_MATCH_OF = 'Exact Match Of';
@@ -77,7 +78,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
 
     public const EXEMPLAR = 'Exemplar';
 
-
     public const INVERSE_CHILD_OF = 'Is Parent Of';
 
     public const INVERSE_EXACT_MATCH_OF = 'Matched From';
@@ -86,7 +86,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     public const INVERSE_REPLACED_BY = 'Replaces';
     public const INVERSE_PRECEDES = 'Has Predecessor';
     public const INVERSE_SKILL_LEVEL = 'Skill Level For';
-    public const INVERSE_IS_PEER_OF = 'Is Peer Of';
+    public const INVERSE_IS_PEER_OF = 'Peer Of';
 
     public const INVERSE_EXEMPLAR = 'Exemplar For';
 
@@ -254,10 +254,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      */
     private $sequenceNumber;
 
-
     /**
-     * Constructor
-     *
      * @param string|Uuid|null $identifier
      */
     public function __construct($identifier = null)
@@ -265,9 +262,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         parent::__construct($identifier);
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->getUri();
@@ -275,25 +269,22 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
 
     /**
      * Get all types collectted by camel case.
-     *
-     * @return array
      */
-    public static function allTypesForImportFromCSV(){
+    public static function allTypesForImportFromCSV(): array
+    {
         return [
-            'isPartOf' =>                     static::PART_OF,
-            'exemplar' =>                     static::EXEMPLAR,
-            'isPeerOf' =>                     static::IS_PEER_OF,
-            'precedes' =>                     static::PRECEDES,
-            'isRelatedTo' =>                  static::RELATED_TO,
-            'replacedBy' =>                   static::REPLACED_BY,
-            'hasSkillLevel' =>                static::SKILL_LEVEL,
+            'isPartOf' => static::PART_OF,
+            'exemplar' => static::EXEMPLAR,
+            'isPeerOf' => static::IS_PEER_OF,
+            'precedes' => static::PRECEDES,
+            'isRelatedTo' => static::RELATED_TO,
+            'replacedBy' => static::REPLACED_BY,
+            'hasSkillLevel' => static::SKILL_LEVEL,
         ];
     }
 
     /**
-     * Get an array of all association types available
-     *
-     * @return array
+     * Get an array of all association types available.
      */
     public static function allTypes(): array
     {
@@ -312,9 +303,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * Get an array of association types that should show in the choice list
-     *
-     * @return array
+     * Get an array of association types that should show in the choice list.
      */
     public static function typeChoiceList(): array
     {
@@ -329,11 +318,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         ];
     }
 
-    /**
-     * @param string $name
-     *
-     * @return string|null
-     */
     public static function inverseName(string $name): ?string
     {
         static $inverses = [];
@@ -368,9 +352,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * Return true if this is an LsAssociation
-     *
-     * @return bool
+     * Return true if this is an LsAssociation.
      */
     public function isLsAssociation(): bool
     {
@@ -378,16 +360,13 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * Set the Origination of the association
+     * Set the Origination of the association.
      *
      * @param string|IdentifiableInterface $origin
-     * @param string|null $identifier
-     *
-     * @return LsAssociation
      *
      * @throws \UnexpectedValueException
      */
-    public function setOrigin($origin, ?string $identifier = null): LsAssociation
+    public function setOrigin($origin, ?string $identifier = null): self
     {
         if (is_string($origin)) {
             $this->setOriginNodeUri($origin);
@@ -408,7 +387,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * Get the Origination of the association
+     * Get the Origination of the association.
      *
      * @return null|string|LsDoc|LsItem
      */
@@ -429,41 +408,26 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return null;
     }
 
-    /**
-     * Set originNodeUri
-     *
-     * @param string $originNodeUri
-     *
-     * @return LsAssociation
-     */
-    public function setOriginNodeUri(string $originNodeUri): LsAssociation
+    public function setOriginNodeUri(string $originNodeUri): self
     {
         $this->originNodeUri = $originNodeUri;
 
         return $this;
     }
 
-    /**
-     * Get originNodeUri
-     *
-     * @return string
-     */
-    public function getOriginNodeUri()
+    public function getOriginNodeUri(): ?string
     {
         return $this->originNodeUri;
     }
 
     /**
-     * Set the Destination of the association
+     * Set the Destination of the association.
      *
      * @param string|IdentifiableInterface $destination
-     * @param string|null $identifier
-     *
-     * @return LsAssociation
      *
      * @throws \UnexpectedValueException
      */
-    public function setDestination($destination, ?string $identifier = null): LsAssociation
+    public function setDestination($destination, ?string $identifier = null): self
     {
         if (is_string($destination)) {
             $this->setDestinationNodeUri($destination);
@@ -484,7 +448,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * Get the Destination of the association
+     * Get the Destination of the association.
      *
      * @return null|string|LsDoc|LsItem
      */
@@ -505,46 +469,30 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return null;
     }
 
-    /**
-     * Set destinationNodeUri
-     *
-     * @param string $destinationNodeUri
-     *
-     * @return LsAssociation
-     */
-    public function setDestinationNodeUri(string $destinationNodeUri): LsAssociation
+    public function setDestinationNodeUri(string $destinationNodeUri): self
     {
         $this->destinationNodeUri = $destinationNodeUri;
 
         return $this;
     }
 
-    /**
-     * Get destinationNodeUri
-     *
-     * @return string
-     */
-    public function getDestinationNodeUri()
+    public function getDestinationNodeUri(): ?string
     {
         return $this->destinationNodeUri;
     }
 
     /**
-     * Get HumanCodingScheme from DestinationNodeUri
-     *
-     * @return string
+     * Get HumanCodingScheme from DestinationNodeUri.
      */
-    public function getHumanCodingSchemeFromDestinationNodeUri()
+    public function getHumanCodingSchemeFromDestinationNodeUri(): ?string
     {
         return $this->splitDestinationDataUri()['value'];
     }
 
     /**
-     * Get an array with the information from a data URI
-     *
-     * @return array
+     * Get an array with the information from a data URI.
      */
-    public function splitDestinationDataUri()
+    public function splitDestinationDataUri(): array
     {
         if (0 !== strncmp($this->destinationNodeUri, 'data:text/x-', 12)) {
             // Not a known data URI format, return the entire uri as the value
@@ -573,46 +521,55 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $metadata;
     }
 
-    /**
-     * Set type
-     *
-     * @param string $type
-     *
-     * @return LsAssociation
-     */
-    public function setType($type): LsAssociation
+    public function setType(?string $type): self
     {
-        $this->type = $type;
+        if (in_array($type, self::allTypes(), true)) {
+            $this->type = $type;
 
-        return $this;
+            return $this;
+        }
+
+        $newType = $this->coerceType($type);
+        if (null !== $newType) {
+            $this->type = $type;
+
+            return $this;
+        }
+
+        throw new \InvalidArgumentException('Invalid association type passed: '.$type);
     }
 
-    /**
-     * Get type
-     *
-     * @return string
-     */
-    public function getType()
+    public function getType(): ?string
     {
         return $this->type;
     }
 
     /**
-     * Return the normalized type (like "isChildOf" instead of "Is Child Of")
+     * Return the normalized type (like "isChildOf" instead of "Is Child Of").
      */
     public function getNormalizedType(): string
     {
-        return lcfirst(str_replace(' ', '', $this->type));
+        return lcfirst(str_replace(' ', '', $this->type ?? ''));
     }
 
     /**
-     * Set originLsDoc
-     *
-     * @param LsDoc $originLsDoc
-     *
-     * @return LsAssociation
+     * Coerce a type string into the correct format for use with setType().
      */
-    public function setOriginLsDoc(?LsDoc $originLsDoc = null): LsAssociation
+    public function coerceType(?string $type): ?string
+    {
+        $allTypes = self::allTypes();
+        $testNewType = preg_replace('/ +/', '', strtolower($type));
+        foreach ($allTypes as $allowedType) {
+            $testAllowedType = preg_replace('/ +/', '', strtolower($allowedType));
+            if ($testNewType === $testAllowedType) {
+                return $allowedType;
+            }
+        }
+
+        return null;
+    }
+
+    public function setOriginLsDoc(?LsDoc $originLsDoc = null): self
     {
         $this->originLsDoc = $originLsDoc;
 
@@ -624,24 +581,12 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this;
     }
 
-    /**
-     * Get originLsDoc
-     *
-     * @return LsDoc
-     */
     public function getOriginLsDoc(): ?LsDoc
     {
         return $this->originLsDoc;
     }
 
-    /**
-     * Set originLsItem
-     *
-     * @param LsItem $originLsItem
-     *
-     * @return LsAssociation
-     */
-    public function setOriginLsItem(?LsItem $originLsItem = null): LsAssociation
+    public function setOriginLsItem(?LsItem $originLsItem = null): self
     {
         $this->originLsItem = $originLsItem;
 
@@ -653,24 +598,12 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this;
     }
 
-    /**
-     * Get originLsItem
-     *
-     * @return LsItem
-     */
     public function getOriginLsItem(): ?LsItem
     {
         return $this->originLsItem;
     }
 
-    /**
-     * Set destinationLsDoc
-     *
-     * @param LsDoc $destinationLsDoc
-     *
-     * @return LsAssociation
-     */
-    public function setDestinationLsDoc(?LsDoc $destinationLsDoc = null): LsAssociation
+    public function setDestinationLsDoc(?LsDoc $destinationLsDoc = null): self
     {
         $this->destinationLsDoc = $destinationLsDoc;
         if (null !== $destinationLsDoc) {
@@ -681,24 +614,12 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this;
     }
 
-    /**
-     * Get destinationLsDoc
-     *
-     * @return LsDoc
-     */
     public function getDestinationLsDoc(): ?LsDoc
     {
         return $this->destinationLsDoc;
     }
 
-    /**
-     * Set destinationLsItem
-     *
-     * @param LsItem $destinationLsItem
-     *
-     * @return LsAssociation
-     */
-    public function setDestinationLsItem(?LsItem $destinationLsItem = null): LsAssociation
+    public function setDestinationLsItem(?LsItem $destinationLsItem = null): self
     {
         $this->destinationLsItem = $destinationLsItem;
         if (null !== $destinationLsItem) {
@@ -709,48 +630,24 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this;
     }
 
-    /**
-     * Get destinationLsItem
-     *
-     * @return LsItem
-     */
     public function getDestinationLsItem(): ?LsItem
     {
         return $this->destinationLsItem;
     }
 
-    /**
-     * Set lsDocUri
-     *
-     * @param string $lsDocUri
-     *
-     * @return LsAssociation
-     */
-    public function setLsDocUri($lsDocUri): LsAssociation
+    public function setLsDocUri(?string $lsDocUri): self
     {
         $this->lsDocUri = $lsDocUri;
 
         return $this;
     }
 
-    /**
-     * Get lsDocUri
-     *
-     * @return string
-     */
-    public function getLsDocUri()
+    public function getLsDocUri(): ?string
     {
         return $this->lsDocUri;
     }
 
-    /**
-     * Set lsDoc
-     *
-     * @param LsDoc $lsDoc
-     *
-     * @return LsAssociation
-     */
-    public function setLsDoc(LsDoc $lsDoc): LsAssociation
+    public function setLsDoc(LsDoc $lsDoc): self
     {
         $this->lsDoc = $lsDoc;
         $this->setLsDocUri($lsDoc->getUri());
@@ -759,31 +656,18 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this;
     }
 
-    /**
-     * Get lsDoc
-     *
-     * @return LsDoc
-     */
     public function getLsDoc(): ?LsDoc
     {
         return $this->lsDoc;
     }
 
-    /**
-     * @param string $groupName
-     *
-     * @return LsAssociation
-     */
-    public function setGroupName($groupName): LsAssociation
+    public function setGroupName(?string $groupName): self
     {
         $this->groupName = $groupName;
 
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getGroupName(): ?string
     {
         if ($this->groupName) {
@@ -797,70 +681,43 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return null;
     }
 
-    /**
-     * @return string
-     */
-    public function getLsDocIdentifier()
+    public function getLsDocIdentifier(): ?string
     {
         return $this->lsDocIdentifier;
     }
 
-    /**
-     * @param string $lsDocIdentifier
-     *
-     * @return LsAssociation
-     */
-    public function setLsDocIdentifier($lsDocIdentifier): LsAssociation
+    public function setLsDocIdentifier(?string $lsDocIdentifier): self
     {
         $this->lsDocIdentifier = $lsDocIdentifier;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getOriginNodeIdentifier()
+    public function getOriginNodeIdentifier(): ?string
     {
         return $this->originNodeIdentifier;
     }
 
-    /**
-     * @param string $originNodeIdentifier
-     *
-     * @return LsAssociation
-     */
-    public function setOriginNodeIdentifier($originNodeIdentifier): LsAssociation
+    public function setOriginNodeIdentifier(?string $originNodeIdentifier): self
     {
         $this->originNodeIdentifier = $originNodeIdentifier;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getDestinationNodeIdentifier()
+    public function getDestinationNodeIdentifier(): ?string
     {
         return $this->destinationNodeIdentifier;
     }
 
-    /**
-     * @param string $destinationNodeIdentifier
-     *
-     * @return LsAssociation
-     */
-    public function setDestinationNodeIdentifier($destinationNodeIdentifier): LsAssociation
+    public function setDestinationNodeIdentifier(?string $destinationNodeIdentifier): self
     {
         $this->destinationNodeIdentifier = $destinationNodeIdentifier;
 
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getGroupUri()
+    public function getGroupUri(): ?string
     {
         if ($this->groupUri) {
             return $this->groupUri;
@@ -873,12 +730,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return null;
     }
 
-    /**
-     * @param string $groupUri
-     *
-     * @return LsAssociation
-     */
-    public function setGroupUri($groupUri): LsAssociation
+    public function setGroupUri(?string $groupUri): self
     {
         $this->groupUri = $groupUri;
 
@@ -886,49 +738,31 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * Determine if the LsAssociation is editable
-     *
-     * @return bool
+     * Return true if the association is editable.
      */
     public function canEdit(): bool
     {
         return !(LsDoc::ADOPTION_STATUS_DEPRECATED === $this->lsDoc->getAdoptionStatus());
     }
 
-    /**
-     * @return int|null
-     */
     public function getSequenceNumber(): ?int
     {
         return $this->sequenceNumber;
     }
 
-    /**
-     * @param int|null $sequenceNumber
-     *
-     * @return LsAssociation
-     */
-    public function setSequenceNumber(?int $sequenceNumber): LsAssociation
+    public function setSequenceNumber(?int $sequenceNumber): self
     {
         $this->sequenceNumber = $sequenceNumber;
 
         return $this;
     }
 
-    /**
-     * @return LsDefAssociationGrouping
-     */
     public function getGroup(): ?LsDefAssociationGrouping
     {
         return $this->group;
     }
 
-    /**
-     * @param LsDefAssociationGrouping|null $group
-     *
-     * @return LsAssociation
-     */
-    public function setGroup(?LsDefAssociationGrouping $group): LsAssociation
+    public function setGroup(?LsDefAssociationGrouping $group): self
     {
         $this->group = $group;
 

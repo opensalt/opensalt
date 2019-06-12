@@ -4,7 +4,55 @@
 
     <config name="installed_paths" value="./vendor/escapestudios/symfony2-coding-standard" />
 
-    <rule ref="./vendor/escapestudios/symfony2-coding-standard/Symfony2" />
+    <rule ref="./vendor/escapestudios/symfony2-coding-standard/Symfony">
+	    <exclude name="Symfony.Commenting.License.Warning"/>
+	    <exclude name="Symfony.Commenting.Annotations.Invalid"/>
+	    <exclude name="Symfony.Commenting.ClassComment.Missing"/>
+	    <exclude name="Symfony.Commenting.FunctionComment.SpacingAfterParamType"/>
+	    <exclude name="Symfony.Commenting.FunctionComment.Missing"/>
+	    <exclude name="Symfony.Commenting.FunctionComment.MissingParamTag"/>
+	    <exclude name="Symfony.Commenting.FunctionComment.MissingReturn"/>
+	    <exclude name="Symfony.Commenting.FunctionComment.SpacingAfterParamName"/>
+
+	    <exclude name="Zend.NamingConventions.ValidVariableName.NotCamelCaps"/>
+	    <exclude name="Zend.NamingConventions.ValidVariableName.MemberVarNotCamelCaps"/>
+
+
+
+	    <exclude name="Generic.Formatting.SpaceAfterCast.NoSpace"/>
+	    <exclude name="Generic.PHP.LowerCaseConstant.Found"/>
+	    <exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect"/>
+	    <exclude name="PEAR.Functions.FunctionCallSignature.Indent"/>
+	    <exclude name="PEAR.WhiteSpace.ScopeClosingBrace.Line"/>
+	    <exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
+	    <exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody"/>
+	    <exclude name="PSR2.Methods.FunctionClosingBrace.SpacingBeforeClose"/>
+	    <exclude name="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace"/>
+	    <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseParenthesis"/>
+	    <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseParenthesis"/>
+	    <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword"/>
+	    <exclude name="Squiz.ControlStructures.ForEachLoopDeclaration.NoSpaceAfterArrow"/>
+	    <exclude name="Squiz.ControlStructures.ForEachLoopDeclaration.NoSpaceBeforeArrow"/>
+	    <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
+	    <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.NewlineBeforeOpenBrace"/>
+	    <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
+	    <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterUse"/>
+	    <exclude name="Squiz.Strings.ConcatenationSpacing.PaddingFound"/>
+	    <exclude name="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose"/>
+	    <exclude name="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore"/>
+	    <exclude name="Symfony.Arrays.MultiLineArrayComma.Invalid"/>
+	    <exclude name="Symfony.Commenting.FunctionComment.ParamNameNoMatch"/>
+	    <exclude name="Symfony.Commenting.FunctionComment.WrongStyle"/>
+	    <exclude name="Symfony.ControlStructure.IdenticalComparison.Warning"/>
+	    <exclude name="Symfony.ControlStructure.YodaConditions.Invalid"/>
+	    <exclude name="Symfony.Errors.ExceptionMessage.Invalid"/>
+	    <exclude name="Symfony.Formatting.BlankLineBeforeReturn.MissedBlankLineBeforeReturn"/>
+	    <exclude name="Symfony.Functions.Arguments.Invalid"/>
+	    <exclude name="Symfony.Functions.ScopeOrder.Invalid"/>
+	    <exclude name="Symfony.NamingConventions.ValidClassName.InvalidAbstractName"/>
+	    <exclude name="Symfony.Whitespace.AssignmentSpacing.Invalid"/>
+	    <exclude name="Symfony.Whitespace.BinaryOperatorSpacing.Invalid"/>
+    </rule>
 
     <file>./src</file>
 </ruleset>
