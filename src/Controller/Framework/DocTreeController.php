@@ -56,13 +56,13 @@ class DocTreeController extends AbstractController
      */
     private $externalDocCache;
 
-	public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache)
+	public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache, $caseNetworkSecret, $caseNetworkScope, $caseTokenServer )
 	{
 		$this->guzzleJsonClient = $guzzleJsonClient;
 		$this->externalDocCache = $externalDocCache;
-		$this->caseNetworkSecret = getenv( 'CASE_NETWORK_SECRET' );
-		$this->caseTokenServer = getenv( 'CASE_TOKEN_SERVER' );
-		$this->caseNetworkScope = getenv( 'CASE_NETWORK_SCOPE' );
+		$this->caseNetworkSecret = $caseNetworkSecret;
+		$this->caseTokenServer = $caseTokenServer;
+		$this->caseNetworkScope = $caseNetworkScope;
 	}
 
     /**
