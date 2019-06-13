@@ -52,9 +52,6 @@ parameters:
     env(BUCKET_PROVIDER): null
     env(LOCAL_FILESYSTEM_PATH): null
     env(FOOTER_LEFT_TEXT): null
-    env(CASE_NETWORK_SECRET): null
-    env(CASE_TOKEN_SERVER): null
-    env(CASE_NETWORK_SCOPE): null
 
     locale: en
     database_host: '%env(MYSQL_HOST)%'
@@ -105,9 +102,6 @@ parameters:
     footer_left_text: '%env(FOOTER_LEFT_TEXT)%'
     base_template: 'base.html.twig'
     assets_version: '190202'
-    case_network_secret: '%env(CASE_NETWORK_SECRET)%'
-    case_token_server: '%env(CASE_TOKEN_SERVER)%'
-    case_network_scope: '%env(CASE_NETWORK_SCOPE)%'
 
 services:
     # default configuration for services in *this* file
@@ -125,9 +119,6 @@ services:
             $kernelEnv: '%kernel.environment%'
             $externalDocCache: '@salt.cache.external_docs'
             $assetsVersion: '%assets_version%'
-            $caseNetworkSecret: '%case_network_secret%'
-            $caseNetworkScope: '%case_network_scope%'
-            $caseTokenServer: '%case_token_server%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
