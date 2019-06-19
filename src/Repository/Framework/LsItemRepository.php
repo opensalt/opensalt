@@ -113,7 +113,7 @@ class LsItemRepository extends ServiceEntityRepository
         return false;
     }
 
-    public function findExactMatches(String $identifier): array
+    public function findExactMatches(string $identifier): array
     {
         $assocRepo = $this->_em->getRepository(LsAssociation::class);
 
