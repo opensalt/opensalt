@@ -3569,16 +3569,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "4.24.0",
+            "version": "4.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "7a0647d324cafbd5f10cf9262ac25f26ebaf4bb4"
+                "reference": "f3bc2ec8adaefa2e615096c818ef4eb715d12e76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/7a0647d324cafbd5f10cf9262ac25f26ebaf4bb4",
-                "reference": "7a0647d324cafbd5f10cf9262ac25f26ebaf4bb4",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/f3bc2ec8adaefa2e615096c818ef4eb715d12e76",
+                "reference": "f3bc2ec8adaefa2e615096c818ef4eb715d12e76",
                 "shasum": ""
             },
             "require": {
@@ -3589,7 +3589,7 @@
                 "giggsey/libphonenumber-for-php": "^8.9",
                 "google/auth": "^0.11.0|^1.0",
                 "guzzlehttp/guzzle": "^6.2.1",
-                "kreait/firebase-tokens": "^1.7.2",
+                "kreait/firebase-tokens": "^1.8.0",
                 "kreait/gcp-metadata": "^1.0.1",
                 "lcobucci/jwt": "^3.2",
                 "mtdowling/jmespath.php": "^2.3",
@@ -3636,20 +3636,20 @@
                 "google",
                 "sdk"
             ],
-            "time": "2019-06-10T14:37:13+00:00"
+            "time": "2019-06-12T21:25:52+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
-            "version": "1.7.2",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-tokens-php.git",
-                "reference": "a300c7dc17d83b1a19af7519c65612c5124d177e"
+                "reference": "a7c85da988b77ba6424a36d91668112fe21e9e30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-tokens-php/zipball/a300c7dc17d83b1a19af7519c65612c5124d177e",
-                "reference": "a300c7dc17d83b1a19af7519c65612c5124d177e",
+                "url": "https://api.github.com/repos/kreait/firebase-tokens-php/zipball/a7c85da988b77ba6424a36d91668112fe21e9e30",
+                "reference": "a7c85da988b77ba6424a36d91668112fe21e9e30",
                 "shasum": ""
             },
             "require": {
@@ -3689,7 +3689,7 @@
                 "google",
                 "token"
             ],
-            "time": "2018-10-26T22:01:30+00:00"
+            "time": "2019-06-12T18:38:34+00:00"
         },
         {
             "name": "kreait/gcp-metadata",
@@ -11405,7 +11405,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -11465,7 +11465,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
