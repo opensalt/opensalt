@@ -17,7 +17,6 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Form\Type\LsDocListType;
 use App\Entity\User\User;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException as RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -47,23 +46,16 @@ class DocTreeController extends AbstractController
      */
     private $guzzleJsonClient;
 
-	private $caseNetworkSecret;
-	private $caseNetworkScope;
-	private $caseTokenServer;
-
     /**
      * @var PdoAdapter
      */
     private $externalDocCache;
 
-	public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache, $caseNetworkSecret, $caseNetworkScope, $caseTokenServer )
-	{
-		$this->guzzleJsonClient = $guzzleJsonClient;
-		$this->externalDocCache = $externalDocCache;
-		$this->caseNetworkSecret = $caseNetworkSecret;
-		$this->caseTokenServer = $caseTokenServer;
-		$this->caseNetworkScope = $caseNetworkScope;
-	}
+    public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache)
+    {
+        $this->guzzleJsonClient = $guzzleJsonClient;
+        $this->externalDocCache = $externalDocCache;
+    }
 
     /**
      * @Route("/doc/{slug}", name="doc_tree_view", methods={"GET"}, requirements={"slug"="[a-zA-Z0-9.-]+"}, defaults={"lsItemId"=null})
@@ -152,6 +144,7 @@ class DocTreeController extends AbstractController
         ]);
     }
 
+///////////////////////////////////////////////
 
     /**
      * Export a CFPackage in a special json format designed for efficiently loading the package's data to the OpenSALT doctree client
@@ -224,11 +217,6 @@ class DocTreeController extends AbstractController
      *
      * @Route("/retrievedocument/{id}", name="doctree_retrieve_document", methods={"GET"})
      * @Route("/retrievedocument/url", name="doctree_retrieve_document_by_url", methods={"GET"}, defaults={"id"=null})
-     * @param Request $request
-     * @param LsDoc|null $lsDoc
-     *
-     * @return Response
-     * @throws \Exception
      */
     public function retrieveDocumentAction(Request $request, ?LsDoc $lsDoc = null)
     {
@@ -253,105 +241,86 @@ class DocTreeController extends AbstractController
         return new Response('Document not found.', Response::HTTP_NOT_FOUND);
     }
 
-    /**
-     * @param $url
-     * @param LsDoc|null $lsDoc
-     *
-     * @return Response
-     * @throws \Exception
-     */
     protected function exportExternalDocument($url, ?LsDoc $lsDoc = null) {
-        $extDoc   = null;
-        $token    = null;
-        $document = null;
-        $response = null;
-        $headers  = array(
-            'Accept' => 'application/json'
-        );
         // Check the cache for the document
-        $cache    = $this->externalDocCache;
+        $cache = $this->externalDocCache;
         $cacheDoc = $cache->getItem(rawurlencode($url));
         if ($cacheDoc->isHit()) {
-            $document = $cacheDoc->get();
+            $s = $cacheDoc->get();
         } else {
-            // Check for CASE urls:
-            if( $this->isCaseUrl( $url ) ) {
-                $token   = $this->retrieveDocumentToken();
-                $auth    = sprintf( 'Bearer %s', $token->access_token );
-                $headers = array_merge( array( 'Authorization' => $auth ), $headers );
+            // first check to see if this url returns a valid document (function taken from notes of php file_exists)
+            $extDoc = $this->guzzleJsonClient->request(
+                'GET',
+                $url,
+                [
+                    'timeout' => 60,
+                    'headers' => [
+                        'Accept' => 'application/json',
+                    ],
+                    'http_errors' => false,
+                ]
+            );
+            if ($extDoc->getStatusCode() === 404) {
+                return new Response(
+                    'Document not found.',
+                    Response::HTTP_NOT_FOUND
+                );
             }
-            // Query for the document:
-            try {
-                $extDoc = $this->guzzleJsonClient->request(
-                    'GET',
-                    $url,
-                    [
-                        'timeout'     => 60,
-                        'headers'     => $headers,
-                        'http_errors' => true,
-                    ]
-                );
-            } catch( RequestException $e ) {
-                $error = $e->getResponse();
+            if ($extDoc->getStatusCode() !== 200) {
                 return new Response(
-                    $error->getReasonPhrase(),
-                    Response::HTTP_NOT_FOUND
-                );
-            } catch( \Exception $e ) {
-                $error = $e->getMessage();
-                return new Response(
-	                $error,
-                    Response::HTTP_NOT_FOUND
+                    $extDoc->getReasonPhrase(),
+                    $extDoc->getStatusCode()
                 );
             }
 
-            $document = $extDoc->getBody()->getContents();
+            // file exists, so get it
+            $s = $extDoc->getBody()->getContents();
 
             // Save document in cache for 30 minutes (arbitrary time period)
-            $cacheDoc->set($document);
+            $cacheDoc->set($s);
             $cacheDoc->expiresAfter(new \DateInterval('PT30M'));
             $cache->save($cacheDoc);
         }
-        if (!empty($document)) {
-            $document = json_decode( $document );
-            // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
+        if (!empty($s)) {
+            // if $lsDoc is not empty, get the document's identifier and title and save to the $lsDoc's externalDocs
             if (null !== $lsDoc) {
-	            $title      = $document->CFDocument->title;
-	            $identifier = $document->CFDocument->identifier;
+                // This might not be the most elegant way to get  way to get the doc's identifier and id, but it should work
+                $identifier = '';
+                if (preg_match("/\"identifier\"\s*:\s*\"(.+?)\"/", $s, $matches)) {
+                    $identifier = $matches[1];
+                }
 
-	            // if we found the identifier and title, save the ad
-	            if ( ! empty( $identifier ) && ! empty( $title ) ) {
+                $title = '';
+                if (preg_match("/\"title\"\s*:\s*\"([\s\S]+?)\"/", $s, $matches)) {
+                    $title = $matches[1];
+                }
 
-		            // see if the doc is already there; if so, we don't want to change the "autoLoad" parameter, but we should still update the title/url if necessary
-		            $externalDocs = $lsDoc->getExternalDocs();
+                // if we found the identifier and title, save the ad
+                if (!empty($identifier) && !empty($title)) {
+                    // see if the doc is already there; if so, we don't want to change the "autoLoad" parameter, but we should still update the title/url if necessary
+                    $externalDocs = $lsDoc->getExternalDocs();
 
-		            $autoLoad = 'false';
-		            if ( ! empty( $externalDocs[ $identifier ] ) ) {
-			            $autoLoad = $externalDocs[ $identifier ]['autoLoad'];
-		            }
+                    $autoLoad = 'false';
+                    if (!empty($externalDocs[$identifier])) {
+                        $autoLoad = $externalDocs[$identifier]['autoLoad'];
+                    }
 
-		            // if this is a new doc or anything has changed, save it
-		            if ( empty( $externalDocs[ $identifier ] )
-		                 || $externalDocs[ $identifier ]['autoLoad'] !== $autoLoad
-		                 || $externalDocs[ $identifier ]['url'] !== $url
-		                 || $externalDocs[ $identifier ]['title'] !== $title
-		            ) {
-			            $command = new AddExternalDocCommand( $lsDoc, $identifier, $autoLoad, $url, $title );
-			            $this->sendCommand( $command );
-		            }
-	            }
+                    // if this is a new doc or anything has changed, save it
+                    if (empty($externalDocs[$identifier])
+                        || $externalDocs[$identifier]['autoLoad'] !== $autoLoad
+                        || $externalDocs[$identifier]['url'] !== $url
+                        || $externalDocs[$identifier]['title'] !== $title
+                    ) {
+                        $command = new AddExternalDocCommand($lsDoc, $identifier, $autoLoad, $url, $title);
+                        $this->sendCommand($command);
+                    }
+                }
             }
 
             // now return the file
-            $response = new Response(
-                // 'Oh, hey!',
-            	json_encode($document),
-                Response::HTTP_OK,
-                [
-                    'Content-Type' => 'application/json',
-                    'Pragma'       => 'no-cache'
-                ]
-            );
+            $response = new Response($s);
+            $response->headers->set('Content-Type', 'application/json');
+            $response->headers->set('Pragma', 'no-cache');
 
             return $response;
         }
@@ -362,53 +331,6 @@ class DocTreeController extends AbstractController
         // http://127.0.0.1:3000/app_dev.php/uri/731cf3e4-43a2-4aa0-b2a7-87a49dac5374.json
         // https://salt-staging.edplancms.com/uri/b821b70d-d46c-519b-b5cc-ca2260fc31f8.json
         // https://salt-staging.edplancms.com/cfpackage/doc/11/export
-    }
-
-    protected function isCaseUrl( $url ) {
-	    preg_match( '|casenetwork\.imsglobal\.org|', $url, $matches );
-	    if( ! empty( $matches ) ) {
-		return true;
-	    }
-	    return false;
-    }
-
-    protected function retrieveDocumentToken() {
-        $extDoc = null;
-        try {
-            $auth     = sprintf('Basic %s', $this->caseNetworkSecret);
-            error_log($auth);
-            $response = $this->guzzleJsonClient->request(
-                'POST',
-	            $this->caseTokenServer,
-                [
-                    'timeout'     => 6000,
-                    'headers'     => [
-                        'Authorization' => $auth,
-                        'Content-Type'  => 'application/x-www-form-urlencoded',
-                        'Accept'        => '*/*',
-                        'User-Agent'    => 'SomeRandomText'
-                    ],
-                    'http_errors' => true,
-                    'form_params' => [
-                        'grant_type' => 'client_credentials',
-                        'scope' => $this->caseNetworkScope
-                    ]
-                ]
-            );
-            $extDoc = json_decode( $response->getBody() );
-        } catch( RequestException $e ) {
-            $message = $e->getHandlerContext();
-            return new Response(
-                $message['error'],
-                Response::HTTP_NOT_FOUND
-            );
-        } catch( \Exception $e ) {
-            return new Response(
-                'Document not found.',
-                Response::HTTP_NOT_FOUND
-            );
-        }
-        return $extDoc;
     }
 
 
