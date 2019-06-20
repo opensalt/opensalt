@@ -19,6 +19,7 @@ use App\Entity\User\User;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -47,21 +48,23 @@ class DocTreeController extends AbstractController
      */
     private $guzzleJsonClient;
 
-    private $caseNetworkSecret;
+    private $caseNetworkClientId;
+    private $caseNetworkClientSecret;
     private $caseNetworkScope;
-    private $caseTokenServer;
+    private $caseNetworkTokenEndpoint;
 
     /**
      * @var PdoAdapter
      */
     private $externalDocCache;
 
-    public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache, $caseNetworkSecret, $caseNetworkScope, $caseTokenServer)
+    public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache, ?string $caseNetworkClientId, ?string $caseNetworkClientSecret, ?string $caseNetworkScope, ?string $caseNetworkTokenEndpoint)
     {
         $this->guzzleJsonClient = $guzzleJsonClient;
         $this->externalDocCache = $externalDocCache;
-        $this->caseNetworkSecret = $caseNetworkSecret;
-        $this->caseTokenServer = $caseTokenServer;
+        $this->caseNetworkClientId = $caseNetworkClientId;
+        $this->caseNetworkClientSecret = $caseNetworkClientSecret;
+        $this->caseNetworkTokenEndpoint = $caseNetworkTokenEndpoint;
         $this->caseNetworkScope = $caseNetworkScope;
     }
 
@@ -266,17 +269,11 @@ class DocTreeController extends AbstractController
             } catch (RequestException $e) {
                 $error = $e->getResponse();
 
-                return new Response(
-                    $error->getReasonPhrase(),
-                    Response::HTTP_NOT_FOUND
-                );
+                throw new NotFoundHttpException($error->getReasonPhrase());
             } catch (\Exception $e) {
                 $error = $e->getMessage();
 
-                return new Response(
-                    $error,
-                    Response::HTTP_NOT_FOUND
-                );
+                throw new NotFoundHttpException($error);
             }
 
             // Save document in cache for 30 minutes (arbitrary time period)
@@ -318,21 +315,23 @@ class DocTreeController extends AbstractController
         return false;
     }
 
-    protected function retrieveDocumentToken()
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    protected function retrieveCaseNetworkBearerToken()
     {
         try {
-            $auth = sprintf('Basic %s', $this->caseNetworkSecret);
             $response = $this->guzzleJsonClient->request(
                 'POST',
-                $this->caseTokenServer,
+                $this->caseNetworkTokenEndpoint,
                 [
                     'timeout' => 6000,
                     'headers' => [
-                        'Authorization' => $auth,
                         'Content-Type' => 'application/x-www-form-urlencoded',
                         'Accept' => 'application/json',
                         'User-Agent' => 'OpenSALT',
                     ],
+                    'auth' => [$this->caseNetworkClientId, $this->caseNetworkClientSecret],
                     'http_errors' => true,
                     'form_params' => [
                         'grant_type' => 'client_credentials',
@@ -340,22 +339,15 @@ class DocTreeController extends AbstractController
                     ],
                 ]
             );
-            $extDoc = json_decode($response->getBody(), false);
+
+            return json_decode($response->getBody(), false)->access_token;
         } catch (RequestException $e) {
             $message = $e->getHandlerContext();
 
-            return new Response(
-                $message['error'],
-                Response::HTTP_NOT_FOUND
-            );
+            throw new NotFoundHttpException($message['error']);
         } catch (\Exception $e) {
-            return new Response(
-                'Document not found.',
-                Response::HTTP_NOT_FOUND
-            );
+            throw new NotFoundHttpException('Document not found.');
         }
-
-        return $extDoc;
     }
 
     /**
@@ -605,13 +597,7 @@ class DocTreeController extends AbstractController
         $headers = [
             'Accept' => 'application/json',
         ];
-
-        // Check for CASE urls:
-        if ($this->isCaseUrl($url)) {
-            $token = $this->retrieveDocumentToken();
-            $auth = sprintf('Bearer %s', $token->access_token);
-            $headers = array_merge(['Authorization' => $auth], $headers);
-        }
+        $headers = $this->addAuthentication($url, $headers);
 
         $extDoc = $this->guzzleJsonClient->request(
             'GET',
@@ -624,6 +610,21 @@ class DocTreeController extends AbstractController
         );
 
         return $extDoc->getBody()->getContents();
+    }
+
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    protected function addAuthentication(string $url, array $headers): array
+    {
+        // Check for CASE urls:
+        if ($this->isCaseUrl($url)) {
+            $headers = array_merge([
+                'Authorization' => 'Bearer '.$this->retrieveCaseNetworkBearerToken(),
+            ], $headers);
+        }
+
+        return $headers;
     }
 
     /**
