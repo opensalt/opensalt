@@ -56,6 +56,10 @@ services:
       ATTACHMENT_URL_PREFIX:
       BUCKET_PROVIDER:
       LOCAL_FILESYSTEM_PATH:
+      CASE_NETWORK_CLIENT_ID:
+      CASE_NETWORK_CLIENT_SECRET:
+      CASE_NETWORK_TOKEN_ENDPOINT:
+      CASE_NETWORK_SCOPE:
     volumes:
       - &project_root "${PROJ_DIR:-..}:/var/www/html"
     working_dir: /var/www/html
