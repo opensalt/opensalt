@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ed9e61518f07987f656f64e118905a6",
+    "content-hash": "7993c07e927a49f87ec5b115ab108a6a",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.100.1",
+            "version": "3.100.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "0ae18bb40836e9599bdbd6a65b292329bc83df64"
+                "reference": "25233e0cde3fe5e5723c136c6ac66fb7c66e9115"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/0ae18bb40836e9599bdbd6a65b292329bc83df64",
-                "reference": "0ae18bb40836e9599bdbd6a65b292329bc83df64",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/25233e0cde3fe5e5723c136c6ac66fb7c66e9115",
+                "reference": "25233e0cde3fe5e5723c136c6ac66fb7c66e9115",
                 "shasum": ""
             },
             "require": {
@@ -87,7 +87,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2019-06-11T18:32:05+00:00"
+            "time": "2019-06-19T19:57:46+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -1018,16 +1018,16 @@
         },
         {
             "name": "doctrine/doctrine-fixtures-bundle",
-            "version": "3.2.0",
+            "version": "3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineFixturesBundle.git",
-                "reference": "13b2e8e1af099bc06f8611497fe079a4e0b4e497"
+                "reference": "90e4a4f968b2dae40e290a6ee516957af043f16c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineFixturesBundle/zipball/13b2e8e1af099bc06f8611497fe079a4e0b4e497",
-                "reference": "13b2e8e1af099bc06f8611497fe079a4e0b4e497",
+                "url": "https://api.github.com/repos/doctrine/DoctrineFixturesBundle/zipball/90e4a4f968b2dae40e290a6ee516957af043f16c",
+                "reference": "90e4a4f968b2dae40e290a6ee516957af043f16c",
                 "shasum": ""
             },
             "require": {
@@ -1078,7 +1078,7 @@
                 "Fixture",
                 "persistence"
             ],
-            "time": "2019-06-07T11:21:53+00:00"
+            "time": "2019-06-12T12:03:37+00:00"
         },
         {
             "name": "doctrine/doctrine-migrations-bundle",
@@ -2013,16 +2013,16 @@
         },
         {
             "name": "giggsey/libphonenumber-for-php",
-            "version": "8.10.13",
+            "version": "8.10.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/giggsey/libphonenumber-for-php.git",
-                "reference": "660a6153fd1e5c25613e57115db27be87052c452"
+                "reference": "fd2d002edce2c21c49877a95c3d2058dac0e5cc3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/660a6153fd1e5c25613e57115db27be87052c452",
-                "reference": "660a6153fd1e5c25613e57115db27be87052c452",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/fd2d002edce2c21c49877a95c3d2058dac0e5cc3",
+                "reference": "fd2d002edce2c21c49877a95c3d2058dac0e5cc3",
                 "shasum": ""
             },
             "require": {
@@ -2077,7 +2077,7 @@
                 "phonenumber",
                 "validation"
             ],
-            "time": "2019-05-30T07:28:51+00:00"
+            "time": "2019-06-19T10:54:35+00:00"
         },
         {
             "name": "giggsey/locale",
@@ -3569,16 +3569,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "4.24.0",
+            "version": "4.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "7a0647d324cafbd5f10cf9262ac25f26ebaf4bb4"
+                "reference": "f3bc2ec8adaefa2e615096c818ef4eb715d12e76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/7a0647d324cafbd5f10cf9262ac25f26ebaf4bb4",
-                "reference": "7a0647d324cafbd5f10cf9262ac25f26ebaf4bb4",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/f3bc2ec8adaefa2e615096c818ef4eb715d12e76",
+                "reference": "f3bc2ec8adaefa2e615096c818ef4eb715d12e76",
                 "shasum": ""
             },
             "require": {
@@ -3589,7 +3589,7 @@
                 "giggsey/libphonenumber-for-php": "^8.9",
                 "google/auth": "^0.11.0|^1.0",
                 "guzzlehttp/guzzle": "^6.2.1",
-                "kreait/firebase-tokens": "^1.7.2",
+                "kreait/firebase-tokens": "^1.8.0",
                 "kreait/gcp-metadata": "^1.0.1",
                 "lcobucci/jwt": "^3.2",
                 "mtdowling/jmespath.php": "^2.3",
@@ -3636,20 +3636,20 @@
                 "google",
                 "sdk"
             ],
-            "time": "2019-06-10T14:37:13+00:00"
+            "time": "2019-06-12T21:25:52+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
-            "version": "1.7.2",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-tokens-php.git",
-                "reference": "a300c7dc17d83b1a19af7519c65612c5124d177e"
+                "reference": "a7c85da988b77ba6424a36d91668112fe21e9e30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-tokens-php/zipball/a300c7dc17d83b1a19af7519c65612c5124d177e",
-                "reference": "a300c7dc17d83b1a19af7519c65612c5124d177e",
+                "url": "https://api.github.com/repos/kreait/firebase-tokens-php/zipball/a7c85da988b77ba6424a36d91668112fe21e9e30",
+                "reference": "a7c85da988b77ba6424a36d91668112fe21e9e30",
                 "shasum": ""
             },
             "require": {
@@ -3689,7 +3689,7 @@
                 "google",
                 "token"
             ],
-            "time": "2018-10-26T22:01:30+00:00"
+            "time": "2019-06-12T18:38:34+00:00"
         },
         {
             "name": "kreait/gcp-metadata",
@@ -3797,16 +3797,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.52",
+            "version": "1.0.53",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "c5a5097156387970e6f0ccfcdf03f752856f3391"
+                "reference": "08e12b7628f035600634a5e76d95b5eb66cea674"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/c5a5097156387970e6f0ccfcdf03f752856f3391",
-                "reference": "c5a5097156387970e6f0ccfcdf03f752856f3391",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/08e12b7628f035600634a5e76d95b5eb66cea674",
+                "reference": "08e12b7628f035600634a5e76d95b5eb66cea674",
                 "shasum": ""
             },
             "require": {
@@ -3877,7 +3877,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2019-05-20T20:21:14+00:00"
+            "time": "2019-06-18T20:09:29+00:00"
         },
         {
             "name": "league/flysystem-aws-s3-v3",
@@ -4491,16 +4491,16 @@
         },
         {
             "name": "nelmio/cors-bundle",
-            "version": "1.5.5",
+            "version": "1.5.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioCorsBundle.git",
-                "reference": "adabee944e6fe52ee566caf1770a29355b1e8d83"
+                "reference": "10a24c10f242440211ed31075e74f81661c690d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioCorsBundle/zipball/adabee944e6fe52ee566caf1770a29355b1e8d83",
-                "reference": "adabee944e6fe52ee566caf1770a29355b1e8d83",
+                "url": "https://api.github.com/repos/nelmio/NelmioCorsBundle/zipball/10a24c10f242440211ed31075e74f81661c690d9",
+                "reference": "10a24c10f242440211ed31075e74f81661c690d9",
                 "shasum": ""
             },
             "require": {
@@ -4545,7 +4545,7 @@
                 "cors",
                 "crossdomain"
             ],
-            "time": "2019-02-27T13:13:15+00:00"
+            "time": "2019-06-17T08:53:14+00:00"
         },
         {
             "name": "nelmio/security-bundle",
@@ -6943,16 +6943,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v1.2.6",
+            "version": "v1.2.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "5ed49091eb73f912dd23dab92bf07c0180cfb009"
+                "reference": "8618b243d44bac71e4006062f245d807d84f7a6c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/5ed49091eb73f912dd23dab92bf07c0180cfb009",
-                "reference": "5ed49091eb73f912dd23dab92bf07c0180cfb009",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/8618b243d44bac71e4006062f245d807d84f7a6c",
+                "reference": "8618b243d44bac71e4006062f245d807d84f7a6c",
                 "shasum": ""
             },
             "require": {
@@ -6988,7 +6988,7 @@
                 }
             ],
             "description": "Composer plugin for Symfony",
-            "time": "2019-06-05T14:26:30+00:00"
+            "time": "2019-06-15T07:15:42+00:00"
         },
         {
             "name": "symfony/form",
@@ -8579,16 +8579,16 @@
         },
         {
             "name": "symfony/swiftmailer-bundle",
-            "version": "v3.2.7",
+            "version": "v3.2.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/swiftmailer-bundle.git",
-                "reference": "959459318a022f9ad6bc85e3a87a0a10af173ff1"
+                "reference": "cb125b3648f132fb8070b55393f20cb310907d3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/swiftmailer-bundle/zipball/959459318a022f9ad6bc85e3a87a0a10af173ff1",
-                "reference": "959459318a022f9ad6bc85e3a87a0a10af173ff1",
+                "url": "https://api.github.com/repos/symfony/swiftmailer-bundle/zipball/cb125b3648f132fb8070b55393f20cb310907d3b",
+                "reference": "cb125b3648f132fb8070b55393f20cb310907d3b",
                 "shasum": ""
             },
             "require": {
@@ -8640,7 +8640,7 @@
             ],
             "description": "Symfony SwiftmailerBundle",
             "homepage": "http://symfony.com",
-            "time": "2019-05-11T07:24:21+00:00"
+            "time": "2019-06-18T15:27:04+00:00"
         },
         {
             "name": "symfony/templating",
@@ -9495,17 +9495,17 @@
         },
         {
             "name": "tetranz/select2entity-bundle",
-            "version": "dev-symfony-config-deprecation",
+            "version": "v2.9.6",
             "target-dir": "Tetranz/Select2EntityBundle",
             "source": {
                 "type": "git",
-                "url": "https://github.com/opensalt/select2entity-bundle.git",
-                "reference": "1d66d148314fbc01e2b1d53c1020f3a5dff5c6a2"
+                "url": "https://github.com/tetranz/select2entity-bundle.git",
+                "reference": "fe03aa203757c59b6b264d78afa2181627ca0ba5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opensalt/select2entity-bundle/zipball/1d66d148314fbc01e2b1d53c1020f3a5dff5c6a2",
-                "reference": "1d66d148314fbc01e2b1d53c1020f3a5dff5c6a2",
+                "url": "https://api.github.com/repos/tetranz/select2entity-bundle/zipball/fe03aa203757c59b6b264d78afa2181627ca0ba5",
+                "reference": "fe03aa203757c59b6b264d78afa2181627ca0ba5",
                 "shasum": ""
             },
             "require": {
@@ -9521,6 +9521,7 @@
                     "Tetranz\\Select2EntityBundle": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -9537,10 +9538,7 @@
                 "symfony",
                 "typeahead"
             ],
-            "support": {
-                "source": "https://github.com/opensalt/select2entity-bundle/tree/symfony-config-deprecation"
-            },
-            "time": "2018-12-27T20:32:52+00:00"
+            "time": "2019-06-17T12:05:26+00:00"
         },
         {
             "name": "twig/extensions",
@@ -9599,16 +9597,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v2.11.2",
+            "version": "v2.11.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "84a463403da1c81afbcedda8f0e788c78bd25a79"
+                "reference": "699ed2342557c88789a15402de5eb834dedd6792"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/84a463403da1c81afbcedda8f0e788c78bd25a79",
-                "reference": "84a463403da1c81afbcedda8f0e788c78bd25a79",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/699ed2342557c88789a15402de5eb834dedd6792",
+                "reference": "699ed2342557c88789a15402de5eb834dedd6792",
                 "shasum": ""
             },
             "require": {
@@ -9662,7 +9660,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2019-06-05T11:17:07+00:00"
+            "time": "2019-06-18T15:37:11+00:00"
         },
         {
             "name": "ua-parser/uap-php",
@@ -10592,16 +10590,16 @@
         },
         {
             "name": "facebook/webdriver",
-            "version": "1.7.0",
+            "version": "1.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/facebook/php-webdriver.git",
-                "reference": "9a52b1ac036743c31bc127fd7f2f4710e2bc968a"
+                "reference": "e43de70f3c7166169d0f14a374505392734160e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/9a52b1ac036743c31bc127fd7f2f4710e2bc968a",
-                "reference": "9a52b1ac036743c31bc127fd7f2f4710e2bc968a",
+                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/e43de70f3c7166169d0f14a374505392734160e5",
+                "reference": "e43de70f3c7166169d0f14a374505392734160e5",
                 "shasum": ""
             },
             "require": {
@@ -10648,7 +10646,7 @@
                 "selenium",
                 "webdriver"
             ],
-            "time": "2019-06-10T14:32:25+00:00"
+            "time": "2019-06-13T08:02:18+00:00"
         },
         {
             "name": "flow/jsonpath",
@@ -11986,16 +11984,16 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.8.0",
+            "version": "1.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "4ba436b55987b4bf311cb7c6ba82aa528aac0a06"
+                "reference": "1927e75f4ed19131ec9bcc3b002e07fb1173ee76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/4ba436b55987b4bf311cb7c6ba82aa528aac0a06",
-                "reference": "4ba436b55987b4bf311cb7c6ba82aa528aac0a06",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/1927e75f4ed19131ec9bcc3b002e07fb1173ee76",
+                "reference": "1927e75f4ed19131ec9bcc3b002e07fb1173ee76",
                 "shasum": ""
             },
             "require": {
@@ -12016,8 +12014,8 @@
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Prophecy\\": "src/"
+                "psr-4": {
+                    "Prophecy\\": "src/Prophecy"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -12045,7 +12043,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2018-08-05T17:53:17+00:00"
+            "time": "2019-06-13T12:50:23+00:00"
         },
         {
             "name": "phpstan/phpdoc-parser",
@@ -12555,16 +12553,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "7.5.12",
+            "version": "7.5.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "9ba59817745b0fe0c1a5a3032dfd4a6d2994ad1c"
+                "reference": "b9278591caa8630127f96c63b598712b699e671c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9ba59817745b0fe0c1a5a3032dfd4a6d2994ad1c",
-                "reference": "9ba59817745b0fe0c1a5a3032dfd4a6d2994ad1c",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b9278591caa8630127f96c63b598712b699e671c",
+                "reference": "b9278591caa8630127f96c63b598712b699e671c",
                 "shasum": ""
             },
             "require": {
@@ -12635,7 +12633,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2019-05-28T11:59:40+00:00"
+            "time": "2019-06-19T12:01:51+00:00"
         },
         {
             "name": "psy/psysh",
@@ -12717,12 +12715,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "acc661e72817c7030b7b2af7d2f226bee9b93094"
+                "reference": "baeb6f512b5ec8f0fd58bf890082b179f985c5a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/acc661e72817c7030b7b2af7d2f226bee9b93094",
-                "reference": "acc661e72817c7030b7b2af7d2f226bee9b93094",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/baeb6f512b5ec8f0fd58bf890082b179f985c5a4",
+                "reference": "baeb6f512b5ec8f0fd58bf890082b179f985c5a4",
                 "shasum": ""
             },
             "conflict": {
@@ -12837,7 +12835,7 @@
                 "sylius/grid": ">=1,<1.1.19|>=1.2,<1.2.18|>=1.3,<1.3.13|>=1.4,<1.4.5|>=1.5,<1.5.1",
                 "sylius/grid-bundle": ">=1,<1.1.19|>=1.2,<1.2.18|>=1.3,<1.3.13|>=1.4,<1.4.5|>=1.5,<1.5.1",
                 "sylius/sylius": ">=1,<1.1.18|>=1.2,<1.2.17|>=1.3,<1.3.12|>=1.4,<1.4.4",
-                "symfony/cache": ">=3.2,<3.4.26|>=4,<4.1.12|>=4.2,<4.2.7",
+                "symfony/cache": ">=3.1,<3.4.26|>=4,<4.1.12|>=4.2,<4.2.7",
                 "symfony/dependency-injection": ">=2,<2.0.17|>=2.7,<2.7.51|>=2.8,<2.8.50|>=3,<3.4.26|>=4,<4.1.12|>=4.2,<4.2.7",
                 "symfony/form": ">=2.3,<2.3.35|>=2.4,<2.6.12|>=2.7,<2.7.50|>=2.8,<2.8.49|>=3,<3.4.20|>=4,<4.0.15|>=4.1,<4.1.9|>=4.2,<4.2.1",
                 "symfony/framework-bundle": ">=2,<2.3.18|>=2.4,<2.4.8|>=2.5,<2.5.2|>=2.7,<2.7.51|>=2.8,<2.8.50|>=3,<3.4.26|>=4,<4.1.12|>=4.2,<4.2.7",
@@ -12923,7 +12921,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2019-06-11T05:51:05+00:00"
+            "time": "2019-06-14T17:56:32+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -14221,16 +14219,16 @@
         },
         {
             "name": "theseer/tokenizer",
-            "version": "1.1.2",
+            "version": "1.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/theseer/tokenizer.git",
-                "reference": "1c42705be2b6c1de5904f8afacef5895cab44bf8"
+                "reference": "11336f6f84e16a720dae9d8e6ed5019efa85a0f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/theseer/tokenizer/zipball/1c42705be2b6c1de5904f8afacef5895cab44bf8",
-                "reference": "1c42705be2b6c1de5904f8afacef5895cab44bf8",
+                "url": "https://api.github.com/repos/theseer/tokenizer/zipball/11336f6f84e16a720dae9d8e6ed5019efa85a0f9",
+                "reference": "11336f6f84e16a720dae9d8e6ed5019efa85a0f9",
                 "shasum": ""
             },
             "require": {
@@ -14257,20 +14255,20 @@
                 }
             ],
             "description": "A small library for converting tokenized PHP source code into XML and potentially other formats",
-            "time": "2019-04-04T09:56:43+00:00"
+            "time": "2019-06-13T22:48:21+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
-            "version": "v3.3.3",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vlucas/phpdotenv.git",
-                "reference": "dbcc609971dd9b55f48b8008b553d79fd372ddde"
+                "reference": "5084b23845c24dbff8ac6c204290c341e4776c92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/dbcc609971dd9b55f48b8008b553d79fd372ddde",
-                "reference": "dbcc609971dd9b55f48b8008b553d79fd372ddde",
+                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/5084b23845c24dbff8ac6c204290c341e4776c92",
+                "reference": "5084b23845c24dbff8ac6c204290c341e4776c92",
                 "shasum": ""
             },
             "require": {
@@ -14284,7 +14282,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.3-dev"
+                    "dev-master": "3.4-dev"
                 }
             },
             "autoload": {
@@ -14309,7 +14307,7 @@
                 "env",
                 "environment"
             ],
-            "time": "2019-03-06T09:39:45+00:00"
+            "time": "2019-06-15T22:40:20+00:00"
         }
     ],
     "aliases": [
@@ -14330,12 +14328,6 @@
             "alias_normalized": "1.3.0.1",
             "version": "9999999-dev",
             "package": "stof/doctrine-extensions-bundle"
-        },
-        {
-            "alias": "2.9.5.1",
-            "alias_normalized": "2.9.5.1",
-            "version": "dev-symfony-config-deprecation",
-            "package": "tetranz/select2entity-bundle"
         }
     ],
     "minimum-stability": "dev",
@@ -14344,7 +14336,6 @@
         "nelmio/security-bundle": 20,
         "simplethings/entity-audit-bundle": 20,
         "stof/doctrine-extensions-bundle": 20,
-        "tetranz/select2entity-bundle": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,

@@ -80,7 +80,7 @@ class LorSupportController extends AbstractController
     /**
      * @Route("/frameworksByCreator/{creator}", methods={"GET"}, name="api_get_frameworks_by_creator")
      */
-    public function getFrameworksByCreator(Request $request, String $creator): JsonResponse
+    public function getFrameworksByCreator(Request $request, string $creator): JsonResponse
     {
         $results = $this->docRepository->findNonPrivateByCreator(urldecode($creator));
 
@@ -116,7 +116,7 @@ class LorSupportController extends AbstractController
     /**
      * @Route("/exactMatchIdentifiers/{identifier}", methods={"GET"}, name="api_get_exact_matches")
      */
-    public function getMatches(Request $request, String $identifier): JsonResponse
+    public function getMatches(Request $request, string $identifier): JsonResponse
     {
         $results = $this->itemRepository->findExactMatches($identifier);
 

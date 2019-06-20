@@ -30,7 +30,7 @@ class AllowSuperUserVoter implements VoterInterface
      *
      * @return int either ACCESS_GRANTED, ACCESS_ABSTAIN, or ACCESS_DENIED
      */
-    public function vote(TokenInterface $token, $subject, array $attributes): bool
+    public function vote(TokenInterface $token, $subject, array $attributes): int
     {
         // abstain vote by default in case none of the attributes are supported
         $vote = VoterInterface::ACCESS_ABSTAIN;
