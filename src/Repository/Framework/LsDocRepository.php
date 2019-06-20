@@ -108,7 +108,7 @@ class LsDocRepository extends ServiceEntityRepository
     /**
      * @return array|LsDoc[]
      */
-    public function findNonPrivateByCreator(String $creator): array
+    public function findNonPrivateByCreator(string $creator): array
     {
         $qb = $this->findAllNonPrivateQueryBuilder()
             ->andWhere('d.creator = :creator')

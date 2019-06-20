@@ -52,6 +52,10 @@ parameters:
     env(BUCKET_PROVIDER): null
     env(LOCAL_FILESYSTEM_PATH): null
     env(FOOTER_LEFT_TEXT): null
+    env(CASE_NETWORK_CLIENT_ID): null
+    env(CASE_NETWORK_CLIENT_SECRET): null
+    env(CASE_NETWORK_TOKEN_ENDPOINT): 'https://oauth2-case.imsglobal.org/oauth2server/clienttoken'
+    env(CASE_NETWORK_SCOPE): 'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/all.readonly'
 
     locale: en
     database_host: '%env(MYSQL_HOST)%'
@@ -102,7 +106,11 @@ parameters:
     footer_left_text: '%env(FOOTER_LEFT_TEXT)%'
     base_template: 'base.html.twig'
     assets_version: '190202'
-    
+    case_network_client_id: '%env(CASE_NETWORK_CLIENT_ID)%'
+    case_network_client_secret: '%env(CASE_NETWORK_CLIENT_SECRET)%'
+    case_network_token_endpoint: '%env(CASE_NETWORK_TOKEN_ENDPOINT)%'
+    case_network_scope: '%env(CASE_NETWORK_SCOPE)%'
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -119,6 +127,10 @@ services:
             $kernelEnv: '%kernel.environment%'
             $externalDocCache: '@salt.cache.external_docs'
             $assetsVersion: '%assets_version%'
+            $caseNetworkClientId: '%case_network_client_id%'
+            $caseNetworkClientSecret: '%case_network_client_secret%'
+            $caseNetworkScope: '%case_network_scope%'
+            $caseNetworkTokenEndpoint: '%case_network_token_endpoint%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -146,6 +158,7 @@ services:
         arguments:
             $sessionMaxIdleTime: '%session_max_idle_time%'
 
+    # LS Item Controller
     App\Controller\Framework\LsItemController:
         arguments:
             $bucketProvider: '%bucket_provider%'
