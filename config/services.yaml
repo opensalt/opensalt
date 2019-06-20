@@ -155,6 +155,18 @@ services:
         arguments:
             $sessionMaxIdleTime: '%session_max_idle_time%'
 
+    # Doc Controller
+    App\Controller\Framework\DocTreeController:
+        class: App\Controller\Framework\DocTreeController
+        arguments:
+            $guzzleJsonClient: '@csa_guzzle.client.json'
+            $externalDocCache: '@salt.cache.external_docs'
+
+    # LS Item Controller
+    App\Controller\Framework\LsItemController:
+        arguments:
+            $bucketProvider: '%bucket_provider%'
+
     App\EventListener\LoginCaptchaListener:
         class: App\EventListener\LoginCaptchaListener
         arguments:
@@ -220,19 +232,6 @@ services:
             $connOrDsn: '@doctrine.dbal.default_connection'
             $namespace: 'externalDoc-'
             $defaultLifetime: 0
-
-
-    # Doc Controller
-    App\Controller\Framework\DocTreeController:
-        class: App\Controller\Framework\DocTreeController
-        arguments:
-            $guzzleJsonClient: '@csa_guzzle.client.json'
-            $externalDocCache: '@salt.cache.external_docs'
-
-    # LS Item Controller
-    App\Controller\Framework\LsItemController:
-        arguments:
-            $bucketProvider: '%bucket_provider%'
 
     # Overrides
     # Override vendor/theofidry/psysh-bundle/resources/config/test.xml test.client service
