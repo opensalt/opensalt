@@ -7,13 +7,16 @@ Release Notes
 * Copy Framework Feature
   * As a derivative framework
   * Or creating a derivative framework with exactMatch associations
-* File System configuration
-* Ability to add additional (Non-CASE) fields to CfItem
+* File System configuration for images or files 
+* Ability to add additional (Non-CASE) fields to CfItem using /additionalfield as Super User
+* Ability to define a Framework with a specific type
+* Authentication configuration for the CASE Network (casenetwork.imsglobal.org)
+* SEe docs.opensalt.org for full capabilities
 
 ### Improvements
 - [Update Framework Tool by Spreadsheet can match with associations](http://docs.opensalt.org/en/latest/index.html#h10414a76521969321d1aa7b43555d12)
 - Import Framework via Spreadsheet is back
-- Ability to add a left side footer 
+- Ability to add a left side footer on frontpage UI
 
 ### Fixes
 - Order on the UI and backend uses SequenceNumber
