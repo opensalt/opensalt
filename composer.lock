@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7993c07e927a49f87ec5b115ab108a6a",
+    "content-hash": "57b251a7be1e2ddb982835e859ccf5ef",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -11403,7 +11403,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -11463,7 +11463,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
@@ -12715,12 +12715,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "baeb6f512b5ec8f0fd58bf890082b179f985c5a4"
+                "reference": "a53a6f855cbff7edb078f87c72bb808c89443a00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/baeb6f512b5ec8f0fd58bf890082b179f985c5a4",
-                "reference": "baeb6f512b5ec8f0fd58bf890082b179f985c5a4",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/a53a6f855cbff7edb078f87c72bb808c89443a00",
+                "reference": "a53a6f855cbff7edb078f87c72bb808c89443a00",
                 "shasum": ""
             },
             "conflict": {
@@ -12758,6 +12758,7 @@
                 "drupal/core": ">=7,<7.67|>=8,<8.6.16|>=8.7,<8.7.1",
                 "drupal/drupal": ">=7,<7.67|>=8,<8.6.16|>=8.7,<8.7.1",
                 "erusev/parsedown": "<1.7.2",
+                "ezsystems/ezplatform-admin-ui": ">=1.3,<1.3.5|>=1.4,<1.4.4",
                 "ezsystems/ezpublish-kernel": ">=5.3,<5.3.12.1|>=5.4,<5.4.13.1|>=6,<6.7.9.1|>=6.8,<6.13.5.1|>=7,<7.2.4.1|>=7.3,<7.3.2.1",
                 "ezsystems/ezpublish-legacy": ">=5.3,<5.3.12.6|>=5.4,<5.4.12.3|>=2011,<2017.12.4.3|>=2018.6,<2018.6.1.4|>=2018.9,<2018.9.1.3",
                 "ezsystems/repository-forms": ">=2.3,<2.3.2.1",
@@ -12866,8 +12867,8 @@
                 "titon/framework": ">=0,<9.9.99",
                 "truckersmp/phpwhois": "<=4.3.1",
                 "twig/twig": "<1.38|>=2,<2.7",
-                "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.32|>=8,<8.7.25|>=9,<9.5.6",
-                "typo3/cms-core": ">=8,<8.7.25|>=9,<9.5.6",
+                "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.32|>=8,<8.7.27|>=9,<9.5.8",
+                "typo3/cms-core": ">=8,<8.7.27|>=9,<9.5.8",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
                 "typo3/neos": ">=1.1,<1.1.3|>=1.2,<1.2.13|>=2,<2.0.4",
                 "typo3/phar-stream-wrapper": ">=1,<2.1.1|>=3,<3.1.1",
@@ -12921,7 +12922,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2019-06-14T17:56:32+00:00"
+            "time": "2019-06-25T10:37:35+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -14160,27 +14161,27 @@
         },
         {
             "name": "theofidry/psysh-bundle",
-            "version": "v3.5.1",
+            "version": "4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/theofidry/PsyshBundle.git",
-                "reference": "8e9a0c317663d7981888eca669f6529b3d8a5400"
+                "reference": "b5c06557d87142dd63d2a61fdef9d5efa1de414f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/theofidry/PsyshBundle/zipball/8e9a0c317663d7981888eca669f6529b3d8a5400",
-                "reference": "8e9a0c317663d7981888eca669f6529b3d8a5400",
+                "url": "https://api.github.com/repos/theofidry/PsyshBundle/zipball/b5c06557d87142dd63d2a61fdef9d5efa1de414f",
+                "reference": "b5c06557d87142dd63d2a61fdef9d5efa1de414f",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1",
                 "psy/psysh": "^0.8 || ^0.9",
-                "symfony/expression-language": "^3.4 || ^4.0",
-                "symfony/framework-bundle": "^3.4 || ^4.0"
+                "symfony/expression-language": "^4.3",
+                "symfony/framework-bundle": "^4.3"
             },
             "require-dev": {
                 "phpunit/phpunit": "^6.4",
-                "symfony/symfony": "^3.4 || ^4.0"
+                "symfony/symfony": "^4.3"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -14215,7 +14216,7 @@
                 "shell",
                 "symfony"
             ],
-            "time": "2018-12-29T20:40:33+00:00"
+            "time": "2019-06-26T06:54:21+00:00"
         },
         {
             "name": "theseer/tokenizer",
