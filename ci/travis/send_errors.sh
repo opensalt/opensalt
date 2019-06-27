@@ -7,6 +7,10 @@ docker-compose -f docker/docker-compose.yml logs phpfpm > tests/_output/phpfpm.t
 cat tests/_output/phpfpm.txt
 echo "--------------------------------------------------------------------"
 
+if [ "$DOCKER_USER" = "" -o "$DOCKER_PASS" = "" ]; then
+    exit
+fi
+
 cp docker/errors/Dockerfile tests/_output/
 cd tests/_output
 docker build . -t opensalt/app:errors-${TRAVIS_BUILD_NUMBER}

@@ -4,6 +4,7 @@ namespace App\Form\Type;
 
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Form\DTO\ChangeLsItemParentDTO;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -16,7 +17,7 @@ class LsItemParentType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /** @var LsDoc $lsDoc */
         $lsDoc = $options['lsDoc'];
@@ -43,7 +44,7 @@ class LsItemParentType extends AbstractType
                         ->setParameter('docId', $lsDoc->getId())
                         ->setParameter('id', $id)
                     ;
-                }
+                },
             ])
         ;
     }
@@ -51,12 +52,12 @@ class LsItemParentType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => 'App\Form\DTO\ChangeLsItemParentDTO',
+            'data_class' => ChangeLsItemParentDTO::class,
             'ajax' => false,
-            'lsDoc' => new LsDoc(),
+            'lsDoc' => null,
         ]);
     }
 }

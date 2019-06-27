@@ -1,0 +1,47 @@
+{% block body %}
+{
+{# Leave out CFDocumentURI; we have that elsewhere in the package #}
+{# Include id #}
+"id": {{ lsItem.id |json_encode |raw }},
+"identifier": {{ lsItem.identifier |json_encode |raw }},
+"uri": {{ uri_for_identifier(lsItem.identifier) |json_encode |raw }},
+"fstmt": {{ lsItem.fullStatement |json_encode |raw }},
+{% if lsItem.humanCodingScheme is not null %}
+"hcs": {{ lsItem.humanCodingScheme |json_encode |raw }},
+{% endif %}
+{% if lsItem.listEnumInSource is not null %}
+"le": {{ lsItem.listEnumInSource |json_encode |raw }},
+{% endif %}
+{% if lsItem.abbreviatedStatement is not null %}
+"astmt": {{ lsItem.abbreviatedStatement |json_encode |raw }},
+{% endif %}
+{% if lsItem.conceptKeywords is not null %}
+"ck": {{ lsItem.conceptKeywords |json_encode |raw }},
+"cku": {{ null |json_encode |raw }},{# Concept Keyword URI needs to be fixed up -- using concepts attr #}
+{% endif %}
+{% if lsItem.notes is not null %}
+"notes": {{ lsItem.notes |json_encode |raw }},
+{% endif %}
+{% if lsItem.language is not null %}
+"lang": {{ lsItem.language |json_encode |raw }},
+{% endif %}
+{% if lsItem.educationalAlignment is not null %}
+"el": {{ lsItem.educationalAlignment |json_encode |raw }},
+{% endif %}
+{% if lsItem.itemType is not null %}
+"itp": {{ lsItem.itemType.title |json_encode |raw }},
+{# Leave out CFItemTypeURI; we can get that from the document data if needed #}
+{% endif %}
+{# Leave out licence information; we can get that from the document data if needed #}
+{# When a new item is created, the id of the isChildOf association will be passed as "assocData" #}
+{% if lsItem.assocData is defined and lsItem.assocData is not empty and lsItem.assocData.assocId is defined and lsItem.assocData.assocId is not empty %}
+"newAssoc": {{ lsItem.assocData |json_encode |raw }},
+{% endif %}
+{% if lsItem.extra is defined and lsItem.extra is not empty and lsItem.extra.customFields is defined and lsItem.extra.customFields is not empty %}
+"customFields": {{ lsItem.extra.customFields |json_encode |raw }},
+{% endif %}
+{# Leave out CFItemTypeURI; we can get that from the document data if needed #}
+"mod": {{ lsItem.changedAt|date('c') |replace({'+00:00':''}) |json_encode |raw }}
+{# Leave out CFItemAssociationURI; associations are in the package #}
+}
+{% endblock %}

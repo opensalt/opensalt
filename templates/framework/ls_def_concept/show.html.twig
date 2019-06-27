@@ -1,0 +1,60 @@
+{% extends base_template %}
+
+{% block body %}
+    <h1>LsDefConcept</h1>
+
+    <table class="table table-condensed table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ lsDefConcept.id }}</td>
+            </tr>
+            <tr>
+                <th>Identifier</th>
+                <td>{{ lsDefConcept.identifier }}</td>
+            </tr>
+            <tr>
+                <th>Uri</th>
+                <td>{{ lsDefConcept.uri|local_uri }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ lsDefConcept.title }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ lsDefConcept.description }}</td>
+            </tr>
+            <tr>
+                <th>Hierarchy Code</th>
+                <td>{{ lsDefConcept.hierarchyCode }}</td>
+            </tr>
+            <tr>
+                <th>Keywords</th>
+                <td>{{ lsDefConcept.keywords }}</td>
+            </tr>
+            <tr>
+                <th>Extra</th>
+                <td>{{ dump(lsDefConcept.extra) }}{{ lsDefConcept.extra|json_encode(constant('JSON_PRETTY_PRINT')) }}</td>
+            </tr>
+            <tr>
+                <th>Updated At</th>
+                <td>{% if lsDefConcept.updatedAt %}{{ lsDefConcept.updatedAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul class="list-inline text-right">
+        <li>
+            <a class="btn btn-primary" href="{{ path('lsdef_concept_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a class="btn btn-default" href="{{ path('lsdef_concept_edit', { 'id': lsDefConcept.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input class="btn btn-danger" type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

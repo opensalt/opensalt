@@ -6,29 +6,37 @@ use App\Entity\ChangeEntry;
 use App\Entity\Framework\LsDoc;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Class CfPackageController
+ * Class CfPackageController.
  *
  * @Route("/cfpackage")
  */
 class CfPackageController extends AbstractController
 {
     /**
-     * Export a CFPackage
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
+    /**
+     * Export a CFPackage.
      *
-     * @Route("/doc/{id}.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, defaults={"_format"="json"}, name="cfpackage_export")
-     * @Route("/doc/{id}/export.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, defaults={"_format"="json"}, name="cfpackage_export2")
-     * @Method("GET")
+     * @Route("/doc/{id}.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, methods={"GET"}, defaults={"_format"="json"}, name="cfpackage_export")
+     * @Route("/doc/{id}/export.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, methods={"GET"}, defaults={"_format"="json"}, name="cfpackage_export2")
      * @Template()
      */
-    public function exportAction(Request $request, LsDoc $lsDoc, SerializerInterface $serializer, $_format = 'json')
+    public function exportAction(Request $request, LsDoc $lsDoc, $_format = 'json')
     {
         $repo = $this->getDoctrine()->getRepository(LsDoc::class);
 
@@ -41,7 +49,7 @@ class CfPackageController extends AbstractController
 
             $pkg = $repo->getPackageArray($lsDoc);
 
-            $response->setContent($serializer->serialize(
+            $response->setContent($this->serializer->serialize(
                 $pkg,
                 $request->getRequestFormat('json'),
                 SerializationContext::create()->setGroups(['Default', 'CfPackage'])
@@ -57,11 +65,7 @@ class CfPackageController extends AbstractController
     }
 
     /**
-     * Generate a base response
-     *
-     * @param \DateTimeInterface $lastModified
-     *
-     * @return Response
+     * Generate a base response.
      */
     protected function generateBaseResponse(LsDoc $lsDoc): Response
     {
@@ -86,13 +90,9 @@ class CfPackageController extends AbstractController
     }
 
     /**
-     * Generate an array representing the package
+     * Generate an array representing the package.
      *
      * Note that this array does not match the API output
-     *
-     * @param LsDoc $doc
-     *
-     * @return array
      */
     protected function generateSimplePackageArray(LsDoc $doc): array
     {

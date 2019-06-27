@@ -1,0 +1,44 @@
+{% extends base_template %}
+
+{% block body %}
+    <h1>LsAssociation</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ lsAssociation.id }}</td>
+            </tr>
+            <tr>
+                <th>Uri</th>
+                <td>{{ lsAssociation.uri }}</td>
+            </tr>
+            <tr>
+                <th>Originnodeuri</th>
+                <td>{{ lsAssociation.originNodeUri }}</td>
+            </tr>
+            <tr>
+                <th>Destinationnodeuri</th>
+                <td>{{ lsAssociation.destinationNodeUri }}</td>
+            </tr>
+            <tr>
+                <th>Type</th>
+                <td>{{ lsAssociation.type }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('lsassociation_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a href="{{ path('lsassociation_edit', { 'id': lsAssociation.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

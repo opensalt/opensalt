@@ -2,10 +2,12 @@
 
 cd $(dirname $0)/..
 
+PROJ_DIR=${PROJ_DIR:-$(pwd)}
+
 docker pull node:9-alpine
 
 # Install node modules
-docker run --rm -u $(id -u):$(id -g) -v $(pwd):/app --workdir /app node:9-alpine yarn install --non-interactive
+docker run --rm -u $(id -u):$(id -g) -v $PROJ_DIR:/app --workdir /app node:9-alpine yarn install --non-interactive
 
 # Build js
-docker run --rm -u $(id -u):$(id -g) -v $(pwd):/app --workdir /app node:9-alpine ./node_modules/.bin/encore "$@"
+docker run --rm -u $(id -u):$(id -g) -v $PROJ_DIR:/app --workdir /app node:9-alpine ./node_modules/.bin/encore "$@"

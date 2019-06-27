@@ -9,7 +9,7 @@ Feature: A CASE framework with sequence numbers can be loaded
     And I am on the homepage
     When I click "Import framework"
     Then I should see the import dialogue
-    When I click "Import CASE file"
+    When I click "Import CASE® file"
     And I upload the sequence number CASE file
     And I go to the uploaded framework
     Then I should see "SNT.2" as the first item in the tree's HCS value

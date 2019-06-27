@@ -24,13 +24,15 @@ class RemoveChildHandler extends BaseDoctrineHandler
         $lsItemRepo = $this->em->getRepository(LsItem::class);
         $associations = $lsItemRepo->findChildAssociations($parent, $child);
         $removedList = [];
+        $lastAssociation = null;
         foreach ($associations as $association) {
             $removedList[$association->getId()] = $association->getIdentifier();
+            $lastAssociation = $association;
         }
 
-        if (!empty($removedList)) {
-            $fromTitle = $this->getTitle($association->getOrigin());
-            $toTitle = $this->getTitle($association->getDestination());
+        if (null !== $lastAssociation) {
+            $fromTitle = $this->getTitle($lastAssociation->getOrigin());
+            $toTitle = $this->getTitle($lastAssociation->getDestination());
             $notification = new NotificationEvent(
                 'A06',
                 sprintf('"%s" association deleted from "%s" to "%s"', LsAssociation::CHILD_OF, $fromTitle, $toTitle),

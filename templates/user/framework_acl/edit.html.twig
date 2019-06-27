@@ -1,0 +1,94 @@
+{% extends base_template %}
+
+{% block title %}
+    {{ lsDoc.title }} Access
+{% endblock %}
+
+{% block body %}
+    <h2>{{ lsDoc.title }}</h2>
+
+    <div class="well">
+        {% if lsDoc.org is not empty %}
+            By default:
+            <ul>
+                <li>all editors in your organization will have edit access to this framework</li>
+                <li>no one outside your organization will be able to edit this framework</li>
+            </ul>
+            You can add exceptions for access to specific users by adding them below.
+        {% else %}
+            By default only you can edit this framework.<br/>
+            You can allow access to other users by adding them below.
+        {% endif %}
+
+    </div>
+    {% if 0 == aclCount %}
+        <div class="alert alert-info" role="alert">
+            <p>
+                There are no exceptions to the default access controls for this framework.
+            </p>
+        </div>
+    {% else %}
+        <table class="table table-condensed table-bordered table-">
+            <thead>
+            <tr>
+                <th>User</th>
+                <th>Organization</th>
+                <th class="col-lg-1">Access</th>
+                <th class="col-lg-2"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for acl in acls %}
+                <tr class="{{ acl.access == 0 ? "bg-danger" : "bg-success" }}">
+                    <td>{{ acl.user.username }}</td>
+                    <td>{{ acl.user.org.name }}</td>
+                    <td>{{ acl.access == 1 ? "Allowed" : "Denied" }}</td>
+                    <td>
+                        {{ form_start(deleteForms[acl.user.id]) }}
+                            <input class="btn btn-danger" type="submit" value="Remove Exception">
+                        {{ form_end(deleteForms[acl.user.id]) }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div class="clearfix">
+        {% if is_granted('manage_editors', lsDoc) and lsDoc.org is not empty %}
+            <div class="col-md-6 row">
+                <div class="panel panel-default panel-body">
+                    <p>
+                        Select a user from your organization to <strong>deny</strong> them access to edit this framework.
+                    </p>
+                    {{ form_start(addOrgUserForm) }}
+                        {{ form_widget(addOrgUserForm) }}
+                        <input type="submit" value="Exclude Editor" class="btn btn-default pull-right" />
+                    {{ form_end(addOrgUserForm) }}
+                </div>
+            </div>
+        {% endif %}
+        {% if is_granted('manage_editors', lsDoc) %}
+            <div class="col-md-6 row pull-right">
+                <div class="panel panel-default panel-body">
+                    <p>
+                        {% if lsDoc.org is not empty %}
+                            Enter the username for an editor outside your organization to <strong>allow</strong> them to edit this framework.
+                        {% else %}
+                            Enter the username for an editor to <strong>allow</strong> them to edit this framework.
+                        {% endif %}
+                    </p>
+                    {{ form_start(addUsernameForm) }}
+                        {{ form_widget(addUsernameForm) }}
+                        <input type="submit" value="Allow Editor" class="btn btn-default pull-right" />
+                    {{ form_end(addUsernameForm) }}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div>
+        <a class="btn btn-primary" href="{{ url('doc_tree_view', {"slug":lsDoc.slug}) }}">Return to Framework</a>
+    </div>
+
+{% endblock %}

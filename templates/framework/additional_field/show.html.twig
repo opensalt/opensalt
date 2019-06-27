@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <h1>Additional Field</h1>
+  <ul>
+    <li><a href="{{ path('additional_field_index') }}">Additional Field List</a></li>
+    <li><a href="{{ path('additional_field_update', {'id': additional_field.id}) }}">Edit</a></li>
+  </ul>
+  <div>
+    <strong>Id</strong>: {{ additional_field.id }}<br>
+    <strong>Name</strong>: {{ additional_field.name }}<br>
+    <strong>Display Name</strong>: {{ additional_field.displayName }}<br>
+    <strong>Applies To</strong>: {{ additional_field.appliesTo }}<br>
+    <strong>Type</strong>: {{ additional_field.type }}<br>
+    <strong>Type Info</strong>: {{ additional_field.typeInfo }}<br>
+  </div>
+{% endblock %}

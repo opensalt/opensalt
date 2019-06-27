@@ -15,8 +15,7 @@ use App\Command\User\AddFrameworkUserAclCommand;
 use App\Command\User\AddFrameworkUsernameAclCommand;
 use App\Form\DTO\AddAclUserDTO;
 use App\Form\DTO\AddAclUsernameDTO;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,8 +35,7 @@ class FrameworkAclController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/{id}/acl", name="framework_acl_edit")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/acl", methods={"GET", "POST"}, name="framework_acl_edit")
      * @Template()
      * @Security("is_granted('manage_editors', lsDoc)")
      *
@@ -68,6 +66,7 @@ class FrameworkAclController extends AbstractController
         }
 
         $acls = $lsDoc->getDocAcls();
+        /** @var \ArrayIterator $iterator */
         $iterator = $acls->getIterator();
         $iterator->uasort(function (UserDocAcl $a, UserDocAcl $b) {
             return strcasecmp($a->getUser()->getUsername(), $b->getUser()->getUsername());
@@ -167,8 +166,7 @@ class FrameworkAclController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/acl/{targetUser}", name="framework_acl_remove")
-     * @Method("DELETE")
+     * @Route("/{id}/acl/{targetUser}", methods={"DELETE"}, name="framework_acl_remove")
      * @Security("is_granted('manage_editors', lsDoc)")
      *
      * @param Request $request

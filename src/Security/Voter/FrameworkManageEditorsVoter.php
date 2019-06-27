@@ -32,7 +32,7 @@ class FrameworkManageEditorsVoter extends Voter
      */
     protected function supports($attribute, $subject)
     {
-        if ($attribute !== self::MANAGE_EDITORS) {
+        if (self::MANAGE_EDITORS !== $attribute) {
             return false;
         }
 

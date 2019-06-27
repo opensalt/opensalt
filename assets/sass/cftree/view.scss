@@ -1,0 +1,593 @@
+$salt-view-font-path: "" !default;
+
+body{
+    overflow-x: hidden;
+}
+
+.treeSide {
+    height: calc(100vh - 243px);
+    overflow: auto;
+    display: flex;
+}
+
+#treeSideRight,
+#treeSideLeft {
+    float:left;
+    width:50%;
+    min-width: 300px;
+}
+
+#treeSideLeft .form-group, #treeSideRight .form-group {
+    position:relative;
+}
+
+.treeSideLeftInner,
+.rightTreeSideRightInner {
+    width: 100%;
+}
+
+.treeSideLeftInner {
+    height: calc(100vh - 243px);
+    overflow: hidden;
+    float:left;
+    display: flex;
+    flex-flow: column;
+}
+
+.treeSideRightInner {
+    height: calc(100vh - 243px);
+    overflow: auto;
+    width:23px;
+    float:left;
+}
+
+.rightTreeSideLeftInner {
+    height: calc(100vh - 243px);
+    overflow: auto;
+    width:23px;
+    float:left;
+}
+
+.rightTreeSideRightInner {
+    height: calc(100vh - 243px);
+    overflow: auto;
+    float:left;
+    padding-left: 5px;
+}
+
+@media screen and (min-width: 992px) {
+    .treeSideLeftInner {
+        width: calc(100% - 28px);
+    }
+    .rightTreeSideRightInner {
+        width: calc(100% - 23px);
+    }
+}
+
+#tree1Section {
+    flex: 1 1 auto;
+    overflow:auto;
+    padding:3px;
+    border-width:0;
+}
+
+#tree1Section.otherDoc .fancytree-container {
+    background-color:#ffd;
+}
+
+#tree2SectionControls {
+    display:none;
+    margin-top: 15px;
+    padding-left:20px;
+}
+
+.filterClear {
+    position: absolute;
+    z-index:10;
+    right: 5px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: $text-color-light;
+    display:none;
+}
+
+#tree2SectionControls .filterClear {
+    // right:150px;
+}
+
+#tree2Section {
+    display:none;
+    border-width:0;
+    overflow:auto;
+}
+
+.treeCheckboxMenuItem {
+    cursor:pointer;
+}
+
+#viewmode_tree1 {
+    margin-top:3px;     /* makes it aligned with panel on right */
+}
+
+#viewmode_tree2 {
+    margin-top:10px;
+}
+
+#viewmode_tree1 ul, #viewmode_tree2 ul {
+    border-width:0;
+    font-size:15px;
+    line-height:22px;
+}
+
+ul.fancytree-container {
+    position: inherit;  /* prevent clipping */
+}
+
+span.fancytree-title {
+    //white-space: pre-wrap;
+    //word-break: normal;
+    max-width:80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#docTitleWrapper {
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border:3px solid $brand-header-alternate;
+    background-color: $brand-header-alternate-light;
+    color:$black;
+    border-radius: 4px;
+    font-size:1.6em;
+    font-weight:bold;
+}
+
+#displayBtnGroup {
+    float:right;
+    margin-left:5px;
+    margin-top:-5px;
+    margin-right:-10px;
+}
+
+#displayBtnGroup .btn {
+    width: 80px;
+    line-height: 1.2em;
+    padding: 5px 0;
+}
+
+#docStatus {
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    list-style: none;
+    border-radius: 4px;
+    font-size:1.6em;
+    font-weight:bold;
+    text-align:center;
+    background-color: $brand-header-light;
+    border:3px solid $brand-header;
+    color:$text-color;
+
+    .docStatus-Draft, .docStatus-Private {
+        background-color: lighten($doc-status-draft, 30%);
+        border:3px solid $doc-status-draft;
+    }
+
+    .docStatus-Deprecated {
+        background-color: lighten($doc-status-deprecated, 30%);
+        border:3px solid $doc-status-deprecated;
+    }
+}
+
+.itemTitle {
+    margin:0 5px 15px 5px;
+    font-size:1.4em;
+}
+
+.itemTitleIcon {
+    width: 8%;
+    margin-right: 1%;
+    margin-left:-5px;
+    padding: 5px;
+    background-color: $white;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.itemTitleSpan {
+    width: 89%;
+    vertical-align: top;
+    line-height: 1.1em;
+    max-height: 48.12px; /* 2*1.1em + 5px */
+    max-height: calc(2.2em + 5px);
+    padding-top: 5px;
+    overflow-y: hidden;
+    text-overflow: ellipsis;
+
+    @supports not (-webkit-line-clamp: 2) {
+        display: inline-block;
+    }
+    @supports (-webkit-line-clamp: 2) {
+        display: -webkit-inline-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+}
+
+.lessImportant {
+    font-size:.85em;
+    color:$text-color-light;
+    padding-left:5px;
+    white-space:nowrap;
+}
+
+#itemSection {
+    display:none;
+    background-color: lighten($brand-info, 30%);
+    border:3px solid $brand-info;
+}
+
+.itemOptions {
+    text-align:center;
+    margin:15px 0 15px 0;
+    line-height:2.8em;
+}
+
+.itemOptions .btn {
+    margin-left:2px;
+    margin-right:2px;
+}
+
+#itemSection.lsDocItemSection {
+}
+
+#itemSection.lsItemItemSection {
+}
+
+.lsItemDetailsMain {
+    margin-bottom:10px;
+}
+
+.lsItemDetailsMoreInfoLink {
+    text-align:right;
+    margin:0 5px 10px 0;
+    cursor:pointer;
+}
+
+.lsItemDetailsExtras {
+}
+
+.fancytree-drag-helper {
+    background-color:$white;
+    opacity:0.8;
+    padding:5px;
+}
+
+div.fancytree-drag-helper span.fancytree-childcounter {
+    height:16px;
+}
+
+.fancytree-ext-filter span.fancytree-childcounter {
+    padding:1px 2px;
+    height:13px;
+}
+
+.fancytree-drag-helper .fancytree-title {
+    max-width:250px;
+}
+
+.instructions {
+    padding:7px;
+    border-radius:4px;
+    margin-bottom:10px;
+    min-height: 32px;
+}
+
+.list-group {
+    margin-bottom:10px;
+}
+
+.list-group-item.lsassociation {
+    cursor:pointer;
+}
+
+.lsassociation-other-doc {
+    background-color:#ffd;
+}
+
+.lsAssociationItemDisplay {
+    background-color:$neutral-bg;
+    color:$white;
+    border-radius:4px;
+    padding:10px;
+}
+
+.lsAssociationDirectionSwitched {
+    transform: rotate(180deg);
+}
+
+.association-panel-icon {
+    height:16px;
+    float:right;
+}
+
+.treeHasAssociation {
+    position: absolute;
+    right: 5px;
+}
+
+.treeHasAssociation img {
+    height: 10px;
+    background-color: $white;
+    vertical-align:baseline;
+}
+
+/* make tooltips wider, slightly bigger font size, and aligned left */
+.tooltip-inner {
+    max-width: 350px;
+    font-size:12px;
+    text-align:left;
+}
+
+/* class for vertical-centered columns -- you have to apply this to all columns in a row for it to work */
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+/* Easy "spinner" to use as loading indicator */
+.glyphicon.spinning {
+    animation: spin 1.5s infinite linear;
+    -webkit-animation: spin2 1.5s infinite linear;
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+.glyphicon-left {
+    margin-right: 7px;
+}
+
+.spinnerOuter {
+    width:50%;
+    text-align:center;
+    margin-left:auto;
+    margin-right:auto;
+    background-color:$neutral-bg;
+    color:$white;
+    padding:8px;
+    border-radius:5px;
+}
+
+.spinnerCog {
+    font-size:1.6em;
+    display:inline-block;
+    vertical-align:middle;
+}
+
+.spinnerText {
+    display:inline-block;
+    vertical-align:middle;
+    font-size:1.2em;
+    padding-left:10px;
+}
+
+#modalSpinner {
+    position:fixed;
+    z-index:100000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100vh;
+    display:none;
+}
+
+#modalSpinnerCover {
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100vh;
+    background-color:$white;
+    opacity:0.8;
+}
+
+#modalSpinnerMessage {
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    margin-top:40vh;
+}
+.mark, mark{
+    padding: .1em;
+}
+
+.input-group-btn .btn {
+    height:34px;    // make this line up with heights of other inputs in input-group-btn blocks
+}
+
+.treeSide {
+    // document
+    .fancytree-container span.fancytree-icon, .fancytree-container span.fancytree-icon:hover
+    {
+        background-image: url('#{$salt-view-font-path}/assets/img/doc.png');
+        background-position: inherit;
+        background-size: 20px;
+        width:20px;
+        height:24px;
+    }
+
+    // folder
+    .fancytree-container ul .fancytree-ico-cf span.fancytree-icon, .fancytree-container ul .fancytree-ico-cf span.fancytree-icon:hover,
+    .fancytree-container ul .fancytree-ico-ef span.fancytree-icon, .fancytree-container ul .fancytree-ico-ef span.fancytree-icon:hover
+    {
+        background-image: url('#{$salt-view-font-path}/assets/img/folder.png');
+    }
+
+    .fancytree-force-folder, .fancytree-force-folder:hover
+    {
+        background-image: url('#{$salt-view-font-path}/assets/img/folder.png') !important;
+    }
+
+    // leaf
+    .fancytree-container ul .fancytree-exp-n span.fancytree-icon, .fancytree-container ul .fancytree-exp-n span.fancytree-icon:hover,
+    .fancytree-container ul .fancytree-exp-nl span.fancytree-icon, .fancytree-container ul .fancytree-exp-nl span.fancytree-icon:hover
+    {
+        background-image: url('#{$salt-view-font-path}/assets/img/item.png');
+    }
+}
+
+#competencyTree {
+    // leaf
+    .fancytree-exp-n span.fancytree-icon, .fancytree-exp-n span.fancytree-icon:hover,
+    .fancytree-exp-nl span.fancytree-icon, .fancytree-exp-nl span.fancytree-icon:hover
+    {
+        background-image: url('#{$salt-view-font-path}/assets/img/doc.png');
+        background-position: inherit;
+        background-size: 20px;
+        width:20px;
+        height:24px;
+    }
+
+    // hide folders that aren't showing any items
+    .fancytree-node.fancytree-expanded.fancytree-exp-nl, .fancytree-node.fancytree-expanded.fancytree-exp-n {
+        display:none;
+    }
+}
+
+#assocView {
+    display:none;
+}
+
+#assocViewTable {
+    // max-width: 1000px;
+}
+
+#assocViewTable_filter [type=search] {
+    width: 20vw;
+    max-width: 300px;
+}
+
+.assocViewTitle {
+    max-width:400px;
+    height: 19px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow:hidden;
+    cursor:pointer;
+}
+
+.avTitleCell {
+
+}
+
+.avTypeCell, .avGroupCell {
+    text-align:center;
+}
+
+.avTypeCell {
+    white-space:nowrap;
+}
+
+.avRemoveAssoc {
+    float:right;
+}
+
+.avTree1item {
+    cursor:pointer;
+}
+
+.assocViewTableTypeFilters, .assocViewTableGroupFilters {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 5px;
+    margin-right: 15px;
+}
+
+.assocViewTableTypeFiltersHeader, .assocViewTableGroupFiltersHeader {
+    margin-bottom:3px;
+    padding-bottom:3px;
+    border-bottom:1px solid #ccc;
+}
+
+.assocViewTableGroupFilters {
+    display:none;
+}
+
+// "Chooser mode"
+#chooserModeTreeSideRightBackground {
+    position:fixed;
+    left:0;
+    top:0;
+    height:100vh;
+    width:100vw;
+    background-color:$neutral-bg-light;
+    opacity:0.8;
+    display:none;
+}
+
+.chooserModeDocTree {
+    max-width:800px;
+    margin:0 auto !important;
+    border-right:0 !important;
+    padding:10px;
+    height: auto !important;
+}
+
+.chooserModeItemDetails {
+    position:fixed;
+    z-index:10;
+    right:-600px;
+    top:10px;
+    width:80vw !important;
+    max-width:600px;
+    border-left:0 !important;
+    height:auto !important;
+}
+
+#chooserModeButtons {
+    display:none;
+    text-align:right;
+    margin-right:-10px;
+    margin-top:-5px;
+}
+
+#chooserModeItemDetailsCloseDetailsBtn {
+    cursor:pointer;
+    margin-left:5px;
+}
+
+.treeItemButtons {
+    position:absolute;
+    right:5px;
+    padding: 4px 0 4px 6px;
+    margin-top: -5px;
+}
+
+.toggle-container-left,
+.toggle-container-right {
+    position: relative;
+    top: 50%;
+    cursor: pointer;
+    text-align: center;
+}
+
+#dragbar{
+    background-color:$dragbar-bg;
+    height:100%;
+    float: right;
+    width: 5px;
+    cursor: col-resize;
+}

@@ -1,4 +1,4 @@
-FROM tianon/true
+FROM tianon/true:latest
 
 ARG BUILD_DATE
 ARG VERSION

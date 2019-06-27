@@ -15,12 +15,7 @@ class CommentVoter extends Voter
     public const DELETE = 'comment_delete';
 
     /**
-     * Determines if the attribute and subject are supported by this voter.
-     *
-     * @param string $attribute An attribute
-     * @param mixed $subject The subject to secure, e.g. an object the user wants to access or any other PHP type
-     *
-     * @return bool True if the attribute and subject are supported, false otherwise
+     * {@inheritdoc}
      */
     protected function supports($attribute, $subject)
     {
@@ -41,68 +36,51 @@ class CommentVoter extends Voter
     }
 
     /**
-     * Perform a single access check operation on a given attribute, subject and token.
-     * It is safe to assume that $attribute and $subject already passed the "supports()" method check.
-     *
-     * @param string $attribute
-     * @param mixed $subject
-     * @param TokenInterface $token
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
+        // All users (including anonymous) can view comments
+        if (self::VIEW === $attribute) {
+            return $this->canView();
+        }
+
         $user = $token->getUser();
+
+        if (!$user instanceof User) {
+            // If the user is not logged in then deny access
+            return false;
+        }
 
         switch ($attribute) {
             case self::COMMENT:
-                return $this->canComment($user);
-            case self::VIEW:
-                return $this->canView($user);
+                return $this->canComment();
             case self::UPDATE:
             case self::DELETE:
                 return $this->canUpdate($user, $subject);
+            default:
+                return false;
         }
-
-        return false;
     }
 
     /**
-     * Validate if a user can comment on documents and items.
-     *
-     * @param User $user
-     *
-     * @return bool
+     * All users (including anonymous) can view comments.
      */
-    private function canComment($user): bool
-    {
-        return $user instanceof User;
-    }
-
-    /**
-     * Validate if a user can view comments of documents and items.
-     *
-     * @param User $user
-     *
-     * @return bool
-     */
-    private function canView($user): bool
+    private function canView(): bool
     {
         return true;
     }
 
     /**
-     * @param User $user
-     * @param Comment $comment
-     *
-     * @return bool
+     * All logged in users can comment.
      */
-    private function canUpdate($user, $comment): bool
+    private function canComment(): bool
     {
-        if (!$user instanceof User) {
-            return false;
-        }
+        return true;
+    }
 
+    private function canUpdate(User $user, Comment $comment): bool
+    {
         return $comment->getUser()->getId() === $user->getId();
     }
 }

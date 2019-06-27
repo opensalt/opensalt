@@ -3,15 +3,17 @@ Feature: The framework can be uploaded as Excel
   As an organization-editor
   I need to upload a Excel file of the framework
 
-  @incomplete @organization-editor @framework @case-file @excel
-  Scenario: 1013-1214 A Excel file can be uploaded and downloaded
+  @organization-editor @framework @excel @1013-1213
+  Scenario: 1013-1213 A Excel file can be uploaded and downloaded
     Given I log in as a user with role "Editor"
     And I am on the homepage
+    Then I should see "Import framework" button
+
     When I click "Import framework"
     Then I should see the import dialogue
-    When I click "Import Spreadsheet file"
+    When I click "Import Spreadsheet"
     And I upload an excel file
-    And I go to the uploaded framework
-    And I download the framework excel file
-    Then the downloaded excel framework should match the uploaded one
+    And I visit the uploaded framework
+    Then I should see the framework created with the spreadsheet data
 
+    Then I delete the framework

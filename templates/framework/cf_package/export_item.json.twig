@@ -1,0 +1,53 @@
+{% block body %}
+    {
+{# TODO: CFDocument URI as API endpoint #}
+        "CFDocumentURI": {{ lsItem.lsDocUri|local_uri |json_encode |raw }},
+        "identifier": {{ lsItem.identifier |json_encode |raw }},
+        "uri": {{ object_uri(lsItem) |json_encode |raw }},
+{#- organizationCOmpetencyCode -#}
+{#- competencyEffectiveDate -#}
+{#- competencyTerminationDate -#}
+        "fullStatement": {{ lsItem.fullStatement |json_encode |raw }},
+{#- competencyLabel -#}
+{#- competencyAssociationSet -#}
+{#- competencyReferenceHierarchy -#}
+        {% if lsItem.humanCodingScheme is not null %}
+            "humanCodingScheme": {{ lsItem.humanCodingScheme |json_encode |raw }},
+        {% endif %}
+        {% if lsItem.listEnumInSource is not null %}
+            "listEnumeration": {{ lsItem.listEnumInSource |json_encode |raw }},
+        {% endif %}
+        {% if lsItem.abbreviatedStatement is not null %}
+            "abbreviatedStatement": {{ lsItem.abbreviatedStatement |json_encode |raw }},
+        {% endif %}
+        {% if lsItem.conceptKeywords is not null %}
+            "conceptKeywords": {{ lsItem.conceptKeywords |json_encode |raw }},
+            "conceptKeywordsURI": {{ lsItem.conceptKeywordsUri|local_uri |json_encode |raw }},
+        {% endif %}
+        {% if lsItem.notes is not null %}
+            "notes": {{ lsItem.notes |json_encode |raw }},
+        {% endif %}
+        {% if lsItem.language is not null %}
+            "language": {{ lsItem.language |json_encode |raw }},
+        {% endif %}
+        {% if lsItem.educationalAlignment is not null %}
+            "educationalLevel": {{ lsItem.educationalAlignment |json_encode |raw }},
+        {% endif %}
+        {% if lsItem.itemType is not null %}
+            "CFItemType": {{ lsItem.itemType.code |json_encode |raw }},
+            "CFItemTypeURI": {
+                "title": {{ lsItem.itemType.code |json_encode |raw }},
+                "identifier": {{ lsItem.itemType.identifier |json_encode |raw }},
+                "uri": {{ lsItem.itemType.uri|local_remote_uri |json_encode | raw }}
+            },
+        {% endif %}
+        {% if lsItem.licenceUri is not null %}
+{# TODO: license #}
+            "licence": {{ lsItem.licenceUri|local_uri |json_encode |raw }},
+            "licenceURI": {{ lsItem.licenceUri|local_uri |json_encode |raw }},
+        {% endif %}
+        "lastChangeDateTime": {{ lsItem.changedAt|date('c') |replace({'+00:00':''}) |json_encode |raw }},
+{# TODO: Item Association URI endpoint #}
+        "CFItemAssociationURI": {{ (lsItem.uri~'/associations') |local_uri |json_encode |raw }}
+    }
+{% endblock %}

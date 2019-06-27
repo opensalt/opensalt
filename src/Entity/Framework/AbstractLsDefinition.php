@@ -6,8 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * AbstractLsDefinition
- *
  * @ORM\MappedSuperclass()
  *
  * @Serializer\ExclusionPolicy("all")
@@ -21,7 +19,7 @@ class AbstractLsDefinition extends AbstractLsBase
      *
      * @Serializer\Expose()
      */
-    private $title;
+    protected $title;
 
     /**
      * @var string
@@ -30,53 +28,34 @@ class AbstractLsDefinition extends AbstractLsBase
      *
      * @Serializer\Expose()
      */
-    private $description;
-
+    protected $description;
 
     /**
-     * Set title
-     *
-     * @param string $title
-     *
-     * @return AbstractLsDefinition
+     * @return static
      */
-    public function setTitle($title)
+    public function setTitle(?string $title)
     {
         $this->title = $title;
 
         return $this;
     }
 
-    /**
-     * Get title
-     *
-     * @return string
-     */
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
     /**
-     * Set description
-     *
-     * @param string $description
-     *
-     * @return AbstractLsDefinition
+     * @return static
      */
-    public function setDescription($description)
+    public function setDescription(?string $description)
     {
         $this->description = $description;
 
         return $this;
     }
 
-    /**
-     * Get description
-     *
-     * @return string
-     */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }

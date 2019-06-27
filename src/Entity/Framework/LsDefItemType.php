@@ -35,7 +35,6 @@ class LsDefItemType extends AbstractLsDefinition implements CaseApiInterface
      */
     private $hierarchyCode;
 
-
     /**
      * @return string
      */

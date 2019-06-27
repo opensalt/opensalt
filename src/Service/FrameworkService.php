@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Framework\IdentifiableInterface;
 use App\Entity\Framework\ObjectLock;
 use App\Entity\LockableInterface;
 use App\Exception\AlreadyLockedException;
@@ -53,10 +54,6 @@ class FrameworkService
     }
 
     /**
-     * @param LsDoc $doc
-     *
-     * @return LsDoc
-     *
      * @throws \InvalidArgumentException
      */
     public function addDocument(LsDoc $doc): LsDoc
@@ -157,28 +154,30 @@ class FrameworkService
             if (null === $originItem) {
                 throw new \InvalidArgumentException('origin id is not a valid id');
             }
+            $association->setOrigin($originItem);
         } else {
             if (!empty($origin['externalDoc'])) {
                 $doc->setExternalDocAutoLoad($origin['externalDoc'], 'true');
                 $this->em->persist($doc);
             }
             $originItem = $origin['identifier'];
+            $association->setOrigin($origin['uri'], $originItem);
         }
-        $association->setOrigin($originItem);
 
         if (!empty($dest['id'])) {
             $destItem = $itemRepo->findOneBy(['id'=>$dest['id']]);
             if (null === $destItem) {
                 throw new \InvalidArgumentException('destination id is not a valid id');
             }
+            $association->setDestination($destItem);
         } else {
             if (!empty($dest['externalDoc'])) {
                 $doc->setExternalDocAutoLoad($dest['externalDoc'], 'true');
                 $this->em->persist($doc);
             }
             $destItem = $dest['identifier'];
+            $association->setDestination($dest['uri'], $destItem);
         }
-        $association->setDestination($destItem);
 
         // set assocGroup if provided
         if (null !== $assocGroup) {
@@ -321,6 +320,33 @@ class FrameworkService
         $lockRepo = $this->em->getRepository(ObjectLock::class);
 
         $lockRepo->releaseLock($doc, $user);
+    }
+
+    public function getNextChildSequenceNumber(IdentifiableInterface $parent): int
+    {
+        static $lastSeqNums = [];
+
+        $identifier = $parent->getIdentifier();
+
+        if (array_key_exists($identifier, $lastSeqNums)) {
+            return ++$lastSeqNums[$identifier];
+        }
+
+        $assocRepo = $this->em->getRepository(LsAssociation::class);
+
+        /** @var LsAssociation[] $assocs */
+        $assocs = $assocRepo->findAllChildAssociationsFor($identifier);
+
+        $lastSeqNum = 0;
+        foreach ($assocs as $assoc) {
+            if (($assoc->getSequenceNumber() ?? 0) > $lastSeqNum) {
+                $lastSeqNum = $assoc->getSequenceNumber();
+            }
+        }
+
+        $lastSeqNums[$identifier] = ++$lastSeqNum;
+
+        return $lastSeqNums[$identifier];
     }
 
 
@@ -481,8 +507,6 @@ class FrameworkService
     /**
      * Get a user from the Security Token Storage.
      *
-     * @return mixed
-     *
      * @see TokenInterface::getUser()
      */
     protected function getCurrentUser(): ?User
@@ -491,7 +515,9 @@ class FrameworkService
             return null;
         }
 
-        if (!is_object($user = $token->getUser())) {
+        $user = $token->getUser();
+
+        if (!$user instanceof User) {
             // e.g. anonymous authentication
             return null;
         }

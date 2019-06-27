@@ -11,6 +11,7 @@ use Facebook\WebDriver\Exception\StaleElementReferenceException;
 class Item implements Context
 {
     static public $itemPath = '/cftree/item/';
+    static public $exactMatchesPath = '/api/v1/lor/exactMatchIdentifiers/';
 
     protected $rememberedItem;
     protected $itemData = [];
@@ -61,8 +62,9 @@ class Item implements Context
      * @Given /^I add an item$/
      * @Given /^I add a another Item$/
      * @Given /^I add another Item$/
+     * @Then /^I add "([^"]*)" item with custom field "([^"]*)" and value "([^"]*)"$/
      */
-    public function iAddItem($item = 'Test Item')
+    public function iAddItem($item = 'Test Item', $additionalField = null, $value = null)
     {
         $requestedItem = $item;
 
@@ -94,8 +96,9 @@ class Item implements Context
         $I = $this->I;
         $I->waitForText('Add New Child Item', 30);
         $I->see('Add New Child Item');
+        $I->wait(1);
         $I->click('Add New Child Item');
-        $I->waitForElementVisible('#ls_item');
+        $I->waitForElementVisible('#ls_item', 30);
         $I->waitForElementVisible('#ls_item_listEnumInSource');
 
         $I->executeJS("$('#ls_item_fullStatement').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$fullStatement}')");
@@ -107,6 +110,11 @@ class Item implements Context
         $I->selectOption('ls_item[language]', array('value' => $this->itemData['language']));
         $I->fillField('#ls_item_licenceUri', $licUri);
         $I->executeJS("$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')");
+
+        if (!is_null($additionalField) && !empty($additionalField)) {
+            $I->see($additionalField);
+            $I->fillField('#ls_item_additional_fields_'.$additionalField, $value);
+        }
 
         $I->click('Create');
         $I->waitForElementNotVisible('#editItemModal');
@@ -121,6 +129,23 @@ class Item implements Context
         }
 
         $I->remember($requestedItem, $item);
+
+        $frameworkUrl = $I->grabFromCurrentUrl('/(.*)/');
+
+        $I->click("//section[@id='tree1Section']//span[@class='item-humanCodingScheme'][text()='{$item}']");
+        $itemId = $I->grabFromCurrentUrl('#/(\d+)$#');
+        $I->remember($requestedItem.'-id', $itemId);
+
+        $key = $I->grabTextFrom('div.lsItemDetails li.list-group-item .item-identifier');
+        $I->remember($requestedItem.'-identifier', $key);
+
+        $I->amOnPage($frameworkUrl);
+        try {
+            $I->waitForElementVisible('#modalSpinner', 10);
+        } catch (\Exception $e) {
+            // Ignore if not seen
+        }
+        $I->waitForElementNotVisible('#modalSpinner', 120);
     }
 
     /**
@@ -252,6 +277,7 @@ class Item implements Context
 
     /**
      * @Given /^I add a Association$/
+     * @Given /^I add an Association$/
      */
     public function iAddAAssociation()
     {
@@ -265,6 +291,29 @@ class Item implements Context
         $I->waitForElementVisible('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]');
         $I->dragAndDrop('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
         $I->waitForElementVisible('#lsAssociationSwitchDirection');
+        $I->click('Associate');
+    }
+
+    /**
+     * @When /^I add a "([^"]*)" association from "([^"]*)" to "([^"]*)"$/
+     * @When /^I add an "([^"]*)" association from "([^"]*)" to "([^"]*)"$/
+     */
+    public function iAddAnAssociationFromTo($type, $from, $to)
+    {
+        $I = $this->I;
+
+        $rememberedFrom = $I->getRememberedString($from);
+        $rememberedTo = $I->getRememberedString($to);
+
+        $this->iAmOnAnItemPage();
+        $I->waitForElementVisible('#rightSideCopyItemsBtn');
+        $I->click('Create Association');
+        $I->see('Select a Competency Framework Document to view on the right side.');
+        $I->selectOption('#ls_doc_list_lsDoc_right', array('text' => $I->getLastFrameworkTitle() . ' (• DOCUMENT BEING EDITED •)'));
+        $I->waitForElementVisible('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]');
+        $I->dragAndDrop("(//div[@id='viewmode_tree2']/ul/li/ul/li/span//span[text()='{$rememberedFrom}']/../..)[1]", "(//div[@id='viewmode_tree1']/ul/li/ul/li/span//span[text()='{$rememberedTo}']/../..)[1]");
+        $I->waitForElementVisible('#lsAssociationSwitchDirection');
+        $I->selectOption('#associationFormType', array('text' => $type));
         $I->click('Associate');
     }
 
@@ -402,14 +451,21 @@ class Item implements Context
     {
         $I = $this->I;
 
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : 0) === 0 && $.active === 0 && $("#tree1Section div.treeDiv ul").length > 0;', 10);
         $I->see('Import Children');
-        $I->click('Import Children');
-        $I->waitForElementVisible('#addChildrenModal', 120);
+        try {
+            $I->click('Import Children');
+            $I->waitForElementVisible('#addChildrenModal', 10);
+        } catch (\Exception $e) {
+            $I->click('Import Children');
+            $I->waitForElementVisible('#addChildrenModal', 15);
+        }
         $I->see('Import Items');
         $I->attachFile('input#file-url', 'children.csv');
         $I->click('.btn-import-csv');
-        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 10);
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 15);
 
+        $I->waitForElementNotVisible('#addChildrenModal', 120);
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
 
@@ -417,6 +473,27 @@ class Item implements Context
         $I->see('A.B abc');
         $I->see('A.B.C def');
         $I->see('A.B.D ghi');
+        $I->see('A.B.C.L jkl');
+    }
+
+    /**
+     * @When /^I get the exact matches of "([^"]*)"$/
+     */
+    public function iGetTheExactMatchesOf($itemName)
+    {
+        $I = $this->I;
+        $I->haveHttpHeader('Accept', 'application/json');
+        $I->sendGET(static::$exactMatchesPath.$I->getRememberedString($itemName.'-identifier'));
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * @When /^I see the identifier for "([^"]*)" in the list of exact matches$/
+     */
+    public function iSeeInTheListOfExactMatches($itemName)
+    {
+        $this->I->seeResponseContainsJson([$this->I->getRememberedString($itemName.'-identifier')]);
     }
 
     protected function waitAndAcceptPopup($tries = 30)
@@ -432,5 +509,20 @@ class Item implements Context
                 $this->I->wait(1);
             }
         }
+    }
+
+    /**
+     * @Then /^I see the additional field "([^"]*)" in the item "([^"]*)" with value "([^"]*)"$/
+     */
+    public function iSeeTheCustomFieldInTheItem($additionalField, $item, $value)
+    {
+        $I = $this->I;
+
+        $I->see($item);
+        $I->executeJS("$('.fancytree-title').click()");
+        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 30);
+        $I->click('More Info');
+        $I->see($additionalField);
+        $I->see($value);
     }
 }

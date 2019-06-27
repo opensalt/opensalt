@@ -8,8 +8,7 @@ use App\Command\User\DeleteOrganizationCommand;
 use App\Command\User\UpdateOrganizationCommand;
 use App\Entity\User\Organization;
 use App\Form\Type\OrganizationType;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Organization controller.
  *
  * @Route("admin/organization")
- * @Security("has_role('ROLE_SUPER_USER')")
+ * @Security("is_granted('ROLE_SUPER_USER')")
  */
 class OrganizationController extends AbstractController
 {
@@ -31,8 +30,7 @@ class OrganizationController extends AbstractController
     /**
      * Lists all organization entities.
      *
-     * @Route("/", name="admin_organization_index")
-     * @Method("GET")
+     * @Route("/", methods={"GET"}, name="admin_organization_index")
      * @Template()
      *
      * @return array
@@ -51,8 +49,7 @@ class OrganizationController extends AbstractController
     /**
      * Creates a new organization entity.
      *
-     * @Route("/new", name="admin_organization_new")
-     * @Method({"GET", "POST"})
+     * @Route("/new", methods={"GET", "POST"}, name="admin_organization_new")
      * @Template()
      *
      * @param Request $request
@@ -85,8 +82,7 @@ class OrganizationController extends AbstractController
     /**
      * Finds and displays a organization entity.
      *
-     * @Route("/{id}", name="admin_organization_show")
-     * @Method("GET")
+     * @Route("/{id}", methods={"GET"}, name="admin_organization_show")
      * @Template()
      *
      * @param Organization $organization
@@ -106,8 +102,7 @@ class OrganizationController extends AbstractController
     /**
      * Displays a form to edit an existing organization entity.
      *
-     * @Route("/{id}/edit", name="admin_organization_edit")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/edit", methods={"GET", "POST"}, name="admin_organization_edit")
      * @Template()
      *
      * @param Request $request
@@ -142,8 +137,7 @@ class OrganizationController extends AbstractController
     /**
      * Deletes a organization entity.
      *
-     * @Route("/{id}", name="admin_organization_delete")
-     * @Method("DELETE")
+     * @Route("/{id}", methods={"DELETE"}, name="admin_organization_delete")
      *
      * @param Request $request
      * @param Organization $organization

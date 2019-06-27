@@ -9,7 +9,7 @@ Feature: A framework with high UTF8 characters can be loaded
     And I am on the homepage
     When I click "Import framework"
     Then I should see the import dialogue
-    When I click "Import CASE file"
+    When I click "Import CASE® file"
     And I upload the utf8-test CASE file
     And I go to the uploaded framework
     And I download the framework CASE file

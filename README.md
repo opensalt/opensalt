@@ -24,46 +24,55 @@ Installation
 
   > **Note: the rest of the following can be automated by running `./local-dev/initial_dev_install.sh`**
 
+  > Once the application is running:
   > To create an organization use `./bin/console salt:org:add [organization name]`
   > To create a user use `./bin/console salt:user:add [username] [--password="secret"] [--role="rolename"]`
   > > The *initial_dev_install.sh* command creates an initial super admin "admin" with password "secret"
 
   > `./bin/build.sh` also does much of the following, for doing a "build" after one has started development
 
-2. Create env file
+2. Create env file and docker-compose file
   ```
   cp docker/.env.dist docker/.env
+  ln -s docker/.env .env
+
+  ln -s docker-compose.dev.yml docker/docker-compose.yml
   ```
 
-3. Install components with composer
-  ```
-  ./bin/composer install
-  ```
-  *When asked, leave everything as their defaults except for the secret keys*
+3. Edit docker/.env and set desired values
+  - The `PORT` specified is what is used in step 7 below
 
-4. Run Gulp
+4. Start the application
   ```
-  ./bin/gulp
+  make up
   ```
-
-5. Run database migrations
-  ```
-  ./bin/console-docker doctrine:migrations:migrate --no-interaction
-  ```
-
-6. Add a port to the nginx config in `docker/docker-compose.yml` change "80" to something like "3000:80" if you want use port :3000
-
-7. Run the app
-  ```
-  cd docker; docker-compose up -d
-  ```
-    * Stop app
+    * To stop the application
 
     ```
-    cd docker; docker-compose down -v
+    make down
     ```
 
-8. [http://127.0.0.1:3000/app_dev.php/](http://127.0.0.1:3000/app_dev.php/) should show the initial screen with debug turned on
+5. Install libraries with composer/yarn and build application
+  ```
+  make force-build
+  ```
+  * Linux users should note that a new user group, `docker`, has been created. The user that will interact with the Docker service will need to be in this group.
+  * Linux users also set the MySQL folder permissions: `chmod -R 777 docker/data/mysql`
+  * Linux users should set the cache directory permssions: `chmod 777 var/cache`
+
+
+6. Run database migrations
+  ```
+  make migrate
+  ```
+
+7. [http://127.0.0.1:3000/app_dev.php/](http://127.0.0.1:3000/app_dev.php/) should show the initial screen with debug turned on
+  - Note that the port here should be the value of `PORT` in the `.env` file (default being 3000)
+
+8. If you have run these manual tasks, you will also need to create the administrative account and password for the system:
+    ```
+    ./bin/console salt:user:add admin Unknown --password=secret --role=super-user
+    ```
 
 
 Other Docs

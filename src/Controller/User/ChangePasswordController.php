@@ -9,7 +9,7 @@ use App\Form\DTO\ChangePasswordDTO;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -56,7 +56,7 @@ class ChangePasswordController extends AbstractController
 
             $this->addFlash('success', 'Your password has been changed.');
 
-            return $this->redirectToRoute('editor_index');
+            return $this->redirectToRoute('salt_index');
         }
 
         return [

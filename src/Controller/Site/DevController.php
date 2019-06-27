@@ -4,7 +4,7 @@ namespace App\Controller\Site;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,7 +13,7 @@ class DevController extends AbstractController
 {
     /**
      * @Route("/dev/cookie", name="dev_cookie")
-     * @Security("has_role('ROLE_SUPER_USER')")
+     * @Security("is_granted('ROLE_SUPER_USER')")
      *
      * @param Request $request
      *

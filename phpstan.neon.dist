@@ -1,0 +1,12 @@
+includes:
+	- vendor/phpstan/phpstan-symfony/extension.neon
+	- vendor/phpstan/phpstan-doctrine/extension.neon
+	- vendor/phpstan/phpstan-doctrine/rules.neon
+
+parameters:
+	excludes_analyse:
+		- %rootDir%/../../../src/Migrations
+	symfony:
+		container_xml_path: '%rootDir%/../../../var/cache/dev/srcApp_KernelDevDebugContainer.xml'
+	doctrine:
+		objectManagerLoader: tests/object-manager.php

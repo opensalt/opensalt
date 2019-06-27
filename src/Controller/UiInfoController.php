@@ -5,8 +5,7 @@ namespace App\Controller;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,8 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 class UiInfoController extends AbstractController
 {
     /**
-     * @Route("/multi/{id}", name="multi_tree_info_json")
-     * @Method({"POST"})
+     * @Route("/multi/{id}", methods={"POST"}, name="multi_tree_info_json")
      * @Security("is_granted('edit', doc)")
      *
      * @return JsonResponse
@@ -62,8 +60,7 @@ class UiInfoController extends AbstractController
     }
 
     /**
-     * @Route("/doc/{id}", name="lsdoc_tree_json")
-     * @Method({"GET"})
+     * @Route("/doc/{id}", methods={"GET"}, name="lsdoc_tree_json")
      * @Security("is_granted('edit', doc)")
      *
      * @param LsDoc $doc
@@ -76,8 +73,7 @@ class UiInfoController extends AbstractController
     }
 
     /**
-     * @Route("/item/{id}", name="lsitem_tree_json")
-     * @Method({"GET"})
+     * @Route("/item/{id}", methods={"GET"}, name="lsitem_tree_json")
      * @Security("is_granted('edit', item)")
      *
      * @param LsItem $item
@@ -90,8 +86,7 @@ class UiInfoController extends AbstractController
     }
 
     /**
-     * @Route("/association/{id}", name="doc_tree_association_json")
-     * @Method({"GET"})
+     * @Route("/association/{id}", methods={"GET"}, name="doc_tree_association_json")
      * @Security("is_granted('edit', association.getLsDoc())")
      */
     public function associationJsonInfoAction(LsAssociation $association): JsonResponse
@@ -109,6 +104,7 @@ class UiInfoController extends AbstractController
         return [
             'id' => $doc->getId(),
             'identifier' => $doc->getIdentifier(),
+            'uri' => $doc->getUri(),
             'title' => $doc->getTitle(),
             'officialSourceURL' => $doc->getOfficialUri(),
             'creator' => $doc->getCreator(),
@@ -142,6 +138,7 @@ class UiInfoController extends AbstractController
         $ret = [
             'id' => $item->getId(),
             'identifier' => $item->getIdentifier(),
+            'uri' => $item->getUri(),
             'fullStatement' => $item->getFullStatement(),
             'humanCodingScheme' => $item->getHumanCodingScheme(),
             'listEnumInSource' => $item->getListEnumInSource(),
@@ -153,25 +150,27 @@ class UiInfoController extends AbstractController
             'educationalAlignment' => $item->getEducationalAlignment(),
             'itemType' => $item->getItemType(),
             'changedAt' => $item->getChangedAt(),
-            'extra' => [],
+            'assocData' => [],
+            'extra' => $item->getExtra(),
         ];
 
         if (null !== $assoc) {
             $destItem = $assoc->getDestinationNodeIdentifier();
 
             if (null !== $destItem) {
-                $ret['extra'] = [
+                $ret['assocData'] = [
                     'assocDoc' => $assoc->getLsDocIdentifier(),
                     'assocId' => $assoc->getId(),
                     'identifier' => $assoc->getIdentifier(),
+                    'uri' => $assoc->getUri(),
                     //'groupId' => (null !== $assoc->getGroup()) ? $assoc->getGroup()->getId() : null,
                     'dest' => ['doc' => $assoc->getLsDocIdentifier(), 'item' => $destItem, 'uri' => $destItem],
                 ];
                 if ($assoc->getGroup()) {
-                    $ret['extra']['groupId'] = $assoc->getGroup()->getId();
+                    $ret['assocData']['groupId'] = $assoc->getGroup()->getId();
                 }
                 if ($assoc->getSequenceNumber()) {
-                    $ret['extra']['seq'] = $assoc->getSequenceNumber();
+                    $ret['assocData']['seq'] = $assoc->getSequenceNumber();
                 }
             }
         }

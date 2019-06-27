@@ -1,0 +1,54 @@
+{% extends base_template %}
+
+{% block body %}
+    <h1>LsItem list</h1>
+
+    <table class="table table-condensed table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>LSDoc uri</th>
+                <th>Human Coding Scheme</th>
+                <th>Abbreviated Statement</th>
+                <th>Type</th>
+                <th>Changed At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for lsItem in lsItems %}
+            <tr>
+                <td><a href="{{ path('doc_tree_item_view', { 'id': lsItem.id }) }}">{{ lsItem.uri|local_uri }}</a></td>
+                <td>{{ lsItem.lsDocUri }}</td>
+                <td>{{ lsItem.humanCodingScheme }}</td>
+                <td>{% if lsItem.abbreviatedStatement is empty %}
+                        {{ lsItem.fullStatement | truncate(50) }}
+                    {% else %}
+                        {{ lsItem.abbreviatedStatement }}
+                    {% endif %}
+                </td>
+                <td>{{ lsItem.itemType.code }}</td>
+                <td>{% if lsItem.changedAt %}{{ lsItem.changedAt|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>
+                    <ul class="list-inline">
+                        <li>
+                            <a class="btn btn-primary" href="{{ path('doc_tree_item_view', { 'id': lsItem.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a class="btn btn-default" href="{{ path('lsitem_edit', { 'id': lsItem.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_granted('add-standard-to', null) %}
+      <ul class="list-inline">
+          <li>
+              <a class="btn btn-default" href="{{ path('lsitem_new') }}">Create a new entry</a>
+          </li>
+      </ul>
+    {% endif %}
+{% endblock %}

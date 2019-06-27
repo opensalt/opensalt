@@ -20,20 +20,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @UniqueEntity("uri")
  *
  * @Serializer\VirtualProperty(
- *     "uri",
- *     exp="service('App\\Service\\Api1Uris').getApiUrl(object)",
- *     options={
- *         @Serializer\SerializedName("uri"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
  *     "cfDocumentUri",
  *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getLsDoc())",
  *     options={
  *         @Serializer\SerializedName("CFDocumentURI"),
- *         @Serializer\Expose()
+ *         @Serializer\Expose(),
+ *         @Serializer\Groups({"LsItem"})
  *     }
  * )
  *
@@ -93,6 +85,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterface
 {
+    use AccessAdditionalFieldTrait;
+
     /**
      * @var string
      *
@@ -148,15 +142,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @Serializer\SerializedName("listEnumeration")
      */
     private $listEnumInSource;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="rank", type="bigint", nullable=true)
-     *
-     * @Serializer\Exclude()
-     */
-    private $rank;
 
     /**
      * @var string
@@ -332,8 +317,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      *
-     * @Assert\DateTime()
-     *
      * @Serializer\Exclude()
      */
     private $changedAt;
@@ -364,7 +347,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @Serializer\Exclude()
      */
     private $criteria;
-
 
     /**
      * LsItem constructor.
@@ -414,14 +396,14 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @throws \UnexpectedValueException
      */
-    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, $exactMatchAssocs = true): LsItem
+    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, bool $exactMatchAssocs = true): LsItem
     {
         $newItem = clone $this;
 
         $newItem->setLsDoc($newLsDoc);
 
         // Add an "Exact" relationship to the original
-        if ($exactMatchAssocs){
+        if ($exactMatchAssocs) {
             $exactMatch = $newLsDoc->createAssociation();
             $exactMatch->setOrigin($newItem);
             $exactMatch->setType(LsAssociation::EXACT_MATCH_OF);
@@ -1136,26 +1118,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     public function setLsDocIdentifier(?string $lsDocIdentifier): LsItem
     {
         $this->lsDocIdentifier = $lsDocIdentifier;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getRank(): ?int
-    {
-        return $this->rank;
-    }
-
-    /**
-     * @param int $rank
-     *
-     * @return LsItem
-     */
-    public function setRank(?int $rank): LsItem
-    {
-        $this->rank = $rank;
 
         return $this;
     }

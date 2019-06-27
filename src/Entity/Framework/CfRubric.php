@@ -8,8 +8,6 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Class CfRubric
- *
  * @ORM\MappedSuperclass()
  *
  * @ORM\Table(name="rubric")
@@ -46,50 +44,30 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
      */
     private $criteria;
 
-    /**
-     * Constructor.
-     */
-    public function __construct()
+    public function __construct($identifier = null)
     {
-        parent::__construct();
+        parent::__construct($identifier);
         $this->criteria = new ArrayCollection();
-        $this->criteriaLevels = new ArrayCollection();
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     *
-     * @return CfRubric
-     */
-    public function setTitle($title): CfRubric
+    public function setTitle(string $title): CfRubric
     {
         $this->title = $title;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getDescription(): string
     {
         return $this->description;
     }
 
-    /**
-     * @param string $description
-     *
-     * @return CfRubric
-     */
-    public function setDescription($description): CfRubric
+    public function setDescription(string $description): CfRubric
     {
         $this->description = $description;
 
@@ -106,11 +84,12 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
 
     /**
      * @param CfRubricCriterion[]|Collection $criteria
-     *
-     * @return CfRubric
      */
     public function setCriteria($criteria): CfRubric
     {
+        if (is_array($criteria)) {
+            $criteria = new ArrayCollection($criteria);
+        }
         $this->criteria = $criteria;
 
         return $this;

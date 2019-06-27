@@ -17,7 +17,7 @@ fi
 #Setup .env file for test config
 cp -f .env.dist .env
 
-PROJ_DIR=$(pwd)
+PROJ_DIR=${PROJ_DIR:-$(pwd)}
 if [ -n "$JENKINS_HOME" -a -n "$WORKSPACE" ]; then
     PROJ_DIR=$WORKSPACE
 fi

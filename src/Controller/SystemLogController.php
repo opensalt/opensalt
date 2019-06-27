@@ -3,8 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\ChangeEntryRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use SimpleThings\EntityAudit\AuditReader;
@@ -32,8 +31,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/system_log", name="system_logs_show")
-     * @Method({"GET"})
+     * @Route("/system_log", methods={"GET"}, name="system_logs_show")
      * @Security("is_granted('ROLE_SUPER_USER')")
      * @Template()
      */
@@ -43,8 +41,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/system_log/revisions/{offset}/{limit}", requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="system_logs_json")
-     * @Method({"GET"})
+     * @Route("/system_log/revisions/{offset}/{limit}", methods={"GET"}, requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="system_logs_json")
      * @Security("is_granted('ROLE_SUPER_USER')")
      */
     public function listDocRevisionsAction(int $offset = 0, int $limit = 0): Response
@@ -76,8 +73,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/system_log/revisions/count", name="system_logs_count")
-     * @Method({"GET"})
+     * @Route("/system_log/revisions/count", methods={"GET"}, name="system_logs_count")
      * @Security("is_granted('ROLE_SUPER_USER')")
      */
     public function changeLogCount(): Response
@@ -88,8 +84,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/system_log/export", name="system_logs_csv")
-     * @Method({"GET"})
+     * @Route("/system_log/export", methods={"GET"}, name="system_logs_csv")
      * @Security("is_granted('ROLE_SUPER_USER')")
      *
      * @return Response

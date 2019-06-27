@@ -1,10 +1,10 @@
 const Encore = require('@symfony/webpack-encore');
 const path = require('path');
 
-const vendorDir = './vendor';
+//const vendorDir = './vendor';
 const npmDir = './node_modules/';
-const assetsDir = './app/Resources/assets';
-const buildDir = './web/build';
+const assetsDir = './assets';
+const buildDir = './public/build';
 
 var sharedScripts = [
     npmDir+'/html5-boilerplate/dist/js/plugins.js',
@@ -51,7 +51,8 @@ const mainScripts = [
     //npmDir+'/ui-contextmenu/jquery.ui-contextmenu.js',
     npmDir+'/bootstrap-multiselect/dist/js/bootstrap-multiselect.js',
     npmDir+'/select2/dist/js/select2.full.js',
-    vendorDir+'/tetranz/select2entity-bundle/Tetranz/Select2EntityBundle/Resources/public/js/select2entity.js',
+    //vendorDir+'/tetranz/select2entity-bundle/Tetranz/Select2EntityBundle/Resources/public/js/select2entity.js',
+    npmDir+'/select2entity-bundle/Resources/public/js/select2entity.js',
     npmDir+'/twbs-pagination/jquery.twbsPagination.js',
     npmDir+'/bootstrap-notify/bootstrap-notify.min.js',
     assetsDir+'/js/application.js',
@@ -62,7 +63,7 @@ const mainScripts = [
 ];
 
 Encore
-    .setOutputPath('web/build/')
+    .setOutputPath('public/build/')
     .setPublicPath('/build')
     .cleanupOutputBeforeBuild()
 
@@ -84,6 +85,9 @@ Encore
     .addStyleEntry('commentscss', [
         npmDir+'/jquery-comments/css/jquery-comments.css',
         assetsDir+'/sass/comments.scss'
+    ])
+    .addStyleEntry('swaggercss', [
+        npmDir+'/swagger-ui-dist/swagger-ui.css'
     ])
     /*
     .enableSassLoader(function(sassOptions) {}, {
@@ -141,7 +145,7 @@ Encore
               options: {
                 sourceMap: !Encore.isProduction()
                 ,keepQuery: true
-                ,root: __dirname+'/web'
+                ,root: __dirname+'/public'
                 //,debug: true
               }
             },
@@ -187,7 +191,7 @@ config.resolve.alias = {
 };
 config.resolve.modules = [
   'node_modules',
-  path.resolve(__dirname, './web/assets/img'),
+  path.resolve(__dirname, './public/assets/img'),
   path.resolve(__dirname, '.')
   //path.resolve(__dirname, npmDir)
 ];

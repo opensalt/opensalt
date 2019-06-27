@@ -1,0 +1,17 @@
+{% extends base_template %}
+
+{% block body %}
+    <h1>Add an Organization</h1>
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <ul class="list-inline pull-right">
+            <li>
+                <a class="btn btn-default" href="{{ path('admin_organization_index') }}">Back to the list</a>
+            </li>
+            <li>
+                <input class="btn btn-primary" type="submit" value="Add" />
+            </li>
+        </ul>
+    {{ form_end(form) }}
+{% endblock %}

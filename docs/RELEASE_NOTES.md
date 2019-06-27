@@ -1,7 +1,45 @@
 Release Notes
 =============
 
-2.1 ([Full issue and PR list](https://github.com/opensalt/opensalt/issues?&q=milestone%3A2.1+is%3Aclosed))
+2.2 ([Full issue and PR list](https://github.com/opensalt/opensalt/milestone/23?closed=1))
+---
+### New
+* Copy Framework Feature
+  * As a derivative framework
+  * Or creating a derivative framework with exactMatch associations
+* File System configuration for images or files 
+* Ability to add additional (Non-CASE) fields to CfItem using /additionalfield as Super User
+* Ability to define a Framework with a specific type
+* Authentication configuration for the CASE Network (casenetwork.imsglobal.org)
+* SEe docs.opensalt.org for full capabilities
+
+### Improvements
+- [Update Framework Tool by Spreadsheet can match with associations](http://docs.opensalt.org/en/latest/index.html#h10414a76521969321d1aa7b43555d12)
+- Import Framework via Spreadsheet is back
+- Ability to add a left side footer on frontpage UI
+
+### Fixes
+- Order on the UI and backend uses SequenceNumber
+- CfDef pages secured
+
+
+2.1.1 ([Full issue and PR list](https://github.com/opensalt/opensalt/issues?&q=milestone%3A2.1+is%3Aclosed))
+---
+### New
+
+### Improvements
+
+* Updated to Symfony 4.0 using the Symfony Flex directory structure
+  * Moved to current recommended directory structure
+    * All configuration has been moved to config/
+    * Twig templates have been moved to templates/
+    * JS and SASS assets have been moved to assets/
+
+### Fixes
+
+
+
+2.1 ([Full issue and PR list](https://github.com/opensalt/opensalt/milestone/18?closed=1))
 ---
 ### New
 
@@ -61,7 +99,7 @@ Release Notes
 1.3
 ---
 User Guide corresponding to 1.3
-https://docs.google.com/document/d/1AtSvwpxcVABon2QzKzGhcHg4KV54JbpKnaIsDXKVkhk/edit?usp=sharing 
+https://docs.google.com/document/d/1AtSvwpxcVABon2QzKzGhcHg4KV54JbpKnaIsDXKVkhk/edit?usp=sharing
 ### New
 
 * Markdown editor

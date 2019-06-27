@@ -8,7 +8,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 trait CommandDispatcherTrait
 {
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcherInterface|null
      */
     protected $dispatcher;
 
@@ -21,13 +21,13 @@ trait CommandDispatcherTrait
     }
 
     /**
-     * Send a command to be handled
+     * Send a command to be handled.
      *
      * @param CommandInterface $command
      */
     protected function sendCommand(CommandInterface $command): void
     {
-        /** @var EventDispatcherInterface $dispatcher */
+        /** @var EventDispatcherInterface|null $dispatcher */
         $dispatcher = $this->dispatcher ?? null;
 
         if (null === $dispatcher && method_exists($this, 'get')) {
@@ -39,8 +39,8 @@ trait CommandDispatcherTrait
         }
 
         $dispatcher->dispatch(
-            CommandEvent::class,
-            new CommandEvent($command)
+            new CommandEvent($command),
+            CommandEvent::class
         );
     }
 }

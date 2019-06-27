@@ -1,0 +1,46 @@
+nelmio_security:
+#    signed_cookie:
+#        names: ['*']
+#        secret: '%cookie_secret%'
+#        hash_algo: sha256
+    #cookie_session:
+    #    enabled: true
+    #    name: session
+    #    secure: true
+    #encrypted_cookie:
+    #    names: ['*']
+    #    secret: '%cookie_secret%'
+    #    algorithm: rijndael-256
+    forced_ssl:
+        enabled: false
+
+    # prevents framing
+    clickjacking:
+        paths:
+            '^/cftree/doc/': ALLOW
+            '^/.*': DENY
+        content_types: []
+
+    external_redirects:
+        whitelist:
+            - google.com
+
+    # disables content type sniffing for script resources
+    content_type:
+        nosniff: true
+
+    # Forces Microsoft/Chrome XSS-Protection with its block mode.
+    xss_protection:
+        enabled: true
+        mode_block: true
+
+    # Send a full URL in the `Referer` header when performing a same-origin request,
+    # only send the origin of the document to secure destination (HTTPS->HTTPS),
+    # and send no header to a less secure destination (HTTPS->HTTP).
+    # If `strict-origin-when-cross-origin` is not supported, use `no-referrer` policy,
+    # no referrer information is sent along with requests.
+    referrer_policy:
+        enabled: true
+        policies:
+            - 'no-referrer'
+            - 'strict-origin-when-cross-origin'

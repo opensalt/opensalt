@@ -6,6 +6,7 @@ use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\LsAssociation;
+use App\Util\EducationLevelSet;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CaseImport
@@ -25,21 +26,13 @@ class CaseImport
         return $this->entityManager;
     }
 
-    /**
-     * Import a CASE file
-     *
-     * @param \stdClass $fileContent JSON content
-     *
-     * @return LsDoc
-     */
     public function importCaseFile(\stdClass $fileContent): LsDoc
     {
-        $em = $this->getEntityManager();
-        $lsDoc = new LsDoc();
+        set_time_limit(180); // increase time limit for large files
 
-        if (property_exists($fileContent->CFDocument, 'identifier')) {
-            $lsDoc->setIdentifier($fileContent->CFDocument->identifier);
-        }
+        $em = $this->getEntityManager();
+        $lsDoc = new LsDoc($fileContent->CFDocument->identifier);
+
         if (property_exists($fileContent->CFDocument, 'uri')) {
             $lsDoc->setUri($fileContent->CFDocument->uri);
         }
@@ -85,12 +78,9 @@ class CaseImport
         $items = [];
         $items[$lsDoc->getIdentifier()] = $lsDoc;
         foreach ($cfItems as $cfItem) {
-            $lsItem = new LsItem();
+            $lsItem = new LsItem($cfItem->identifier);
 
             $lsItem->setLsDoc($lsDoc);
-            if (property_exists($cfItem, 'identifier')) {
-                $lsItem->setIdentifier($cfItem->identifier);
-            }
             if (property_exists($cfItem, 'uri')) {
                 $lsItem->setUri($cfItem->uri);
             }
@@ -119,59 +109,8 @@ class CaseImport
                     continue;
                 }
 
-                $grades = [];
-                foreach ($importedGrades as $grade) {
-                    switch ($grade) {
-                        case '0':
-                        case '00':
-                        case 'K':
-                            $grades[] = 'KG';
-                            break;
-                        case 'HS':
-                            $grades[] = '09';
-                            $grades[] = '10';
-                            $grades[] = '11';
-                            $grades[] = '12';
-                            break;
-                        default:
-                            if (is_numeric($grade)) {
-                                if ($grade < 10) {
-                                    $grades[] = '0'.((int) $grade);
-                                } elseif ($grade < 14) {
-                                    $grades[] = $grade;
-                                } else {
-                                    $grades[] = 'OT';
-                                }
-                            } else {
-                                if (in_array(
-                                    $grade,
-                                    [
-                                        'IT',
-                                        'PR',
-                                        'PK',
-                                        'TK',
-                                        'KG',
-                                        'AS',
-                                        'BA',
-                                        'PB',
-                                        'MD',
-                                        'PM',
-                                        'DO',
-                                        'PD',
-                                        'AE',
-                                        'PT',
-                                        'OT',
-                                    ],
-                                    true
-                                )) {
-                                    $grades[] = $grade;
-                                } else {
-                                    $grades[] = 'OT';
-                                }
-                            }
-                    }
-                }
-                $lsItem->setEducationalAlignment(implode(',', array_unique($grades)));
+                $grades = EducationLevelSet::fromArray($importedGrades);
+                $lsItem->setEducationalAlignment($grades->toString());
             }
             if (property_exists($cfItem, 'language')) {
                 $lsItem->setLanguage($cfItem->language);
@@ -197,18 +136,15 @@ class CaseImport
 
         $cfAssociations = $fileContent->CFAssociations;
         foreach ($cfAssociations as $cfAssociation) {
-            $lsAssociation = new LsAssociation();
+            $lsAssociation = new LsAssociation($cfAssociation->identifier);
 
             $lsAssociation->setLsDoc($lsDoc);
-            if (property_exists($cfAssociation, 'identifier')) {
-                $lsAssociation->setIdentifier($cfAssociation->identifier);
-            }
             if (property_exists($cfAssociation, 'uri')) {
                 $lsAssociation->setUri($cfAssociation->uri);
             }
             if (property_exists($cfAssociation, 'associationType')) {
                 $associationType = ucfirst(preg_replace('/([A-Z])/', ' $1', $cfAssociation->associationType));
-                if (in_array($associationType, LsAssociation::allTypes())) {
+                if (in_array($associationType, LsAssociation::allTypes(), true)) {
                     $lsAssociation->setType($associationType);
                 }
             }

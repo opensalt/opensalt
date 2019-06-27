@@ -3,8 +3,7 @@
 namespace App\Controller\Cms;
 
 use App\Entity\Framework\LsDoc;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -16,8 +15,7 @@ class ExportController extends AbstractController
     /**
      * Generate JSON formatted for export to CMS
      *
-     * @Route("/cfdoc/{id}.{_format}", name="lsdoc_api_view", requirements={"id"="\d+"})
-     * @Method({"GET"})
+     * @Route("/cfdoc/{id}.{_format}", methods={"GET"}, name="lsdoc_api_view", requirements={"id"="\d+"})
      * @Template()
      *
      * @param \App\Entity\Framework\LsDoc $lsDoc

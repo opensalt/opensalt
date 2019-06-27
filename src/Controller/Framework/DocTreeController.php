@@ -17,9 +17,10 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Form\Type\LsDocListType;
 use App\Entity\User\User;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,36 +41,43 @@ class DocTreeController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    private const ETAG_SEED = '1';
+
     /**
      * @var ClientInterface
      */
     private $guzzleJsonClient;
+
+    private $caseNetworkClientId;
+    private $caseNetworkClientSecret;
+    private $caseNetworkScope;
+    private $caseNetworkTokenEndpoint;
 
     /**
      * @var PdoAdapter
      */
     private $externalDocCache;
 
-    public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache)
+    public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache, ?string $caseNetworkClientId, ?string $caseNetworkClientSecret, ?string $caseNetworkScope, ?string $caseNetworkTokenEndpoint)
     {
         $this->guzzleJsonClient = $guzzleJsonClient;
         $this->externalDocCache = $externalDocCache;
+        $this->caseNetworkClientId = $caseNetworkClientId;
+        $this->caseNetworkClientSecret = $caseNetworkClientSecret;
+        $this->caseNetworkTokenEndpoint = $caseNetworkTokenEndpoint;
+        $this->caseNetworkScope = $caseNetworkScope;
     }
 
     /**
-     * @Route("/doc/{slug}.{_format}", name="doc_tree_view", defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{slug}/av.{_format}", name="doc_tree_view_av", defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{slug}/lv.{_format}", name="doc_tree_view_log", defaults={"_format"="html", "lsItemId"=null})
-     * @Route("/doc/{slug}/{assocGroup}.{_format}", name="doc_tree_view_ag", defaults={"_format"="html", "lsItemId"=null})
+     * @Route("/doc/{slug}", name="doc_tree_view", methods={"GET"}, requirements={"slug"="[a-zA-Z0-9.-]+"}, defaults={"lsItemId"=null})
+     * @Route("/doc/{slug}/av", name="doc_tree_view_av", methods={"GET"}, requirements={"slug"="[a-zA-Z0-9.-]+"}, defaults={"lsItemId"=null})
+     * @Route("/doc/{slug}/lv", name="doc_tree_view_log", methods={"GET"}, requirements={"slug"="[a-zA-Z0-9.-]+"}, defaults={"lsItemId"=null})
+     * @Route("/doc/{slug}/{assocGroup}", name="doc_tree_view_ag", methods={"GET"}, requirements={"slug"="[a-zA-Z0-9.-]+"}, defaults={"lsItemId"=null})
      * @Entity("lsDoc", expr="repository.findOneBySlug(slug)")
-     * @Method({"GET"})
      * @Template()
      */
-    public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, UserInterface $user = null, $_format = 'html', $lsItemId = null, $assocGroup = null)
+    public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, $lsItemId = null, $assocGroup = null): array
     {
-        // get form field for selecting a document (for tree2)
-        $form = $this->createForm(LsDocListType::class, null, ['ajax' => false]);
-
         $em = $this->getDoctrine()->getManager();
 
         // Get all association groups (for all documents);
@@ -99,51 +107,27 @@ class DocTreeController extends AbstractController
 
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,
-            'docList' => $form->createView(),
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => $lsDefAssociationGroupings,
         ];
 
         if ($editorRights) {
-            // get list of all documents
-            $docs = $em->getRepository(LsDoc::class)->findBy([], ['creator'=>'ASC', 'title'=>'ASC', 'adoptionStatus'=>'ASC']);
-            $lsDocs = [];
-            foreach ($docs as $doc) {
-                if ($authChecker->isGranted('view', $doc)) {
-                    $lsDocs[] = $doc;
-                }
-            }
-            $ret['lsDocs'] = $lsDocs;
+            // get form field for selecting a document (for tree2)
+            $docList = $this->createForm(LsDocListType::class, null, ['ajax' => false])->createView();
+            $ret['docList'] = $docList;
 
-            $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
-            if ($user instanceof User) {
-                $locks = $em->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
-                foreach ($locks as $lock) {
-                    if ($lock->getUser() === $user) {
-                        $expiry = false;
-                    } else {
-                        $expiry = (int) $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
-                    }
-                    if (LsDoc::class === $lock->getObjectType()) {
-                        $docLocks['docs'][$lock->getObjectId()] = $expiry;
-                    }
-                    if (LsItem::class === $lock->getObjectType()) {
-                        $docLocks['items'][$lock->getObjectId()] = $expiry;
-                    }
-                }
-            }
-            $ret['locks'] = $docLocks;
+            $ret['lsDocs'] = $this->getViewableDocList($authChecker);
+            $ret['locks'] = $this->getLocks($lsDoc, $user);
         }
 
         return $ret;
     }
 
     /**
-     * @Route("/remote", name="doc_tree_remote_view")
-     * @Method({"GET"})
+     * @Route("/remote", name="doc_tree_remote_view", methods={"GET"})
      */
-    public function viewRemoteAction()
+    public function viewRemoteAction(): Response
     {
         $assocTypes = [];
         $inverseAssocTypes = [];
@@ -167,17 +151,15 @@ class DocTreeController extends AbstractController
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => [],
-            'lsDocs' => []
+            'lsDocs' => [],
         ]);
     }
 
-///////////////////////////////////////////////
 
     /**
-     * Export a CFPackage in a special json format designed for efficiently loading the package's data to the OpenSALT doctree client
+     * Export a CFPackage in a special json format designed for efficiently loading the package's data to the OpenSALT doctree client.
      *
-     * @Route("/docexport/{id}.json", name="doctree_cfpackage_export")
-     * @Method("GET")
+     * @Route("/docexport/{id}.json", name="doctree_cfpackage_export", methods={"GET"})
      */
     public function exportAction(Request $request, LsDoc $lsDoc): JsonResponse
     {
@@ -190,7 +172,7 @@ class DocTreeController extends AbstractController
         if (false !== $lastChange && null !== $lastChange['changed_at']) {
             $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
         }
-        $response->setEtag(md5($lastModified->format('U.u')), true);
+        $response->setEtag(md5($lastModified->format('U.u').self::ETAG_SEED), true);
         $response->setLastModified($lastModified);
         $response->setMaxAge(0);
         $response->setSharedMaxAge(0);
@@ -204,7 +186,7 @@ class DocTreeController extends AbstractController
 
         $items = $this->getDoctrine()->getRepository(LsDoc::class)->findItemsForExportDoc($lsDoc);
         $associations = $this->getDoctrine()->getRepository(LsDoc::class)->findAssociationsForExportDoc($lsDoc);
-        $assocGroups = $this->getDoctrine()->getRepository(LsDefAssociationGrouping::class)->findBy(['lsDoc'=>$lsDoc]);
+        $assocGroups = $this->getDoctrine()->getRepository(LsDefAssociationGrouping::class)->findBy(['lsDoc' => $lsDoc]);
         $associatedDocs = array_merge(
             $lsDoc->getExternalDocs(),
             $this->getDoctrine()->getRepository(LsDoc::class)->findAssociatedDocs($lsDoc)
@@ -241,13 +223,14 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * Retrieve a CFPackage from the given document identifier, then use exportAction to export it
+     * Retrieve a CFPackage from the given document identifier, then use exportAction to export it.
      *
-     * @Route("/retrievedocument/{id}", name="doctree_retrieve_document")
-     * @Route("/retrievedocument/url", name="doctree_retrieve_document_by_url", defaults={"id"=null})
-     * @Method("GET")
+     * @Route("/retrievedocument/{id}", name="doctree_retrieve_document", methods={"GET"})
+     * @Route("/retrievedocument/url", name="doctree_retrieve_document_by_url", methods={"GET"}, defaults={"id"=null})
+     *
+     * @throws \Exception
      */
-    public function retrieveDocumentAction(Request $request, ?LsDoc $lsDoc = null)
+    public function retrieveDocumentAction(Request $request, ?LsDoc $lsDoc = null): Response
     {
         // $request could contain an id...
         if ($id = $request->query->get('id')) {
@@ -270,146 +253,130 @@ class DocTreeController extends AbstractController
         return new Response('Document not found.', Response::HTTP_NOT_FOUND);
     }
 
-    protected function exportExternalDocument($url, ?LsDoc $lsDoc = null) {
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    protected function exportExternalDocument(string $url, ?LsDoc $lsDoc = null): Response
+    {
         // Check the cache for the document
         $cache = $this->externalDocCache;
         $cacheDoc = $cache->getItem(rawurlencode($url));
         if ($cacheDoc->isHit()) {
-            $s = $cacheDoc->get();
+            $document = $cacheDoc->get();
         } else {
-            // first check to see if this url returns a valid document (function taken from notes of php file_exists)
-            $extDoc = $this->guzzleJsonClient->request(
-                'GET',
-                $url,
-                [
-                    'timeout' => 60,
-                    'headers' => [
-                        'Accept' => 'application/json',
-                    ],
-                    'http_errors' => false,
-                ]
-            );
-            if ($extDoc->getStatusCode() === 404) {
-                return new Response(
-                    'Document not found.',
-                    Response::HTTP_NOT_FOUND
-                );
-            }
-            if ($extDoc->getStatusCode() !== 200) {
-                return new Response(
-                    $extDoc->getReasonPhrase(),
-                    $extDoc->getStatusCode()
-                );
-            }
+            try {
+                $document = $this->fetchExternalDocument($url);
+            } catch (RequestException $e) {
+                $error = $e->getResponse();
 
-            // file exists, so get it
-            $s = $extDoc->getBody()->getContents();
+                throw new NotFoundHttpException($error->getReasonPhrase());
+            } catch (\Exception $e) {
+                $error = $e->getMessage();
+
+                throw new NotFoundHttpException($error);
+            }
 
             // Save document in cache for 30 minutes (arbitrary time period)
-            $cacheDoc->set($s);
+            $cacheDoc->set($document);
             $cacheDoc->expiresAfter(new \DateInterval('PT30M'));
             $cache->save($cacheDoc);
         }
-        if (!empty($s)) {
-            // if $lsDoc is not empty, get the document's identifier and title and save to the $lsDoc's externalDocs
+
+        if (!empty($document)) {
+            // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
             if (null !== $lsDoc) {
-                // This might not be the most elegant way to get  way to get the doc's identifier and id, but it should work
-                $identifier = '';
-                if (preg_match("/\"identifier\"\s*:\s*\"(.+?)\"/", $s, $matches)) {
-                    $identifier = $matches[1];
-                }
-
-                $title = '';
-                if (preg_match("/\"title\"\s*:\s*\"([\s\S]+?)\"/", $s, $matches)) {
-                    $title = $matches[1];
-                }
-
-                // if we found the identifier and title, save the ad
-                if (!empty($identifier) && !empty($title)) {
-                    // see if the doc is already there; if so, we don't want to change the "autoLoad" parameter, but we should still update the title/url if necessary
-                    $externalDocs = $lsDoc->getExternalDocs();
-
-                    $autoLoad = 'false';
-                    if (!empty($externalDocs[$identifier])) {
-                        $autoLoad = $externalDocs[$identifier]['autoLoad'];
-                    }
-
-                    // if this is a new doc or anything has changed, save it
-                    if (empty($externalDocs[$identifier])
-                        || $externalDocs[$identifier]['autoLoad'] !== $autoLoad
-                        || $externalDocs[$identifier]['url'] !== $url
-                        || $externalDocs[$identifier]['title'] !== $title
-                    ) {
-                        $command = new AddExternalDocCommand($lsDoc, $identifier, $autoLoad, $url, $title);
-                        $this->sendCommand($command);
-                    }
-                }
+                $this->addExternalDocumentToDoc($url, $lsDoc, $document);
             }
 
             // now return the file
-            $response = new Response($s);
-            $response->headers->set('Content-Type', 'application/json');
-            $response->headers->set('Pragma', 'no-cache');
+            $response = new Response(
+                $document,
+                Response::HTTP_OK,
+                [
+                    'Content-Type' => 'application/json',
+                    'Pragma' => 'no-cache',
+                ]
+            );
 
             return $response;
         }
 
         // if we get to here, error
         return new Response('Document not found.', Response::HTTP_NOT_FOUND);
-        // example urls:
-        // http://127.0.0.1:3000/app_dev.php/uri/731cf3e4-43a2-4aa0-b2a7-87a49dac5374.json
-        // https://salt-staging.edplancms.com/uri/b821b70d-d46c-519b-b5cc-ca2260fc31f8.json
-        // https://salt-staging.edplancms.com/cfpackage/doc/11/export
     }
 
+    protected function isCaseUrl($url): bool
+    {
+        preg_match('|casenetwork\.imsglobal\.org|', $url, $matches);
+        if (!empty($matches)) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
-     * @Route("/item/{id}/details", name="doc_tree_item_details")
-     * @Method("GET")
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    protected function retrieveCaseNetworkBearerToken()
+    {
+        try {
+            $response = $this->guzzleJsonClient->request(
+                'POST',
+                $this->caseNetworkTokenEndpoint,
+                [
+                    'timeout' => 6000,
+                    'headers' => [
+                        'Content-Type' => 'application/x-www-form-urlencoded',
+                        'Accept' => 'application/json',
+                        'User-Agent' => 'OpenSALT',
+                    ],
+                    'auth' => [$this->caseNetworkClientId, $this->caseNetworkClientSecret],
+                    'http_errors' => true,
+                    'form_params' => [
+                        'grant_type' => 'client_credentials',
+                        'scope' => $this->caseNetworkScope,
+                    ],
+                ]
+            );
+
+            return json_decode($response->getBody(), false)->access_token;
+        } catch (RequestException $e) {
+            $message = $e->getHandlerContext();
+
+            throw new NotFoundHttpException($message['error']);
+        } catch (\Exception $e) {
+            throw new NotFoundHttpException('Document not found.');
+        }
+    }
+
+    /**
+     * @Route("/item/{id}/details", name="doc_tree_item_details", methods={"GET"})
      * @Template()
      *
      * Note that this must come before viewItemAction for the url mapping to work properly.
-     *
-     * @param \App\Entity\Framework\LsItem $lsItem
-     *
-     * @return array
      */
-    public function treeItemDetailsAction(LsItem $lsItem)
+    public function treeItemDetailsAction(LsItem $lsItem): array
     {
-        return ['lsItem'=>$lsItem];
+        return ['lsItem' => $lsItem];
     }
 
     /**
-     * @Route("/item/{id}.{_format}", name="doc_tree_item_view", defaults={"_format"="html"})
-     * @Route("/item/{id}/{assocGroup}.{_format}", name="doc_tree_item_view_ag", defaults={"_format"="html"})
-     * @Method({"GET"})
-     *
-     * @param LsItem $lsItem
-     * @param string $assocGroup
-     * @param string $_format
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @Route("/item/{id}.{_format}", name="doc_tree_item_view", methods={"GET"}, defaults={"_format"="html"})
+     * @Route("/item/{id}/{assocGroup}.{_format}", name="doc_tree_item_view_ag", methods={"GET"}, defaults={"_format"="html"})
      */
-    public function viewItemAction(LsItem $lsItem, $assocGroup = null, $_format = 'html')
+    public function viewItemAction(LsItem $lsItem, ?string $assocGroup = null, string $_format = 'html'): Response
     {
         return $this->forward('App\Controller\Framework\DocTreeController:viewAction', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getid(), 'assocGroup' => $assocGroup]);
     }
 
-
-
     /**
-     * @Route("/render/{id}.{_format}", defaults={"_format"="html"}, name="doctree_render_document")
-     * @Method("GET")
+     * @Route("/render/{id}.{_format}", methods={"GET"}, defaults={"_format"="html"}, name="doctree_render_document")
      * @Template()
-     *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
-     * @param string $_format
-     *
-     * @return array
      *
      * PW: this is similar to the renderDocument function in the Editor directory, but different enough that I think it deserves a separate controller/view
      */
-    public function renderDocumentAction(LsDoc $lsDoc, $_format = 'html')
+    public function renderDocumentAction(LsDoc $lsDoc, $_format = 'html'): array
     {
         $repo = $this->getDoctrine()->getRepository(LsDoc::class);
 
@@ -436,7 +403,7 @@ class DocTreeController extends AbstractController
             }
         }
 
-        Compare::sortArrayByFields($orphaned, ['rank', 'listEnumInSource', 'humanCodingScheme']);
+        Compare::sortArrayByFields($orphaned, ['sequenceNumber', 'listEnumInSource', 'humanCodingScheme']);
 
         return [
             'topItemIds' => $topChildren,
@@ -450,15 +417,8 @@ class DocTreeController extends AbstractController
     /**
      * Deletes a LsItem entity, from the tree view.
      *
-     * @Route("/item/{id}/delete/{includingChildren}", name="lsitem_tree_delete", defaults={"includingChildren" = 0})
-     * @Method("POST")
+     * @Route("/item/{id}/delete/{includingChildren}", methods={"POST"}, name="lsitem_tree_delete", defaults={"includingChildren" = 0})
      * @Security("is_granted('edit', lsItem)")
-     *
-     * @param Request $request
-     * @param LsItem $lsItem
-     * @param int $includingChildren
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      *
      * @throws \InvalidArgumentException
      */
@@ -493,18 +453,11 @@ class DocTreeController extends AbstractController
      * If we do a copy, the service returns an array of trees with the copied lsItemIds.
      * For other operations, we return an empty array.
      *
-     * @Route("/doc/{id}/updateitems.{_format}", name="doctree_update_items")
-     * @Method("POST")
+     * @Route("/doc/{id}/updateitems.{_format}", methods={"POST"}, name="doctree_update_items")
      * @Security("is_granted('edit', lsDoc)")
      * @Template()
-     *
-     * @param Request $request
-     * @param LsDoc $lsDoc
-     * @param string $_format
-     *
-     * @return array
      */
-    public function updateItemsAction(Request $request, LsDoc $lsDoc, $_format = 'json'): array
+    public function updateItemsAction(Request $request, LsDoc $lsDoc, string $_format = 'json'): array
     {
         $command = new UpdateTreeItemsCommand($lsDoc, $request->request->get('lsItems'));
         $this->sendCommand($command);
@@ -529,13 +482,7 @@ class DocTreeController extends AbstractController
     /**
      * Deletes a LsDefAssociationGrouping entity, ajax/treeview version.
      *
-     * @Route("/assocgroup/{id}/delete", name="lsdef_association_grouping_tree_delete")
-     * @Method("POST")
-     *
-     * @param Request $request
-     * @param LsDefAssociationGrouping $associationGrouping
-     *
-     * @return Response
+     * @Route("/assocgroup/{id}/delete", methods={"POST"}, name="lsdef_association_grouping_tree_delete")
      *
      * @throws \InvalidArgumentException
      */
@@ -547,22 +494,19 @@ class DocTreeController extends AbstractController
             $this->sendCommand($command);
         } catch (\Exception $e) {
             if (preg_match('/FOREIGN KEY/', $e->getMessage())) {
-                return new JsonResponse(['error'=>['message'=>'An association group may only be deleted if there are no associations in it.']], Response::HTTP_BAD_REQUEST);
+                return new JsonResponse(['error' => ['message' => 'An association group may only be deleted if there are no associations in it.']], Response::HTTP_BAD_REQUEST);
             }
-            return new JsonResponse(['error'=>['message'=>'The association group could not be deleted.']], Response::HTTP_BAD_REQUEST);
+
+            return new JsonResponse(['error' => ['message' => 'The association group could not be deleted.']], Response::HTTP_BAD_REQUEST);
         }
 
         return new JsonResponse('OK', Response::HTTP_ACCEPTED);
     }
 
     /**
-     * Create a response with a CFDocument
-     *
-     * @param int $id
-     *
-     * @return Response
+     * Create a response with a CFDocument.
      */
-    protected function respondWithDocumentById(Request $request, int $id)
+    protected function respondWithDocumentById(Request $request, int $id): Response
     {
         // in this case it has to be a document on this OpenSALT instantiation
         $newDoc = $this->getDoctrine()->getRepository(LsDoc::class)->find($id);
@@ -575,16 +519,11 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * Create a response with a CFDocument
-     *
-     * @param string $identifier
-     * @param LsDoc $lsDoc
-     *
-     * @return Response
+     * Create a response with a CFDocument.
      */
-    protected function respondWithDocumentByIdentifier(Request $request, string $identifier, LsDoc $lsDoc)
+    protected function respondWithDocumentByIdentifier(Request $request, string $identifier, LsDoc $lsDoc): Response
     {
-        $newDoc = $this->getDoctrine()->getRepository(LsDoc::class)->findOneBy(['identifier'=>$identifier]);
+        $newDoc = $this->getDoctrine()->getRepository(LsDoc::class)->findOneBy(['identifier' => $identifier]);
         if (null !== $newDoc) {
             return $this->exportAction($request, $newDoc);
         }
@@ -603,7 +542,7 @@ class DocTreeController extends AbstractController
             $json = json_decode($content, true);
             $lastModified = new \DateTime($json['CFDocument']['lastChangeDateTime'], new \DateTimeZone('UTC'));
 
-            $response->setEtag(md5($lastModified->format('U')), true);
+            $response->setEtag(md5($lastModified->format('U.u').self::ETAG_SEED), true);
             $response->setLastModified($lastModified);
             $response->setMaxAge(0);
             $response->setSharedMaxAge(0);
@@ -620,5 +559,117 @@ class DocTreeController extends AbstractController
 
         // if not found in externalDocs, error
         return new Response('Document not found.', Response::HTTP_NOT_FOUND);
+    }
+
+    protected function addExternalDocumentToDoc(string $url, LsDoc $lsDoc, $document): void
+    {
+        $doc = json_decode($document, false);
+        $title = $doc->CFDocument->title;
+        $identifier = $doc->CFDocument->identifier;
+
+        // if we found the identifier and title, save the ad
+        if (!empty($identifier) && !empty($title)) {
+            // see if the doc is already there; if so, we don't want to change the "autoLoad" parameter, but we should still update the title/url if necessary
+            $externalDocs = $lsDoc->getExternalDocs();
+
+            $autoLoad = 'false';
+            if (!empty($externalDocs[$identifier])) {
+                $autoLoad = $externalDocs[$identifier]['autoLoad'];
+            }
+
+            // if this is a new doc or anything has changed, save it
+            if (empty($externalDocs[$identifier])
+                || $externalDocs[$identifier]['autoLoad'] !== $autoLoad
+                || $externalDocs[$identifier]['url'] !== $url
+                || $externalDocs[$identifier]['title'] !== $title
+            ) {
+                $command = new AddExternalDocCommand($lsDoc, $identifier, $autoLoad, $url, $title);
+                $this->sendCommand($command);
+            }
+        }
+    }
+
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    protected function fetchExternalDocument(string $url): string
+    {
+        $headers = [
+            'Accept' => 'application/json',
+        ];
+        $headers = $this->addAuthentication($url, $headers);
+
+        $extDoc = $this->guzzleJsonClient->request(
+            'GET',
+            $url,
+            [
+                'timeout' => 60,
+                'headers' => $headers,
+                'http_errors' => true,
+            ]
+        );
+
+        return $extDoc->getBody()->getContents();
+    }
+
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    protected function addAuthentication(string $url, array $headers): array
+    {
+        // Check for CASE urls:
+        if ($this->isCaseUrl($url)) {
+            $headers = array_merge([
+                'Authorization' => 'Bearer '.$this->retrieveCaseNetworkBearerToken(),
+            ], $headers);
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Get a list of all documents viewable by the current user.
+     */
+    private function getViewableDocList(AuthorizationCheckerInterface $authChecker): array
+    {
+        $lsDocs = [];
+
+        $docs = $this->getDoctrine()->getRepository(LsDoc::class)->findBy([], ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']);
+        /** @var LsDoc $doc */
+        foreach ($docs as $doc) {
+            // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus() || $authChecker->isGranted('view', $doc)) {
+                $lsDocs[] = $doc;
+            }
+        }
+
+        return $lsDocs;
+    }
+
+    /**
+     * Get a list of all locks for the document.
+     */
+    private function getLocks(LsDoc $lsDoc, ?UserInterface $user): array
+    {
+        $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
+        if ($user instanceof User) {
+            $locks = $this->getDoctrine()->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
+            foreach ($locks as $lock) {
+                $expiry = false;
+                if ($lock->getUser() !== $user) {
+                    $expiry = (int) $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
+                }
+
+                if (LsDoc::class === $lock->getObjectType()) {
+                    $docLocks['docs'][$lock->getObjectId()] = $expiry;
+                }
+
+                if (LsItem::class === $lock->getObjectType()) {
+                    $docLocks['items'][$lock->getObjectId()] = $expiry;
+                }
+            }
+        }
+
+        return $docLocks;
     }
 }

@@ -2,147 +2,143 @@
 
 namespace App\Controller;
 
-use App\Entity\Framework\LsAssociation;
-use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsItem;
-use Ramsey\Uuid\Uuid;
+use App\Service\UriGenerator;
+use App\Service\IdentifiableObjectHelper;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 
 class UriController extends AbstractController
 {
     /**
-     * Export an LSItem entity.
-     *
-     * @Route("/uri/{uri}", requirements={"uri"=".+"}, defaults={"_format"="html"}, name="editor_uri_lookup")
-     * @Route("/uri/", defaults={"_format"="html"}, name="editor_uri_lookup_empty")
-     * @Method("GET")
-     * @Template()
-     *
-     * @param Request $request
-     * @param string $uri
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @var SerializerInterface
      */
-    public function findUriAction(Request $request, $uri = null)
+    private $serializer;
+
+    /**
+     * @var IdentifiableObjectHelper
+     */
+    private $objectHelper;
+
+    /**
+     * @var string
+     */
+    private $assetsVersion;
+
+    public function __construct(SerializerInterface $serializer, IdentifiableObjectHelper $uriHelper, string $assetsVersion)
     {
-        $json = false;
+        $this->serializer = $serializer;
+        $this->objectHelper = $uriHelper;
+        $this->assetsVersion = $assetsVersion;
+    }
 
-        $localUri = $uri;
-
-        if (preg_match('/\.json$/', $uri)) {
-            $json = true;
-            $localUri = preg_replace('/\.json$/', '', $localUri);
+    /**
+     * @Route("/uri/", methods={"GET"}, defaults={"_format"="html"}, name="uri_lookup_empty")
+     */
+    public function findEmptyUriAction(Request $request): Response
+    {
+        // No identifier passed on the URL
+        if ('json' === $request->getRequestFormat()) {
+            return new JsonResponse([
+                'error' => 'Identifier not found',
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        // if this is an ajax call, assume the json version is wanted
+        return $this->render('uri/no_uri.html.twig', ['uri' => null], new Response('', Response::HTTP_NOT_FOUND));
+    }
+
+    /**
+     * @Route("/uri/{uri}.{_format}", methods={"GET"}, defaults={"_format"=null}, name="uri_lookup")
+     */
+    public function findUriAction(Request $request, string $uri, ?string $_format): Response
+    {
         if ($request->isXmlHttpRequest()) {
-            $json = true;
+            $_format = 'json';
+        }
+        $this->determineRequestFormat($request, $_format);
+
+        $isPackage = false;
+        if (0 === strpos($uri, UriGenerator::PACKAGE_PREFIX)) {
+            $isPackage = true;
+            $uri = preg_replace('/^'.UriGenerator::PACKAGE_PREFIX.'/', '', $uri);
         }
 
-        // PW: we need to do this check after the json check above
-        if (Uuid::isValid($localUri)) {
-            // If the uri is just a UUID then assume it is a local one
-            $localUri = 'local:'.$localUri;
+        $obj = $this->objectHelper->findObjectByIdentifier($uri);
+
+        if (null === $obj) {
+            if ('html' === $request->getRequestFormat()) {
+                return $this->render('uri/uri_not_found.html.twig', ['uri' => $uri], new Response('', Response::HTTP_NOT_FOUND));
+            }
+
+            return new JsonResponse([
+                'error' => sprintf('Object with identifier "%s" was not found', $uri),
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        $localPrefix = $this->generateUrl('editor_uri_lookup_empty', [], Router::ABSOLUTE_URL);
-        if (0 === strpos($localUri, $localPrefix)) {
-            $localUri = substr($localUri, strlen($localPrefix));
-            $localUri = 'local:'.$localUri;
+        if ($isPackage && 'json' === $request->getRequestFormat()) {
+            // Redirect to API for the package
+            return $this->redirectToRoute('api_v1p0_cfpackage', ['id' => $uri]);
         }
 
-        if ($item = $this->findIfItem($json, $localUri)) {
-            return $item;
+        $lastModified = $obj->getUpdatedAt();
+        $response = $this->generateBaseResponse($lastModified);
+
+        if ($response->isNotModified($request)) {
+            return $response;
         }
 
-        if ($doc = $this->findIfDoc($json, $localUri)) {
-            return $doc;
+        // Found -- Display
+        $serialized = $this->serializer->serialize($obj, 'json');
+        if ('html' === $request->getRequestFormat()) {
+            $className = substr(strrchr(get_class($obj), '\\'), 1);
+            return $this->render('uri/found_uri.html.twig', [
+                'obj' => $obj,
+                'class' => $className,
+                'isPackage' => $isPackage,
+                'serialized' => json_decode($serialized, true),
+            ], $response);
         }
 
-        if ($association = $this->findIfAssociation($json, $localUri)) {
-            return $association;
-        }
+        $response->setContent($serialized);
+        $response->headers->set('Content-Type', 'application/json');
 
-        return [
-            'uri' => $uri,
-        ];
+        return $response;
     }
 
-    /**
-     * @param $json
-     * @param $localUri
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
-     */
-    private function findIfItem($json, $localUri)
+    private function determineRequestFormat(Request $request, ?string $_format, array $allowedFormats = ['json', 'html']): void
     {
-        $em = $this->getDoctrine()->getManager();
-        $item = $em->getRepository(LsItem::class)->findOneBy(['uri'=>$localUri]);
-        if ($item) {
-            if ($json) {
-                return $this->forward('App\Controller\Framework\EditorController:viewItemAction', ['id' => $item->getId(), '_format' => 'json']);
+        if (!in_array($request->getRequestFormat($_format), $allowedFormats, true)) {
+            $cTypes = $request->getAcceptableContentTypes();
+            $format = null;
+            foreach ($cTypes as $cType) {
+                if ($request->getFormat($cType)) {
+                    $format = $request->getFormat($cType);
+                    if ('json' === $format || 'html' === $format) {
+                        break;
+                    }
+                }
             }
-            //return $this->forward('App\Controller\Framework\EditorController:viewItemAction', ['id' => $item->getId(), '_format' => 'html']);
-            return $this->redirectToRoute('doc_tree_item_view', ['id' => $item->getId()]);
-        }
+            // If there was no match found, default to old request format.
+            $format = $format ?: $request->getRequestFormat();
 
-        return null;
+            $request->setRequestFormat($format);
+        }
     }
 
-    /**
-     * @param $json
-     * @param $localUri
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
-     */
-    private function findIfDoc($json, $localUri)
+    protected function generateBaseResponse(\DateTimeInterface $lastModified): Response
     {
-        $em = $this->getDoctrine()->getManager();
-        $doc = $em->getRepository(LsDoc::class)->findOneBy(['uri'=>$localUri]);
-        if ($doc) {
-            if ($json) {
-                //return $this->forward('App\Controller\Framework\EditorController:viewDocAction', ['id' => $doc->getId(), '_format' => 'json']);
-                // http://127.0.0.1:3000/app_dev.php/uri/731cf3e4-43a2-4aa0-b2a7-87a49dac5374.json
-                return $this->forward('App\Controller\Framework\CfPackageController:exportAction', ['id' => $doc->getId(), '_format' => 'json']);
-            }
-            //return $this->forward('App\Controller\Framework\EditorController:viewDocAction', ['id' => $doc->getId(), '_format' => 'html']);
-            return $this->redirectToRoute('doc_tree_view', ['slug' => $doc->getSlug()]);
-        }
+        $response = new Response();
 
-        return null;
-    }
+        $response->setEtag(md5($lastModified->format('U.u').$this->assetsVersion), true);
+        $response->setLastModified($lastModified);
+        $response->setMaxAge(60);
+        $response->setSharedMaxAge(60);
+        $response->setPublic();
+        $response->setVary(['Accept', 'Accept-Language']);
 
-    /**
-     * @param $json
-     * @param $localUri
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
-     */
-    private function findIfAssociation($json, $localUri)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $association = $em->getRepository(LsAssociation::class)->findOneBy(['uri'=>$localUri]);
-        if ($association) {
-            if ($json) {
-                return $this->forward('App\Controller\Framework\LsAssociationController:exportAction', ['id' => $association->getId(), '_format' => 'json']);
-            }
-
-            $hasOrigin = $association->getOrigin();
-
-            if ($hasOrigin instanceof LsItem) {
-                return $this->redirectToRoute('doc_tree_item_view', ['id' => $hasOrigin->getId()]);
-            }
-            if ($hasOrigin instanceof LsDoc) {
-                return $this->redirectToRoute('doc_tree_view', ['slug' => $hasOrigin->getSlug()]);
-            }
-
-            // TODO: Show a view focused on the association
-            return $this->redirectToRoute('lsassociation_show', ['id' => $association->getId()]);
-        }
+        return $response;
     }
 }

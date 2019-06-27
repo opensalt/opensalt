@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <h1>Additional Fields List</h1>
+  <p>
+    <a href="{{ path('additional_field_new') }}">Add Additional Field</a>
+  </p>
+  <table class="table table-condensed table-hover table-bordered table-striped">
+      <thead>
+          <tr>
+              <th>Id</th>
+              <th>Edit</th>
+              <th>Delete</th>
+              <th>Name</th>
+              <th>Display Name</th>
+              <th>Applies To</th>
+              <th>Type</th>
+              <th>Type Info</th>
+          </tr>
+      </thead>
+      <tbody>
+      {% for additional_field in additional_fields %}
+          <tr>
+            <td>
+              <a href="{{ path('additional_field_show', {'id': additional_field.id}) }}">
+                {{ additional_field.id }}
+              </a>
+            </td>
+            <td>
+              <a href="{{ path('additional_field_update', {'id': additional_field.id}) }}">
+                Edit
+              </a>
+            </td>
+            <td>
+              <a href="{{ path('additional_field_delete', {'id': additional_field.id}) }}">
+                Delete
+              </a>
+            </td>
+            <td>{{ additional_field.name }}</td>
+            <td>{{ additional_field.displayName }}</td>
+            <td>{{ additional_field.appliesTo }}</td>
+            <td>{{ additional_field.type }}</td>
+            <td>{{ additional_field.typeInfo|json_encode }}</td>
+          </tr>
+      {% endfor %}
+      </tbody>
+  </table>
+{% endblock %}

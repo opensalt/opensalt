@@ -2,52 +2,68 @@
 
 namespace App\EventListener;
 
-use Symfony\Component\Cache\Simple\ApcuCache;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class SiteVersionListener implements EventSubscriberInterface
 {
     /**
      * @var string
      */
-    public $rootDir;
+    public $projectDir;
 
-    public function __construct(string $rootDir)
+    /**
+     * @var CacheInterface
+     */
+    private $cache;
+
+    public function __construct(string $projectDir, CacheInterface $cache)
     {
-        $this->rootDir = $rootDir;
+        $this->projectDir = $projectDir;
+        $this->cache = $cache;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [KernelEvents::RESPONSE => ['onKernelResponse', 200]];
     }
 
-    public function onKernelResponse(FilterResponseEvent $event): void
+    public function onKernelResponse(ResponseEvent $event): void
     {
         if (HttpKernelInterface::MASTER_REQUEST !== $event->getRequestType()) {
             return;
         }
 
-        $cache = new ApcuCache('opensalt');
-        if (!$fullVersion = $cache->get('version')) {
-            $rootDir = $this->rootDir;
-            $webDir = \dirname($rootDir).'/web';
-
-            if (file_exists($webDir.'/version.txt')) {
-                $fullVersion = trim(file_get_contents($webDir.'/version.txt'));
-            } elseif (file_exists($rootDir.'/../VERSION')) {
-                $fullVersion = trim(file_get_contents($rootDir.'/../VERSION'));
-            } else {
-                $fullVersion = 'UNKNOWN';
-            }
-
-            $cache->set('version', $fullVersion, 3600);
-        }
+        $fullVersion = $this->getFullVersion();
 
         $response = $event->getResponse();
         $response->headers->set('X-OpenSALT', $fullVersion);
+    }
+
+    private function getFullVersion(): string
+    {
+        $fullVersion = $this->cache->get('version', function (ItemInterface $item) {
+            $item->expiresAfter(3600);
+            return $this->getUncachedVersion();
+        });
+
+        return $fullVersion;
+    }
+
+    private function getUncachedVersion(): string
+    {
+        if (file_exists($this->projectDir.'/public/version.txt')) {
+            return trim(file_get_contents($this->projectDir.'/public/version.txt'));
+        }
+
+        if (file_exists($this->projectDir.'/VERSION')) {
+            return trim(file_get_contents($this->projectDir.'/VERSION'));
+        }
+
+        return 'UNKNOWN';
     }
 }

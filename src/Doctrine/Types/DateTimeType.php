@@ -6,7 +6,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 
 /**
- * Class DateTimeType
+ * Class DateTimeType.
  *
  * Adds support for datetime(3) in MySQL
  *
@@ -19,12 +19,12 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
         $format = $platform->getDateTimeFormatString();
-        if ((int) $value->format('u') !== 0) {
+        if (0 !== (int) $value->format('u')) {
             $format .= '.u';
         }
 
@@ -36,7 +36,7 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTime) {
+        if (null === $value || $value instanceof \DateTime) {
             return $value;
         }
 
@@ -60,5 +60,10 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
         }
 
         return parent::getSQLDeclaration($fieldDeclaration, $platform);
+    }
+
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
+    {
+        return true;
     }
 }

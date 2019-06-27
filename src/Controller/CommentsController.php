@@ -14,9 +14,8 @@ use App\Entity\Framework\LsItem;
 use JMS\Serializer\SerializerInterface;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 use App\Entity\User\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,6 +24,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Service\BucketService;
+use Qandidate\Toggle\ContextFactory;
+use Qandidate\Toggle\ToggleManager;
 
 /**
  * @Toggle("comments")
@@ -37,39 +39,38 @@ class CommentsController extends AbstractController
      * @var SerializerInterface
      */
     private $serializer;
+    private $manager;
+    private $context;
 
-    public function __construct(SerializerInterface $serializer)
+    public function __construct(SerializerInterface $serializer, ToggleManager $manager, ContextFactory $contextFactory)
     {
         $this->serializer = $serializer;
+        $this->manager = $manager;
+        $this->context = $contextFactory->createContext();
     }
 
     /**
-     * @Route("/comments/document/{id}", name="create_doc_comment")
-     *
-     * @Method("POST")
+     * @Route("/comments/document/{id}", name="create_doc_comment", methods={"POST"})
      *
      * @Security("is_granted('comment')")
      */
-    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user)
+    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user, BucketService $bucket)
     {
-        return $this->addComment($request, 'document', $doc, $user);
+        return $this->addComment($request, 'document', $doc, $user, $bucket);
     }
 
     /**
-     * @Route("/comments/item/{id}", name="create_item_comment")
-     *
-     * @Method("POST")
+     * @Route("/comments/item/{id}", name="create_item_comment", methods={"POST"})
      *
      * @Security("is_granted('comment')")
      */
-    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user)
+    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user, BucketService $bucket)
     {
-        return $this->addComment($request, 'item', $item, $user);
+        return $this->addComment($request, 'item', $item, $user, $bucket);
     }
 
     /**
-     * @Route("/comments/{itemType}/{itemId}", name="get_comments")
-     * @Method("GET")
+     * @Route("/comments/{itemType}/{itemId}", name="get_comments", methods={"GET"})
      * @ParamConverter("comments", class="App\Entity\Comment\Comment", options={"id": {"itemType", "itemId"}, "repository_method" = "findByTypeItem"})
      * @Security("is_granted('comment_view')")
      *
@@ -90,8 +91,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/{id}")
-     * @Method("PUT")
+     * @Route("/comments/{id}", methods={"PUT"})
      *
      * @Security("is_granted('comment_update', comment)")
      */
@@ -104,9 +104,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/delete/{id}")
-     *
-     * @Method("DELETE")
+     * @Route("/comments/delete/{id}", methods={"DELETE"})
      *
      * @Security("is_granted('comment_delete', comment)")
      */
@@ -119,13 +117,11 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/{id}/upvote")
-     *
-     * @Method("POST")
+     * @Route("/comments/{id}/upvote", methods={"POST"})
      *
      * @Security("is_granted('comment')")
      */
-    public function upvoteAction(Comment $comment, UserInterface $user)
+    public function upvoteAction(Comment $comment, UserInterface $user = null)
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -138,9 +134,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/{id}/upvote")
-     *
-     * @Method("DELETE")
+     * @Route("/comments/{id}/upvote", methods={"DELETE"})
      *
      * @Security("is_granted('comment')")
      */
@@ -178,7 +172,7 @@ class CommentsController extends AbstractController
             $handle = fopen('php://output', 'wb+');
             $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
             $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
-            $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Created Date', 'Updated Date'];
+            $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Attachment Url', 'Created Date', 'Updated Date'];
             fputcsv($handle, $headers);
 
             switch ($itemType) {
@@ -197,8 +191,11 @@ class CommentsController extends AbstractController
 
                 case 'item':
                     $lsItem = $lsItemRepo->find($itemId);
-                    $childIds=$lsItem->getDescendantIds();
-                    $childIds[] = $itemId;
+
+                    if (!is_null($lsItem)) {
+                        $childIds = $lsItem->getDescendantIds();
+                        $childIds[] = $itemId;
+                    }
                     break;
             }
 
@@ -236,6 +233,7 @@ class CommentsController extends AbstractController
                 $comment->getUser()->getUsername(),
                 $comment->getUser()->getOrg()->getName(),
                 $comment->getContent(),
+                $comment->getFileUrl(),
                 $comment->getCreatedAt()->format('Y-m-d H:i:s'),
                 $comment->getUpdatedAt()->format('Y-m-d H:i:s'),
             ];
@@ -258,16 +256,11 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * Add a comment
+     * Add a comment.
      *
-     * @param Request $request
-     * @param string $itemType
-     * @param $item
-     * @param UserInterface $user
-     *
-     * @return JsonResponse
+     * @param LsItem|LsDoc $item
      */
-    private function addComment(Request $request, string $itemType, $item, UserInterface $user): Response
+    private function addComment(Request $request, string $itemType, $item, UserInterface $user, $bucket): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -275,8 +268,19 @@ class CommentsController extends AbstractController
 
         $parentId = $request->request->get('parent');
         $content = $request->request->get('content');
+        $fileUrl = null;
+        $fileMimeType = null;
 
-        $command = new AddCommentCommand($itemType, $item, $user, $content, (int) $parentId);
+        if ($this->manager->active('comment_attachments', $this->context)) {
+            $file = $request->files->get('file');
+
+            if (!is_null($file) && $file->isValid()) {
+                $fileUrl = $bucket->uploadFile($file, 'comments');
+                $fileMimeType = $file->getMimeType();
+            }
+        }
+
+        $command = new AddCommentCommand($itemType, $item, $user, $content, $fileUrl, $fileMimeType, (int) $parentId);
         $this->sendCommand($command);
 
         $comment = $command->getComment();

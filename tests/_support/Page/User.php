@@ -21,7 +21,7 @@ class User implements Context
     /**
      * @Then /^I add a new user with "([^"]*)" role$/
      */
-    public function iAddANewUserWithRole($role)
+    public function iAddANewUserWithRole(string $role): void
     {
         $I = $this->I;
         $roleMap = [
@@ -43,7 +43,7 @@ class User implements Context
         $I->fillField('#salt_userbundle_user_username', $username);
         $I->fillField('#salt_userbundle_user_plainPassword', $password);
         $I->checkOption($roleMap[$role]);
-        $I->selectOption('#salt_userbundle_user_org', array('value' => 1));
+        $I->selectOption('#salt_userbundle_user_org', ['value' => 1]);
         $I->click('Add');
         $I->waitForElementVisible('a.dropdown-toggle');
     }
@@ -51,7 +51,7 @@ class User implements Context
     /**
      * @Then /^I add a new user$/
      */
-    public function iAddANewUser()
+    public function iAddANewUser(): void
     {
         $I = $this->I;
 
@@ -75,7 +75,7 @@ class User implements Context
     /**
      * @Then /^I create a new account$/
      */
-    public function iCreateANewAccount()
+    public function iCreateANewAccount(): void
     {
         $I = $this->I;
 
@@ -98,25 +98,32 @@ class User implements Context
     /**
      * @Then /^I see last created account is pending$/
      */
-    public function getLastCreatedAccount() {
+    public function getLastCreatedAccount(): void
+    {
         $I = $this->I;
 
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
         $I->click('th.sorting_asc');
-        $I->see('Approve', "//td[text()='{$username}']/..//a[text()='Approve']");
-        $I->see('Reject', "//td[text()='{$username}']/..//a[text()='Reject']");
+        $I->seeElement("//td[text()='{$username}']/..//input[@value='Approve']");
+        $I->seeElement("//td[text()='{$username}']/..//input[@value='Reject']");
     }
 
     /**
      * @Then /^I delete the User$/
      */
-    public function iDeleteTheUser()
+    public function iDeleteTheUser(): void
     {
         $I = $this->I;
         $username = $this->userName;
-        $I->amOnPage('/admin/user/');
-        $I->click('th.sorting_asc');
+        if ('/admin/user/' !== $I->grabFromCurrentUrl()) {
+            $I->amOnPage('/admin/user/');
+        }
+        try {
+            $I->click('th.sorting_asc');
+        } catch (\Exception $e) {
+            // Ignore error if we are already sorting in descending order
+        }
         $I->click("//td[text()='{$username}']/..//a[text()='show']");
         $I->see($username);
         $I->click('Delete');
@@ -127,7 +134,7 @@ class User implements Context
     /**
      * @Then /^I edit a user profile$/
      */
-    public function iEditAUserProfile(TableNode $table)
+    public function iEditAUserProfile(TableNode $table): void
     {
         $I = $this->I;
 
@@ -136,19 +143,23 @@ class User implements Context
         $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='edit']");
         $rows = $table->getRows();
-        foreach ($rows as $row) {
-            $I->fillField('#salt_userbundle_user_username', $row[0]);
-            $I->click('Save');
-            $I->waitForText($row[0], 10);
-            $I->see($row[0]);
-            $this->userName = $row[0];
+        $row = current($rows); // Get first row, first element is new username
+        $I->fillField('#salt_userbundle_user_username', $row[0]);
+        $I->click('Save');
+        try {
+            $I->click('th.sorting_asc'); // reset sort to desc
+        } catch (\Exception $e) {
+            // Ignore error
         }
+        $I->waitForText($row[0], 10);
+        $I->see($row[0]);
+        $this->userName = $row[0];
     }
 
     /**
      * @Then /^I change the user's email address$/
      */
-    public function iChangeUserEmailAddress()
+    public function iChangeUserEmailAddress(): void
     {
         $I = $this->I;
 
@@ -157,10 +168,12 @@ class User implements Context
 
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->click("//td[text()='{$username}']/..//a[text()='edit']");
         $I->fillField('#salt_userbundle_user_username', $newUsername);
         $I->click('Save');
-        $I->waitForText($newUsername, 30);
+        $I->click('th.sorting_asc');
+        $I->waitForText($newUsername, 10);
         $I->see($newUsername);
         $this->userName = $newUsername;
         $I->remember('lastChangedUsername', $newUsername);
@@ -169,47 +182,49 @@ class User implements Context
     /**
      * @Then /^I suspend the user$/
      */
-    public function iSuspendTheUser()
+    public function iSuspendTheUser(): void
     {
         $I = $this->I;
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
         $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//a[text()='Suspend']");
+        $I->click("//td[text()='{$username}']/..//input[@value='Suspend']");
         $I->dontSee('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
 
     /**
      * @Then /^I reinstate the user$/
      */
-    public function iReinstateTheUser()
+    public function iReinstateTheUser(): void
     {
         $I = $this->I;
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
         $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//a[text()='Unsuspend']");
+        $I->click("//td[text()='{$username}']/..//input[@value='Unsuspend']");
+        $I->click('th.sorting_asc');
         $I->see('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
 
     /**
      * @Then /^I view the user$/
      */
-    public function iViewTheUser()
+    public function iViewTheUser(): void
     {
         $I = $this->I;
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
+        $I->click('th.sorting_asc');
         $I->see($username);
     }
 
     /**
      * @Given /^I am on the User list page$/
      */
-    public function iAmOnTheUserListPage()
+    public function iAmOnTheUserListPage(): void
     {
         $I = $this->I;
 
@@ -225,7 +240,7 @@ class User implements Context
     /**
      * @Then /^I change my password$/
      */
-    public function iChangeMyPassword()
+    public function iChangeMyPassword(): void
     {
         $I = $this->I;
         $password = $this->I->getLastPassword();
@@ -247,55 +262,64 @@ class User implements Context
         $I->see('Your password has been changed.');
     }
 
-
     /**
      * @Then /^I edit the new user$/
      */
-    public function iEditTheNewUser()
+    public function iEditTheNewUser(): void
     {
         $I = $this->I;
 
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
+        try {
+            $I->click('th.sorting_asc');
+        } catch (\Exception $e) {
+            // Ignore error if we are already sorting in descending order
+        }
         $I->click("//td[text()='{$username}']/..//a[text()='edit']");
     }
 
     /**
      * @Then /^I show the new user$/
      */
-    public function iShowTheNewUser()
+    public function iShowTheNewUser(): void
     {
         $I = $this->I;
 
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
+        try {
+            $I->click('th.sorting_asc');
+        } catch (\Exception $e) {
+            // Ignore error if we are already sorting in descending order
+        }
         $I->click("//td[text()='{$username}']/..//a[text()='show']");
     }
 
     /**
      * @Then /^I approve the new user$/
      */
-    public function iApproveTheNewUser()
+    public function iApproveTheNewUser(): void
     {
         $I = $this->I;
 
         $username = $this->userName;
         $I->amOnPage('/admin/user');
         $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//a[text()='Approve']");
+        $I->click("//td[text()='{$username}']/..//input[@value='Approve']");
     }
 
     /**
      * @Then /^I verify an email was sent$/
      */
-    public function iVerifyEmailWasSent()
+    public function iVerifyEmailWasSent(): void
     {
         // check to see if the email feature is active
-        if (getenv('USE_MAIL_FEATURE') === 'always-active') {
+        if ('always-active' === getenv('USE_MAIL_FEATURE')) {
             $I = $this->I;
 
             $fromEmail = getenv('MAIL_FEATURE_FROM_EMAIL');
-            if (NULL !== $fromEmail) {
+            if (null !== $fromEmail) {
                 $I->fetchEmails();
                 $I->haveEmails();
                 $I->haveUnreadEmails();
@@ -311,7 +335,7 @@ class User implements Context
     /**
      * @Then /^I search organization and role type$/
      */
-    public function iSearchOrgAndRole()
+    public function iSearchOrgAndRole(): void
     {
         $I = $this->I;
         $I->amOnPage('/admin/user/');
@@ -324,20 +348,20 @@ class User implements Context
     /**
      * @Then /^I reject the new user$/
      */
-    public function isRejectTheNewUser()
+    public function isRejectTheNewUser(): void
     {
         $I = $this->I;
 
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
         $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//a[text()='Reject']");
+        $I->click("//td[text()='{$username}']/..//input[@value='Reject']");
     }
 
     /**
      * @Then /^I see status column on user list page$/
      */
-    public function seeStatusColumn()
+    public function seeStatusColumn(): void
     {
         $I = $this->I;
         $I->amOnPage('/admin/user');

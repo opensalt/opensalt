@@ -13,6 +13,7 @@ use App\Entity\User\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 
 class CommandEventRouter implements EventSubscriberInterface
 {
@@ -38,7 +39,7 @@ class CommandEventRouter implements EventSubscriberInterface
         $this->tokenStorage = $tokenStorage;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [CommandEvent::class => 'routeCommand'];
     }
@@ -82,10 +83,15 @@ class CommandEventRouter implements EventSubscriberInterface
         $this->logger->info('Routing command', ['command' => \get_class($command)]);
 
         try {
-            $dispatcher->dispatch(\get_class($command), $event);
+            $dispatcher->dispatch($event, \get_class($command));
 
-            if ($command->getValidationErrors()) {
-                $errorString = (string) $command->getValidationErrors();
+            if ($validationErrors = $command->getValidationErrors()) {
+                $errors = [];
+                /** @var ConstraintViolationInterface $error */
+                foreach ($validationErrors as $error) {
+                    $errors[] = $error->getMessage();
+                }
+                $errorString = implode(' ', $errors);
                 $this->logger->info('Error in command', ['command' => \get_class($command), 'errors' => $errorString]);
             }
         } catch (\Exception $e) {
@@ -143,7 +149,7 @@ class CommandEventRouter implements EventSubscriberInterface
 
     protected function sendNotification(EventDispatcherInterface $dispatcher, NotificationEvent $notification): void
     {
-        $dispatcher->dispatch(NotificationEvent::class, $notification);
+        $dispatcher->dispatch($notification, NotificationEvent::class);
     }
 
     protected function getCurrentUser(): ?User

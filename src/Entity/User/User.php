@@ -7,7 +7,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -20,7 +19,7 @@ use App\Validator\Constraints as CustomAssert;
  * @ORM\Table(name="salt_user")
  * @UniqueEntity("username", message="That email address is already being used", groups={"registration"})
  */
-class User implements AdvancedUserInterface, \Serializable, EquatableInterface
+class User implements UserInterface, \Serializable, EquatableInterface
 {
     public const USER_ROLES = [
         'ROLE_EDITOR',
@@ -80,7 +79,7 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="password", type="string", length=64, nullable=true)
+     * @ORM\Column(name="password", type="string", nullable=true)
      */
     protected $password;
 
@@ -116,7 +115,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     protected $docAcls;
 
 
-    public function __construct($username = null) {
+    public function __construct($username = null)
+    {
         if (!empty($username)) {
             $this->username = $username;
         }
@@ -124,7 +124,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         $this->frameworks = new ArrayCollection();
     }
 
-    public static function getUserRoles() {
+    public static function getUserRoles()
+    {
         return static::USER_ROLES;
     }
 
@@ -133,7 +134,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return int
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -142,7 +144,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return string The username
      */
-    public function getUsername() {
+    public function getUsername()
+    {
         return $this->username;
     }
 
@@ -151,17 +154,20 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return $this
      */
-    public function setUsername($username) {
+    public function setUsername($username)
+    {
         $this->username = $username;
 
         return $this;
     }
 
-    public function getPlainPassword() {
+    public function getPlainPassword()
+    {
         return $this->plainPassword;
     }
 
-    public function setPlainPassword($password) {
+    public function setPlainPassword($password)
+    {
         $this->plainPassword = $password;
 
         return $this;
@@ -175,11 +181,13 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return string The password
      */
-    public function getPassword() {
+    public function getPassword()
+    {
         return $this->password;
     }
 
-    public function setPassword($password) {
+    public function setPassword($password)
+    {
         $this->password = $password;
 
         return $this;
@@ -190,7 +198,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return string[] The user roles
      */
-    public function getRoles() {
+    public function getRoles()
+    {
         $roles = $this->roles;
 
         if (empty($roles)) {
@@ -203,7 +212,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     /**
      * @param string[] $roles The user roles
      */
-    public function setRoles($roles) {
+    public function setRoles($roles)
+    {
         if (!$roles instanceof \Traversable) {
             throw new \InvalidArgumentException('The passed roles are not an array');
         }
@@ -214,11 +224,13 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         }
     }
 
-    public function getGithubToken(){
+    public function getGithubToken()
+    {
         return $this->githubToken;
     }
 
-    public function setGithubToken($token) {
+    public function setGithubToken($token)
+    {
         $this->githubToken = $token;
 
         return $this;
@@ -231,7 +243,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return string|null The salt
      */
-    public function getSalt() {
+    public function getSalt()
+    {
         return null;
     }
 
@@ -241,7 +254,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      * This is important if, at any given point, sensitive information like
      * the plain-text password is stored on this object.
      */
-    public function eraseCredentials() {
+    public function eraseCredentials()
+    {
     }
 
     /**
@@ -249,7 +263,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return string the string representation of the user
      */
-    public function serialize() {
+    public function serialize()
+    {
         return serialize([
             $this->id,
             $this->username,
@@ -261,7 +276,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @param string $serialized the string representation of the object
      */
-    public function unserialize($serialized) {
+    public function unserialize($serialized)
+    {
         list(
             $this->id,
             $this->username,
@@ -282,7 +298,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return bool
      */
-    public function isEqualTo(UserInterface $user) {
+    public function isEqualTo(UserInterface $user)
+    {
         if (!($user instanceof self)) {
             return false;
         }
@@ -305,7 +322,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return $this
      */
-    public function addRole($role) {
+    public function addRole($role)
+    {
         if ('ROLE_USER' === $role) {
             return $this;
         }
@@ -321,7 +339,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
         return $this;
     }
 
-    public function removeRole($role) {
+    public function removeRole($role)
+    {
         if (($key = array_search($role, $this->roles, true)) !== false) {
             unset($this->roles[$key]);
         }
@@ -332,7 +351,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     /**
      * @return \App\Entity\User\Organization
      */
-    public function getOrg() {
+    public function getOrg()
+    {
         return $this->org;
     }
 
@@ -341,7 +361,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return User
      */
-    public function setOrg($org) {
+    public function setOrg($org)
+    {
         $this->org = $org;
 
         return $this;
@@ -352,14 +373,16 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return \App\Entity\Framework\LsDoc[]|\Doctrine\Common\Collections\Collection
      */
-    public function getFrameworks() {
+    public function getFrameworks()
+    {
         return $this->frameworks;
     }
 
     /**
      * @return Collection|UserDocAcl[]
      */
-    public function getDocAcls() {
+    public function getDocAcls()
+    {
         return $this->docAcls;
     }
 
@@ -373,7 +396,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @see AccountExpiredException
      */
-    public function isAccountNonExpired() {
+    public function isAccountNonExpired()
+    {
         // Accounts do not currently expire
         return true;
     }
@@ -388,7 +412,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @see LockedException
      */
-    public function isAccountNonLocked() {
+    public function isAccountNonLocked()
+    {
         return !($this->isSuspended() || $this->isPending());
     }
 
@@ -402,7 +427,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @see CredentialsExpiredException
      */
-    public function isCredentialsNonExpired() {
+    public function isCredentialsNonExpired()
+    {
         // Currently credentials do not expire
         return true;
     }
@@ -417,14 +443,16 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @see DisabledException
      */
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return true;
     }
 
     /**
      * @return bool true if the user is suspended
      */
-    public function isSuspended() {
+    public function isSuspended()
+    {
         if ($this->status === static::SUSPENDED) {
             return true;
         }
@@ -437,7 +465,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return $this
      */
-    public function suspendUser() {
+    public function suspendUser()
+    {
         $this->status = static::SUSPENDED;
 
         return $this;
@@ -448,7 +477,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return $this
      */
-    public function activateUser() {
+    public function activateUser()
+    {
         $this->status = static::ACTIVE;
 
         return $this;
@@ -457,7 +487,8 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
     /**
      * @return bool true if the user is pending for approval for approval
      */
-    public function isPending() {
+    public function isPending()
+    {
         if (static::PENDING === $this->status) {
             return true;
         }
@@ -470,13 +501,15 @@ class User implements AdvancedUserInterface, \Serializable, EquatableInterface
      *
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
 
         return $this;
     }
 
-    public function getStatus() {
+    public function getStatus()
+    {
         $statusArray=['Active', 'Suspended', 'Pending'];
         return $statusArray[$this->status];
     }

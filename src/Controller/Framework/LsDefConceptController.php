@@ -7,12 +7,12 @@ use App\Command\Framework\AddConceptCommand;
 use App\Command\Framework\DeleteConceptCommand;
 use App\Command\Framework\UpdateConceptCommand;
 use App\Form\Type\LsDefConceptType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use App\Entity\Framework\LsDefConcept;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,8 +29,7 @@ class LsDefConceptController extends AbstractController
     /**
      * Lists all LsDefConcept entities.
      *
-     * @Route("/", name="lsdef_concept_index")
-     * @Method("GET")
+     * @Route("/", methods={"GET"}, name="lsdef_concept_index")
      * @Template()
      *
      * @return array
@@ -49,9 +48,9 @@ class LsDefConceptController extends AbstractController
     /**
      * Creates a new LsDefConcept entity.
      *
-     * @Route("/new", name="lsdef_concept_new")
-     * @Method({"GET", "POST"})
+     * @Route("/new", methods={"GET", "POST"}, name="lsdef_concept_new")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      *
@@ -83,8 +82,7 @@ class LsDefConceptController extends AbstractController
     /**
      * Finds and displays a LsDefConcept entity.
      *
-     * @Route("/{id}", name="lsdef_concept_show")
-     * @Method("GET")
+     * @Route("/{id}", methods={"GET"}, name="lsdef_concept_show")
      * @Template()
      *
      * @param LsDefConcept $lsDefConcept
@@ -104,9 +102,9 @@ class LsDefConceptController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefConcept entity.
      *
-     * @Route("/{id}/edit", name="lsdef_concept_edit")
-     * @Method({"GET", "POST"})
+     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_concept_edit")
      * @Template()
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefConcept $lsDefConcept
@@ -140,8 +138,8 @@ class LsDefConceptController extends AbstractController
     /**
      * Deletes a LsDefConcept entity.
      *
-     * @Route("/{id}", name="lsdef_concept_delete")
-     * @Method("DELETE")
+     * @Route("/{id}", methods={"DELETE"}, name="lsdef_concept_delete")
+     * @Security("is_granted('create', 'lsdoc')")
      *
      * @param Request $request
      * @param LsDefConcept $lsDefConcept

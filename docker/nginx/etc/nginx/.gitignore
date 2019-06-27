@@ -1,1 +1,3 @@
 /*tar*
+nginx.conf
+upstream_phpcgi_tcp.conf

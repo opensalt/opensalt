@@ -5,9 +5,9 @@ namespace App\EventListener;
 use App\Event\NotificationEvent;
 use Kreait\Firebase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Firebase data structure
@@ -54,7 +54,7 @@ class NotificationToFirebaseListener implements EventSubscriberInterface
         $this->firebasePrefix = !empty($firebasePrefix) ? $firebasePrefix : 'opensalt';
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [NotificationEvent::class => 'handleNotification'];
     }

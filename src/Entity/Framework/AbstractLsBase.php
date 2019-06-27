@@ -9,14 +9,12 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * AbstractLsBase
- *
  * @ORM\MappedSuperclass()
  *
  * @Serializer\ExclusionPolicy("all")
  * @Serializer\VirtualProperty(
  *     "uri",
- *     exp="service('App\\Service\\Api1Uris').getApiUrl(object)",
+ *     exp="service('App\\Service\\Api1Uris').getUri(object)",
  *     options={
  *         @Serializer\SerializedName("uri"),
  *         @Serializer\Expose()
@@ -34,7 +32,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @Serializer\Exclude()
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
@@ -47,7 +45,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @Serializer\Expose()
      */
-    private $identifier;
+    protected $identifier;
 
     /**
      * @var string
@@ -59,7 +57,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @Serializer\Exclude()
      */
-    private $uri;
+    protected $uri;
 
     /**
      * @var array
@@ -68,7 +66,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @Serializer\Exclude()
      */
-    private $extra = [];
+    protected $extra = [];
 
     /**
      * @var \DateTimeInterface
@@ -79,13 +77,12 @@ class AbstractLsBase implements IdentifiableInterface
      * @Serializer\Expose()
      * @Serializer\SerializedName("lastChangeDateTime")
      */
-    private $updatedAt;
-
+    protected $updatedAt;
 
     /**
-     * Constructor
-     *
      * @param string|Uuid|null $identifier
+     *
+     * @throws \Exception
      */
     public function __construct($identifier = null)
     {
@@ -104,7 +101,7 @@ class AbstractLsBase implements IdentifiableInterface
     }
 
     /**
-     * Clone the object
+     * Clone the object.
      */
     public function __clone()
     {
@@ -121,9 +118,7 @@ class AbstractLsBase implements IdentifiableInterface
     }
 
     /**
-     * Get the internal id of the object (or null if not persisted)
-     *
-     * @return int|null
+     * Get the internal id of the object (or null if not persisted).
      */
     public function getId(): ?int
     {
@@ -131,7 +126,7 @@ class AbstractLsBase implements IdentifiableInterface
     }
 
     /**
-     * Set identifier
+     * Set identifier.
      *
      * @param Uuid|string $identifier
      *
@@ -155,21 +150,12 @@ class AbstractLsBase implements IdentifiableInterface
         return $this;
     }
 
-    /**
-     * Get identifier
-     *
-     * @return string
-     */
     public function getIdentifier(): string
     {
         return $this->identifier;
     }
 
     /**
-     * Set uri
-     *
-     * @param string $uri
-     *
      * @return static
      */
     public function setUri(string $uri)
@@ -179,21 +165,12 @@ class AbstractLsBase implements IdentifiableInterface
         return $this;
     }
 
-    /**
-     * Get uri
-     *
-     * @return string
-     */
     public function getUri(): string
     {
         return $this->uri;
     }
 
     /**
-     * Set updatedAt
-     *
-     * @param \DateTimeInterface $updatedAt
-     *
      * @return static
      */
     public function setUpdatedAt(\DateTimeInterface $updatedAt)
@@ -203,27 +180,21 @@ class AbstractLsBase implements IdentifiableInterface
         return $this;
     }
 
-    /**
-     * Get updatedAt
-     *
-     * @return \DateTimeInterface
-     */
     public function getUpdatedAt(): \DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    /**
-     * @return array
-     */
     public function getExtra(): array
     {
+        if (null === $this->extra) {
+            return [];
+        }
+
         return $this->extra;
     }
 
     /**
-     * @param array $extra
-     *
      * @return static
      */
     public function setExtra(array $extra)
@@ -234,8 +205,6 @@ class AbstractLsBase implements IdentifiableInterface
     }
 
     /**
-     * @param string $property
-     *
      * @return mixed
      */
     public function getExtraProperty(string $property)
@@ -244,14 +213,15 @@ class AbstractLsBase implements IdentifiableInterface
     }
 
     /**
-     * @param string $property
-     * @param mixed $value
-     *
      * @return static
      */
     public function setExtraProperty(string $property, $value)
     {
-        $this->extra[$property] = $value;
+        if (null === $value) {
+            unset($this->extra[$property]);
+        } else {
+            $this->extra[$property] = $value;
+        }
 
         return $this;
     }
