@@ -659,12 +659,6 @@
             "ref": "8a2f7fa50a528f0aad1d7a87ae3730c981b367ce"
         }
     },
-    "symfony/http-client": {
-        "version": "v4.3.1"
-    },
-    "symfony/http-client-contracts": {
-        "version": "v1.1.3"
-    },
     "symfony/http-foundation": {
         "version": "v4.0.10"
     },
@@ -703,9 +697,6 @@
     },
     "symfony/options-resolver": {
         "version": "v4.0.10"
-    },
-    "symfony/panther": {
-        "version": "v0.2.0"
     },
     "symfony/phpunit-bridge": {
         "version": "3.3",
