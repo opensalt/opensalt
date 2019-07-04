@@ -16,8 +16,7 @@ parameters:
     env(MAILER_PASSWORD): null
     env(MAILER_AUTH_MODE): null
     env(MAILER_PORT): null
-    env(SECRET): null
-    env(APP_SECRET): '%env(SECRET)%'
+    env(APP_SECRET): null
     env(COOKIE_SECRET): null
     env(GITHUB_CLIENT_ID): null
     env(GITHUB_CLIENT_SECRET): null
