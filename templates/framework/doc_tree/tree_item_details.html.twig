@@ -76,7 +76,7 @@
     {% endif %}
 </div>
 <div class="lsItemAssociations">
-    {% for group, list in lsItem.groupedAssociations if list is not empty %}
+    {% for group, list in lsItem.groupedAssociations|filter(list => list is not empty) %}
         {# PW: don't show child of/parent of associations here, since you see that in the tree #}
         {% if (group is not constant('App\\Entity\\Framework\\LsAssociation::CHILD_OF')) and (group is not constant('App\\Entity\\Framework\\LsAssociation::INVERSE_CHILD_OF')) %}
             {% embed 'framework/doc_tree/_ls_association_component.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}

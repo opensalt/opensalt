@@ -89,7 +89,7 @@
         </div>
 
         <div class="col-sm-6">
-            {% for group, list in lsItem.groupedAssociations if list is not empty %}
+            {% for group, list in lsItem.groupedAssociations|filter(list => list is not empty) %}
                 {% embed 'framework/editor/_ls_association_component.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
                     {% block end_of_item_a %}
                         {% if is_granted('edit', lsItem) and is_granted('edit', lsItem.lsDoc) %}
