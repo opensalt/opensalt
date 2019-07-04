@@ -18,13 +18,13 @@
         "originNodeURI": {
             "title": {{ lsAssociation.originLsItem.humanCodingScheme |default(lsAssociation.originLsItem.abbreviatedStatement |default(lsAssociation.originLsDoc.title |default("Origin"))) |json_encode |raw }},
             "identifier": {{ lsAssociation.originNodeIdentifier |json_encode |raw }},
-            "uri": {{ (null !== lsAssociation.originNode) ? object_uri(lsAssociation.originNode) : lsAssociation.originNodeUri |json_encode |raw }}
+            "uri": {{ (lsAssociation.originNode is not null) ? object_uri(lsAssociation.originNode) : lsAssociation.originNodeUri |json_encode |raw }}
         },
         "associationType": {{ (lsAssociation.type|slice(0,1)|lower~lsAssociation.type|slice(1))|replace({' ': ''}) |json_encode |raw }},
         "destinationNodeURI": {
             "title": {{ lsAssociation.destinationLsItem.humanCodingScheme |default(lsAssociation.destinationLsItem.abbreviatedStatement |default(lsAssociation.destinationLsDoc.title |default("Destination"))) |json_encode |raw }},
             "identifier": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
-            "uri": {{ (null !== lsAssociation.destinationNode) ? object_uri(lsAssociation.destinationNode) : lsAssociation.destinationNodeUri |json_encode |raw }}
+            "uri": {{ (lsAssociation.destinationNode is not null) ? object_uri(lsAssociation.destinationNode) : lsAssociation.destinationNodeUri |json_encode |raw }}
         },
         "lastChangeDateTime": {{ lsAssociation.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
     }

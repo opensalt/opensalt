@@ -58,6 +58,10 @@ COPY \
     no-expose.ini \
         /usr/local/etc/php/conf.d/
 
+# Install symfony-cli
+RUN wget https://get.symfony.com/cli/installer -O - | bash \
+    && mv ~/.symfony/bin/symfony /usr/local/bin/symfony
+
 # Install and configure composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
