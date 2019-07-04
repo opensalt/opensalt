@@ -19,7 +19,6 @@ parameters:
     env(SECRET): null
     env(APP_SECRET): '%env(SECRET)%'
     env(COOKIE_SECRET): null
-    env(LOCAL_URI_HOST): 'http://127.0.0.1:3000/'
     env(GITHUB_CLIENT_ID): null
     env(GITHUB_CLIENT_SECRET): null
     env(COMMENTS_FEATURE): inactive
@@ -70,7 +69,6 @@ parameters:
     mailer_port: '%env(int:MAILER_PORT)%'
     secret: '%env(APP_SECRET)%'
     cookie_secret: '%env(COOKIE_SECRET)%'
-    local_uri_host: '%env(LOCAL_URI_HOST)%'
     github_client_id: '%env(GITHUB_CLIENT_ID)%'
     github_client_secret: '%env(GITHUB_CLIENT_SECRET)%'
     brand_logo_url: '%env(BRAND_LOGO_URL)%'
