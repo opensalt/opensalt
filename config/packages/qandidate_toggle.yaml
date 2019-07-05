@@ -15,6 +15,4 @@ qandidate_toggle:
         email_feature:
             name: email_feature
             status: '%use_mail_feature%'
-        visualization_feature:
-            name: visualization_feature
-            status: '%visualization_feature%'
+
