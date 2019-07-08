@@ -9502,30 +9502,30 @@
         },
         {
             "name": "tetranz/select2entity-bundle",
-            "version": "v2.9.6",
-            "target-dir": "Tetranz/Select2EntityBundle",
+            "version": "v2.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tetranz/select2entity-bundle.git",
-                "reference": "fe03aa203757c59b6b264d78afa2181627ca0ba5"
+                "reference": "67b61be1a23228bc4e77a2e59ba5fff8fd9fffab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tetranz/select2entity-bundle/zipball/fe03aa203757c59b6b264d78afa2181627ca0ba5",
-                "reference": "fe03aa203757c59b6b264d78afa2181627ca0ba5",
+                "url": "https://api.github.com/repos/tetranz/select2entity-bundle/zipball/67b61be1a23228bc4e77a2e59ba5fff8fd9fffab",
+                "reference": "67b61be1a23228bc4e77a2e59ba5fff8fd9fffab",
                 "shasum": ""
             },
             "require": {
                 "doctrine/orm": ">=2.4",
-                "php": ">=5.4.0"
+                "php": ">=5.4.0",
+                "twig/twig": ">=2.9"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": []
             },
             "autoload": {
-                "psr-0": {
-                    "Tetranz\\Select2EntityBundle": ""
+                "psr-4": {
+                    "Tetranz\\Select2EntityBundle\\": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -9538,14 +9538,14 @@
                     "email": "tetranz@gmail.com"
                 }
             ],
-            "description": "A Symfony2 bundle that integrates Select2 as a drop-in replacement for a standard entity field on a Symfony form.",
+            "description": "A Symfony bundle that integrates Select2 as a drop-in replacement for a standard entity field on a Symfony form.",
             "keywords": [
                 "autocomplete",
                 "select2",
                 "symfony",
                 "typeahead"
             ],
-            "time": "2019-06-17T12:05:26+00:00"
+            "time": "2019-07-07T23:00:30+00:00"
         },
         {
             "name": "twig/extensions",
@@ -11410,7 +11410,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -11470,7 +11470,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
