@@ -173,13 +173,8 @@ final class ExcelExport
             ->setCellValue('D1', 'originNodeHumanCodingScheme')
             ->setCellValue('E1', 'associationType')
             ->setCellValue('F1', 'destinationNodeURI')
-<<<<<<< HEAD
-            ->setCellValue('G1', 'destinationNodeIdentifier')
-            ->setCellValue('H1', 'destinationNodeHumanCodingScheme')
-=======
 	        ->setCellValue('H1', 'destinationNodeIdentifier')
             ->setCellValue('G1', 'destinationNodeHumanCodingScheme')
->>>>>>> Rearranging columns and headers.
             ->setCellValue('I1', 'associationGroupIdentifier')
             ->setCellValue('J1', 'associationGroupName')
             ->setTitle('CF Association');
@@ -249,48 +244,12 @@ final class ExcelExport
             'C' => '[originNodeIdentifier]',
             'D' => '[originLsItem][humanCodingScheme]',
             'E' => '[type]',
-<<<<<<< HEAD
-<<<<<<< HEAD
             'F' => '[destinationNodeUri]',
             'G' => '[destinationNodeIdentifier]',
             'H' => '[destinationLsItem][humanCodingScheme]',
             'I' => '[group][identifier]',
-<<<<<<< HEAD
-<<<<<<< HEAD
-            'J' => '[group][title]',
-=======
-            'F' => '[destinationNodeIdentifier]',
-<<<<<<< HEAD
-            'F' => '[destinationLsItem][humanCodingScheme]',
-            'G' => '[destinationNodeIdentifier]',
-            'H' => '[group]',
-            'I' => '[groupName]',
->>>>>>> Beginning to rearrange the columns of the output Excel spreadsheet.
-=======
-=======
-            'F' => '[destinationNodeUri]',
->>>>>>> Used the identifier instead of the URI for one field.
-            'G' => '[destinationLsItem][humanCodingScheme]',
-            'H' => '[destinationNodeIdentifier]',
-<<<<<<< HEAD
-            'I' => '[groupUri]',
-            'J' => '[groupName]',
->>>>>>> Rearranging columns and headers.
-=======
-            'I' => '[group][identifier]',
-            'J' => '[group][title]',
->>>>>>> 'group' is a sub-array, not a single value. That's why it wouldn't display in the export.
-=======
             'J' => '[group][title]'
->>>>>>> Group ID, not group.
-        ];
-=======
-            'J' => '[group][title]'
-<<<<<<< HEAD
->>>>>>> Beginning to rearrange the columns of the output Excel spreadsheet.
-=======
-        ];
->>>>>>> Rearranging columns and headers.
+	        ];
 
         foreach ($columns as $column => $field) {
             $this->addCellIfExists($sheet, $column, $row, $rowData, $field);
