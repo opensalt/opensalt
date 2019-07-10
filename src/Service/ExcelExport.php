@@ -256,6 +256,7 @@ final class ExcelExport
             'H' => '[destinationLsItem][humanCodingScheme]',
             'I' => '[group][identifier]',
 <<<<<<< HEAD
+<<<<<<< HEAD
             'J' => '[group][title]',
 =======
             'F' => '[destinationNodeIdentifier]',
@@ -283,6 +284,9 @@ final class ExcelExport
             'J' => '[group][title]'
 >>>>>>> Group ID, not group.
         ];
+=======
+            'J' => '[group][title]'
+>>>>>>> Beginning to rearrange the columns of the output Excel spreadsheet.
 
         foreach ($columns as $column => $field) {
             $this->addCellIfExists($sheet, $column, $row, $rowData, $field);
