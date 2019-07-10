@@ -244,11 +244,19 @@ final class ExcelExport
             'C' => '[originNodeIdentifier]',
             'D' => '[originLsItem][humanCodingScheme]',
             'E' => '[type]',
+<<<<<<< HEAD
             'F' => '[destinationNodeUri]',
             'G' => '[destinationNodeIdentifier]',
             'H' => '[destinationLsItem][humanCodingScheme]',
             'I' => '[group][identifier]',
             'J' => '[group][title]',
+=======
+            'F' => '[destinationNodeIdentifier]',
+            'F' => '[destinationLsItem][humanCodingScheme]',
+            'G' => '[destinationNodeIdentifier]',
+            'H' => '[group]',
+            'I' => '[groupName]',
+>>>>>>> Beginning to rearrange the columns of the output Excel spreadsheet.
         ];
 
         foreach ($columns as $column => $field) {
