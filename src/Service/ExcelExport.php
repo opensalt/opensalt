@@ -238,13 +238,15 @@ final class ExcelExport
     {
         $columns = [
             'A' => '[identifier]',
-            'B' => '[originNodeIdentifier]',
-            'C' => '[originLsItem][humanCodingScheme]',
-            'D' => '[type]',
-            'E' => '[destinationLsItem][humanCodingScheme]',
+            'B' => '[originNodeURI]',
+            'C' => '[originNodeIdentifier]',
+            'D' => '[originLsItem][humanCodingScheme]',
+            'E' => '[type]',
             'F' => '[destinationNodeIdentifier]',
-            'G' => '[group]',
-            'H' => '[groupName]',
+            'F' => '[destinationLsItem][humanCodingScheme]',
+            'G' => '[destinationNodeIdentifier]',
+            'H' => '[group]',
+            'I' => '[groupName]',
         ];
 
         foreach ($columns as $column => $field) {
