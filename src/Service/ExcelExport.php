@@ -130,7 +130,7 @@ final class ExcelExport
             ->setCellValue('E2', $cfDoc->getOfficialUri())
             ->setCellValue('F2', $cfDoc->getPublisher())
             ->setCellValue('G2', $cfDoc->getDescription())
-            ->setCellValue('H2', implode('|', $cfDoc->getSubject()))
+            ->setCellValue('H2', $cfDoc->getSubject())
             ->setCellValue('I2', $cfDoc->getLanguage())
             ->setCellValue('J2', $cfDoc->getVersion())
             ->setCellValue('K2', $cfDoc->getAdoptionStatus())
@@ -168,15 +168,13 @@ final class ExcelExport
         $activeSheet = $phpExcelObject->setActiveSheetIndex(2);
         $activeSheet
             ->setCellValue('A1', 'identifier')
-            ->setCellValue('B1', 'originNodeURI')
-            ->setCellValue('C1', 'originNodeIdentifier')
-            ->setCellValue('D1', 'originNodeHumanCodingScheme')
-            ->setCellValue('E1', 'associationType')
-            ->setCellValue('F1', 'destinationNodeURI')
-	        ->setCellValue('H1', 'destinationNodeIdentifier')
-            ->setCellValue('G1', 'destinationNodeHumanCodingScheme')
-            ->setCellValue('I1', 'associationGroupIdentifier')
-            ->setCellValue('J1', 'associationGroupName')
+            ->setCellValue('B1', 'originNodeIdentifier')
+            ->setCellValue('C1', 'originNodeHumanCodingScheme')
+            ->setCellValue('D1', 'associationType')
+            ->setCellValue('E1', 'destinationNodeHumanCodingScheme')
+            ->setCellValue('F1', 'destinationNodeIdentifier')
+            ->setCellValue('G1', 'associationGroupIdentifier')
+            ->setCellValue('H1', 'associationGroupName')
             ->setTitle('CF Association');
 
         $j = 2;
@@ -217,7 +215,7 @@ final class ExcelExport
             'D' => '[smartLevel]',
             'E' => '[listEnumInSource]',
             'F' => '[abbreviatedStatement]',
-            'G' => '[conceptKeywordsString]',
+            'G' => '[conceptKeywords]',
             'H' => '[notes]',
             'I' => '[language]',
             'J' => '[educationalAlignment]',
@@ -244,11 +242,11 @@ final class ExcelExport
             'C' => '[originNodeIdentifier]',
             'D' => '[originLsItem][humanCodingScheme]',
             'E' => '[type]',
-            'F' => '[destinationNodeUri]',
+            'F' => '[destinationNodeIdentifier]',
+            'F' => '[destinationLsItem][humanCodingScheme]',
             'G' => '[destinationNodeIdentifier]',
-            'H' => '[destinationLsItem][humanCodingScheme]',
-            'I' => '[group][identifier]',
-            'J' => '[group][title]'
+            'H' => '[group]',
+            'I' => '[groupName]',
         ];
 
         foreach ($columns as $column => $field) {
