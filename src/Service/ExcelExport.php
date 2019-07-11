@@ -249,6 +249,7 @@ final class ExcelExport
             'H' => '[destinationLsItem][humanCodingScheme]',
             'I' => '[group][identifier]',
             'J' => '[group][title]'
+        ];
 
         foreach ($columns as $column => $field) {
             $this->addCellIfExists($sheet, $column, $row, $rowData, $field);
