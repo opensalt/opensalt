@@ -173,8 +173,13 @@ final class ExcelExport
             ->setCellValue('D1', 'originNodeHumanCodingScheme')
             ->setCellValue('E1', 'associationType')
             ->setCellValue('F1', 'destinationNodeURI')
+<<<<<<< HEAD
             ->setCellValue('G1', 'destinationNodeIdentifier')
             ->setCellValue('H1', 'destinationNodeHumanCodingScheme')
+=======
+	        ->setCellValue('H1', 'destinationNodeIdentifier')
+            ->setCellValue('G1', 'destinationNodeHumanCodingScheme')
+>>>>>>> Rearranging columns and headers.
             ->setCellValue('I1', 'associationGroupIdentifier')
             ->setCellValue('J1', 'associationGroupName')
             ->setTitle('CF Association');
@@ -252,11 +257,18 @@ final class ExcelExport
             'J' => '[group][title]',
 =======
             'F' => '[destinationNodeIdentifier]',
+<<<<<<< HEAD
             'F' => '[destinationLsItem][humanCodingScheme]',
             'G' => '[destinationNodeIdentifier]',
             'H' => '[group]',
             'I' => '[groupName]',
 >>>>>>> Beginning to rearrange the columns of the output Excel spreadsheet.
+=======
+            'G' => '[destinationLsItem][humanCodingScheme]',
+            'H' => '[destinationNodeIdentifier]',
+            'I' => '[group]',
+            'J' => '[groupName]',
+>>>>>>> Rearranging columns and headers.
         ];
 
         foreach ($columns as $column => $field) {
