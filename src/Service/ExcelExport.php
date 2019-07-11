@@ -286,7 +286,11 @@ final class ExcelExport
         ];
 =======
             'J' => '[group][title]'
+<<<<<<< HEAD
 >>>>>>> Beginning to rearrange the columns of the output Excel spreadsheet.
+=======
+        ];
+>>>>>>> Rearranging columns and headers.
 
         foreach ($columns as $column => $field) {
             $this->addCellIfExists($sheet, $column, $row, $rowData, $field);
