@@ -168,13 +168,15 @@ final class ExcelExport
         $activeSheet = $phpExcelObject->setActiveSheetIndex(2);
         $activeSheet
             ->setCellValue('A1', 'identifier')
-            ->setCellValue('B1', 'originNodeIdentifier')
-            ->setCellValue('C1', 'originNodeHumanCodingScheme')
-            ->setCellValue('D1', 'associationType')
-            ->setCellValue('E1', 'destinationNodeHumanCodingScheme')
-            ->setCellValue('F1', 'destinationNodeIdentifier')
-            ->setCellValue('G1', 'associationGroupIdentifier')
-            ->setCellValue('H1', 'associationGroupName')
+            ->setCellValue('B1', 'originNodeURI')
+            ->setCellValue('C1', 'originNodeIdentifier')
+            ->setCellValue('D1', 'originNodeHumanCodingScheme')
+            ->setCellValue('E1', 'associationType')
+            ->setCellValue('F1', 'destinationNodeURI')
+	        ->setCellValue('H1', 'destinationNodeIdentifier')
+            ->setCellValue('G1', 'destinationNodeHumanCodingScheme')
+            ->setCellValue('I1', 'associationGroupIdentifier')
+            ->setCellValue('J1', 'associationGroupName')
             ->setTitle('CF Association');
 
         $j = 2;
@@ -243,10 +245,10 @@ final class ExcelExport
             'D' => '[originLsItem][humanCodingScheme]',
             'E' => '[type]',
             'F' => '[destinationNodeIdentifier]',
-            'F' => '[destinationLsItem][humanCodingScheme]',
-            'G' => '[destinationNodeIdentifier]',
-            'H' => '[group]',
-            'I' => '[groupName]',
+            'G' => '[destinationLsItem][humanCodingScheme]',
+            'H' => '[destinationNodeIdentifier]',
+            'I' => '[group]',
+            'J' => '[groupName]',
         ];
 
         foreach ($columns as $column => $field) {
