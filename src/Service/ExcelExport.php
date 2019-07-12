@@ -266,9 +266,14 @@ final class ExcelExport
 =======
             'G' => '[destinationLsItem][humanCodingScheme]',
             'H' => '[destinationNodeIdentifier]',
+<<<<<<< HEAD
             'I' => '[groupUri]',
             'J' => '[groupName]',
 >>>>>>> Rearranging columns and headers.
+=======
+            'I' => '[group][identifier]',
+            'J' => '[group][title]',
+>>>>>>> 'group' is a sub-array, not a single value. That's why it wouldn't display in the export.
         ];
 
         foreach ($columns as $column => $field) {
