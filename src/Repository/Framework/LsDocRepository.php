@@ -535,7 +535,6 @@ xENDx;
         $query->setParameter('lsDocId', $lsDoc->getId());
 
         $results = $query->getResult($format);
-        error_log(print_r($results, true));
 
         return $results;
     }
