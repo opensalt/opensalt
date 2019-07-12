@@ -247,7 +247,7 @@ final class ExcelExport
             'F' => '[destinationNodeIdentifier]',
             'G' => '[destinationLsItem][humanCodingScheme]',
             'H' => '[destinationNodeIdentifier]',
-            'I' => '[group]',
+            'I' => '[groupUri]',
             'J' => '[groupName]',
         ];
 
