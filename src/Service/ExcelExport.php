@@ -266,7 +266,7 @@ final class ExcelExport
 =======
             'G' => '[destinationLsItem][humanCodingScheme]',
             'H' => '[destinationNodeIdentifier]',
-            'I' => '[group]',
+            'I' => '[groupUri]',
             'J' => '[groupName]',
 >>>>>>> Rearranging columns and headers.
         ];
