@@ -255,6 +255,7 @@ final class ExcelExport
             'G' => '[destinationNodeIdentifier]',
             'H' => '[destinationLsItem][humanCodingScheme]',
             'I' => '[group][identifier]',
+<<<<<<< HEAD
             'J' => '[group][title]',
 =======
             'F' => '[destinationNodeIdentifier]',
@@ -278,6 +279,9 @@ final class ExcelExport
             'I' => '[group][identifier]',
             'J' => '[group][title]',
 >>>>>>> 'group' is a sub-array, not a single value. That's why it wouldn't display in the export.
+=======
+            'J' => '[group][title]'
+>>>>>>> Group ID, not group.
         ];
 
         foreach ($columns as $column => $field) {
