@@ -250,6 +250,7 @@ final class ExcelExport
             'D' => '[originLsItem][humanCodingScheme]',
             'E' => '[type]',
 <<<<<<< HEAD
+<<<<<<< HEAD
             'F' => '[destinationNodeUri]',
             'G' => '[destinationNodeIdentifier]',
             'H' => '[destinationLsItem][humanCodingScheme]',
@@ -264,6 +265,9 @@ final class ExcelExport
             'I' => '[groupName]',
 >>>>>>> Beginning to rearrange the columns of the output Excel spreadsheet.
 =======
+=======
+            'F' => '[destinationNodeUri]',
+>>>>>>> Used the identifier instead of the URI for one field.
             'G' => '[destinationLsItem][humanCodingScheme]',
             'H' => '[destinationNodeIdentifier]',
 <<<<<<< HEAD
