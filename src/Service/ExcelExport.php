@@ -244,7 +244,7 @@ final class ExcelExport
             'C' => '[originNodeIdentifier]',
             'D' => '[originLsItem][humanCodingScheme]',
             'E' => '[type]',
-            'F' => '[destinationNodeIdentifier]',
+            'F' => '[destinationNodeUri]',
             'G' => '[destinationLsItem][humanCodingScheme]',
             'H' => '[destinationNodeIdentifier]',
             'I' => '[group][identifier]',
