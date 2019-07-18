@@ -242,12 +242,16 @@ final class ExcelImport
     private function saveAssociation(Worksheet $sheet, LsDoc $doc, int $row, array $items, array $children): ?LsAssociation
     {
         $fieldNames = [
-            1 => 'identifier',
-            2 => 'originNodeIdentifier',
-            4 => 'associationType',
-            6 => 'destinationNodeIdentifier',
-            7 => 'associationGroupIdentifier',
-            8 => 'associationGroupName',
+	        1 => 'identifier',
+	        2 => 'originNodeURI',
+	        3 => 'originNodeIdentifier',
+	        4 => 'originLsItemhumanCodingScheme',
+	        5 => 'associationType',
+	        6 => 'destinationNodeUri',
+	        7 => 'destinationLsItemhumanCodingScheme',
+	        8 => 'destinationNodeIdentifier',
+	        9 => 'associationGroupIdentifier',
+	        10 => 'associationGroupName',
         ];
 
         $itemRepo = $this->getEntityManager()->getRepository(LsItem::class);
