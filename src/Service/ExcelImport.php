@@ -320,9 +320,10 @@ final class ExcelImport
 
         if (!empty($fields['associationGroupIdentifier'])) {
 	        $associationGrouping = $this->getEntityManager()->getRepository(LsDefAssociationGrouping::class)
-	                                          ->findOneBy(['identifier' => $fields['associationGroupIdentifier']]);
+	                                                        ->findOneBy(['identifier' => $fields['associationGroupIdentifier']]);
 	        if(null === $associationGrouping) {
 		        $associationGrouping = new LsDefAssociationGrouping();
+		        $associationGrouping->setIdentifier($fields['associationGroupIdentifier']);
 		        $associationGrouping->setLsDoc($doc);
 		        $associationGrouping->setTitle($fields['associationGroupName']);
 	        }
