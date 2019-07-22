@@ -320,12 +320,20 @@ final class ExcelImport
 
         if (!empty($fields['associationGroupIdentifier'])) {
 	        $associationGrouping = $this->getEntityManager()->getRepository(LsDefAssociationGrouping::class)
+<<<<<<< HEAD
 	                                                        ->findOneBy(['identifier' => $fields['associationGroupIdentifier']]);
+=======
+	                                          ->findOneBy(['identifier' => $fields['associationGroupIdentifier']);
+>>>>>>> Previous code was not checking for the existance of a current Association grouping and thus was creating duplicates instead of assigning to the existing groups.
 	        if(null === $associationGrouping) {
 		        $associationGrouping = new LsDefAssociationGrouping();
 		        $associationGrouping->setLsDoc($doc);
 		        $associationGrouping->setTitle($fields['associationGroupName']);
 	        }
+<<<<<<< HEAD
+=======
+            $association->setGroup($associationGrouping);
+>>>>>>> Previous code was not checking for the existance of a current Association grouping and thus was creating duplicates instead of assigning to the existing groups.
             $this->getEntityManager()->persist($associationGrouping);
 	        $this->getEntityManager()->flush();
 	        $association->setGroup($associationGrouping);
