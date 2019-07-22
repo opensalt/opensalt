@@ -319,17 +319,15 @@ final class ExcelImport
         }
 
         if (!empty($fields['associationGroupIdentifier'])) {
-	        $associationGrouping = $this->getEntityManager()->getRepository( LsDefAssociationGrouping::class )
-	                                    ->findOneBy( [ 'identifier' => $fields['associationGroupIdentifier'] ] );
-	        if ( null === $associationGrouping ) {
+	        $associationGrouping = $this->getEntityManager()->getRepository(LsDefAssociationGrouping::class)
+	                                          ->findOneBy(['identifier' => $fields['associationGroupIdentifier']);
+	        if(null === $associationGrouping) {
 		        $associationGrouping = new LsDefAssociationGrouping();
-		        $associationGrouping->setLsDoc( $doc );
-		        $associationGrouping->setTitle( $fields['associationGroupName'] );
+		        $associationGrouping->setLsDoc($doc);
+		        $associationGrouping->setTitle($fields['associationGroupName']);
 	        }
-	        $association->setGroup( $associationGrouping );
-	        $this->getEntityManager()->persist( $associationGrouping );
-	        $this->getEntityManager()->flush();
-	        $association->setGroup($associationGrouping);
+            $association->setGroup($associationGrouping);
+            $this->getEntityManager()->persist($associationGrouping);
         }
         $this->getEntityManager()->persist($association);
 
