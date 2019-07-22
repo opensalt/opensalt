@@ -29,6 +29,7 @@
                 <th>Publisher</th>
                 <td>{{ lsDoc.publisher }}</td>
             </tr>
+             {% if (is_granted('ROLE_SUPER_USER')) %}
             <tr>
                 <th>Owning Organization</th>
                 <td>{{ lsDoc.org.name|default('') }}</td>
@@ -37,6 +38,7 @@
                 <th>Owning User</th>
                 <td>{{ lsDoc.user.username|default('') }}</td>
             </tr>
+            {% endif %}
             <tr>
                 <th>Title</th>
                 <td>{{ lsDoc.title }}</td>
