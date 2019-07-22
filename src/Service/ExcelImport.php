@@ -322,6 +322,7 @@ final class ExcelImport
 	        $associationGrouping = $this->getEntityManager()->getRepository(LsDefAssociationGrouping::class)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	                                                        ->findOneBy(['identifier' => $fields['associationGroupIdentifier']]);
 =======
 	                                          ->findOneBy(['identifier' => $fields['associationGroupIdentifier']);
@@ -329,9 +330,12 @@ final class ExcelImport
 =======
 	                                          ->findOneBy(['identifier' => $fields['associationGroupIdentifier']]);
 >>>>>>> Syntax error line 325.
+=======
+	                                                        ->findOneBy(['identifier' => $fields['associationGroupIdentifier']]);
+>>>>>>> Need to explicitly set the identifier for each Association Group.
 	        if(null === $associationGrouping) {
 		        $associationGrouping = new LsDefAssociationGrouping();
-		        // $associationGrouping->setIdentifier($fields['associationGroupIdentifier']);
+		        $associationGrouping->setIdentifier($fields['associationGroupIdentifier']);
 		        $associationGrouping->setLsDoc($doc);
 		        $associationGrouping->setTitle($fields['associationGroupName']);
 	        }
