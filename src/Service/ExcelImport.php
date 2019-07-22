@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Framework\ImportLog;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDefItemType;
@@ -145,7 +146,7 @@ final class ExcelImport
         $doc->setOfficialUri($this->getCellValueOrNull($sheet, 5, 2));
         $doc->setPublisher($this->getCellValueOrNull($sheet, 6, 2));
         $doc->setDescription($this->getCellValueOrNull($sheet, 7, 2));
-        $doc->setSubject(explode('|', $this->getCellValueOrNull($sheet, 8, 2)));
+        $doc->setSubject($this->getCellValueOrNull($sheet, 8, 2));
         $doc->setLanguage($this->getCellValueOrNull($sheet, 9, 2));
         $doc->setVersion($this->getCellValueOrNull($sheet, 10, 2));
         if (!empty($this->getCellValueOrNull($sheet, 11, 2))) {
@@ -218,7 +219,7 @@ final class ExcelImport
             // col 4 - smart level
             $item->setListEnumInSource($this->getCellValueOrNull($sheet, 5, $row));
             $item->setAbbreviatedStatement($this->getCellValueOrNull($sheet, 6, $row));
-            $item->setConceptKeywordsString($this->getCellValueOrNull($sheet, 7, $row));
+            $item->setConceptKeywords($this->getCellValueOrNull($sheet, 7, $row));
             $item->setNotes($this->getCellValueOrNull($sheet, 8, $row));
             $item->setLanguage($this->getCellValueOrNull($sheet, 9, $row));
             $this->setEducationalAlignment($item, $this->getCellValueOrNull($sheet, 10, $row));
@@ -311,6 +312,7 @@ final class ExcelImport
         if (in_array($associationType, $allTypes, true)) {
             $association->setType($fields['associationType']);
         } else {
+            $log = new ImportLog();
             $log->setLsDoc($doc);
             $log->setMessageType('error');
             $log->setMessage("Invalid Association Type ({$associationType} on row {$row}.");
@@ -320,16 +322,16 @@ final class ExcelImport
 
         if (!empty($fields['associationGroupIdentifier'])) {
 	        $associationGrouping = $this->getEntityManager()->getRepository(LsDefAssociationGrouping::class)
-	                                                        ->findOneBy(['identifier' => $fields['associationGroupIdentifier']]);
+	                                          ->findOneBy(['identifier' => $fields['associationGroupIdentifier']);
 	        if(null === $associationGrouping) {
 		        $associationGrouping = new LsDefAssociationGrouping();
 		        $associationGrouping->setLsDoc($doc);
 		        $associationGrouping->setTitle($fields['associationGroupName']);
 	        }
+            $association->setGroup($associationGrouping);
             $this->getEntityManager()->persist($associationGrouping);
-	        $this->getEntityManager()->flush();
-	        $association->setGroup($associationGrouping);
         }
+
         $this->getEntityManager()->persist($association);
 
         return $association;
