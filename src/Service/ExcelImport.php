@@ -325,13 +325,11 @@ final class ExcelImport
 	                                                        ->findOneBy(['identifier' => $fields['associationGroupIdentifier']]);
 	        if(null === $associationGrouping) {
 		        $associationGrouping = new LsDefAssociationGrouping();
-		        // $associationGrouping->setIdentifier($fields['associationGroupIdentifier']);
 		        $associationGrouping->setLsDoc($doc);
 		        $associationGrouping->setTitle($fields['associationGroupName']);
-		        $associationGrouping->getEntityManager()->persist($associationGrouping);
 	        }
-            $association->setGroup($associationGrouping);
             $this->getEntityManager()->persist($associationGrouping);
+	        $association->setGroup($associationGrouping);
         }
 
         $this->getEntityManager()->persist($association);
