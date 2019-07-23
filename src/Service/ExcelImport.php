@@ -335,9 +335,10 @@ final class ExcelImport
 >>>>>>> Need to explicitly set the identifier for each Association Group.
 	        if(null === $associationGrouping) {
 		        $associationGrouping = new LsDefAssociationGrouping();
-		        $associationGrouping->setIdentifier($fields['associationGroupIdentifier']);
+		        // $associationGrouping->setIdentifier($fields['associationGroupIdentifier']);
 		        $associationGrouping->setLsDoc($doc);
 		        $associationGrouping->setTitle($fields['associationGroupName']);
+		        $associationGrouping->getEntityManager()->persist($associationGrouping);
 	        }
 <<<<<<< HEAD
 =======
