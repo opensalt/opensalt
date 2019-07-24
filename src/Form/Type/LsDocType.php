@@ -16,7 +16,7 @@ class LsDocType extends AbstractLsDocCreateType
             // TODO: These are placeholder, they should be determined upon creation with a choice of Org or User ownership
             ->add('org', EntityType::class, [
                 'required' => false,
-                'disabled' => true,
+                'disabled' => false,
                 'placeholder' => 'None',
                 'label' => 'Owning Organization',
                 'class' => 'App\Entity\User\Organization',
