@@ -328,6 +328,7 @@ final class ExcelImport
 		        $associationGrouping->setTitle($fields['associationGroupName']);
 	        }
             $this->getEntityManager()->persist($associationGrouping);
+	        $this->getEntityManager()->flush();
 	        $association->setGroup($associationGrouping);
         }
         $this->getEntityManager()->persist($association);
