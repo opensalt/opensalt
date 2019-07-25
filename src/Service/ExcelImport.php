@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Entity\Framework\ImportLog;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDefItemType;
@@ -312,7 +311,6 @@ final class ExcelImport
         if (in_array($associationType, $allTypes, true)) {
             $association->setType($fields['associationType']);
         } else {
-            $log = new ImportLog();
             $log->setLsDoc($doc);
             $log->setMessageType('error');
             $log->setMessage("Invalid Association Type ({$associationType} on row {$row}.");
@@ -329,6 +327,7 @@ final class ExcelImport
 		        $associationGrouping->setTitle($fields['associationGroupName']);
 	        }
             $this->getEntityManager()->persist($associationGrouping);
+	        $this->getEntityManager()->flush();
 	        $association->setGroup($associationGrouping);
         }
 
