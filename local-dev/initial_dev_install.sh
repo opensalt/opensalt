@@ -7,6 +7,9 @@ cp docker/.env.dist docker/.env
 ln -sf docker/.env ./.env
 ln -sf docker-compose.dev.yml docker/docker-compose.yml
 
+# Set permissions on the cache and MySQL directories:
+chown -R 777 docker/data/mysql
+
 # Replace tokens with random values
 TOKEN=$(openssl rand -base64 33)
 sed "s#ThisTokenIsNotSoSecretSoChangeIt#${TOKEN}#" docker/.env >! docker/.env.tmp
