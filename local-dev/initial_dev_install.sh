@@ -7,10 +7,6 @@ cp docker/.env.dist docker/.env
 ln -sf docker/.env ./.env
 ln -sf docker-compose.dev.yml docker/docker-compose.yml
 
-# Set permissions on the cache and MySQL directories:
-chown -R 777 var/cache
-chown -R 777 docker/data/mysql
-
 # Replace tokens with random values
 TOKEN=$(openssl rand -base64 33)
 sed "s#ThisTokenIsNotSoSecretSoChangeIt#${TOKEN}#" docker/.env >! docker/.env.tmp
@@ -24,6 +20,10 @@ make up
 # Install libraries, create css and js files, and setup database
 touch -c composer.lock yarn.lock
 make update
+
+# Set permissions on the cache and MySQL directories:
+chown -R 777 var/cache
+chown -R 777 docker/data/mysql
 
 # Add an initial super user
 ./bin/console salt:user:add admin Unknown --password=secret --role=super-user
