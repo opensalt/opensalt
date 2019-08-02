@@ -102,4 +102,8 @@ pw-archive/
 !/var/sessions/.gitkeep
 !/var/SymfonyRequirements.php
 /vendor/
+
+### cache file ###
+c3.php
+
 ###< symfony/framework-bundle ###
