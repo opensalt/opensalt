@@ -2,6 +2,12 @@
 # yarn lockfile v1
 
 
+"@iktakahiro/markdown-it-katex@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@iktakahiro/markdown-it-katex/-/markdown-it-katex-3.1.0.tgz#cd40c1037f038ab00cbfee2464604435848deae9"
+  dependencies:
+    katex "^0.10.0"
+
 "@symfony/webpack-encore@^0.19.0":
   version "0.19.0"
   resolved "https://registry.yarnpkg.com/@symfony/webpack-encore/-/webpack-encore-0.19.0.tgz#f0725dbbede5ff9d9fdbd7a07f84accafc83ca14"
@@ -50,10 +56,6 @@
     "@types/tapable" "^0"
     "@types/uglify-js" "*"
     source-map "^0.6.0"
-
-"@yarnpkg/lockfile@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
 
 abbrev@1:
   version "1.1.1"
@@ -1310,7 +1312,7 @@ combined-stream@^1.0.5, combined-stream@~1.0.5, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@^2.10.0:
+commander@^2.19.0:
   version "2.20.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.0.tgz#d58bb2b5c1ee8f87b0d340027e9e94e222c5a422"
 
@@ -3246,7 +3248,7 @@ jquery@>=1.7, jquery@>=1.9.0:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
 
-jquery@^3.4.1:
+jquery@^3.3.1:
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.4.1.tgz#714f1f8d9dde4bdfa55764ba37ef214630d80ef2"
 
@@ -3339,11 +3341,11 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-katex@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.6.0.tgz#12418e09121c05c92041b6b3b9fb6bab213cb6f3"
+katex@^0.10.0:
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.10.2.tgz#39973edbb65eda5b6f9e7f41648781e557dd4932"
   dependencies:
-    match-at "^0.1.0"
+    commander "^2.19.0"
 
 killable@^1.0.0:
   version "1.0.1"
@@ -3593,12 +3595,6 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-markdown-it-katex@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/markdown-it-katex/-/markdown-it-katex-2.0.3.tgz#d7b86a1aea0b9d6496fab4e7919a18fdef589c39"
-  dependencies:
-    katex "^0.6.0"
-
 markdown-it-underline@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/markdown-it-underline/-/markdown-it-underline-1.0.1.tgz#43a54a541d95d739b43157701f1da306d7c300b2"
@@ -3616,10 +3612,6 @@ markdown-it@^8.4.1:
 marked@*:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/marked/-/marked-0.5.0.tgz#9e590bad31584a48ff405b33ab1c0dd25172288e"
-
-match-at@^0.1.0:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/match-at/-/match-at-0.1.1.tgz#25d040d291777704d5e6556bbb79230ec2de0540"
 
 math-expression-evaluator@^1.2.14:
   version "1.2.17"
@@ -6255,11 +6247,3 @@ yargs@~3.10.0:
     cliui "^2.1.0"
     decamelize "^1.0.0"
     window-size "0.1.0"
-
-yarn-deduplicate@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/yarn-deduplicate/-/yarn-deduplicate-1.1.1.tgz#19b4a87654b66f55bf3a4bd6b153b4e4ab1b6e6d"
-  dependencies:
-    "@yarnpkg/lockfile" "^1.1.0"
-    commander "^2.10.0"
-    semver "^5.3.0"
