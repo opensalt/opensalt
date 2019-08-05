@@ -5,6 +5,7 @@
   "repository": "https://github.com/opensalt/opensalt",
   "license": "MIT",
   "dependencies": {
+    "@iktakahiro/markdown-it-katex": "github:iktakahiro/markdown-it-katex",
     "ajaxq": "^0.0.7",
     "bootstrap-material-icons": "^2.2.0",
     "bootstrap-multiselect": "=0.9.13",
@@ -29,7 +30,6 @@
     "jquery-ui-bundle": "^1.12.0",
     "jquery.fancytree": "=2.24.0",
     "markdown-it": "^8.4.1",
-    "@iktakahiro/markdown-it-katex": "^3.1.0",
     "markdown-it-underline": "^1.0.1",
     "modernizr": "^3.3.1",
     "normalize.css": "^3.0.3",

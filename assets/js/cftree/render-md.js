@@ -1,7 +1,7 @@
 const render = (function() {
     let
         underline = require('markdown-it-underline'),
-        mk = require('markdown-it-katex'),
+        mk = require('iktakahiro/markdown-it-katex'),
         markdown = require('markdown-it'),
         md = markdown('default', {
             html: true,
