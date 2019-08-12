@@ -103,3 +103,7 @@ pw-archive/
 !/var/SymfonyRequirements.php
 /vendor/
 ###< symfony/framework-bundle ###
+
+### Cache file:
+/c3.php
+
