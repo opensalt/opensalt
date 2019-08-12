@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@iktakahiro/markdown-it-katex@^3.1.0":
+"@iktakahiro/markdown-it-katex@github:iktakahiro/markdown-it-katex":
   version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@iktakahiro/markdown-it-katex/-/markdown-it-katex-3.1.0.tgz#cd40c1037f038ab00cbfee2464604435848deae9"
+  resolved "https://codeload.github.com/iktakahiro/markdown-it-katex/tar.gz/e494b209c8e8886da9372c7a61bc806dfa3f0cdd"
   dependencies:
     katex "^0.10.0"
 

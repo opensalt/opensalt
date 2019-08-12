@@ -43,6 +43,7 @@ fs.writeFileSync('./build/js/apx.js', apxScripts.map((f) => {
 }).join(';'));
 
 const mainScripts = [
+    npmDir+'/@iktakahiro/markdown-it-katex/index.js',
     npmDir+'/datatables.net/js/jquery.dataTables.js',
     npmDir+'/datatables.net-bs/js/dataTables.bootstrap.js',
     npmDir+'/datatables.net-fixedheader/js/dataTables.fixedHeader.js',
