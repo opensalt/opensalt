@@ -226,9 +226,6 @@
                                                 <button type="button" id="js-copy-framework-modal-button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#copyFrameworkModal" data-alt-document-disabled="true">
                                                     Copy Framework
                                                 </button>
-                                                <button type="button" id="js-clone-framework-modal-button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#cloneFrameworkModal" data-alt-document-disabled="true">
-                                                    Clone Framework
-                                                </button>
                                                 <a href="{{ path('clone_framework', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Clone Framework</a>
                                             {% endif %}
                                             {% if lsDoc.importLogs is not empty %}
@@ -473,7 +470,10 @@
         </div>
         <div class="modal fade" id="cloneFrameworkModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog modal-lg" role="document">
+<<<<<<< HEAD
 
+=======
+>>>>>>> Adding a new modal window for copying frameworks.
                 <div class="modal-content">
                     <form id="copyFrameworkForm">
                         <div class="modal-header">
