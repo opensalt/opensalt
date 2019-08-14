@@ -26,8 +26,11 @@ class CloneController extends AbstractController
      */
     public function frameworkAction(Request $request, LsDoc $lsDoc): Response
     {
+	    $originalLsDoc = $eManager->getRepository(LsDoc::class)->find($lsDoc);
+    	$eManager = $this->getDoctrine()->getManager();
         $command = new CloneFrameworkCommand($lsDoc);
         $this->sendCommand($command);
+	    $newLsDoc = $eManager->getRepository(LsDoc::class)->find($frameworkToCopy);
 
         return $this->redirectToRoute('doc_tree_view', ['slug' => $lsDoc->getId()]);
     }
