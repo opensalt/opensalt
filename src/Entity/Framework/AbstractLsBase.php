@@ -95,7 +95,7 @@ class AbstractLsBase implements IdentifiableInterface
         }
 
         $this->identifier = $identifier;
-        $this->uri = 'local:'.$this->identifier;
+        $this->uri = $this->siteURL().$this->identifier;
 
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -111,11 +111,18 @@ class AbstractLsBase implements IdentifiableInterface
         // Generate a new identifier
         $identifier = Uuid::uuid1()->toString();
         $this->identifier = $identifier;
-        $this->uri = 'local:'.$this->identifier;
+        $this->uri = $this->siteURL().$this->identifier;
 
         // Set last change/update to now
         $this->updatedAt = new \DateTimeImmutable();
     }
+
+	public function siteURL()
+	{
+		$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+		$domainName = $_SERVER['HTTP_HOST'].'/';
+		return $protocol.$domainName;
+	}
 
     /**
      * Get the internal id of the object (or null if not persisted).
