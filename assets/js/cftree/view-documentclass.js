@@ -1529,7 +1529,7 @@ function ApxDocument(initializer) {
 
                     // TODO: deal with cku, licenceUri
                     // for uri, get it from the ApxDocument
- 
+
                     val = render.escaped(val);
 
                     html += $('<div>').append(
@@ -1812,8 +1812,8 @@ function ApxDocument(initializer) {
         // if item comes from another doc, note that
         if (!empty(doc) && typeof(doc) === "object" && doc !== self) {
             let docTitle = doc.doc.title;
-            if (docTitle.length > 30) {
-                docTitle = docTitle.substr(0, 35);
+            if (docTitle.length > 60) {
+                docTitle = docTitle.substr(0, 65);
                 docTitle = docTitle.replace(/\w+$/, "");
                 docTitle += "…";
             }
