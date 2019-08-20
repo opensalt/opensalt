@@ -7883,16 +7883,16 @@
         },
         {
             "name": "symfony/polyfill-intl-idn",
-            "version": "v1.11.0",
+            "version": "v1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-idn.git",
-                "reference": "c766e95bec706cdd89903b1eda8afab7d7a6b7af"
+                "reference": "6af626ae6fa37d396dc90a399c0ff08e5cfc45b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/c766e95bec706cdd89903b1eda8afab7d7a6b7af",
-                "reference": "c766e95bec706cdd89903b1eda8afab7d7a6b7af",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/6af626ae6fa37d396dc90a399c0ff08e5cfc45b2",
+                "reference": "6af626ae6fa37d396dc90a399c0ff08e5cfc45b2",
                 "shasum": ""
             },
             "require": {
@@ -7906,7 +7906,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.9-dev"
+                    "dev-master": "1.12-dev"
                 }
             },
             "autoload": {
@@ -7923,12 +7923,12 @@
             ],
             "authors": [
                 {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                },
-                {
                     "name": "Laurent Bassin",
                     "email": "laurent@bassin.info"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
                 }
             ],
             "description": "Symfony polyfill for intl's idn_to_ascii and idn_to_utf8 functions",
@@ -7941,7 +7941,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2019-03-04T13:44:35+00:00"
+            "time": "2019-08-06T08:03:45+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -11842,16 +11842,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v4.2.2",
+            "version": "v4.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "1bd73cc04c3843ad8d6b0bfc0956026a151fc420"
+                "reference": "e612609022e935f3d0337c1295176505b41188c8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/1bd73cc04c3843ad8d6b0bfc0956026a151fc420",
-                "reference": "1bd73cc04c3843ad8d6b0bfc0956026a151fc420",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/e612609022e935f3d0337c1295176505b41188c8",
+                "reference": "e612609022e935f3d0337c1295176505b41188c8",
                 "shasum": ""
             },
             "require": {
@@ -11859,7 +11859,7 @@
                 "php": ">=7.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^6.5 || ^7.0"
+                "phpunit/phpunit": "^6.5 || ^7.0 || ^8.0"
             },
             "bin": [
                 "bin/php-parse"
@@ -11889,7 +11889,7 @@
                 "parser",
                 "php"
             ],
-            "time": "2019-05-25T20:07:01+00:00"
+            "time": "2019-08-12T20:17:41+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -13925,16 +13925,16 @@
         },
         {
             "name": "symfony/maker-bundle",
-            "version": "v1.12.0",
+            "version": "v1.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/maker-bundle.git",
-                "reference": "201d0e050dca336c44f93657ce1f34f3b3868432"
+                "reference": "c4388410e2fb6321e77c5dd6e3cb2dba821f9fe6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/maker-bundle/zipball/201d0e050dca336c44f93657ce1f34f3b3868432",
-                "reference": "201d0e050dca336c44f93657ce1f34f3b3868432",
+                "url": "https://api.github.com/repos/symfony/maker-bundle/zipball/c4388410e2fb6321e77c5dd6e3cb2dba821f9fe6",
+                "reference": "c4388410e2fb6321e77c5dd6e3cb2dba821f9fe6",
                 "shasum": ""
             },
             "require": {
@@ -13989,7 +13989,7 @@
                 "scaffold",
                 "scaffolding"
             ],
-            "time": "2019-07-09T22:19:18+00:00"
+            "time": "2019-08-18T17:34:03+00:00"
         },
         {
             "name": "symfony/phpunit-bridge",
