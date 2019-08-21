@@ -173,7 +173,7 @@ final class ExcelExport
             ->setCellValue('D1', 'originNodeHumanCodingScheme')
             ->setCellValue('E1', 'associationType')
             ->setCellValue('F1', 'destinationNodeURI')
-	        ->setCellValue('H1', 'destinationNodeIdentifier')
+            ->setCellValue('H1', 'destinationNodeIdentifier')
             ->setCellValue('G1', 'destinationNodeHumanCodingScheme')
             ->setCellValue('I1', 'associationGroupIdentifier')
             ->setCellValue('J1', 'associationGroupName')
