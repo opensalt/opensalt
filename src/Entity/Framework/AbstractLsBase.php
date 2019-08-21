@@ -95,7 +95,7 @@ class AbstractLsBase implements IdentifiableInterface
         }
 
         $this->identifier = $identifier;
-        $this->uri = 'local:' . $this->identifier;
+        $this->uri = 'local:'.$this->identifier;
 
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -103,17 +103,17 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * Clone the object.
      */
-	public function __clone()
-	{
-		// Clear values for new item
-		$this->id = null;
-		// Generate a new identifier
-		$identifier = Uuid::uuid1()->toString();
-		$this->identifier = $identifier;
-		$this->uri = 'local:'.$this->identifier;
-		// Set last change/update to now
-		$this->updatedAt = new \DateTimeImmutable();
-	}
+    public function __clone()
+    {
+        // Clear values for new item
+        $this->id = null;
+        // Generate a new identifier
+        $identifier = Uuid::uuid1()->toString();
+        $this->identifier = $identifier;
+        $this->uri = 'local:'.$this->identifier;
+        // Set last change/update to now
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 
     /**
      * Get the internal id of the object (or null if not persisted).
