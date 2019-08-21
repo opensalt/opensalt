@@ -16,17 +16,14 @@ parameters:
     env(MAILER_PASSWORD): null
     env(MAILER_AUTH_MODE): null
     env(MAILER_PORT): null
-    env(SECRET): null
-    env(APP_SECRET): '%env(SECRET)%'
+    env(APP_SECRET): null
     env(COOKIE_SECRET): null
-    env(LOCAL_URI_HOST): 'http://127.0.0.1:3000/'
     env(GITHUB_CLIENT_ID): null
     env(GITHUB_CLIENT_SECRET): null
     env(COMMENTS_FEATURE): inactive
     env(COMMENT_ATTACHMENTS): inactive
     env(CREATE_ACCOUNT_FEATURE): inactive
     env(USE_MAIL_FEATURE): inactive
-    env(VISUALIZATION_FEATURE): inactive
     env(MAIL_FEATURE_FROM_EMAIL): null
     env(BRAND_LOGO_URL): null
     env(BRAND_LOGO_STYLE): null
@@ -71,7 +68,6 @@ parameters:
     mailer_port: '%env(int:MAILER_PORT)%'
     secret: '%env(APP_SECRET)%'
     cookie_secret: '%env(COOKIE_SECRET)%'
-    local_uri_host: '%env(LOCAL_URI_HOST)%'
     github_client_id: '%env(GITHUB_CLIENT_ID)%'
     github_client_secret: '%env(GITHUB_CLIENT_SECRET)%'
     brand_logo_url: '%env(BRAND_LOGO_URL)%'
@@ -91,7 +87,6 @@ parameters:
     create_account_feature: '%env(CREATE_ACCOUNT_FEATURE)%'
     use_mail_feature: '%env(USE_MAIL_FEATURE)%'
     mail_feature_from_email: '%env(MAIL_FEATURE_FROM_EMAIL)%'
-    visualization_feature: '%env(VISUALIZATION_FEATURE)%'
     google_captcha_site_key: '%env(GOOGLE_CAPTCHA_SITE_KEY)%'
     google_captcha_secret_key: '%env(GOOGLE_CAPTCHA_SECRET_KEY)%'
     session_max_idle_time: '%env(int:SESSION_MAX_IDLE_TIME)%'
@@ -229,18 +224,3 @@ services:
             $namespace: 'externalDoc-'
             $defaultLifetime: 0
 
-    # Overrides
-    # Override vendor/theofidry/psysh-bundle/resources/config/test.xml test.client service
-    #          as it uses the deprecated Symfony\Bundle\FrameworkBundle\Client class
-    test.client:
-        class: 'Symfony\Bundle\FrameworkBundle\KernelBrowser'
-        public: true
-        arguments:
-            - '@kernel'
-            - []
-            - '@test.client.history'
-            - '@test.client.cookiejar'
-    test.client.history:
-        class: 'Symfony\Component\BrowserKit\History'
-    test.client.cookiejar:
-        class: 'Symfony\Component\BrowserKit\CookieJar'

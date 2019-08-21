@@ -200,6 +200,9 @@
     "google/cloud-storage": {
         "version": "v1.3.4"
     },
+    "google/crc32": {
+        "version": "v0.1.0"
+    },
     "google/recaptcha": {
         "version": "1.1.3"
     },
@@ -503,6 +506,9 @@
             "ref": "f7895777cd673fcefbc321a9063077a24e5df646"
         }
     },
+    "riverline/multipart-parser": {
+        "version": "2.0.3"
+    },
     "rize/uri-template": {
         "version": "0.3.2"
     },
@@ -659,12 +665,6 @@
             "ref": "8a2f7fa50a528f0aad1d7a87ae3730c981b367ce"
         }
     },
-    "symfony/http-client": {
-        "version": "v4.3.1"
-    },
-    "symfony/http-client-contracts": {
-        "version": "v1.1.3"
-    },
     "symfony/http-foundation": {
         "version": "v4.0.10"
     },
@@ -703,9 +703,6 @@
     },
     "symfony/options-resolver": {
         "version": "v4.0.10"
-    },
-    "symfony/panther": {
-        "version": "v0.2.0"
     },
     "symfony/phpunit-bridge": {
         "version": "3.3",
