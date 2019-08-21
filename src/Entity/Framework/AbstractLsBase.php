@@ -95,18 +95,10 @@ class AbstractLsBase implements IdentifiableInterface
         }
 
         $this->identifier = $identifier;
-        $host = $this->siteURL();
-        $this->uri = $host . $this->identifier;
+        $this->uri = 'local:' . $this->identifier;
 
         $this->updatedAt = new \DateTimeImmutable();
     }
-
-	public function siteURL()
-	{
-		$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-		$domainName = $_SERVER['HTTP_HOST'].'/';
-		return $protocol.$domainName;
-	}
 
     /**
      * Clone the object.
