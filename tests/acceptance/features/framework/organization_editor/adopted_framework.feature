@@ -14,7 +14,7 @@ Feature: A framework marked as "Adopted" should not allow edits
     When I click "Import CASE® file"
     And I upload the adopted CASE file
     And I go to the uploaded framework
-    Then I should not see the button "Manage Association Groups"
+    Then I should see the button "Manage Association Groups"
     And I should not see the button "Add New Child Item"
     And I should not see the button "Import Children"
     And I should not see the button "Update Framework"
