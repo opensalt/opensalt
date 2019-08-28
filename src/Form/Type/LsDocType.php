@@ -15,8 +15,8 @@ class LsDocType extends AbstractLsDocCreateType
      */
     private $AuthorizationChecker;
 
-    public function __construct( EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker ) {
-        parent::__construct( $em );
+    public function __construct(EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker) {
+        parent::__construct($em);
         $this->AuthorizationChecker = $authorizationChecker;
     }
 
