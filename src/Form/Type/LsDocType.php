@@ -10,17 +10,17 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class LsDocType extends AbstractLsDocCreateType
 {
-	/**
-	 * @var AuthorizationChecker
-	 */
-	private $AuthorizationChecker;
+    /**
+     * @var AuthorizationChecker
+     */
+    private $AuthorizationChecker;
 
-	public function __construct( EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker ) {
-		parent::__construct( $em );
-		$this->AuthorizationChecker = $authorizationChecker;
-	}
+    public function __construct( EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker ) {
+        parent::__construct( $em );
+        $this->AuthorizationChecker = $authorizationChecker;
+    }
 
-	/**
+    /**
      * @param FormBuilderInterface $builder
      */
     protected function addOwnership(FormBuilderInterface $builder): void
