@@ -11,13 +11,13 @@ use Symfony\Component\Form\FormBuilderInterface;
 class LsDocType extends AbstractLsDocCreateType
 {
     /**
-     * @var AuthorizationChecker
+     * @var AuthorizationCheckerInterface
      */
-    private $AuthorizationChecker;
+    private $authorizationChecker;
 
     public function __construct(EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker) {
         parent::__construct($em);
-        $this->AuthorizationChecker = $authorizationChecker;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
     /**
@@ -29,7 +29,7 @@ class LsDocType extends AbstractLsDocCreateType
             // @todo: These are placeholder, they should be determined upon creation with a choice of Org or User ownership
             ->add('org', EntityType::class, [
                 'required' => false,
-                'disabled' => $this->AuthorizationChecker->isGranted('ROLE_ADMIN') ? false : true,
+                'disabled' => $this->authorizationChecker->isGranted('ROLE_ADMIN') ? false : true,
                 // 'disabled' => true,
                 'placeholder' => 'None',
                 'label' => 'Owning Organization',
