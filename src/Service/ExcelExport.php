@@ -168,13 +168,15 @@ final class ExcelExport
         $activeSheet = $phpExcelObject->setActiveSheetIndex(2);
         $activeSheet
             ->setCellValue('A1', 'identifier')
-            ->setCellValue('B1', 'originNodeIdentifier')
-            ->setCellValue('C1', 'originNodeHumanCodingScheme')
-            ->setCellValue('D1', 'associationType')
-            ->setCellValue('E1', 'destinationNodeHumanCodingScheme')
-            ->setCellValue('F1', 'destinationNodeIdentifier')
-            ->setCellValue('G1', 'associationGroupIdentifier')
-            ->setCellValue('H1', 'associationGroupName')
+            ->setCellValue('B1', 'originNodeURI')
+            ->setCellValue('C1', 'originNodeIdentifier')
+            ->setCellValue('D1', 'originNodeHumanCodingScheme')
+            ->setCellValue('E1', 'associationType')
+            ->setCellValue('F1', 'destinationNodeURI')
+            ->setCellValue('G1', 'destinationNodeIdentifier')
+            ->setCellValue('H1', 'destinationNodeHumanCodingScheme')
+            ->setCellValue('I1', 'associationGroupIdentifier')
+            ->setCellValue('J1', 'associationGroupName')
             ->setTitle('CF Association');
 
         $j = 2;
@@ -238,13 +240,15 @@ final class ExcelExport
     {
         $columns = [
             'A' => '[identifier]',
-            'B' => '[originNodeIdentifier]',
-            'C' => '[originLsItem][humanCodingScheme]',
-            'D' => '[type]',
-            'E' => '[destinationLsItem][humanCodingScheme]',
-            'F' => '[destinationNodeIdentifier]',
-            'G' => '[group]',
-            'H' => '[groupName]',
+            'B' => '[originNodeURI]',
+            'C' => '[originNodeIdentifier]',
+            'D' => '[originLsItem][humanCodingScheme]',
+            'E' => '[type]',
+            'F' => '[destinationNodeUri]',
+            'G' => '[destinationNodeIdentifier]',
+            'H' => '[destinationLsItem][humanCodingScheme]',
+            'I' => '[group][identifier]',
+            'J' => '[group][title]',
         ];
 
         foreach ($columns as $column => $field) {

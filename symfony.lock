@@ -506,6 +506,9 @@
             "ref": "f7895777cd673fcefbc321a9063077a24e5df646"
         }
     },
+    "riverline/multipart-parser": {
+        "version": "2.0.3"
+    },
     "rize/uri-template": {
         "version": "0.3.2"
     },
