@@ -37,16 +37,16 @@ class CloneFrameworkHandler extends BaseDoctrineHandler
         $this->repository->copyDocumentContentToDoc($doc, $newDoc, false);
         $this->em->persist($newDoc);
         $this->em->flush();
-	    $notification = new NotificationEvent(
-		    'C03',
-		    sprintf('Clone of framework "%s" added', $newDoc->getTitle()),
-		    $newDoc,
-		    [
-			    'doc-a' => [
-				    $newDoc,
-			    ],
-		    ]
-	    );
-	    $command->setNotificationEvent($notification);
+        $notification = new NotificationEvent(
+            'C03',
+            sprintf('Clone of framework "%s" added', $newDoc->getTitle()),
+            $newDoc,
+            [
+                'doc-a' => [
+                    $newDoc,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }

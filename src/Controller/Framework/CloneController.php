@@ -28,7 +28,7 @@ class CloneController extends AbstractController
     {
         $command = new CloneFrameworkCommand($lsDoc);
         $this->sendCommand($command);
-		$newLsDoc = $command->getNotificationEvent()->getDoc();
+        $newLsDoc = $command->getNotificationEvent()->getDoc();
         return $this->redirectToRoute('doc_tree_view', ['slug' => $newLsDoc->getId(), 'edit' => 1]);
     }
 }
