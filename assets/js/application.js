@@ -9,24 +9,6 @@ $('body').tooltip({
     selector: '[data-toggle="tooltip"]'
 });
 
-/**
- * Return the value of a given GET parameter, assuming it exists.
- * @return {string}
-
-function GetURLParameter(sParam) {
-    let sPageURL      = window.location.search.substring(1);
-    let sURLVariables = sPageURL.split('&');
-    let value         = '';
-    for (let i = 0; i < sURLVariables.length; i++)  {
-        let sParameterName = sURLVariables[i].split('=');
-        if (sParameterName[0] === sParam)  {
-            value = sParameterName[1];
-        }
-    }
-    return value;
-}​
- */
-
 jQuery.fn.extend({
     getURLParameter: function(sParam) {
         let sPageURL      = window.location.search.substring(1);
