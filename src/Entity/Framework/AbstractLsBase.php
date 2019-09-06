@@ -123,7 +123,7 @@ class AbstractLsBase implements IdentifiableInterface
         $request = Request::createFromGlobals();
         $https = (!empty($request->server->get('HTTPS')) && $request->server->get('HTTPS') !== 'off')
             || $request->server->get('SERVER_PORT') == 443 ? 'https://' : 'http://';
-        $currentUrl = $https . $request->server->get('HTTP_HOST');
+        $currentUrl = $https.$request->server->get('HTTP_HOST');
         return $currentUrl;
     }
 
