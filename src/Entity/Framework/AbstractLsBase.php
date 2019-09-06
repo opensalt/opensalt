@@ -7,6 +7,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\Request as Request;
 
 /**
  * @ORM\MappedSuperclass()
@@ -119,9 +120,11 @@ class AbstractLsBase implements IdentifiableInterface
 
     public function siteURL()
     {
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? 'https://' : 'http://';
-        $domainName = $_SERVER['HTTP_HOST'].'/';
-        return $protocol.$domainName;
+        $request = Request::createFromGlobals();
+        $https = (!empty($request->server->get('HTTPS')) && $request->server->get('HTTPS') !== 'off')
+            || $request->server->get('SERVER_PORT') == 443 ? 'https://' : 'http://';
+        $currentUrl = $https . $request->server->get('HTTP_HOST');
+        return $currentUrl;
     }
 
     /**
