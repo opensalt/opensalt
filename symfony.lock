@@ -284,6 +284,9 @@
             "ref": "fe60ce509ef04a3f40da96e3979bc8d9b13b2372"
         }
     },
+    "kreait/clock": {
+        "version": "1.0.1"
+    },
     "kreait/firebase-php": {
         "version": "3.9.3"
     },
