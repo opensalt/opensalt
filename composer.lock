@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a65b771ef9a742494ba547672bbeb1f9",
+    "content-hash": "f71bfdf04c16992182527792f256b6b7",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -5638,16 +5638,16 @@
         },
         {
             "name": "qandidate/toggle-bundle",
-            "version": "1.1.2",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/qandidate-labs/qandidate-toggle-bundle.git",
-                "reference": "20bc97257c56102c7c0c70a02d83a0a33b9f7598"
+                "reference": "921806d5d270875e8dfc016e57cbd30e5361f7f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/qandidate-labs/qandidate-toggle-bundle/zipball/20bc97257c56102c7c0c70a02d83a0a33b9f7598",
-                "reference": "20bc97257c56102c7c0c70a02d83a0a33b9f7598",
+                "url": "https://api.github.com/repos/qandidate-labs/qandidate-toggle-bundle/zipball/921806d5d270875e8dfc016e57cbd30e5361f7f1",
+                "reference": "921806d5d270875e8dfc016e57cbd30e5361f7f1",
                 "shasum": ""
             },
             "require": {
@@ -5679,7 +5679,10 @@
             "autoload": {
                 "psr-4": {
                     "Qandidate\\Bundle\\ToggleBundle\\": ""
-                }
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -5696,7 +5699,7 @@
                 }
             ],
             "description": "This Bundle provides the integration with qandidate/toggle. It provides the services and configuration you need to implement feature toggles in your Symfony application.",
-            "time": "2019-01-02T08:58:54+00:00"
+            "time": "2019-01-18T09:26:12+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -9648,8 +9651,8 @@
             "authors": [
                 {
                     "name": "Nicola Asuni",
-                    "email": "info@tecnick.com",
-                    "role": "lead"
+                    "role": "lead",
+                    "email": "info@tecnick.com"
                 }
             ],
             "description": "TCPDF is a PHP class for generating PDF documents and barcodes.",
@@ -11580,7 +11583,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -11640,7 +11643,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
@@ -13095,8 +13098,8 @@
             "authors": [
                 {
                     "name": "Marco Pivetta",
-                    "email": "ocramius@gmail.com",
-                    "role": "maintainer"
+                    "role": "maintainer",
+                    "email": "ocramius@gmail.com"
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
@@ -14241,8 +14244,8 @@
             "authors": [
                 {
                     "name": "Arne Blankerts",
-                    "email": "arne@blankerts.de",
-                    "role": "Developer"
+                    "role": "Developer",
+                    "email": "arne@blankerts.de"
                 }
             ],
             "description": "A small library for converting tokenized PHP source code into XML and potentially other formats",
