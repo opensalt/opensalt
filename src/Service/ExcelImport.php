@@ -241,16 +241,16 @@ final class ExcelImport
     private function saveAssociation(Worksheet $sheet, LsDoc $doc, int $row, array $items, array $children): ?LsAssociation
     {
         $fieldNames = [
-	        1 => 'identifier',
-	        2 => 'originNodeURI',
-	        3 => 'originNodeIdentifier',
-	        4 => 'originLsItemhumanCodingScheme',
-	        5 => 'associationType',
-	        6 => 'destinationNodeUri',
-	        7 => 'destinationLsItemhumanCodingScheme',
-	        8 => 'destinationNodeIdentifier',
-	        9 => 'associationGroupIdentifier',
-	        10 => 'associationGroupName',
+            1 => 'identifier',
+            2 => 'originNodeURI',
+            3 => 'originNodeIdentifier',
+            4 => 'originLsItemhumanCodingScheme',
+            5 => 'associationType',
+            6 => 'destinationNodeUri',
+            7 => 'destinationLsItemhumanCodingScheme',
+            8 => 'destinationNodeIdentifier',
+            9 => 'associationGroupIdentifier',
+            10 => 'associationGroupName',
         ];
 
         $itemRepo = $this->getEntityManager()->getRepository(LsItem::class);
@@ -319,18 +319,18 @@ final class ExcelImport
         }
 
         if (!empty($fields['associationGroupIdentifier'])) {
-	        $associationGrouping = $this->getEntityManager()->getRepository(LsDefAssociationGrouping::class)
-	                                                        ->findOneBy(['identifier' => $fields['associationGroupIdentifier']]);
-	        if(null === $associationGrouping) {
-		        $associationGrouping = new LsDefAssociationGrouping();
-		        $associationGrouping->setLsDoc($doc);
-		        $associationGrouping->setTitle($fields['associationGroupName']);
-	        }
-            $this->getEntityManager()->persist($associationGrouping);
-	        $this->getEntityManager()->flush();
-	        $association->setGroup($associationGrouping);
+            $associationGrouping = $this->getEntityManager()->getRepository( LsDefAssociationGrouping::class )
+                                        ->findOneBy( [ 'identifier' => $fields['associationGroupIdentifier'] ] );
+            if ( null === $associationGrouping ) {
+                $associationGrouping = new LsDefAssociationGrouping();
+                $associationGrouping->setLsDoc( $doc );
+                $associationGrouping->setTitle( $fields['associationGroupName'] );
+            }
+            $association->setGroup( $associationGrouping );
+            $this->getEntityManager()->persist( $associationGrouping );
+            $this->getEntityManager()->flush();
+            $association->setGroup($associationGrouping);
         }
-
         $this->getEntityManager()->persist($association);
 
         return $association;
