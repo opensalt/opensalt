@@ -248,7 +248,7 @@ final class ExcelExport
             'G' => '[destinationNodeIdentifier]',
             'H' => '[destinationLsItem][humanCodingScheme]',
             'I' => '[group][identifier]',
-            'J' => '[group][title]'
+            'J' => '[group][title]',
         ];
 
         foreach ($columns as $column => $field) {
