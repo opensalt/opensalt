@@ -57,7 +57,7 @@ apx.edit.prepareDocEditModal = function() {
         }).done(function(data, textStatus, jqXHR) {
             $modal.modal('hide');
             // on successful update, reload the doc
-            window.location.reload();
+            window.location.href = window.location.href.split('?')[0];
             /*
                var updatedData = {
                "title": $("#ls_doc_title").val(),
