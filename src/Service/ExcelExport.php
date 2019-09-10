@@ -173,8 +173,8 @@ final class ExcelExport
             ->setCellValue('D1', 'originNodeHumanCodingScheme')
             ->setCellValue('E1', 'associationType')
             ->setCellValue('F1', 'destinationNodeURI')
-	        ->setCellValue('H1', 'destinationNodeIdentifier')
-            ->setCellValue('G1', 'destinationNodeHumanCodingScheme')
+            ->setCellValue('G1', 'destinationNodeIdentifier')
+            ->setCellValue('H1', 'destinationNodeHumanCodingScheme')
             ->setCellValue('I1', 'associationGroupIdentifier')
             ->setCellValue('J1', 'associationGroupName')
             ->setTitle('CF Association');
@@ -245,10 +245,10 @@ final class ExcelExport
             'D' => '[originLsItem][humanCodingScheme]',
             'E' => '[type]',
             'F' => '[destinationNodeUri]',
-            'G' => '[destinationLsItem][humanCodingScheme]',
-            'H' => '[destinationNodeIdentifier]',
+            'G' => '[destinationNodeIdentifier]',
+            'H' => '[destinationLsItem][humanCodingScheme]',
             'I' => '[group][identifier]',
-            'J' => '[group][title]',
+            'J' => '[group][title]'
         ];
 
         foreach ($columns as $column => $field) {
