@@ -325,10 +325,8 @@ final class ExcelImport
                 $associationGrouping = new LsDefAssociationGrouping();
                 $associationGrouping->setLsDoc($doc);
                 $associationGrouping->setTitle($fields['associationGroupName']);
+                $this->getEntityManager()->persist($associationGrouping);
             }
-            $association->setGroup($associationGrouping);
-            $this->getEntityManager()->persist($associationGrouping);
-            $this->getEntityManager()->flush();
             $association->setGroup($associationGrouping);
         }
         $this->getEntityManager()->persist($association);
