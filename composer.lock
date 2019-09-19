@@ -10713,16 +10713,16 @@
         },
         {
             "name": "escapestudios/symfony2-coding-standard",
-            "version": "3.9.0",
+            "version": "3.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/djoos/Symfony-coding-standard.git",
-                "reference": "f5b7f6aeed71a3fd1d9ac465ba203806522cad56"
+                "reference": "245812d03e54eb821c19bfed5899b6ae70e216a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/f5b7f6aeed71a3fd1d9ac465ba203806522cad56",
-                "reference": "f5b7f6aeed71a3fd1d9ac465ba203806522cad56",
+                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/245812d03e54eb821c19bfed5899b6ae70e216a8",
+                "reference": "245812d03e54eb821c19bfed5899b6ae70e216a8",
                 "shasum": ""
             },
             "require": {
@@ -10762,7 +10762,7 @@
                 "phpcs",
                 "symfony"
             ],
-            "time": "2019-08-16T15:22:28+00:00"
+            "time": "2019-09-18T08:47:49+00:00"
         },
         {
             "name": "facebook/webdriver",
@@ -11580,7 +11580,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -11640,7 +11640,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
