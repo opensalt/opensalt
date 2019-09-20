@@ -4,6 +4,7 @@ namespace App\Handler\Framework;
 
 use App\Command\Framework\CopyFrameworkCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use App\Entity\Framework\LsDoc;
 use App\Repository\Framework\LsDocRepository;
@@ -35,5 +36,17 @@ class CloneFrameworkHandler extends BaseDoctrineHandler
 
         $this->repository->copyDocumentContentToDoc($doc, $newDoc, false);
         $this->em->persist($newDoc);
+        $this->em->flush();
+        $notification = new NotificationEvent(
+            'C03',
+            sprintf('Clone of framework "%s" added', $newDoc->getTitle()),
+            $newDoc,
+            [
+                'doc-a' => [
+                    $newDoc,
+                ],
+            ]
+        );
+        $command->setNotificationEvent($notification);
     }
 }
