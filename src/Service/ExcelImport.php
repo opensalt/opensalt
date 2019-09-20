@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Entity\Framework\ImportLog;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDefItemType;
@@ -243,11 +242,15 @@ final class ExcelImport
     {
         $fieldNames = [
             1 => 'identifier',
-            2 => 'originNodeIdentifier',
-            4 => 'associationType',
-            6 => 'destinationNodeIdentifier',
-            7 => 'associationGroupIdentifier',
-            8 => 'associationGroupName',
+            2 => 'originNodeURI',
+            3 => 'originNodeIdentifier',
+            4 => 'originNodeHumanCodingScheme',
+            5 => 'associationType',
+            6 => 'destinationNodeURI',
+            7 => 'destinationNodeIdentifier',
+            8 => 'destinationNodeHumanCodingScheme',
+            9 => 'associationGroupIdentifier',
+            10 => 'associationGroupName',
         ];
 
         $itemRepo = $this->getEntityManager()->getRepository(LsItem::class);
@@ -308,7 +311,6 @@ final class ExcelImport
         if (in_array($associationType, $allTypes, true)) {
             $association->setType($fields['associationType']);
         } else {
-            $log = new ImportLog();
             $log->setLsDoc($doc);
             $log->setMessageType('error');
             $log->setMessage("Invalid Association Type ({$associationType} on row {$row}.");
@@ -317,13 +319,16 @@ final class ExcelImport
         }
 
         if (!empty($fields['associationGroupIdentifier'])) {
-            $associationGrouping = new LsDefAssociationGrouping();
-            $associationGrouping->setLsDoc($doc);
-            $associationGrouping->setTitle($fields['associationGroupName']);
+            $associationGrouping = $this->getEntityManager()->getRepository(LsDefAssociationGrouping::class)
+                ->findOneBy(['identifier' => $fields['associationGroupIdentifier']]);
+            if (null === $associationGrouping) {
+                $associationGrouping = new LsDefAssociationGrouping();
+                $associationGrouping->setLsDoc($doc);
+                $associationGrouping->setTitle($fields['associationGroupName']);
+                $this->getEntityManager()->persist($associationGrouping);
+            }
             $association->setGroup($associationGrouping);
-            $this->getEntityManager()->persist($associationGrouping);
         }
-
         $this->getEntityManager()->persist($association);
 
         return $association;
