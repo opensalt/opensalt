@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a65b771ef9a742494ba547672bbeb1f9",
+    "content-hash": "459df2d53d455701420356f8822e25d0",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.112.4",
+            "version": "3.112.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "13e5e52f8ceccd7e476cc6caef3eed941797fd31"
+                "reference": "8dac6904e89d8fb7dcaf8044b964c7e77f332289"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/13e5e52f8ceccd7e476cc6caef3eed941797fd31",
-                "reference": "13e5e52f8ceccd7e476cc6caef3eed941797fd31",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8dac6904e89d8fb7dcaf8044b964c7e77f332289",
+                "reference": "8dac6904e89d8fb7dcaf8044b964c7e77f332289",
                 "shasum": ""
             },
             "require": {
@@ -87,7 +87,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2019-09-19T20:36:59+00:00"
+            "time": "2019-09-23T18:11:10+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -1490,16 +1490,16 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "v2.6.3",
+            "version": "v2.6.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/orm.git",
-                "reference": "434820973cadf2da2d66e7184be370084cc32ca8"
+                "reference": "b52ef5a1002f99ab506a5a2d6dba5a2c236c5f43"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/orm/zipball/434820973cadf2da2d66e7184be370084cc32ca8",
-                "reference": "434820973cadf2da2d66e7184be370084cc32ca8",
+                "url": "https://api.github.com/repos/doctrine/orm/zipball/b52ef5a1002f99ab506a5a2d6dba5a2c236c5f43",
+                "reference": "b52ef5a1002f99ab506a5a2d6dba5a2c236c5f43",
                 "shasum": ""
             },
             "require": {
@@ -1514,9 +1514,8 @@
                 "symfony/console": "~3.0|~4.0"
             },
             "require-dev": {
-                "doctrine/coding-standard": "^1.0",
-                "phpunit/phpunit": "^6.5",
-                "squizlabs/php_codesniffer": "^3.2",
+                "doctrine/coding-standard": "^5.0",
+                "phpunit/phpunit": "^7.5",
                 "symfony/yaml": "~3.4|~4.0"
             },
             "suggest": {
@@ -1542,16 +1541,16 @@
             ],
             "authors": [
                 {
+                    "name": "Guilherme Blanco",
+                    "email": "guilhermeblanco@gmail.com"
+                },
+                {
                     "name": "Roman Borschel",
                     "email": "roman@code-factory.org"
                 },
                 {
                     "name": "Benjamin Eberlei",
                     "email": "kontakt@beberlei.de"
-                },
-                {
-                    "name": "Guilherme Blanco",
-                    "email": "guilhermeblanco@gmail.com"
                 },
                 {
                     "name": "Jonathan Wage",
@@ -1568,7 +1567,7 @@
                 "database",
                 "orm"
             ],
-            "time": "2018-11-20T23:46:46+00:00"
+            "time": "2019-09-20T14:30:26+00:00"
         },
         {
             "name": "doctrine/persistence",
@@ -3464,16 +3463,16 @@
         },
         {
             "name": "jms/serializer",
-            "version": "3.2.0",
+            "version": "3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/serializer.git",
-                "reference": "89fc2a7f53ae63b513e2339fdb6db6e49bfbc749"
+                "reference": "4c1e4296734385af7718ca71ec0febb4815b4a87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/serializer/zipball/89fc2a7f53ae63b513e2339fdb6db6e49bfbc749",
-                "reference": "89fc2a7f53ae63b513e2339fdb6db6e49bfbc749",
+                "url": "https://api.github.com/repos/schmittjoh/serializer/zipball/4c1e4296734385af7718ca71ec0febb4815b4a87",
+                "reference": "4c1e4296734385af7718ca71ec0febb4815b4a87",
                 "shasum": ""
             },
             "require": {
@@ -3513,7 +3512,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.2-dev"
+                    "dev-master": "3.3-dev"
                 }
             },
             "autoload": {
@@ -3544,7 +3543,7 @@
                 "serialization",
                 "xml"
             ],
-            "time": "2019-09-04T10:17:24+00:00"
+            "time": "2019-09-20T14:24:07+00:00"
         },
         {
             "name": "jms/serializer-bundle",
@@ -5638,16 +5637,16 @@
         },
         {
             "name": "qandidate/toggle-bundle",
-            "version": "1.1.2",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/qandidate-labs/qandidate-toggle-bundle.git",
-                "reference": "20bc97257c56102c7c0c70a02d83a0a33b9f7598"
+                "reference": "921806d5d270875e8dfc016e57cbd30e5361f7f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/qandidate-labs/qandidate-toggle-bundle/zipball/20bc97257c56102c7c0c70a02d83a0a33b9f7598",
-                "reference": "20bc97257c56102c7c0c70a02d83a0a33b9f7598",
+                "url": "https://api.github.com/repos/qandidate-labs/qandidate-toggle-bundle/zipball/921806d5d270875e8dfc016e57cbd30e5361f7f1",
+                "reference": "921806d5d270875e8dfc016e57cbd30e5361f7f1",
                 "shasum": ""
             },
             "require": {
@@ -5679,7 +5678,10 @@
             "autoload": {
                 "psr-4": {
                     "Qandidate\\Bundle\\ToggleBundle\\": ""
-                }
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -5696,7 +5698,7 @@
                 }
             ],
             "description": "This Bundle provides the integration with qandidate/toggle. It provides the services and configuration you need to implement feature toggles in your Symfony application.",
-            "time": "2019-01-02T08:58:54+00:00"
+            "time": "2019-01-18T09:26:12+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -9667,21 +9669,27 @@
         },
         {
             "name": "tetranz/select2entity-bundle",
-            "version": "v2.10.0",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tetranz/select2entity-bundle.git",
-                "reference": "67b61be1a23228bc4e77a2e59ba5fff8fd9fffab"
+                "reference": "46326457084f6c01f204a02af4a3a3aba19e02c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tetranz/select2entity-bundle/zipball/67b61be1a23228bc4e77a2e59ba5fff8fd9fffab",
-                "reference": "67b61be1a23228bc4e77a2e59ba5fff8fd9fffab",
+                "url": "https://api.github.com/repos/tetranz/select2entity-bundle/zipball/46326457084f6c01f204a02af4a3a3aba19e02c4",
+                "reference": "46326457084f6c01f204a02af4a3a3aba19e02c4",
                 "shasum": ""
             },
             "require": {
                 "doctrine/orm": ">=2.4",
-                "php": ">=5.4.0",
+                "php": ">=7.1.3",
+                "symfony/config": ">=4.0",
+                "symfony/dependency-injection": ">=4.0",
+                "symfony/form": ">=4.0",
+                "symfony/http-kernel": ">=4.0",
+                "symfony/property-access": ">=4.0",
+                "symfony/routing": ">=4.0",
                 "twig/twig": ">=2.9"
             },
             "type": "symfony-bundle",
@@ -9710,7 +9718,7 @@
                 "symfony",
                 "typeahead"
             ],
-            "time": "2019-07-07T23:00:30+00:00"
+            "time": "2019-09-23T00:42:17+00:00"
         },
         {
             "name": "twig/extensions",
@@ -12892,12 +12900,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "ea693fa060702164985511acc3ceb5389c9ac761"
+                "reference": "99b60dd3718d19e6627b6dfc0e5a99dbce1b915d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/ea693fa060702164985511acc3ceb5389c9ac761",
-                "reference": "ea693fa060702164985511acc3ceb5389c9ac761",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/99b60dd3718d19e6627b6dfc0e5a99dbce1b915d",
+                "reference": "99b60dd3718d19e6627b6dfc0e5a99dbce1b915d",
                 "shasum": ""
             },
             "conflict": {
@@ -13008,6 +13016,7 @@
                 "spoonity/tcpdf": "<6.2.22",
                 "squizlabs/php_codesniffer": ">=1,<2.8.1|>=3,<3.0.1",
                 "stormpath/sdk": ">=0,<9.9.99",
+                "studio-42/elfinder": "<2.1.48",
                 "swiftmailer/swiftmailer": ">=4,<5.4.5",
                 "sylius/admin-bundle": ">=1,<1.0.17|>=1.1,<1.1.9|>=1.2,<1.2.2",
                 "sylius/grid": ">=1,<1.1.19|>=1.2,<1.2.18|>=1.3,<1.3.13|>=1.4,<1.4.5|>=1.5,<1.5.1",
@@ -13099,7 +13108,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2019-07-18T15:17:58+00:00"
+            "time": "2019-09-23T15:43:18+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
