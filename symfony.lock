@@ -1,4 +1,7 @@
 {
+    "antishov/doctrine-extensions-bundle": {
+        "version": "v1.4.0"
+    },
     "aws/aws-sdk-php": {
         "version": "3.61.6"
     },
@@ -25,6 +28,9 @@
     },
     "codeception/verify": {
         "version": "0.4.0"
+    },
+    "colinodell/json5": {
+        "version": "v2.1.0"
     },
     "composer/ca-bundle": {
         "version": "1.1.4"
@@ -410,6 +416,9 @@
     "phpdocumentor/type-resolver": {
         "version": "0.4.0"
     },
+    "phplang/scope-exit": {
+        "version": "1.0.0"
+    },
     "phpoffice/common": {
         "version": "0.2.7"
     },
@@ -566,17 +575,14 @@
     "squizlabs/php_codesniffer": {
         "version": "3.2.3"
     },
-    "stof/doctrine-extensions-bundle": {
-        "version": "1.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "1.2",
-            "ref": "6c1ceb662f8997085f739cd089bfbef67f245983"
-        }
-    },
     "superbalist/flysystem-google-storage": {
         "version": "7.0.0"
+    },
+    "swaggest/json-diff": {
+        "version": "v3.7.0"
+    },
+    "swaggest/json-schema": {
+        "version": "v0.12.20"
     },
     "swiftmailer/swiftmailer": {
         "version": "v6.0.2"
