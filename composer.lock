@@ -10721,16 +10721,16 @@
         },
         {
             "name": "escapestudios/symfony2-coding-standard",
-            "version": "3.9.1",
+            "version": "3.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/djoos/Symfony-coding-standard.git",
-                "reference": "245812d03e54eb821c19bfed5899b6ae70e216a8"
+                "reference": "369b5f2579be6aed478ca3a4248619eab6e54e41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/245812d03e54eb821c19bfed5899b6ae70e216a8",
-                "reference": "245812d03e54eb821c19bfed5899b6ae70e216a8",
+                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/369b5f2579be6aed478ca3a4248619eab6e54e41",
+                "reference": "369b5f2579be6aed478ca3a4248619eab6e54e41",
                 "shasum": ""
             },
             "require": {
@@ -10770,7 +10770,7 @@
                 "phpcs",
                 "symfony"
             ],
-            "time": "2019-09-18T08:47:49+00:00"
+            "time": "2019-09-25T08:43:58+00:00"
         },
         {
             "name": "facebook/webdriver",
@@ -11648,7 +11648,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
