@@ -172,30 +172,22 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $description;
 
     /**
-     * @var string
+     * @var string[]
      *
-     * @ORM\Column(name="subject", type="string", length=50, nullable=true)
+     * @ORM\Column(name="subject", type="json", nullable=true)
      *
-     * @Assert\Length(max=50)
+     * @Assert\All({
+     *     @Assert\Type("string")
+     * })
      *
-     * @Serializer\Exclude()
+     * @Serializer\Expose("object.getSubjects().count()>0")
+     * @Serializer\SerializedName("subject")
+     * @Serializer\Type("array<string>")
      */
-    private $subject;
+    private $subject = [];
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="subject_uri", type="string", length=300, nullable=true)
-     *
-     * @Assert\Url()
-     * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
-     */
-    private $subjectUri;
-
-    /**
-     * @var LsDefSubject[]|ArrayCollection
+     * @var LsDefSubject[]|Collection
      *
      * @ORM\ManyToMany(targetEntity="LsDefSubject")
      * @ORM\JoinTable(name="ls_doc_subject",
@@ -207,10 +199,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      *     @Assert\Type(LsDefSubject::class)
      * })
      *
-     * @Serializer\Expose("object.getSubjects().count()>0")
-     * @Serializer\SerializedName("subject")
-     * @Serializer\Type("array<string>")
-     * @Serializer\Accessor(getter="getSubjectTextArray")
+     * @Serializer\Exclude()
      */
     private $subjects;
 
@@ -554,28 +543,38 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->description;
     }
 
-    public function setSubject(?string $subject): LsDoc
+    /**
+     * @param string|string[]|null $subject
+     */
+    public function setSubject($subject): LsDoc
     {
+        if (null === $subject) {
+            $this->subject = null;
+
+            return $this;
+        }
+
+        if (!is_array($subject)) {
+            $subject = [$subject];
+        }
+
+        if ([] !== array_filter($subject, static function ($el) {
+            return !is_string($el);
+        })) {
+            throw new \InvalidArgumentException('setSubject must be passed an array of strings.');
+        }
+
         $this->subject = $subject;
 
         return $this;
     }
 
-    public function getSubject(): ?string
+    /**
+     * @return string[]|null
+     */
+    public function getSubject(): ?array
     {
         return $this->subject;
-    }
-
-    public function setSubjectUri(?string $subjectUri): LsDoc
-    {
-        $this->subjectUri = $subjectUri;
-
-        return $this;
-    }
-
-    public function getSubjectUri(): ?string
-    {
-        return $this->subjectUri;
     }
 
     /**
@@ -970,19 +969,27 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @return LsDefSubject[]|ArrayCollection
+     * @return LsDefSubject[]|Collection
      */
-    public function getSubjects()
+    public function getSubjects(): Collection
     {
         return $this->subjects;
     }
 
     /**
-     * @param LsDefSubject[]|ArrayCollection $subjects
+     * @param LsDefSubject[]|Collection $subjects
      */
-    public function setSubjects($subjects): LsDoc
+    public function setSubjects(?iterable $subjects): LsDoc
     {
-        $this->subjects = $subjects;
+        $this->subjects = new ArrayCollection();
+
+        if (null === $subjects) {
+            return $this;
+        }
+
+        foreach ($subjects as $subject) {
+            $this->addSubject($subject);
+        }
 
         return $this;
     }
@@ -1188,16 +1195,5 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         $association->setLsDoc($this);
 
         return $association;
-    }
-
-    public function getSubjectTextArray(): array
-    {
-        $subjects = [];
-
-        foreach ($this->subjects as $subject) {
-            $subjects[] = $subject->getTitle();
-        }
-
-        return $subjects;
     }
 }
