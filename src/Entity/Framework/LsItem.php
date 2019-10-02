@@ -179,18 +179,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $conceptKeywords;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="concept_keywords_uri", type="string", length=300, nullable=true)
-     *
-     * @Assert\Length(max=300)
-     * @Assert\Url()
-     *
-     * @Serializer\Exclude()
-     */
-    private $conceptKeywordsUri;
-
-    /**
      * @var LsDefConcept[]|ArrayCollection
      *
      * @ORM\ManyToMany(targetEntity="LsDefConcept")
@@ -725,28 +713,20 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->conceptKeywords;
     }
 
-    /**
-     * Set conceptKeywordsUri
-     *
-     * @param string $conceptKeywordsUri
-     *
-     * @return LsItem
-     */
-    public function setConceptKeywordsUri(?string $conceptKeywordsUri): LsItem
+    public function getConceptKeywordsString(): ?string
     {
-        $this->conceptKeywordsUri = $conceptKeywordsUri;
-
-        return $this;
+        return implode('|', $this->getConceptKeywords());
     }
 
-    /**
-     * Get conceptKeywordsUri
-     *
-     * @return string
-     */
     public function getConceptKeywordsUri(): ?string
     {
-        return $this->conceptKeywordsUri;
+        $concepts = $this->getConcepts();
+
+        if ($concepts->isEmpty()) {
+            return null;
+        }
+
+        return $concepts->first()->getUri();
     }
 
     /**
