@@ -59,6 +59,7 @@
         "doctrine/doctrine-fixtures-bundle": "^3.0",
         "doctrine/doctrine-migrations-bundle": "^2.0",
         "doctrine/orm": "^2.6",
+        "gbprod/uuid-normalizer": "^1.1",
         "google/recaptcha": "~1.1",
         "jms/serializer-bundle": "^3.3.0",
         "kreait/firebase-php": "~4.7",

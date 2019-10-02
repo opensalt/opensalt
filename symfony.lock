@@ -188,6 +188,9 @@
     "fzaninotto/faker": {
         "version": "v1.6.0"
     },
+    "gbprod/uuid-normalizer": {
+        "version": "v1.1.1"
+    },
     "gedmo/doctrine-extensions": {
         "version": "v2.4.35"
     },
