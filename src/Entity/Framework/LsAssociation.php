@@ -352,14 +352,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * Return true if this is an LsAssociation.
-     */
-    public function isLsAssociation(): bool
-    {
-        return true;
-    }
-
-    /**
      * Set the Origination of the association.
      *
      * @param string|IdentifiableInterface $origin

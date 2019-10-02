@@ -81,8 +81,6 @@ class AbstractLsBase implements IdentifiableInterface
 
     /**
      * @param string|Uuid|null $identifier
-     *
-     * @throws \Exception
      */
     public function __construct($identifier = null)
     {

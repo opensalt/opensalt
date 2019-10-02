@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * LsDefConcept
+ * LsDefConcept.
  *
  * @ORM\Table(name="ls_def_concept")
  * @ORM\Entity(repositoryClass="App\Repository\Framework\LsDefConceptRepository")
@@ -34,11 +34,10 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
      */
     private $keywords;
 
-
     /**
      * @return string
      */
-    public function getHierarchyCode()
+    public function getHierarchyCode(): string
     {
         return $this->hierarchyCode;
     }
@@ -58,7 +57,7 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
     /**
      * @return string
      */
-    public function getKeywords()
+    public function getKeywords(): string
     {
         return $this->keywords;
     }
@@ -76,12 +75,12 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
     }
 
     /**
-     * String to represent this subject
+     * String to represent this subject.
      *
      * @return string
      */
     public function __toString(): string
     {
-        return $this->getTitle();
+        return $this->getTitle() ?? ('Concept: '.$this->getIdentifier());
     }
 }

@@ -7,8 +7,6 @@ use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * LsDefAssociationGrouping
- *
  * @ORM\Table(name="ls_def_association_grouping")
  * @ORM\Entity(repositoryClass="App\Repository\Framework\LsDefAssociationGroupingRepository")
  *
@@ -46,7 +44,7 @@ class LsDefAssociationGrouping extends AbstractLsDefinition implements CaseApiIn
     }
 
     /**
-     * Create a duplicate of the lsDefAssociationGrouping into a new document
+     * Create a duplicate of the lsDefAssociationGrouping into a new document.
      *
      * @param LsDoc $newLsDoc
      *
