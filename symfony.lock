@@ -1,4 +1,10 @@
 {
+    "amphp/amp": {
+        "version": "v2.3.1"
+    },
+    "amphp/byte-stream": {
+        "version": "v1.6.1"
+    },
     "antishov/doctrine-extensions-bundle": {
         "version": "v1.4.0"
     },
@@ -163,6 +169,12 @@
     },
     "facebook/webdriver": {
         "version": "1.6.0"
+    },
+    "felixfbecker/advanced-json-rpc": {
+        "version": "v3.0.4"
+    },
+    "felixfbecker/language-server-protocol": {
+        "version": "v1.4.0"
     },
     "fig/http-message-util": {
         "version": "1.1.2"
@@ -368,6 +380,9 @@
             "ref": "65726efb67ff51d89de38195bc0d230fa811f64d"
         }
     },
+    "netresearch/jsonmapper": {
+        "version": "v1.6.0"
+    },
     "nette/bootstrap": {
         "version": "v2.4.6"
     },
@@ -397,6 +412,9 @@
     },
     "ocramius/proxy-manager": {
         "version": "2.1.1"
+    },
+    "openlss/lib-array2xml": {
+        "version": "1.0.0"
     },
     "pclzip/pclzip": {
         "version": "2.8.2"
@@ -869,11 +887,23 @@
     "ua-parser/uap-php": {
         "version": "v3.5.0"
     },
+    "vimeo/psalm": {
+        "version": "3.5.3"
+    },
     "vlucas/phpdotenv": {
         "version": "v3.3.3"
     },
     "webmozart/assert": {
         "version": "1.3.0"
+    },
+    "webmozart/glob": {
+        "version": "4.1.0"
+    },
+    "webmozart/path-util": {
+        "version": "2.3.0"
+    },
+    "weirdan/doctrine-psalm-plugin": {
+        "version": "0.6.0"
     },
     "zendframework/zend-code": {
         "version": "3.3.0"
