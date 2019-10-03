@@ -217,7 +217,7 @@ final class ExcelExport
             'D' => '[smartLevel]',
             'E' => '[listEnumInSource]',
             'F' => '[abbreviatedStatement]',
-            'G' => '[conceptKeywords]',
+            'G' => '[conceptKeywordsString]',
             'H' => '[notes]',
             'I' => '[language]',
             'J' => '[educationalAlignment]',

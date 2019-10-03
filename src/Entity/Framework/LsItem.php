@@ -168,15 +168,17 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $abbreviatedStatement;
 
     /**
-     * @var string
+     * @var array
      *
-     * @ORM\Column(name="concept_keywords", type="string", length=300, nullable=true)
+     * @ORM\Column(name="concept_keywords", type="json", nullable=true)
      *
-     * @Assert\Length(max=300)
+     * @Assert\All({
+     *     @Assert\Type("string")
+     * })
      *
      * @Serializer\Exclude()
      */
-    private $conceptKeywords;
+    private $conceptKeywords = [];
 
     /**
      * @var LsDefConcept[]|Collection
@@ -605,23 +607,68 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->abbreviatedStatement;
     }
 
-    public function setConceptKeywords(?string $conceptKeywords): LsItem
+    /**
+     * @param string[]|null $conceptKeywords
+     */
+    public function setConceptKeywordsArray(?array $conceptKeywords): LsItem
     {
+        if (null === $conceptKeywords) {
+            $conceptKeywords = [];
+        }
+
+        if ([] !== array_filter($conceptKeywords, static function ($el) {
+            return !is_string($el);
+        })) {
+            throw new \InvalidArgumentException('setConceptKeywords must be passed an array of strings.');
+        }
+
         $this->conceptKeywords = $conceptKeywords;
 
         return $this;
     }
 
+    public function getConceptKeywordsArray(): array
+    {
+        return $this->conceptKeywords ?? [];
+    }
+
+    /**
+     * @deprecated Migrate to using setConceptKeywordsArray()
+     */
+    public function setConceptKeywords(?string $conceptKeywords): LsItem
+    {
+        return $this->setConceptKeywordsString($conceptKeywords);
+    }
+
+    /**
+     * @deprecated Migrate to using getConceptKeywordsArray()
+     */
     public function getConceptKeywords(): ?string
     {
-        return $this->conceptKeywords;
+        return $this->getConceptKeywordsString();
+    }
+
+    public function setConceptKeywordsString(?string $conceptKeywords): LsItem
+    {
+        if (null === $conceptKeywords) {
+            $conceptKeywords = '';
+        }
+
+        $values = preg_split('/ *, */', $conceptKeywords, -1, PREG_SPLIT_NO_EMPTY);
+
+        $this->setConceptKeywordsArray($values);
+
+        return $this;
     }
 
     public function getConceptKeywordsString(): ?string
     {
-        return implode('|', $this->getConceptKeywords());
+        return implode(',', $this->getConceptKeywordsArray());
     }
 
+    /**
+     * @deprecated Should use getConcepts() and use the set returned instead, this only gives the first
+     */
     public function getConceptKeywordsUri(): ?string
     {
         $concepts = $this->getConcepts();

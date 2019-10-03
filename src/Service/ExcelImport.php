@@ -219,7 +219,7 @@ final class ExcelImport
             // col 4 - smart level
             $item->setListEnumInSource($this->getCellValueOrNull($sheet, 5, $row));
             $item->setAbbreviatedStatement($this->getCellValueOrNull($sheet, 6, $row));
-            $item->setConceptKeywords($this->getCellValueOrNull($sheet, 7, $row));
+            $item->setConceptKeywordsString($this->getCellValueOrNull($sheet, 7, $row));
             $item->setNotes($this->getCellValueOrNull($sheet, 8, $row));
             $item->setLanguage($this->getCellValueOrNull($sheet, 9, $row));
             $this->setEducationalAlignment($item, $this->getCellValueOrNull($sheet, 10, $row));
