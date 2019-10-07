@@ -192,6 +192,8 @@ class LsDocController extends AbstractController
      *
      * @Route("/doc/{id}/update", methods={"POST"}, name="lsdoc_update")
      * @Security("is_granted('edit', lsDoc)")
+     *
+     * @deprecated It appears this is unused now
      */
     public function updateAction(Request $request, LsDoc $lsDoc)
     {
@@ -230,7 +232,7 @@ class LsDocController extends AbstractController
 
         return new JsonResponse([
             'message' => 'Success',
-            'new_doc_id' => $derivedDoc->getId()
+            'new_doc_id' => $derivedDoc->getId(),
         ]);
     }
 

@@ -4,7 +4,7 @@ namespace App\Entity\Framework;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -255,7 +255,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     private $sequenceNumber;
 
     /**
-     * @param string|Uuid|null $identifier
+     * @param string|UuidInterface|null $identifier
      */
     public function __construct($identifier = null)
     {

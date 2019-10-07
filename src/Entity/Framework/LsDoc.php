@@ -7,17 +7,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Ramsey\Uuid\Uuid;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Util\Compare;
 
 /**
- * LsDoc
- *
  * @ORM\Table(name="ls_doc")
  * @ORM\Entity(repositoryClass="App\Repository\Framework\LsDocRepository")
  * @UniqueEntity("uri")
@@ -60,7 +58,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     public const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
 
     /**
-     * @var Organization
+     * @var Organization|null
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\User\Organization", inversedBy="frameworks")
      * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=true)
@@ -72,7 +70,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     protected $org;
 
     /**
-     * @var User
+     * @var User|null
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\User\User", inversedBy="frameworks")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
@@ -84,7 +82,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     protected $user;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="official_uri", type="string", length=300, nullable=true)
      *
@@ -109,7 +107,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $creator;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="publisher", type="string", length=50, nullable=true)
      *
@@ -132,7 +130,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $title;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="url_name", type="string", length=255, nullable=true, unique=true)
      *
@@ -150,7 +148,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $urlName;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="version", type="string", length=50, nullable=true)
      *
@@ -161,7 +159,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $version;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="description", type="string", length=300, nullable=true)
      *
@@ -204,7 +202,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $subjects;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="language", type="string", length=10, nullable=true)
      *
@@ -215,7 +213,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $language;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="adoption_status", type="string", length=50, nullable=true)
      *
@@ -228,7 +226,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $adoptionStatus;
 
     /**
-     * @var \DateTimeInterface
+     * @var \DateTimeInterface|null
      *
      * @ORM\Column(name="status_start", type="date", nullable=true)
      *
@@ -241,7 +239,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $statusStart;
 
     /**
-     * @var \DateTimeInterface
+     * @var \DateTimeInterface|null
      *
      * @ORM\Column(name="status_end", type="date", nullable=true)
      *
@@ -254,7 +252,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $statusEnd;
 
     /**
-     * @var LsDefLicence
+     * @var LsDefLicence|null
      *
      * @ORM\ManyToOne(targetEntity="LsDefLicence")
      * @ORM\JoinColumn(name="licence_id", referencedColumnName="id", nullable=true)
@@ -264,7 +262,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $licence;
 
     /**
-     * @var FrameworkType
+     * @var FrameworkType|null
      *
      * @ORM\ManyToOne(targetEntity="FrameworkType", cascade = {"persist"})
      * @ORM\JoinColumn(name="frameworktype_id", referencedColumnName="id", nullable=true)
@@ -274,7 +272,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $frameworkType;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="note", type="text", nullable=true)
      *
@@ -397,7 +395,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     protected $ownedBy;
 
     /**
-     * @param string|Uuid|null $identifier
+     * @param string|UuidInterface|null $identifier
      */
     public function __construct($identifier = null)
     {
@@ -691,13 +689,11 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
 
         Compare::sortArrayByFields($topAssociations, ['sequenceNumber', 'enum', 'hcs']);
 
-        $orderedList = array_map(function ($rec) {
+        $orderedList = array_map(static function ($rec): LsItem {
             return $rec['item'];
         }, $topAssociations);
 
-        $topAssociations = new ArrayCollection($orderedList);
-
-        return $topAssociations;
+        return new ArrayCollection($orderedList);
     }
 
     public function addLsItem(LsItem $lsItem): LsDoc
@@ -769,6 +765,9 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         $this->docAssociations->removeElement($docAssociation);
     }
 
+    /**
+     * @return LsAssociation[]|Collection
+     */
     public function getDocAssociations(): Collection
     {
         return $this->docAssociations;
@@ -1129,7 +1128,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @param Uuid|string|null $identifier
+     * @param UuidInterface|string|null $identifier
      */
     public function createItem($identifier = null): LsItem
     {
@@ -1140,7 +1139,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @param Uuid|string|null $identifier
+     * @param UuidInterface|string|null $identifier
      */
     public function createAssociation($identifier = null): LsAssociation
     {

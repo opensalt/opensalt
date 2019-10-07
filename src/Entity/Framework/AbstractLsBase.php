@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -24,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class AbstractLsBase implements IdentifiableInterface
 {
     /**
-     * @var int
+     * @var int|null
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -80,11 +81,11 @@ class AbstractLsBase implements IdentifiableInterface
     protected $updatedAt;
 
     /**
-     * @param string|Uuid|null $identifier
+     * @param string|UuidInterface|null $identifier
      */
     public function __construct($identifier = null)
     {
-        if ($identifier instanceof Uuid) {
+        if ($identifier instanceof UuidInterface) {
             $identifier = strtolower($identifier->toString());
         } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
             $identifier = strtolower(Uuid::fromString($identifier)->toString());
@@ -126,7 +127,7 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * Set identifier.
      *
-     * @param Uuid|string $identifier
+     * @param UuidInterface|string $identifier
      *
      * @return static
      *
@@ -135,8 +136,8 @@ class AbstractLsBase implements IdentifiableInterface
     public function setIdentifier($identifier)
     {
         // If the identifier is in the form of a UUID then lower case it
-        if ($identifier instanceof Uuid) {
-            $identifier = strtolower($identifier->serialize());
+        if ($identifier instanceof UuidInterface) {
+            $identifier = strtolower($identifier->toString());
         } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
             $identifier = strtolower(Uuid::fromString($identifier)->toString());
         } else {

@@ -8,13 +8,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * LsItem
- *
  * @ORM\Table(name="ls_item")
  * @ORM\Entity(repositoryClass="App\Repository\Framework\LsItemRepository")
  * @UniqueEntity("uri")
@@ -100,7 +98,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $lsDocIdentifier;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="ls_doc_uri", type="string", length=300, nullable=true)
      * @Assert\Length(max=300)
@@ -120,7 +118,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $lsDoc;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="human_coding_scheme", type="string", length=50, nullable=true)
      *
@@ -132,7 +130,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $humanCodingScheme;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="list_enum_in_source", type="string", length=20, nullable=true)
      *
@@ -156,7 +154,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $fullStatement;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="abbreviated_statement", type="string", length=60, nullable=true)
      *
@@ -196,7 +194,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $concepts;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="notes", type="text", nullable=true)
      *
@@ -206,7 +204,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $notes;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="language", type="string", length=10, nullable=true)
      *
@@ -218,7 +216,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $language;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="educational_alignment", type="string", length=300, nullable=true)
      *
@@ -229,7 +227,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $educationalAlignment;
 
     /**
-     * @var LsDefItemType
+     * @var LsDefItemType|null
      *
      * @ORM\ManyToOne(targetEntity="LsDefItemType")
      * @ORM\JoinColumn(name="item_type_id", referencedColumnName="id")
@@ -251,7 +249,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $alternativeLabel;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface|null
      *
      * @ORM\Column(name="status_start", type="date", nullable=true)
      *
@@ -265,7 +263,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $statusStart;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface|null
      *
      * @ORM\Column(name="status_end", type="date", nullable=true)
      *
@@ -279,7 +277,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $statusEnd;
 
     /**
-     * @var LsDefLicence
+     * @var LsDefLicence|null
      *
      * @ORM\ManyToOne(targetEntity="LsDefLicence")
      * @ORM\JoinColumn(name="licence_id", referencedColumnName="id", nullable=true)
@@ -341,7 +339,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * LsItem constructor.
      *
-     * @param string|Uuid|null $identifier
+     * @param string|UuidInterface|null $identifier
      */
     public function __construct($identifier = null)
     {
@@ -442,7 +440,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @param Uuid|string|null $identifier
+     * @param UuidInterface|string|null $identifier
      */
     public function createItem($identifier = null): LsItem
     {
@@ -450,7 +448,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @param Uuid|string|null $identifier
+     * @param UuidInterface|string|null $identifier
      */
     public function createAssociation($identifier = null): LsAssociation
     {
@@ -583,7 +581,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->listEnumInSource;
     }
 
-    public function setFullStatement(?string $fullStatement): LsItem
+    public function setFullStatement(string $fullStatement): LsItem
     {
         $this->fullStatement = $fullStatement;
 
@@ -617,7 +615,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         }
 
         if ([] !== array_filter($conceptKeywords, static function ($el) {
-            return !is_string($el);
+            return !\is_string($el);
         })) {
             throw new \InvalidArgumentException('setConceptKeywords must be passed an array of strings.');
         }
@@ -962,7 +960,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->language;
     }
 
-    public function setLanguage($language): LsItem
+    public function setLanguage(?string $language): LsItem
     {
         $this->language = $language;
 
@@ -972,7 +970,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * Get (an indented) label representing this item.
      */
-    public function getLabel($indent = "\u{00a0}\u{00a0}\u{00a0}\u{00a0}"): string
+    public function getLabel(string $indent = "\u{00a0}\u{00a0}\u{00a0}\u{00a0}"): string
     {
         $pfx = '';
         $parent = $this->getLsItemParent();
