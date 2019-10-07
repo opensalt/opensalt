@@ -8,8 +8,6 @@
                         {% set groupLabel = '' %}
                         {% if association.group is not empty %}
                             {% set groupLabel =  '<span class="label label-default">'~association.group.title|e~'</span>' %}
-                        {% elseif association.groupName is not empty %}
-                            {% set groupLabel =  '<span class="label label-default">'~association.groupName|e~'</span>' %}
                         {% endif %}
                         {% if association.destinationLsItem is defined %}
                             {% if association.destinationLsItem is not empty %}

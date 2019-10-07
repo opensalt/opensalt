@@ -134,28 +134,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="group_name", type="string", length=50, nullable=true)
-     *
-     * @Assert\Length(max=50)
-     *
-     * @Serializer\Exclude()
-     */
-    private $groupName;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="group_uri", type="string", length=300, nullable=true)
-     *
-     * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
-     */
-    private $groupUri;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="origin_node_identifier", type="string", length=300, nullable=false)
      *
      * @Assert\NotBlank()
@@ -653,26 +631,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->lsDoc;
     }
 
-    public function setGroupName(?string $groupName): self
-    {
-        $this->groupName = $groupName;
-
-        return $this;
-    }
-
-    public function getGroupName(): ?string
-    {
-        if ($this->groupName) {
-            return $this->groupName;
-        }
-
-        if ($this->group) {
-            return $this->group->getTitle();
-        }
-
-        return null;
-    }
-
     public function getLsDocIdentifier(): ?string
     {
         return $this->lsDocIdentifier;
@@ -705,26 +663,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     public function setDestinationNodeIdentifier(?string $destinationNodeIdentifier): self
     {
         $this->destinationNodeIdentifier = $destinationNodeIdentifier;
-
-        return $this;
-    }
-
-    public function getGroupUri(): ?string
-    {
-        if ($this->groupUri) {
-            return $this->groupUri;
-        }
-
-        if ($this->group) {
-            return $this->group->getUri();
-        }
-
-        return null;
-    }
-
-    public function setGroupUri(?string $groupUri): self
-    {
-        $this->groupUri = $groupUri;
 
         return $this;
     }

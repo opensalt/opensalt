@@ -153,9 +153,9 @@ class CaseImport
                 $lsAssociation->setSequenceNumber($cfAssociation->sequenceNumber);
             }
 
-            if (property_exists($cfAssociation, 'groupName')) {
-                $lsAssociation->setGroupName($cfAssociation->groupName);
-            }
+//            if (property_exists($cfAssociation, 'groupName')) {
+//                $lsAssociation->setGroupName($cfAssociation->groupName);
+//            }
 
             if (property_exists($cfAssociation, 'originNodeURI') && is_object($cfAssociation->originNodeURI)) {
                 if (array_key_exists($cfAssociation->originNodeURI->identifier, $items)) {
