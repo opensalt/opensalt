@@ -46,15 +46,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  *
  * @Serializer\VirtualProperty(
- *     "conceptKeywords",
- *     exp="service('App\\Service\\Api1Uris').splitByComma(object.getConceptKeywords())",
- *     options={
- *         @Serializer\SerializedName("conceptKeywords"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
  *     "conceptKeywordsUri",
  *     exp="(object.getConcepts().count()===0)?null:service('App\\Service\\Api1Uris').getLinkUri(object.getConcepts()[0])",
  *     options={
@@ -174,7 +165,9 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *     @Assert\Type("string")
      * })
      *
-     * @Serializer\Exclude()
+     * @Serializer\Expose("object.getConceptKeywordsArray().count()>0")
+     * @Serializer\SerializedName("conceptKeywords")
+     * @Serializer\Type("array<string>")
      */
     private $conceptKeywords = [];
 
@@ -188,8 +181,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * )
      *
      * @Serializer\Exclude()
-     * @Serializer\SerializedName("conceptKeywords")
-     * @Serializer\Type("array<string>")
      */
     private $concepts;
 
@@ -237,7 +228,18 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $itemType;
 
     /**
-     * @var string
+     * @var string|null
+     *
+     * @ORM\Column(name="item_type_text", type="string", nullable=true)
+     *
+     * @Assert\Length(max=255)
+     *
+     * @Serializer\Exclude()
+     */
+    private $itemTypeText;
+
+    /**
+     * @var string|null
      *
      * @ORM\Column(name="alternative_label", type="string", length=255, nullable=true)
      *
@@ -285,19 +287,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @Serializer\Exclude()
      */
     private $licence;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="licence_uri", type="string", length=300, nullable=true)
-     *
-     * @Assert\Length(max=300)
-     * @Assert\Url()
-     *
-     * @Serializer\Exclude()
-     * @Serializer\SerializedName("CFLicenseURI")
-     */
-    private $licenceUri;
 
     /**
      * @var \DateTimeInterface
@@ -455,9 +444,8 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->getLsDoc()->createAssociation($identifier);
     }
 
-    public function getGroupedAssociations(): Collection
+    public function getGroupedAssociations(): array
     {
-        /** @var Collection $groups[] */
         $groups = [
 //            'Children' => $this->getChildren(),
 //            'Parent' => $this->getLsItemParent(),
@@ -514,11 +502,11 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      */
     public function getDisplayIdentifier(): string
     {
-        if ($this->humanCodingScheme) {
-            return $this->getHumanCodingScheme();
+        if (null !== $this->humanCodingScheme) {
+            return $this->humanCodingScheme;
         }
 
-        if ($this->abbreviatedStatement) {
+        if (null !== $this->abbreviatedStatement) {
             return $this->abbreviatedStatement;
         }
 
@@ -690,9 +678,34 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->notes;
     }
 
-    public function setEducationalAlignment(?string $educationalAlignment): LsItem
+    /**
+     * @param string|string[]|null $educationalAlignment
+     */
+    public function setEducationalAlignment($educationalAlignment): LsItem
     {
-        $this->educationalAlignment = $educationalAlignment;
+        if (null === $educationalAlignment) {
+            $this->educationalAlignment = null;
+
+            return $this;
+        }
+
+        if (is_string($educationalAlignment)) {
+            $this->educationalAlignment = $educationalAlignment;
+
+            return $this;
+        }
+
+        if (!is_array($educationalAlignment)) {
+            throw new \InvalidArgumentException('setEducationalAlignment must be passed a string or an array of strings.');
+        }
+
+        if ([] !== array_filter($educationalAlignment, static function ($el) {
+            return !is_string($el);
+        })) {
+            throw new \InvalidArgumentException('setEducationalAlignment must be passed a string or an array of strings.');
+        }
+
+        $this->educationalAlignment = implode(',', $educationalAlignment);
 
         return $this;
     }
@@ -710,18 +723,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         }
 
         return null;
-    }
-
-    public function setLicenceUri(?string $licenceUri): LsItem
-    {
-        $this->licenceUri = $licenceUri;
-
-        return $this;
-    }
-
-    public function getLicenceUri(): ?string
-    {
-        return $this->licenceUri;
     }
 
     public function setChangedAt(\DateTimeInterface $changedAt): LsItem
@@ -1003,6 +1004,18 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     public function setItemType(?LsDefItemType $itemType): LsItem
     {
         $this->itemType = $itemType;
+
+        return $this;
+    }
+
+    public function getItemTypeText(): ?string
+    {
+        return $this->itemTypeText;
+    }
+
+    public function setItemTypeText(?string $itemTypeText): LsItem
+    {
+        $this->itemTypeText = $itemTypeText;
 
         return $this;
     }

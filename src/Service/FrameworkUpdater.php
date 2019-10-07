@@ -7,6 +7,9 @@ use App\Entity\Framework\LsItem;
 use App\Entity\Framework\LsAssociation;
 use Doctrine\ORM\EntityManagerInterface;
 
+/**
+ * @deprecated
+ */
 class FrameworkUpdater
 {
     /**
@@ -56,7 +59,7 @@ class FrameworkUpdater
             $cfItem->setAbbreviatedStatement($contentTransformed[$i][$cfItemKeys['abbreviatedStatement']]);
             $cfItem->setConceptKeywordsString($contentTransformed[$i][$cfItemKeys['conceptKeywords']]);
             $cfItem->setLanguage($contentTransformed[$i][$cfItemKeys['language']]);
-            $cfItem->setLicenceUri($contentTransformed[$i][$cfItemKeys['license']]);
+            //$cfItem->setLicenceUri($contentTransformed[$i][$cfItemKeys['license']]);
             $cfItem->setNotes($contentTransformed[$i][$cfItemKeys['notes']]);
 
             $this->updateAssociations($cfItem, $contentTransformed[$i], $cfItemKeys);

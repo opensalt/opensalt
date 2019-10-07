@@ -80,7 +80,6 @@ class LsItemType extends AbstractType
                 'delay' => 250,
                 'placeholder' => 'Select Item Type',
             ])
-            ->add('licenceUri')
             ->add('notes')
         ;
 
