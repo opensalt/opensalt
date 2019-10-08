@@ -36,7 +36,7 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
     /**
      * @var Collection|CfRubricCriterion[]
      *
-     * @ORM\OneToMany(targetEntity="CfRubricCriterion", mappedBy="rubric")
+     * @ORM\OneToMany(targetEntity="CfRubricCriterion", mappedBy="rubric", orphanRemoval=true, cascade={"persist", "remove"})
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("CFRubricCriteria"),
@@ -83,14 +83,26 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * @param CfRubricCriterion[]|Collection $criteria
+     * @param CfRubricCriterion[]|Collection|null $criteria
      */
-    public function setCriteria($criteria): CfRubric
+    public function setCriteria(?iterable $criteria): CfRubric
     {
-        if (is_array($criteria)) {
-            $criteria = new ArrayCollection($criteria);
+        $this->criteria = new ArrayCollection();
+
+        if (null === $criteria) {
+            return $this;
         }
-        $this->criteria = $criteria;
+
+        foreach ($criteria as $criterion) {
+            $this->addCriterion($criterion);
+        }
+
+        return $this;
+    }
+
+    public function addCriterion(CfRubricCriterion $criterion): CfRubric
+    {
+        $this->criteria[] = $criterion;
 
         return $this;
     }

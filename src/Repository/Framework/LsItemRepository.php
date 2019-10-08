@@ -9,9 +9,7 @@ use Doctrine\Common\Collections\Criteria;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * LsItemRepository
- *
- * @method null|LsItem findOneByIdentifier(string $identifier)
+ * @method LsItem|null findOneByIdentifier(string $identifier)
  */
 class LsItemRepository extends ServiceEntityRepository
 {
@@ -21,11 +19,9 @@ class LsItemRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string $key
-     *
-     * @return array
+     * @return LsItem[]
      */
-    public function findAllByIdentifierOrHumanCodingSchemeByValue($key)
+    public function findAllByIdentifierOrHumanCodingSchemeByValue(string $key): array
     {
         $qry = $this->createQueryBuilder('i');
         $qry->select('i')
@@ -35,7 +31,8 @@ class LsItemRepository extends ServiceEntityRepository
             ))
             ->setParameter('humanCodingScheme', $key)
             ->setParameter('identifier', $key)
-            ;
+        ;
+
         return $qry->getQuery()->getResult();
     }
 
@@ -43,9 +40,9 @@ class LsItemRepository extends ServiceEntityRepository
      * @param string $lsDocId
      * @param string $key
      *
-     * @return array
+     * @return LsItem[]
      */
-    public function findByAllIdentifierOrHumanCodingSchemeByLsDoc($lsDocId, $key)
+    public function findByAllIdentifierOrHumanCodingSchemeByLsDoc($lsDocId, $key): array
     {
         $qry = $this->createQueryBuilder('i');
         $qry->select('i')
@@ -56,7 +53,8 @@ class LsItemRepository extends ServiceEntityRepository
             ->setParameter('humanCodingScheme', $key)
             ->setParameter('identifier', $key)
             ->setParameter('lsDocId', $lsDocId)
-            ;
+        ;
+
         return $qry->getQuery()->getResult();
     }
 
@@ -67,7 +65,7 @@ class LsItemRepository extends ServiceEntityRepository
     {
         $associations = [];
         foreach ($child->getAssociations() as $association) {
-            if ($association->getType() === LsAssociation::CHILD_OF
+            if (LsAssociation::CHILD_OF === $association->getType()
                 && null !== $association->getDestinationLsItem()
                 && $association->getDestinationLsItem()->getId() === $parent->getId()) {
                 $associations[] = $association;
@@ -122,7 +120,7 @@ class LsItemRepository extends ServiceEntityRepository
             return [];
         }
 
-        $matched= [$item->getId() => $item];
+        $matched = [$item->getId() => $item];
         $matchedCount = 0;
 
         while (count($matched) !== $matchedCount) {
@@ -154,5 +152,21 @@ class LsItemRepository extends ServiceEntityRepository
         }
 
         return $matched;
+    }
+
+    /**
+     * @param string[] $identifiers
+     * @return LsItem[]
+     */
+    public function findByIdentifiers(array $identifiers): array
+    {
+        if (0 === count($identifiers)) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('t', 't.identifier');
+        $qb->where($qb->expr()->in('t.identifier', $identifiers));
+
+        return $qb->getQuery()->getResult();
     }
 }

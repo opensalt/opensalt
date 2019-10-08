@@ -2,182 +2,46 @@
 
 namespace App\Service;
 
-use App\Entity\Framework\LsDefItemType;
+use App\DataTransformer\CaseJson\PackageTransformer;
+use App\DTO\CaseJson\CFPackage;
 use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsItem;
-use App\Entity\Framework\LsAssociation;
-use App\Util\EducationLevelSet;
-use Doctrine\ORM\EntityManagerInterface;
+use Swaggest\JsonSchema\Schema;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class CaseImport
 {
     /**
-     * @var EntityManagerInterface
+     * @var SerializerInterface
      */
-    private $entityManager;
+    private $serializer;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /**
+     * @var PackageTransformer
+     */
+    private $packageTransformer;
+
+    public function __construct(SerializerInterface $serializer, PackageTransformer $packageTransformer)
     {
-        $this->entityManager = $entityManager;
+        $this->serializer = $serializer;
+        $this->packageTransformer = $packageTransformer;
     }
 
-    public function getEntityManager(): EntityManagerInterface
+    public function importCaseFile(string $content): LsDoc
     {
-        return $this->entityManager;
-    }
+        ini_set('memory_limit', '2G');
+        set_time_limit(900); // increase time limit for large files
 
-    public function importCaseFile(\stdClass $fileContent): LsDoc
-    {
-        set_time_limit(180); // increase time limit for large files
-
-        $em = $this->getEntityManager();
-        $lsDoc = new LsDoc($fileContent->CFDocument->identifier);
-
-        if (property_exists($fileContent->CFDocument, 'uri')) {
-            $lsDoc->setUri($fileContent->CFDocument->uri);
-        }
-        if (property_exists($fileContent->CFDocument, 'creator')) {
-            $lsDoc->setCreator($fileContent->CFDocument->creator);
-        }
-        if (property_exists($fileContent->CFDocument, 'publisher')) {
-            $lsDoc->setPublisher($fileContent->CFDocument->publisher);
-        }
-        if (property_exists($fileContent->CFDocument, 'title')) {
-            $lsDoc->setTitle($fileContent->CFDocument->title);
-        }
-        if (property_exists($fileContent->CFDocument, 'notes')) {
-            $lsDoc->setNote($fileContent->CFDocument->notes);
-        }
-        if (property_exists($fileContent->CFDocument, 'officialSourceURL')) {
-            $lsDoc->setOfficialUri($fileContent->CFDocument->officialSourceURL);
-        }
-        if (property_exists($fileContent->CFDocument, 'version')) {
-            $lsDoc->setVersion($fileContent->CFDocument->version);
-        }
-        if (property_exists($fileContent->CFDocument, 'description')) {
-            $lsDoc->setDescription($fileContent->CFDocument->description);
-        }
-        if (property_exists($fileContent->CFDocument, 'language')) {
-            $lsDoc->setLanguage($fileContent->CFDocument->language);
-        }
-        if (property_exists($fileContent->CFDocument, 'adoptionStatus')) {
-            $lsDoc->setAdoptionStatus($fileContent->CFDocument->adoptionStatus);
-        }
-        if (property_exists($fileContent->CFDocument, 'statusStartDate')) {
-            $lsDoc->setStatusStart(new \DateTime($fileContent->CFDocument->statusStartDate));
-        }
-        if (property_exists($fileContent->CFDocument, 'statusEndDate')) {
-            $lsDoc->setStatusEnd(new \DateTime($fileContent->CFDocument->statusEndDate));
+        try {
+            $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../../config/schema/case-v1p0-cfpackage-schema.json')));
+            $schema->in(json5_decode($content, true, 512, JSON_THROW_ON_ERROR));
+            $schema = null;
+        } catch (\Exception $e) {
+            throw $e;
         }
 
-        $em->persist($lsDoc);
+        /** @var CFPackage $package */
+        $package = $this->serializer->deserialize($content, CFPackage::class, 'json');
 
-        $cfItemTypes = [];
-
-        $cfItems = $fileContent->CFItems;
-        $items = [];
-        $items[$lsDoc->getIdentifier()] = $lsDoc;
-        foreach ($cfItems as $cfItem) {
-            $lsItem = new LsItem($cfItem->identifier);
-
-            $lsItem->setLsDoc($lsDoc);
-            if (property_exists($cfItem, 'uri')) {
-                $lsItem->setUri($cfItem->uri);
-            }
-            if (property_exists($cfItem, 'fullStatement')) {
-                $lsItem->setFullStatement($cfItem->fullStatement);
-            }
-            if (property_exists($cfItem, 'listEnumeration')) {
-                $lsItem->setListEnumInSource($cfItem->listEnumeration);
-            }
-            if (property_exists($cfItem, 'humanCodingScheme')) {
-                $lsItem->setHumanCodingScheme($cfItem->humanCodingScheme);
-            }
-            if (property_exists($cfItem, 'abbreviatedStatement')) {
-                $lsItem->setAbbreviatedStatement($cfItem->abbreviatedStatement);
-            }
-            if (property_exists($cfItem, 'notes')) {
-                $lsItem->setNotes($cfItem->notes);
-            }
-            if (property_exists($cfItem, 'educationLevel')) {
-                $importedGrades = $cfItem->educationLevel;
-                if (is_string($importedGrades)) {
-                    $importedGrades = str_replace(' ', '', $importedGrades);
-                    $importedGrades = explode(',', $importedGrades);
-                } elseif (!is_array($cfItem->educationLevel)) {
-                    // Skip invalid data
-                    continue;
-                }
-
-                $grades = EducationLevelSet::fromArray($importedGrades);
-                $lsItem->setEducationalAlignment($grades->toString());
-            }
-            if (property_exists($cfItem, 'language')) {
-                $lsItem->setLanguage($cfItem->language);
-            }
-            if (property_exists($cfItem, 'CFItemType')) {
-                if (empty($cfItemTypes[$cfItem->CFItemType])) {
-                    $itemType = new LsDefItemType();
-                    $itemType->setTitle($cfItem->CFItemType);
-                    $itemType->setDescription($cfItem->CFItemType);
-                    $itemType->setCode($cfItem->CFItemType);
-                    $itemType->setHierarchyCode(1);
-                    $em->persist($itemType);
-
-                    $cfItemTypes[$cfItem->CFItemType] = $itemType;
-                }
-
-                $lsItem->setItemType($cfItemTypes[$cfItem->CFItemType]);
-            }
-
-            $em->persist($lsItem);
-            $items[$cfItem->identifier] = $lsItem;
-        }
-
-        $cfAssociations = $fileContent->CFAssociations;
-        foreach ($cfAssociations as $cfAssociation) {
-            $lsAssociation = new LsAssociation($cfAssociation->identifier);
-
-            $lsAssociation->setLsDoc($lsDoc);
-            if (property_exists($cfAssociation, 'uri')) {
-                $lsAssociation->setUri($cfAssociation->uri);
-            }
-            if (property_exists($cfAssociation, 'associationType')) {
-                $associationType = ucfirst(preg_replace('/([A-Z])/', ' $1', $cfAssociation->associationType));
-                if (in_array($associationType, LsAssociation::allTypes(), true)) {
-                    $lsAssociation->setType($associationType);
-                }
-            }
-
-            if (property_exists($cfAssociation, 'sequenceNumber')) {
-                $lsAssociation->setSequenceNumber($cfAssociation->sequenceNumber);
-            }
-
-//            if (property_exists($cfAssociation, 'groupName')) {
-//                $lsAssociation->setGroupName($cfAssociation->groupName);
-//            }
-
-            if (property_exists($cfAssociation, 'originNodeURI') && is_object($cfAssociation->originNodeURI)) {
-                if (array_key_exists($cfAssociation->originNodeURI->identifier, $items)) {
-                    $lsAssociation->setOrigin($items[$cfAssociation->originNodeURI->identifier]);
-                } else {
-                    $lsAssociation->setOriginNodeUri($cfAssociation->originNodeURI->uri);
-                    $lsAssociation->setOriginNodeIdentifier($cfAssociation->originNodeURI->identifier);
-                }
-            }
-
-            if (property_exists($cfAssociation, 'destinationNodeURI') && is_object($cfAssociation->destinationNodeURI)) {
-                if (array_key_exists($cfAssociation->destinationNodeURI->identifier, $items)) {
-                    $lsAssociation->setDestination($items[$cfAssociation->destinationNodeURI->identifier]);
-                } else {
-                    $lsAssociation->setDestinationNodeUri($cfAssociation->destinationNodeURI->uri);
-                    $lsAssociation->setDestinationNodeIdentifier($cfAssociation->destinationNodeURI->identifier);
-                }
-            }
-
-            $em->persist($lsAssociation);
-        }
-
-        return $lsDoc;
+        return $this->packageTransformer->transform($package);
     }
 }

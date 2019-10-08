@@ -165,7 +165,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *     @Assert\Type("string")
      * })
      *
-     * @Serializer\Expose("object.getConceptKeywordsArray().count()>0")
+     * @Serializer\Expose()
      * @Serializer\SerializedName("conceptKeywords")
      * @Serializer\Type("array<string>")
      */

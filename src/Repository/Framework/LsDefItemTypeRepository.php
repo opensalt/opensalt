@@ -29,6 +29,22 @@ class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
     }
 
     /**
+     * @param string[] $identifiers
+     * @return LsDefItemType[]
+     */
+    public function findByIdentifiers(array $identifiers): array
+    {
+        if (0 === count($identifiers)) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('t', 't.identifier');
+        $qb->where($qb->expr()->in('t.identifier', $identifiers));
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
      * @param string|null $search
      *
      * @return array|LsDefItemType[]

@@ -5,5 +5,6 @@ return PhpCsFixer\Config::create()
         '@Symfony' => true,
         'array_syntax' => ['syntax' => 'short'],
         'phpdoc_align' => false,
+        'phpdoc_to_comment' => false,
     ])
 ;

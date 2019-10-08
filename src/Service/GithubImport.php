@@ -189,8 +189,6 @@ class GithubImport
     }
 
     /**
-     * @param LsDoc   $lsDoc
-     * @param LsItem  $lsItem
      * @param string  $cfAssociation
      * @param string  $frameworkToAssociate
      * @param string  $assocType
@@ -199,8 +197,8 @@ class GithubImport
     {
         $em = $this->getEntityManager();
 
-        if (strlen(trim($cfAssociation)) > 0) {
-            if ($frameworkToAssociate === 'all') {
+        if ('' !== trim($cfAssociation)) {
+            if ('all' === $frameworkToAssociate) {
                 $itemsAssociated = $em->getRepository(LsItem::class)
                     ->findAllByIdentifierOrHumanCodingSchemeByValue($cfAssociation);
             } else {
@@ -219,8 +217,6 @@ class GithubImport
     }
 
     /**
-     * @param LsDoc $lsDoc
-     * @param LsItem $lsItem
      * @param string|LsItem $elementAssociated
      * @param string $assocType
      */
@@ -234,7 +230,7 @@ class GithubImport
         if (is_string($elementAssociated)) {
             if (Uuid::isValid($elementAssociated)) {
                 $association->setDestinationNodeIdentifier($elementAssociated);
-            } elseif (!filter_var($elementAssociated, FILTER_VALIDATE_URL) === false) {
+            } elseif (false === !filter_var($elementAssociated, FILTER_VALIDATE_URL)) {
                 $association->setDestinationNodeUri($elementAssociated);
                 $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $elementAssociated));
             } else {
@@ -273,7 +269,7 @@ class GithubImport
         $resultOfSearch = $em->getRepository(LsItem::class)->findOneBy(['identifier' => $data[$lsItemKeys['identifier']]]);
 
         // If not in the DB create a new lsItem.
-        if ($resultOfSearch === null) {
+        if (null === $resultOfSearch) {
             $lsItem = new LsItem();
             $em = $this->getEntityManager();
             $itemAttributes = ['humanCodingScheme', 'abbreviatedStatement', 'conceptKeywords', 'language', 'license', 'notes'];
@@ -310,7 +306,7 @@ class GithubImport
     }
 
     /**
-     * It returns true|false is a line from content has the requried columns
+     * It returns true|false is a line from content has the requried columns.
      *
      * @param array   $lineContent
      * @param array   $lsItemKeys
@@ -323,7 +319,7 @@ class GithubImport
     }
 
     /**
-     * assign values relatd with the key to a Item
+     * assign values relatd with the key to a Item.
      *
      * @param LsItem  $lsItem
      * @param array   $lsItemKeys

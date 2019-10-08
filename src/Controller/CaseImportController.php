@@ -20,26 +20,20 @@ class CaseImportController extends AbstractController
     /**
      * @Route("/salt/case/import", name="import_case_file")
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param UserInterface $user
-     *
-     * @return JsonResponse
      */
-    public function importAction(Request $request, UserInterface $user): Response
+    public function importAction(Request $request, UserInterface $user): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
         }
 
         $content = base64_decode($request->request->get('fileContent'));
-        $fileContent = json_decode($content);
 
-        $command = new ImportCaseJsonCommand($fileContent, $user->getOrg());
+        $command = new ImportCaseJsonCommand($content, $user->getOrg(), $user);
         $this->sendCommand($command);
 
         return new JsonResponse([
-            'message' => 'Success'
+            'message' => 'Success',
         ]);
     }
 }
