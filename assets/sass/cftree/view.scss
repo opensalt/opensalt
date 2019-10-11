@@ -72,7 +72,7 @@ body{
 }
 
 #tree1Section.otherDoc .fancytree-container {
-    background-color:#ffd;
+    background-color:$alternate-doc-bg;
 }
 
 #tree2SectionControls {
@@ -171,12 +171,12 @@ span.fancytree-title {
     border:3px solid $brand-header;
     color:$text-color;
 
-    .docStatus-Draft, .docStatus-Private {
+    &.docStatus-Draft, &.docStatus-Private {
         background-color: lighten($doc-status-draft, 30%);
         border:3px solid $doc-status-draft;
     }
 
-    .docStatus-Deprecated {
+    &.docStatus-Deprecated {
         background-color: lighten($doc-status-deprecated, 30%);
         border:3px solid $doc-status-deprecated;
     }
@@ -295,7 +295,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 }
 
 .lsassociation-other-doc {
-    background-color:#ffd;
+    background-color:$alternate-doc-bg;
 }
 
 .lsAssociationItemDisplay {
@@ -519,7 +519,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
 .assocViewTableTypeFiltersHeader, .assocViewTableGroupFiltersHeader {
     margin-bottom:3px;
     padding-bottom:3px;
-    border-bottom:1px solid #ccc;
+    border-bottom:1px solid $neutral-bg-light;
 }
 
 .assocViewTableGroupFilters {

@@ -45,7 +45,7 @@ RUN	apt-get -o 'Acquire::CompressionTypes::Order::="gz"' update \
 	  libbz2-1.0 \
 	  libpng16-16 \
 	  libfreetype6 \
-	  libicu57 \
+	  libicu63 \
 	  libzip4 \
 	&& rm -r /var/lib/apt/lists/*
 
