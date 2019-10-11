@@ -32,8 +32,8 @@ class CaseImport
         set_time_limit(900); // increase time limit for large files
 
         try {
-            $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../../config/schema/case-v1p0-cfpackage-schema.json')));
-            $schema->in(json5_decode($content, true, 512, JSON_THROW_ON_ERROR));
+            $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p0-cfpackage-schema.json')));
+            $schema->in(json5_decode($content));
             $schema = null;
         } catch (\Exception $e) {
             throw $e;

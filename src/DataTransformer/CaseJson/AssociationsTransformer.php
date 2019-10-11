@@ -188,8 +188,10 @@ class AssociationsTransformer
 
     private function setGroup(LsAssociation $association, ?LinkURI $cfAssociationGroupingURI): LsAssociation
     {
-        if (null === $cfAssociationGroupingURI) {
+        if (null === $cfAssociationGroupingURI || null === $cfAssociationGroupingURI->identifier) {
             $association->setGroup(null);
+
+            return $association;
         }
 
         $identifier = $cfAssociationGroupingURI->identifier->toString();
