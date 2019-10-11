@@ -220,6 +220,10 @@ apx.initialize = function() {
             apx.viewMode.initialView = "logView";
         } else {
             apx.viewMode.initialView = "treeView";
+
+            if (Number.parseInt(apx.query.edit) === 1) {
+                $('#editDocModal').modal('show');
+            }
         }
     });
 
