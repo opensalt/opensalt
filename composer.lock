@@ -78,16 +78,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.112.16",
+            "version": "3.112.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "782f304ef4dc2fa73f5ecfbb49fcba46238ed541"
+                "reference": "8e69a518ff058612b94d328c2cde644621a4c0cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/782f304ef4dc2fa73f5ecfbb49fcba46238ed541",
-                "reference": "782f304ef4dc2fa73f5ecfbb49fcba46238ed541",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8e69a518ff058612b94d328c2cde644621a4c0cc",
+                "reference": "8e69a518ff058612b94d328c2cde644621a4c0cc",
                 "shasum": ""
             },
             "require": {
@@ -157,7 +157,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2019-10-07T18:13:37+00:00"
+            "time": "2019-10-10T18:23:11+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -2260,16 +2260,16 @@
         },
         {
             "name": "giggsey/locale",
-            "version": "1.7.1",
+            "version": "1.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/giggsey/Locale.git",
-                "reference": "b8030fc8df13cdfbecba318588de2d52b49c9b50"
+                "reference": "85a1b251bad11c986fec2a051b10d4b80a5caa1b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/Locale/zipball/b8030fc8df13cdfbecba318588de2d52b49c9b50",
-                "reference": "b8030fc8df13cdfbecba318588de2d52b49c9b50",
+                "url": "https://api.github.com/repos/giggsey/Locale/zipball/85a1b251bad11c986fec2a051b10d4b80a5caa1b",
+                "reference": "85a1b251bad11c986fec2a051b10d4b80a5caa1b",
                 "shasum": ""
             },
             "require": {
@@ -2280,8 +2280,8 @@
                 "pear/pear_exception": "^1.0",
                 "pear/versioncontrol_git": "^0.5",
                 "phing/phing": "~2.7",
+                "php-coveralls/php-coveralls": "^1.0|^2.0",
                 "phpunit/phpunit": "^4.8|^5.0",
-                "satooshi/php-coveralls": "^1.0",
                 "symfony/console": "^2.8|^3.0|^4.0",
                 "symfony/filesystem": "^2.8|^3.0|^4.0",
                 "symfony/finder": "^2.8|^3.0|^4.0",
@@ -2305,7 +2305,7 @@
                 }
             ],
             "description": "Locale functions required by libphonenumber-for-php",
-            "time": "2019-04-26T07:28:50+00:00"
+            "time": "2019-10-09T18:53:14+00:00"
         },
         {
             "name": "google/auth",
@@ -3837,16 +3837,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "4.32.0",
+            "version": "4.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "aad7f361f09661bb2e7b6267b99fd1efb73d0d07"
+                "reference": "f0c9d2784462aadfd361e57addd4ae4cac936191"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/aad7f361f09661bb2e7b6267b99fd1efb73d0d07",
-                "reference": "aad7f361f09661bb2e7b6267b99fd1efb73d0d07",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/f0c9d2784462aadfd361e57addd4ae4cac936191",
+                "reference": "f0c9d2784462aadfd361e57addd4ae4cac936191",
                 "shasum": ""
             },
             "require": {
@@ -3856,6 +3856,7 @@
                 "ext-openssl": "*",
                 "giggsey/libphonenumber-for-php": "^8.9",
                 "google/auth": "^0.11.0|^1.0",
+                "google/cloud-storage": "^1.14",
                 "guzzlehttp/guzzle": "^6.2.1",
                 "kreait/clock": "^1.0.1",
                 "kreait/firebase-tokens": "^1.8.1",
@@ -3873,6 +3874,9 @@
                 "phpstan/phpstan-phpunit": "^0.9.2",
                 "phpunit/phpunit": "^6.0",
                 "symfony/var-dumper": "^3.3"
+            },
+            "suggest": {
+                "google/cloud-firestore": "^1.0 to use the Firestore component"
             },
             "type": "library",
             "extra": {
@@ -3907,7 +3911,7 @@
                 "google",
                 "sdk"
             ],
-            "time": "2019-09-13T10:27:17+00:00"
+            "time": "2019-10-11T12:36:40+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
@@ -6327,16 +6331,16 @@
         },
         {
             "name": "superbalist/flysystem-google-storage",
-            "version": "7.2.1",
+            "version": "7.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Superbalist/flysystem-google-cloud-storage.git",
-                "reference": "97cf8a5c9a9d368260b2791ec130690a1bec0cbd"
+                "reference": "87e2f450c0e4b5200fef9ffe6863068cc873d734"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Superbalist/flysystem-google-cloud-storage/zipball/97cf8a5c9a9d368260b2791ec130690a1bec0cbd",
-                "reference": "97cf8a5c9a9d368260b2791ec130690a1bec0cbd",
+                "url": "https://api.github.com/repos/Superbalist/flysystem-google-cloud-storage/zipball/87e2f450c0e4b5200fef9ffe6863068cc873d734",
+                "reference": "87e2f450c0e4b5200fef9ffe6863068cc873d734",
                 "shasum": ""
             },
             "require": {
@@ -6370,7 +6374,7 @@
                 }
             ],
             "description": "Flysystem adapter for Google Cloud Storage",
-            "time": "2019-02-21T08:07:24+00:00"
+            "time": "2019-10-10T12:22:54+00:00"
         },
         {
             "name": "swaggest/json-diff",
@@ -13457,12 +13461,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "9942bfb2b2980de5e6971cbfa463d236f7865f02"
+                "reference": "eb59d9f35a47f567ae15e7179d7c666489cd4b85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/9942bfb2b2980de5e6971cbfa463d236f7865f02",
-                "reference": "9942bfb2b2980de5e6971cbfa463d236f7865f02",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/eb59d9f35a47f567ae15e7179d7c666489cd4b85",
+                "reference": "eb59d9f35a47f567ae15e7179d7c666489cd4b85",
                 "shasum": ""
             },
             "conflict": {
@@ -13485,7 +13489,6 @@
                 "contao/core": ">=2,<3.5.39",
                 "contao/core-bundle": ">=4,<4.4.39|>=4.5,<4.7.5",
                 "contao/listing-bundle": ">=4,<4.4.8",
-                "contao/newsletter-bundle": ">=4,<4.1",
                 "datadog/dd-trace": ">=0.30,<0.30.2",
                 "david-garcia/phpwhois": "<=4.3.1",
                 "doctrine/annotations": ">=1,<1.2.7",
@@ -13529,9 +13532,9 @@
                 "laravel/framework": ">=4,<4.0.99|>=4.1,<=4.1.31|>=4.2,<=4.2.22|>=5,<=5.0.35|>=5.1,<=5.1.46|>=5.2,<=5.2.45|>=5.3,<=5.3.31|>=5.4,<=5.4.36|>=5.5,<5.5.42|>=5.6,<5.6.30",
                 "laravel/socialite": ">=1,<1.0.99|>=2,<2.0.10",
                 "league/commonmark": "<0.18.3",
-                "magento/magento1ce": "<1.9.4.1",
-                "magento/magento1ee": ">=1.9,<1.14.4.1",
-                "magento/product-community-edition": ">=2,<2.2.8|>=2.3,<2.3.1",
+                "magento/magento1ce": "<1.9.4.3",
+                "magento/magento1ee": ">=1,<1.14.4.3",
+                "magento/product-community-edition": ">=2,<2.2.10|>=2.3,<2.3.3",
                 "monolog/monolog": ">=1.8,<1.12",
                 "namshi/jose": "<2.2",
                 "onelogin/php-saml": "<2.10.4",
@@ -13666,7 +13669,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2019-10-07T22:05:53+00:00"
+            "time": "2019-10-09T14:04:58+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -14816,16 +14819,16 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "3.5.3",
+            "version": "3.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "c3e781c4a06cbb17dc32068eb5d6de075f6babdc"
+                "reference": "7857b07f91bed5afae98574243fed7ec4088d623"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/c3e781c4a06cbb17dc32068eb5d6de075f6babdc",
-                "reference": "c3e781c4a06cbb17dc32068eb5d6de075f6babdc",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/7857b07f91bed5afae98574243fed7ec4088d623",
+                "reference": "7857b07f91bed5afae98574243fed7ec4088d623",
                 "shasum": ""
             },
             "require": {
@@ -14900,7 +14903,7 @@
                 "inspection",
                 "php"
             ],
-            "time": "2019-09-27T13:22:06+00:00"
+            "time": "2019-10-11T12:24:35+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -15054,16 +15057,16 @@
         },
         {
             "name": "weirdan/doctrine-psalm-plugin",
-            "version": "0.6.0",
+            "version": "0.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/weirdan/doctrine-psalm-plugin.git",
-                "reference": "ee201049ff39ea82699f04ed41531e21a698dc99"
+                "reference": "77bedebeb264018ce5b74f1504c862b9bb71a1ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/weirdan/doctrine-psalm-plugin/zipball/ee201049ff39ea82699f04ed41531e21a698dc99",
-                "reference": "ee201049ff39ea82699f04ed41531e21a698dc99",
+                "url": "https://api.github.com/repos/weirdan/doctrine-psalm-plugin/zipball/77bedebeb264018ce5b74f1504c862b9bb71a1ac",
+                "reference": "77bedebeb264018ce5b74f1504c862b9bb71a1ac",
                 "shasum": ""
             },
             "require": {
@@ -15117,7 +15120,7 @@
                 "static analysis",
                 "static-analysis"
             ],
-            "time": "2019-09-11T20:34:52+00:00"
+            "time": "2019-10-10T19:32:44+00:00"
         }
     ],
     "aliases": [
