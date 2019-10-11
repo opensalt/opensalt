@@ -56,8 +56,14 @@ apx.edit.prepareDocEditModal = function() {
             data: $modal.find('form[name=ls_doc]').serialize()
         }).done(function(data, textStatus, jqXHR) {
             $modal.modal('hide');
-            // on successful update, reload the doc
-            window.location.reload();
+            // on successful update, reload the doc (removing any query params)
+            let curHref = window.location.href;
+            let newHref = curHref.split('?')[0];
+            if (window.location.href === newHref) {
+                window.location.reload();
+            } else {
+                window.location.href = newHref;
+            }
             /*
                var updatedData = {
                "title": $("#ls_doc_title").val(),
