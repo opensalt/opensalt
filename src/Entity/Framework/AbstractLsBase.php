@@ -7,7 +7,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\HttpFoundation\Request as Request;
 
 /**
  * @ORM\MappedSuperclass()
@@ -96,7 +95,7 @@ class AbstractLsBase implements IdentifiableInterface
         }
 
         $this->identifier = $identifier;
-        $this->uri = $this->siteURL().$this->identifier;
+        $this->uri = 'local:'.$this->identifier;
 
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -112,19 +111,10 @@ class AbstractLsBase implements IdentifiableInterface
         // Generate a new identifier
         $identifier = Uuid::uuid1()->toString();
         $this->identifier = $identifier;
-        $this->uri = $this->siteURL().$this->identifier;
+        $this->uri = 'local:'.$this->identifier;
 
         // Set last change/update to now
         $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    public function siteURL()
-    {
-        $request = Request::createFromGlobals();
-        $https = (!empty($request->server->get('HTTPS')) && $request->server->get('HTTPS') !== 'off')
-            || $request->server->get('SERVER_PORT') == 443 ? 'https://' : 'http://';
-        $currentUrl = $https.$request->server->get('HTTP_HOST');
-        return $currentUrl;
     }
 
     /**
