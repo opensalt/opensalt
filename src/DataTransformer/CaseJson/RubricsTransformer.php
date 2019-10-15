@@ -98,7 +98,7 @@ class RubricsTransformer
      */
     private function updateCriteria(CfRubric $rubric, array $cfCriteria): void
     {
-        $newCriteria = array_combine(array_map(static function ($cfCriterion) {
+        $newCriteria = array_combine(array_map(static function (CFPackageCriterion $cfCriterion) {
             return $cfCriterion->identifier->toString();
         }, $cfCriteria), $cfCriteria);
 
@@ -158,7 +158,7 @@ class RubricsTransformer
      */
     private function updateLevels(CfRubricCriterion $criterion, array $cfRubricCriterionLevels): array
     {
-        $newLevels = array_combine(array_map(static function ($cfCriterionLevel) {
+        $newLevels = array_combine(array_map(static function (CFPackageCriterionLevel $cfCriterionLevel) {
             return $cfCriterionLevel->identifier->toString();
         }, $cfRubricCriterionLevels), $cfRubricCriterionLevels);
 
