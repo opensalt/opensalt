@@ -29,6 +29,7 @@ class LsDefLicenceRepository extends AbstractLsDefinitionRepository
 
     /**
      * @param string[] $identifiers
+     *
      * @return LsDefLicence[]
      */
     public function findByIdentifiers(array $identifiers): array

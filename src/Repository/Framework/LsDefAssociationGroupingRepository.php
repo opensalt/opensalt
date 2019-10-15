@@ -17,6 +17,7 @@ class LsDefAssociationGroupingRepository extends AbstractLsDefinitionRepository
 
     /**
      * @param string[] $identifiers
+     *
      * @return LsDefAssociationGrouping[]
      */
     public function findByIdentifiers(array $identifiers): array

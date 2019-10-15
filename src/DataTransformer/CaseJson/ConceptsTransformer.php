@@ -21,6 +21,7 @@ class ConceptsTransformer
 
     /**
      * @param CFConcept[] $cfConcepts
+     *
      * @return LsDefConcept[]
      */
     public function transform(array $cfConcepts): array
@@ -40,6 +41,7 @@ class ConceptsTransformer
 
     /**
      * @param CFConcept[] $cfConcepts
+     *
      * @return LsDefConcept[]
      */
     protected function findExistingConcepts(array $cfConcepts): array
@@ -72,6 +74,7 @@ class ConceptsTransformer
     /**
      * @param CFConcept $cfConcept
      * @param LsDefConcept[] $existingConcepts
+     *
      * @return LsDefConcept
      */
     protected function findOrCreateConcept(CFConcept $cfConcept, array &$existingConcepts): LsDefConcept

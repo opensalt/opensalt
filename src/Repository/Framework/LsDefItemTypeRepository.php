@@ -30,6 +30,7 @@ class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
 
     /**
      * @param string[] $identifiers
+     *
      * @return LsDefItemType[]
      */
     public function findByIdentifiers(array $identifiers): array

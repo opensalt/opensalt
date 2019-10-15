@@ -99,6 +99,7 @@ class LsAssociationRepository extends ServiceEntityRepository
 
     /**
      * @param string[] $identifiers
+     *
      * @return LsAssociation[]
      */
     public function findByIdentifiers(array $identifiers): array

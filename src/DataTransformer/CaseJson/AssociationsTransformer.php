@@ -46,6 +46,7 @@ class AssociationsTransformer
      * @param CFPackageAssociation[] $cfAssociations
      * @param LsItem[] $items
      * @param Definitions $definitions
+     *
      * @return LsAssociation[]
      */
     public function transform(array $cfAssociations, LsDoc $doc, array $items, Definitions $definitions): array
@@ -67,6 +68,7 @@ class AssociationsTransformer
 
     /**
      * @param CFPackageAssociation[] $cfAssociations
+     *
      * @return LsAssociation[]
      */
     private function findExistingAssociations(array $cfAssociations): array
@@ -107,7 +109,7 @@ class AssociationsTransformer
 
     private function updateAssociation(LsAssociation $association, CFPackageAssociation $cfAssociation, LsDoc $doc): LsAssociation
     {
-        /** @noinspection NullPointerExceptionInspection */
+        /* @noinspection NullPointerExceptionInspection */
         if ($association->getLsDoc()->getIdentifier() !== $doc->getIdentifier()) {
             $this->logger->error(sprintf('Attempt to change the document from %s to %s of association %s', $association->getLsDoc()->getIdentifier(), $doc->getIdentifier(), $cfAssociation->identifier->toString()));
 

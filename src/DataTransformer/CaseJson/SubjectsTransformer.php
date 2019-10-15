@@ -21,6 +21,7 @@ class SubjectsTransformer
 
     /**
      * @param CFSubject[] $cfSubjects
+     *
      * @return LsDefSubject[]
      */
     public function transform(array $cfSubjects): array
@@ -40,6 +41,7 @@ class SubjectsTransformer
 
     /**
      * @param CFSubject[] $subjects
+     *
      * @return LsDefSubject[]
      */
     protected function findExistingSubjects(array $subjects): array
@@ -71,6 +73,7 @@ class SubjectsTransformer
     /**
      * @param CFSubject $cfSubject
      * @param LsDefSubject[] $existingSubjects
+     *
      * @return LsDefSubject
      */
     protected function findOrCreateSubject(CFSubject $cfSubject, array &$existingSubjects): LsDefSubject

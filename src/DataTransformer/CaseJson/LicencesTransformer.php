@@ -21,6 +21,7 @@ class LicencesTransformer
 
     /**
      * @param CFLicense[] $cfLicences
+     *
      * @return LsDefLicence[]
      */
     public function transform(array $cfLicences): array
@@ -40,6 +41,7 @@ class LicencesTransformer
 
     /**
      * @param CFLicense[] $cfLicences
+     *
      * @return LsDefLicence[]
      */
     protected function findExistingLicences(array $cfLicences): array
@@ -71,6 +73,7 @@ class LicencesTransformer
     /**
      * @param CFLicense $cfLicense
      * @param LsDefLicence[] $licences
+     *
      * @return LsDefLicence
      */
     protected function findOrCreateLicence(CFLicense $cfLicense, array &$licences): LsDefLicence

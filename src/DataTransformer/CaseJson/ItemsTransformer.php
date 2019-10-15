@@ -37,6 +37,7 @@ class ItemsTransformer
 
     /**
      * @param CFPackageItem[] $cfItems
+     *
      * @return LsItem[]
      */
     public function transform(array $cfItems, LsDoc $doc, Definitions $definitions): array
@@ -57,6 +58,7 @@ class ItemsTransformer
 
     /**
      * @param CFPackageItem[] $cfItems
+     *
      * @return LsItem[]
      */
     private function findExistingItems(array $cfItems): array

@@ -17,6 +17,7 @@ class LsDefConceptRepository extends AbstractLsDefinitionRepository
 
     /**
      * @param string[] $identifiers
+     *
      * @return LsDefConcept[]
      */
     public function findByIdentifiers(array $identifiers): array

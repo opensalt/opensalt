@@ -33,6 +33,7 @@ class LsDefSubjectRepository extends AbstractLsDefinitionRepository
 
     /**
      * @param string[] $identifiers
+     *
      * @return LsDefSubject[]
      */
     public function findByIdentifiers(array $identifiers): array

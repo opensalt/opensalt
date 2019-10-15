@@ -21,6 +21,7 @@ class ItemTypesTransformer
 
     /**
      * @param CFItemType[] $cfItemTypes
+     *
      * @return LsDefItemType[]
      */
     public function transform(array $cfItemTypes): array
@@ -40,6 +41,7 @@ class ItemTypesTransformer
 
     /**
      * @param CFItemType[] $cfItemTypes
+     *
      * @return LsDefItemType[]
      */
     protected function findExistingItemTypes(array $cfItemTypes): array
@@ -72,6 +74,7 @@ class ItemTypesTransformer
     /**
      * @param CFItemType $cfItemType
      * @param LsDefItemType[] $existingItemTypes
+     *
      * @return LsDefItemType
      */
     protected function findOrCreateItemType(CFItemType $cfItemType, array &$existingItemTypes): LsDefItemType

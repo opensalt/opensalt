@@ -19,13 +19,13 @@ final class Version20191002135839 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql(<<<xENDx
+        $this->addSql(<<<'xENDx'
 UPDATE ls_doc
    SET subject = CONCAT('["', subject, '"]')
  WHERE subject IS NOT NULL
 xENDx
         );
-        $this->addSql(<<<xENDx
+        $this->addSql(<<<'xENDx'
 UPDATE audit_ls_doc
    SET subject = CONCAT('["', subject, '"]')
  WHERE subject IS NOT NULL
@@ -63,7 +63,7 @@ ALTER TABLE ls_doc
   CHANGE subject subject VARCHAR(50) DEFAULT NULL COLLATE utf8mb4_unicode_ci
         ');
 
-        $this->addSql(<<<xENDx
+        $this->addSql(<<<'xENDx'
 UPDATE ls_doc
    SET subject = REPLACE(subject, '["', '')
  WHERE subject IS NOT NULL
@@ -76,7 +76,7 @@ UPDATE ls_doc
 xENDx
         );
 
-        $this->addSql(<<<xENDx
+        $this->addSql(<<<'xENDx'
 UPDATE audit_ls_doc
    SET subject = REPLACE(subject, '["', '')
  WHERE subject IS NOT NULL

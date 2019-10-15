@@ -19,7 +19,7 @@ final class Version20191003181501 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql(<<<xENDx
+        $this->addSql(<<<'xENDx'
 UPDATE ls_item
    SET concept_keywords = CONCAT('["', concept_keywords, '"]')
  WHERE concept_keywords IS NOT NULL
@@ -31,7 +31,7 @@ UPDATE ls_item
 ;
 xENDx
         );
-        $this->addSql(<<<xENDx
+        $this->addSql(<<<'xENDx'
 UPDATE audit_ls_item
    SET concept_keywords = CONCAT('["', concept_keywords, '"]')
  WHERE concept_keywords IS NOT NULL
@@ -56,7 +56,7 @@ xENDx
         $this->addSql('ALTER TABLE audit_ls_item CHANGE concept_keywords concept_keywords VARCHAR(300) DEFAULT NULL COLLATE utf8mb4_unicode_ci');
         $this->addSql('ALTER TABLE ls_item CHANGE concept_keywords concept_keywords VARCHAR(300) DEFAULT NULL COLLATE utf8mb4_unicode_ci');
 
-        $this->addSql(<<<xENDx
+        $this->addSql(<<<'xENDx'
 UPDATE ls_item
    SET concept_keywords = REPLACE(concept_keywords, '["', '')
  WHERE concept_keywords IS NOT NULL
@@ -74,7 +74,7 @@ UPDATE ls_item
 xENDx
         );
 
-        $this->addSql(<<<xENDx
+        $this->addSql(<<<'xENDx'
 UPDATE audit_ls_item
    SET concept_keywords = REPLACE(concept_keywords, '["', '')
  WHERE concept_keywords IS NOT NULL

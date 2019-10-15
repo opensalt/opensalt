@@ -38,6 +38,7 @@ class RubricsTransformer
     /**
      * @param CFPackageRubric[] $cfRubrics
      * @param LsItem[] $items
+     *
      * @return CfRubric[]
      */
     public function transform(array $cfRubrics, array $items): array
@@ -59,6 +60,7 @@ class RubricsTransformer
 
     /**
      * @param CFPackageRubric[] $cfRubrics
+     *
      * @return CfRubric[]
      */
     private function findExistingRubrics(array $cfRubrics): array
@@ -151,6 +153,7 @@ class RubricsTransformer
 
     /**
      * @param CFPackageCriterionLevel[] $cfRubricCriterionLevels
+     *
      * @return CfRubricCriterionLevel[]
      */
     private function updateLevels(CfRubricCriterion $criterion, array $cfRubricCriterionLevels): array

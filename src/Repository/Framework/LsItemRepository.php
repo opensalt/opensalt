@@ -156,6 +156,7 @@ class LsItemRepository extends ServiceEntityRepository
 
     /**
      * @param string[] $identifiers
+     *
      * @return LsItem[]
      */
     public function findByIdentifiers(array $identifiers): array

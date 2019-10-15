@@ -14,6 +14,7 @@ class CfRubricRepository extends AbstractLsBaseRepository
 
     /**
      * @param string[] $identifiers
+     *
      * @return CfRubric[]
      */
     public function findByIdentifiers(array $identifiers): array
