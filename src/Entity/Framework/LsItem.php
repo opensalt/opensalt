@@ -147,7 +147,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * @var string|null
      *
-     * @ORM\Column(name="abbreviated_statement", type="string", length=60, nullable=true)
+     * @ORM\Column(name="abbreviated_statement", type="text", nullable=true)
      *
      * @Assert\Length(max=60)
      *
