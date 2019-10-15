@@ -52,8 +52,8 @@ class PackageTransformer
 
         $doc = $this->documentTransformer->transform($package->cfDocument, $definitions);
         $items = $this->itemsTransformer->transform($package->cfItems, $doc, $definitions);
-        $associations = $this->associationsTransformer->transform($package->cfAssociations, $doc, $items, $definitions);
-        $rubrics = $this->rubricsTransformer->transform($package->cfRubrics, $items);
+        $this->associationsTransformer->transform($package->cfAssociations, $doc, $items, $definitions);
+        $this->rubricsTransformer->transform($package->cfRubrics, $items);
 
         return $doc;
     }
