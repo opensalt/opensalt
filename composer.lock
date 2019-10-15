@@ -78,16 +78,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.112.19",
+            "version": "3.112.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "8e69a518ff058612b94d328c2cde644621a4c0cc"
+                "reference": "218d29c4729eb40a668242a53cbfde905fd94792"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8e69a518ff058612b94d328c2cde644621a4c0cc",
-                "reference": "8e69a518ff058612b94d328c2cde644621a4c0cc",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/218d29c4729eb40a668242a53cbfde905fd94792",
+                "reference": "218d29c4729eb40a668242a53cbfde905fd94792",
                 "shasum": ""
             },
             "require": {
@@ -157,7 +157,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2019-10-10T18:23:11+00:00"
+            "time": "2019-10-14T18:08:52+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -3837,16 +3837,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "4.33.0",
+            "version": "4.34.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "f0c9d2784462aadfd361e57addd4ae4cac936191"
+                "reference": "83a84c4364eb9e5d5410e57acc451b4534b8c88e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/f0c9d2784462aadfd361e57addd4ae4cac936191",
-                "reference": "f0c9d2784462aadfd361e57addd4ae4cac936191",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/83a84c4364eb9e5d5410e57acc451b4534b8c88e",
+                "reference": "83a84c4364eb9e5d5410e57acc451b4534b8c88e",
                 "shasum": ""
             },
             "require": {
@@ -3911,7 +3911,7 @@
                 "google",
                 "sdk"
             ],
-            "time": "2019-10-11T12:36:40+00:00"
+            "time": "2019-10-13T16:36:14+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
@@ -4087,16 +4087,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.55",
+            "version": "1.0.56",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "33c91155537c6dc899eacdc54a13ac6303f156e6"
+                "reference": "90e3f83cb10ef6b058d70f95267030e7a6236518"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/33c91155537c6dc899eacdc54a13ac6303f156e6",
-                "reference": "33c91155537c6dc899eacdc54a13ac6303f156e6",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/90e3f83cb10ef6b058d70f95267030e7a6236518",
+                "reference": "90e3f83cb10ef6b058d70f95267030e7a6236518",
                 "shasum": ""
             },
             "require": {
@@ -4167,7 +4167,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2019-08-24T11:17:19+00:00"
+            "time": "2019-10-12T13:05:59+00:00"
         },
         {
             "name": "league/flysystem-aws-s3-v3",

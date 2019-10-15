@@ -10,6 +10,7 @@ use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsItemRepository;
 use App\Util\EducationLevelSet;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class ItemsTransformer
 {
@@ -23,9 +24,15 @@ class ItemsTransformer
      */
     private $definitions;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
     {
         $this->em = $entityManager;
+        $this->logger = $logger;
     }
 
     /**
@@ -91,6 +98,8 @@ class ItemsTransformer
     private function updateItem(LsItem $item, CFPackageItem $cfItem, LsDoc $doc): LsItem
     {
         if ($item->getLsDoc()->getIdentifier() !== $doc->getIdentifier()) {
+            $this->logger->error(sprintf('Attempt to change the document from %s to %s of item %s', $item->getLsDoc()->getIdentifier(), $doc->getIdentifier(), $cfItem->identifier->toString()));
+
             throw new \UnexpectedValueException('Cannot change the document of an item');
         }
 

@@ -7,10 +7,12 @@ use App\DTO\CaseJson\Definitions;
 use App\DTO\CaseJson\LinkGenURI;
 use App\DTO\CaseJson\LinkURI;
 use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsAssociationRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class AssociationsTransformer
 {
@@ -29,9 +31,15 @@ class AssociationsTransformer
      */
     private $items;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
     {
         $this->em = $entityManager;
+        $this->logger = $logger;
     }
 
     /**
@@ -101,6 +109,8 @@ class AssociationsTransformer
     {
         /** @noinspection NullPointerExceptionInspection */
         if ($association->getLsDoc()->getIdentifier() !== $doc->getIdentifier()) {
+            $this->logger->error(sprintf('Attempt to change the document from %s to %s of association %s', $association->getLsDoc()->getIdentifier(), $doc->getIdentifier(), $cfAssociation->identifier->toString()));
+
             throw new \UnexpectedValueException('Cannot change the document of an association');
         }
 
@@ -195,11 +205,17 @@ class AssociationsTransformer
         }
 
         $identifier = $cfAssociationGroupingURI->identifier->toString();
-        $group = $this->definitions->associationGroupings[$identifier] ?? null;
-        if (null !== $group) {
-            $association->setGroup($group);
+        $group = $this->definitions->associationGroupings[$identifier] ?? $this->findExitingGroup($identifier);
+        if (null === $group) {
+            $this->logger->warning(sprintf('AssociationGrouping %s cannot be found, using default.', $identifier));
         }
+        $association->setGroup($group);
 
         return $association;
+    }
+
+    private function findExitingGroup(string $identifier): LsDefAssociationGrouping
+    {
+        return $this->em->getRepository(LsDefAssociationGrouping::class)->findOneByIdentifier($identifier);
     }
 }
