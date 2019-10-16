@@ -337,6 +337,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         $this->associations = new ArrayCollection();
         $this->inverseAssociations = new ArrayCollection();
         $this->criteria = new ArrayCollection();
+        $this->concepts = new ArrayCollection();
         $this->changedAt = $this->getUpdatedAt();
     }
 
