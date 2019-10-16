@@ -527,6 +527,12 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
 
     public function setDescription(?string $description): LsDoc
     {
+        if (null === $description) {
+            $this->description = null;
+
+            return $this;
+        }
+
         $this->description = mb_substr($description, 0, 300);
 
         return $this;

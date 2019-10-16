@@ -50,7 +50,7 @@ class DocumentTransformer
         $doc->setUri($cfDocument->uri);
         $doc->setTitle($cfDocument->title);
         $doc->setDescription($cfDocument->description);
-        $doc->setAdoptionStatus($cfDocument->adoptionStatus, LsDoc::ADOPTION_STATUS_DRAFT);
+        $doc->setAdoptionStatus($cfDocument->adoptionStatus);
         $doc->setLanguage($cfDocument->language);
         $doc->setNote($cfDocument->notes);
         $doc->setOfficialUri($cfDocument->officialSourceURL);
