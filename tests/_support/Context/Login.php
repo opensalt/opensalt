@@ -3,7 +3,6 @@
 namespace Context;
 
 use Behat\Behat\Context\Context;
-use Codeception\Scenario;
 use Page\LoginLocal;
 
 class Login implements Context
@@ -16,7 +15,6 @@ class Login implements Context
     public function __construct(\AcceptanceTester $I)
     {
         $this->I = $I;
-
     }
 
     /**

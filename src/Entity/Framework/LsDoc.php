@@ -574,8 +574,18 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * @throws \InvalidArgumentException
      */
-    public function setAdoptionStatus(string $adoptionStatus, ?string $default = null): LsDoc
+    public function setAdoptionStatus(?string $adoptionStatus, ?string $default = null): LsDoc
     {
+        if (null === $adoptionStatus && null === $default) {
+            $this->adoptionStatus = null;
+
+            return $this;
+        }
+
+        if (null === $adoptionStatus) {
+            return $this->setAdoptionStatus($default);
+        }
+
         // Check that adoptionStatus is valid
         foreach (static::getStatuses() as $validStatus) {
             if (strtolower($adoptionStatus) === strtolower($validStatus)) {

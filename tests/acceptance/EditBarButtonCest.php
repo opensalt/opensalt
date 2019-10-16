@@ -5,11 +5,11 @@ use Context\Login;
 
 class EditBarButtonCest
 {
-    static public $itemPath = '/cftree/item/';
+    public static $itemPath = '/cftree/item/';
 
-    public function seeAlphabeticalListButton(AcceptanceTester $Acpt, Scenario $scenario)
+    public function seeAlphabeticalListButton(AcceptanceTester $Acpt, Scenario $scenario): void
     {
-        $loginPage = new Login($Acpt, $scenario);
+        $loginPage = new Login($Acpt);
         $loginPage->loginAsRole('super_user');
         $Acpt->getLastItemId();
         $Acpt->amOnPage(self::$itemPath.$Acpt->getItemId());
@@ -17,6 +17,6 @@ class EditBarButtonCest
         $Acpt->see('Edit');
         $Acpt->click('[data-target="#editItemModal"]');
         $Acpt->waitForElementVisible('#editItemModal');
-        $Acpt->seeElement('.fa.fa-sort-alpha-asc');
+        $Acpt->seeElement('.fa.fa-sort-alpha-asc', 60);
     }
 }
