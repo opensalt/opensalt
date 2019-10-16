@@ -133,29 +133,21 @@ class AssociationsTransformer
         $identifier = $originNodeURI->identifier;
         $item = $this->items[$identifier] ?? null;
         if ($item) {
-            $association = $association->setOrigin($item);
-
-            return $association;
+            return $association->setOrigin($item);
         }
 
         if ($doc->getIdentifier() === $identifier) {
-            $association = $association->setOrigin($doc);
-
-            return $association;
+            return $association->setOrigin($doc);
         }
 
         $item = $this->em->getRepository(LsItem::class)->findOneByIdentifier($identifier);
         if ($item) {
-            $association = $association->setOrigin($item);
-
-            return $association;
+            return $association->setOrigin($item);
         }
 
         $otherDoc = $this->em->getRepository(LsDoc::class)->findOneByIdentifier($identifier);
         if ($otherDoc) {
-            $association = $association->setOrigin($otherDoc);
-
-            return $association;
+            return $association->setOrigin($otherDoc);
         }
 
         $association->setOrigin($originNodeURI->uri, $identifier);
@@ -168,29 +160,21 @@ class AssociationsTransformer
         $identifier = $destinationNodeURI->identifier;
         $item = $this->items[$identifier] ?? null;
         if ($item) {
-            $association = $association->setDestination($item);
-
-            return $association;
+            return $association->setDestination($item);
         }
 
         if ($doc->getIdentifier() === $identifier) {
-            $association = $association->setDestination($doc);
-
-            return $association;
+            return $association->setDestination($doc);
         }
 
         $item = $this->em->getRepository(LsItem::class)->findOneByIdentifier($identifier);
         if ($item) {
-            $association = $association->setDestination($item);
-
-            return $association;
+            return $association->setDestination($item);
         }
 
         $otherDoc = $this->em->getRepository(LsDoc::class)->findOneByIdentifier($identifier);
         if ($otherDoc) {
-            $association = $association->setDestination($otherDoc);
-
-            return $association;
+            return $association->setDestination($otherDoc);
         }
 
         $association->setDestination($destinationNodeURI->uri, $identifier);

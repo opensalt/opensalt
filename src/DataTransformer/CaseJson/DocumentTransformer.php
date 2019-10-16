@@ -28,9 +28,8 @@ class DocumentTransformer
     {
         $this->definitions = $definitions;
         $doc = $this->findOrCreateDocument($cfDocument);
-        $doc = $this->updateDocument($doc, $cfDocument);
 
-        return $doc;
+        return $this->updateDocument($doc, $cfDocument);
     }
 
     private function findOrCreateDocument(CFPackageDocument $cfDocument): LsDoc
