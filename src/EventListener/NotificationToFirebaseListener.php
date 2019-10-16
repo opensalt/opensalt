@@ -3,14 +3,14 @@
 namespace App\EventListener;
 
 use App\Event\NotificationEvent;
-use Kreait\Firebase;
+use Kreait\Firebase\Database;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 
 /**
- * Firebase data structure
+ * Firebase data structure.
  *
  * "doc": {
  *     doc_id: {
@@ -38,18 +38,18 @@ class NotificationToFirebaseListener implements EventSubscriberInterface
     private $logger;
 
     /**
-     * @var Firebase|null
+     * @var Database|null
      */
-    private $firebase;
+    private $firebaseDb;
 
     /**
      * @var string
      */
     private $firebasePrefix;
 
-    public function __construct(?Firebase $firebase, LoggerInterface $logger, ?string $firebasePrefix = null)
+    public function __construct(?Database $firebaseDb, LoggerInterface $logger, ?string $firebasePrefix = null)
     {
-        $this->firebase = $firebase;
+        $this->firebaseDb = $firebaseDb;
         $this->logger = $logger;
         $this->firebasePrefix = !empty($firebasePrefix) ? $firebasePrefix : 'opensalt';
     }
@@ -61,7 +61,7 @@ class NotificationToFirebaseListener implements EventSubscriberInterface
 
     public function handleNotification(NotificationEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        if (null === $this->firebase) {
+        if (null === $this->firebaseDb) {
             $this->logger->debug('Firebase not enabled');
             return;
         }
@@ -108,6 +108,10 @@ class NotificationToFirebaseListener implements EventSubscriberInterface
 
     protected function addDocChangeToFirebase(array $notification, int $docId): void
     {
+        if (null === $this->firebaseDb) {
+            return;
+        }
+
         $this->logger->info('Adding to firebase', [
             'msg' => $notification['msg'],
             'user' => $notification['by'],
@@ -115,17 +119,21 @@ class NotificationToFirebaseListener implements EventSubscriberInterface
         ]);
 
         $path = '/'.$this->firebasePrefix."/doc/{$docId}/notification";
-        $db = $this->firebase->getDatabase();
+        $db = $this->firebaseDb;
         $db->getReference($path)->push($notification);
     }
 
     protected function cleanupOldNotifications(): void
     {
+        if (null === $this->firebaseDb) {
+            return;
+        }
+
         $expireBefore = (new \DateTime('now - 5 minutes'))->format('Uv');
         $removeKeys = [];
         $path = '/'.$this->firebasePrefix.'/doc';
 
-        $db = $this->firebase->getDatabase();
+        $db = $this->firebaseDb;
         $docs = $db->getReference($path)->getValue();
         if (null !== $docs) {
             foreach ($docs as $doc => $content) {

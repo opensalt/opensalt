@@ -2,21 +2,21 @@
 
 namespace App\Service;
 
+use Kreait\Firebase\Database;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\ServiceAccount;
 use Psr\Log\LoggerInterface;
 
 class FirebaseFactory
 {
-    public static function createFirebase(
+    public static function createFirebaseDatabase(
         LoggerInterface $logger,
         ?string $projectId,
         ?string $clientId,
         ?string $clientEmail,
         ?string $privateKey,
         ?string $dbUri
-    )
-    {
+    ): ?Database {
         if (empty($projectId) || empty($clientId) || empty($clientEmail)
             || empty($privateKey) || empty($dbUri)
         ) {
@@ -37,6 +37,6 @@ class FirebaseFactory
         return (new Factory())
             ->withServiceAccount($serviceAccount)
             ->withDatabaseUri($dbUri)
-            ->create();
+            ->createDatabase();
     }
 }

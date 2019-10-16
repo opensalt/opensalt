@@ -210,8 +210,8 @@ services:
     SimpleThings\EntityAudit\AuditReader: '@simplethings_entityaudit.reader'
 
     # Manual services
-    Kreait\Firebase:
-        factory: 'App\Service\FirebaseFactory:createFirebase'
+    Kreait\Firebase\Database:
+        factory: 'App\Service\FirebaseFactory:createFirebaseDatabase'
         arguments:
             $logger: '@logger'
             $projectId: '%firebase_project_id%'
