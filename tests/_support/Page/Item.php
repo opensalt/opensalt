@@ -10,8 +10,8 @@ use Facebook\WebDriver\Exception\StaleElementReferenceException;
 
 class Item implements Context
 {
-    static public $itemPath = '/cftree/item/';
-    static public $exactMatchesPath = '/api/v1/lor/exactMatchIdentifiers/';
+    public static $itemPath = '/cftree/item/';
+    public static $exactMatchesPath = '/api/v1/lor/exactMatchIdentifiers/';
 
     protected $rememberedItem;
     protected $itemData = [];
@@ -70,9 +70,8 @@ class Item implements Context
 
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
-        $this->enum++;
-        $enum = $this->enum;
-        $item = $item . ' ' . $enum;
+        $enum = ++$this->enum;
+        $item .= ' '.$enum;
         $uri = $faker->url;
         $licUri = $faker->url;
         $note = $faker->paragraph;
@@ -107,11 +106,11 @@ class Item implements Context
         $I->fillField('#ls_item_abbreviatedStatement', $statement);
         $I->fillField('#ls_item_conceptKeywords', $keywords);
         $I->fillField('#ls_item_conceptKeywordsUri', $uri);
-        $I->selectOption('ls_item[language]', array('value' => $this->itemData['language']));
-        $I->fillField('#ls_item_licenceUri', $licUri);
+        $I->selectOption('ls_item[language]', ['value' => $this->itemData['language']]);
+//        $I->fillField('#ls_item_licenceUri', $licUri);
         $I->executeJS("$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')");
 
-        if (!is_null($additionalField) && !empty($additionalField)) {
+        if (null !== $additionalField && !empty($additionalField)) {
             $I->see($additionalField);
             $I->fillField('#ls_item_additional_fields_'.$additionalField, $value);
         }

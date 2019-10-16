@@ -5,6 +5,8 @@ namespace App\Form\Type;
 use App\Entity\Framework\AdditionalField;
 use App\Entity\Framework\LsDefGrade;
 use App\Entity\Framework\LsDefItemType;
+use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsItem;
 use App\Form\DataTransformer\EducationAlignmentTransformer;
 use App\Form\DataTransformer\ItemTypeTransformer;
 use App\Repository\Framework\LsDefGradeRepository;
@@ -17,7 +19,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Valid;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
-use App\Entity\Framework\LsItem;
 
 class LsItemType extends AbstractType
 {
@@ -54,12 +55,12 @@ class LsItemType extends AbstractType
                 'class' => LsDefGrade::class,
                 'label' => 'Education Level',
                 'choice_label' => 'code',
-                'choice_attr' => function (LsDefGrade $val, $key, $index) {
+                'choice_attr' => static function (LsDefGrade $val, $key, $index) {
                     return ['data-title' => $val->getTitle()];
                 },
                 'required' => false,
                 'multiple' => true,
-                'query_builder' => function (EntityRepository $er) {
+                'query_builder' => static function (EntityRepository $er) {
                     /* @var LsDefGradeRepository $er */
                     return $er->createQueryBuilder('g')
                         ->addOrderBy('g.rank')
@@ -79,6 +80,12 @@ class LsItemType extends AbstractType
                 'allow_clear' => true,
                 'delay' => 250,
                 'placeholder' => 'Select Item Type',
+            ])
+            ->add('licence', EntityType::class, [
+                'class' => LsDefLicence::class,
+                'label' => 'License',
+                'choice_label' => 'title',
+                'required' => false,
             ])
             ->add('notes')
         ;
