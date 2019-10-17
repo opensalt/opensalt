@@ -2,14 +2,13 @@
 
 use Codeception\Scenario;
 use Context\Login;
-use Page\Framework;
 use Ramsey\Uuid\Uuid;
 
 class ImportChildrenCest
 {
-    static public $docPath = '/cftree/doc/';
+    public static $docPath = '/cftree/doc/';
 
-    public function importCSVSequenceNumber(AcceptanceTester $I, Scenario $scenario)
+    public function importCSVSequenceNumber(AcceptanceTester $I, Scenario $scenario): void
     {
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('super_user');
@@ -23,16 +22,13 @@ class ImportChildrenCest
 
         $data = file_get_contents(codecept_data_dir().'sequenceNumber.csv');
 
-        $name = sq('SequenceNumberTest');
-        $this->rememberedFramework = $name;
-
         $origValues = [];
         $replacements = [];
 
         $lines = explode(PHP_EOL, $data);
         foreach ($lines as $i => $line) {
             // skip header line
-            if ($i === 0) {
+            if (0 === $i) {
                 continue;
             }
 
@@ -48,12 +44,11 @@ class ImportChildrenCest
         file_put_contents($filename.'.csv', $data);
 
         $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename.'.csv'));
-        $I->selectOption('#js-framework-to-association', array('value' => $I->getDocId()));
+        $I->selectOption('#js-framework-to-association', ['value' => $I->getDocId()]);
         $I->click('.btn-import-csv');
         $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 10);
         unlink($filename.'.csv');
 
-        $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
@@ -63,7 +58,7 @@ class ImportChildrenCest
         $I->assertEquals($css, 'B');
     }
 
-    public function abbreviatedStatementLongerThan60Chars(AcceptanceTester $I, Scenario $scenario)
+    public function abbreviatedStatementLongerThan60Chars(AcceptanceTester $I, Scenario $scenario): void
     {
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('super_user');
@@ -80,13 +75,13 @@ class ImportChildrenCest
         $I->see('Import Items');
 
         $I->attachFile('input#file-url', 'abbreviatedStatementLimit.csv');
-        $I->selectOption('#js-framework-to-association', array('value' => $I->getDocId()));
+        $I->selectOption('#js-framework-to-association', ['value' => $I->getDocId()]);
         $I->click('.btn-import-csv');
         $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 10);
         $I->see('Abbreviated statement can not be longer than 60 characters.');
     }
 
-    public function abbreviatedStatementShorterThan60Chars(AcceptanceTester $I, Scenario $scenario)
+    public function abbreviatedStatementShorterThan60Chars(AcceptanceTester $I, Scenario $scenario): void
     {
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('super_user');
@@ -103,7 +98,7 @@ class ImportChildrenCest
         $I->see('Import Items');
 
         $I->attachFile('input#file-url', 'abbreviatedStatement.csv');
-        $I->selectOption('#js-framework-to-association', array('value' => $I->getDocId()));
+        $I->selectOption('#js-framework-to-association', ['value' => $I->getDocId()]);
         $I->click('.btn-import-csv');
         $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 10);
 

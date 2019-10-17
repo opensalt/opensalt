@@ -1423,6 +1423,14 @@ class Framework implements Context
     {
         $I = $this->I;
 
+        $I->amGoingTo('ensure the additional field does not already exist');
+        try {
+            $this->iDeleteACustomField($additionalField);
+            $I->comment('The old additional field has been removed.');
+        } catch (\Exception $e) {
+            $I->comment('The additional field did not already exist');
+        }
+
         $I->amOnPage(self::$additionalFieldPath);
 
         $I->see('Add Additional Field');

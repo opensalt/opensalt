@@ -156,12 +156,10 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         $this->lsDocId = $id;
     }
 
-    public function getLastFrameworkId(): string
+    public function getFrameworkIdForIdentifier(string $identifier): string
     {
-        $lastDoc = $this->getLastFramework();
-
         try {
-            $docPage = $this->fetch('/uri/'.$lastDoc['identifier'], 'text/html');
+            $docPage = $this->fetch('/uri/'.$identifier, 'text/html');
         } catch (\Exception $e) {
             $docPage = null;
         }
@@ -179,6 +177,13 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         }
 
         throw new LogicException('Framework id could not be found');
+    }
+
+    public function getLastFrameworkId(): string
+    {
+        $lastDoc = $this->getLastFramework();
+
+        return $this->getFrameworkIdForIdentifier($lastDoc['identifier']);
     }
 
     public function rememberDocIdFromUrl(): void

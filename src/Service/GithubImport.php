@@ -340,6 +340,11 @@ class GithubImport
         }
 
         foreach ($keys as $key) {
+            if ('license' === $key) {
+                // Skip loading licence from the CSV for now
+                continue;
+            }
+
             if (array_key_exists($key, $lsItemKeys) && array_key_exists($lsItemKeys[$key], $lineContent)) {
                 $lsItem->{'license' === $key ? 'setLicenceUri' : 'set'.ucfirst($key)}($lineContent[$lsItemKeys[$key]]);
             }

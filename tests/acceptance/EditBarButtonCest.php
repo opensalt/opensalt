@@ -17,6 +17,7 @@ class EditBarButtonCest
         $Acpt->see('Edit');
         $Acpt->click('[data-target="#editItemModal"]');
         $Acpt->waitForElementVisible('#editItemModal');
-        $Acpt->seeElement('.fa.fa-sort-alpha-asc', 60);
+        $Acpt->waitForElementVisible('#ls_item', 120);
+        $Acpt->seeElement('.fa.fa-sort-alpha-asc');
     }
 }

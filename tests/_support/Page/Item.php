@@ -72,7 +72,6 @@ class Item implements Context
         $faker = \Faker\Factory::create();
         $enum = ++$this->enum;
         $item .= ' '.$enum;
-        $uri = $faker->url;
         $licUri = $faker->url;
         $note = $faker->paragraph;
         $fullStatement = $faker->paragraph;
@@ -86,7 +85,6 @@ class Item implements Context
             'listEnumInSource' => $enum,
             'abbreviatedStatement' => $statement,
             'conceptKeywords' => $keywords,
-            'conceptKeywordsUri' => $uri,
             'language' => 'en',
             'licenceUri' => $licUri,
             'note' => $note,
@@ -105,7 +103,6 @@ class Item implements Context
         $I->fillField('#ls_item_listEnumInSource', $enum);
         $I->fillField('#ls_item_abbreviatedStatement', $statement);
         $I->fillField('#ls_item_conceptKeywords', $keywords);
-        $I->fillField('#ls_item_conceptKeywordsUri', $uri);
         $I->selectOption('ls_item[language]', ['value' => $this->itemData['language']]);
 //        $I->fillField('#ls_item_licenceUri', $licUri);
         $I->executeJS("$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')");
@@ -191,7 +188,6 @@ class Item implements Context
             'List enum in source' => '#ls_item_listEnumInSource',
             'Abbreviated statement' => '#ls_item_abbreviatedStatement',
             'Concept keywords' => '#ls_item_conceptKeywords',
-            'Concept keywords uri' => '#ls_item_conceptKeywordsUri',
 //      'Language' => 'ls_item[language]',
             'Licence uri' => '#ls_item_licenceUri',
 //      'Note' => "$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')",
@@ -202,7 +198,6 @@ class Item implements Context
             'List enum in source' => 'listEnumInSource',
             'Abbreviated statement' => 'abbreviatedStatement',
             'Concept keywords' => 'conceptKeywords',
-            'Concept keywords uri' => 'conceptKeywordsUri',
 //      'Language' => 'language',
             'Licence uri' => 'licenceUri',
 //      'Note' => 'note',

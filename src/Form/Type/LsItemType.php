@@ -46,7 +46,7 @@ class LsItemType extends AbstractType
             ->add('listEnumInSource')
             ->add('abbreviatedStatement')
             ->add('conceptKeywords')
-            ->add('conceptKeywordsUri')
+//            ->add('conceptKeywordsUri')
             ->add('language', LanguageType::class, [
                 'required' => false,
                 'preferred_choices' => ['en', 'es', 'fr'],
