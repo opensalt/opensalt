@@ -36,7 +36,7 @@ class FrameworkAccessVoter extends Voter
      *
      * @return bool True if the attribute and subject are supported, false otherwise
      */
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         if (!\in_array($attribute, [static::VIEW, static::CREATE, static::EDIT, static::DELETE], true)) {
             return false;

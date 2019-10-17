@@ -45,7 +45,7 @@
         {% if lsDoc.note is not null -%}
             "notes": {{ lsDoc.note |json_encode |raw }},
         {%- endif %}
-        "lastChangeDateTime": {{ lsDoc.updatedAt|date('c') |replace({'+00:00':''}) |json_encode |raw }},
+        "lastChangeDateTime": {{ lsDoc.changedAt|date('c') |replace({'+00:00':''}) |json_encode |raw }},
         {# TODO: CFPackage URI #}
         "CFPackageURI": {{ object_uri(lsDoc, 'api_v1p0_cfpackage') |json_encode |raw }}
     }

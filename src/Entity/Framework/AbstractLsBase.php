@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -24,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class AbstractLsBase implements IdentifiableInterface
 {
     /**
-     * @var int
+     * @var int|null
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -71,22 +72,30 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * @var \DateTimeInterface
      *
-     * @ORM\Column(name="updated_at", type="datetime", precision=6)
+     * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("lastChangeDateTime")
      */
+    private $changedAt;
+
+    /**
+     * @var \DateTimeInterface
+     *
+     * @ORM\Column(name="updated_at", type="datetime", precision=6)
+     * @Gedmo\Timestampable(on="update")
+     *
+     * @Serializer\Exclude()
+     */
     protected $updatedAt;
 
     /**
-     * @param string|Uuid|null $identifier
-     *
-     * @throws \Exception
+     * @param string|UuidInterface|null $identifier
      */
     public function __construct($identifier = null)
     {
-        if ($identifier instanceof Uuid) {
+        if ($identifier instanceof UuidInterface) {
             $identifier = strtolower($identifier->toString());
         } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
             $identifier = strtolower(Uuid::fromString($identifier)->toString());
@@ -98,6 +107,7 @@ class AbstractLsBase implements IdentifiableInterface
         $this->uri = 'local:'.$this->identifier;
 
         $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
     }
 
     /**
@@ -115,6 +125,7 @@ class AbstractLsBase implements IdentifiableInterface
 
         // Set last change/update to now
         $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
     }
 
     /**
@@ -128,7 +139,7 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * Set identifier.
      *
-     * @param Uuid|string $identifier
+     * @param UuidInterface|string $identifier
      *
      * @return static
      *
@@ -137,8 +148,8 @@ class AbstractLsBase implements IdentifiableInterface
     public function setIdentifier($identifier)
     {
         // If the identifier is in the form of a UUID then lower case it
-        if ($identifier instanceof Uuid) {
-            $identifier = strtolower($identifier->serialize());
+        if ($identifier instanceof UuidInterface) {
+            $identifier = strtolower($identifier->toString());
         } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
             $identifier = strtolower(Uuid::fromString($identifier)->toString());
         } else {
@@ -168,6 +179,21 @@ class AbstractLsBase implements IdentifiableInterface
     public function getUri(): string
     {
         return $this->uri;
+    }
+
+    /**
+     * @return static
+     */
+    public function setChangedAt(\DateTimeInterface $changedAt)
+    {
+        $this->changedAt = $changedAt;
+
+        return $this;
+    }
+
+    public function getChangedAt(): \DateTimeInterface
+    {
+        return $this->changedAt;
     }
 
     /**

@@ -6,6 +6,9 @@ use App\Command\BaseCommand;
 use App\Entity\Framework\LsDoc;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @deprecated
+ */
 class UpdateFrameworkCommand extends BaseCommand
 {
     /**

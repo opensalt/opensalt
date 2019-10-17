@@ -22,6 +22,19 @@ class EducationLevelSet
         $this->grades = array_unique(array_merge(...$gradeSets));
     }
 
+    public static function fromStringOrArray($passedGrades): self
+    {
+        if (null === $passedGrades || is_string($passedGrades)) {
+            return self::fromString($passedGrades);
+        }
+
+        if (is_array($passedGrades)) {
+            return self::fromArray($passedGrades);
+        }
+
+        throw new \UnexpectedValueException(__METHOD__.' expects a string or an array of strings to represent grade levels');
+    }
+
     public static function fromString(?string $passedGradeString): self
     {
         $passedGrades = str_replace(' ', '', $passedGradeString);

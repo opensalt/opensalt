@@ -26,6 +26,6 @@
             "identifier": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
             "uri": {{ (lsAssociation.destinationNode is not null) ? object_uri(lsAssociation.destinationNode) : lsAssociation.destinationNodeUri |json_encode |raw }}
         },
-        "lastChangeDateTime": {{ lsAssociation.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
+        "lastChangeDateTime": {{ lsAssociation.changedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
     }
 {% endblock %}

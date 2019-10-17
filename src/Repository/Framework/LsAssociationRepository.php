@@ -96,4 +96,21 @@ class LsAssociationRepository extends ServiceEntityRepository
 
         return $qry->getResult();
     }
+
+    /**
+     * @param string[] $identifiers
+     *
+     * @return LsAssociation[]
+     */
+    public function findByIdentifiers(array $identifiers): array
+    {
+        if (0 === count($identifiers)) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('t', 't.identifier');
+        $qb->where($qb->expr()->in('t.identifier', $identifiers));
+
+        return $qb->getQuery()->getResult();
+    }
 }

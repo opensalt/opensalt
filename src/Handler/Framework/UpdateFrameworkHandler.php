@@ -11,6 +11,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @deprecated
+ */
 class UpdateFrameworkHandler extends AbstractDoctrineHandler
 {
     /**

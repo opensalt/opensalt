@@ -116,7 +116,7 @@ class UiInfoController extends AbstractController
             'statusEnd' => (null !== $doc->getStatusEnd()) ? $doc->getStatusEnd()->format('Y-m-d') : null,
             'note' => $doc->getNote(),
             'version' => $doc->getVersion(),
-            'lastChangeDateTime' => $doc->getUpdatedAt()->format('Y-m-d\TH:i:s'),
+            'lastChangeDateTime' => $doc->getChangedAt()->format('Y-m-d\TH:i:s'),
         ];
     }
 
@@ -143,7 +143,7 @@ class UiInfoController extends AbstractController
             'humanCodingScheme' => $item->getHumanCodingScheme(),
             'listEnumInSource' => $item->getListEnumInSource(),
             'abbreviatedStatement' => $item->getAbbreviatedStatement(),
-            'conceptKeywords' => $item->getConceptKeywords(),
+            'conceptKeywords' => $item->getConceptKeywordsString(),
             'conceptKeywordsUri' => $item->getConceptKeywordsUri(),
             'notes' => $item->getNotes(),
             'language' => $item->getLanguage(),

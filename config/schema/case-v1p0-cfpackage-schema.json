@@ -1,0 +1,720 @@
+{
+  "type": "object",
+  "properties": {
+    "CFDocument": {
+      "$ref": "#/definitions/CFPackageDocument"
+    },
+    "CFItems": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "$ref": "#/definitions/CFPackageItem"
+      }
+    },
+    "CFAssociations": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "$ref": "#/definitions/CFPackageAssociation"
+      }
+    },
+    "CFDefinitions": {
+      "$ref": "#/definitions/CFDefinition"
+    },
+    "CFRubrics": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "$ref": "#/definitions/CFRubric"
+      }
+    }
+  },
+  "required": [
+    "CFDocument"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "CFPackageDocument": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "creator": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "lastChangeDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "officialSourceURL": {
+          "$ref": "#/definitions/URL"
+        },
+        "publisher": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "subject": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "subjectURI": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/LinkURI"
+          }
+        },
+        "language": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "adoptionStatus": {
+          "type": "string"
+        },
+        "statusStartDate": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "statusEndDate": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "licenseURI": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/LinkURI"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier",
+        "uri",
+        "creator",
+        "title",
+        "lastChangeDateTime"
+      ],
+      "additionalProperties": {
+        "CFPackageURI": {
+          "$ref": "#/definitions/LinkURI"
+        }
+      }
+    },
+    "CFPackageItem": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "fullStatement": {
+          "type": "string"
+        },
+        "alternativeLabel": {
+          "type": "string"
+        },
+        "CFItemType": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "humanCodingScheme": {
+          "type": "string"
+        },
+        "listEnumeration": {
+          "type": "string"
+        },
+        "abbreviatedStatement": {
+          "type": "string"
+        },
+        "conceptKeywords": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "conceptKeywordsURI": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/LinkURI"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "notes": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "educationLevel": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "CFItemTypeURI": {
+          "$ref": "#/definitions/LinkURI"
+        },
+        "licenseURI": {
+          "$ref": "#/definitions/LinkURI"
+        },
+        "statusStartDate": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "date-time"
+            }
+          ]
+        },
+        "statusEndDate": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "date-time"
+            }
+          ]
+        },
+        "lastChangeDateTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "identifier",
+        "fullStatement",
+        "uri",
+        "lastChangeDateTime"
+      ],
+      "additionalProperties": {
+        "CFDocumentURI": {
+          "$ref": "#/definitions/LinkURI"
+        }
+      }
+    },
+    "CFPackageAssociation": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "associationType": {
+          "type": "string",
+          "enum": [
+            "isChildOf",
+            "isPeerOf",
+            "isPartOf",
+            "exactMatchOf",
+            "precedes",
+            "isRelatedTo",
+            "replacedBy",
+            "exemplar",
+            "hasSkillLevel"
+          ]
+        },
+        "sequenceNumber": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "originNodeURI": {
+          "$ref": "#/definitions/LinkGenURI"
+        },
+        "destinationNodeURI": {
+          "$ref": "#/definitions/LinkGenURI"
+        },
+        "CFAssociationGroupingURI": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/LinkURI"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastChangeDateTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "identifier",
+        "associationType",
+        "uri",
+        "originNodeURI",
+        "destinationNodeURI",
+        "lastChangeDateTime"
+      ],
+      "additionalProperties": {
+        "CFDocumentURI": {
+          "$ref": "#/definitions/LinkURI"
+        }
+      }
+    },
+    "CFDefinition": {
+      "type": "object",
+      "properties": {
+        "CFConcepts": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/CFConcept"
+          }
+        },
+        "CFSubjects": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/CFSubject"
+          }
+        },
+        "CFLicenses": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/CFLicense"
+          }
+        },
+        "CFItemTypes": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/CFItemType"
+          }
+        },
+        "CFAssociationGroupings": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/CFAssociationGrouping"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "CFConcept": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "title": {
+          "type": "string"
+        },
+        "keywords": {
+          "type": "string"
+        },
+        "hierarchyCode": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "lastChangeDateTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "identifier",
+        "uri",
+        "title",
+        "hierarchyCode",
+        "lastChangeDateTime"
+      ],
+      "additionalProperties": false
+    },
+    "CFSubject": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "title": {
+          "type": "string"
+        },
+        "hierarchyCode": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "lastChangeDateTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "identifier",
+        "uri",
+        "title",
+        "hierarchyCode",
+        "lastChangeDateTime"
+      ],
+      "additionalProperties": false
+    },
+    "CFLicense": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "licenseText": {
+          "type": "string"
+        },
+        "lastChangeDateTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "identifier",
+        "uri",
+        "title",
+        "licenseText",
+        "lastChangeDateTime"
+      ],
+      "additionalProperties": false
+    },
+    "CFItemType": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "hierarchyCode": {
+          "type": "string"
+        },
+        "typeCode": {
+          "type": "string"
+        },
+        "lastChangeDateTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "identifier",
+        "uri",
+        "title",
+        "hierarchyCode",
+        "lastChangeDateTime"
+      ],
+      "additionalProperties": false
+    },
+    "CFAssociationGrouping": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "lastChangeDateTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "identifier",
+        "uri",
+        "title",
+        "lastChangeDateTime"
+      ],
+      "additionalProperties": false
+    },
+    "CFRubric": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "lastChangeDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "CFRubricCriteria": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/CFRubricCriterion"
+          }
+        }
+      },
+      "required": [
+        "identifier",
+        "uri",
+        "lastChangeDateTime"
+      ],
+      "additionalProperties": false
+    },
+    "CFRubricCriterion": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "category": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "CFItemURI": {
+          "$ref": "#/definitions/LinkURI"
+        },
+        "weight": {
+          "type": "number",
+          "format": "float"
+        },
+        "position": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "rubricId": {
+          "$ref": "#/definitions/UUID"
+        },
+        "lastChangeDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "CFRubricCriterionLevels": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/CFRubricCriterionLevel"
+          }
+        }
+      },
+      "required": [
+        "identifier",
+        "uri",
+        "lastChangeDateTime"
+      ],
+      "additionalProperties": false
+    },
+    "CFRubricCriterionLevel": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "description": {
+          "type": "string"
+        },
+        "quality": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number",
+          "format": "float"
+        },
+        "feedback": {
+          "type": "string"
+        },
+        "position": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "rubricCriterionId": {
+          "$ref": "#/definitions/UUID"
+        },
+        "lastChangeDateTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "identifier",
+        "uri",
+        "lastChangeDateTime"
+      ],
+      "additionalProperties": false
+    },
+    "LinkGenURI": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "identifier": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "title",
+        "identifier",
+        "uri"
+      ],
+      "additionalProperties": false
+    },
+    "LinkURI": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "identifier": {
+          "$ref": "#/definitions/UUID"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "title",
+        "identifier",
+        "uri"
+      ],
+      "additionalProperties": false
+    },
+    "URL": {
+      "type": "string",
+      "format": "uri"
+    },
+    "UUID": {
+      "type": "string",
+      "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[8-9a-b][0-9a-f]{3}-[0-9a-f]{12}"
+    }
+  }
+}

@@ -17,8 +17,6 @@ class UpdateAssociationGroupHandler extends BaseFrameworkHandler
         $associationGroup = $command->getAssociationGrouping();
         $this->validate($command, $associationGroup);
 
-        $associationGroup->setUpdatedAt(new \DateTime());
-
         $notification = new NotificationEvent(
             'G03',
             sprintf('Association Group "%s" modified', $associationGroup->getTitle()),
@@ -26,7 +24,7 @@ class UpdateAssociationGroupHandler extends BaseFrameworkHandler
             [
                 'assocGrp-u' => [
                     $associationGroup->getId() => $associationGroup->getIdentifier(),
-                ]
+                ],
             ]
         );
         $command->setNotificationEvent($notification);

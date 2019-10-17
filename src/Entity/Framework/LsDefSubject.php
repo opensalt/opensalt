@@ -6,8 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * LsDefSubject
- *
  * @ORM\Table(name="ls_def_subject")
  * @ORM\Entity(repositoryClass="App\Repository\Framework\LsDefSubjectRepository")
  *
@@ -25,34 +23,20 @@ class LsDefSubject extends AbstractLsDefinition implements CaseApiInterface
      */
     private $hierarchyCode;
 
-
-    /**
-     * @return string
-     */
-    public function getHierarchyCode()
+    public function getHierarchyCode(): string
     {
         return $this->hierarchyCode;
     }
 
-    /**
-     * @param string $hierarchyCode
-     *
-     * @return LsDefSubject
-     */
-    public function setHierarchyCode($hierarchyCode): LsDefSubject
+    public function setHierarchyCode(string $hierarchyCode): LsDefSubject
     {
         $this->hierarchyCode = $hierarchyCode;
 
         return $this;
     }
 
-    /**
-     * String to represent this subject
-     *
-     * @return string
-     */
     public function __toString(): string
     {
-        return $this->getTitle();
+        return $this->getTitle() ?? 'Subject: '.$this->identifier;
     }
 }

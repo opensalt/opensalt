@@ -8,10 +8,13 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 abstract class BaseCommand implements CommandInterface
 {
+    /**
+     * @var ConstraintViolationListInterface|null
+     */
     protected $validationErrors;
 
     /**
-     * @var NotificationEvent
+     * @var NotificationEvent|null
      */
     protected $notificationEvent;
 
@@ -22,7 +25,7 @@ abstract class BaseCommand implements CommandInterface
 
     public function hasValidationErrors(): bool
     {
-        return \count($this->validationErrors ?? []) !== 0;
+        return 0 !== \count($this->validationErrors ?? []);
     }
 
     public function getValidationErrors(): ?ConstraintViolationListInterface

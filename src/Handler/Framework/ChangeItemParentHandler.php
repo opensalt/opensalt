@@ -29,7 +29,7 @@ class ChangeItemParentHandler extends BaseDoctrineHandler
             $parentTitle = $parent->getShortStatement();
             $changedItems[$parent->getId()] = $parent->getIdentifier();
         }
-        $dto->lsItem->setUpdatedAt(new \DateTime());
+
         $this->em->getRepository(LsAssociation::class)
             ->removeAllAssociationsOfType($dto->lsItem, LsAssociation::CHILD_OF);
         $dto->lsItem->addParent($dto->parentItem);

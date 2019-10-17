@@ -10,9 +10,12 @@ class CfDocQuery
     /** @var int */
     public $offset;
 
-    /**
-     * @return int|null
-     */
+    /** @var string */
+    public $sort;
+
+    /** @var string */
+    public $orderBy = 'ASC';
+
     public function getLimit(): ?int
     {
         $limit = (int) $this->limit;
@@ -20,13 +23,20 @@ class CfDocQuery
         return ($limit > 0) ? $limit : null;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getOffset(): ?int
+    public function getOffset(): int
     {
         $offset = (int) $this->offset;
 
-        return ($offset > 0) ? $offset : null;
+        return ($offset > 0) ? $offset : 0;
+    }
+
+    public function getSort(): ?string
+    {
+        return $this->sort;
+    }
+
+    public function getOrderBy(): string
+    {
+        return ('ASC' === strtoupper($this->orderBy)) ? 'ASC' : 'DESC';
     }
 }

@@ -9,6 +9,7 @@ use App\Event\CommandEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\CaseImport;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ImportCaseJsonHandler extends AbstractDoctrineHandler
@@ -18,25 +19,34 @@ class ImportCaseJsonHandler extends AbstractDoctrineHandler
      */
     protected $importService;
 
-    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, CaseImport $caseImport)
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    private $authChecker;
+
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, CaseImport $caseImport, AuthorizationCheckerInterface $authChecker)
     {
         parent::__construct($validator, $entityManager);
         $this->importService = $caseImport;
+        $this->authChecker = $authChecker;
     }
 
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        ini_set('memory_limit', '2G');
-        set_time_limit(900);
         /** @var ImportCaseJsonCommand $command */
         $command = $event->getCommand();
         $this->validate($command, $command);
 
-        $caseJson = $command->getCaseJson();
         $organization = $command->getOrganization();
+        $user = $command->getUser();
 
-        $doc = $this->importService->importCaseFile($caseJson);
-        if ($organization) {
+        $doc = $this->importService->importCaseFile($command->getCaseJson());
+
+        if (null !== $user && null !== $doc->getOrg() && !$this->authChecker->isGranted('edit', $doc)) {
+            throw new \RuntimeException('The current user cannot update this framework');
+        }
+
+        if (null !== $organization && null === $doc->getOrg() && null === $doc->getUser()) {
             $doc->setOrg($organization);
         }
 

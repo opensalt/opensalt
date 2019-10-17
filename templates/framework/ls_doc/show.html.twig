@@ -51,11 +51,7 @@
             </tr>
             <tr>
                 <th>Subject</th>
-                <td>{{ lsDoc.subject }}</td>
-            </tr>
-            <tr>
-                <th>Subject Uri</th>
-                <td>{{ lsDoc.subjectUri }}</td>
+                <td>{{ lsDoc.subject|join(', ') }}</td>
             </tr>
             <tr>
                 <th>Language</th>

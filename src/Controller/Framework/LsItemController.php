@@ -388,7 +388,7 @@ class LsItemController extends AbstractController
             'humanCodingScheme' => $item->getHumanCodingScheme(),
             'listEnumInSource' => $item->getListEnumInSource(),
             'abbreviatedStatement' => $item->getAbbreviatedStatement(),
-            'conceptKeywords' => $item->getConceptKeywords(),
+            'conceptKeywords' => $item->getConceptKeywordsString(),
             'conceptKeywordsUri' => $item->getConceptKeywordsUri(),
             'notes' => $item->getNotes(),
             'language' => $item->getLanguage(),

@@ -29,7 +29,7 @@ class ImportCaseJsonCommand extends BaseDoctrineCommand
     {
         $filename = $input->getArgument('filename');
 
-        $fileContent = json_decode(file_get_contents($filename));
+        $fileContent = file_get_contents($filename);
 
         $org = $this->em->getRepository(Organization::class)->findOneByName('PCG');
 

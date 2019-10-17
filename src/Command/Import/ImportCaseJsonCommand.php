@@ -4,29 +4,36 @@ namespace App\Command\Import;
 
 use App\Command\BaseCommand;
 use App\Entity\User\Organization;
+use App\Entity\User\User;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ImportCaseJsonCommand extends BaseCommand
 {
     /**
-     * @var \stdClass
+     * @var string
      *
      * @Assert\NotNull()
      */
     private $caseJson;
 
     /**
-     * @var Organization
+     * @var Organization|null
      */
     private $organization;
 
-    public function __construct(\stdClass $caseJson, ?Organization $organization = null)
+    /**
+     * @var User|null
+     */
+    private $user;
+
+    public function __construct(string $caseJson, ?Organization $organization = null, ?User $user = null)
     {
         $this->caseJson = $caseJson;
         $this->organization = $organization;
+        $this->user = $user;
     }
 
-    public function getCaseJson(): \stdClass
+    public function getCaseJson(): string
     {
         return $this->caseJson;
     }
@@ -34,5 +41,10 @@ class ImportCaseJsonCommand extends BaseCommand
     public function getOrganization(): ?Organization
     {
         return $this->organization;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
     }
 }

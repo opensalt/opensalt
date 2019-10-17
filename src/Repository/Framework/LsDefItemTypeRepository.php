@@ -6,7 +6,7 @@ use App\Entity\Framework\LsDefItemType;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * @method null|LsDefItemType findOneByTitle(string $title)
+ * @method LsDefItemType|null findOneByTitle(string $title)
  * @method LsDefItemType|null findOneByIdentifier(string $identifier)
  */
 class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
@@ -19,11 +19,28 @@ class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
     /**
      * @return array|LsDefItemType[]
      */
-    public function getList()
+    public function getList(): array
     {
         $qb = $this->createQueryBuilder('t', 't.code')
             ->orderBy('t.code')
         ;
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param string[] $identifiers
+     *
+     * @return LsDefItemType[]
+     */
+    public function findByIdentifiers(array $identifiers): array
+    {
+        if (0 === count($identifiers)) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('t', 't.identifier');
+        $qb->where($qb->expr()->in('t.identifier', $identifiers));
 
         return $qb->getQuery()->getResult();
     }
@@ -39,7 +56,7 @@ class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
         // this should be changed to handle the doc or something
         $qb = $this->createQueryBuilder('t', 't.title')
             ->orderBy('t.title')
-            ->setMaxResults($limit+1)
+            ->setMaxResults($limit + 1)
             ->setFirstResult(($page - 1) * $limit)
         ;
 

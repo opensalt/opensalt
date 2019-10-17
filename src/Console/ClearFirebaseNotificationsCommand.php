@@ -2,7 +2,7 @@
 
 namespace App\Console;
 
-use Kreait\Firebase;
+use Kreait\Firebase\Database;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,19 +11,19 @@ class ClearFirebaseNotificationsCommand extends Command
 {
     protected static $defaultName = 'firebase:clear';
     /**
-     * @var Firebase|null
+     * @var Database|null
      */
-    private $firebase;
+    private $firebaseDb;
 
     /**
      * @var string
      */
     private $firebasePrefix;
 
-    public function __construct(?Firebase $firebase, ?string $firebasePrefix = null)
+    public function __construct(?Database $firebaseDb, ?string $firebasePrefix = null)
     {
         parent::__construct();
-        $this->firebase = $firebase;
+        $this->firebaseDb = $firebaseDb;
         $this->firebasePrefix = !empty($firebasePrefix) ? $firebasePrefix : 'opensalt';
     }
 
@@ -37,7 +37,7 @@ class ClearFirebaseNotificationsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
-        if (null === $this->firebase) {
+        if (null === $this->firebaseDb) {
             $output->writeln('<info>Firebase is not configured, nothing to do.</info>');
 
             return 0;
@@ -45,7 +45,7 @@ class ClearFirebaseNotificationsCommand extends Command
 
         $prefix = $this->firebasePrefix;
         $path = "/{$prefix}/doc";
-        $db = $this->firebase->getDatabase();
+        $db = $this->firebaseDb;
         $db->getReference($path)->remove();
 
         $output->writeln(sprintf('<info>Firebase prefix "%s" cleared.</info>', $prefix));

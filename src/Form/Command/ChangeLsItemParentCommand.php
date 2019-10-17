@@ -9,12 +9,8 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class ChangeLsItemParentCommand
 {
-    /**
-     * @param \App\Entity\Framework\LsItem $lsItem
-     *
-     * @return \App\Form\DTO\ChangeLsItemParentDTO
-     */
-    public function convertToDTO(LsItem $lsItem) {
+    public function convertToDTO(LsItem $lsItem): ChangeLsItemParentDTO
+    {
         $dto = new ChangeLsItemParentDTO();
         $dto->lsItem = $lsItem;
         $dto->parentItem = $lsItem->getParentItem();
@@ -25,8 +21,8 @@ class ChangeLsItemParentCommand
     /**
      * @deprecated
      */
-    public function perform(ChangeLsItemParentDTO $dto, ObjectManager $manager) {
-        $dto->lsItem->setUpdatedAt(new \DateTime());
+    public function perform(ChangeLsItemParentDTO $dto, ObjectManager $manager): LsItem
+    {
         $manager->getRepository(LsAssociation::class)->removeAllAssociationsOfType($dto->lsItem, LsAssociation::CHILD_OF);
         $dto->lsItem->addParent($dto->parentItem);
 

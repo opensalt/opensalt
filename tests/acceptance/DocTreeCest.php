@@ -6,7 +6,7 @@ use Ramsey\Uuid\Uuid;
 
 class DocTreeCest
 {
-    static public $docPath = '/cftree/doc/';
+    public static $docPath = '/cftree/doc/';
 
     // tests
     public function verifyOrder(AcceptanceTester $I, Scenario $scenario)
@@ -24,7 +24,6 @@ class DocTreeCest
 
         $name = sq('OrderingTestFramework');
         $docUuid = Uuid::uuid4()->toString();
-        $this->rememberedFramework = $name;
 
         $origValues = [
             'ACT Holistic Framework, Math',
@@ -56,8 +55,8 @@ class DocTreeCest
         $I->click('.btn-import-case');
         $I->waitForJS('return ("function" === typeof $ && $.active == 0);', 30);
 
-        $I->getLastFrameworkId();
-        $I->amOnPage(self::$docPath.$I->getDocId());
+        $docId = $I->getFrameworkIdForIdentifier($docUuid);
+        $I->amOnPage(self::$docPath.$docId);
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
         $I->see($name);
@@ -67,11 +66,11 @@ class DocTreeCest
         $array = [];
         $expectedArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
 
-        foreach($css as $cs) {
+        foreach ($css as $cs) {
             $tmp = explode('.', $cs);
             $tmp = end($tmp);
             if (is_numeric($tmp)) {
-                $array[] = intval($tmp);
+                $array[] = (int) $tmp;
             }
         }
 

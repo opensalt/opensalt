@@ -85,7 +85,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      * @var CfRubric
      *
      * @ORM\ManyToOne(targetEntity="CfRubric", inversedBy="criteria")
-     * @ORM\JoinColumn(name="rubric_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="rubric_id", referencedColumnName="id", nullable=false)
      *
      * @Serializer\Exclude()
      */
@@ -94,7 +94,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
     /**
      * @var Collection|CfRubricCriterionLevel[]
      *
-     * @ORM\OneToMany(targetEntity="CfRubricCriterionLevel", mappedBy="criterion")
+     * @ORM\OneToMany(targetEntity="CfRubricCriterionLevel", mappedBy="criterion", orphanRemoval=true, cascade={"persist", "remove"})
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("CFRubricCriterionLevels")
