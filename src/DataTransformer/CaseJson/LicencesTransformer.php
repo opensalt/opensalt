@@ -66,7 +66,7 @@ class LicencesTransformer
         $licence->setUri($cfLicence->uri);
         $licence->setTitle($cfLicence->title);
         $licence->setDescription($cfLicence->description);
-        $licence->setUpdatedAt($cfLicence->lastChangeDateTime);
+        $licence->setChangedAt($cfLicence->lastChangeDateTime);
         $licence->setLicenceText($cfLicence->licenseText);
     }
 

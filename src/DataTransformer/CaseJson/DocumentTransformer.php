@@ -59,7 +59,7 @@ class DocumentTransformer
         $doc->setStatusStart($cfDocument->statusStartDate);
         $doc->setStatusEnd($cfDocument->statusEndDate);
         $doc->setVersion($cfDocument->version);
-        $doc->setUpdatedAt($cfDocument->lastChangeDateTime);
+        $doc->setChangedAt($cfDocument->lastChangeDateTime);
 
         if (null !== $cfDocument->licenseURI) {
             $licence = $this->definitions->licences[$cfDocument->licenseURI->identifier->toString()] ?? null;

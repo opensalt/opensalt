@@ -49,6 +49,16 @@ use App\Util\Compare;
  *         @Serializer\Expose()
  *     }
  * )
+ *
+ * @Serializer\VirtualProperty(
+ *     "updatedAt",
+ *     exp="object.getUpdatedAt()",
+ *     options={
+ *         @Serializer\SerializedName("updatedAt"),
+ *         @Serializer\Expose(),
+ *         @Serializer\Groups({"updatedAt"})
+ *     }
+ * )
  */
 class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterface
 {

@@ -68,7 +68,7 @@ class ItemTypesTransformer
         $type->setDescription($cfItemType->description);
         $type->setCode($cfItemType->typeCode);
         $type->setHierarchyCode($cfItemType->hierarchyCode);
-        $type->setUpdatedAt($cfItemType->lastChangeDateTime);
+        $type->setChangedAt($cfItemType->lastChangeDateTime);
     }
 
     /**

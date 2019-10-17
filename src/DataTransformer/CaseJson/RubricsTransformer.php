@@ -85,7 +85,7 @@ class RubricsTransformer
         $rubric->setUri($cfRubric->uri);
         $rubric->setTitle($cfRubric->title);
         $rubric->setDescription($cfRubric->description);
-        $rubric->setUpdatedAt($cfRubric->lastChangeDateTime);
+        $rubric->setChangedAt($cfRubric->lastChangeDateTime);
 
         $this->updateCriteria($rubric, $cfRubric->cfRubricCriteria);
 
@@ -138,7 +138,7 @@ class RubricsTransformer
 
         $criterion->setUri($cfCriterion->uri);
         $criterion->setDescription($cfCriterion->description);
-        $criterion->setUpdatedAt($cfCriterion->lastChangeDateTime);
+        $criterion->setChangedAt($cfCriterion->lastChangeDateTime);
         $criterion->setCategory($cfCriterion->category);
         $criterion->setPosition($cfCriterion->position);
         $criterion->setWeight($cfCriterion->weight);
@@ -203,7 +203,7 @@ class RubricsTransformer
         $level->setFeedback($cfCriterionLevel->feedback);
         $level->setQuality($cfCriterionLevel->quality);
         $level->setScore($cfCriterionLevel->score);
-        $level->setUpdatedAt($cfCriterionLevel->lastChangeDateTime);
+        $level->setChangedAt($cfCriterionLevel->lastChangeDateTime);
 
         return $level;
     }

@@ -67,7 +67,7 @@ class ConceptsTransformer
         $concept->setTitle($cfConcept->title);
         $concept->setDescription($cfConcept->description);
         $concept->setHierarchyCode($cfConcept->hierarchyCode);
-        $concept->setUpdatedAt($cfConcept->lastChangeDateTime);
+        $concept->setChangedAt($cfConcept->lastChangeDateTime);
         $concept->setKeywords($cfConcept->keywords);
     }
 

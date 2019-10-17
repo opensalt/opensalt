@@ -40,11 +40,9 @@ class LsDocRepository extends ServiceEntityRepository
     }
 
     /**
-     * Finds an object for the API by ['id'=>identifier, 'class'=>class]
+     * Finds an object for the API by ['id'=>identifier, 'class'=>class].
      *
-     * @param array $id
-     *
-     * @return CaseApiInterface
+     * @param array $id array containing 'id' and 'class'
      *
      * @throws NotFoundHttpException
      */
@@ -59,12 +57,7 @@ class LsDocRepository extends ServiceEntityRepository
         return $obj;
     }
 
-    /**
-     * @param string $slug
-     *
-     * @return object|null|LsDoc
-     */
-    public function findOneBySlug($slug)
+    public function findOneBySlug(string $slug): ?LsDoc
     {
         if (preg_match('/^\d+$/', $slug)) {
             return $this->find($slug);
@@ -73,40 +66,36 @@ class LsDocRepository extends ServiceEntityRepository
         return $this->findOneBy(['urlName' => $slug]);
     }
 
-    /**
-     * @param CfDocQuery|null $query
-     *
-     * @return array|LsDoc[]
-     */
-    public function findAllDocuments(?CfDocQuery $query = null): array
+    public function findAllNonPrivateQueryBuilder(string $alias = 'd'): QueryBuilder
     {
-        if (null === $query) {
-            $query = new CfDocQuery();
-        }
-
-        return $this->findBy([], ['id' => 'asc'], $query->getLimit(), $query->getOffset());
-    }
-
-    public function findAllNonPrivateQueryBuilder(): QueryBuilder
-    {
-        return $this->createQueryBuilder('d')
-            ->where('d.adoptionStatus != :status')
+        return $this->createQueryBuilder($alias)
+            ->where("({$alias}.adoptionStatus != :status OR {$alias}.adoptionStatus IS NULL)")
             ->setParameter('status', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT)
         ;
     }
 
     /**
-     * @return array|LsDoc[]
+     * @return LsDoc[]
      */
-    public function findAllNonPrivate(): array
+    public function findAllNonPrivate(?CfDocQuery $query = null): array
     {
+        if (null === $query) {
+            $query = new CfDocQuery();
+        }
+
+        $sortBy = ('updatedAt' === $query->getSort()) ? 'd.updatedAt' : 'd.id';
+
         $qb = $this->findAllNonPrivateQueryBuilder();
+        $qb->setFirstResult($query->getOffset())
+            ->setMaxResults($query->getLimit())
+            ->addOrderBy($sortBy, $query->getOrderBy())
+        ;
 
         return $qb->getQuery()->getResult();
     }
 
     /**
-     * @return array|LsDoc[]
+     * @return LsDoc[]
      */
     public function findNonPrivateByCreator(string $creator): array
     {
@@ -119,13 +108,11 @@ class LsDocRepository extends ServiceEntityRepository
     }
 
     /**
-     * Get a list of all items for an LsDoc
-     *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
+     * Get a list of all items for an LsDoc.
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAllChildrenArray(LsDoc $lsDoc)
+    public function findAllChildrenArray(LsDoc $lsDoc): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t, a, g, adi, add
@@ -206,13 +193,13 @@ class LsDocRepository extends ServiceEntityRepository
     }
 
     /**
-     * Get a list of ids for all items that have parents for an LsDoc
+     * Get a list of ids for all items that have parents for an LsDoc.
      *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
+     * @param LsDoc $lsDoc
      *
      * @return array array of LsItem ids
      */
-    public function findAllItemsWithParentsArray(LsDoc $lsDoc)
+    public function findAllItemsWithParentsArray(LsDoc $lsDoc): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i.id
@@ -229,13 +216,13 @@ class LsDocRepository extends ServiceEntityRepository
     }
 
     /**
-     * Get a list of all items for an LsDoc
+     * Get a list of all items for an LsDoc.
      *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
+     * @param LsDoc $lsDoc
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findTopChildrenIds(LsDoc $lsDoc)
+    public function findTopChildrenIds(LsDoc $lsDoc): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, a, add
@@ -255,21 +242,18 @@ class LsDocRepository extends ServiceEntityRepository
     }
 
     /**
-     * Delete an LsDoc and all associated items and associations
-     *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
-     * @param \Closure|null $progressCallback
+     * Delete an LsDoc and all associated items and associations.
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function deleteDocument(LsDoc $lsDoc, \Closure $progressCallback = null): void
+    public function deleteDocument(LsDoc $lsDoc, ?\Closure $progressCallback = null): void
     {
         $conn = $this->getEntityManager()->getConnection();
 
         $params = ['lsDocId' => $lsDoc->getId()];
 
         if (null === $progressCallback) {
-            $progressCallback = function ($message = '') {
+            $progressCallback = static function ($message = '') {
             };
         }
 
@@ -377,7 +361,7 @@ xENDx;
         $em = $this->getEntityManager();
         if (null === $newLsDoc) {
             $newLsDoc = new LsDoc();
-            $newLsDoc->setTitle($oldLsDoc->getTitle().' - Derivated');
+            $newLsDoc->setTitle($oldLsDoc->getTitle().' - Derived');
             $newLsDoc->setCreator($oldLsDoc->getCreator());
             $newLsDoc->setVersion($oldLsDoc->getVersion());
             $newLsDoc->setDescription($oldLsDoc->getDescription());
@@ -398,17 +382,12 @@ xENDx;
         return $newLsDoc;
     }
 
-    /**
-     * @param LsDoc $fromDoc
-     * @param LsDoc $toDoc
-     * @param \Closure|null $progressCallback
-     */
-    public function copyDocumentToItem(LsDoc $fromDoc, LsDoc $toDoc, \Closure $progressCallback = null)
+    public function copyDocumentToItem(LsDoc $fromDoc, LsDoc $toDoc, ?\Closure $progressCallback = null): void
     {
         $em = $this->getEntityManager();
 
         if (null === $progressCallback) {
-            $progressCallback = function ($message = '') {
+            $progressCallback = static function ($message = '') {
             };
         }
 
@@ -438,11 +417,7 @@ xENDx;
     }
 
     /**
-     * Get an array representing the entire CF package
-     *
-     * @param LsDoc $doc
-     *
-     * @return array
+     * Get an array representing the entire CF package.
      */
     public function getPackageArray(LsDoc $doc): array
     {
@@ -456,7 +431,7 @@ xENDx;
                 'CFLicenses' => array_values($this->findAllUsedLicences($doc, Query::HYDRATE_OBJECT)),
                 'CFItemTypes' => $this->findAllUsedItemTypes($doc, Query::HYDRATE_OBJECT),
                 'CFAssociationGroupings' => $this->findAllUsedAssociationGroups($doc, Query::HYDRATE_OBJECT),
-            ]
+            ],
         ];
 
         $rubrics = $this->findAllUsedRubrics($doc, Query::HYDRATE_OBJECT);
@@ -468,13 +443,11 @@ xENDx;
     }
 
     /**
-     * Get a list of all items for an LsDoc
-     *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
+     * Get a list of all items for an LsDoc.
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAllItems(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    public function findAllItems(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t, a, adi, add, c
@@ -492,14 +465,11 @@ xENDx;
     }
 
     /**
-     * Get a list of all item types used in a document
-     *
-     * @param LsDoc $lsDoc
-     * @param int $format
+     * Get a list of all item types used in a document.
      *
      * @return array array of LsDefItemTypes
      */
-    public function findAllUsedItemTypes(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    public function findAllUsedItemTypes(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT t
@@ -509,19 +479,15 @@ xENDx;
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult($format);
-
-        return $results;
+        return $query->getResult($format);
     }
 
     /**
-     * Get a list of all associations for an LsDoc
-     *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
+     * Get a list of all associations for an LsDoc.
      *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllAssociations(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    public function findAllAssociations(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, ag, adi, aoi, add
@@ -534,19 +500,15 @@ xENDx;
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult($format);
-
-        return $results;
+        return $query->getResult($format);
     }
 
     /**
-     * Get a list of all association groups used in an LsDoc
-     *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
+     * Get a list of all association groups used in an LsDoc.
      *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllUsedAssociationGroups(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    public function findAllUsedAssociationGroups(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT ag
@@ -556,20 +518,15 @@ xENDx;
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult($format);
-
-        return $results;
+        return $query->getResult($format);
     }
 
     /**
-     * Get a list of all concepts used in a document
-     *
-     * @param LsDoc $lsDoc
-     * @param int $format
+     * Get a list of all concepts used in a document.
      *
      * @return array array of LsDefItemTypes
      */
-    public function findAllUsedConcepts(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    public function findAllUsedConcepts(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT c
@@ -579,20 +536,15 @@ xENDx;
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult($format);
-
-        return $results;
+        return $query->getResult($format);
     }
 
     /**
-     * Get a list of all licences used in a document
-     *
-     * @param LsDoc $lsDoc
-     * @param int $format
+     * Get a list of all licences used in a document.
      *
      * @return array array of LsDefItemTypes
      */
-    public function findAllUsedLicences(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    public function findAllUsedLicences(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
     {
         // get licences for items
         $query = $this->getEntityManager()->createQuery('
@@ -623,14 +575,11 @@ xENDx;
     }
 
     /**
-     * Get a list of all licences used in a document
-     *
-     * @param LsDoc $lsDoc
-     * @param int $format
+     * Get a list of all licences used in a document.
      *
      * @return array array of LsDefItemTypes
      */
-    public function findAllUsedRubrics(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    public function findAllUsedRubrics(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT DISTINCT r
@@ -641,19 +590,15 @@ xENDx;
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult($format);
-
-        return $results;
+        return $query->getResult($format);
     }
 
     /**
-     * Get a list of all association groups used in an LsDoc
-     *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
+     * Get a list of all association groups used in an LsDoc.
      *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllDocAssociationGroups(LsDoc $lsDoc, $format = Query::HYDRATE_OBJECT)
+    public function findAllDocAssociationGroups(LsDoc $lsDoc, $format = Query::HYDRATE_OBJECT): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT ag
@@ -662,19 +607,15 @@ xENDx;
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult($format);
-
-        return $results;
+        return $query->getResult($format);
     }
 
     /**
-     * Get a list of all associations for an LsDoc where the nodes are known items
-     *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
+     * Get a list of all associations for an LsDoc where the nodes are known items.
      *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllAssociationsForCapturedNodes(LsDoc $lsDoc)
+    public function findAllAssociationsForCapturedNodes(LsDoc $lsDoc): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, ag, adi, add, odi, odd
@@ -690,16 +631,9 @@ xENDx;
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult(Query::HYDRATE_ARRAY);
-
-        return $results;
+        return $query->getResult(Query::HYDRATE_ARRAY);
     }
 
-    /**
-     * @param LsDoc $lsDoc
-     *
-     * @return array
-     */
     public function findAssociatedDocs(LsDoc $lsDoc): array
     {
         $docs = [];
@@ -780,13 +714,11 @@ xENDx;
     }
 
     /**
-     * Get a list of all items for an LsDoc
-     *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
+     * Get a list of all items for an LsDoc.
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findItemsForExportDoc(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    public function findItemsForExportDoc(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t,
@@ -805,13 +737,11 @@ xENDx;
     }
 
     /**
-     * Get a list of all items for an LsDoc
-     *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
+     * Get a list of all items for an LsDoc.
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAssociationsForExportDoc(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY)
+    public function findAssociationsForExportDoc(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, g, partial oi.{id,identifier,lsDocIdentifier}, partial di.{id,identifier,lsDocIdentifier}
@@ -824,8 +754,6 @@ xENDx;
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        $results = $query->getResult($format);
-
-        return $results;
+        return $query->getResult($format);
     }
 }

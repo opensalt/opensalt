@@ -67,7 +67,7 @@ class SubjectsTransformer
         $subject->setTitle($cfSubject->title);
         $subject->setDescription($cfSubject->description);
         $subject->setHierarchyCode($cfSubject->hierarchyCode);
-        $subject->setUpdatedAt($cfSubject->lastChangeDateTime);
+        $subject->setChangedAt($cfSubject->lastChangeDateTime);
     }
 
     /**

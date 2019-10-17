@@ -52,9 +52,10 @@ class CaseV1P0Controller extends AbstractController
     {
         $limit = $request->query->get('limit', 100);
         $offset = $request->query->get('offset', 0);
-        /*
-        $sort = $request->query->get('sort', '');
+        $sort = $request->query->get('sort', null);
         $orderBy = $request->query->get('orderBy', 'asc');
+
+        /*
         $filter = $request->query->get('filter', '');
         $fields = $request->query->get('fields', []);
         */
@@ -62,9 +63,11 @@ class CaseV1P0Controller extends AbstractController
         $query = new CfDocQuery();
         $query->limit = $limit;
         $query->offset = $offset;
+        $query->sort = $sort;
+        $query->orderBy = $orderBy;
 
         $repo = $this->getDoctrine()->getRepository(LsDoc::class);
-        $results = $repo->findAllDocuments($query);
+        $results = $repo->findAllNonPrivate($query);
 
         $docs = [];
         $lastModified = new \DateTime('now - 10 years');
@@ -85,10 +88,14 @@ class CaseV1P0Controller extends AbstractController
             return $response;
         }
 
+        $serializationGroups = ['Default', 'CfDocuments'];
+        if ('updatedAt' === $sort) {
+            $serializationGroups[] = 'updatedAt';
+        }
         $response->setContent($this->serializer->serialize(
             ['CFDocuments' => $docs],
             $request->getRequestFormat('json'),
-            SerializationContext::create()->setGroups(['Default', 'CfDocuments'])
+            SerializationContext::create()->setGroups($serializationGroups)
         ));
         $response->headers->set('X-Total-Count', count($docs));
 

@@ -6,7 +6,6 @@ use App\Entity\LockableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -289,16 +288,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $licence;
 
     /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(name="changed_at", type="datetime", precision=6)
-     * @Gedmo\Timestampable(on="update")
-     *
-     * @Serializer\Exclude()
-     */
-    private $changedAt;
-
-    /**
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="LsAssociation", mappedBy="originLsItem", indexBy="id", cascade={"persist"})
@@ -338,7 +327,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         $this->inverseAssociations = new ArrayCollection();
         $this->criteria = new ArrayCollection();
         $this->concepts = new ArrayCollection();
-        $this->changedAt = $this->getUpdatedAt();
     }
 
     /**
@@ -359,8 +347,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         // Clear values for new item
         $this->associations = new ArrayCollection();
         $this->inverseAssociations = new ArrayCollection();
-
-        $this->changedAt = $this->getUpdatedAt();
     }
 
     /**
@@ -724,18 +710,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         }
 
         return null;
-    }
-
-    public function setChangedAt(\DateTimeInterface $changedAt): LsItem
-    {
-        $this->changedAt = $changedAt;
-
-        return $this;
-    }
-
-    public function getChangedAt(): \DateTimeInterface
-    {
-        return $this->changedAt;
     }
 
     /**

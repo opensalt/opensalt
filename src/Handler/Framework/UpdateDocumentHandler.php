@@ -17,8 +17,6 @@ class UpdateDocumentHandler extends BaseFrameworkHandler
         $doc = $command->getDoc();
         $this->validate($command, $doc);
 
-        $doc->setUpdatedAt(new \DateTime());
-
         $this->framework->unlockObject($doc);
 
         /* @todo Check explicitly for change in publication status for a different notification */

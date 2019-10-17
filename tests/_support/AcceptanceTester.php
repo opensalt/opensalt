@@ -23,7 +23,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
 {
     use _generated\AcceptanceTesterActions;
 
-    protected static $documentsApi = '/ims/case/v1p0/CFDocuments?limit=1000';
+    protected static $documentsApi = '/ims/case/v1p0/CFDocuments?sort=updatedAt&orderBy=DESC&limit=1000';
     protected static $packagesApi = '/ims/case/v1p0/CFPackages/';
 
     private $lsDocId = null;
@@ -110,7 +110,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         return $this;
     }
 
-    public function getLastFrameworkTitle(): string
+    public function getLastFramework(): array
     {
         $documents = $this->fetchJson(self::$documentsApi);
         $documents = $documents['CFDocuments'] ?? [];
@@ -127,10 +127,18 @@ class AcceptanceTester extends \Codeception\Actor implements Context
                 continue;
             }
 
-            if ($lastDoc['lastChangeDateTime'] < $document['lastChangeDateTime']) {
+            if ($lastDoc['updatedAt'] < $document['updatedAt']) {
                 $lastDoc = $document;
             }
         }
+
+        return $lastDoc;
+    }
+
+    public function getLastFrameworkTitle(): string
+    {
+        $lastDoc = $this->getLastFramework();
+
         return $lastDoc['title'];
     }
 
@@ -150,25 +158,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
 
     public function getLastFrameworkId(): string
     {
-        $documents = $this->fetchJson(self::$documentsApi);
-        $documents = $documents['CFDocuments'] ?? [];
-
-        if (0 === count($documents)) {
-            /* @todo Create a framework if none found */
-
-            throw new LogicException('No framework could be found');
-        }
-
-        $lastDoc = $documents[0];
-        foreach ($documents as $document) {
-            if (($document['adoptionStatus'] ?? 'Draft') !== 'Draft') {
-                continue;
-            }
-
-            if ($lastDoc['lastChangeDateTime'] < $document['lastChangeDateTime']) {
-                $lastDoc = $document;
-            }
-        }
+        $lastDoc = $this->getLastFramework();
 
         try {
             $docPage = $this->fetch('/uri/'.$lastDoc['identifier'], 'text/html');
@@ -198,24 +188,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
 
     public function getLastItemId()
     {
-        $documents = $this->fetchJson(self::$documentsApi);
-        $documents = $documents['CFDocuments'] ?? [];
-        if (0 === count($documents)) {
-            /* @todo Create a framework if none found */
-
-            throw new LogicException('No framework could be found');
-        }
-
-        $lastDoc = $documents[0];
-        foreach ($documents as $document) {
-            if (($document['adoptionStatus'] ?? 'Draft') !== 'Draft') {
-                continue;
-            }
-
-            if ($lastDoc['lastChangeDateTime'] < $document['lastChangeDateTime']) {
-                $lastDoc = $document;
-            }
-        }
+        $lastDoc = $this->getLastFramework();
 
         $framework = $this->fetchJson(self::$packagesApi.$lastDoc['identifier']);
         $items = $framework['CFItems'] ?? [];

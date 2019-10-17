@@ -72,11 +72,21 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * @var \DateTimeInterface
      *
-     * @ORM\Column(name="updated_at", type="datetime", precision=6)
+     * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("lastChangeDateTime")
+     */
+    private $changedAt;
+
+    /**
+     * @var \DateTimeInterface
+     *
+     * @ORM\Column(name="updated_at", type="datetime", precision=6)
+     * @Gedmo\Timestampable(on="update")
+     *
+     * @Serializer\Exclude()
      */
     protected $updatedAt;
 
@@ -97,6 +107,7 @@ class AbstractLsBase implements IdentifiableInterface
         $this->uri = 'local:'.$this->identifier;
 
         $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
     }
 
     /**
@@ -114,6 +125,7 @@ class AbstractLsBase implements IdentifiableInterface
 
         // Set last change/update to now
         $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
     }
 
     /**
@@ -167,6 +179,21 @@ class AbstractLsBase implements IdentifiableInterface
     public function getUri(): string
     {
         return $this->uri;
+    }
+
+    /**
+     * @return static
+     */
+    public function setChangedAt(\DateTimeInterface $changedAt)
+    {
+        $this->changedAt = $changedAt;
+
+        return $this;
+    }
+
+    public function getChangedAt(): \DateTimeInterface
+    {
+        return $this->changedAt;
     }
 
     /**
