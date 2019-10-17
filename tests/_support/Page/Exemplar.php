@@ -8,9 +8,9 @@ use Facebook\WebDriver\Exception\NoAlertOpenException;
 class Exemplar implements Context
 {
     protected $exemplarData = [];
-    static public $itemPath = '/cftree/item/';
-    static public $docPath = '/cftree/doc/';
-    static public $av = '/av';
+    public static $itemPath = '/cftree/item/';
+    public static $docPath = '/cftree/doc/';
+    public static $av = '/av';
 
     /**
      * @var \AcceptanceTester
@@ -26,7 +26,7 @@ class Exemplar implements Context
      * @Given /^I add "([^"]*)" exemplar$/
      * @Given /^I add an exemplar$/
      */
-    public function iAddExemplar($exemplar = 'Test Exemplar')
+    public function iAddExemplar($exemplar = 'Test Exemplar'): void
     {
         $I = $this->I;
 
@@ -37,7 +37,7 @@ class Exemplar implements Context
             'description' => $exemplar,
         ];
         $I->getLastItemId();
-        $I->amOnPage(self::$itemPath . $I->getItemId());
+        $I->amOnPage(self::$itemPath.$I->getItemId());
         $I->waitForElementNotVisible('#modalSpinner');
 
         $I->click('//*[@id="addExemplarBtn"]');
@@ -50,12 +50,12 @@ class Exemplar implements Context
     /**
      * @Given /^I should see the exemplar$/
      */
-    public function iShouldSeeTheExemplar()
+    public function iShouldSeeTheExemplar(): void
     {
         $I = $this->I;
 
         $I->getLastItemId();
-        $I->amOnPage(self::$itemPath . $I->getItemId());
+        $I->amOnPage(self::$itemPath.$I->getItemId());
         $I->waitForElementNotVisible('#modalSpinner');
 
         $I->see('Exemplar');
@@ -65,14 +65,15 @@ class Exemplar implements Context
     /**
      * @Then /^I delete the exemplar$/
      */
-    public function iDeleteTheExemplar()
+    public function iDeleteTheExemplar(): void
     {
         $I = $this->I;
 
-        $I->amOnPage(self::$itemPath . $I->getItemId());
+        $I->amOnPage(self::$itemPath.$I->getItemId());
         $I->waitForElementVisible('#deleteItemBtn');
         $I->click('//*[@id="itemInfo"]/div[3]/section[1]/div[2]/div/div/a/span[1]/span/span[1]');
         $this->waitAndAcceptPopup();
+        $I->waitForElementNotVisible('.spinnerOuter');
     }
 
     /**
@@ -82,7 +83,7 @@ class Exemplar implements Context
     {
         $I = $this->I;
 
-        $I->amOnPage(self::$docPath . $I->getDocId() . self::$av);
+        $I->amOnPage(self::$docPath.$I->getDocId().self::$av);
         $I->waitForElementVisible('#assocViewTable_wrapper');
         $I->click("//*[@id='assocViewTable']//td/span/span");
         $this->waitAndAcceptPopup();
@@ -91,16 +92,16 @@ class Exemplar implements Context
     /**
      * @Given /^I should not see an exemplar in Association View$/
      */
-    public function iShouldNotSeeExemplarInAssociationView()
+    public function iShouldNotSeeExemplarInAssociationView(): void
     {
         $I = $this->I;
 
-        $I->amOnPage(self::$docPath . $I->getDocId() . self::$av);
+        $I->amOnPage(self::$docPath.$I->getDocId().self::$av);
         $I->waitForElementVisible('#assocViewTable_wrapper');
         $I->dontSee('Exemplar', '.avTypeCell');
     }
 
-    protected function waitAndAcceptPopup($tries = 30)
+    protected function waitAndAcceptPopup($tries = 30): void
     {
         while ($tries--) {
             try {
