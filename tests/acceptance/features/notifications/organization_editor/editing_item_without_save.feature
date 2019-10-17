@@ -13,7 +13,6 @@ When an item is being edited, a notification is shown and buttons that allow edi
       | List enum in source   | 1                    |
       | Abbreviated statement | New Abb statement    |
       | Concept keywords      | reading              |
-      | Licence uri           | http://somewhere.com |
     Then I see a notification of editing "Item"
     And I see the Item buttons disabled
     And I delete the framework

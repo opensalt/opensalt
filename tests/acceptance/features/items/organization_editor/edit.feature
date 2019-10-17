@@ -14,7 +14,6 @@ Feature: Editing a item
       | List enum in source   | 1                    |
       | Abbreviated statement | New Abb statement    |
       | Concept keywords      | reading              |
-      | Licence uri           | http://somewhere.com |
 
     Then I should see the Item
     And I delete the Item

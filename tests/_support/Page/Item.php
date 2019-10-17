@@ -72,7 +72,6 @@ class Item implements Context
         $faker = \Faker\Factory::create();
         $enum = ++$this->enum;
         $item .= ' '.$enum;
-        $licUri = $faker->url;
         $note = $faker->paragraph;
         $fullStatement = $faker->paragraph;
         $keywords = $faker->word;
@@ -86,7 +85,6 @@ class Item implements Context
             'abbreviatedStatement' => $statement,
             'conceptKeywords' => $keywords,
             'language' => 'en',
-            'licenceUri' => $licUri,
             'note' => $note,
         ];
 
@@ -104,7 +102,6 @@ class Item implements Context
         $I->fillField('#ls_item_abbreviatedStatement', $statement);
         $I->fillField('#ls_item_conceptKeywords', $keywords);
         $I->selectOption('ls_item[language]', ['value' => $this->itemData['language']]);
-//        $I->fillField('#ls_item_licenceUri', $licUri);
         $I->executeJS("$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')");
 
         if (null !== $additionalField && !empty($additionalField)) {
@@ -189,7 +186,6 @@ class Item implements Context
             'Abbreviated statement' => '#ls_item_abbreviatedStatement',
             'Concept keywords' => '#ls_item_conceptKeywords',
 //      'Language' => 'ls_item[language]',
-            'Licence uri' => '#ls_item_licenceUri',
 //      'Note' => "$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')",
         ];
         $dataMap = [
@@ -199,7 +195,6 @@ class Item implements Context
             'Abbreviated statement' => 'abbreviatedStatement',
             'Concept keywords' => 'conceptKeywords',
 //      'Language' => 'language',
-            'Licence uri' => 'licenceUri',
 //      'Note' => 'note',
         ];
 
