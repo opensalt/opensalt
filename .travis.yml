@@ -9,7 +9,7 @@ sudo: required
 env:
   global:
     - COMMIT=${TRAVIS_COMMIT::8}
-    - DOCKER_COMPOSE_VERSION=1.23.2
+    - DOCKER_COMPOSE_VERSION=1.24.1
     - FIREBASE_PREFIX=${FIREBASE_PREFIX:-travis}-${TRAVIS_BUILD_NUMBER}
 
 dist: xenial
@@ -36,7 +36,7 @@ before_install:
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
+  - sudo mv docker-compose /usr/local/bin/
   - docker -v
   - docker-compose -v
 
@@ -56,6 +56,7 @@ before_script:
   - chmod 777 public/attachments/
   - ./docker/app/build.sh
   - docker-compose -f docker/docker-compose.yml up -d
+  - docker-compose -f docker/docker-compose.yml exec phpfpm dockerize -timeout 60s -wait tcp://db:3306 && sleep 5
 
 # Run the tests
 script:
@@ -78,28 +79,14 @@ after_success:
 after_failure:
   - echo "Tests FAILED"
   - ./bin/console --env=prod firebase:clear
-  - echo 'PHP errors...' && echo -en 'travis_fold:start:log.errors\\r'
-  - ./ci/travis/send_errors.sh
-  - echo -en 'travis_fold:end:log.errors\\r'
-
+  #- echo 'PHP errors...' && echo -en 'travis_fold:start:log.errors\\r'
+  #- ./ci/travis/send_errors.sh
+  #- echo -en 'travis_fold:end:log.errors\\r'
 
 #before_deploy:
 
 #deploy:
 #  skip_cleanup: true
-
-before_deploy:
-  - ./deploying/heroku/config_deploy.sh
-
-deploy:
-  provider: heroku
-  api_key: "${OPENSALT_HEROKU_TOKEN}"
-  app: "${OPENSALT_HEROKU_APP}"
-  on:
-    repo: "${TRAVIS_REPO_SLUG}"
-    condition: $OPENSALT_HEROKU_DEPLOY = "true"
-    branch: master
-  run: "php bin/console-real doctrine:migrations:migrate --no-interaction"
 
 #after_deploy:
 
