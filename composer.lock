@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3099ac404832843be62517c500415834",
+    "content-hash": "371630c982b4f343e4c664f7950d45cf",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -5403,16 +5403,16 @@
         },
         {
             "name": "phpoffice/phpword",
-            "version": "0.17.0",
+            "version": "0.16.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PHPWord.git",
-                "reference": "b8346af548d399acd9e30fc76ab0c55c2fec03a5"
+                "reference": "7b7d4e4936014544aa706f4c03d3ac925d74beb9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PHPWord/zipball/b8346af548d399acd9e30fc76ab0c55c2fec03a5",
-                "reference": "b8346af548d399acd9e30fc76ab0c55c2fec03a5",
+                "url": "https://api.github.com/repos/PHPOffice/PHPWord/zipball/7b7d4e4936014544aa706f4c03d3ac925d74beb9",
+                "reference": "7b7d4e4936014544aa706f4c03d3ac925d74beb9",
                 "shasum": ""
             },
             "require": {
@@ -5444,7 +5444,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-develop": "0.18-dev"
+                    "dev-develop": "0.17-dev"
                 }
             },
             "autoload": {
@@ -5466,16 +5466,16 @@
                     "homepage": "http://gabrielbull.com/"
                 },
                 {
-                    "name": "Franck Lefevre",
-                    "homepage": "https://rootslabs.net/blog/"
-                },
-                {
                     "name": "Ivan Lanin",
                     "homepage": "http://ivan.lanin.org"
                 },
                 {
                     "name": "Roman Syroeshko",
                     "homepage": "http://ru.linkedin.com/pub/roman-syroeshko/34/a53/994/"
+                },
+                {
+                    "name": "Franck Lefevre",
+                    "homepage": "https://rootslabs.net/blog/"
                 },
                 {
                     "name": "Antoine de Troostembergh"
@@ -5508,7 +5508,7 @@
                 "word",
                 "writer"
             ],
-            "time": "2019-10-01T20:43:33+00:00"
+            "time": "2018-12-30T00:35:03+00:00"
         },
         {
             "name": "psr/cache",
@@ -14564,16 +14564,16 @@
         },
         {
             "name": "symfony/maker-bundle",
-            "version": "v1.13.1",
+            "version": "v1.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/maker-bundle.git",
-                "reference": "3e3651e424a5bcb7543c8856ecd10cf1b8d6f9a7"
+                "reference": "c4388410e2fb6321e77c5dd6e3cb2dba821f9fe6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/maker-bundle/zipball/3e3651e424a5bcb7543c8856ecd10cf1b8d6f9a7",
-                "reference": "3e3651e424a5bcb7543c8856ecd10cf1b8d6f9a7",
+                "url": "https://api.github.com/repos/symfony/maker-bundle/zipball/c4388410e2fb6321e77c5dd6e3cb2dba821f9fe6",
+                "reference": "c4388410e2fb6321e77c5dd6e3cb2dba821f9fe6",
                 "shasum": ""
             },
             "require": {
@@ -14628,7 +14628,7 @@
                 "scaffold",
                 "scaffolding"
             ],
-            "time": "2019-10-18T01:41:52+00:00"
+            "time": "2019-08-18T17:34:03+00:00"
         },
         {
             "name": "symfony/phpunit-bridge",
@@ -15062,16 +15062,16 @@
         },
         {
             "name": "weirdan/doctrine-psalm-plugin",
-            "version": "0.6.1",
+            "version": "0.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/weirdan/doctrine-psalm-plugin.git",
-                "reference": "77bedebeb264018ce5b74f1504c862b9bb71a1ac"
+                "reference": "82416075b6ce274def2233b09d69cdbc235ce4bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/weirdan/doctrine-psalm-plugin/zipball/77bedebeb264018ce5b74f1504c862b9bb71a1ac",
-                "reference": "77bedebeb264018ce5b74f1504c862b9bb71a1ac",
+                "url": "https://api.github.com/repos/weirdan/doctrine-psalm-plugin/zipball/82416075b6ce274def2233b09d69cdbc235ce4bc",
+                "reference": "82416075b6ce274def2233b09d69cdbc235ce4bc",
                 "shasum": ""
             },
             "require": {
@@ -15083,6 +15083,7 @@
                 "codeception/base": "^2.5 || ^3.0",
                 "composer/semver": "^1.4",
                 "doctrine/doctrine-bundle": "^1.11",
+                "phly/keep-a-changelog": "^2.1",
                 "squizlabs/php_codesniffer": "^3.3",
                 "weirdan/codeception-psalm-module": "^0.2.2"
             },
@@ -15125,7 +15126,7 @@
                 "static analysis",
                 "static-analysis"
             ],
-            "time": "2019-10-10T19:32:44+00:00"
+            "time": "2019-10-17T00:57:44+00:00"
         }
     ],
     "aliases": [
