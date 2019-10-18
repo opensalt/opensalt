@@ -71,7 +71,7 @@
         "nelmio/cors-bundle": "^1.5.5",
         "nelmio/security-bundle": "dev-master",
         "phpoffice/phpspreadsheet": "~1.8.2",
-        "phpoffice/phpword": "^0.16.0",
+        "phpoffice/phpword": "^0.17.0",
         "qandidate/toggle-bundle": "~1.2.0",
         "ramsey/uuid": "^3.7",
         "ramsey/uuid-doctrine": "^1.4",
