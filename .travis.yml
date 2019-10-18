@@ -29,8 +29,6 @@ addons:
       - docker-xenial
     packages:
       - docker-ce
-  sonarcloud:
-    organization: "opensalt"
 
 #apt addons:
 
@@ -61,9 +59,6 @@ before_script:
 
 # Run the tests
 script:
-  - echo 'Running scanner...' && echo -en 'travis_fold:start:run.scanner\\r'
-  - sonar-scanner
-  - echo -en 'travis_fold:end:run.scanner\\r'
   - ./bin/console --env=prod doctrine:migrations:migrate -q --no-interaction
   - ./bin/console --env=prod import:generic-csv tests/_data/test_items.csv
   - echo 'Running tests...' && echo -en 'travis_fold:start:run.tests\\r'
