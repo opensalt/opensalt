@@ -6,6 +6,8 @@ ARG APCU_BC_VERSION=1.0.5
 
 ENV DEBIAN_FRONTEND noninteractive
 
+ENV DOCKERIZE_VERSION v0.6.1
+
 # add extensions
 RUN	apt-get -o 'Acquire::CompressionTypes::Order::="gz"' update \
 	&& apt-get install -y --no-install-recommends \
@@ -47,7 +49,10 @@ RUN	apt-get -o 'Acquire::CompressionTypes::Order::="gz"' update \
 	  libfreetype6 \
 	  libicu63 \
 	  libzip4 \
-	&& rm -r /var/lib/apt/lists/*
+	&& rm -r /var/lib/apt/lists/* \
+	&& wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+	  && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+	  && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 COPY \
     memory_limit.ini \

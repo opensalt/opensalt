@@ -71,7 +71,7 @@
         "nelmio/cors-bundle": "^1.5.5",
         "nelmio/security-bundle": "dev-master",
         "phpoffice/phpspreadsheet": "~1.8.2",
-        "phpoffice/phpword": "^0.16.0",
+        "phpoffice/phpword": "^0.17.0",
         "qandidate/toggle-bundle": "~1.2.0",
         "ramsey/uuid": "^3.7",
         "ramsey/uuid-doctrine": "^1.4",
@@ -122,7 +122,7 @@
         "phpstan/phpstan-doctrine": "^0.11.2",
 
         "vimeo/psalm": "^3.5.3",
-        "weirdan/doctrine-psalm-plugin": "^0.6.0",
+        "weirdan/doctrine-psalm-plugin": "^0.8.0",
 
         "squizlabs/php_codesniffer": "^3.4.1",
         "escapestudios/symfony2-coding-standard": "^3.1",
