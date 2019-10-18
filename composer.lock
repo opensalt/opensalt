@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3fb002b8f0dfa88188306ee3fe89d996",
+    "content-hash": "371630c982b4f343e4c664f7950d45cf",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -12165,7 +12165,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
@@ -15062,16 +15062,16 @@
         },
         {
             "name": "weirdan/doctrine-psalm-plugin",
-            "version": "0.6.1",
+            "version": "0.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/weirdan/doctrine-psalm-plugin.git",
-                "reference": "77bedebeb264018ce5b74f1504c862b9bb71a1ac"
+                "reference": "82416075b6ce274def2233b09d69cdbc235ce4bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/weirdan/doctrine-psalm-plugin/zipball/77bedebeb264018ce5b74f1504c862b9bb71a1ac",
-                "reference": "77bedebeb264018ce5b74f1504c862b9bb71a1ac",
+                "url": "https://api.github.com/repos/weirdan/doctrine-psalm-plugin/zipball/82416075b6ce274def2233b09d69cdbc235ce4bc",
+                "reference": "82416075b6ce274def2233b09d69cdbc235ce4bc",
                 "shasum": ""
             },
             "require": {
@@ -15083,6 +15083,7 @@
                 "codeception/base": "^2.5 || ^3.0",
                 "composer/semver": "^1.4",
                 "doctrine/doctrine-bundle": "^1.11",
+                "phly/keep-a-changelog": "^2.1",
                 "squizlabs/php_codesniffer": "^3.3",
                 "weirdan/codeception-psalm-module": "^0.2.2"
             },
@@ -15125,7 +15126,7 @@
                 "static analysis",
                 "static-analysis"
             ],
-            "time": "2019-10-10T19:32:44+00:00"
+            "time": "2019-10-17T00:57:44+00:00"
         }
     ],
     "aliases": [
