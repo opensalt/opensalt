@@ -1,11 +1,4 @@
-on:
-  push:
-    branches:
-      - master
-      - develop
-      - 'release/**'
-  pull_request:
-    types: [opened, reopened, synchronize]
+on: [push]
 name: Analysis Workflow
 
 jobs:
