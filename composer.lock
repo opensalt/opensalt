@@ -6424,16 +6424,16 @@
         },
         {
             "name": "swaggest/json-schema",
-            "version": "v0.12.21",
+            "version": "v0.12.22",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swaggest/php-json-schema.git",
-                "reference": "2b2e7c953e953ff2436f950908fe4ccf03125713"
+                "reference": "d6ed96bd74d404129d3c5548e416beab2f9b2435"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swaggest/php-json-schema/zipball/2b2e7c953e953ff2436f950908fe4ccf03125713",
-                "reference": "2b2e7c953e953ff2436f950908fe4ccf03125713",
+                "url": "https://api.github.com/repos/swaggest/php-json-schema/zipball/d6ed96bd74d404129d3c5548e416beab2f9b2435",
+                "reference": "d6ed96bd74d404129d3c5548e416beab2f9b2435",
                 "shasum": ""
             },
             "require": {
@@ -6464,7 +6464,7 @@
                 }
             ],
             "description": "High definition PHP structures with JSON-schema based validation",
-            "time": "2019-10-01T13:37:46+00:00"
+            "time": "2019-10-22T07:10:34+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -12165,7 +12165,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
