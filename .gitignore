@@ -69,7 +69,8 @@ nbproject
 # Tools
 .svn
 .sass-cache
-
+/lsp/*
+/.scannerwork/*
 
 pw-archive/
 
