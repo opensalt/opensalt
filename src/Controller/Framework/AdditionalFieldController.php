@@ -17,7 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * AdditionalField controller.
  *
  * @Route("/additionalfield")
- * @Security("is_granted('ROLE_SUPER_USER')")
+ * @Security("is_granted('manage', 'additional_fields')")
  */
 class AdditionalFieldController extends AbstractController
 {

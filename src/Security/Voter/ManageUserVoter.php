@@ -4,37 +4,27 @@ namespace App\Security\Voter;
 
 use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class ManageUserVoter extends Voter
 {
+    use RoleCheckTrait;
+
     public const MANAGE = 'manage';
 
-    /**
-     * @var AccessDecisionManagerInterface
-     */
-    private $decisionManager;
+    public const USERS = 'users';
+    public const ALL_USERS = 'all_users';
 
-    public function __construct(AccessDecisionManagerInterface $decisionManager)
+    /**
+     * {@inheritdoc}
+     */
+    protected function supports($attribute, $subject): bool
     {
-        $this->decisionManager = $decisionManager;
-    }
-
-    /**
-     * Determines if the attribute and subject are supported by this voter.
-     *
-     * @param string $attribute An attribute
-     * @param mixed $subject The subject to secure, e.g. an object the user wants to access or any other PHP type
-     *
-     * @return bool True if the attribute and subject are supported, false otherwise
-     */
-    protected function supports($attribute, $subject){
         if (self::MANAGE !== $attribute) {
             return false;
         }
 
-        if (!$subject instanceof User && $subject !== 'users') {
+        if (!$subject instanceof User && !\in_array($subject, [self::USERS, self::ALL_USERS], true)) {
             return false;
         }
 
@@ -42,16 +32,10 @@ class ManageUserVoter extends Voter
     }
 
     /**
-     * Perform a single access check operation on a given attribute, subject and token.
-     * It is safe to assume that $attribute and $subject already passed the "supports()" method check.
-     *
-     * @param string $attribute
-     * @param mixed $subject
-     * @param TokenInterface $token
-     *
-     * @return bool
+     * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token) {
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    {
         $user = $token->getUser();
 
         if (!$user instanceof User) {
@@ -60,27 +44,27 @@ class ManageUserVoter extends Voter
 
         switch ($attribute) {
             case self::MANAGE:
-                if ($subject === 'users') {
+                if (self::USERS === $subject) {
                     return $this->canManageUsers($token);
                 }
 
-                return $this->canManageUser($subject, $user);
+                if (self::ALL_USERS === $subject) {
+                    return $this->canManageAllUsers($token);
+                }
+
+                return $this->canManageUser($subject, $user, $token);
             default:
                 return false;
         }
     }
 
-    /**
-     * Validate if a user can create a standard.
-     *
-     * @param User $targetUser
-     * @param User $user
-     *
-     * @return bool true if the current user can manage a specific user
-     */
-    private function canManageUser(User $targetUser = null, User $user): bool
+    private function canManageUser(User $targetUser, User $user, TokenInterface $token): bool
     {
         if (null === $targetUser) {
+            return false;
+        }
+
+        if (!$this->canManageUsers($token)) {
             return false;
         }
 
@@ -88,20 +72,27 @@ class ManageUserVoter extends Voter
             return true;
         }
 
+        if ($this->canManageAllUsers($token)) {
+            return true;
+        }
+
         return false;
     }
 
-    /**
-     * Validate if a user can manage users
-     *
-     * @param TokenInterface $token
-     *
-     * @return bool true if the current user can manage users
-     */
     private function canManageUsers(TokenInterface $token): bool
     {
         // ROLE_ADMIN can manage users
-        if ($this->decisionManager->decide($token, ['ROLE_ADMIN'])) {
+        if ($this->roleChecker->isAdmin($token)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function canManageAllUsers(TokenInterface $token): bool
+    {
+        // ROLE_SUPER_USER can manage all users
+        if ($this->roleChecker->isSuperUser($token)) {
             return true;
         }
 

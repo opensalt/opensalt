@@ -13,7 +13,7 @@ class DevController extends AbstractController
 {
     /**
      * @Route("/dev/cookie", name="dev_cookie")
-     * @Security("is_granted('ROLE_SUPER_USER')")
+     * @Security("is_granted('feature', 'dev_env')")
      *
      * @param Request $request
      *

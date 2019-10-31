@@ -71,7 +71,7 @@ class LsDocController extends AbstractController
         $loggedIn = $user instanceof User;
         foreach ($results as $lsDoc) {
             // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
-            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus() || ($loggedIn && $this->authChecker->isGranted('view', $lsDoc))) {
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus() || ($loggedIn && $this->authChecker->isGranted('list', $lsDoc))) {
                 $lsDocs[] = $lsDoc;
             }
         }

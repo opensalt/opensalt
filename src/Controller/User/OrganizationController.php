@@ -20,8 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Organization controller.
  *
- * @Route("admin/organization")
- * @Security("is_granted('ROLE_SUPER_USER')")
+ * @Route("/admin/organization")
+ * @Security("is_granted('manage', 'organizations')")
  */
 class OrganizationController extends AbstractController
 {

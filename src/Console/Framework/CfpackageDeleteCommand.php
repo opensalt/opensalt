@@ -52,7 +52,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
         $progress = new ProgressBar($output, 8);
         $progress->start();
 
-        $callback = function($message = '') use ($progress) {
+        $callback = static function ($message = '') use ($progress) {
             $progress->setMessage(' '.$message);
             $progress->advance();
         };

@@ -27,14 +27,11 @@ doctrine:
                     charset: utf8mb4
                     collate: utf8mb4_unicode_ci
         types:
-            uuid: Ramsey\Uuid\Doctrine\UuidType
-            uuid_binary: Ramsey\Uuid\Doctrine\UuidBinaryType
             json: App\Doctrine\Types\JsonType
             datetime: App\Doctrine\Types\DateTimeType
         #mapping_types:
         #    json: string
         #    uuid: char(36)
-        #    uuid_binary: binary(16)
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'
 

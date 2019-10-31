@@ -43,7 +43,7 @@ class CaseUriRuntime implements RuntimeExtensionInterface
 
     public function getUriForIdentifier(?string $identifier): ?string
     {
-        if (null === $identifier) {
+        if (null === $identifier || '' === $identifier) {
             return null;
         }
 
