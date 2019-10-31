@@ -60,7 +60,7 @@ class UserType extends AbstractType
             ])
         ;
 
-        if ($this->authorizationChecker->isGranted('ROLE_SUPER_USER')) {
+        if ($this->authorizationChecker->isGranted('manage', 'all_users')) {
             $builder->add('org', EntityType::class, [
                 'class' => 'App\Entity\User\Organization',
                 'choice_label' => 'name',

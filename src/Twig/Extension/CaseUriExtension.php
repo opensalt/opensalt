@@ -9,7 +9,7 @@ use Twig\TwigTest;
 
 class CaseUriExtension extends AbstractExtension
 {
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('object_uri', [CaseUriRuntime::class, 'getObjectUri']),
@@ -19,7 +19,7 @@ class CaseUriExtension extends AbstractExtension
         ];
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('object_uri', [CaseUriRuntime::class, 'getObjectUri']),
@@ -27,7 +27,7 @@ class CaseUriExtension extends AbstractExtension
         ];
     }
 
-    public function getTests()
+    public function getTests(): array
     {
         return [
             new TwigTest('numeric', function ($value) {

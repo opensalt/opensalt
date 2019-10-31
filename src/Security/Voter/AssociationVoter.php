@@ -7,11 +7,13 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class AssociationVoter extends Voter
 {
+    use RoleCheckTrait;
+    use DeferDecisionTrait;
+
     public const ADD_TO = 'add-association-to';
     public const CREATE = 'create';
     public const EDIT = 'edit';
@@ -19,24 +21,9 @@ class AssociationVoter extends Voter
     public const ASSOCIATION = 'lsassociation';
 
     /**
-     * @var AccessDecisionManagerInterface
+     * {@inheritdoc}
      */
-    private $decisionManager;
-
-    public function __construct(AccessDecisionManagerInterface $decisionManager)
-    {
-        $this->decisionManager = $decisionManager;
-    }
-
-    /**
-     * Determines if the attribute and subject are supported by this voter.
-     *
-     * @param string $attribute An attribute
-     * @param mixed $subject The subject to secure, e.g. an object the user wants to access or any other PHP type
-     *
-     * @return bool True if the attribute and subject are supported, false otherwise
-     */
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         if (!\in_array($attribute, [self::ADD_TO, self::CREATE, self::EDIT], true)) {
             return false;
@@ -58,16 +45,9 @@ class AssociationVoter extends Voter
     }
 
     /**
-     * Perform a single access check operation on a given attribute, subject and token.
-     * It is safe to assume that $attribute and $subject already passed the "supports()" method check.
-     *
-     * @param string $attribute
-     * @param mixed $subject
-     * @param TokenInterface $token
-     *
-     * @return bool
+     * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
@@ -89,17 +69,19 @@ class AssociationVoter extends Voter
 
     /**
      * Validate if a user can add a standard to a document.
+     *
+     * @param mixed $subject
      */
     private function canAddTo($subject, TokenInterface $token): bool
     {
         // Check if the user can edit the document
         if ($subject instanceof LsDoc) {
-            return $this->decisionManager->decide($token, [FrameworkAccessVoter::EDIT], $subject);
+            return $this->deferDecision($token, [FrameworkAccessVoter::EDIT], $subject);
         }
 
         // Check if the user can edit the document the item is part of
         if ($subject instanceof LsItem) {
-            return $this->decisionManager->decide($token, [FrameworkAccessVoter::EDIT], $subject->getLsDoc());
+            return $this->deferDecision($token, [FrameworkAccessVoter::EDIT], $subject->getLsDoc());
         }
 
         // Allow if the user can edit "some" document, i.e. is an editor
@@ -116,11 +98,7 @@ class AssociationVoter extends Voter
     private function canCreate(TokenInterface $token): bool
     {
         // Allow if the user is an editor
-        if ($this->decisionManager->decide($token, ['ROLE_EDITOR'])) {
-            return true;
-        }
-
-        return false;
+        return $this->roleChecker->isEditor($token);
     }
 
     /**
@@ -139,7 +117,7 @@ class AssociationVoter extends Voter
         }
 
         // Allow editing of an association if the user can edit the document
-        if ($this->decisionManager->decide($token, [FrameworkAccessVoter::EDIT], $association->getLsDoc())) {
+        if ($this->deferDecision($token, [FrameworkAccessVoter::EDIT], $association->getLsDoc())) {
             return true;
         }
 

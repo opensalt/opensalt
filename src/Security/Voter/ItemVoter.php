@@ -6,34 +6,20 @@ use App\Entity\User\User;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class ItemVoter extends Voter
 {
+    use DeferDecisionTrait;
+    use RoleCheckTrait;
+
     public const ADD_TO = 'add-standard-to';
     public const EDIT = 'edit';
 
     /**
-     * @var AccessDecisionManagerInterface
+     * {@inheritdoc}
      */
-    private $decisionManager;
-
-    public function __construct(AccessDecisionManagerInterface $decisionManager)
-    {
-        $this->decisionManager = $decisionManager;
-    }
-
-
-    /**
-     * Determines if the attribute and subject are supported by this voter.
-     *
-     * @param string $attribute An attribute
-     * @param mixed $subject The subject to secure, e.g. an object the user wants to access or any other PHP type
-     *
-     * @return bool True if the attribute and subject are supported, false otherwise
-     */
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         if (!\in_array($attribute, [self::ADD_TO, self::EDIT], true)) {
             return false;
@@ -58,16 +44,9 @@ class ItemVoter extends Voter
     }
 
     /**
-     * Perform a single access check operation on a given attribute, subject and token.
-     * It is safe to assume that $attribute and $subject already passed the "supports()" method check.
-     *
-     * @param string $attribute
-     * @param mixed $subject
-     * @param TokenInterface $token
-     *
-     * @return bool
+     * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
@@ -91,15 +70,13 @@ class ItemVoter extends Voter
      */
     private function canAddTo(?LsDoc $lsDoc, TokenInterface $token): bool
     {
-        if (null !== $lsDoc) {
-            // Check if the user can edit the document
-            if (!$this->decisionManager->decide($token, [FrameworkAccessVoter::EDIT], $lsDoc)) {
-                return false;
-            }
+        // Check if the user can edit the document
+        if ((null !== $lsDoc) && !$this->deferDecision($token, [FrameworkAccessVoter::EDIT], $lsDoc)) {
+            return false;
         }
 
         // Allow if the user can edit "some" document, i.e. is an editor
-        if ($this->decisionManager->decide($token, ['ROLE_EDITOR'])) {
+        if ($this->roleChecker->isEditor($token)) {
             return true;
         }
 
@@ -122,7 +99,7 @@ class ItemVoter extends Voter
         }
 
         // Allow editing of an item if the user can edit the document
-        if ($this->decisionManager->decide($token, [FrameworkAccessVoter::EDIT], $item->getLsDoc())) {
+        if ($this->deferDecision($token, [FrameworkAccessVoter::EDIT], $item->getLsDoc())) {
             return true;
         }
 

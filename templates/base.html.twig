@@ -44,19 +44,30 @@
                                     <li class="dropdown">
                                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" area-expanded="false">Signed in as <strong>{{ app.user.username }}</strong> <span class="caret"></span></a>
                                         <ul class="dropdown-menu">
-                                            {% if is_granted('ROLE_SUPER_USER') or is_granted('manage', 'users') %}
-                                                {% if is_granted('ROLE_SUPER_USER') %}
-                                                    <li><a href="{{ url("admin_organization_index") }}">Manage organizations</a></li>
+                                            {%- set seperator_1 = false -%}
+                                            {% if is_granted('manage', 'organizations') %}
+                                                {%- set seperator_1 = true -%}
+                                                <li><a href="{{ url("admin_organization_index") }}">Manage organizations</a></li>
+                                            {% endif %}
+                                            {% if is_granted('manage', 'users') %}
+                                                {%- set seperator_1 = true -%}
+                                                <li><a href="{{ url("admin_user_index") }}">Manage users</a></li>
+                                            {% endif %}
+                                            {% if is_granted('manage', 'system_logs') %}
+                                                {%- set seperator_1 = true -%}
+                                                <li><a href="{{ url("system_logs_show") }}">Manage system logs</a></li>
+                                            {% endif %}
+                                            {% if is_granted('manage', 'mirrors') %}
+                                                {% if seperator_1 %}
+                                                    <li role="separator" class="divider"></li>
                                                 {% endif %}
-                                                {% if is_granted('manage', 'users') %}
-                                                    <li><a href="{{ url("admin_user_index") }}">Manage users</a></li>
-                                                {% endif %}
-                                                {% if is_granted('ROLE_SUPER_USER') %}
-                                                    <li><a href="{{ url("system_logs_show") }}">Manage system logs</a></li>
-                                                {% endif %}
+                                                {%- set seperator_1 = true -%}
+                                                <li><a href="{{ url("mirror_server_index") }}">Manage mirrors</a></li>
+                                            {% endif %}
+                                            {% if seperator_1 %}
                                                 <li role="separator" class="divider"></li>
                                             {% endif %}
-                                            <li><a href="{{ url("user_change_password") }}">Change Password</a></li>
+                                            <li><a href="{{ url("user_change_password") }}">Change password</a></li>
                                             <li role="separator" class="divider"></li>
                                             <li><a href="{{ url("logout") }}" class="logout">Sign out</a></li>
                                         </ul>

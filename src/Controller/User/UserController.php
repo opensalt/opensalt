@@ -25,7 +25,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 /**
  * User controller.
  *
- * @Route("admin/user")
+ * @Route("/admin/user")
  * @Security("is_granted('manage', 'users')")
  */
 class UserController extends AbstractController
@@ -60,7 +60,7 @@ class UserController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
 
-        if ($this->authChecker->isGranted('ROLE_SUPER_USER')) {
+        if ($this->authChecker->isGranted('manage', 'all_users')) {
             $users = $em->getRepository(User::class)->findAll();
         } else {
             $users = $em->getRepository(User::class)
@@ -101,7 +101,7 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Set to organization to match the creating users, unless the super-user
-            if (!$this->authChecker->isGranted('ROLE_SUPER_USER')) {
+            if (!$this->authChecker->isGranted('manage', 'all_users')) {
                 $targetUser->setOrg($this->getUser()->getOrg());
             }
 
