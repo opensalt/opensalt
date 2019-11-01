@@ -130,7 +130,7 @@ final class ExcelExport
             ->setCellValue('E2', $cfDoc->getOfficialUri())
             ->setCellValue('F2', $cfDoc->getPublisher())
             ->setCellValue('G2', $cfDoc->getDescription())
-            ->setCellValue('H2', $cfDoc->getSubject())
+            ->setCellValue('H2', implode('|', $cfDoc->getSubject()))
             ->setCellValue('I2', $cfDoc->getLanguage())
             ->setCellValue('J2', $cfDoc->getVersion())
             ->setCellValue('K2', $cfDoc->getAdoptionStatus())
@@ -217,7 +217,7 @@ final class ExcelExport
             'D' => '[smartLevel]',
             'E' => '[listEnumInSource]',
             'F' => '[abbreviatedStatement]',
-            'G' => '[conceptKeywords]',
+            'G' => '[conceptKeywordsString]',
             'H' => '[notes]',
             'I' => '[language]',
             'J' => '[educationalAlignment]',
@@ -248,7 +248,7 @@ final class ExcelExport
             'G' => '[destinationNodeIdentifier]',
             'H' => '[destinationLsItem][humanCodingScheme]',
             'I' => '[group][identifier]',
-            'J' => '[group][title]'
+            'J' => '[group][title]',
         ];
 
         foreach ($columns as $column => $field) {
