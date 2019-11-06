@@ -9,11 +9,13 @@ use App\Entity\Framework\CfRubricCriterion;
 use App\Entity\Framework\CfRubricCriterionLevel;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\CfRubric;
+use App\Service\LoggerTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 
 class RubricsTransformer
 {
+    use LoggerTrait;
+
     /**
      * @var EntityManagerInterface
      */
@@ -24,15 +26,9 @@ class RubricsTransformer
      */
     private $items;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->em = $entityManager;
-        $this->logger = $logger;
     }
 
     /**
@@ -131,7 +127,7 @@ class RubricsTransformer
     private function updateCriterion(CfRubricCriterion $criterion, CFPackageCriterion $cfCriterion): CfRubricCriterion
     {
         if ($criterion->getRubric()->getIdentifier() !== $cfCriterion->rubricId) {
-            $this->logger->error(sprintf('Attempt to change the rubric from %s to %s of criterion %s', $criterion->getRubric()->getIdentifier(), $cfCriterion->rubricId, $cfCriterion->identifier->toString()));
+            $this->error(sprintf('Attempt to change the rubric from %s to %s of criterion %s', $criterion->getRubric()->getIdentifier(), $cfCriterion->rubricId, $cfCriterion->identifier->toString()));
 
             throw new \UnexpectedValueException('Cannot change the rubric of a criterion');
         }
@@ -192,7 +188,7 @@ class RubricsTransformer
     private function updateCriterionLevel(CfRubricCriterionLevel $level, CFPackageCriterionLevel $cfCriterionLevel): CfRubricCriterionLevel
     {
         if ($level->getCriterion()->getIdentifier() !== $cfCriterionLevel->rubricCriterionId) {
-            $this->logger->error(sprintf('Attempt to change the criterion from %s to %s of criterion level %s', $cfCriterionLevel->rubricCriterionId, $level->getCriterion()->getIdentifier(), $cfCriterionLevel->identifier->toString()));
+            $this->error(sprintf('Attempt to change the criterion from %s to %s of criterion level %s', $cfCriterionLevel->rubricCriterionId, $level->getCriterion()->getIdentifier(), $cfCriterionLevel->identifier->toString()));
 
             throw new \UnexpectedValueException('Cannot change the criterion of a criterion level');
         }
@@ -213,7 +209,7 @@ class RubricsTransformer
         $item = $this->em->getRepository(LsItem::class)->findOneByIdentifier($itemIdentifier);
 
         if (null === $item) {
-            $this->logger->error(sprintf('Item %s for CFRubricCriterion is missing', $itemIdentifier));
+            $this->error(sprintf('Item %s for CFRubricCriterion is missing', $itemIdentifier));
 
             throw new \UnexpectedValueException(sprintf('Cannot find item %s for CFRubricCriterion', $itemIdentifier));
         }

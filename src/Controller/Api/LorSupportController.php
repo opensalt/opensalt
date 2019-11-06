@@ -6,7 +6,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
-use Psr\Log\LoggerInterface;
+use App\Service\LoggerTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,10 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class LorSupportController extends AbstractController
 {
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    use LoggerTrait;
 
     /**
      * @var LsDocRepository
@@ -36,9 +33,8 @@ class LorSupportController extends AbstractController
      */
     private $assetsVersion;
 
-    public function __construct(LoggerInterface $logger, LsDocRepository $docRepository, LsItemRepository $itemRepository, string $assetsVersion)
+    public function __construct(LsDocRepository $docRepository, LsItemRepository $itemRepository, string $assetsVersion)
     {
-        $this->logger = $logger;
         $this->docRepository = $docRepository;
         $this->itemRepository = $itemRepository;
         $this->assetsVersion = $assetsVersion;
@@ -63,7 +59,7 @@ class LorSupportController extends AbstractController
             }
         }
 
-        $this->logger->info('API: getCreators', []);
+        $this->info('API: getCreators', []);
 
         $response = $this->generateBaseReponse($lastModified, count($creators));
         if ($response->isNotModified($request)) {
@@ -97,7 +93,7 @@ class LorSupportController extends AbstractController
             }
         }
 
-        $this->logger->info('API: getFrameworksByCreator', []);
+        $this->info('API: getFrameworksByCreator', []);
 
         $response = $this->generateBaseReponse($lastModified, count($docs));
         if ($response->isNotModified($request)) {
@@ -130,7 +126,7 @@ class LorSupportController extends AbstractController
             }
         }
 
-        $this->logger->info('API: getMatches', []);
+        $this->info('API: getMatches', []);
 
         $response = $this->generateBaseReponse($lastModified, count($items));
         if ($response->isNotModified($request)) {

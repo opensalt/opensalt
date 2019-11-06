@@ -7,8 +7,8 @@ use App\Entity\ChangeEntry;
 use App\Entity\NotificationOnlyChangeEntry;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
+use App\Service\LoggerTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use App\Entity\User\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -17,25 +17,21 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 
 class CommandEventRouter implements EventSubscriberInterface
 {
+    use LoggerTrait;
+
     /**
      * @var EntityManagerInterface
      */
     private $em;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @var TokenStorageInterface
      */
     private $tokenStorage;
 
-    public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage)
     {
         $this->em = $entityManager;
-        $this->logger = $logger;
         $this->tokenStorage = $tokenStorage;
     }
 
@@ -80,7 +76,7 @@ class CommandEventRouter implements EventSubscriberInterface
     {
         $command = $event->getCommand();
 
-        $this->logger->info('Routing command', ['command' => \get_class($command)]);
+        $this->info('Routing command', ['command' => \get_class($command)]);
 
         try {
             $dispatcher->dispatch($event, \get_class($command));
@@ -92,10 +88,10 @@ class CommandEventRouter implements EventSubscriberInterface
                     $errors[] = $error->getMessage();
                 }
                 $errorString = implode(' ', $errors);
-                $this->logger->info('Error in command', ['command' => \get_class($command), 'errors' => $errorString]);
+                $this->info('Error in command', ['command' => \get_class($command), 'errors' => $errorString]);
             }
         } catch (\Exception $e) {
-            $this->logger->info('Exception in command', ['command' => \get_class($command), 'exception' => $e]);
+            $this->info('Exception in command', ['command' => \get_class($command), 'exception' => $e]);
 
             throw $e;
         }

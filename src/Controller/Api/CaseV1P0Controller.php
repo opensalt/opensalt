@@ -9,9 +9,9 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\CfDocQuery;
 use App\Repository\Framework\LsDocRepository;
+use App\Service\LoggerTrait;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
-use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,10 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CaseV1P0Controller extends AbstractController
 {
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    use LoggerTrait;
 
     /**
      * @var SerializerInterface
@@ -38,9 +35,8 @@ class CaseV1P0Controller extends AbstractController
      */
     private $assetsVersion;
 
-    public function __construct(LoggerInterface $logger, SerializerInterface $serializer, string $assetsVersion)
+    public function __construct(SerializerInterface $serializer, string $assetsVersion)
     {
-        $this->logger = $logger;
         $this->serializer = $serializer;
         $this->assetsVersion = $assetsVersion;
     }
@@ -81,7 +77,7 @@ class CaseV1P0Controller extends AbstractController
             }
         }
 
-        $this->logger->info('CASE API: getAllCfDocuments', []);
+        $this->info('CASE API: getAllCfDocuments', []);
 
         $response = $this->generateBaseReponse($lastModified);
         if ($response->isNotModified($request)) {
@@ -112,7 +108,7 @@ class CaseV1P0Controller extends AbstractController
         $doc = $obj;
         $id = $obj->getIdentifier();
 
-        $this->logger->info('CASE API: package returned', ['id' => $id]);
+        $this->info('CASE API: package returned', ['id' => $id]);
 
         $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
         $lastChange = $changeRepo->getLastChangeTimeForDoc($doc);
@@ -161,7 +157,7 @@ class CaseV1P0Controller extends AbstractController
             }
         }
 
-        $this->logger->info('CASE API: item associations returned', ['id' => $id]);
+        $this->info('CASE API: item associations returned', ['id' => $id]);
 
         $response = $this->generateBaseReponse($lastModified);
         if ($response->isNotModified($request)) {
@@ -227,16 +223,11 @@ class CaseV1P0Controller extends AbstractController
     }
 
     /**
-     * Generate a response for a single object
-     *
-     * @param Request $request
-     * @param CaseApiInterface $obj
-     *
-     * @return Response
+     * Generate a response for a single object.
      */
     protected function generateObjectResponse(Request $request, CaseApiInterface $obj): Response
     {
-        $this->logger->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
+        $this->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
 
         $response = $this->generateBaseReponse($obj->getUpdatedAt());
 
@@ -259,16 +250,11 @@ class CaseV1P0Controller extends AbstractController
     }
 
     /**
-     * Generate a response for a collection of objects
-     *
-     * @param Request $request
-     * @param CaseApiInterface $obj
-     *
-     * @return Response
+     * Generate a response for a collection of objects.
      */
     protected function generateObjectCollectionResponse(Request $request, CaseApiInterface $obj): Response
     {
-        $this->logger->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
+        $this->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
 
         $response = $this->generateBaseReponse(new \DateTime());
 

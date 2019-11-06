@@ -11,11 +11,13 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsAssociationRepository;
+use App\Service\LoggerTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 
 class AssociationsTransformer
 {
+    use LoggerTrait;
+
     /**
      * @var EntityManagerInterface
      */
@@ -31,15 +33,9 @@ class AssociationsTransformer
      */
     private $items;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->em = $entityManager;
-        $this->logger = $logger;
     }
 
     /**
@@ -111,7 +107,7 @@ class AssociationsTransformer
     {
         /* @noinspection NullPointerExceptionInspection */
         if ($association->getLsDoc()->getIdentifier() !== $doc->getIdentifier()) {
-            $this->logger->error(sprintf('Attempt to change the document from %s to %s of association %s', $association->getLsDoc()->getIdentifier(), $doc->getIdentifier(), $cfAssociation->identifier->toString()));
+            $this->error(sprintf('Attempt to change the document from %s to %s of association %s', $association->getLsDoc()->getIdentifier(), $doc->getIdentifier(), $cfAssociation->identifier->toString()));
 
             throw new \UnexpectedValueException('Cannot change the document of an association');
         }
@@ -193,7 +189,7 @@ class AssociationsTransformer
         $identifier = $cfAssociationGroupingURI->identifier->toString();
         $group = $this->definitions->associationGroupings[$identifier] ?? $this->findExitingGroup($identifier);
         if (null === $group) {
-            $this->logger->warning(sprintf('AssociationGrouping %s cannot be found, using default.', $identifier));
+            $this->warning(sprintf('AssociationGrouping %s cannot be found, using default.', $identifier));
         }
         $association->setGroup($group);
 
