@@ -10,6 +10,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 class CommentVoter extends Voter
 {
     use RoleCheckTrait;
+    use FeatureCheckTrait;
 
     public const COMMENT = 'comment';
     public const VIEW = 'comment_view';
@@ -21,6 +22,11 @@ class CommentVoter extends Voter
      */
     protected function supports($attribute, $subject): bool
     {
+        if (!$this->hasActiveFeature('comments')) {
+            // No support for comments if the feature is not enabled
+            return false;
+        }
+
         switch ($attribute) {
             case self::UPDATE:
             case self::DELETE:
