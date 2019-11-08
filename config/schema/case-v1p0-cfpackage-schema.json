@@ -495,7 +495,7 @@
           "type": "string"
         },
         "typeCode": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "lastChangeDateTime": {
           "type": "string",

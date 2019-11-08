@@ -156,7 +156,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @var LsDoc
      *
      * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="associations", fetch="EAGER")
-     * @ORM\JoinColumn(name="origin_lsdoc_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="origin_lsdoc_id", referencedColumnName="id", onDelete="SET NULL")
      *
      * @Serializer\Exclude()
      */
@@ -166,7 +166,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @var LsItem
      *
      * @ORM\ManyToOne(targetEntity="LsItem", inversedBy="associations", fetch="EAGER", cascade={"persist"})
-     * @ORM\JoinColumn(name="origin_lsitem_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="origin_lsitem_id", referencedColumnName="id", onDelete="SET NULL")
      *
      * @Serializer\Exclude()
      */
@@ -197,7 +197,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @var LsDoc
      *
      * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="inverseAssociations", fetch="EAGER")
-     * @ORM\JoinColumn(name="destination_lsdoc_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="destination_lsdoc_id", referencedColumnName="id", onDelete="SET NULL")
      *
      * @Serializer\Exclude()
      */
@@ -207,7 +207,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @var LsItem
      *
      * @ORM\ManyToOne(targetEntity="LsItem", inversedBy="inverseAssociations", fetch="EAGER", cascade={"persist"})
-     * @ORM\JoinColumn(name="destination_lsitem_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="destination_lsitem_id", referencedColumnName="id", onDelete="SET NULL")
      *
      * @Serializer\Exclude()
      */

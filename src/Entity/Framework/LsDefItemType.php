@@ -16,9 +16,9 @@ use JMS\Serializer\Annotation as Serializer;
 class LsDefItemType extends AbstractLsDefinition implements CaseApiInterface
 {
     /**
-     * @var string
+     * @var string|null
      *
-     * @ORM\Column(name="code", type="string", length=255)
+     * @ORM\Column(name="code", type="string", length=255, nullable=true)
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("typeCode")
@@ -35,53 +35,32 @@ class LsDefItemType extends AbstractLsDefinition implements CaseApiInterface
      */
     private $hierarchyCode;
 
-    /**
-     * @return string
-     */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
 
-    /**
-     * @param string $code
-     *
-     * @return LsDefItemType
-     */
-    public function setCode($code): LsDefItemType
+    public function setCode(?string $code): LsDefItemType
     {
         $this->code = $code;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getHierarchyCode()
+    public function getHierarchyCode(): string
     {
         return $this->hierarchyCode;
     }
 
-    /**
-     * @param string $hierarchyCode
-     *
-     * @return LsDefItemType
-     */
-    public function setHierarchyCode($hierarchyCode): LsDefItemType
+    public function setHierarchyCode(string $hierarchyCode): LsDefItemType
     {
         $this->hierarchyCode = $hierarchyCode;
 
         return $this;
     }
 
-    /**
-     * String to represent this subject
-     *
-     * @return string
-     */
     public function __toString(): string
     {
-        return $this->getTitle();
+        return $this->getTitle() ?? $this->getIdentifier();
     }
 }

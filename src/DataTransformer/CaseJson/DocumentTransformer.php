@@ -67,7 +67,7 @@ class DocumentTransformer
         }
 
         $doc->setSubjects(null);
-        foreach ($cfDocument->subjectURI as $subjectUri) {
+        foreach ($cfDocument->subjectURI ?? [] as $subjectUri) {
             $subject = $this->definitions->subjects[$subjectUri->identifier->toString()] ?? null;
             if (null !== $subject) {
                 $doc->addSubject($subject);
