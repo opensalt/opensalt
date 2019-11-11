@@ -32,9 +32,7 @@ class CaseImport
         set_time_limit(900); // increase time limit for large files
 
         try {
-            $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p0-cfpackage-schema.json')));
-            $schema->in(json5_decode($content));
-            $schema = null;
+            $this->validate($content);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -43,5 +41,12 @@ class CaseImport
         $package = $this->serializer->deserialize($content, CFPackage::class, 'json');
 
         return $this->packageTransformer->transform($package);
+    }
+
+    private function validate(string $content): void
+    {
+        $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p0-cfpackage-schema.json')));
+        $schema->in(json5_decode($content));
+        $schema = null;
     }
 }

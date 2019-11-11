@@ -1,0 +1,39 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}OAuthCredential{% endblock %}
+
+{% block body %}
+    <h1>OAuthCredential</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ oauth_credentials.id }}</td>
+            </tr>
+            <tr>
+                <th>AuthenticationEndpoint</th>
+                <td>{{ oauth_credentials.authenticationEndpoint }}</td>
+            </tr>
+            <tr>
+                <th>Key</th>
+                <td>{{ oauth_credentials.key }}</td>
+            </tr>
+            <tr>
+                <th>Secret</th>
+                <td>{{ oauth_credentials.secret }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedAt</th>
+                <td>{{ oauth_credentials.updatedAt ? oauth_credentials.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="text-right">
+        <a class="btn btn-default" href="{{ path('oauth_credentials_index') }}">Back to list</a>
+        <a class="btn btn-primary" href="{{ path('oauth_credentials_edit', {'id': oauth_credentials.id}) }}">Edit</a>
+
+        {{ include('mirror/oauth_credentials/_delete_form.html.twig') }}
+    </div>
+{% endblock %}

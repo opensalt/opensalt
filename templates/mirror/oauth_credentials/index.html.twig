@@ -1,0 +1,42 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}OAuthCredentials{% endblock %}
+
+{% block body %}
+    <h1>OAuthCredentials</h1>
+
+    <div class="form-group">
+        <div class="col-12-sm text-right">
+            <a class="btn btn-default" href="{{ path('mirror_server_index') }}">Mirror Server List</a>
+            <a class="btn btn-success" href="{{ path('oauth_credentials_new') }}">Create new</a>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Authentication Endpoint</th>
+                <th>Key</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for oauth_credentials in oauth_credentials %}
+            <tr>
+                <td>{{ oauth_credentials.id }}</td>
+                <td>{{ oauth_credentials.authenticationEndpoint }}</td>
+                <td>{{ oauth_credentials.key }}</td>
+                <td>
+                    <a class="btn btn-primary" href="{{ path('oauth_credentials_show', {'id': oauth_credentials.id}) }}">show</a>
+                    <a class="btn btn-default" href="{{ path('oauth_credentials_edit', {'id': oauth_credentials.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">No records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

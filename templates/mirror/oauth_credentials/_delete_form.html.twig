@@ -1,0 +1,5 @@
+<form class="form-inline-block text-right" method="post" action="{{ path('oauth_credentials_delete', {'id': oauth_credentials.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+    <input type="hidden" name="_method" value="DELETE">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ oauth_credentials.id) }}">
+    <button class="btn btn-danger">Delete</button>
+</form>

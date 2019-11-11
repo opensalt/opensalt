@@ -44,7 +44,7 @@ class CaseV1P0Controller extends AbstractController
     /**
      * @Route("/CFDocuments.{_format}", name="api_v1p0_cfdocuments", methods={"GET"}, defaults={"_format"="json"})
      */
-    public function getAllCfDocumentsAction(Request $request): Response
+    public function getPublicCfDocumentsAction(Request $request): Response
     {
         $limit = $request->query->get('limit', 100);
         $offset = $request->query->get('offset', 0);
@@ -57,8 +57,8 @@ class CaseV1P0Controller extends AbstractController
         */
 
         $query = new CfDocQuery();
-        $query->limit = $limit;
-        $query->offset = $offset;
+        $query->limit = 100000;
+        $query->offset = 0;
         $query->sort = $sort;
         $query->orderBy = $orderBy;
 
@@ -66,18 +66,27 @@ class CaseV1P0Controller extends AbstractController
         $results = $repo->findAllNonPrivate($query);
 
         $docs = [];
+        $docCount = 0;
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $doc) {
             /** @var LsDoc $doc */
-            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus()) {
-                $docs[] = $doc;
-                if ($doc->getUpdatedAt() > $lastModified) {
-                    $lastModified = $doc->getUpdatedAt();
-                }
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $doc->getAdoptionStatus()) {
+                continue;
             }
+            if (null !== $doc->getMirroredFramework()) {
+                continue;
+            }
+
+            $docs[] = $doc;
+            if ($docCount < $limit && $doc->getUpdatedAt() > $lastModified) {
+                $lastModified = $doc->getUpdatedAt();
+            }
+            ++$docCount;
         }
 
-        $this->info('CASE API: getAllCfDocuments', []);
+        $docs = array_slice($docs, $offset, $limit);
+
+        $this->info('CASE API: getPublicCfDocuments', []);
 
         $response = $this->generateBaseReponse($lastModified);
         if ($response->isNotModified($request)) {
@@ -93,7 +102,7 @@ class CaseV1P0Controller extends AbstractController
             $request->getRequestFormat('json'),
             SerializationContext::create()->setGroups($serializationGroups)
         ));
-        $response->headers->set('X-Total-Count', count($docs));
+        $response->headers->set('X-Total-Count', $docCount);
 
         return $response;
     }

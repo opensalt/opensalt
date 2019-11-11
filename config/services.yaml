@@ -119,6 +119,7 @@ services:
             $mailFromEmail: '%mail_feature_from_email%'
             $firebasePrefix: '%firebase_prefix%'
             $guzzleJsonClient: '@csa_guzzle.client.json'
+            $csaMiddleware: !tagged csa_guzzle.middleware
             $kernelEnv: '%kernel.environment%'
             $externalDocCache: '@salt.cache.external_docs'
             $assetsVersion: '%assets_version%'

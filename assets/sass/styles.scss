@@ -145,3 +145,34 @@ span.notification-url-indicator {
 .si-sigma:before {
   content: "\03a3";
 }
+
+.form-inline-block {
+    display: inline-block;
+}
+
+.status {
+    .fa-star { // new
+        color: $brand-primary;
+    }
+    .fa-check-circle { // okay
+        color: $brand-success;
+    }
+    .fa-calendar-check-o { // scheduled
+        color: $brand-primary;
+    }
+    .fa-refresh { // processing
+        color: $brand-info;
+    }
+    .fa-exclamation-triangle, .fa-warning { // error
+        color: $brand-danger;
+    }
+    .fa-minus-circle { // excluded
+        color: $gray-dark;
+    }
+}
+
+table.mirror_log-table {
+    .mirror_log-occurred {
+        min-width: 150px;
+    }
+}

@@ -1,5 +1,15 @@
 version: '2.1'
 services:
+  crontab:
+    image: willfarrell/crontab
+    depends_on:
+      - phpfpm
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "${PROJ_DIR:-..}/docker/cron/crontab.dist.json:/opt/crontab/config.json:rw"
+    environment:
+      LOG_FILE: /dev/stdout
+
   phpfpm:
     #build:
     #  context: ./php/fpm

@@ -1,0 +1,67 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Mirrored Server List | {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h1>Mirrored Servers</h1>
+
+    <p>
+        <a class="btn btn-default" href="{{ path('mirror_server_add') }}">Add Mirrored Server</a>
+        <a class="btn btn-default" href="{{ path('mirror_framework_new') }}">Add Single Mirrored Framework</a>
+    </p>
+
+    <div class="row mirrored-server-view" id="mirroredServerView">
+        <div class="col-sm-12">
+            <table id="mirroredServerTable" class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Server</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for server in servers %}
+                        <tr>
+                            <td class="status">
+                                {% for name, val in statuses[server.id] %}
+                                    {% if val != 0 %}
+                                        {% if name == 'new' %}
+                                            <i class="fa fa-star" title="New: {{ val }}" aria-label="New"></i> {{ val }} &nbsp;
+                                        {% elseif name == 'ok' %}
+                                            <i class="fa fa-check-circle" title="Okay: {{ val }}" aria-label="Okay"></i> {{ val }} &nbsp;
+                                        {% elseif name == 'scheduled' %}
+                                            <i class="fa fa-calendar-check-o" title="Scheduled: {{ val }}" aria-label="Scheduled"></i> {{ val }} &nbsp;
+                                        {% elseif name == 'processing' %}
+                                            <i class="fa fa-refresh fa-spin" title="Processing: {{ val }}" aria-label="Processing"></i> {{ val }} &nbsp;
+                                        {% elseif name == 'error' %}
+                                            <i class="fa fa-warning" title="Error: {{ val }}" aria-label="Error"></i> {{ val }} &nbsp;
+                                        {% elseif name == 'not-included' %}
+                                            <i class="fa fa-minus-circle" title="Excluded: {{ val }}" aria-label="Excluded"></i> {{ val }} &nbsp;
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <a href="{{ path('mirror_server_list', {'id': server.id}) }}">{{ server.url }}</a>
+                            </td>
+                            <td>
+                                <a class="btn btn-primary" href="{{ path('mirror_server_list', {'id': server.id}) }}">View Frameworks</a>
+                                <a class="btn btn-default" href="{{ path('mirror_server_edit', {'id': server.id}) }}">Edit</a>
+                                <a class="btn btn-danger" href="{{ path('mirror_server_delete', {'id': server.id}) }}">Remove Server</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $(function() {
+
+        })
+    </script>
+{% endblock %}

@@ -78,6 +78,11 @@ class FrameworkAccessVoter extends Voter
             return true;
         }
 
+        // Editors can see all mirrored frameworks in the list
+        if (null !== $subject->getMirroredFramework()) {
+            return $this->roleChecker->isEditor($token);
+        }
+
         return $this->canEditFramework($subject, $token);
     }
 
@@ -89,6 +94,11 @@ class FrameworkAccessVoter extends Voter
 
     private function canEditFramework(LsDoc $subject, TokenInterface $token): bool
     {
+        // Do not allow editing if the framework is mirrored
+        if (null !== $subject->getMirroredFramework()) {
+            return false;
+        }
+
         $user = $token->getUser();
         if (!$user instanceof User) {
             // If the user is not logged in then deny access

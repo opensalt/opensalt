@@ -1,0 +1,91 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ server.url }} framework list | {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h1>List of frameworks from {{ server.url }}</h1>
+
+    <div class="row">
+        <span class="text-left col-sm-6">
+            List last updated {{ server.lastCheck|date('Y-m-d H:i:s') }}
+        </span>
+        <span class="text-right col-sm-6">
+            {{ form_start(serverRefreshForm, {'attr': {'class': 'form-inline-block'}}) }}
+            <input class="btn btn-default" type="submit" value="Refresh" />
+            {{ form_end(serverRefreshForm) }}
+            <a class="btn btn-primary" href="{{ path('mirror_server_index') }}">View server list</a>
+        </span>
+    </div>
+    <p></p>
+
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Framework</th>
+                <th>Last Check</th>
+                <th>Last Change</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for framework in server.frameworks|sort((a, b) => (a.creator <=> b.creator) ?: (a.title <=> b.title)) %}
+                <tr>
+                    <td class="status">
+                        {%- if framework.include -%}
+                            {% if framework.status == 'new' %}
+                                <i class="fa fa-star" title="New" aria-label="New"></i>
+                            {% elseif framework.status == 'ok' %}
+                                <i class="fa fa-check-circle" title="Okay" aria-label="Okay"></i>
+                            {% elseif framework.status == 'scheduled' %}
+                                <i class="fa fa-calendar-check-o" title="Scheduled" aria-label="Scheduled"></i>
+                            {% elseif framework.status == 'processing' %}
+                                <i class="fa fa-refresh fa-spin" title="Processing" aria-label="Processing"></i>
+                            {% elseif framework.status == 'error' %}
+                                <i class="fa fa-warning" title="Error" aria-label="Error"></i>
+                            {% endif %}
+                        {%- else -%}
+                            <i class="fa fa-minus-circle" title="Excluded" aria-label="Excluded"></i>
+                        {%- endif -%}
+                    </td>
+                    <td>
+                        <span title="{{ framework.identifier }}">{{ framework.creator }} / {{ framework.title }}</span>
+                        {% if framework.framework is not null %}
+                            <a href="{{ path('doc_tree_view', {'slug': framework.framework.slug}) }}"><i class="fa fa-external-link" title="Go to document view" aria-label="Go to document view"></i></a>
+                        {% endif %}
+                    </td>
+                    <td>{{ framework.lastCheck ? framework.lastCheck|date('Y-m-d H:i') : '-' }}</td>
+                    <td>{{ framework.lastChange ? framework.lastChange|date('Y-m-d H:i') : '-' }}</td>
+                    <td>
+                        {% if showLogs[framework.id] is defined %}
+                            <a class="btn btn-default {% if framework.include and framework.status == 'error' %}btn-warning{% endif %}" href="{{ showLogs[framework.id] }}">Show Logs</a>
+                        {% endif %}
+
+                        {% if framework.idConflicted %}
+                            <a class="btn btn-primary" href="{{ path('mirror_framework_resolve_conflict', {'id': framework.id}) }}">Resolve ID Conflict</a>
+                        {% else %}
+                            {% if refreshForms[framework.id] is defined and framework.status != 'scheduled' %}
+                                {{ form_start(refreshForms[framework.id], {'attr': {'class': 'form-inline-block'}}) }}
+                                <input class="btn btn-default" type="submit" value="Refresh" />
+                                {{ form_end(refreshForms[framework.id]) }}
+                            {% endif %}
+
+                            {% if enableForms[framework.id] is defined %}
+                                {{ form_start(enableForms[framework.id], {'attr': {'class': 'form-inline-block'}}) }}
+                                <input class="btn btn-default" type="submit" value="Start Mirroring" />
+                                {{ form_end(enableForms[framework.id]) }}
+                            {% endif %}
+
+                            {% if disableForms[framework.id] is defined %}
+                                {{ form_start(disableForms[framework.id], {'attr': {'class': 'form-inline-block'}}) }}
+                                <input class="btn btn-default" type="submit" value="Stop Mirroring" />
+                                {{ form_end(disableForms[framework.id]) }}
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+

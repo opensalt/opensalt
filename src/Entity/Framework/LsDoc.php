@@ -2,6 +2,7 @@
 
 namespace App\Entity\Framework;
 
+use App\Entity\Framework\Mirror\Framework;
 use App\Entity\LockableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -403,6 +404,15 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @Serializer\Exclude()
      */
     protected $ownedBy;
+
+    /**
+     * @var Framework|null
+     *
+     * @ORM\OneToOne(targetEntity="App\Entity\Framework\Mirror\Framework", inversedBy="framework")
+     *
+     * @Serializer\Exclude()
+     */
+    private $mirroredFramework;
 
     /**
      * @param string|UuidInterface|null $identifier
@@ -840,6 +850,18 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return null;
     }
 
+    public function getMirroredFramework(): ?Framework
+    {
+        return $this->mirroredFramework;
+    }
+
+    public function setMirroredFramework(?Framework $mirroredFramework): LsDoc
+    {
+        $this->mirroredFramework = $mirroredFramework;
+
+        return $this;
+    }
+
     /**
      * Use attributes fields to save the identifiers, urls, and titles of a list of associated documents on different servers
      * Note that this fn is protected; addExternalDoc and removeExternalDoc are the public functions.
@@ -957,7 +979,9 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      */
     public function canEdit(): bool
     {
-        return (null === $this->adoptionStatus) || in_array($this->adoptionStatus, static::getEditableStatuses(), true);
+        return (null === $this->getMirroredFramework())
+            && ((null === $this->adoptionStatus)
+                || \in_array($this->adoptionStatus, static::getEditableStatuses(), true));
     }
 
     /**
