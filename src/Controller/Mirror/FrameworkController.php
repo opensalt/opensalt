@@ -25,7 +25,7 @@ class FrameworkController extends AbstractController
     /**
      * @Route("/new", name="mirror_framework_new")
      */
-    public function new(Request $request, MirrorServer $mirrorService, MirrorFramework $mirrorFramework): Response
+    public function new(Request $request, MirrorServer $mirrorService): Response
     {
         $frameworkDto = new MirroredFrameworkDTO();
         $form = $this->createForm(MirroredFrameworkDTOType::class, $frameworkDto);

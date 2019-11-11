@@ -49,6 +49,7 @@ class MirrorServer
     public function fetchDocumentList(Server $server): array
     {
         $body = $this->fetchDocumentListJson($server);
+
         try {
             $docList = json5_decode($body, true);
         } catch (\Exception $e) {
