@@ -275,7 +275,7 @@ class Framework
 
     public function getTitle(): string
     {
-        return $this->title;
+        return $this->title ?? 'Unknown';
     }
 
     public function setTitle(string $title): self
@@ -287,7 +287,7 @@ class Framework
 
     public function getCreator(): string
     {
-        return $this->creator;
+        return $this->creator ?? 'Unknown';
     }
 
     public function setCreator(string $creator): self
