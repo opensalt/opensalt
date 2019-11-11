@@ -3,9 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Framework\IdentifiableInterface;
-use App\Entity\Framework\ObjectLock;
-use App\Entity\LockableInterface;
-use App\Exception\AlreadyLockedException;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDefConcept;
@@ -15,10 +12,13 @@ use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\ObjectLock;
+use App\Entity\LockableInterface;
+use App\Entity\User\User;
+use App\Exception\AlreadyLockedException;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManager;
 use Ramsey\Uuid\Uuid;
-use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -41,10 +41,6 @@ class FrameworkService
 
     /**
      * Constructor.
-     *
-     * @param ManagerRegistry $registry
-     * @param TokenStorageInterface $tokenStorage
-     * @param ValidatorInterface $validator
      */
     public function __construct(ManagerRegistry $registry, TokenStorageInterface $tokenStorage, ValidatorInterface $validator)
     {
@@ -89,12 +85,6 @@ class FrameworkService
         return $doc;
     }
 
-    /**
-     * @param LsDoc $doc
-     * @param \Closure|null $callback
-     *
-     * @throws \Doctrine\DBAL\DBALException
-     */
     public function deleteFramework(LsDoc $doc, ?\Closure $callback = null): void
     {
         $this->em
@@ -150,7 +140,7 @@ class FrameworkService
         $itemRepo = $this->em->getRepository(LsItem::class);
 
         if (!empty($origin['id'])) {
-            $originItem = $itemRepo->findOneBy(['id'=>$origin['id']]);
+            $originItem = $itemRepo->findOneBy(['id' => $origin['id']]);
             if (null === $originItem) {
                 throw new \InvalidArgumentException('origin id is not a valid id');
             }
@@ -165,7 +155,7 @@ class FrameworkService
         }
 
         if (!empty($dest['id'])) {
-            $destItem = $itemRepo->findOneBy(['id'=>$dest['id']]);
+            $destItem = $itemRepo->findOneBy(['id' => $dest['id']]);
             if (null === $destItem) {
                 throw new \InvalidArgumentException('destination id is not a valid id');
             }
@@ -182,7 +172,7 @@ class FrameworkService
         // set assocGroup if provided
         if (null !== $assocGroup) {
             $assocGroupRepo = $this->em->getRepository(LsDefAssociationGrouping::class);
-            $assocGroupObj = $assocGroupRepo->findOneBy(['id'=>$assocGroup]);
+            $assocGroupObj = $assocGroupRepo->findOneBy(['id' => $assocGroup]);
             $association->setGroup($assocGroupObj);
         }
 
@@ -349,16 +339,10 @@ class FrameworkService
         return $lastSeqNums[$identifier];
     }
 
-
     /**
-     * Get the item to update, either the original or a copy based on the update array
+     * Get the item to update, either the original or a copy based on the update array.
      *
-     * @param LsDoc $lsDoc
-     * @param array $updates
      * @param int $lsItemId
-     * @param LsDefAssociationGrouping|null $assocGroup
-     *
-     * @return LsItem|null
      *
      * @throws \UnexpectedValueException
      */
@@ -398,19 +382,16 @@ class FrameworkService
     }
 
     /**
-     * Remove the appropriate childOf associations for the item based on the update array
+     * Remove the appropriate childOf associations for the item based on the update array.
      *
-     * @param LsItem $lsItem
-     * @param array $updates
      * @param int $lsItemId
-     * @param array $rv
      */
     protected function deleteTreeChildAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv): void
     {
         $assocRepo = $this->em->getRepository(LsAssociation::class);
 
         // delete childOf association if specified
-        if ($updates['deleteChildOf']['assocId'] !== 'all') {
+        if ('all' !== $updates['deleteChildOf']['assocId']) {
             $assoc = $assocRepo->find($updates['deleteChildOf']['assocId']);
             if (null === $assoc) {
                 return;
@@ -439,12 +420,9 @@ class FrameworkService
     }
 
     /**
-     * Update the childOf associations based on the update array
+     * Update the childOf associations based on the update array.
      *
-     * @param LsItem $lsItem
-     * @param array $updates
      * @param int $lsItemId
-     * @param array $rv
      */
     protected function updateTreeChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv): void
     {
@@ -473,20 +451,16 @@ class FrameworkService
     }
 
     /**
-     * Add new childOf associations based on the update array
+     * Add new childOf associations based on the update array.
      *
-     * @param LsItem $lsItem
-     * @param array $updates
      * @param int $lsItemId
-     * @param array $rv
-     * @param LsDefAssociationGrouping|null $assocGroup
      *
      * @throws \UnexpectedValueException
      */
     protected function addTreeChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv, ?LsDefAssociationGrouping $assocGroup = null): void
     {
         // parent could be a doc or item
-        if ($updates['newChildOf']['parentType'] === 'item') {
+        if ('item' === $updates['newChildOf']['parentType']) {
             $lsItemRepo = $this->em->getRepository(LsItem::class);
             $parentItem = $lsItemRepo->find($updates['newChildOf']['parentId']);
         } else {
@@ -502,7 +476,6 @@ class FrameworkService
         }
         $rv['changes']['assoc-a'][] = $rv['return'][$lsItemId]['association'];
     }
-
 
     /**
      * Get a user from the Security Token Storage.

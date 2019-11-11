@@ -5,12 +5,12 @@ namespace App\Repository\Framework;
 use App\Entity\Framework\CaseApiInterface;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
+use App\Util\Compare;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use App\Util\Compare;
 
 /**
  * LsDocRepository.
@@ -184,18 +184,14 @@ class LsDocRepository extends ServiceEntityRepository
      *   - by "rank"
      *   - then by "listEnumInSource"
      *   - then by "humanCodingScheme"
-     *
-     * @param array $itemArray
      */
-    private function rankItems(array &$itemArray)
+    private function rankItems(array &$itemArray): void
     {
         Compare::sortArrayByFields($itemArray, ['sequenceNumber', 'listEnumInSource', 'humanCodingScheme']);
     }
 
     /**
      * Get a list of ids for all items that have parents for an LsDoc.
-     *
-     * @param LsDoc $lsDoc
      *
      * @return array array of LsItem ids
      */

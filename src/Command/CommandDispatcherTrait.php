@@ -38,9 +38,6 @@ trait CommandDispatcherTrait
             throw new \RuntimeException('Cannot access dispatcher');
         }
 
-        $dispatcher->dispatch(
-            new CommandEvent($command),
-            CommandEvent::class
-        );
+        $dispatcher->dispatch(new CommandEvent($command));
     }
 }
