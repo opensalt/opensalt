@@ -34,6 +34,11 @@ class FrameworkManageEditorsVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
+        // Do not allow editing of mirrored frameworks
+        if (null !== $subject->getMirroredFramework()) {
+            return false;
+        }
+
         $user = $token->getUser();
 
         if (!$user instanceof User) {

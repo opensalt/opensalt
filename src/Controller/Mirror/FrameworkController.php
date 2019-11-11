@@ -52,7 +52,9 @@ class FrameworkController extends AbstractController
      */
     public function resolveConflict(Request $request, Framework $framework): Response
     {
-        $doc = $this->getDoctrine()->getRepository(LsDoc::class)->findOneByIdentifier($framework->getIdentifier());
+        $em = $this->getDoctrine()->getManager();
+
+        $doc = $em->getRepository(LsDoc::class)->findOneByIdentifier($framework->getIdentifier());
         if (null === $doc) {
             $this->addFlash('error', 'There is no conflict.');
 
@@ -78,7 +80,11 @@ class FrameworkController extends AbstractController
             $framework->setInclude(true);
             $framework->markToRefresh();
 
-            $this->getDoctrine()->getManager()->flush();
+            foreach ($doc->getDocAcls() as $acl) {
+                $em->remove($acl);
+            }
+
+            $em->flush();
 
             return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
         }
