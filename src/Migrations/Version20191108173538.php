@@ -28,6 +28,7 @@ final class Version20191108173538 extends AbstractMigration
         $this->addSql('ALTER TABLE ls_doc ADD mirrored_framework_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE ls_doc ADD CONSTRAINT FK_9AE8CF1FF66A84B6 FOREIGN KEY (mirrored_framework_id) REFERENCES mirror_framework (id)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_9AE8CF1FF66A84B6 ON ls_doc (mirrored_framework_id)');
+        $this->addSql('ALTER TABLE audit_ls_doc ADD mirrored_framework_id INT DEFAULT NULL');
     }
 
     public function down(Schema $schema): void
@@ -43,6 +44,7 @@ final class Version20191108173538 extends AbstractMigration
         $this->addSql('DROP TABLE mirror_server');
         $this->addSql('DROP TABLE mirror_log');
         $this->addSql('DROP INDEX UNIQ_9AE8CF1FF66A84B6 ON ls_doc');
+        $this->addSql('ALTER TABLE audit_ls_doc DROP mirrored_framework_id');
         $this->addSql('ALTER TABLE ls_doc DROP mirrored_framework_id');
     }
 }
