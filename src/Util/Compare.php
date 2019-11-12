@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017 Public Consulting Group
+ * Copyright (c) 2017 Public Consulting Group.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,14 +11,14 @@ namespace App\Util;
 class Compare
 {
     /**
-     * Sort an array using multiple fields
+     * Sort an array using multiple fields.
      *
-     * @param array $itemArray
-     * @param array $fields
+     * @param array<array-key, mixed> $itemArray
+     * @param array<array-key, string> $fields
      */
     public static function sortArrayByFields(array &$itemArray, array $fields): void
     {
-        uasort($itemArray, function ($a, $b) use ($fields) {
+        uasort($itemArray, static function ($a, $b) use ($fields) {
             foreach ($fields as $field) {
                 if (0 !== ($ret = Compare::arrayCompare($a, $b, $field))) {
                     return $ret;
@@ -28,19 +28,18 @@ class Compare
             return 0;
         });
     }
+
     /**
-     * Compare two array fields
+     * Compare two array fields.
      *
      * @param mixed $a
      * @param mixed $b
-     * @param string $key
+     * @param string|int $key
      * @param bool $setValueIsLower
-     *
-     * @return int
      */
     public static function arrayCompare($a, $b, $key, $setValueIsLower = true): int
     {
-        if ($key === 'sequenceNumber') {
+        if ('sequenceNumber' === $key) {
             return self::sequenceNumberIsSetInArray($a, $b, $setValueIsLower);
         }
 
@@ -81,16 +80,15 @@ class Compare
     }
 
     /**
-     * Returns < 0 if $a[$key] is set and $b[$key] is not,
+     * Returns
+     * < 0 if $a[$key] is set and $b[$key] is not,
      * > 0 if $b[$key] is set and $a[$key] is not,
-     * 0 if both are set or unset
+     * 0 if both are set or unset.
      *
      * @param array $a
      * @param array $b
-     * @param string $key
+     * @param string|int $key
      * @param bool $setValueIsLower
-     *
-     * @return int
      */
     public static function isSetInArray($a, $b, $key, $setValueIsLower = true): int
     {

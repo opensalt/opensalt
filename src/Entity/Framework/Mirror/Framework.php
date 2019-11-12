@@ -310,8 +310,15 @@ class Framework
         return bzdecompress(stream_get_contents($this->lastSuccessContent));
     }
 
-    public function setLastSuccessContent(string $lastSuccessContent): self
+    public function setLastSuccessContent(?string $lastSuccessContent): self
     {
+        if (null === $lastSuccessContent) {
+            $this->lastSuccessContent = null;
+            $this->lastContent = null;
+
+            return $this;
+        }
+
         $this->lastSuccessContent = bzcompress($lastSuccessContent, 9);
         $this->lastContent = $this->lastSuccessContent;
 
@@ -331,8 +338,14 @@ class Framework
         return bzdecompress(stream_get_contents($this->lastContent));
     }
 
-    public function setLastContent(string $lastContent): self
+    public function setLastContent(?string $lastContent): self
     {
+        if (null === $lastContent) {
+            $this->lastContent = null;
+
+            return $this;
+        }
+
         $this->lastContent = bzcompress($lastContent, 9);
 
         return $this;

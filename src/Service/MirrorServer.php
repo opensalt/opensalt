@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\RequestOptions;
 use kamermans\OAuth2\Exception\AccessTokenRequestException;
 use kamermans\OAuth2\GrantType\ClientCredentials;
@@ -182,7 +183,7 @@ class MirrorServer
 
     private function fetchDocumentListJson(Server $server): string
     {
-        $uri = UriString::parse($server->getUrl() ?? '');
+        $uri = UriString::parse($server->getUrl());
         $uri['path'] = rtrim($uri['path'] ?? '', '/').Server::URL_CASE_1_0_LIST;
         $url = UriString::build($uri);
 
@@ -234,9 +235,14 @@ class MirrorServer
                 ]
             );
         } catch (AccessTokenRequestException $e) {
-            $this->warning('Error authenticating to server', ['exception' => $e->getGuzzleException()->getMessage()]);
+            /**
+             * @var TransferException
+             * @psalm-suppress UndefinedDocblockClass
+             */
+            $guzzleException = $e->getGuzzleException();
+            $this->warning('Error authenticating to server', ['exception' => $guzzleException->getMessage()]);
 
-            throw new \RuntimeException('Error authenticating to server: '.$e->getGuzzleException()->getMessage(), 0, $e);
+            throw new \RuntimeException('Error authenticating to server: '.$guzzleException->getMessage(), 0, $e);
         } catch (RequestException $e) {
             $this->warning('Error requesting URL from server', ['exception' => $e->getMessage()]);
 

@@ -38,6 +38,7 @@ class MirrorFramework
     public function __construct(MirrorServer $mirrorServer, ManagerRegistry $managerRegistry)
     {
         $this->mirrorServer = $mirrorServer;
+        /** @psalm-suppress PropertyTypeCoercion */
         $this->em = $managerRegistry->getManager();
         $this->managerRegistry = $managerRegistry;
     }
@@ -90,15 +91,24 @@ class MirrorFramework
                 // Reset it so we can store the error
                 $this->em->clear();
                 $this->managerRegistry->resetManager();
+                /** @psalm-suppress PropertyTypeCoercion */
                 $this->em = $this->managerRegistry->getManager();
 
                 $next = $this->em->getRepository(Framework::class)->find($next->getId());
             }
 
+            if (null === $next) {
+                throw new \RuntimeException('Error mirroring framework: Mirrored framework went missing.');
+            }
+
             $msg = $e->getMessage();
             $errorType = Framework::ERROR_GENERAL;
             if ($e instanceof UniqueConstraintViolationException) {
-                $msg = $e->getPrevious()->getMessage();
+                $msg = 'Unique constraint violation';
+                $previousException = $e->getPrevious();
+                if (null !== $previousException) {
+                    $msg = $previousException->getMessage();
+                }
             }
             if ($e instanceof MirrorIdConflictException) {
                 $errorType = Framework::ERROR_ID_CONFLICT;
@@ -135,6 +145,7 @@ class MirrorFramework
         }
 
         $next->setLastContent($framework);
+        /** @psalm-suppress TooManyArguments */
         $this->em->flush($next);
 
         $command = new ImportCaseJsonCommand($framework);
@@ -145,6 +156,7 @@ class MirrorFramework
             $doc = $this->em->getRepository(LsDoc::class)->findOneByIdentifier($next->getIdentifier());
             $doc->setMirroredFramework($next);
             $next->setFramework($doc);
+            /** @psalm-suppress TooManyArguments */
             $this->em->flush($doc);
         }
 
