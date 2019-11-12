@@ -240,9 +240,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * @var string|null
      *
-     * @ORM\Column(name="alternative_label", type="string", length=255, nullable=true)
-     *
-     * @Assert\Length(max=255)
+     * @ORM\Column(name="alternative_label", type="text", nullable=true)
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("alternativeLabel")
@@ -1032,10 +1030,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
 
     public function getAlternativeLabel(): ?string
     {
-        if (null === $this->alternativeLabel) {
-            return $this->getItemType();
-        }
-
         return $this->alternativeLabel;
     }
 

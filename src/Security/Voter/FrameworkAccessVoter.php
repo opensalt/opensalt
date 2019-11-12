@@ -7,10 +7,12 @@ use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 
 class FrameworkAccessVoter extends Voter
 {
+    use RoleCheckTrait;
+
+    public const LIST = 'list'; // User can see the framework in a list
     public const VIEW = 'view';
     public const EDIT = 'edit';
     public const DELETE = 'delete';
@@ -19,26 +21,11 @@ class FrameworkAccessVoter extends Voter
     public const FRAMEWORK = 'lsdoc';
 
     /**
-     * @var RoleHierarchyInterface
-     */
-    private $roleHierarchy;
-
-    public function __construct(RoleHierarchyInterface $roleHierarchy)
-    {
-        $this->roleHierarchy = $roleHierarchy;
-    }
-
-    /**
-     * Determines if the attribute and subject are supported by this voter.
-     *
-     * @param string $attribute An attribute
-     * @param mixed $subject The subject to secure, e.g. an object the user wants to access or any other PHP type
-     *
-     * @return bool True if the attribute and subject are supported, false otherwise
+     * {@inheritdoc}
      */
     protected function supports($attribute, $subject): bool
     {
-        if (!\in_array($attribute, [static::VIEW, static::CREATE, static::EDIT, static::DELETE], true)) {
+        if (!\in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::DELETE], true)) {
             return false;
         }
 
@@ -47,29 +34,21 @@ class FrameworkAccessVoter extends Voter
             return true;
         }
 
-        // For the other attributes, we can handle if the subject is a document
-        if (!$subject instanceof LsDoc) {
-            return false;
-        }
-
-        return true;
+        // For the other attributes the subject must be a document
+        return $subject instanceof LsDoc;
     }
 
     /**
-     * Perform a single access check operation on a given attribute, subject and token.
-     * It is safe to assume that $attribute and $subject already passed the "supports()" method check.
-     *
-     * @param string $attribute
-     * @param mixed $subject
-     * @param TokenInterface $token
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         switch ($attribute) {
             case self::CREATE:
                 return (static::FRAMEWORK === $subject) && $this->canCreateFramework($token);
+
+            case self::LIST:
+                return $this->canListFramework($subject, $token);
 
             case self::VIEW:
                 return $this->canViewFramework($subject, $token);
@@ -86,41 +65,53 @@ class FrameworkAccessVoter extends Voter
 
     private function canCreateFramework(TokenInterface $token): bool
     {
-        $hasRoles = $this->roleHierarchy->getReachableRoleNames($token->getRoleNames());
-
-        if (in_array('ROLE_EDITOR', $hasRoles, false)) {
+        if ($this->roleChecker->isEditor($token)) {
             return true;
         }
 
         return false;
     }
 
-    private function canViewFramework(LsDoc $subject, TokenInterface $token): bool
+    private function canListFramework(LsDoc $subject, TokenInterface $token): bool
     {
         if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $subject->getAdoptionStatus()) {
             return true;
         }
 
+        // Editors can see all mirrored frameworks in the list
+        if (null !== $subject->getMirroredFramework()) {
+            return $this->roleChecker->isEditor($token);
+        }
+
         return $this->canEditFramework($subject, $token);
+    }
+
+    private function canViewFramework(LsDoc $subject, TokenInterface $token): bool
+    {
+        // Anyone can view a framework if they know about it
+        return true;
     }
 
     private function canEditFramework(LsDoc $subject, TokenInterface $token): bool
     {
+        // Do not allow editing if the framework is mirrored
+        if (null !== $subject->getMirroredFramework()) {
+            return false;
+        }
+
         $user = $token->getUser();
         if (!$user instanceof User) {
             // If the user is not logged in then deny access
             return false;
         }
 
-        $hasRoles = $this->roleHierarchy->getReachableRoleNames($token->getRoleNames());
-
         // Do not allow editing if the user is not an editor
-        if (!in_array('ROLE_EDITOR', $hasRoles, false)) {
+        if (!$this->roleChecker->isEditor($token)) {
             return false;
         }
 
         // Allow editing if the user is a super-editor
-        if (in_array('ROLE_SUPER_EDITOR', $hasRoles, false)) {
+        if ($this->roleChecker->isSuperEditor($token)) {
             return true;
         }
 

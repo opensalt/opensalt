@@ -43,8 +43,12 @@ class CaseUriRuntime implements RuntimeExtensionInterface
 
     public function getUriForIdentifier(?string $identifier): ?string
     {
-        if (null === $identifier) {
+        if (null === $identifier || '' === $identifier) {
             return null;
+        }
+
+        if (preg_match('/^data:text/', $identifier)) {
+            return $identifier;
         }
 
         return $this->uriGenerator->getPublicUriForIdentifier($identifier);

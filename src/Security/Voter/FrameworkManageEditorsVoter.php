@@ -5,32 +5,18 @@ namespace App\Security\Voter;
 use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class FrameworkManageEditorsVoter extends Voter
 {
+    use RoleCheckTrait;
+
     public const MANAGE_EDITORS = 'manage_editors';
 
     /**
-     * @var AccessDecisionManagerInterface
+     * {@inheritdoc}
      */
-    private $decisionManager;
-
-    public function __construct(AccessDecisionManagerInterface $decisionManager)
-    {
-        $this->decisionManager = $decisionManager;
-    }
-
-    /**
-     * Determines if the attribute and subject are supported by this voter.
-     *
-     * @param string $attribute An attribute
-     * @param mixed $subject The subject to secure, e.g. an object the user wants to access or any other PHP type
-     *
-     * @return bool True if the attribute and subject are supported, false otherwise
-     */
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         if (self::MANAGE_EDITORS !== $attribute) {
             return false;
@@ -44,17 +30,15 @@ class FrameworkManageEditorsVoter extends Voter
     }
 
     /**
-     * Perform a single access check operation on a given attribute, subject and token.
-     * It is safe to assume that $attribute and $subject already passed the "supports()" method check.
-     *
-     * @param string $attribute
-     * @param mixed $subject
-     * @param TokenInterface $token
-     *
-     * @return bool
+     * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
+        // Do not allow editing of mirrored frameworks
+        if (null !== $subject->getMirroredFramework()) {
+            return false;
+        }
+
         $user = $token->getUser();
 
         if (!$user instanceof User) {
@@ -68,8 +52,13 @@ class FrameworkManageEditorsVoter extends Voter
         }
 
         // Do not allow managing editors if the user is not an admin
-        if (!$this->decisionManager->decide($token, ['ROLE_ADMIN'])) {
+        if (!$this->roleChecker->isAdmin($token)) {
             return false;
+        }
+
+        // Allow super users to manage editors
+        if ($this->roleChecker->isSuperUser($token)) {
+            return true;
         }
 
         // Lastly, check if the user is in the same organization

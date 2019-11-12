@@ -13,7 +13,7 @@ use Symfony\Component\Console\Question\Question;
 
 class OrgAddCommand extends BaseDoctrineCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('salt:org:add')
@@ -32,12 +32,12 @@ class OrgAddCommand extends BaseDoctrineCommand
             $em = $this->em;
             $question = new Question('New organization name: ');
             $question->setValidator(function ($value) use ($em) {
-                if (trim($value) === '') {
+                if ('' === trim($value)) {
                     throw new \Exception('The organization name must note be empty');
                 }
 
                 $org = $em->getRepository(Organization::class)->findOneByName($value);
-                if (!empty($org)) {
+                if (null !== $org) {
                     throw new \Exception('The organization name must not already exist');
                 }
 
@@ -48,7 +48,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         }
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
         $org = trim($input->getArgument('org'));
 
@@ -56,7 +56,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         $orgRepository = $em->getRepository(Organization::class);
 
         $orgObj = $orgRepository->findOneByName($org);
-        if (!empty($orgObj)) {
+        if (null !== $orgObj) {
             $output->writeln(sprintf('<error>Organization "%s" aleady exists.</error>', $org));
 
             return 1;

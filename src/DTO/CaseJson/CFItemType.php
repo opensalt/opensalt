@@ -21,7 +21,7 @@ class CFItemType
     /** @var string */
     public $hierarchyCode;
 
-    /** @var string */
+    /** @var string|null */
     public $typeCode;
 
     /** @var \DateTimeInterface */

@@ -9,6 +9,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class CommentVoter extends Voter
 {
+    use RoleCheckTrait;
+    use FeatureCheckTrait;
+
     public const COMMENT = 'comment';
     public const VIEW = 'comment_view';
     public const UPDATE = 'comment_update';
@@ -17,8 +20,13 @@ class CommentVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
+        if (!$this->hasActiveFeature('comments')) {
+            // No support for comments if the feature is not enabled
+            return false;
+        }
+
         switch ($attribute) {
             case self::UPDATE:
             case self::DELETE:
@@ -38,7 +46,7 @@ class CommentVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         // All users (including anonymous) can view comments
         if (self::VIEW === $attribute) {
@@ -53,11 +61,13 @@ class CommentVoter extends Voter
         }
 
         switch ($attribute) {
+            case self::VIEW:
+                return $this->canView();
             case self::COMMENT:
                 return $this->canComment();
             case self::UPDATE:
             case self::DELETE:
-                return $this->canUpdate($user, $subject);
+                return $this->canUpdate($user, $subject, $token);
             default:
                 return false;
         }
@@ -79,8 +89,12 @@ class CommentVoter extends Voter
         return true;
     }
 
-    private function canUpdate(User $user, Comment $comment): bool
+    private function canUpdate(User $user, Comment $comment, TokenInterface $token): bool
     {
+        if ($this->roleChecker->isSuperUser($token)) {
+            return true;
+        }
+
         return $comment->getUser()->getId() === $user->getId();
     }
 }

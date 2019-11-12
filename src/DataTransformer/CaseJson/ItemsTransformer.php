@@ -8,12 +8,14 @@ use App\DTO\CaseJson\LinkURI;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsItemRepository;
+use App\Service\LoggerTrait;
 use App\Util\EducationLevelSet;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 
 class ItemsTransformer
 {
+    use LoggerTrait;
+
     /**
      * @var EntityManagerInterface
      */
@@ -24,15 +26,9 @@ class ItemsTransformer
      */
     private $definitions;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->em = $entityManager;
-        $this->logger = $logger;
     }
 
     /**
@@ -100,7 +96,7 @@ class ItemsTransformer
     private function updateItem(LsItem $item, CFPackageItem $cfItem, LsDoc $doc): LsItem
     {
         if ($item->getLsDoc()->getIdentifier() !== $doc->getIdentifier()) {
-            $this->logger->error(sprintf('Attempt to change the document from %s to %s of item %s', $item->getLsDoc()->getIdentifier(), $doc->getIdentifier(), $cfItem->identifier->toString()));
+            $this->error(sprintf('Attempt to change the document from %s to %s of item %s', $item->getLsDoc()->getIdentifier(), $doc->getIdentifier(), $cfItem->identifier->toString()));
 
             throw new \UnexpectedValueException('Cannot change the document of an item');
         }

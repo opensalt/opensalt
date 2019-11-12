@@ -5,8 +5,8 @@ namespace App\EventListener;
 use App\DTO\Api1\ImsxCodeMinor;
 use App\DTO\Api1\ImsxCodeMinorField;
 use App\DTO\Api1\ImsxStatusInfo;
+use App\Service\LoggerTrait;
 use JMS\Serializer\SerializerInterface;
-use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,16 +16,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ApiExceptionListener implements EventSubscriberInterface
 {
+    use LoggerTrait;
+
     /** @var SerializerInterface */
     private $serializer;
 
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(SerializerInterface $serializer, LoggerInterface $logger)
+    public function __construct(SerializerInterface $serializer)
     {
         $this->serializer = $serializer;
-        $this->logger = $logger;
     }
 
     public static function getSubscribedEvents()
@@ -52,12 +50,6 @@ class ApiExceptionListener implements EventSubscriberInterface
         $event->setResponse($this->generate404($request->attributes->get('id'), $request->getRequestFormat('json')));
     }
 
-    /**
-     * @param string $identifier
-     * @param string $_format
-     *
-     * @return Response
-     */
     protected function generate404(string $identifier, string $_format): Response
     {
         // Object not found
@@ -75,7 +67,7 @@ class ApiExceptionListener implements EventSubscriberInterface
             $errMinor
         );
 
-        $this->logger->info('CASE API: Not Found', ['identifier' => $identifier]);
+        $this->info('CASE API: Not Found', ['identifier' => $identifier]);
 
         $response = new Response(
             $this->serializer->serialize($err, $_format),
@@ -91,11 +83,7 @@ class ApiExceptionListener implements EventSubscriberInterface
     }
 
     /**
-     * Determine if the UUID is valid
-     *
-     * @param string $uuid
-     *
-     * @return bool
+     * Determine if the UUID is valid.
      */
     protected function isUuidValid(string $uuid): bool
     {

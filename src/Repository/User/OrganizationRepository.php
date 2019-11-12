@@ -7,9 +7,7 @@ use App\Entity\User\Organization;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * OrganizationRepository
- *
- * @method Organization findOneByName(string $orgName)
+ * @method Organization|null findOneByName(string $orgName)
  */
 class OrganizationRepository extends ServiceEntityRepository
 {
@@ -19,13 +17,10 @@ class OrganizationRepository extends ServiceEntityRepository
     }
 
     /**
-     * Add a new organization to the system
-     *
-     * @param string $organizationName
-     *
-     * @return Organization
+     * Add a new organization to the system.
      */
-    public function addNewOrganization($organizationName) {
+    public function addNewOrganization(string $organizationName): Organization
+    {
         $org = new Organization();
         $org->setName($organizationName);
 

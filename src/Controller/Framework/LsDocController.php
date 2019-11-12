@@ -9,21 +9,23 @@ use App\Command\Framework\DeriveDocumentCommand;
 use App\Command\Framework\LockDocumentCommand;
 use App\Command\Framework\UpdateDocumentCommand;
 use App\Command\Framework\UpdateFrameworkCommand;
-use App\Exception\AlreadyLockedException;
-use App\Form\Type\RemoteCaseServerType;
-use App\Form\Type\LsDocCreateType;
+use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
+use App\Exception\AlreadyLockedException;
+use App\Form\Type\LsDocCreateType;
+use App\Form\Type\LsDocType;
+use App\Form\Type\RemoteCaseServerType;
 use GuzzleHttp\ClientInterface;
-use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use App\Entity\Framework\LsDoc;
-use App\Form\Type\LsDocType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -70,8 +72,10 @@ class LsDocController extends AbstractController
         $lsDocs = [];
         $loggedIn = $user instanceof User;
         foreach ($results as $lsDoc) {
-            // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
-            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus() || ($loggedIn && $this->authChecker->isGranted('view', $lsDoc))) {
+            // Optimization: All but "Private Draft" are viewable to everyone (if not mirroed), only auth check "Private Draft"
+            if ((LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus()
+                    && null === $lsDoc->getMirroredFramework())
+                || ($loggedIn && $this->authChecker->isGranted('list', $lsDoc))) {
                 $lsDocs[] = $lsDoc;
             }
         }
@@ -82,7 +86,7 @@ class LsDocController extends AbstractController
     }
 
     /**
-     * Show frameworks from a remote system
+     * Show frameworks from a remote system.
      *
      * @Route("/remote", methods={"GET", "POST"}, name="lsdoc_remote_index")
      * @Template()
@@ -132,7 +136,7 @@ class LsDocController extends AbstractController
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @return array|RedirectResponse
      */
     public function newAction(Request $request)
     {
@@ -166,9 +170,6 @@ class LsDocController extends AbstractController
      * @Route("/{id}.{_format}", methods={"GET"}, defaults={"_format"="html"}, name="lsdoc_show")
      * @Template()
      * @Security("is_granted('view', lsDoc)")
-     *
-     * @param LsDoc $lsDoc
-     * @param string $_format
      *
      * @return array
      */
@@ -215,11 +216,6 @@ class LsDocController extends AbstractController
      *
      * @Route("/doc/{id}/derive", methods={"POST"}, name="lsdoc_update_derive")
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDoc $lsDoc
-     *
-     * @return Response
      */
     public function deriveAction(Request $request, LsDoc $lsDoc): Response
     {
@@ -243,11 +239,7 @@ class LsDocController extends AbstractController
      * @Template()
      * @Security("is_granted('edit', lsDoc)")
      *
-     * @param Request $request
-     * @param LsDoc $lsDoc
-     * @param User $user
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|RedirectResponse|Response
      */
     public function editAction(Request $request, LsDoc $lsDoc, UserInterface $user)
     {
@@ -282,7 +274,7 @@ class LsDocController extends AbstractController
 
                 return $this->redirectToRoute(
                     'lsdoc_edit',
-                    array('id' => $lsDoc->getId())
+                    ['id' => $lsDoc->getId()]
                 );
             } catch (\Exception $e) {
                 $editForm->addError(new FormError('Error upating new document: '.$e->getMessage()));
@@ -312,10 +304,7 @@ class LsDocController extends AbstractController
      * @Route("/{id}", methods={"DELETE"}, name="lsdoc_delete")
      * @Security("is_granted('delete', lsDoc)")
      *
-     * @param Request $request
-     * @param LsDoc $lsDoc
-     *
-     * @return JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @return JsonResponse|RedirectResponse
      */
     public function deleteAction(Request $request, LsDoc $lsDoc): Response
     {
@@ -351,9 +340,6 @@ class LsDocController extends AbstractController
      * @Template()
      * @Security("is_granted('view', lsDoc)")
      *
-     * @param LsDoc $lsDoc
-     * @param string $_format
-     *
      * @return array
      */
     public function exportAction(LsDoc $lsDoc, $_format = 'json')
@@ -369,11 +355,7 @@ class LsDocController extends AbstractController
     }
 
     /**
-     * Load the document list from a remote host
-     *
-     * @param string $hostname
-     *
-     * @return array
+     * Load the document list from a remote host.
      *
      * @throws \Exception
      */
@@ -425,9 +407,6 @@ class LsDocController extends AbstractController
         return $docs;
     }
 
-    /**
-     * @param LsDoc $lsDoc
-     */
     protected function deleteFramework(LsDoc $lsDoc): void
     {
         $command = new DeleteDocumentCommand($lsDoc);
@@ -436,18 +415,14 @@ class LsDocController extends AbstractController
 
     /**
      * Creates a form to delete a LsDoc entity.
-     *
-     * @param LsDoc $lsDoc The LsDoc entity
-     *
-     * @return \Symfony\Component\Form\Form The form
      */
-    private function createDeleteForm(LsDoc $lsDoc)
+    private function createDeleteForm(LsDoc $lsDoc): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction(
                 $this->generateUrl(
                     'lsdoc_delete',
-                    array('id' => $lsDoc->getId())
+                    ['id' => $lsDoc->getId()]
                 )
             )
             ->setMethod('DELETE')

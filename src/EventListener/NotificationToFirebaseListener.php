@@ -3,8 +3,8 @@
 namespace App\EventListener;
 
 use App\Event\NotificationEvent;
+use App\Service\LoggerTrait;
 use Kreait\Firebase\Database;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
@@ -32,10 +32,7 @@ use Symfony\Component\HttpKernel\Event\TerminateEvent;
  */
 class NotificationToFirebaseListener implements EventSubscriberInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    use LoggerTrait;
 
     /**
      * @var Database|null
@@ -47,10 +44,9 @@ class NotificationToFirebaseListener implements EventSubscriberInterface
      */
     private $firebasePrefix;
 
-    public function __construct(?Database $firebaseDb, LoggerInterface $logger, ?string $firebasePrefix = null)
+    public function __construct(?Database $firebaseDb, ?string $firebasePrefix = null)
     {
         $this->firebaseDb = $firebaseDb;
-        $this->logger = $logger;
         $this->firebasePrefix = !empty($firebasePrefix) ? $firebasePrefix : 'opensalt';
     }
 
@@ -62,7 +58,7 @@ class NotificationToFirebaseListener implements EventSubscriberInterface
     public function handleNotification(NotificationEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         if (null === $this->firebaseDb) {
-            $this->logger->debug('Firebase not enabled');
+            $this->debug('Firebase not enabled');
             return;
         }
 
@@ -112,7 +108,7 @@ class NotificationToFirebaseListener implements EventSubscriberInterface
             return;
         }
 
-        $this->logger->info('Adding to firebase', [
+        $this->info('Adding to firebase', [
             'msg' => $notification['msg'],
             'user' => $notification['by'],
             'changes' => $notification['changes'],

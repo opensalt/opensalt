@@ -39,6 +39,10 @@ class UriGenerator
 
     public function getPublicUriForIdentifier(string $id): string
     {
+        if (preg_match('/^data:text/', $id)) {
+            return $id;
+        }
+
         return $this->router->generate('uri_lookup', ['uri' => $id], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 }

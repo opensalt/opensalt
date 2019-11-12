@@ -12,6 +12,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+/**
+ * @Route("/admin/system_log")
+ * @Security("is_granted('manage', 'system_logs')")
+ */
 class SystemLogController extends AbstractController
 {
     /**
@@ -31,8 +35,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/system_log", methods={"GET"}, name="system_logs_show")
-     * @Security("is_granted('ROLE_SUPER_USER')")
+     * @Route("/", methods={"GET"}, name="system_logs_show")
      * @Template()
      */
     public function showSystemLogs(): array
@@ -41,8 +44,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/system_log/revisions/{offset}/{limit}", methods={"GET"}, requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="system_logs_json")
-     * @Security("is_granted('ROLE_SUPER_USER')")
+     * @Route("/revisions/{offset}/{limit}", methods={"GET"}, requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="system_logs_json")
      */
     public function listDocRevisionsAction(int $offset = 0, int $limit = 0): Response
     {
@@ -73,8 +75,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/system_log/revisions/count", methods={"GET"}, name="system_logs_count")
-     * @Security("is_granted('ROLE_SUPER_USER')")
+     * @Route("/revisions/count", methods={"GET"}, name="system_logs_count")
      */
     public function changeLogCount(): Response
     {
@@ -84,10 +85,7 @@ class SystemLogController extends AbstractController
     }
 
     /**
-     * @Route("/system_log/export", methods={"GET"}, name="system_logs_csv")
-     * @Security("is_granted('ROLE_SUPER_USER')")
-     *
-     * @return Response
+     * @Route("/export", methods={"GET"}, name="system_logs_csv")
      */
     public function exportSystemLogs(): Response
     {

@@ -1,0 +1,43 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Resolve Identifier Conflict | {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h1>Resolve Identifier Conflict</h1>
+
+    <div class="alert alert-info">
+    <p>
+        The framework <q><a href="{{ path('doc_tree_view', {'slug': currentFramework.slug}) }}">{{ currentFramework.title }}</a></q> is currently found in the system.
+    </p>
+
+    <p>
+        {% if currentFramework.mirroredFramework is not null %}
+            It is currently mirrored from <q><a href="{{ path('mirror_server_list', {'id': currentFramework.mirroredFramework.server.id}) }}">{{ currentFramework.mirroredFramework.server.url }}</a></q>.
+        {% else %}
+            It falls under the <q>{{ currentFramework.creator }}</q> creator
+            and is owned by the
+            {% if currentFramework.org is not null %}
+                <q>{{ currentFramework.org.name }}</q> organization.
+            {% elseif currentFramework.user is not null %}
+                <q>{{ currentFramework.user.username}}</q> user.
+            {% endif %}
+        {% endif %}
+    </p>
+    </div>
+
+    <div class="alert alert-danger">
+    <p>
+        Would you like to <strong>replace</strong> that framework with the mirrored framework
+        <q>{{ frameworkToMirror.title }}</q> from <q>{{ frameworkToMirror.server.url }}</q>?
+    </p>
+
+    <div class="text-right">
+        <a class="btn btn-primary" href="{{ path('mirror_server_list', {'id': frameworkToMirror.server.id}) }}">No, keep the current framework</a>
+        {{ form_start(resolveForm, {'attr': {'class': 'form-inline-block'}}) }}
+        <input class="btn btn-danger" type="submit" value="Yes, replace it" />
+        {{ form_end(resolveForm) }}
+    </div>
+    </div>
+
+{% endblock %}
+
