@@ -12434,7 +12434,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
@@ -13738,12 +13738,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "e3e6456e753326a096303e96b0f759fe789e63e8"
+                "reference": "261562a9c048aa10932e5e1d596da6c761cf95bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/e3e6456e753326a096303e96b0f759fe789e63e8",
-                "reference": "e3e6456e753326a096303e96b0f759fe789e63e8",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/261562a9c048aa10932e5e1d596da6c761cf95bb",
+                "reference": "261562a9c048aa10932e5e1d596da6c761cf95bb",
                 "shasum": ""
             },
             "conflict": {
@@ -13880,7 +13880,7 @@
                 "symfony/security-guard": ">=2.8,<2.8.41|>=3,<3.3.17|>=3.4,<3.4.11|>=4,<4.0.11",
                 "symfony/security-http": ">=2.3,<2.3.41|>=2.4,<2.7.51|>=2.8,<2.8.50|>=3,<3.4.26|>=4,<4.2.12|>=4.3,<4.3.8",
                 "symfony/serializer": ">=2,<2.0.11",
-                "symfony/symfony": ">=2,<2.7.51|>=2.8,<2.8.50|>=3,<3.4.26|>=4,<4.1.12|>=4.2,<4.2.7",
+                "symfony/symfony": ">=2,<2.8.52|>=3,<3.4.35|>=4,<4.2.12|>=4.3,<4.3.8",
                 "symfony/translation": ">=2,<2.0.17",
                 "symfony/validator": ">=2,<2.0.24|>=2.1,<2.1.12|>=2.2,<2.2.5|>=2.3,<2.3.3",
                 "symfony/var-exporter": ">=4.2,<4.2.12|>=4.3,<4.3.8",
@@ -13948,7 +13948,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2019-11-13T10:25:51+00:00"
+            "time": "2019-11-15T09:15:43+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -15098,16 +15098,16 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "3.6.5",
+            "version": "3.6.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "b1aae0d1a5a11908e0e5f9eb6795ab7bb3f43577"
+                "reference": "5e17a9af104de39321c47f73b253cece9df1cf2c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/b1aae0d1a5a11908e0e5f9eb6795ab7bb3f43577",
-                "reference": "b1aae0d1a5a11908e0e5f9eb6795ab7bb3f43577",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/5e17a9af104de39321c47f73b253cece9df1cf2c",
+                "reference": "5e17a9af104de39321c47f73b253cece9df1cf2c",
                 "shasum": ""
             },
             "require": {
@@ -15182,7 +15182,7 @@
                 "inspection",
                 "php"
             ],
-            "time": "2019-11-12T05:52:10+00:00"
+            "time": "2019-11-14T19:44:29+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
