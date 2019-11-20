@@ -122,7 +122,7 @@ class AssociationsTransformer
         $this->setDestination($association, $cfAssociation->destinationNodeURI, $doc);
 
         $association->setSequenceNumber($cfAssociation->sequenceNumber);
-        $this->setGroup($association, $cfAssociation->cfAssociationGroupingURI);
+        $this->setGroup($association, $cfAssociation->cfAssociationGroupingURI, $doc);
         $association->setChangedAt($cfAssociation->lastChangeDateTime);
 
         return $association;
@@ -182,7 +182,7 @@ class AssociationsTransformer
         return $association;
     }
 
-    private function setGroup(LsAssociation $association, ?LinkURI $cfAssociationGroupingURI): LsAssociation
+    private function setGroup(LsAssociation $association, ?LinkURI $cfAssociationGroupingURI, LsDoc $doc): LsAssociation
     {
         if (null === $cfAssociationGroupingURI || null === $cfAssociationGroupingURI->identifier) {
             $association->setGroup(null);
@@ -191,16 +191,20 @@ class AssociationsTransformer
         }
 
         $identifier = $cfAssociationGroupingURI->identifier->toString();
-        $group = $this->definitions->associationGroupings[$identifier] ?? $this->findExitingGroup($identifier);
-        if (null === $group) {
-            $this->logger->warning(sprintf('AssociationGrouping %s cannot be found, using default.', $identifier));
+        $group = $this->definitions->associationGroupings[$identifier] ?? $this->findExistingGroup($identifier);
+        if(empty($group)) {
+            error_log($cfAssociationGroupingURI->title);
+            $group = new LsDefAssociationGrouping($identifier);
+            $group->setTitle($cfAssociationGroupingURI->title);
+            $group->setLsDoc($doc);
+            $this->em->persist($group);
         }
         $association->setGroup($group);
 
         return $association;
     }
 
-    private function findExitingGroup(string $identifier): LsDefAssociationGrouping
+    private function findExistingGroup(string $identifier): LsDefAssociationGrouping
     {
         return $this->em->getRepository(LsDefAssociationGrouping::class)->findOneByIdentifier($identifier);
     }

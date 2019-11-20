@@ -49,8 +49,8 @@ class PackageTransformer
     public function transform(CFPackage $package): LsDoc
     {
         $definitions = $this->definitionsTransformer->transform($package->cfDefinitions);
-
         $doc = $this->documentTransformer->transform($package->cfDocument, $definitions);
+        $definitions = $this->definitionsTransformer->transform_groups($package->cfDefinitions, $doc, $definitions);
         $items = $this->itemsTransformer->transform($package->cfItems, $doc, $definitions);
         $this->associationsTransformer->transform($package->cfAssociations, $doc, $items, $definitions);
         $this->rubricsTransformer->transform($package->cfRubrics, $items);

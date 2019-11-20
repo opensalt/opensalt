@@ -32,8 +32,8 @@ class SubjectsTransformer
 
         $existingSubjects = $this->findExistingSubjects($cfSubjects);
 
-        foreach ($cfSubjects as $cfItemType) {
-            $this->updateSubject($cfItemType, $existingSubjects);
+        foreach ($cfSubjects as $cfSubject) {
+            $this->updateSubject($cfSubject, $existingSubjects);
         }
 
         return $existingSubjects;

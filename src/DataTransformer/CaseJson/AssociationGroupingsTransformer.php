@@ -4,6 +4,7 @@ namespace App\DataTransformer\CaseJson;
 
 use App\DTO\CaseJson\CFAssociationGrouping;
 use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDoc;
 use App\Repository\Framework\LsDefAssociationGroupingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -24,16 +25,17 @@ class AssociationGroupingsTransformer
      *
      * @return LsDefAssociationGrouping[]
      */
-    public function transform(array $cfAssociationGroupings): array
+    public function transform(array $cfAssociationGroupings, $doc=null): array
     {
         if (0 === count($cfAssociationGroupings)) {
             return [];
         }
 
         $existingGroups = $this->findExistingGroups($cfAssociationGroupings);
-
-        foreach ($cfAssociationGroupings as $cfAssociationGrouping) {
-            $this->updateAssociationGrouping($cfAssociationGrouping, $existingGroups);
+        if(!empty($doc)) {
+            foreach ($cfAssociationGroupings as $cfAssociationGrouping) {
+                $this->updateAssociationGrouping($cfAssociationGrouping, $existingGroups, $doc);
+            }
         }
 
         return $existingGroups;
@@ -60,12 +62,14 @@ class AssociationGroupingsTransformer
      * @param CFAssociationGrouping $cfAssociationGrouping
      * @param LsDefAssociationGrouping[] $existingAssociationGroups
      */
-    protected function updateAssociationGrouping(CFAssociationGrouping $cfAssociationGrouping, array &$existingAssociationGroups): void
+    protected function updateAssociationGrouping(CFAssociationGrouping $cfAssociationGrouping, array &$existingAssociationGroups, $doc): void
     {
-        $grouping = $this->findOrCreateAssociationGrouping($cfAssociationGrouping, $existingAssociationGroups);
+        $grouping = $this->findOrCreateAssociationGrouping($cfAssociationGrouping, $existingAssociationGroups, $doc);
         $grouping->setUri($cfAssociationGrouping->uri);
         $grouping->setTitle($cfAssociationGrouping->title);
-//        $grouping->setLsDoc($lsDoc); // TODO
+        if(!empty($doc)) {
+            $grouping->setLsDoc($doc); // TODO
+        }
         $grouping->setDescription($cfAssociationGrouping->description);
         $grouping->setChangedAt($cfAssociationGrouping->lastChangeDateTime);
     }
@@ -76,10 +80,14 @@ class AssociationGroupingsTransformer
      *
      * @return LsDefAssociationGrouping
      */
-    protected function findOrCreateAssociationGrouping(CFAssociationGrouping $cfAssociationGrouping, array &$existingAssociationGroups): LsDefAssociationGrouping
+    protected function findOrCreateAssociationGrouping(CFAssociationGrouping $cfAssociationGrouping, array &$existingAssociationGroups, LsDoc $doc): LsDefAssociationGrouping
     {
         if (!array_key_exists($cfAssociationGrouping->identifier->toString(), $existingAssociationGroups)) {
+            $repo = $this->em->getRepository(LsDoc::class);
+
             $newGrouping = new LsDefAssociationGrouping($cfAssociationGrouping->identifier->toString());
+            $newGrouping->setTitle($cfAssociationGrouping->title);
+            $newGrouping->setLsDoc($doc);
 
             $this->em->persist($newGrouping);
             $existingAssociationGroups[$newGrouping->getIdentifier()] = $newGrouping;
