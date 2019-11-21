@@ -55,7 +55,7 @@
         "antishov/doctrine-extensions-bundle": "^1.4.0",
         "colinodell/json5": "^2.1",
         "csa/guzzle-bundle": "^3.1.1",
-        "doctrine/doctrine-bundle": "^1.10",
+        "doctrine/doctrine-bundle": "^2.0",
         "doctrine/doctrine-cache-bundle": "^1.2",
         "doctrine/doctrine-fixtures-bundle": "^3.0",
         "doctrine/doctrine-migrations-bundle": "^2.0",
