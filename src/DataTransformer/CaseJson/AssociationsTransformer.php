@@ -36,10 +36,9 @@ class AssociationsTransformer
      */
     private $logger;
 
-    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->em = $entityManager;
-        $this->logger = $logger;
     }
 
     /**
@@ -111,8 +110,6 @@ class AssociationsTransformer
     {
         /* @noinspection NullPointerExceptionInspection */
         if ($association->getLsDoc()->getIdentifier() !== $doc->getIdentifier()) {
-            $this->logger->error(sprintf('Attempt to change the document from %s to %s of association %s', $association->getLsDoc()->getIdentifier(), $doc->getIdentifier(), $cfAssociation->identifier->toString()));
-
             throw new \UnexpectedValueException('Cannot change the document of an association');
         }
 
