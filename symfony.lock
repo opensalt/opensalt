@@ -305,9 +305,6 @@
             "ref": "fe60ce509ef04a3f40da96e3979bc8d9b13b2372"
         }
     },
-    "kamermans/guzzle-oauth2-subscriber": {
-        "version": "v1.0.6"
-    },
     "kreait/clock": {
         "version": "1.0.1"
     },
@@ -340,12 +337,6 @@
     },
     "league/oauth2-github": {
         "version": "0.2.2"
-    },
-    "league/uri": {
-        "version": "6.0.0"
-    },
-    "league/uri-interfaces": {
-        "version": "2.0.0"
     },
     "markbaker/complex": {
         "version": "1.4.6"
@@ -772,9 +763,6 @@
     },
     "symfony/property-info": {
         "version": "v4.2.1"
-    },
-    "symfony/proxy-manager-bridge": {
-        "version": "v4.3.6"
     },
     "symfony/routing": {
         "version": "4.0",
