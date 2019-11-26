@@ -71,7 +71,7 @@
         "matthimatiker/opcache-bundle": "dev-symfony-config-deprecation as 0.7.1.1",
         "milo/github-api": "^1.4",
         "namshi/cuzzle": "^2.0",
-        "nelmio/cors-bundle": "^1.5.5",
+        "nelmio/cors-bundle": "^2.0",
         "nelmio/security-bundle": "dev-master",
         "phpoffice/phpspreadsheet": "~1.8.2",
         "phpoffice/phpword": "^0.17.0",
@@ -168,7 +168,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "4.3.*"
+            "require": "4.4.*"
         }
     }
 }
