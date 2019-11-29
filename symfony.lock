@@ -848,6 +848,9 @@
             "ref": "f75ac166398e107796ca94cc57fa1edaa06ec47f"
         }
     },
+    "symfony/twig-pack": {
+        "version": "v1.0.0"
+    },
     "symfony/validator": {
         "version": "v4.0.10"
     },
@@ -892,6 +895,9 @@
             "version": "1.0",
             "ref": "4851df0afc426b8f07204379d21fca25b6df5d68"
         }
+    },
+    "twig/extra-bundle": {
+        "version": "v3.0.0"
     },
     "twig/twig": {
         "version": "v2.4.8"
