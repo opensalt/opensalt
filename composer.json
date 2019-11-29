@@ -47,7 +47,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.3.11",
+        "php": "^7.4.0",
         "ext-bz2": "*",
         "ext-ctype": "*",
         "ext-iconv": "*",
@@ -71,7 +71,7 @@
         "matthimatiker/opcache-bundle": "dev-symfony-config-deprecation as 0.7.1.1",
         "milo/github-api": "^1.4",
         "namshi/cuzzle": "^2.0",
-        "nelmio/cors-bundle": "^1.5.5",
+        "nelmio/cors-bundle": "^2.0",
         "nelmio/security-bundle": "dev-master",
         "phpoffice/phpspreadsheet": "~1.8.2",
         "phpoffice/phpword": "^0.17.0",
@@ -84,7 +84,7 @@
         "symfony/asset": "*",
         "symfony/console": "*",
         "symfony/expression-language": "*",
-        "symfony/flex": "^1.2",
+        "symfony/flex": "^1.3.1",
         "symfony/form": "*",
         "symfony/framework-bundle": "*",
         "symfony/monolog-bundle": "^3.3",
@@ -96,7 +96,7 @@
         "symfony/serializer-pack": "*",
         "symfony/swiftmailer-bundle": "^3.2",
         "symfony/translation": "*",
-        "symfony/twig-bundle": "*",
+        "symfony/twig-pack": "*",
         "symfony/validator": "*",
         "symfony/web-link": "*",
         "symfony/yaml": "*",
@@ -168,7 +168,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "4.3.*"
+            "require": "4.4.*"
         }
     }
 }
