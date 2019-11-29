@@ -41,7 +41,7 @@ class DocTreeController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    private const ETAG_SEED = '1';
+    private const ETAG_SEED = '2';
 
     /**
      * @var ClientInterface

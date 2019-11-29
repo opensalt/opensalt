@@ -76,7 +76,7 @@ class Compare
             }
         }
 
-        return strcmp($x, $y);
+        return strnatcmp($x, $y);
     }
 
     /**

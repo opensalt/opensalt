@@ -1580,14 +1580,25 @@ function ApxDocument(initializer) {
             if (assocs.length > 0) {
                 // first sort the assocs by type; put isChildOf at the end
                 assocs.sort(function (a, b) {
-                    if (a.type === b.type && a.inverse === b.inverse) { return 0; }
+                    let aSubtype = '';
+                    let bSubtype = '';
+                    if (!empty(a.customFields) && !empty(a.customFields.subtype)) {
+                        aSubtype = a.customFields.subtype;
+                    }
+                    if (!empty(b.customFields) && !empty(b.customFields.subtype)) {
+                        bSubtype = b.customFields.subtype;
+                    }
+
+                    if (a.type === b.type && aSubtype === bSubtype && a.inverse === b.inverse) { return 0; }
                     if (a.type === "isChildOf") { return 1; }
                     if (b.type === "isChildOf") { return -1; }
                     if (a.inverse === true && b.inverse !== true) { return 1; }
                     if (b.inverse === true && a.inverse !== true) { return -1; }
                     if (a.type < b.type) { return -1; }
                     if (a.type > b.type) { return 1; }
-                    return 0;   // shouldn't get to here
+                    if (aSubtype < bSubtype) { return -1; }
+                    if (aSubtype > bSubtype) { return 1; }
+                    return 0;
                 });
 
                 // to simplify the list, we only use one association type header for each type
@@ -1600,14 +1611,21 @@ function ApxDocument(initializer) {
                         continue;
                     }
 
-                    if (a.type !== lastType || a.inverse !== lastInverse) {
+                    let nextType = a.type;
+                    let subtype = '';
+                    if (!empty(a.customFields) && !empty(a.customFields.subtype)) {
+                        nextType += ': ' + a.customFields.subtype;
+                        subtype = ': ' + a.customFields.subtype;
+                    }
+
+                    if (nextType !== lastType || a.inverse !== lastInverse) {
                         // close previous type section if we already opened one
                         if (lastType !== "") {
                             html += '</div></div></div></section>';
                         }
 
                         // open type section
-                        let title = self.getAssociationTypePretty(a);
+                        let title = self.getAssociationTypePretty(a) + subtype;
                         let icon = "";
                         if (a.type !== "isChildOf") {
                             icon = '<img class="association-panel-icon" src="/assets/img/association-icon.png">';
@@ -1617,7 +1635,7 @@ function ApxDocument(initializer) {
                             + '<div class="panel-body"><div><div class="list-group">'
                         ;
 
-                        lastType = a.type;
+                        lastType = nextType;
                         lastInverse = a.inverse;
                     }
 
