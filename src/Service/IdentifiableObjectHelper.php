@@ -10,7 +10,10 @@ use Ramsey\Uuid\Uuid;
 
 class IdentifiableObjectHelper
 {
-    private ManagerRegistry $registry;
+    /**
+     * @var ManagerRegistry
+     */
+    private $registry;
 
     public function __construct(ManagerRegistry $registry)
     {

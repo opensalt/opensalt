@@ -294,7 +294,6 @@ final class ExcelImport
             }
             $fields[$name] = $value;
         }
-        dump($fields);
 
         if (LsAssociation::CHILD_OF === $fields['associationType'] && array_key_exists($fields['originNodeIdentifier'], $children)) {
             return null;
