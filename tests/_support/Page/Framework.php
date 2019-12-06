@@ -1240,10 +1240,10 @@ class Framework implements Context
         $I = $this->I;
 
         $filename = str_replace(codecept_output_dir(), '', $this->filename);
-        rename($this->filename, codecept_data_dir().''.$filename.'.xlsx');
+        rename($this->filename, codecept_data_dir().$filename.'.xlsx');
 
         $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile(codecept_data_dir().''.$filename.'.xlsx');
-        $ss = $reader->load(codecept_data_dir().''.$filename.'.xlsx');
+        $ss = $reader->load(codecept_data_dir().$filename.'.xlsx');
 
         $sheet = $ss->getSheetByName('CF Doc');
         $sheet->setCellValue('B2', 'Test');
@@ -1260,10 +1260,22 @@ class Framework implements Context
 
         // Leave A.B.C.L alone
 
-        $sheet->removeRow(6); // remove A.B.D
+//        $sheet->removeRow(6); // remove A.B.D
+        // Remove A.B.D
+        $sheet->setCellValue('A6', null);
+        $sheet->setCellValue('B6', null);
+        $sheet->setCellValue('C6', null);
+        $sheet->setCellValue('D6', null);
+        $sheet->setCellValue('E6', null);
+        $sheet->setCellValue('F6', null);
+        $sheet->setCellValue('G6', null);
+        $sheet->setCellValue('H6', null);
+        $sheet->setCellValue('I6', null);
+        $sheet->setCellValue('J6', null);
+        $sheet->setCellValue('K6', null);
 
         $writer = \PHPOffice\PhpSpreadsheet\IOFactory::createWriter($ss, 'Xlsx');
-        $writer->save(codecept_data_dir().''.$filename.'.xlsx');
+        $writer->save(codecept_data_dir().$filename.'.mod.xlsx');
 
         $I->amOnPage(self::$docPath.$I->getDocId());
         $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-target="#updateFrameworkModal"]', 120);
@@ -1276,7 +1288,7 @@ class Framework implements Context
             $I->waitForElementVisible('#updateFrameworkModal', 20);
         }
         $I->see('Import Spreadsheet file');
-        $I->attachFile('input#excel-url', $filename.'.xlsx');
+        $I->attachFile('input#excel-url', $filename.'.mod.xlsx');
         $I->click('Import Framework');
         $I->waitForElementNotVisible('#updateFrameworkModal', 60);
         try {
@@ -1295,6 +1307,9 @@ class Framework implements Context
         $I->see('U New full statement');
         $I->dontSee('A.B.D ghi'); // Removed;
         $I->see('A.B.C.L jkl'); // Left alone
+
+        unlink(codecept_data_dir().$filename.'.xlsx');
+        unlink(codecept_data_dir().$filename.'.mod.xlsx');
     }
 
     /**

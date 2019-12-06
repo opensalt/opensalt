@@ -99,9 +99,9 @@ final class ExcelImport
 
             if (in_array($parentLevel, $itemSmartLevels, true)) {
                 $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
-                    'originLsItem' => $item,
+                    'originNodeIdentifier' => $item->getIdentifier(),
                     'type' => LsAssociation::CHILD_OF,
-                    'destinationLsItem' => $smartLevels[$parentLevel],
+                    'destinationNodeIdentifier' => $smartLevels[$parentLevel]->getIdentifier(),
                 ]);
 
                 if (null === $assoc) {
@@ -111,9 +111,9 @@ final class ExcelImport
                 }
             } else {
                 $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
-                    'originLsItem' => $item,
+                    'originNodeIdentifier' => $item->getIdentifier(),
                     'type' => LsAssociation::CHILD_OF,
-                    'destinationLsDoc' => $item->getLsDoc(),
+                    'destinationNodeIdentifier' => $item->getLsDoc()->getIdentifier(),
                 ]);
 
                 if (null === $assoc) {
@@ -288,10 +288,15 @@ final class ExcelImport
         $fields = [];
 
         foreach ($fieldNames as $col => $name) {
-            $fields[$name] = $this->getCellValueOrNull($sheet, $col, $row);
+            $value = $this->getCellValueOrNull($sheet, $col, $row);
+            if (null !== $value) {
+                $value = (string) $value;
+            }
+            $fields[$name] = $value;
         }
+        dump($fields);
 
-        if (LsAssociation::CHILD_OF === $fields['associationType'] && array_key_exists((string) $fields['originNodeIdentifier'], $children)) {
+        if (LsAssociation::CHILD_OF === $fields['associationType'] && array_key_exists($fields['originNodeIdentifier'], $children)) {
             return null;
         }
 
@@ -314,14 +319,14 @@ final class ExcelImport
             }
         }
 
-        if (array_key_exists((string) $fields['originNodeIdentifier'], $items)) {
+        if (array_key_exists($fields['originNodeIdentifier'], $items)) {
             $association->setOrigin($items[$fields['originNodeIdentifier']]);
         } else {
             $ref = 'data:text/x-ref-unresolved,'.$fields['originNodeIdentifier'];
             $association->setOrigin($ref, $fields['originNodeIdentifier']);
         }
 
-        if (array_key_exists((string) $fields['destinationNodeIdentifier'], $items)) {
+        if (array_key_exists($fields['destinationNodeIdentifier'], $items)) {
             $association->setDestination($items[$fields['destinationNodeIdentifier']]);
         } elseif ($item = $itemRepo->findOneByIdentifier($fields['destinationNodeIdentifier'])) {
             $items[$item->getIdentifier()] = $item;
@@ -333,18 +338,20 @@ final class ExcelImport
 
         $allTypes = [];
         foreach (LsAssociation::allTypes() as $type) {
-            $allTypes[] = str_replace(' ', '', strtolower($type));
+            $allTypes[str_replace(' ', '', strtolower($type))] = $type;
         }
 
         $associationType = str_replace(' ', '', strtolower($fields['associationType']));
 
-        if (in_array($associationType, $allTypes, true)) {
-            $association->setType($fields['associationType']);
+        if (array_key_exists($associationType, $allTypes)) {
+            $association->setType($allTypes[$associationType]);
         } else {
             $log = new ImportLog();
             $log->setLsDoc($doc);
             $log->setMessageType('error');
-            $log->setMessage("Invalid Association Type ({$associationType} on row {$row}.");
+            $log->setMessage("Invalid Association Type ({$fields['associationType']} on row {$row}.");
+
+            $this->getEntityManager()->persist($log);
 
             return null;
         }
