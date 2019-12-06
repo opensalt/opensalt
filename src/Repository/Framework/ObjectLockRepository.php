@@ -2,22 +2,22 @@
 
 namespace App\Repository\Framework;
 
+use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\ObjectLock;
 use App\Entity\LockableInterface;
-use App\Exception\AlreadyLockedException;
-use App\Entity\Framework\LsDoc;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Entity\User\User;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use App\Exception\AlreadyLockedException;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
- * Class ObjectLockRepository
+ * Class ObjectLockRepository.
  *
- * @method null|ObjectLock findOneBy(array $criteria, array $orderBy = null)
+ * @method ObjectLock|null findOneBy(array $criteria, array $orderBy = null)
  */
 class ObjectLockRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ObjectLock::class);
     }
@@ -41,6 +41,7 @@ class ObjectLockRepository extends ServiceEntityRepository
             ->setParameter('doc', $doc)
             ->setParameter('now', new \DateTime())
             ->getQuery();
+
         return $query->getResult();
     }
 
@@ -63,6 +64,7 @@ class ObjectLockRepository extends ServiceEntityRepository
 
         if (null !== $lock && $lock->getUser() === $user) {
             $lock->addTime(5);
+
             return $lock;
         }
 

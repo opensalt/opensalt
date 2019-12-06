@@ -6,13 +6,13 @@ use App\Entity\ChangeEntry;
 use App\Event\NotificationEvent;
 use App\Entity\Framework\LsDoc;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 
 class ChangeEntryRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ChangeEntry::class);
     }

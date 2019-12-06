@@ -6,7 +6,7 @@ use App\Entity\Framework\LsDefGrade;
 use App\Repository\Framework\LsDefGradeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 
 class EducationAlignmentTransformer implements DataTransformerInterface
@@ -15,10 +15,8 @@ class EducationAlignmentTransformer implements DataTransformerInterface
 
     /**
      * EducationAlignmentTransformer constructor.
-     *
-     * @param ObjectManager $manager
      */
-    public function __construct(ObjectManager $manager)
+    public function __construct(EntityManagerInterface $manager)
     {
         $this->manager = $manager;
     }

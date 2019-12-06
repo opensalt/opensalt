@@ -3,14 +3,14 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefAssociationGrouping;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefAssociationGrouping|null findOneByIdentifier(string $identifier)
  */
 class LsDefAssociationGroupingRepository extends AbstractLsDefinitionRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, LsDefAssociationGrouping::class);
     }
