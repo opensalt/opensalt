@@ -83,10 +83,7 @@ final class ExcelImport
                 $itemSmartLevels[$item->getIdentifier()] = $smartLevel;
             }
         }
-        dump($smartLevels);
-        dump($itemSmartLevels);
 
-        dump('start');
         $associationsIdentifiers = [];
         foreach ($items as $item) {
             $smartLevel = $itemSmartLevels[$item->getIdentifier()];
@@ -100,7 +97,6 @@ final class ExcelImport
 
             $children[$item->getIdentifier()] = $doc->getIdentifier();
 
-            dump(['parent_level' => $parentLevel]);
             if (in_array($parentLevel, $itemSmartLevels, true)) {
                 $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
                     'originLsItem' => $item,
@@ -109,10 +105,8 @@ final class ExcelImport
                 ]);
 
                 if (null === $assoc) {
-                    dump(['add_child_to_assoc' => 1]);
                     $assoc = $smartLevels[$parentLevel]->addChild($item, null, $seq);
                 } else {
-                    dump(['update_assoc' => 1]);
                     $assoc->setSequenceNumber($seq);
                 }
             } else {
@@ -123,17 +117,14 @@ final class ExcelImport
                 ]);
 
                 if (null === $assoc) {
-                    dump(['add_child_to_assoc' => 2]);
                     $assoc = $doc->createChildItem($item, null, $seq);
                 } else {
-                    dump(['update_assoc' => 2]);
                     $assoc->setSequenceNumber($seq);
                 }
             }
 
             $associationsIdentifiers[$assoc->getIdentifier()] = null;
         }
-        dump($items);
 
         $items[$doc->getIdentifier()] = $doc;
 
@@ -408,18 +399,15 @@ final class ExcelImport
         $repo = $this->getEntityManager()->getRepository(LsAssociation::class);
 
         $existingAssociations = $docRepo->findAllAssociations($doc);
-        dump($existingAssociations);
 
         $existingAssociations = array_filter($existingAssociations, static function ($association) use ($array) {
             return !array_key_exists($association['identifier'], $array);
         });
-        dump($existingAssociations);
 
         foreach ($existingAssociations as $existingAssociation) {
             $element = $repo->findOneByIdentifier($existingAssociation['identifier']);
 
             if (null !== $element) {
-                dump(['removing' => $existingAssociation['identifier']]);
                 $repo->removeAssociation($element);
             }
         }
