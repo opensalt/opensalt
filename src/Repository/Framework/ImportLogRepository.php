@@ -3,15 +3,15 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\ImportLog;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * ImportLogRepository
+ * ImportLogRepository.
  */
 class ImportLogRepository extends EntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ImportLog::class);
     }

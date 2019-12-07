@@ -2,20 +2,20 @@
 
 namespace App\Repository\User;
 
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 
 /**
- * UserRepository
+ * UserRepository.
  *
  * @method array findByOrg(Organization $org)
  */
 class UserRepository extends ServiceEntityRepository implements UserLoaderInterface
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);
     }
@@ -26,12 +26,10 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
      * This method must return null if the user is not found.
      *
      * @param string $username The username
-     *
-     * @return User|null
      */
     public function loadUserByUsername($username): ?User
     {
-        $user = $this->findOneBy(['username'=>$username]);
+        $user = $this->findOneBy(['username' => $username]);
 
         if ($user instanceof User) {
             return $user;
@@ -42,8 +40,6 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
 
     /**
      * Find all admin user per organization.
-     *
-     * @return array
      */
     public function findAdmins(): array
     {
@@ -52,6 +48,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             ->where('u.roles LIKE :roles')
             ->groupBy('u.org')
             ->setParameter('roles', '%"ROLE_ADMIN"%');
+
         return $qb->getQuery()->getResult();
     }
 }

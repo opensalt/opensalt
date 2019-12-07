@@ -73,7 +73,7 @@
         "namshi/cuzzle": "^2.0",
         "nelmio/cors-bundle": "^2.0",
         "nelmio/security-bundle": "dev-master",
-        "phpoffice/phpspreadsheet": "~1.8.2",
+        "phpoffice/phpspreadsheet": "~1.10.0",
         "phpoffice/phpword": "^0.17.0",
         "qandidate/toggle-bundle": "~1.2.0",
         "ramsey/uuid": "^3.7",

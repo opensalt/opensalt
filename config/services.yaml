@@ -203,7 +203,7 @@ services:
         class: 'League\Flysystem\Filesystem'
 
     League\Flysystem\AdapterInterface:
-        factory: 'App\Service\BucketFactory:filesystem'
+        factory: ['@App\Service\BucketFactory', 'filesystem']
 
     # Aliased services
     Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'
@@ -212,7 +212,7 @@ services:
 
     # Manual services
     Kreait\Firebase\Database:
-        factory: 'App\Service\FirebaseFactory:createFirebaseDatabase'
+        factory: ['@App\Service\FirebaseFactory', 'createFirebaseDatabase']
         arguments:
             $logger: '@logger'
             $projectId: '%firebase_project_id%'

@@ -29,6 +29,8 @@ class DocumentTransformer
         $this->definitions = $definitions;
         $doc = $this->findOrCreateDocument($cfDocument);
 
+        $this->updateAssociationGroups($this->definitions->associationGroupings, $doc);
+
         return $this->updateDocument($doc, $cfDocument);
     }
 
@@ -75,5 +77,14 @@ class DocumentTransformer
         }
 
         return $doc;
+    }
+
+    private function updateAssociationGroups(array $associationGroupings, LsDoc $doc): void
+    {
+        foreach ($associationGroupings as $group) {
+            if (null === $group->getLsDoc()) {
+                $group->setLsDoc($doc);
+            }
+        }
     }
 }

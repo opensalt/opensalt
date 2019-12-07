@@ -2,30 +2,28 @@
 
 namespace App\Repository;
 
-use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsItem;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Entity\Comment\Comment;
 use App\Entity\Comment\CommentUpvote;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
- * CommentRepository
+ * CommentRepository.
  *
  * @method Comment[] findByItem(string $itemRef)
  */
 class CommentRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Comment::class);
     }
 
     /**
-     * @param string $itemType
      * @param LsDoc|LsItem $itemId
-     * @param User $user
      * @param string $content
      * @param int $parentId
      *
@@ -83,8 +81,6 @@ class CommentRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array $id
-     *
      * @return array|Comment[]
      */
     public function findByTypeItem(array $id): array
