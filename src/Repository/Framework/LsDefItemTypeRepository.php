@@ -3,7 +3,7 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefItemType;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefItemType|null findOneByTitle(string $title)
@@ -11,7 +11,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, LsDefItemType::class);
     }

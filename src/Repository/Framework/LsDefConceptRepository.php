@@ -3,14 +3,14 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefConcept;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefConcept|null findOneByIdentifier(string $identifier)
  */
 class LsDefConceptRepository extends AbstractLsDefinitionRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, LsDefConcept::class);
     }

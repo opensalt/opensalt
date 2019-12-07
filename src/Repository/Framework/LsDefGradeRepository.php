@@ -3,11 +3,11 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefGrade;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 class LsDefGradeRepository extends AbstractLsDefinitionRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, LsDefGrade::class);
     }

@@ -3,11 +3,11 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\CfRubricCriterion;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 class CfRubricCriterionRepository extends AbstractLsBaseRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CfRubricCriterion::class);
     }

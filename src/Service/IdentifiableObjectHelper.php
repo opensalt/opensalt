@@ -4,18 +4,18 @@ namespace App\Service;
 
 use App\Entity\Framework\AbstractLsBase;
 use App\Entity\Framework\Package;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\Uuid;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 
 class IdentifiableObjectHelper
 {
     /**
-     * @var RegistryInterface
+     * @var ManagerRegistry
      */
     private $registry;
 
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         $this->registry = $registry;
     }
@@ -35,6 +35,7 @@ class IdentifiableObjectHelper
                 continue;
             }
 
+            /** @var AbstractLsBase $obj */
             $obj = $this->registry->getRepository($objectType)->findOneBy(['identifier' => $uuid]);
             if (null !== $obj) {
                 return $obj;
@@ -53,6 +54,7 @@ class IdentifiableObjectHelper
                 continue;
             }
 
+            /** @var AbstractLsBase $obj */
             $obj = $this->registry->getRepository($objectType)->findOneBy(['uri' => $uri]);
             if (null !== $obj) {
                 return $obj;
