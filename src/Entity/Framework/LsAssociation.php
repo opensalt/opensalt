@@ -233,6 +233,30 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     private $sequenceNumber;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="subtype", type="string", nullable=true)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("subtype")
+     * @Serializer\SkipWhenEmpty()
+     * @Serializer\Groups({"OpenSalt"})
+     */
+    private $subtype;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="annotation", type="text", length=65534, nullable=true)
+     *
+     * @Serializer\Expose()
+     * @Serializer\SerializedName("annotation")
+     * @Serializer\SkipWhenEmpty()
+     * @Serializer\Groups({"OpenSalt"})
+     */
+    private $annotation;
+
+    /**
      * @param string|UuidInterface|null $identifier
      */
     public function __construct($identifier = null)
@@ -695,6 +719,30 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     public function setGroup(?LsDefAssociationGrouping $group): self
     {
         $this->group = $group;
+
+        return $this;
+    }
+
+    public function getSubtype(): ?string
+    {
+        return $this->subtype;
+    }
+
+    public function setSubtype(?string $subtype): self
+    {
+        $this->subtype = $subtype;
+
+        return $this;
+    }
+
+    public function getAnnotation(): ?string
+    {
+        return $this->annotation;
+    }
+
+    public function setAnnotation(?string $annotation): self
+    {
+        $this->annotation = $annotation;
 
         return $this;
     }

@@ -282,27 +282,24 @@ class DocTreeController extends AbstractController
             $cache->save($cacheDoc);
         }
 
-        if (!empty($document)) {
-            // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
-            if (null !== $lsDoc) {
-                $this->addExternalDocumentToDoc($url, $lsDoc, $document);
-            }
-
-            // now return the file
-            $response = new Response(
-                $document,
-                Response::HTTP_OK,
-                [
-                    'Content-Type' => 'application/json',
-                    'Pragma' => 'no-cache',
-                ]
-            );
-
-            return $response;
+        if (empty($document)) {
+            throw new NotFoundHttpException('Document not found.');
         }
 
-        // if we get to here, error
-        return new Response('Document not found.', Response::HTTP_NOT_FOUND);
+        // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
+        if (null !== $lsDoc) {
+            $this->addExternalDocumentToDoc($url, $lsDoc, $document);
+        }
+
+        // now return the file
+        return new Response(
+            $document,
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/json',
+                'Pragma' => 'no-cache',
+            ]
+        );
     }
 
     protected function isCaseUrl($url): bool
@@ -595,7 +592,7 @@ class DocTreeController extends AbstractController
     protected function fetchExternalDocument(string $url): string
     {
         $headers = [
-            'Accept' => 'application/json',
+            'Accept' => 'application/json, application/x.opensalt+json;q=0.1',
         ];
         $headers = $this->addAuthentication($url, $headers);
 

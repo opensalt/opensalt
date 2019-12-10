@@ -7,16 +7,17 @@ use App\Entity\Framework\CaseApiInterface;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Repository\ChangeEntryRepository;
 use App\Repository\Framework\CfDocQuery;
 use App\Repository\Framework\LsDocRepository;
 use App\Service\LoggerTrait;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/ims/case/v1p0")
@@ -88,7 +89,7 @@ class CaseV1P0Controller extends AbstractController
 
         $this->info('CASE API: getPublicCfDocuments', []);
 
-        $response = $this->generateBaseReponse($lastModified);
+        $response = $this->generateBaseResponse($lastModified);
         if ($response->isNotModified($request)) {
             return $response;
         }
@@ -97,12 +98,14 @@ class CaseV1P0Controller extends AbstractController
         if ('updatedAt' === $sort) {
             $serializationGroups[] = 'updatedAt';
         }
+        $serializationContext = $this->createSerializationContext($request, $serializationGroups);
+
         $response->setContent($this->serializer->serialize(
             ['CFDocuments' => $docs],
             $request->getRequestFormat('json'),
-            SerializationContext::create()->setGroups($serializationGroups)
+            $serializationContext
         ));
-        $response->headers->set('X-Total-Count', $docCount);
+        $response->headers->set('X-Total-Count', (string) $docCount);
 
         return $response;
     }
@@ -113,12 +116,14 @@ class CaseV1P0Controller extends AbstractController
      */
     public function getCfPackageAction(Request $request, LsDoc $obj): Response
     {
+        /** @var LsDocRepository $repo */
         $repo = $this->getDoctrine()->getRepository(LsDoc::class);
         $doc = $obj;
         $id = $obj->getIdentifier();
 
         $this->info('CASE API: package returned', ['id' => $id]);
 
+        /** @var ChangeEntryRepository $changeRepo */
         $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
         $lastChange = $changeRepo->getLastChangeTimeForDoc($doc);
 
@@ -126,17 +131,20 @@ class CaseV1P0Controller extends AbstractController
         if (false !== $lastChange && null !== $lastChange['changed_at']) {
             $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
         }
-        $response = $this->generateBaseReponse($lastModified);
+        $response = $this->generateBaseResponse($lastModified);
         if ($response->isNotModified($request)) {
             return $response;
         }
 
         $pkg = $repo->getPackageArray($doc);
 
+        $serializationGroups = ['Default', 'CfPackage'];
+        $serializationContext = $this->createSerializationContext($request, $serializationGroups);
+
         $response->setContent($this->serializer->serialize(
             $pkg,
             $request->getRequestFormat('json'),
-            SerializationContext::create()->setGroups(['Default', 'CfPackage'])
+            $serializationContext
         ));
 
         return $response;
@@ -168,10 +176,13 @@ class CaseV1P0Controller extends AbstractController
 
         $this->info('CASE API: item associations returned', ['id' => $id]);
 
-        $response = $this->generateBaseReponse($lastModified);
+        $response = $this->generateBaseResponse($lastModified);
         if ($response->isNotModified($request)) {
             return $response;
         }
+
+        $serializationGroups = ['Default', 'CfItemAssociations', 'LsItem'];
+        $serializationContext = $this->createSerializationContext($request, $serializationGroups);
 
         $response->setContent($this->serializer->serialize(
             [
@@ -179,7 +190,7 @@ class CaseV1P0Controller extends AbstractController
                 'CFAssociations' => $associations,
             ],
             $request->getRequestFormat('json'),
-            SerializationContext::create()->setGroups(['Default', 'CfItemAssociations', 'LsItem'])
+            $serializationContext
         ));
         $response->headers->set('X-Total-Count', count($associations));
 
@@ -218,7 +229,7 @@ class CaseV1P0Controller extends AbstractController
     /**
      * Generate a base response.
      */
-    protected function generateBaseReponse(\DateTimeInterface $lastModified): Response
+    protected function generateBaseResponse(\DateTimeInterface $lastModified): Response
     {
         $response = new Response();
 
@@ -227,6 +238,7 @@ class CaseV1P0Controller extends AbstractController
         $response->setMaxAge(60);
         $response->setSharedMaxAge(60);
         $response->setPublic();
+        $response->setVary('Accept-Encoding, Accept', true);
 
         return $response;
     }
@@ -238,19 +250,22 @@ class CaseV1P0Controller extends AbstractController
     {
         $this->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
 
-        $response = $this->generateBaseReponse($obj->getUpdatedAt());
+        $response = $this->generateBaseResponse($obj->getUpdatedAt());
 
         if ($response->isNotModified($request)) {
             return $response;
         }
 
+        $serializationGroups = [
+            'Default',
+            preg_replace('/.*\\\\/', '', get_class($obj)),
+        ];
+        $serializationContext = $this->createSerializationContext($request, $serializationGroups);
+
         $result = $this->serializer->serialize(
             $obj,
             $request->getRequestFormat('json'),
-            SerializationContext::create()->setGroups([
-                'Default',
-                preg_replace('/.*\\\\/', '', get_class($obj)),
-            ])
+            $serializationContext
         );
 
         $response->setContent($result);
@@ -265,7 +280,7 @@ class CaseV1P0Controller extends AbstractController
     {
         $this->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
 
-        $response = $this->generateBaseReponse(new \DateTime());
+        $response = $this->generateBaseResponse(new \DateTime());
 
         if ($response->isNotModified($request)) {
             return $response;
@@ -273,17 +288,31 @@ class CaseV1P0Controller extends AbstractController
 
         $collection = explode('/', $request->getPathInfo())[4];
 
+        $serializationGroups = [
+            'Default',
+            preg_replace('/.*\\\\/', '', get_class($obj)),
+        ];
+        $serializationContext = $this->createSerializationContext($request, $serializationGroups);
+
         $result = $this->serializer->serialize(
             [$collection => [$obj]],
             $request->getRequestFormat('json'),
-            SerializationContext::create()->setGroups([
-                'Default',
-                preg_replace('/.*\\\\/', '', get_class($obj)),
-            ])
+            $serializationContext
         );
 
         $response->setContent($result);
 
         return $response;
+    }
+
+    protected function createSerializationContext(Request $request, array $serializationGroups): SerializationContext
+    {
+        if ($request->headers->has('x-opensalt') || 1 === preg_match('#application/(vnd\.|x[.-])opensalt#', $request->headers->get('accept', ''))) {
+            $serializationGroups[] = 'OpenSalt';
+        }
+        $serializationContext = SerializationContext::create();
+        $serializationContext->setGroups($serializationGroups);
+
+        return $serializationContext;
     }
 }

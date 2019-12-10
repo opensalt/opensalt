@@ -2,17 +2,17 @@
 
 namespace App\Controller\Api;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class CaseDocController
+class CaseDocController extends AbstractController
 {
     /**
      * @Route("/api/doc", methods={"GET"}, name="case_swagger_doc")
-     * @Template()
      */
-    public function caseSwaggerDocAction()
+    public function caseSwaggerDocAction(): Response
     {
-        return [];
+        return $this->render('api/case_doc/case_swagger_doc.html.twig');
     }
 }
