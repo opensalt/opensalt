@@ -77,11 +77,18 @@ class AddTreeAssociationCommand extends BaseCommand
     private $dest;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @Assert\Type("string")
      */
     private $assocGroup;
+
+    /**
+     * @var string|null
+     *
+     * @Assert\Type("string")
+     */
+    private $annotation;
 
     /**
      * @var LsAssociation|null
@@ -93,13 +100,14 @@ class AddTreeAssociationCommand extends BaseCommand
     /**
      * Constructor.
      */
-    public function __construct(LsDoc $doc, array $origin, string $type, array $dest, ?string $assocGroup = null)
+    public function __construct(LsDoc $doc, array $origin, string $type, array $dest, ?string $assocGroup = null, ?string $annotation = null)
     {
         $this->doc = $doc;
         $this->type = $type;
         $this->origin = $origin;
         $this->dest = $dest;
         $this->assocGroup = $assocGroup;
+        $this->annotation = $annotation;
     }
 
     public function getDoc(): LsDoc
@@ -135,6 +143,11 @@ class AddTreeAssociationCommand extends BaseCommand
     public function getAssocGroup(): ?string
     {
         return $this->assocGroup;
+    }
+
+    public function getAnnotation(): ?string
+    {
+        return $this->annotation;
     }
 
     /**

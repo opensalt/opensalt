@@ -93,7 +93,7 @@ class UriController extends AbstractController
 
         // Found -- Display
         $serializationContext = SerializationContext::create();
-        $serializationContext->setGroups(['Default', 'CfDocuments', 'LsItem']);
+        $serializationContext->setGroups(['Default', 'LsDoc', 'LsItem', 'LsAssociation']);
         $serialized = $this->serializer->serialize(
             $obj,
             'json',

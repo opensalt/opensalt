@@ -23,8 +23,9 @@ class AddTreeAssociationHandler extends BaseFrameworkHandler
         $origin = $command->getOrigin();
         $dest = $command->getDestination();
         $assocGroup = $command->getAssocGroup();
+        $annotation = $command->getAnnotation();
 
-        $association = $this->framework->addTreeAssociation($doc, $origin, $type, $dest, $assocGroup);
+        $association = $this->framework->addTreeAssociation($doc, $origin, $type, $dest, $assocGroup, $annotation);
         $command->setAssociation($association);
 
         $fromTitle = $this->getTitle($association->getOrigin());

@@ -7,15 +7,21 @@
 
     <div class="form-horizontal">
         <div class="form-group">
-            <label class="col-sm-2 control-label required" for="associationFormType">Relationship Type</label>
-            <div class="col-sm-10">
+            <label class="col-sm-3 control-label required" for="associationFormType">Association Type</label>
+            <div class="col-sm-9">
                 <select id="associationFormType" class="form-control">
                 </select>
             </div>
         </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label" for="associationFormAnnotation">Annotation</label>
+            <div class="col-sm-9">
+                <textarea id="associationFormAnnotation" class="form-control"></textarea>
+            </div>
+        </div>
         <div id="associationFormGroupHolderOuter" class="form-group" style="display:none">
-            <label class="col-sm-2 control-label required" for="associationFormGroup">Association Group</label>
-            <div class="col-sm-10" id="associationFormGroupHolder"></div>
+            <label class="col-sm-3 control-label required" for="associationFormGroup">Association Group</label>
+            <div class="col-sm-9" id="associationFormGroupHolder"></div>
         </div>
     </div>
 </div>

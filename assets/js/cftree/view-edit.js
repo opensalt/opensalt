@@ -642,7 +642,8 @@ apx.edit.prepareAssociateModal = function() {
         let completed = 0;
         for (let i = 0; i < apx.edit.createAssociationNodes.draggedNodes.length; ++i) {
             let ajaxData = {
-                "type": $("#associationFormType").val()
+                "type": $("#associationFormType").val(),
+                "annotation": $("#associationFormAnnotation").val()
             };
 
             // the "origin" refers to the node that's 'receiving' the association -- so this is the droppedNode
@@ -657,39 +658,29 @@ apx.edit.prepareAssociateModal = function() {
                 destItem = temp;
             }
 
-            if (originItem.doc.isExternalDoc()) {
-                ajaxData.origin = {
-                    "identifier": originItem.identifier,
-                    "uri": originItem.uri,
-                    "externalDoc": originItem.doc.doc.identifier
-                };
-            } else if (!empty(originItem.id)) {
-                ajaxData.origin = {
-                    "id": originItem.id
-                };
-            } else {
-                ajaxData.origin = {
-                    "identifier": originItem.identifier,
-                    "uri": originItem.uri
-                };
-            }
+            let ajaxItemData = function (item) {
+                if (item.doc.isExternalDoc()) {
+                    return {
+                        "identifier": item.identifier,
+                        "uri": item.uri,
+                        "externalDoc": item.doc.doc.identifier
+                    };
+                }
 
-            if (destItem.doc.isExternalDoc()) {
-                ajaxData.dest = {
-                    "identifier": destItem.identifier,
-                    "uri": destItem.uri,
-                    "externalDoc": destItem.doc.doc.identifier
+                if (!empty(item.id)) {
+                    return {
+                        "id": item.id
+                    };
+                }
+
+                return {
+                    "identifier": item.identifier,
+                    "uri": item.uri
                 };
-            } else if (!empty(destItem.id)) {
-                ajaxData.dest = {
-                    "id": destItem.id
-                };
-            } else {
-                ajaxData.dest = {
-                    "identifier": destItem.identifier,
-                    "uri": destItem.uri
-                };
-            }
+            };
+
+            ajaxData.origin = ajaxItemData(originItem);
+            ajaxData.dest = ajaxItemData(destItem);
 
             // if an assocGroup is selected via associationFormGroup and isn't default, add it
             let agMenu = $("#associationFormGroup");
@@ -705,6 +696,7 @@ apx.edit.prepareAssociateModal = function() {
                     "origin": originItem,
                     "dest": destItem,
                     "type": ajaxData.type,
+                    "annotation": ajaxData.annotation,
                     "assocGroup": ajaxData.assocGroup
                 }
             }).done(function(assocId, textStatus, jqXHR) {
@@ -723,6 +715,7 @@ apx.edit.prepareAssociateModal = function() {
                         "uri": this.origin.uri
                     },
                     "type": type,
+                    "annotation": this.annotation,
                     "dest": {
                         "doc": this.dest.doc.doc.identifier,
                         "item": this.dest.identifier,
