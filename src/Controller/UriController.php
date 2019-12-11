@@ -2,14 +2,15 @@
 
 namespace App\Controller;
 
-use App\Service\UriGenerator;
 use App\Service\IdentifiableObjectHelper;
+use App\Service\UriGenerator;
+use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Request;
 
 class UriController extends AbstractController
 {
@@ -91,9 +92,16 @@ class UriController extends AbstractController
         }
 
         // Found -- Display
-        $serialized = $this->serializer->serialize($obj, 'json');
+        $serializationContext = SerializationContext::create();
+        $serializationContext->setGroups(['Default', 'CfDocuments', 'LsItem']);
+        $serialized = $this->serializer->serialize(
+            $obj,
+            'json',
+            $serializationContext
+        );
         if ('html' === $request->getRequestFormat()) {
             $className = substr(strrchr(get_class($obj), '\\'), 1);
+
             return $this->render('uri/found_uri.html.twig', [
                 'obj' => $obj,
                 'class' => $className,

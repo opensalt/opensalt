@@ -33,6 +33,12 @@
 {% if lsAssociation.extra is defined and lsAssociation.extra is not empty and lsAssociation.extra.customFields is defined and lsAssociation.extra.customFields is not empty %}
 "customFields": {{ lsAssociation.extra.customFields |json_encode |raw }},
 {% endif %}
+{% if lsAssociation.subtype is not null %}
+"subtype": {{ lsAssociation.subtype |json_encode |raw }},
+{% endif %}
+{% if lsAssociation.annotation is not null %}
+"annotation": {{ lsAssociation.annotation |json_encode |raw }},
+{% endif %}
 "mod": {{ lsAssociation.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
 }
 {% endblock %}

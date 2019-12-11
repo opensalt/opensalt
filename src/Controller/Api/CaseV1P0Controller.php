@@ -207,7 +207,7 @@ class CaseV1P0Controller extends AbstractController
      * @Route("/CFRubricCriteria/{id}.{_format}", name="api_v1p0_cfrubriccriterion", methods={"GET"}, defaults={"class"="App\Entity\Framework\CfRubricCriterion", "_format"="json"})
      * @Route("/CFRubricCriterionLevels/{id}.{_format}", name="api_v1p0_cfrubriccriterionlevel", methods={"GET"}, defaults={"class"="App\Entity\Framework\CfRubricCriterionLevel", "_format"="json"})
      */
-    public function getObjectAction(Request $request, LsDocRepository $repo, $class, $id): Response
+    public function getObjectAction(Request $request, LsDocRepository $repo, string $class, string $id): Response
     {
         $obj = $repo->apiFindOneByClassIdentifier(['class' => $class, 'id' => $id]);
 
@@ -307,9 +307,15 @@ class CaseV1P0Controller extends AbstractController
 
     protected function createSerializationContext(Request $request, array $serializationGroups): SerializationContext
     {
+        if ('opensalt' === $request->getRequestFormat('json')) {
+            $request->headers->set('x-opensalt', 'x');
+            $request->setRequestFormat('json');
+        }
+
         if ($request->headers->has('x-opensalt') || 1 === preg_match('#application/(vnd\.|x[.-])opensalt#', $request->headers->get('accept', ''))) {
             $serializationGroups[] = 'OpenSalt';
         }
+
         $serializationContext = SerializationContext::create();
         $serializationContext->setGroups($serializationGroups);
 

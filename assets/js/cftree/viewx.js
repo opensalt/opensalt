@@ -77,6 +77,16 @@ apx.initialize = function() {
         "trigger": "hover"   // this is for popover
     });
 
+    // tooltips for associations with titles
+    $('#treeSideRight').tooltip({
+        selector: '.itemDetailsAssociationTitle.annotated',
+        "title": function() { return $(this).html(); },
+        "delay": { "show": 200, "hide": 100 },
+        "placement": "top",
+        "html": true,
+        "container": "body"
+    });
+
     // right-side buttongroup
     $("#rightSideItemDetailsBtn").on('click', function() { apx.setRightSideMode("itemDetails"); });
     $("#rightSideCopyItemsBtn").on('click', function() { apx.setRightSideMode("copyItem"); });

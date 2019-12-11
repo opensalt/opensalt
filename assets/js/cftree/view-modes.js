@@ -252,10 +252,11 @@ apx.viewMode.showAssocView = function(context) {
             let dest = avGetItemCell(assoc, "dest");
 
             // get type cell, with remove association button (only for editors)
-            let type = apx.mainDoc.getAssociationTypePretty(assoc) + $("#associationRemoveBtn").html();
+            let subtype = assoc.subtype ? (': ' + assoc.subtype) : '';
+            let type = apx.mainDoc.getAssociationTypePretty(assoc) + subtype + $("#associationRemoveBtn").html();
 
             // construct array for row
-            let arr = [origin, type, dest];
+            let arr = [origin, type, assoc.annotation || '', dest];
 
             // add group to row array if we have any groups
             if (apx.mainDoc.assocGroups.length > 0) {
@@ -274,6 +275,7 @@ apx.viewMode.showAssocView = function(context) {
         let columns = [
             { "title": "Origin", "className": "avTitleCell" },
             { "title": "Association Type", "className": "avTypeCell" },
+            { "title": "Annotation ", "className": "avAnnotationCell" },
             { "title": "Destination", "className": "avTitleCell" }
         ];
         // add group if we have any

@@ -20,7 +20,7 @@ final class Version20191210204733 extends AbstractMigration
 
         $this->addSql('
 UPDATE ls_association
-   SET annotation = JSON_EXTRACT(extra, "$.customFields.annotation")
+   SET annotation = JSON_UNQUOTE(JSON_EXTRACT(extra, "$.customFields.annotation"))
  WHERE extra IS NOT NULL
    AND JSON_EXTRACT(extra, "$.customFields.annotation") IS NOT NULL
 ;
@@ -28,7 +28,7 @@ UPDATE ls_association
 
         $this->addSql('
 UPDATE ls_association
-   SET subtype = JSON_EXTRACT(extra, "$.customFields.subtype")
+   SET subtype = JSON_UNQUOTE(JSON_EXTRACT(extra, "$.customFields.subtype"))
  WHERE extra IS NOT NULL
    AND JSON_EXTRACT(extra, "$.customFields.subtype") IS NOT NULL
 ;

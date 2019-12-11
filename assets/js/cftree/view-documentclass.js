@@ -282,7 +282,6 @@ function ApxDocument(initializer) {
             changeKey(item, "listEnumInSource", "le");
             changeKey(item, "conceptKeywords", "ck");
             changeKey(item, "conceptKeywordsURI", "cku");
-            changeKey(item, "notes");
             changeKey(item, "language", "lang");
             changeKey(item, "educationalAlignment", "el");
             changeKey(item, "itemType", "itp");
@@ -919,7 +918,9 @@ function ApxDocument(initializer) {
         let assoc = {
             "id": atts.id,
             "type": atts.type,
-            "inverse": atts.inverse
+            "inverse": atts.inverse,
+            "subtype": atts.subtype,
+            "annotation": atts.annotation
         };
 
         if (empty(atts.assocDoc)) {
@@ -1007,7 +1008,9 @@ function ApxDocument(initializer) {
                     "assocDoc": self.doc.identifier,
                     "type": a.type,
                     "origin": a.dest,   // switch origin and dest
-                    "dest": a.origin    // switch origin and dest
+                    "dest": a.origin,    // switch origin and dest
+                    "subtype": a.subtype || null,
+                    "annotation": a.annotation || null
                 });
             }
         }
@@ -1582,11 +1585,11 @@ function ApxDocument(initializer) {
                 assocs.sort(function (a, b) {
                     let aSubtype = '';
                     let bSubtype = '';
-                    if (!empty(a.customFields) && !empty(a.customFields.subtype)) {
-                        aSubtype = a.customFields.subtype;
+                    if (!empty(a.subtype)) {
+                        aSubtype = a.subtype;
                     }
-                    if (!empty(b.customFields) && !empty(b.customFields.subtype)) {
-                        bSubtype = b.customFields.subtype;
+                    if (!empty(b.subtype)) {
+                        bSubtype = b.subtype;
                     }
 
                     if (a.type === b.type && aSubtype === bSubtype && a.inverse === b.inverse) { return 0; }
@@ -1613,9 +1616,9 @@ function ApxDocument(initializer) {
 
                     let nextType = a.type;
                     let subtype = '';
-                    if (!empty(a.customFields) && !empty(a.customFields.subtype)) {
-                        nextType += ': ' + a.customFields.subtype;
-                        subtype = ': ' + a.customFields.subtype;
+                    if (!empty(a.subtype)) {
+                        nextType += ': ' + a.subtype;
+                        subtype = ': ' + a.subtype;
                     }
 
                     if (nextType !== lastType || a.inverse !== lastInverse) {
@@ -1666,9 +1669,13 @@ function ApxDocument(initializer) {
                         html += '<span class="label label-default">' + render.escaped(groupName) + '</span>';
                     }
 
+                    let annotation = '';
+                    if (!empty(a.annotation)) {
+                        annotation = a.annotation;
+                    }
                     html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
                         + removeBtn
-                        + '<span class="itemDetailsAssociationTitle">'
+                        + '<span class="itemDetailsAssociationTitle '+('' !== annotation ? 'annotated' : '')+'" title="'+annotation+'">'
                         + self.associationDestItemTitle(a)
                         + '</span>'
                         + '</a>'

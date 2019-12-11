@@ -11,6 +11,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class AssociationSubtype
 {
+    public const DIR_BOTH = 0;
+    public const DIR_FORWARD = 1;
+    public const DIR_INVERSE = -1;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -46,11 +50,11 @@ class AssociationSubtype
     private string $parentType;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="integer")
      *
      * @Assert\NotNull()
      */
-    private bool $inverseParent;
+    private int $direction;
 
     /**
      * @ORM\Column(type="string", length=512)
@@ -72,9 +76,9 @@ class AssociationSubtype
         return $this->parentType;
     }
 
-    public function isInverseParent(): bool
+    public function getDirection(): int
     {
-        return $this->inverseParent;
+        return $this->direction;
     }
 
     public function getDescription(): string
