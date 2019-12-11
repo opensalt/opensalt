@@ -533,7 +533,8 @@ apx.edit.prepareExemplarModal = function() {
         let ajaxData = {
             exemplarUrl: $("#addExemplarFormUrl").val(),
             exemplarDescription: $("#addExemplarFormDescription").val(),
-            associationType: "Exemplar"
+            associationType: "Exemplar",
+            annotation: $('#addExemplarFormAnnotation').val()
         };
 
         if (ajaxData.exemplarUrl === "") {

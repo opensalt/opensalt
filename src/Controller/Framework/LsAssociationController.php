@@ -157,7 +157,11 @@ class LsAssociationController extends AbstractController
         }
 
         try {
-            $command = new AddExemplarToItemCommand($originLsItem, $request->request->get('exemplarUrl'));
+            $command = new AddExemplarToItemCommand(
+                $originLsItem,
+                $request->request->get('exemplarUrl'),
+                $request->request->get('annotation')
+            );
             $this->sendCommand($command);
             $lsAssociation = $command->getAssociation();
 

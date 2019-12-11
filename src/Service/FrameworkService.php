@@ -112,12 +112,13 @@ class FrameworkService
         $this->em->persist($association);
     }
 
-    public function addExemplarToItem(LsItem $item, string $url): LsAssociation
+    public function addExemplarToItem(LsItem $item, string $url, ?string $annotation = null): LsAssociation
     {
         $lsAssociation = new LsAssociation();
         $lsAssociation->setLsDoc($item->getLsDoc());
         $lsAssociation->setOriginLsItem($item);
         $lsAssociation->setType(LsAssociation::EXEMPLAR);
+        $lsAssociation->setAnnotation($annotation);
         $lsAssociation->setDestinationNodeUri($url);
         $lsAssociation->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $url));
 
