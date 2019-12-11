@@ -3,6 +3,7 @@
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
+use App\Entity\Framework\AssociationSubtype;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -98,6 +99,11 @@ class AddTreeAssociationCommand extends BaseCommand
     private $association;
 
     /**
+     * @var array<AssociationSubtype>
+     */
+    private $allowedSubtypes = [];
+
+    /**
      * Constructor.
      */
     public function __construct(LsDoc $doc, array $origin, string $type, array $dest, ?string $assocGroup = null, ?string $annotation = null)
@@ -150,6 +156,11 @@ class AddTreeAssociationCommand extends BaseCommand
         return $this->annotation;
     }
 
+    public function setAllowedSubtypes(array $subtypes): void
+    {
+        $this->allowedSubtypes = $subtypes;
+    }
+
     /**
      * @Assert\Callback()
      */
@@ -167,10 +178,29 @@ class AddTreeAssociationCommand extends BaseCommand
                 ->addViolation();
         }
 
-        if (!in_array($this->type, LsAssociation::allTypes(), true)) {
+        $types = explode('|', $this->type, 2);
+        if (!in_array($types[0], LsAssociation::allTypes(), true)) {
             $context->buildViolation('Invalid association type supplied.')
                 ->atPath('type')
                 ->addViolation();
+        }
+
+        if (null !== ($types[1] ?? null)) {
+            $subtypeValid = false;
+
+            foreach ($this->allowedSubtypes as $allowedSubtype) {
+                if (($allowedSubtype->getName() === $types[1]) && ($allowedSubtype->getParentType() === $types[0])) {
+                    $subtypeValid = true;
+
+                    break;
+                }
+            }
+
+            if (!$subtypeValid) {
+                $context->buildViolation('Invalid subtype supplied.')
+                    ->atPath('type')
+                    ->addViolation();
+            }
         }
     }
 }

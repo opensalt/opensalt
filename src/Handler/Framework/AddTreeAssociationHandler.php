@@ -3,18 +3,36 @@
 namespace App\Handler\Framework;
 
 use App\Command\Framework\AddTreeAssociationCommand;
-use App\Event\CommandEvent;
-use App\Event\NotificationEvent;
+use App\Entity\Framework\AssociationSubtype;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
+use App\Service\FrameworkService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class AddTreeAssociationHandler extends BaseFrameworkHandler
 {
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
+
+    public function __construct(ValidatorInterface $validator, FrameworkService $framework, EntityManagerInterface $em)
+    {
+        $this->em = $em;
+        parent::__construct($validator, $framework);
+    }
+
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var AddTreeAssociationCommand $command */
         $command = $event->getCommand();
+
+        $allowedSubtypes = $this->em->getRepository(AssociationSubtype::class)->findAll();
+        $command->setAllowedSubtypes($allowedSubtypes);
 
         $this->validate($command, $command);
 

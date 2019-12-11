@@ -9,18 +9,18 @@ use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateTreeItemsCommand;
 use App\Entity\ChangeEntry;
-use App\Entity\Framework\ObjectLock;
-use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsItem;
+use App\Entity\Framework\AssociationSubtype;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
-use App\Form\Type\LsDocListType;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
+use App\Entity\Framework\ObjectLock;
 use App\Entity\User\User;
+use App\Form\Type\LsDocListType;
+use App\Util\Compare;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,7 +28,8 @@ use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Util\Compare;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -84,11 +85,24 @@ class DocTreeController extends AbstractController
         // we need groups for other documents if/when we show a document on the right side
         $lsDefAssociationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findAll();
 
+        $assocSubTypes = $em->getRepository(AssociationSubtype::class)->findAll();
         $assocTypes = [];
         $inverseAssocTypes = [];
         foreach (LsAssociation::allTypes() as $type) {
             $assocTypes[] = $type;
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
+            foreach ($assocSubTypes as $subtype) {
+                if ($type === $subtype->getParentType()) {
+                    if (AssociationSubtype::DIR_INVERSE !== $subtype->getDirection()) {
+                        $assocTypes[] = '-'.$subtype->getName();
+                        $inverseAssocTypes[] = null;
+                    }
+                    if (AssociationSubtype::DIR_FORWARD !== $subtype->getDirection()) {
+                        $assocTypes[] = null;
+                        $inverseAssocTypes[] = '-'.$subtype->getName();
+                    }
+                }
+            }
         }
 
         $editorRights = $authChecker->isGranted('edit', $lsDoc);
@@ -154,7 +168,6 @@ class DocTreeController extends AbstractController
             'lsDocs' => [],
         ]);
     }
-
 
     /**
      * Export a CFPackage in a special json format designed for efficiently loading the package's data to the OpenSALT doctree client.

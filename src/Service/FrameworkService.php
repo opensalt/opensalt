@@ -134,7 +134,9 @@ class FrameworkService
     {
         $association = new LsAssociation();
         $association->setLsDoc($doc);
-        $association->setType($type);
+        $types = explode('|', $type, 2);
+        $association->setType($types[0]);
+        $association->setSubtype($types[1] ?? null);
         $association->setAnnotation($annotation);
 
         // deal with origin and dest items, which can be specified by id or by identifier
