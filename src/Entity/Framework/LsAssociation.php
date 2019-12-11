@@ -365,7 +365,11 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         if (is_string($origin)) {
             $this->setOriginNodeUri($origin);
             $this->setOriginNodeIdentifier($identifier ?? $origin);
-        } elseif ($origin instanceof IdentifiableInterface) {
+
+            return $this;
+        }
+
+        if ($origin instanceof IdentifiableInterface) {
             if ($origin instanceof LsDoc) {
                 $this->setOriginLsDoc($origin);
             } elseif ($origin instanceof LsItem) {
@@ -373,17 +377,17 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
             }
             $this->setOriginNodeUri($origin->getUri());
             $this->setOriginNodeIdentifier($identifier ?? $origin->getIdentifier());
-        } else {
-            throw new \UnexpectedValueException('The value must be a URI, an LsDoc, or an LsItem');
+
+            return $this;
         }
 
-        return $this;
+        throw new \UnexpectedValueException('The value must be a URI, an LsDoc, or an LsItem');
     }
 
     /**
      * Get the Origination of the association.
      *
-     * @return null|string|LsDoc|LsItem
+     * @return string|LsDoc|LsItem|null
      */
     public function getOrigin()
     {
@@ -426,7 +430,11 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         if (is_string($destination)) {
             $this->setDestinationNodeUri($destination);
             $this->setDestinationNodeIdentifier($identifier ?? $destination);
-        } elseif ($destination instanceof IdentifiableInterface) {
+
+            return $this;
+        }
+
+        if ($destination instanceof IdentifiableInterface) {
             if ($destination instanceof LsDoc) {
                 $this->setDestinationLsDoc($destination);
             } elseif ($destination instanceof LsItem) {
@@ -434,17 +442,17 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
             }
             $this->setDestinationNodeUri($destination->getUri());
             $this->setDestinationNodeIdentifier($identifier ?? $destination->getIdentifier());
-        } else {
-            throw new \UnexpectedValueException('The value must be a URI, an LsDoc, or an LsItem');
+
+            return $this;
         }
 
-        return $this;
+        throw new \UnexpectedValueException('The value must be a URI, an LsDoc, or an LsItem');
     }
 
     /**
      * Get the Destination of the association.
      *
-     * @return null|string|LsDoc|LsItem
+     * @return string|LsDoc|LsItem|null
      */
     public function getDestination()
     {
