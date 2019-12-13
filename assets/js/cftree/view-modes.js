@@ -180,11 +180,11 @@ apx.viewMode.showAssocView = function(context) {
             }
 
             // skip types if filters dictate
-            if (-1 === apx.viewMode.avTypeFilters.indexOf(assoc.type)) {
+            if (-1 === apx.viewMode.avTypeFilters.indexOf(assoc.type) && (assoc.subtype || '') === '') {
                 continue;
             }
 
-            if (-1 !== apx.viewMode.avTypeFilters.indexOf(assoc.subtype || 'No-Subtype')) {
+            if ((assoc.subtype || '') !== '' && -1 === apx.viewMode.avTypeFilters.indexOf(assoc.subtype)) {
                 continue;
             }
 
@@ -277,7 +277,7 @@ apx.viewMode.showAssocView = function(context) {
         ;
         $('#assocViewTable_wrapper').find('.assocViewTableTypeFilters')
             .on('change', '.avTypeFilter>input[type="checkbox"]', function() {
-                apx.viewMode.avTypeFilters = $('#assocViewTable_wrapper').find('.assocViewTableTypeFilters .avTypeFilter>input[type="checkbox"]').filter(':checked').map(function(){return $(this).data('type')}).get();
+                apx.viewMode.avTypeFilters = $('#assocViewTable_wrapper').find('.assocViewTableTypeFilters .avTypeFilter>input[type="checkbox"]').filter(':checked').map(function(){return $(this).data('type');}).get();
                 apx.viewMode.showAssocView("refresh");
             })
         ;

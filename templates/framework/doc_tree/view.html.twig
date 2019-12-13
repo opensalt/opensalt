@@ -328,7 +328,7 @@
                       {% if assocType starts with '-' %}
                         &nbsp;&nbsp;&nbsp;
                         <input type="checkbox" value="{{ assocType|replace({'-': ''}) }}" data-subtype="yes" data-parent="{{ parent }}">
-                        Exclude {{ assocType|replace({'-':''}) }} subtype
+                        {{ assocType|replace({'-':''}) }} subtype
                       {% else %}
                         {% set parent = assocType %}
                         <input type="checkbox" value="{{ assocType }}" data-subtype="no"> {{ assocType }}
