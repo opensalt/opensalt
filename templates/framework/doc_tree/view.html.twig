@@ -322,15 +322,19 @@
             <div id="assocViewTableFilters" style="display:none">
                 <div class="assocViewTableTypeFilters">
                     <div class="assocViewTableTypeFiltersHeader">Association Types:</div>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowChild"> Is Child Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExact" checked> Exact Match Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExemplar" checked> Exemplar</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsRelatedTo" checked> Is Related To</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowPrecedes" checked> Precedes</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsPeerOf" checked> Is Peer Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsPartOf" checked> Is Part Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowHasSkillLevel" checked> Has Skill Level</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowReplacedBy" checked> Replaced By</label><br>
+                    {% set parent = '' %}
+                    {% for assocType in assocFilterTypes|filter(f => (f is not null)) %}
+                    <label class="avTypeFilter">
+                      {% if assocType starts with '-' %}
+                        &nbsp;&nbsp;&nbsp;
+                        <input type="checkbox" value="{{ assocType|replace({'-': ''}) }}" data-subtype="yes" data-parent="{{ parent }}">
+                        Exclude {{ assocType|replace({'-':''}) }} subtype
+                      {% else %}
+                        {% set parent = assocType %}
+                        <input type="checkbox" value="{{ assocType }}" data-subtype="no"> {{ assocType }}
+                      {% endif %}
+                    </label><br/>
+                    {% endfor %}
                 </div>
 
                 <div class="assocViewTableGroupFilters">

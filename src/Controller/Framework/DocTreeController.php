@@ -86,13 +86,16 @@ class DocTreeController extends AbstractController
         $lsDefAssociationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findAll();
 
         $assocSubTypes = $em->getRepository(AssociationSubtype::class)->findAll();
+        $assocFilterTypes = [];
         $assocTypes = [];
         $inverseAssocTypes = [];
         foreach (LsAssociation::allTypes() as $type) {
+            $assocFilterTypes[] = $type;
             $assocTypes[] = $type;
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
             foreach ($assocSubTypes as $subtype) {
                 if ($type === $subtype->getParentType()) {
+                    $assocFilterTypes[] = '-'.$subtype->getName();
                     if (AssociationSubtype::DIR_INVERSE !== $subtype->getDirection()) {
                         $assocTypes[] = '-'.$subtype->getName();
                         $inverseAssocTypes[] = null;
@@ -121,6 +124,7 @@ class DocTreeController extends AbstractController
 
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,
+            'assocFilterTypes' => $assocFilterTypes,
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => $lsDefAssociationGroupings,
@@ -143,11 +147,27 @@ class DocTreeController extends AbstractController
      */
     public function viewRemoteAction(): Response
     {
+        $assocSubTypes = $this->getDoctrine()->getRepository(AssociationSubtype::class)->findAll();
+        $assocFilterTypes = [];
         $assocTypes = [];
         $inverseAssocTypes = [];
         foreach (LsAssociation::allTypes() as $type) {
+            $assocFilterTypes[] = $type;
             $assocTypes[] = $type;
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
+            foreach ($assocSubTypes as $subtype) {
+                $assocFilterTypes[] = '-'.$subtype->getName();
+                if ($type === $subtype->getParentType()) {
+                    if (AssociationSubtype::DIR_INVERSE !== $subtype->getDirection()) {
+                        $assocTypes[] = '-'.$subtype->getName();
+                        $inverseAssocTypes[] = null;
+                    }
+                    if (AssociationSubtype::DIR_FORWARD !== $subtype->getDirection()) {
+                        $assocTypes[] = null;
+                        $inverseAssocTypes[] = '-'.$subtype->getName();
+                    }
+                }
+            }
         }
 
         return $this->render('framework/doc_tree/view.html.twig', [
@@ -162,6 +182,7 @@ class DocTreeController extends AbstractController
             'lsItemId' => null,
             'assocGroup' => null,
             'docList' => '',
+            'assocFilterTypes' => $assocFilterTypes,
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => [],

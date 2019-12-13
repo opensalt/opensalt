@@ -802,8 +802,12 @@ function ApxDocument(initializer) {
         return s;
     };
 
+    self.condenseType = function (type) {
+        return type[0].toLowerCase() + type.substr(1).replace(/ /g, "");    // convert type to camel case
+    };
+
     self.getAssociationTypeCondensed = function(a) {
-        return a.type[0].toLowerCase() + a.type.substr(1).replace(/ /g, "");    // convert type to camel case
+        return self.condenseType(a.type);
     };
 
     /** render the association group menu for this document */

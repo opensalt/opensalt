@@ -685,6 +685,7 @@ apx.edit.prepareAssociateModal = function() {
         let origin = apx.mainDoc.getItemTitle(originItem);
         $("#lsAssociationDestinationDisplay").html(destination);
         $("#lsAssociationOriginDisplay").html(origin);
+        $('#associationFormAnnotation').val('');
 
         // add association group menu if we have one and there's more than one item (the first item is always "default") in the menu
         let agMenu = $("#treeSideLeft").find(".assocGroupSelect");

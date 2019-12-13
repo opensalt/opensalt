@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fb2de3c7c3c3c1133ff61f03c8890e41",
+    "content-hash": "b5a9be320217a791b9fcb4f7072f22f7",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -4998,16 +4998,16 @@
         },
         {
             "name": "nelmio/security-bundle",
-            "version": "dev-master",
+            "version": "2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioSecurityBundle.git",
-                "reference": "40d253b54bc552bed5791a22375ca0c3a3dfd017"
+                "reference": "ce63c12665440b538dc743dfd9afad3dadf7d12c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/40d253b54bc552bed5791a22375ca0c3a3dfd017",
-                "reference": "40d253b54bc552bed5791a22375ca0c3a3dfd017",
+                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/ce63c12665440b538dc743dfd9afad3dadf7d12c",
+                "reference": "ce63c12665440b538dc743dfd9afad3dadf7d12c",
                 "shasum": ""
             },
             "require": {
@@ -5029,16 +5029,13 @@
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.7.x-dev"
+                    "dev-master": "2.6.x-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
                     "Nelmio\\SecurityBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -5058,7 +5055,7 @@
             "keywords": [
                 "security"
             ],
-            "time": "2019-11-22T13:30:45+00:00"
+            "time": "2019-04-03T13:44:45+00:00"
         },
         {
             "name": "ocramius/package-versions",
@@ -11824,16 +11821,16 @@
         },
         {
             "name": "fzaninotto/faker",
-            "version": "v1.9.0",
+            "version": "v1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "27a216cbe72327b2d6369fab721a5843be71e57d"
+                "reference": "fc10d778e4b84d5bd315dad194661e091d307c6f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/27a216cbe72327b2d6369fab721a5843be71e57d",
-                "reference": "27a216cbe72327b2d6369fab721a5843be71e57d",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/fc10d778e4b84d5bd315dad194661e091d307c6f",
+                "reference": "fc10d778e4b84d5bd315dad194661e091d307c6f",
                 "shasum": ""
             },
             "require": {
@@ -11846,7 +11843,9 @@
             },
             "type": "library",
             "extra": {
-                "branch-alias": []
+                "branch-alias": {
+                    "dev-master": "1.9-dev"
+                }
             },
             "autoload": {
                 "psr-4": {
@@ -11868,7 +11867,7 @@
                 "faker",
                 "fixtures"
             ],
-            "time": "2019-11-14T13:13:06+00:00"
+            "time": "2019-12-12T13:22:17+00:00"
         },
         {
             "name": "hoa/console",
@@ -15546,7 +15545,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "matthimatiker/opcache-bundle": 20,
-        "nelmio/security-bundle": 20,
         "simplethings/entity-audit-bundle": 20,
         "roave/security-advisories": 20
     },
