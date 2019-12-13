@@ -1489,15 +1489,15 @@ class Framework implements Context
         $I->see('S.2.1 Statement 4');
 
         $I->click('#displayAssocBtn');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowChild"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowExact"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowExemplar"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowIsRelatedTo"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowPrecedes"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowIsPeerOf"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowIsPartOf"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowHasSkillLevel"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[data-filter="avShowReplacedBy"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Is Child Of"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Exact Match Of"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Exemplar"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Is Related To"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Precedes"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Is Peer Of"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Is Part Of"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Has Skill Level"]');
+        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Replaced By"]');
 
         $I->see('Is Child Of', '//table[@id="assocViewTable"]');
         $I->see('Exact Match Of', '//table[@id="assocViewTable"]');
