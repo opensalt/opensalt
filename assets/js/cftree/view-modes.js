@@ -233,7 +233,7 @@ apx.viewMode.showAssocView = function(context) {
         let columns = [
             { "title": "Origin", "className": "avTitleCell" },
             { "title": "Association Type", "className": "avTypeCell" },
-            { "title": "Annotation ", "className": "avAnnotationCell" },
+            { "title": "Annotation", "className": "avAnnotationCell" },
             { "title": "Destination", "className": "avTitleCell" }
         ];
         // add group if we have any

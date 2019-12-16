@@ -81,16 +81,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.128.3",
+            "version": "3.129.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "9e46eae4974542b8e3e6107de857668b6968081d"
+                "reference": "4e326d030ef7c82585d276969b3079169b4806e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/9e46eae4974542b8e3e6107de857668b6968081d",
-                "reference": "9e46eae4974542b8e3e6107de857668b6968081d",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/4e326d030ef7c82585d276969b3079169b4806e2",
+                "reference": "4e326d030ef7c82585d276969b3079169b4806e2",
                 "shasum": ""
             },
             "require": {
@@ -161,7 +161,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2019-12-11T19:13:12+00:00"
+            "time": "2019-12-16T19:10:16+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -1738,16 +1738,16 @@
         },
         {
             "name": "doctrine/persistence",
-            "version": "1.2.0",
+            "version": "1.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/persistence.git",
-                "reference": "43526ae63312942e5316100bb3ed589ba1aba491"
+                "reference": "99b196bbd4715a94fa100fac664a351ffa46d6a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/persistence/zipball/43526ae63312942e5316100bb3ed589ba1aba491",
-                "reference": "43526ae63312942e5316100bb3ed589ba1aba491",
+                "url": "https://api.github.com/repos/doctrine/persistence/zipball/99b196bbd4715a94fa100fac664a351ffa46d6a5",
+                "reference": "99b196bbd4715a94fa100fac664a351ffa46d6a5",
                 "shasum": ""
             },
             "require": {
@@ -1762,19 +1762,20 @@
                 "doctrine/common": "<2.10@dev"
             },
             "require-dev": {
-                "doctrine/coding-standard": "^5.0",
-                "phpstan/phpstan": "^0.8",
+                "doctrine/coding-standard": "^6.0",
+                "phpstan/phpstan": "^0.11",
                 "phpunit/phpunit": "^7.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev"
+                    "dev-master": "1.3.x-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Doctrine\\Common\\": "lib/Doctrine/Common"
+                    "Doctrine\\Common\\": "lib/Doctrine/Common",
+                    "Doctrine\\Persistence\\": "lib/Doctrine/Persistence"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1816,7 +1817,7 @@
                 "orm",
                 "persistence"
             ],
-            "time": "2019-04-23T12:39:21+00:00"
+            "time": "2019-12-13T10:43:02+00:00"
         },
         {
             "name": "doctrine/reflection",
@@ -3620,16 +3621,16 @@
         },
         {
             "name": "jms/serializer",
-            "version": "3.3.0",
+            "version": "3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/serializer.git",
-                "reference": "4c1e4296734385af7718ca71ec0febb4815b4a87"
+                "reference": "e2d3c49d9322a08ee32221a5623c898160dada79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/serializer/zipball/4c1e4296734385af7718ca71ec0febb4815b4a87",
-                "reference": "4c1e4296734385af7718ca71ec0febb4815b4a87",
+                "url": "https://api.github.com/repos/schmittjoh/serializer/zipball/e2d3c49d9322a08ee32221a5623c898160dada79",
+                "reference": "e2d3c49d9322a08ee32221a5623c898160dada79",
                 "shasum": ""
             },
             "require": {
@@ -3650,15 +3651,16 @@
                 "doctrine/phpcr-odm": "^1.3|^2.0",
                 "ext-pdo_sqlite": "*",
                 "jackalope/jackalope-doctrine-dbal": "^1.1.5",
+                "ocramius/proxy-manager": "^1.0|^2.0",
                 "phpunit/phpunit": "^7.5||^8.0",
                 "psr/container": "^1.0",
-                "symfony/dependency-injection": "^3.0|^4.0",
-                "symfony/expression-language": "^3.0|^4.0",
-                "symfony/filesystem": "^3.0|^4.0",
-                "symfony/form": "^3.0|^4.0",
-                "symfony/translation": "^3.0|^4.0",
-                "symfony/validator": "^3.1.9|^4.0",
-                "symfony/yaml": "^3.3|^4.0",
+                "symfony/dependency-injection": "^3.0|^4.0|^5.0",
+                "symfony/expression-language": "^3.0|^4.0|^5.0",
+                "symfony/filesystem": "^3.0|^4.0|^5.0",
+                "symfony/form": "^3.0|^4.0|^5.0",
+                "symfony/translation": "^3.0|^4.0|^5.0",
+                "symfony/validator": "^3.1.9|^4.0|^5.0",
+                "symfony/yaml": "^3.3|^4.0|^5.0",
                 "twig/twig": "~1.34|~2.4"
             },
             "suggest": {
@@ -3669,7 +3671,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.3-dev"
+                    "dev-master": "3.4-dev"
                 }
             },
             "autoload": {
@@ -3700,7 +3702,7 @@
                 "serialization",
                 "xml"
             ],
-            "time": "2019-09-20T14:24:07+00:00"
+            "time": "2019-12-14T20:49:23+00:00"
         },
         {
             "name": "jms/serializer-bundle",
@@ -3860,16 +3862,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "4.36.2",
+            "version": "4.37.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "568a9a76abaf8079d3416150087c33ec6f6bf800"
+                "reference": "ef769848adda5261a4acb8d23990b23043e3e355"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/568a9a76abaf8079d3416150087c33ec6f6bf800",
-                "reference": "568a9a76abaf8079d3416150087c33ec6f6bf800",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/ef769848adda5261a4acb8d23990b23043e3e355",
+                "reference": "ef769848adda5261a4acb8d23990b23043e3e355",
                 "shasum": ""
             },
             "require": {
@@ -3934,7 +3936,7 @@
                 "google",
                 "sdk"
             ],
-            "time": "2019-12-05T10:56:40+00:00"
+            "time": "2019-12-13T21:24:48+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
@@ -6269,16 +6271,16 @@
         },
         {
             "name": "riverline/multipart-parser",
-            "version": "2.0.5",
+            "version": "2.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Riverline/multipart-parser.git",
-                "reference": "8bb18f1d374b5d611325c4ac36a5dbdc1cdd9248"
+                "reference": "f71c80281d8f04e840c31edede6516b63f4d699b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Riverline/multipart-parser/zipball/8bb18f1d374b5d611325c4ac36a5dbdc1cdd9248",
-                "reference": "8bb18f1d374b5d611325c4ac36a5dbdc1cdd9248",
+                "url": "https://api.github.com/repos/Riverline/multipart-parser/zipball/f71c80281d8f04e840c31edede6516b63f4d699b",
+                "reference": "f71c80281d8f04e840c31edede6516b63f4d699b",
                 "shasum": ""
             },
             "require": {
@@ -6294,7 +6296,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Riverline\\MultiPartParser\\": "src/Riverline/MultiPartParser/"
+                    "Riverline\\MultiPartParser\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -6317,7 +6319,7 @@
                 "multipart",
                 "parser"
             ],
-            "time": "2019-08-26T14:21:49+00:00"
+            "time": "2019-12-16T11:23:08+00:00"
         },
         {
             "name": "rize/uri-template",
@@ -6365,16 +6367,16 @@
         },
         {
             "name": "sensio/framework-extra-bundle",
-            "version": "v5.5.1",
+            "version": "v5.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sensiolabs/SensioFrameworkExtraBundle.git",
-                "reference": "dfc2c4df9f7d465a65c770e9feb578fe071636f7"
+                "reference": "92acfcc610e2180c52790ec3ff2e893f67e76b32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sensiolabs/SensioFrameworkExtraBundle/zipball/dfc2c4df9f7d465a65c770e9feb578fe071636f7",
-                "reference": "dfc2c4df9f7d465a65c770e9feb578fe071636f7",
+                "url": "https://api.github.com/repos/sensiolabs/SensioFrameworkExtraBundle/zipball/92acfcc610e2180c52790ec3ff2e893f67e76b32",
+                "reference": "92acfcc610e2180c52790ec3ff2e893f67e76b32",
                 "shasum": ""
             },
             "require": {
@@ -6439,7 +6441,7 @@
                 "annotations",
                 "controllers"
             ],
-            "time": "2019-10-16T18:54:45+00:00"
+            "time": "2019-12-12T16:21:49+00:00"
         },
         {
             "name": "simplethings/entity-audit-bundle",
@@ -7584,16 +7586,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v1.5.3",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "59b42aa1d3385a21683601c15e63eb35d2ebe8a4"
+                "reference": "952f45d1c5077e658cb16a61d11603bee873f968"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/59b42aa1d3385a21683601c15e63eb35d2ebe8a4",
-                "reference": "59b42aa1d3385a21683601c15e63eb35d2ebe8a4",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/952f45d1c5077e658cb16a61d11603bee873f968",
+                "reference": "952f45d1c5077e658cb16a61d11603bee873f968",
                 "shasum": ""
             },
             "require": {
@@ -7629,7 +7631,7 @@
                 }
             ],
             "description": "Composer plugin for Symfony",
-            "time": "2019-12-01T15:56:52+00:00"
+            "time": "2019-12-13T18:05:11+00:00"
         },
         {
             "name": "symfony/form",
@@ -12201,16 +12203,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.9.3",
+            "version": "1.9.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "007c053ae6f31bba39dfa19a7726f56e9763bbea"
+                "reference": "579bb7356d91f9456ccd505f24ca8b667966a0a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/007c053ae6f31bba39dfa19a7726f56e9763bbea",
-                "reference": "007c053ae6f31bba39dfa19a7726f56e9763bbea",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/579bb7356d91f9456ccd505f24ca8b667966a0a7",
+                "reference": "579bb7356d91f9456ccd505f24ca8b667966a0a7",
                 "shasum": ""
             },
             "require": {
@@ -12245,7 +12247,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2019-08-09T12:45:53+00:00"
+            "time": "2019-12-15T19:12:40+00:00"
         },
         {
             "name": "netresearch/jsonmapper",
@@ -13076,28 +13078,29 @@
         },
         {
             "name": "phpoption/phpoption",
-            "version": "1.6.1",
+            "version": "1.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/php-option.git",
-                "reference": "a8593bf5176bf3d3f2966942c530be19b44ec87c"
+                "reference": "77f7c4d2e65413aff5b5a8cc8b3caf7a28d81959"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/php-option/zipball/a8593bf5176bf3d3f2966942c530be19b44ec87c",
-                "reference": "a8593bf5176bf3d3f2966942c530be19b44ec87c",
+                "url": "https://api.github.com/repos/schmittjoh/php-option/zipball/77f7c4d2e65413aff5b5a8cc8b3caf7a28d81959",
+                "reference": "77f7c4d2e65413aff5b5a8cc8b3caf7a28d81959",
                 "shasum": ""
             },
             "require": {
                 "php": "^5.5.9 || ^7.0"
             },
             "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.3",
                 "phpunit/phpunit": "^4.8.35 || ^5.0 || ^6.0 || ^7.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.6-dev"
+                    "dev-master": "1.7-dev"
                 }
             },
             "autoload": {
@@ -13126,7 +13129,7 @@
                 "php",
                 "type"
             ],
-            "time": "2019-12-11T13:45:14+00:00"
+            "time": "2019-12-15T19:35:24+00:00"
         },
         {
             "name": "phpspec/prophecy",

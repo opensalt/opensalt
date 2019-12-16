@@ -533,7 +533,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
 
         $newType = $this->coerceType($type);
         if (null !== $newType) {
-            $this->type = $type;
+            $this->type = $newType;
 
             return $this;
         }
