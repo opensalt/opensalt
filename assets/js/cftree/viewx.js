@@ -55,6 +55,7 @@ apx.initialize = function() {
     apx.edit.prepareAddNewChildModal();
     apx.edit.prepareExemplarModal();
     apx.edit.prepareAssociateModal();
+    apx.edit.prepareEditAssociationModal();
 
     // prepare assocGroup modals/functions
     apx.edit.prepareAddAssocGroupModal();

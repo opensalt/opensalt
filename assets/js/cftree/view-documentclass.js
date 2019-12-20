@@ -1651,10 +1651,15 @@ function ApxDocument(initializer) {
                     // determine if the origin item is a member of the edited doc or an other doc
                     let originDoc = "edited";
                     let removeBtn = $("#associationRemoveBtn").html();  // remove association button (only for editors)
+                    let editBtn = $("#associationEditBtn").html();  // remove association button (only for editors)
                     if (a.assocDoc !== apx.mainDoc.doc.identifier) {
                         originDoc = "other";
                         // if it's another doc, no remove btn
-                        removeBtn = "";
+                        removeBtn = '';
+                        editBtn = '';
+                    }
+                    if ('exemplar' === a.type || 'isChildOf' === a.type) {
+                        editBtn = '';
                     }
 
                     // assocGroup if assigned -- either in self or mainDoc
@@ -1679,6 +1684,7 @@ function ApxDocument(initializer) {
                     }
                     html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
                         + removeBtn
+                        + editBtn
                         + '<span class="itemDetailsAssociationTitle '+('' !== annotation ? 'annotated' : '')+'" title="'+annotation+'">'
                         + self.associationDestItemTitle(a)
                         + '</span>'
@@ -1705,9 +1711,23 @@ function ApxDocument(initializer) {
                 apx.treeDoc1.openAssociationItem(this, false);
             });
 
+            // enable edit association button(s)
+            $jq.find('.btn-edit-association').on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                let $target = $($(e.target).closest('a'));
+                $('#editAssociationModal').modal('show', $target);
+
+                return false;
+            });
+
             // enable remove association button(s)
             $jq.find(".btn-remove-association").on('click', function (e) {
                 e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
 
                 // get the assocId from the association link
                 let $target = $(e.target);

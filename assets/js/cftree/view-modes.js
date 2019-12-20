@@ -211,7 +211,12 @@ apx.viewMode.showAssocView = function(context) {
 
             // get type cell, with remove association button (only for editors)
             let subtype = assoc.subtype ? (': ' + assoc.subtype) : '';
-            let type = apx.mainDoc.getAssociationTypePretty(assoc) + subtype + $("#associationRemoveBtn").html();
+            let removeBtn = $("#associationRemoveBtn").html();
+            let editBtn = '';
+            if ('exemplar' !== assoc.type && 'isChildOf' !== assoc.type) {
+                editBtn = $("#associationEditBtn").html();
+            }
+            let type = apx.mainDoc.getAssociationTypePretty(assoc) + subtype + removeBtn + editBtn;
 
             // construct array for row
             let arr = [origin, type, assoc.annotation || '', dest];
@@ -298,6 +303,16 @@ apx.viewMode.showAssocView = function(context) {
             }
             $gf.css("display", "inline-block");
         }
+
+        // enable edit buttons
+        $("#assocViewTable_wrapper").find(".btn-edit-association").on('click', function(e) {
+            e.preventDefault();
+            let $assocInfo = $($(this).closest("tr").find('[data-association-id]'));
+
+            $('#editAssociationModal').modal('show', $assocInfo);
+
+            return false;
+        });
 
         // enable remove buttons
         $("#assocViewTable_wrapper").find(".btn-remove-association").on('click', function(e) {

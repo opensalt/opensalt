@@ -136,7 +136,15 @@ class LsAssociationController extends AbstractController
             $lsAssociation = $command->getAssociation();
 
             // return id of created association
-            return new Response((null !== $lsAssociation) ? $lsAssociation->getId() : '', Response::HTTP_CREATED);
+            $rv = [
+                'id' => isset($lsAssociation) ? $lsAssociation->getId() : null,
+                'identifier' => isset($lsAssociation) ? $lsAssociation->getIdentifier() : null,
+            ];
+
+            $response = new JsonResponse($rv);
+            $response->headers->set('Cache-Control', 'no-cache');
+
+            return $response;
         } catch (\Exception $e) {
             return new JsonResponse(['error' => ['message' => $e->getMessage()]], Response::HTTP_BAD_REQUEST);
         }
