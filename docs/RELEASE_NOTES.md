@@ -1,13 +1,26 @@
 Release Notes
 =============
 
+2.3 ([Full issue and PR list](https://github.com/opensalt/opensalt/milestone/21?closed=1))
+___
+### New
+* Mirroring Featured implemented
+* Upon "Clone Framework", user immediately directed to edit cloned Framework
+
+### Improvements
+* Changed format of Spreadsheet Importer to better allow for external manipulation
+
+### Fixes
+* Association Groups import via Spreadsheet Importer AND CASE JSON Importer
+
+
 2.2 ([Full issue and PR list](https://github.com/opensalt/opensalt/milestone/23?closed=1))
 ---
 ### New
 * Copy Framework Feature
   * As a derivative framework
   * Or creating a derivative framework with exactMatch associations
-* File System configuration for images or files 
+* File System configuration for images or files
 * Ability to add additional (Non-CASE) fields to CfItem using /additionalfield as Super User
 * Ability to define a Framework with a specific type
 * Authentication configuration for the CASE Network (casenetwork.imsglobal.org)
