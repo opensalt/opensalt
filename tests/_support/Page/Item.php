@@ -314,7 +314,7 @@ class Item implements Context
         $I = $this->I;
 
         $this->iAmOnAnItemPage();
-        $I->see($this->itemData['humanCodingScheme'], '//*[@id="itemInfo"]/div[3]/section[1]/div[2]/div/div/a/span[2]/span');
+        $I->see($this->itemData['humanCodingScheme'], '//*[@id="itemInfo"]/div[3]/section[1]/div[2]/div/div/a//span[contains(concat(" ",normalize-space(@class), " "), " item-humanCodingScheme ")]');
 
     }
 
@@ -327,7 +327,7 @@ class Item implements Context
 
         $I->amOnPage(self::$itemPath . $I->getItemId());
         $I->waitForElementVisible('#deleteItemBtn');
-        $I->click('//*[@id="itemInfo"]/div[3]/section[1]/div[2]/div/div/a/span[1]/span/span[1]');
+        $I->click('//*[@id="itemInfo"]/div[3]/section[1]/div[2]/div/div/a//span[contains(concat(" ",normalize-space(@class), " "), " btn-remove-association ")]/*[contains(concat(" ",normalize-space(@class), " "), " glyphicon ")]');
         $this->waitAndAcceptPopup(30);
     }
 
