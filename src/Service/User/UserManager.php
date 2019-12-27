@@ -2,9 +2,9 @@
 
 namespace App\Service\User;
 
-use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserManager
@@ -26,18 +26,15 @@ class UserManager
     }
 
     /**
-     * Creates a user
-     *
-     * @param string $username
-     * @param Organization $org
-     * @param string|null $plainPassword
-     * @param string|null $role
+     * Creates a user.
      *
      * @return string The user's password
+     *
+     * @throws \Exception if it was not possible to gather sufficient entropy
      */
     public function addNewUser(string $username, Organization $org, ?string $plainPassword = null, ?string $role = null, ?int $status = null): string
     {
-        if (empty(trim($plainPassword))) {
+        if (null === $plainPassword || empty(trim($plainPassword))) {
             // if there is no password, make something ugly up
             $plainPassword = rtrim(strtr(base64_encode(random_bytes(15)), '+/', '-_'), '=');
         }
@@ -49,7 +46,7 @@ class UserManager
             $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
         }
 
-        if (!in_array($role, array_merge(User::USER_ROLES, ['ROLE_USER']))) {
+        if (!in_array($role, array_merge(User::USER_ROLES, ['ROLE_USER']), true)) {
             throw new \InvalidArgumentException("Role {$role} is not a valid role.");
         }
 
@@ -68,16 +65,15 @@ class UserManager
     }
 
     /**
-     * Sets the password for a user
-     *
-     * @param string $username
-     * @param string|null $plainPassword
+     * Sets the password for a user.
      *
      * @return string The user's password
+     *
+     * @throws \Exception if it was not possible to gather sufficient entropy
      */
     public function setUserPassword(string $username, ?string $plainPassword = null): string
     {
-        if (empty(trim($plainPassword))) {
+        if (null === $plainPassword || empty(trim($plainPassword))) {
             // if there is no password, make something ugly up
             $plainPassword = rtrim(strtr(base64_encode(random_bytes(15)), '+/', '-_'), '=');
         }
@@ -93,10 +89,7 @@ class UserManager
     }
 
     /**
-     * Add a role to a user
-     *
-     * @param string $username
-     * @param string $role
+     * Add a role to a user.
      *
      * @throws \InvalidArgumentException
      */
@@ -111,10 +104,7 @@ class UserManager
     }
 
     /**
-     * Remove a role from a user
-     *
-     * @param string $username
-     * @param string $role
+     * Remove a role from a user.
      *
      * @throws \InvalidArgumentException
      */

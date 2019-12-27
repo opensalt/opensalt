@@ -36,18 +36,16 @@ apx.viewMode.showTreeView = function(context) {
     apx.treeDoc1.activateCurrentItem();
 };
 
-apx.viewMode.avFilters = {
-    "avShowChild": false,
-    "avShowExact": false,
-    "avShowExemplar": true,
-    "avShowIsRelatedTo": true,
-    "avShowPrecedes": true,
-    "avShowReplacedBy": false,
-    "avShowHasSkillLevel": false,
-    "avShowIsPeerOf": false,
-    "avShowIsPartOf": false,
-    "groups": []
+apx.viewMode.condenseType = function (type) {
+    return type[0].toLowerCase() + type.substr(1).replace(/ /g, "");    // convert type to camel case
 };
+
+apx.viewMode.avTypeFilters = [
+    "exemplar",
+    "isRelatedTo",
+    "precedes"
+];
+apx.viewMode.avGroupFilters = [];
 apx.viewMode.assocViewStatus = "not_written";
 apx.viewMode.showAssocView = function(context) {
     // can't show the assocView until all docs have been loaded
@@ -88,24 +86,24 @@ apx.viewMode.showAssocView = function(context) {
             $("#assocViewTable").DataTable().destroy();
         }
 
-        // make sure viewMode.avFilters.groups is set up to use included groups
+        // make sure viewMode.avGroupFilters is set up to use included groups
         let gft = [];
         for (let i = 0; i < apx.mainDoc.assocGroups.length; ++i) {
             let group = apx.mainDoc.assocGroups[i];
-            if (!empty(apx.viewMode.avFilters.groups[group.id])) {
-                gft[group.id] = apx.viewMode.avFilters.groups[group.id];
+            if (!empty(apx.viewMode.avGroupFilters[group.id])) {
+                gft[group.id] = apx.viewMode.avGroupFilters[group.id];
             } else {
                 gft[group.id] = true;
             }
         }
 
         // add a value for the default group; item 0
-        if (!empty(apx.viewMode.avFilters.groups[0])) {
-            gft[0] = apx.viewMode.avFilters.groups[0];
+        if (!empty(apx.viewMode.avGroupFilters[0])) {
+            gft[0] = apx.viewMode.avGroupFilters[0];
         } else {
             gft[0] = true;
         }
-        apx.viewMode.avFilters.groups = gft;
+        apx.viewMode.avGroupFilters = gft;
 
         function avGetItemCell(a, key) {
             // set default title
@@ -182,61 +180,21 @@ apx.viewMode.showAssocView = function(context) {
             }
 
             // skip types if filters dictate
-            switch (assoc.type) {
-                case "isChildOf":
-                    if (!apx.viewMode.avFilters.avShowChild) {
-                        continue;
-                    }
-                    break;
-                case "exactMatchOf":
-                    if (!apx.viewMode.avFilters.avShowExact) {
-                        continue;
-                    }
-                    break;
-                case "exemplar":
-                    if (!apx.viewMode.avFilters.avShowExemplar) {
-                        continue;
-                    }
-                    break;
-                case "isRelatedTo":
-                    if (!apx.viewMode.avFilters.avShowIsRelatedTo) {
-                        continue;
-                    }
-                    break;
-                case "precedes":
-                    if (!apx.viewMode.avFilters.avShowPrecedes) {
-                        continue;
-                    }
-                    break;
-                case "replacedBy":
-                    if (!apx.viewMode.avFilters.avShowReplacedBy) {
-                        continue;
-                    }
-                    break;
-                case "hasSkillLevel":
-                    if (!apx.viewMode.avFilters.avShowHasSkillLevel) {
-                        continue;
-                    }
-                    break;
-                case "isPeerOf":
-                    if (!apx.viewMode.avFilters.avShowIsPeerOf) {
-                        continue;
-                    }
-                    break;
-                case "isPartOf":
-                    if (!apx.viewMode.avFilters.avShowIsPartOf) {
-                        continue;
-                    }
-                    break;
+            if (-1 === apx.viewMode.avTypeFilters.indexOf(assoc.type) && (assoc.subtype || '') === '') {
+                continue;
+            }
+
+            if ((assoc.subtype || '') !== '' && -1 === apx.viewMode.avTypeFilters.indexOf(assoc.subtype)) {
+                continue;
             }
 
             // skip groups if filters dictate
             if ("groupId" in assoc) {
-                if (!apx.viewMode.avFilters.groups[assoc.groupId]) {
+                if (!apx.viewMode.avGroupFilters[assoc.groupId]) {
                     continue;
                 }
             } else {
-                if (!apx.viewMode.avFilters.groups[0]) {
+                if (!apx.viewMode.avGroupFilters[0]) {
                     continue;
                 }
             }
@@ -252,10 +210,16 @@ apx.viewMode.showAssocView = function(context) {
             let dest = avGetItemCell(assoc, "dest");
 
             // get type cell, with remove association button (only for editors)
-            let type = apx.mainDoc.getAssociationTypePretty(assoc) + $("#associationRemoveBtn").html();
+            let subtype = assoc.subtype ? (': ' + assoc.subtype) : '';
+            let removeBtn = $("#associationRemoveBtn").html();
+            let editBtn = '';
+            if ('exemplar' !== assoc.type && 'isChildOf' !== assoc.type) {
+                editBtn = $("#associationEditBtn").html();
+            }
+            let type = apx.mainDoc.getAssociationTypePretty(assoc) + subtype + removeBtn + editBtn;
 
             // construct array for row
-            let arr = [origin, type, dest];
+            let arr = [origin, type, assoc.annotation || '', dest];
 
             // add group to row array if we have any groups
             if (apx.mainDoc.assocGroups.length > 0) {
@@ -274,6 +238,7 @@ apx.viewMode.showAssocView = function(context) {
         let columns = [
             { "title": "Origin", "className": "avTitleCell" },
             { "title": "Association Type", "className": "avTypeCell" },
+            { "title": "Annotation", "className": "avAnnotationCell" },
             { "title": "Destination", "className": "avTitleCell" }
         ];
         // add group if we have any
@@ -292,34 +257,62 @@ apx.viewMode.showAssocView = function(context) {
         });
 
         // add filters
-        $("#assocViewTable_wrapper").find(".dataTables_length").prepend($("#assocViewTableFilters").html());
+        $("#assocViewTable_wrapper")
+            .find(".dataTables_length")
+            .prepend($("#assocViewTableFilters").html())
+        ;
 
         // enable type filters
-        for (let filter in apx.viewMode.avFilters) {
-            $("#assocViewTable_wrapper").find("input[data-filter=" + filter + "]").prop("checked", apx.viewMode.avFilters[filter])
-                .on('change', function() {
-                    apx.viewMode.avFilters[$(this).attr("data-filter")] = $(this).is(":checked");
-                    apx.viewMode.showAssocView("refresh");
-                    // TODO: save this value in localStorage?
-                });
-        }
+        $('#assocViewTable_wrapper')
+            .find('.assocViewTableTypeFilters .avTypeFilter>input[type="checkbox"]')
+            .each(function(){
+                let $this = $(this);
+                if ('no' === $this.data('subtype')) {
+                    $this.data('type', apx.viewMode.condenseType($this.val()));
+                } else {
+                    $this.data('type', $this.val());
+                }
+            })
+        ;
+        $('#assocViewTable_wrapper')
+            .find('.assocViewTableTypeFilters .avTypeFilter>input[type="checkbox"]')
+            .prop('checked', function() {
+                return (-1 !== apx.viewMode.avTypeFilters.indexOf($(this).data('type')));
+            })
+        ;
+        $('#assocViewTable_wrapper').find('.assocViewTableTypeFilters')
+            .on('change', '.avTypeFilter>input[type="checkbox"]', function() {
+                apx.viewMode.avTypeFilters = $('#assocViewTable_wrapper').find('.assocViewTableTypeFilters .avTypeFilter>input[type="checkbox"]').filter(':checked').map(function(){return $(this).data('type');}).get();
+                apx.viewMode.showAssocView("refresh");
+            })
+        ;
 
         // enable group filters if we have any groups
         if (apx.mainDoc.assocGroups.length > 0) {
             let $gf = $("#assocViewTable_wrapper").find(".assocViewTableGroupFilters");
-            for (let groupId in apx.viewMode.avFilters.groups) {
+            for (let groupId in apx.viewMode.avGroupFilters) {
                 if (groupId != 0) {
                     $gf.append('<label class="avGroupFilter"><input type="checkbox" data-group-id="' + groupId + '"> ' + apx.mainDoc.assocGroupIdHash[groupId].title + '</label><br>');
                 }
-                $("#assocViewTable_wrapper").find(".avGroupFilter input[data-group-id=" + groupId + "]").prop("checked", apx.viewMode.avFilters.groups[groupId])
+                $("#assocViewTable_wrapper").find(".avGroupFilter input[data-group-id=" + groupId + "]").prop("checked", apx.viewMode.avGroupFilters[groupId])
                     .on('change', function() {
-                        apx.viewMode.avFilters.groups[$(this).attr("data-group-id")] = $(this).is(":checked");
+                        apx.viewMode.avGroupFilters[$(this).attr("data-group-id")] = $(this).is(":checked");
                         apx.viewMode.showAssocView("refresh");
                         // TODO: save this value in localStorage?
                     });
             }
             $gf.css("display", "inline-block");
         }
+
+        // enable edit buttons
+        $("#assocViewTable_wrapper").find(".btn-edit-association").on('click', function(e) {
+            e.preventDefault();
+            let $assocInfo = $($(this).closest("tr").find('[data-association-id]'));
+
+            $('#editAssociationModal').modal('show', $assocInfo);
+
+            return false;
+        });
 
         // enable remove buttons
         $("#assocViewTable_wrapper").find(".btn-remove-association").on('click', function(e) {

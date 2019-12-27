@@ -55,6 +55,7 @@ apx.initialize = function() {
     apx.edit.prepareAddNewChildModal();
     apx.edit.prepareExemplarModal();
     apx.edit.prepareAssociateModal();
+    apx.edit.prepareEditAssociationModal();
 
     // prepare assocGroup modals/functions
     apx.edit.prepareAddAssocGroupModal();
@@ -75,6 +76,16 @@ apx.initialize = function() {
         "html": true,
         "container": "body",
         "trigger": "hover"   // this is for popover
+    });
+
+    // tooltips for associations with titles
+    $('#treeSideRight').tooltip({
+        selector: '.itemDetailsAssociationTitle.annotated',
+        "title": function() { return $(this).html(); },
+        "delay": { "show": 200, "hide": 100 },
+        "placement": "top",
+        "html": true,
+        "container": "body"
     });
 
     // right-side buttongroup

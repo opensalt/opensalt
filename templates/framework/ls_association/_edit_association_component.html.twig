@@ -1,0 +1,27 @@
+<div>
+    <div class="container-fluid" style="margin-bottom:15px"><div class="row">
+        <div class="col-sm-5 vcenter"><div class="lsAssociationItemDisplay" id="editLsAssociationOriginDisplay"></div></div><!--
+     --><div class="col-sm-2 vcenter" style="font-size:24px; text-align:center; line-height:24px"><span id="editLsAssociationDirection" class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span><br><button id="editLsAssociationSwitchDirection" class='btn btn-default btn-xs'>Switch</button></div><!--
+     --><div class="col-sm-5 vcenter"><div class="lsAssociationItemDisplay" id="editLsAssociationDestinationDisplay"></div></div>
+    </div></div>
+
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="col-sm-3 control-label required" for="editAssociationFormType">Association Type</label>
+            <div class="col-sm-9">
+                <select id="editAssociationFormType" class="form-control">
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label" for="editAssociationFormAnnotation">Annotation</label>
+            <div class="col-sm-9">
+                <textarea id="editAssociationFormAnnotation" class="form-control"></textarea>
+            </div>
+        </div>
+        <div id="editAssociationFormGroupHolderOuter" class="form-group" style="display:none">
+            <label class="col-sm-3 control-label required" for="editAssociationFormGroup">Association Group</label>
+            <div class="col-sm-9" id="editAssociationFormGroupHolder"></div>
+        </div>
+    </div>
+</div>

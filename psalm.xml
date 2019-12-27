@@ -9,7 +9,7 @@
     <projectFiles>
         <directory name="src"/>
         <ignoreFiles>
-		<directory name="src/Migrations"/>
+            <directory name="src/Migrations"/>
             <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
@@ -53,4 +53,7 @@
 
         <InvalidStringClass errorLevel="info"/>
     </issueHandlers>
-<plugins><pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/></plugins></psalm>
+    <plugins>
+        <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
+    </plugins>
+</psalm>

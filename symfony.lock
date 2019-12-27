@@ -179,9 +179,6 @@
     "fig/http-message-util": {
         "version": "1.1.2"
     },
-    "fig/link-util": {
-        "version": "1.0.0"
-    },
     "firebase/php-jwt": {
         "version": "v5.0.0"
     },
@@ -670,6 +667,9 @@
     },
     "symfony/dom-crawler": {
         "version": "v4.0.10"
+    },
+    "symfony/error-handler": {
+        "version": "v4.4.0"
     },
     "symfony/event-dispatcher": {
         "version": "v4.0.10"

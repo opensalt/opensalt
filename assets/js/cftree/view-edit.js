@@ -521,7 +521,7 @@ apx.edit.deleteItems = function(items) {
     });
 };
 
-/** Add an examplar for an item */
+/** Add an exemplar for an item */
 apx.edit.prepareExemplarModal = function() {
     let $exemplarModal = $('#addExemplarModal');
     $exemplarModal.on('show.bs.modal', function(e) {
@@ -533,7 +533,8 @@ apx.edit.prepareExemplarModal = function() {
         let ajaxData = {
             exemplarUrl: $("#addExemplarFormUrl").val(),
             exemplarDescription: $("#addExemplarFormDescription").val(),
-            associationType: "Exemplar"
+            associationType: "Exemplar",
+            annotation: $('#addExemplarFormAnnotation').val()
         };
 
         if (ajaxData.exemplarUrl === "") {
@@ -592,15 +593,83 @@ apx.edit.prepareExemplarModal = function() {
 /** Add an association */
 apx.edit.prepareAssociateModal = function() {
     // add an option for each association type to the associationFormType select
+    let lastType = '';
+    let $associationFormType = $("#associationFormType");
+    let $associationFormTypeForward = $associationFormType.clone();
     for (let i = 0; i < apx.assocTypes.length; ++i) {
-        if (apx.assocTypes[i] !== "Exemplar" && apx.assocTypes[i] !== "Is Child Of") {
-            $("#associationFormType").append('<option value="' + apx.assocTypes[i] + '">' + apx.assocTypes[i] + '</option>');
+        let curType = apx.assocTypes[i];
+        if (null === curType) {
+            continue;
         }
+
+        if (0 === curType.lastIndexOf('-', 0)) {
+            if ('' === lastType) {
+                continue;
+            }
+
+            $associationFormTypeForward.append('<option value="' + lastType + '|' + curType.substring(1) + '">&nbsp;&nbsp;&nbsp;' + curType.substring(1) + '</option>');
+
+            continue;
+        }
+
+        lastType = curType;
+
+        if (curType === "Exemplar" || curType === "Is Child Of") {
+            lastType = '';
+
+            continue;
+        }
+
+        $associationFormTypeForward.append('<option value="' + curType + '">' + curType + '</option>');
     }
+
+    let lastForwardType = '';
+    let $associationFormTypeReverse = $associationFormType.clone();
+    for (let i = 0; i < apx.inverseAssocTypes.length; ++i) {
+        let curType = apx.inverseAssocTypes[i];
+        if (null === curType) {
+            continue;
+        }
+
+        if (0 === curType.lastIndexOf('-', 0)) {
+            if ('' === lastType) {
+                continue;
+            }
+
+            $associationFormTypeReverse.append('<option value="' + lastForwardType + '|' + curType.substring(1) + '">&nbsp;&nbsp;&nbsp;' + curType.substring(1) + '</option>');
+
+            continue;
+        }
+
+        lastType = curType;
+        lastForwardType = apx.assocTypes[i];
+
+        if (lastForwardType === "Exemplar" || lastForwardType === "Is Child Of") {
+            lastType = '';
+            lastForwardType = '';
+
+            continue;
+        }
+
+
+        $associationFormTypeReverse.append('<option value="' + lastForwardType + '">' + curType + '</option>');
+    }
+
+    $associationFormType.html($associationFormTypeForward.html());
 
     // prepare switch direction button
     $("#lsAssociationSwitchDirection").on('click', function() {
-        $("#lsAssociationDirection").toggleClass("lsAssociationDirectionSwitched");
+        let $dir = $("#lsAssociationDirection");
+        let selected = $associationFormType.val();
+
+        $dir.toggleClass("lsAssociationDirectionSwitched");
+        if ($dir.hasClass("lsAssociationDirectionSwitched")) {
+            $associationFormType.html($associationFormTypeReverse.html());
+        } else {
+            $associationFormType.html($associationFormTypeForward.html());
+        }
+
+        $associationFormType.val(selected);
     });
 
     let $associateModal = $('#associateModal');
@@ -616,6 +685,7 @@ apx.edit.prepareAssociateModal = function() {
         let origin = apx.mainDoc.getItemTitle(originItem);
         $("#lsAssociationDestinationDisplay").html(destination);
         $("#lsAssociationOriginDisplay").html(origin);
+        $('#associationFormAnnotation').val('');
 
         // add association group menu if we have one and there's more than one item (the first item is always "default") in the menu
         let agMenu = $("#treeSideLeft").find(".assocGroupSelect");
@@ -642,7 +712,8 @@ apx.edit.prepareAssociateModal = function() {
         let completed = 0;
         for (let i = 0; i < apx.edit.createAssociationNodes.draggedNodes.length; ++i) {
             let ajaxData = {
-                "type": $("#associationFormType").val()
+                "type": $("#associationFormType").val(),
+                "annotation": $("#associationFormAnnotation").val()
             };
 
             // the "origin" refers to the node that's 'receiving' the association -- so this is the droppedNode
@@ -657,39 +728,29 @@ apx.edit.prepareAssociateModal = function() {
                 destItem = temp;
             }
 
-            if (originItem.doc.isExternalDoc()) {
-                ajaxData.origin = {
-                    "identifier": originItem.identifier,
-                    "uri": originItem.uri,
-                    "externalDoc": originItem.doc.doc.identifier
-                };
-            } else if (!empty(originItem.id)) {
-                ajaxData.origin = {
-                    "id": originItem.id
-                };
-            } else {
-                ajaxData.origin = {
-                    "identifier": originItem.identifier,
-                    "uri": originItem.uri
-                };
-            }
+            let ajaxItemData = function (item) {
+                if (item.doc.isExternalDoc()) {
+                    return {
+                        "identifier": item.identifier,
+                        "uri": item.uri,
+                        "externalDoc": item.doc.doc.identifier
+                    };
+                }
 
-            if (destItem.doc.isExternalDoc()) {
-                ajaxData.dest = {
-                    "identifier": destItem.identifier,
-                    "uri": destItem.uri,
-                    "externalDoc": destItem.doc.doc.identifier
+                if (!empty(item.id)) {
+                    return {
+                        "id": item.id
+                    };
+                }
+
+                return {
+                    "identifier": item.identifier,
+                    "uri": item.uri
                 };
-            } else if (!empty(destItem.id)) {
-                ajaxData.dest = {
-                    "id": destItem.id
-                };
-            } else {
-                ajaxData.dest = {
-                    "identifier": destItem.identifier,
-                    "uri": destItem.uri
-                };
-            }
+            };
+
+            ajaxData.origin = ajaxItemData(originItem);
+            ajaxData.dest = ajaxItemData(destItem);
 
             // if an assocGroup is selected via associationFormGroup and isn't default, add it
             let agMenu = $("#associationFormGroup");
@@ -705,24 +766,32 @@ apx.edit.prepareAssociateModal = function() {
                     "origin": originItem,
                     "dest": destItem,
                     "type": ajaxData.type,
+                    "annotation": ajaxData.annotation,
                     "assocGroup": ajaxData.assocGroup
                 }
-            }).done(function(assocId, textStatus, jqXHR) {
+            }).done(function(data, textStatus, jqXHR) {
                 // "this" will refer to context
 
                 // increment completed counter
                 ++completed;
 
                 // add new assoc object and its inverse
-                let type = apx.mainDoc.getAssociationTypeCondensed(this);
+                let types = this.type.split('|');
+                let type = types.shift();
+                this.type = type;
+                let subtype = types.join(' ');
+                type = apx.mainDoc.getAssociationTypeCondensed(this);
                 let atts = {
-                    "id": assocId,
+                    "id": data.id,
+                    "identifier": data.identifier,
                     "origin": {
                         "doc": this.origin.doc.doc.identifier,
                         "item": this.origin.identifier,
                         "uri": this.origin.uri
                     },
                     "type": type,
+                    "subtype": subtype,
+                    "annotation": this.annotation,
                     "dest": {
                         "doc": this.dest.doc.doc.identifier,
                         "item": this.dest.identifier,
@@ -766,22 +835,315 @@ apx.edit.prepareAssociateModal = function() {
     });
 };
 
+/** edit an association */
+apx.edit.prepareEditAssociationModal = function() {
+    // add an option for each association type to the associationFormType select
+    let condenseType = function (type) {
+        // apx.mainDoc.condenseType is not yet available
+        return type[0].toLowerCase() + type.substr(1).replace(/ /g, "");    // convert type to camel case
+    };
+    let mappedTypes = {};
+    let lastType = '';
+    let $editAssociationFormType = $("#editAssociationFormType");
+    let $editAssociationFormTypeForward = $editAssociationFormType.clone();
+    for (let i = 0; i < apx.assocTypes.length; ++i) {
+        let curType = apx.assocTypes[i];
+        if (null === curType) {
+            continue;
+        }
+
+        if (0 === curType.lastIndexOf('-', 0)) {
+            if ('' === lastType) {
+                continue;
+            }
+
+            $editAssociationFormTypeForward.append('<option value="' + lastType + '|' + curType.substring(1) + '">&nbsp;&nbsp;&nbsp;' + curType.substring(1) + '</option>');
+
+            continue;
+        }
+
+        lastType = curType;
+        let condensed = condenseType(lastType);
+        mappedTypes[condensed] = lastType;
+
+        if (curType === "Exemplar" || curType === "Is Child Of") {
+            lastType = '';
+
+            continue;
+        }
+
+        $editAssociationFormTypeForward.append('<option value="' + curType + '">' + curType + '</option>');
+    }
+
+    let lastForwardType = '';
+    let $editAssociationFormTypeReverse = $editAssociationFormType.clone();
+    for (let i = 0; i < apx.inverseAssocTypes.length; ++i) {
+        let curType = apx.inverseAssocTypes[i];
+        if (null === curType) {
+            continue;
+        }
+
+        if (0 === curType.lastIndexOf('-', 0)) {
+            if ('' === lastType) {
+                continue;
+            }
+
+            $editAssociationFormTypeReverse.append('<option value="' + lastForwardType + '|' + curType.substring(1) + '">&nbsp;&nbsp;&nbsp;' + curType.substring(1) + '</option>');
+
+            continue;
+        }
+
+        lastType = curType;
+        lastForwardType = apx.assocTypes[i];
+
+        if (lastForwardType === "Exemplar" || lastForwardType === "Is Child Of") {
+            lastType = '';
+            lastForwardType = '';
+
+            continue;
+        }
+
+
+        $editAssociationFormTypeReverse.append('<option value="' + lastForwardType + '">' + curType + '</option>');
+    }
+
+    $editAssociationFormType.html($editAssociationFormTypeForward.html());
+
+    // prepare switch direction button
+    $("#editLsAssociationSwitchDirection").on('click', function() {
+        let $dir = $("#editLsAssociationDirection");
+        let selected = $editAssociationFormType.val();
+
+        $dir.toggleClass("lsAssociationDirectionSwitched");
+        if ($dir.hasClass("lsAssociationDirectionSwitched")) {
+            $editAssociationFormType.html($editAssociationFormTypeReverse.html());
+        } else {
+            $editAssociationFormType.html($editAssociationFormTypeForward.html());
+        }
+
+        $editAssociationFormType.val(selected);
+    });
+
+    let $editAssociationModal = $('#editAssociationModal');
+    $editAssociationModal.on('shown.bs.modal', function(e) {
+        let oldAssocLink = $(e.relatedTarget);
+        let oldIdentifier = oldAssocLink.data('association-identifier');
+        let oldId = oldAssocLink.data('association-id');
+        let oldAssoc = apx.mainDoc.assocHash[oldIdentifier];
+
+        let originItem = apx.allItemsHash[oldAssoc.origin.item];
+        let destItem = apx.allItemsHash[oldAssoc.dest.item];
+
+        $editAssociationModal.data('association-identifier', oldIdentifier);
+        $editAssociationModal.data('association-id', oldId);
+
+        /*
+        let originItem = apx.edit.createAssociationNodes.droppedNode.data.ref;
+        let destItem = apx.edit.createAssociationNodes.draggedNodes[0].data.ref;
+        */
+
+        // show the origin and destination statements
+        let destination = apx.mainDoc.getItemTitle(destItem);
+        let origin = apx.mainDoc.getItemTitle(originItem);
+        $("#editLsAssociationDestinationDisplay").html(destination);
+        $("#editLsAssociationDestinationDisplay").data('identifier', destItem.identifier);
+        $("#editLsAssociationOriginDisplay").html(origin);
+        $("#editLsAssociationOriginDisplay").data('identifier', originItem.identifier);
+        $('#editAssociationFormAnnotation').val(oldAssoc.annotation || '');
+
+        let $dir = $("#editLsAssociationDirection");
+        if ($dir.hasClass("lsAssociationDirectionSwitched")) {
+            $dir.toggleClass("lsAssociationDirectionSwitched");
+        }
+        if (oldAssoc.inverse || false) {
+            $dir.toggleClass("lsAssociationDirectionSwitched");
+            $editAssociationFormType.html($editAssociationFormTypeReverse.html());
+        } else {
+            $editAssociationFormType.html($editAssociationFormTypeForward.html());
+        }
+        // TODO: Type/subtype
+        let type = mappedTypes[oldAssoc.type];
+        if ('' !== (oldAssoc.subtype || '')) {
+            type = type + '|' + oldAssoc.subtype;
+        }
+        $editAssociationFormType.val(type);
+
+        // add association group menu if we have one and there's more than one item (the first item is always "default") in the menu
+        let agMenu = $("#treeSideLeft").find(".assocGroupSelect");
+        if (agMenu.find("option").length > 1) {
+            agMenu = agMenu.clone();
+            agMenu.attr("id", "editAssociationFormGroup");
+            $("#editAssociationFormGroupHolder").html("").append(agMenu);
+            $("#editAssociationFormGroupHolderOuter").show();
+
+            // if an assocGroup other than default is selected, select that group in the menu
+            if (null !== (oldAssoc.groupId || null)) {
+                $("#editAssociationFormGroup").val(oldAssoc.groupId);
+            }
+        }
+    });
+
+    // when save button is clicked, create the association(s)
+    $editAssociationModal.find('.btn-save').on('click', function(e) {
+        // TODO: EDIT ASSOC - Needs to be updated
+        // var ajaxData = $editAssociationModal.find('form[name=ls_association_tree]').serialize();
+
+        // get the assocId from the modal
+        let oldAssocId = $editAssociationModal.data('association-id');
+
+        apx.spinner.showModal('Updating association');
+
+        // go through all the draggedNodes
+        let completed = 0;
+        let ajaxData = {
+            "type": $("#editAssociationFormType").val(),
+            "annotation": $("#editAssociationFormAnnotation").val()
+        };
+
+        // the "origin" refers to the node that's 'receiving' the association -- so this is the droppedNode
+        // the "destination" refers to the node that's being associated with the origin node -- so this is the draggedNode
+        let originIdentifier = $("#editLsAssociationOriginDisplay").data('identifier');
+        let destIdentifier = $("#editLsAssociationDestinationDisplay").data('identifier');
+        let originItem = apx.allItemsHash[originIdentifier];
+        let destItem = apx.allItemsHash[destIdentifier];
+
+        // ... that is, unless the user has clicked to switch directions, in which case we switch the items
+        if ($("#lsAssociationDirection").hasClass("lsAssociationDirectionSwitched")) {
+            let temp = originItem;
+            originItem = destItem;
+            destItem = temp;
+        }
+
+        let ajaxItemData = function (item) {
+            if (item.doc.isExternalDoc()) {
+                return {
+                    "identifier": item.identifier,
+                    "uri": item.uri,
+                    "externalDoc": item.doc.doc.identifier
+                };
+            }
+
+            if (!empty(item.id)) {
+                return {
+                    "id": item.id
+                };
+            }
+
+            return {
+                "identifier": item.identifier,
+                "uri": item.uri
+            };
+        };
+
+        ajaxData.origin = ajaxItemData(originItem);
+        ajaxData.dest = ajaxItemData(destItem);
+
+        // if an assocGroup is selected via associationFormGroup and isn't default, add it
+        let agMenu = $("#associationFormGroup");
+        if (agMenu.length > 0 && agMenu.val() !== "default") {
+            ajaxData.assocGroup = agMenu.val();
+        }
+
+        $.ajax({
+            url: apx.path.lsassociation_tree_new,
+            method: 'POST',
+            data: ajaxData,
+            context: {
+                "origin": originItem,
+                "dest": destItem,
+                "type": ajaxData.type,
+                "annotation": ajaxData.annotation,
+                "assocGroup": ajaxData.assocGroup
+            }
+        }).done(function(data, textStatus, jqXHR) {
+            // "this" will refer to context
+
+            // increment completed counter
+            ++completed;
+
+            // add new assoc object and its inverse
+            let types = this.type.split('|');
+            let type = types.shift();
+            this.type = type;
+            let subtype = types.join(' ');
+            type = apx.mainDoc.getAssociationTypeCondensed(this);
+            let atts = {
+                "id": data.id,
+                "identifier": data.identifier,
+                "origin": {
+                    "doc": this.origin.doc.doc.identifier,
+                    "item": this.origin.identifier,
+                    "uri": this.origin.uri
+                },
+                "type": type,
+                "subtype": subtype,
+                "annotation": this.annotation,
+                "dest": {
+                    "doc": this.dest.doc.doc.identifier,
+                    "item": this.dest.identifier,
+                    "uri": this.dest.uri
+                },
+                "groupId": this.assocGroup
+            };
+            let a = apx.mainDoc.addAssociation(atts);
+            apx.mainDoc.addInverseAssociation(a);
+
+            // if the origin item is currently showing in treeDoc1 and this wasn't a childOf assoc, show the association marker
+            if (type !== "isChildOf") {
+                let oi = apx.treeDoc1.itemHash[this.origin.identifier];
+                if (!empty(oi) && !empty(oi.identifier)) {
+                    $(apx.treeDoc1.getFtNode(oi, 1).li).find(".treeHasAssociation").show();
+                }
+            }
+
+            // note that the assocView is no longer fresh, so that if the user clicks to view the association view it will refresh.
+            if (apx.viewMode.assocViewStatus !== "not_written") {
+                apx.viewMode.assocViewStatus = "stale";
+            }
+
+            // we don't need to update the item details here, because that will happen if/when the user clicks the toggle button to show the item details
+
+            // call edit.deleteAssociation; on callback, re-show the current item
+            apx.edit.doDeleteAssociation(oldAssocId, function () {
+                $editAssociationModal.modal('hide');
+                apx.treeDoc1.showCurrentItem();
+                apx.spinner.hideModal();
+            });
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            apx.spinner.hideModal();
+            alert("An error occurred when attempting to save the association.");
+        });
+    });
+};
+
+apx.edit.doDeleteAssociation = function(assocId, callbackFn) {
+    $.ajax({
+        url: apx.path.lsassociation_remove.replace('ID', assocId),
+        method: 'POST'
+    }).done(function(data, textStatus, jqXHR) {
+        apx.edit.performDeleteAssociation(assocId, callbackFn);
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        if (callbackFn != null) {
+            callbackFn();
+        }
+        alert("An error occurred.");
+    });
+};
+
 apx.edit.deleteAssociation = function(assocId, callbackFn) {
     if (!confirm("Are you sure you want to remove this association? This can’t be undone.")) {
         return;
     }
 
     apx.spinner.showModal("Removing association");
-    $.ajax({
-        url: apx.path.lsassociation_remove.replace('ID', assocId),
-        method: 'POST'
-    }).done(function(data, textStatus, jqXHR) {
+    let callback = function() {
         apx.spinner.hideModal();
-        apx.edit.performDeleteAssociation(assocId, callbackFn);
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-        apx.spinner.hideModal();
-        alert("An error occurred.");
-    });
+        if (callbackFn != null) {
+            callbackFn();
+        }
+    };
+
+    apx.edit.doDeleteAssociation(assocId, callback);
 };
 
 apx.edit.performDeleteAssociation = function(assocId, callbackFn) {
@@ -810,7 +1172,7 @@ apx.edit.performDeleteAssociation = function(assocId, callbackFn) {
                 break;
             }
         }
-        $jq = $(apx.treeDoc1.getFtNode(apx.treeDoc1.itemHash[identifier], 1).li).find(".treeHasAssociation").first();
+        let $jq = $(apx.treeDoc1.getFtNode(apx.treeDoc1.itemHash[identifier], 1).li).find(".treeHasAssociation").first();
         if (showAssociationIcon) {
             $jq.show();
         } else {

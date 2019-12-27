@@ -37,6 +37,10 @@ class EducationLevelSet
 
     public static function fromString(?string $passedGradeString): self
     {
+        if (null === $passedGradeString) {
+            return new self([]);
+        }
+
         $passedGrades = str_replace(' ', '', $passedGradeString);
         $passedGrades = explode(',', $passedGrades);
 

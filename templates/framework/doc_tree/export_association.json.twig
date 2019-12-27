@@ -14,9 +14,9 @@
 {% endif %}
 {# Simplify origin and destination data #}
 "origin": {
-"doc": {{ lsAssociation.originLsItem.lsDocIdentifier |default("?") |json_encode |raw }},
-"item": {{ lsAssociation.originNodeIdentifier |json_encode |raw }},
-"uri": {{ uri_for_identifier(lsAssociation.originNodeIdentifier) |json_encode |raw }}
+    "doc": {{ lsAssociation.originLsItem.lsDocIdentifier |default("?") |json_encode |raw }},
+    "item": {{ lsAssociation.originNodeIdentifier |json_encode |raw }},
+    "uri": {{ uri_for_identifier(lsAssociation.originNodeIdentifier) |json_encode |raw }}
 },
 "type": {{ (lsAssociation.type|slice(0,1)|lower~lsAssociation.type|slice(1))|replace({' ': ''}) |json_encode |raw }},
 "dest": {
@@ -30,6 +30,15 @@
     "uri": {{ uri_for_identifier(lsAssociation.destinationNodeIdentifier) |json_encode |raw }}
 {% endif %}
 },
+{% if lsAssociation.extra is defined and lsAssociation.extra is not empty and lsAssociation.extra.customFields is defined and lsAssociation.extra.customFields is not empty %}
+"customFields": {{ lsAssociation.extra.customFields |json_encode |raw }},
+{% endif %}
+{% if lsAssociation.subtype is not null %}
+"subtype": {{ lsAssociation.subtype |json_encode |raw }},
+{% endif %}
+{% if lsAssociation.annotation is not null %}
+"annotation": {{ lsAssociation.annotation |json_encode |raw }},
+{% endif %}
 "mod": {{ lsAssociation.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
 }
 {% endblock %}

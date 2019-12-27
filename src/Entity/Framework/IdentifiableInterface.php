@@ -2,9 +2,6 @@
 
 namespace App\Entity\Framework;
 
-/**
- * Interface IdentifiableInterface
- */
 interface IdentifiableInterface
 {
     /**

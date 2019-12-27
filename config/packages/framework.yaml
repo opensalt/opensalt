@@ -33,4 +33,4 @@ framework:
         version: '%assets_version%'
         packages:
           encore:
-            json_manifest_path: '%kernel.project_dir%/web/build/manifest.json'
+            json_manifest_path: '%kernel.project_dir%/public/build/manifest.json'

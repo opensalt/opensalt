@@ -3,12 +3,12 @@
 namespace App\Handler\Import;
 
 use App\Command\Import\ImportGenericCsvCommand;
-use App\Event\CommandEvent;
-use App\Event\NotificationEvent;
-use App\Handler\BaseDoctrineHandler;
 use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
+use App\Handler\BaseDoctrineHandler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ImportGenericCsvHandler extends BaseDoctrineHandler
@@ -32,7 +32,7 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
 
         $notification = new NotificationEvent(
             'D10',
-            sprintf('Framework "%s" imported via CSV', $doc->getTitle()),
+            sprintf('Framework "%s" imported via CSV', $doc->getTitle() ?? $doc->getIdentifier()),
             $doc,
             [
                 'doc-a' => [
@@ -61,7 +61,11 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
         fgetcsv($fd, 0, ',');
 
         $i = 1;
-        while (FALSE !== ($rec = fgetcsv($fd, 0, ','))) {
+        while (false !== ($rec = fgetcsv($fd, 0, ','))) {
+            if (null === $rec || count($rec) < 4) {
+                continue;
+            }
+
             $item = new LsItem();
             $item->setLsDoc($doc);
 
@@ -77,7 +81,7 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
             $item->setItemType($itemTypes[$rec[0]]);
             $item->setFullStatement($rec[1]);
             $item->setHumanCodingScheme($rec[2]);
-            $item->setListEnumInSource($i);
+            $item->setListEnumInSource((string) $i);
 
             if (!empty($rec[3]) && !empty($items[$rec[3]])) {
                 $item->addParent($items[$rec[3]], $i++);
@@ -140,7 +144,7 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
         if (in_array(
             $grade,
             [
-                'IT', 'PR', 'PK', 'TK', 'KG', 'AS', 'BA',
+                'IT', 'PR', 'PK', 'TK', 'AS', 'BA',
                 'PB', 'MD', 'PM', 'DO', 'PD', 'AE', 'PT',
                 'OT',
             ],

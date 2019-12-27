@@ -9,18 +9,18 @@ use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateTreeItemsCommand;
 use App\Entity\ChangeEntry;
-use App\Entity\Framework\ObjectLock;
-use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsItem;
+use App\Entity\Framework\AssociationSubtype;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
-use App\Form\Type\LsDocListType;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
+use App\Entity\Framework\ObjectLock;
 use App\Entity\User\User;
+use App\Form\Type\LsDocListType;
+use App\Util\Compare;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,7 +28,8 @@ use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Util\Compare;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -41,7 +42,7 @@ class DocTreeController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    private const ETAG_SEED = '1';
+    private const ETAG_SEED = '2';
 
     /**
      * @var ClientInterface
@@ -84,11 +85,27 @@ class DocTreeController extends AbstractController
         // we need groups for other documents if/when we show a document on the right side
         $lsDefAssociationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findAll();
 
+        $assocSubTypes = $em->getRepository(AssociationSubtype::class)->findAll();
+        $assocFilterTypes = [];
         $assocTypes = [];
         $inverseAssocTypes = [];
         foreach (LsAssociation::allTypes() as $type) {
+            $assocFilterTypes[] = $type;
             $assocTypes[] = $type;
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
+            foreach ($assocSubTypes as $subtype) {
+                if ($type === $subtype->getParentType()) {
+                    $assocFilterTypes[] = '-'.$subtype->getName();
+                    if (AssociationSubtype::DIR_INVERSE !== $subtype->getDirection()) {
+                        $assocTypes[] = '-'.$subtype->getName();
+                        $inverseAssocTypes[] = null;
+                    }
+                    if (AssociationSubtype::DIR_FORWARD !== $subtype->getDirection()) {
+                        $assocTypes[] = null;
+                        $inverseAssocTypes[] = '-'.$subtype->getName();
+                    }
+                }
+            }
         }
 
         $editorRights = $authChecker->isGranted('edit', $lsDoc);
@@ -107,6 +124,7 @@ class DocTreeController extends AbstractController
 
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,
+            'assocFilterTypes' => $assocFilterTypes,
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => $lsDefAssociationGroupings,
@@ -129,11 +147,27 @@ class DocTreeController extends AbstractController
      */
     public function viewRemoteAction(): Response
     {
+        $assocSubTypes = $this->getDoctrine()->getRepository(AssociationSubtype::class)->findAll();
+        $assocFilterTypes = [];
         $assocTypes = [];
         $inverseAssocTypes = [];
         foreach (LsAssociation::allTypes() as $type) {
+            $assocFilterTypes[] = $type;
             $assocTypes[] = $type;
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
+            foreach ($assocSubTypes as $subtype) {
+                $assocFilterTypes[] = '-'.$subtype->getName();
+                if ($type === $subtype->getParentType()) {
+                    if (AssociationSubtype::DIR_INVERSE !== $subtype->getDirection()) {
+                        $assocTypes[] = '-'.$subtype->getName();
+                        $inverseAssocTypes[] = null;
+                    }
+                    if (AssociationSubtype::DIR_FORWARD !== $subtype->getDirection()) {
+                        $assocTypes[] = null;
+                        $inverseAssocTypes[] = '-'.$subtype->getName();
+                    }
+                }
+            }
         }
 
         return $this->render('framework/doc_tree/view.html.twig', [
@@ -148,13 +182,13 @@ class DocTreeController extends AbstractController
             'lsItemId' => null,
             'assocGroup' => null,
             'docList' => '',
+            'assocFilterTypes' => $assocFilterTypes,
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => [],
             'lsDocs' => [],
         ]);
     }
-
 
     /**
      * Export a CFPackage in a special json format designed for efficiently loading the package's data to the OpenSALT doctree client.
@@ -282,27 +316,24 @@ class DocTreeController extends AbstractController
             $cache->save($cacheDoc);
         }
 
-        if (!empty($document)) {
-            // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
-            if (null !== $lsDoc) {
-                $this->addExternalDocumentToDoc($url, $lsDoc, $document);
-            }
-
-            // now return the file
-            $response = new Response(
-                $document,
-                Response::HTTP_OK,
-                [
-                    'Content-Type' => 'application/json',
-                    'Pragma' => 'no-cache',
-                ]
-            );
-
-            return $response;
+        if (empty($document)) {
+            throw new NotFoundHttpException('Document not found.');
         }
 
-        // if we get to here, error
-        return new Response('Document not found.', Response::HTTP_NOT_FOUND);
+        // if $lsDoc is not empty, get the document'document identifier and title and save to the $lsDoc'document externalDocs
+        if (null !== $lsDoc) {
+            $this->addExternalDocumentToDoc($url, $lsDoc, $document);
+        }
+
+        // now return the file
+        return new Response(
+            $document,
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/json',
+                'Pragma' => 'no-cache',
+            ]
+        );
     }
 
     protected function isCaseUrl($url): bool
@@ -595,7 +626,7 @@ class DocTreeController extends AbstractController
     protected function fetchExternalDocument(string $url): string
     {
         $headers = [
-            'Accept' => 'application/json',
+            'Accept' => 'application/json, application/x.opensalt+json;q=0.1',
         ];
         $headers = $this->addAuthentication($url, $headers);
 

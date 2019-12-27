@@ -282,7 +282,6 @@ function ApxDocument(initializer) {
             changeKey(item, "listEnumInSource", "le");
             changeKey(item, "conceptKeywords", "ck");
             changeKey(item, "conceptKeywordsURI", "cku");
-            changeKey(item, "notes");
             changeKey(item, "language", "lang");
             changeKey(item, "educationalAlignment", "el");
             changeKey(item, "itemType", "itp");
@@ -803,8 +802,12 @@ function ApxDocument(initializer) {
         return s;
     };
 
+    self.condenseType = function (type) {
+        return type[0].toLowerCase() + type.substr(1).replace(/ /g, "");    // convert type to camel case
+    };
+
     self.getAssociationTypeCondensed = function(a) {
-        return a.type[0].toLowerCase() + a.type.substr(1).replace(/ /g, "");    // convert type to camel case
+        return self.condenseType(a.type);
     };
 
     /** render the association group menu for this document */
@@ -919,7 +922,9 @@ function ApxDocument(initializer) {
         let assoc = {
             "id": atts.id,
             "type": atts.type,
-            "inverse": atts.inverse
+            "inverse": atts.inverse,
+            "subtype": atts.subtype,
+            "annotation": atts.annotation
         };
 
         if (empty(atts.assocDoc)) {
@@ -1007,7 +1012,9 @@ function ApxDocument(initializer) {
                     "assocDoc": self.doc.identifier,
                     "type": a.type,
                     "origin": a.dest,   // switch origin and dest
-                    "dest": a.origin    // switch origin and dest
+                    "dest": a.origin,    // switch origin and dest
+                    "subtype": a.subtype || null,
+                    "annotation": a.annotation || null
                 });
             }
         }
@@ -1580,14 +1587,25 @@ function ApxDocument(initializer) {
             if (assocs.length > 0) {
                 // first sort the assocs by type; put isChildOf at the end
                 assocs.sort(function (a, b) {
-                    if (a.type === b.type && a.inverse === b.inverse) { return 0; }
+                    let aSubtype = '';
+                    let bSubtype = '';
+                    if (!empty(a.subtype)) {
+                        aSubtype = a.subtype;
+                    }
+                    if (!empty(b.subtype)) {
+                        bSubtype = b.subtype;
+                    }
+
+                    if (a.type === b.type && aSubtype === bSubtype && a.inverse === b.inverse) { return 0; }
                     if (a.type === "isChildOf") { return 1; }
                     if (b.type === "isChildOf") { return -1; }
                     if (a.inverse === true && b.inverse !== true) { return 1; }
                     if (b.inverse === true && a.inverse !== true) { return -1; }
                     if (a.type < b.type) { return -1; }
                     if (a.type > b.type) { return 1; }
-                    return 0;   // shouldn't get to here
+                    if (aSubtype < bSubtype) { return -1; }
+                    if (aSubtype > bSubtype) { return 1; }
+                    return 0;
                 });
 
                 // to simplify the list, we only use one association type header for each type
@@ -1600,14 +1618,21 @@ function ApxDocument(initializer) {
                         continue;
                     }
 
-                    if (a.type !== lastType || a.inverse !== lastInverse) {
+                    let nextType = a.type;
+                    let subtype = '';
+                    if (!empty(a.subtype)) {
+                        nextType += ': ' + a.subtype;
+                        subtype = ': ' + a.subtype;
+                    }
+
+                    if (nextType !== lastType || a.inverse !== lastInverse) {
                         // close previous type section if we already opened one
                         if (lastType !== "") {
                             html += '</div></div></div></section>';
                         }
 
                         // open type section
-                        let title = self.getAssociationTypePretty(a);
+                        let title = self.getAssociationTypePretty(a) + subtype;
                         let icon = "";
                         if (a.type !== "isChildOf") {
                             icon = '<img class="association-panel-icon" src="/assets/img/association-icon.png">';
@@ -1617,7 +1642,7 @@ function ApxDocument(initializer) {
                             + '<div class="panel-body"><div><div class="list-group">'
                         ;
 
-                        lastType = a.type;
+                        lastType = nextType;
                         lastInverse = a.inverse;
                     }
 
@@ -1626,10 +1651,15 @@ function ApxDocument(initializer) {
                     // determine if the origin item is a member of the edited doc or an other doc
                     let originDoc = "edited";
                     let removeBtn = $("#associationRemoveBtn").html();  // remove association button (only for editors)
+                    let editBtn = $("#associationEditBtn").html();  // remove association button (only for editors)
                     if (a.assocDoc !== apx.mainDoc.doc.identifier) {
                         originDoc = "other";
                         // if it's another doc, no remove btn
-                        removeBtn = "";
+                        removeBtn = '';
+                        editBtn = '';
+                    }
+                    if ('exemplar' === a.type || 'isChildOf' === a.type) {
+                        editBtn = '';
                     }
 
                     // assocGroup if assigned -- either in self or mainDoc
@@ -1648,9 +1678,14 @@ function ApxDocument(initializer) {
                         html += '<span class="label label-default">' + render.escaped(groupName) + '</span>';
                     }
 
+                    let annotation = '';
+                    if (!empty(a.annotation)) {
+                        annotation = a.annotation;
+                    }
                     html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
                         + removeBtn
-                        + '<span class="itemDetailsAssociationTitle">'
+                        + editBtn
+                        + '<span class="itemDetailsAssociationTitle '+('' !== annotation ? 'annotated' : '')+'" title="'+annotation+'">'
                         + self.associationDestItemTitle(a)
                         + '</span>'
                         + '</a>'
@@ -1676,9 +1711,23 @@ function ApxDocument(initializer) {
                 apx.treeDoc1.openAssociationItem(this, false);
             });
 
+            // enable edit association button(s)
+            $jq.find('.btn-edit-association').on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                let $target = $($(e.target).closest('a'));
+                $('#editAssociationModal').modal('show', $target);
+
+                return false;
+            });
+
             // enable remove association button(s)
             $jq.find(".btn-remove-association").on('click', function (e) {
                 e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
 
                 // get the assocId from the association link
                 let $target = $(e.target);

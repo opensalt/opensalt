@@ -112,12 +112,13 @@ class FrameworkService
         $this->em->persist($association);
     }
 
-    public function addExemplarToItem(LsItem $item, string $url): LsAssociation
+    public function addExemplarToItem(LsItem $item, string $url, ?string $annotation = null): LsAssociation
     {
         $lsAssociation = new LsAssociation();
         $lsAssociation->setLsDoc($item->getLsDoc());
         $lsAssociation->setOriginLsItem($item);
         $lsAssociation->setType(LsAssociation::EXEMPLAR);
+        $lsAssociation->setAnnotation($annotation);
         $lsAssociation->setDestinationNodeUri($url);
         $lsAssociation->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $url));
 
@@ -129,11 +130,14 @@ class FrameworkService
         return $lsAssociation;
     }
 
-    public function addTreeAssociation(LsDoc $doc, array $origin, string $type, array $dest, ?string $assocGroup = null): LsAssociation
+    public function addTreeAssociation(LsDoc $doc, array $origin, string $type, array $dest, ?string $assocGroup = null, ?string $annotation = null): LsAssociation
     {
         $association = new LsAssociation();
-        $association->setType($type);
         $association->setLsDoc($doc);
+        $types = explode('|', $type, 2);
+        $association->setType($types[0]);
+        $association->setSubtype($types[1] ?? null);
+        $association->setAnnotation($annotation);
 
         // deal with origin and dest items, which can be specified by id or by identifier
         // if externalDoc is specified for either one, mark this document as "autoLoad": "true" in the doc's externalDocuments

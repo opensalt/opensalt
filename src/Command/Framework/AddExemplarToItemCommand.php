@@ -27,6 +27,13 @@ class AddExemplarToItemCommand extends BaseCommand
     private $url;
 
     /**
+     * @var string|null
+     *
+     * @Assert\Type("string")
+     */
+    private $annotation;
+
+    /**
      * @var LsAssociation|null
      *
      * @Assert\Type(LsAssociation::class)
@@ -36,10 +43,11 @@ class AddExemplarToItemCommand extends BaseCommand
     /**
      * Constructor.
      */
-    public function __construct(LsItem $item, string $url, ?LsAssociation $association = null)
+    public function __construct(LsItem $item, string $url, ?string $annotation = null, ?LsAssociation $association = null)
     {
         $this->item = $item;
         $this->url = $url;
+        $this->annotation = $annotation;
         $this->association = $association;
     }
 
@@ -51,6 +59,11 @@ class AddExemplarToItemCommand extends BaseCommand
     public function getUrl(): string
     {
         return $this->url;
+    }
+
+    public function getAnnotation(): ?string
+    {
+        return $this->annotation;
     }
 
     public function getAssociation(): ?LsAssociation

@@ -129,13 +129,22 @@ class LsAssociationController extends AbstractController
                 $request->request->get('origin'),
                 $request->request->get('type'),
                 $request->request->get('dest'),
-                $request->request->get('assocGroup')
+                $request->request->get('assocGroup'),
+                $request->request->get('annotation')
             );
             $this->sendCommand($command);
             $lsAssociation = $command->getAssociation();
 
             // return id of created association
-            return new Response((null !== $lsAssociation) ? $lsAssociation->getId() : '', Response::HTTP_CREATED);
+            $rv = [
+                'id' => isset($lsAssociation) ? $lsAssociation->getId() : null,
+                'identifier' => isset($lsAssociation) ? $lsAssociation->getIdentifier() : null,
+            ];
+
+            $response = new JsonResponse($rv);
+            $response->headers->set('Cache-Control', 'no-cache');
+
+            return $response;
         } catch (\Exception $e) {
             return new JsonResponse(['error' => ['message' => $e->getMessage()]], Response::HTTP_BAD_REQUEST);
         }
@@ -156,7 +165,11 @@ class LsAssociationController extends AbstractController
         }
 
         try {
-            $command = new AddExemplarToItemCommand($originLsItem, $request->request->get('exemplarUrl'));
+            $command = new AddExemplarToItemCommand(
+                $originLsItem,
+                $request->request->get('exemplarUrl'),
+                $request->request->get('annotation')
+            );
             $this->sendCommand($command);
             $lsAssociation = $command->getAssociation();
 

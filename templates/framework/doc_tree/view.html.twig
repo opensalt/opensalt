@@ -247,6 +247,11 @@
                             </div>  <!-- lsItemDetails -->
                             <div class="lsItemAssociations"></div>
 
+                            <div id="associationEditBtn" style="display:none">
+                                {% if editorRights and not isDeprecated %}
+                                    <span class="pull-right" style="margin-left:5px"><span role="button" class="btn btn-xs btn-default btn-edit-association"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span><span class="sr-only">Edit</span></span></span>
+                                {% endif %}
+                            </div>
                             <div id="associationRemoveBtn" style="display:none">
                                 {% if editorRights and not isDeprecated %}
                                     <span class="pull-right" style="margin-left:5px"><span role="button" class="btn btn-xs btn-default btn-remove-association"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Remove</span></span></span>
@@ -322,15 +327,19 @@
             <div id="assocViewTableFilters" style="display:none">
                 <div class="assocViewTableTypeFilters">
                     <div class="assocViewTableTypeFiltersHeader">Association Types:</div>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowChild"> Is Child Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExact" checked> Exact Match Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowExemplar" checked> Exemplar</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsRelatedTo" checked> Is Related To</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowPrecedes" checked> Precedes</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsPeerOf" checked> Is Peer Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowIsPartOf" checked> Is Part Of</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowHasSkillLevel" checked> Has Skill Level</label><br>
-                    <label class="avTypeFilter"><input type="checkbox" data-filter="avShowReplacedBy" checked> Replaced By</label><br>
+                    {% set parent = '' %}
+                    {% for assocType in assocFilterTypes|filter(f => (f is not null)) %}
+                    <label class="avTypeFilter">
+                      {% if assocType starts with '-' %}
+                        &nbsp;&nbsp;&nbsp;
+                        <input type="checkbox" value="{{ assocType|replace({'-': ''}) }}" data-subtype="yes" data-parent="{{ parent }}">
+                        {{ assocType|replace({'-':''}) }} subtype
+                      {% else %}
+                        {% set parent = assocType %}
+                        <input type="checkbox" value="{{ assocType }}" data-subtype="no"> {{ assocType }}
+                      {% endif %}
+                    </label><br/>
+                    {% endfor %}
                 </div>
 
                 <div class="assocViewTableGroupFilters">
@@ -539,6 +548,18 @@
         } %}
             {% block modalBody %}
                 {% embed 'framework/ls_association/_new_association_component.html.twig' with {'view':'editor'} %}
+                {% endembed %}
+            {% endblock %}
+        {% endembed %}
+
+        {% embed 'framework/editor/_modal_component.html.twig' with {
+        'modalName':'editAssociation',
+        'modalTitle':'Edit Association',
+        'closeButton': 'Cancel',
+        'saveButton': 'Save'
+        } %}
+            {% block modalBody %}
+                {% embed 'framework/ls_association/_edit_association_component.html.twig' with {'view':'editor'} %}
                 {% endembed %}
             {% endblock %}
         {% endembed %}
