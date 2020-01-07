@@ -917,6 +917,9 @@
     "vlucas/phpdotenv": {
         "version": "v3.3.3"
     },
+    "webimpress/safe-writer": {
+        "version": "2.0.0"
+    },
     "webmozart/assert": {
         "version": "1.3.0"
     },

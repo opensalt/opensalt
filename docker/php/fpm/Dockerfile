@@ -76,6 +76,10 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_HOME=/composer \
     COMPOSER_MEMORY_LIMIT=-1
 
-RUN composer global require "hirak/prestissimo:^0.3" --prefer-dist --no-progress --no-suggest --classmap-authoritative \
+RUN composer global require \
+        hirak/prestissimo \
+        maglnet/composer-require-checker \
+        insolita/unused-scanner \
+            --prefer-dist --no-progress --no-suggest --classmap-authoritative \
         && composer clear-cache \
 	&& chmod -R a+w ${COMPOSER_HOME}
