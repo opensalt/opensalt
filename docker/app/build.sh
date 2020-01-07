@@ -13,6 +13,7 @@ tar cf app.tar \
 	--exclude-vcs --exclude='var/*/*' \
 	-C ../.. \
 	assets bin config public src templates translations var vendor \
+	tests \
 	composer.json composer.lock symfony.lock \
 	package.json webpack.config.js yarn.lock \
 	LICENSE README.md
