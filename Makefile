@@ -77,7 +77,7 @@ yarn-install: node_modules
 
 # Install and build commands
 assets-install:
-	bin/console assets:install web --symlink --relative
+	bin/console assets:install public --symlink --relative
 .PHONY: assets-install
 
 build: vendor encore-build assets-install cache-clear
@@ -108,5 +108,5 @@ migrate:
 
 # Clean
 clean: cache-clear
-	rm -rf build/* web/build/*
+	rm -rf build/* public/build/*
 .PHONY: clean
