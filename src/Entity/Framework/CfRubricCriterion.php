@@ -29,7 +29,8 @@ use JMS\Serializer\Annotation as Serializer;
  *     exp="object.getRubric()?object.getRubric().getIdentifier():null",
  *     options={
  *         @Serializer\SerializedName("rubricId"),
- *         @Serializer\Expose()
+ *         @Serializer\Expose(),
+ *         @Serializer\Groups({"CfRubricCriterion"})
  *     }
  * )
  */
