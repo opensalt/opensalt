@@ -98,7 +98,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("CFRubricCriterionLevels")
-     * @Serializer\Type("array<App\Entity\Framework\CfRubricCriterionLevel>")
+     * @Serializer\Type("ArrayCollection<App\Entity\Framework\CfRubricCriterionLevel>")
      */
     private $levels;
 
