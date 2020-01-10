@@ -40,7 +40,7 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
      *
      * @Serializer\Expose()
      * @Serializer\SerializedName("CFRubricCriteria"),
-     * @Serializer\Type("array<App\Entity\Framework\CfRubricCriterion>"),
+     * @Serializer\Type("ArrayCollection<App\Entity\Framework\CfRubricCriterion>"),
      */
     private $criteria;
 

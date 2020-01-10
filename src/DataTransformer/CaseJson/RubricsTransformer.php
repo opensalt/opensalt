@@ -70,7 +70,7 @@ class RubricsTransformer
 
     private function createRubric(CFPackageRubric $cfRubric): CfRubric
     {
-        $rubric = new CfRubric($cfRubric->identifier);
+        $rubric = new CfRubric($cfRubric->identifier->toString());
         $this->em->persist($rubric);
 
         return $rubric;
@@ -126,7 +126,7 @@ class RubricsTransformer
 
     private function updateCriterion(CfRubricCriterion $criterion, CFPackageCriterion $cfCriterion): CfRubricCriterion
     {
-        if ($criterion->getRubric()->getIdentifier() !== $cfCriterion->rubricId) {
+        if (null !== ($cfCriterion->rubricId) && $criterion->getRubric()->getIdentifier() !== $cfCriterion->rubricId) {
             $this->error(sprintf('Attempt to change the rubric from %s to %s of criterion %s', $criterion->getRubric()->getIdentifier(), $cfCriterion->rubricId, $cfCriterion->identifier->toString()));
 
             throw new \UnexpectedValueException('Cannot change the rubric of a criterion');
@@ -187,7 +187,7 @@ class RubricsTransformer
 
     private function updateCriterionLevel(CfRubricCriterionLevel $level, CFPackageCriterionLevel $cfCriterionLevel): CfRubricCriterionLevel
     {
-        if ($level->getCriterion()->getIdentifier() !== $cfCriterionLevel->rubricCriterionId) {
+        if (null !== ($cfCriterionLevel->rubricCriterionId) && $level->getCriterion()->getIdentifier() !== $cfCriterionLevel->rubricCriterionId) {
             $this->error(sprintf('Attempt to change the criterion from %s to %s of criterion level %s', $cfCriterionLevel->rubricCriterionId, $level->getCriterion()->getIdentifier(), $cfCriterionLevel->identifier->toString()));
 
             throw new \UnexpectedValueException('Cannot change the criterion of a criterion level');
