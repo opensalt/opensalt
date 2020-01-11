@@ -240,29 +240,16 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
         return $this->levels;
     }
 
-    /**
-     * @param CfRubricCriterionLevel[]|Collection $levels
-     *
-     * @return CfRubricCriterion
-     */
-    public function setLevels($levels): CfRubricCriterion
+    public function addLevel(CfRubricCriterionLevel $level): CfRubricCriterion
     {
-        if (is_array($levels)) {
-            $levels = new ArrayCollection($levels);
-        }
-        $this->levels = $levels;
+        $this->levels[] = $level;
 
         return $this;
     }
 
-    /**
-     * @param CfRubricCriterionLevel $level
-     *
-     * @return CfRubricCriterion
-     */
-    public function addLevel(CfRubricCriterionLevel $level): CfRubricCriterion
+    public function removeLevel(CfRubricCriterionLevel $level): CfRubricCriterion
     {
-        $this->levels[] = $level;
+        $this->levels->removeElement($level);
 
         return $this;
     }
