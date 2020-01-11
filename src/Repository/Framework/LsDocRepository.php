@@ -293,6 +293,19 @@ DELETE FROM ls_def_association_grouping
 xENDx;
         $conn->prepare($stmt)->execute($params);
 
+        $progressCallback('Deleting rubric references to items');
+        $stmt = <<<'xENDx'
+UPDATE rubric_criterion
+   SET ls_item_id = NULL
+ WHERE ls_item_id IN (
+   SELECT id
+     FROM ls_item
+    WHERE ls_doc_id = :lsDocId
+ )
+;
+xENDx;
+        $conn->prepare($stmt)->execute($params);
+
         $progressCallback('Deleting items');
         $stmt = <<<'xENDx'
 DELETE FROM ls_item

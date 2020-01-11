@@ -82,27 +82,16 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
         return $this->criteria;
     }
 
-    /**
-     * @param CfRubricCriterion[]|Collection|null $criteria
-     */
-    public function setCriteria(?iterable $criteria): CfRubric
+    public function addCriterion(CfRubricCriterion $criterion): CfRubric
     {
-        $this->criteria = new ArrayCollection();
-
-        if (null === $criteria) {
-            return $this;
-        }
-
-        foreach ($criteria as $criterion) {
-            $this->addCriterion($criterion);
-        }
+        $this->criteria[] = $criterion;
 
         return $this;
     }
 
-    public function addCriterion(CfRubricCriterion $criterion): CfRubric
+    public function removeCriterion(CfRubricCriterion $criterion): CfRubric
     {
-        $this->criteria[] = $criterion;
+        $this->criteria->removeElement($criterion);
 
         return $this;
     }

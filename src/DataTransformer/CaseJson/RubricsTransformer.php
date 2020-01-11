@@ -110,13 +110,25 @@ class RubricsTransformer
             $identifier = $cfCriterion->identifier->toString();
             $criterion = $existingCriteria[$identifier] ?? $this->createCriterion($cfCriterion, $rubric);
             $criteria[$identifier] = $this->updateCriterion($criterion, $cfCriterion);
+            $rubric->addCriterion($criterion);
         }
 
-        $rubric->setCriteria($criteria);
+        foreach ($existingCriteria as $oldCriterionId => $oldCriterion) {
+            if (!array_key_exists($oldCriterionId, $criteria)) {
+                $rubric->removeCriterion($oldCriterion);
+                $this->em->remove($oldCriterion);
+            }
+        }
     }
 
     private function createCriterion(CFPackageCriterion $cfCriterion, CfRubric $rubric): CfRubricCriterion
     {
+        $criterion = $this->em->getRepository(CfRubricCriterion::class)->findOneBy(['identifier' => $cfCriterion->identifier->toString()]);
+
+        if (null !== $criterion) {
+            return $criterion;
+        }
+
         $criterion = new CfRubricCriterion($cfCriterion->identifier->toString());
         $criterion->setRubric($rubric);
         $this->em->persist($criterion);
@@ -169,15 +181,27 @@ class RubricsTransformer
             $identifier = $cfCriterionLevel->identifier->toString();
             $level = $existingLevels[$identifier] ?? $this->createCriterionLevel($cfCriterionLevel, $criterion);
             $levels[$identifier] = $this->updateCriterionLevel($level, $cfCriterionLevel);
+            $criterion->addLevel($level);
         }
 
-        $criterion->setLevels($levels);
+        foreach ($existingLevels as $oldLevelId => $oldLevel) {
+            if (!array_key_exists($oldLevelId, $levels)) {
+                $criterion->removeLevel($oldLevel);
+                $this->em->remove($oldLevel);
+            }
+        }
 
         return $levels;
     }
 
     private function createCriterionLevel(CFPackageCriterionLevel $cfCriterionLevel, CfRubricCriterion $criterion): CfRubricCriterionLevel
     {
+        $level = $this->em->getRepository(CfRubricCriterionLevel::class)->findOneBy(['identifier' => $cfCriterionLevel->identifier->toString()]);
+
+        if (null !== $level) {
+            return $level;
+        }
+
         $level = new CfRubricCriterionLevel($cfCriterionLevel->identifier->toString());
         $level->setCriterion($criterion);
         $this->em->persist($level);

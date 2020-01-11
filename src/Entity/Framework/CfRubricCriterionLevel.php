@@ -18,7 +18,8 @@ use JMS\Serializer\Annotation as Serializer;
  *     exp="object.getCriterion()?object.getCriterion().getIdentifier():null",
  *     options={
  *         @Serializer\SerializedName("rubricCriterionId"),
- *         @Serializer\Expose()
+ *         @Serializer\Expose(),
+ *         @Serializer\Groups({"CfRubricCriterionLevel"})
  *     }
  * )
  */
