@@ -2,12 +2,12 @@
 
 namespace App\Handler\Import;
 
-use App\Event\NotificationEvent;
-use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ImportCaseJsonCommand;
 use App\Event\CommandEvent;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Event\NotificationEvent;
+use App\Handler\AbstractDoctrineHandler;
 use App\Service\CaseImport;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
