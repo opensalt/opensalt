@@ -392,26 +392,23 @@
     "netresearch/jsonmapper": {
         "version": "v1.6.0"
     },
-    "nette/bootstrap": {
-        "version": "v2.4.6"
+    "nette/application": {
+        "version": "v3.0.3"
     },
-    "nette/di": {
-        "version": "v2.4.15"
+    "nette/component-model": {
+        "version": "v3.0.0"
     },
     "nette/finder": {
         "version": "v2.4.2"
     },
-    "nette/neon": {
-        "version": "v3.0.0"
-    },
-    "nette/php-generator": {
-        "version": "v3.2.1"
+    "nette/http": {
+        "version": "v3.0.3"
     },
     "nette/robot-loader": {
         "version": "v3.1.0"
     },
-    "nette/schema": {
-        "version": "v1.0.0"
+    "nette/routing": {
+        "version": "v3.0.0"
     },
     "nette/utils": {
         "version": "v2.5.3"
@@ -604,6 +601,9 @@
     },
     "simplethings/entity-audit-bundle": {
         "version": "v1.0.9"
+    },
+    "slevomat/coding-standard": {
+        "version": "6.0.8"
     },
     "squizlabs/php_codesniffer": {
         "version": "3.2.3"
@@ -880,6 +880,27 @@
     },
     "symfony/yaml": {
         "version": "v4.0.10"
+    },
+    "symplify/auto-bind-parameter": {
+        "version": "v7.2.1"
+    },
+    "symplify/autowire-array-parameter": {
+        "version": "v7.2.1"
+    },
+    "symplify/coding-standard": {
+        "version": "v7.2.1"
+    },
+    "symplify/easy-coding-standard": {
+        "version": "v7.2.0"
+    },
+    "symplify/package-builder": {
+        "version": "v7.2.1"
+    },
+    "symplify/set-config-resolver": {
+        "version": "v7.2.1"
+    },
+    "symplify/smart-file-system": {
+        "version": "v7.2.1"
     },
     "tecnickcom/tcpdf": {
         "version": "6.2.17"
