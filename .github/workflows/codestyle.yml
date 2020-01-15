@@ -43,5 +43,5 @@ jobs:
 
       - name: Run Symplify Easy Coding Standard
         run: |
-          php vendor/bin/ecs check src/
+          php vendor/bin/ecs check --no-progress-bar src/
 
