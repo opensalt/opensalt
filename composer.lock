@@ -3869,16 +3869,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "4.38.1",
+            "version": "4.39.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "c02500234e61abaa902724c7f4efbcdc2efcfb51"
+                "reference": "fbe8348f1246d6c5bc91a49cc334497cfb159dab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/c02500234e61abaa902724c7f4efbcdc2efcfb51",
-                "reference": "c02500234e61abaa902724c7f4efbcdc2efcfb51",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/fbe8348f1246d6c5bc91a49cc334497cfb159dab",
+                "reference": "fbe8348f1246d6c5bc91a49cc334497cfb159dab",
                 "shasum": ""
             },
             "require": {
@@ -3889,9 +3889,9 @@
                 "giggsey/libphonenumber-for-php": "^8.9",
                 "google/auth": "^0.11.0|^1.0",
                 "google/cloud-storage": "^1.14",
-                "guzzlehttp/guzzle": "^6.2.1",
+                "guzzlehttp/guzzle": "^6.2.1|^7.0@beta",
                 "kreait/clock": "^1.0.1",
-                "kreait/firebase-tokens": "^1.8.1",
+                "kreait/firebase-tokens": "^1.10",
                 "kreait/gcp-metadata": "^1.0.1",
                 "lcobucci/jwt": "^3.3.1",
                 "mtdowling/jmespath.php": "^2.3",
@@ -3943,7 +3943,7 @@
                 "google",
                 "sdk"
             ],
-            "time": "2020-01-14T12:33:18+00:00"
+            "time": "2020-01-17T15:44:28+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
@@ -11722,6 +11722,7 @@
                 "selenium",
                 "webdriver"
             ],
+            "abandoned": "php-webdriver/webdriver",
             "time": "2019-06-13T08:02:18+00:00"
         },
         {
