@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dafbcf8316b7f88af198e85bcc749b5a",
+    "content-hash": "b6671b8690e9d67f17b6a77814a1ad2b",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -11722,6 +11722,7 @@
                 "selenium",
                 "webdriver"
             ],
+            "abandoned": "php-webdriver/webdriver",
             "time": "2019-06-13T08:02:18+00:00"
         },
         {
@@ -15889,26 +15890,27 @@
         },
         {
             "name": "weirdan/doctrine-psalm-plugin",
-            "version": "0.8.0",
+            "version": "0.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/weirdan/doctrine-psalm-plugin.git",
-                "reference": "82416075b6ce274def2233b09d69cdbc235ce4bc"
+                "reference": "f962d9efc0ff90c0b4d4871fc6e3f5e499c7ae8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/weirdan/doctrine-psalm-plugin/zipball/82416075b6ce274def2233b09d69cdbc235ce4bc",
-                "reference": "82416075b6ce274def2233b09d69cdbc235ce4bc",
+                "url": "https://api.github.com/repos/weirdan/doctrine-psalm-plugin/zipball/f962d9efc0ff90c0b4d4871fc6e3f5e499c7ae8a",
+                "reference": "f962d9efc0ff90c0b4d4871fc6e3f5e499c7ae8a",
                 "shasum": ""
             },
             "require": {
                 "doctrine/collections": "^1.0",
                 "doctrine/orm": "^2.6",
-                "vimeo/psalm": "^3.0.15 || dev-master"
+                "vimeo/psalm": "^3.6.2 || dev-master"
             },
             "require-dev": {
                 "codeception/base": "^2.5 || ^3.0",
                 "composer/semver": "^1.4",
+                "doctrine/coding-standard": "^7.0",
                 "doctrine/doctrine-bundle": "^1.11",
                 "phly/keep-a-changelog": "^2.1",
                 "squizlabs/php_codesniffer": "^3.3",
@@ -15953,7 +15955,7 @@
                 "static analysis",
                 "static-analysis"
             ],
-            "time": "2019-10-17T00:57:44+00:00"
+            "time": "2020-01-19T19:03:13+00:00"
         }
     ],
     "aliases": [
