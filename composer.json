@@ -115,7 +115,7 @@
         "symfony/debug-pack": "*",
         "symfony/test-pack": "*",
         "symfony/maker-bundle": "^1.5",
-        "symfony/phpunit-bridge": "^4.0",
+        "symfony/phpunit-bridge": "^5.0",
 
         "codeception/codeception": "^3.0",
             "codeception/specify": "^1.1",
