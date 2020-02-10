@@ -264,6 +264,13 @@ apx.treeDocLoadCallback1 = function() {
                     ref = data.node.data.ref
                 ;
                 let title = '';
+
+                $('body > .tooltip').tooltip('hide');
+
+                if ('undefined' === typeof ref) {
+                    return;
+                }
+
                 if (ref.title) {
                     title = render.inline(ref.title);
                 } else if (ref.astmt) {
@@ -277,8 +284,6 @@ apx.treeDocLoadCallback1 = function() {
                 }
 
                 $title.html(title);
-
-                $('body > .tooltip').tooltip('hide');
             },
             
             click: function(event, data) {
