@@ -3,7 +3,7 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\CfRubricCriterion;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 class CfRubricCriterionRepository extends AbstractLsBaseRepository
 {

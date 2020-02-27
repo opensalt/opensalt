@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\Framework\AbstractLsBase;
 use App\Entity\Framework\Package;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\Uuid;
 

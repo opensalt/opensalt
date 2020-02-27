@@ -3,7 +3,7 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefGrade;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 class LsDefGradeRepository extends AbstractLsDefinitionRepository
 {

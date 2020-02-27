@@ -16,7 +16,7 @@ use App\Entity\Framework\ObjectLock;
 use App\Entity\LockableInterface;
 use App\Entity\User\User;
 use App\Exception\AlreadyLockedException;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManager;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;

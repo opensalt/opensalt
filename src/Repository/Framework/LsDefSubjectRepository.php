@@ -3,7 +3,7 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefSubject;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefSubject|null findOneByIdentifier(string $identifier)

@@ -3,7 +3,7 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefAssociationGrouping;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefAssociationGrouping|null findOneByIdentifier(string $identifier)

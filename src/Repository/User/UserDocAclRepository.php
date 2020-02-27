@@ -6,7 +6,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * UserDocAclRepository.

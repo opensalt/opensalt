@@ -8,7 +8,7 @@ use App\Entity\LockableInterface;
 use App\Entity\User\User;
 use App\Exception\AlreadyLockedException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * Class ObjectLockRepository.

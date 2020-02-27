@@ -4,7 +4,7 @@ namespace App\Form\Command;
 
 use App\Entity\Framework\LsItem;
 use App\Form\DTO\CopyToLsDocDTO;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
 class CopyToLsDocCommand
 {

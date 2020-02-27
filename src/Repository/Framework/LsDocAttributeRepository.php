@@ -4,7 +4,7 @@ namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDocAttribute;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 class LsDocAttributeRepository extends ServiceEntityRepository
 {

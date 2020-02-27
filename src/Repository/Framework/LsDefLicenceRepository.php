@@ -4,7 +4,7 @@ namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefLicence;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefLicence|null findOneByIdentifier(string $identifier)
