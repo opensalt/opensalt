@@ -117,7 +117,7 @@
         "symfony/maker-bundle": "^1.5",
         "symfony/phpunit-bridge": "^4.0",
 
-        "codeception/codeception": "^3.0",
+        "codeception/codeception": "^4.1",
             "codeception/specify": "^1.1",
             "codeception/verify": "^1.0",
             "flow/jsonpath": "~0.4",
