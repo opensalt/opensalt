@@ -103,7 +103,7 @@
         "symfony/translation": "4.4.*",
         "symfony/twig-pack": "^1.0.0",
         "symfony/validator": "4.4.*",
-        "symfony/web-link": "4.4.*",
+        "symfony/web-link": "5.0.*",
         "symfony/yaml": "4.4.*",
         "tecnickcom/tcpdf": "^6.2",
         "tetranz/select2entity-bundle": "^3.0.0",
