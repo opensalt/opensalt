@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dafbcf8316b7f88af198e85bcc749b5a",
+    "content-hash": "5f43e3e7d78d807ce4fb314ffceeaa3d",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -11539,6 +11539,7 @@
                 "monolog",
                 "productivity"
             ],
+            "abandoned": true,
             "time": "2019-10-24T07:13:31+00:00"
         },
         {
@@ -11669,12 +11670,12 @@
             "version": "1.7.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/facebook/php-webdriver.git",
+                "url": "https://github.com/php-webdriver/php-webdriver-archive.git",
                 "reference": "e43de70f3c7166169d0f14a374505392734160e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/e43de70f3c7166169d0f14a374505392734160e5",
+                "url": "https://api.github.com/repos/php-webdriver/php-webdriver-archive/zipball/e43de70f3c7166169d0f14a374505392734160e5",
                 "reference": "e43de70f3c7166169d0f14a374505392734160e5",
                 "shasum": ""
             },
@@ -11722,6 +11723,7 @@
                 "selenium",
                 "webdriver"
             ],
+            "abandoned": "php-webdriver/webdriver",
             "time": "2019-06-13T08:02:18+00:00"
         },
         {
@@ -12108,6 +12110,7 @@
                     "email": "jakub.onderka@gmail.com"
                 }
             ],
+            "abandoned": "php-parallel-lint/php-console-color",
             "time": "2018-09-29T17:23:10+00:00"
         },
         {
@@ -12154,6 +12157,7 @@
                 }
             ],
             "description": "Highlight PHP code in terminal",
+            "abandoned": "php-parallel-lint/php-console-highlighter",
             "time": "2018-09-29T18:48:56+00:00"
         },
         {
@@ -13154,20 +13158,20 @@
         },
         {
             "name": "phpoption/phpoption",
-            "version": "1.7.2",
+            "version": "1.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/php-option.git",
-                "reference": "77f7c4d2e65413aff5b5a8cc8b3caf7a28d81959"
+                "reference": "4acfd6a4b33a509d8c88f50e5222f734b6aeebae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/php-option/zipball/77f7c4d2e65413aff5b5a8cc8b3caf7a28d81959",
-                "reference": "77f7c4d2e65413aff5b5a8cc8b3caf7a28d81959",
+                "url": "https://api.github.com/repos/schmittjoh/php-option/zipball/4acfd6a4b33a509d8c88f50e5222f734b6aeebae",
+                "reference": "4acfd6a4b33a509d8c88f50e5222f734b6aeebae",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.5.9 || ^7.0"
+                "php": "^5.5.9 || ^7.0 || ^8.0"
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.3",
@@ -13205,7 +13209,7 @@
                 "php",
                 "type"
             ],
-            "time": "2019-12-15T19:35:24+00:00"
+            "time": "2020-03-21T18:07:53+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -15214,12 +15218,12 @@
             "version": "v7.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Symplify/AutoBindParameter.git",
+                "url": "https://github.com/symplify/auto-bind-parameter.git",
                 "reference": "d22daa199862e739bd4861b4d4a176b932b23565"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Symplify/AutoBindParameter/zipball/d22daa199862e739bd4861b4d4a176b932b23565",
+                "url": "https://api.github.com/repos/symplify/auto-bind-parameter/zipball/d22daa199862e739bd4861b4d4a176b932b23565",
                 "reference": "d22daa199862e739bd4861b4d4a176b932b23565",
                 "shasum": ""
             },
@@ -15256,12 +15260,12 @@
             "version": "v7.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Symplify/AutowireArrayParameter.git",
+                "url": "https://github.com/symplify/autowire-array-parameter.git",
                 "reference": "783e2fc6ede42fb07a6eba75510e26e1b1bcabe6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Symplify/AutowireArrayParameter/zipball/783e2fc6ede42fb07a6eba75510e26e1b1bcabe6",
+                "url": "https://api.github.com/repos/symplify/autowire-array-parameter/zipball/783e2fc6ede42fb07a6eba75510e26e1b1bcabe6",
                 "reference": "783e2fc6ede42fb07a6eba75510e26e1b1bcabe6",
                 "shasum": ""
             },
@@ -15298,12 +15302,12 @@
             "version": "v7.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Symplify/CodingStandard.git",
+                "url": "https://github.com/symplify/coding-standard.git",
                 "reference": "025f177be83b4dacbada0e2d50180fc5f93b4fea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Symplify/CodingStandard/zipball/025f177be83b4dacbada0e2d50180fc5f93b4fea",
+                "url": "https://api.github.com/repos/symplify/coding-standard/zipball/025f177be83b4dacbada0e2d50180fc5f93b4fea",
                 "reference": "025f177be83b4dacbada0e2d50180fc5f93b4fea",
                 "shasum": ""
             },
@@ -15348,12 +15352,12 @@
             "version": "v7.2.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Symplify/EasyCodingStandard.git",
+                "url": "https://github.com/symplify/easy-coding-standard.git",
                 "reference": "efa1b57dd454af4d250d8ecd5aacca19a174a3ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Symplify/EasyCodingStandard/zipball/efa1b57dd454af4d250d8ecd5aacca19a174a3ed",
+                "url": "https://api.github.com/repos/symplify/easy-coding-standard/zipball/efa1b57dd454af4d250d8ecd5aacca19a174a3ed",
                 "reference": "efa1b57dd454af4d250d8ecd5aacca19a174a3ed",
                 "shasum": ""
             },
@@ -15416,12 +15420,12 @@
             "version": "v7.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Symplify/PackageBuilder.git",
+                "url": "https://github.com/symplify/package-builder.git",
                 "reference": "eb80e8b91ae101cc6ae218ba5552d1764bcf2276"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Symplify/PackageBuilder/zipball/eb80e8b91ae101cc6ae218ba5552d1764bcf2276",
+                "url": "https://api.github.com/repos/symplify/package-builder/zipball/eb80e8b91ae101cc6ae218ba5552d1764bcf2276",
                 "reference": "eb80e8b91ae101cc6ae218ba5552d1764bcf2276",
                 "shasum": ""
             },
@@ -15462,12 +15466,12 @@
             "version": "v7.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Symplify/SetConfigResolver.git",
+                "url": "https://github.com/symplify/set-config-resolver.git",
                 "reference": "92a6791bc9e3fba5a77d32a9058ae205970d0184"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Symplify/SetConfigResolver/zipball/92a6791bc9e3fba5a77d32a9058ae205970d0184",
+                "url": "https://api.github.com/repos/symplify/set-config-resolver/zipball/92a6791bc9e3fba5a77d32a9058ae205970d0184",
                 "reference": "92a6791bc9e3fba5a77d32a9058ae205970d0184",
                 "shasum": ""
             },
@@ -15505,12 +15509,12 @@
             "version": "v7.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Symplify/SmartFileSystem.git",
+                "url": "https://github.com/symplify/smart-file-system.git",
                 "reference": "7b681e056c0557f421373c81aa53a05fb63a95e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Symplify/SmartFileSystem/zipball/7b681e056c0557f421373c81aa53a05fb63a95e0",
+                "url": "https://api.github.com/repos/symplify/smart-file-system/zipball/7b681e056c0557f421373c81aa53a05fb63a95e0",
                 "reference": "7b681e056c0557f421373c81aa53a05fb63a95e0",
                 "shasum": ""
             },
@@ -15739,30 +15743,37 @@
         },
         {
             "name": "vlucas/phpdotenv",
-            "version": "v3.6.0",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vlucas/phpdotenv.git",
-                "reference": "1bdf24f065975594f6a117f0f1f6cabf1333b156"
+                "reference": "feb6dad5ae24b1380827aee1629b730080fde500"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/1bdf24f065975594f6a117f0f1f6cabf1333b156",
-                "reference": "1bdf24f065975594f6a117f0f1f6cabf1333b156",
+                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/feb6dad5ae24b1380827aee1629b730080fde500",
+                "reference": "feb6dad5ae24b1380827aee1629b730080fde500",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.4 || ^7.0",
-                "phpoption/phpoption": "^1.5",
+                "php": "^5.5.9 || ^7.0",
+                "phpoption/phpoption": "^1.7.2",
                 "symfony/polyfill-ctype": "^1.9"
             },
             "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.3",
+                "ext-filter": "*",
+                "ext-pcre": "*",
                 "phpunit/phpunit": "^4.8.35 || ^5.0 || ^6.0 || ^7.0"
+            },
+            "suggest": {
+                "ext-filter": "Required to use the boolean validator.",
+                "ext-pcre": "Required to use most of the library."
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.6-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
@@ -15792,7 +15803,7 @@
                 "env",
                 "environment"
             ],
-            "time": "2019-09-10T21:37:39+00:00"
+            "time": "2020-04-12T15:20:09+00:00"
         },
         {
             "name": "webmozart/glob",
