@@ -28,7 +28,7 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="keywords", type="text")
+     * @ORM\Column(name="keywords", type="text", nullable=true)
      *
      * @Serializer\Expose()
      */
@@ -57,7 +57,7 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
     /**
      * @return string
      */
-    public function getKeywords(): string
+    public function getKeywords(): ?string
     {
         return $this->keywords;
     }
