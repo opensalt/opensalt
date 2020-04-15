@@ -15,7 +15,7 @@ class AbstractLsDefinition extends AbstractLsBase
     /**
      * @var string|null
      *
-     * @ORM\Column(name="title", type="string", length=255, nullable=true)
+     * @ORM\Column(name="title", type="string", length=1024, nullable=true)
      *
      * @Serializer\Expose()
      */
