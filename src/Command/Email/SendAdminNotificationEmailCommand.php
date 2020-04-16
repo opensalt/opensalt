@@ -4,15 +4,8 @@ namespace App\Command\Email;
 
 class SendAdminNotificationEmailCommand extends AbstractSendEmailCommand
 {
-    /**
-     * @var string
-     */
-    protected $userName;
-
-    /**
-     * @var string
-     */
-    protected $userOrganization;
+    protected string $userName;
+    protected string $userOrganization;
 
     public function __construct(?string $recipient, string $userName, string $userOrganization)
     {
@@ -21,17 +14,11 @@ class SendAdminNotificationEmailCommand extends AbstractSendEmailCommand
         $this->userOrganization = $userOrganization;
     }
 
-    /**
-     * @return string
-     */
     public function getUsername(): string
     {
         return $this->userName;
     }
 
-    /**
-     * @return string
-     */
     public function getOrganization(): string
     {
         return $this->userOrganization;

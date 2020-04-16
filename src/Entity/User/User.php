@@ -510,7 +510,7 @@ class User implements UserInterface, \Serializable, EquatableInterface
 
     public function getStatus()
     {
-        $statusArray=['Active', 'Suspended', 'Pending'];
+        $statusArray = ['Active', 'Suspended', 'Pending'];
         return $statusArray[$this->status];
     }
 }
