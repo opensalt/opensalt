@@ -35,7 +35,7 @@ class ClearFirebaseNotificationsCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (null === $this->firebaseDb) {
             $output->writeln('<info>Firebase is not configured, nothing to do.</info>');

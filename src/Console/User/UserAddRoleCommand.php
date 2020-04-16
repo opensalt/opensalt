@@ -33,7 +33,7 @@ class UserAddRoleCommand extends UserRoleCommand
         }
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (0 !== $this->doChange($input, $output, AddUserRoleCommand::class)) {
             return 1;
@@ -43,5 +43,4 @@ class UserAddRoleCommand extends UserRoleCommand
 
         return 0;
     }
-
 }

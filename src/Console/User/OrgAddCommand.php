@@ -48,7 +48,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         }
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $org = trim($input->getArgument('org'));
 
@@ -66,5 +66,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
         $output->writeln('The organization "%s" has been added.');
+
+        return 0;
     }
 }

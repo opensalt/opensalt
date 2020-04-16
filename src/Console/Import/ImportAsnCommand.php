@@ -24,7 +24,7 @@ class ImportAsnCommand extends BaseDispatchingCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $asnId = $input->getArgument('asnId');
         $creator = $input->getOption('creator');

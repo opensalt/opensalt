@@ -25,7 +25,7 @@ class ImportCaseJsonCommand extends BaseDoctrineCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $filename = $input->getArgument('filename');
 
@@ -38,5 +38,7 @@ class ImportCaseJsonCommand extends BaseDoctrineCommand
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
         $output->writeln('Done.');
+
+        return 0;
     }
 }

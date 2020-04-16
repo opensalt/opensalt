@@ -4,8 +4,8 @@ namespace App\Console\Framework;
 
 use App\Command\Framework\DeleteDocumentCommand;
 use App\Console\BaseDoctrineCommand;
-use App\Event\CommandEvent;
 use App\Entity\Framework\LsDoc;
+use App\Event\CommandEvent;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,7 +27,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $lsDocId = $input->getArgument('id');
 
@@ -36,7 +36,8 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
         $lsDoc = $lsDocRepo->find($lsDocId);
         if (!$lsDoc) {
             $output->writeln("<error>LSDoc with id '{$lsDocId}' not found.</error>");
-            return;
+
+            return 1;
         }
 
         if (!$input->getOption('yes')) {
@@ -45,7 +46,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
             if (!$helper->ask($input, $output, $question)) {
                 $output->writeln('<info>Not deleting LSDoc.</info>');
 
-                return;
+                return 2;
             }
         }
 
@@ -61,6 +62,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
         $output->writeln('<info>Deleted.</info>');
-    }
 
+        return 0;
+    }
 }
