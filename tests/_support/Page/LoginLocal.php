@@ -53,8 +53,9 @@ class LoginLocal implements Context, Login
         $I->fillField(self::$passwordField, $password);
         $I->click(self::$loginButton);
 
-        $I->dontSee('Unrecognized username or password');
+        $I->waitForText('Signed in as', 60);
         $I->iShouldSeeInTheHeader('Signed in as');
+        $I->dontSee('Unrecognized username or password');
 
         $I->iAmOnTheHomepage();
 

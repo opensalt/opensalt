@@ -15,6 +15,7 @@ framework:
         cookie_lifetime: 0
         #cookie_secure: true
         cookie_httponly: true
+        cookie_samesite: lax
         gc_maxlifetime: 86400
         gc_probability: 25
         gc_divisor:     100

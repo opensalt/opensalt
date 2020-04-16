@@ -10,19 +10,19 @@ use Symfony\Component\Security\Http\SecurityEvents;
 
 class LoginCaptchaListener implements EventSubscriberInterface
 {
-    private $captchaSecret;
+    private ?string $captchaSecret;
 
     public function __construct(string $captchaSecret = null)
     {
         $this->captchaSecret = $captchaSecret;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [SecurityEvents::INTERACTIVE_LOGIN => 'onSecurityInteractiveLogin'];
     }
 
-    public function onSecurityInteractiveLogin(InteractiveLoginEvent $event)
+    public function onSecurityInteractiveLogin(InteractiveLoginEvent $event): void
     {
         if (empty($this->captchaSecret)) {
             return;
