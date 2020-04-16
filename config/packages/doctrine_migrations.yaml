@@ -1,7 +1,11 @@
 doctrine_migrations:
-    migrations_paths:
-        'DoctrineMigrations': '%kernel.project_dir%/src/Migrations'
+    namespace: DoctrineMigrations
+    dir_name: '%kernel.project_dir%/src/Migrations'
 
-    storage:
-        table_storage:
-            table_name: 'migration_versions'
+# doctrine_migrations v3 uses a different config file
+#    migrations_paths:
+#        'DoctrineMigrations': '%kernel.project_dir%/src/Migrations'
+#
+#    storage:
+#        table_storage:
+#            table_name: 'migration_versions'
