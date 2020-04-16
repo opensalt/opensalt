@@ -19,7 +19,7 @@ class AbstractLsDefinition extends AbstractLsBase
      *
      * @Serializer\Expose()
      */
-    protected $title;
+    protected ?string $title = null;
 
     /**
      * @var string|null
@@ -28,7 +28,7 @@ class AbstractLsDefinition extends AbstractLsBase
      *
      * @Serializer\Expose()
      */
-    protected $description;
+    protected ?string $description = null;
 
     /**
      * @return static

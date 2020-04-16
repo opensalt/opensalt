@@ -23,7 +23,7 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
      * @Serializer\Expose()
      * @Serializer\SerializedName("hierarchyCode")
      */
-    private $hierarchyCode;
+    private string $hierarchyCode;
 
     /**
      * @var string
@@ -32,42 +32,26 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
      *
      * @Serializer\Expose()
      */
-    private $keywords;
+    private ?string $keywords = null;
 
-    /**
-     * @return string
-     */
     public function getHierarchyCode(): string
     {
         return $this->hierarchyCode;
     }
 
-    /**
-     * @param string $hierarchyCode
-     *
-     * @return LsDefConcept
-     */
-    public function setHierarchyCode($hierarchyCode): LsDefConcept
+    public function setHierarchyCode(string $hierarchyCode): LsDefConcept
     {
         $this->hierarchyCode = $hierarchyCode;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getKeywords(): ?string
     {
         return $this->keywords;
     }
 
-    /**
-     * @param string $keywords
-     *
-     * @return LsDefConcept
-     */
-    public function setKeywords($keywords): LsDefConcept
+    public function setKeywords(?string $keywords): LsDefConcept
     {
         $this->keywords = $keywords;
 

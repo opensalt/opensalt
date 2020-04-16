@@ -23,7 +23,7 @@ class AdditionalField
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
@@ -33,33 +33,33 @@ class AdditionalField
      * @Assert\Regex(pattern="/(^_)|(_$)|(_[^a-z])/", match=false, message="An underscore (_) must be before a letter (not a number or underscore), and must not be at the beginning of the name.")
      * @Assert\Regex(pattern="/^[a-z]/", match=true, message="The name must start with a lower case letter.")
      */
-    private $name;
+    private string $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotNull()
      * @Assert\NotBlank()
      */
-    private $appliesTo;
+    private string $appliesTo;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotNull()
      * @Assert\NotBlank()
      */
-    private $displayName;
+    private string $displayName;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotNull()
      * @Assert\Choice(callback="getTypes", message="The field type is not a valid type.")
      */
-    private $type;
+    private string $type;
 
     /**
      * @ORM\Column(type="json", nullable=true)
      */
-    private $typeInfo;
+    private ?array $typeInfo = null;
 
     /**
      * Return the valid field types available.
@@ -76,73 +76,46 @@ class AdditionalField
         return $this->id;
     }
 
-    /**
-     * Get name.
-     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * Set name.
-     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * Get appliesTo.
-     */
     public function getAppliesTo(): ?string
     {
         return $this->appliesTo;
     }
 
-    /**
-     * Set appliesTo.
-     */
     public function setAppliesTo(string $appliesTo): void
     {
         $this->appliesTo = $appliesTo;
     }
 
-    /**
-     * Get displayName.
-     */
     public function getDisplayName(): ?string
     {
         return $this->displayName;
     }
 
-    /**
-     * Set displayName.
-     */
     public function setDisplayName(string $displayName): void
     {
         $this->displayName = $displayName;
     }
 
-    /**
-     * Get type.
-     */
     public function getType(): ?string
     {
         return $this->type;
     }
 
-    /**
-     * Set type.
-     */
     public function setType(string $type): void
     {
         $this->type = $type;
     }
 
-    /**
-     * Get typeInfo.
-     */
     public function getTypeInfo(): ?array
     {
         return $this->typeInfo;
