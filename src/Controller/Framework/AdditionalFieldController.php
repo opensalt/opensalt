@@ -21,15 +21,8 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class AdditionalFieldController extends AbstractController
 {
-    /**
-     * @var additionalFieldRepository
-     */
-    private $additionalFieldRepository;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private AdditionalFieldRepository $additionalFieldRepository;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(AdditionalFieldRepository $additionalFieldRepository, EntityManagerInterface $entityManager)
     {
@@ -88,7 +81,7 @@ class AdditionalFieldController extends AbstractController
      *
      * @Route("/edit/{id}", name="additional_field_update")
      */
-    public function update(AdditionalField $additionalField, Request $request)
+    public function update(AdditionalField $additionalField, Request $request): Response
     {
         $form = $this->createForm(AdditionalFieldType::class, $additionalField);
         $form->handleRequest($request);

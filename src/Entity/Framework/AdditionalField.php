@@ -33,28 +33,28 @@ class AdditionalField
      * @Assert\Regex(pattern="/(^_)|(_$)|(_[^a-z])/", match=false, message="An underscore (_) must be before a letter (not a number or underscore), and must not be at the beginning of the name.")
      * @Assert\Regex(pattern="/^[a-z]/", match=true, message="The name must start with a lower case letter.")
      */
-    private string $name;
+    private ?string $name = null;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotNull()
      * @Assert\NotBlank()
      */
-    private string $appliesTo;
+    private ?string $appliesTo = null;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotNull()
      * @Assert\NotBlank()
      */
-    private string $displayName;
+    private ?string $displayName = null;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotNull()
      * @Assert\Choice(callback="getTypes", message="The field type is not a valid type.")
      */
-    private string $type;
+    private ?string $type = null;
 
     /**
      * @ORM\Column(type="json", nullable=true)
