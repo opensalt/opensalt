@@ -320,9 +320,6 @@
     "kreait/firebase-tokens": {
         "version": "1.7.1"
     },
-    "kreait/gcp-metadata": {
-        "version": "1.0.1"
-    },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.0"
     },
@@ -395,23 +392,11 @@
     "netresearch/jsonmapper": {
         "version": "v1.6.0"
     },
-    "nette/application": {
-        "version": "v3.0.3"
-    },
-    "nette/component-model": {
-        "version": "v3.0.0"
-    },
     "nette/finder": {
         "version": "v2.4.2"
     },
-    "nette/http": {
-        "version": "v3.0.3"
-    },
     "nette/robot-loader": {
         "version": "v3.1.0"
-    },
-    "nette/routing": {
-        "version": "v3.0.0"
     },
     "nette/utils": {
         "version": "v2.5.3"
@@ -617,9 +602,6 @@
     "squizlabs/php_codesniffer": {
         "version": "3.2.3"
     },
-    "superbalist/flysystem-google-storage": {
-        "version": "7.0.0"
-    },
     "swaggest/json-diff": {
         "version": "v3.7.0"
     },
@@ -772,6 +754,9 @@
     },
     "symfony/polyfill-mbstring": {
         "version": "v1.8.0"
+    },
+    "symfony/polyfill-php70": {
+        "version": "v1.15.0"
     },
     "symfony/process": {
         "version": "v4.0.10"

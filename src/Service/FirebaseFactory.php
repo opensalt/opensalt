@@ -29,6 +29,7 @@ class FirebaseFactory
         try {
             return (new Factory())
                 ->withServiceAccount([
+                    'type' => 'service_account',
                     'project_id' => $projectId,
                     'client_id' => $clientId,
                     'client_email' => $clientEmail,

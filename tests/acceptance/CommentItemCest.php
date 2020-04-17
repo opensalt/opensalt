@@ -6,7 +6,7 @@ use Context\Login;
 
 class CommentItemCest
 {
-    static public $itemPath = '/cftree/item/';
+    public static $itemPath = '/cftree/item/';
 
     public function _before(AcceptanceTester $I)
     {
@@ -19,6 +19,7 @@ class CommentItemCest
         $I->getLastFrameworkId();
         $I->amOnPage(self::$itemPath.$I->getItemId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementVisible('.jquery-comments');
         $I->seeElement('.jquery-comments');
         $I->see('To comment please login first');
     }
