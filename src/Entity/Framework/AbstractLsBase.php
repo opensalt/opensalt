@@ -67,7 +67,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @Serializer\Exclude()
      */
-    protected ?array $extra = [];
+    protected ?array $extra = null;
 
     /**
      * @var \DateTimeInterface
@@ -243,7 +243,7 @@ class AbstractLsBase implements IdentifiableInterface
      */
     public function setExtraProperty(string $property, $value)
     {
-        if (null === $this->extra) {
+        if (null === $this->extra && null === $value) {
             return $this;
         }
 
