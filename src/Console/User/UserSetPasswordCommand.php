@@ -48,7 +48,7 @@ class UserSetPasswordCommand extends BaseDispatchingCommand
         }
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $username = trim($input->getArgument('username'));
         $password = trim($input->getArgument('password'));
@@ -62,6 +62,7 @@ class UserSetPasswordCommand extends BaseDispatchingCommand
         } else {
             $output->writeln(sprintf('The password for "%s" has been set.', $input->getArgument('username')));
         }
-    }
 
+        return 0;
+    }
 }

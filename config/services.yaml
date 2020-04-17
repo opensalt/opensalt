@@ -6,12 +6,12 @@ imports:
 parameters:
     # Defaults for environment variables
     env(MYSQL_HOST): null
-    env(MYSQL_PORT): 3306
+    env(MYSQL_PORT): '3306'
     env(MYSQL_DATABASE): null
     env(MYSQL_USER): null
     env(MYSQL_PASSWORD): null
     env(MAILER_TRANSPORT): smtp
-    env(MAILER_HOST): 127.0.0.1
+    env(MAILER_HOST): '127.0.0.1'
     env(MAILER_USER): null
     env(MAILER_PASSWORD): null
     env(MAILER_AUTH_MODE): null
@@ -39,7 +39,7 @@ parameters:
     env(FIREBASE_PREFIX): opensalt
     env(GOOGLE_CAPTCHA_SITE_KEY): null
     env(GOOGLE_CAPTCHA_SECRET_KEY): null
-    env(SESSION_MAX_IDLE_TIME): 3600
+    env(SESSION_MAX_IDLE_TIME): '3600'
     env(AWS_ACCESS_KEY_ID): null
     env(AWS_SECRET_ACCESS_KEY): null
     env(AWS_S3_PREFIX): null

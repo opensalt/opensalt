@@ -6,7 +6,7 @@ use App\Entity\ChangeEntry;
 use App\Event\NotificationEvent;
 use App\Entity\Framework\LsDoc;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;
 

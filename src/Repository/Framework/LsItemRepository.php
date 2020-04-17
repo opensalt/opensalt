@@ -6,7 +6,7 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method LsItem|null findOneByIdentifier(string $identifier)

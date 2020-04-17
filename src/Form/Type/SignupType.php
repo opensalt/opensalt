@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017 Public Consulting Group
+ * Copyright (c) 2017 Public Consulting Group.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -8,26 +8,27 @@
 
 namespace App\Form\Type;
 
+use App\Entity\User\User;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\ChoiceList\View\ChoiceView;
-use App\Entity\User\User;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Entity\User\Organization;
 
 class SignupType extends AbstractType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildform(FormBuilderInterface $builder, array $options)
+    public function buildform(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('username', TextType::class, [
@@ -38,7 +39,7 @@ class SignupType extends AbstractType
                 'type' => PasswordType::class,
                 'invalid_message' => 'Passwords do not match',
                 'required' => in_array('registration', $options['validation_groups'], true),
-                'first_options' => array(
+                'first_options' => [
                     'label' => 'Password',
                     'attr' => [
                         'data-toggle' => 'popover',
@@ -50,20 +51,20 @@ class SignupType extends AbstractType
                             <li>A lowercase letter</li>
                             <li>A number</li>
                             <li>A special character</li>
-                        </ul>'
-                    ]
-                ),
-                'second_options' => array(
+                        </ul>',
+                    ],
+                ],
+                'second_options' => [
                     'label' => 'Confirm Password',
                     'attr' => [
                         'data-toggle' => 'popover',
-                        'data-content' => 'Must match password'
-                    ]
-                ),
+                        'data-content' => 'Must match password',
+                    ],
+                ],
             ])
             ->add('org', EntityType::class, [
                 'label' => 'Organization',
-                'class' => 'App\Entity\User\Organization',
+                'class' => Organization::class,
                 'choice_label' => 'name',
                 'placeholder' => '- Select Your Organization -',
             ])
@@ -73,10 +74,10 @@ class SignupType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'new-org-field'],
             ])
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, static function (FormEvent $event) {
                 $data = $event->getData();
 
-                if ($data['org'] === 'other' || $data['org'] === '') {
+                if ('other' === $data['org'] || '' === $data['org']) {
                     unset($data['org']);
                     $event->setData($data);
                 }
@@ -86,7 +87,7 @@ class SignupType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOption(OptionsResolver $resolver)
+    public function configureOption(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => User::class,
@@ -94,7 +95,7 @@ class SignupType extends AbstractType
         ]);
     }
 
-    public function finishView(FormView $view, FormInterface $form, array $options)
+    public function finishView(FormView $view, FormInterface $form, array $options): void
     {
         $newOrg = new ChoiceView([], 'other', 'Other');
         array_unshift($view->children['org']->vars['choices'], $newOrg);

@@ -10,7 +10,7 @@ use App\Entity\Framework\Mirror\Log;
 use App\Entity\Framework\Mirror\OAuthCredential;
 use App\Exception\MirrorAlreadyChangedException;
 use App\Exception\MirrorIdConflictException;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Swaggest\JsonSchema\Schema;

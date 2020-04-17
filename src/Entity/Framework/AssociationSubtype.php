@@ -58,6 +58,8 @@ class AssociationSubtype
 
     /**
      * @ORM\Column(type="string", length=512)
+     *
+     * @Assert\NotNull()
      */
     private string $description;
 

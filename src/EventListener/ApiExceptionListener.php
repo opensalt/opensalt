@@ -33,7 +33,7 @@ class ApiExceptionListener implements EventSubscriberInterface
 
     public function onKernelException(ExceptionEvent $event): void
     {
-        $exception = $event->getException();
+        $exception = $event->getThrowable();
         if (!($exception instanceof NotFoundHttpException)) {
             return;
         }

@@ -9,5 +9,5 @@ use Symfony\Component\Validator\Constraint;
  */
 class PasswordField extends Constraint
 {
-    public $message = 'Password does not match required criteria';
+    public string $message = 'Password does not match required criteria';
 }

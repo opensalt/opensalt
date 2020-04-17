@@ -2,20 +2,20 @@
 
 namespace App\Controller\User;
 
-use App\Command\Email\SendSignupReceivedEmailCommand;
-use App\Command\Email\SendAdminNotificationEmailCommand;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use App\Form\Type\SignupType;
-use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\User\User;
-use App\Entity\User\Organization;
-use App\Command\User\AddUserCommand;
-use App\Command\User\AddOrganizationCommand;
 use App\Command\CommandDispatcherTrait;
+use App\Command\Email\SendAdminNotificationEmailCommand;
+use App\Command\Email\SendSignupReceivedEmailCommand;
+use App\Command\User\AddOrganizationCommand;
+use App\Command\User\AddUserCommand;
+use App\Entity\User\Organization;
+use App\Entity\User\User;
+use App\Form\Type\SignupType;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
@@ -28,22 +28,11 @@ class SignupController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $passwordEncoder;
+    private UserPasswordEncoderInterface $passwordEncoder;
+    private ?string $mailFromEmail;
+    private ?string $kernelEnv;
 
-    /**
-     * @var string
-     */
-    private $mailFromEmail;
-
-    /**
-     * @var string
-     */
-    private $kernelEnv;
-
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder, string $mailFromEmail = null, string $kernelEnv = null)
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, ?string $mailFromEmail = null, ?string $kernelEnv = null)
     {
         $this->passwordEncoder = $passwordEncoder;
         $this->mailFromEmail = $mailFromEmail;
@@ -51,12 +40,10 @@ class SignupController extends AbstractController
     }
 
     /**
-     * Creates a new user entity
+     * Creates a new user entity.
      *
      * @Route("/signup", methods={"GET", "POST"}, name="public_user_signup")
      * @Template()
-     *
-     * @param Request $request
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -67,7 +54,7 @@ class SignupController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
-            if ($form['org']->getData() === null && $form['newOrg']->getData() === null) {
+            if (null === $form['org']->getData() && null === $form['newOrg']->getData()) {
                 $form->addError(new FormError("New Organization field can't be blank"));
                 $form->get('newOrg')->addError(new FormError("Can't be blank"));
             }

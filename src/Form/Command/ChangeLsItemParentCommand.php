@@ -5,7 +5,7 @@ namespace App\Form\Command;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsItem;
 use App\Form\DTO\ChangeLsItemParentDTO;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
 class ChangeLsItemParentCommand
 {

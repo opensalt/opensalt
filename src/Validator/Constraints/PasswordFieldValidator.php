@@ -7,7 +7,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class PasswordFieldValidator extends ConstraintValidator
 {
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         $asserts = 0;
 
@@ -19,7 +19,7 @@ class PasswordFieldValidator extends ConstraintValidator
             ++$asserts;
         }
 
-        if (preg_match('/[0-9]/', $value, $matches)) {
+        if (preg_match('/\d/', $value, $matches)) {
             ++$asserts;
         }
 
@@ -29,7 +29,6 @@ class PasswordFieldValidator extends ConstraintValidator
 
         if ($asserts < 3) {
             $this->context->buildViolation($constraint->message)
-                ->setParameter('{{ string }}', $value)
                 ->addViolation();
         }
     }

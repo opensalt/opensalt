@@ -4,6 +4,7 @@ namespace App\Entity\Framework;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class Package extends AbstractLsBase
@@ -12,7 +13,7 @@ class Package extends AbstractLsBase
      * @var LsDoc
      * @Assert\Type(LsDoc::class)
      */
-    private $doc;
+    private LsDoc $doc;
 
     /**
      * @var Collection|LsItem[]
@@ -21,7 +22,7 @@ class Package extends AbstractLsBase
      * })
      * @Assert\Valid(traverse=true)
      */
-    private $items;
+    private Collection $items;
 
     /**
      * @var Collection|LsAssociation[]
@@ -30,7 +31,7 @@ class Package extends AbstractLsBase
      * })
      * @Assert\Valid(traverse=true)
      */
-    private $associations;
+    private Collection $associations;
 
     /**
      * @var Collection|CfRubric[]
@@ -39,8 +40,11 @@ class Package extends AbstractLsBase
      * })
      * @Assert\Valid(traverse=true)
      */
-    private $rubrics;
+    private Collection $rubrics;
 
+    /**
+     * @param string|UuidInterface|null $identifier
+     */
     public function __construct(LsDoc $doc, $identifier = null)
     {
         parent::__construct($identifier);

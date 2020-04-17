@@ -4,7 +4,6 @@ namespace App\Service;
 
 use Kreait\Firebase\Database;
 use Kreait\Firebase\Factory;
-use Kreait\Firebase\ServiceAccount;
 use Psr\Log\LoggerInterface;
 
 class FirebaseFactory
@@ -27,16 +26,20 @@ class FirebaseFactory
 
         $pKey = preg_replace('/\\\\n/', chr(10), $privateKey);
 
-        $serviceAccount = ServiceAccount::fromArray([
-            'project_id' => $projectId,
-            'client_id' => $clientId,
-            'client_email' => $clientEmail,
-            'private_key' => $pKey,
-        ]);
+        try {
+            return (new Factory())
+                ->withServiceAccount([
+                    'project_id' => $projectId,
+                    'client_id' => $clientId,
+                    'client_email' => $clientEmail,
+                    'private_key' => $pKey,
+                ])
+                ->withDatabaseUri($dbUri)
+                ->createDatabase();
+        } catch (\Exception $e) {
+            $logger->warning('Firebase configuration invalid', ['error' => $e->getMessage()]);
 
-        return (new Factory())
-            ->withServiceAccount($serviceAccount)
-            ->withDatabaseUri($dbUri)
-            ->createDatabase();
+            return null;
+        }
     }
 }

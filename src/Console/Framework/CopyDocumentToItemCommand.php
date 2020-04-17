@@ -24,7 +24,7 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $oldDocId = $input->getArgument('from');
         $newDocId = $input->getArgument('to');
@@ -35,14 +35,14 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
         if (!$oldDoc) {
             $output->writeln("<error>Doc with id '{$oldDocId}' not found.</error>");
 
-            return;
+            return 1;
         }
 
         $newDoc = $lsDocRepo->find($newDocId);
         if (!$newDoc) {
             $output->writeln("<error>Doc with id '{$newDocId}' not found.</error>");
 
-            return;
+            return 2;
         }
 
         $helper = $this->getHelper('question');
@@ -50,7 +50,7 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
         if (!$helper->ask($input, $output, $question)) {
             $output->writeln('<info>Not duplicating document.</info>');
 
-            return;
+            return 3;
         }
 
         $progress = new ProgressBar($output);
@@ -65,5 +65,7 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
         $output->writeln('<info>Duplicated.</info>');
+
+        return 0;
     }
 }

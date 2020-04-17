@@ -33,7 +33,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @Serializer\Exclude()
      */
-    protected $id;
+    protected ?int $id = null;
 
     /**
      * @var string
@@ -46,7 +46,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @Serializer\Expose()
      */
-    protected $identifier;
+    protected ?string $identifier = null;
 
     /**
      * @var string
@@ -58,7 +58,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @Serializer\Exclude()
      */
-    protected $uri;
+    protected ?string $uri = null;
 
     /**
      * @var array
@@ -67,7 +67,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @Serializer\Exclude()
      */
-    protected $extra = [];
+    protected ?array $extra = null;
 
     /**
      * @var \DateTimeInterface
@@ -78,7 +78,7 @@ class AbstractLsBase implements IdentifiableInterface
      * @Serializer\Expose()
      * @Serializer\SerializedName("lastChangeDateTime")
      */
-    private $changedAt;
+    private \DateTimeInterface $changedAt;
 
     /**
      * @var \DateTimeInterface
@@ -88,7 +88,7 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @Serializer\Exclude()
      */
-    protected $updatedAt;
+    protected \DateTimeInterface $updatedAt;
 
     /**
      * @param string|UuidInterface|null $identifier
@@ -223,7 +223,7 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * @return static
      */
-    public function setExtra(array $extra)
+    public function setExtra(?array $extra)
     {
         $this->extra = $extra;
 
@@ -243,6 +243,10 @@ class AbstractLsBase implements IdentifiableInterface
      */
     public function setExtraProperty(string $property, $value)
     {
+        if (null === $this->extra && null === $value) {
+            return $this;
+        }
+
         if (null === $value) {
             unset($this->extra[$property]);
         } else {

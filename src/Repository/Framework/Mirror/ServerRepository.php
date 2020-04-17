@@ -5,7 +5,7 @@ namespace App\Repository\Framework\Mirror;
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Server;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Server[] findAll()

@@ -33,7 +33,7 @@ class UserRemoveRoleCommand extends UserRoleCommand
         }
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (0 !== $this->doChange($input, $output, RemoveUserRoleCommand::class)) {
             return 1;

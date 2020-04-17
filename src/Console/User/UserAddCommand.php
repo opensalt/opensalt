@@ -97,7 +97,7 @@ class UserAddCommand extends BaseDoctrineCommand
         }
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $username = trim($input->getArgument('username'));
         $org = trim($input->getArgument('org'));
@@ -131,6 +131,7 @@ class UserAddCommand extends BaseDoctrineCommand
         } else {
             $output->writeln(sprintf('The user "%s" has been added.', $username));
         }
-    }
 
+        return 0;
+    }
 }
