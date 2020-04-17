@@ -130,13 +130,13 @@
             "league/factory-muffin-faker": "~2.0",
             "phpunit/phpunit": "~7.5",
             "codeception/c3": "2.*",
-            "vlucas/phpdotenv": "^3.3.3",
+            "vlucas/phpdotenv": "^4.1.4",
 
         "phpstan/phpstan-symfony": "^0.12.3",
         "phpstan/phpstan-doctrine": "^0.12.9",
 
         "vimeo/psalm": "^3.8.3",
-        "weirdan/doctrine-psalm-plugin": "^0.8.0",
+        "weirdan/doctrine-psalm-plugin": "^0.11.0",
 
         "symplify/easy-coding-standard": "^7.2",
         "escapestudios/symfony2-coding-standard": "^3.1",
