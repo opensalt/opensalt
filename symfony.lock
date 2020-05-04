@@ -893,6 +893,9 @@
     "symplify/package-builder": {
         "version": "v7.2.1"
     },
+    "symplify/phpstan-extensions": {
+        "version": "v7.3.8"
+    },
     "symplify/set-config-resolver": {
         "version": "v7.2.1"
     },
