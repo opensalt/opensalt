@@ -170,6 +170,9 @@
     "doctrine/reflection": {
         "version": "v1.0.0"
     },
+    "doctrine/sql-formatter": {
+        "version": "1.1.0"
+    },
     "egulias/email-validator": {
         "version": "2.1.4"
     },
@@ -283,9 +286,6 @@
     },
     "hoa/zformat": {
         "version": "1.17.01.10"
-    },
-    "jdorn/sql-formatter": {
-        "version": "v1.2.17"
     },
     "jean85/pretty-package-versions": {
         "version": "1.2"
@@ -653,6 +653,9 @@
     "symfony/dependency-injection": {
         "version": "v4.0.10"
     },
+    "symfony/deprecation-contracts": {
+        "version": "v2.1.2"
+    },
     "symfony/doctrine-bridge": {
         "version": "v4.0.10"
     },
@@ -719,9 +722,6 @@
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
     },
-    "symfony/mime": {
-        "version": "v4.3.0"
-    },
     "symfony/monolog-bridge": {
         "version": "v4.0.10"
     },
@@ -746,17 +746,26 @@
             "ref": "179470cb6492db92dffee208cfdb436f175c93b4"
         }
     },
+    "symfony/polyfill-intl-grapheme": {
+        "version": "v1.17.0"
+    },
     "symfony/polyfill-intl-icu": {
         "version": "v1.8.0"
     },
     "symfony/polyfill-intl-idn": {
         "version": "v1.10.0"
     },
+    "symfony/polyfill-intl-normalizer": {
+        "version": "v1.17.0"
+    },
     "symfony/polyfill-mbstring": {
         "version": "v1.8.0"
     },
     "symfony/polyfill-php70": {
         "version": "v1.15.0"
+    },
+    "symfony/polyfill-php80": {
+        "version": "v1.17.0"
     },
     "symfony/process": {
         "version": "v4.0.10"
@@ -814,6 +823,9 @@
     },
     "symfony/stopwatch": {
         "version": "v4.0.10"
+    },
+    "symfony/string": {
+        "version": "v5.1.0"
     },
     "symfony/swiftmailer-bundle": {
         "version": "2.5",
@@ -887,11 +899,17 @@
     "symplify/coding-standard": {
         "version": "v7.2.1"
     },
+    "symplify/console-color-diff": {
+        "version": "v7.3.18"
+    },
     "symplify/easy-coding-standard": {
         "version": "v7.2.0"
     },
     "symplify/package-builder": {
         "version": "v7.2.1"
+    },
+    "symplify/parameter-name-guard": {
+        "version": "v7.3.18"
     },
     "symplify/phpstan-extensions": {
         "version": "v7.3.8"
