@@ -800,6 +800,8 @@ class Framework implements Context
             'adoptionStatus' => 'Draft',
             'note' => $note,
             'license' => 'Attribution 4.0 International',
+            'statusStart' => '2020-01-01',
+            'statusEnd' => '2020-01-02',
         ];
 
         $I->fillField(self::$fwTitle, $framework);
@@ -812,6 +814,11 @@ class Framework implements Context
         //       $I->selectOption('.select2-search__field', array('text' => 'Math')); //Subject field
         $I->selectOption('ls_doc_create[language]', ['value' => $this->frameworkData['language']]);
         $I->selectOption('ls_doc_create[adoptionStatus]', ['value' => $this->frameworkData['adoptionStatus']]);
+        $statusStart = $this->frameworkData['statusStart'];
+        //$I->fillField('#ls_doc_statusStart', $statusStart);
+        $I->executeJS("$('#ls_doc_create_statusStart').val('{$statusStart}');");
+        $statusEnd = $this->frameworkData['statusEnd'];
+        $I->executeJS("$('#ls_doc_create_statusEnd').val('{$statusEnd}');");
         $I->fillField('#ls_doc_create_note', $note);
         // Choose one license
         $I->click(Locator::lastElement('.select2-container--bootstrap'));
@@ -821,6 +828,7 @@ class Framework implements Context
         $I->click('Create');
 
         try {
+            $I->waitForElementNotVisible('#ls_doc_create', 30);
             $I->waitForElementVisible('#docTitle', 30);
         } catch (\Exception $e) {
             ++static::$failedCreateCount;
