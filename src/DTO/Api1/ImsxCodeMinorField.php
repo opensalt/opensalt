@@ -6,15 +6,15 @@ use JMS\Serializer\Annotation as Serializer;
 
 class ImsxCodeMinorField
 {
-    const CODE_MINOR_FULLSUCCESS = 'fullsuccess';
-    const CODE_MINOR_INVALID_SORT = 'invalid_sort_field';
-    const CODE_MINOR_INVALID_SELECTION = 'invalid_selection_field';
-    const CODE_MINOR_FORBIDDEN = 'forbidden';
-    const CODE_MINOR_UNAUTHORISED = 'unauthorisedrequest';
-    const CODE_MINOR_INTERNAL_SERVER_ERROR = 'internal_server_error';
-    const CODE_MINOR_UNKNOWN_OBJECT = 'unknownobject';
-    const CODE_MINOR_SERVER_BUSY = 'server_busy';
-    const CODE_MINOR_INVALID_UUID = 'invaliduuid';
+    public const CODE_MINOR_FULLSUCCESS = 'fullsuccess';
+    public const CODE_MINOR_INVALID_SORT = 'invalid_sort_field';
+    public const CODE_MINOR_INVALID_SELECTION = 'invalid_selection_field';
+    public const CODE_MINOR_FORBIDDEN = 'forbidden';
+    public const CODE_MINOR_UNAUTHORISED = 'unauthorisedrequest';
+    public const CODE_MINOR_INTERNAL_SERVER_ERROR = 'internal_server_error';
+    public const CODE_MINOR_UNKNOWN_OBJECT = 'unknownobject';
+    public const CODE_MINOR_SERVER_BUSY = 'server_busy';
+    public const CODE_MINOR_INVALID_UUID = 'invaliduuid';
 
     /**
      * @var array

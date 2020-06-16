@@ -6,14 +6,14 @@ use JMS\Serializer\Annotation as Serializer;
 
 class ImsxStatusInfo
 {
-    const CODE_MAJOR_SUCCESS = 'success';
-    const CODE_MAJOR_PROCESSING = 'processing';
-    const CODE_MAJOR_FAILURE = 'failure';
-    const CODE_MAJOR_UNSUPPORTED = 'unsupported';
+    public const CODE_MAJOR_SUCCESS = 'success';
+    public const CODE_MAJOR_PROCESSING = 'processing';
+    public const CODE_MAJOR_FAILURE = 'failure';
+    public const CODE_MAJOR_UNSUPPORTED = 'unsupported';
 
-    const SEVERITY_STATUS = 'status';
-    const SEVERITY_WARNING = 'warning';
-    const SEVERITY_ERROR = 'error';
+    public const SEVERITY_STATUS = 'status';
+    public const SEVERITY_WARNING = 'warning';
+    public const SEVERITY_ERROR = 'error';
 
     /**
      * @var array
