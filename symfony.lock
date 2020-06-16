@@ -350,6 +350,9 @@
     "league/uri-interfaces": {
         "version": "2.0.0"
     },
+    "maennchen/zipstream-php": {
+        "version": "2.1.0"
+    },
     "markbaker/complex": {
         "version": "1.4.6"
     },
@@ -367,6 +370,9 @@
     },
     "myclabs/deep-copy": {
         "version": "1.7.0"
+    },
+    "myclabs/php-enum": {
+        "version": "1.7.6"
     },
     "namshi/cuzzle": {
         "version": "2.0.3"
