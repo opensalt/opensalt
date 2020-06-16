@@ -3,7 +3,6 @@ parameters:
     - 'clean-code'
     - 'dead-code'
     - 'psr12'
-    - 'types'
     - 'symfony'
 
   skip:
