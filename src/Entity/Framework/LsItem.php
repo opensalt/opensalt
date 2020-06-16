@@ -252,28 +252,24 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @ORM\Column(name="status_start", type="date", nullable=true)
      *
-     * @Assert\Date()
-     *
      * @Serializer\Expose()
      * @Serializer\SerializedName("statusStartDate")
      * @Serializer\AccessType("public_method")
      * @Serializer\Type("DateTime<'Y-m-d'>")
      */
-    private $statusStart;
+    private ?\DateTimeInterface $statusStart = null;
 
     /**
      * @var \DateTimeInterface|null
      *
      * @ORM\Column(name="status_end", type="date", nullable=true)
      *
-     * @Assert\Date()
-     *
      * @Serializer\Expose()
      * @Serializer\SerializedName("statusEndDate")
      * @Serializer\AccessType("public_method")
      * @Serializer\Type("DateTime<'Y-m-d'>")
      */
-    private $statusEnd;
+    private ?\DateTimeInterface $statusEnd = null;
 
     /**
      * @var LsDefLicence|null
@@ -781,6 +777,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             $childIds[$id] = $id;
             $childIds = array_merge($childIds, $child->getDescendantIds());
         }
+
         return $childIds;
     }
 
