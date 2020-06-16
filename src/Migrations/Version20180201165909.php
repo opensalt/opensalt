@@ -35,9 +35,6 @@ xENDx;
             'description' => 'Creative Commons Attribution 4.0 International',
         ];
         $insertLicence->execute($params);
-
-        // so the migration does not complain about not having any sql stmts
-        $this->addSql('SELECT "Added licence"');
     }
 
     public function down(Schema $schema): void
