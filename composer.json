@@ -79,7 +79,7 @@
         "phpoffice/phpspreadsheet": "~1.13.0",
         "phpoffice/phpword": "^0.17.0",
         "qandidate/toggle-bundle": "dev-master#48a5f2dee81d51f6dd03d14753d423a65a6e2311",
-        "ramsey/uuid": "^3.7",
+        "ramsey/uuid": "^4.0",
         "ramsey/uuid-doctrine": "^1.4",
         "sensio/framework-extra-bundle": "^5.3",
         "simplethings/entity-audit-bundle": "dev-fixes-1.0.9-object-instead-of-string as 1.0.9.2",
