@@ -17,6 +17,9 @@
     "behat/transliterator": {
         "version": "v1.2.0"
     },
+    "brick/math": {
+        "version": "0.8.15"
+    },
     "codeception/c3": {
         "version": "2.4.1"
     },
@@ -538,6 +541,9 @@
     },
     "ralouphie/getallheaders": {
         "version": "2.0.5"
+    },
+    "ramsey/collection": {
+        "version": "1.0.1"
     },
     "ramsey/uuid": {
         "version": "3.7.3"
