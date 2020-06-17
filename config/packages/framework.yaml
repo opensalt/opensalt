@@ -25,6 +25,9 @@ framework:
     php_errors:
         log: true
 
+    router:
+      utf8: true
+
     request:
       formats:
         jsonapi: 'application/vnd.api+json'

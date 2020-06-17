@@ -29,8 +29,6 @@ VALUES
             ', $level);
         }
         fclose($fd);
-
-        $this->addSql("SELECT 'Loaded Grade Data'");
     }
 
     /**
