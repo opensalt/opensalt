@@ -14607,16 +14607,16 @@
         },
         {
             "name": "phpstan/phpstan-doctrine",
-            "version": "0.12.16",
+            "version": "0.12.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-doctrine.git",
-                "reference": "65146e35905478bfb4e2ba078ffca1a16029d4ee"
+                "reference": "5eed42b2815f100f25bd45fe8c1a9b01f3e41657"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-doctrine/zipball/65146e35905478bfb4e2ba078ffca1a16029d4ee",
-                "reference": "65146e35905478bfb4e2ba078ffca1a16029d4ee",
+                "url": "https://api.github.com/repos/phpstan/phpstan-doctrine/zipball/5eed42b2815f100f25bd45fe8c1a9b01f3e41657",
+                "reference": "5eed42b2815f100f25bd45fe8c1a9b01f3e41657",
                 "shasum": ""
             },
             "require": {
@@ -14669,7 +14669,7 @@
                 "MIT"
             ],
             "description": "Doctrine extensions for PHPStan",
-            "time": "2020-06-14T11:03:59+00:00"
+            "time": "2020-06-23T08:50:27+00:00"
         },
         {
             "name": "phpstan/phpstan-symfony",
@@ -17247,16 +17247,16 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "3.12.0",
+            "version": "3.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "d46283075d76ed244f7825b378eeb1cee246af73"
+                "reference": "9b860214d58c48b5cbe99bdb17914d0eb723c9cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/d46283075d76ed244f7825b378eeb1cee246af73",
-                "reference": "d46283075d76ed244f7825b378eeb1cee246af73",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/9b860214d58c48b5cbe99bdb17914d0eb723c9cd",
+                "reference": "9b860214d58c48b5cbe99bdb17914d0eb723c9cd",
                 "shasum": ""
             },
             "require": {
@@ -17340,7 +17340,7 @@
                 "inspection",
                 "php"
             ],
-            "time": "2020-06-22T15:39:46+00:00"
+            "time": "2020-06-23T00:24:34+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
