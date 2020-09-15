@@ -31,5 +31,6 @@ VALUES
 
     public function down(Schema $schema): void
     {
+        // Do not try to rollback
     }
 }
