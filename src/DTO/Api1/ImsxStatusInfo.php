@@ -74,9 +74,6 @@ class ImsxStatusInfo
     /**
      * ImsxStatusInfo constructor.
      *
-     * @param string $major
-     * @param string $severity
-     * @param ImsxCodeMinor|null $minor
      * @param string $desc
      */
     public function __construct(string $major, string $severity, ?ImsxCodeMinor $minor = null, ?string $desc = null)

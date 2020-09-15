@@ -22,8 +22,6 @@ trait CommandDispatcherTrait
 
     /**
      * Send a command to be handled.
-     *
-     * @param CommandInterface $command
      */
     protected function sendCommand(CommandInterface $command): void
     {

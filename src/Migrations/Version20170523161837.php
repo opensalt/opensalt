@@ -10,9 +10,6 @@ use Doctrine\DBAL\Schema\Schema;
  */
 class Version20170523161837 extends AbstractMigration
 {
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
@@ -21,9 +18,7 @@ class Version20170523161837 extends AbstractMigration
         $this->addSql('CREATE UNIQUE INDEX UNIQ_D8D02498772E836A ON ls_item (identifier)');
     }
 
-    /**
-     * @param Schema $schema
-     */
+
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs

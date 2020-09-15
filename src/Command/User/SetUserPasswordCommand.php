@@ -16,7 +16,7 @@ class SetUserPasswordCommand extends BaseCommand
     private $username;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     private $plainPassword;
 

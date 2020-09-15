@@ -16,8 +16,6 @@ use JMS\Serializer\Annotation as Serializer;
 class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
 {
     /**
-     * @var string
-     *
      * @ORM\Column(name="hierarchy_code", type="string", length=255)
      *
      * @Serializer\Expose()
@@ -60,8 +58,6 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
 
     /**
      * String to represent this subject.
-     *
-     * @return string
      */
     public function __toString(): string
     {

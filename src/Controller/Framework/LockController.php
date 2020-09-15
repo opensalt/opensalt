@@ -24,10 +24,7 @@ class LockController extends AbstractController
      * @Route("/cfdoc/{id}/unlock", methods={"POST"}, name="lsdoc_unlock")
      * @Security("is_granted('edit', lsDoc)")
      *
-     * @param LsDoc $lsDoc
      * @param User $user
-     *
-     * @return JsonResponse
      */
     public function releaseDocLock(LsDoc $lsDoc, UserInterface $user): JsonResponse
     {
@@ -45,10 +42,7 @@ class LockController extends AbstractController
      * @Route("/cfdoc/{id}/lock", methods={"POST"}, name="lsdoc_lock")
      * @Security("is_granted('edit', lsDoc)")
      *
-     * @param LsDoc $lsDoc
      * @param User $user
-     *
-     * @return JsonResponse
      */
     public function extendDocLock(LsDoc $lsDoc, UserInterface $user): JsonResponse
     {
@@ -66,10 +60,7 @@ class LockController extends AbstractController
      * @Route("/cfitem/{id}/unlock", methods={"POST"}, name="lsitem_unlock")
      * @Security("is_granted('edit', item)")
      *
-     * @param LsItem $item
      * @param User $user
-     *
-     * @return JsonResponse
      */
     public function releaseItemLock(LsItem $item, UserInterface $user): JsonResponse
     {
@@ -87,10 +78,7 @@ class LockController extends AbstractController
      * @Route("/cfitem/{id}/lock", methods={"POST"}, name="lsitem_lock")
      * @Security("is_granted('edit', item)")
      *
-     * @param LsItem $item
      * @param User $user
-     *
-     * @return JsonResponse
      */
     public function extendItemLock(LsItem $item, UserInterface $user): JsonResponse
     {

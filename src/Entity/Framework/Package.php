@@ -10,7 +10,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Package extends AbstractLsBase
 {
     /**
-     * @var LsDoc
      * @Assert\Type(LsDoc::class)
      */
     private LsDoc $doc;

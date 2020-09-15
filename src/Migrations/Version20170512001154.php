@@ -7,9 +7,6 @@ use Doctrine\DBAL\Schema\Schema;
 
 class Version20170512001154 extends AbstractMigration
 {
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema): void
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
@@ -22,9 +19,7 @@ class Version20170512001154 extends AbstractMigration
         $this->addSql('ALTER TABLE rubric_criterion ADD CONSTRAINT FK_98E476F9A29EC0FC FOREIGN KEY (rubric_id) REFERENCES rubric (id)');
     }
 
-    /**
-     * @param Schema $schema
-     */
+
     public function down(Schema $schema): void
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');

@@ -89,7 +89,6 @@ class RubricsTransformer
     }
 
     /**
-     * @param CfRubric $rubric
      * @param CFPackageCriterion[] $cfCriteria
      */
     private function updateCriteria(CfRubric $rubric, array $cfCriteria): void

@@ -49,9 +49,6 @@ class OAuthServiceController extends AbstractController
      *
      * @Route("/check-github", methods={"GET"}, name="github_login")
      *
-     * @param Request $request
-     * @param SessionInterface $session
-     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      *
      * @throws \UnexpectedValueException

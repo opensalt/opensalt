@@ -19,9 +19,7 @@ class LsDocType extends AbstractLsDocCreateType
         $this->authorizationChecker = $authorizationChecker;
     }
 
-    /**
-     * @param FormBuilderInterface $builder
-     */
+
     protected function addOwnership(FormBuilderInterface $builder): void
     {
         $builder

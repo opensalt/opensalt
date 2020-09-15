@@ -25,18 +25,13 @@ abstract class AbstractLsDocCreateType extends AbstractType
 
     /**
      * AbstractLsDocCreateType constructor.
-     *
-     * @param EntityManagerInterface $em
      */
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
     }
 
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array $options
-     */
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $em = $this->em;
@@ -175,9 +170,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ));
     }
 
-    /**
-     * @param OptionsResolver $resolver
-     */
+
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

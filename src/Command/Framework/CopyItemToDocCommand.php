@@ -24,8 +24,6 @@ class CopyItemToDocCommand extends BaseCommand
 
     /**
      * Constructor.
-     *
-     * @param CopyToLsDocDTO $dto
      */
     public function __construct(CopyToLsDocDTO $dto)
     {

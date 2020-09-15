@@ -35,11 +35,6 @@ class FrameworkUpdater
 
     /**
      * Update framework from a CSV
-     *
-     * @param LsDoc  $lsDoc
-     * @param string $fileContent
-     * @param string $frameworkToAssociate
-     * @param array $cfItemKeys
      */
     public function update(LsDoc $lsDoc, string $fileContent, string $frameworkToAssociate, array $cfItemKeys): void
     {
@@ -70,10 +65,6 @@ class FrameworkUpdater
 
     /**
      * Add associations not existances on this CfItem
-     *
-     * @param LsItem $lsItem
-     * @param array $rowContent
-     * @param array $cfItemKeys
      */
     private function updateAssociations(LsItem $lsItem, array $rowContent, array $cfItemKeys): void
     {
@@ -128,11 +119,6 @@ class FrameworkUpdater
 
     /**
      * Return true or false if item has a association
-     *
-     * @param string $associationValue
-     * @param string $associationOnContent
-     *
-     * @return bool
      */
     private function validatePresenceOnAssociation(string $associationValue, string $associationOnContent): bool
     {
@@ -143,8 +129,6 @@ class FrameworkUpdater
      * Transform string content in arrays per line.
      *
      * @param string $fileContent
-     *
-     * @return array
      */
     protected function transformContent($fileContent): array
     {

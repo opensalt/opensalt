@@ -25,9 +25,6 @@ class AsnImportController extends AbstractController
     /**
      * @Route("/cf/asn/import", name="import_from_asn")
      *
-     * @param Request $request
-     * @param UserInterface $user
-     *
      * @return JsonResponse
      */
     public function importAsnAction(Request $request, UserInterface $user): Response

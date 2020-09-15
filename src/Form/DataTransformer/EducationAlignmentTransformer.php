@@ -48,7 +48,7 @@ class EducationAlignmentTransformer implements DataTransformerInterface
     /**
      * @param array|Collection $alignmentArray
      *
-     * @return null|string
+     * @return string|null
      */
     public function reverseTransform($alignmentArray)
     {

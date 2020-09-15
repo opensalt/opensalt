@@ -18,8 +18,6 @@ class GithubOauthController extends AbstractController
     /**
      * @Route("/user/github/repos")
      *
-     * @param Request $request
-     *
      * @return JsonResponse
      */
     public function getReposAction(Request $request)
@@ -51,8 +49,6 @@ class GithubOauthController extends AbstractController
 
     /**
      * @Route("/user/github/files")
-     *
-     * @param Request $request
      *
      * @return JsonResponse
      */

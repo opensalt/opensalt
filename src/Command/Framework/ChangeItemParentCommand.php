@@ -18,8 +18,6 @@ class ChangeItemParentCommand extends BaseCommand
 
     /**
      * Constructor.
-     *
-     * @param ChangeLsItemParentDTO $dto
      */
     public function __construct(ChangeLsItemParentDTO $dto)
     {

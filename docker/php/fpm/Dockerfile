@@ -68,6 +68,7 @@ RUN wget https://get.symfony.com/cli/installer -O - | bash \
 
 # Install and configure composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer2
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1 \

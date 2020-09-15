@@ -9,8 +9,5 @@ namespace App\Entity\Framework;
  */
 interface CaseApiInterface extends IdentifiableInterface
 {
-    /**
-     * @return \DateTimeInterface
-     */
     public function getUpdatedAt(): \DateTimeInterface;
 }

@@ -214,8 +214,6 @@ class LsDocRepository extends ServiceEntityRepository
     /**
      * Get a list of all items for an LsDoc.
      *
-     * @param LsDoc $lsDoc
-     *
      * @return array array of LsItems hydrated as an array
      */
     public function findTopChildrenIds(LsDoc $lsDoc): array

@@ -21,9 +21,7 @@ class AddFrameworkUserAclCommand extends BaseCommand
         $this->dto = $dto;
     }
 
-    /**
-     * @return AddAclUserDTO
-     */
+
     public function getDto(): AddAclUserDTO
     {
         return $this->dto;

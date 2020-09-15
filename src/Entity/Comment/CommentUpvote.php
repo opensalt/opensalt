@@ -62,8 +62,6 @@ class CommentUpvote
 
     /**
      * Get id
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -72,10 +70,6 @@ class CommentUpvote
 
     /**
      * Set user
-     *
-     * @param User $user
-     *
-     * @return CommentUpvote
      */
     public function setUser(User $user): CommentUpvote
     {
@@ -86,8 +80,6 @@ class CommentUpvote
 
     /**
      * Get user
-     *
-     * @return User
      */
     public function getUser(): User
     {
@@ -98,8 +90,6 @@ class CommentUpvote
      * Set comment
      *
      * @param Comment $comment
-     *
-     * @return CommentUpvote
      */
     public function setComment(Comment $comment = null): CommentUpvote
     {
@@ -110,8 +100,6 @@ class CommentUpvote
 
     /**
      * Get comment
-     *
-     * @return Comment
      */
     public function getComment(): Comment
     {
@@ -120,10 +108,6 @@ class CommentUpvote
 
     /**
      * Set createdAt
-     *
-     * @param \DateTime $createdAt
-     *
-     * @return CommentUpvote
      */
     public function setCreatedAt(\DateTime $createdAt): CommentUpvote
     {
@@ -134,8 +118,6 @@ class CommentUpvote
 
     /**
      * Get createdAt
-     *
-     * @return \DateTime
      */
     public function getCreatedAt(): \DateTime
     {
@@ -144,10 +126,6 @@ class CommentUpvote
 
     /**
      * Set updatedAt
-     *
-     * @param \DateTime $updatedAt
-     *
-     * @return CommentUpvote
      */
     public function setUpdatedAt(\DateTime $updatedAt): CommentUpvote
     {
@@ -158,8 +136,6 @@ class CommentUpvote
 
     /**
      * Get updatedAt
-     *
-     * @return \DateTime
      */
     public function getUpdatedAt(): \DateTime
     {

@@ -95,6 +95,9 @@
     "csa/guzzle-stopwatch-middleware": {
         "version": "v1.0.0"
     },
+    "dealerdirect/phpcodesniffer-composer-installer": {
+        "version": "v0.7.0"
+    },
     "dnoegel/php-xdg-base-dir": {
         "version": "0.1"
     },
@@ -304,6 +307,9 @@
     },
     "league/flysystem-aws-s3-v3": {
         "version": "1.0.19"
+    },
+    "league/mime-type-detection": {
+        "version": "1.4.0"
     },
     "league/oauth2-client": {
         "version": "1.4.2"
@@ -871,12 +877,6 @@
     },
     "symplify/package-builder": {
         "version": "v7.2.1"
-    },
-    "symplify/parameter-name-guard": {
-        "version": "v7.3.18"
-    },
-    "symplify/phpstan-extensions": {
-        "version": "v7.3.8"
     },
     "symplify/set-config-resolver": {
         "version": "v7.2.1"

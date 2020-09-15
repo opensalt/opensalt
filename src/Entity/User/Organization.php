@@ -67,11 +67,7 @@ class Organization
         return $this->id;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return Organization
-     */
+
     public function setName(string $name): Organization {
         $this->name = $name;
 
@@ -98,8 +94,6 @@ class Organization
      * Add a user to the organization
      *
      * @param \App\Entity\User\User $user
-     *
-     * @return Organization
      */
     public function addUser(User $user): Organization {
         $this->users->add($user);
@@ -111,8 +105,6 @@ class Organization
      * Remove a user from the organization
      *
      * @param \App\Entity\User\User $user
-     *
-     * @return Organization
      */
     public function removeUser(User $user): Organization {
         $this->users->removeElement($user);

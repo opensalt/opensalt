@@ -52,8 +52,6 @@ class LsDefConceptController extends AbstractController
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
-     * @param Request $request
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
@@ -84,10 +82,6 @@ class LsDefConceptController extends AbstractController
      *
      * @Route("/{id}", methods={"GET"}, name="lsdef_concept_show")
      * @Template()
-     *
-     * @param LsDefConcept $lsDefConcept
-     *
-     * @return array
      */
     public function showAction(LsDefConcept $lsDefConcept): array
     {
@@ -105,9 +99,6 @@ class LsDefConceptController extends AbstractController
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_concept_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefConcept $lsDefConcept
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -140,9 +131,6 @@ class LsDefConceptController extends AbstractController
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_concept_delete")
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefConcept $lsDefConcept
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */

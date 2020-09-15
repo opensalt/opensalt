@@ -75,7 +75,6 @@ class CommentsController extends AbstractController
      * @Security("is_granted('comment_view')")
      *
      * @param array|Comment[] $comments
-     * @param UserInterface|null $user
      *
      * @return mixed
      */
@@ -157,9 +156,6 @@ class CommentsController extends AbstractController
     /**
      * @Route("/salt/case/export_comment/{itemType}/{itemId}/comment.csv", name="export_comment_file")
      *
-     * @param int $itemId
-     * @param string $itemType
-     *
      * @return Response
      *
      * @Security("is_granted('comment_view')")
@@ -218,9 +214,6 @@ class CommentsController extends AbstractController
      * Get the export report data
      *
      * @param array|Comment[] $commentData
-     * @param string $itemType
-     *
-     * @return array
      */
     private function csvArray(array $commentData, string $itemType): array
     {

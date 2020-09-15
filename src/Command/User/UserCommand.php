@@ -21,9 +21,7 @@ abstract class UserCommand extends BaseCommand
         $this->user = $user;
     }
 
-    /**
-     * @return User
-     */
+
     public function getUser(): User
     {
         return $this->user;

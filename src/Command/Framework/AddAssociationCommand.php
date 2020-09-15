@@ -18,8 +18,6 @@ class AddAssociationCommand extends BaseCommand
 
     /**
      * Constructor.
-     *
-     * @param LsAssociation $association
      */
     public function __construct(LsAssociation $association)
     {

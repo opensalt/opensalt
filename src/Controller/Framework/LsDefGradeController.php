@@ -51,8 +51,6 @@ class LsDefGradeController extends AbstractController
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
-     * @param Request $request
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
@@ -84,8 +82,6 @@ class LsDefGradeController extends AbstractController
      * @Route("/{id}", methods={"GET"}, name="lsdef_grade_show")
      * @Template()
      *
-     * @param LsDefGrade $lsDefGrade
-     *
      * @return array
      */
     public function showAction(LsDefGrade $lsDefGrade)
@@ -104,9 +100,6 @@ class LsDefGradeController extends AbstractController
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_grade_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefGrade $lsDefGrade
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -139,9 +132,6 @@ class LsDefGradeController extends AbstractController
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_grade_delete")
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefGrade $lsDefGrade
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */

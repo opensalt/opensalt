@@ -25,10 +25,6 @@ class ExcelExportController extends AbstractController
 
     /**
      * @Route("/cfdoc/{id}/excel", methods={"GET"}, name="export_excel_file")
-     *
-     * @param LsDoc $lsDoc
-     *
-     * @return StreamedResponse
      */
     public function exportExcelAction(LsDoc $lsDoc): StreamedResponse
     {

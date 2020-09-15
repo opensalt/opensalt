@@ -10,9 +10,6 @@ use Doctrine\DBAL\Schema\Schema;
  */
 class Version20161202212214 extends AbstractMigration
 {
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
@@ -29,9 +26,7 @@ class Version20161202212214 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_F9577392F4837C1B ON salt_user (org_id)');
     }
 
-    /**
-     * @param Schema $schema
-     */
+
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs

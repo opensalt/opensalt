@@ -41,7 +41,6 @@ class AssociationsTransformer
     /**
      * @param CFPackageAssociation[] $cfAssociations
      * @param LsItem[] $items
-     * @param Definitions $definitions
      *
      * @return LsAssociation[]
      */

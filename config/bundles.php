@@ -23,5 +23,4 @@ return [
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true, 'test' => true],
     Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle::class => ['all' => true],
     Twig\Extra\TwigExtraBundle\TwigExtraBundle::class => ['all' => true],
-    Symplify\ParameterNameGuard\Bundle\ParameterNameGuardBundle::class => ['dev' => true, 'test' => true],
 ];

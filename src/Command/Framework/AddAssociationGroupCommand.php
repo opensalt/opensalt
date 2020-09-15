@@ -18,8 +18,6 @@ class AddAssociationGroupCommand extends BaseCommand
 
     /**
      * Constructor.
-     *
-     * @param LsDefAssociationGrouping $associationGrouping
      */
     public function __construct(LsDefAssociationGrouping $associationGrouping)
     {

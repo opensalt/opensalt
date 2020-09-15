@@ -18,10 +18,7 @@ class ExportController extends AbstractController
      * @Route("/cfdoc/{id}.{_format}", methods={"GET"}, name="lsdoc_api_view", requirements={"id"="\d+"})
      * @Template()
      *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
      * @param string $_format
-     *
-     * @return array
      */
     public function exportAction(LsDoc $lsDoc, $_format = 'json'): array
     {

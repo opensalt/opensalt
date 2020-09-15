@@ -9,8 +9,6 @@ use Doctrine\Persistence\ObjectManager;
 class CopyToLsDocCommand
 {
     /**
-     * @param LsItem $lsItem
-     *
      * @return CopyToLsDocDTO
      */
     public function convertToDTO(LsItem $lsItem)
@@ -23,9 +21,6 @@ class CopyToLsDocCommand
 
     /**
      * @deprecated
-     *
-     * @param CopyToLsDocDTO $dto
-     * @param ObjectManager $manager
      *
      * @return LsItem
      */

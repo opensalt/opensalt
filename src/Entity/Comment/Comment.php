@@ -143,8 +143,6 @@ class Comment
 
     /**
      * Get id
-     *
-     * @return int
      */
     public function getId(): int
     {
@@ -153,10 +151,6 @@ class Comment
 
     /**
      * Set parent
-     *
-     * @param Comment|null $parent
-     *
-     * @return Comment
      */
     public function setParent(Comment $parent = null): Comment
     {
@@ -167,8 +161,6 @@ class Comment
 
     /**
      * Get parent
-     *
-     * @return Comment|null
      */
     public function getParent(): ?Comment
     {
@@ -177,8 +169,6 @@ class Comment
 
     /**
      * Get the id of a parent
-     *
-     * @return int|null
      */
     public function getParentId(): ?int
     {
@@ -193,8 +183,6 @@ class Comment
      * Set content
      *
      * @param string $content
-     *
-     * @return Comment
      */
     public function setContent($content): Comment
     {
@@ -205,8 +193,6 @@ class Comment
 
     /**
      * Get content
-     *
-     * @return string
      */
     public function getContent(): string
     {
@@ -215,10 +201,6 @@ class Comment
 
     /**
      * Set user
-     *
-     * @param User $user
-     *
-     * @return Comment
      */
     public function setUser(User $user): Comment
     {
@@ -229,8 +211,6 @@ class Comment
 
     /**
      * Get user
-     *
-     * @return User
      */
     public function getUser(): User
     {
@@ -239,10 +219,6 @@ class Comment
 
     /**
      * Set item
-     *
-     * @param LsItem $item
-     *
-     * @return Comment
      */
     public function setItem(LsItem $item): Comment
     {
@@ -253,8 +229,6 @@ class Comment
 
     /**
      * Get item
-     *
-     * @return LsItem
      */
     public function getItem(): LsItem
     {
@@ -263,10 +237,6 @@ class Comment
 
     /**
      * Set document
-     *
-     * @param LsDoc $document
-     *
-     * @return Comment
      */
     public function setDocument(LsDoc $document): Comment
     {
@@ -277,8 +247,6 @@ class Comment
 
     /**
      * Get document
-     *
-     * @return LsDoc
      */
     public function getDocument(): LsDoc
     {
@@ -287,8 +255,6 @@ class Comment
 
     /**
      * Get fullname
-     *
-     * @return string
      */
     public function getFullname(): string
     {
@@ -297,10 +263,6 @@ class Comment
 
     /**
      * Set createdByCurrentUser
-     *
-     * @param bool $createdByCurrentUser
-     *
-     * @return Comment
      */
     public function setCreatedByCurrentUser(bool $createdByCurrentUser): Comment
     {
@@ -327,8 +289,6 @@ class Comment
 
     /**
      * Get createdByCurrentUser
-     *
-     * @return bool
      */
     public function isCreatedByCurrentUser(): bool
     {
@@ -337,10 +297,6 @@ class Comment
 
     /**
      * Add upvote
-     *
-     * @param CommentUpvote $upvote
-     *
-     * @return Comment
      */
     public function addUpvote(CommentUpvote $upvote): Comment
     {
@@ -351,10 +307,6 @@ class Comment
 
     /**
      * Remove upvote
-     *
-     * @param CommentUpvote $upvote
-     *
-     * @return Comment
      */
     public function removeUpvote(CommentUpvote $upvote): Comment
     {
@@ -365,8 +317,6 @@ class Comment
 
     /**
      * Get upvotes
-     *
-     * @return Collection
      */
     public function getUpvotes(): Collection
     {
@@ -375,8 +325,6 @@ class Comment
 
     /**
      * Get upvoteCount
-     *
-     * @return int
      */
     public function getUpvoteCount(): int
     {
@@ -385,10 +333,6 @@ class Comment
 
     /**
      * Set userHasUpvoted
-     *
-     * @param bool $userHasUpvoted
-     *
-     * @return Comment
      */
     public function setUserHasUpvoted(bool $userHasUpvoted): Comment
     {
@@ -399,8 +343,6 @@ class Comment
 
     /**
      * Get userHasUpvoted
-     *
-     * @return bool
      */
     public function hasUserUpvoted(): bool
     {
@@ -409,10 +351,6 @@ class Comment
 
     /**
      * Set createdAt
-     *
-     * @param \DateTime $createdAt
-     *
-     * @return Comment
      */
     public function setCreatedAt(\DateTime $createdAt): Comment
     {
@@ -423,8 +361,6 @@ class Comment
 
     /**
      * Get createdAt
-     *
-     * @return \DateTime
      */
     public function getCreatedAt(): \DateTime
     {
@@ -433,10 +369,6 @@ class Comment
 
     /**
      * Set updatedAt
-     *
-     * @param \DateTime $updatedAt
-     *
-     * @return Comment
      */
     public function setUpdatedAt(\DateTime $updatedAt): Comment
     {
@@ -447,8 +379,6 @@ class Comment
 
     /**
      * Get updatedAt
-     *
-     * @return \DateTime
      */
     public function getUpdatedAt(): \DateTime
     {
@@ -459,8 +389,6 @@ class Comment
      * Set fileUrl
      *
      * @param string $fileUrl
-     *
-     * @return Comment
      */
     public function setFileUrl($fileUrl): Comment
     {
@@ -483,8 +411,6 @@ class Comment
      * Set fileMimeType
      *
      * @param string $fileMimeType
-     *
-     * @return Comment
      */
     public function setFileMimeType($fileMimeType): Comment
     {
@@ -495,8 +421,6 @@ class Comment
 
     /**
      * Get fileMimeType
-     *
-     * @return string
      */
     public function getFileMimeType(): string
     {

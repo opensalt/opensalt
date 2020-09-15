@@ -10,9 +10,6 @@ use Doctrine\DBAL\Schema\Schema;
  */
 class Version20160720143502 extends AbstractMigration
 {
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
@@ -27,9 +24,7 @@ ALTER TABLE ls_association
         $this->addSql('CREATE INDEX IDX_A84022D49388802C ON ls_association (ls_doc_id)');
     }
 
-    /**
-     * @param Schema $schema
-     */
+
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs

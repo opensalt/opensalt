@@ -10,9 +10,6 @@ use Doctrine\DBAL\Schema\Schema;
  */
 class Version20170207201734 extends AbstractMigration
 {
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
@@ -24,9 +21,7 @@ class Version20170207201734 extends AbstractMigration
         $this->addSql('ALTER TABLE ls_def_association_grouping DROP name');
     }
 
-    /**
-     * @param Schema $schema
-     */
+
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs

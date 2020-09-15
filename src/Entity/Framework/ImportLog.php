@@ -69,8 +69,6 @@ class ImportLog
      * Set LsDoc
      *
      * @param LsDoc $lsDoc
-     *
-     * @return ImportLog
      */
     public function setLsDoc($lsDoc): ImportLog
     {
@@ -83,8 +81,6 @@ class ImportLog
      * Set message
      *
      * @param string $message
-     *
-     * @return ImportLog
      */
     public function setMessage($message): ImportLog
     {
@@ -95,8 +91,6 @@ class ImportLog
 
     /**
      * Get read
-     *
-     * @return bool
      */
     public function isRead(): bool
     {
@@ -115,8 +109,6 @@ class ImportLog
 
     /**
      * Set read as true
-     *
-     * @return ImportLog
      */
     public function markAsRead(): ImportLog
     {
@@ -139,8 +131,6 @@ class ImportLog
      * Set messageType
      *
      * @param string $messageType
-     *
-     * @return ImportLog
      */
     public function setMessageType($messageType): ImportLog
     {

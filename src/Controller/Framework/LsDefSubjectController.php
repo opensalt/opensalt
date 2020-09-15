@@ -50,8 +50,6 @@ class LsDefSubjectController extends AbstractController
      * @Route("/list.{_format}", methods={"GET"}, defaults={"_format"="json"}, name="lsdef_subject_index_json")
      * @Template()
      *
-     * @param Request $request
-     *
      * @return array
      */
     public function jsonListAction(Request $request)
@@ -73,8 +71,6 @@ class LsDefSubjectController extends AbstractController
      * @Route("/new", methods={"GET", "POST"}, name="lsdef_subject_new")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -107,8 +103,6 @@ class LsDefSubjectController extends AbstractController
      * @Route("/{id}", methods={"GET"}, name="lsdef_subject_show")
      * @Template()
      *
-     * @param LsDefSubject $lsDefSubject
-     *
      * @return array
      */
     public function showAction(LsDefSubject $lsDefSubject)
@@ -127,9 +121,6 @@ class LsDefSubjectController extends AbstractController
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_subject_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefSubject $lsDefSubject
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -162,9 +153,6 @@ class LsDefSubjectController extends AbstractController
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_subject_delete")
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefSubject $lsDefSubject
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */

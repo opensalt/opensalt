@@ -68,8 +68,6 @@ class LsDefLicenceController extends AbstractController
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
-     * @param Request $request
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
@@ -101,8 +99,6 @@ class LsDefLicenceController extends AbstractController
      * @Route("/{id}", methods={"GET"}, name="lsdef_licence_show")
      * @Template()
      *
-     * @param LsDefLicence $lsDefLicence
-     *
      * @return array
      */
     public function showAction(LsDefLicence $lsDefLicence)
@@ -121,9 +117,6 @@ class LsDefLicenceController extends AbstractController
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_licence_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefLicence $lsDefLicence
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -156,9 +149,6 @@ class LsDefLicenceController extends AbstractController
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_licence_delete")
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefLicence $lsDefLicence
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */

@@ -25,8 +25,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class AbstractLsBase implements IdentifiableInterface
 {
     /**
-     * @var int|null
-     *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -70,8 +68,6 @@ class AbstractLsBase implements IdentifiableInterface
     protected ?array $extra = null;
 
     /**
-     * @var \DateTimeInterface
-     *
      * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      *
@@ -81,8 +77,6 @@ class AbstractLsBase implements IdentifiableInterface
     private \DateTimeInterface $changedAt;
 
     /**
-     * @var \DateTimeInterface
-     *
      * @ORM\Column(name="updated_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      *

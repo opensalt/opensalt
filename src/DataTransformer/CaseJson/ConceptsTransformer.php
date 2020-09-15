@@ -57,7 +57,6 @@ class ConceptsTransformer
     }
 
     /**
-     * @param CFConcept $cfConcept
      * @param LsDefConcept[] $existingConcepts
      */
     protected function updateConcept(CFConcept $cfConcept, array &$existingConcepts): void
@@ -72,10 +71,7 @@ class ConceptsTransformer
     }
 
     /**
-     * @param CFConcept $cfConcept
      * @param LsDefConcept[] $existingConcepts
-     *
-     * @return LsDefConcept
      */
     protected function findOrCreateConcept(CFConcept $cfConcept, array &$existingConcepts): LsDefConcept
     {

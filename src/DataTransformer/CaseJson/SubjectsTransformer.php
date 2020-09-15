@@ -57,7 +57,6 @@ class SubjectsTransformer
     }
 
     /**
-     * @param CFSubject $cfSubject
      * @param LsDefSubject[] $existingSubjects
      */
     protected function updateSubject(CFSubject $cfSubject, array &$existingSubjects): void
@@ -71,10 +70,7 @@ class SubjectsTransformer
     }
 
     /**
-     * @param CFSubject $cfSubject
      * @param LsDefSubject[] $existingSubjects
-     *
-     * @return LsDefSubject
      */
     protected function findOrCreateSubject(CFSubject $cfSubject, array &$existingSubjects): LsDefSubject
     {

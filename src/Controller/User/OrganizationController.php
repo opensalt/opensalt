@@ -52,8 +52,6 @@ class OrganizationController extends AbstractController
      * @Route("/new", methods={"GET", "POST"}, name="admin_organization_new")
      * @Template()
      *
-     * @param Request $request
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
@@ -85,8 +83,6 @@ class OrganizationController extends AbstractController
      * @Route("/{id}", methods={"GET"}, name="admin_organization_show")
      * @Template()
      *
-     * @param Organization $organization
-     *
      * @return array
      */
     public function showAction(Organization $organization)
@@ -104,9 +100,6 @@ class OrganizationController extends AbstractController
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="admin_organization_edit")
      * @Template()
-     *
-     * @param Request $request
-     * @param Organization $organization
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -138,9 +131,6 @@ class OrganizationController extends AbstractController
      * Deletes a organization entity.
      *
      * @Route("/{id}", methods={"DELETE"}, name="admin_organization_delete")
-     *
-     * @param Request $request
-     * @param Organization $organization
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */

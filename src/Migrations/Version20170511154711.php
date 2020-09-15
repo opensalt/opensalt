@@ -10,9 +10,6 @@ use Doctrine\DBAL\Schema\Schema;
  */
 class Version20170511154711 extends AbstractMigration
 {
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
@@ -34,9 +31,7 @@ class Version20170511154711 extends AbstractMigration
         $this->addSql('ALTER TABLE ls_doc_subject RENAME INDEX idx_d9a8d91923edc87 TO IDX_71E9B5BC23EDC87');
     }
 
-    /**
-     * @param Schema $schema
-     */
+
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs

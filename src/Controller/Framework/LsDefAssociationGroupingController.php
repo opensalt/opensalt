@@ -31,8 +31,6 @@ class LsDefAssociationGroupingController extends AbstractController
      *
      * @Route("/", methods={"GET"}, name="lsdef_association_grouping_index")
      * @Template()
-     *
-     * @return array
      */
     public function indexAction(): array
     {
@@ -51,8 +49,6 @@ class LsDefAssociationGroupingController extends AbstractController
      * @Route("/new", methods={"GET", "POST"}, name="lsdef_association_grouping_new")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -96,8 +92,6 @@ class LsDefAssociationGroupingController extends AbstractController
      * @Route("/{id}", methods={"GET"}, name="lsdef_association_grouping_show")
      * @Template()
      *
-     * @param LsDefAssociationGrouping $associationGrouping
-     *
      * @return array
      */
     public function showAction(LsDefAssociationGrouping $associationGrouping)
@@ -116,9 +110,6 @@ class LsDefAssociationGroupingController extends AbstractController
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_association_grouping_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefAssociationGrouping $associationGrouping
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -151,9 +142,6 @@ class LsDefAssociationGroupingController extends AbstractController
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_association_grouping_delete")
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefAssociationGrouping $associationGrouping
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
