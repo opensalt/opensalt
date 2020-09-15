@@ -248,8 +248,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private $alternativeLabel;
 
     /**
-     * @var \DateTimeInterface|null
-     *
      * @ORM\Column(name="status_start", type="date", nullable=true)
      *
      * @Serializer\Expose()
@@ -260,8 +258,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private ?\DateTimeInterface $statusStart = null;
 
     /**
-     * @var \DateTimeInterface|null
-     *
      * @ORM\Column(name="status_end", type="date", nullable=true)
      *
      * @Serializer\Expose()
@@ -1000,8 +996,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
 
     /**
      * @param LsDefConcept[]|Collection|null $concepts
-     *
-     * @return LsItem
      */
     public function setConcepts(?iterable $concepts): LsItem
     {

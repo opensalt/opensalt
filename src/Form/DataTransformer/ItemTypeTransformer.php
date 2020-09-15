@@ -27,7 +27,6 @@ class ItemTypeTransformer implements DataTransformerInterface
     protected $accessor;
 
     /**
-     * @param EntityManagerInterface $em
      * @param string        $class
      * @param string|null   $textProperty
      * @param string        $primaryKey
@@ -49,8 +48,6 @@ class ItemTypeTransformer implements DataTransformerInterface
      * Transform entity to array
      *
      * @param mixed $entity
-     *
-     * @return array
      */
     public function transform($entity): array
     {
@@ -73,7 +70,7 @@ class ItemTypeTransformer implements DataTransformerInterface
      *
      * @param string $value
      *
-     * @return mixed|null|object
+     * @return mixed|object|null
      */
     public function reverseTransform($value)
     {

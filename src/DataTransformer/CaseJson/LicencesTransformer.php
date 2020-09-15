@@ -57,7 +57,6 @@ class LicencesTransformer
     }
 
     /**
-     * @param CFLicense $cfLicence
      * @param LsDefLicence[] $licences
      */
     protected function updateLicence(CFLicense $cfLicence, array &$licences): void
@@ -71,10 +70,7 @@ class LicencesTransformer
     }
 
     /**
-     * @param CFLicense $cfLicense
      * @param LsDefLicence[] $licences
-     *
-     * @return LsDefLicence
      */
     protected function findOrCreateLicence(CFLicense $cfLicense, array &$licences): LsDefLicence
     {

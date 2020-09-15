@@ -57,7 +57,6 @@ class ItemTypesTransformer
     }
 
     /**
-     * @param CFItemType $cfItemType
      * @param LsDefItemType[] $existingItemTypes
      */
     protected function updateItemType(CFItemType $cfItemType, array &$existingItemTypes): void
@@ -72,10 +71,7 @@ class ItemTypesTransformer
     }
 
     /**
-     * @param CFItemType $cfItemType
      * @param LsDefItemType[] $existingItemTypes
-     *
-     * @return LsDefItemType
      */
     protected function findOrCreateItemType(CFItemType $cfItemType, array &$existingItemTypes): LsDefItemType
     {

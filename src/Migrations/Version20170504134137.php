@@ -11,9 +11,6 @@ use Symfony\Component\Cache\Adapter\PdoAdapter;
  */
 class Version20170504134137 extends AbstractMigration
 {
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema): void
     {
         $cacheAdapter = new PdoAdapter($this->connection);
@@ -23,9 +20,7 @@ class Version20170504134137 extends AbstractMigration
         $this->addSql('/* no additional SQL required */');
     }
 
-    /**
-     * @param Schema $schema
-     */
+
     public function down(Schema $schema): void
     {
         $this->addSql('DROP TABLE cache_items');

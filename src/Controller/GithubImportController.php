@@ -21,10 +21,6 @@ class GithubImportController extends AbstractController
 
     /**
      * @Route("/cf/github/import", name="import_from_github")
-     *
-     * @param Request $request
-     *
-     * @return JsonResponse
      */
     public function importAction(Request $request): JsonResponse
     {

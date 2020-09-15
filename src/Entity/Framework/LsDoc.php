@@ -237,8 +237,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $adoptionStatus;
 
     /**
-     * @var \DateTimeInterface|null
-     *
      * @ORM\Column(name="status_start", type="date", nullable=true)
      *
      * @Serializer\Expose()
@@ -248,8 +246,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private ?\DateTimeInterface $statusStart = null;
 
     /**
-     * @var \DateTimeInterface|null
-     *
      * @ORM\Column(name="status_end", type="date", nullable=true)
      *
      * @Serializer\Expose()

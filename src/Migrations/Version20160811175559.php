@@ -11,8 +11,6 @@ use Doctrine\DBAL\Schema\Schema;
 class Version20160811175559 extends AbstractMigration
 {
     /**
-     * @param \Doctrine\DBAL\Schema\Schema $schema
-     *
      * @throws \Doctrine\Migrations\Exception\AbortMigration
      */
     public function up(Schema $schema): void
@@ -27,8 +25,6 @@ ALTER TABLE ls_association
     }
 
     /**
-     * @param \Doctrine\DBAL\Schema\Schema $schema
-     *
      * @throws \Doctrine\DBAL\Migrations\AbortMigrationException
      */
     public function down(Schema $schema): void

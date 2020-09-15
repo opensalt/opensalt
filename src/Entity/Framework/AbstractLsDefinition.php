@@ -13,8 +13,6 @@ use JMS\Serializer\Annotation as Serializer;
 class AbstractLsDefinition extends AbstractLsBase
 {
     /**
-     * @var string|null
-     *
      * @ORM\Column(name="title", type="string", length=1024, nullable=true)
      *
      * @Serializer\Expose()
@@ -22,8 +20,6 @@ class AbstractLsDefinition extends AbstractLsBase
     protected ?string $title = null;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(name="description", type="text", nullable=true)
      *
      * @Serializer\Expose()

@@ -19,8 +19,6 @@ class UiInfoController extends AbstractController
     /**
      * @Route("/multi/{id}", methods={"POST"}, name="multi_tree_info_json")
      * @Security("is_granted('edit', doc)")
-     *
-     * @return JsonResponse
      */
     public function multiJsonInfoAction(Request $request, LsDoc $doc): JsonResponse
     {
@@ -62,10 +60,6 @@ class UiInfoController extends AbstractController
     /**
      * @Route("/doc/{id}", methods={"GET"}, name="lsdoc_tree_json")
      * @Security("is_granted('edit', doc)")
-     *
-     * @param LsDoc $doc
-     *
-     * @return JsonResponse
      */
     public function docJsonInfoAction(LsDoc $doc): JsonResponse
     {
@@ -75,10 +69,6 @@ class UiInfoController extends AbstractController
     /**
      * @Route("/item/{id}", methods={"GET"}, name="lsitem_tree_json")
      * @Security("is_granted('edit', item)")
-     *
-     * @param LsItem $item
-     *
-     * @return JsonResponse
      */
     public function itemJsonInfoAction(LsItem $item): JsonResponse
     {

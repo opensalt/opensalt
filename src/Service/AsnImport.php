@@ -33,9 +33,7 @@ class AsnImport
         $this->jsonClient = $guzzleJsonClient;
     }
 
-    /**
-     * @return EntityManager
-     */
+
     protected function getEntityManager(): EntityManager
     {
         return $this->em;
@@ -43,11 +41,6 @@ class AsnImport
 
     /**
      * Parse an ASN document into a LsDoc/LsItem hierarchy
-     *
-     * @param string $asnDoc
-     * @param string|null $creator
-     *
-     * @return LsDoc
      */
     public function parseAsnDocument(string $asnDoc, ?string $creator = null): LsDoc
     {
@@ -117,13 +110,7 @@ class AsnImport
         return $lsDoc;
     }
 
-    /**
-     * @param AsnDocument $doc
-     * @param LsDoc $lsDoc
-     * @param AsnStandard $asnStandard
-     *
-     * @return LsItem
-     */
+
     public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard): LsItem
     {
         $em = $this->getEntityManager();
@@ -191,12 +178,7 @@ class AsnImport
         return $lsItem;
     }
 
-    /**
-     * @param string $asnLocator
-     * @param string|null $creator
-     *
-     * @return LsDoc
-     */
+
     public function generateFrameworkFromAsn(string $asnLocator, ?string $creator = null): LsDoc
     {
         $asnDoc = $this->fetchAsnDocument($asnLocator);
@@ -205,10 +187,6 @@ class AsnImport
     }
 
     /**
-     * @param string $asnLocator
-     *
-     * @return string
-     *
      * @throws \Exception
      */
     public function fetchAsnDocument(string $asnLocator): string
@@ -250,10 +228,6 @@ class AsnImport
     }
 
     /**
-     * @param string $url
-     *
-     * @return string
-     *
      * @throws \Exception
      */
     public function requestAsnDocument(string $url): string
@@ -281,8 +255,6 @@ class AsnImport
 
     /**
      * @param array|Collection $levelList
-     *
-     * @return array
      */
     protected function getLevels($levelList): array
     {
@@ -315,11 +287,7 @@ class AsnImport
         return $levels;
     }
 
-    /**
-     * @param string $label
-     *
-     * @return LsDefItemType
-     */
+
     protected function addItemType(string $label): LsDefItemType
     {
         $itemType = new LsDefItemType();
@@ -332,8 +300,6 @@ class AsnImport
     }
 
     /**
-     * @param LsDoc $lsDoc
-     * @param IdentifiableInterface $origin
      * @param AsnValue[] $matches
      */
     protected function addExactMatches(LsDoc $lsDoc, IdentifiableInterface $origin, iterable $matches): void
@@ -343,13 +309,7 @@ class AsnImport
         }
     }
 
-    /**
-     * @param LsDoc $lsDoc
-     * @param IdentifiableInterface $origin
-     * @param ASNValue $match
-     *
-     * @return LsAssociation
-     */
+
     protected function addExactMatch(LsDoc $lsDoc, IdentifiableInterface $origin, AsnValue $match): LsAssociation
     {
         $assoc = $lsDoc->createAssociation();

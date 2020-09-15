@@ -7,9 +7,6 @@ use Doctrine\DBAL\Schema\Schema;
 
 class Version20160921225507 extends AbstractMigration
 {
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema): void
     {
         $filename = __DIR__.'/../../src/DataFixtures/Data/USGrades.csv';
@@ -31,9 +28,7 @@ VALUES
         fclose($fd);
     }
 
-    /**
-     * @param Schema $schema
-     */
+
     public function down(Schema $schema): void
     {
     }

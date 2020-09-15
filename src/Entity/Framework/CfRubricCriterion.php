@@ -112,9 +112,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
         $this->levels = new ArrayCollection();
     }
 
-    /**
-     * @return string
-     */
+
     public function getCategory(): string
     {
         return $this->category;
@@ -122,8 +120,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
 
     /**
      * @param string $category
-     *
-     * @return CfRubricCriterion
      */
     public function setCategory($category): CfRubricCriterion
     {
@@ -132,9 +128,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
         return $this;
     }
 
-    /**
-     * @return string
-     */
+
     public function getDescription(): string
     {
         return $this->description;
@@ -142,8 +136,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
 
     /**
      * @param string $description
-     *
-     * @return CfRubricCriterion
      */
     public function setDescription($description): CfRubricCriterion
     {
@@ -152,9 +144,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
         return $this;
     }
 
-    /**
-     * @return LsItem
-     */
+
     public function getItem(): LsItem
     {
         return $this->item;
@@ -162,8 +152,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
 
     /**
      * @param LsItem $item
-     *
-     * @return CfRubricCriterion
      */
     public function setItem($item): CfRubricCriterion
     {
@@ -172,9 +160,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
         return $this;
     }
 
-    /**
-     * @return float
-     */
+
     public function getWeight(): float
     {
         return $this->weight;
@@ -182,8 +168,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
 
     /**
      * @param float $weight
-     *
-     * @return CfRubricCriterion
      */
     public function setWeight($weight): CfRubricCriterion
     {
@@ -192,9 +176,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
         return $this;
     }
 
-    /**
-     * @return int
-     */
+
     public function getPosition(): int
     {
         return $this->position;
@@ -202,8 +184,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
 
     /**
      * @param int $position
-     *
-     * @return CfRubricCriterion
      */
     public function setPosition($position): CfRubricCriterion
     {
@@ -212,9 +192,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
         return $this;
     }
 
-    /**
-     * @return CfRubric
-     */
+
     public function getRubric(): CfRubric
     {
         return $this->rubric;
@@ -222,8 +200,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
 
     /**
      * @param CfRubric $rubric
-     *
-     * @return CfRubricCriterion
      */
     public function setRubric($rubric): CfRubricCriterion
     {

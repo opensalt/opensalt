@@ -23,9 +23,6 @@ class DeleteDocumentCommand extends BaseCommand
 
     /**
      * constructor.
-     *
-     * @param LsDoc $doc
-     * @param \Closure|null $progressCallback
      */
     public function __construct(LsDoc $doc, ?\Closure $progressCallback = null)
     {

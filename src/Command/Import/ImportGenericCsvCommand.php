@@ -27,7 +27,7 @@ class ImportGenericCsvCommand extends BaseCommand
     private $creator;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     private $title;
 

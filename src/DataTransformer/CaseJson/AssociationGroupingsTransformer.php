@@ -57,7 +57,6 @@ class AssociationGroupingsTransformer
     }
 
     /**
-     * @param CFAssociationGrouping $cfAssociationGrouping
      * @param LsDefAssociationGrouping[] $existingAssociationGroups
      */
     protected function updateAssociationGrouping(CFAssociationGrouping $cfAssociationGrouping, array &$existingAssociationGroups): void
@@ -71,10 +70,7 @@ class AssociationGroupingsTransformer
     }
 
     /**
-     * @param CFAssociationGrouping $cfAssociationGrouping
      * @param LsDefAssociationGrouping[] $existingAssociationGroups
-     *
-     * @return LsDefAssociationGrouping
      */
     protected function findOrCreateAssociationGrouping(CFAssociationGrouping $cfAssociationGrouping, array &$existingAssociationGroups): LsDefAssociationGrouping
     {

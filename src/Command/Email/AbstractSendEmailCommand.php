@@ -18,9 +18,7 @@ abstract class AbstractSendEmailCommand extends BaseCommand
         $this->recipient = $recipient;
     }
 
-    /**
-     * @return string|null
-     */
+
     public function getRecipient(): ?string
     {
         return $this->recipient;

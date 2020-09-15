@@ -39,9 +39,6 @@ class FrameworkAclController extends AbstractController
      * @Template()
      * @Security("is_granted('manage_editors', lsDoc)")
      *
-     * @param Request $request
-     * @param LsDoc $lsDoc
-     *
      * @return array|RedirectResponse
      */
     public function editAction(Request $request, LsDoc $lsDoc)
@@ -97,9 +94,6 @@ class FrameworkAclController extends AbstractController
     }
 
     /**
-     * @param LsDoc $lsDoc
-     * @param FormInterface $addOrgUserForm
-     *
      * @return RedirectResponse|null
      */
     private function handleOrgUserAdd(LsDoc $lsDoc, FormInterface $addOrgUserForm): ?Response
@@ -131,9 +125,6 @@ class FrameworkAclController extends AbstractController
     }
 
     /**
-     * @param LsDoc $lsDoc
-     * @param FormInterface $addUsernameForm
-     *
      * @return RedirectResponse|null
      */
     private function handleUsernameAdd(LsDoc $lsDoc, FormInterface $addUsernameForm): ?Response
@@ -169,10 +160,6 @@ class FrameworkAclController extends AbstractController
      * @Route("/{id}/acl/{targetUser}", methods={"DELETE"}, name="framework_acl_remove")
      * @Security("is_granted('manage_editors', lsDoc)")
      *
-     * @param Request $request
-     * @param LsDoc $lsDoc
-     * @param User $targetUser
-     *
      * @return RedirectResponse
      */
     public function removeAclAction(Request $request, LsDoc $lsDoc, User $targetUser): Response
@@ -191,7 +178,6 @@ class FrameworkAclController extends AbstractController
     /**
      * Creates a form to delete a user entity.
      *
-     * @param \App\Entity\Framework\LsDoc $lsDoc
      * @param User $targetUser The user entity
      *
      * @return \Symfony\Component\Form\FormInterface The form

@@ -89,8 +89,6 @@ class UserController extends AbstractController
      * @Route("/new", methods={"GET", "POST"}, name="admin_user_new")
      * @Template()
      *
-     * @param Request $request
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
@@ -133,8 +131,6 @@ class UserController extends AbstractController
      * @Security("is_granted('manage', targetUser)")
      * @Template()
      *
-     * @param User $targetUser
-     *
      * @return array
      */
     public function showAction(User $targetUser)
@@ -153,9 +149,6 @@ class UserController extends AbstractController
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="admin_user_edit")
      * @Security("is_granted('manage', targetUser)")
      * @Template()
-     *
-     * @param Request $request
-     * @param User $targetUser
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -195,11 +188,6 @@ class UserController extends AbstractController
      *
      * @Route("/{id}/suspend", methods={"POST"}, name="admin_user_suspend")
      * @Security("is_granted('manage', targetUser)")
-     *
-     * @param Request $request
-     * @param User $targetUser
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function suspendAction(Request $request, User $targetUser): RedirectResponse
     {
@@ -219,11 +207,6 @@ class UserController extends AbstractController
      *
      * @Route("/{id}/activate", methods={"POST"}, name="admin_user_activate")
      * @Security("is_granted('manage', targetUser)")
-     *
-     * @param Request $request
-     * @param User $targetUser
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function activateAction(Request $request, User $targetUser): RedirectResponse
     {
@@ -253,10 +236,6 @@ class UserController extends AbstractController
      *
      * @Route("/{id}/reject", methods={"POST"}, name="admin_user_reject")
      * @Security("is_granted('manage', targetUser)")
-     *
-     * @param User $targetUser
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function rejectAction(Request $request, User $targetUser): RedirectResponse
     {
@@ -276,11 +255,6 @@ class UserController extends AbstractController
      *
      * @Route("/{id}", methods={"DELETE"}, name="admin_user_delete")
      * @Security("is_granted('manage', targetUser)")
-     *
-     * @param Request $request
-     * @param User $targetUser
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, User $targetUser): RedirectResponse
     {

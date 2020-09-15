@@ -17,9 +17,7 @@ class MarkImportLogsAsReadCommand extends BaseCommand
         $this->doc = $doc;
     }
 
-    /**
-     * @return LsDoc
-     */
+
     public function getDoc(): LsDoc
     {
         return $this->doc;

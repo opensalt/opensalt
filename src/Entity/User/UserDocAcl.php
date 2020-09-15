@@ -57,10 +57,6 @@ class UserDocAcl
     /**
      * UserDocAcl constructor.
      *
-     * @param User $user
-     * @param LsDoc $lsDoc
-     * @param int $access
-     *
      * @throws \InvalidArgumentException
      */
     public function __construct(User $user, LsDoc $lsDoc, int $access)
@@ -73,9 +69,7 @@ class UserDocAcl
         $this->access = $access;
     }
 
-    /**
-     * @return int
-     */
+
     public function getId(): int
     {
         return $this->id;
@@ -83,8 +77,6 @@ class UserDocAcl
 
     /**
      * The User that the ACL is for
-     *
-     * @return User
      */
     public function getUser(): User
     {
@@ -93,8 +85,6 @@ class UserDocAcl
 
     /**
      * The Document that the ACL is for
-     *
-     * @return LsDoc
      */
     public function getLsDoc(): LsDoc
     {

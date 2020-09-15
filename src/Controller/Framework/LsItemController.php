@@ -127,7 +127,6 @@ class LsItemController extends AbstractController
      * @Route("/{id}.{_format}", methods={"GET"}, defaults={"_format"="html"}, name="lsitem_show")
      * @Template()
      *
-     * @param LsItem $lsItem
      * @param string $_format
      *
      * @return array

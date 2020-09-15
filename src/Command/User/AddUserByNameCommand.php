@@ -24,12 +24,12 @@ class AddUserByNameCommand extends BaseCommand
     private $organization;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     private $plainPassword;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     private $role;
 

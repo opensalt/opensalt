@@ -10,9 +10,6 @@ use Doctrine\DBAL\Schema\Schema;
  */
 class Version20160914163710 extends AbstractMigration
 {
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
@@ -22,9 +19,7 @@ class Version20160914163710 extends AbstractMigration
         $this->addSql('ALTER TABLE ls_doc_attribute ADD CONSTRAINT FK_1DB04FBC9388802C FOREIGN KEY (ls_doc_id) REFERENCES ls_doc (id)');
     }
 
-    /**
-     * @param Schema $schema
-     */
+
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs

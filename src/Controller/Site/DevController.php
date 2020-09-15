@@ -14,10 +14,6 @@ class DevController extends AbstractController
     /**
      * @Route("/dev/cookie", name="dev_cookie")
      * @Security("is_granted('feature', 'dev_env')")
-     *
-     * @param Request $request
-     *
-     * @return Response
      */
     public function devCookieAction(Request $request): Response
     {

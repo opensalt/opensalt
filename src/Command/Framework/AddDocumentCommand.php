@@ -18,8 +18,6 @@ class AddDocumentCommand extends BaseCommand
 
     /**
      * Constructor.
-     *
-     * @param LsDoc $doc
      */
     public function __construct(LsDoc $doc)
     {

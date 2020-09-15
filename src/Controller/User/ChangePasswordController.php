@@ -36,8 +36,6 @@ class ChangePasswordController extends AbstractController
      * @Route("/user/change-password", name="user_change_password")
      * @Template()
      *
-     * @param Request $request
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function changePasswordAction(Request $request)

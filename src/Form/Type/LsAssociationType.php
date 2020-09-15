@@ -122,9 +122,7 @@ class LsAssociationType extends AbstractType
         );
     }
 
-    /**
-     * @param OptionsResolver $resolver
-     */
+
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

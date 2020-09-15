@@ -49,8 +49,6 @@ class LsDefItemTypeController extends AbstractController
      * @Route("/list.{_format}", methods={"GET"}, defaults={"_format"="json"}, name="lsdef_item_type_index_json")
      * @Template()
      *
-     * @param Request $request
-     *
      * @return array
      */
     public function jsonListAction(Request $request)
@@ -85,8 +83,6 @@ class LsDefItemTypeController extends AbstractController
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
-     * @param Request $request
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function newAction(Request $request)
@@ -118,8 +114,6 @@ class LsDefItemTypeController extends AbstractController
      * @Route("/{id}", methods={"GET"}, name="lsdef_item_type_show")
      * @Template()
      *
-     * @param LsDefItemType $lsDefItemType
-     *
      * @return array
      */
     public function showAction(LsDefItemType $lsDefItemType)
@@ -138,9 +132,6 @@ class LsDefItemTypeController extends AbstractController
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_item_type_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefItemType $lsDefItemType
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -173,9 +164,6 @@ class LsDefItemTypeController extends AbstractController
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_item_type_delete")
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @param Request $request
-     * @param LsDefItemType $lsDefItemType
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */

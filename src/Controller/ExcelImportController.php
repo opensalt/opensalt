@@ -19,8 +19,6 @@ class ExcelImportController extends AbstractController
     /**
      * @Route("/salt/excel/import", methods={"POST"}, name="import_excel_file")
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @return Response
      */
     public function importExcelAction(Request $request, UserInterface $user): Response
     {

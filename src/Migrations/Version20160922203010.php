@@ -10,9 +10,6 @@ use Doctrine\DBAL\Schema\Schema;
  */
 class Version20160922203010 extends AbstractMigration
 {
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema): void
     {
         // Migrate the educational_alignment column to use a standard set
@@ -95,9 +92,7 @@ UPDATE ls_item
         ");
     }
 
-    /**
-     * @param Schema $schema
-     */
+
     public function down(Schema $schema): void
     {
         $this->abortIf(true, 'Cannot reverse educational alignment change');

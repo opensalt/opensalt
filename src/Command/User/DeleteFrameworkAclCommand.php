@@ -31,17 +31,13 @@ class DeleteFrameworkAclCommand extends BaseCommand
         $this->user = $user;
     }
 
-    /**
-     * @return LsDoc
-     */
+
     public function getDoc(): LsDoc
     {
         return $this->doc;
     }
 
-    /**
-     * @return User
-     */
+
     public function getUser(): User
     {
         return $this->user;
