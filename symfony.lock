@@ -689,6 +689,9 @@
             "ref": "8a2f7fa50a528f0aad1d7a87ae3730c981b367ce"
         }
     },
+    "symfony/http-client-contracts": {
+        "version": "v2.2.0"
+    },
     "symfony/http-foundation": {
         "version": "v4.0.10"
     },
@@ -859,9 +862,6 @@
     },
     "symfony/yaml": {
         "version": "v4.0.10"
-    },
-    "symplify/auto-bind-parameter": {
-        "version": "v7.2.1"
     },
     "symplify/autowire-array-parameter": {
         "version": "v7.2.1"
