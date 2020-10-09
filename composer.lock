@@ -6020,7 +6020,7 @@
                 "phpunit/phpunit": "^8.0",
                 "symfony/browser-kit": "^4.4||^5.0",
                 "symfony/twig-bundle": "^4.4||^5.0",
-                "twig/twig": "^2.0"
+                "twig/twig": "^3.0"
             },
             "suggest": {
                 "twig/twig": "For using the twig helper"
@@ -6049,7 +6049,7 @@
                 }
             ],
             "description": "This Bundle provides the integration with qandidate/toggle. It provides the services and configuration you need to implement feature toggles in your Symfony application.",
-            "time": "2020-04-05T12:31:59+00:00"
+            "time": "2020-05-16T11:07:24+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -6996,12 +6996,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "04c3a31fe8ea94b42c9e2d1acc93d19782133b00"
+                "reference": "ae789a8a2ad189ce7e8216942cdb9b77319f5eb8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/04c3a31fe8ea94b42c9e2d1acc93d19782133b00",
-                "reference": "04c3a31fe8ea94b42c9e2d1acc93d19782133b00",
+                "url": "https://api.github.com/repos/symfony/console/zipball/ae789a8a2ad189ce7e8216942cdb9b77319f5eb8",
+                "reference": "ae789a8a2ad189ce7e8216942cdb9b77319f5eb8",
                 "shasum": ""
             },
             "require": {
@@ -7081,7 +7081,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-09-18T14:27:32+00:00"
+            "time": "2020-10-07T15:23:00+00:00"
         },
         {
             "name": "symfony/dependency-injection",
@@ -7779,16 +7779,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v1.9.4",
+            "version": "v1.9.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "115e67f76ba95d70946a6e0b15d4578bf04927c3"
+                "reference": "5c71110ad383ada3d5305c19ff8419a58f799c00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/115e67f76ba95d70946a6e0b15d4578bf04927c3",
-                "reference": "115e67f76ba95d70946a6e0b15d4578bf04927c3",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/5c71110ad383ada3d5305c19ff8419a58f799c00",
+                "reference": "5c71110ad383ada3d5305c19ff8419a58f799c00",
                 "shasum": ""
             },
             "require": {
@@ -7838,7 +7838,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-09-14T14:58:36+00:00"
+            "time": "2020-10-07T12:55:56+00:00"
         },
         {
             "name": "symfony/form",
@@ -9795,6 +9795,20 @@
                 "MIT"
             ],
             "description": "A pack for the Symfony serializer",
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
             "time": "2020-03-28T16:26:24+00:00"
         },
         {
@@ -12984,12 +12998,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfPHP/PHP-CS-Fixer.git",
-                "reference": "9f8cc4dc7e0887df547d14acf1872009e5ff92bf"
+                "reference": "d522e31cc500f77f5004a35d218003e23628b21b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/9f8cc4dc7e0887df547d14acf1872009e5ff92bf",
-                "reference": "9f8cc4dc7e0887df547d14acf1872009e5ff92bf",
+                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/d522e31cc500f77f5004a35d218003e23628b21b",
+                "reference": "d522e31cc500f77f5004a35d218003e23628b21b",
                 "shasum": ""
             },
             "require": {
@@ -13078,7 +13092,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-04T14:37:19+00:00"
+            "time": "2020-10-09T09:57:35+00:00"
         },
         {
             "name": "fzaninotto/faker",
@@ -13371,6 +13385,16 @@
                 "factory",
                 "testing"
             ],
+            "funding": [
+                {
+                    "url": "https://github.com/GrahamCampbell",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/league/factory-muffin",
+                    "type": "tidelift"
+                }
+            ],
             "time": "2020-04-12T21:50:48+00:00"
         },
         {
@@ -13421,6 +13445,16 @@
                 "factory",
                 "faker",
                 "testing"
+            ],
+            "funding": [
+                {
+                    "url": "https://github.com/GrahamCampbell",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/league/factory-muffin-faker",
+                    "type": "tidelift"
+                }
             ],
             "time": "2020-04-12T21:50:53+00:00"
         },
@@ -14831,12 +14865,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "107aa9daab3521a0d28f868ff8dc75db546f7ee3"
+                "reference": "ba5d234b3a1559321b816b64aafc2ce6728799ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/107aa9daab3521a0d28f868ff8dc75db546f7ee3",
-                "reference": "107aa9daab3521a0d28f868ff8dc75db546f7ee3",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/ba5d234b3a1559321b816b64aafc2ce6728799ff",
+                "reference": "ba5d234b3a1559321b816b64aafc2ce6728799ff",
                 "shasum": ""
             },
             "conflict": {
@@ -14976,6 +15010,7 @@
                 "privatebin/privatebin": "<1.2.2|>=1.3,<1.3.2",
                 "propel/propel": ">=2-alpha.1,<=2-alpha.7",
                 "propel/propel1": ">=1,<=1.7.1",
+                "pterodactyl/panel": "<0.7.19|>=1-rc.0,<=1-rc.6",
                 "pusher/pusher-php-server": "<2.2.1",
                 "rainlab/debugbar-plugin": "<3.1",
                 "robrichards/xmlseclibs": "<3.0.4",
@@ -15061,6 +15096,7 @@
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
                 "typo3/neos": ">=1.1,<1.1.3|>=1.2,<1.2.13|>=2,<2.0.4",
                 "typo3/phar-stream-wrapper": ">=1,<2.1.1|>=3,<3.1.1",
+                "typo3fluid/fluid": ">=2,<2.0.5|>=2.1,<2.1.4|>=2.2,<2.2.1|>=2.3,<2.3.5|>=2.4,<2.4.1|>=2.5,<2.5.5|>=2.6,<2.6.1",
                 "ua-parser/uap-php": "<3.8",
                 "usmanhalalit/pixie": "<1.0.3|>=2,<2.0.2",
                 "verot/class.upload.php": "<=1.0.3|>=2,<=2.0.4",
@@ -15130,7 +15166,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-05T16:02:42+00:00"
+            "time": "2020-10-08T21:02:27+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -16053,6 +16089,20 @@
                 "MIT"
             ],
             "description": "A debug pack for Symfony projects",
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
             "time": "2020-04-07T10:08:51+00:00"
         },
         {
@@ -16330,12 +16380,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symplify/autowire-array-parameter.git",
-                "reference": "3ddd094f99bff15e9bf56ece0594061ed589b4ce"
+                "reference": "f20b2ed52a9f8483be3fb7aa3263f6b385bf7c42"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symplify/autowire-array-parameter/zipball/3ddd094f99bff15e9bf56ece0594061ed589b4ce",
-                "reference": "3ddd094f99bff15e9bf56ece0594061ed589b4ce",
+                "url": "https://api.github.com/repos/symplify/autowire-array-parameter/zipball/f20b2ed52a9f8483be3fb7aa3263f6b385bf7c42",
+                "reference": "f20b2ed52a9f8483be3fb7aa3263f6b385bf7c42",
                 "shasum": ""
             },
             "require": {
@@ -16381,12 +16431,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symplify/coding-standard.git",
-                "reference": "603bda9d332c6b9f847497b97f89f54efa884fb4"
+                "reference": "d753c547551bc442afe904eb3097714faed9f701"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symplify/coding-standard/zipball/603bda9d332c6b9f847497b97f89f54efa884fb4",
-                "reference": "603bda9d332c6b9f847497b97f89f54efa884fb4",
+                "url": "https://api.github.com/repos/symplify/coding-standard/zipball/d753c547551bc442afe904eb3097714faed9f701",
+                "reference": "d753c547551bc442afe904eb3097714faed9f701",
                 "shasum": ""
             },
             "require": {
@@ -16447,12 +16497,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symplify/console-color-diff.git",
-                "reference": "9879c7343c9051d82517f64bf182ea1064ee9fa4"
+                "reference": "abf5c7ce8a14a666e9d2b740e2b83c875468478e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symplify/console-color-diff/zipball/9879c7343c9051d82517f64bf182ea1064ee9fa4",
-                "reference": "9879c7343c9051d82517f64bf182ea1064ee9fa4",
+                "url": "https://api.github.com/repos/symplify/console-color-diff/zipball/abf5c7ce8a14a666e9d2b740e2b83c875468478e",
+                "reference": "abf5c7ce8a14a666e9d2b740e2b83c875468478e",
                 "shasum": ""
             },
             "require": {
@@ -16501,12 +16551,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symplify/easy-coding-standard.git",
-                "reference": "057727d952371ae8e44175e2f60bb3a99043eea7"
+                "reference": "46952fb7b30ca7f74d4fed3d6c48066dc3568125"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symplify/easy-coding-standard/zipball/057727d952371ae8e44175e2f60bb3a99043eea7",
-                "reference": "057727d952371ae8e44175e2f60bb3a99043eea7",
+                "url": "https://api.github.com/repos/symplify/easy-coding-standard/zipball/46952fb7b30ca7f74d4fed3d6c48066dc3568125",
+                "reference": "46952fb7b30ca7f74d4fed3d6c48066dc3568125",
                 "shasum": ""
             },
             "require": {
@@ -16581,12 +16631,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symplify/package-builder.git",
-                "reference": "72cbcca47abd649c5f23f11ea9f62151205878fd"
+                "reference": "ccd78dd2e7e8c0b5db6e426ff6ebdcc2646c3944"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symplify/package-builder/zipball/72cbcca47abd649c5f23f11ea9f62151205878fd",
-                "reference": "72cbcca47abd649c5f23f11ea9f62151205878fd",
+                "url": "https://api.github.com/repos/symplify/package-builder/zipball/ccd78dd2e7e8c0b5db6e426ff6ebdcc2646c3944",
+                "reference": "ccd78dd2e7e8c0b5db6e426ff6ebdcc2646c3944",
                 "shasum": ""
             },
             "require": {
@@ -16639,12 +16689,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symplify/set-config-resolver.git",
-                "reference": "1b632b9fd3d0a1207e8e150e649c5655de2c6cc1"
+                "reference": "237ae1380e2262b6b17d5810674d601171989bba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symplify/set-config-resolver/zipball/1b632b9fd3d0a1207e8e150e649c5655de2c6cc1",
-                "reference": "1b632b9fd3d0a1207e8e150e649c5655de2c6cc1",
+                "url": "https://api.github.com/repos/symplify/set-config-resolver/zipball/237ae1380e2262b6b17d5810674d601171989bba",
+                "reference": "237ae1380e2262b6b17d5810674d601171989bba",
                 "shasum": ""
             },
             "require": {
@@ -16696,12 +16746,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symplify/smart-file-system.git",
-                "reference": "57df87a3dba8e2afe9c6a9cfa606958d1894d476"
+                "reference": "3c3ae9832b22fc8f1d427523b5b6f4bd485c6a6e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symplify/smart-file-system/zipball/57df87a3dba8e2afe9c6a9cfa606958d1894d476",
-                "reference": "57df87a3dba8e2afe9c6a9cfa606958d1894d476",
+                "url": "https://api.github.com/repos/symplify/smart-file-system/zipball/3c3ae9832b22fc8f1d427523b5b6f4bd485c6a6e",
+                "reference": "3c3ae9832b22fc8f1d427523b5b6f4bd485c6a6e",
                 "shasum": ""
             },
             "require": {
@@ -16842,6 +16892,12 @@
                 "psysh",
                 "shell",
                 "symfony"
+            ],
+            "funding": [
+                {
+                    "url": "https://github.com/theofidry",
+                    "type": "github"
+                }
             ],
             "time": "2020-03-26T20:01:29+00:00"
         },
