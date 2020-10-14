@@ -1,0 +1,10 @@
+#!/bin/sh
+
+cd $(dirname $0)/..
+
+PROJ_DIR=${PROJ_DIR:-$(pwd)}
+
+#docker pull node:12-alpine
+
+# Install node modules
+docker run --rm -u $(id -u):$(id -g) -v $PROJ_DIR:/app --workdir /app -it node:12-alpine "$@"

@@ -55,22 +55,18 @@ composer-install: vendor
 
 
 # Encore commands
-encore-old:
-	bin/encore production
-.PHONY: encore-old
-
 js: encore cache-clear
 .PHONY: js
 
 encore: yarn-install
-	docker run --rm -u $(shell id -u):$(shell id -g) -v $(PROJ_DIR):/app --workdir /app node:9-alpine ./node_modules/.bin/encore production
+	bin/node ./node_modules/.bin/encore production
 encore-dev: yarn-install
-	docker run --rm -u $(shell id -u):$(shell id -g) -v $(PROJ_DIR):/app --workdir /app node:9-alpine ./node_modules/.bin/encore dev
+	bin/node ./node_modules/.bin/encore dev
 encore-build: encore
 .PHONY: encore encore-dev encore-build
 
 node_modules: yarn.lock package.json
-	docker run --rm -u $(shell id -u):$(shell id -g) -v $(PROJ_DIR):/app --workdir /app node:9-alpine yarn install --non-interactive
+	bin/yarn install --non-interactive
 	touch node_modules
 yarn-install: node_modules
 .PHONY: yarn-install
