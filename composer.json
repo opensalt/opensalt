@@ -127,11 +127,10 @@
         "codeception/module-webdriver": "^1.0.0",
             "codeception/specify": "^1.1",
             "codeception/verify": "^1.0",
-            "flow/jsonpath": "~0.4",
+            "softcreatr/jsonpath": "~0.4",
             "league/factory-muffin": "~3.0",
             "league/factory-muffin-faker": "~2.0",
             "phpunit/phpunit": "~7.5",
-            "codeception/c3": "2.*",
             "vlucas/phpdotenv": "^5.0",
 
         "phpstan/phpstan-symfony": "^0.12.3",

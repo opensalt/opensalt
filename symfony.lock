@@ -20,9 +20,6 @@
     "brick/math": {
         "version": "0.8.15"
     },
-    "codeception/c3": {
-        "version": "2.4.1"
-    },
     "codeception/codeception": {
         "version": "2.4.1"
     },
@@ -202,9 +199,6 @@
     },
     "firebase/php-jwt": {
         "version": "v5.0.0"
-    },
-    "flow/jsonpath": {
-        "version": "0.4.0"
     },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
@@ -586,6 +580,9 @@
     },
     "slevomat/coding-standard": {
         "version": "6.0.8"
+    },
+    "softcreatr/jsonpath": {
+        "version": "0.7.0"
     },
     "squizlabs/php_codesniffer": {
         "version": "3.2.3"

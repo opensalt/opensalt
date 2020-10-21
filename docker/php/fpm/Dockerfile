@@ -1,7 +1,7 @@
 #ARG PHP_VERSION=7.4
 FROM php:7.4-fpm
 
-ARG APCU_VERSION=5.1.18
+ARG APCU_VERSION=5.1.19
 ARG APCU_BC_VERSION=1.0.5
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -67,8 +67,7 @@ RUN wget https://get.symfony.com/cli/installer -O - | bash \
     && mv ~/.symfony/bin/symfony /usr/local/bin/symfony
 
 # Install and configure composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer2
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
@@ -77,7 +76,6 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_MEMORY_LIMIT=-1
 
 RUN composer global require \
-        hirak/prestissimo \
         maglnet/composer-require-checker \
         insolita/unused-scanner \
             --prefer-dist --no-progress --no-suggest --classmap-authoritative \
