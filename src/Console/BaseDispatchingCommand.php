@@ -7,8 +7,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 abstract class BaseDispatchingCommand extends Command
 {
-    /** @var EventDispatcherInterface */
-    protected $dispatcher;
+    protected EventDispatcherInterface $dispatcher;
 
     public function __construct(EventDispatcherInterface $dispatcher)
     {

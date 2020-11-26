@@ -19,15 +19,9 @@ class CommandEventRouter implements EventSubscriberInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
+    private EntityManagerInterface $em;
 
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
+    private TokenStorageInterface $tokenStorage;
 
     public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage)
     {
@@ -42,7 +36,6 @@ class CommandEventRouter implements EventSubscriberInterface
 
     public function routeCommand(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        /** @var CommandInterface $command */
         $command = $event->getCommand();
 
         $this->em->getConnection()->beginTransaction();
@@ -125,9 +118,6 @@ class CommandEventRouter implements EventSubscriberInterface
         return $change;
     }
 
-    /**
-     * @throws \Doctrine\DBAL\DBALException
-     */
     protected function updateChangeEntry(CommandInterface $command, ChangeEntry $change, NotificationEvent $notification): void
     {
         if (null !== $command->getChangeEntry()) {

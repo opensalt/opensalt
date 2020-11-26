@@ -18,15 +18,14 @@ class ApiExceptionListener implements EventSubscriberInterface
 {
     use LoggerTrait;
 
-    /** @var SerializerInterface */
-    private $serializer;
+    private SerializerInterface $serializer;
 
     public function __construct(SerializerInterface $serializer)
     {
         $this->serializer = $serializer;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [KernelEvents::EXCEPTION => 'onKernelException'];
     }
@@ -82,9 +81,6 @@ class ApiExceptionListener implements EventSubscriberInterface
         return $response;
     }
 
-    /**
-     * Determine if the UUID is valid.
-     */
     protected function isUuidValid(string $uuid): bool
     {
         if (!Uuid::isValid($uuid)) {

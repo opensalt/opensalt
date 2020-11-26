@@ -1,13 +1,13 @@
 {% extends "base.html.twig" %}
 
-{% block title %}{{ lsDoc.title |truncate(64, true) }}{% endblock %}
+{% block title %}{{ lsDoc.title |u.truncate(64, '...', false) }}{% endblock %}
 
 {% block body %}
     <div class="row">
         <div class="col-sm-12">
                 <ol class="breadcrumb">
                     <li><a href="{{ path('lsdoc_index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
-                    <li class="active">{{ lsDoc.title |truncate(64, true) }}</li>
+                    <li class="active">{{ lsDoc.title |u.truncate(64, '...', false) }}</li>
                 </ol>
         </div>
     </div>

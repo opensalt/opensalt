@@ -26,7 +26,7 @@
                                         {{ item.fullStatement }}
                                     {% endif %}
                                     {% if item.lsDoc != viewingItem.lsDoc %}
-                                        <span class="label label-default">{{ item.lsDoc.title|truncate(30) }}</span>
+                                        <span class="label label-default">{{ item.lsDoc.title|u.truncate(30) }}</span>
                                     {% endif %}
                                     {% block end_of_item_a '' %}
                                 </a>

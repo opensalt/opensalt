@@ -95,11 +95,17 @@ class EducationLevelSet
             [$lo, $hi] = explode('-', $gradeString, 2);
 
             $lo = self::normalizeGrade($lo);
+            if ('PK' === $lo) {
+                $lo = '-1';
+            }
             if ('KG' === $lo) {
                 $lo = '0';
             }
 
             $hi = self::normalizeGrade($hi);
+            if ('PK' === $hi) {
+                $hi = '-1';
+            }
             if ('KG' === $hi) {
                 $hi = '0';
             }
@@ -108,7 +114,7 @@ class EducationLevelSet
                 return ['OT'];
             }
 
-            return array_map(function ($x) {
+            return array_map(static function ($x) {
                 return self::normalizeGrade($x);
             }, range($lo, $hi));
         }
@@ -134,8 +140,12 @@ class EducationLevelSet
     {
         $grade = (int) $gradeString;
 
-        if ($grade < 0 || $grade > 13 || ((float) $grade !== (float) $gradeString)) {
+        if ($grade < -1 || $grade > 13 || ((float) $grade !== (float) $gradeString)) {
             return 'OT';
+        }
+
+        if (-1 === $grade) {
+            return 'PK';
         }
 
         if (0 === $grade) {
