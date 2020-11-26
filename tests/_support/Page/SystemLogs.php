@@ -137,7 +137,7 @@ class SystemLogs implements Context
         $rows = $this->I->grabMultiple("//*[@id='systemLogTable']/tbody/tr");
 
         foreach ($rows as $row) {
-            $this->I->assertContains($term, $row);
+            $this->I->assertStringContainsString($term, $row);
         }
     }
 
@@ -162,7 +162,7 @@ class SystemLogs implements Context
 
         $rows = $this->I->grabMultiple("//*[@id='systemLogTable']/tbody/tr/td[1]");
         foreach ($rows as $row) {
-            $this->I->assertContains($row, $export);
+            $this->I->assertStringContainsString($row, $export);
         }
     }
 

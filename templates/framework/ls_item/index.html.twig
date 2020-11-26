@@ -22,7 +22,7 @@
                 <td>{{ lsItem.lsDocUri }}</td>
                 <td>{{ lsItem.humanCodingScheme }}</td>
                 <td>{% if lsItem.abbreviatedStatement is empty %}
-                        {{ lsItem.fullStatement | truncate(50) }}
+                        {{ lsItem.fullStatement |u.truncate(50) }}
                     {% else %}
                         {{ lsItem.abbreviatedStatement }}
                     {% endif %}

@@ -1,12 +1,15 @@
 includes:
-	- vendor/phpstan/phpstan-symfony/extension.neon
-	- vendor/phpstan/phpstan-doctrine/extension.neon
-	- vendor/phpstan/phpstan-doctrine/rules.neon
+	- './vendor/phpstan/phpstan-symfony/extension.neon'
+	- './vendor/phpstan/phpstan-symfony/rules.neon'
+	- './vendor/phpstan/phpstan-doctrine/extension.neon'
+	- './vendor/phpstan/phpstan-doctrine/rules.neon'
 
 parameters:
+	#customRulesetUsed: true
+	level: 6
 	excludes_analyse:
-		- %rootDir%/../../../src/Migrations
+		- './src/Migrations'
 	symfony:
-		container_xml_path: '%rootDir%/../../../var/cache/dev/App_KernelDevDebugContainer.xml'
+		container_xml_path: './var/cache/dev/App_KernelDevDebugContainer.xml'
 	doctrine:
-		objectManagerLoader: tests/object-manager.php
+		objectManagerLoader: './tests/object-manager.php'

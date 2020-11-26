@@ -5,10 +5,9 @@ use Context\Login;
 
 class CommentExportCest
 {
-
-    static public $docPath = '/cftree/doc/';
-    static public $commentFilePath = '/salt/case/export_comment/';
-    static public $itemPath = '/cftree/item/';
+    public static $docPath = '/cftree/doc/';
+    public static $commentFilePath = '/salt/case/export_comment/';
+    public static $itemPath = '/cftree/item/';
 
     public function _before(AcceptanceTester $Acpt)
     {
@@ -55,7 +54,7 @@ class CommentExportCest
         $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');
         $comment = explode("\n", $csvFile);
         $Acpt->assertGreaterThanOrEqual(1, sizeof($comment));
-        $Acpt->assertContains('"Framework Name","Node Address",HumanCodingScheme,User,Organization,Comment,"Attachment Url"', $csvFile, 'Exported Document Comments');
+        $Acpt->assertStringContainsString('"Framework Name","Node Address",HumanCodingScheme,User,Organization,Comment,"Attachment Url"', $csvFile, 'Exported Document Comments');
     }
 
     public function exportItemCommentCSV(AcceptanceTester $Acpt, Scenario $scenario)
@@ -72,7 +71,7 @@ class CommentExportCest
         $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');
         $comment = explode("\n", $csvFile);
         $Acpt->assertGreaterThanOrEqual(1, sizeof($comment));
-        $Acpt->assertContains('"Framework Name","Node Address",HumanCodingScheme,User,Organization,Comment,"Attachment Url"', $csvFile, 'Exported Item Comments');
+        $Acpt->assertStringContainsString('"Framework Name","Node Address",HumanCodingScheme,User,Organization,Comment,"Attachment Url"', $csvFile, 'Exported Item Comments');
     }
 
     public function seeTimestampInCommentCSV(AcceptanceTester $Acpt, Scenario $scenario)
@@ -89,7 +88,6 @@ class CommentExportCest
         $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');
         $comment = explode("\n", $csvFile);
         $Acpt->assertGreaterThanOrEqual(1, sizeof($comment));
-        $Acpt->assertContains('"Created Date","Updated Date"', $csvFile, 'See Timestamp column in document Comment Report');
+        $Acpt->assertStringContainsString('"Created Date","Updated Date"', $csvFile, 'See Timestamp column in document Comment Report');
     }
-
 }

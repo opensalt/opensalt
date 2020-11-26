@@ -10,15 +10,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ClearFirebaseNotificationsCommand extends Command
 {
     protected static $defaultName = 'firebase:clear';
-    /**
-     * @var Database|null
-     */
-    private $firebaseDb;
+    private ?Database $firebaseDb;
 
-    /**
-     * @var string
-     */
-    private $firebasePrefix;
+    private string $firebasePrefix;
 
     public function __construct(?Database $firebaseDb, ?string $firebasePrefix = null)
     {

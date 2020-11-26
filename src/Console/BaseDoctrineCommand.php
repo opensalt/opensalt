@@ -7,10 +7,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 abstract class BaseDoctrineCommand extends BaseDispatchingCommand
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $em;
+    protected EntityManagerInterface $em;
 
     public function __construct(EventDispatcherInterface $dispatcher, EntityManagerInterface $entityManager)
     {

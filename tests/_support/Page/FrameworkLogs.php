@@ -6,12 +6,9 @@ use Behat\Behat\Context\Context;
 
 class FrameworkLogs implements Context
 {
-    protected $filename;
+    protected string $filename;
 
-    /**
-     * @var \AcceptanceTester
-     */
-    protected $I;
+    protected \AcceptanceTester $I;
 
     public function __construct(\AcceptanceTester $I)
     {
@@ -91,7 +88,7 @@ class FrameworkLogs implements Context
         $rows = $this->I->grabMultiple("//*[@id='logTable']/tbody/tr");
 
         foreach ($rows as $row) {
-            $this->I->assertContains($term, $row);
+            $this->I->assertStringContainsString($term, $row);
         }
     }
 
@@ -134,7 +131,7 @@ class FrameworkLogs implements Context
 
         $rows = $this->I->grabMultiple("//*[@id='logTable']/tbody/tr/td[1]");
         foreach ($rows as $row) {
-            $this->I->assertContains($row, $export);
+            $this->I->assertStringContainsString($row, $export);
         }
     }
 }
