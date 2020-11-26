@@ -12458,24 +12458,23 @@
         },
         {
             "name": "codeception/module-doctrine2",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-doctrine2.git",
-                "reference": "689a42c101a9a5154ad6d2df441974347d1e85f2"
+                "reference": "a39cd444fac840c907d33d33bca83e57dd0e04d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/689a42c101a9a5154ad6d2df441974347d1e85f2",
-                "reference": "689a42c101a9a5154ad6d2df441974347d1e85f2",
+                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/a39cd444fac840c907d33d33bca83e57dd0e04d1",
+                "reference": "a39cd444fac840c907d33d33bca83e57dd0e04d1",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^4.0",
-                "php": ">=5.6.0 <8.0"
+                "php": ">=5.6.0 <9.0"
             },
             "require-dev": {
-                "codeception/util-robohelpers": "dev-master",
                 "doctrine/annotations": "^1",
                 "doctrine/data-fixtures": "^1",
                 "doctrine/orm": "^2",
@@ -12507,9 +12506,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-doctrine2/issues",
-                "source": "https://github.com/Codeception/module-doctrine2/tree/1.1.0"
+                "source": "https://github.com/Codeception/module-doctrine2/tree/1.1.1"
             },
-            "time": "2020-11-14T20:39:46+00:00"
+            "time": "2020-11-26T06:56:31+00:00"
         },
         {
             "name": "codeception/module-phpbrowser",
@@ -12671,23 +12670,23 @@
         },
         {
             "name": "codeception/module-symfony",
-            "version": "1.4.1",
+            "version": "1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-symfony.git",
-                "reference": "54a8c81f1274505a828e7af1476e209f85530988"
+                "reference": "5b584d9100ebb63de52d65aae9834d5e2f73fcd4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-symfony/zipball/54a8c81f1274505a828e7af1476e209f85530988",
-                "reference": "54a8c81f1274505a828e7af1476e209f85530988",
+                "url": "https://api.github.com/repos/Codeception/module-symfony/zipball/5b584d9100ebb63de52d65aae9834d5e2f73fcd4",
+                "reference": "5b584d9100ebb63de52d65aae9834d5e2f73fcd4",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^4.0",
                 "codeception/lib-innerbrowser": "^1.3",
                 "ext-json": "*",
-                "php": ">=7.0.8 <8.0"
+                "php": ">=7.0.8 <9.0"
             },
             "require-dev": {
                 "codeception/module-asserts": "^1.3",
@@ -12720,9 +12719,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-symfony/issues",
-                "source": "https://github.com/Codeception/module-symfony/tree/1.4.1"
+                "source": "https://github.com/Codeception/module-symfony/tree/1.4.2"
             },
-            "time": "2020-11-25T19:29:53+00:00"
+            "time": "2020-11-26T12:40:01+00:00"
         },
         {
             "name": "codeception/module-webdriver",
@@ -14860,16 +14859,16 @@
         },
         {
             "name": "phpstan/phpstan-doctrine",
-            "version": "0.12.24",
+            "version": "0.12.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-doctrine.git",
-                "reference": "71bcd7d16fc0519a2b594883174a5278e3ccbef6"
+                "reference": "1d32c427a1d8687b86f0ce5dd9a42e312e51256d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-doctrine/zipball/71bcd7d16fc0519a2b594883174a5278e3ccbef6",
-                "reference": "71bcd7d16fc0519a2b594883174a5278e3ccbef6",
+                "url": "https://api.github.com/repos/phpstan/phpstan-doctrine/zipball/1d32c427a1d8687b86f0ce5dd9a42e312e51256d",
+                "reference": "1d32c427a1d8687b86f0ce5dd9a42e312e51256d",
                 "shasum": ""
             },
             "require": {
@@ -14923,9 +14922,9 @@
             "description": "Doctrine extensions for PHPStan",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan-doctrine/issues",
-                "source": "https://github.com/phpstan/phpstan-doctrine/tree/0.12.24"
+                "source": "https://github.com/phpstan/phpstan-doctrine/tree/0.12.25"
             },
-            "time": "2020-11-25T08:54:24+00:00"
+            "time": "2020-11-26T10:07:28+00:00"
         },
         {
             "name": "phpstan/phpstan-symfony",
@@ -15504,12 +15503,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "563faed0e5e24a5b639fbd30d8f3921bb11fccc0"
+                "reference": "fa05999280434eacf621cc78ab9179d9394c7998"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/563faed0e5e24a5b639fbd30d8f3921bb11fccc0",
-                "reference": "563faed0e5e24a5b639fbd30d8f3921bb11fccc0",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/fa05999280434eacf621cc78ab9179d9394c7998",
+                "reference": "fa05999280434eacf621cc78ab9179d9394c7998",
                 "shasum": ""
             },
             "conflict": {
@@ -15633,7 +15632,7 @@
                 "paragonie/random_compat": "<2",
                 "passbolt/passbolt_api": "<2.11",
                 "paypal/merchant-sdk-php": "<3.12",
-                "pear/archive_tar": "<1.4.4",
+                "pear/archive_tar": "<1.4.11",
                 "personnummer/personnummer": "<3.0.2",
                 "phpfastcache/phpfastcache": ">=5,<5.0.13",
                 "phpmailer/phpmailer": "<6.1.6",
@@ -15814,7 +15813,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-11-23T21:01:44+00:00"
+            "time": "2020-11-26T07:02:13+00:00"
         },
         {
             "name": "sebastian/cli-parser",

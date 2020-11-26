@@ -9,14 +9,11 @@ class Comment implements Context
     public static $docPath = '/cftree/doc/';
     public static $commentFilePath = '/salt/case/export_comment/';
 
-    protected $filename;
-    protected $CfDocComment;
-    protected $CfItemComment;
+    protected string $filename;
+    protected string $CfDocComment;
+    protected string $CfItemComment;
 
-    /**
-     * @var \AcceptanceTester
-     */
-    protected $I;
+    protected \AcceptanceTester $I;
 
     public function __construct(\AcceptanceTester $I)
     {
@@ -77,7 +74,7 @@ class Comment implements Context
         $I->assertNotEmpty($csvFile, 'CSV file is empty');
         $comment = explode("\n", $csvFile);
         $I->assertGreaterThanOrEqual(1, sizeof($comment));
-        $I->assertContains($this->CfDocComment, $csvFile, 'Exported Doc Comments');
-        $I->assertContains($this->CfItemComment, $csvFile, 'Exported Item Comments');
+        $I->assertStringContainsString($this->CfDocComment, $csvFile, 'Exported Doc Comments');
+        $I->assertStringContainsString($this->CfItemComment, $csvFile, 'Exported Item Comments');
     }
 }

@@ -37,6 +37,8 @@
 	    <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.NewlineBeforeOpenBrace"/>
 	    <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
 	    <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterUse"/>
+	    <exclude name="Squiz.NamingConventions.ValidVariableName.NotCamelCaps"/>
+	    <exclude name="Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps"/>
 	    <exclude name="Squiz.Strings.ConcatenationSpacing.PaddingFound"/>
 	    <exclude name="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose"/>
 	    <exclude name="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore"/>

@@ -6,7 +6,7 @@ use Context\Login;
 
 class CommentDocCest
 {
-    static public $docPath = '/cftree/doc/';
+    public static $docPath = '/cftree/doc/';
 
     public function _before(AcceptanceTester $I)
     {
@@ -229,7 +229,6 @@ class CommentDocCest
         $url = $I->grabAttributeFrom('#attachment-list li:first-child .attachment', 'href');
         $attachmentFile = file_get_contents($I->download($url));
 
-        $I->assertContains('attachs are working', $attachmentFile);
-
+        $I->assertStringContainsString('attachs are working', $attachmentFile);
     }
 }
