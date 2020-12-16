@@ -2451,16 +2451,16 @@
         },
         {
             "name": "giggsey/libphonenumber-for-php",
-            "version": "8.12.13",
+            "version": "8.12.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/giggsey/libphonenumber-for-php.git",
-                "reference": "571bbbabdab5b1cf16550cb257005bb527fa0899"
+                "reference": "c1f328bface2745ff1a292639dd68cafc673a456"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/571bbbabdab5b1cf16550cb257005bb527fa0899",
-                "reference": "571bbbabdab5b1cf16550cb257005bb527fa0899",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/c1f328bface2745ff1a292639dd68cafc673a456",
+                "reference": "c1f328bface2745ff1a292639dd68cafc673a456",
                 "shasum": ""
             },
             "require": {
@@ -2474,8 +2474,8 @@
                 "pear/versioncontrol_git": "^0.5",
                 "phing/phing": "^2.7",
                 "php-coveralls/php-coveralls": "^1.0|^2.0",
-                "phpunit/phpunit": "^4.8.36|^5.0|^7.0",
-                "symfony/console": "^2.8|^3.0"
+                "symfony/console": "^2.8|^3.0",
+                "symfony/phpunit-bridge": "^4.2 || ^5"
             },
             "type": "library",
             "extra": {
@@ -2520,7 +2520,7 @@
                 "issues": "https://github.com/giggsey/libphonenumber-for-php/issues",
                 "source": "https://github.com/giggsey/libphonenumber-for-php"
             },
-            "time": "2020-11-12T14:42:30+00:00"
+            "time": "2020-12-15T10:15:17+00:00"
         },
         {
             "name": "giggsey/locale",
@@ -3379,16 +3379,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "5.11.0",
+            "version": "5.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "83380a3a0f15415b1eab03d3a3db19578e3bb5c5"
+                "reference": "f07dc87d2ec3ea032e750c3059470466f76bc0bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/83380a3a0f15415b1eab03d3a3db19578e3bb5c5",
-                "reference": "83380a3a0f15415b1eab03d3a3db19578e3bb5c5",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/f07dc87d2ec3ea032e750c3059470466f76bc0bd",
+                "reference": "f07dc87d2ec3ea032e750c3059470466f76bc0bd",
                 "shasum": ""
             },
             "require": {
@@ -3404,10 +3404,9 @@
                 "guzzlehttp/promises": "^1.4",
                 "guzzlehttp/psr7": "^1.7",
                 "kreait/clock": "^1.0.1",
-                "kreait/firebase-tokens": "^1.10",
-                "lcobucci/jwt": "^3.3.1",
+                "kreait/firebase-tokens": "^1.14.0",
                 "mtdowling/jmespath.php": "^2.3",
-                "php": "^7.2|^8.0",
+                "php": "^7.2|~8.0.0",
                 "psr/cache": "^1.0",
                 "psr/http-message": "^1.0",
                 "psr/log": "^1.1",
@@ -3415,13 +3414,11 @@
                 "riverline/multipart-parser": "^2.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16",
                 "google/cloud-firestore": "^1.11",
-                "jangregor/phpstan-prophecy": "^0.6.2",
                 "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "^0.12.15",
+                "phpstan/phpstan": "^0.12.53",
                 "phpstan/phpstan-phpunit": "^0.12.6",
-                "phpunit/phpunit": "^8.5",
+                "phpunit/phpunit": "^8.5|^9.4.3",
                 "symfony/var-dumper": "^5.0"
             },
             "suggest": {
@@ -3430,7 +3427,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "5.x-dev",
+                    "dev-5.x": "5.x-dev",
                     "dev-4.x": "4.x-dev"
                 }
             },
@@ -3469,40 +3466,39 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-11-01T15:25:32+00:00"
+            "time": "2020-12-13T19:46:29+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
-            "version": "1.11.0",
+            "version": "1.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-tokens-php.git",
-                "reference": "26dcb56cb49cea30fd020a416f53f59d2d78a58b"
+                "reference": "dc8b7da46f45538b3f413dc04a74e24dc7d6bd48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-tokens-php/zipball/26dcb56cb49cea30fd020a416f53f59d2d78a58b",
-                "reference": "26dcb56cb49cea30fd020a416f53f59d2d78a58b",
+                "url": "https://api.github.com/repos/kreait/firebase-tokens-php/zipball/dc8b7da46f45538b3f413dc04a74e24dc7d6bd48",
+                "reference": "dc8b7da46f45538b3f413dc04a74e24dc7d6bd48",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-openssl": "*",
                 "fig/http-message-util": "^1.1",
-                "guzzlehttp/guzzle": "^6.2.1|^7.0",
+                "guzzlehttp/guzzle": "^6.3.1|^7.0",
                 "kreait/clock": "^1.0.1",
-                "lcobucci/jwt": "^3.2",
-                "php": "^7.0|^8.0",
+                "lcobucci/jwt": "^3.4.1|^4.0",
+                "php": "^7.0|~8.0.0",
                 "psr/cache": "^1.0",
                 "psr/simple-cache": "^1.0"
             },
             "require-dev": {
                 "firebase/php-jwt": "^5.0",
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "phpstan/phpstan-phpunit": "^0.9.4|^0.11.2",
-                "phpunit/phpunit": "^6.5.14|^7.5.17",
+                "phpstan/phpstan-phpunit": "^0.9.4|^0.12",
                 "symfony/cache": "^3.4.26|^4.4|^5.0",
-                "symfony/var-dumper": "^3.4|^4.4|^5.0"
+                "symfony/var-dumper": "^3.4|^4.4|^5.0",
+                "yoast/phpunit-polyfills": "^0.2.0"
             },
             "suggest": {
                 "firebase/php-jwt": "^5.0 can be used to create and parse tokens",
@@ -3539,7 +3535,7 @@
             ],
             "support": {
                 "issues": "https://github.com/kreait/firebase-tokens-php/issues",
-                "source": "https://github.com/kreait/firebase-tokens-php/tree/1.11.0"
+                "source": "https://github.com/kreait/firebase-tokens-php/tree/1.14.0"
             },
             "funding": [
                 {
@@ -3547,7 +3543,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-04T00:32:51+00:00"
+            "time": "2020-12-08T23:58:48+00:00"
         },
         {
             "name": "laminas/laminas-code",
@@ -3813,69 +3809,53 @@
             "time": "2020-09-14T14:23:00+00:00"
         },
         {
-            "name": "lcobucci/jwt",
-            "version": "3.4.0",
+            "name": "lcobucci/clock",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/lcobucci/jwt.git",
-                "reference": "320b9f05741b24acbbaf1106ed267ff3817fd74d"
+                "url": "https://github.com/lcobucci/clock.git",
+                "reference": "353d83fe2e6ae95745b16b3d911813df6a05bfb3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/320b9f05741b24acbbaf1106ed267ff3817fd74d",
-                "reference": "320b9f05741b24acbbaf1106ed267ff3817fd74d",
+                "url": "https://api.github.com/repos/lcobucci/clock/zipball/353d83fe2e6ae95745b16b3d911813df6a05bfb3",
+                "reference": "353d83fe2e6ae95745b16b3d911813df6a05bfb3",
                 "shasum": ""
             },
             "require": {
-                "ext-mbstring": "*",
-                "ext-openssl": "*",
-                "php": "^5.6 || ^7.0"
+                "php": "^7.4 || ^8.0"
             },
             "require-dev": {
-                "mikey179/vfsstream": "~1.5",
-                "phpmd/phpmd": "~2.2",
-                "phpunit/php-invoker": "~1.1",
-                "phpunit/phpunit": "^5.7 || ^7.3",
-                "squizlabs/php_codesniffer": "~2.3"
-            },
-            "suggest": {
-                "lcobucci/clock": "*"
+                "infection/infection": "^0.17",
+                "lcobucci/coding-standard": "^6.0",
+                "phpstan/extension-installer": "^1.0",
+                "phpstan/phpstan": "^0.12",
+                "phpstan/phpstan-deprecation-rules": "^0.12",
+                "phpstan/phpstan-phpunit": "^0.12",
+                "phpstan/phpstan-strict-rules": "^0.12",
+                "phpunit/php-code-coverage": "9.1.4",
+                "phpunit/phpunit": "9.3.7"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.1-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
-                    "Lcobucci\\JWT\\": "src"
-                },
-                "files": [
-                    "compat/class-aliases.php",
-                    "compat/json-exception-polyfill.php",
-                    "compat/lcobucci-clock-polyfill.php"
-                ]
+                    "Lcobucci\\Clock\\": "src"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "BSD-3-Clause"
+                "MIT"
             ],
             "authors": [
                 {
-                    "name": "Luís Otávio Cobucci Oblonczyk",
-                    "email": "lcobucci@gmail.com",
-                    "role": "Developer"
+                    "name": "Luís Cobucci",
+                    "email": "lcobucci@gmail.com"
                 }
             ],
-            "description": "A simple library to work with JSON Web Token and JSON Web Signature",
-            "keywords": [
-                "JWS",
-                "jwt"
-            ],
+            "description": "Yet another clock abstraction",
             "support": {
-                "issues": "https://github.com/lcobucci/jwt/issues",
-                "source": "https://github.com/lcobucci/jwt/tree/3.4.0"
+                "issues": "https://github.com/lcobucci/clock/issues",
+                "source": "https://github.com/lcobucci/clock/tree/2.0.x"
             },
             "funding": [
                 {
@@ -3887,7 +3867,83 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2020-11-25T01:46:26+00:00"
+            "time": "2020-08-27T18:56:02+00:00"
+        },
+        {
+            "name": "lcobucci/jwt",
+            "version": "4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lcobucci/jwt.git",
+                "reference": "6d8665ccd924dc076a9b65d1ea8abe21d68f6958"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/6d8665ccd924dc076a9b65d1ea8abe21d68f6958",
+                "reference": "6d8665ccd924dc076a9b65d1ea8abe21d68f6958",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "ext-openssl": "*",
+                "lcobucci/clock": "^2.0",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "infection/infection": "^0.20",
+                "lcobucci/coding-standard": "^6.0",
+                "mikey179/vfsstream": "^1.6",
+                "phpbench/phpbench": "^0.17",
+                "phpstan/extension-installer": "^1.0",
+                "phpstan/phpstan": "^0.12",
+                "phpstan/phpstan-deprecation-rules": "^0.12",
+                "phpstan/phpstan-phpunit": "^0.12",
+                "phpstan/phpstan-strict-rules": "^0.12",
+                "phpunit/php-invoker": "^3.1",
+                "phpunit/phpunit": "^9.4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Lcobucci\\JWT\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Luís Cobucci",
+                    "email": "lcobucci@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple library to work with JSON Web Token and JSON Web Signature",
+            "keywords": [
+                "JWS",
+                "jwt"
+            ],
+            "support": {
+                "issues": "https://github.com/lcobucci/jwt/issues",
+                "source": "https://github.com/lcobucci/jwt/tree/4.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/lcobucci",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/lcobucci",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2020-11-25T02:06:12+00:00"
         },
         {
             "name": "league/csv",
@@ -4757,16 +4813,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "2.1.1",
+            "version": "2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "f9eee5cec93dfb313a38b6b288741e84e53f02d5"
+                "reference": "1cb1cde8e8dd0f70cc0fe51354a59acad9302084"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/f9eee5cec93dfb313a38b6b288741e84e53f02d5",
-                "reference": "f9eee5cec93dfb313a38b6b288741e84e53f02d5",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/1cb1cde8e8dd0f70cc0fe51354a59acad9302084",
+                "reference": "1cb1cde8e8dd0f70cc0fe51354a59acad9302084",
                 "shasum": ""
             },
             "require": {
@@ -4779,16 +4835,17 @@
             "require-dev": {
                 "aws/aws-sdk-php": "^2.4.9 || ^3.0",
                 "doctrine/couchdb": "~1.0@dev",
-                "elasticsearch/elasticsearch": "^6.0",
+                "elasticsearch/elasticsearch": "^7",
                 "graylog2/gelf-php": "^1.4.2",
+                "mongodb/mongodb": "^1.8",
                 "php-amqplib/php-amqplib": "~2.4",
                 "php-console/php-console": "^3.1.3",
-                "php-parallel-lint/php-parallel-lint": "^1.0",
                 "phpspec/prophecy": "^1.6.1",
+                "phpstan/phpstan": "^0.12.59",
                 "phpunit/phpunit": "^8.5",
                 "predis/predis": "^1.1",
                 "rollbar/rollbar": "^1.3",
-                "ruflin/elastica": ">=0.90 <3.0",
+                "ruflin/elastica": ">=0.90 <7.0.1",
                 "swiftmailer/swiftmailer": "^5.3|^6.0"
             },
             "suggest": {
@@ -4808,7 +4865,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.x-dev"
+                    "dev-main": "2.x-dev"
                 }
             },
             "autoload": {
@@ -4824,11 +4881,11 @@
                 {
                     "name": "Jordi Boggiano",
                     "email": "j.boggiano@seld.be",
-                    "homepage": "http://seld.be"
+                    "homepage": "https://seld.be"
                 }
             ],
             "description": "Sends your logs to files, sockets, inboxes, databases and various web services",
-            "homepage": "http://github.com/Seldaek/monolog",
+            "homepage": "https://github.com/Seldaek/monolog",
             "keywords": [
                 "log",
                 "logging",
@@ -4836,7 +4893,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/2.1.1"
+                "source": "https://github.com/Seldaek/monolog/tree/2.2.0"
             },
             "funding": [
                 {
@@ -4848,7 +4905,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-07-23T08:41:23+00:00"
+            "time": "2020-12-14T13:15:25+00:00"
         },
         {
             "name": "mtdowling/jmespath.php",
