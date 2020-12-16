@@ -90,7 +90,7 @@
         "symfony/console": "5.1.*",
         "symfony/expression-language": "5.1.*",
         "symfony/flex": "^1.8.4",
-        "symfony/form": "5.1.*",
+        "symfony/form": "5.2.*",
         "symfony/framework-bundle": "5.1.*",
         "symfony/mime": "5.1.*",
         "symfony/monolog-bundle": "^3.3",
