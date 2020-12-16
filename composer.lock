@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e9d78c1c78b5bf3d43de342dde0980f4",
+    "content-hash": "13ccede215f75678c8f1d09e0bf912ea",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -9777,16 +9777,16 @@
         },
         {
             "name": "symfony/security-core",
-            "version": "v5.1.8",
+            "version": "v5.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/security-core.git",
-                "reference": "13f97112f3a7f7877460777602d4d1e7a21a5f39"
+                "reference": "a6d771e97bf3886e3ff5bdcf93f358e81bd873b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/security-core/zipball/13f97112f3a7f7877460777602d4d1e7a21a5f39",
-                "reference": "13f97112f3a7f7877460777602d4d1e7a21a5f39",
+                "url": "https://api.github.com/repos/symfony/security-core/zipball/a6d771e97bf3886e3ff5bdcf93f358e81bd873b4",
+                "reference": "a6d771e97bf3886e3ff5bdcf93f358e81bd873b4",
                 "shasum": ""
             },
             "require": {
@@ -9808,6 +9808,7 @@
                 "symfony/expression-language": "^4.4|^5.0",
                 "symfony/http-foundation": "^4.4|^5.0",
                 "symfony/ldap": "^4.4|^5.0",
+                "symfony/translation": "^4.4|^5.0",
                 "symfony/validator": "^4.4|^5.0"
             },
             "suggest": {
@@ -9844,7 +9845,7 @@
             "description": "Symfony Security Component - Core Library",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/security-core/tree/v5.1.8"
+                "source": "https://github.com/symfony/security-core/tree/v5.1.9"
             },
             "funding": [
                 {
@@ -9860,20 +9861,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-28T05:25:38+00:00"
+            "time": "2020-11-28T10:57:20+00:00"
         },
         {
             "name": "symfony/security-csrf",
-            "version": "v5.1.8",
+            "version": "v5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/security-csrf.git",
-                "reference": "6d8ea23a4f0b88a13c254d007f3d814ed882f42a"
+                "reference": "d98a521e3c7ffa15c142e8b1e68a55fdeb58d4b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/security-csrf/zipball/6d8ea23a4f0b88a13c254d007f3d814ed882f42a",
-                "reference": "6d8ea23a4f0b88a13c254d007f3d814ed882f42a",
+                "url": "https://api.github.com/repos/symfony/security-csrf/zipball/d98a521e3c7ffa15c142e8b1e68a55fdeb58d4b7",
+                "reference": "d98a521e3c7ffa15c142e8b1e68a55fdeb58d4b7",
                 "shasum": ""
             },
             "require": {
@@ -9915,7 +9916,7 @@
             "description": "Symfony Security Component - CSRF Library",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/security-csrf/tree/v5.1.8"
+                "source": "https://github.com/symfony/security-csrf/tree/v5.2.0"
             },
             "funding": [
                 {
@@ -9931,7 +9932,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-24T12:01:57+00:00"
+            "time": "2020-11-01T15:43:26+00:00"
         },
         {
             "name": "symfony/security-guard",
