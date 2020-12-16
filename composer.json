@@ -101,7 +101,7 @@
         "symfony/security-csrf": "5.1.*",
         "symfony/serializer-pack": "^1.0.2",
         "symfony/swiftmailer-bundle": "^3.2",
-        "symfony/translation": "5.1.*",
+        "symfony/translation": "5.2.*",
         "symfony/twig-pack": "^1.0.0",
         "symfony/validator": "5.1.*",
         "symfony/web-link": "5.1.*",
