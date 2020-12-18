@@ -10,7 +10,7 @@ csa_guzzle:
                 timeout: 2.0
                 headers:
                     Accept: 'application/json'
-#        default: ~
+#        default: null
 #        my_client:
 #            config:
 #                base_uri: 'http://example.com'

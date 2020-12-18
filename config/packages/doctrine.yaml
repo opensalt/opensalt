@@ -33,7 +33,7 @@ doctrine:
         #    json: string
         #    uuid: char(36)
     orm:
-        auto_generate_proxy_classes: '%kernel.debug%'
+        auto_generate_proxy_classes: true
 
         entity_managers:
             default:
