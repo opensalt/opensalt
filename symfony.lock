@@ -182,6 +182,9 @@
     "escapestudios/symfony2-coding-standard": {
         "version": "3.4.0"
     },
+    "fakerphp/faker": {
+        "version": "v1.13.0"
+    },
     "felixfbecker/advanced-json-rpc": {
         "version": "v3.0.4"
     },
@@ -280,6 +283,9 @@
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.0"
+    },
+    "lcobucci/clock": {
+        "version": "2.0.0"
     },
     "lcobucci/jwt": {
         "version": "3.2.2"
