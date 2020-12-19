@@ -70,7 +70,7 @@
         "laminas/laminas-code": "^3.3.1",
         "laminas/laminas-escaper": "^2.2",
         "league/csv": "^9.6",
-        "league/flysystem-aws-s3-v3": "^1.0",
+        "league/flysystem-aws-s3-v3": "^2.0",
         "league/oauth2-github": "^2.0.0",
         "league/uri": "^6.0",
         "milo/github-api": "^1.4",
