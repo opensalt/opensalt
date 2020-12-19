@@ -1,5 +1,4 @@
 swiftmailer:
-    spool: { type: 'memory' }
     #url: '%env(MAILER_URL)%'
     transport: "%mailer_transport%"
     host:      "%mailer_host%"
@@ -9,3 +8,4 @@ swiftmailer:
     port:      "%mailer_port%"
     # to disable mail uncomment disable_delivery: true
     # disable_delivery: true
+    spool: { type: 'memory' }

@@ -6,11 +6,11 @@ nelmio_cors:
         allow_origin: []
         allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
         allow_headers: ['Content-Type', 'Authorization', 'X-OpenSALT']
-        expose_headers: []
+        expose_headers: ['Link']
         max_age: 0
         hosts: []
         origin_regex: false
-        forced_allow_origin_value: ~
+        forced_allow_origin_value: null
     paths:
         '^/ims/case/v1p0/':
             forced_allow_origin_value: '*'
@@ -32,4 +32,4 @@ nelmio_cors:
                 - 'X-OpenSALT'
                 #- '*'
             max_age: 60
-        '^/': ~
+        '^/': null

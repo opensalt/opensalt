@@ -76,11 +76,13 @@ pw-archive/
 
 ###> symfony/phpunit-bridge ###
 .phpunit
+.phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
 ###> phpunit/phpunit ###
 /phpunit.xml
+.phpunit.result.cache
 ###< phpunit/phpunit ###
 
 ###> friendsofphp/php-cs-fixer ###
@@ -90,6 +92,10 @@ pw-archive/
 
 ###> symfony/framework-bundle ###
 /.env
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
 !/var/cache
@@ -104,3 +110,8 @@ pw-archive/
 !/var/SymfonyRequirements.php
 /vendor/
 ###< symfony/framework-bundle ###
+
+###> squizlabs/php_codesniffer ###
+/.phpcs-cache
+/phpcs.xml
+###< squizlabs/php_codesniffer ###

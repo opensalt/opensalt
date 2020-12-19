@@ -2,4 +2,4 @@
 
 cd $(dirname $0)/..
 
-./bin/phpcli ./vendor/bin/phpunit "$@"
+./bin/phpcli ./bin/phpunit-real "$@"

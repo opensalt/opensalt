@@ -12,7 +12,7 @@ security:
         App\Entity\User\User:
             algorithm: auto
 
-    # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
         local_db_provider:
             entity:
@@ -40,6 +40,7 @@ security:
         main:
             pattern: ^/
             anonymous: true
+            #lazy: true
             #stateless: true
             provider: local_db_provider
             user_checker: App\Security\UserChecker
@@ -51,6 +52,12 @@ security:
             guard:
                 authenticators:
                     - App\Security\LoginFormAuthenticator
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#firewalls-authentication
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
 
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods

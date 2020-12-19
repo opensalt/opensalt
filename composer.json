@@ -47,7 +47,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.4.0",
+        "php": "^7.4.11",
         "ext-bz2": "*",
         "ext-ctype": "*",
         "ext-filter": "*",
@@ -86,26 +86,26 @@
         "simplethings/entity-audit-bundle": "dev-fixes-1.0.9-object-instead-of-string as 1.0.9.2",
         "stof/doctrine-extensions-bundle": "^1.5.0",
         "swaggest/json-schema": "^0.12.20",
-        "symfony/asset": "5.1.*",
-        "symfony/console": "5.1.*",
-        "symfony/expression-language": "5.1.*",
+        "symfony/asset": "5.2.*",
+        "symfony/console": "5.2.*",
+        "symfony/expression-language": "5.2.*",
         "symfony/flex": "^1.8.4",
-        "symfony/form": "5.1.*",
-        "symfony/framework-bundle": "5.1.*",
-        "symfony/mime": "5.1.*",
+        "symfony/form": "5.2.*",
+        "symfony/framework-bundle": "5.2.*",
+        "symfony/mime": "5.2.*",
         "symfony/monolog-bundle": "^3.3",
-        "symfony/process": "5.1.*",
+        "symfony/process": "5.2.*",
         "symfony/profiler-pack": "^1.0.4",
-        "symfony/proxy-manager-bridge": "5.1.*",
-        "symfony/security-bundle": "5.1.*",
-        "symfony/security-csrf": "5.1.*",
+        "symfony/proxy-manager-bridge": "5.2.*",
+        "symfony/security-bundle": "5.2.*",
+        "symfony/security-csrf": "5.2.*",
         "symfony/serializer-pack": "^1.0.2",
         "symfony/swiftmailer-bundle": "^3.2",
-        "symfony/translation": "5.1.*",
+        "symfony/translation": "5.2.*",
         "symfony/twig-pack": "^1.0.0",
-        "symfony/validator": "5.1.*",
-        "symfony/web-link": "5.1.*",
-        "symfony/yaml": "5.1.*",
+        "symfony/validator": "5.2.*",
+        "symfony/web-link": "5.2.*",
+        "symfony/yaml": "5.2.*",
         "tecnickcom/tcpdf": "^6.2",
         "tetranz/select2entity-bundle": "^3.0.0",
         "twig/twig": "^2.0",
@@ -116,7 +116,7 @@
         "symfony/debug-pack": "*",
         "symfony/test-pack": "*",
         "symfony/maker-bundle": "^1.5",
-        "symfony/phpunit-bridge": "5.1.*",
+        "symfony/phpunit-bridge": "5.2.*",
 
         "codeception/codeception": "^4.1",
         "codeception/module-asserts": "^1.0.0",
@@ -185,7 +185,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "5.1.*"
+            "require": "5.2.*"
         }
     }
 }

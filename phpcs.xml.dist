@@ -1,8 +1,14 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <ruleset name="OpenSalt">
     <description>Default coding standard for OpenSalt</description>
 
     <config name="installed_paths" value="./vendor/escapestudios/symfony2-coding-standard" />
+
+    <arg name="basepath" value="."/>
+    <arg name="cache" value=".phpcs-cache"/>
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
 
     <rule ref="./vendor/escapestudios/symfony2-coding-standard/Symfony">
 	    <exclude name="Symfony.Commenting.License.Warning"/>
@@ -56,5 +62,5 @@
 	    <exclude name="Symfony.Whitespace.BinaryOperatorSpacing.Invalid"/>
     </rule>
 
-    <file>./src</file>
+    <file>src/</file>
 </ruleset>
