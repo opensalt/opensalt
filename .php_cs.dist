@@ -1,9 +1,10 @@
 <?php
 
-$finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__)
-    ->exclude('var')
-;
+// Remove finder for PHPStorm
+//$finder = PhpCsFixer\Finder::create()
+//    ->in(__DIR__)
+//    ->exclude('var')
+//;
 
 return PhpCsFixer\Config::create()
     ->setRules([
@@ -12,5 +13,5 @@ return PhpCsFixer\Config::create()
         'phpdoc_align' => false,
         'phpdoc_to_comment' => false,
     ])
-    ->setFinder($finder)
+//    ->setFinder($finder)
 ;
