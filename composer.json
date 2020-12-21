@@ -127,7 +127,7 @@
         "codeception/module-symfony": "^1.0.0",
         "codeception/module-webdriver": "^1.0.0",
             "codeception/specify": "^1.1",
-            "codeception/verify": "^1.0",
+            "codeception/verify": "^2.1",
             "softcreatr/jsonpath": "~0.4",
             "league/factory-muffin": "^3.0",
             "league/factory-muffin-faker": "^2.0",
