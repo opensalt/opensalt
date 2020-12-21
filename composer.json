@@ -108,7 +108,7 @@
         "symfony/yaml": "5.2.*",
         "tecnickcom/tcpdf": "^6.2",
         "tetranz/select2entity-bundle": "^3.0.0",
-        "twig/twig": "^2.0",
+        "twig/twig": "^3.1",
         "twig/string-extra": "^3.1"
     },
     "require-dev": {
