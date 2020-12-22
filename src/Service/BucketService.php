@@ -26,11 +26,8 @@ class BucketService
         $path = "/$dir/$name.".$file->getClientOriginalExtension();
         $url = '';
 
-        $original = Psr7\Utils::streamFor(fopen($file->getRealPath(), 'rb'));
-        $stream = new Psr7\CachingStream($original);
-
-        $filesystem->writeStream($path, $stream, ['visibility' => 'public']);
-        $stream->close();
+        $original = Psr7\Utils::tryFopen($file->getRealPath(), 'rb');
+        $filesystem->writeStream($path, $original, ['visibility' => 'public']);
 
         if (!empty($this->attachmentUrlPrefix)) {
             $url = $this->attachmentUrlPrefix;
