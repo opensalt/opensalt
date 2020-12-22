@@ -214,7 +214,7 @@ services:
     League\Flysystem\Filesystem:
         class: 'League\Flysystem\Filesystem'
 
-    League\Flysystem\AdapterInterface:
+    League\Flysystem\FilesystemAdapter:
         factory: ['@App\Service\BucketFactory', 'filesystem']
 
     # Aliased services
