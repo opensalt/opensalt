@@ -32,7 +32,7 @@ class CFPackage
      *
      * @SerializedName("CFDefinitions")
      */
-    public $cfDefinitions = [];
+    public $cfDefinitions;
 
     /**
      * @var CFRubric[]|array

@@ -91,7 +91,7 @@ class User implements UserInterface, \Serializable, EquatableInterface
     protected $roles = [];
 
     /**
-     * @var bool
+     * @var int
      *
      * @ORM\Column(name="status", type="integer", nullable=false, options={"default": User::ACTIVE})
      */
@@ -495,7 +495,7 @@ class User implements UserInterface, \Serializable, EquatableInterface
     }
 
     /**
-     * @param string $status
+     * @param int $status
      *
      * @return $this
      */
