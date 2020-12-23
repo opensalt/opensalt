@@ -28,44 +28,32 @@ class ChangeEntry
     protected $id;
 
     /**
-     * @var int|null
-     *
      * @ORM\Column(name="user_id", type="integer", nullable=true)
      */
     protected ?int $user;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(name="username", type="string", nullable=true)
      */
     protected ?string $username;
 
     /**
-     * @var int|null
-     *
      * @ORM\Column(name="doc_id", type="integer", nullable=true)
      */
     protected ?int $doc;
 
     /**
-     * @var \DateTimeInterface
-     *
      * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      */
     protected \DateTimeInterface $changedAt;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="description", type="string", length=2048)
      */
     protected string $description;
 
     /**
-     * @var array
-     *
      * @ORM\Column(name="changed", type="json", nullable=true)
      */
     protected array $changed = [];
