@@ -422,6 +422,9 @@
     "nette/finder": {
         "version": "v2.4.2"
     },
+    "nette/neon": {
+        "version": "v3.2.1"
+    },
     "nette/robot-loader": {
         "version": "v3.1.0"
     },
@@ -1031,17 +1034,35 @@
     "symplify/coding-standard": {
         "version": "v7.2.1"
     },
+    "symplify/composer-json-manipulator": {
+        "version": "9.0.14"
+    },
     "symplify/console-color-diff": {
         "version": "v7.3.18"
     },
     "symplify/easy-coding-standard": {
         "version": "v7.2.0"
     },
+    "symplify/easy-testing": {
+        "version": "9.0.14"
+    },
+    "symplify/markdown-diff": {
+        "version": "9.0.14"
+    },
     "symplify/package-builder": {
         "version": "v7.2.1"
     },
+    "symplify/php-config-printer": {
+        "version": "9.0.14"
+    },
+    "symplify/rule-doc-generator": {
+        "version": "9.0.14"
+    },
     "symplify/set-config-resolver": {
         "version": "v7.2.1"
+    },
+    "symplify/skipper": {
+        "version": "9.0.14"
     },
     "symplify/smart-file-system": {
         "version": "v7.2.1"
