@@ -27,7 +27,7 @@ class BucketService
         $url = '';
 
         $original = Psr7\Utils::tryFopen($file->getRealPath(), 'rb');
-        $filesystem->writeStream($path, $original, ['visibility' => 'public']);
+        $filesystem->writeStream($path, $original, ['directory_visibility' => 'public', 'visibility' => 'public']);
 
         if (!empty($this->attachmentUrlPrefix)) {
             $url = $this->attachmentUrlPrefix;
