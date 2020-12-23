@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "970c8732dff02273ecf997abc9b80af8",
+    "content-hash": "ab07b4bf509e655bff8b9b9857c3f369",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.171.3",
+            "version": "3.171.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "7469c8e7f8db5dec544937677d08d8fff4f2f4e9"
+                "reference": "5587d22e63ef82ef74dffca5d47f307b84137b51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7469c8e7f8db5dec544937677d08d8fff4f2f4e9",
-                "reference": "7469c8e7f8db5dec544937677d08d8fff4f2f4e9",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/5587d22e63ef82ef74dffca5d47f307b84137b51",
+                "reference": "5587d22e63ef82ef74dffca5d47f307b84137b51",
                 "shasum": ""
             },
             "require": {
@@ -92,9 +92,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.171.3"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.171.6"
             },
-            "time": "2020-12-21T19:14:02+00:00"
+            "time": "2020-12-23T19:12:28+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -1385,32 +1385,32 @@
         },
         {
             "name": "doctrine/doctrine-migrations-bundle",
-            "version": "3.0.1",
+            "version": "3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineMigrationsBundle.git",
-                "reference": "96e730b0ffa0bb39c0f913c1966213f1674bf249"
+                "reference": "b8de89fe811e62f1dea8cf9aafda0ea45ca6f1f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineMigrationsBundle/zipball/96e730b0ffa0bb39c0f913c1966213f1674bf249",
-                "reference": "96e730b0ffa0bb39c0f913c1966213f1674bf249",
+                "url": "https://api.github.com/repos/doctrine/DoctrineMigrationsBundle/zipball/b8de89fe811e62f1dea8cf9aafda0ea45ca6f1f3",
+                "reference": "b8de89fe811e62f1dea8cf9aafda0ea45ca6f1f3",
                 "shasum": ""
             },
             "require": {
                 "doctrine/doctrine-bundle": "~1.0|~2.0",
                 "doctrine/migrations": "~3.0",
-                "php": "^7.2",
+                "php": "^7.2|^8.0",
                 "symfony/framework-bundle": "~3.4|~4.0|~5.0"
             },
             "require-dev": {
-                "doctrine/coding-standard": "^5.0",
+                "doctrine/coding-standard": "^8.0",
                 "doctrine/orm": "^2.6",
-                "phpstan/phpstan": "^0.11",
-                "phpstan/phpstan-deprecation-rules": "^0.11",
-                "phpstan/phpstan-phpunit": "^0.11",
-                "phpstan/phpstan-strict-rules": "^0.11",
-                "phpunit/phpunit": "^6.4|^7.0"
+                "phpstan/phpstan": "^0.12",
+                "phpstan/phpstan-deprecation-rules": "^0.12",
+                "phpstan/phpstan-phpunit": "^0.12",
+                "phpstan/phpstan-strict-rules": "^0.12",
+                "phpunit/phpunit": "^7.0|^8.0|^9.0"
             },
             "type": "symfony-bundle",
             "extra": {
@@ -1453,7 +1453,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/DoctrineMigrationsBundle/issues",
-                "source": "https://github.com/doctrine/DoctrineMigrationsBundle/tree/3.0.x"
+                "source": "https://github.com/doctrine/DoctrineMigrationsBundle/tree/3.0.2"
             },
             "funding": [
                 {
@@ -1469,7 +1469,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-06-15T06:04:38+00:00"
+            "time": "2020-12-23T15:13:22+00:00"
         },
         {
             "name": "doctrine/event-manager",
@@ -6875,65 +6875,6 @@
             "time": "2020-08-25T19:10:18+00:00"
         },
         {
-            "name": "simplethings/entity-audit-bundle",
-            "version": "dev-fixes-1.0.9-object-instead-of-string",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/opensalt/EntityAuditBundle.git",
-                "reference": "7428d23a37ffb4215ac5b1dfce59368cbf4cffdb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/opensalt/EntityAuditBundle/zipball/7428d23a37ffb4215ac5b1dfce59368cbf4cffdb",
-                "reference": "7428d23a37ffb4215ac5b1dfce59368cbf4cffdb",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/dbal": "~2.5",
-                "doctrine/orm": "~2.4",
-                "php": "^5.3.9|~7.0"
-            },
-            "conflict": {
-                "doctrine/dbal": "2.7.0",
-                "doctrine/doctrine-bundle": "<1.4",
-                "gedmo/doctrine-extensions": "<2.3.1",
-                "symfony/framework-bundle": "<2.7"
-            },
-            "require-dev": {
-                "doctrine/doctrine-bundle": "~1.4",
-                "fabpot/php-cs-fixer": "^1.11",
-                "gedmo/doctrine-extensions": "^2.3.1",
-                "matthiasnoback/symfony-dependency-injection-test": "^1.0",
-                "phpunit/phpunit": "^4.8",
-                "symfony/framework-bundle": "~2.7|~3.0",
-                "symfony/var-dumper": "^2.7"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "SimpleThings\\EntityAudit\\": "src/SimpleThings/EntityAudit"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "SimpleThings\\EntityAudit\\Tests\\": "tests/SimpleThings/Tests/EntityAudit"
-                }
-            },
-            "license": [
-                "LGPL-2.1"
-            ],
-            "description": "Audit for Doctrine Entities",
-            "keywords": [
-                "Audit",
-                "Database",
-                "Persistence"
-            ],
-            "support": {
-                "source": "https://github.com/opensalt/EntityAuditBundle/tree/fixes-1.0.9-object-instead-of-string"
-            },
-            "time": "2018-12-27T20:09:36+00:00"
-        },
-        {
             "name": "stof/doctrine-extensions-bundle",
             "version": "v1.5.0",
             "source": {
@@ -7855,6 +7796,76 @@
                 }
             ],
             "time": "2020-12-16T07:43:23+00:00"
+        },
+        {
+            "name": "symfony/dotenv",
+            "version": "v5.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/dotenv.git",
+                "reference": "204a9dc6f70a13d9d24ebbf2c5ce51be235f3d7b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/dotenv/zipball/204a9dc6f70a13d9d24ebbf2c5ce51be235f3d7b",
+                "reference": "204a9dc6f70a13d9d24ebbf2c5ce51be235f3d7b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "symfony/deprecation-contracts": "^2.1"
+            },
+            "require-dev": {
+                "symfony/process": "^4.4|^5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Dotenv\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Registers environment variables from a .env file",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "dotenv",
+                "env",
+                "environment"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/dotenv/tree/v5.2.1"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2020-12-08T17:02:38+00:00"
         },
         {
             "name": "symfony/error-handler",
@@ -19012,7 +19023,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "simplethings/entity-audit-bundle": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,

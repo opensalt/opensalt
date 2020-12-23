@@ -1,17 +1,17 @@
 <?php
 
-// Remove finder for PHPStorm
-//$finder = PhpCsFixer\Finder::create()
-//    ->in(__DIR__)
-//    ->exclude('var')
-//;
+$finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__.'/src')
+    ->exclude('var')
+    ->exclude('Migrations')
+;
 
-return PhpCsFixer\Config::create()
-    ->setRules([
+$config = new PhpCsFixer\Config();
+return $config ->setRules([
         '@Symfony' => true,
         'array_syntax' => ['syntax' => 'short'],
         'phpdoc_align' => false,
         'phpdoc_to_comment' => false,
     ])
-//    ->setFinder($finder)
+    ->setFinder($finder)
 ;

@@ -9,7 +9,10 @@ use App\Entity\User\User;
 
 /**
  * @ORM\Table(name="salt_change",
- *     indexes={@ORM\Index(name="change_time_idx", columns={"changed_at"})}
+ *     indexes={
+ *         @ORM\Index(name="change_time_idx", columns={"changed_at"}),
+ *         @ORM\Index(name="doc_idx", columns={"doc_id", "changed_at"})
+ *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\ChangeEntryRepository")
  */
@@ -18,27 +21,32 @@ class ChangeEntry
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;
 
     /**
-     * @var User
+     * @var int|null
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\User\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
+     * @ORM\Column(name="user_id", type="integer", nullable=true)
      */
-    protected $user;
+    protected ?int $user;
 
     /**
-     * @var LsDoc
+     * @var string|null
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Framework\LsDoc")
-     * @ORM\JoinColumn(name="doc_id", referencedColumnName="id", nullable=true, unique=true)
+     * @ORM\Column(name="username", type="string", nullable=true)
      */
-    protected $doc;
+    protected ?string $username;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="doc_id", type="integer", nullable=true)
+     */
+    protected ?int $doc;
 
     /**
      * @var \DateTimeInterface
@@ -46,44 +54,50 @@ class ChangeEntry
      * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      */
-    protected $changedAt;
+    protected \DateTimeInterface $changedAt;
 
     /**
      * @var string
      *
      * @ORM\Column(name="description", type="string", length=2048)
      */
-    protected $description;
+    protected string $description;
 
     /**
      * @var array
      *
      * @ORM\Column(name="changed", type="json", nullable=true)
      */
-    protected $changed = [];
+    protected array $changed = [];
 
     public function __construct(?LsDoc $doc, ?User $user, string $description, array $changed = [])
     {
-        $this->doc = $doc;
-        $this->user = $user;
+        $this->doc = (null !== $doc) ? $doc->getId() : null;
+        $this->user = (null !== $user) ? $user->getId() : null;
+        $this->username = (null !== $user) ? $user->getUsername() : null;
         $this->description = $description;
         $this->changed = $changed;
         $this->changedAt = new \DateTimeImmutable();
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getDoc(): ?LsDoc
+    public function getDocId(): ?int
     {
         return $this->doc;
     }
 
-    public function getUser(): ?User
+    public function getUserId(): ?int
     {
         return $this->user;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
     }
 
     public function getChangedAt(): \DateTimeInterface
@@ -99,14 +113,5 @@ class ChangeEntry
     public function getChanged(): array
     {
         return $this->changed;
-    }
-
-    public function updateTo(ChangeEntry $changeEntry)
-    {
-        $this->doc = $changeEntry->getDoc();
-        $this->user = $changeEntry->getUser();
-        $this->description = $changeEntry->getDescription();
-        $this->changed = $changeEntry->getChanged();
-        $this->changedAt = $changeEntry->getChangedAt();
     }
 }

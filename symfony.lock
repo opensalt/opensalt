@@ -661,9 +661,6 @@
             "config/packages/sensio_framework_extra.yaml"
         ]
     },
-    "simplethings/entity-audit-bundle": {
-        "version": "v1.0.9"
-    },
     "slevomat/coding-standard": {
         "version": "6.0.8"
     },
@@ -756,6 +753,9 @@
     },
     "symfony/dom-crawler": {
         "version": "v4.0.10"
+    },
+    "symfony/dotenv": {
+        "version": "v5.2.1"
     },
     "symfony/error-handler": {
         "version": "v4.4.0"
@@ -1113,7 +1113,7 @@
         "version": "2.3.0"
     },
     "weirdan/doctrine-psalm-plugin": {
-        "version": "0.6.0"
+        "version": "0.11.3"
     },
     "zendframework/zend-code": {
         "version": "3.3.0"

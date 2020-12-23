@@ -220,7 +220,6 @@ services:
     # Aliased services
     Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'
     Qandidate\Toggle\ContextFactory: '@qandidate.toggle.user_context_factory'
-    SimpleThings\EntityAudit\AuditReader: '@simplethings_entityaudit.reader'
 
     # Manual services
     Kreait\Firebase\Database:

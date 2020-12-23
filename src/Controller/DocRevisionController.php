@@ -2,30 +2,20 @@
 
 namespace App\Controller;
 
-use App\Repository\ChangeEntryRepository;
 use App\Entity\Framework\LsDoc;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\ChangeEntryRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Routing\Annotation\Route;
 
 class DocRevisionController extends AbstractController
 {
-    /**
-     * @var AuditReader
-     */
-    protected $auditReader;
+    private ChangeEntryRepository $entryRepository;
 
-    /**
-     * @var ChangeEntryRepository
-     */
-    private $entryRepository;
-
-    public function __construct(AuditReader $auditReader, ChangeEntryRepository $entryRepository)
+    public function __construct(ChangeEntryRepository $entryRepository)
     {
-        $this->auditReader = $auditReader;
         $this->entryRepository = $entryRepository;
     }
 
@@ -51,7 +41,7 @@ class DocRevisionController extends AbstractController
                 } else {
                     $first = false;
                 }
-                fwrite($fd, json_encode($line));
+                fwrite($fd, json_encode($line, JSON_THROW_ON_ERROR));
             }
 
             fwrite($fd, ']}');
@@ -81,7 +71,7 @@ class DocRevisionController extends AbstractController
                 fputcsv($fd, [
                     preg_replace('/\..*$/', '', $line['changed_at']),
                     $line['description'],
-                    $line['username']
+                    $line['username'],
                 ]);
             }
 

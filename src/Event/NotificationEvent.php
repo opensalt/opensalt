@@ -11,15 +11,12 @@ class NotificationEvent extends Event
     /**
      * @var string Message to display/store about the change
      */
-    protected $message;
+    protected string $message;
+
+    protected ?LsDoc $doc;
 
     /**
-     * @var LsDoc
-     */
-    protected $doc;
-
-    /**
-     * @var array What changed
+     * @var array<string, array<mixed>> What changed
      *
      * Structure is:
      * [
@@ -29,24 +26,21 @@ class NotificationEvent extends Event
      *   ]
      * ]
      */
-    protected $changed;
+    protected array $changed;
 
     /**
-     * @var string The username of the user that made the change
+     * @var ?string The username of the user that made the change
      */
-    protected $username;
+    protected ?string $username = null;
 
-    /**
-     * @var string
-     */
-    protected $msgId;
+    protected string $msgId;
 
     /**
      * @var bool Should the notification be displayed to the end user
      */
-    protected $display;
+    protected bool $display;
 
-    public function __construct(string $messageId, string $message, ?LsDoc $doc, array $changed = [], $display = true)
+    public function __construct(string $messageId, string $message, ?LsDoc $doc, array $changed = [], bool $display = true)
     {
         $this->msgId = $messageId;
         $this->message = $message;
@@ -70,6 +64,17 @@ class NotificationEvent extends Event
         return $this->doc;
     }
 
+    /**
+     * @return array<string, array<mixed>>
+     *
+     * Structure is:
+     * [
+     *   '{doc,item,assoc}-{a,u,d,l,ul}' => [
+     *     <id> => <identifier>,
+     *     <object> (which is resolved to <id> => <identifier>)
+     *   ]
+     * ]
+     */
     public function getChanged(): array
     {
         return $this->changed;
@@ -92,8 +97,8 @@ class NotificationEvent extends Event
 
         foreach ($orig as $type => $set) {
             /**
-             * @var string|int $key
-             * @var string|AbstractLsBase $value
+             * @var string|int                 $key
+             * @var string|AbstractLsBase|null $value
              */
             foreach ($set as $key => $value) {
                 if (null === $value) {

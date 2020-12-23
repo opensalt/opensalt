@@ -3,14 +3,13 @@
 namespace App\Controller;
 
 use App\Repository\ChangeEntryRepository;
-use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/admin/system_log")
@@ -18,29 +17,19 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class SystemLogController extends AbstractController
 {
-    /**
-     * @var AuditReader
-     */
-    protected $auditReader;
+    private ChangeEntryRepository $entryRepository;
 
-    /**
-     * @var ChangeEntryRepository
-     */
-    private $entryRepository;
-
-    public function __construct(AuditReader $auditReader, ChangeEntryRepository $entryRepository)
+    public function __construct(ChangeEntryRepository $entryRepository)
     {
-        $this->auditReader = $auditReader;
         $this->entryRepository = $entryRepository;
     }
 
     /**
      * @Route("/", methods={"GET"}, name="system_logs_show")
-     * @Template()
      */
-    public function showSystemLogs(): array
+    public function showSystemLogs(): Response
     {
-        return [];
+        return $this->render('system_log/show_system_logs.html.twig');
     }
 
     /**
@@ -64,7 +53,7 @@ class SystemLogController extends AbstractController
                 } else {
                     $first = false;
                 }
-                fwrite($fd, json_encode($line));
+                fwrite($fd, json_encode($line, JSON_THROW_ON_ERROR));
             }
 
             fwrite($fd, ']}');
@@ -103,7 +92,7 @@ class SystemLogController extends AbstractController
                 fputcsv($fd, [
                     preg_replace('/\..*$/', '', $line['changed_at']),
                     $line['description'],
-                    $line['username']
+                    $line['username'],
                 ]);
             }
 

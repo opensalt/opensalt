@@ -93,7 +93,7 @@ class User implements UserInterface, \Serializable, EquatableInterface
     /**
      * @var int
      *
-     * @ORM\Column(name="status", type="integer", nullable=false, options={"default": User::ACTIVE})
+     * @ORM\Column(name="status", type="integer", nullable=false, options={"default": User::PENDING})
      */
     protected $status = self::ACTIVE;
 

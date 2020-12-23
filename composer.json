@@ -83,11 +83,11 @@
         "ramsey/uuid": "^4.0",
         "ramsey/uuid-doctrine": "^1.6",
         "sensio/framework-extra-bundle": "^5.3",
-        "simplethings/entity-audit-bundle": "dev-fixes-1.0.9-object-instead-of-string as 1.0.9.2",
         "stof/doctrine-extensions-bundle": "^1.5.0",
         "swaggest/json-schema": "^0.12.20",
         "symfony/asset": "5.2.*",
         "symfony/console": "5.2.*",
+        "symfony/dotenv": "5.2.*",
         "symfony/expression-language": "5.2.*",
         "symfony/flex": "^1.8.4",
         "symfony/form": "5.2.*",
@@ -134,11 +134,12 @@
             "phpunit/phpunit": "^9.0",
             "vlucas/phpdotenv": "^5.0",
 
-        "phpstan/phpstan-symfony": "^0.12.3",
-        "phpstan/phpstan-doctrine": "^0.12.9",
+        "phpstan/phpstan": "^0.12",
+        "phpstan/phpstan-symfony": "^0.12",
+        "phpstan/phpstan-doctrine": "^0.12",
 
         "vimeo/psalm": "^3.8.3",
-        "weirdan/doctrine-psalm-plugin": "^0.11.0",
+        "weirdan/doctrine-psalm-plugin": "^0.11",
 
         "symplify/easy-coding-standard": "^9.0",
         "escapestudios/symfony2-coding-standard": "^3.1",
