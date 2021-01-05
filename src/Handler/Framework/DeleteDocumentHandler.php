@@ -22,11 +22,11 @@ class DeleteDocumentHandler extends BaseFrameworkHandler
         $notification = new NotificationEvent(
             'D09',
             sprintf('Framework "%s" deleted', $doc->getTitle()),
-            null,
+            $doc,
             [
                 'doc-d' => [
                     $doc->getId() => $doc->getIdentifier(),
-                ]
+                ],
             ]
         );
         $command->setNotificationEvent($notification);

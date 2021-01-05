@@ -23,9 +23,16 @@ class ChangeEntryRepository extends ServiceEntityRepository
     {
         if (null !== $change->getId()) {
             $this->_em->getConnection()->executeStatement(
-                sprintf('UPDATE %s SET changed = ? WHERE id = ? and description = ?', $this->getClassMetadata()->getTableName()),
-                [json_encode($notification->getChanged(), JSON_THROW_ON_ERROR), $change->getId(), $change->getDescription()]
+                sprintf('UPDATE %s SET changed = ? WHERE id = ?', $this->getClassMetadata()->getTableName()),
+                [json_encode($notification->getChanged(), JSON_THROW_ON_ERROR), $change->getId()]
             );
+
+            if (null === $change->getDocId() && null !== $notification->getDoc()) {
+                $this->_em->getConnection()->executeStatement(
+                    sprintf('UPDATE %s SET doc_id = ? WHERE id = ?', $this->getClassMetadata()->getTableName()),
+                    [$notification->getDoc()->getId(), $change->getId()]
+                );
+            }
 
             return;
         }
