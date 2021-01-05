@@ -16,6 +16,7 @@ tar cf app.tar \
 	tests codeception.dist.yml \
 	composer.json composer.lock symfony.lock \
 	package.json webpack.config.js yarn.lock \
+	.symfony.env.dist \
 	LICENSE README.md
 docker build \
 	--build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \

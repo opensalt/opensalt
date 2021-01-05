@@ -106,16 +106,9 @@ class CommandEventRouter implements EventSubscriberInterface
             return $changeEntry;
         }
 
-        // We only store the last change in the table, older entries are in the audit table
-        $change = $this->em->getRepository(ChangeEntry::class)->findOneBy(['doc' => $changeEntry->getDoc()]);
-        if (null === $change) {
-            $change = $changeEntry;
-            $this->em->persist($change);
-        } else {
-            $change->updateTo($changeEntry);
-        }
+        $this->em->persist($changeEntry);
 
-        return $change;
+        return $changeEntry;
     }
 
     protected function updateChangeEntry(CommandInterface $command, ChangeEntry $change, NotificationEvent $notification): void

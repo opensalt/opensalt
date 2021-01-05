@@ -12,12 +12,9 @@ umask(0000);
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-// The check is to ensure we don't use .env in production
-/*
 if (!isset($_SERVER['APP_ENV'])) {
-    (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
+    (new Dotenv())->bootEnv(dirname(__DIR__).'/.symfony.env');
 }
-*/
 
 $env = $_SERVER['APP_ENV'] ?? 'dev';
 $debug = (bool) ($_SERVER['APP_DEBUG'] ?? ('dev' === $env));

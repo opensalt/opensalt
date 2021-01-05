@@ -7,16 +7,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 $_SERVER['APP_ENV'] = 'dev';
 
-// If you don't want to setup permissions the proper way, just uncomment the following PHP line
-// read http://symfony.com/doc/current/book/installation.html#checking-symfony-application-configuration-and-setup
-// for more information
-umask(0000);
-
 // This check prevents access to debug front controllers that are deployed by accident to production servers.
 // Feel free to remove this, extend it, or make something more sophisticated.
 if (isset($_SERVER['HTTP_CLIENT_IP'])
     || isset($_SERVER['HTTP_X_FORWARDED_FOR'])
-    || !(in_array(@$_SERVER['REMOTE_ADDR'], ['127.0.0.1', 'fe80::1', '::1']) || php_sapi_name() === 'cli-server')
+    || !(in_array(@$_SERVER['REMOTE_ADDR'], ['127.0.0.1', 'fe80::1', '::1']) || 'cli-server' === PHP_SAPI)
 ) {
     // Check if dev environment allowed
     $ip = $_SERVER['REMOTE_ADDR'] ?? '0.99.99.99';
@@ -26,7 +21,7 @@ if (isset($_SERVER['HTTP_CLIENT_IP'])
     ) {
         // Internal network, allow if ALLOW_LOCAL_DEV set
     } elseif (!empty($_ENV['ALLOW_EXTERNAL_DEV_IPS'] ?? null)
-        && in_array($ip, explode(',', preg_replace('/ /', '', $_ENV['ALLOW_EXTERNAL_DEV_IPS'])))
+        && in_array($ip, explode(',', preg_replace('/ /', '', $_ENV['ALLOW_EXTERNAL_DEV_IPS'])), true)
     ) {
         // Specific external IPs allowed if ALLOW_EXTERNAL_DEV_IPS set
     } elseif (empty($_COOKIE['dev'] ?? null)
@@ -38,20 +33,19 @@ if (isset($_SERVER['HTTP_CLIENT_IP'])
     }
 }
 
+// If you don't want to setup permissions the proper way, just uncomment the following PHP line
+// read http://symfony.com/doc/current/book/installation.html#checking-symfony-application-configuration-and-setup
+// for more information
+umask(0000);
+
 require dirname(__DIR__).'/vendor/autoload.php';
 
-/*
-// The check is to ensure we don't use .env in production
 if (!isset($_SERVER['APP_ENV'])) {
-    if (!class_exists(Dotenv::class)) {
-        throw new \RuntimeException('APP_ENV environment variable is not defined. You need to define environment variables for configuration or add "symfony/dotenv" as a Composer dependency to load variables from a .env file.');
-    }
-    (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
+    (new Dotenv())->bootEnv(dirname(__DIR__).'/.symfony.env');
 }
-*/
 
 $env = $_SERVER['APP_ENV'] ?? 'dev';
-$debug = (bool) ($_SERVER['APP_DEBUG'] ?? ('prod' !== $env));
+$debug = (bool) ($_SERVER['APP_DEBUG'] ?? ('dev' === $env));
 
 if ($debug) {
     umask(0000);

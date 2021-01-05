@@ -5,8 +5,11 @@ Feature: Download comment report csv file
   Scenario: 1011-0800 A CSV file can be downloaded containing comments
     Given "comments" is enabled
     And I log in as a user with role "Admin"
+    And I create a framework
+    And I add the item "First Item"
     And I am on a framework page
     When I added comments on DocItem
     And I added comments on CFItem
     And I download the comment report CSV
     Then I can see the comment data in the CSV matches the data in the comment section
+    And I delete the framework
