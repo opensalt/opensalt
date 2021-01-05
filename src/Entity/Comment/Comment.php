@@ -4,12 +4,12 @@ namespace App\Entity\Comment;
 
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\User\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
-use App\Entity\User\User;
 
 /**
  * Comment
@@ -35,8 +35,6 @@ class Comment
     private $id;
 
     /**
-     * @var Comment
-     *
      * @ORM\ManyToOne(targetEntity="Comment")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      *
@@ -44,40 +42,32 @@ class Comment
      * @Serializer\ReadOnly
      * @Serializer\Type("int")
      */
-    private $parent;
+    private ?Comment $parent = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="text")
      */
-    private $content;
+    private string $content;
 
     /**
-     * @var User
-     *
      * @ORM\ManyToOne(targetEntity="App\Entity\User\User")
      * @ORM\JoinColumn(nullable=false)
      *
      * @Serializer\Exclude()
      */
-    private $user;
+    private User $user;
 
     /**
-     * @var LsDoc
-     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Framework\LsDoc")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
-    private $document;
+    private ?LsDoc $document = null;
 
     /**
-     * @var LsItem
-     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Framework\LsItem")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
-    private $item;
+    private ?LsItem $item = null;
 
     /**
      * @var CommentUpvote[]|Collection
@@ -92,36 +82,28 @@ class Comment
     private $upvotes;
 
     /**
-     * @var \DateTime
-     *
      * @ORM\Column(type="datetime", precision=6)
      * @Serializer\SerializedName("created")
      * @Gedmo\Timestampable(on="create")
      */
-    private $createdAt;
+    private \DateTime $createdAt;
 
     /**
-     * @var \DateTime
-     *
      * @ORM\Column(type="datetime", precision=6)
      * @Serializer\SerializedName("modified")
      * @Gedmo\Timestampable(on="update")
      */
-    private $updatedAt;
+    private \DateTime $updatedAt;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $fileUrl;
+    private ?string $fileUrl = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $fileMimeType;
+    private ?string $fileMimeType = null;
 
     /**
      * @var bool
@@ -181,10 +163,8 @@ class Comment
 
     /**
      * Set content
-     *
-     * @param string $content
      */
-    public function setContent($content): Comment
+    public function setContent(string $content): Comment
     {
         $this->content = $content;
 
@@ -230,7 +210,7 @@ class Comment
     /**
      * Get item
      */
-    public function getItem(): LsItem
+    public function getItem(): ?LsItem
     {
         return $this->item;
     }
@@ -248,7 +228,7 @@ class Comment
     /**
      * Get document
      */
-    public function getDocument(): LsDoc
+    public function getDocument(): ?LsDoc
     {
         return $this->document;
     }
@@ -387,10 +367,8 @@ class Comment
 
     /**
      * Set fileUrl
-     *
-     * @param string $fileUrl
      */
-    public function setFileUrl($fileUrl): Comment
+    public function setFileUrl(?string $fileUrl): Comment
     {
         $this->fileUrl = $fileUrl;
 
@@ -399,8 +377,6 @@ class Comment
 
     /**
      * Get fileUrl
-     *
-     * @return string
      */
     public function getFileUrl(): ?string
     {
@@ -409,10 +385,8 @@ class Comment
 
     /**
      * Set fileMimeType
-     *
-     * @param string $fileMimeType
      */
-    public function setFileMimeType($fileMimeType): Comment
+    public function setFileMimeType(?string $fileMimeType): Comment
     {
         $this->fileMimeType = $fileMimeType;
 
