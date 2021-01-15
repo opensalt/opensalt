@@ -95,9 +95,6 @@
     "csa/guzzle-stopwatch-middleware": {
         "version": "v1.0.0"
     },
-    "dealerdirect/phpcodesniffer-composer-installer": {
-        "version": "v0.7.0"
-    },
     "dnoegel/php-xdg-base-dir": {
         "version": "0.1"
     },
@@ -663,9 +660,6 @@
         "files": [
             "config/packages/sensio_framework_extra.yaml"
         ]
-    },
-    "slevomat/coding-standard": {
-        "version": "6.0.8"
     },
     "softcreatr/jsonpath": {
         "version": "0.7.0"

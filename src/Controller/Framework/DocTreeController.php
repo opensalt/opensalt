@@ -398,7 +398,7 @@ class DocTreeController extends AbstractController
      */
     public function viewItemAction(LsItem $lsItem, ?string $assocGroup = null, string $_format = 'html'): Response
     {
-        return $this->forward('App\Controller\Framework\DocTreeController:viewAction', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getid(), 'assocGroup' => $assocGroup]);
+        return $this->forward('App\Controller\Framework\DocTreeController::viewAction', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getid(), 'assocGroup' => $assocGroup]);
     }
 
     /**
