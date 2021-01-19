@@ -213,12 +213,6 @@
     "felixfbecker/language-server-protocol": {
         "version": "v1.4.0"
     },
-    "fig/http-message-util": {
-        "version": "1.1.2"
-    },
-    "firebase/php-jwt": {
-        "version": "v5.0.0"
-    },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
         "recipe": {
@@ -242,24 +236,6 @@
     },
     "gedmo/doctrine-extensions": {
         "version": "v2.4.35"
-    },
-    "giggsey/libphonenumber-for-php": {
-        "version": "8.9.6"
-    },
-    "giggsey/locale": {
-        "version": "1.5"
-    },
-    "google/auth": {
-        "version": "v1.3.0"
-    },
-    "google/cloud-core": {
-        "version": "v1.20.3"
-    },
-    "google/cloud-storage": {
-        "version": "v1.3.4"
-    },
-    "google/crc32": {
-        "version": "v0.1.0"
     },
     "google/recaptcha": {
         "version": "1.1",
@@ -314,15 +290,6 @@
     "kamermans/guzzle-oauth2-subscriber": {
         "version": "v1.0.6"
     },
-    "kreait/clock": {
-        "version": "1.0.1"
-    },
-    "kreait/firebase-php": {
-        "version": "3.9.3"
-    },
-    "kreait/firebase-tokens": {
-        "version": "1.7.1"
-    },
     "laminas/laminas-code": {
         "version": "3.5.1"
     },
@@ -334,12 +301,6 @@
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.0"
-    },
-    "lcobucci/clock": {
-        "version": "2.0.0"
-    },
-    "lcobucci/jwt": {
-        "version": "3.2.2"
     },
     "league/csv": {
         "version": "9.6.1"
@@ -592,12 +553,6 @@
             "config/packages/ramsey_uuid_doctrine.yaml"
         ]
     },
-    "riverline/multipart-parser": {
-        "version": "2.0.3"
-    },
-    "rize/uri-template": {
-        "version": "0.3.2"
-    },
     "roave/security-advisories": {
         "version": "dev-master"
     },
@@ -807,6 +762,9 @@
             "src/Kernel.php"
         ]
     },
+    "symfony/http-client": {
+        "version": "v5.2.1"
+    },
     "symfony/http-client-contracts": {
         "version": "v2.2.0"
     },
@@ -827,6 +785,21 @@
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
+    },
+    "symfony/mercure": {
+        "version": "v0.4.1"
+    },
+    "symfony/mercure-bundle": {
+        "version": "0.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "0.2",
+            "ref": "a37d3438e4bd4f9f924c516996bc29e25f66b07e"
+        },
+        "files": [
+            "config/packages/mercure.yaml"
+        ]
     },
     "symfony/mime": {
         "version": "v5.1.1"

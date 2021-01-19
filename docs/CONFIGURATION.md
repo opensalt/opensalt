@@ -56,9 +56,7 @@ OpenSALT instance with this feature active: http://frameworks.act.org
 
 ### Realtime notifications
 
-OpenSALT can use Google's Firebase realtime database to update editors in real-time.
-
-Read the [docs/deployments/firebase.md](./deployments/firebase.md) file to see how to configure it.
+OpenSALT can use Mercure realtime database to update editors in real-time.
 
 ### Additional Fields
 

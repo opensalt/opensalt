@@ -256,24 +256,23 @@ apx.initialize = function() {
         });
     };
 
-    if (window.firebase) {
-        apx.initializeFirebase();
-    }
+    apx.initializeNotification();
 };
 
 //////////////////////////////////////////////////////
 /**
- * Using Firebase to synchronize changes
+ * Using Mercure to synchronize changes
  */
-apx.initializeFirebase = function() {
-    window.firebase.initializeApp(window.firebaseConfig);
-    let notificationsRef = window.firebase.database()
-        .ref('/' + apx.firebasePrefix + '/doc/' + apx.lsDocId + '/notification')
-        .orderByChild('at')
-        .startAt(apx.startTime);
-    notificationsRef.on('child_added', function(snapshot) {
-        apx.notifications.notify(snapshot.val());
-    });
+apx.initializeNotification = function() {
+    if ('undefined' !== typeof EventSource) {
+        const url = new URL(window.location.protocol + '//' + window.location.host + '/.well-known/mercure');
+        url.searchParams.append('topic', 'doc-updates/' + apx.lsDocId);
+
+        const eventSource = new EventSource(url);
+        eventSource.onmessage = event => {
+            apx.notifications.notify(JSON.parse(event.data));
+        }
+    }
 
     let enabled = apx.notifications.isEnabled();
     $('#notifications-switch-location').html('<a id="notifications-switch" href="#" class="btn btn-lg"><i class="material-icons">notifications'+(enabled?'':'_off')+'</i></a>');

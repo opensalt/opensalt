@@ -31,23 +31,13 @@
         {
             "type": "vcs",
             "url": "https://github.com/opensalt/EntityAuditBundle"
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "firebase",
-                "version": "4.8.2",
-                "dist": {
-                    "url": "https://www.gstatic.com/firebasejs/4.8.2/firebase.js",
-                    "type": "file"
-                }
-            }
         }
     ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
         "php": "^7.4.11",
+        "ext-PDO": "*",
         "ext-bz2": "*",
         "ext-ctype": "*",
         "ext-filter": "*",
@@ -55,7 +45,6 @@
         "ext-intl": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "ext-PDO": "*",
         "colinodell/json5": "^2.1",
         "csa/guzzle-bundle": "^3.1.1",
         "doctrine/doctrine-bundle": "^2.0",
@@ -67,7 +56,6 @@
         "google/recaptcha": "~1.1",
         "jms/serializer-bundle": "^3.3.0",
         "kamermans/guzzle-oauth2-subscriber": "^1.0.6",
-        "kreait/firebase-php": "^5.14",
         "laminas/laminas-code": "^4.0",
         "laminas/laminas-escaper": "^2.2",
         "league/csv": "^9.6",
@@ -93,6 +81,7 @@
         "symfony/flex": "^1.8.4",
         "symfony/form": "5.2.*",
         "symfony/framework-bundle": "5.2.*",
+        "symfony/mercure-bundle": "^0.2.6",
         "symfony/mime": "5.2.*",
         "symfony/monolog-bundle": "^3.3",
         "symfony/process": "5.2.*",
@@ -109,8 +98,8 @@
         "symfony/yaml": "5.2.*",
         "tecnickcom/tcpdf": "^6.2",
         "tetranz/select2entity-bundle": "^3.0",
-        "twig/twig": "^3.1",
-        "twig/string-extra": "^3.1"
+        "twig/string-extra": "^3.1",
+        "twig/twig": "^3.1"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
