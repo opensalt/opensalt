@@ -1,4 +1,4 @@
-version: '3.4'
+version: '2.4'
 services:
   # Tools used
   # the docker-compose format does not have a way to specify not to run these upon "up"

@@ -256,7 +256,9 @@ apx.initialize = function() {
         });
     };
 
-    apx.initializeNotification();
+    if (apx.enableEdit) {
+        apx.initializeNotification();
+    }
 };
 
 //////////////////////////////////////////////////////

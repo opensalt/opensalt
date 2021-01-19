@@ -1,4 +1,4 @@
-version: '3.4'
+version: '2.4'
 services:
   phpfpm:
     image: opensalt/php:7.4-fpm
