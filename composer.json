@@ -20,18 +20,6 @@
         ]
     },
     "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/opensalt/OpcacheBundle"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/PCGGenEd/faker-context"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/opensalt/EntityAuditBundle"
-        }
     ],
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -46,12 +34,13 @@
         "ext-json": "*",
         "ext-mbstring": "*",
         "colinodell/json5": "^2.1",
+        "composer/package-versions-deprecated": "^1.11",
         "csa/guzzle-bundle": "^3.1.1",
         "doctrine/doctrine-bundle": "^2.0",
         "doctrine/doctrine-fixtures-bundle": "^3.0",
         "doctrine/doctrine-migrations-bundle": "^3.0.2",
         "doctrine/migrations": "^3.0.2",
-        "doctrine/orm": "^2.6",
+        "doctrine/orm": "^2.8",
         "gbprod/uuid-normalizer": "^1.1",
         "google/recaptcha": "~1.1",
         "jms/serializer-bundle": "^3.3.0",
