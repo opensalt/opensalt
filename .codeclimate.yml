@@ -24,10 +24,10 @@ engines:
         enabled: false
 ratings:
   paths:
-  - "**.inc"
   - "**.js"
-  - "**.jsx"
-  - "**.module"
   - "**.php"
-exclude_paths:
-  - tests/
+exclude_patterns:
+  - "**/node_modules/"
+  - "**/spec/"
+  - "**/tests/"
+  - "**/vendor/"

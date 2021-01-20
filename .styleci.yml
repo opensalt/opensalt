@@ -1,5 +1,7 @@
 preset: symfony
 
+version: 7
+
 enabled:
     - no_short_echo_tag
     - no_php4_constructor
@@ -124,7 +126,12 @@ disabled:
     #- whitespace_after_comma_in_array
 
 finder:
+  path:
+    - "core/"
+  exclude:
+    - "core/node_modules"
+    - "core/vendor"
+  name: "*.php"
   not-path:
-    - "features"
     - "tests"
 

@@ -10,7 +10,6 @@ env:
   global:
     - COMMIT=${TRAVIS_COMMIT::8}
     - DOCKER_COMPOSE_VERSION=1.24.1
-    - FIREBASE_PREFIX=${FIREBASE_PREFIX:-travis}-${TRAVIS_BUILD_NUMBER}
 
 dist: xenial
 
@@ -42,6 +41,7 @@ before_install:
 
 # Create the application artifacts
 install:
+  - cd core
   - ln -s docker-compose.test.yml docker/docker-compose.yml
   - ln -s .env.test docker/.env
   - ln -s docker/.env ./.env
@@ -52,6 +52,7 @@ install:
 
 # Create docker image with the running code
 before_script:
+  - cd core
   - mkdir public/attachments/
   - chmod 777 public/attachments/
   - ./docker/app/build.sh
@@ -60,6 +61,7 @@ before_script:
 
 # Run the tests
 script:
+  - cd core
   - ./bin/console --env=prod doctrine:migrations:migrate -q --no-interaction
   - ./bin/console --env=prod import:generic-csv tests/_data/test_items.csv
   - echo 'Running tests...' && echo -en 'travis_fold:start:run.tests\\r'
@@ -72,11 +74,13 @@ script:
 
 #$TRAVIS_TEST_RESULT has build result 0==success
 after_success:
+  - cd core
   - ./bin/console --env=prod firebase:clear
   - if [ "$OPENSALT_HEROKU_DEPLOY" != "true" ]; then ./ci/travis/push_app.sh; fi
 #  - if [ "$TRAVIS_BRANCH" == "master" ]; then /bin/true; fi
 
 after_failure:
+  - cd core
   - echo "Tests FAILED"
   - ./bin/console --env=prod firebase:clear
   #- echo 'PHP errors...' && echo -en 'travis_fold:start:log.errors\\r'
@@ -91,6 +95,7 @@ after_failure:
 #after_deploy:
 
 after_script:
+  - cd core
   - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml down -v
 
 notifications:

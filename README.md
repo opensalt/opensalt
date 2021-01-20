@@ -22,24 +22,19 @@ Installation
    and Docker Compose from [here](https://docs.docker.com/compose/install/)
   - [Docker for Mac notes](./docs/DOCKER_FOR_MAC.md)
 
-  > **Note: the rest of the following can be automated by running `./local-dev/initial_dev_install.sh`**
-
   > Once the application is running:
-  > To create an organization use `./bin/console salt:org:add [organization name]`
-  > To create a user use `./bin/console salt:user:add [username] [--password="secret"] [--role="rolename"]`
-  > > The *initial_dev_install.sh* command creates an initial super admin "admin" with password "secret"
-
-  > `./bin/build.sh` also does much of the following, for doing a "build" after one has started development
+  > To create an organization use `./core/bin/console salt:org:add [organization name]`
+  > To create a user use `./core/bin/console salt:user:add [username] [--password="secret"] [--role="rolename"]`
 
 2. Create env file and docker-compose file
   ```
-  cp docker/.env.dist docker/.env
-  ln -s docker/.env .env
+  cp core/docker/.env.dist core/docker/.env
+  ln -s docker/.env core/.env
 
-  ln -s docker-compose.dev.yml docker/docker-compose.yml
+  ln -s docker-compose.dev.yml core/docker/docker-compose.yml
   ```
 
-3. Edit docker/.env and set desired values
+3. Edit core/docker/.env and set desired values
   - The `PORT` specified is what is used in step 7 below
 
 4. Start the application
@@ -78,5 +73,5 @@ Installation
 Other Docs
 ----------
 
-- [User Management Commands](./docs/Commands.md)
-- [Github Authentication Config](./docs/deployment/GithubAuth.md)
+- [User Management Commands](./core/docs/Commands.md)
+- [Github Authentication Config](./core/docs/deployment/GithubAuth.md)

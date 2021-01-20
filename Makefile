@@ -9,14 +9,14 @@ default:
 
 # Docker commands
 docker-start:
-	cd docker && \
+	cd core/docker && \
 		docker-compose pull && \
 		docker-compose up -d
 up: docker-start
 .PHONY: docker-start up
 
 docker-stop:
-	cd docker && \
+	cd core/docker && \
 		docker-compose down -v
 down: docker-stop
 .PHONY: docker-stop down
@@ -26,6 +26,7 @@ restart: docker-restart
 .PHONY: docker-restart restart
 
 docker-build:
+	cd core
 	docker build \
 		--build-arg BUILD_DATE="$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")" \
 		--build-arg VERSION="$(shell cat VERSION)" \
@@ -39,17 +40,17 @@ image: docker-build
 
 # Cache commands
 cache-clear:
-	rm -rf var/cache/{dev,test,prod}/*
+	rm -rf core/var/cache/{dev,test,prod}/*
 cc: cache-clear
 .PHONY: cache-clear cc
 
 cache-warmup: cache-clear
-	bin/console cache:warmup --env=prod
+	core/bin/console cache:warmup --env=prod
 .PHONY: cache-warmup
 
 # Composer commands
 vendor: composer.json composer.lock
-	bin/composer install --no-interaction
+	core/bin/composer install --no-interaction
 composer-install: vendor
 .PHONY: composer-install
 
@@ -59,32 +60,32 @@ js: encore cache-clear
 .PHONY: js
 
 encore: yarn-install
-	bin/node ./node_modules/.bin/encore production
+	core/bin/node ./node_modules/.bin/encore production
 encore-dev: yarn-install
-	bin/node ./node_modules/.bin/encore dev
+	core/bin/node ./node_modules/.bin/encore dev
 encore-build: encore
 .PHONY: encore encore-dev encore-build
 
 node_modules: yarn.lock package.json
-	bin/yarn install --non-interactive
-	touch node_modules
+	core/bin/yarn install --non-interactive
+	touch core/node_modules
 yarn-install: node_modules
 .PHONY: yarn-install
 
 # Install and build commands
 assets-install:
-	bin/console assets:install public --symlink --relative
+	core/bin/console assets:install public --symlink --relative
 .PHONY: assets-install
 
 build: vendor encore-build assets-install cache-clear
 .PHONY: build
 
 force-vendor:
-	touch -c composer.lock
+	touch -c core/composer.lock
 .PHONY: force-vendor
 
 force-node-modules:
-	touch -c yarn.lock
+	touch -c core/yarn.lock
 .PHONY: force-node-modules
 
 force-build: force-vendor force-node-modules build
@@ -98,11 +99,11 @@ install: cache-clear force-build
 
 # DB commands
 migrate:
-	bin/console doctrine:migrations:migrate --no-interaction
+	core/bin/console doctrine:migrations:migrate --no-interaction
 .PHONY: migrate
 
 
 # Clean
 clean: cache-clear
-	rm -rf build/* public/build/*
+	rm -rf core/build/* core/public/build/*
 .PHONY: clean
