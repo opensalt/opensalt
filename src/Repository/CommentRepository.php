@@ -83,8 +83,8 @@ class CommentRepository extends ServiceEntityRepository
     /**
      * @return array|Comment[]
      */
-    public function findByTypeItem(array $id): array
+    public function findByTypeItem(string $itemType, int $itemId): array
     {
-        return $this->findBy([$id['itemType'] => $id['itemId']]);
+        return $this->findBy([$itemType => $itemId]);
     }
 }

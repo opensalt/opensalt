@@ -11,22 +11,23 @@ use App\Command\Comment\UpvoteCommentCommand;
 use App\Entity\Comment\Comment;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\User\User;
+use App\Service\BucketService;
 use JMS\Serializer\SerializerInterface;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
-use App\Entity\User\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\Routing\Annotation\Route;
+use Qandidate\Toggle\Context;
+use Qandidate\Toggle\ContextFactory;
+use Qandidate\Toggle\ToggleManager;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use App\Service\BucketService;
-use Qandidate\Toggle\ContextFactory;
-use Qandidate\Toggle\ToggleManager;
 
 /**
  * @Toggle("comments")
@@ -35,12 +36,9 @@ class CommentsController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-    private $manager;
-    private $context;
+    private SerializerInterface $serializer;
+    private ToggleManager $manager;
+    private Context $context;
 
     public function __construct(SerializerInterface $serializer, ToggleManager $manager, ContextFactory $contextFactory)
     {
@@ -51,27 +49,25 @@ class CommentsController extends AbstractController
 
     /**
      * @Route("/comments/document/{id}", name="create_doc_comment", methods={"POST"})
-     *
      * @Security("is_granted('comment')")
      */
-    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user, BucketService $bucket)
+    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'document', $doc, $user, $bucket);
     }
 
     /**
      * @Route("/comments/item/{id}", name="create_item_comment", methods={"POST"})
-     *
      * @Security("is_granted('comment')")
      */
-    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user, BucketService $bucket)
+    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'item', $item, $user, $bucket);
     }
 
     /**
      * @Route("/comments/{itemType}/{itemId}", name="get_comments", methods={"GET"})
-     * @ParamConverter("comments", class="App\Entity\Comment\Comment", options={"id": {"itemType", "itemId"}, "repository_method" = "findByTypeItem"})
+     * @Entity("comments", class="App\Entity\Comment\Comment", expr="repository.findByTypeItem(itemType, itemId)")
      * @Security("is_granted('comment_view')")
      *
      * @param array|Comment[] $comments
@@ -91,10 +87,9 @@ class CommentsController extends AbstractController
 
     /**
      * @Route("/comments/{id}", methods={"PUT"})
-     *
      * @Security("is_granted('comment_update', comment)")
      */
-    public function updateAction(Request $request, Comment $comment, UserInterface $user)
+    public function updateAction(Request $request, Comment $comment, UserInterface $user): JsonResponse
     {
         $command = new UpdateCommentCommand($comment, $request->request->get('content'));
         $this->sendCommand($command);
@@ -104,10 +99,9 @@ class CommentsController extends AbstractController
 
     /**
      * @Route("/comments/delete/{id}", methods={"DELETE"})
-     *
      * @Security("is_granted('comment_delete', comment)")
      */
-    public function deleteAction(Comment $comment, UserInterface $user)
+    public function deleteAction(Comment $comment, UserInterface $user): JsonResponse
     {
         $command = new DeleteCommentCommand($comment);
         $this->sendCommand($command);
@@ -117,10 +111,9 @@ class CommentsController extends AbstractController
 
     /**
      * @Route("/comments/{id}/upvote", methods={"POST"})
-     *
      * @Security("is_granted('comment')")
      */
-    public function upvoteAction(Comment $comment, UserInterface $user = null)
+    public function upvoteAction(Comment $comment, UserInterface $user = null): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -134,10 +127,9 @@ class CommentsController extends AbstractController
 
     /**
      * @Route("/comments/{id}/upvote", methods={"DELETE"})
-     *
      * @Security("is_granted('comment')")
      */
-    public function downvoteAction(Comment $comment, UserInterface $user)
+    public function downvoteAction(Comment $comment, UserInterface $user): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -155,15 +147,12 @@ class CommentsController extends AbstractController
 
     /**
      * @Route("/salt/case/export_comment/{itemType}/{itemId}/comment.csv", name="export_comment_file")
-     *
-     * @return Response
-     *
      * @Security("is_granted('comment_view')")
      */
-    public function exportCommentAction(string $itemType, int $itemId)
+    public function exportCommentAction(string $itemType, int $itemId): Response
     {
         $response = new StreamedResponse();
-        $response->setCallback(function () use($itemType, $itemId) {
+        $response->setCallback(function () use ($itemType, $itemId) {
             $childIds = [];
             $handle = fopen('php://output', 'wb+');
             $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
@@ -211,7 +200,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * Get the export report data
+     * Get the export report data.
      *
      * @param array|Comment[] $commentData
      */

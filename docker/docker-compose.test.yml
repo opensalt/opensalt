@@ -1,4 +1,4 @@
-version: '2.1'
+version: '2.4'
 services:
   app:
     image: opensalt/app:${COMMIT}
@@ -26,14 +26,6 @@ services:
       ALLOW_LOCAL_DEV: "true"
       ALLOW_EXTERNAL_DEV_IPS:
       DEV_COOKIE:
-      FIREBASE_API_KEY:
-      FIREBASE_AUTH_DOMAIN:
-      FIREBASE_DB_URL:
-      FIREBASE_PROJECT_ID:
-      FIREBASE_CLIENT_ID:
-      FIREBASE_CLIENT_EMAIL:
-      FIREBASE_PRIVATE_KEY:
-      FIREBASE_PREFIX:
       MAILER_TRANSPORT:
       MAILER_HOST:
       MAILER_USER:
@@ -42,6 +34,7 @@ services:
       MAILER_PORT:
       COMMENTS_FEATURE:
       COMMENT_ATTACHMENTS:
+      ATTACHMENT_URL_PREFIX:
       CREATE_ACCOUNT_FEATURE:
       USE_MAIL_FEATURE:
       MAIL_FEATURE_FROM_EMAIL:
@@ -49,9 +42,9 @@ services:
       GOOGLE_CAPTCHA_SECRET_KEY:
       AWS_ACCESS_KEY_ID:
       AWS_SECRET_ACCESS_KEY:
-      AWS_S3_PREFIX:
       AWS_S3_BUCKET:
       AWS_S3_REGION:
+      AWS_S3_PREFIX:
       ATTACHMENT_URL_PREFIX:
       BUCKET_PROVIDER:
       LOCAL_FILESYSTEM_PATH:
@@ -59,12 +52,14 @@ services:
       CASE_NETWORK_CLIENT_SECRET:
       CASE_NETWORK_TOKEN_ENDPOINT:
       CASE_NETWORK_SCOPE:
+      MERCURE_PUBLISH_URL:
+      MERCURE_JWT_TOKEN:
     volumes_from:
       - app
     working_dir: /var/www/html
 
   nginx:
-    image: opensalt/nginx:1.16-alpine
+    image: opensalt/nginx:1.18-alpine
     depends_on:
       - phpfpm
     environment:
@@ -72,6 +67,16 @@ services:
     volumes_from:
       - app
     working_dir: /var/www/html
+
+  mercure:
+    image: dunglas/mercure:v0.11
+    environment:
+      MERCURE_PUBLISHER_JWT_KEY: '!ChangeMe!'
+      MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeMe!'
+      MERCURE_TRANSPORT_URL: 'local://local'
+      MERCURE_EXTRA_DIRECTIVES: "anonymous\nsubscriptions\ndemo"
+      SERVER_NAME: ':80'
+      DEBUG: 'debug'
 
   db:
     image: percona:${MYSQL_VERSION}
