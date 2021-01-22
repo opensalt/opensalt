@@ -151,19 +151,11 @@ ARG APP_ENV=prod
 
 # copy only specifically what we need
 COPY .env \
-	composer.json composer.lock symfony.lock \
-	package.json webpack.config.js yarn.lock \
-	./
-COPY bin bin/
-COPY config config/
-COPY migrations migrations/
-COPY public public/
-COPY src src/
-COPY templates templates/
-COPY translations translations/
-
-COPY codeception.dist.yml codeception.dist.yml
-COPY tests tests/
+     composer.json composer.lock symfony.lock \
+     package.json webpack.config.js yarn.lock \
+     bin config migrations public src templates translations \
+     codeception.dist.yml tests \
+     ./
 
 RUN echo ${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT} > public/version.txt
 

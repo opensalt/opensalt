@@ -14,7 +14,9 @@ jobs:
       # Pull the latest image to build, and avoid caching pull-only images.
       # (docker pull is faster than caching in most cases.)
       - name: Pull images
-        run: docker-compose pull
+        run: |
+          cp -f .env.test .env
+          docker-compose pull
       # In this step, this action saves a list of existing images,
       # the cache is created without them in the post run.
       # It also restores the cache if it exists.
@@ -28,12 +30,11 @@ jobs:
 
       - name: Bring up the stack
         run: |
-          cp -f .env.test .env
           docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d
+          docker-compose exec php dockerize -timeout 60s -wait tcp://db:3306 && sleep 5
 
       - name: Initialize db
         run: |
-          docker-compose exec php dockerize -timeout 60s -wait tcp://db:3306 && sleep 5
           ./core/bin/console --env=prod doctrine:migrations:migrate -q --no-interaction
           ./core/bin/console --env=prod import:generic-csv tests/_data/test_items.csv
 

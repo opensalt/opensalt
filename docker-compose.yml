@@ -5,6 +5,8 @@ services:
     image: opensalt/opensalt:cron-3.x
     build:
       context: ./core/docker/cron
+      cache_from:
+        - opensalt/opensalt:cron-develop
     depends_on:
       - php
     volumes:
@@ -23,6 +25,9 @@ services:
         - BUILD_DATE=${BUILD_DATE:-0}
         - COMMIT=${COMMIT:-unknown}
         - VERSION=${VERSION:-3.0.0-dev}
+      cache_from:
+        - opensalt/opensalt:core-develop
+        - php:7.4-fpm-alpine
     depends_on:
       - db
     environment:
@@ -59,6 +64,9 @@ services:
         - BUILD_DATE=${BUILD_DATE:-0}
         - COMMIT=${COMMIT:-unknown}
         - VERSION=${VERSION:-3.0.0-dev}
+      cache_from:
+        - opensalt/opensalt:web-develop
+        - caddy:2
     depends_on:
       - php
 #      - pwa
@@ -82,6 +90,9 @@ services:
     image: opensalt/opensalt:db-3.x
     build:
       context: ./core/docker/mysql
+      cache_from:
+        - opensalt/opensalt:db-develop
+        - percona:5.7
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:
