@@ -11,9 +11,9 @@ modules:
             cleanup: false
         - REST:
             depends: PhpBrowser
-            url: 'http://nginx'
+            url: 'http://web'
         - WebDriver:
-            url: 'http://nginx'
+            url: 'http://web'
             browser: firefox
             host: firefox
             restart: true

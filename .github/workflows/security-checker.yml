@@ -25,4 +25,6 @@ jobs:
           key: db
       - name: Check
         uses: symfonycorp/security-checker-action@v1
+        with:
+          lock: core/composer.lock
 

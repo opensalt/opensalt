@@ -1,9 +1,12 @@
+build:
+    root_path: './core/'
+
 filter:
-    paths: ["core/src/*"]
+    paths: ["src/*"]
     excluded_paths:
-        - "core/src/*Bundle/Tests/"
+        - "src/*Bundle/Tests/"
     dependency_paths:
-        - "core/vendor/"
+        - "vendor/"
 
 checks:
     php:

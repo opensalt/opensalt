@@ -46,7 +46,7 @@ install:
 # Create docker image with the running code
 before_script:
   - cp .env.test .env
-  - docker-compose up -d
+  - docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d
   - docker-compose exec php dockerize -timeout 60s -wait tcp://db:3306 && sleep 5
 
 # Run the tests
@@ -78,7 +78,7 @@ after_failure:
 #after_deploy:
 
 after_script:
-  - docker-compose down -v
+  - docker-compose -f docker-compose.yml -f docker-compose.test.yml down -v
 
 notifications:
   slack:
