@@ -33,7 +33,7 @@ $debug = ((bool) ($_SERVER['APP_DEBUG'] ?? ('prod' !== $env))) && !$input->hasPa
 putenv('APP_ENV='.$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $env);
 putenv('APP_DEBUG='.$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = ($debug ? '1' : '0'));
 
-(new Dotenv())->bootEnv(dirname(__DIR__).'/.symfony.env');
+(new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
 
 if ($debug) {
     umask(0000);

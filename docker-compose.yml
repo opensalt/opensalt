@@ -1,0 +1,99 @@
+version: "3.4"
+
+services:
+#  crontab:
+#    image: willfarrell/crontab:1.0.0
+#    depends_on:
+#      - php
+#    volumes:
+#      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+#      - "./core/docker/cron/crontab.dist.json:/opt/crontab/config.json:rw"
+#    environment:
+#      LOG_FILE: /dev/stdout
+
+  php:
+    image: opensalt/opensalt:core-3.x
+    build:
+      context: ./core
+      target: salt_core_app
+      args:
+        - BUILD_NUMBER=${BUILD_NUMBER:-x}
+        - BUILD_DATE=${BUILD_DATE:-0}
+        - COMMIT=${COMMIT:-unknown}
+        - VERSION=${VERSION:-3.0.0-dev}
+    depends_on:
+      - db
+    environment:
+      APP_ENV:
+      APP_SECRET:
+      MYSQL_HOST: 'db'
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MERCURE_PUBLISH_URL:
+      MERCURE_JWT_TOKEN:
+
+    restart: unless-stopped
+    healthcheck:
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+
+#  pwa:
+#    build:
+#      context: ./pwa
+#      target: salt_core_pwa_prod
+#    environment:
+#      API_PLATFORM_CLIENT_GENERATOR_ENTRYPOINT: http://web
+
+  web:
+    image: opensalt/opensalt:web-3.x
+    build:
+      context: ./core
+      target: salt_core_caddy
+      args:
+        - BUILD_NUMBER=${BUILD_NUMBER:-x}
+        - BUILD_DATE=${BUILD_DATE:-0}
+        - COMMIT=${COMMIT:-unknown}
+        - VERSION=${VERSION:-3.0.0-dev}
+    depends_on:
+      - php
+#      - pwa
+    environment:
+#      PWA_UPSTREAM: pwa:3000
+      SERVER_NAME: ${SERVER_NAME:-:80}
+      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY:-!ChangeMe!}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY:-!ChangeMe!}
+      MERCURE_TRANSPORT_URL: 'local://local'
+    restart: unless-stopped
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      default:
+      external:
+        aliases:
+          - "${COMPOSE_PROJECT_NAME}-salt"
+
+  db:
+    image: percona:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+    volumes:
+      #- db_data:/var/lib/mysql:rw
+      # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      - "./core/docker/data/mysql:/var/lib/mysql:rw"
+      - "./core/docker/mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro"
+      - "./core/docker/mysql/charset.cnf:/etc/mysql/conf.d/charset.cnf:ro"
+
+volumes:
+#  db_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  external:

@@ -14,12 +14,6 @@
 !public/bundles/.gitkeep
 
 # Docker
-/.env
-docker/.blackfire.env
-docker/blackfire.env
-docker/.env
-docker/docker-compose.yml
-docker/docker-compose.override.yml
 docker/data/*
 !docker/data/.gitignore
 

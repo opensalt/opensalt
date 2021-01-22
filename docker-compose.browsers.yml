@@ -1,0 +1,29 @@
+version: '3.4'
+services:
+  phantomjs:
+    image: wernight/phantomjs:2
+    command: [ "phantomjs", "--webdriver=8643" ]
+    volumes:
+      - "./core/tests:/srv/core/tests"
+
+  chrome:
+    image: selenium/standalone-chrome:3.8
+    environment:
+      DBUS_SESSION_BUS_ADDRESS: "/dev/null"
+    shm_size: '2gb'
+    privileged: true
+    volumes:
+      - "./core/tests:/srv/core/tests"
+      #- "/dev/shm:/dev/shm"
+
+  firefox:
+    image: selenium/standalone-firefox:3.8
+    environment:
+      SE_OPTS: "-enablePassThrough false"
+    shm_size: '2gb'
+    volumes:
+      - "./core/tests:/srv/core/tests"
+
+  wait:
+    image: jwilder/dockerize
+

@@ -41,48 +41,31 @@ before_install:
 
 # Create the application artifacts
 install:
-  - cd core
-  - ln -s docker-compose.test.yml docker/docker-compose.yml
-  - ln -s .env.test docker/.env
-  - ln -s docker/.env ./.env
-  - echo ${TRAVIS_BUILD_NUMBER} > BUILD_NUMBER
-  - echo $(date -u +%Y%m%d.%H%M).${COMMIT} > BUILD_MD
-  - echo $(cat VERSION).$(cat BUILD_NUMBER)+$(cat BUILD_MD) > public/version.txt
-  - ./bin/build.sh
+  - BUILD_NUMBER=${TRAVIS_BUILD_NUMBER} make docker-build
 
 # Create docker image with the running code
 before_script:
-  - cd core
-  - mkdir public/attachments/
-  - chmod 777 public/attachments/
-  - ./docker/app/build.sh
-  - docker-compose -f docker/docker-compose.yml up -d
-  - docker-compose -f docker/docker-compose.yml exec phpfpm dockerize -timeout 60s -wait tcp://db:3306 && sleep 5
+  - cp .env.test .env
+  - docker-compose up -d
+  - docker-compose exec php dockerize -timeout 60s -wait tcp://db:3306 && sleep 5
 
 # Run the tests
 script:
-  - cd core
-  - ./bin/console --env=prod doctrine:migrations:migrate -q --no-interaction
-  - ./bin/console --env=prod import:generic-csv tests/_data/test_items.csv
+  - ./core/bin/console --env=prod doctrine:migrations:migrate -q --no-interaction
+  - ./core/bin/console --env=prod import:generic-csv tests/_data/test_items.csv
   - echo 'Running tests...' && echo -en 'travis_fold:start:run.tests\\r'
-  - ./bin/run-tests ${RUN_TEST_ARGS:-"--steps -x duplicate -x skip -x skip-firefox"}
+  - ./core/bin/run-tests ${RUN_TEST_ARGS:-"--steps -x duplicate -x skip -x skip-firefox"}
   - echo -en 'travis_fold:end:run.tests\\r'
-#  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/build_pull_request; fi'
-#  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/build_normal; fi'
 
 #before_cache:
 
 #$TRAVIS_TEST_RESULT has build result 0==success
 after_success:
-  - cd core
-  - ./bin/console --env=prod firebase:clear
-  - if [ "$OPENSALT_HEROKU_DEPLOY" != "true" ]; then ./ci/travis/push_app.sh; fi
+  - ./ci/travis/push_app.sh
 #  - if [ "$TRAVIS_BRANCH" == "master" ]; then /bin/true; fi
 
 after_failure:
-  - cd core
   - echo "Tests FAILED"
-  - ./bin/console --env=prod firebase:clear
   #- echo 'PHP errors...' && echo -en 'travis_fold:start:log.errors\\r'
   #- ./ci/travis/send_errors.sh
   #- echo -en 'travis_fold:end:log.errors\\r'
@@ -95,8 +78,7 @@ after_failure:
 #after_deploy:
 
 after_script:
-  - cd core
-  - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml down -v
+  - docker-compose down -v
 
 notifications:
   slack:

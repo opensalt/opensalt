@@ -2,4 +2,4 @@
 
 cd $(dirname $0)/..
 
-bin/node yarn "$@"
+./bin/node yarn "$@"

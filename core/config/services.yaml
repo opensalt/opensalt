@@ -8,7 +8,7 @@ imports:
 
 parameters:
     # Defaults for environment variables
-    env(MYSQL_HOST): null
+    env(MYSQL_HOST): 'db'
     env(MYSQL_PORT): '3306'
     env(MYSQL_DATABASE): null
     env(MYSQL_USER): null
