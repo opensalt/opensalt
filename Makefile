@@ -26,7 +26,7 @@ restart: docker-restart
 .PHONY: docker-restart restart
 
 docker-build:
-	VERSION=${VERSION} BUILD_NUMBER=${BUILD_NUMBER} BUILD_DATE=${BUILD_DATE} COMMIT=${COMMIT} DOCKER_BUILDKIT=1 docker-compose build --pull
+	VERSION=${VERSION} BUILD_NUMBER=${BUILD_NUMBER} BUILD_DATE=${BUILD_DATE} COMMIT=${COMMIT} COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build --pull
 image: docker-build
 .PHONY: docker-build image
 

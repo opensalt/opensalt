@@ -167,6 +167,9 @@ COPY tests/ tests/
 RUN echo ${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT} > public/version.txt
 
 COPY --from=salt_core_vendors /srv/core/vendor/ ./vendor/
+# hack to avoid "Service 'php' failed to build : failed to export image: failed to create image: failed to get layer sha256:38c02bf8b1bff96084338f7e6835b713185e091467e11f08001d41375f078e0e: layer does not exist"
+# as mentioned in https://github.com/moby/moby/issues/37965#issuecomment-426853382
+RUN true
 COPY --from=salt_core_js_build /srv/core/public/ ./public/
 
 RUN set -eux; \
