@@ -1,15 +1,17 @@
-[{
-  "name": "framework-mirror",
-  "schedule": "@every 1m",
-  "comment": "Mirror frameworks",
-  "project": "cftf",
-  "container": "phpfpm",
-  "command": "bin/console --env=prod jobs:mirror"
-},{
-  "name": "server-update-list",
-  "schedule": "@every 1m",
-  "comment": "Update framework list of server",
-  "project": "cftf",
-  "container": "phpfpm",
-  "command": "bin/console --env=prod jobs:update-next-server"
-}]
+[
+  {
+    "name": "framework-mirror",
+    "schedule": "@every 1m",
+    "comment": "Mirror frameworks",
+    "project": "$CRONTAB_PROJECT",
+    "container": "php",
+    "command": "bin/console --env=prod jobs:mirror"
+  },{
+    "name": "server-update-list",
+    "schedule": "@every 1m",
+    "comment": "Update framework list of server",
+    "project": "$CRONTAB_PROJECT",
+    "container": "php",
+    "command": "bin/console --env=prod jobs:update-next-server"
+  }
+]

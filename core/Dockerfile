@@ -27,6 +27,7 @@ FROM php:${PHP_VERSION}-fpm-alpine AS salt_core_php
 # persistent / runtime deps
 RUN apk add --no-cache \
 		acl \
+		bash \
 		fcgi \
 		file \
 		gettext \
@@ -42,24 +43,24 @@ ARG APCU_VERSION=5.1.19
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
 		$PHPIZE_DEPS \
+		bzip2-dev \
 		icu-dev \
+		libpng-dev \
 		libzip-dev \
 		mysql-dev \
 		zlib-dev \
-		bzip2-dev \
-		libpng-dev \
 	; \
 	\
 	docker-php-ext-configure zip; \
 	docker-php-ext-install -j$(nproc) \
+		bcmath \
 		bz2 \
 		gd \
 		intl \
-		pdo_mysql \
 		mysqli \
-		pcntl \
-		bcmath \
 		opcache \
+		pcntl \
+		pdo_mysql \
 		zip \
 	; \
 	pecl install \

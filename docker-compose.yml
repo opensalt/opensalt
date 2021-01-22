@@ -1,15 +1,17 @@
 version: "3.4"
 
 services:
-#  crontab:
-#    image: willfarrell/crontab:1.0.0
-#    depends_on:
-#      - php
-#    volumes:
-#      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-#      - "./core/docker/cron/crontab.dist.json:/opt/crontab/config.json:rw"
-#    environment:
-#      LOG_FILE: /dev/stdout
+  crontab:
+    image: opensalt/opensalt:cron-3.x
+    build:
+      context: ./core/docker/cron
+    depends_on:
+      - php
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      #- "./crontab.json:/opt/crontab/config.json:rw"
+    environment:
+      LOG_FILE: /dev/stdout
 
   php:
     image: opensalt/opensalt:core-3.x
@@ -77,7 +79,9 @@ services:
           - "${COMPOSE_PROJECT_NAME}-salt"
 
   db:
-    image: percona:5.7
+    image: opensalt/opensalt:db-3.x
+    build:
+      context: ./core/docker/mysql
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:
@@ -87,8 +91,6 @@ services:
       #- db_data:/var/lib/mysql:rw
       # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       - "./core/docker/data/mysql:/var/lib/mysql:rw"
-      - "./core/docker/mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro"
-      - "./core/docker/mysql/charset.cnf:/etc/mysql/conf.d/charset.cnf:ro"
 
 volumes:
 #  db_data:
