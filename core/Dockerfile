@@ -177,6 +177,7 @@ RUN set -eux; \
 	chmod 777 var/cache var/log; \
 	mkdir -p public/attachments; \
 	chmod 777 public/attachments; \
+	chmod 777 tests/_output tests/_data; \
 	composer dump-autoload --no-interaction --classmap-authoritative; \
 	composer dump-env prod; \
 	composer run-script post-install-cmd; \
