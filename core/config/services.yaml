@@ -1,0 +1,220 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+imports:
+    - { resource: 'pdo-options.php' }
+
+parameters:
+    # Defaults for environment variables
+    env(MYSQL_HOST): 'db'
+    env(MYSQL_PORT): '3306'
+    env(MYSQL_DATABASE): null
+    env(MYSQL_USER): null
+    env(MYSQL_PASSWORD): null
+    env(MAILER_TRANSPORT): smtp
+    env(MAILER_HOST): '127.0.0.1'
+    env(MAILER_USER): null
+    env(MAILER_PASSWORD): null
+    env(MAILER_AUTH_MODE): null
+    env(MAILER_PORT): null
+    env(APP_SECRET): null
+    env(COOKIE_SECRET): null
+    env(GITHUB_CLIENT_ID): null
+    env(GITHUB_CLIENT_SECRET): null
+    env(COMMENTS_FEATURE): inactive
+    env(COMMENT_ATTACHMENTS): inactive
+    env(CREATE_ACCOUNT_FEATURE): inactive
+    env(USE_MAIL_FEATURE): inactive
+    env(MAIL_FEATURE_FROM_EMAIL): null
+    env(BRAND_LOGO_URL): null
+    env(BRAND_LOGO_STYLE): null
+    env(BRAND_LINK_URL): null
+    env(BRAND_LINK_STYLE): null
+    env(GOOGLE_CAPTCHA_SITE_KEY): null
+    env(GOOGLE_CAPTCHA_SECRET_KEY): null
+    env(SESSION_MAX_IDLE_TIME): '3600'
+    env(AWS_ACCESS_KEY_ID): null
+    env(AWS_SECRET_ACCESS_KEY): null
+    env(AWS_S3_PREFIX): null
+    env(AWS_S3_REGION): null
+    env(AWS_S3_BUCKET): null
+    env(ATTACHMENT_URL_PREFIX): null
+    env(BUCKET_PROVIDER): null
+    env(LOCAL_FILESYSTEM_PATH): null
+    env(FOOTER_LEFT_TEXT): null
+    env(CASE_NETWORK_CLIENT_ID): null
+    env(CASE_NETWORK_CLIENT_SECRET): null
+    env(CASE_NETWORK_TOKEN_ENDPOINT): 'https://oauth2-case.imsglobal.org/oauth2server/clienttoken'
+    env(CASE_NETWORK_SCOPE): 'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/all.readonly'
+
+    locale: en
+    database_host: '%env(MYSQL_HOST)%'
+    database_port: '%env(int:MYSQL_PORT)%'
+    database_name: '%env(MYSQL_DATABASE)%'
+    database_user: '%env(MYSQL_USER)%'
+    database_password: '%env(MYSQL_PASSWORD)%'
+    mailer_transport: '%env(MAILER_TRANSPORT)%'
+    mailer_host: '%env(MAILER_HOST)%'
+    mailer_user: '%env(MAILER_USER)%'
+    mailer_password: '%env(MAILER_PASSWORD)%'
+    mailer_auth_mode: '%env(MAILER_AUTH_MODE)%'
+    mailer_port: '%env(int:MAILER_PORT)%'
+    secret: '%env(APP_SECRET)%'
+    cookie_secret: '%env(COOKIE_SECRET)%'
+    github_client_id: '%env(GITHUB_CLIENT_ID)%'
+    github_client_secret: '%env(GITHUB_CLIENT_SECRET)%'
+    brand_logo_url: '%env(BRAND_LOGO_URL)%'
+    brand_logo_style: '%env(BRAND_LOGO_STYLE)%'
+    brand_link_url: '%env(BRAND_LINK_URL)%'
+    brand_link_style: '%env(BRAND_LINK_STYLE)%'
+    comments_feature: '%env(COMMENTS_FEATURE)%'
+    comment_attachments: '%env(COMMENT_ATTACHMENTS)%'
+    create_account_feature: '%env(CREATE_ACCOUNT_FEATURE)%'
+    use_mail_feature: '%env(USE_MAIL_FEATURE)%'
+    mail_feature_from_email: '%env(MAIL_FEATURE_FROM_EMAIL)%'
+    google_captcha_site_key: '%env(GOOGLE_CAPTCHA_SITE_KEY)%'
+    google_captcha_secret_key: '%env(GOOGLE_CAPTCHA_SECRET_KEY)%'
+    session_max_idle_time: '%env(int:SESSION_MAX_IDLE_TIME)%'
+    aws_key: '%env(AWS_ACCESS_KEY_ID)%'
+    aws_secret: '%env(AWS_SECRET_ACCESS_KEY)%'
+    aws_prefix: '%env(AWS_S3_PREFIX)%'
+    aws_region: '%env(AWS_S3_REGION)%'
+    aws_bucket: '%env(AWS_S3_BUCKET)%'
+    attachment_url_prefix: '%env(ATTACHMENT_URL_PREFIX)%'
+    bucket_provider: '%env(BUCKET_PROVIDER)%'
+    local_filesystem_path: '%env(LOCAL_FILESYSTEM_PATH)%'
+    footer_left_text: '%env(FOOTER_LEFT_TEXT)%'
+    base_template: 'base.html.twig'
+    assets_version: '190202'
+    case_network_client_id: '%env(CASE_NETWORK_CLIENT_ID)%'
+    case_network_client_secret: '%env(CASE_NETWORK_CLIENT_SECRET)%'
+    case_network_token_endpoint: '%env(CASE_NETWORK_TOKEN_ENDPOINT)%'
+    case_network_scope: '%env(CASE_NETWORK_SCOPE)%'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: false       # Allows optimizing the container by removing unused services; this also means
+                            # fetching services directly from the container via $container->get() won't work.
+                            # The best practice is to be explicit about your dependencies anyway.
+        bind:
+            $projectDir: '%kernel.project_dir%'
+            $mailFromEmail: '%mail_feature_from_email%'
+            $guzzleJsonClient: '@csa_guzzle.client.json'
+            $csaMiddleware: !tagged csa_guzzle.middleware
+            $kernelEnv: '%kernel.environment%'
+            $externalDocCache: '@salt.cache.external_docs'
+            $assetsVersion: '%assets_version%'
+            $caseNetworkClientId: '%case_network_client_id%'
+            $caseNetworkClientSecret: '%case_network_client_secret%'
+            $caseNetworkScope: '%case_network_scope%'
+            $caseNetworkTokenEndpoint: '%case_network_token_endpoint%'
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DataFixtures/'
+            - '../src/DependencyInjection/'
+            - '../src/DTO/'
+            - '../src/Entity/'
+            - '../src/Exception/'
+            - '../src/Kernel.php'
+            - '../src/Migrations/'
+            - '../src/Tests/'
+            - '../src/Util/'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+    App\Controller\User\OAuthServiceController:
+        tags: ['controller.service_arguments']
+        arguments:
+            $githubClientId: '%github_client_id%'
+            $githubClientSecret: '%github_client_secret%'
+            $githubRedirectUri: "@=container.hasParameter('github_redirect_uri') ? parameter('github_redirect_uri') : null"
+
+    App\Controller\SessionController:
+        tags: ['controller.service_arguments']
+        arguments:
+            $sessionMaxIdleTime: '%session_max_idle_time%'
+
+    # LS Item Controller
+    App\Controller\Framework\LsItemController:
+        arguments:
+            $bucketProvider: '%bucket_provider%'
+
+    App\EventListener\LoginCaptchaListener:
+        class: App\EventListener\LoginCaptchaListener
+        arguments:
+            $captchaSecret: '%google_captcha_secret_key%'
+
+    App\Security\Session\SessionIdleHandler:
+        arguments:
+            $sessionMaxIdleTime: '%session_max_idle_time%'
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+
+    App\Service\Api1Uris:
+        public: true
+
+    App\Service\Api1RouteMap:
+        public: true
+
+    # Add UUID normalizer for the serializer
+    GBProd\UuidNormalizer\UuidNormalizer:
+        tags:
+            - { name: serializer.normalizer }
+
+    GBProd\UuidNormalizer\UuidDenormalizer:
+        tags:
+            - { name: serializer.normalizer }
+
+    # Allow Codeception to get some defined services for testing
+    App\Service\CodeceptionBridge:
+        public: true
+
+    App\Service\BucketService:
+        arguments:
+            $attachmentUrlPrefix: '%attachment_url_prefix%'
+            $bucketPrefix: '%aws_prefix%'
+
+    # Workarounds for 3.4 deprecations
+    Symfony\Bundle\SwiftmailerBundle\Command\:
+        resource: '../vendor/symfony/swiftmailer-bundle/Command'
+        tags: ['console.command']
+
+    League\Flysystem\Filesystem:
+        class: 'League\Flysystem\Filesystem'
+
+    League\Flysystem\FilesystemAdapter:
+        factory: ['@App\Service\BucketFactory', 'filesystem']
+
+    # Aliased services
+    Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'
+    Qandidate\Toggle\ContextFactory: '@qandidate.toggle.user_context_factory'
+
+    # Manual services
+    session.handler.pdo:
+        class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
+        arguments:
+            $pdoOrDsn: 'mysql:host=%database_host%;port=%database_port%;dbname=%database_name%'
+            $options: { db_username: '%database_user%', db_password: '%database_password%', db_table: 'auth_session', db_id_col: 'id', db_connection_options: "%pdo_options%" }
+
+    salt.cache.external_docs:
+        class: Symfony\Component\Cache\Adapter\PdoAdapter
+        arguments:
+            $connOrDsn: '@doctrine.dbal.default_connection'
+            $namespace: 'externalDoc-'
+            $defaultLifetime: 0
+

@@ -1,0 +1,26 @@
+version: "3.4"
+
+# Development environment override
+services:
+  php:
+    volumes:
+      - ./core:/srv/core:rw
+      - ./core/docker/php/conf.d/opcache.ini.dev:/usr/local/etc/php/conf.d/opcache.ini
+      - ./core/var:/srv/core/var:rw
+    environment:
+      APP_ENV: dev
+
+#  pwa:
+#    build:
+#      context: ./pwa
+#      target: salt_core_pwa_dev
+#    volumes:
+#      - ./pwa:/usr/src/pwa:rw,cached 
+
+  web:
+    volumes:
+      - ./core/docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./core/public:/srv/core/public:ro
+    environment:
+      MERCURE_EXTRA_DIRECTIVES: demo /srv/mercure-assets/
+

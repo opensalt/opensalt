@@ -46,10 +46,12 @@ jobs:
 
       - name: Install Composer dependencies
         run: |
+          cd core
           php -r 'copy("https://getcomposer.org/composer-2.phar", "composer2");'
           php composer2 install --no-progress --prefer-dist --optimize-autoloader
 
       - name: Run Symplify Easy Coding Standard
         run: |
+          cd core
           php vendor/bin/ecs check --no-progress-bar src/
 

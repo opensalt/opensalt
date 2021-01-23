@@ -1,0 +1,9 @@
+#!/bin/sh
+
+cd $(dirname $0)
+
+# Install node modules
+./yarn install --non-interactive
+
+# Build js
+./node ./node_modules/.bin/encore "$@"

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cd $(dirname $0)/../..
+
+#docker-compose run --rm -u $(id -u) composer "$@"
+if [ ! -d core/data/composer ]; then
+    mkdir core/data/composer
+fi
+echo 'app:*:'$(id -u)':'$(id -g)':Docker:/tmp:/bin/bash' > data/composer/passwd.tmp
+docker-compose run --rm \
+    -u $(id -u):$(id -g) \
+    php composer "$@"
