@@ -16,10 +16,9 @@ To set the location of the MySQL database use the environment variables
 Secrets configuration
 ---------------------
 
-A couple secrets are required for creating secure tokens
+A secret is required for creating secure tokens in the application
 
  - APP_SECRET - Should be a long random string
- - COOKIE_SECRET - Should be a different long random string
 
 Branding configuration
 ----------------------
