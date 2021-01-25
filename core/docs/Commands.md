@@ -9,29 +9,29 @@ will prompt for the values.
 
   This command will create an organization in the database.
 
-  `./bin/console salt:org:add [--no-interaction] [<organization name>]`
+  `./core/bin/console salt:org:add [--no-interaction] [<organization name>]`
 
 - **salt:user:add**
 
   This command will create a local user in the database.
 
-  `./bin/console salt:user:add [--no-interaction] [--password=<password>] [--role=<role>] [<username>]`
+  `./core/bin/console salt:user:add [--no-interaction] [--password=<password>] [--role=<role>] [<username>]`
 
 - **salt:user:add-role**
 
   This command will add a role to a local user in the database.
 
-  `./bin/console salt:user:add-role [<username>] [<role>]`
+  `./core/bin/console salt:user:add-role [<username>] [<role>]`
 
 - **salt:user:remove-role**
 
   This command will remove a role from a local user in the database.
 
-  `./bin/console salt:user:remove-role [<username>] [<role>]`
+  `./core/bin/console salt:user:remove-role [<username>] [<role>]`
 
 - **salt:user:set-password**
 
   This command will set the password for a local user in the database.
   If a password is not provided then one will be generated.
 
-  `./bin/console salt:user:set-password [<username>] [<password>]`
+  `./core/bin/console salt:user:set-password [<username>] [<password>]`
