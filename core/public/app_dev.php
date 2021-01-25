@@ -15,18 +15,18 @@ if (isset($_SERVER['HTTP_CLIENT_IP'])
 ) {
     // Check if dev environment allowed
     $ip = $_SERVER['REMOTE_ADDR'] ?? '0.99.99.99';
-    if (!empty($_ENV['ALLOW_LOCAL_DEV'] ?? null)
-        && 'false' !== $_ENV['ALLOW_LOCAL_DEV']
+    if (!empty($_SERVER['ALLOW_LOCAL_DEV'] ?? null)
+        && 'false' !== $_SERVER['ALLOW_LOCAL_DEV']
         && (false === filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE))
     ) {
         // Internal network, allow if ALLOW_LOCAL_DEV set
-    } elseif (!empty($_ENV['ALLOW_EXTERNAL_DEV_IPS'] ?? null)
-        && in_array($ip, explode(',', preg_replace('/ /', '', $_ENV['ALLOW_EXTERNAL_DEV_IPS'])), true)
+    } elseif (!empty($_SERVER['ALLOW_EXTERNAL_DEV_IPS'] ?? null)
+        && in_array($ip, explode(',', preg_replace('/ /', '', $_SERVER['ALLOW_EXTERNAL_DEV_IPS'])), true)
     ) {
         // Specific external IPs allowed if ALLOW_EXTERNAL_DEV_IPS set
     } elseif (empty($_COOKIE['dev'] ?? null)
-        || empty($_ENV['DEV_COOKIE'] ?? null)
-        || $_COOKIE['dev'] !== $_ENV['DEV_COOKIE']
+        || empty($_SERVER['DEV_COOKIE'] ?? null)
+        || $_COOKIE['dev'] !== $_SERVER['DEV_COOKIE']
     ) {
         header('HTTP/1.0 403 Forbidden');
         exit('You are not allowed to access this file.');
