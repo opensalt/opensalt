@@ -84,7 +84,7 @@ RUN set -eux; \
 
 COPY docker/php/docker-healthcheck.sh /usr/local/bin/docker-healthcheck
 RUN chmod +x /usr/local/bin/docker-healthcheck
-HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 --start-period=30s CMD ["docker-healthcheck"]
 
 #COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 #RUN chmod +x /usr/local/bin/docker-entrypoint
@@ -140,11 +140,9 @@ ARG BUILD_NUMBER=x
 ARG BUILD_DATE=0
 ARG COMMIT=unknown
 
-LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name="OpenSALT PHP Application" \
-      org.label-schema.url="https://github.com/opensalt/opensalt" \
-      org.label-schema.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT} \
-      org.label-schema.schema-version="1.0"
+LABEL org.opencontainers.title="OpenSALT PHP Application" \
+      org.opencontainers.source="https://github.com/opensalt/opensalt" \
+      org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
 
 # build for production
 ARG APP_ENV=prod
@@ -164,7 +162,8 @@ COPY templates/ templates/
 COPY translations/ translations/
 COPY tests/ tests/
 
-RUN echo ${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT} > public/version.txt
+RUN echo ${VERSION}.${BUILD_NUMBER} > public/version.txt
+RUN echo ${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT} > public/revision.txt
 
 COPY --from=salt_core_vendors /srv/core/vendor/ ./vendor/
 # hack to avoid "Service 'php' failed to build : failed to export image: failed to create image: failed to get layer sha256:38c02bf8b1bff96084338f7e6835b713185e091467e11f08001d41375f078e0e: layer does not exist"
@@ -203,16 +202,18 @@ ARG BUILD_NUMBER=x
 ARG BUILD_DATE=0
 ARG COMMIT=unknown
 
-LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name="OpenSALT Web Server" \
-      org.label-schema.url="https://github.com/opensalt/opensalt" \
-      org.label-schema.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT} \
-      org.label-schema.schema-version="1.0"
+LABEL org.opencontainers.title="OpenSALT Web Server" \
+      org.opencontainers.source="https://github.com/opensalt/opensalt" \
+      org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
 
 WORKDIR /srv/core
 
 COPY --from=dunglas/mercure:v0.11 /srv/public /srv/mercure-assets/
 COPY --from=salt_core_caddy_builder /usr/bin/caddy /usr/bin/caddy
-COPY --from=salt_core_app /srv/core/public public/
 COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
+COPY docker/caddy/docker-healthcheck /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-healthcheck
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 --start-period=30s CMD ["docker-healthcheck"]
+
+COPY --from=salt_core_app /srv/core/public public/
 

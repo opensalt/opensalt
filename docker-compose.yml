@@ -14,6 +14,7 @@ services:
       #- "./crontab.json:/opt/crontab/config.json:rw"
     environment:
       LOG_FILE: /dev/stdout
+    restart: unless-stopped
 
   php:
     image: opensalt/opensalt:core-3.x
@@ -27,11 +28,10 @@ services:
         - VERSION=${VERSION:-3.0.0-dev}
       cache_from:
         - opensalt/opensalt:core-develop
-        - php:7.4-fpm-alpine
     depends_on:
       - db
     environment:
-      APP_ENV:
+      APP_ENV: "${APP_ENV:-prod}"
       APP_SECRET:
       MYSQL_DATABASE:
       MYSQL_USER:
@@ -74,11 +74,6 @@ services:
       CASE_NETWORK_TOKEN_ENDPOINT:
       CASE_NETWORK_SCOPE:
     restart: unless-stopped
-    healthcheck:
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 30s
 
 #  pwa:
 #    build:
@@ -99,7 +94,6 @@ services:
         - VERSION=${VERSION:-3.0.0-dev}
       cache_from:
         - opensalt/opensalt:web-develop
-        - caddy:2
     depends_on:
       - php
 #      - pwa
@@ -125,12 +119,12 @@ services:
       context: ./core/docker/mysql
       cache_from:
         - opensalt/opensalt:db-develop
-        - percona:5.7
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
+    restart: unless-stopped
     volumes:
       #- db_data:/var/lib/mysql:rw
       # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
