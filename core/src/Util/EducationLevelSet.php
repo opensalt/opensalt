@@ -22,6 +22,9 @@ class EducationLevelSet
         $this->grades = array_unique(array_merge(...$gradeSets));
     }
 
+    /**
+     * @param array<string>|string|null $passedGrades
+     */
     public static function fromStringOrArray($passedGrades): self
     {
         if (null === $passedGrades || is_string($passedGrades)) {

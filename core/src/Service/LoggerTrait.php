@@ -21,7 +21,10 @@ trait LoggerTrait
         $this->logger = $logger;
     }
 
-    public function log($level, $message, array $context = []): void
+    /**
+     * @param mixed $level
+     */
+    public function log($level, string $message, array $context = []): void
     {
         if (null !== $this->logger) {
             $this->logger->log($level, $message, $context);

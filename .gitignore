@@ -27,4 +27,4 @@ nbproject
 # Tools
 /lsp/*
 /.scannerwork/*
-
+.php_cs.cache
