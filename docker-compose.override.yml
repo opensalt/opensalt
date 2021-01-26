@@ -6,7 +6,6 @@ services:
     volumes:
       - ./core:/srv/core:rw
       - ./core/docker/php/conf.d/opcache.ini.dev:/usr/local/etc/php/conf.d/opcache.ini
-      - ./core/var:/srv/core/var:rw
 
 #  pwa:
 #    build:

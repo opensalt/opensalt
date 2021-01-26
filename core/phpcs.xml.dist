@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<ruleset name="OpenSalt">
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="phpcs.xsd" name="OpenSalt">
     <description>Default coding standard for OpenSalt</description>
 
-    <config name="installed_paths" value="./vendor/escapestudios/symfony2-coding-standard" />
-
-    <arg name="basepath" value="."/>
     <arg name="cache" value=".phpcs-cache"/>
     <arg name="colors"/>
+    <arg name="parallel" value="75"/>
     <arg name="extensions" value="php"/>
 
-    <rule ref="./vendor/escapestudios/symfony2-coding-standard/Symfony">
+    <file>src</file>
+
+    <config name="installed_paths" value="../../escapestudios/symfony2-coding-standard,./src/Standards" />
+
+    <rule ref="Symfony">
 	    <exclude name="Symfony.Commenting.License.Warning"/>
 	    <exclude name="Symfony.Commenting.Annotations.Invalid"/>
 	    <exclude name="Symfony.Commenting.ClassComment.Missing"/>
@@ -61,6 +62,4 @@
 	    <exclude name="Symfony.Whitespace.AssignmentSpacing.Invalid"/>
 	    <exclude name="Symfony.Whitespace.BinaryOperatorSpacing.Invalid"/>
     </rule>
-
-    <file>src/</file>
 </ruleset>

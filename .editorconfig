@@ -38,7 +38,7 @@ indent_size = 4
 indent_style = space
 indent_size = 4
 
-[*.{yaml,yml}]
+[*.{yaml,yml}{,.dist}]
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = false
@@ -53,6 +53,10 @@ indent_size = 4
 
 [.php_cs{,.dist}]
 indent_style = space
+indent_size = 4
+
+[.neon{,.dist}]
+indent_style = tab
 indent_size = 4
 
 [.travis.yml]

@@ -1,9 +1,8 @@
-COMMIT="$(shell git describe --always --match='x' --dirty=-x 2>/dev/null || date "+%Y%m%d%H%M")"
-TAG="$(shell git describe --always --match='[0-9].[0-9]*' --dirty=-x 2>/dev/null || date "+%Y%m%d%H%M")"
+COMMIT ?= "$(shell git describe --always --match='x' --dirty=-x 2>/dev/null || date "+%Y%m%d%H%M")"
+TAG ?= "$(shell git describe --always --match='[0-9].[0-9]*' --dirty=-x 2>/dev/null || date "+%Y%m%d%H%M")"
 BUILD_NUMBER ?= "x"
-VERSION="$(shell cat core/VERSION)"
-BUILD_DATE="$(shell date -u +%Y%m%d.%H%M)"
-PROJ_DIR ?= $(shell pwd)
+VERSION ?= "$(shell cat core/VERSION)"
+BUILD_DATE ?= "$(shell date -u +%Y%m%d.%H%M)"
 
 default:
 	@echo "You need to supply an argument to make"
@@ -45,7 +44,9 @@ cache-warmup: cache-clear
 vendor: core/composer.json core/composer.lock
 	core/bin/composer install --no-interaction
 composer-install: vendor
-.PHONY: composer-install
+composer-update:
+	core/bin/composer update --no-interaction
+.PHONY: composer-install composer-update
 
 
 # Encore commands

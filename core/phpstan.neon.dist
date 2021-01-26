@@ -13,3 +13,6 @@ parameters:
 		container_xml_path: './var/cache/dev/App_KernelDevDebugContainer.xml'
 	doctrine:
 		objectManagerLoader: './tests/object-manager.php'
+
+	checkMissingIterableValueType: false
+	checkGenericClassInNonGenericObjectType: false
