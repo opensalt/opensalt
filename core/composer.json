@@ -5,7 +5,8 @@
     "description": "A competency framework management system that works with the CASE format",
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "App\\": "src/",
+            "LocalApp\\": "local-src/"
         },
         "exclude-from-classmap": [
         ]
