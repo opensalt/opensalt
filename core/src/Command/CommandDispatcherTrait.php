@@ -7,10 +7,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 trait CommandDispatcherTrait
 {
-    /**
-     * @var EventDispatcherInterface|null
-     */
-    protected $dispatcher;
+    protected ?EventDispatcherInterface $dispatcher;
 
     /**
      * @required
@@ -25,7 +22,6 @@ trait CommandDispatcherTrait
      */
     protected function sendCommand(CommandInterface $command): void
     {
-        /** @var EventDispatcherInterface|null $dispatcher */
         $dispatcher = $this->dispatcher ?? null;
 
         if (null === $dispatcher && method_exists($this, 'get')) {

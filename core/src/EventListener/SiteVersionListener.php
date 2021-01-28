@@ -11,15 +11,8 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class SiteVersionListener implements EventSubscriberInterface
 {
-    /**
-     * @var string
-     */
-    public $projectDir;
-
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
+    public string $projectDir;
+    private CacheInterface $cache;
 
     public function __construct(string $projectDir, CacheInterface $cache)
     {
@@ -46,12 +39,10 @@ class SiteVersionListener implements EventSubscriberInterface
 
     private function getFullVersion(): string
     {
-        $fullVersion = $this->cache->get('version', function (ItemInterface $item) {
+        return $this->cache->get('version', function (ItemInterface $item) {
             $item->expiresAfter(3600);
             return $this->getUncachedVersion();
         });
-
-        return $fullVersion;
     }
 
     private function getUncachedVersion(): string

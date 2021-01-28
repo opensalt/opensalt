@@ -55,18 +55,14 @@ class Framework
     private $identifier;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(name="creator", type="string", nullable=true)
      */
-    private $creator;
+    private ?string $creator;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(name="title", type="string", nullable=true)
      */
-    private $title;
+    private ?string $title;
 
     /**
      * @var LsDoc|null
@@ -76,73 +72,54 @@ class Framework
     private $framework;
 
     /**
-     * @var bool
-     *
      * @ORM\Column(name="include", type="boolean", nullable=false)
      */
-    private $include = true;
+    private bool $include = true;
 
     /**
-     * @var int
      * @ORM\Column(name="priority", type="integer", options={"default": 0})
      */
-    private $priority = 0;
+    private int $priority = 0;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="status", type="string", options={"default": "new"})
      */
-    private $status = self::STATUS_NEW;
+    private string $status = self::STATUS_NEW;
 
     /**
-     * @var int
-     *
      * @ORM\Column(name="status_count", type="integer", nullable=false, options={"default": 0})
      */
-    private $statusCount = 0;
+    private int $statusCount = 0;
 
     /**
-     * @var \DateTimeInterface|null
-     *
      * @ORM\Column(name="last_check", type="datetime", nullable=true)
      */
-    private $lastCheck;
+    private ?\DateTimeInterface $lastCheck;
 
     /**
-     * @var \DateTimeInterface|null
-     *
      * @ORM\Column(name="last_success", type="datetime", nullable=true)
      */
-    private $lastSuccess;
+    private ?\DateTimeInterface $lastSuccess;
 
     /**
-     * @var \DateTimeInterface|null
-     *
      * @ORM\Column(name="last_failure", type="datetime", nullable=true)
      */
-    private $lastFailure;
+    private ?\DateTimeInterface $lastFailure;
 
     /**
-     * @var \DateTimeInterface|null
-     *
      * @ORM\Column(name="last_change", type="datetime", nullable=true)
      */
-    private $lastChange;
+    private ?\DateTimeInterface $lastChange;
 
     /**
-     * @var \DateTimeInterface|null
-     *
      * @ORM\Column(name="next_check", type="datetime", nullable=true)
      */
-    private $nextCheck;
+    private ?\DateTimeInterface $nextCheck;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(name="error_type", type="string", nullable=true)
      */
-    private $errorType;
+    private ?string $errorType;
 
     /**
      * @var \DateTimeInterface
@@ -153,14 +130,14 @@ class Framework
     private $updatedAt;
 
     /**
-     * @var string|resource
+     * @var string|resource|null
      *
      * @ORM\Column(name="last_content", type="blob", nullable=true)
      */
     private $lastContent;
 
     /**
-     * @var string|resource
+     * @var string|resource|null
      *
      * @ORM\Column(name="last_success_content", type="blob", nullable=true)
      */
