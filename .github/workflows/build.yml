@@ -50,10 +50,8 @@ jobs:
       - name: Run tests
         run: ./core/bin/run-tests ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS}
 
-      #- name: Push if passing
-      #  run: ...
       - name: Login to DockerHub
-        if: github.ref == 'refs/heads/develop'
+        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -72,6 +70,20 @@ jobs:
           docker push $REPO:web-develop
           docker push $REPO:cron-develop
           docker push $REPO:db-develop
+
+      - name: Push latest
+        if: github.ref == 'refs/heads/main'
+        env:
+          REPO: opensalt/opensalt
+        run: |
+          docker tag opensalt/opensalt:core-3.x $REPO:core-latest
+          docker tag opensalt/opensalt:web-3.x $REPO:web-latest
+          docker tag opensalt/opensalt:cron-3.x $REPO:cron-latest
+          docker tag opensalt/opensalt:db-3.x $REPO:db-latest
+          docker push $REPO:core-latest
+          docker push $REPO:web-latest
+          docker push $REPO:cron-latest
+          docker push $REPO:db-latest
 
       - name: Bring down the stack
         if: ${{ always() }}
