@@ -7,7 +7,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 trait CommandDispatcherTrait
 {
-    protected ?EventDispatcherInterface $dispatcher;
+    protected ?EventDispatcherInterface $dispatcher = null;
 
     /**
      * @required

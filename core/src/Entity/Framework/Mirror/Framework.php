@@ -57,12 +57,12 @@ class Framework
     /**
      * @ORM\Column(name="creator", type="string", nullable=true)
      */
-    private ?string $creator;
+    private ?string $creator = null;
 
     /**
      * @ORM\Column(name="title", type="string", nullable=true)
      */
-    private ?string $title;
+    private ?string $title = null;
 
     /**
      * @var LsDoc|null
@@ -94,32 +94,32 @@ class Framework
     /**
      * @ORM\Column(name="last_check", type="datetime", nullable=true)
      */
-    private ?\DateTimeInterface $lastCheck;
+    private ?\DateTimeInterface $lastCheck = null;
 
     /**
      * @ORM\Column(name="last_success", type="datetime", nullable=true)
      */
-    private ?\DateTimeInterface $lastSuccess;
+    private ?\DateTimeInterface $lastSuccess = null;
 
     /**
      * @ORM\Column(name="last_failure", type="datetime", nullable=true)
      */
-    private ?\DateTimeInterface $lastFailure;
+    private ?\DateTimeInterface $lastFailure = null;
 
     /**
      * @ORM\Column(name="last_change", type="datetime", nullable=true)
      */
-    private ?\DateTimeInterface $lastChange;
+    private ?\DateTimeInterface $lastChange = null;
 
     /**
      * @ORM\Column(name="next_check", type="datetime", nullable=true)
      */
-    private ?\DateTimeInterface $nextCheck;
+    private ?\DateTimeInterface $nextCheck = null;
 
     /**
      * @ORM\Column(name="error_type", type="string", nullable=true)
      */
-    private ?string $errorType;
+    private ?string $errorType = null;
 
     /**
      * @var \DateTimeInterface
