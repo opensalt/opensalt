@@ -8,20 +8,9 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 abstract class BaseCommand implements CommandInterface
 {
-    /**
-     * @var ConstraintViolationListInterface|null
-     */
-    protected $validationErrors;
-
-    /**
-     * @var NotificationEvent|null
-     */
-    protected $notificationEvent;
-
-    /**
-     * @return ChangeEntry
-     */
-    protected $changeEntry;
+    protected ?ConstraintViolationListInterface $validationErrors = null;
+    protected ?NotificationEvent $notificationEvent = null;
+    protected ?ChangeEntry $changeEntry = null;
 
     public function hasValidationErrors(): bool
     {
