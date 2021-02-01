@@ -213,6 +213,9 @@
     "felixfbecker/language-server-protocol": {
         "version": "v1.4.0"
     },
+    "firebase/php-jwt": {
+        "version": "v5.2.0"
+    },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
         "recipe": {
