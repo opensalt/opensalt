@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-if wget -q -O /dev/null http://localhost:80/; then
+if wget -q -O /dev/null http://localhost:80/health-check; then
 	exit 0
 fi
 
