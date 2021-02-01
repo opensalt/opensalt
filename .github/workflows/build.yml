@@ -18,10 +18,15 @@ jobs:
       # Pull the latest image to build, and avoid caching pull-only images.
       # (docker pull is faster than caching in most cases.)
       - name: Pull images
+        env:
+          REPO: opensalt/opensalt
         run: |
           env
           cp -f .env.test .env
-          docker-compose pull
+          docker pull $REPO:core-develop
+          docker pull $REPO:web-develop
+          docker pull $REPO:cron-develop
+          docker pull $REPO:db-develop
 #      # In this step, this action saves a list of existing images,
 #      # the cache is created without them in the post run.
 #      # It also restores the cache if it exists.
@@ -35,7 +40,8 @@ jobs:
 #            opensalt-docker-cache-
 
       - name: Build the images
-        run: BUILD_NUMBER=${GITHUB_RUN_NUMBER} make docker-build
+        run: |
+          BUILD_NUMBER=${GITHUB_RUN_NUMBER} COMMIT=${GITHUB_SHA::8} make docker-build
 
       - name: Bring up the stack
         run: |
