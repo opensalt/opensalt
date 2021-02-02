@@ -60,7 +60,7 @@ jobs:
         run: ./core/bin/run-tests ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS}
 
       - name: Login to DockerHub
-        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' || github.event_name = 'release'
+        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' || github.event_name == 'release'
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
