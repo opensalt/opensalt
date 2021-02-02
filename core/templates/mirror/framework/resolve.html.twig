@@ -15,11 +15,13 @@
             It is currently mirrored from <q><a href="{{ path('mirror_server_list', {'id': currentFramework.mirroredFramework.server.id}) }}">{{ currentFramework.mirroredFramework.server.url }}</a></q>.
         {% else %}
             It falls under the <q>{{ currentFramework.creator }}</q> creator
-            and is owned by the
+            and is owned by
             {% if currentFramework.org is not null %}
-                <q>{{ currentFramework.org.name }}</q> organization.
+                the <q>{{ currentFramework.org.name }}</q> organization.
             {% elseif currentFramework.user is not null %}
-                <q>{{ currentFramework.user.username}}</q> user.
+                the <q>{{ currentFramework.user.username}}</q> user.
+            {% else %}
+                no one.
             {% endif %}
         {% endif %}
     </p>

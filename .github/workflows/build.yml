@@ -1,4 +1,7 @@
-on: push
+on:
+  push:
+  release:
+    types: [published]
 
 name: Build and Test
 
@@ -18,10 +21,15 @@ jobs:
       # Pull the latest image to build, and avoid caching pull-only images.
       # (docker pull is faster than caching in most cases.)
       - name: Pull images
+        env:
+          REPO: opensalt/opensalt
         run: |
           env
           cp -f .env.test .env
-          docker-compose pull
+          docker pull $REPO:core-develop
+          docker pull $REPO:web-develop
+          docker pull $REPO:cron-develop
+          docker pull $REPO:db-develop
 #      # In this step, this action saves a list of existing images,
 #      # the cache is created without them in the post run.
 #      # It also restores the cache if it exists.
@@ -35,7 +43,8 @@ jobs:
 #            opensalt-docker-cache-
 
       - name: Build the images
-        run: BUILD_NUMBER=${GITHUB_RUN_NUMBER} make docker-build
+        run: |
+          BUILD_NUMBER=${GITHUB_RUN_NUMBER} COMMIT=${GITHUB_SHA::8} make docker-build
 
       - name: Bring up the stack
         run: |
@@ -51,14 +60,14 @@ jobs:
         run: ./core/bin/run-tests ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS}
 
       - name: Login to DockerHub
-        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' || github.event_name == 'release'
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Push develop
-        if: github.ref == 'refs/heads/develop'
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         env:
           REPO: opensalt/opensalt
         run: |
@@ -72,7 +81,7 @@ jobs:
           docker push $REPO:db-develop
 
       - name: Push latest
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
           REPO: opensalt/opensalt
         run: |
@@ -84,6 +93,21 @@ jobs:
           docker push $REPO:web-latest
           docker push $REPO:cron-latest
           docker push $REPO:db-latest
+
+      - name: Push release
+        if: github.event_name == 'release'
+        env:
+          REPO: opensalt/opensalt
+          TAG: ${GITHUB_REF/refs\/tags\//}
+        run: |
+          docker tag opensalt/opensalt:core-3.x $REPO:core-${TAG}
+          docker tag opensalt/opensalt:web-3.x $REPO:web-${TAG}
+          docker tag opensalt/opensalt:cron-3.x $REPO:cron-${TAG}
+          docker tag opensalt/opensalt:db-3.x $REPO:db-${TAG}
+          docker push $REPO:core-${TAG}
+          docker push $REPO:web-${TAG}
+          docker push $REPO:cron-${TAG}
+          docker push $REPO:db-${TAG}
 
       - name: Bring down the stack
         if: ${{ always() }}

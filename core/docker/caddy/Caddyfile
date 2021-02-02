@@ -9,7 +9,7 @@
     }
 }
 
-{$SERVER_NAME}
+{$SERVER_NAME::80}
 
 log
 
@@ -31,6 +31,9 @@ header {
 
 route {
     root * /srv/core/public
+
+    respond /health-check "OK"
+
     mercure {
         # Transport to use (default to Bolt)
         transport_url {$MERCURE_TRANSPORT_URL:bolt:///data/mercure.db}

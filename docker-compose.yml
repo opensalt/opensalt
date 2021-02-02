@@ -99,7 +99,6 @@ services:
 #      - pwa
     environment:
 #      PWA_UPSTREAM: pwa:3000
-      SERVER_NAME: ${SERVER_NAME:-:80}
       MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY:-!ChangeMe!}
       MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY:-!ChangeMe!}
       MERCURE_TRANSPORT_URL: 'local://local'

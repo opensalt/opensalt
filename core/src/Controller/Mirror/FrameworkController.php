@@ -66,17 +66,15 @@ class FrameworkController extends AbstractController
 
         if ($resolveForm->isSubmitted() && $resolveForm->isValid()) {
             $prevFramework = $doc->getMirroredFramework();
-            if (null === $prevFramework) {
-                $doc->setMirroredFramework($framework);
-            } else {
-                $doc->setOrg(null);
-                $doc->setUser(null);
-                $doc->setMirroredFramework($framework);
+            if (null !== $prevFramework) {
                 $prevFramework->markFailure(Framework::ERROR_ID_CONFLICT);
                 $prevFramework->setInclude(false);
                 $prevFramework->addLog(Log::STATUS_FAILURE, 'A framework already exists on the server with the same identifier');
             }
 
+            $doc->setMirroredFramework($framework);
+            $doc->setOrg(null);
+            $doc->setUser(null);
             $framework->setInclude(true);
             $framework->markToRefresh();
 

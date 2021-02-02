@@ -24,7 +24,7 @@ jobs:
           path: ~/.symfony/cache
           key: db
       - name: Check
-        uses: symfonycorp/security-checker-action@v1
+        uses: symfonycorp/security-checker-action@v2
         with:
           lock: core/composer.lock
 
