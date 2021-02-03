@@ -9388,16 +9388,16 @@
         },
         {
             "name": "symfony/security-core",
-            "version": "v5.2.2",
+            "version": "v5.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/security-core.git",
-                "reference": "6c7314eac7c4870e6316fa9c277ebf4d393063ca"
+                "reference": "a468c863d65e2c3768b897b8ddf7547abb4512f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/security-core/zipball/6c7314eac7c4870e6316fa9c277ebf4d393063ca",
-                "reference": "6c7314eac7c4870e6316fa9c277ebf4d393063ca",
+                "url": "https://api.github.com/repos/symfony/security-core/zipball/a468c863d65e2c3768b897b8ddf7547abb4512f8",
+                "reference": "a468c863d65e2c3768b897b8ddf7547abb4512f8",
                 "shasum": ""
             },
             "require": {
@@ -9457,7 +9457,7 @@
             "description": "Symfony Security Component - Core Library",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/security-core/tree/v5.2.2"
+                "source": "https://github.com/symfony/security-core/tree/v5.2.3"
             },
             "funding": [
                 {
@@ -9473,11 +9473,11 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-01-27T12:56:27+00:00"
+            "time": "2021-01-28T22:06:19+00:00"
         },
         {
             "name": "symfony/security-csrf",
-            "version": "v5.2.2",
+            "version": "v5.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/security-csrf.git",
@@ -9528,7 +9528,7 @@
             "description": "Symfony Security Component - CSRF Library",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/security-csrf/tree/v5.2.2"
+                "source": "https://github.com/symfony/security-csrf/tree/v5.2.3"
             },
             "funding": [
                 {
