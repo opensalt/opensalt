@@ -18,7 +18,7 @@ class MirroredFrameworkDTOType extends AbstractType
             ->add('url', TextType::class, [
                 'label' => 'URL of framework to mirror',
                 'attr' => [
-                    'placeholder' => 'https://server.name.com/ims/case/v1p0/CFDocuments/00000000-0000-0000-0000-000000000000',
+                    'placeholder' => 'https://server.name.com/ims/case/v1p0/CFPackages/00000000-0000-0000-0000-000000000000',
                 ],
                 'help' => 'Enter the URL of the framework you want to mirror.',
             ])

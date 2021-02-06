@@ -78,6 +78,17 @@ class FrameworkAccessVoter extends Voter
             return true;
         }
 
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            // If the user is not logged in then they can't see private frameworks
+            return false;
+        }
+
+        // Allow users to view private frameworks of their org
+        if ($user->getOrg() === $subject->getOrg()) {
+            return true;
+        }
+
         // Editors can see all mirrored frameworks in the list
         if (null !== $subject->getMirroredFramework()) {
             return $this->roleChecker->isEditor($token);
@@ -95,7 +106,7 @@ class FrameworkAccessVoter extends Voter
     private function canEditFramework(LsDoc $subject, TokenInterface $token): bool
     {
         // Do not allow editing if the framework is mirrored
-        if (null !== $subject->getMirroredFramework()) {
+        if (null !== $subject->getMirroredFramework() && $subject->getMirroredFramework()->isInclude()) {
             return false;
         }
 

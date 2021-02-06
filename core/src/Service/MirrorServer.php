@@ -159,7 +159,7 @@ class MirrorServer
         if (!isset($jsonDoc['CFDocument'])) {
             $this->warning('CFDocument key not found in response', ['url' => $dto->url]);
 
-            throw new \RuntimeException(sprintf('Error: URL `%s` does not resolve to a CFDocument', $dto->url));
+            throw new \RuntimeException(sprintf('Error: Cannot find a CFPackage using the URL `%s`', $dto->url));
         }
 
         $jsonDoc = $jsonDoc['CFDocument'];
