@@ -106,7 +106,7 @@ class FrameworkAccessVoter extends Voter
     private function canEditFramework(LsDoc $subject, TokenInterface $token): bool
     {
         // Do not allow editing if the framework is mirrored
-        if (null !== $subject->getMirroredFramework()) {
+        if (null !== $subject->getMirroredFramework() && $subject->getMirroredFramework()->isInclude()) {
             return false;
         }
 

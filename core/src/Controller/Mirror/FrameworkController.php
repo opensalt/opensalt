@@ -67,9 +67,10 @@ class FrameworkController extends AbstractController
         if ($resolveForm->isSubmitted() && $resolveForm->isValid()) {
             $prevFramework = $doc->getMirroredFramework();
             if (null !== $prevFramework) {
+                $prevFramework->setStatus(Framework::STATUS_ERROR);
                 $prevFramework->markFailure(Framework::ERROR_ID_CONFLICT);
                 $prevFramework->setInclude(false);
-                $prevFramework->addLog(Log::STATUS_FAILURE, 'A framework already exists on the server with the same identifier');
+                $prevFramework->addLog(Log::STATUS_FAILURE, 'Another framework with the same identifier has been selected to be the mirror');
             }
 
             $doc->setMirroredFramework($framework);
@@ -111,6 +112,12 @@ class FrameworkController extends AbstractController
     public function enable(Framework $framework): Response
     {
         $framework->setInclude(true);
+        $framework->setStatus(Framework::STATUS_NEW);
+        $framework->setErrorType(null);
+        $framework->addLog(
+            Log::STATUS_SUCCESS,
+            'Mirroring was enabled'
+        );
         $framework->markToRefresh();
         $this->getDoctrine()->getManager()->flush();
 
@@ -123,6 +130,14 @@ class FrameworkController extends AbstractController
     public function disable(Framework $framework): Response
     {
         $framework->setInclude(false);
+        if (null !== $framework->getFramework()) {
+            $framework->setStatus(Framework::STATUS_ERROR);
+            $framework->setErrorType(Framework::ERROR_ID_CONFLICT);
+            $framework->addLog(
+                Log::STATUS_FAILURE,
+                'Mirroring was disabled, a framework now exists on the server with the same identifier'
+            );
+        }
         $this->getDoctrine()->getManager()->flush();
 
         return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
