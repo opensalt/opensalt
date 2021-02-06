@@ -135,7 +135,7 @@ class FrameworkController extends AbstractController
             $framework->setStatus(Framework::STATUS_ERROR);
             $framework->setErrorType(Framework::ERROR_ID_CONFLICT);
             $framework->addLog(
-                Log::STATUS_FAILURE,
+                Log::STATUS_SUCCESS,
                 'Mirroring was disabled, a framework now exists on the server with the same identifier'
             );
         }
