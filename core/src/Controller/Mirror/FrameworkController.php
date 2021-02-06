@@ -131,6 +131,7 @@ class FrameworkController extends AbstractController
     {
         $framework->setInclude(false);
         if (null !== $framework->getFramework()) {
+            $framework->getFramework()->setMirroredFramework(null);
             $framework->setStatus(Framework::STATUS_ERROR);
             $framework->setErrorType(Framework::ERROR_ID_CONFLICT);
             $framework->addLog(
