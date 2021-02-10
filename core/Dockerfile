@@ -2,9 +2,10 @@
 # https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage
 # https://docs.docker.com/compose/compose-file/#target
 
-ARG NODE_VERSION=12
+ARG NODE_VERSION=14
 ARG PHP_VERSION=7.4
 ARG CADDY_VERSION=2
+ARG MERCURE_VERSION=v0.11
 #=======================================================================
 FROM node:${NODE_VERSION}-alpine AS salt_core_js_build
 
@@ -133,7 +134,7 @@ RUN set -eux; \
 	composer clear-cache
 
 #=======================================================================
-FROM salt_core_vendors AS salt_core_app
+FROM salt_core_php AS salt_core_app
 
 ARG VERSION=3.0.0-dev
 ARG BUILD_NUMBER=x
@@ -195,6 +196,9 @@ RUN xcaddy build \
     --with github.com/dunglas/vulcain/caddy
 
 #=======================================================================
+FROM dunglas/mercure:${MERCURE_VERSION} as mercure_build
+
+#=======================================================================
 FROM caddy:${CADDY_VERSION} AS salt_core_caddy
 
 ARG VERSION=3.0.0-dev
@@ -208,7 +212,7 @@ LABEL org.opencontainers.title="OpenSALT Web Server" \
 
 WORKDIR /srv/core
 
-COPY --from=dunglas/mercure:v0.11 /srv/public /srv/mercure-assets/
+COPY --from=mercure_build /srv/public /srv/mercure-assets/
 COPY --from=salt_core_caddy_builder /usr/bin/caddy /usr/bin/caddy
 COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
 COPY docker/caddy/docker-healthcheck /usr/local/bin/
