@@ -3,7 +3,6 @@
 namespace DoctrineMigrations;
 
 use App\Entity\Framework\LsDocAttribute;
-use Doctrine\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
 
 /**
