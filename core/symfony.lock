@@ -5,6 +5,18 @@
     "amphp/byte-stream": {
         "version": "v1.6.1"
     },
+    "antishov/doctrine-extensions-bundle": {
+        "version": "1.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.4",
+            "ref": "6c1ceb662f8997085f739cd089bfbef67f245983"
+        },
+        "files": [
+            "config/packages/stof_doctrine_extensions.yaml"
+        ]
+    },
     "aws/aws-sdk-php": {
         "version": "3.61.6"
     },
@@ -508,9 +520,6 @@
     "psr/simple-cache": {
         "version": "1.0.1"
     },
-    "psy/psysh": {
-        "version": "v0.9.4"
-    },
     "qandidate/toggle": {
         "version": "1.1.1"
     },
@@ -623,18 +632,6 @@
         },
         "files": [
             "phpcs.xml.dist"
-        ]
-    },
-    "stof/doctrine-extensions-bundle": {
-        "version": "1.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "1.2",
-            "ref": "6c1ceb662f8997085f739cd089bfbef67f245983"
-        },
-        "files": [
-            "config/packages/stof_doctrine_extensions.yaml"
         ]
     },
     "swaggest/json-diff": {
@@ -1042,9 +1039,6 @@
     },
     "tetranz/select2entity-bundle": {
         "version": "v2.9.5"
-    },
-    "theofidry/psysh-bundle": {
-        "version": "v3.4.0"
     },
     "theseer/tokenizer": {
         "version": "1.1.0"
