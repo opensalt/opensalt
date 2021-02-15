@@ -304,13 +304,13 @@ class AsnImport
      */
     protected function addExactMatches(LsDoc $lsDoc, IdentifiableInterface $origin, iterable $matches): void
     {
-        foreach ($matches as $match) {
-            $this->addExactMatch($lsDoc, $origin, $match);
+        foreach ($matches as $matching) {
+            $this->addExactMatch($lsDoc, $origin, $matching);
         }
     }
 
 
-    protected function addExactMatch(LsDoc $lsDoc, IdentifiableInterface $origin, AsnValue $match): LsAssociation
+    protected function addExactMatch(LsDoc $lsDoc, IdentifiableInterface $origin, AsnValue $matching): LsAssociation
     {
         $assoc = $lsDoc->createAssociation();
         $assoc->setType(LsAssociation::EXACT_MATCH_OF);
@@ -319,7 +319,7 @@ class AsnImport
             $origin->addAssociation($assoc);
         }
 
-        $value = $match->value;
+        $value = $matching->value;
         if (Uuid::isValid($value)) {
             $uriType = ';type=uuid';
             $identifier = $value;
