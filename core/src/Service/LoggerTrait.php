@@ -8,10 +8,7 @@ trait LoggerTrait
 {
     use \Psr\Log\LoggerTrait;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * @required
@@ -22,9 +19,14 @@ trait LoggerTrait
     }
 
     /**
-     * @param mixed $level
+     * @param mixed  $level
+     * @param string $message
+     *
+     * @return void
+     *
+     * @throws \Psr\Log\InvalidArgumentException
      */
-    public function log($level, string $message, array $context = []): void
+    public function log($level, $message, array $context = [])
     {
         if (null !== $this->logger) {
             $this->logger->log($level, $message, $context);

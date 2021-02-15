@@ -6,7 +6,6 @@ namespace DoctrineMigrations;
 
 use App\Entity\Framework\LsAssociation;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
 final class Version20191210194132 extends AbstractMigration
 {

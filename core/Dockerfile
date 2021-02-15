@@ -3,7 +3,7 @@
 # https://docs.docker.com/compose/compose-file/#target
 
 ARG NODE_VERSION=14
-ARG PHP_VERSION=7.4
+ARG PHP_VERSION=8.0
 ARG CADDY_VERSION=2
 ARG MERCURE_VERSION=v0.11
 #=======================================================================
