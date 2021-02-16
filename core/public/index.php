@@ -12,25 +12,15 @@ umask(0000);
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-if (!isset($_SERVER['APP_ENV'])) {
-    (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
-}
+(new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
 
-$env = $_SERVER['APP_ENV'] ?? 'dev';
+$env = $_SERVER['APP_ENV'] ?? 'prod';
 $debug = (bool) ($_SERVER['APP_DEBUG'] ?? ('dev' === $env));
 
 if ($debug) {
     umask(0000);
 
     Debug::enable();
-}
-
-if ($trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? false) {
-    Request::setTrustedProxies(explode(',', $trustedProxies), Request::HEADER_X_FORWARDED_ALL ^ Request::HEADER_X_FORWARDED_HOST);
-}
-
-if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false) {
-    Request::setTrustedHosts(explode(',', $trustedHosts));
 }
 
 $kernel = new Kernel($env, $debug);
