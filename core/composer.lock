@@ -86,16 +86,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.173.9",
+            "version": "3.173.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "d15688cfe291767ba203c97d5833b963f544412f"
+                "reference": "539d5235443368a34e98b8f0f434f2146a8ddb32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d15688cfe291767ba203c97d5833b963f544412f",
-                "reference": "d15688cfe291767ba203c97d5833b963f544412f",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/539d5235443368a34e98b8f0f434f2146a8ddb32",
+                "reference": "539d5235443368a34e98b8f0f434f2146a8ddb32",
                 "shasum": ""
             },
             "require": {
@@ -170,9 +170,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.173.9"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.173.11"
             },
-            "time": "2021-02-15T19:28:47+00:00"
+            "time": "2021-02-17T19:12:46+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -1994,16 +1994,16 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "2.8.1",
+            "version": "2.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/orm.git",
-                "reference": "242cf1a33df1b8bc5e1b86c3ebd01db07851c833"
+                "reference": "ebae57eb9637acd8252b398df3121b120688ed5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/orm/zipball/242cf1a33df1b8bc5e1b86c3ebd01db07851c833",
-                "reference": "242cf1a33df1b8bc5e1b86c3ebd01db07851c833",
+                "url": "https://api.github.com/repos/doctrine/orm/zipball/ebae57eb9637acd8252b398df3121b120688ed5c",
+                "reference": "ebae57eb9637acd8252b398df3121b120688ed5c",
                 "shasum": ""
             },
             "require": {
@@ -2011,7 +2011,7 @@
                 "doctrine/annotations": "^1.11.1",
                 "doctrine/cache": "^1.9.1",
                 "doctrine/collections": "^1.5",
-                "doctrine/common": "^3.0",
+                "doctrine/common": "^3.0.3",
                 "doctrine/dbal": "^2.10.0",
                 "doctrine/event-manager": "^1.1",
                 "doctrine/inflector": "^1.4|^2.0",
@@ -2080,9 +2080,9 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/orm/issues",
-                "source": "https://github.com/doctrine/orm/tree/2.8.1"
+                "source": "https://github.com/doctrine/orm/tree/2.8.2"
             },
-            "time": "2020-12-04T19:53:07+00:00"
+            "time": "2021-02-16T22:10:18+00:00"
         },
         {
             "name": "doctrine/persistence",
@@ -4565,32 +4565,32 @@
         },
         {
             "name": "nelmio/security-bundle",
-            "version": "v2.10.1",
+            "version": "v2.10.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioSecurityBundle.git",
-                "reference": "80d6e1091aadf55eab6a79be97a91c06d55e8223"
+                "reference": "302b0f572361c2b737e903c8cd7f3cb8e187266c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/80d6e1091aadf55eab6a79be97a91c06d55e8223",
-                "reference": "80d6e1091aadf55eab6a79be97a91c06d55e8223",
+                "url": "https://api.github.com/repos/nelmio/NelmioSecurityBundle/zipball/302b0f572361c2b737e903c8cd7f3cb8e187266c",
+                "reference": "302b0f572361c2b737e903c8cd7f3cb8e187266c",
                 "shasum": ""
             },
             "require": {
-                "paragonie/random_compat": "~1.0|~2.0|9.99.99",
+                "paragonie/random_compat": "~1.0|~2.0|~9.99.99",
                 "php": ">5.4",
                 "symfony/framework-bundle": "~2.3|~v3.0|~4.0|~5.0",
                 "symfony/security-core": "~2.3|~3.0|~4.0|~5.0",
                 "symfony/security-csrf": "~2.3|~3.0|~4.0|~5.0",
                 "symfony/security-http": "~2.3|~3.0|~4.0|~5.0",
+                "symfony/yaml": "~2.3|~3.0|~4.0|~5.0",
                 "ua-parser/uap-php": "^3.4.4"
             },
             "require-dev": {
                 "doctrine/cache": "^1.0",
                 "psr/cache": "^1.0",
                 "symfony/phpunit-bridge": "^5.0.5",
-                "symfony/yaml": "~2.3|~3.0|~4.0|~5.0",
                 "twig/twig": "^1.38|^2.10|^3.0"
             },
             "suggest": {
@@ -4630,9 +4630,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nelmio/NelmioSecurityBundle/issues",
-                "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v2.10.1"
+                "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v2.10.2"
             },
-            "time": "2020-06-18T12:49:09+00:00"
+            "time": "2021-02-17T14:44:26+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -14099,16 +14099,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "0.12.76",
+            "version": "0.12.77",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "7aaaf9a759a29795e8f46d48041af1c1f1b23d38"
+                "reference": "1f10b8c8d118d01e7b492f9707999d456be5812c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/7aaaf9a759a29795e8f46d48041af1c1f1b23d38",
-                "reference": "7aaaf9a759a29795e8f46d48041af1c1f1b23d38",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/1f10b8c8d118d01e7b492f9707999d456be5812c",
+                "reference": "1f10b8c8d118d01e7b492f9707999d456be5812c",
                 "shasum": ""
             },
             "require": {
@@ -14139,7 +14139,7 @@
             "description": "PHPStan - PHP Static Analysis Tool",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/0.12.76"
+                "source": "https://github.com/phpstan/phpstan/tree/0.12.77"
             },
             "funding": [
                 {
@@ -14155,7 +14155,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-02-13T11:47:44+00:00"
+            "time": "2021-02-17T16:22:19+00:00"
         },
         {
             "name": "phpstan/phpstan-doctrine",

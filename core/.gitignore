@@ -7,7 +7,6 @@
 /tests/*.suite.yml
 /tests/_envs/*.yml
 !/tests/_envs/*.dist.yml
-/config/local.yaml
 
 /public/bundles/*
 !public/bundles/.gitkeep

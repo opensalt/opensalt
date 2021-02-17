@@ -5,7 +5,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 imports:
     - { resource: 'pdo-options.php' }
-    - { resource: 'local.yaml', ignore_errors: 'not_found' }
+    - { resource: '../local-src/local.yaml', ignore_errors: 'not_found' }
 
 parameters:
     # Defaults for environment variables
@@ -126,7 +126,6 @@ services:
             - '../src/Entity/'
             - '../src/Exception/'
             - '../src/Kernel.php'
-            - '../src/Migrations/'
             - '../src/Tests/'
             - '../src/Util/'
 
