@@ -2,30 +2,22 @@
 
 namespace App\Service;
 
+use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use App\Entity\Framework\LsAssociation;
 use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @deprecated
  */
 class FrameworkUpdater
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var GithubImport
-     */
-    private $githubImport;
-
-    public function __construct(EntityManagerInterface $entityManager, GithubImport $githubImport)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-        $this->githubImport = $githubImport;
     }
 
     protected function getEntityManager(): EntityManagerInterface
@@ -34,7 +26,7 @@ class FrameworkUpdater
     }
 
     /**
-     * Update framework from a CSV
+     * Update framework from a CSV.
      */
     public function update(LsDoc $lsDoc, string $fileContent, string $frameworkToAssociate, array $cfItemKeys): void
     {
@@ -64,28 +56,27 @@ class FrameworkUpdater
     }
 
     /**
-     * Add associations not existances on this CfItem
+     * Add associations not existances on this CfItem.
      */
     private function updateAssociations(LsItem $lsItem, array $rowContent, array $cfItemKeys): void
     {
         $associationTypes = LsAssociation::allTypesForImportFromCSV();
         $assocNotMatched = [];
 
-        foreach ($associationTypes as $assoTypeKey => $assoTypeValue) {
-            foreach (explode(',', $rowContent[$cfItemKeys[$assoTypeKey]]) as $associationSeparatedByComma) {
-                if ($associationSeparatedByComma === '') {
+        foreach ($associationTypes as $assocTypeKey => $assocTypeValue) {
+            foreach (explode(',', $rowContent[$cfItemKeys[$assocTypeKey]]) as $associationSeparatedByComma) {
+                if ('' === $associationSeparatedByComma) {
                     continue;
                 }
 
                 if (!array_key_exists($associationSeparatedByComma, $assocNotMatched)) {
-                    $assocNotMatched[$associationSeparatedByComma] = ['matched' => true, 'type' => $assoTypeValue];
+                    $assocNotMatched[$associationSeparatedByComma] = ['matched' => true, 'type' => $assocTypeValue];
                 }
 
                 foreach ($lsItem->getAssociations() as $association) {
                     $destination = $association->getDestination();
 
-                    if (LsAssociation::INVERSE_EXACT_MATCH_OF === $association->getType()
-                        || LsAssociation::CHILD_OF === $association->getType()) {
+                    if (in_array($association->getType(), [LsAssociation::INVERSE_EXACT_MATCH_OF, LsAssociation::CHILD_OF], true)) {
                         continue;
                     }
 
@@ -99,7 +90,7 @@ class FrameworkUpdater
                         }
                     } elseif ($destination instanceof LsItem) {
                         if ($this->validatePresenceOnAssociation($destination->getHumanCodingScheme(), $associationSeparatedByComma)) {
-                            $assocNotMatched[$associationSeparatedByComma] = ['matched' => false, 'type' => $assoTypeValue];
+                            $assocNotMatched[$associationSeparatedByComma] = ['matched' => false, 'type' => $assocTypeValue];
                         }
                     }
                 }
@@ -108,8 +99,8 @@ class FrameworkUpdater
 
         if (count($assocNotMatched) > 0) {
             foreach ($assocNotMatched as $assocForMatch => $assocForMatchValues) {
-                if (!$assocForMatchValues['matched'] === false) {
-                    $this->githubImport->addItemRelated($lsItem->getLsDoc(), $lsItem, $assocForMatch, 'all', $assocForMatchValues['type']);
+                if (false === !$assocForMatchValues['matched']) {
+                    $this->addItemRelated($lsItem->getLsDoc(), $lsItem, $assocForMatch, 'all', $assocForMatchValues['type']);
                 }
             }
         }
@@ -118,7 +109,7 @@ class FrameworkUpdater
     /* getHumanCodingSchemeFromDestinationNodeUri */
 
     /**
-     * Return true or false if item has a association
+     * Return true or false if item has a association.
      */
     private function validatePresenceOnAssociation(string $associationValue, string $associationOnContent): bool
     {
@@ -140,7 +131,7 @@ class FrameworkUpdater
             $tempContent = [];
             $row = str_getcsv($row, ',');
 
-            if ($i === 0) {
+            if (0 === $i) {
                 $headers = $row;
                 continue;
             }
@@ -157,4 +148,58 @@ class FrameworkUpdater
         return $content;
     }
 
+    protected function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, string $cfAssociation, string $frameworkToAssociate, string $assocType): void
+    {
+        $em = $this->getEntityManager();
+
+        if ('' !== trim($cfAssociation)) {
+            if ('all' === $frameworkToAssociate) {
+                $itemsAssociated = $em->getRepository(LsItem::class)
+                    ->findAllByIdentifierOrHumanCodingSchemeByValue($cfAssociation);
+            } else {
+                $itemsAssociated = $em->getRepository(LsItem::class)
+                    ->findByAllIdentifierOrHumanCodingSchemeByLsDoc($frameworkToAssociate, $cfAssociation);
+            }
+
+            if (count($itemsAssociated) > 0) {
+                foreach ($itemsAssociated as $itemAssociated) {
+                    $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType);
+                }
+            } else {
+                $this->saveAssociation($lsDoc, $lsItem, $cfAssociation, $assocType);
+            }
+        }
+    }
+
+    protected function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, string|LsItem $elementAssociated, string $assocType): void
+    {
+        $association = new LsAssociation();
+        $association->setType($assocType);
+        $association->setLsDoc($lsDoc);
+        $association->setOrigin($lsItem);
+
+        if (is_string($elementAssociated)) {
+            if (Uuid::isValid($elementAssociated)) {
+                $association->setDestinationNodeIdentifier($elementAssociated);
+            } elseif (false === !filter_var($elementAssociated, FILTER_VALIDATE_URL)) {
+                $association->setDestinationNodeUri($elementAssociated);
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $elementAssociated));
+            } else {
+                $encodedHumanCodingScheme = $this->encodeHumanCodingScheme($elementAssociated);
+                $association->setDestinationNodeUri($encodedHumanCodingScheme);
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $encodedHumanCodingScheme));
+            }
+        } else {
+            $association->setDestination($elementAssociated);
+        }
+
+        $this->getEntityManager()->persist($association);
+    }
+
+    protected function encodeHumanCodingScheme(string $humanCodingScheme): string
+    {
+        $prefix = 'data:text/x-ref-unresolved;base64,';
+
+        return $prefix.base64_encode($humanCodingScheme);
+    }
 }
