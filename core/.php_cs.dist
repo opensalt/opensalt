@@ -12,6 +12,7 @@ return $config ->setRules([
         'array_syntax' => ['syntax' => 'short'],
         'phpdoc_align' => false,
         'phpdoc_to_comment' => false,
+        'binary_operator_spaces' => false,
     ])
     ->setFinder($finder)
 ;
