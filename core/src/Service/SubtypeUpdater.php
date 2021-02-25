@@ -8,7 +8,6 @@ use App\Entity\Framework\IdentifiableInterface;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use Doctrine\Persistence\ManagerRegistry;
-use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
