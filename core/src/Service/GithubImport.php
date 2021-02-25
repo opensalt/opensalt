@@ -314,7 +314,7 @@ class GithubImport
             }
 
             if (array_key_exists($key, $lsItemKeys) && array_key_exists($lsItemKeys[$key], $lineContent)) {
-                $lsItem->{'license' === $key ? 'setLicenceUri' : 'set'.ucfirst($key)}($lineContent[$lsItemKeys[$key]]);
+                $lsItem->{'set'.ucfirst($key)}($lineContent[$lsItemKeys[$key]]);
             }
         }
 

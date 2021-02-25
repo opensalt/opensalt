@@ -7,15 +7,15 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Util\Compare;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * LsDocRepository.
  *
- * @method LsDoc|null find(int $id)
+ * @method LsDoc|null find(int $id, $lockMode = null, $lockVersion = null)
  * @method LsDoc[]|array findByCreator(string $creator)
  * @method LsDoc|null findOneByIdentifier(string $identifier)
  * @method LsDoc|null findOneBy(array $criteria, array $orderBy = null)
@@ -42,13 +42,13 @@ class LsDocRepository extends ServiceEntityRepository
     /**
      * Finds an object for the API by ['id'=>identifier, 'class'=>class].
      *
-     * @param array $id array containing 'id' and 'class'
+     * @param array{'id': string, 'class': class-string} $id
      *
      * @throws NotFoundHttpException
      */
     public function apiFindOneByClassIdentifier(array $id): CaseApiInterface
     {
-        /** @var CaseApiInterface $obj */
+        /** @var ?CaseApiInterface $obj */
         $obj = $this->_em->getRepository($id['class'])->findOneBy(['identifier' => $id['id']]);
         if (null === $obj) {
             throw new NotFoundHttpException(sprintf('%s object not found.', $id['class']));
@@ -60,7 +60,7 @@ class LsDocRepository extends ServiceEntityRepository
     public function findOneBySlug(string $slug): ?LsDoc
     {
         if (preg_match('/^\d+$/', $slug)) {
-            return $this->find($slug);
+            return $this->find((int) $slug);
         }
 
         return $this->findOneBy(['urlName' => $slug]);
@@ -71,7 +71,7 @@ class LsDocRepository extends ServiceEntityRepository
         return $this->createQueryBuilder($alias)
             ->where("({$alias}.adoptionStatus != :status OR {$alias}.adoptionStatus IS NULL)")
             ->setParameter('status', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT)
-        ;
+            ;
     }
 
     /**
@@ -127,6 +127,7 @@ class LsDocRepository extends ServiceEntityRepository
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
 
+        /** @var array $results */
         $results = $query->getResult(Query::HYDRATE_ARRAY);
 
         foreach ($results as $key => $result) {
@@ -183,7 +184,7 @@ class LsDocRepository extends ServiceEntityRepository
      * Rank the items in $itemArray
      *   - by "rank"
      *   - then by "listEnumInSource"
-     *   - then by "humanCodingScheme"
+     *   - then by "humanCodingScheme".
      */
     private function rankItems(array &$itemArray): void
     {
@@ -208,6 +209,7 @@ class LsDocRepository extends ServiceEntityRepository
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
+
         return $query->getResult(Query::HYDRATE_ARRAY);
     }
 
@@ -238,7 +240,8 @@ class LsDocRepository extends ServiceEntityRepository
     /**
      * Delete an LsDoc and all associated items and associations.
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     public function deleteDocument(LsDoc $lsDoc, ?\Closure $progressCallback = null): void
     {
@@ -348,7 +351,7 @@ xENDx;
         $progressCallback('Done');
     }
 
-    public function copyDocumentContentToDoc(LsDoc $fromDoc, LsDoc $toDoc, $exactMatchAssocs = false): void
+    public function copyDocumentContentToDoc(LsDoc $fromDoc, LsDoc $toDoc, bool $exactMatchAssocs = false): void
     {
         foreach ($fromDoc->getTopLsItems() as $oldItem) {
             $newItem = $oldItem->copyToLsDoc($toDoc, null, $exactMatchAssocs);
@@ -356,7 +359,7 @@ xENDx;
         }
     }
 
-    public function makeDerivative(LsDoc $oldLsDoc, $newLsDoc = null): LsDoc
+    public function makeDerivative(LsDoc $oldLsDoc, ?LsDoc $newLsDoc = null): LsDoc
     {
         $em = $this->getEntityManager();
         if (null === $newLsDoc) {
@@ -447,7 +450,7 @@ xENDx;
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAllItems(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
+    public function findAllItems(LsDoc $lsDoc, int $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t, a, adi, add, c
@@ -469,7 +472,7 @@ xENDx;
      *
      * @return array array of LsDefItemTypes
      */
-    public function findAllUsedItemTypes(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
+    public function findAllUsedItemTypes(LsDoc $lsDoc, int $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT t
@@ -487,7 +490,7 @@ xENDx;
      *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllAssociations(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
+    public function findAllAssociations(LsDoc $lsDoc, int $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, ag, adi, aoi, add
@@ -508,11 +511,11 @@ xENDx;
      *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllUsedAssociationGroups(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
+    public function findAllUsedAssociationGroups(LsDoc $lsDoc, int $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT ag
-            FROM App\Entity\Framework\LsDefAssociationGrouping ag, App\Entity\Framework\LsAssociation a 
+            FROM App\Entity\Framework\LsDefAssociationGrouping ag, App\Entity\Framework\LsAssociation a
             WHERE a.lsDoc = :lsDocId
               AND a.group = ag
         ');
@@ -526,7 +529,7 @@ xENDx;
      *
      * @return array array of LsDefItemTypes
      */
-    public function findAllUsedConcepts(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
+    public function findAllUsedConcepts(LsDoc $lsDoc, int $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT c
@@ -544,7 +547,7 @@ xENDx;
      *
      * @return array array of LsDefItemTypes
      */
-    public function findAllUsedLicences(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
+    public function findAllUsedLicences(LsDoc $lsDoc, int $format = Query::HYDRATE_ARRAY): array
     {
         // get licences for items
         $query = $this->getEntityManager()->createQuery('
@@ -579,7 +582,7 @@ xENDx;
      *
      * @return array array of LsDefItemTypes
      */
-    public function findAllUsedRubrics(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
+    public function findAllUsedRubrics(LsDoc $lsDoc, int $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT DISTINCT r
@@ -598,7 +601,7 @@ xENDx;
      *
      * @return array array of LsAssociations hydrated as an array
      */
-    public function findAllDocAssociationGroups(LsDoc $lsDoc, $format = Query::HYDRATE_OBJECT): array
+    public function findAllDocAssociationGroups(LsDoc $lsDoc, int $format = Query::HYDRATE_OBJECT): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT ag
@@ -718,7 +721,7 @@ xENDx;
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findItemsForExportDoc(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
+    public function findItemsForExportDoc(LsDoc $lsDoc, int $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t,
@@ -741,7 +744,7 @@ xENDx;
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAssociationsForExportDoc(LsDoc $lsDoc, $format = Query::HYDRATE_ARRAY): array
+    public function findAssociationsForExportDoc(LsDoc $lsDoc, int $format = Query::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, g, partial oi.{id,identifier,lsDocIdentifier}, partial di.{id,identifier,lsDocIdentifier}

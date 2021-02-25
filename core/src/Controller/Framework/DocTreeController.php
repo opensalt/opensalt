@@ -490,7 +490,9 @@ class DocTreeController extends AbstractController
      */
     public function updateItemsAction(Request $request, LsDoc $lsDoc, string $_format = 'json'): array
     {
-        $command = new UpdateTreeItemsCommand($lsDoc, $request->request->get('lsItems'));
+        /** @var array $lsItems */
+        $lsItems = $request->request->get('lsItems');
+        $command = new UpdateTreeItemsCommand($lsDoc, $lsItems);
         $this->sendCommand($command);
         $rv = $command->getReturnValues();
 

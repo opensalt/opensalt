@@ -4,17 +4,13 @@ namespace App\Repository\Framework;
 
 class CfDocQuery
 {
-    /** @var int */
-    public $limit;
+    public int $limit = 0;
 
-    /** @var int */
-    public $offset;
+    public int $offset = 0;
 
-    /** @var string */
-    public $sort;
+    public ?string $sort = null;
 
-    /** @var string */
-    public $orderBy = 'ASC';
+    public string $orderBy = 'ASC';
 
     public function getLimit(): ?int
     {

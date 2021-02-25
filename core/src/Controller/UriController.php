@@ -14,20 +14,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UriController extends AbstractController
 {
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
+    private SerializerInterface $serializer;
 
-    /**
-     * @var IdentifiableObjectHelper
-     */
-    private $objectHelper;
+    private IdentifiableObjectHelper $objectHelper;
 
-    /**
-     * @var string
-     */
-    private $assetsVersion;
+    private string $assetsVersion;
 
     public function __construct(SerializerInterface $serializer, IdentifiableObjectHelper $uriHelper, string $assetsVersion)
     {
@@ -62,7 +53,7 @@ class UriController extends AbstractController
         $this->determineRequestFormat($request, $_format);
 
         $isPackage = false;
-        if (0 === strpos($uri, UriGenerator::PACKAGE_PREFIX)) {
+        if (str_starts_with($uri, UriGenerator::PACKAGE_PREFIX)) {
             $isPackage = true;
             $uri = preg_replace('/^'.UriGenerator::PACKAGE_PREFIX.'/', '', $uri);
         }
@@ -93,7 +84,8 @@ class UriController extends AbstractController
 
         // Found -- Display
         $serializationContext = SerializationContext::create();
-        $serializationContext->setGroups(['Default', 'LsDoc', 'LsItem', 'LsAssociation']);
+        $serializationGroups = ['Default', 'LsDoc', 'LsItem', 'LsAssociation'];
+        $serializationContext->setGroups($serializationGroups);
         $serialized = $this->serializer->serialize(
             $obj,
             'json',
@@ -106,7 +98,7 @@ class UriController extends AbstractController
                 'obj' => $obj,
                 'class' => $className,
                 'isPackage' => $isPackage,
-                'serialized' => json_decode($serialized, true),
+                'serialized' => json_decode($serialized, true, 512, JSON_THROW_ON_ERROR),
             ], $response);
         }
 

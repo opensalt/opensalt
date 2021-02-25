@@ -10,9 +10,9 @@ use App\Entity\Framework\Mirror\Log;
 use App\Entity\Framework\Mirror\OAuthCredential;
 use App\Exception\MirrorAlreadyChangedException;
 use App\Exception\MirrorIdConflictException;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Swaggest\JsonSchema\Schema;
 
 class MirrorFramework
@@ -20,26 +20,21 @@ class MirrorFramework
     use CommandDispatcherTrait;
     use LoggerTrait;
 
-    /**
-     * @var MirrorServer
-     */
-    private $mirrorServer;
+    private MirrorServer $mirrorServer;
 
-    /**
-     * @var ManagerRegistry
-     */
-    private $managerRegistry;
+    private ManagerRegistry $managerRegistry;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
+    private EntityManagerInterface $em;
 
     public function __construct(MirrorServer $mirrorServer, ManagerRegistry $managerRegistry)
     {
         $this->mirrorServer = $mirrorServer;
-        /** @psalm-suppress PropertyTypeCoercion */
-        $this->em = $managerRegistry->getManager();
+        /** @var EntityManagerInterface $em */
+        $em = $managerRegistry->getManager();
+        if (!$em instanceof EntityManagerInterface) {
+            throw new \InvalidArgumentException('ManagerRegistry is not providing an Entity manager');
+        }
+        $this->em = $em;
         $this->managerRegistry = $managerRegistry;
     }
 
@@ -62,7 +57,6 @@ class MirrorFramework
     public function mirrorNext(): ?Framework
     {
         // Get next framework to mirror, based on schedule and priority
-        /** @var Framework $next */
         $next = $this->em->getRepository(Framework::class)->findNext();
         if (null === $next) {
             return null;
@@ -91,8 +85,9 @@ class MirrorFramework
                 // Reset it so we can store the error
                 $this->em->clear();
                 $this->managerRegistry->resetManager();
-                /** @psalm-suppress PropertyTypeCoercion */
-                $this->em = $this->managerRegistry->getManager();
+                /** @var EntityManagerInterface $em */
+                $em = $this->managerRegistry->getManager();
+                $this->em = $em;
 
                 $next = $this->em->getRepository(Framework::class)->find($next->getId());
             }
@@ -145,8 +140,7 @@ class MirrorFramework
         }
 
         $next->setLastContent($framework);
-        /** @psalm-suppress TooManyArguments */
-        $this->em->flush($next);
+        $this->em->flush();
 
         $command = new ImportCaseJsonCommand($framework);
         $this->sendCommand($command);
@@ -156,8 +150,7 @@ class MirrorFramework
             $doc = $this->em->getRepository(LsDoc::class)->findOneByIdentifier($next->getIdentifier());
             $doc->setMirroredFramework($next);
             $next->setFramework($doc);
-            /** @psalm-suppress TooManyArguments */
-            $this->em->flush($doc);
+            $this->em->flush();
         }
 
         return true;
@@ -169,7 +162,6 @@ class MirrorFramework
             return;
         }
 
-        /** @var LsDoc $doc */
         $localDoc = $this->em->getRepository(LsDoc::class)->findOneByIdentifier($next->getIdentifier());
         if (null === $localDoc) {
             return;

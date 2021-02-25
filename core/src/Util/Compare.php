@@ -13,7 +13,7 @@ class Compare
     /**
      * Sort an array using multiple fields.
      *
-     * @param array<array-key, mixed> $itemArray
+     * @param array<array-key, array> $itemArray
      * @param array<array-key, string> $fields
      */
     public static function sortArrayByFields(array &$itemArray, array $fields): void
@@ -31,13 +31,8 @@ class Compare
 
     /**
      * Compare two array fields.
-     *
-     * @param mixed $a
-     * @param mixed $b
-     * @param string|int $key
-     * @param bool $setValueIsLower
      */
-    public static function arrayCompare($a, $b, $key, $setValueIsLower = true): int
+    public static function arrayCompare(array $a, array $b, int|string $key, bool $setValueIsLower = true): int
     {
         if ('sequenceNumber' === $key) {
             return self::sequenceNumberIsSetInArray($a, $b, $setValueIsLower);
@@ -84,13 +79,8 @@ class Compare
      * < 0 if $a[$key] is set and $b[$key] is not,
      * > 0 if $b[$key] is set and $a[$key] is not,
      * 0 if both are set or unset.
-     *
-     * @param array $a
-     * @param array $b
-     * @param string|int $key
-     * @param bool $setValueIsLower
      */
-    public static function isSetInArray($a, $b, $key, $setValueIsLower = true): int
+    public static function isSetInArray(array $a, array $b, int|string $key, bool $setValueIsLower = true): int
     {
         $dir = ($setValueIsLower ? 1 : -1);
 
@@ -100,12 +90,12 @@ class Compare
         return ($x - $y) * $dir;
     }
 
-    public static function sequenceNumberIsSetInArray($a, $b, $setValueIsLower = true): int
+    public static function sequenceNumberIsSetInArray(array $a, array $b, bool $setValueIsLower = true): int
     {
         $dir = ($setValueIsLower ? 1 : -1);
 
-        $x = $a['sequenceNumber'] ?? current($a['associations'] ?? [])['sequenceNumber'] ?? 0;
-        $y = $b['sequenceNumber'] ?? current($b['associations'] ?? [])['sequenceNumber'] ?? 0;
+        $x = $a['sequenceNumber'] ?? current($a['associations'] ?? [['sequenceNumber' => 0]])['sequenceNumber'] ?? 0;
+        $y = $b['sequenceNumber'] ?? current($b['associations'] ?? [['sequenceNumber' => 0]])['sequenceNumber'] ?? 0;
 
         return ($x - $y) * $dir;
     }
