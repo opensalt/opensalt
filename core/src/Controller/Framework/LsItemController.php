@@ -10,27 +10,27 @@ use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\LockItemCommand;
 use App\Command\Framework\RemoveChildCommand;
 use App\Command\Framework\UpdateItemCommand;
-use App\Exception\AlreadyLockedException;
 use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Exception\AlreadyLockedException;
 use App\Form\Command\ChangeLsItemParentCommand;
 use App\Form\Command\CopyToLsDocCommand;
 use App\Form\Type\LsDocListType;
 use App\Form\Type\LsItemParentType;
 use App\Form\Type\LsItemType;
 use App\Service\BucketService;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -43,7 +43,7 @@ class LsItemController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    private $bucketProvider;
+    private ?string $bucketProvider;
 
     public function __construct(?string $bucketProvider)
     {
@@ -58,13 +58,7 @@ class LsItemController extends AbstractController
      */
     public function indexAction(): array
     {
-        $em = $this->getDoctrine()->getManager();
-
-        $lsItems = $em->getRepository(LsItem::class)->findAll();
-
-        return [
-            'lsItems' => $lsItems,
-        ];
+        return [];
     }
 
     /**
@@ -370,6 +364,7 @@ class LsItemController extends AbstractController
 
             if (null !== $file && $file->isValid()) {
                 $fileUrl = $bucket->uploadFile($file, 'items');
+
                 return new JsonResponse(['filename' => $fileUrl]);
             }
         }

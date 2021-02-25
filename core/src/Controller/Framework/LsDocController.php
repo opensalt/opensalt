@@ -38,20 +38,11 @@ class LsDocController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @var ClientInterface
-     */
-    private $guzzleJsonClient;
+    private ClientInterface $guzzleJsonClient;
 
-    /**
-     * @var AuthorizationCheckerInterface
-     */
-    private $authChecker;
-
-    public function __construct(ClientInterface $guzzleJsonClient, AuthorizationCheckerInterface $authChecker)
+    public function __construct(ClientInterface $guzzleJsonClient)
     {
         $this->guzzleJsonClient = $guzzleJsonClient;
-        $this->authChecker = $authChecker;
     }
 
     /**
@@ -72,10 +63,10 @@ class LsDocController extends AbstractController
         $lsDocs = [];
         $loggedIn = $user instanceof User;
         foreach ($results as $lsDoc) {
-            // Optimization: All but "Private Draft" are viewable to everyone (if not mirroed), only auth check "Private Draft"
-            if ((LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus()
-                    && null === $lsDoc->getMirroredFramework())
-                || ($loggedIn && $this->authChecker->isGranted('list', $lsDoc))) {
+            // Optimization: All but "Private Draft" are viewable to everyone (if not mirrored), only auth check "Private Draft"
+            if (($loggedIn && $this->isGranted('list', $lsDoc))
+                || (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus()
+                    && null === $lsDoc->getMirroredFramework())) {
                 $lsDocs[] = $lsDoc;
             }
         }

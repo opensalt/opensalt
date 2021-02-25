@@ -6,15 +6,15 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddSubjectCommand;
 use App\Command\Framework\DeleteSubjectCommand;
 use App\Command\Framework\UpdateSubjectCommand;
+use App\Entity\Framework\LsDefSubject;
 use App\Form\Type\LsDefSubjectType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use App\Entity\Framework\LsDefSubject;
 
 /**
  * LsDefSubject controller.
@@ -37,7 +37,7 @@ class LsDefSubjectController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefSubjects = $em->getRepository(LsDefSubject::class)->findAll();
+        $lsDefSubjects = $em->getRepository(LsDefSubject::class)->findBy([], null, 100);
 
         return [
             'lsDefSubjects' => $lsDefSubjects,
@@ -85,7 +85,7 @@ class LsDefSubjectController extends AbstractController
                 $command = new AddSubjectCommand($lsDefSubject);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_subject_show', array('id' => $lsDefSubject->getId()));
+                return $this->redirectToRoute('lsdef_subject_show', ['id' => $lsDefSubject->getId()]);
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding subject: '.$e->getMessage()));
             }
@@ -135,7 +135,7 @@ class LsDefSubjectController extends AbstractController
                 $command = new UpdateSubjectCommand($lsDefSubject);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_subject_edit', array('id' => $lsDefSubject->getId()));
+                return $this->redirectToRoute('lsdef_subject_edit', ['id' => $lsDefSubject->getId()]);
             } catch (\Exception $e) {
                 $editForm->addError(new FormError('Error updating subject: '.$e->getMessage()));
             }
@@ -179,7 +179,7 @@ class LsDefSubjectController extends AbstractController
     private function createDeleteForm(LsDefSubject $lsDefSubject): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsdef_subject_delete', array('id' => $lsDefSubject->getId())))
+            ->setAction($this->generateUrl('lsdef_subject_delete', ['id' => $lsDefSubject->getId()]))
             ->setMethod('DELETE')
             ->getForm()
         ;

@@ -6,16 +6,16 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddConceptCommand;
 use App\Command\Framework\DeleteConceptCommand;
 use App\Command\Framework\UpdateConceptCommand;
+use App\Entity\Framework\LsDefConcept;
 use App\Form\Type\LsDefConceptType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use App\Entity\Framework\LsDefConcept;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * LsDefConcept controller.
@@ -38,7 +38,7 @@ class LsDefConceptController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefConcepts = $em->getRepository(LsDefConcept::class)->findAll();
+        $lsDefConcepts = $em->getRepository(LsDefConcept::class)->findBy([], null, 100);
 
         return [
             'lsDefConcepts' => $lsDefConcepts,
@@ -65,7 +65,7 @@ class LsDefConceptController extends AbstractController
                 $command = new AddConceptCommand($lsDefConcept);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_concept_show', array('id' => $lsDefConcept->getId()));
+                return $this->redirectToRoute('lsdef_concept_show', ['id' => $lsDefConcept->getId()]);
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding concept: '.$e->getMessage()));
             }
@@ -113,7 +113,7 @@ class LsDefConceptController extends AbstractController
                 $command = new UpdateConceptCommand($lsDefConcept);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_concept_edit', array('id' => $lsDefConcept->getId()));
+                return $this->redirectToRoute('lsdef_concept_edit', ['id' => $lsDefConcept->getId()]);
             } catch (\Exception $e) {
                 $editForm->addError(new FormError('Error updating concept: '.$e->getMessage()));
             }
@@ -157,7 +157,7 @@ class LsDefConceptController extends AbstractController
     private function createDeleteForm(LsDefConcept $lsDefConcept): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsdef_concept_delete', array('id' => $lsDefConcept->getId())))
+            ->setAction($this->generateUrl('lsdef_concept_delete', ['id' => $lsDefConcept->getId()]))
             ->setMethod('DELETE')
             ->getForm()
         ;

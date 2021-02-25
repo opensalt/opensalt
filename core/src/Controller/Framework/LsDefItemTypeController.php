@@ -6,14 +6,14 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddItemTypeCommand;
 use App\Command\Framework\DeleteItemTypeCommand;
 use App\Command\Framework\UpdateItemTypeCommand;
+use App\Entity\Framework\LsDefItemType;
 use App\Form\Type\LsDefItemTypeType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use App\Entity\Framework\LsDefItemType;
 
 /**
  * LsDefItemType controller.
@@ -36,7 +36,7 @@ class LsDefItemTypeController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefItemTypes = $em->getRepository(LsDefItemType::class)->findAll();
+        $lsDefItemTypes = $em->getRepository(LsDefItemType::class)->findBy([], null, 100);
 
         return [
             'lsDefItemTypes' => $lsDefItemTypes,
@@ -96,7 +96,7 @@ class LsDefItemTypeController extends AbstractController
                 $command = new AddItemTypeCommand($lsDefItemType);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_item_type_show', array('id' => $lsDefItemType->getId()));
+                return $this->redirectToRoute('lsdef_item_type_show', ['id' => $lsDefItemType->getId()]);
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding item type: '.$e->getMessage()));
             }
@@ -146,7 +146,7 @@ class LsDefItemTypeController extends AbstractController
                 $command = new UpdateItemTypeCommand($lsDefItemType);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_item_type_edit', array('id' => $lsDefItemType->getId()));
+                return $this->redirectToRoute('lsdef_item_type_edit', ['id' => $lsDefItemType->getId()]);
             } catch (\Exception $e) {
                 $editForm->addError(new FormError('Error updating concept: '.$e->getMessage()));
             }
@@ -190,7 +190,7 @@ class LsDefItemTypeController extends AbstractController
     private function createDeleteForm(LsDefItemType $lsDefItemType)
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsdef_item_type_delete', array('id' => $lsDefItemType->getId())))
+            ->setAction($this->generateUrl('lsdef_item_type_delete', ['id' => $lsDefItemType->getId()]))
             ->setMethod('DELETE')
             ->getForm()
         ;

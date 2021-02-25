@@ -6,15 +6,15 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddGradeCommand;
 use App\Command\Framework\DeleteGradeCommand;
 use App\Command\Framework\UpdateGradeCommand;
+use App\Entity\Framework\LsDefGrade;
 use App\Form\Type\LsDefGradeType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use App\Entity\Framework\LsDefGrade;
 
 /**
  * LsDefGrade controller.
@@ -37,7 +37,7 @@ class LsDefGradeController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefGrades = $em->getRepository(LsDefGrade::class)->findAll();
+        $lsDefGrades = $em->getRepository(LsDefGrade::class)->findBy([], null, 100);
 
         return [
             'lsDefGrades' => $lsDefGrades,
@@ -64,7 +64,7 @@ class LsDefGradeController extends AbstractController
                 $command = new AddGradeCommand($lsDefGrade);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_grade_show', array('id' => $lsDefGrade->getId()));
+                return $this->redirectToRoute('lsdef_grade_show', ['id' => $lsDefGrade->getId()]);
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding grade: '.$e->getMessage()));
             }
@@ -114,7 +114,7 @@ class LsDefGradeController extends AbstractController
                 $command = new UpdateGradeCommand($lsDefGrade);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_grade_edit', array('id' => $lsDefGrade->getId()));
+                return $this->redirectToRoute('lsdef_grade_edit', ['id' => $lsDefGrade->getId()]);
             } catch (\Exception $e) {
                 $editForm->addError(new FormError('Error updating grade: '.$e->getMessage()));
             }
@@ -158,7 +158,7 @@ class LsDefGradeController extends AbstractController
     private function createDeleteForm(LsDefGrade $lsDefGrade): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsdef_grade_delete', array('id' => $lsDefGrade->getId())))
+            ->setAction($this->generateUrl('lsdef_grade_delete', ['id' => $lsDefGrade->getId()]))
             ->setMethod('DELETE')
             ->getForm()
         ;
