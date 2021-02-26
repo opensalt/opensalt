@@ -6,6 +6,8 @@ includes:
 
 parameters:
 	#customRulesetUsed: true
+	bootstrapFiles:
+		- vendor/autoload.php
 	level: 6
 	excludes_analyse:
 		- './src/Migrations'

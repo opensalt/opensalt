@@ -31,6 +31,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('sets', ['clean-code', 'dead-code', 'psr12', 'symfony']);
 
     $parameters->set('skip', [
+        'PhpCsFixer\Fixer\FunctionNotation\SingleLineThrowFixer' => null,
         'SlevomatCodingStandard\Sniffs\Classes\UnusedPrivateElementsSniff.WriteOnlyProperty' => null,
         'SlevomatCodingStandard\Sniffs\PHP\UselessParenthesesSniff.UselessParentheses' => null,
         'SlevomatCodingStandard\Sniffs\TypeHints\ParameterTypeHintSniff.MissingAnyTypeHint' => null,

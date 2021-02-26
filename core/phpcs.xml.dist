@@ -9,7 +9,7 @@
 
     <file>src</file>
 
-    <config name="installed_paths" value="../../escapestudios/symfony2-coding-standard,./src/Standards" />
+    <config name="installed_paths" value="../escapestudios/symfony2-coding-standard,./src/Standards" />
 
     <rule ref="Symfony">
 	    <exclude name="Symfony.Commenting.License.Warning"/>

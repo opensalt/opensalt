@@ -6,15 +6,15 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddLicenceCommand;
 use App\Command\Framework\DeleteLicenceCommand;
 use App\Command\Framework\UpdateLicenceCommand;
+use App\Entity\Framework\LsDefLicence;
 use App\Form\Type\LsDefLicenceType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use App\Entity\Framework\LsDefLicence;
 
 /**
  * LsDefLicence controller.
@@ -37,7 +37,7 @@ class LsDefLicenceController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsDefLicences = $em->getRepository(LsDefLicence::class)->findAll();
+        $lsDefLicences = $em->getRepository(LsDefLicence::class)->findBy([], null, 100);
 
         return [
             'lsDefLicences' => $lsDefLicences,
@@ -81,7 +81,7 @@ class LsDefLicenceController extends AbstractController
                 $command = new AddLicenceCommand($lsDefLicence);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_licence_show', array('id' => $lsDefLicence->getId()));
+                return $this->redirectToRoute('lsdef_licence_show', ['id' => $lsDefLicence->getId()]);
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding licence: '.$e->getMessage()));
             }
@@ -131,7 +131,7 @@ class LsDefLicenceController extends AbstractController
                 $command = new UpdateLicenceCommand($lsDefLicence);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_licence_edit', array('id' => $lsDefLicence->getId()));
+                return $this->redirectToRoute('lsdef_licence_edit', ['id' => $lsDefLicence->getId()]);
             } catch (\Exception $e) {
                 $editForm->addError(new FormError('Error updating licence: '.$e->getMessage()));
             }
@@ -175,7 +175,7 @@ class LsDefLicenceController extends AbstractController
     private function createDeleteForm(LsDefLicence $lsDefLicence): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsdef_licence_delete', array('id' => $lsDefLicence->getId())))
+            ->setAction($this->generateUrl('lsdef_licence_delete', ['id' => $lsDefLicence->getId()]))
             ->setMethod('DELETE')
             ->getForm()
         ;

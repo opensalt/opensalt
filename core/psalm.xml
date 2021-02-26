@@ -7,14 +7,21 @@
     cacheDirectory="/tmp/.cache/psalm"
     errorLevel="6"
     reportMixedIssues="false"
+    autoloader="vendor/autoload.php"
 >
     <projectFiles>
         <directory name="src"/>
         <ignoreFiles>
             <directory name="migrations"/>
+            <directory name="var"/>
             <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
+
+    <fileExtensions>
+        <extension name=".php" />
+        <extension name=".twig" checker="./vendor/psalm/plugin-symfony/src/Twig/TemplateFileAnalyzer.php"/>
+    </fileExtensions>
 
     <issueHandlers>
         <LessSpecificReturnType errorLevel="info"/>
@@ -37,7 +44,6 @@
         <MissingReturnType errorLevel="info"/>
         <MissingPropertyType errorLevel="info"/>
         <InvalidDocblock errorLevel="info"/>
-        <MisplacedRequiredParam errorLevel="info"/>
 
         <PropertyNotSetInConstructor errorLevel="info"/>
         <MissingConstructor errorLevel="info"/>
@@ -57,5 +63,8 @@
     </issueHandlers>
     <plugins>
         <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
+        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin">
+            <containerXml>var/cache/dev/App_KernelDevDebugContainer.xml</containerXml>
+        </pluginClass>
     </plugins>
 </psalm>

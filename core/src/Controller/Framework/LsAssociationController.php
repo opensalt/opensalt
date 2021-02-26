@@ -43,7 +43,7 @@ class LsAssociationController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $lsAssociations = $em->getRepository(LsAssociation::class)->findAll();
+        $lsAssociations = $em->getRepository(LsAssociation::class)->findBy([], null, 100);
 
         return [
             'lsAssociations' => $lsAssociations,

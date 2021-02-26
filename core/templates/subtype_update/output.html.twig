@@ -1,0 +1,25 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    <table class="table table-condensed table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Row #</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for line in result %}
+                <tr>
+                    <td>{{ line.row }}</td>
+                    <td>{{ line.msg }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block title %}
+Subtype updates processed.
+{% endblock %}
+

@@ -10,17 +10,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 class CopyItemToDocCommand extends BaseCommand
 {
     /**
-     * @var CopyToLsDocDTO
-     *
      * @Assert\Type(CopyToLsDocDTO::class)
      * @Assert\NotNull()
      */
-    private $dto;
+    private CopyToLsDocDTO $dto;
 
-    /**
-     * @var LsItem
-     */
-    private $newItem;
+    private LsItem $newItem;
 
     /**
      * Constructor.
@@ -40,7 +35,7 @@ class CopyItemToDocCommand extends BaseCommand
         return $this->newItem;
     }
 
-    public function setNewItem(LsItem $newItem): LsItem
+    public function setNewItem(LsItem $newItem): void
     {
         $this->newItem = $newItem;
     }

@@ -106,7 +106,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $officialUri;
 
     /**
-     * @var string
+     * @var ?string
      *
      * @ORM\Column(name="creator", type="string", length=300, nullable=false)
      *
@@ -129,7 +129,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $publisher;
 
     /**
-     * @var string
+     * @var ?string
      *
      * @ORM\Column(name="title", type="string", length=120, nullable=false)
      *
@@ -389,7 +389,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     protected $associationGroupings;
 
     /**
-     * @var string
+     * @var ?string
      *
      * @Assert\Choice({"organization", "user"})
      *
@@ -398,7 +398,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     protected $ownedBy;
 
     /**
-     * @var Framework|null
+     * @var ?Framework
      *
      * @ORM\OneToOne(targetEntity="App\Entity\Framework\Mirror\Framework", inversedBy="framework")
      *

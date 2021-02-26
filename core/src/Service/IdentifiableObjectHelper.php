@@ -10,10 +10,7 @@ use Ramsey\Uuid\Uuid;
 
 class IdentifiableObjectHelper
 {
-    /**
-     * @var ManagerRegistry
-     */
-    private $registry;
+    private ManagerRegistry $registry;
 
     public function __construct(ManagerRegistry $registry)
     {
@@ -24,7 +21,7 @@ class IdentifiableObjectHelper
     {
         try {
             $uuid = Uuid::fromString($identifier);
-        } catch (InvalidUuidStringException $e) {
+        } catch (InvalidUuidStringException) {
             return null;
         }
 

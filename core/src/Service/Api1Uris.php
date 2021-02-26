@@ -5,20 +5,15 @@ namespace App\Service;
 use App\Entity\Framework\IdentifiableInterface;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\Package;
+use JetBrains\PhpStorm\Pure;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class Api1Uris
 {
-    /**
-     * @var RouterInterface
-     */
-    private $router;
+    private RouterInterface $router;
 
-    /**
-     * @var UriGenerator
-     */
-    private $uriGenerator;
+    private UriGenerator $uriGenerator;
 
     public function __construct(RouterInterface $router, UriGenerator $uriGenerator)
     {
@@ -36,7 +31,7 @@ class Api1Uris
         return $this->generateUri($obj, $route, true);
     }
 
-    public function getApiUriForIdentifier(string $id, string $route): string
+    public function getApiUriForIdentifier(string $id, ?string $route): ?string
     {
         if (null === $route) {
             return null;
@@ -78,6 +73,8 @@ class Api1Uris
         return $uri;
     }
 
+    /** @psalm-pure  */
+    #[Pure]
     public function splitByComma(?string $csv): ?array
     {
         if (null === $csv) {
@@ -133,19 +130,16 @@ class Api1Uris
         ];
     }
 
-    public function getNodeLinkUri($selector, LsAssociation $obj): ?array
+    public function getNodeLinkUri(string $selector, LsAssociation $obj): ?array
     {
-        $selector = ucfirst($selector);
+        $selector = strtolower($selector);
 
-        if (null === $obj) {
-            return null;
-        }
+        $uri = match ($selector) {
+            'origin' => $obj->getOrigin(),
+            'destination' => $obj->getDestination(),
+            default => throw new \InvalidArgumentException('Selector may only be "origin" or "destination"'),
+        };
 
-        if (!in_array($selector, ['Origin', 'Destination'])) {
-            throw new \InvalidArgumentException('Selector may only be "Origin" or "Destination"');
-        }
-
-        $uri = $obj->{'get'.$selector}();
         if (is_object($uri)) {
             return $this->getLinkUri($uri);
         }

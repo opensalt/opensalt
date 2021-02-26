@@ -26,15 +26,9 @@ class CaseV1P0Controller extends AbstractController
 {
     use LoggerTrait;
 
-    /**
-     * @var SerializerInterface
-     */
-    protected $serializer;
+    protected SerializerInterface $serializer;
 
-    /**
-     * @var string
-     */
-    private $assetsVersion;
+    private string $assetsVersion;
 
     public function __construct(SerializerInterface $serializer, string $assetsVersion)
     {
@@ -47,8 +41,8 @@ class CaseV1P0Controller extends AbstractController
      */
     public function getPublicCfDocumentsAction(Request $request): Response
     {
-        $limit = $request->query->get('limit', 100);
-        $offset = $request->query->get('offset', 0);
+        $limit = (int) $request->query->get('limit', '100');
+        $offset = (int) $request->query->get('offset', '0');
         $sort = $request->query->get('sort', null);
         $orderBy = $request->query->get('orderBy', 'asc');
 
@@ -75,6 +69,7 @@ class CaseV1P0Controller extends AbstractController
                 continue;
             }
             if (null !== $doc->getMirroredFramework()) {
+                // Do not show mirrored frameworks as available documents
                 continue;
             }
 
@@ -128,7 +123,7 @@ class CaseV1P0Controller extends AbstractController
         $lastChange = $changeRepo->getLastChangeTimeForDoc($doc);
 
         $lastModified = $doc->getUpdatedAt();
-        if (false !== $lastChange && null !== $lastChange['changed_at']) {
+        if (null !== ($lastChange['changed_at'] ?? null)) {
             $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
         }
         $response = $this->generateBaseResponse($lastModified);
@@ -219,7 +214,7 @@ class CaseV1P0Controller extends AbstractController
      * @Route("/CFItemTypes/{id}.{_format}", name="api_v1p0_cfitemtype", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefItemType", "_format"="json"})
      * @Route("/CFSubjects/{id}.{_format}", name="api_v1p0_cfsubject", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefSubject", "_format"="json"})
      */
-    public function getObjectCollectionAction(Request $request, LsDocRepository $repo, $class, $id): Response
+    public function getObjectCollectionAction(Request $request, LsDocRepository $repo, string $class, string $id): Response
     {
         $obj = $repo->apiFindOneByClassIdentifier(['class' => $class, 'id' => $id]);
 

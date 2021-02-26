@@ -34,6 +34,10 @@ class FrameworkAccessVoter extends Voter
             return true;
         }
 
+        if ('all_frameworks' === $subject && static::EDIT === $attribute) {
+            return true;
+        }
+
         // For the other attributes the subject must be a document
         return $subject instanceof LsDoc;
     }
@@ -103,10 +107,10 @@ class FrameworkAccessVoter extends Voter
         return true;
     }
 
-    private function canEditFramework(LsDoc $subject, TokenInterface $token): bool
+    private function canEditFramework(mixed $subject, TokenInterface $token): bool
     {
         // Do not allow editing if the framework is mirrored
-        if (null !== $subject->getMirroredFramework() && $subject->getMirroredFramework()->isInclude()) {
+        if ($subject instanceof LsDoc && null !== $subject->getMirroredFramework() && $subject->getMirroredFramework()->isInclude()) {
             return false;
         }
 
@@ -124,6 +128,11 @@ class FrameworkAccessVoter extends Voter
         // Allow editing if the user is a super-editor
         if ($this->roleChecker->isSuperEditor($token)) {
             return true;
+        }
+
+        if (!$subject instanceof LsDoc) {
+            // If the subject is not a document then do not allow editing
+            return false;
         }
 
         // Allow the owner to edit the framework

@@ -6,16 +6,16 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddAssociationGroupCommand;
 use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\UpdateAssociationGroupCommand;
+use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Form\Type\LsDefAssociationGroupingType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use App\Entity\Framework\LsDefAssociationGrouping;
 
 /**
  * LsDefAssociationGrouping controller.
@@ -36,7 +36,7 @@ class LsDefAssociationGroupingController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $associationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findAll();
+        $associationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findBy([], null, 100);
 
         return [
             'lsDefAssociationGroupings' => $associationGroupings,
@@ -70,7 +70,7 @@ class LsDefAssociationGroupingController extends AbstractController
                     return new Response($associationGrouping->getId(), Response::HTTP_CREATED);
                 }
 
-                return $this->redirectToRoute('lsdef_association_grouping_show', array('id' => $associationGrouping->getId()));
+                return $this->redirectToRoute('lsdef_association_grouping_show', ['id' => $associationGrouping->getId()]);
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding new association group: '.$e->getMessage()));
             }
@@ -124,7 +124,7 @@ class LsDefAssociationGroupingController extends AbstractController
                 $command = new UpdateAssociationGroupCommand($associationGrouping);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('lsdef_association_grouping_edit', array('id' => $associationGrouping->getId()));
+                return $this->redirectToRoute('lsdef_association_grouping_edit', ['id' => $associationGrouping->getId()]);
             } catch (\Exception $e) {
                 $editForm->addError(new FormError('Error updating association group: '.$e->getMessage()));
             }
@@ -168,7 +168,7 @@ class LsDefAssociationGroupingController extends AbstractController
     private function createDeleteForm(LsDefAssociationGrouping $associationGrouping): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('lsdef_association_grouping_delete', array('id' => $associationGrouping->getId())))
+            ->setAction($this->generateUrl('lsdef_association_grouping_delete', ['id' => $associationGrouping->getId()]))
             ->setMethod('DELETE')
             ->getForm()
         ;

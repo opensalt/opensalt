@@ -1,0 +1,16 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Upload New Subtypes{% endblock %}
+
+{% block body %}
+<div>
+    <h1>Update associations with subtypes from spreadsheet</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.file) }}
+        <p class="text-right">
+            <input class="btn btn-primary" type="submit" value="Update" />
+        </p>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

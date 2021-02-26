@@ -18,7 +18,8 @@ use App\Entity\Framework\Package;
 
 final class Api1RouteMap
 {
-    public static $routeMap = [
+    /** @var array<class-string, string> */
+    public static array $routeMap = [
         Package::class => 'api_v1p0_cfpackage',
         LsDoc::class => 'api_v1p0_cfdocument',
         LsItem::class => 'api_v1p0_cfitem',
@@ -43,7 +44,7 @@ final class Api1RouteMap
         return self::findByClassName($obj) ?? self::findByInstance($obj);
     }
 
-    protected static function findByClassName(IdentifiableInterface $obj): ?string
+    private static function findByClassName(IdentifiableInterface $obj): ?string
     {
         // Performance hack -- try to do a quick lookup of the class name
         $class = get_class($obj);
@@ -52,9 +53,9 @@ final class Api1RouteMap
         return self::getForClass($class);
     }
 
-    protected static function findByInstance(IdentifiableInterface $obj): ?string
+    private static function findByInstance(IdentifiableInterface $obj): ?string
     {
-        foreach (static::$routeMap as $class => $route) {
+        foreach (self::$routeMap as $class => $route) {
             if ($obj instanceof $class) {
                 return $route;
             }
