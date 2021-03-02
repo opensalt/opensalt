@@ -11920,16 +11920,16 @@
         },
         {
             "name": "codeception/module-rest",
-            "version": "1.2.7",
+            "version": "1.2.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-rest.git",
-                "reference": "beeb5a91a97d042273bf10f00063e9b8f541879a"
+                "reference": "4c8c6bd75f67a25ff91bdce0d6c135c5e7aa5e10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-rest/zipball/beeb5a91a97d042273bf10f00063e9b8f541879a",
-                "reference": "beeb5a91a97d042273bf10f00063e9b8f541879a",
+                "url": "https://api.github.com/repos/Codeception/module-rest/zipball/4c8c6bd75f67a25ff91bdce0d6c135c5e7aa5e10",
+                "reference": "4c8c6bd75f67a25ff91bdce0d6c135c5e7aa5e10",
                 "shasum": ""
             },
             "require": {
@@ -11968,9 +11968,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-rest/issues",
-                "source": "https://github.com/Codeception/module-rest/tree/1.2.7"
+                "source": "https://github.com/Codeception/module-rest/tree/1.2.8"
             },
-            "time": "2020-11-04T16:58:11+00:00"
+            "time": "2021-03-02T06:47:59+00:00"
         },
         {
             "name": "codeception/module-sequence",
