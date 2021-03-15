@@ -4239,16 +4239,16 @@
         },
         {
             "name": "milo/github-api",
-            "version": "v1.4.7",
+            "version": "v1.4.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/milo/github-api.git",
-                "reference": "f72f6a1699f9a648dafdb278cbf9a6dc258b4e1f"
+                "reference": "f1513a49c056bb34724176e7f20f05ad8091ddc9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/milo/github-api/zipball/f72f6a1699f9a648dafdb278cbf9a6dc258b4e1f",
-                "reference": "f72f6a1699f9a648dafdb278cbf9a6dc258b4e1f",
+                "url": "https://api.github.com/repos/milo/github-api/zipball/f1513a49c056bb34724176e7f20f05ad8091ddc9",
+                "reference": "f1513a49c056bb34724176e7f20f05ad8091ddc9",
                 "shasum": ""
             },
             "require": {
@@ -4280,9 +4280,9 @@
             "description": "Github API easy access",
             "support": {
                 "issues": "https://github.com/milo/github-api/issues",
-                "source": "https://github.com/milo/github-api/tree/v1.4.7"
+                "source": "https://github.com/milo/github-api/tree/v1.4.8"
             },
-            "time": "2020-01-03T17:19:16+00:00"
+            "time": "2021-03-12T21:44:31+00:00"
         },
         {
             "name": "monolog/monolog",
