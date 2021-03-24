@@ -1016,17 +1016,11 @@
     "symplify/easy-testing": {
         "version": "9.0.14"
     },
-    "symplify/markdown-diff": {
-        "version": "9.0.14"
-    },
     "symplify/package-builder": {
         "version": "v7.2.1"
     },
-    "symplify/php-config-printer": {
-        "version": "9.0.14"
-    },
-    "symplify/rule-doc-generator": {
-        "version": "9.0.14"
+    "symplify/rule-doc-generator-contracts": {
+        "version": "v9.2.12"
     },
     "symplify/set-config-resolver": {
         "version": "v7.2.1"
