@@ -55,7 +55,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
     private $description;
 
     /**
-     * @var LsItem
+     * @var ?LsItem
      *
      * @ORM\ManyToOne(targetEntity="LsItem", inversedBy="criteria")
      * @ORM\JoinColumn(name="ls_item_id", referencedColumnName="id")
@@ -145,13 +145,13 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
     }
 
 
-    public function getItem(): LsItem
+    public function getItem(): ?LsItem
     {
         return $this->item;
     }
 
     /**
-     * @param LsItem $item
+     * @param ?LsItem $item
      */
     public function setItem($item): CfRubricCriterion
     {
