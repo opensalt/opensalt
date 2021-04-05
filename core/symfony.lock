@@ -323,6 +323,12 @@
     "laminas/laminas-zendframework-bridge": {
         "version": "1.2.0"
     },
+    "lcobucci/clock": {
+        "version": "2.0.0"
+    },
+    "lcobucci/jwt": {
+        "version": "4.1.4"
+    },
     "league/csv": {
         "version": "9.6.1"
     },
