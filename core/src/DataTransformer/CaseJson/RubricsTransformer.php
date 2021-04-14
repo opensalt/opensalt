@@ -17,18 +17,12 @@ class RubricsTransformer
     use LoggerTrait;
 
     /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
      * @var LsItem[]|array
      */
-    private $items;
+    private array $items;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $em)
     {
-        $this->em = $entityManager;
     }
 
     /**

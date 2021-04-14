@@ -7,43 +7,13 @@ use App\Entity\Framework\LsDoc;
 
 class PackageTransformer
 {
-    /**
-     * @var DefinitionsTransformer
-     */
-    private $definitionsTransformer;
-
-    /**
-     * @var DocumentTransformer
-     */
-    private $documentTransformer;
-
-    /**
-     * @var ItemsTransformer
-     */
-    private $itemsTransformer;
-
-    /**
-     * @var AssociationsTransformer
-     */
-    private $associationsTransformer;
-
-    /**
-     * @var RubricsTransformer
-     */
-    private $rubricsTransformer;
-
     public function __construct(
-        DefinitionsTransformer $definitionsTransformer,
-        DocumentTransformer $documentTransformer,
-        ItemsTransformer $itemsTransformer,
-        AssociationsTransformer $associationsTransformer,
-        RubricsTransformer $rubricsTransformer
+        private DefinitionsTransformer $definitionsTransformer,
+        private DocumentTransformer $documentTransformer,
+        private ItemsTransformer $itemsTransformer,
+        private AssociationsTransformer $associationsTransformer,
+        private RubricsTransformer $rubricsTransformer,
     ) {
-        $this->definitionsTransformer = $definitionsTransformer;
-        $this->documentTransformer = $documentTransformer;
-        $this->itemsTransformer = $itemsTransformer;
-        $this->associationsTransformer = $associationsTransformer;
-        $this->rubricsTransformer = $rubricsTransformer;
     }
 
     public function transform(CFPackage $package): LsDoc
