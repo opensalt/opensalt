@@ -13,8 +13,6 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class SubtypeUpdater
 {
-    private ManagerRegistry $registry;
-
     private const MAP_TO_ASSOC_TYPES = [
         'exactMatchOf' => LsAssociation::EXACT_MATCH_OF,
         'isRelatedTo' => LsAssociation::RELATED_TO,
@@ -90,9 +88,8 @@ class SubtypeUpdater
 //        'Continuation' => '',
     ];
 
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(private ManagerRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     public function loadSpreadsheet(string $path): array

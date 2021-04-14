@@ -24,24 +24,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class FrameworkService
 {
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
+    private ValidatorInterface $validator;
+    private EntityManager $em;
+    private TokenStorageInterface $tokenStorage;
 
-    /**
-     * @var EntityManager
-     */
-    private $em;
-
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
-     * Constructor.
-     */
     public function __construct(ManagerRegistry $registry, TokenStorageInterface $tokenStorage, ValidatorInterface $validator)
     {
         $this->tokenStorage = $tokenStorage;

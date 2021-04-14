@@ -19,20 +19,12 @@ use Ramsey\Uuid\Uuid;
 
 class AsnImport
 {
-    /**
-     * @var EntityManager
-     */
-    private $em;
+    private ClientInterface $jsonClient;
 
-    /** @var ClientInterface */
-    private $jsonClient;
-
-    public function __construct(EntityManagerInterface $em, ClientInterface $guzzleJsonClient)
+    public function __construct(private EntityManagerInterface $em, ClientInterface $guzzleJsonClient)
     {
-        $this->em = $em;
         $this->jsonClient = $guzzleJsonClient;
     }
-
 
     protected function getEntityManager(): EntityManager
     {

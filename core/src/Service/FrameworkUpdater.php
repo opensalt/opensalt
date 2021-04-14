@@ -13,11 +13,8 @@ use Ramsey\Uuid\Uuid;
  */
 class FrameworkUpdater
 {
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
     }
 
     protected function getEntityManager(): EntityManagerInterface

@@ -11,14 +11,11 @@ use Symfony\Component\Routing\RouterInterface;
 
 class Api1Uris
 {
-    private RouterInterface $router;
-
-    private UriGenerator $uriGenerator;
-
-    public function __construct(RouterInterface $router, UriGenerator $uriGenerator)
+    public function __construct(
+        private RouterInterface $router,
+        private UriGenerator $uriGenerator,
+    )
     {
-        $this->router = $router;
-        $this->uriGenerator = $uriGenerator;
     }
 
     public function getUri(?IdentifiableInterface $obj, ?string $route = null): ?string

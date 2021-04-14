@@ -20,22 +20,19 @@ class MirrorFramework
     use CommandDispatcherTrait;
     use LoggerTrait;
 
-    private MirrorServer $mirrorServer;
-
-    private ManagerRegistry $managerRegistry;
-
     private EntityManagerInterface $em;
 
-    public function __construct(MirrorServer $mirrorServer, ManagerRegistry $managerRegistry)
+    public function __construct(
+        private MirrorServer $mirrorServer,
+        private ManagerRegistry $managerRegistry,
+    )
     {
-        $this->mirrorServer = $mirrorServer;
         /** @var EntityManagerInterface $em */
         $em = $managerRegistry->getManager();
         if (!$em instanceof EntityManagerInterface) {
             throw new \InvalidArgumentException('ManagerRegistry is not providing an Entity manager');
         }
         $this->em = $em;
-        $this->managerRegistry = $managerRegistry;
     }
 
     public function validate(string $json): void

@@ -11,14 +11,8 @@ use Ramsey\Uuid\Uuid;
 
 class GithubImport
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
     }
 
     protected function getEntityManager(): EntityManagerInterface
