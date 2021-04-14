@@ -14,17 +14,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UriController extends AbstractController
 {
-    private SerializerInterface $serializer;
-
-    private IdentifiableObjectHelper $objectHelper;
-
-    private string $assetsVersion;
-
-    public function __construct(SerializerInterface $serializer, IdentifiableObjectHelper $uriHelper, string $assetsVersion)
+    public function __construct(
+        private SerializerInterface $serializer,
+        private IdentifiableObjectHelper $objectHelper,
+        private string $assetsVersion,
+    )
     {
-        $this->serializer = $serializer;
-        $this->objectHelper = $uriHelper;
-        $this->assetsVersion = $assetsVersion;
     }
 
     /**
