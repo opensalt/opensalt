@@ -84,7 +84,7 @@ class AbstractLsBase implements IdentifiableInterface
      */
     protected \DateTimeInterface $updatedAt;
 
-    public function __construct(UuidInterface|string|null $identifier)
+    public function __construct(UuidInterface|string|null $identifier = null)
     {
         if ($identifier instanceof UuidInterface) {
             $identifier = strtolower($identifier->toString());
