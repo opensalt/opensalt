@@ -18,24 +18,15 @@ class AssociationsTransformer
 {
     use LoggerTrait;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
-     * @var Definitions
-     */
-    private $definitions;
+    private Definitions $definitions;
 
     /**
      * @var LsItem[]
      */
-    private $items;
+    private array $items;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $em)
     {
-        $this->em = $entityManager;
     }
 
     /**

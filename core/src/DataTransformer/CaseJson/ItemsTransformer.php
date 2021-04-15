@@ -16,19 +16,10 @@ class ItemsTransformer
 {
     use LoggerTrait;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
+    private Definitions $definitions;
 
-    /**
-     * @var Definitions
-     */
-    private $definitions;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $em)
     {
-        $this->em = $entityManager;
     }
 
     /**

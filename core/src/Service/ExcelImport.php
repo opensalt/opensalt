@@ -19,14 +19,8 @@ final class ExcelImport
 {
     private static $itemCustomFields;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
         if (null === self::$itemCustomFields) {
             $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
                 ->findBy(['appliesTo' => LsItem::class]);

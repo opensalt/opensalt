@@ -84,10 +84,7 @@ class AbstractLsBase implements IdentifiableInterface
      */
     protected \DateTimeInterface $updatedAt;
 
-    /**
-     * @param string|UuidInterface|null $identifier
-     */
-    public function __construct($identifier = null)
+    public function __construct(UuidInterface|string|null $identifier = null)
     {
         if ($identifier instanceof UuidInterface) {
             $identifier = strtolower($identifier->toString());
@@ -133,13 +130,11 @@ class AbstractLsBase implements IdentifiableInterface
     /**
      * Set identifier.
      *
-     * @param UuidInterface|string $identifier
-     *
      * @return static
      *
      * @throws \InvalidArgumentException
      */
-    public function setIdentifier($identifier)
+    public function setIdentifier(UuidInterface|string $identifier)
     {
         // If the identifier is in the form of a UUID then lower case it
         if ($identifier instanceof UuidInterface) {

@@ -7,43 +7,13 @@ use App\DTO\CaseJson\Definitions;
 
 class DefinitionsTransformer
 {
-    /**
-     * @var AssociationGroupingsTransformer
-     */
-    private $associationGroupingsTransformer;
-
-    /**
-     * @var ConceptsTransformer
-     */
-    private $conceptsTransformer;
-
-    /**
-     * @var ItemTypesTransformer
-     */
-    private $itemTypesTransformer;
-
-    /**
-     * @var LicencesTransformer
-     */
-    private $licencesTransformer;
-
-    /**
-     * @var SubjectsTransformer
-     */
-    private $subjectsTransformer;
-
     public function __construct(
-        AssociationGroupingsTransformer $associationGroupingsTransformer,
-        ConceptsTransformer $conceptsTransformer,
-        ItemTypesTransformer $itemTypesTransformer,
-        LicencesTransformer $licencesTransformer,
-        SubjectsTransformer $subjectsTransformer
+        private AssociationGroupingsTransformer $associationGroupingsTransformer,
+        private ConceptsTransformer $conceptsTransformer,
+        private ItemTypesTransformer $itemTypesTransformer,
+        private LicencesTransformer $licencesTransformer,
+        private SubjectsTransformer $subjectsTransformer,
     ) {
-        $this->associationGroupingsTransformer = $associationGroupingsTransformer;
-        $this->conceptsTransformer = $conceptsTransformer;
-        $this->itemTypesTransformer = $itemTypesTransformer;
-        $this->licencesTransformer = $licencesTransformer;
-        $this->subjectsTransformer = $subjectsTransformer;
     }
 
     public function transform(CFDefinition $definitions): Definitions

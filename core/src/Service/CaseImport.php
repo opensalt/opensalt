@@ -10,20 +10,11 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class CaseImport
 {
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
-    /**
-     * @var PackageTransformer
-     */
-    private $packageTransformer;
-
-    public function __construct(SerializerInterface $serializer, PackageTransformer $packageTransformer)
+    public function __construct(
+        private SerializerInterface $serializer,
+        private PackageTransformer $packageTransformer,
+    )
     {
-        $this->serializer = $serializer;
-        $this->packageTransformer = $packageTransformer;
     }
 
     public function importCaseFile(string $content): LsDoc

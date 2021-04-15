@@ -25,26 +25,12 @@ class MirrorServer
 {
     use LoggerTrait;
 
-    /**
-     * @var ClientInterface
-     */
-    private $guzzleJsonClient;
-
-    /**
-     * @var iterable
-     */
-    private $csaMiddleware;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    public function __construct(ClientInterface $guzzleJsonClient, iterable $csaMiddleware, EntityManagerInterface $em)
+    public function __construct(
+        private ClientInterface $guzzleJsonClient,
+        private iterable $csaMiddleware,
+        private EntityManagerInterface $em,
+    )
     {
-        $this->guzzleJsonClient = $guzzleJsonClient;
-        $this->csaMiddleware = $csaMiddleware;
-        $this->em = $em;
     }
 
     public function fetchDocumentList(Server $server): array

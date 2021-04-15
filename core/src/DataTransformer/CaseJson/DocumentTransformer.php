@@ -9,19 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class DocumentTransformer
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
-     * @var Definitions
-     */
-    private $definitions;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $em)
     {
-        $this->em = $entityManager;
     }
 
     public function transform(CFPackageDocument $cfDocument, Definitions $definitions): LsDoc
@@ -29,9 +18,9 @@ class DocumentTransformer
         $this->definitions = $definitions;
         $doc = $this->findOrCreateDocument($cfDocument);
 
-        $this->updateAssociationGroups($this->definitions->associationGroupings, $doc);
+        $this->updateAssociationGroups($definitions->associationGroupings, $doc);
 
-        return $this->updateDocument($doc, $cfDocument);
+        return $this->updateDocument($doc, $cfDocument, $definitions);
     }
 
     private function findOrCreateDocument(CFPackageDocument $cfDocument): LsDoc
@@ -46,7 +35,7 @@ class DocumentTransformer
         return $doc;
     }
 
-    private function updateDocument(LsDoc $doc, CFPackageDocument $cfDocument): LsDoc
+    private function updateDocument(LsDoc $doc, CFPackageDocument $cfDocument, Definitions $definitions): LsDoc
     {
         $doc->setUri($cfDocument->uri);
         $doc->setTitle($cfDocument->title);
@@ -64,13 +53,13 @@ class DocumentTransformer
         $doc->setChangedAt($cfDocument->lastChangeDateTime);
 
         if (null !== $cfDocument->licenseURI) {
-            $licence = $this->definitions->licences[$cfDocument->licenseURI->identifier->toString()] ?? null;
+            $licence = $definitions->licences[$cfDocument->licenseURI->identifier->toString()] ?? null;
             $doc->setLicence($licence);
         }
 
         $doc->setSubjects(null);
         foreach ($cfDocument->subjectURI ?? [] as $subjectUri) {
-            $subject = $this->definitions->subjects[$subjectUri->identifier->toString()] ?? null;
+            $subject = $definitions->subjects[$subjectUri->identifier->toString()] ?? null;
             if (null !== $subject) {
                 $doc->addSubject($subject);
             }

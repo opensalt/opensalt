@@ -9,14 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ItemTypesTransformer
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $em)
     {
-        $this->em = $entityManager;
     }
 
     /**

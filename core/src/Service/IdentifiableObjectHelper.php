@@ -10,11 +10,8 @@ use Ramsey\Uuid\Uuid;
 
 class IdentifiableObjectHelper
 {
-    private ManagerRegistry $registry;
-
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(private ManagerRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     public function findObjectByIdentifier(string $identifier): ?AbstractLsBase
