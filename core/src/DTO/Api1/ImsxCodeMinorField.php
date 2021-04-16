@@ -17,11 +17,9 @@ class ImsxCodeMinorField
     public const CODE_MINOR_INVALID_UUID = 'invaliduuid';
 
     /**
-     * @var array
-     *
      * @Serializer\Exclude()
      */
-    public static $codeMinorValues = [
+    public static array $codeMinorValues = [
         self::CODE_MINOR_FULLSUCCESS,
         self::CODE_MINOR_INVALID_SORT,
         self::CODE_MINOR_INVALID_SELECTION,
@@ -34,18 +32,14 @@ class ImsxCodeMinorField
     ];
 
     /**
-     * @var string
-     *
      * @Serializer\SerializedName("imsx_codeMinorFieldName")
      */
-    public $name;
+    public string $name;
 
     /**
-     * @var string
-     *
      * @Serializer\SerializedName("imsx_codeMinorFieldValue")
      */
-    public $value;
+    public string $value;
 
     public function __construct($name, $value)
     {

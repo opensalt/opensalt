@@ -7,25 +7,16 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 
 class CFRubric
 {
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $uri;
-
-    /** @var string */
+    public UuidInterface $identifier;
+    public string $uri;
     public $title;
-
-    /** @var string */
-    public $description;
-
-    /** @var \DateTimeInterface */
-    public $lastChangeDateTime;
+    public ?string $description = null;
+    public \DateTimeInterface $lastChangeDateTime;
 
     /**
-     * @var CFRubricCriterion[]|array
+     * @var CFRubricCriterion[]|array|null
      *
      * @SerializedName("CFRubricCriteria")
      */
-    public $cfRubricCriteria;
+    public ?array $cfRubricCriteria = [];
 }

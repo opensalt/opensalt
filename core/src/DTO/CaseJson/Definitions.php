@@ -13,25 +13,25 @@ class Definitions
     /**
      * @var LsDefAssociationGrouping[]
      */
-    public $associationGroupings = [];
+    public ?array $associationGroupings = [];
 
     /**
      * @var LsDefConcept[]
      */
-    public $concepts = [];
+    public ?array $concepts = [];
 
     /**
      * @var LsDefItemType[]
      */
-    public $itemTypes = [];
+    public ?array $itemTypes = [];
 
     /**
      * @var LsDefLicence[]
      */
-    public $licences = [];
+    public ?array $licences = [];
 
     /**
      * @var LsDefSubject[]
      */
-    public $subjects = [];
+    public ?array $subjects = [];
 }

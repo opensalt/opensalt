@@ -7,31 +7,17 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 
 class CFPackageAssociation
 {
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $associationType;
-
-    /** @var int */
-    public $sequenceNumber;
-
-    /** @var string */
-    public $uri;
-
-    /** @var LinkGenURI */
-    public $originNodeURI;
-
-    /** @var LinkGenURI */
-    public $destinationNodeURI;
+    public UuidInterface $identifier;
+    public string $associationType;
+    public ?int $sequenceNumber = null;
+    public string $uri;
+    public LinkGenURI $originNodeURI;
+    public LinkGenURI $destinationNodeURI;
 
     /**
-     * @var LinkURI|null
-     *
      * @SerializedName("CFAssociationGroupingURI")
      */
-    public $cfAssociationGroupingURI;
+    public ?LinkURI $cfAssociationGroupingURI = null;
 
-    /** @var \DateTimeInterface */
-    public $lastChangeDateTime;
+    public \DateTimeInterface $lastChangeDateTime;
 }

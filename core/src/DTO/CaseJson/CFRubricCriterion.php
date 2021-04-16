@@ -7,41 +7,25 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 
 class CFRubricCriterion
 {
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $uri;
-
-    /** @var string */
-    public $category;
-
-    /** @var string */
-    public $description;
+    public UuidInterface $identifier;
+    public string $uri;
+    public ?string $category = null;
+    public ?string $description = null;
 
     /**
-     * @var LinkURI
-     *
      * @SerializedName("CFItemURI")
      */
-    public $cfItemURI;
+    public ?LinkURI $cfItemURI = null;
 
-    /** @var float */
-    public $weight;
-
-    /** @var int */
-    public $position;
-
-    /** @var string */
-    public $rubricId;
-
-    /** @var \DateTimeInterface */
-    public $lastChangeDateTime;
+    public ?float $weight = null;
+    public ?int $position = null;
+    public ?string $rubricId = null;
+    public \DateTimeInterface $lastChangeDateTime;
 
     /**
-     * @var CFRubricCriterionLevel[]|array
+     * @var CFRubricCriterionLevel[]|array|null
      *
      * @SerializedName("CFRubricCriterionLevels")
      */
-    public $cfRubricCriterionLevels;
+    public ?array $cfRubricCriterionLevels = [];
 }

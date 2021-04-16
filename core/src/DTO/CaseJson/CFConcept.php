@@ -6,24 +6,11 @@ use Ramsey\Uuid\UuidInterface;
 
 class CFConcept
 {
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $uri;
-
-    /** @var string */
-    public $title;
-
-    /** @var string */
-    public $keywords;
-
-    /** @var string */
-    public $hierarchyCode;
-
-    /** @var string */
-    public $description;
-
-    /** @var \DateTimeInterface */
-    public $lastChangeDateTime;
+    public UuidInterface $identifier;
+    public string $uri;
+    public string $title;
+    public ?string $keywords = null;
+    public string $hierarchyCode;
+    public ?string $description = null;
+    public \DateTimeInterface $lastChangeDateTime;
 }

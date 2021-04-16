@@ -6,21 +6,10 @@ use Ramsey\Uuid\UuidInterface;
 
 class CFLicense
 {
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $uri;
-
-    /** @var string */
-    public $title;
-
-    /** @var string */
-    public $description;
-
-    /** @var string */
-    public $licenseText;
-
-    /** @var \DateTimeInterface */
-    public $lastChangeDateTime;
+    public UuidInterface $identifier;
+    public string $uri;
+    public string $title;
+    public ?string $description = null;
+    public string $licenseText;
+    public \DateTimeInterface $lastChangeDateTime;
 }

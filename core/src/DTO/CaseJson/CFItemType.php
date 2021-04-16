@@ -6,24 +6,11 @@ use Ramsey\Uuid\UuidInterface;
 
 class CFItemType
 {
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $uri;
-
-    /** @var string */
-    public $title;
-
-    /** @var string */
-    public $description;
-
-    /** @var string */
-    public $hierarchyCode;
-
-    /** @var string|null */
-    public $typeCode;
-
-    /** @var \DateTimeInterface */
-    public $lastChangeDateTime;
+    public UuidInterface $identifier;
+    public string $uri;
+    public string $title;
+    public string $description;
+    public string $hierarchyCode;
+    public ?string $typeCode = null;
+    public string $lastChangeDateTime;
 }
