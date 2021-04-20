@@ -6,7 +6,7 @@ use App\Event\NotificationEvent;
 use App\Service\LoggerTrait;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Mercure\PublisherInterface;
+use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 
 /**
@@ -34,9 +34,9 @@ class NotificationToMercureListener implements EventSubscriberInterface
 {
     use LoggerTrait;
 
-    private PublisherInterface $publisher;
+    private HubInterface $publisher;
 
-    public function __construct(PublisherInterface $publisher)
+    public function __construct(HubInterface $publisher)
     {
         $this->publisher = $publisher;
     }
