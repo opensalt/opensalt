@@ -54,7 +54,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->where('a.doc_id = :doc_id')
             ->setParameter('doc_id', $doc->getId())
             ->execute()
-            ->fetch(\PDO::FETCH_ASSOC);
+            ->fetchAssociative();
     }
 
     public function getChangeEntryCountForDoc(LsDoc $doc): int
@@ -65,7 +65,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->where('a.doc_id = :doc_id')
             ->setParameter('doc_id', $doc->getId())
             ->execute()
-            ->fetchColumn();
+            ->fetchOne();
     }
 
     public function getChangeEntriesForDoc(LsDoc $doc, int $limit = 20, int $offset = 0): ResultStatement
@@ -88,7 +88,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->from($this->getClassMetadata()->getTableName(), 'a')
             ->where('a.doc_id IS NULL')
             ->execute()
-            ->fetchColumn();
+            ->fetchOne();
     }
 
     public function getChangeEntriesForSystem(int $limit = 20, int $offset = 0): ResultStatement

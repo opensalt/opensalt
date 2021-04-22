@@ -8,6 +8,7 @@ use App\Entity\LockableInterface;
 use App\Entity\User\User;
 use App\Exception\AlreadyLockedException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -38,8 +39,8 @@ class ObjectLockRepository extends ServiceEntityRepository
         $query = $qb->select('o')
             ->where('o.doc = :doc')
             ->andWhere('o.timeout > :now')
-            ->setParameter('doc', $doc)
-            ->setParameter('now', new \DateTime())
+            ->setParameter('doc', $doc->getId())
+            ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE)
             ->getQuery();
 
         return $query->getResult();
@@ -100,9 +101,7 @@ class ObjectLockRepository extends ServiceEntityRepository
             return;
         }
 
-        //$this->_em->remove($lock);
         $this->_em->getConnection()->delete($this->getClassMetadata()->getTableName(), ['id' => $lock->getId()]);
-        $this->_em->detach($lock);
     }
 
     public function removeExpiredLocks(): void
@@ -110,7 +109,7 @@ class ObjectLockRepository extends ServiceEntityRepository
         $qb = $this->getEntityManager()->createQueryBuilder();
         $query = $qb->delete($this->_entityName, 'o')
             ->where('o.timeout < :now')
-            ->setParameter('now', new \DateTime())
+            ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE)
             ->getQuery();
         $query->execute();
     }

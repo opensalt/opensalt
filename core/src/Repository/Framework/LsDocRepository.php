@@ -259,7 +259,7 @@ DELETE FROM salt_object_lock
  WHERE doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->execute($params);
+        $conn->prepare($stmt)->executeStatement($params);
 
         $progressCallback('Deleting associations');
         $stmt = <<<'xENDx'
@@ -277,7 +277,7 @@ DELETE FROM ls_association
     )
 ;
 xENDx;
-        $conn->prepare($stmt)->execute($params);
+        $conn->prepare($stmt)->executeStatement($params);
 
         $progressCallback('Deleting association groups');
         $stmt = <<<'xENDx'
@@ -285,7 +285,7 @@ DELETE FROM ls_def_association_grouping
  WHERE ls_doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->execute($params);
+        $conn->prepare($stmt)->executeStatement($params);
 
         $progressCallback('Deleting rubric references to items');
         $stmt = <<<'xENDx'
@@ -298,7 +298,7 @@ UPDATE rubric_criterion
  )
 ;
 xENDx;
-        $conn->prepare($stmt)->execute($params);
+        $conn->prepare($stmt)->executeStatement($params);
 
         $progressCallback('Deleting items');
         $stmt = <<<'xENDx'
@@ -306,7 +306,7 @@ DELETE FROM ls_item
  WHERE ls_doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->execute($params);
+        $conn->prepare($stmt)->executeStatement($params);
 
         $progressCallback('Deleting document subjects');
         $stmt = <<<'xENDx'
@@ -314,7 +314,7 @@ DELETE FROM ls_doc_subject
  WHERE ls_doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->execute($params);
+        $conn->prepare($stmt)->executeStatement($params);
 
         $progressCallback('Deleting document import logs');
         $stmt = <<<'xENDx'
@@ -322,7 +322,7 @@ DELETE FROM import_logs
  WHERE ls_doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->execute($params);
+        $conn->prepare($stmt)->executeStatement($params);
 
         $progressCallback('Deleting acls');
         $stmt = <<<'xENDx'
@@ -330,7 +330,7 @@ DELETE FROM salt_user_doc_acl
  WHERE doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->execute($params);
+        $conn->prepare($stmt)->executeStatement($params);
 
         $progressCallback('Deleting document attributes');
         $stmt = <<<'xENDx'
@@ -338,7 +338,7 @@ DELETE FROM ls_doc_attribute
  WHERE ls_doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->execute($params);
+        $conn->prepare($stmt)->executeStatement($params);
 
         $progressCallback('Deleting document');
         $stmt = <<<'xENDx'
@@ -346,7 +346,7 @@ DELETE FROM ls_doc
  WHERE id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->execute($params);
+        $conn->prepare($stmt)->executeStatement($params);
 
         $progressCallback('Done');
     }
@@ -648,7 +648,7 @@ xENDx;
             ->join('i.associations', 'a')
             ->join('a.destinationLsItem', 'i2')
             ->where('i2.lsDoc = :doc')
-            ->setParameter('doc', $lsDoc)
+            ->setParameter('doc', $lsDoc->getId())
         ;
         $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
         foreach ($results as $doc) {
@@ -666,7 +666,7 @@ xENDx;
             ->join('i.associations', 'a')
             ->join('a.originLsItem', 'i2')
             ->where('i2.lsDoc = :doc')
-            ->setParameter('doc', $lsDoc)
+            ->setParameter('doc', $lsDoc->getId())
         ;
         $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
         foreach ($results as $doc) {
@@ -684,7 +684,7 @@ xENDx;
             ->join('i.associations', 'a')
             ->join('a.destinationLsDoc', 'd2')
             ->where('d2.id = :doc')
-            ->setParameter('doc', $lsDoc)
+            ->setParameter('doc', $lsDoc->getId())
         ;
         $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
         foreach ($results as $doc) {
@@ -702,7 +702,7 @@ xENDx;
             ->join('i.associations', 'a')
             ->join('a.originLsDoc', 'd2')
             ->where('d2.id = :doc')
-            ->setParameter('doc', $lsDoc)
+            ->setParameter('doc', $lsDoc->getId())
         ;
         $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
         foreach ($results as $doc) {
