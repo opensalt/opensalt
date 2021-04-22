@@ -145,7 +145,7 @@ xENDx;
         }
 
         $useFormat = 'json';
-        $quality = 0;
+        $quality = 0.0;
 
         $accept = AcceptHeader::fromString($request->headers->get('Accept'));
         $contentTypes = $accept->all();
@@ -153,7 +153,7 @@ xENDx;
             $tryFormat = $request->getFormat($contentType);
             if (in_array($tryFormat, $allowedFormats, true)) {
                 $useFormat = $tryFormat;
-                $quality = $accept->get($contentType)->getQuality();
+                $quality = $accept->get($contentType)?->getQuality() ?? 0.0;
 
                 break;
             }
@@ -169,7 +169,7 @@ xENDx;
                 continue;
             }
 
-            $q = $accept->get($contentType)->getQuality();
+            $q = $accept->get($contentType)?->getQuality() ?? 0.0;
             if ($quality < $q) {
                 $useFormat = $format;
                 $quality = $q;
