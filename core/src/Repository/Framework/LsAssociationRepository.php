@@ -29,11 +29,9 @@ class LsAssociationRepository extends ServiceEntityRepository
     }
 
     /**
-     * Remove all associations of a specific type from the object.
-     *
-     * @param LsItem|LsDoc $object
+     * Remove all associations from the object.
      */
-    public function removeAllAssociations($object): void
+    public function removeAllAssociations(LsItem|LsDoc $object): void
     {
         foreach ($object->getAssociations() as $association) {
             $this->removeAssociation($association);
@@ -46,12 +44,9 @@ class LsAssociationRepository extends ServiceEntityRepository
     /**
      * Remove all associations of a specific type from the object.
      *
-     * @param LsItem|LsDoc $object
-     * @param string $type
-     *
      * @return LsAssociation[]
      */
-    public function removeAllAssociationsOfType($object, $type): array
+    public function removeAllAssociationsOfType(LsItem|LsDoc $object, $type): array
     {
         $deleted = [];
         foreach ($object->getAssociations() as $association) {
@@ -64,7 +59,10 @@ class LsAssociationRepository extends ServiceEntityRepository
         return $deleted;
     }
 
-    public function findAllChildAssociationsFor(string $identifier)
+    /**
+     * @return LsAssociation[]
+     */
+    public function findAllChildAssociationsFor(string $identifier): array
     {
         $qry = $this->createQueryBuilder('a')
             ->where('a.destinationNodeIdentifier = :identifier')
@@ -76,10 +74,13 @@ class LsAssociationRepository extends ServiceEntityRepository
         return $qry->getResult();
     }
 
-    public function findAllAssociationsFor($id)
+    /**
+     * @return LsAssociation[]|null
+     */
+    public function findAllAssociationsFor(string $identifier): ?array
     {
         $item = $this->getEntityManager()->getRepository(LsItem::class)
-            ->findOneBy(['identifier' => str_replace('_', '', $id)]);
+            ->findOneBy(['identifier' => str_replace('_', '', $identifier)]);
 
         if (null === $item) {
             return null;

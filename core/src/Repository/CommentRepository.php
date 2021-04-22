@@ -11,9 +11,8 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * CommentRepository.
- *
  * @method Comment[] findByItem(string $itemRef)
+ * @method Comment[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class CommentRepository extends ServiceEntityRepository
 {
@@ -22,14 +21,7 @@ class CommentRepository extends ServiceEntityRepository
         parent::__construct($registry, Comment::class);
     }
 
-    /**
-     * @param LsDoc|LsItem $itemId
-     * @param string $content
-     * @param int $parentId
-     *
-     * @return Comment
-     */
-    public function addComment(string $itemType, $itemId, User $user, ?string $content = null, ?string $fileUrl = null, ?string $mimeType = null, $parentId = null)
+    public function addComment(string $itemType, LsItem|LsDoc $itemId, User $user, ?string $content = null, ?string $fileUrl = null, ?string $mimeType = null, ?int $parentId = null): Comment
     {
         $comment = new Comment();
         $comment->setContent(trim($content));
@@ -81,7 +73,7 @@ class CommentRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array|Comment[]
+     * @return Comment[]
      */
     public function findByTypeItem(string $itemType, int $itemId): array
     {

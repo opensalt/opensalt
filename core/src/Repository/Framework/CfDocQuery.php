@@ -14,14 +14,14 @@ class CfDocQuery
 
     public function getLimit(): ?int
     {
-        $limit = (int) $this->limit;
+        $limit = $this->limit;
 
         return ($limit > 0) ? $limit : null;
     }
 
     public function getOffset(): int
     {
-        $offset = (int) $this->offset;
+        $offset = $this->offset;
 
         return ($offset > 0) ? $offset : 0;
     }
