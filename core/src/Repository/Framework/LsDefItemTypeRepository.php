@@ -46,8 +46,6 @@ class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
     }
 
     /**
-     * @param string|null $search
-     *
      * @return array{'results': LsDefItemType[], 'more': bool}
      */
     public function getSelect2List(?string $search = null, int $limit = 50, int $page = 1): array

@@ -4,7 +4,8 @@ namespace App\DTO\CaseJson;
 
 use Ramsey\Uuid\UuidInterface;
 
-class LinkURI {
+class LinkURI
+{
     public string $title;
     public UuidInterface $identifier;
     public string $uri;
