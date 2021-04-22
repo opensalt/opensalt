@@ -161,6 +161,11 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         try {
             $docPage = $this->fetch('/uri/'.$identifier, 'text/html');
         } catch (\Exception $e) {
+            $this->comment('Exception thrown: '.json_encode(
+                    ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
+                    JSON_THROW_ON_ERROR
+                )
+            );
             $docPage = null;
         }
 
