@@ -13,7 +13,7 @@ class ImsxCodeMinor
      * @Serializer\SerializedName("imsx_codeMinorField")
      * @Serializer\Type("array<App\DTO\Api1\ImsxCodeMinorField>")
      */
-    public $codeMinorField;
+    public array $codeMinorField = [];
 
     public function __construct($fields)
     {

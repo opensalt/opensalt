@@ -6,54 +6,26 @@ use Ramsey\Uuid\UuidInterface;
 
 class CFPackageDocument
 {
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $uri;
-
-    /** @var string */
-    public $creator;
-
-    /** @var string */
-    public $title;
-
-    /** @var \DateTimeInterface */
-    public $lastChangeDateTime;
-
-    /** @var string */
-    public $officialSourceURL;
-
-    /** @var string */
-    public $publisher;
-
-    /** @var string */
-    public $description;
+    public UuidInterface $identifier;
+    public string $uri;
+    public string $creator;
+    public string $title;
+    public \DateTimeInterface $lastChangeDateTime;
+    public ?string $officialSourceURL = null;
+    public ?string $publisher = null;
+    public ?string $description = null;
 
     /** @var string[]|string */
     public $subject;
 
     /** @var LinkURI[] */
-    public $subjectURI;
+    public ?array $subjectURI = [];
 
-    /** @var string */
-    public $language;
-
-    /** @var string */
-    public $version;
-
-    /** @var string */
-    public $adoptionStatus;
-
-    /** @var \DateTimeInterface|null */
-    public $statusStartDate;
-
-    /** @var \DateTimeInterface|null */
-    public $statusEndDate;
-
-    /** @var LinkURI|null */
-    public $licenseURI;
-
-    /** @var string */
-    public $notes;
+    public ?string $language = null;
+    public ?string $version = null;
+    public ?string $adoptionStatus = null;
+    public ?\DateTimeInterface $statusStartDate = null;
+    public ?\DateTimeInterface $statusEndDate = null;
+    public ?LinkURI $licenseURI = null;
+    public ?string $notes = null;
 }

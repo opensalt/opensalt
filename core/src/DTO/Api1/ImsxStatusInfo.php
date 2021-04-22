@@ -16,11 +16,9 @@ class ImsxStatusInfo
     public const SEVERITY_ERROR = 'error';
 
     /**
-     * @var array
-     *
      * @Serializer\Exclude()
      */
-    public static $codeMajorValues = [
+    public static array $codeMajorValues = [
         self::CODE_MAJOR_SUCCESS,
         self::CODE_MAJOR_PROCESSING,
         self::CODE_MAJOR_FAILURE,
@@ -28,48 +26,38 @@ class ImsxStatusInfo
     ];
 
     /**
-     * @var array
-     *
      * @Serializer\Exclude()
      */
-    public static $severityValues = [
+    public static array $severityValues = [
         self::SEVERITY_STATUS,
         self::SEVERITY_WARNING,
         self::SEVERITY_ERROR,
     ];
 
     /**
-     * @var string
-     *
      * @Serializer\Expose()
      * @Serializer\SerializedName("imsx_codeMajor")
      */
-    public $codeMajor;
+    public string $codeMajor;
 
     /**
-     * @var string
-     *
      * @Serializer\Expose()
      * @Serializer\SerializedName("imsx_severity")
      */
-    public $severity;
+    public string $severity;
 
     /**
-     * @var string
-     *
      * @Serializer\Expose()
      * @Serializer\SerializedName("imsx_description")
      */
-    public $description;
+    public ?string $description = null;
 
     /**
-     * @var ImsxCodeMinor
-     *
      * @Serializer\Expose()
      * @Serializer\SerializedName("imsx_codeMinor")
      * @Serializer\Type("App\DTO\Api1\ImsxCodeMinor")
      */
-    public $codeMinor;
+    public ?ImsxCodeMinor $codeMinor = null;
 
     /**
      * ImsxStatusInfo constructor.

@@ -6,12 +6,7 @@ use Ramsey\Uuid\UuidInterface;
 
 class LinkURI
 {
-    /** @var string */
-    public $title;
-
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $uri;
+    public string $title;
+    public UuidInterface $identifier;
+    public string $uri;
 }

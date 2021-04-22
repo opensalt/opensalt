@@ -57,11 +57,11 @@ class LsDefItemTypeController extends AbstractController
         $em = $this->getDoctrine()->getManager();
 
         $search = $request->query->get('q', null);
-        $page = $request->query->get('page', 1);
-        $page_limit = $request->query->get('page_limit', 50);
+        $page = $request->query->get('page', '1');
+        $page_limit = $request->query->get('page_limit', '50');
 
         $results = $em->getRepository(LsDefItemType::class)
-            ->getSelect2List($search, $page_limit, $page);
+            ->getSelect2List($search, (int) $page_limit, (int) $page);
 
         if (!empty($search) && empty($results['results'][$search])) {
             array_unshift(

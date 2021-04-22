@@ -3,13 +3,13 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\ImportLog;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityRepository;
 
 /**
  * ImportLogRepository.
  */
-class ImportLogRepository extends EntityRepository
+class ImportLogRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

@@ -6,21 +6,10 @@ use Ramsey\Uuid\UuidInterface;
 
 class CFSubject
 {
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $uri;
-
-    /** @var string */
-    public $title;
-
-    /** @var string */
-    public $hierarchyCode;
-
-    /** @var string */
-    public $description;
-
-    /** @var \DateTimeInterface */
-    public $lastChangeDateTime;
+    public UuidInterface $identifier;
+    public string $uri;
+    public string $title;
+    public string $hierarchyCode;
+    public ?string $description = null;
+    public \DateTimeInterface $lastChangeDateTime;
 }

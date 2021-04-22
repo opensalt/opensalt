@@ -7,6 +7,7 @@ use App\Service\UriGenerator;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,6 +49,7 @@ class UriController extends AbstractController
         }
         $this->determineRequestFormat($request, $_format);
 
+        $this->addLink($request, (new Link('canonical', "/uri/{$uri}")));
         $this->addLink($request, (new Link('alternate', "/uri/{$uri}.json"))->withAttribute('type', 'application/json'));
         $this->addLink($request, (new Link('alternate', "/uri/{$uri}.html"))->withAttribute('type', 'text/html'));
 
@@ -136,28 +138,45 @@ xENDx;
 
     private function determineRequestFormat(Request $request, ?string $_format, array $allowedFormats = ['json', 'html']): void
     {
-        if ('*/*' === $request->headers->get('Accept')) {
-            $request->setRequestFormat('json');
+        if (in_array($_format, $allowedFormats, true)) {
+            $request->setRequestFormat($_format);
 
             return;
         }
 
-        if (!in_array($request->getRequestFormat($_format), $allowedFormats, true)) {
-            $cTypes = $request->getAcceptableContentTypes();
-            $format = null;
-            foreach ($cTypes as $cType) {
-                if ($request->getFormat($cType)) {
-                    $format = $request->getFormat($cType);
-                    if ('json' === $format || 'html' === $format) {
-                        break;
-                    }
-                }
-            }
-            // If there was no match found, default to old request format.
-            $format = $format ?: $request->getRequestFormat();
+        $useFormat = 'json';
+        $quality = 0.0;
 
-            $request->setRequestFormat($format);
+        $accept = AcceptHeader::fromString($request->headers->get('Accept'));
+        $contentTypes = $accept->all();
+        foreach ($contentTypes as $contentType) {
+            $tryFormat = $request->getFormat($contentType);
+            if (in_array($tryFormat, $allowedFormats, true)) {
+                $useFormat = $tryFormat;
+                $quality = $accept->get($contentType)?->getQuality() ?? 0.0;
+
+                break;
+            }
         }
+
+        $tryTypes = [
+            'application/json' => 'json',
+            'application/ld+json' => 'jsonld',
+            'text/html' => 'html',
+        ];
+        foreach ($tryTypes as $contentType => $format) {
+            if (!in_array($format, $allowedFormats, true)) {
+                continue;
+            }
+
+            $q = $accept->get($contentType)?->getQuality() ?? 0.0;
+            if ($quality < $q) {
+                $useFormat = $format;
+                $quality = $q;
+            }
+        }
+
+        $request->setRequestFormat($useFormat);
     }
 
     protected function generateBaseResponse(\DateTimeInterface $lastModified): Response

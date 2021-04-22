@@ -7,65 +7,36 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 
 class CFPackageItem
 {
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $uri;
-
-    /** @var string */
-    public $fullStatement;
-
-    /** @var string|null */
-    public $alternativeLabel;
+    public UuidInterface $identifier;
+    public string $uri;
+    public string $fullStatement;
+    public ?string $alternativeLabel = null;
 
     /**
-     * @var string|null
-     *
      * @SerializedName("CFItemType")
      */
-    public $cfItemType;
+    public ?string $cfItemType = null;
 
-    /** @var string|null */
-    public $humanCodingScheme;
-
-    /** @var string|null */
-    public $listEnumeration;
-
-    /** @var string|null */
-    public $abbreviatedStatement;
+    public ?string $humanCodingScheme = null;
+    public ?string $listEnumeration = null;
+    public ?string $abbreviatedStatement = null;
 
     /** @var string[]|array|null */
     public $conceptKeywords;
 
-    /** @var LinkURI|null */
-    public $conceptKeywordsURI;
+    public ?LinkURI $conceptKeywordsURI = null;
+    public ?string $notes = null;
+    public ?string $language = null;
 
-    /** @var string|null */
-    public $notes;
-
-    /** @var string|null */
-    public $language;
-
-    /** @var string[]|array|string */
+    /** @var string[]|array|string|null */
     public $educationLevel;
 
     /**
-     * @var LinkURI|null
-     *
      * @SerializedName("CFItemTypeURI")
      */
-    public $cfItemTypeURI;
-
-    /** @var LinkURI|null */
-    public $licenseURI;
-
-    /** @var \DateTimeImmutable|null */
-    public $statusStartDate;
-
-    /** @var \DateTimeImmutable|null */
-    public $statusEndDate;
-
-    /** @var \DateTimeImmutable */
-    public $lastChangeDateTime;
+    public ?LinkURI $cfItemTypeURI = null;
+    public ?LinkURI $licenseURI = null;
+    public ?\DateTimeInterface $statusStartDate = null;
+    public ?\DateTimeInterface $statusEndDate = null;
+    public \DateTimeInterface $lastChangeDateTime;
 }

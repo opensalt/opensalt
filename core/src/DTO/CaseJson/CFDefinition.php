@@ -7,37 +7,37 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 class CFDefinition
 {
     /**
-     * @var CFConcept[]|array
+     * @var CFConcept[]|array|null
      *
      * @SerializedName("CFConcepts")
      */
-    public $cfConcepts = [];
+    public ?array $cfConcepts = [];
 
     /**
-     * @var CFSubject[]|array
+     * @var CFSubject[]|array|null
      *
      * @SerializedName("CFSubjects")
      */
-    public $cfSubjects = [];
+    public ?array $cfSubjects = [];
 
     /**
-     * @var CFLicense[]|array
+     * @var CFLicense[]|array|null
      *
      * @SerializedName("CFLicenses")
      */
-    public $cfLicenses = [];
+    public ?array $cfLicenses = [];
 
     /**
-     * @var CFItemType[]|array
+     * @var CFItemType[]|array|null
      *
      * @SerializedName("CFItemTypes")
      */
-    public $cfItemTypes = [];
+    public ?array $cfItemTypes = [];
 
     /**
-     * @var CFAssociationGrouping[]|array
+     * @var CFAssociationGrouping[]|array|null
      *
      * @SerializedName("CFAssociationGroupings")
      */
-    public $cfAssociationGroupings = [];
+    public ?array $cfAssociationGroupings = [];
 }

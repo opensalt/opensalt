@@ -6,18 +6,9 @@ use Ramsey\Uuid\UuidInterface;
 
 class CFAssociationGrouping
 {
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $uri;
-
-    /** @var string */
-    public $title;
-
-    /** @var string */
-    public $description;
-
-    /** @var \DateTimeInterface */
-    public $lastChangeDateTime;
+    public UuidInterface $identifier;
+    public string $uri;
+    public string $title;
+    public ?string $description = null;
+    public \DateTimeInterface $lastChangeDateTime;
 }

@@ -20,9 +20,9 @@ class FrameworkTypeRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array|FrameworkType[]
+     * @return FrameworkType[]
      */
-    public function getList()
+    public function getList(): array
     {
         $qBuilder = $this->createQueryBuilder('f', 'f.value')
             ->orderBy('f.value');

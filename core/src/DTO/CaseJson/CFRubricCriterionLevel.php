@@ -6,30 +6,13 @@ use Ramsey\Uuid\UuidInterface;
 
 class CFRubricCriterionLevel
 {
-    /** @var UuidInterface */
-    public $identifier;
-
-    /** @var string */
-    public $uri;
-
-    /** @var string */
-    public $description;
-
-    /** @var string */
-    public $quality;
-
-    /** @var float */
-    public $score;
-
-    /** @var string */
-    public $feedback;
-
-    /** @var int */
-    public $position;
-
-    /** @var string */
-    public $rubricCriterionId;
-
-    /** @var \DateTimeInterface */
-    public $lastChangeDateTime;
+    public UuidInterface $identifier;
+    public string $uri;
+    public ?string $description = null;
+    public ?string $quality = null;
+    public ?float $score = null;
+    public ?string $feedback = null;
+    public ?int $position = null;
+    public ?string $rubricCriterionId = null;
+    public \DateTimeInterface $lastChangeDateTime;
 }
