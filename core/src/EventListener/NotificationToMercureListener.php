@@ -34,11 +34,9 @@ class NotificationToMercureListener implements EventSubscriberInterface
 {
     use LoggerTrait;
 
-    private HubInterface $publisher;
-
-    public function __construct(HubInterface $publisher)
-    {
-        $this->publisher = $publisher;
+    public function __construct(
+        private HubInterface $publisher
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -82,6 +80,6 @@ class NotificationToMercureListener implements EventSubscriberInterface
             false
         );
 
-        $this->publisher->__invoke($update);
+        $this->publisher->publish($update);
     }
 }
