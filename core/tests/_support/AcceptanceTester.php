@@ -166,7 +166,8 @@ class AcceptanceTester extends \Codeception\Actor implements Context
                     JSON_THROW_ON_ERROR
                 )
             );
-            $docPage = null;
+
+            throw $e;
         }
 
         if (null === $docPage) {
