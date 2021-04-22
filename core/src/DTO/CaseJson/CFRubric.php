@@ -9,7 +9,7 @@ class CFRubric
 {
     public UuidInterface $identifier;
     public string $uri;
-    public $title;
+    public ?string $title = null;
     public ?string $description = null;
     public \DateTimeInterface $lastChangeDateTime;
 

@@ -12,5 +12,5 @@ class CFItemType
     public string $description;
     public string $hierarchyCode;
     public ?string $typeCode = null;
-    public string $lastChangeDateTime;
+    public \DateTimeInterface $lastChangeDateTime;
 }
