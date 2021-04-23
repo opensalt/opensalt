@@ -190,6 +190,7 @@ class LsDocController extends AbstractController
     {
         $response = new JsonResponse();
         $fileContent = $request->request->get('content');
+        /** @var array $cfItemKeys - cfItemKeys is an array argument */
         $cfItemKeys = $request->request->get('cfItemKeys');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
 

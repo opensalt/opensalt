@@ -8,6 +8,8 @@
 
 namespace App\Form\Type;
 
+use App\Entity\User\Organization;
+use App\Entity\User\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -18,14 +20,8 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class UserType extends AbstractType
 {
-    /**
-     * @var AuthorizationCheckerInterface
-     */
-    private $authorizationChecker;
-
-    public function __construct(AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(private AuthorizationCheckerInterface $authorizationChecker)
     {
-        $this->authorizationChecker = $authorizationChecker;
     }
 
     /**
@@ -62,7 +58,7 @@ class UserType extends AbstractType
 
         if ($this->authorizationChecker->isGranted('manage', 'all_users')) {
             $builder->add('org', EntityType::class, [
-                'class' => 'App\Entity\User\Organization',
+                'class' => Organization::class,
                 'choice_label' => 'name',
             ]);
         }
@@ -74,7 +70,7 @@ class UserType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => 'App\Entity\User\User',
+            'data_class' => User::class,
             'validation_groups' => ['Default'],
         ]);
     }

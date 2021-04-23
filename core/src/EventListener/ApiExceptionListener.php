@@ -42,7 +42,7 @@ class ApiExceptionListener implements EventSubscriberInterface
             return;
         }
 
-        if (0 !== strpos($request->getPathInfo(), '/ims/case/v1p0/')) {
+        if (!str_starts_with($request->getPathInfo(), '/ims/case/v1p0/')) {
             return;
         }
 

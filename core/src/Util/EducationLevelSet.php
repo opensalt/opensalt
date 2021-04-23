@@ -4,10 +4,7 @@ namespace App\Util;
 
 class EducationLevelSet
 {
-    /**
-     * @var array
-     */
-    private $grades;
+    private array $grades;
 
     public function __construct(array $passedGrades)
     {
@@ -94,7 +91,7 @@ class EducationLevelSet
             return $grades;
         }
 
-        if (false !== strpos($gradeString, '-')) {
+        if (str_contains($gradeString, '-')) {
             [$lo, $hi] = explode('-', $gradeString, 2);
 
             $lo = self::normalizeGrade($lo);

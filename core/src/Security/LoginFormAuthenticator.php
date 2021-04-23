@@ -91,10 +91,14 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         return $this->router->generate('login');
     }
 
-    public function start(Request $request, AuthenticationException $authException = null)
+    /**
+     * @psalm-suppress InvalidReturnType
+     */
+    public function start(Request $request, AuthenticationException $authException = null): Response
     {
         // Return JSON-formatted error if request is an ajax call
         if ($request->isXmlHttpRequest() || 'json' === $request->getRequestFormat()) {
+            /** @psalm-suppress InvalidReturnStatement */
             return new JsonResponse(
                 [
                     'error' => [

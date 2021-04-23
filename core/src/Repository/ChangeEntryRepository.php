@@ -6,7 +6,7 @@ use App\Entity\ChangeEntry;
 use App\Entity\Framework\LsDoc;
 use App\Event\NotificationEvent;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -68,17 +68,30 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->fetchOne();
     }
 
-    public function getChangeEntriesForDoc(LsDoc $doc, int $limit = 20, int $offset = 0): ResultStatement
+    /**
+     * @return iterable<array-key, array{'rev': int, 'changed_at': string, 'description': string, 'username': string}>
+     */
+    public function getChangeEntriesForDoc(LsDoc $doc, int $limit = 20, int $offset = 0): iterable
     {
-        return $this->_em->getConnection()->createQueryBuilder()
-            ->select('a.id AS rev, a.changed_at, a.description, a.username')
-            ->from($this->getClassMetadata()->getTableName(), 'a')
-            ->where('a.doc_id = :doc_id')
+        $results = $this->createQueryBuilder('a')
+            ->select('a.id AS rev, a.changedAt AS changed_at, a.description, a.username')
+            ->where('a.doc = :doc_id')
             ->setParameter('doc_id', $doc->getId())
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults(($limit > 0) ? $limit : 1000000)
-            ->execute();
+            ->getQuery()
+            ->setHydrationMode(Query::HYDRATE_ARRAY)
+            ->toIterable();
+
+        foreach ($results as $result) {
+            yield [
+                'rev' => $result['rev'],
+                'changed_at' => $result['changed_at']->format('Y-m-d H:i:s.u'),
+                'description' => $result['description'],
+                'username' => $result['username'],
+            ];
+        }
     }
 
     public function getChangeEntryCountForSystem(): int
@@ -91,15 +104,28 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->fetchOne();
     }
 
-    public function getChangeEntriesForSystem(int $limit = 20, int $offset = 0): ResultStatement
+    /**
+     * @return iterable<array-key, array{'rev': int, 'changed_at': string, 'description': string, 'username': string}>
+     */
+    public function getChangeEntriesForSystem(int $limit = 20, int $offset = 0): iterable
     {
-        return $this->_em->getConnection()->createQueryBuilder()
-            ->select('a.id AS rev, a.changed_at, a.description, a.username')
-            ->from($this->getClassMetadata()->getTableName(), 'a')
-            ->where('a.doc_id IS NULL')
+        $results = $this->createQueryBuilder('a')
+            ->select('a.id AS rev, a.changedAt AS changed_at, a.description, a.username')
+            ->where('a.doc IS NULL')
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults(($limit > 0) ? $limit : 1000000)
-            ->execute();
+            ->getQuery()
+            ->setHydrationMode(Query::HYDRATE_ARRAY)
+            ->toIterable();
+
+        foreach ($results as $result) {
+            yield [
+                'rev' => $result['rev'],
+                'changed_at' => $result['changed_at']->format('Y-m-d H:i:s.u'),
+                'description' => $result['description'],
+                'username' => $result['username'],
+            ];
+        }
     }
 }

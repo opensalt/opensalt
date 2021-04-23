@@ -281,10 +281,18 @@ class Framework
         }
 
         if (is_string($this->lastSuccessContent)) {
-            return bzdecompress($this->lastSuccessContent);
+            $uncompressed = bzdecompress($this->lastSuccessContent);
         }
 
-        return bzdecompress(stream_get_contents($this->lastSuccessContent));
+        if (is_resource($this->lastSuccessContent)) {
+            $uncompressed = bzdecompress(stream_get_contents($this->lastSuccessContent));
+        }
+
+        if (!isset($uncompressed) || is_int($uncompressed) || false === $uncompressed) {
+            return null;
+        }
+
+        return $uncompressed;
     }
 
     public function setLastSuccessContent(?string $lastSuccessContent): self
@@ -309,10 +317,18 @@ class Framework
         }
 
         if (is_string($this->lastContent)) {
-            return bzdecompress($this->lastContent);
+            $uncompressed = bzdecompress($this->lastContent);
         }
 
-        return bzdecompress(stream_get_contents($this->lastContent));
+        if (is_resource($this->lastContent)) {
+            $uncompressed = bzdecompress(stream_get_contents($this->lastContent));
+        }
+
+        if (!isset($uncompressed) || is_int($uncompressed) || false === $uncompressed) {
+            return null;
+        }
+
+        return $uncompressed;
     }
 
     public function setLastContent(?string $lastContent): self

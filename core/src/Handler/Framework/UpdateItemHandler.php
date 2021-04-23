@@ -21,6 +21,7 @@ class UpdateItemHandler extends BaseFrameworkHandler
 
         $this->framework->unlockObject($item);
 
+        /** @psalm-suppress InvalidArrayOffset */
         $notification = new NotificationEvent(
             'I08',
             sprintf('"%s" modified', $item->getShortStatement()),

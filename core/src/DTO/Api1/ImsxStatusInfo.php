@@ -59,11 +59,6 @@ class ImsxStatusInfo
      */
     public ?ImsxCodeMinor $codeMinor = null;
 
-    /**
-     * ImsxStatusInfo constructor.
-     *
-     * @param string $desc
-     */
     public function __construct(string $major, string $severity, ?ImsxCodeMinor $minor = null, ?string $desc = null)
     {
         $this->codeMajor = $major;

@@ -50,14 +50,14 @@ class AdditionalFieldType extends AbstractType
                         return null;
                     }
 
-                    return json_encode($infoAsArray);
+                    return json_encode($infoAsArray, JSON_THROW_ON_ERROR);
                 },
                 function (?string $infoAsString) {
                     if (null === $infoAsString) {
                         return null;
                     }
 
-                    $json = json_decode($infoAsString, true);
+                    $json = json_decode($infoAsString, true, 512, JSON_THROW_ON_ERROR);
                     if (JSON_ERROR_NONE !== json_last_error()) {
                         throw new TransformationFailedException('Error in JSON');
                     }

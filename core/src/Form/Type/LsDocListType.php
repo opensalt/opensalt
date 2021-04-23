@@ -12,19 +12,10 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class LsDocListType extends AbstractType
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-    /**
-     * @var AuthorizationCheckerInterface
-     */
-    private $authChecker;
-
-    public function __construct(EntityManagerInterface $em, AuthorizationCheckerInterface $authChecker)
-    {
-        $this->em = $em;
-        $this->authChecker = $authChecker;
+    public function __construct(
+        private EntityManagerInterface $em,
+        private AuthorizationCheckerInterface $authChecker
+    ) {
     }
 
 

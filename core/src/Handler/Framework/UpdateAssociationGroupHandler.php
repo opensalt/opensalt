@@ -17,6 +17,7 @@ class UpdateAssociationGroupHandler extends BaseFrameworkHandler
         $associationGroup = $command->getAssociationGrouping();
         $this->validate($command, $associationGroup);
 
+        /** @psalm-suppress InvalidArrayOffset */
         $notification = new NotificationEvent(
             'G03',
             sprintf('Association Group "%s" modified', $associationGroup->getTitle()),

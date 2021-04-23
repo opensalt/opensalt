@@ -17,22 +17,19 @@ use App\Entity\LockableInterface;
 use App\Entity\User\User;
 use App\Exception\AlreadyLockedException;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityManager;
+use Doctrine\Persistence\ObjectManager;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class FrameworkService
 {
-    private ValidatorInterface $validator;
-    private EntityManager $em;
-    private TokenStorageInterface $tokenStorage;
+    private ObjectManager $em;
 
-    public function __construct(ManagerRegistry $registry, TokenStorageInterface $tokenStorage, ValidatorInterface $validator)
-    {
-        $this->tokenStorage = $tokenStorage;
+    public function __construct(
+        ManagerRegistry $registry,
+        private TokenStorageInterface $tokenStorage
+    ) {
         $this->em = $registry->getManager();
-        $this->validator = $validator;
     }
 
     /**

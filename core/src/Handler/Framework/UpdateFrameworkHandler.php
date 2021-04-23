@@ -40,6 +40,7 @@ class UpdateFrameworkHandler extends AbstractDoctrineHandler
 
         $this->frameworkUpdater->update($doc, $fileContent, $frameworkToAssociate, $cfItemKeys);
 
+        /** @psalm-suppress InvalidArrayOffset */
         $notification = new NotificationEvent(
             'D07',
             'Framework document updated',

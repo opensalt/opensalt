@@ -41,12 +41,12 @@ class ImsxCodeMinorField
      */
     public string $value;
 
-    public function __construct($name, $value)
+    public function __construct(string $name, string $value)
     {
         $this->name = $name;
         $this->value = $value;
 
-        if (!in_array($value, static::$codeMinorValues)) {
+        if (!in_array($value, static::$codeMinorValues, true)) {
             throw new \InvalidArgumentException("Value {$value} is invalid.");
         }
     }

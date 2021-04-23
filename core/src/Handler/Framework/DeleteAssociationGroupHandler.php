@@ -19,6 +19,7 @@ class DeleteAssociationGroupHandler extends BaseFrameworkHandler
 
         $this->framework->deleteAssociationGroup($associationGroup);
 
+        /** @psalm-suppress InvalidArrayOffset */
         $notification = new NotificationEvent(
             'G02',
             sprintf('Association Group "%s" deleted', $associationGroup->getTitle()),

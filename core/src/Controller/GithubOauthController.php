@@ -83,13 +83,7 @@ class GithubOauthController extends AbstractController
         ]);
     }
 
-    /**
-     * @param string $link
-     * @param string $rel
-     *
-     * @return int
-     */
-    private function parseLink($link, $rel)
+    private function parseLink(string $link, string $rel): ?string
     {
         if (!preg_match('/<([^>]+)>;\s*rel="'.preg_quote($rel, '/').'"/', $link, $match)) {
             return null;

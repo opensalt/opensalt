@@ -25,6 +25,7 @@ class DeleteItemHandler extends BaseFrameworkHandler
 
         $this->framework->deleteItem($item);
 
+        /** @psalm-suppress InvalidArrayOffset */
         $notification = new NotificationEvent(
             'I04',
             sprintf('"%s" and direct associations deleted', $item->getShortStatement()),

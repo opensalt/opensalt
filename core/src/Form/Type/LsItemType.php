@@ -22,12 +22,8 @@ use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 
 class LsItemType extends AbstractType
 {
-    /** @var EntityManagerInterface */
-    private $em;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $em)
     {
-        $this->em = $entityManager;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

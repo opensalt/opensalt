@@ -124,6 +124,7 @@ class LsAssociationController extends AbstractController
         }
 
         try {
+            /** @psalm-suppress InvalidArgument - origin and dest are array arguments */
             $command = new AddTreeAssociationCommand(
                 $lsDoc,
                 $request->request->get('origin'),

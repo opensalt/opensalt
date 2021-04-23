@@ -21,6 +21,7 @@ class UpdateDocumentHandler extends BaseFrameworkHandler
 
         /* @todo Check explicitly for change in publication status for a different notification */
 
+        /** @psalm-suppress InvalidArrayOffset */
         $notification = new NotificationEvent(
             'D06',
             'Framework document modified',

@@ -324,7 +324,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $associations;
 
     /**
-     * @var Collection|LsAssociation[]
+     * @var Collection<array-key, LsAssociation>
      *
      * @Assert\All({
      *     @Assert\Type(LsAssociation::class)
@@ -1142,7 +1142,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
             return $this->getUrlName();
         }
 
-        return $this->getId();
+        return (string) $this->getId();
     }
 
     public function getLicence(): ?LsDefLicence

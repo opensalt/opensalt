@@ -30,6 +30,7 @@ class DeleteAssociationHandler extends BaseFrameworkHandler
         $fromTitle = $this->getTitle($association->getOrigin());
         $toTitle = $this->getTitle($association->getDestination());
         if (LsAssociation::EXEMPLAR === $association->getType()) {
+            /** @psalm-suppress InvalidArrayOffset */
             $notification = new NotificationEvent(
                 'A04',
                 sprintf('Exemplar (%s) removed from "%s"', $toTitle, $fromTitle),
@@ -41,6 +42,7 @@ class DeleteAssociationHandler extends BaseFrameworkHandler
                 ]
             );
         } else {
+            /** @psalm-suppress InvalidArrayOffset */
             $notification = new NotificationEvent(
                 'A05',
                 sprintf('"%s" association deleted from "%s" to "%s"', $association->getType(), $fromTitle, $toTitle),
