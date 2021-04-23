@@ -73,8 +73,8 @@ class ChangeEntryRepository extends ServiceEntityRepository
     public function getChangeEntriesForDoc(LsDoc $doc, int $limit = 20, int $offset = 0): array
     {
         return $this->createQueryBuilder('a')
-            ->select('a.id AS rev, a.changed_at, a.description, a.username')
-            ->where('a.doc_id = :doc_id')
+            ->select('a.id AS rev, a.changedAt AS changed_at, a.description, a.username')
+            ->where('a.doc = :doc_id')
             ->setParameter('doc_id', $doc->getId())
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
@@ -99,8 +99,8 @@ class ChangeEntryRepository extends ServiceEntityRepository
     public function getChangeEntriesForSystem(int $limit = 20, int $offset = 0): array
     {
         return $this->createQueryBuilder('a')
-            ->select('a.id AS rev, a.changed_at, a.description, a.username')
-            ->where('a.doc_id IS NULL')
+            ->select('a.id AS rev, a.changedAt AS changed_at, a.description, a.username')
+            ->where('a.doc IS NULL')
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults(($limit > 0) ? $limit : 1000000)
