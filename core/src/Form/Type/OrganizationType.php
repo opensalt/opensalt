@@ -8,6 +8,7 @@
 
 namespace App\Form\Type;
 
+use App\Entity\User\Organization;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -28,7 +29,7 @@ class OrganizationType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => 'App\Entity\User\Organization',
+            'data_class' => Organization::class,
         ]);
     }
 

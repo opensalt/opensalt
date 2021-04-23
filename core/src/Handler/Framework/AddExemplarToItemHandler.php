@@ -24,6 +24,7 @@ class AddExemplarToItemHandler extends BaseFrameworkHandler
         $association = $this->framework->addExemplarToItem($item, $url, $annotation);
         $command->setAssociation($association);
 
+        /** @psalm-suppress InvalidArrayOffset */
         $notification = new NotificationEvent(
             'A02',
             sprintf('Exemplar (%s) added to "%s"', $url, $item->getShortStatement()),

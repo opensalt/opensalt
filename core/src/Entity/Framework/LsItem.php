@@ -452,6 +452,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             if ($association->getLsDoc()->getId() !== $this->getLsDoc()->getId()) {
                 continue;
             }
+            /** @psalm-suppress InvalidArgument */
             $groups[$association->getType()]->add($association);
         }
 
@@ -468,6 +469,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
                 $assocName = 'Inverse '.$association->getType();
             }
 
+            /** @psalm-suppress InvalidArgument */
             $groups[$assocName]->add($association);
         }
 
@@ -740,6 +742,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         foreach ($associations as $association) {
             /** @var LsAssociation $association */
             if (LsAssociation::CHILD_OF === $association->getType()) {
+                /** @psalm-suppress InvalidArgument */
                 $children->add($association->getOriginLsItem());
             }
         }
@@ -803,6 +806,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             if (LsAssociation::CHILD_OF === $association->getType()
                 && null !== $association->getDestinationLsItem()
             ) {
+                /** @psalm-suppress InvalidArgument */
                 $parents->add($association->getDestinationLsItem());
             }
         }
@@ -864,6 +868,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             if (LsAssociation::CHILD_OF === $association->getType()
                 && null !== $association->getDestinationLsDoc()
             ) {
+                /** @psalm-suppress InvalidArgument */
                 $topItemOf->add($association->getDestinationLsDoc());
             }
         }

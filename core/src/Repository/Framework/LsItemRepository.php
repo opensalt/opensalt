@@ -120,6 +120,7 @@ class LsItemRepository extends ServiceEntityRepository
             return [];
         }
 
+        /** @psalm-suppress InvalidArrayOffset */
         $matched = [$item->getId() => $item];
         $matchedCount = 0;
 

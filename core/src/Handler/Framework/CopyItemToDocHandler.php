@@ -22,6 +22,7 @@ class CopyItemToDocHandler extends BaseDoctrineHandler
         $this->em->persist($newItem);
         $command->setNewItem($newItem);
 
+        /** @psalm-suppress InvalidArrayOffset */
         $notification = new NotificationEvent(
             'I03',
             sprintf('Copied "%s" from "%s"', $newItem->getShortStatement(), mb_substr($dto->lsItem->getLsDoc()->getTitle(), 0, 60)),

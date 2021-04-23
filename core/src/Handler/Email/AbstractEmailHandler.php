@@ -8,40 +8,22 @@ use App\Entity\NotificationOnlyChangeEntry;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseValidatedHandler;
+use Qandidate\Toggle\Context;
 use Qandidate\Toggle\ContextFactory;
 use Qandidate\Toggle\ToggleManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Twig\Environment;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Twig\Environment;
 
 abstract class AbstractEmailHandler extends BaseValidatedHandler
 {
-    /**
-     * @var Environment
-     */
-    protected $templating;
+    protected Environment $templating;
+    private ToggleManager $manager;
+    private Context $context;
+    private \Swift_Mailer $mailer;
+    private ?string $mailFromEmail;
 
-    /**
-     * @var ToggleManager
-     */
-    private $manager;
-
-    /**
-     * @var ContextFactory
-     */
-    private $context;
-
-    /**
-     * @var \Swift_Mailer
-     */
-    private $mailer;
-
-    /**
-     * @var string
-     */
-    private $mailFromEmail;
-
-    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, Environment $templating, string $mailFromEmail = null)
+    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, Environment $templating, ?string $mailFromEmail = null)
     {
         parent::__construct($validator);
         $this->templating = $templating;
@@ -59,23 +41,27 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler
         // Only send emails if the feature is enabled
         if (!$this->manager->active('email_feature', $this->context)) {
             $this->setEmailNotSentNotification($command, 'disabled');
+
             return;
         }
 
         // Allow messages to have their own rules to keep an email from being sent
         if (!$this->canSendEmail()) {
             $this->setEmailNotSentNotification($command, 'rejected');
+
             return;
         }
 
         // Do not send an email if there is no from address
         if (empty($this->mailFromEmail)) {
             $this->setEmailNotSentNotification($command, 'no from address');
+
             return;
         }
 
         if (empty($command->getRecipient())) {
             $this->setEmailNotSentNotification($command, 'no to address');
+
             return;
         }
 

@@ -2,35 +2,25 @@
 
 namespace App\Form\Type;
 
+use App\Entity\Framework\FrameworkType;
 use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefSubject;
-use App\Entity\Framework\FrameworkType;
 use App\Entity\Framework\LsDoc;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\LanguageType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
-use Symfony\Component\Form\Extension\Core\Type\LanguageType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 
 abstract class AbstractLsDocCreateType extends AbstractType
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $em;
-
-    /**
-     * AbstractLsDocCreateType constructor.
-     */
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(protected EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
-
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -38,7 +28,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
 
         /** @var LsDoc $doc */
         $doc = $builder->getData();
-        $exists = $doc->getId() ? true : false;
+        $exists = null !== $doc->getId();
         $isAdopted = ($exists && LsDoc::ADOPTION_STATUS_ADOPTED === $doc->getAdoptionStatus());
         $isDeprecated = ($exists && LsDoc::ADOPTION_STATUS_DEPRECATED === $doc->getAdoptionStatus());
         $disableAsAdopted = $isAdopted || $isDeprecated;
@@ -169,7 +159,6 @@ abstract class AbstractLsDocCreateType extends AbstractType
                 }
             ));
     }
-
 
     public function configureOptions(OptionsResolver $resolver): void
     {

@@ -15,7 +15,10 @@ class ImsxCodeMinor
      */
     public array $codeMinorField = [];
 
-    public function __construct($fields)
+    /**
+     * @param array<ImsxCodeMinorField> $fields
+     */
+    public function __construct(array $fields)
     {
         $this->codeMinorField = $fields;
     }

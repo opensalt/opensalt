@@ -2,6 +2,8 @@
 
 namespace App\Form\Type;
 
+use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDoc;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -16,7 +18,7 @@ class LsDefAssociationGroupingType extends AbstractType
             ->add('title')
             ->add('description')
             ->add('lsDoc', EntityType::class, [
-                    'class' => 'App\Entity\Framework\LsDoc',
+                    'class' => LsDoc::class,
                     'choice_label' => 'title',
                     'group_by' => 'creator',
                     'required' => true,
@@ -29,11 +31,10 @@ class LsDefAssociationGroupingType extends AbstractType
         ;
     }
 
-
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array(
-            'data_class' => 'App\Entity\Framework\LsDefAssociationGrouping'
-        ));
+        $resolver->setDefaults([
+            'data_class' => LsDefAssociationGrouping::class,
+        ]);
     }
 }

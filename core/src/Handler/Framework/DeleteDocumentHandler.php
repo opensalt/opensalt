@@ -19,6 +19,7 @@ class DeleteDocumentHandler extends BaseFrameworkHandler
 
         $this->framework->deleteFramework($doc, $command->getProgressCallback());
 
+        /** @psalm-suppress InvalidArrayOffset */
         $notification = new NotificationEvent(
             'D09',
             sprintf('Framework "%s" deleted', $doc->getTitle()),

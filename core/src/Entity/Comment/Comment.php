@@ -70,7 +70,7 @@ class Comment
     private ?LsItem $item = null;
 
     /**
-     * @var CommentUpvote[]|Collection
+     * @var Collection<array-key, CommentUpvote>
      *
      * @ORM\OneToMany(targetEntity="CommentUpvote", mappedBy="comment")
      *
@@ -79,7 +79,7 @@ class Comment
      * @Serializer\Type("int")
      * @Serializer\SerializedName("upvote_count")
      */
-    private $upvotes;
+    private Collection $upvotes;
 
     /**
      * @ORM\Column(type="datetime", precision=6)
@@ -115,25 +115,16 @@ class Comment
      */
     private $userHasUpvoted;
 
-    /**
-     * Constructor
-     */
     public function __construct()
     {
         $this->upvotes = new ArrayCollection();
     }
 
-    /**
-     * Get id
-     */
     public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * Set parent
-     */
     public function setParent(Comment $parent = null): Comment
     {
         $this->parent = $parent;
@@ -141,17 +132,11 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get parent
-     */
     public function getParent(): ?Comment
     {
         return $this->parent;
     }
 
-    /**
-     * Get the id of a parent
-     */
     public function getParentId(): ?int
     {
         if (null !== $this->parent) {
@@ -161,9 +146,6 @@ class Comment
         return null;
     }
 
-    /**
-     * Set content
-     */
     public function setContent(string $content): Comment
     {
         $this->content = $content;
@@ -171,17 +153,11 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get content
-     */
     public function getContent(): string
     {
         return $this->content;
     }
 
-    /**
-     * Set user
-     */
     public function setUser(User $user): Comment
     {
         $this->user = $user;
@@ -189,17 +165,11 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get user
-     */
     public function getUser(): User
     {
         return $this->user;
     }
 
-    /**
-     * Set item
-     */
     public function setItem(LsItem $item): Comment
     {
         $this->item = $item;
@@ -207,17 +177,11 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get item
-     */
     public function getItem(): ?LsItem
     {
         return $this->item;
     }
 
-    /**
-     * Set document
-     */
     public function setDocument(LsDoc $document): Comment
     {
         $this->document = $document;
@@ -225,25 +189,16 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get document
-     */
     public function getDocument(): ?LsDoc
     {
         return $this->document;
     }
 
-    /**
-     * Get fullname
-     */
     public function getFullname(): string
     {
         return preg_replace('/@.*/', '', $this->getUser()->getUsername());
     }
 
-    /**
-     * Set createdByCurrentUser
-     */
     public function setCreatedByCurrentUser(bool $createdByCurrentUser): Comment
     {
         $this->createdByCurrentUser = $createdByCurrentUser;
@@ -267,17 +222,11 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get createdByCurrentUser
-     */
     public function isCreatedByCurrentUser(): bool
     {
         return $this->createdByCurrentUser;
     }
 
-    /**
-     * Add upvote
-     */
     public function addUpvote(CommentUpvote $upvote): Comment
     {
         $this->upvotes[] = $upvote;
@@ -285,9 +234,6 @@ class Comment
         return $this;
     }
 
-    /**
-     * Remove upvote
-     */
     public function removeUpvote(CommentUpvote $upvote): Comment
     {
         $this->upvotes->removeElement($upvote);
@@ -295,25 +241,16 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get upvotes
-     */
     public function getUpvotes(): Collection
     {
         return $this->upvotes;
     }
 
-    /**
-     * Get upvoteCount
-     */
     public function getUpvoteCount(): int
     {
         return $this->upvotes->count();
     }
 
-    /**
-     * Set userHasUpvoted
-     */
     public function setUserHasUpvoted(bool $userHasUpvoted): Comment
     {
         $this->userHasUpvoted = $userHasUpvoted;
@@ -321,17 +258,11 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get userHasUpvoted
-     */
     public function hasUserUpvoted(): bool
     {
         return $this->userHasUpvoted;
     }
 
-    /**
-     * Set createdAt
-     */
     public function setCreatedAt(\DateTime $createdAt): Comment
     {
         $this->createdAt = $createdAt;
@@ -339,17 +270,11 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get createdAt
-     */
     public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
 
-    /**
-     * Set updatedAt
-     */
     public function setUpdatedAt(\DateTime $updatedAt): Comment
     {
         $this->updatedAt = $updatedAt;
@@ -357,17 +282,11 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get updatedAt
-     */
     public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
     }
 
-    /**
-     * Set fileUrl
-     */
     public function setFileUrl(?string $fileUrl): Comment
     {
         $this->fileUrl = $fileUrl;
@@ -375,17 +294,11 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get fileUrl
-     */
     public function getFileUrl(): ?string
     {
         return $this->fileUrl;
     }
 
-    /**
-     * Set fileMimeType
-     */
     public function setFileMimeType(?string $fileMimeType): Comment
     {
         $this->fileMimeType = $fileMimeType;
@@ -393,9 +306,6 @@ class Comment
         return $this;
     }
 
-    /**
-     * Get fileMimeType
-     */
     public function getFileMimeType(): string
     {
         return $this->fileMimeType;

@@ -17,6 +17,7 @@ class UpdateAssociationHandler extends BaseFrameworkHandler
         $association = $command->getAssociation();
         $this->validate($command, $association);
 
+        /** @psalm-suppress InvalidArrayOffset */
         $notification = new NotificationEvent(
             'A07',
             sprintf('Association "%s" modified', $association->getIdentifier()),

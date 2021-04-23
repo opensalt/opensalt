@@ -23,9 +23,11 @@ class UiInfoController extends AbstractController
     public function multiJsonInfoAction(Request $request, LsDoc $doc): JsonResponse
     {
         $objs = [];
-        if ($request->request->has('doc') && is_array($request->request->has('doc'))) {
-            $objs['docs'] = [];
-            foreach ($request->request->get('doc') as $id) {
+
+        /** @var ?array $docs - argument passed as an array */
+        $docs = $request->request->get('doc');
+        if (null !== $docs && is_array($docs)) {
+            foreach ($docs as $id) {
                 $d = $this->getDoctrine()->getRepository(LsDoc::class)
                     ->find($id);
                 if (null !== $d) {
@@ -34,8 +36,10 @@ class UiInfoController extends AbstractController
             }
         }
 
-        if ($request->request->has('item')) {
-            foreach ($request->request->get('item') as $id) {
+        /** @var ?array $items - argument passed as an array */
+        $items = $request->request->get('item');
+        if (null !== $items && is_array($items)) {
+            foreach ($items as $id) {
                 $i = $this->getDoctrine()->getRepository(LsItem::class)
                     ->find($id);
                 if (null !== $i) {
@@ -44,8 +48,10 @@ class UiInfoController extends AbstractController
             }
         }
 
-        if ($request->request->has('assoc')) {
-            foreach ($request->request->get('assoc') as $id) {
+        /** @var ?array $assocs - argument passed as an array */
+        $assocs = $request->request->get('assoc');
+        if (null !== $assocs && is_array($assocs)) {
+            foreach ($assocs as $id) {
                 $a = $this->getDoctrine()->getRepository(LsAssociation::class)
                     ->find($id);
                 if (null !== $a) {

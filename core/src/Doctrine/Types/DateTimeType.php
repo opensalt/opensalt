@@ -53,13 +53,13 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
         return $val;
     }
 
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        if (!in_array($fieldDeclaration['precision'] ?? 0, [0, 10])) {
-            return "DATETIME({$fieldDeclaration['precision']})";
+        if (!in_array($column['precision'] ?? 0, [0, 10], false)) {
+            return "DATETIME({$column['precision']})";
         }
 
-        return parent::getSQLDeclaration($fieldDeclaration, $platform);
+        return parent::getSQLDeclaration($column, $platform);
     }
 
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool

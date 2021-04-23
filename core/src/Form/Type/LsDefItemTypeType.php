@@ -2,6 +2,7 @@
 
 namespace App\Form\Type;
 
+use App\Entity\Framework\LsDefItemType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -22,7 +23,7 @@ class LsDefItemTypeType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'App\Entity\Framework\LsDefItemType'
+            'data_class' => LsDefItemType::class
         ));
     }
 }

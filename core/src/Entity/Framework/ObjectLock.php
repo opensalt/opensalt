@@ -21,49 +21,37 @@ use App\Entity\User\User;
 class ObjectLock
 {
     /**
-     * @var int
-     *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    protected $id;
+    protected ?int $id;
 
     /**
-     * @var User
-     *
      * @ORM\ManyToOne(targetEntity="App\Entity\User\User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
      */
-    protected $user;
+    protected User $user;
 
     /**
-     * @var \DateTime
-     *
      * @ORM\Column(name="expiry", type="datetime", precision=6, nullable=false)
      */
-    protected $timeout;
+    protected \DateTime $timeout;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="obj_type", type="string", nullable=false)
      */
-    protected $objectType;
+    protected string $objectType;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="obj_id", type="string", nullable=false)
      */
-    protected $objectId;
+    protected string $objectId;
 
     /**
-     * @var LsDoc
-     *
      * @ORM\ManyToOne(targetEntity="LsDoc")
      */
-    protected $doc;
+    protected ?LsDoc $doc;
 
     public function __construct(LockableInterface $obj, User $user, int $minutes = 5)
     {
@@ -74,7 +62,7 @@ class ObjectLock
         $this->user = $user;
         $this->timeout = new \DateTime("now + {$minutes} minutes");
         $this->objectType = \get_class($obj);
-        $this->objectId = $obj->getId();
+        $this->objectId = (string) $obj->getId();
         if ($obj instanceof LsDoc) {
             $this->doc = $obj;
         } elseif (\method_exists($obj, 'getLsDoc')) {
@@ -82,7 +70,7 @@ class ObjectLock
         }
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

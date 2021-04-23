@@ -6,7 +6,6 @@ use App\Entity\ChangeEntry;
 use App\Entity\Framework\LsDoc;
 use App\Event\NotificationEvent;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -68,17 +67,20 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->fetchOne();
     }
 
-    public function getChangeEntriesForDoc(LsDoc $doc, int $limit = 20, int $offset = 0): ResultStatement
+    /**
+     * @return array<array-key, array{'rev': int, 'changed_at': string, 'description': string, 'username': string}>
+     */
+    public function getChangeEntriesForDoc(LsDoc $doc, int $limit = 20, int $offset = 0): array
     {
-        return $this->_em->getConnection()->createQueryBuilder()
+        return $this->createQueryBuilder('a')
             ->select('a.id AS rev, a.changed_at, a.description, a.username')
-            ->from($this->getClassMetadata()->getTableName(), 'a')
             ->where('a.doc_id = :doc_id')
             ->setParameter('doc_id', $doc->getId())
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults(($limit > 0) ? $limit : 1000000)
-            ->execute();
+            ->getQuery()
+            ->getArrayResult();
     }
 
     public function getChangeEntryCountForSystem(): int
@@ -91,15 +93,18 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->fetchOne();
     }
 
-    public function getChangeEntriesForSystem(int $limit = 20, int $offset = 0): ResultStatement
+    /**
+     * @return array<array-key, array{'rev': int, 'changed_at': string, 'description': string, 'username': string}>
+     */
+    public function getChangeEntriesForSystem(int $limit = 20, int $offset = 0): array
     {
-        return $this->_em->getConnection()->createQueryBuilder()
+        return $this->createQueryBuilder('a')
             ->select('a.id AS rev, a.changed_at, a.description, a.username')
-            ->from($this->getClassMetadata()->getTableName(), 'a')
             ->where('a.doc_id IS NULL')
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults(($limit > 0) ? $limit : 1000000)
-            ->execute();
+            ->getQuery()
+            ->getArrayResult();
     }
 }
