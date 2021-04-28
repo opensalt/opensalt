@@ -19,7 +19,16 @@
       }
     },
     "CFDefinitions": {
-      "$ref": "#/definitions/CFDefinition"
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 0
+        },
+        {
+          "$ref": "#/definitions/CFDefinition"
+        }
+      ]
     },
     "CFRubrics": {
       "type": "array",

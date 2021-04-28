@@ -16,9 +16,13 @@ class DefinitionsTransformer
     ) {
     }
 
-    public function transform(CFDefinition $definitions): Definitions
+    public function transform(?CFDefinition $definitions): Definitions
     {
         $defObjs = new Definitions();
+
+        if (null === $definitions) {
+            return $defObjs;
+        }
 
         $defObjs->associationGroupings = $this->associationGroupingsTransformer->transform($definitions->cfAssociationGroupings);
         $defObjs->concepts = $this->conceptsTransformer->transform($definitions->cfConcepts);
