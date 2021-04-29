@@ -1,0 +1,211 @@
+version: 2
+updates:
+- package-ecosystem: composer
+  directory: "/core"
+  schedule:
+    interval: daily
+    time: "07:00"
+  open-pull-requests-limit: 10
+  reviewers:
+  - roverwolf
+  ignore:
+  - dependency-name: phpstan/phpstan-symfony
+    versions:
+    - 0.12.17
+    - 0.12.18
+    - 0.12.20
+    - 0.12.21
+    - 0.12.22
+    - 0.12.23
+    - 0.12.24
+    - 0.12.25
+    - 0.12.26
+    - 0.12.27
+    - 0.12.28
+  - dependency-name: phpstan/phpstan
+    versions:
+    - 0.12.71
+    - 0.12.73
+    - 0.12.74
+    - 0.12.75
+    - 0.12.76
+    - 0.12.77
+    - 0.12.78
+    - 0.12.80
+    - 0.12.81
+    - 0.12.82
+    - 0.12.83
+    - 0.12.84
+    - 0.12.85
+  - dependency-name: symplify/easy-coding-standard
+    versions:
+    - 9.0.50
+    - 9.1.1
+    - 9.1.3
+    - 9.1.4
+    - 9.1.5
+    - 9.1.9
+    - 9.2.1
+    - 9.2.10
+    - 9.2.11
+    - 9.2.13
+    - 9.2.14
+    - 9.2.15
+    - 9.2.17
+    - 9.2.18
+    - 9.2.19
+    - 9.2.2
+    - 9.2.23
+    - 9.2.24
+    - 9.2.4
+    - 9.2.5
+    - 9.2.6
+  - dependency-name: vimeo/psalm
+    versions:
+    - 4.6.2
+    - 4.6.3
+    - 4.6.4
+    - 4.7.0
+    - 4.7.1
+  - dependency-name: doctrine/migrations
+    versions:
+    - 3.1.0
+    - 3.1.1
+    - 3.1.2
+  - dependency-name: nelmio/cors-bundle
+    versions:
+    - 2.1.1
+  - dependency-name: codeception/module-symfony
+    versions:
+    - 2.0.0
+    - 2.0.1
+    - 2.0.2
+  - dependency-name: league/csv
+    versions:
+    - 9.7.0
+    - 9.7.1
+  - dependency-name: laminas/laminas-code
+    versions:
+    - 4.2.0
+  - dependency-name: doctrine/doctrine-migrations-bundle
+    versions:
+    - 3.1.0
+    - 3.1.1
+  - dependency-name: league/flysystem-aws-s3-v3
+    versions:
+    - 2.0.3
+    - 2.0.4
+    - 2.0.5
+  - dependency-name: sensio/framework-extra-bundle
+    versions:
+    - 6.0.0
+    - 6.1.2
+  - dependency-name: codeception/module-rest
+    versions:
+    - 1.2.8
+    - 1.3.0
+  - dependency-name: doctrine/orm
+    versions:
+    - 2.8.2
+    - 2.8.3
+    - 2.8.4
+  - dependency-name: codeception/codeception
+    versions:
+    - 4.1.17
+    - 4.1.18
+    - 4.1.20
+  - dependency-name: symfony/mercure-bundle
+    versions:
+    - 0.3.0
+    - 0.3.2
+  - dependency-name: symfony/security-bundle
+    versions:
+    - 5.2.6
+  - dependency-name: symfony/mime
+    versions:
+    - 5.2.3
+    - 5.2.6
+  - dependency-name: tecnickcom/tcpdf
+    versions:
+    - 6.4.1
+  - dependency-name: symfony/framework-bundle
+    versions:
+    - 5.2.3
+    - 5.2.6
+  - dependency-name: symfony/phpunit-bridge
+    versions:
+    - 5.2.6
+  - dependency-name: symfony/translation
+    versions:
+    - 5.2.6
+  - dependency-name: psalm/plugin-symfony
+    versions:
+    - 2.2.0
+    - 2.2.1
+    - 2.2.3
+  - dependency-name: symfony/maker-bundle
+    versions:
+    - 1.29.0
+    - 1.29.1
+    - 1.30.0
+    - 1.30.1
+  - dependency-name: jms/serializer-bundle
+    versions:
+    - 3.9.0
+  - dependency-name: doctrine/doctrine-bundle
+    versions:
+    - 2.2.4
+    - 2.3.0
+  - dependency-name: phpunit/phpunit
+    versions:
+    - 9.5.3
+  - dependency-name: nelmio/security-bundle
+    versions:
+    - 2.10.2
+    - 2.10.3
+  - dependency-name: milo/github-api
+    versions:
+    - 1.4.8
+  - dependency-name: phpoffice/phpword
+    versions:
+    - 0.18.0
+    - 0.18.1
+  - dependency-name: phpstan/phpstan-doctrine
+    versions:
+    - 0.12.33
+  - dependency-name: phpoffice/phpspreadsheet
+    versions:
+    - 1.17.1
+  - dependency-name: firebase/php-jwt
+    versions:
+    - 5.2.1
+  - dependency-name: twig/string-extra
+    versions:
+    - 3.3.0
+  - dependency-name: twig/twig
+    versions:
+    - 3.3.0
+  - dependency-name: symfony/dotenv
+    versions:
+    - 5.2.3
+  - dependency-name: symfony/console
+    versions:
+    - 5.2.3
+  - dependency-name: symfony/security-csrf
+    versions:
+    - 5.2.3
+  - dependency-name: symfony/form
+    versions:
+    - 5.2.3
+  - dependency-name: symfony/yaml
+    versions:
+    - 5.2.3
+  - dependency-name: symfony/proxy-manager-bridge
+    versions:
+    - 5.2.3
+  - dependency-name: symfony/flex
+    versions:
+    - 1.12.1
+  - dependency-name: symfony/expression-language
+    versions:
+    - 5.2.3
