@@ -1,0 +1,28 @@
+on: 
+  push:
+  pull_request:
+    branches:
+      # Branches from forks have the form 'user:branch-name' so we only run
+      # this job on pull_request events for branches that look like fork
+      # branches. Without this we would end up running this job twice for non
+      # forked PRs, once for the push and then once for opening the PR.
+    - '**:**'
+
+name: Analysis Workflow
+
+jobs:
+  sonarCloudTrigger:
+    name: SonarCloud Trigger
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - run: |
+          git fetch --prune --unshallow
+
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+

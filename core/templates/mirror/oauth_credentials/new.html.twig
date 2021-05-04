@@ -1,0 +1,13 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}New OAuthCredential{% endblock %}
+
+{% block body %}
+    <h1>Create new OAuthCredential</h1>
+
+    {{ include('mirror/oauth_credentials/_form.html.twig') }}
+
+    <div class="text-right">
+        <a href="{{ path('oauth_credentials_index') }}">Back to list</a>
+    </div>
+{% endblock %}

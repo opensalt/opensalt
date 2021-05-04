@@ -1,0 +1,22 @@
+includes:
+	- './vendor/phpstan/phpstan-symfony/extension.neon'
+	- './vendor/phpstan/phpstan-symfony/rules.neon'
+	- './vendor/phpstan/phpstan-doctrine/extension.neon'
+	- './vendor/phpstan/phpstan-doctrine/rules.neon'
+
+parameters:
+	#customRulesetUsed: true
+	bootstrapFiles:
+		- './vendor/autoload.php'
+	level: 6
+	paths:
+		- './src'
+	excludes_analyse:
+		- './migrations'
+	symfony:
+		container_xml_path: './var/cache/dev/App_KernelDevDebugContainer.xml'
+	doctrine:
+		objectManagerLoader: './tests/object-manager.php'
+
+	checkMissingIterableValueType: false
+	checkGenericClassInNonGenericObjectType: false

@@ -1,0 +1,60 @@
+* text=auto eol=lf
+
+*.conf text eol=lf
+*.css text eol=lf diff=css
+*.csv text eol=lf
+*.dist text eol=lf
+*.feature text eol=lf
+*.html text eol=lf diff=html
+*.js text eol=lf
+*.json text eol=lf
+*.lock text eol=lf
+*.md text eol=lf diff=markdown
+*.neon text eol=lf
+*.php text eol=lf diff=php
+*.scss text eol=lf
+*.sh text eol=lf
+*.test text eol=lf
+*.tf text eol=lf
+*.twig text eol=lf
+*.xml text eol=lf
+*.yml text eol=lf
+
+bin/* text eol=lf
+composer.lock text eol=lf merge=ours
+
+*.gif binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.svg text
+
+*.eot binary
+*.otf binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+
+*.xlsx binary
+*.pem binary
+
+*.phar binary -diff
+
+tests export-ignore
+codeception.dist.yml export-ignore
+.codeclimate.yml export-ignore
+docs export-ignore
+.editorconfig export-ignore
+.gitattributes export-ignore
+.github export-ignore
+.gitignore export-ignore
+.php_cs.dist export-ignore
+.php_cs export-ignore
+phpcs.xml.dist export-ignore
+phpspec.xml.dist export-ignore
+phpstan.neon.dist export-ignore
+phpunit.xml.dist export-ignore
+psalm.xml export-ignore
+.styleci.yml export-ignore
+.travis.yml export-ignore

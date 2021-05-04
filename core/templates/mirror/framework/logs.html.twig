@@ -1,0 +1,41 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ framework.title }} Logs | {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h1>Logs for {{ framework.title }}</h1>
+
+    <p class="text-right">
+        <a class="btn btn-primary" href="{{ path('mirror_server_list', {'id': framework.server.id}) }}">Back to framework list</a>
+    </p>
+
+    <table class="mirror_log-table table table-bordered table-striped table-hover table-condensed">
+        <thead>
+            <tr>
+                <th class="mirror_log-status">Status</th>
+                <th class="mirror_log-occurred">Occurred At</th>
+                <th class="mirror_log-message">Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in framework.logs|sort((a,b) => (b.occurredAt <=> a.occurredAt)) %}
+                <tr>
+                    <td class="mirror_log-status status">
+                        {% if log.status == 'success' %}
+                            <i class="fa fa-check-circle" title="Success" aria-label="Success"></i>
+                        {% elseif log.status == 'failure' %}
+                            <i class="fa fa-warning" title="Failure" aria-label="Failure"></i>
+                        {% endif %}
+                    </td>
+                    <td class="mirror_log-occurred">{{ log.occurredAt|date('Y-m-d H:i:s') }}</td>
+                    <td class="mirror_log-message">{{ log.message }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="2">No logs found</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+

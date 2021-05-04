@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+#<?php /*
+
+if [ ! -f /.dockerenv ]; then
+  exec $(dirname $0)/phpcli php ./bin/console-real "$@"
+fi
+
+exec php $(dirname $0)/console-real "$@"
+
+*/
+
+require __DIR__.'/console-real';

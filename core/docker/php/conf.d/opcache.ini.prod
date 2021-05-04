@@ -1,0 +1,11 @@
+opcache.interned_strings_buffer=16
+opcache.max_accelerated_files=20000
+opcache.memory_consumption=256
+opcache.validate_timestamps=0
+opcache.preload_user=www-data
+opcache.preload=/srv/core/config/preload.php
+
+opcache.max_wasted_percentage=25
+
+realpath_cache_size=4096K
+realpath_cache_ttl=600

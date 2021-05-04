@@ -9,8 +9,7 @@ sudo: required
 env:
   global:
     - COMMIT=${TRAVIS_COMMIT::8}
-    - DOCKER_COMPOSE_VERSION=1.23.2
-    - FIREBASE_PREFIX=${FIREBASE_PREFIX:-travis}-${TRAVIS_BUILD_NUMBER}
+    - DOCKER_COMPOSE_VERSION=1.24.1
 
 dist: xenial
 
@@ -29,8 +28,6 @@ addons:
       - docker-xenial
     packages:
       - docker-ce
-  sonarcloud:
-    organization: "opensalt"
 
 #apt addons:
 
@@ -38,78 +35,50 @@ before_install:
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
+  - sudo mv docker-compose /usr/local/bin/
   - docker -v
   - docker-compose -v
 
 # Create the application artifacts
 install:
-  - ln -s docker-compose.test.yml docker/docker-compose.yml
-  - ln -s .env.test docker/.env
-  - ln -s docker/.env ./.env
-  - echo ${TRAVIS_BUILD_NUMBER} > BUILD_NUMBER
-  - echo $(date -u +%Y%m%d.%H%M).${COMMIT} > BUILD_MD
-  - echo $(cat VERSION).$(cat BUILD_NUMBER)+$(cat BUILD_MD) > web/version.txt
-  - ./bin/build.sh
+  - BUILD_NUMBER=${TRAVIS_BUILD_NUMBER} make docker-build
 
 # Create docker image with the running code
 before_script:
-  - mkdir public/attachments/
-  - chmod 777 public/attachments/
-  - ./docker/app/build.sh
-  - docker-compose -f docker/docker-compose.yml up -d
+  - cp .env.test .env
+  - docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d
+  - docker-compose exec php dockerize -timeout 60s -wait tcp://db:3306 && sleep 5
 
 # Run the tests
 script:
-  - echo 'Running scanner...' && echo -en 'travis_fold:start:run.scanner\\r'
-  - sonar-scanner
-  - echo -en 'travis_fold:end:run.scanner\\r'
-  - ./bin/console --env=prod doctrine:migrations:migrate -q --no-interaction
-  - ./bin/console --env=prod import:generic-csv tests/_data/test_items.csv
+  - ./core/bin/console --env=prod doctrine:migrations:migrate -q --no-interaction
+  - ./core/bin/console --env=prod import:generic-csv tests/_data/test_items.csv
   - echo 'Running tests...' && echo -en 'travis_fold:start:run.tests\\r'
-  - ./bin/run-tests ${RUN_TEST_ARGS:-"--steps -x duplicate -x skip -x skip-firefox"}
+  - ./core/bin/run-tests ${RUN_TEST_ARGS:-"--steps -x duplicate -x skip -x skip-firefox"}
   - echo -en 'travis_fold:end:run.tests\\r'
-#  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/build_pull_request; fi'
-#  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/build_normal; fi'
 
 #before_cache:
 
 #$TRAVIS_TEST_RESULT has build result 0==success
 after_success:
-  - ./bin/console --env=prod firebase:clear
-  - if [ "$OPENSALT_HEROKU_DEPLOY" != "true" ]; then ./ci/travis/push_app.sh; fi
+  - ./ci/travis/push_app.sh
 #  - if [ "$TRAVIS_BRANCH" == "master" ]; then /bin/true; fi
 
 after_failure:
   - echo "Tests FAILED"
-  - ./bin/console --env=prod firebase:clear
-  - echo 'PHP errors...' && echo -en 'travis_fold:start:log.errors\\r'
-  - ./ci/travis/send_errors.sh
-  - echo -en 'travis_fold:end:log.errors\\r'
-
+  #- echo 'PHP errors...' && echo -en 'travis_fold:start:log.errors\\r'
+  #- ./ci/travis/send_errors.sh
+  #- echo -en 'travis_fold:end:log.errors\\r'
 
 #before_deploy:
 
 #deploy:
 #  skip_cleanup: true
 
-before_deploy:
-  - ./deploying/heroku/config_deploy.sh
-
-deploy:
-  provider: heroku
-  api_key: "${OPENSALT_HEROKU_TOKEN}"
-  app: "${OPENSALT_HEROKU_APP}"
-  on:
-    repo: "${TRAVIS_REPO_SLUG}"
-    condition: $OPENSALT_HEROKU_DEPLOY = "true"
-    branch: master
-  run: "php bin/console-real doctrine:migrations:migrate --no-interaction"
-
 #after_deploy:
 
 after_script:
-  - docker-compose -f docker/docker-compose.yml -f docker/docker-compose.tools.yml down -v
+  - docker-compose -f docker-compose.yml -f docker-compose.test.yml down -v
 
 notifications:
   slack:

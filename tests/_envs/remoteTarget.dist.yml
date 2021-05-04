@@ -1,7 +1,0 @@
-modules:
-    config:
-        WebDriver:
-            url: 'http://nginx'
-        REST:
-            url: 'http://nginx'
-

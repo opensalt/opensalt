@@ -1,0 +1,14 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Edit OAuthCredential{% endblock %}
+
+{% block body %}
+    <h1>Edit OAuthCredential</h1>
+
+    {{ include('mirror/oauth_credentials/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <div class="text-right">
+        <a class="btn btn-default" href="{{ path('oauth_credentials_index') }}">Back to list</a>
+        {{ include('mirror/oauth_credentials/_delete_form.html.twig') }}
+    </div>
+{% endblock %}

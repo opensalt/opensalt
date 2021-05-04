@@ -1,0 +1,28 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Remove Mirrored Server | {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h1>Remove Server Information</h1>
+
+    <div class="alert alert-danger">
+        <p>
+            This will remove all mirroring information for the server <q>{{ server.url }}</q>.
+        </p>
+
+        <p>
+            The copies of the frameworks on the system will <strong>not</strong> be removed.
+        </p>
+
+        <p>
+            Are you sure you wish to do this?
+        </p>
+        <div class="text-right">
+            <a class="btn btn-primary" href="{{ path('mirror_server_index') }}">No, do not remove the server</a>
+            {{ form_start(deleteForm, {'attr': {'class': 'form-inline-block'}}) }}
+            <input class="btn btn-danger" type="submit" value="Yes, remove all server information" />
+            {{ form_end(deleteForm) }}
+        </div>
+    </div>
+{% endblock %}
+

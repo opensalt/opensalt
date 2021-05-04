@@ -1,0 +1,9 @@
+version: "3.4"
+
+services:
+  db:
+    volumes:
+      - db_data:/var/lib/mysql:rw
+
+volumes:
+  db_data:
