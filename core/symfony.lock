@@ -231,18 +231,6 @@
     "firebase/php-jwt": {
         "version": "v5.2.0"
     },
-    "friendsofphp/php-cs-fixer": {
-        "version": "2.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "2.2",
-            "ref": "cc05ab6abf6894bddb9bbd6a252459010ebe040b"
-        },
-        "files": [
-            ".php_cs.dist"
-        ]
-    },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.3"
     },
@@ -278,9 +266,6 @@
     },
     "guzzlehttp/psr7": {
         "version": "1.4.2"
-    },
-    "jean85/pretty-package-versions": {
-        "version": "1.2"
     },
     "jetbrains/phpstorm-attributes": {
         "version": "1.0"
@@ -410,18 +395,6 @@
     "netresearch/jsonmapper": {
         "version": "v1.6.0"
     },
-    "nette/finder": {
-        "version": "v2.4.2"
-    },
-    "nette/neon": {
-        "version": "v3.2.1"
-    },
-    "nette/robot-loader": {
-        "version": "v3.1.0"
-    },
-    "nette/utils": {
-        "version": "v2.5.3"
-    },
     "nikic/php-parser": {
         "version": "v4.0.1"
     },
@@ -436,9 +409,6 @@
     },
     "php": {
         "version": "7.4"
-    },
-    "php-cs-fixer/diff": {
-        "version": "v1.3.0"
     },
     "php-webdriver/webdriver": {
         "version": "1.8.2"
@@ -639,18 +609,6 @@
     },
     "softcreatr/jsonpath": {
         "version": "0.7.0"
-    },
-    "squizlabs/php_codesniffer": {
-        "version": "3.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.0",
-            "ref": "0dc9cceda799fd3a08b96987e176a261028a3709"
-        },
-        "files": [
-            "phpcs.xml.dist"
-        ]
     },
     "swaggest/json-diff": {
         "version": "v3.7.0"
@@ -1004,44 +962,8 @@
     "symfony/yaml": {
         "version": "v4.0.10"
     },
-    "symplify/autowire-array-parameter": {
-        "version": "v7.2.1"
-    },
-    "symplify/coding-standard": {
-        "version": "v7.2.1"
-    },
-    "symplify/composer-json-manipulator": {
-        "version": "9.0.14"
-    },
-    "symplify/console-color-diff": {
-        "version": "v7.3.18"
-    },
-    "symplify/console-package-builder": {
-        "version": "9.0.24"
-    },
     "symplify/easy-coding-standard": {
         "version": "v7.2.0"
-    },
-    "symplify/easy-testing": {
-        "version": "9.0.14"
-    },
-    "symplify/package-builder": {
-        "version": "v7.2.1"
-    },
-    "symplify/rule-doc-generator-contracts": {
-        "version": "v9.2.12"
-    },
-    "symplify/set-config-resolver": {
-        "version": "v7.2.1"
-    },
-    "symplify/skipper": {
-        "version": "9.0.14"
-    },
-    "symplify/smart-file-system": {
-        "version": "v7.2.1"
-    },
-    "symplify/symplify-kernel": {
-        "version": "8.3.30"
     },
     "tecnickcom/tcpdf": {
         "version": "6.2.17"
