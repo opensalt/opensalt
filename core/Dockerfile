@@ -101,17 +101,14 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=3 --start-period=30s CMD ["doc
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
-ENV COMPOSER_ALLOW_SUPERUSER=1
-ENV PATH="${PATH}:/root/.composer/vendor/bin" \
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    PATH="${PATH}:/root/.composer/vendor/bin" \
     COMPOSER_MEMORY_LIMIT=-1
 #    PATH=/composer/vendor/bin:$PATH
 #    COMPOSER_HOME=/composer
 
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini
-COPY \
-    docker/php/conf.d/*.ini \
-        $PHP_INI_DIR/conf.d/
-
+COPY docker/php/conf.d/*.ini $PHP_INI_DIR/conf.d/
 COPY docker/php/php-fpm.d/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
 #RUN composer global require \
@@ -134,16 +131,8 @@ RUN set -eux; \
 	composer clear-cache
 
 #=======================================================================
-FROM salt_core_php AS salt_core_app
-
-ARG VERSION=3.0.0-dev
-ARG BUILD_NUMBER=x
-ARG BUILD_DATE=0
-ARG COMMIT=unknown
-
-LABEL org.opencontainers.title="OpenSALT PHP Application" \
-      org.opencontainers.source="https://github.com/opensalt/opensalt" \
-      org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
+# Squash the COPY layers into 1 layer
+FROM salt_core_php AS salt_code_layer
 
 # build for production
 ARG APP_ENV=prod
@@ -163,9 +152,6 @@ COPY templates/ templates/
 COPY translations/ translations/
 COPY tests/ tests/
 
-RUN echo ${VERSION}.${BUILD_NUMBER} > public/version.txt
-RUN echo ${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT} > public/revision.txt
-
 COPY --from=salt_core_vendors /srv/core/vendor/ ./vendor/
 # hack to avoid "Service 'php' failed to build : failed to export image: failed to create image: failed to get layer sha256:38c02bf8b1bff96084338f7e6835b713185e091467e11f08001d41375f078e0e: layer does not exist"
 # as mentioned in https://github.com/moby/moby/issues/37965#issuecomment-426853382
@@ -178,14 +164,47 @@ RUN set -eux; \
 	mkdir -p public/attachments; \
 	chmod 777 public/attachments; \
 	chmod 777 tests/_output tests/_data tests/_support/_generated; \
+	chmod +x bin/console-real; sync; \
 	composer dump-autoload --no-interaction --classmap-authoritative; \
 	composer dump-env prod; \
-	composer run-script post-install-cmd; \
-	chmod +x bin/console-real; sync
+	composer run-script post-install-cmd
+
+ARG VERSION=3.1.0
+ARG BUILD_NUMBER=x
+ARG BUILD_DATE=0
+ARG COMMIT=unknown
+
+RUN echo ${VERSION}.${BUILD_NUMBER} > public/version.txt ; \
+    echo ${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT} > public/revision.txt
+
+#=======================================================================
+FROM salt_core_php AS salt_core_app
+
+ENV SYMFONY_PHPUNIT_VERSION=9
+
+ARG VERSION=3.1.0-dev
+ARG BUILD_NUMBER=x
+ARG BUILD_DATE=0
+ARG COMMIT=unknown
+
+LABEL org.opencontainers.title="OpenSALT PHP Application" \
+      org.opencontainers.source="https://github.com/opensalt/opensalt" \
+      org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
+
+COPY --from=salt_code_layer /srv/core/ ./
+
 VOLUME /srv/core/var
 VOLUME /srv/core/public/attachments
 
-ENV SYMFONY_PHPUNIT_VERSION=9
+#=======================================================================
+FROM salt_core_app as salt_core_dev
+
+ARG XDEBUG_VERSION=3.0.4
+RUN set -eux; \
+	apk add --no-cache --virtual .build-deps $PHPIZE_DEPS; \
+	pecl install xdebug-$XDEBUG_VERSION; \
+	docker-php-ext-enable xdebug; \
+	apk del .build-deps
 
 #=======================================================================
 FROM caddy:${CADDY_VERSION}-builder-alpine AS salt_core_caddy_builder
@@ -201,15 +220,6 @@ FROM dunglas/mercure:${MERCURE_VERSION} as mercure_build
 #=======================================================================
 FROM caddy:${CADDY_VERSION} AS salt_core_caddy
 
-ARG VERSION=3.0.0-dev
-ARG BUILD_NUMBER=x
-ARG BUILD_DATE=0
-ARG COMMIT=unknown
-
-LABEL org.opencontainers.title="OpenSALT Web Server" \
-      org.opencontainers.source="https://github.com/opensalt/opensalt" \
-      org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
-
 WORKDIR /srv/core
 
 COPY --from=mercure_build /srv/public /srv/mercure-assets/
@@ -218,6 +228,15 @@ COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
 COPY docker/caddy/docker-healthcheck /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-healthcheck
 HEALTHCHECK --interval=10s --timeout=3s --retries=3 --start-period=30s CMD ["docker-healthcheck"]
+
+ARG VERSION=3.1.0-dev
+ARG BUILD_NUMBER=x
+ARG BUILD_DATE=0
+ARG COMMIT=unknown
+
+LABEL org.opencontainers.title="OpenSALT Web Server" \
+      org.opencontainers.source="https://github.com/opensalt/opensalt" \
+      org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
 
 COPY --from=salt_core_app /srv/core/public public/
 
