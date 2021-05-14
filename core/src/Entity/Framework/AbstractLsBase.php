@@ -4,23 +4,12 @@ namespace App\Entity\Framework;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\MappedSuperclass()
- *
- * @Serializer\ExclusionPolicy("all")
- * @Serializer\VirtualProperty(
- *     "uri",
- *     exp="service('App\\Service\\Api1Uris').getUri(object)",
- *     options={
- *         @Serializer\SerializedName("uri"),
- *         @Serializer\Expose()
- *     }
- * )
  */
 class AbstractLsBase implements IdentifiableInterface
 {
@@ -28,8 +17,6 @@ class AbstractLsBase implements IdentifiableInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     *
-     * @Serializer\Exclude()
      */
     protected ?int $id = null;
 
@@ -41,8 +28,6 @@ class AbstractLsBase implements IdentifiableInterface
      * @Assert\NotBlank()
      * @Assert\Uuid(strict=false)
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Expose()
      */
     protected ?string $identifier = null;
 
@@ -53,8 +38,6 @@ class AbstractLsBase implements IdentifiableInterface
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
      */
     protected ?string $uri = null;
 
@@ -62,25 +45,18 @@ class AbstractLsBase implements IdentifiableInterface
      * @var array
      *
      * @ORM\Column(name="extra", type="json", nullable=true)
-     *
-     * @Serializer\Exclude()
      */
     protected ?array $extra = null;
 
     /**
      * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("lastChangeDateTime")
      */
     private \DateTimeInterface $changedAt;
 
     /**
      * @ORM\Column(name="updated_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
-     *
-     * @Serializer\Exclude()
      */
     protected \DateTimeInterface $updatedAt;
 

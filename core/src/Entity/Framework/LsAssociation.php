@@ -3,7 +3,6 @@
 namespace App\Entity\Framework;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -15,52 +14,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\Framework\LsAssociationRepository")
- *
- * @Serializer\VirtualProperty(
- *     "cfDocumentUri",
- *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getLsDoc())",
- *     options={
- *         @Serializer\SerializedName("CFDocumentURI"),
- *         @Serializer\Expose(),
- *         @Serializer\Groups({"LsAssociation"})
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "cfAssociationGroupingUri",
- *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getGroup())",
- *     options={
- *         @Serializer\SerializedName("CFAssociationGroupingURI"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "originNodeUri",
- *     exp="service('App\\Service\\Api1Uris').getNodeLinkUri('origin', object)",
- *     options={
- *         @Serializer\SerializedName("originNodeURI"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "associationType",
- *     exp="service('App\\Service\\Api1Uris').formatAssociationType(object.getType())",
- *     options={
- *         @Serializer\SerializedName("associationType"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "destinationNodeUri",
- *     exp="service('App\\Service\\Api1Uris').getNodeLinkUri('destination', object)",
- *     options={
- *         @Serializer\SerializedName("destinationNodeURI"),
- *         @Serializer\Expose()
- *     }
- * )
  */
 class LsAssociation extends AbstractLsBase implements CaseApiInterface
 {
@@ -96,8 +49,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @ORM\Column(name="ls_doc_identifier", type="string", length=300, nullable=false)
      *
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
      */
     private $lsDocIdentifier;
 
@@ -107,8 +58,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @ORM\Column(name="ls_doc_uri", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
      */
     private $lsDocUri;
 
@@ -116,8 +65,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @var LsDoc
      *
      * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="docAssociations")
-     *
-     * @Serializer\Exclude()
      */
     private $lsDoc;
 
@@ -126,8 +73,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\ManyToOne(targetEntity="LsDefAssociationGrouping", fetch="EAGER")
      * @ORM\JoinColumn(name="assoc_group_id", referencedColumnName="id")
-     *
-     * @Serializer\Exclude()
      */
     private $group;
 
@@ -138,8 +83,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
      */
     private $originNodeIdentifier;
 
@@ -147,8 +90,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @var string
      *
      * @ORM\Column(name="origin_node_uri", type="string", length=300, nullable=true)
-     *
-     * @Serializer\Exclude()
      */
     private $originNodeUri;
 
@@ -157,8 +98,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="associations", fetch="EAGER")
      * @ORM\JoinColumn(name="origin_lsdoc_id", referencedColumnName="id", onDelete="SET NULL")
-     *
-     * @Serializer\Exclude()
      */
     private $originLsDoc;
 
@@ -167,8 +106,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\ManyToOne(targetEntity="LsItem", inversedBy="associations", fetch="EAGER", cascade={"persist"})
      * @ORM\JoinColumn(name="origin_lsitem_id", referencedColumnName="id", onDelete="SET NULL")
-     *
-     * @Serializer\Exclude()
      */
     private $originLsItem;
 
@@ -179,8 +116,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
      */
     private $destinationNodeIdentifier;
 
@@ -188,8 +123,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @var string
      *
      * @ORM\Column(name="destination_node_uri", type="string", length=300, nullable=true)
-     *
-     * @Serializer\Exclude()
      */
     private $destinationNodeUri;
 
@@ -198,8 +131,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="inverseAssociations", fetch="EAGER")
      * @ORM\JoinColumn(name="destination_lsdoc_id", referencedColumnName="id", onDelete="SET NULL")
-     *
-     * @Serializer\Exclude()
      */
     private $destinationLsDoc;
 
@@ -208,8 +139,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\ManyToOne(targetEntity="LsItem", inversedBy="inverseAssociations", fetch="EAGER", cascade={"persist"})
      * @ORM\JoinColumn(name="destination_lsitem_id", referencedColumnName="id", onDelete="SET NULL")
-     *
-     * @Serializer\Exclude()
      */
     private $destinationLsItem;
 
@@ -217,8 +146,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=50, nullable=false)
-     *
-     * @Serializer\Exclude()
      */
     private $type;
 
@@ -226,9 +153,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @var int
      *
      * @ORM\Column(name="seq", type="bigint", nullable=true)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("sequenceNumber")
      */
     private $sequenceNumber;
 
@@ -236,11 +160,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @var string
      *
      * @ORM\Column(name="subtype", type="string", nullable=true)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("subtype")
-     * @Serializer\SkipWhenEmpty()
-     * @Serializer\Groups({"OpenSalt"})
      */
     private $subtype;
 
@@ -248,11 +167,6 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      * @var string
      *
      * @ORM\Column(name="annotation", type="text", length=65534, nullable=true)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("annotation")
-     * @Serializer\SkipWhenEmpty()
-     * @Serializer\Groups({"OpenSalt"})
      */
     private $annotation;
 
