@@ -549,9 +549,9 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     /**
      * Return the normalized type (like "isChildOf" instead of "Is Child Of").
      */
-    public function getNormalizedType(): string
+    public function getNormalizedType(?string $type = null): string
     {
-        return lcfirst(str_replace(' ', '', $this->type ?? ''));
+        return lcfirst(str_replace(' ', '', $type ?? $this->type ?? ''));
     }
 
     /**

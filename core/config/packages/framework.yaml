@@ -37,6 +37,7 @@ framework:
 
     request:
       formats:
+        jsonld: 'application/ld+json'
         jsonapi: 'application/vnd.api+json'
         csv: ['text/csv', 'text/plain']
 

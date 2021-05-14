@@ -29,7 +29,7 @@ class IdentifiableObjectHelper
                 continue;
             }
 
-            /** @var AbstractLsBase $obj */
+            /** @var ?AbstractLsBase $obj */
             $obj = $this->registry->getRepository($objectType)->findOneBy(['identifier' => $uuid]);
             if (null !== $obj) {
                 return $obj;
@@ -48,7 +48,7 @@ class IdentifiableObjectHelper
                 continue;
             }
 
-            /** @var AbstractLsBase $obj */
+            /** @var ?AbstractLsBase $obj */
             $obj = $this->registry->getRepository($objectType)->findOneBy(['uri' => $uri]);
             if (null !== $obj) {
                 return $obj;

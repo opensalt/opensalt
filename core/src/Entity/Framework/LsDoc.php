@@ -4,17 +4,17 @@ namespace App\Entity\Framework;
 
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\LockableInterface;
+use App\Entity\User\Organization;
+use App\Entity\User\User;
+use App\Entity\User\UserDocAcl;
+use App\Util\Compare;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use App\Entity\User\Organization;
-use App\Entity\User\User;
-use App\Entity\User\UserDocAcl;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Util\Compare;
 
 /**
  * @ORM\Table(name="ls_doc")

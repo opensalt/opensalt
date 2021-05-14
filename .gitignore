@@ -28,3 +28,4 @@ nbproject
 /lsp/*
 /.scannerwork/*
 .php_cs.cache
+.php-cs-fixer.cache
