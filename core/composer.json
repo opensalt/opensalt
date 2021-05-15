@@ -47,7 +47,6 @@
         "firebase/php-jwt": "^5.2",
         "gbprod/uuid-normalizer": "^1.1",
         "google/recaptcha": "~1.1",
-        "jms/serializer-bundle": "^3.3.0",
         "kamermans/guzzle-oauth2-subscriber": "^1.0.6",
         "laminas/laminas-code": "^4.0",
         "laminas/laminas-escaper": "^2.2",
@@ -103,7 +102,7 @@
 
         "codeception/codeception": "^4.1",
         "codeception/module-asserts": "^1.0",
-	"codeception/module-doctrine2": "^1.0",
+        "codeception/module-doctrine2": "^1.0",
         "codeception/module-phpbrowser": "^1.0",
         "codeception/module-rest": "^1.0",
         "codeception/module-sequence": "^1.0",

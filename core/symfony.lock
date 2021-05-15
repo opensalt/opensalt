@@ -270,26 +270,6 @@
     "jetbrains/phpstorm-attributes": {
         "version": "1.0"
     },
-    "jms/metadata": {
-        "version": "1.6.0"
-    },
-    "jms/serializer": {
-        "version": "1.11.0"
-    },
-    "jms/serializer-bundle": {
-        "version": "3.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.0",
-            "ref": "384cec52df45f3bfd46a09930d6960a58872b268"
-        },
-        "files": [
-            "config/packages/dev/jms_serializer.yaml",
-            "config/packages/jms_serializer.yaml",
-            "config/packages/prod/jms_serializer.yaml"
-        ]
-    },
     "justinrainbow/json-schema": {
         "version": "5.2.9"
     },
@@ -436,9 +416,6 @@
     },
     "phpspec/prophecy": {
         "version": "1.7.6"
-    },
-    "phpstan/phpdoc-parser": {
-        "version": "0.3.1"
     },
     "phpstan/phpstan": {
         "version": "0.11.2"
