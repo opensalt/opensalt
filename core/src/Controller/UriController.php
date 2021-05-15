@@ -86,7 +86,7 @@ class UriController extends AbstractController
         $groups = ['default', $className];
         $serialized = $this->symfonySerializer->serialize($obj, 'json', [
             'groups' => $groups,
-            'json_encode_options' => \JSON_UNESCAPED_SLASHES,
+            'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
             'case-json-ld' => ('jsonld' === $request->getRequestFormat()) ? 'v1p0' : null,
             'add-case-context' => ('jsonld' === $request->getRequestFormat()) ? 'v1p0' : null,
             'generate-package' => $isPackage ? 'v1p0' : null,

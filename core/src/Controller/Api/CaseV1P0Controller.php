@@ -91,7 +91,7 @@ class CaseV1P0Controller extends AbstractController
         $response->setContent(
             $this->symfonySerializer->serialize(['CFDocuments' => $docs], 'json', [
                 'groups' => $groups,
-                'json_encode_options' => \JSON_UNESCAPED_SLASHES,
+                'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
             ])
         );
         $response->headers->set('X-Total-Count', (string) $docCount);
@@ -125,7 +125,7 @@ class CaseV1P0Controller extends AbstractController
         $response->setContent(
             $this->symfonySerializer->serialize($obj, 'json', [
                 'groups' => ['default', 'CfPackage'],
-                'json_encode_options' => \JSON_UNESCAPED_SLASHES,
+                'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
                 'generate-package' => 'v1p0',
             ])
         );
@@ -170,7 +170,7 @@ class CaseV1P0Controller extends AbstractController
                 'CFAssociations' => $associations,
             ], 'json', [
                 'groups' => ['default', 'LsItem', 'LsAssociation'],
-                'json_encode_options' => \JSON_UNESCAPED_SLASHES,
+                'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
             ])
         );
         $response->headers->set('X-Total-Count', [(string) count($associations)]);
@@ -241,7 +241,7 @@ class CaseV1P0Controller extends AbstractController
         $response->setContent(
             $this->symfonySerializer->serialize($obj, 'json', [
                 'groups' => ['default', $className],
-                'json_encode_options' => \JSON_UNESCAPED_SLASHES,
+                'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
             ])
         );
 
@@ -267,7 +267,7 @@ class CaseV1P0Controller extends AbstractController
         $response->setContent(
             $this->symfonySerializer->serialize([$collection => [$obj]], 'json', [
                 'groups' => ['default', $className],
-                'json_encode_options' => \JSON_UNESCAPED_SLASHES,
+                'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
             ])
         );
 

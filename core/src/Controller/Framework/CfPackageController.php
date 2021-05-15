@@ -44,7 +44,7 @@ class CfPackageController extends AbstractController
             $response->setContent(
                 $this->symfonySerializer->serialize($lsDoc, 'json', [
                     'groups' => ['default', 'CfPackage'],
-                    'json_encode_options' => \JSON_UNESCAPED_SLASHES,
+                    'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
                     'generate-package' => 'v1p0',
                 ])
             );
