@@ -26,7 +26,7 @@ class CaseV1P0Controller extends AbstractController
     use LoggerTrait;
 
     public function __construct(
-        private SerializerInterface $symfonySerializer,
+        private SerializerInterface $serializer,
         private string $assetsVersion,
     ) {
     }
@@ -89,7 +89,7 @@ class CaseV1P0Controller extends AbstractController
             $groups[] = 'updatedAt';
         }
         $response->setContent(
-            $this->symfonySerializer->serialize(['CFDocuments' => $docs], 'json', [
+            $this->serializer->serialize(['CFDocuments' => $docs], 'json', [
                 'groups' => $groups,
                 'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
             ])
@@ -123,7 +123,7 @@ class CaseV1P0Controller extends AbstractController
         }
 
         $response->setContent(
-            $this->symfonySerializer->serialize($obj, 'json', [
+            $this->serializer->serialize($obj, 'json', [
                 'groups' => ['default', 'CfPackage'],
                 'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
                 'generate-package' => 'v1p0',
@@ -165,7 +165,7 @@ class CaseV1P0Controller extends AbstractController
         }
 
         $response->setContent(
-            $this->symfonySerializer->serialize([
+            $this->serializer->serialize([
                 'CFItem' => $item,
                 'CFAssociations' => $associations,
             ], 'json', [
@@ -239,7 +239,7 @@ class CaseV1P0Controller extends AbstractController
 
         $className = substr(strrchr(get_class($obj), '\\'), 1);
         $response->setContent(
-            $this->symfonySerializer->serialize($obj, 'json', [
+            $this->serializer->serialize($obj, 'json', [
                 'groups' => ['default', $className],
                 'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
             ])
@@ -265,7 +265,7 @@ class CaseV1P0Controller extends AbstractController
 
         $className = substr(strrchr(get_class($obj), '\\'), 1);
         $response->setContent(
-            $this->symfonySerializer->serialize([$collection => [$obj]], 'json', [
+            $this->serializer->serialize([$collection => [$obj]], 'json', [
                 'groups' => ['default', $className],
                 'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
             ])
