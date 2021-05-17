@@ -2,9 +2,12 @@
 
 namespace App\Serializer\CaseJson;
 
+use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsDocRepository;
 use App\Service\Api1Uris;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
@@ -17,6 +20,7 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwar
     public function __construct(
         private Api1Uris $api1Uris,
         private LsDocRepository $docRepository,
+        private AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
 
@@ -60,7 +64,14 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwar
             $data['CFItems'][] = $this->normalizer->normalize($obj, $format, $context);
         }
 
+        /** @var LsAssociation $obj */
         foreach ($package['CFAssociations'] as $obj) {
+            if (!$this->canListDocument($obj, 'origin') ||
+                !$this->canListDocument($obj, 'destination')) {
+                // Remove associations to frameworks one can't normally see
+                continue;
+            }
+
             $data['CFAssociations'][] = $this->normalizer->normalize($obj, $format, $context);
         }
 
@@ -84,5 +95,34 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwar
     public function setNormalizer(NormalizerInterface $normalizer)
     {
         $this->normalizer = $normalizer;
+    }
+
+    protected function canListDocument(LsAssociation $obj, string $which): bool
+    {
+        $target = match ($which) {
+            'origin' => $obj->getOrigin(),
+            'destination' => $obj->getDestination(),
+            default => throw new \InvalidArgumentException('Expected "origin" or "destination"'),
+        };
+
+        if (!is_object($target)) {
+            return true;
+        }
+
+        $targetDoc = match (true) {
+            $target instanceof LsDoc => $target,
+            $target instanceof LsItem => $target->getLsDoc(),
+        };
+
+        if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $targetDoc->getAdoptionStatus()) {
+            return true;
+        }
+
+        if ($obj->getLsDoc()?->getId() === $targetDoc->getId()) {
+            // Even if private draft, we can view if the targetDoc is the same as this one
+            return true;
+        }
+
+        return $this->authorizationChecker->isGranted('list', $targetDoc);
     }
 }

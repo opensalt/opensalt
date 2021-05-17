@@ -65,7 +65,10 @@ trait AssociationLinkTrait
                 $target instanceof LsItem => $target->getLsDoc(),
             };
 
-            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $targetDoc->getAdoptionStatus()) {
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $targetDoc->getAdoptionStatus()
+                && !$association->getLsDoc()?->getId() !== $targetDoc->getId()
+                && !$this->authorizationChecker->isGranted('list', $targetDoc)
+            ) {
                 return null;
             }
         }

@@ -4,6 +4,7 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsDoc;
 use App\Service\Api1Uris;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 
 final class LsDocNormalizer implements ContextAwareNormalizerInterface
@@ -15,6 +16,7 @@ final class LsDocNormalizer implements ContextAwareNormalizerInterface
 
     public function __construct(
         private Api1Uris $api1Uris,
+        private AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
 
