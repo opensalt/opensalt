@@ -30,7 +30,7 @@ class UriController extends AbstractController
     {
         $this->determineRequestFormat($request, null);
 
-        if (in_array($request->getRequestFormat(), ['json', 'jsonld'])) {
+        if (in_array($request->getRequestFormat(), ['json', 'jsonld', 'opensalt'])) {
             return new JsonResponse([
                 'error' => 'Identifier not found',
             ], Response::HTTP_NOT_FOUND, [
@@ -84,6 +84,9 @@ class UriController extends AbstractController
 
         $className = $isPackage ? 'CFPackage' : substr(strrchr(get_class($obj), '\\'), 1);
         $groups = ['default', $className];
+        if ('opensalt' === $request->getRequestFormat()) {
+            $groups[] = 'opensalt';
+        }
         $serialized = $this->symfonySerializer->serialize($obj, 'json', [
             'groups' => $groups,
             'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
@@ -102,6 +105,10 @@ class UriController extends AbstractController
             ], $response);
         }
 
+        if ($request->headers->has('x-opensalt')) {
+            $request->setRequestFormat('json');
+            $response->headers->set('X-OpenSALT-Response', 'requested');
+        }
         $response->setContent($serialized);
         $response->headers->set('Content-Type', $request->getMimeType($request->getRequestFormat()));
 
@@ -110,7 +117,14 @@ class UriController extends AbstractController
 
     private function determineRequestFormat(Request $request, ?string $_format): void
     {
+        if ($request->headers->has('x-opensalt')) {
+            $request->setRequestFormat('opensalt');
+
+            return;
+        }
+
         $allowedFormats = [
+            'application/vnd.opensalt+json' => 'opensalt',
             'application/json' => 'json',
             'application/ld+json' => 'jsonld',
             'text/html' => 'html',

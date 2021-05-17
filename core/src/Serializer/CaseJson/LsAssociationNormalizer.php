@@ -56,6 +56,17 @@ final class LsAssociationNormalizer implements ContextAwareNormalizerInterface
             'destinationNodeURI' => $this->createOutLink($object, 'destination', $context),
         ];
 
+        if (in_array('opensalt', $context['groups'] ?? [], true)) {
+            $data['_opensalt'] = [
+                'subtype' => $object->getSubtype(),
+                'annotation' => $object->getAnnotation(),
+            ];
+
+            $data['_opensalt'] = array_filter($data['_opensalt'], static function ($val) {
+                return null !== $val;
+            });
+        }
+
         return array_filter($data, static function ($val) {
             return null !== $val;
         });
