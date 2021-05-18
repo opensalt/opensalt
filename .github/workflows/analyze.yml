@@ -67,9 +67,9 @@ jobs:
           echo "::endgroup::"
           echo "::group::composer install"
           composer install --no-progress --ansi
-          cd ..
           echo "::endgroup::"
           $(composer config home)/vendor/bin/psalm --version
+          cd ..
 
       - name: Generate Psalm baseline
         run: |
