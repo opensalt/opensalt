@@ -53,16 +53,19 @@ jobs:
 
       - name: Configure composer
         run: |
+          cd core
           COMPOSER_HOME="$(composer config home)"
           ([ -d "$COMPOSER_HOME" ] || mkdir "$COMPOSER_HOME") && cp ../.github/composer-config.json "$COMPOSER_HOME/config.json"
+          cd ..
 
       - name: Install Psalm
         run: |
           echo "::group::modify global composer.json"
+          cd core
+          COMPOSER_HOME="$(composer config home)"
           composer global require vimeo/psalm psalm/plugin-symfony weirdan/doctrine-psalm-plugin
           echo "::endgroup::"
           echo "::group::composer install"
-          cd core
           composer install --no-progress --ansi
           cd ..
           echo "::endgroup::"
