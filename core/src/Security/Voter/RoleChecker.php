@@ -12,10 +12,7 @@ class RoleChecker
     public const ROLE_SUPER_EDITOR = 'ROLE_SUPER_EDITOR';
     public const ROLE_SUPER_USER = 'ROLE_SUPER_USER';
 
-    /**
-     * @var RoleHierarchyInterface
-     */
-    private $roleHierarchy;
+    private RoleHierarchyInterface $roleHierarchy;
 
     public function __construct(RoleHierarchyInterface $roleHierarchy)
     {

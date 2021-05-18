@@ -23,7 +23,7 @@ class FrameworkAccessVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, $subject): bool
     {
         if (!\in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::DELETE], true)) {
             return false;
@@ -45,7 +45,7 @@ class FrameworkAccessVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         switch ($attribute) {
             case self::CREATE:

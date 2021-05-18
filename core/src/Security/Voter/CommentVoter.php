@@ -20,7 +20,7 @@ class CommentVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, $subject): bool
     {
         if (!$this->hasActiveFeature('comments')) {
             // No support for comments if the feature is not enabled
@@ -46,7 +46,7 @@ class CommentVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         // All users (including anonymous) can view comments
         if (self::VIEW === $attribute) {

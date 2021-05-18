@@ -6,10 +6,7 @@ use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 
 trait RoleCheckTrait
 {
-    /**
-     * @var RoleChecker
-     */
-    private $roleChecker;
+    private RoleChecker $roleChecker;
 
     /**
      * @required
