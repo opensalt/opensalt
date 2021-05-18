@@ -28,7 +28,7 @@ use Symplify\CodingStandard\Fixer\Commenting\ParamReturnAndVarTagMalformsFixer;
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
 
-    $parameters->set('sets', ['clean-code', 'dead-code', 'psr12', 'symfony']);
+    $parameters->set('sets', ['clean-code', 'psr12', 'symfony']);
 
     $parameters->set('skip', [
         'PhpCsFixer\Fixer\FunctionNotation\SingleLineThrowFixer' => null,
