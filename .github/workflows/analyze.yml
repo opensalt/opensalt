@@ -39,7 +39,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
-          extensions: "json,memcached,mongodb,redis,xsl,ldap,dom"
+          extensions: "json,xsl,dom"
           ini-values: "memory_limit=-1"
           coverage: none
 
@@ -80,3 +80,40 @@ jobs:
         run: |
           cd core
           $(composer config home)/vendor/bin/psalm --output-format=github --no-progress
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: "json,xsl,dom"
+          ini-values: "memory_limit=-1"
+          coverage: none
+
+      - name: Checkout target branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Checkout PR
+        uses: actions/checkout@v2
+
+      - name: Generate PHPStan baseline
+        run: |
+          cd core
+          git checkout -m ${{ github.base_ref }}
+          composer install --no-progress --ansi
+          touch phpstan-baseline.neon
+          ./vendor/bin/phpstan --generate-baseline --no-progress --ansi
+          git checkout -m FETCH_HEAD
+          composer install --no-progress --ansi
+          cd ..
+
+      - name: PHPStan
+        run: |
+          cd core
+          ./vendor/bin/phpstan --error-format=github --no-progress --ansi

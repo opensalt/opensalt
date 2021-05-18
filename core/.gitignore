@@ -49,6 +49,7 @@ nbproject
 .sass-cache
 /lsp/*
 /.scannerwork/*
+phpstan-baseline.neon
 
 pw-archive/
 

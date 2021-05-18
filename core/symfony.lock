@@ -391,13 +391,13 @@
         "version": "1.7.6"
     },
     "phpstan/phpstan": {
-        "version": "0.11.2"
+        "version": "0.12.88"
     },
     "phpstan/phpstan-doctrine": {
-        "version": "0.11.1"
+        "version": "0.12.34"
     },
     "phpstan/phpstan-symfony": {
-        "version": "0.11.1"
+        "version": "0.12.33"
     },
     "phpunit/php-code-coverage": {
         "version": "4.0.8"
