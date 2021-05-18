@@ -1,10 +1,4 @@
 {
-    "amphp/amp": {
-        "version": "v2.3.1"
-    },
-    "amphp/byte-stream": {
-        "version": "v1.6.1"
-    },
     "antishov/doctrine-extensions-bundle": {
         "version": "1.4",
         "recipe": {
@@ -80,12 +74,6 @@
     "composer/package-versions-deprecated": {
         "version": "1.11.99.1"
     },
-    "composer/semver": {
-        "version": "1.4.2"
-    },
-    "composer/xdebug-handler": {
-        "version": "1.1.0"
-    },
     "csa/guzzle-bundle": {
         "version": "3.0",
         "recipe": {
@@ -106,9 +94,6 @@
     },
     "csa/guzzle-stopwatch-middleware": {
         "version": "v1.0.0"
-    },
-    "dnoegel/php-xdg-base-dir": {
-        "version": "0.1"
     },
     "doctrine/annotations": {
         "version": "1.0",
@@ -221,12 +206,6 @@
     },
     "fakerphp/faker": {
         "version": "v1.13.0"
-    },
-    "felixfbecker/advanced-json-rpc": {
-        "version": "v3.0.4"
-    },
-    "felixfbecker/language-server-protocol": {
-        "version": "v1.4.0"
     },
     "firebase/php-jwt": {
         "version": "v5.2.0"
@@ -372,14 +351,8 @@
             "ref": "65726efb67ff51d89de38195bc0d230fa811f64d"
         }
     },
-    "netresearch/jsonmapper": {
-        "version": "v1.6.0"
-    },
     "nikic/php-parser": {
         "version": "v4.0.1"
-    },
-    "openlss/lib-array2xml": {
-        "version": "1.0.0"
     },
     "phar-io/manifest": {
         "version": "1.0.3"
@@ -454,9 +427,6 @@
             "phpunit.xml.dist",
             "tests/bootstrap.php"
         ]
-    },
-    "psalm/plugin-symfony": {
-        "version": "v2.1.2"
     },
     "psr/cache": {
         "version": "1.0.1"
@@ -963,20 +933,11 @@
     "ua-parser/uap-php": {
         "version": "v3.5.0"
     },
-    "vimeo/psalm": {
-        "version": "3.5.3"
-    },
     "vlucas/phpdotenv": {
         "version": "v3.3.3"
     },
     "webmozart/assert": {
         "version": "1.3.0"
-    },
-    "webmozart/path-util": {
-        "version": "2.3.0"
-    },
-    "weirdan/doctrine-psalm-plugin": {
-        "version": "0.11.3"
     },
     "zendframework/zend-code": {
         "version": "3.3.0"

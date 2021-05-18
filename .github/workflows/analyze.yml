@@ -1,3 +1,5 @@
+name: Static Analysis
+
 on: 
   push:
   pull_request:
@@ -8,7 +10,9 @@ on:
       # forked PRs, once for the push and then once for opening the PR.
     - '**:**'
 
-name: Analysis Workflow
+defaults:
+  run:
+    shell: bash
 
 jobs:
   sonarCloudTrigger:
@@ -26,3 +30,53 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+  psalm:
+    name: Psalm
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: "json,memcached,mongodb,redis,xsl,ldap,dom"
+          ini-values: "memory_limit=-1"
+          coverage: none
+
+      - name: Checkout target branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Checkout PR
+        uses: actions/checkout@v2
+
+      - name: Configure composer
+        run: |
+          COMPOSER_HOME="$(composer config home)"
+          ([ -d "$COMPOSER_HOME" ] || mkdir "$COMPOSER_HOME") && cp ../.github/composer-config.json "$COMPOSER_HOME/config.json"
+
+      - name: Install Psalm
+        run: |
+          echo "::group::modify global composer.json"
+          composer global require vimeo/psalm psalm/plugin-symfony weirdan/doctrine-psalm-plugin
+          echo "::endgroup::"
+          echo "::group::composer install"
+          cd core
+          composer install --no-progress --ansi
+          cd ..
+          echo "::endgroup::"
+          $(composer config home)/vendor/bin/psalm --version
+
+      - name: Generate Psalm baseline
+        run: |
+          cd core
+          git checkout -m ${{ github.base_ref }}
+          $(composer config home)/vendor/bin/psalm --set-baseline=../.github/psalm/psalm.baseline.xml --no-progress
+          git checkout -m FETCH_HEAD
+          cd ..
+
+      - name: Psalm
+        run: |
+          cd core
+          $(composer config home)/vendor/bin/psalm --output-format=github --no-progress

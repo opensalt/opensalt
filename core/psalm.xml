@@ -8,7 +8,15 @@
     errorLevel="6"
     reportMixedIssues="false"
     autoloader="vendor/autoload.php"
+    errorBaseline="../.github/psalm/psalm.baseline.xml"
 >
+    <plugins>
+        <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
+        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin">
+            <containerXml>var/cache/dev/App_KernelDevDebugContainer.xml</containerXml>
+        </pluginClass>
+    </plugins>
+
     <projectFiles>
         <directory name="src"/>
         <directory name="templates"/>
@@ -21,11 +29,14 @@
 
     <fileExtensions>
         <extension name=".php" />
-        <extension name=".twig" checker="./vendor/psalm/plugin-symfony/src/Twig/TemplateFileAnalyzer.php"/>
+        <!-- <extension name=".twig" checker="vendor/psalm/plugin-symfony/src/Twig/TemplateFileAnalyzer.php"/> -->
     </fileExtensions>
 
     <issueHandlers>
         <LessSpecificReturnType errorLevel="info"/>
+        <LessSpecificImplementedReturnType errorLevel="info"/>
+        <UndefinedInterfaceMethod errorLevel="info"/>
+        <MoreSpecificImplementedParamType errorLevel="info"/>
 
         <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
 
@@ -62,10 +73,4 @@
 
         <InvalidStringClass errorLevel="info"/>
     </issueHandlers>
-    <plugins>
-        <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
-        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin">
-            <containerXml>var/cache/dev/App_KernelDevDebugContainer.xml</containerXml>
-        </pluginClass>
-    </plugins>
 </psalm>
