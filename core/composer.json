@@ -69,7 +69,7 @@
         "symfony/console": "5.2.*",
         "symfony/dotenv": "5.2.*",
         "symfony/expression-language": "5.2.*",
-        "symfony/flex": "^1.8.4",
+        "symfony/flex": "^1.13",
         "symfony/form": "5.2.*",
         "symfony/framework-bundle": "5.2.*",
         "symfony/mercure-bundle": "^0.3.0",
