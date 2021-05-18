@@ -170,14 +170,14 @@ class AssociationsTransformer
 
     private function setGroup(LsAssociation $association, ?LinkURI $cfAssociationGroupingURI): LsAssociation
     {
-        if (null === $cfAssociationGroupingURI || null === $cfAssociationGroupingURI->identifier) {
+        if (null === $cfAssociationGroupingURI) {
             $association->setGroup(null);
 
             return $association;
         }
 
         $identifier = $cfAssociationGroupingURI->identifier->toString();
-        $group = $this->definitions->associationGroupings[$identifier] ?? $this->findExitingGroup($identifier);
+        $group = $this->definitions->associationGroupings[$identifier] ?? $this->findExistingGroup($identifier);
         if (null === $group) {
             $this->warning(sprintf('AssociationGrouping %s cannot be found, using default.', $identifier));
         }
@@ -186,7 +186,7 @@ class AssociationsTransformer
         return $association;
     }
 
-    private function findExitingGroup(string $identifier): LsDefAssociationGrouping
+    private function findExistingGroup(string $identifier): ?LsDefAssociationGrouping
     {
         return $this->em->getRepository(LsDefAssociationGrouping::class)->findOneByIdentifier($identifier);
     }

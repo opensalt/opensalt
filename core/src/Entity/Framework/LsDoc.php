@@ -943,12 +943,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this;
     }
 
-    /**
-     * Get the owner of the framework.
-     *
-     * @return Organization|User
-     */
-    public function getOwner()
+    public function getOwner(): User|Organization|null
     {
         if (null !== $this->org) {
             return $this->org;

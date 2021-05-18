@@ -350,7 +350,7 @@ class LsDocController extends AbstractController
      *
      * @throws \Exception
      */
-    protected function loadDocumentListFromHost(string $hostname): array
+    protected function loadDocumentListFromHost(string $hostname): ?array
     {
         // Remove any scheme or path from the passed value
         $hostname = preg_replace('#^(?:https?://)?([^/]+)(?:/.*)#', '$1', $hostname);

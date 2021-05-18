@@ -392,7 +392,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      */
     public function getShortStatement(): string
     {
-        if ($this->abbreviatedStatement) {
+        if (null !== $this->abbreviatedStatement) {
             return $this->getAbbreviatedStatement();
         }
 
