@@ -27,7 +27,7 @@ class ImportLogsController extends AbstractController
         $this->sendCommand($command);
 
         return new JsonResponse([
-            'message' => 'Logs marked as read successfully!'
+            'message' => 'Logs marked as read successfully!',
         ]);
     }
 }

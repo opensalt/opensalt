@@ -48,7 +48,7 @@ class SessionController extends AbstractController
     public function renewSession(): JsonResponse
     {
         return new JsonResponse([
-            'message' => 'OK'
+            'message' => 'OK',
         ]);
     }
 }

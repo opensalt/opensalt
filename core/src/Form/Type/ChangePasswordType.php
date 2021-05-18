@@ -24,7 +24,7 @@ class ChangePasswordType extends AbstractType
                 ],
                 'second_options' => [
                     'label' => 'Repeat Password',
-                ]
+                ],
             ]);
     }
 

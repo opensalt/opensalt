@@ -13,7 +13,6 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="rubric_criterion")
  * @ORM\Entity(repositoryClass="App\Repository\Framework\CfRubricCriterionRepository")
- *
  */
 class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
 {
