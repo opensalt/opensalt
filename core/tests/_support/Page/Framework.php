@@ -291,12 +291,23 @@ class Framework implements Context
         $I->assertNotEmpty($caseFile, 'CASE file is empty');
 
         $parsedJson = json_decode($caseFile, true);
+        $uploadedJson = json_decode($this->uploadedFramework, true);
+
         $I->assertArrayHasKey('CFDocument', $parsedJson, 'CASE file does not have a CFDocument part');
-        $I->assertArrayHasKey('CFItems', $parsedJson, 'CASE file does not have a CFItems part');
-        $I->assertArrayHasKey('CFAssociations', $parsedJson, 'CASE file does not have a CFAssociations part');
+
+        if (!empty($uploadedJson['CFItems'])) {
+            $I->assertArrayHasKey('CFItems', $parsedJson, 'CASE file does not have a CFItems part');
+        } else {
+            unset($uploadedJson['CFItems']);
+        }
+        if (!empty($uploadedJson['CFAssociations'])) {
+            $I->assertArrayHasKey('CFAssociations', $parsedJson, 'CASE file does not have a CFAssociations part');
+        } else {
+            unset($uploadedJson['CFAssociations']);
+        }
 
         $diff = $this->arrayDiff(
-            json_decode($this->uploadedFramework, true),
+            $uploadedJson,
             $parsedJson,
             ['lastChangeDateTime', 'CFDefinitions', 'CFItemTypeURI']
         );
