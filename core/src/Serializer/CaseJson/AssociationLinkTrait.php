@@ -28,14 +28,6 @@ trait AssociationLinkTrait
             }
         }
 
-        $associations = $object->getInverseAssociations();
-        foreach ($associations as $association) {
-            $link = $this->createAssociationLink($association, 'origin');
-            if (null !== $link) {
-                $associationSet[] = $link;
-            }
-        }
-
         if (0 === count($associationSet)) {
             return null;
         }
@@ -66,7 +58,7 @@ trait AssociationLinkTrait
             };
 
             if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $targetDoc->getAdoptionStatus()
-                && !$association->getLsDoc()?->getId() !== $targetDoc->getId()
+                && $association->getLsDoc()?->getId() !== $targetDoc->getId()
                 && !$this->authorizationChecker->isGranted('list', $targetDoc)
             ) {
                 return null;
