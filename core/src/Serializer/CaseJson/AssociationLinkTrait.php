@@ -28,14 +28,6 @@ trait AssociationLinkTrait
             }
         }
 
-        $associations = $object->getInverseAssociations();
-        foreach ($associations as $association) {
-            $link = $this->createAssociationLink($association, 'origin');
-            if (null !== $link) {
-                $associationSet[] = $link;
-            }
-        }
-
         if (0 === count($associationSet)) {
             return null;
         }
