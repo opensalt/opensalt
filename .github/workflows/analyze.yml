@@ -1,28 +1,100 @@
-on: 
-  push:
-  pull_request:
-    branches:
-      # Branches from forks have the form 'user:branch-name' so we only run
-      # this job on pull_request events for branches that look like fork
-      # branches. Without this we would end up running this job twice for non
-      # forked PRs, once for the push and then once for opening the PR.
-    - '**:**'
+name: Static Analysis
 
-name: Analysis Workflow
+on: 
+  pull_request: ~
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  sonarCloudTrigger:
-    name: SonarCloud Trigger
+  psalm:
+    name: Psalm
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: "json,xsl,dom"
+          ini-values: "memory_limit=-1"
+          coverage: none
+
+      - name: Checkout target branch
         uses: actions/checkout@v2
-      - run: |
-          git fetch --prune --unshallow
+        with:
+          ref: ${{ github.base_ref }}
 
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Checkout PR
+        uses: actions/checkout@v2
 
+      - name: Configure composer
+        run: |
+          cd core
+          COMPOSER_HOME="$(composer config home)"
+          ([ -d "$COMPOSER_HOME" ] || mkdir "$COMPOSER_HOME") && cp ../.github/composer-config.json "$COMPOSER_HOME/config.json"
+          cd ..
+
+      - name: Install Psalm
+        run: |
+          echo "::group::modify global composer.json"
+          cd core
+          COMPOSER_HOME="$(composer config home)"
+          composer global require vimeo/psalm psalm/plugin-symfony weirdan/doctrine-psalm-plugin
+          echo "::endgroup::"
+          echo "::group::composer install"
+          composer install --no-progress --ansi
+          echo "::endgroup::"
+          $(composer config home)/vendor/bin/psalm --version
+          cd ..
+
+      - name: Generate Psalm baseline
+        run: |
+          cd core
+          git checkout -m ${{ github.base_ref }}
+          $(composer config home)/vendor/bin/psalm --set-baseline=../.github/psalm/psalm.baseline.xml --no-progress
+          git checkout -m FETCH_HEAD
+          cd ..
+
+      - name: Psalm
+        run: |
+          cd core
+          $(composer config home)/vendor/bin/psalm --output-format=github --no-progress
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: "json,xsl,dom"
+          ini-values: "memory_limit=-1"
+          coverage: none
+
+      - name: Checkout target branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Checkout PR
+        uses: actions/checkout@v2
+
+      - name: Generate PHPStan baseline
+        run: |
+          cd core
+          git checkout -m ${{ github.base_ref }}
+          composer install --no-progress --ansi
+          touch phpstan-baseline.neon
+          ./vendor/bin/phpstan --generate-baseline --no-progress --ansi
+          git checkout -m FETCH_HEAD
+          composer install --no-progress --ansi
+          cd ..
+
+      - name: PHPStan
+        run: |
+          cd core
+          ./vendor/bin/phpstan --error-format=github --no-progress --ansi

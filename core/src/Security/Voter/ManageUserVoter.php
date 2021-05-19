@@ -18,7 +18,7 @@ class ManageUserVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, $subject): bool
     {
         if (self::MANAGE !== $attribute) {
             return false;
@@ -34,7 +34,7 @@ class ManageUserVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
@@ -58,7 +58,7 @@ class ManageUserVoter extends Voter
         }
     }
 
-    private function canManageUser(User $targetUser, User $user, TokenInterface $token): bool
+    private function canManageUser(?User $targetUser, User $user, TokenInterface $token): bool
     {
         if (null === $targetUser) {
             return false;

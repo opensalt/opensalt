@@ -2,8 +2,6 @@
 
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__.'/src')
-    ->exclude('var')
-    ->exclude('migrations')
 ;
 
 $config = new PhpCsFixer\Config();

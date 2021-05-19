@@ -27,7 +27,7 @@ class DeleteAssociationGroupHandler extends BaseFrameworkHandler
             [
                 'assocGrp-d' => [
                     $associationGroup->getId() => $associationGroup->getIdentifier(),
-                ]
+                ],
             ]
         );
         $command->setNotificationEvent($notification);

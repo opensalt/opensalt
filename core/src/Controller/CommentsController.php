@@ -13,7 +13,6 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
 use App\Service\BucketService;
-use JMS\Serializer\SerializerInterface;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 use Qandidate\Toggle\Context;
 use Qandidate\Toggle\ContextFactory;
@@ -28,6 +27,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @Toggle("comments")
@@ -36,14 +36,13 @@ class CommentsController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    private SerializerInterface $serializer;
-    private ToggleManager $manager;
     private Context $context;
 
-    public function __construct(SerializerInterface $serializer, ToggleManager $manager, ContextFactory $contextFactory)
-    {
-        $this->serializer = $serializer;
-        $this->manager = $manager;
+    public function __construct(
+        private ToggleManager $manager,
+        private SerializerInterface $serializer,
+        ContextFactory $contextFactory
+    ) {
         $this->context = $contextFactory->createContext();
     }
 

@@ -2,8 +2,6 @@
 
 namespace App\DTO\Api1;
 
-use JMS\Serializer\Annotation as Serializer;
-
 class ImsxCodeMinorField
 {
     public const CODE_MINOR_FULLSUCCESS = 'fullsuccess';
@@ -16,9 +14,6 @@ class ImsxCodeMinorField
     public const CODE_MINOR_SERVER_BUSY = 'server_busy';
     public const CODE_MINOR_INVALID_UUID = 'invaliduuid';
 
-    /**
-     * @Serializer\Exclude()
-     */
     public static array $codeMinorValues = [
         self::CODE_MINOR_FULLSUCCESS,
         self::CODE_MINOR_INVALID_SORT,
@@ -31,14 +26,7 @@ class ImsxCodeMinorField
         self::CODE_MINOR_INVALID_UUID,
     ];
 
-    /**
-     * @Serializer\SerializedName("imsx_codeMinorFieldName")
-     */
     public string $name;
-
-    /**
-     * @Serializer\SerializedName("imsx_codeMinorFieldValue")
-     */
     public string $value;
 
     public function __construct(string $name, string $value)

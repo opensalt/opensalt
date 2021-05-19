@@ -26,7 +26,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * UserChecker checks the user account flags.
  *
- * @see Symfony\Component\Security\Core\User\UserChecker
+ * @see \Symfony\Component\Security\Core\User\UserChecker
  */
 class UserChecker implements UserCheckerInterface
 {

@@ -25,7 +25,7 @@ class UpdateAssociationHandler extends BaseFrameworkHandler
             [
                 'assoc-u' => [
                     $association->getId() => $association->getIdentifier(),
-                ]
+                ],
             ]
         );
         $command->setNotificationEvent($notification);

@@ -37,6 +37,8 @@ framework:
 
     request:
       formats:
+        jsonld: 'application/ld+json'
+        opensalt: 'application/vnd.opensalt+json'
         jsonapi: 'application/vnd.api+json'
         csv: ['text/csv', 'text/plain']
 

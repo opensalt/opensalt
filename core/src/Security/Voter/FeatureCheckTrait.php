@@ -7,15 +7,8 @@ use Qandidate\Toggle\ToggleManager;
 
 trait FeatureCheckTrait
 {
-    /**
-     * @var ToggleManager
-     */
-    private $toggleManager;
-
-    /**
-     * @var ContextFactory
-     */
-    private $toggleContextFactory;
+    private ToggleManager $toggleManager;
+    private ContextFactory $toggleContextFactory;
 
     /**
      * @required

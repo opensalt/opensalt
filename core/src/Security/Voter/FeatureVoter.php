@@ -16,7 +16,7 @@ class FeatureVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, $subject): bool
     {
         return (self::FEATURE === $attribute) && (self::DEV_ENV === $subject);
     }
@@ -24,7 +24,7 @@ class FeatureVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         return $this->roleChecker->isSuperUser($token);
     }

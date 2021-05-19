@@ -16,7 +16,7 @@ class FrameworkManageEditorsVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, $subject): bool
     {
         if (self::MANAGE_EDITORS !== $attribute) {
             return false;
@@ -32,7 +32,7 @@ class FrameworkManageEditorsVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         // Do not allow editing of mirrored frameworks
         if (null !== $subject->getMirroredFramework()) {

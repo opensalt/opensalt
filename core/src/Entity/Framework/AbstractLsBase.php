@@ -4,23 +4,12 @@ namespace App\Entity\Framework;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\MappedSuperclass()
- *
- * @Serializer\ExclusionPolicy("all")
- * @Serializer\VirtualProperty(
- *     "uri",
- *     exp="service('App\\Service\\Api1Uris').getUri(object)",
- *     options={
- *         @Serializer\SerializedName("uri"),
- *         @Serializer\Expose()
- *     }
- * )
  */
 class AbstractLsBase implements IdentifiableInterface
 {
@@ -28,59 +17,40 @@ class AbstractLsBase implements IdentifiableInterface
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     *
-     * @Serializer\Exclude()
      */
     protected ?int $id = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=true)
      *
      * @Assert\NotBlank()
      * @Assert\Uuid(strict=false)
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Expose()
      */
     protected ?string $identifier = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="uri", type="string", length=300, nullable=true, unique=true)
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
      */
     protected ?string $uri = null;
 
     /**
-     * @var array
-     *
      * @ORM\Column(name="extra", type="json", nullable=true)
-     *
-     * @Serializer\Exclude()
      */
     protected ?array $extra = null;
 
     /**
      * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("lastChangeDateTime")
      */
     private \DateTimeInterface $changedAt;
 
     /**
      * @ORM\Column(name="updated_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
-     *
-     * @Serializer\Exclude()
      */
     protected \DateTimeInterface $updatedAt;
 
@@ -101,9 +71,6 @@ class AbstractLsBase implements IdentifiableInterface
         $this->changedAt = $this->updatedAt;
     }
 
-    /**
-     * Clone the object.
-     */
     public function __clone()
     {
         // Clear values for new item
@@ -128,13 +95,9 @@ class AbstractLsBase implements IdentifiableInterface
     }
 
     /**
-     * Set identifier.
-     *
-     * @return static
-     *
      * @throws \InvalidArgumentException
      */
-    public function setIdentifier(UuidInterface|string $identifier)
+    public function setIdentifier(UuidInterface|string $identifier): static
     {
         // If the identifier is in the form of a UUID then lower case it
         if ($identifier instanceof UuidInterface) {
@@ -155,10 +118,7 @@ class AbstractLsBase implements IdentifiableInterface
         return $this->identifier;
     }
 
-    /**
-     * @return static
-     */
-    public function setUri(string $uri)
+    public function setUri(string $uri): static
     {
         $this->uri = $uri;
 
@@ -170,10 +130,7 @@ class AbstractLsBase implements IdentifiableInterface
         return $this->uri;
     }
 
-    /**
-     * @return static
-     */
-    public function setChangedAt(\DateTimeInterface $changedAt)
+    public function setChangedAt(\DateTimeInterface $changedAt): static
     {
         $this->changedAt = $changedAt;
 
@@ -185,10 +142,7 @@ class AbstractLsBase implements IdentifiableInterface
         return $this->changedAt;
     }
 
-    /**
-     * @return static
-     */
-    public function setUpdatedAt(\DateTimeInterface $updatedAt)
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
 
@@ -209,28 +163,19 @@ class AbstractLsBase implements IdentifiableInterface
         return $this->extra;
     }
 
-    /**
-     * @return static
-     */
-    public function setExtra(?array $extra)
+    public function setExtra(?array $extra): static
     {
         $this->extra = $extra;
 
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getExtraProperty(string $property)
+    public function getExtraProperty(string $property): mixed
     {
         return $this->extra[$property] ?? null;
     }
 
-    /**
-     * @return static
-     */
-    public function setExtraProperty(string $property, $value)
+    public function setExtraProperty(string $property, mixed $value): static
     {
         if (null === $this->extra && null === $value) {
             return $this;
