@@ -13,16 +13,7 @@ trait LinkUriTrait
             return null;
         }
 
-        $linkUri = $this->api1Uris->getLinkUri($object, 'api_v1p0_cfpackage');
-
-        if (null === ($context['case-json-ld'] ?? null)) {
-            return $linkUri;
-        }
-
-        $linkUri = ['type' => 'LinkURI'] + $linkUri;
-        $linkUri['targetId'] = $linkUri['uri'];
-
-        return $linkUri;
+        return $this->api1Uris->getLinkUri($object, 'api_v1p0_cfpackage');
     }
 
     protected function createDocumentLinkUri(LsDoc $object, string $type, array $context): ?array
@@ -40,15 +31,6 @@ trait LinkUriTrait
             return null;
         }
 
-        $linkUri = $this->api1Uris->getLinkUri($object);
-
-        if (null === ($context['case-json-ld'] ?? null)) {
-            return $linkUri;
-        }
-
-        $linkUri = ['type' => 'LinkURI'] + $linkUri;
-        $linkUri['targetId'] = $linkUri['uri'];
-
-        return $linkUri;
+        return $this->api1Uris->getLinkUri($object);
     }
 }

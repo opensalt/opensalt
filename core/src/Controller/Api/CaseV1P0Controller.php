@@ -9,6 +9,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\ChangeEntryRepository;
 use App\Repository\Framework\CfDocQuery;
+use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsDocRepository;
 use App\Service\LoggerTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
@@ -34,7 +35,7 @@ class CaseV1P0Controller extends AbstractController
     /**
      * @Route("/CFDocuments.{_format}", name="api_v1p0_cfdocuments", methods={"GET"}, defaults={"_format"="json"})
      */
-    public function getPublicCfDocumentsAction(Request $request): Response
+    public function getPublicCfDocumentsAction(Request $request, LsDocRepository $docRepository): Response
     {
         $limit = (int) $request->query->get('limit', '100');
         $offset = (int) $request->query->get('offset', '0');
@@ -52,8 +53,7 @@ class CaseV1P0Controller extends AbstractController
         $query->sort = $sort;
         $query->orderBy = $orderBy;
 
-        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
-        $results = $repo->findAllNonPrivate($query);
+        $results = $docRepository->findAllNonPrivate($query);
 
         $docs = [];
         $docCount = 0;
@@ -69,9 +69,7 @@ class CaseV1P0Controller extends AbstractController
             }
 
             $docs[] = $doc;
-            if ($docCount < $limit && $doc->getUpdatedAt() > $lastModified) {
-                $lastModified = $doc->getUpdatedAt();
-            }
+            $lastModified = $doc->getUpdatedAt();
             ++$docCount;
         }
 
@@ -138,19 +136,41 @@ class CaseV1P0Controller extends AbstractController
      * @Route("/CFItems/{id}/associations.{_format}", name="api_v1p0_cfitemassociations2", methods={"GET"}, defaults={"_format"="json"})
      * @Entity("obj", expr="repository.findOneByIdentifier(id)")
      */
-    public function getCfItemAssociationsAction(Request $request, LsItem $obj): Response
+    public function getCfItemAssociationsAction(Request $request, LsItem $obj, LsAssociationRepository $associationRepository): Response
     {
         $item = $obj;
         $id = $obj->getIdentifier();
-
-        $results = $this->getDoctrine()
-            ->getRepository(LsAssociation::class)
-            ->findAllAssociationsFor($id);
+        $itemDocId = $obj->getLsDoc()->getId();
 
         $associations = [];
         $lastModified = $item->getUpdatedAt();
+
+        $results = $associationRepository->findAllAssociationsFor($id);
         foreach ($results as $association) {
-            /* @var LsAssociation $association */
+            /** @var LsDoc $associationDoc */
+            $associationDoc = $association->getLsDoc();
+            if ($itemDocId !== $associationDoc->getId()
+                && LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $associationDoc->getAdoptionStatus()
+                && !$this->isGranted('list', $associationDoc)) {
+                continue;
+            }
+
+            $originDoc = $association->getOriginLsDoc() ?? $association->getOriginLsItem()?->getLsDoc();
+            if (null !== $originDoc
+                && $itemDocId !== $originDoc->getId()
+                && LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $originDoc->getAdoptionStatus()
+                && !$this->isGranted('list', $originDoc)) {
+                continue;
+            }
+
+            $destDoc = $association->getDestinationLsDoc() ?? $association->getDestinationLsItem()?->getLsDoc();
+            if (null !== $destDoc
+                && $itemDocId !== $destDoc->getId()
+                && LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $destDoc->getAdoptionStatus()
+                && !$this->isGranted('list', $destDoc)) {
+                continue;
+            }
+
             $associations[] = $association;
             if ($association->getUpdatedAt() > $lastModified) {
                 $lastModified = $association->getUpdatedAt();

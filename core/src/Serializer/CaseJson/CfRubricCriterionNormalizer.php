@@ -45,10 +45,7 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Con
             '@context' => (null !== $addContext)
                 ? 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld'
                 : null,
-            'id' => (null !== $jsonLd)
-                ? $this->api1Uris->getUri($object)
-                : null,
-            'type' => (null !== $jsonLd)
+            'type' => (null !== $addContext)
                 ? 'CFRubricCriterion'
                 : null,
             'identifier' => $object->getIdentifier(),
