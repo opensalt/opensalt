@@ -4,7 +4,6 @@ namespace App\Controller\Api;
 
 use App\Entity\ChangeEntry;
 use App\Entity\Framework\CaseApiInterface;
-use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\ChangeEntryRepository;
