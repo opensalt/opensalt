@@ -28,6 +28,14 @@ trait AssociationLinkTrait
             }
         }
 
+        $associations = $object->getInverseAssociations();
+        foreach ($associations as $association) {
+            $link = $this->createAssociationLink($association, 'origin');
+            if (null !== $link) {
+                $associationSet[] = $link;
+            }
+        }
+
         if (0 === count($associationSet)) {
             return null;
         }
@@ -41,24 +49,44 @@ trait AssociationLinkTrait
             throw new \InvalidArgumentException('Expecting "origin" or "destination" for which part of the association is wanted');
         }
 
-        $target = match ($which) {
-            'origin' => $association->getOrigin(),
-            'destination' => $association->getDestination(),
-            default => throw new \InvalidArgumentException('Expecting "origin" or "destination"')
-        };
+        $source = $association->getOrigin();
+        $target = $association->getDestination();
+        if ('origin' === $which) {
+            $source = $association->getDestination();
+            $target = $association->getOrigin();
+        }
 
         if (null === $target) {
             return null;
         }
 
+        /** @var LsDoc $associationDoc */
+        $associationDoc = $association->getLsDoc();
+
+        $sourceDocId = match (true) {
+            $source instanceof LsDoc => $source->getId(),
+            $source instanceof LsItem => $source->getLsDoc()->getId(),
+            default => throw new \InvalidArgumentException('$source is not an LsDoc nor LsItem'),
+        };
+
+        // Check that the doc the association is in is allowed to be viewed
+        if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $associationDoc->getAdoptionStatus()
+            && $sourceDocId !== $associationDoc->getId()
+            && !$this->authorizationChecker->isGranted('list', $associationDoc)) {
+            return null;
+        }
+
+        // Check that the target of the association link is allowed to be viewed
         if (is_object($target)) {
             $targetDoc = match (true) {
                 $target instanceof LsDoc => $target,
                 $target instanceof LsItem => $target->getLsDoc(),
             };
+            $targetDocId = $targetDoc->getId();
 
             if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $targetDoc->getAdoptionStatus()
-                && $association->getLsDoc()?->getId() !== $targetDoc->getId()
+                && $sourceDocId !== $targetDocId
+                && $associationDoc->getId() !== $targetDocId
                 && !$this->authorizationChecker->isGranted('list', $targetDoc)
             ) {
                 return null;
@@ -66,17 +94,27 @@ trait AssociationLinkTrait
         }
 
         $targetLink = $this->api1Uris->getNodeLinkUri($which, $association);
+        $associationType = $association->getNormalizedType($association->getType());
 
         return [
-            'type' => 'AssociationLink',
-            'associationType' => $association->getNormalizedType(match ($which) {
-                'destination' => $association->getType(),
-                'origin' => LsAssociation::inverseName($association->getType()),
+            'associationType' => match ($which) {
+                'destination' => $associationType,
+                'origin' => match ($associationType) {
+                    'exactMatchOf' => 'exactMatchOf',
+                    'isRelatedTo' => 'isRelatedTo',
+                    'isPeerOf' => 'isPeerOf',
+                    'replacedBy' => 'replaces',
+                    'hasSkillLevel' => 'skillLevelFor',
+                    'isPartOf' => 'hasPart',
+                    'precedes' => 'hasPredecessor',
+                    'isChildOf' => 'isParentOf',
+                    default => throw new \InvalidArgumentException('Unknown association type')
+                },
                 default => throw new \InvalidArgumentException('Expecting "origin" or "destination"')
-            }),
+            },
             'title' => $targetLink['title'],
             'identifier' => $targetLink['identifier'],
-            'targetId' => $targetLink['uri'],
+            'uri' => $targetLink['uri'],
         ];
     }
 }

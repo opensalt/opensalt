@@ -39,10 +39,7 @@ final class LsAssociationNormalizer implements ContextAwareNormalizerInterface
             '@context' => (null !== $addContext)
                 ? 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld'
                 : null,
-            'id' => (null !== $jsonLd)
-                ? $this->api1Uris->getUri($object)
-                : null,
-            'type' => (null !== $jsonLd)
+            'type' => (null !== $addContext)
                 ? 'CFAssociation'
                 : null,
             'identifier' => $object->getIdentifier(),

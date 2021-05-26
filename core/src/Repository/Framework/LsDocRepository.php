@@ -497,7 +497,7 @@ xENDx;
             FROM App\Entity\Framework\LsAssociation a INDEX BY a.id
             LEFT JOIN a.group ag
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
-            LEFT JOIN a.originLsItem aoi WITH adi.lsDoc = :lsDocId
+            LEFT JOIN a.originLsItem aoi WITH aoi.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE a.lsDoc = :lsDocId
         ');
