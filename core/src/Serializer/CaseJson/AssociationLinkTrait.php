@@ -66,6 +66,7 @@ trait AssociationLinkTrait
         $sourceDocId = match (true) {
             $source instanceof LsDoc => $source->getId(),
             $source instanceof LsItem => $source->getLsDoc()->getId(),
+            default => throw new \InvalidArgumentException('$source is not an LsDoc nor LsItem'),
         };
 
         // Check that the doc the association is in is allowed to be viewed
