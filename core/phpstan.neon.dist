@@ -10,6 +10,7 @@ parameters:
 	bootstrapFiles:
 		- './vendor/autoload.php'
 	level: 6
+	reportUnmatchedIgnoredErrors: false
 	paths:
 		- './src'
 	excludes_analyse:
