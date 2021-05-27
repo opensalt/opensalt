@@ -29,19 +29,14 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * LsDoc controller.
- *
  * @Route("/cfdoc")
  */
 class LsDocController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    private ClientInterface $guzzleJsonClient;
-
-    public function __construct(ClientInterface $guzzleJsonClient)
+    public function __construct(private ClientInterface $guzzleJsonClient)
     {
-        $this->guzzleJsonClient = $guzzleJsonClient;
     }
 
     /**

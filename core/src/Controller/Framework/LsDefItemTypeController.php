@@ -12,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -180,14 +181,7 @@ class LsDefItemTypeController extends AbstractController
         return $this->redirectToRoute('lsdef_item_type_index');
     }
 
-    /**
-     * Creates a form to delete a LsDefItemType entity.
-     *
-     * @param LsDefItemType $lsDefItemType The LsDefItemType entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm(LsDefItemType $lsDefItemType)
+    private function createDeleteForm(LsDefItemType $lsDefItemType): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsdef_item_type_delete', ['id' => $lsDefItemType->getId()]))

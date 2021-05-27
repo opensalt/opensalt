@@ -4,7 +4,7 @@ namespace App\Entity\Asn;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
-class AsnDocument
+final class AsnDocument
 {
     /**
      * @var AsnDocumentMetadata
@@ -26,7 +26,7 @@ class AsnDocument
         $this->standards = new ArrayCollection();
     }
 
-    public static function fromArray($arr): self
+    public static function fromArray(array $arr): static
     {
         /** @var AsnDocument $doc */
         $doc = new static();
@@ -46,10 +46,7 @@ class AsnDocument
         return $doc;
     }
 
-    /**
-     * @return AsnDocumentMetadata|AsnStandardDocument|AsnStandard|null
-     */
-    public function recordFromArray(string $key, array $val)
+    public function recordFromArray(string $key, array $val): AsnStandard|AsnDocumentMetadata|AsnStandardDocument|null
     {
         $rec = null;
 

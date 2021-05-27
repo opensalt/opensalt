@@ -28,9 +28,7 @@ class EducationLevelSet
             return self::fromString($passedGrades);
         }
 
-        if (is_array($passedGrades)) {
-            return self::fromArray($passedGrades);
-        }
+        return self::fromArray($passedGrades);
     }
 
     public static function fromString(?string $passedGradeString): self

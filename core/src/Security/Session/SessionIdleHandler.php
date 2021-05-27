@@ -11,15 +11,11 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class SessionIdleHandler
 {
-    protected $securityToken;
-    protected $securityContext;
-    protected $maxIdleTime;
-
-    public function __construct(AuthorizationCheckerInterface $securityContext, TokenStorageInterface $securityToken, $sessionMaxIdleTime = 0)
-    {
-        $this->securityContext = $securityContext;
-        $this->securityToken = $securityToken;
-        $this->maxIdleTime = $sessionMaxIdleTime;
+    public function __construct(
+        private AuthorizationCheckerInterface $securityContext,
+        private TokenStorageInterface $securityToken,
+        private int $sessionMaxIdleTime = 0,
+    ) {
     }
 
     public function onKernelRequest(RequestEvent $event): void
@@ -31,14 +27,10 @@ class SessionIdleHandler
         $request = $event->getRequest();
         $session = $request->getSession();
 
-        if (null === $session) {
-            return;
-        }
-
         $session->start();
         $lapse = time() - $session->getMetadataBag()->getLastUsed();
 
-        if ($lapse < $this->maxIdleTime) {
+        if ($lapse < $this->sessionMaxIdleTime) {
             return;
         }
 
@@ -46,7 +38,7 @@ class SessionIdleHandler
             $anonymousToken = new AnonymousToken(base64_encode(random_bytes(6)), 'anon.', []);
         } catch (\Exception $e) {
             // An exception can be thrown from random_bytes() if there is not enough entropy
-            $anonymousToken = new AnonymousToken(substr(sha1(mt_rand()), 0, 8), 'anon.', []);
+            $anonymousToken = new AnonymousToken(substr(sha1((string) mt_rand()), 0, 8), 'anon.', []);
         }
         $this->securityToken->setToken($anonymousToken);
 
@@ -73,7 +65,7 @@ class SessionIdleHandler
             return false;
         }
 
-        if (0 >= $this->maxIdleTime) {
+        if (0 >= $this->sessionMaxIdleTime) {
             return false;
         }
 

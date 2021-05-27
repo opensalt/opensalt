@@ -14,15 +14,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
 {
-    /**
-     * @var GithubImport
-     */
-    protected $importService;
-
-    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, GithubImport $importService)
-    {
+    public function __construct(
+        ValidatorInterface $validator,
+        EntityManagerInterface $entityManager,
+        private GithubImport $importService,
+    ) {
         parent::__construct($validator, $entityManager);
-        $this->importService = $importService;
     }
 
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
@@ -39,11 +36,11 @@ class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
 
         $this->importService->parseCSVGithubDocument($itemKeys, $fileContent, $docId, $frameworkToAssociate, $missingFieldsLog);
 
-        $doc = $this->em->getRepository(LsDoc::class)->find($docId);
+        $doc = $this->em->getRepository(LsDoc::class)->find((int) $docId);
 
         $notification = new NotificationEvent(
             'D15',
-            sprintf('Framework "%s" updated from GitHub CSV', $doc->getTitle()),
+            sprintf('Framework "%s" updated from GitHub CSV', $doc?->getTitle() ?? 'Not Found'),
             $doc,
             [
                 'doc-u' => [

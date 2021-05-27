@@ -198,9 +198,6 @@
     "ericmartel/codeception-email-mailtrap": {
         "version": "1.0.5"
     },
-    "escapestudios/symfony2-coding-standard": {
-        "version": "3.4.0"
-    },
     "ezyang/htmlpurifier": {
         "version": "v4.13.0"
     },
@@ -389,15 +386,6 @@
     },
     "phpspec/prophecy": {
         "version": "1.7.6"
-    },
-    "phpstan/phpstan": {
-        "version": "0.12.88"
-    },
-    "phpstan/phpstan-doctrine": {
-        "version": "0.12.34"
-    },
-    "phpstan/phpstan-symfony": {
-        "version": "0.12.33"
     },
     "phpunit/php-code-coverage": {
         "version": "4.0.8"
@@ -908,9 +896,6 @@
     },
     "symfony/yaml": {
         "version": "v4.0.10"
-    },
-    "symplify/easy-coding-standard": {
-        "version": "v7.2.0"
     },
     "tecnickcom/tcpdf": {
         "version": "6.2.17"

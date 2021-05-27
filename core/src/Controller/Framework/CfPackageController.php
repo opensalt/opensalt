@@ -69,7 +69,7 @@ class CfPackageController extends AbstractController
         $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
 
         $lastModified = $lsDoc->getUpdatedAt();
-        if (false !== $lastChange && null !== $lastChange['changed_at']) {
+        if (null !== ($lastChange['changed_at'] ?? null)) {
             $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
         }
         $response->setEtag(md5($lastModified->format('U.u')), true);

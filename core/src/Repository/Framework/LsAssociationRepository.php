@@ -8,6 +8,9 @@ use App\Entity\Framework\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @method LsAssociation|null findOneByIdentifier(string $identifier)
+ */
 class LsAssociationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

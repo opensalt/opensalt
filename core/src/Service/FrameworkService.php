@@ -186,6 +186,10 @@ class FrameworkService
 
     public function updateTreeItem(LsDoc $doc, string $itemId, array $updates, array &$rv): void
     {
+        if (!is_numeric($itemId)) {
+            return;
+        }
+        $intItemId = (int) $itemId;
         $assocGroupRepo = $this->em->getRepository(LsDefAssociationGrouping::class);
 
         // set assocGroup if supplied; pass this in when necessary below
@@ -194,7 +198,7 @@ class FrameworkService
             $assocGroup = $assocGroupRepo->find($updates['assocGroup']);
         }
 
-        $lsItem = $this->getTreeItemForUpdate($doc, $updates, $itemId, $assocGroup);
+        $lsItem = $this->getTreeItemForUpdate($doc, $updates, $intItemId, $assocGroup);
 
         if (null === $lsItem) {
             return;
@@ -209,14 +213,14 @@ class FrameworkService
         ];
 
         if (array_key_exists('deleteChildOf', $updates)) {
-            $this->deleteTreeChildAssociations($lsItem, $updates, $itemId, $rv);
+            $this->deleteTreeChildAssociations($lsItem, $updates, $intItemId, $rv);
         } elseif (array_key_exists('updateChildOf', $updates)) {
-            $this->updateTreeChildOfAssociations($lsItem, $updates, $itemId, $rv);
+            $this->updateTreeChildOfAssociations($lsItem, $updates, $intItemId, $rv);
         }
 
         // create new childOf association if specified
         if (array_key_exists('newChildOf', $updates)) {
-            $this->addTreeChildOfAssociations($lsItem, $updates, $itemId, $rv, $assocGroup);
+            $this->addTreeChildOfAssociations($lsItem, $updates, $intItemId, $rv, $assocGroup);
         }
 
         $lsItem->setUpdatedAt(new \DateTime());
@@ -328,12 +332,8 @@ class FrameworkService
 
     /**
      * Get the item to update, either the original or a copy based on the update array.
-     *
-     * @param int $lsItemId
-     *
-     * @throws \UnexpectedValueException
      */
-    protected function getTreeItemForUpdate(LsDoc $lsDoc, array $updates, $lsItemId, ?LsDefAssociationGrouping $assocGroup = null): ?LsItem
+    protected function getTreeItemForUpdate(LsDoc $lsDoc, array $updates, int $lsItemId, ?LsDefAssociationGrouping $assocGroup = null): ?LsItem
     {
         $lsItemRepo = $this->em->getRepository(LsItem::class);
 
@@ -370,10 +370,8 @@ class FrameworkService
 
     /**
      * Remove the appropriate childOf associations for the item based on the update array.
-     *
-     * @param int $lsItemId
      */
-    protected function deleteTreeChildAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv): void
+    protected function deleteTreeChildAssociations(LsItem $lsItem, array $updates, int $lsItemId, array &$rv): void
     {
         $assocRepo = $this->em->getRepository(LsAssociation::class);
 
@@ -408,10 +406,8 @@ class FrameworkService
 
     /**
      * Update the childOf associations based on the update array.
-     *
-     * @param int $lsItemId
      */
-    protected function updateTreeChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv): void
+    protected function updateTreeChildOfAssociations(LsItem $lsItem, array $updates, int $lsItemId, array &$rv): void
     {
         $assocRepo = $this->em->getRepository(LsAssociation::class);
 
@@ -440,11 +436,9 @@ class FrameworkService
     /**
      * Add new childOf associations based on the update array.
      *
-     * @param int $lsItemId
-     *
      * @throws \UnexpectedValueException
      */
-    protected function addTreeChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv, ?LsDefAssociationGrouping $assocGroup = null): void
+    protected function addTreeChildOfAssociations(LsItem $lsItem, array $updates, int $lsItemId, array &$rv, ?LsDefAssociationGrouping $assocGroup = null): void
     {
         // parent could be a doc or item
         if ('item' === $updates['newChildOf']['parentType']) {

@@ -9,6 +9,10 @@ class PasswordFieldValidator extends ConstraintValidator
 {
     public function validate($value, Constraint $constraint): void
     {
+        if (!$constraint instanceof PasswordField) {
+            return;
+        }
+
         $asserts = 0;
 
         if (preg_match('/[A-Z]/', $value, $matches)) {

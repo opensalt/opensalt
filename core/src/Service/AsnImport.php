@@ -12,7 +12,6 @@ use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\ClientInterface;
 use Ramsey\Uuid\Uuid;
@@ -26,7 +25,7 @@ class AsnImport
         $this->jsonClient = $guzzleJsonClient;
     }
 
-    protected function getEntityManager(): EntityManager
+    protected function getEntityManager(): EntityManagerInterface
     {
         return $this->em;
     }

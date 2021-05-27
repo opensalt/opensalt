@@ -4,26 +4,22 @@ namespace App\Entity\Asn;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
-/**
- * Class AsnBase
- */
 abstract class AsnBase
 {
     /**
-     * @ var array<string, ArrayCollection<AsnValue>>
-     *
-     * @var ArrayCollection[]
+     * @var array<array-key, ArrayCollection<array-key, AsnValue>>
      */
-    public $property = [];
+    public array $property = [];
 
-    /**
-     * @var array
-     */
-    public static $properties = [];
+    public static array $properties = [];
 
-    public function __call($name, $args)
+    final public function __construct()
     {
-        if (0 === strpos($name, 'get')) {
+    }
+
+    public function __call(string $name, mixed $args): mixed
+    {
+        if (str_starts_with($name, 'get')) {
             $prop = lcfirst(preg_replace('/^get/', '', $name));
             if (array_key_exists($prop, static::$properties)) {
                 return $this->property[$prop];
@@ -32,7 +28,7 @@ abstract class AsnBase
             throw new \BadMethodCallException("{$name} does not exist");
         }
 
-        if (0 === strpos($name, 'set')) {
+        if (str_starts_with($name, 'set')) {
             $prop = lcfirst(preg_replace('/^set/', '', $name));
             if (array_key_exists($prop, static::$properties)) {
                 if (1 !== count($args)) {
@@ -49,7 +45,7 @@ abstract class AsnBase
         throw new \BadMethodCallException("{$name} does not exist");
     }
 
-    public function __get($key)
+    public function __get(string $key): mixed
     {
         if (array_key_exists($key, static::$properties)) {
             if (array_key_exists($key, $this->property)) {
@@ -62,24 +58,19 @@ abstract class AsnBase
         return null;
     }
 
-    public function __set($key, $value)
+    public function __set(string $key, mixed $value): void
     {
         if (array_key_exists($key, static::$properties)) {
             $this->property[$key] = $value;
         }
     }
 
-    public function __isset($key)
+    public function __isset(string $key): bool
     {
         return isset($this->property[$key]);
     }
 
-    /**
-     * @param array $arr
-     *
-     * @return AsnBase
-     */
-    public static function fromArray($arr)
+    public static function fromArray(array $arr): static
     {
         $md = new static();
 
@@ -90,19 +81,14 @@ abstract class AsnBase
         return $md;
     }
 
-    /**
-     * @param string $json
-     *
-     * @return AsnBase
-     */
-    public static function fromJson($json)
+    public static function fromJson(string $json): static
     {
         $arr = json_decode($json);
 
         return static::fromArray($arr);
     }
 
-    protected function arrayValuesToValueCollection($key, $values)
+    protected function arrayValuesToValueCollection(string $key, array $values): ?ArrayCollection
     {
         if (array_key_exists($key, $values)) {
             $arr = $values[$key];

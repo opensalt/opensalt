@@ -58,8 +58,8 @@ class CaseV1P0Controller extends AbstractController
         $docCount = 0;
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $doc) {
-            /** @var LsDoc $doc */
-            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $doc->getAdoptionStatus()) {
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $doc->getAdoptionStatus()
+                && !$this->isGranted('list', $doc)) {
                 continue;
             }
             if (null !== $doc->getMirroredFramework()) {

@@ -125,7 +125,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     private $description;
 
     /**
-     * @var string[]
+     * @var string[]|null
      *
      * @ORM\Column(name="subject", type="json", nullable=true)
      *
@@ -456,7 +456,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * @param string|string[]|null $subject
      */
-    public function setSubject($subject): LsDoc
+    public function setSubject(array|string|null $subject): LsDoc
     {
         if (null === $subject) {
             $this->subject = null;

@@ -29,38 +29,25 @@ jobs:
       - name: Checkout PR
         uses: actions/checkout@v2
 
-      - name: Configure composer
-        run: |
-          cd core
-          COMPOSER_HOME="$(composer config home)"
-          ([ -d "$COMPOSER_HOME" ] || mkdir "$COMPOSER_HOME") && cp ../.github/composer-config.json "$COMPOSER_HOME/config.json"
-          cd ..
-
       - name: Install Psalm
         run: |
-          echo "::group::modify global composer.json"
-          cd core
-          COMPOSER_HOME="$(composer config home)"
-          composer global require vimeo/psalm psalm/plugin-symfony weirdan/doctrine-psalm-plugin
-          echo "::endgroup::"
-          echo "::group::composer install"
+          cd $GITHUB_WORKSPACE/core/tools/psalm
           composer install --no-progress --ansi
-          echo "::endgroup::"
-          $(composer config home)/vendor/bin/psalm --version
-          cd ..
+          ./vendor/bin/psalm --version
 
       - name: Generate Psalm baseline
         run: |
-          cd core
+          cd $GITHUB_WORKSPACE/core
           git checkout -m ${{ github.base_ref }}
-          $(composer config home)/vendor/bin/psalm --set-baseline=../.github/psalm/psalm.baseline.xml --no-progress
-          git checkout -m FETCH_HEAD
-          cd ..
+          composer install --no-progress --ansi
+          ./tools/psalm/vendor/bin/psalm --set-baseline=../.github/psalm/psalm.baseline.xml --no-progress
 
       - name: Psalm
         run: |
-          cd core
-          $(composer config home)/vendor/bin/psalm --output-format=github --no-progress
+          cd $GITHUB_WORKSPACE/core
+          git checkout -m FETCH_HEAD
+          composer install --no-progress --ansi
+          ./tools/psalm/vendor/bin/psalm --output-format=github --no-progress
 
   phpstan:
     name: PHPStan
@@ -83,18 +70,22 @@ jobs:
       - name: Checkout PR
         uses: actions/checkout@v2
 
+      - name: Install PHPStan
+        run: |
+          cd $GITHUB_WORKSPACE/core/tools/phpstan
+          composer install --no-progress --ansi
+
       - name: Generate PHPStan baseline
         run: |
-          cd core
+          cd $GITHUB_WORKSPACE/core
           git checkout -m ${{ github.base_ref }}
           composer install --no-progress --ansi
           touch phpstan-baseline.neon
-          ./vendor/bin/phpstan --generate-baseline --no-progress --ansi
+          ./tools/phpstan/vendor/bin/phpstan --generate-baseline --no-progress --ansi
+
+      - name: PHPStan on PR
+        run: |
+          cd $GITHUB_WORKSPACE/core
           git checkout -m FETCH_HEAD
           composer install --no-progress --ansi
-          cd ..
-
-      - name: PHPStan
-        run: |
-          cd core
-          ./vendor/bin/phpstan --error-format=github --no-progress --ansi
+          ./tools/phpstan/vendor/bin/phpstan --error-format=github --no-progress --ansi

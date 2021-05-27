@@ -41,6 +41,7 @@ class Session
 
     public function getId(): string
     {
+        /** @phpstan-ignore-next-line */
         if (is_resource($this->id)) {
             $this->id = stream_get_contents($this->id);
         }
@@ -60,7 +61,7 @@ class Session
 
     public function getLastUsedTime(): \DateTimeImmutable
     {
-        return \DateTimeImmutable::createFromFormat('U', $this->getLastUsed());
+        return \DateTimeImmutable::createFromFormat('U', (string) $this->getLastUsed());
     }
 
     public function getLifetime(): int

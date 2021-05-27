@@ -42,7 +42,7 @@ class LsDocRepository extends ServiceEntityRepository
     /**
      * Finds an object for the API by ['id'=>identifier, 'class'=>class].
      *
-     * @param array{'id': string, 'class': class-string} $id
+     * @param array{'class': class-string, 'id': string} $id
      *
      * @throws NotFoundHttpException
      */
