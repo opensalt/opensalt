@@ -188,7 +188,7 @@ class DocTreeController extends AbstractController
         $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
 
         $lastModified = $lsDoc->getUpdatedAt();
-        if (null !== ($lastChange['changed_at'] ?? null )) {
+        if (null !== ($lastChange['changed_at'] ?? null)) {
             $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
         }
         $response->setEtag(md5($lastModified->format('U.u').self::ETAG_SEED), true);

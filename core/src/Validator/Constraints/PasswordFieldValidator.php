@@ -9,7 +9,7 @@ class PasswordFieldValidator extends ConstraintValidator
 {
     public function validate($value, Constraint $constraint): void
     {
-        if (!$constraint instanceOf PasswordField) {
+        if (!$constraint instanceof PasswordField) {
             return;
         }
 
