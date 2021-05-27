@@ -87,6 +87,8 @@ final class ExcelImport
 
             if (!is_numeric($seq)) {
                 $seq = null;
+            } else {
+                $seq = (int) $seq;
             }
 
             $children[$item->getIdentifier()] = $doc->getIdentifier();

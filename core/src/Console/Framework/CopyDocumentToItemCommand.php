@@ -31,14 +31,14 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
 
         $lsDocRepo = $this->em->getRepository(LsDoc::class);
 
-        $oldDoc = $lsDocRepo->find($oldDocId);
+        $oldDoc = $lsDocRepo->find((int) $oldDocId);
         if (!$oldDoc) {
             $output->writeln("<error>Doc with id '{$oldDocId}' not found.</error>");
 
             return 1;
         }
 
-        $newDoc = $lsDocRepo->find($newDocId);
+        $newDoc = $lsDocRepo->find((int) $newDocId);
         if (!$newDoc) {
             $output->writeln("<error>Doc with id '{$newDocId}' not found.</error>");
 

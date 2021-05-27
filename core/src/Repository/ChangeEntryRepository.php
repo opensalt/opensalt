@@ -44,7 +44,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array{'changed_at': string}
+     * @return array{'changed_at': ?string}
      */
     public function getLastChangeTimeForDoc(LsDoc $doc): array
     {

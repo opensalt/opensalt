@@ -19,25 +19,11 @@ class LorSupportController extends AbstractController
 {
     use LoggerTrait;
 
-    /**
-     * @var LsDocRepository
-     */
-    protected $docRepository;
-
-    /**
-     * @var LsItemRepository
-     */
-    private $itemRepository;
-    /**
-     * @var string
-     */
-    private $assetsVersion;
-
-    public function __construct(LsDocRepository $docRepository, LsItemRepository $itemRepository, string $assetsVersion)
-    {
-        $this->docRepository = $docRepository;
-        $this->itemRepository = $itemRepository;
-        $this->assetsVersion = $assetsVersion;
+    public function __construct(
+        private LsDocRepository $docRepository,
+        private LsItemRepository $itemRepository,
+        private string $assetsVersion,
+    ) {
     }
 
     /**
@@ -61,7 +47,7 @@ class LorSupportController extends AbstractController
 
         $this->info('API: getCreators', []);
 
-        $response = $this->generateBaseReponse($lastModified, count($creators));
+        $response = $this->generateBaseResponse($lastModified, count($creators));
         if ($response->isNotModified($request)) {
             return $response;
         }
@@ -95,7 +81,7 @@ class LorSupportController extends AbstractController
 
         $this->info('API: getFrameworksByCreator', []);
 
-        $response = $this->generateBaseReponse($lastModified, count($docs));
+        $response = $this->generateBaseResponse($lastModified, count($docs));
         if ($response->isNotModified($request)) {
             return $response;
         }
@@ -128,7 +114,7 @@ class LorSupportController extends AbstractController
 
         $this->info('API: getMatches', []);
 
-        $response = $this->generateBaseReponse($lastModified, count($items));
+        $response = $this->generateBaseResponse($lastModified, count($items));
         if ($response->isNotModified($request)) {
             return $response;
         }
@@ -140,10 +126,7 @@ class LorSupportController extends AbstractController
         return $response;
     }
 
-    /**
-     * Generate a base response
-     */
-    protected function generateBaseReponse(\DateTimeInterface $lastModified, ?int $total = null): JsonResponse
+    protected function generateBaseResponse(\DateTimeInterface $lastModified, ?int $total = null): JsonResponse
     {
         $response = new JsonResponse();
 
@@ -154,7 +137,7 @@ class LorSupportController extends AbstractController
         $response->setPublic();
 
         if (null !== $total) {
-            $response->headers->set('X-Total-Count', $total);
+            $response->headers->set('X-Total-Count', (string) $total);
         }
 
         return $response;

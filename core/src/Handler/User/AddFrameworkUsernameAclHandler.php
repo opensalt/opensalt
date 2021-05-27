@@ -23,7 +23,6 @@ class AddFrameworkUsernameAclHandler extends BaseUserHandler
         $access = $dto->access;
 
         $userRepo = $this->em->getRepository(User::class);
-        /** @var User $user */
         $user = $userRepo->loadUserByUsername($username);
         if (null === $user) {
             throw new \InvalidArgumentException('Username does not exist');

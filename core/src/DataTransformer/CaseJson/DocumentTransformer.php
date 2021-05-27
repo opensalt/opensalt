@@ -15,7 +15,6 @@ class DocumentTransformer
 
     public function transform(CFPackageDocument $cfDocument, Definitions $definitions): LsDoc
     {
-        $this->definitions = $definitions;
         $doc = $this->findOrCreateDocument($cfDocument);
 
         $this->updateAssociationGroups($definitions->associationGroupings, $doc);
