@@ -8,7 +8,7 @@ security:
         ROLE_SUPER_EDITOR: [ROLE_EDITOR]
         ROLE_SUPER_USER: [ROLE_ADMIN, ROLE_SUPER_EDITOR, ROLE_ALLOWED_TO_SWITCH]
 
-    encoders:
+    password_hashers:
         App\Entity\User\User:
             algorithm: auto
 
