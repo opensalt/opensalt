@@ -5,24 +5,14 @@ namespace App\Service\User;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserManager
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $encoder;
-
-    public function __construct(EntityManagerInterface $em, UserPasswordEncoderInterface $encoder)
-    {
-        $this->em = $em;
-        $this->encoder = $encoder;
+    public function __construct(
+        private EntityManagerInterface $em,
+        private UserPasswordHasherInterface $encoder,
+    ) {
     }
 
     /**
@@ -42,7 +32,7 @@ class UserManager
         if (null === $role) {
             $role = 'ROLE_USER';
         }
-        if (0 !== strpos($role, 'ROLE_')) {
+        if (!str_starts_with($role, 'ROLE_')) {
             $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
         }
 
@@ -52,7 +42,7 @@ class UserManager
 
         $user = new User($username);
         $user->setOrg($org);
-        $password = $this->encoder->encodePassword($user, $plainPassword);
+        $password = $this->encoder->hashPassword($user, $plainPassword);
         $user->setPassword($password);
         $user->addRole($role);
         if (User::ACTIVE === $status) {
@@ -82,7 +72,7 @@ class UserManager
         if (null === $user) {
             throw new \InvalidArgumentException(sprintf('The user "%s" does not exist.', $username));
         }
-        $password = $this->encoder->encodePassword($user, $plainPassword);
+        $password = $this->encoder->hashPassword($user, $plainPassword);
         $user->setPassword($password);
 
         return $plainPassword;

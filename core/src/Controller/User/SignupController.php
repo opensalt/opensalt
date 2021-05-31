@@ -15,8 +15,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * Signup Controller.
@@ -28,15 +28,11 @@ class SignupController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    private UserPasswordEncoderInterface $passwordEncoder;
-    private ?string $mailFromEmail;
-    private ?string $kernelEnv;
-
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder, ?string $mailFromEmail = null, ?string $kernelEnv = null)
-    {
-        $this->passwordEncoder = $passwordEncoder;
-        $this->mailFromEmail = $mailFromEmail;
-        $this->kernelEnv = $kernelEnv;
+    public function __construct(
+        private UserPasswordHasherInterface $passwordEncoder,
+        private ?string $mailFromEmail = null,
+        private ?string $kernelEnv = null,
+    ) {
     }
 
     /**
@@ -62,7 +58,7 @@ class SignupController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $encryptedPassword = $this->passwordEncoder
-                ->encodePassword($targetUser, $targetUser->getPlainPassword());
+                ->hashPassword($targetUser, $targetUser->getPlainPassword());
 
             if (null !== $form['newOrg']->getData()) {
                 $org = new Organization();
