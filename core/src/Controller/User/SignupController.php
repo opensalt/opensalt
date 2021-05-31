@@ -90,7 +90,7 @@ class SignupController extends AbstractController
 
                 // Send email after user has been created
                 try {
-                    $command = new SendSignupReceivedEmailCommand($targetUser->getUsername());
+                    $command = new SendSignupReceivedEmailCommand($targetUser->getUserIdentifier());
                     $this->sendCommand($command);
                 } catch (\Swift_RfcComplianceException $e) {
                     throw new \RuntimeException('A valid email address must be given.');
@@ -107,7 +107,7 @@ class SignupController extends AbstractController
                 // get public users username and org
                 try {
                     $from_email = $this->mailFromEmail;
-                    $command = new SendAdminNotificationEmailCommand($from_email, $targetUser->getUsername(), $targetUser->getOrg()->getName());
+                    $command = new SendAdminNotificationEmailCommand($from_email, $targetUser->getUserIdentifier(), $targetUser->getOrg()->getName());
                     $this->sendCommand($command);
                 } catch (\Swift_RfcComplianceException $e) {
                     throw new \RuntimeException('A valid email address must be given.');

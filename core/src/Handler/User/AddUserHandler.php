@@ -25,7 +25,7 @@ class AddUserHandler extends BaseUserHandler
 
         $command->setNotificationEvent(new NotificationEvent(
             'U01',
-            sprintf('User "%s" added to "%s"', $user->getUsername(), $user->getOrg()->getName()),
+            sprintf('User "%s" added to "%s"', $user->getUserIdentifier(), $user->getOrg()->getName()),
             null
         ));
     }

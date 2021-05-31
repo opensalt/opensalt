@@ -51,7 +51,7 @@ class LockDocumentHandler extends BaseFrameworkHandler
                 ],
             ]
         );
-        $notification->setUsername($user->getUsername());
+        $notification->setUsername($user->getUserIdentifier());
         $command->setNotificationEvent($notification);
 
         $command->setChangeEntry(new NotificationOnlyChangeEntry($doc, $user, 'Dont Log - Document locked'));

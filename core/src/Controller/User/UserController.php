@@ -220,7 +220,7 @@ class UserController extends AbstractController
 
         // Send email after user has been approved
         try {
-            $command = new SendUserApprovedEmailCommand($targetUser->getUsername());
+            $command = new SendUserApprovedEmailCommand($targetUser->getUserIdentifier());
             $this->sendCommand($command);
         } catch (\Swift_RfcComplianceException $e) {
             throw new \RuntimeException('A valid email address must be given.');

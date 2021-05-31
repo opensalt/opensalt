@@ -24,7 +24,7 @@ class ChangePasswordHandler extends BaseUserHandler
 
         $command->setNotificationEvent(new NotificationEvent(
             'U05',
-            sprintf('User "%s" changed password', $user->getUsername()),
+            sprintf('User "%s" changed password', $user->getUserIdentifier()),
             null
         ));
     }

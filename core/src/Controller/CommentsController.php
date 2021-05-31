@@ -211,7 +211,7 @@ class CommentsController extends AbstractController
                 ('item' === $itemType) ? $comment->getItem()->getLsDoc()->getTitle() : $comment->getDocument()->getTitle(),
                 $this->url($itemType, $comment),
                 ('item' === $itemType) ? $comment->getItem()->getHumanCodingScheme() : null,
-                $comment->getUser()->getUsername(),
+                $comment->getUser()->getUserIdentifier(),
                 $comment->getUser()->getOrg()->getName(),
                 $comment->getContent(),
                 $comment->getFileUrl(),
