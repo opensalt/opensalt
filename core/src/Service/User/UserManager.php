@@ -78,7 +78,7 @@ class UserManager
             $plainPassword = rtrim(strtr(base64_encode(random_bytes(15)), '+/', '-_'), '=');
         }
 
-        $user = $this->loadUserByUsername($username);
+        $user = $this->loadUserByIdentifier($username);
         if (null === $user) {
             throw new \InvalidArgumentException(sprintf('The user "%s" does not exist.', $username));
         }
@@ -95,7 +95,7 @@ class UserManager
      */
     public function addRoleToUser(string $username, string $role): void
     {
-        $user = $this->loadUserByUsername($username);
+        $user = $this->loadUserByIdentifier($username);
         if (null === $user) {
             throw new \InvalidArgumentException(sprintf('The user "%s" does not exist.', $username));
         }
@@ -110,7 +110,7 @@ class UserManager
      */
     public function removeRoleFromUser(string $username, string $role): void
     {
-        $user = $this->loadUserByUsername($username);
+        $user = $this->loadUserByIdentifier($username);
         if (null === $user) {
             throw new \InvalidArgumentException(sprintf('The user "%s" does not exist.', $username));
         }
@@ -118,8 +118,8 @@ class UserManager
         $user->removeRole($role);
     }
 
-    public function loadUserByUsername(string $username): ?User
+    public function loadUserByIdentifier(string $username): ?User
     {
-        return $this->em->getRepository(User::class)->loadUserByUsername($username);
+        return $this->em->getRepository(User::class)->loadUserByIdentifier($username);
     }
 }
