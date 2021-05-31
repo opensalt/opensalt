@@ -676,9 +676,6 @@
     "symfony/http-kernel": {
         "version": "v4.0.10"
     },
-    "symfony/intl": {
-        "version": "v4.0.10"
-    },
     "symfony/maker-bundle": {
         "version": "1.0",
         "recipe": {
@@ -727,6 +724,9 @@
     "symfony/options-resolver": {
         "version": "v4.0.10"
     },
+    "symfony/password-hasher": {
+        "version": "v5.3.0"
+    },
     "symfony/phpunit-bridge": {
         "version": "4.3",
         "recipe": {
@@ -741,6 +741,9 @@
             "phpunit.xml.dist",
             "tests/bootstrap.php"
         ]
+    },
+    "symfony/polyfill-php81": {
+        "version": "v1.23.0"
     },
     "symfony/process": {
         "version": "v4.0.10"
