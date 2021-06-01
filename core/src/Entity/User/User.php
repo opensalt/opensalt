@@ -115,7 +115,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
      */
     protected $docAcls;
 
-
     public function __construct($username = null)
     {
         if (!empty($username)) {
@@ -152,7 +151,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
         return $this->username;
     }
 
-    public function getUserIdentifier()
+    public function getUserIdentifier(): string
     {
         return $this->username;
     }
