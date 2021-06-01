@@ -23,3 +23,6 @@ parameters:
 	treatPhpDocTypesAsCertain: false
 	checkMissingIterableValueType: false
 	checkGenericClassInNonGenericObjectType: false
+
+	ignoreErrors:
+		- "#Property .* type mapping mismatch\\: property can contain string\\|null but database expects string\\.$#"
