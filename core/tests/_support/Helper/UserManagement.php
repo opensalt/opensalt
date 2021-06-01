@@ -116,7 +116,7 @@ class UserManagement extends \Codeception\Module
             ->getOneOrNullResult();
 
         if ($user) {
-            $username = $user->getUsername();
+            $username = $user->getUserIdentifier();
             $userManager->setUserPassword($username, $password);
             $em->flush();
         } else {
@@ -150,7 +150,7 @@ class UserManagement extends \Codeception\Module
             $this->assertNotEmpty($user, 'User could not be created.');
         }
 
-        self::$lastUser = ['user' => $user, 'username' => $user->getUsername(), 'pass' => $password];
+        self::$lastUser = ['user' => $user, 'username' => $user->getUserIdentifier(), 'pass' => $password];
         self::$users[] = self::$lastUser;
 
         return $this;

@@ -5,24 +5,14 @@ namespace App\Service\User;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserManager
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $encoder;
-
-    public function __construct(EntityManagerInterface $em, UserPasswordEncoderInterface $encoder)
-    {
-        $this->em = $em;
-        $this->encoder = $encoder;
+    public function __construct(
+        private EntityManagerInterface $em,
+        private UserPasswordHasherInterface $encoder,
+    ) {
     }
 
     /**
@@ -42,7 +32,7 @@ class UserManager
         if (null === $role) {
             $role = 'ROLE_USER';
         }
-        if (0 !== strpos($role, 'ROLE_')) {
+        if (!str_starts_with($role, 'ROLE_')) {
             $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
         }
 
@@ -52,7 +42,7 @@ class UserManager
 
         $user = new User($username);
         $user->setOrg($org);
-        $password = $this->encoder->encodePassword($user, $plainPassword);
+        $password = $this->encoder->hashPassword($user, $plainPassword);
         $user->setPassword($password);
         $user->addRole($role);
         if (User::ACTIVE === $status) {
@@ -78,11 +68,11 @@ class UserManager
             $plainPassword = rtrim(strtr(base64_encode(random_bytes(15)), '+/', '-_'), '=');
         }
 
-        $user = $this->loadUserByUsername($username);
+        $user = $this->loadUserByIdentifier($username);
         if (null === $user) {
             throw new \InvalidArgumentException(sprintf('The user "%s" does not exist.', $username));
         }
-        $password = $this->encoder->encodePassword($user, $plainPassword);
+        $password = $this->encoder->hashPassword($user, $plainPassword);
         $user->setPassword($password);
 
         return $plainPassword;
@@ -95,7 +85,7 @@ class UserManager
      */
     public function addRoleToUser(string $username, string $role): void
     {
-        $user = $this->loadUserByUsername($username);
+        $user = $this->loadUserByIdentifier($username);
         if (null === $user) {
             throw new \InvalidArgumentException(sprintf('The user "%s" does not exist.', $username));
         }
@@ -110,7 +100,7 @@ class UserManager
      */
     public function removeRoleFromUser(string $username, string $role): void
     {
-        $user = $this->loadUserByUsername($username);
+        $user = $this->loadUserByIdentifier($username);
         if (null === $user) {
             throw new \InvalidArgumentException(sprintf('The user "%s" does not exist.', $username));
         }
@@ -118,8 +108,8 @@ class UserManager
         $user->removeRole($role);
     }
 
-    public function loadUserByUsername(string $username): ?User
+    public function loadUserByIdentifier(string $username): ?User
     {
-        return $this->em->getRepository(User::class)->loadUserByUsername($username);
+        return $this->em->getRepository(User::class)->loadUserByIdentifier($username);
     }
 }

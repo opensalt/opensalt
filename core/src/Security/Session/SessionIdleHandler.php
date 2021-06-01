@@ -53,7 +53,7 @@ class SessionIdleHandler
 
     protected function isProcessable(RequestEvent $event): bool
     {
-        if (!$event->isMasterRequest()) {
+        if (!$event->isMainRequest()) {
             return false;
         }
 

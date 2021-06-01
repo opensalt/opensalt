@@ -27,11 +27,7 @@ class GithubImportController extends AbstractController
         $fileContent = $request->request->get('content');
         $lsDocId = $request->request->get('lsDocId');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
-        /**
-         * @var array $missingFieldsLog - argument passed as an array
-         * @psalm-suppress InvalidArgument
-         */
-        $missingFieldsLog = $request->request->get('missingFieldsLog', []);
+        $missingFieldsLog = $request->request->all('missingFieldsLog');
 
         $command = new ParseCsvGithubDocumentCommand($lsItemKeys, base64_decode($fileContent), $lsDocId, $frameworkToAssociate, $missingFieldsLog);
         $this->sendCommand($command);

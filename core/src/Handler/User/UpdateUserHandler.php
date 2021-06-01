@@ -21,7 +21,7 @@ class UpdateUserHandler extends BaseUserHandler
 
         $command->setNotificationEvent(new NotificationEvent(
             'U04',
-            sprintf('User "%s" modified', $user->getUsername()),
+            sprintf('User "%s" modified', $user->getUserIdentifier()),
             null
         ));
     }

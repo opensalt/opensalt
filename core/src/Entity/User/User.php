@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\EquatableInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator\Constraints as CustomAssert;
@@ -19,7 +20,7 @@ use App\Validator\Constraints as CustomAssert;
  * @ORM\Table(name="salt_user")
  * @UniqueEntity("username", message="That email address is already being used", groups={"registration"})
  */
-class User implements UserInterface, \Serializable, EquatableInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serializable, EquatableInterface
 {
     public const USER_ROLES = [
         'ROLE_EDITOR',
@@ -114,7 +115,6 @@ class User implements UserInterface, \Serializable, EquatableInterface
      */
     protected $docAcls;
 
-
     public function __construct($username = null)
     {
         if (!empty($username)) {
@@ -142,9 +142,16 @@ class User implements UserInterface, \Serializable, EquatableInterface
     /**
      * Returns the username used to authenticate the user.
      *
+     * @deprecated As of Symfony 5.3 getUserIdentifier() should be used instead
+     *
      * @return string The username
      */
     public function getUsername()
+    {
+        return $this->username;
+    }
+
+    public function getUserIdentifier(): string
     {
         return $this->username;
     }
@@ -178,10 +185,8 @@ class User implements UserInterface, \Serializable, EquatableInterface
      *
      * This should be the encoded password. On authentication, a plain-text
      * password will be salted, encoded, and then compared to this value.
-     *
-     * @return string The password
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -241,9 +246,9 @@ class User implements UserInterface, \Serializable, EquatableInterface
      *
      * This can return null if the password was not encoded using a salt.
      *
-     * @return string|null The salt
+     * @deprecated This function has been deprecated and can be removed with Symfony 6.0
      */
-    public function getSalt()
+    public function getSalt(): ?string
     {
         return null;
     }
@@ -302,7 +307,7 @@ class User implements UserInterface, \Serializable, EquatableInterface
             return false;
         }
 
-        if ($user->getUsername() !== $this->getUsername()) {
+        if ($user->getUserIdentifier() !== $this->getUserIdentifier()) {
             return false;
         }
 

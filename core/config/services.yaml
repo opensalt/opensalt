@@ -204,6 +204,12 @@ services:
     Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'
     Qandidate\Toggle\ContextFactory: '@qandidate.toggle.user_context_factory'
 
+    #force to use untracked_token_storage for Symfony 5.3
+    qandidate.toggle.user_context_factory:
+        class: Qandidate\Bundle\ToggleBundle\Context\UserContextFactory
+        arguments:
+            $tokenStorage: '@security.untracked_token_storage'
+
     # Manual services
     session.handler.pdo:
         class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
@@ -217,4 +223,3 @@ services:
             $connOrDsn: '@doctrine.dbal.default_connection'
             $namespace: 'externalDoc-'
             $defaultLifetime: 0
-

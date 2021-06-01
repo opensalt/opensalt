@@ -174,7 +174,7 @@ class Comment
 
     public function getFullname(): string
     {
-        return preg_replace('/@.*/', '', $this->getUser()->getUsername());
+        return preg_replace('/@.*/', '', $this->getUser()->getUserIdentifier());
     }
 
     public function setCreatedByCurrentUser(bool $createdByCurrentUser): Comment

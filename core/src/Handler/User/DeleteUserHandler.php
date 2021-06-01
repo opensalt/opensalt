@@ -21,7 +21,7 @@ class DeleteUserHandler extends BaseUserHandler
 
         $command->setNotificationEvent(new NotificationEvent(
             'U03',
-            sprintf('User "%s" deleted', $user->getUsername()),
+            sprintf('User "%s" deleted', $user->getUserIdentifier()),
             null
         ));
     }

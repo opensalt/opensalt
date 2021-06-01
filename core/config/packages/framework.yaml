@@ -27,6 +27,7 @@ framework:
         gc_probability: 25
         gc_divisor:     100
         metadata_update_threshold: 120
+        storage_factory_id: session.storage.factory.native
     esi: true
     fragments: true
     php_errors:

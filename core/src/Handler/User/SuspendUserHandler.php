@@ -20,7 +20,7 @@ class SuspendUserHandler extends BaseUserHandler
 
         $command->setNotificationEvent(new NotificationEvent(
             'U06',
-            sprintf('User "%s" suspended', $user->getUsername()),
+            sprintf('User "%s" suspended', $user->getUserIdentifier()),
             null
         ));
     }
