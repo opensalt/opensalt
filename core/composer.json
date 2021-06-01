@@ -86,7 +86,7 @@
         "symfony/twig-pack": "*",
         "symfony/validator": "5.2.*",
         "symfony/web-link": "5.2.*",
-        "symfony/yaml": "5.2.*",
+        "symfony/yaml": "5.3.*",
         "tecnickcom/tcpdf": "^6.2",
         "tetranz/select2entity-bundle": "^3.0",
         "twig/string-extra": "^3.1",
