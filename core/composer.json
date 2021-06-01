@@ -77,7 +77,7 @@
         "symfony/monolog-bundle": "^3.3",
         "symfony/process": "5.2.*",
         "symfony/profiler-pack": "*",
-        "symfony/proxy-manager-bridge": "5.2.*",
+        "symfony/proxy-manager-bridge": "5.3.*",
         "symfony/security-bundle": "5.2.*",
         "symfony/security-csrf": "5.2.*",
         "symfony/serializer-pack": "*",
