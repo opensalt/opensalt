@@ -97,7 +97,7 @@
         "symfony/debug-pack": "*",
         "symfony/test-pack": "*",
         "symfony/maker-bundle": "^1.5",
-        "symfony/phpunit-bridge": "5.2.*",
+        "symfony/phpunit-bridge": "5.3.*",
         "jetbrains/phpstorm-attributes": "^1.0",
 
         "codeception/codeception": "^4.1",
