@@ -78,7 +78,7 @@
         "symfony/process": "5.2.*",
         "symfony/profiler-pack": "*",
         "symfony/proxy-manager-bridge": "5.2.*",
-        "symfony/security-bundle": "5.2.*",
+        "symfony/security-bundle": "5.3.*",
         "symfony/security-csrf": "5.2.*",
         "symfony/serializer-pack": "*",
         "symfony/swiftmailer-bundle": "^3.2",
