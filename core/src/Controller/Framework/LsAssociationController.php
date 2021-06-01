@@ -124,12 +124,11 @@ class LsAssociationController extends AbstractController
         }
 
         try {
-            /** @psalm-suppress InvalidArgument - origin and dest are array arguments */
             $command = new AddTreeAssociationCommand(
                 $lsDoc,
-                $request->request->get('origin'),
+                $request->request->all('origin'), // passed as an array
                 $request->request->get('type'),
-                $request->request->get('dest'),
+                $request->request->all('dest'), // passed as an array
                 $request->request->get('assocGroup'),
                 $request->request->get('annotation')
             );
