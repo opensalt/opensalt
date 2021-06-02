@@ -366,11 +366,11 @@ final class ExcelImport
 
     private function getCellValueOrNull(Worksheet $sheet, int $col, int $row)
     {
-        $cell = $sheet->getCellByColumnAndRow($col, $row, false);
-
-        if (null === $cell) {
+        if (!$sheet->cellExistsByColumnAndRow($col, $row)) {
             return null;
         }
+
+        $cell = $sheet->getCellByColumnAndRow($col, $row);
 
         return $cell->getValue();
     }

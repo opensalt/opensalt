@@ -170,10 +170,11 @@ class SubtypeUpdater
 
     protected function getValueFromSheet(Worksheet $sheet, int $columnIndex, int $rowIndex): ?string
     {
-        $cell = $sheet->getCellByColumnAndRow($columnIndex, $rowIndex);
-        if (null === $cell) {
+        if (!$sheet->cellExistsByColumnAndRow($columnIndex, $rowIndex)) {
             return null;
         }
+
+        $cell = $sheet->getCellByColumnAndRow($columnIndex, $rowIndex);
 
         return $cell->getFormattedValue();
     }
