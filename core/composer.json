@@ -43,7 +43,7 @@
         "colinodell/json5": "^2.1",
         "composer/package-versions-deprecated": "^1.11",
         "csa/guzzle-bundle": "dev-master#9858ec2472af768a86991ec0cf760208d7df73fb as 3.2.0.1",
-        "doctrine/doctrine-bundle": "~2.3.2",
+        "doctrine/doctrine-bundle": "~2.4.1",
         "doctrine/doctrine-fixtures-bundle": "^3.0",
         "doctrine/doctrine-migrations-bundle": "^3.0.2",
         "doctrine/migrations": "^3.0.2",
