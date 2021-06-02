@@ -12,6 +12,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Util\EducationLevelSet;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Ramsey\Uuid\Uuid;
 
@@ -366,11 +367,11 @@ final class ExcelImport
 
     private function getCellValueOrNull(Worksheet $sheet, int $col, int $row)
     {
-        $cell = $sheet->getCellByColumnAndRow($col, $row, false);
-
-        if (null === $cell) {
+        if (!$sheet->cellExistsByColumnAndRow($col, $row)) {
             return null;
         }
+
+        $cell = $sheet->getCellByColumnAndRow($col, $row);
 
         return $cell->getValue();
     }
