@@ -14940,16 +14940,16 @@
         },
         {
             "name": "softcreatr/jsonpath",
-            "version": "0.7.4",
+            "version": "0.7.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/SoftCreatR/JSONPath.git",
-                "reference": "e01ff3eae8d0b94648354cb02b614968e83d56a2"
+                "reference": "008569bf80aa3584834f7890781576bc7b65afa7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SoftCreatR/JSONPath/zipball/e01ff3eae8d0b94648354cb02b614968e83d56a2",
-                "reference": "e01ff3eae8d0b94648354cb02b614968e83d56a2",
+                "url": "https://api.github.com/repos/SoftCreatR/JSONPath/zipball/008569bf80aa3584834f7890781576bc7b65afa7",
+                "reference": "008569bf80aa3584834f7890781576bc7b65afa7",
                 "shasum": ""
             },
             "require": {
@@ -15001,7 +15001,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-05-07T14:31:33+00:00"
+            "time": "2021-06-02T22:15:26+00:00"
         },
         {
             "name": "symfony/browser-kit",
