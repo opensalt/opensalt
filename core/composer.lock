@@ -2924,16 +2924,16 @@
         },
         {
             "name": "kamermans/guzzle-oauth2-subscriber",
-            "version": "v1.0.9",
+            "version": "v1.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kamermans/guzzle-oauth2-subscriber.git",
-                "reference": "840fde5cf9971afa8b6f161baa84a7b14a72fada"
+                "reference": "ececd21093bbdb0913c3c049a230a8a4b1ec8275"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kamermans/guzzle-oauth2-subscriber/zipball/840fde5cf9971afa8b6f161baa84a7b14a72fada",
-                "reference": "840fde5cf9971afa8b6f161baa84a7b14a72fada",
+                "url": "https://api.github.com/repos/kamermans/guzzle-oauth2-subscriber/zipball/ececd21093bbdb0913c3c049a230a8a4b1ec8275",
+                "reference": "ececd21093bbdb0913c3c049a230a8a4b1ec8275",
                 "shasum": ""
             },
             "require": {
@@ -2956,16 +2956,16 @@
                     "email": "stevekamerman@gmail.com"
                 }
             ],
-            "description": "OAuth 2.0 client for Guzzle 4, 5 and 6+",
+            "description": "OAuth 2.0 client for Guzzle 4, 5, 6 and 7+",
             "keywords": [
                 "Guzzle",
                 "oauth"
             ],
             "support": {
                 "issues": "https://github.com/kamermans/guzzle-oauth2-subscriber/issues",
-                "source": "https://github.com/kamermans/guzzle-oauth2-subscriber/tree/v1.0.9"
+                "source": "https://github.com/kamermans/guzzle-oauth2-subscriber/tree/v1.0.10"
             },
-            "time": "2021-06-28T17:29:34+00:00"
+            "time": "2021-07-14T15:37:09+00:00"
         },
         {
             "name": "laminas/laminas-code",
