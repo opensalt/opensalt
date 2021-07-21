@@ -251,6 +251,8 @@ class DocTreeController extends AbstractController
      */
     public function retrieveDocumentAction(Request $request, ?LsDoc $lsDoc = null): Response
     {
+        ini_set('memory_limit', '1G');
+
         // $request could contain an id...
         if ($id = $request->query->get('id')) {
             // in this case it has to be a document on this OpenSALT instantiation
