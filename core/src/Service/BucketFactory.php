@@ -28,17 +28,17 @@ class BucketFactory
 
             $allParams = $this->params->all();
             foreach ($allParams as $key => $value) {
-                if (0 === strpos($key, 'AWS_S3_OPTION_')) {
+                if (str_starts_with($key, 'AWS_S3_OPTION_')) {
                     $params[strtolower(substr($key, 10))] = $value;
                 }
             }
 
             $client = new S3Client($params);
 
-            return new AwsS3V3Adapter($client, $this->params->get('aws_bucket'), $this->params->get('aws_prefix'));
+            return new AwsS3V3Adapter($client, (string) $this->params->get('aws_bucket'), (string) $this->params->get('aws_prefix'));
         }
 
-        $path = $this->params->get('local_filesystem_path');
+        $path = (string) $this->params->get('local_filesystem_path');
 
         return new LocalFilesystemAdapter($path);
     }
