@@ -39,7 +39,7 @@ ARG DOCKERIZE_VERSION=v0.6.1
 RUN curl -LsS https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
 	  | tar -C /usr/local/bin -xzvf -
 
-ARG APCU_VERSION=5.1.19
+ARG APCU_VERSION=5.1.20
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
@@ -211,7 +211,9 @@ FROM caddy:${CADDY_VERSION}-builder-alpine AS salt_core_caddy_builder
 
 ARG XCADDY_SKIP_CLEANUP=0
 RUN xcaddy build \
+    --with github.com/dunglas/mercure \
     --with github.com/dunglas/mercure/caddy \
+    --with github.com/dunglas/vulcain \
     --with github.com/dunglas/vulcain/caddy
 
 #=======================================================================
