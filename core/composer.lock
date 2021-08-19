@@ -2930,16 +2930,16 @@
         },
         {
             "name": "kamermans/guzzle-oauth2-subscriber",
-            "version": "v1.0.10",
+            "version": "v1.0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kamermans/guzzle-oauth2-subscriber.git",
-                "reference": "ececd21093bbdb0913c3c049a230a8a4b1ec8275"
+                "reference": "0849d1b3f221fc98eba8b6ac2f0c35c39671bc5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kamermans/guzzle-oauth2-subscriber/zipball/ececd21093bbdb0913c3c049a230a8a4b1ec8275",
-                "reference": "ececd21093bbdb0913c3c049a230a8a4b1ec8275",
+                "url": "https://api.github.com/repos/kamermans/guzzle-oauth2-subscriber/zipball/0849d1b3f221fc98eba8b6ac2f0c35c39671bc5b",
+                "reference": "0849d1b3f221fc98eba8b6ac2f0c35c39671bc5b",
                 "shasum": ""
             },
             "require": {
@@ -2969,9 +2969,9 @@
             ],
             "support": {
                 "issues": "https://github.com/kamermans/guzzle-oauth2-subscriber/issues",
-                "source": "https://github.com/kamermans/guzzle-oauth2-subscriber/tree/v1.0.10"
+                "source": "https://github.com/kamermans/guzzle-oauth2-subscriber/tree/v1.0.11"
             },
-            "time": "2021-07-14T15:37:09+00:00"
+            "time": "2021-08-11T22:33:53+00:00"
         },
         {
             "name": "laminas/laminas-code",
