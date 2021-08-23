@@ -2,4 +2,4 @@
 
 cd $(dirname $0)/..
 
-./bin/phpcli ./vendor/bin/phpstan "$@"
+./bin/phpcli ./tools/phpstan/vendor/bin/phpstan "$@"

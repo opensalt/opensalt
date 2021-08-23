@@ -29,7 +29,7 @@
 
     <fileExtensions>
         <extension name=".php" />
-        <!-- <extension name=".twig" checker="vendor/psalm/plugin-symfony/src/Twig/TemplateFileAnalyzer.php"/> -->
+        <extension name=".twig" checker="tools/psalm/vendor/psalm/plugin-symfony/src/Twig/TemplateFileAnalyzer.php"/>
     </fileExtensions>
 
     <issueHandlers>
