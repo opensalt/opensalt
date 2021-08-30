@@ -2,7 +2,7 @@
 
 {% block stylesheets %}
 {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('build/swaggercss.css', 'encore') }}" />
+    <link rel="stylesheet" href="//unpkg.com/swagger-ui-dist@3.52/swagger-ui.css" />
     <style>
         pre {
             display: inherit;
@@ -10,6 +10,7 @@
             line-height: inherit;
             border: inherit;
             background-color: inherit;
+            overflow: inherit;
         }
         .swagger-ui .info pre.base-url {
             color: transparent;
@@ -41,9 +42,9 @@
         }
         .try-out, .try-out__btn,
         .scheme-container,
-        .information-container > section > div > div:nth-child(3),
-        .information-container > section > div > div:nth-child(4),
-        .information-container > section > div > div:nth-child(5)
+        .information-container > section > div > div:nth-child(3), .info .info__tos,
+        .information-container > section > div > div:nth-child(4), .info .info__contact,
+        .information-container > section > div > div:nth-child(5), .info .info__license
         {
             display: none;
         }
@@ -59,7 +60,7 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+    <script src="//unpkg.com/swagger-ui-dist@3.52/swagger-ui-bundle.js"></script>
     <script>
     var ui = SwaggerUIBundle({
         url: '/case-v1p0-swagger.json',
