@@ -33,7 +33,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
 
         $lsDocRepo = $this->em->getRepository(LsDoc::class);
 
-        $lsDoc = $lsDocRepo->find($lsDocId);
+        $lsDoc = $lsDocRepo->find((int) $lsDocId);
         if (!$lsDoc) {
             $output->writeln("<error>LSDoc with id '{$lsDocId}' not found.</error>");
 

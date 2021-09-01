@@ -9,19 +9,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Comment
- *
  * @ORM\Entity(repositoryClass="App\Repository\CommentRepository")
  * @ORM\Table(name="salt_comment")
- *
- * @Serializer\VirtualProperty(
- *     "fullname",
- *     exp="object.getFullname()",
- *     options={@Serializer\SerializedName("fullname")}
- *  )
  */
 class Comment
 {
@@ -37,10 +28,6 @@ class Comment
     /**
      * @ORM\ManyToOne(targetEntity="Comment")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
-     *
-     * @Serializer\Accessor(getter="getParentId")
-     * @Serializer\ReadOnly
-     * @Serializer\Type("int")
      */
     private ?Comment $parent = null;
 
@@ -52,8 +39,6 @@ class Comment
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User\User")
      * @ORM\JoinColumn(nullable=false)
-     *
-     * @Serializer\Exclude()
      */
     private User $user;
 
@@ -73,24 +58,17 @@ class Comment
      * @var Collection<array-key, CommentUpvote>
      *
      * @ORM\OneToMany(targetEntity="CommentUpvote", mappedBy="comment")
-     *
-     * @Serializer\Accessor(getter="getUpvoteCount")
-     * @Serializer\ReadOnly
-     * @Serializer\Type("int")
-     * @Serializer\SerializedName("upvote_count")
      */
     private Collection $upvotes;
 
     /**
      * @ORM\Column(type="datetime", precision=6)
-     * @Serializer\SerializedName("created")
      * @Gedmo\Timestampable(on="create")
      */
     private \DateTime $createdAt;
 
     /**
      * @ORM\Column(type="datetime", precision=6)
-     * @Serializer\SerializedName("modified")
      * @Gedmo\Timestampable(on="update")
      */
     private \DateTime $updatedAt;
@@ -108,12 +86,12 @@ class Comment
     /**
      * @var bool
      */
-    private $createdByCurrentUser;
+    private $createdByCurrentUser = false;
 
     /**
      * @var bool
      */
-    private $userHasUpvoted;
+    private $userHasUpvoted = false;
 
     public function __construct()
     {
@@ -196,7 +174,7 @@ class Comment
 
     public function getFullname(): string
     {
-        return preg_replace('/@.*/', '', $this->getUser()->getUsername());
+        return preg_replace('/@.*/', '', $this->getUser()->getUserIdentifier());
     }
 
     public function setCreatedByCurrentUser(bool $createdByCurrentUser): Comment
@@ -306,7 +284,7 @@ class Comment
         return $this;
     }
 
-    public function getFileMimeType(): string
+    public function getFileMimeType(): ?string
     {
         return $this->fileMimeType;
     }

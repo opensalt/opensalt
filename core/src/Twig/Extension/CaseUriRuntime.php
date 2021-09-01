@@ -10,26 +10,11 @@ use Twig\Extension\RuntimeExtensionInterface;
 
 class CaseUriRuntime implements RuntimeExtensionInterface
 {
-    /**
-     * @var UriGenerator
-     */
-    private $uriGenerator;
-
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @var IdentifiableObjectHelper
-     */
-    private $objectHelper;
-
-    public function __construct(UriGenerator $uriGenerator, RouterInterface $router, IdentifiableObjectHelper $uriHelper)
-    {
-        $this->uriGenerator = $uriGenerator;
-        $this->router = $router;
-        $this->objectHelper = $uriHelper;
+    public function __construct(
+        private UriGenerator $uriGenerator,
+        private RouterInterface $router,
+        private IdentifiableObjectHelper $uriHelper
+    ) {
     }
 
     public function getObjectUri(?IdentifiableInterface $obj, ?string $route = null): ?string
@@ -66,7 +51,7 @@ class CaseUriRuntime implements RuntimeExtensionInterface
             return $this->getUriForIdentifier($uri);
         }
 
-        $obj = $this->objectHelper->findObjectByUri($uri);
+        $obj = $this->uriHelper->findObjectByUri($uri);
 
         if (null === $obj) {
             return null;
@@ -75,7 +60,7 @@ class CaseUriRuntime implements RuntimeExtensionInterface
         return $this->router->generate('uri_lookup', ['uri' => $obj->getIdentifier()], RouterInterface::ABSOLUTE_URL);
     }
 
-    public function getLocalOrRemoteUri($uri): ?string
+    public function getLocalOrRemoteUri(?string $uri): ?string
     {
         if (null === $uri) {
             return null;

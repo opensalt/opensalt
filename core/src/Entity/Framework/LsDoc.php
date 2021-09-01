@@ -4,17 +4,16 @@ namespace App\Entity\Framework;
 
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\LockableInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
+use App\Util\Compare;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Util\Compare;
 
 /**
  * @ORM\Table(name="ls_doc")
@@ -22,44 +21,6 @@ use App\Util\Compare;
  * @UniqueEntity("uri")
  * @UniqueEntity("urlName")
  * @UniqueEntity("identifier")
- *
- * @Serializer\VirtualProperty(
- *     "cfPackageUri",
- *     exp="service('App\\Service\\Api1Uris').getLinkUri(object, 'api_v1p0_cfpackage')",
- *     options={
- *         @Serializer\SerializedName("CFPackageURI"),
- *         @Serializer\Expose(),
- *         @Serializer\Groups({"LsDoc"})
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "subjectUri",
- *     exp="(object.getSubjects().count()===0)?null:service('App\\Service\\Api1Uris').getLinkUriList(object.getSubjects())",
- *     options={
- *         @Serializer\SerializedName("subjectURI"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "licenseUri",
- *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getLicence())",
- *     options={
- *         @Serializer\SerializedName("licenseURI"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "updatedAt",
- *     exp="object.getUpdatedAt()",
- *     options={
- *         @Serializer\SerializedName("updatedAt"),
- *         @Serializer\Expose(),
- *         @Serializer\Groups({"updatedAt"})
- *     }
- * )
  */
 class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterface
 {
@@ -75,8 +36,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=true)
      *
      * @Assert\Type(Organization::class)
-     *
-     * @Serializer\Exclude()
      */
     protected $org;
 
@@ -87,8 +46,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
      *
      * @Assert\Type(User::class)
-     *
-     * @Serializer\Exclude()
      */
     protected $user;
 
@@ -99,9 +56,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      *
      * @Assert\Length(max=300)
      * @Assert\Url()
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("officialSourceURL")
      */
     private $officialUri;
 
@@ -112,8 +66,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Expose()
      */
     private $creator;
 
@@ -123,8 +75,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @ORM\Column(name="publisher", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
-     *
-     * @Serializer\Expose()
      */
     private $publisher;
 
@@ -135,8 +85,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=120)
-     *
-     * @Serializer\Expose()
      */
     private $title;
 
@@ -164,8 +112,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @ORM\Column(name="version", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
-     *
-     * @Serializer\Expose()
      */
     private $version;
 
@@ -175,23 +121,17 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @ORM\Column(name="description", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Expose()
      */
     private $description;
 
     /**
-     * @var string[]
+     * @var string[]|null
      *
      * @ORM\Column(name="subject", type="json", nullable=true)
      *
      * @Assert\All({
      *     @Assert\Type("string")
      * })
-     *
-     * @Serializer\Expose("object.getSubjects().count()>0")
-     * @Serializer\SerializedName("subject")
-     * @Serializer\Type("array<string>")
      */
     private $subject = [];
 
@@ -207,8 +147,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @Assert\All({
      *     @Assert\Type(LsDefSubject::class)
      * })
-     *
-     * @Serializer\Exclude()
      */
     private $subjects;
 
@@ -218,8 +156,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @ORM\Column(name="language", type="string", length=10, nullable=true)
      *
      * @Assert\Length(max=10)
-     *
-     * @Serializer\Expose(if="object.getLanguage() != ''")
      */
     private $language;
 
@@ -230,27 +166,16 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      *
      * @Assert\Length(max=50)
      * @Assert\Choice(callback = "getStatuses")
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("adoptionStatus")
      */
     private $adoptionStatus;
 
     /**
      * @ORM\Column(name="status_start", type="date", nullable=true)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("statusStartDate")
-     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private ?\DateTimeInterface $statusStart = null;
 
     /**
      * @ORM\Column(name="status_end", type="date", nullable=true)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("statusEndDate")
-     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private ?\DateTimeInterface $statusEnd = null;
 
@@ -259,8 +184,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      *
      * @ORM\ManyToOne(targetEntity="LsDefLicence")
      * @ORM\JoinColumn(name="licence_id", referencedColumnName="id", nullable=true)
-     *
-     * @Serializer\Exclude()
      */
     private $licence;
 
@@ -269,8 +192,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      *
      * @ORM\ManyToOne(targetEntity="FrameworkType", cascade = {"persist"})
      * @ORM\JoinColumn(name="frameworktype_id", referencedColumnName="id", nullable=true)
-     *
-     * @Serializer\Exclude()
      */
     private $frameworkType;
 
@@ -278,9 +199,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @var string|null
      *
      * @ORM\Column(name="note", type="text", nullable=true)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("notes")
      */
     private $note;
 
@@ -292,8 +210,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @Assert\All({
      *     @Assert\Type(LsItem::class)
      * })
-     *
-     * @Serializer\Exclude()
      */
     private $lsItems;
 
@@ -305,8 +221,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @Assert\All({
      *     @Assert\Type(LsAssociation::class)
      * })
-     *
-     * @Serializer\Exclude()
      */
     private $docAssociations;
 
@@ -318,8 +232,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * })
      *
      * @ORM\OneToMany(targetEntity="LsAssociation", mappedBy="originLsDoc", indexBy="id", cascade={"persist"})
-     *
-     * @Serializer\Exclude()
      */
     private $associations;
 
@@ -331,8 +243,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * })
      *
      * @ORM\OneToMany(targetEntity="LsAssociation", mappedBy="destinationLsDoc", indexBy="id", cascade={"persist"})
-     *
-     * @Serializer\Exclude()
      */
     private $inverseAssociations;
 
@@ -344,8 +254,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * })
      *
      * @ORM\OneToMany(targetEntity="LsDocAttribute", mappedBy="lsDoc", cascade={"ALL"}, indexBy="attribute", orphanRemoval=true)
-     *
-     * @Serializer\Exclude()
      */
     private $attributes;
 
@@ -357,8 +265,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @Assert\All({
      *     @Assert\Type(UserDocAcl::class)
      * })
-     *
-     * @Serializer\Exclude()
      */
     protected $docAcls;
 
@@ -370,8 +276,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @Assert\All({
      *     @Assert\Type(ImportLog::class)
      * })
-     *
-     * @Serializer\Exclude()
      */
     protected $importLogs;
 
@@ -383,8 +287,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @Assert\All({
      *     @Assert\Type(LsDefAssociationGrouping::class)
      * })
-     *
-     * @Serializer\Exclude()
      */
     protected $associationGroupings;
 
@@ -392,8 +294,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @var ?string
      *
      * @Assert\Choice({"organization", "user"})
-     *
-     * @Serializer\Exclude()
      */
     protected $ownedBy;
 
@@ -401,8 +301,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @var ?Framework
      *
      * @ORM\OneToOne(targetEntity="App\Entity\Framework\Mirror\Framework", inversedBy="framework")
-     *
-     * @Serializer\Exclude()
      */
     private $mirroredFramework;
 
@@ -558,7 +456,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * @param string|string[]|null $subject
      */
-    public function setSubject($subject): LsDoc
+    public function setSubject(array|string|null $subject): LsDoc
     {
         if (null === $subject) {
             $this->subject = null;
@@ -1045,12 +943,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this;
     }
 
-    /**
-     * Get the owner of the framework.
-     *
-     * @return Organization|User
-     */
-    public function getOwner()
+    public function getOwner(): User|Organization|null
     {
         if (null !== $this->org) {
             return $this->org;

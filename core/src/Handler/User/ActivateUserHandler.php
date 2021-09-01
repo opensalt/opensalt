@@ -20,7 +20,7 @@ class ActivateUserHandler extends BaseUserHandler
 
         $command->setNotificationEvent(new NotificationEvent(
             'U07',
-            sprintf('User "%s" unsuspended', $user->getUsername()),
+            sprintf('User "%s" unsuspended', $user->getUserIdentifier()),
             null
         ));
     }

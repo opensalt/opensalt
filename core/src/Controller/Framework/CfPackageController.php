@@ -4,13 +4,12 @@ namespace App\Controller\Framework;
 
 use App\Entity\ChangeEntry;
 use App\Entity\Framework\LsDoc;
-use JMS\Serializer\SerializationContext;
-use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Class CfPackageController.
@@ -19,14 +18,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CfPackageController extends AbstractController
 {
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
-    public function __construct(SerializerInterface $serializer)
-    {
-        $this->serializer = $serializer;
+    public function __construct(
+        private SerializerInterface $symfonySerializer,
+    ) {
     }
 
     /**
@@ -47,13 +41,13 @@ class CfPackageController extends AbstractController
                 return $response;
             }
 
-            $pkg = $repo->getPackageArray($lsDoc);
-
-            $response->setContent($this->serializer->serialize(
-                $pkg,
-                $request->getRequestFormat('json'),
-                SerializationContext::create()->setGroups(['Default', 'CfPackage'])
-            ));
+            $response->setContent(
+                $this->symfonySerializer->serialize($lsDoc, 'json', [
+                    'groups' => ['default', 'CfPackage'],
+                    'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
+                    'generate-package' => 'v1p0',
+                ])
+            );
 
             $response->headers->set('Content-Type', 'application/json');
             $response->headers->set('Content-Disposition', 'attachment; filename="opensalt-framework-'.$lsDoc->getIdentifier().'.json"');
@@ -75,7 +69,7 @@ class CfPackageController extends AbstractController
         $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
 
         $lastModified = $lsDoc->getUpdatedAt();
-        if (false !== $lastChange && null !== $lastChange['changed_at']) {
+        if (null !== ($lastChange['changed_at'] ?? null)) {
             $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
         }
         $response->setEtag(md5($lastModified->format('U.u')), true);

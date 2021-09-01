@@ -3,14 +3,11 @@
 namespace App\Entity\Framework;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="ls_def_association_grouping")
  * @ORM\Entity(repositoryClass="App\Repository\Framework\LsDefAssociationGroupingRepository")
- *
- * @Serializer\ExclusionPolicy("all")
  */
 class LsDefAssociationGrouping extends AbstractLsDefinition implements CaseApiInterface
 {

@@ -27,31 +27,17 @@ jobs:
         uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql
+          #extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql
           #coverage: xdebug #optional
           coverage: none
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: cd core; echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache composer dependencies
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          # Use composer.json for key, if composer.lock is not committed.
-          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
       - name: Install Composer dependencies
         run: |
-          cd core
-          php -r 'copy("https://getcomposer.org/download/latest-stable/composer.phar", "composer");'
-          php composer install --no-progress --prefer-dist --optimize-autoloader
+          cd $GITHUB_WORKSPACE/core/tools/ecs
+          composer install --no-progress --ansi
 
       - name: Run Symplify Easy Coding Standard
         run: |
-          cd core
-          php vendor/bin/ecs check --no-progress-bar src/
+          cd $GITHUB_WORKSPACE/core
+          ./tools/ecs/vendor/bin/ecs check --no-progress-bar src/
 

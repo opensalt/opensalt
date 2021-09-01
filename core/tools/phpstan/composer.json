@@ -1,0 +1,11 @@
+{
+    "name": "opensalt/tools",
+    "description": "Tools for testing OpenSALT",
+    "require": {
+        "phpstan/phpstan": "^0.12.88",
+        "phpstan/phpstan-symfony": "^0.12.33",
+        "phpstan/phpstan-doctrine": "^0.12.37",
+        "phpstan/phpstan-webmozart-assert": "^0.12.12",
+        "phpstan/phpstan-deprecation-rules": "^0.12.6"
+    }
+}

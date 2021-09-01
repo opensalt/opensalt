@@ -153,7 +153,7 @@ class CommandEventRouter implements EventSubscriberInterface
             return 'Unknown User';
         }
 
-        return $user->getUsername();
+        return $user->getUserIdentifier();
     }
 
     protected function resolveNotification(CommandInterface $command): NotificationEvent

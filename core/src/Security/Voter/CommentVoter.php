@@ -20,33 +20,24 @@ class CommentVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, $subject): bool
     {
         if (!$this->hasActiveFeature('comments')) {
             // No support for comments if the feature is not enabled
             return false;
         }
 
-        switch ($attribute) {
-            case self::UPDATE:
-            case self::DELETE:
-                if ($subject instanceof Comment) {
-                    return true;
-                }
-                break;
-
-            case self::COMMENT:
-            case self::VIEW:
-                return true;
-        }
-
-        return false;
+        return match ($attribute) {
+            self::UPDATE, self::DELETE => $subject instanceof Comment,
+            self::COMMENT, self::VIEW => true,
+            default => false,
+        };
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         // All users (including anonymous) can view comments
         if (self::VIEW === $attribute) {
@@ -54,23 +45,16 @@ class CommentVoter extends Voter
         }
 
         $user = $token->getUser();
-
         if (!$user instanceof User) {
             // If the user is not logged in then deny access
             return false;
         }
 
-        switch ($attribute) {
-            case self::VIEW:
-                return $this->canView();
-            case self::COMMENT:
-                return $this->canComment();
-            case self::UPDATE:
-            case self::DELETE:
-                return $this->canUpdate($user, $subject, $token);
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            self::COMMENT => $this->canComment(),
+            self::UPDATE, self::DELETE => $this->canUpdate($user, $subject, $token),
+            default => false,
+        };
     }
 
     /**

@@ -18,8 +18,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * LsDefAssociationGrouping controller.
- *
  * @Route("/cfdef/association_grouping")
  */
 class LsDefAssociationGroupingController extends AbstractController
@@ -49,10 +47,8 @@ class LsDefAssociationGroupingController extends AbstractController
      * @Route("/new", methods={"GET", "POST"}, name="lsdef_association_grouping_new")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function newAction(Request $request)
+    public function newAction(Request $request): array|Response
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -67,7 +63,7 @@ class LsDefAssociationGroupingController extends AbstractController
 
                 // if ajax request, just return the created id
                 if ($ajax) {
-                    return new Response($associationGrouping->getId(), Response::HTTP_CREATED);
+                    return new Response((string) $associationGrouping->getId(), Response::HTTP_CREATED);
                 }
 
                 return $this->redirectToRoute('lsdef_association_grouping_show', ['id' => $associationGrouping->getId()]);

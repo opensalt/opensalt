@@ -44,29 +44,14 @@ class DocTreeController extends AbstractController
 
     private const ETAG_SEED = '2';
 
-    /**
-     * @var ClientInterface
-     */
-    private $guzzleJsonClient;
-
-    private $caseNetworkClientId;
-    private $caseNetworkClientSecret;
-    private $caseNetworkScope;
-    private $caseNetworkTokenEndpoint;
-
-    /**
-     * @var PdoAdapter
-     */
-    private $externalDocCache;
-
-    public function __construct(ClientInterface $guzzleJsonClient, PdoAdapter $externalDocCache, ?string $caseNetworkClientId, ?string $caseNetworkClientSecret, ?string $caseNetworkScope, ?string $caseNetworkTokenEndpoint)
-    {
-        $this->guzzleJsonClient = $guzzleJsonClient;
-        $this->externalDocCache = $externalDocCache;
-        $this->caseNetworkClientId = $caseNetworkClientId;
-        $this->caseNetworkClientSecret = $caseNetworkClientSecret;
-        $this->caseNetworkTokenEndpoint = $caseNetworkTokenEndpoint;
-        $this->caseNetworkScope = $caseNetworkScope;
+    public function __construct(
+        private ClientInterface $guzzleJsonClient,
+        private PdoAdapter $externalDocCache,
+        private ?string $caseNetworkClientId,
+        private ?string $caseNetworkClientSecret,
+        private ?string $caseNetworkScope,
+        private ?string $caseNetworkTokenEndpoint
+    ) {
     }
 
     /**
@@ -203,7 +188,7 @@ class DocTreeController extends AbstractController
         $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
 
         $lastModified = $lsDoc->getUpdatedAt();
-        if (false !== $lastChange && null !== $lastChange['changed_at']) {
+        if (null !== ($lastChange['changed_at'] ?? null)) {
             $lastModified = new \DateTime($lastChange['changed_at'], new \DateTimeZone('UTC'));
         }
         $response->setEtag(md5($lastModified->format('U.u').self::ETAG_SEED), true);
@@ -266,10 +251,12 @@ class DocTreeController extends AbstractController
      */
     public function retrieveDocumentAction(Request $request, ?LsDoc $lsDoc = null): Response
     {
+        ini_set('memory_limit', '1G');
+
         // $request could contain an id...
         if ($id = $request->query->get('id')) {
             // in this case it has to be a document on this OpenSALT instantiation
-            return $this->respondWithDocumentById($request, $id);
+            return $this->respondWithDocumentById($request, (int) $id);
         }
 
         // or an identifier...
@@ -491,7 +478,7 @@ class DocTreeController extends AbstractController
     public function updateItemsAction(Request $request, LsDoc $lsDoc, string $_format = 'json'): array
     {
         /** @var array $lsItems */
-        $lsItems = $request->request->get('lsItems');
+        $lsItems = $request->request->all('lsItems');
         $command = new UpdateTreeItemsCommand($lsDoc, $lsItems);
         $this->sendCommand($command);
         $rv = $command->getReturnValues();

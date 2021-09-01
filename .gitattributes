@@ -28,7 +28,7 @@ composer.lock text eol=lf merge=ours
 *.jpg binary
 *.jpeg binary
 *.png binary
-*.svg text
+*.svg text eol=lf
 
 *.eot binary
 *.otf binary

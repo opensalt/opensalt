@@ -29,19 +29,14 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * LsDoc controller.
- *
  * @Route("/cfdoc")
  */
 class LsDocController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    private ClientInterface $guzzleJsonClient;
-
-    public function __construct(ClientInterface $guzzleJsonClient)
+    public function __construct(private ClientInterface $guzzleJsonClient)
     {
-        $this->guzzleJsonClient = $guzzleJsonClient;
     }
 
     /**
@@ -350,7 +345,7 @@ class LsDocController extends AbstractController
      *
      * @throws \Exception
      */
-    protected function loadDocumentListFromHost(string $hostname): array
+    protected function loadDocumentListFromHost(string $hostname): ?array
     {
         // Remove any scheme or path from the passed value
         $hostname = preg_replace('#^(?:https?://)?([^/]+)(?:/.*)#', '$1', $hostname);

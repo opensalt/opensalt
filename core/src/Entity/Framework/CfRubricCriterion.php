@@ -5,7 +5,6 @@ namespace App\Entity\Framework;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Class CfRubricCriterion
@@ -14,25 +13,6 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @ORM\Table(name="rubric_criterion")
  * @ORM\Entity(repositoryClass="App\Repository\Framework\CfRubricCriterionRepository")
- *
- * @Serializer\VirtualProperty(
- *     "itemUri",
- *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getItem())",
- *     options={
- *         @Serializer\SerializedName("CFItemURI"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "rubricId",
- *     exp="object.getRubric()?object.getRubric().getIdentifier():null",
- *     options={
- *         @Serializer\SerializedName("rubricId"),
- *         @Serializer\Expose(),
- *         @Serializer\Groups({"CfRubricCriterion"})
- *     }
- * )
  */
 class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
 {
@@ -40,8 +20,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      * @var string
      *
      * @ORM\Column(name="category", type="string", nullable=true)
-     *
-     * @Serializer\Expose()
      */
     private $category;
 
@@ -49,8 +27,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      * @var string
      *
      * @ORM\Column(name="description", type="text", length=65535, nullable=true)
-     *
-     * @Serializer\Expose()
      */
     private $description;
 
@@ -59,8 +35,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\ManyToOne(targetEntity="LsItem", inversedBy="criteria")
      * @ORM\JoinColumn(name="ls_item_id", referencedColumnName="id")
-     *
-     * @Serializer\Exclude()
      */
     private $item;
 
@@ -68,8 +42,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      * @var float
      *
      * @ORM\Column(name="weight", type="float", nullable=true)
-     *
-     * @Serializer\Expose()
      */
     private $weight;
 
@@ -77,8 +49,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      * @var int
      *
      * @ORM\Column(name="position", type="integer", nullable=true)
-     *
-     * @Serializer\Expose()
      */
     private $position;
 
@@ -87,8 +57,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      *
      * @ORM\ManyToOne(targetEntity="CfRubric", inversedBy="criteria")
      * @ORM\JoinColumn(name="rubric_id", referencedColumnName="id", nullable=false)
-     *
-     * @Serializer\Exclude()
      */
     private $rubric;
 
@@ -96,10 +64,6 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
      * @var Collection|CfRubricCriterionLevel[]
      *
      * @ORM\OneToMany(targetEntity="CfRubricCriterionLevel", mappedBy="criterion", orphanRemoval=true, cascade={"persist", "remove"})
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("CFRubricCriterionLevels")
-     * @Serializer\Type("ArrayCollection<App\Entity\Framework\CfRubricCriterionLevel>")
      */
     private $levels;
 

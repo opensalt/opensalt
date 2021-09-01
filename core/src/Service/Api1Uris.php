@@ -110,18 +110,15 @@ class Api1Uris
             'getName',
         ];
 
+        $title = null;
         foreach ($descriptors as $descriptor) {
             if (method_exists($obj, $descriptor) && !empty($title = $obj->{$descriptor}())) {
-                return [
-                    'title' => $title,
-                    'identifier' => $obj->getIdentifier(),
-                    'uri' => $this->getUri($obj, $route),
-                ];
+                break;
             }
         }
 
         return [
-            'title' => 'Linked Reference',
+            'title' => !empty($title) ? $title : 'Linked Reference',
             'identifier' => $obj->getIdentifier(),
             'uri' => $this->getUri($obj, $route),
         ];

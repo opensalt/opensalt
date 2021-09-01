@@ -25,9 +25,7 @@ class MirrorFramework
     public function __construct(
         private MirrorServer $mirrorServer,
         private ManagerRegistry $managerRegistry,
-    )
-    {
-        /** @var EntityManagerInterface $em */
+    ) {
         $em = $managerRegistry->getManager();
         if (!$em instanceof EntityManagerInterface) {
             throw new \InvalidArgumentException('ManagerRegistry is not providing an Entity manager');
@@ -54,6 +52,7 @@ class MirrorFramework
     public function mirrorNext(): ?Framework
     {
         // Get next framework to mirror, based on schedule and priority
+        /** @var ?Framework $next */
         $next = $this->em->getRepository(Framework::class)->findNext();
         if (null === $next) {
             return null;

@@ -4,67 +4,45 @@ namespace App\Form\DataTransformer;
 
 use App\Entity\Framework\LsDefGrade;
 use App\Repository\Framework\LsDefGradeRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 
 class EducationAlignmentTransformer implements DataTransformerInterface
 {
-    private $manager;
-
-    /**
-     * EducationAlignmentTransformer constructor.
-     */
-    public function __construct(EntityManagerInterface $manager)
+    public function __construct(private EntityManagerInterface $manager)
     {
-        $this->manager = $manager;
     }
 
     /**
-     * @param string $gradeString
-     *
-     * @return array|ArrayCollection
+     * @param ?string $gradeString
      */
-    public function transform($gradeString)
+    public function transform($gradeString): array
     {
         if (null === $gradeString) {
-            return new ArrayCollection();
+            return [];
         }
 
         /** @var LsDefGradeRepository $repo */
         $repo = $this->manager->getRepository(LsDefGrade::class);
 
-        $grades = preg_split('/,/', $gradeString);
-        $alignments = $repo->findBy(['code' => $grades]);
+        $grades = explode(',', $gradeString);
 
-        if (null === $alignments) {
-            $alignments = new ArrayCollection();
-        }
-
-        return $alignments;
+        return $repo->findBy(['code' => $grades]);
     }
 
     /**
-     * @param array|Collection $alignmentArray
-     *
-     * @return string|null
+     * @param array<array-key, LsDefGrade>|null $alignmentArray
      */
-    public function reverseTransform($alignmentArray)
+    public function reverseTransform($alignmentArray): ?string
     {
-        if (is_array($alignmentArray)) {
-            $alignmentArray = new ArrayCollection($alignmentArray);
-        }
-
-        /** @var Collection $alignmentArray */
-        if ($alignmentArray->isEmpty()) {
+        if (null === $alignmentArray || !is_array($alignmentArray) || 0 === count($alignmentArray)) {
             return null;
         }
 
-        $grades = $alignmentArray->map(function (LsDefGrade $alignment) {
+        $grades = array_map(static function (LsDefGrade $alignment) {
             return $alignment->getCode();
-        });
+        }, $alignmentArray);
 
-        return implode(',', $grades->toArray());
+        return implode(',', $grades);
     }
 }

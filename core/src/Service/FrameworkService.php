@@ -186,6 +186,7 @@ class FrameworkService
 
     public function updateTreeItem(LsDoc $doc, string $itemId, array $updates, array &$rv): void
     {
+        // Note that $lsItemId may be of the form "copy-<uuid>" when copying from another framework
         $assocGroupRepo = $this->em->getRepository(LsDefAssociationGrouping::class);
 
         // set assocGroup if supplied; pass this in when necessary below
@@ -328,12 +329,8 @@ class FrameworkService
 
     /**
      * Get the item to update, either the original or a copy based on the update array.
-     *
-     * @param int $lsItemId
-     *
-     * @throws \UnexpectedValueException
      */
-    protected function getTreeItemForUpdate(LsDoc $lsDoc, array $updates, $lsItemId, ?LsDefAssociationGrouping $assocGroup = null): ?LsItem
+    protected function getTreeItemForUpdate(LsDoc $lsDoc, array $updates, string $lsItemId, ?LsDefAssociationGrouping $assocGroup = null): ?LsItem
     {
         $lsItemRepo = $this->em->getRepository(LsItem::class);
 
@@ -370,10 +367,8 @@ class FrameworkService
 
     /**
      * Remove the appropriate childOf associations for the item based on the update array.
-     *
-     * @param int $lsItemId
      */
-    protected function deleteTreeChildAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv): void
+    protected function deleteTreeChildAssociations(LsItem $lsItem, array $updates, string $lsItemId, array &$rv): void
     {
         $assocRepo = $this->em->getRepository(LsAssociation::class);
 
@@ -408,10 +403,8 @@ class FrameworkService
 
     /**
      * Update the childOf associations based on the update array.
-     *
-     * @param int $lsItemId
      */
-    protected function updateTreeChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv): void
+    protected function updateTreeChildOfAssociations(LsItem $lsItem, array $updates, string $lsItemId, array &$rv): void
     {
         $assocRepo = $this->em->getRepository(LsAssociation::class);
 
@@ -440,11 +433,9 @@ class FrameworkService
     /**
      * Add new childOf associations based on the update array.
      *
-     * @param int $lsItemId
-     *
      * @throws \UnexpectedValueException
      */
-    protected function addTreeChildOfAssociations(LsItem $lsItem, array $updates, $lsItemId, array &$rv, ?LsDefAssociationGrouping $assocGroup = null): void
+    protected function addTreeChildOfAssociations(LsItem $lsItem, array $updates, string $lsItemId, array &$rv, ?LsDefAssociationGrouping $assocGroup = null): void
     {
         // parent could be a doc or item
         if ('item' === $updates['newChildOf']['parentType']) {

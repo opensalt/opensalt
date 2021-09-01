@@ -23,7 +23,7 @@ class AssociationVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, $subject): bool
     {
         if (!\in_array($attribute, [self::ADD_TO, self::CREATE, self::EDIT], true)) {
             return false;
@@ -47,7 +47,7 @@ class AssociationVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 

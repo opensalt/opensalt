@@ -1,6 +1,8 @@
 # To get started with security, check out the documentation:
 # http://symfony.com/doc/current/book/security.html
 security:
+    enable_authenticator_manager: true
+
     role_hierarchy:
         ROLE_USER: []
         ROLE_EDITOR: [ROLE_USER]
@@ -8,7 +10,7 @@ security:
         ROLE_SUPER_EDITOR: [ROLE_EDITOR]
         ROLE_SUPER_USER: [ROLE_ADMIN, ROLE_SUPER_EDITOR, ROLE_ALLOWED_TO_SWITCH]
 
-    encoders:
+    password_hashers:
         App\Entity\User\User:
             algorithm: auto
 
@@ -39,7 +41,6 @@ security:
 
         main:
             pattern: ^/
-            anonymous: true
             #lazy: true
             #stateless: true
             provider: local_db_provider
@@ -49,9 +50,10 @@ security:
                 path: /logout
                 target: salt_index
 
-            guard:
-                authenticators:
-                    - App\Security\LoginFormAuthenticator
+            custom_authenticators:
+                - App\Security\LoginFormAuthenticator
+
+            entry_point: App\Security\LoginFormAuthenticator
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
@@ -64,8 +66,7 @@ security:
     # http://symfony.com/doc/current/cookbook/security/access_control.htm
     # Note: Only the *first* access control that matches will be used
     access_control:
-        #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
-        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/logout, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-
+        #- { path: ^/login, roles: PUBLIC_ACCESS, requires_channel: https }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/logout, roles: PUBLIC_ACCESS }
+        - { path: ^/, roles: PUBLIC_ACCESS }

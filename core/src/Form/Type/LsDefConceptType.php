@@ -23,7 +23,7 @@ class LsDefConceptType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => LsDefConcept::class
+            'data_class' => LsDefConcept::class,
         ));
     }
 }

@@ -62,7 +62,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class AsnStandard extends AsnBase
 {
-    public static $properties = [
+    public static array $properties = [
         'type' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         'identifier' => 'http://purl.org/ASN/schema/core/identifier',
         'isPartOf' => 'http://purl.org/dc/terms/isPartOf',

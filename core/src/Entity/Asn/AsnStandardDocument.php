@@ -74,7 +74,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class AsnStandardDocument extends AsnBase
 {
-    public static $properties = [
+    public static array $properties = [
         'type' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         'jurisdiction' => 'http://purl.org/ASN/schema/core/jurisdiction',
         'title' => 'http://purl.org/dc/elements/1.1/title',

@@ -62,7 +62,7 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
 
         $i = 1;
         while (false !== ($rec = fgetcsv($fd, 0, ','))) {
-            if (null === $rec || count($rec) < 4) {
+            if (count($rec) < 4) {
                 continue;
             }
 

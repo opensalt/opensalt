@@ -4,9 +4,9 @@ namespace Page;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
-use Codeception\Exception\Fail;
 use Codeception\Util\Locator;
 use Facebook\WebDriver\Exception\StaleElementReferenceException;
+use PHPUnit\Framework\ExpectationFailedException;
 use Ramsey\Uuid\Uuid;
 
 class Framework implements Context
@@ -291,12 +291,23 @@ class Framework implements Context
         $I->assertNotEmpty($caseFile, 'CASE file is empty');
 
         $parsedJson = json_decode($caseFile, true);
+        $uploadedJson = json_decode($this->uploadedFramework, true);
+
         $I->assertArrayHasKey('CFDocument', $parsedJson, 'CASE file does not have a CFDocument part');
-        $I->assertArrayHasKey('CFItems', $parsedJson, 'CASE file does not have a CFItems part');
-        $I->assertArrayHasKey('CFAssociations', $parsedJson, 'CASE file does not have a CFAssociations part');
+
+        if (!empty($uploadedJson['CFItems'])) {
+            $I->assertArrayHasKey('CFItems', $parsedJson, 'CASE file does not have a CFItems part');
+        } else {
+            unset($uploadedJson['CFItems']);
+        }
+        if (!empty($uploadedJson['CFAssociations'])) {
+            $I->assertArrayHasKey('CFAssociations', $parsedJson, 'CASE file does not have a CFAssociations part');
+        } else {
+            unset($uploadedJson['CFAssociations']);
+        }
 
         $diff = $this->arrayDiff(
-            json_decode($this->uploadedFramework, true),
+            $uploadedJson,
             $parsedJson,
             ['lastChangeDateTime', 'CFDefinitions', 'CFItemTypeURI']
         );
@@ -334,6 +345,16 @@ class Framework implements Context
                     unset($arr2[$k1]);
                 }
             } else {
+                if (('CFDefinitions' === $k1)
+                    && (count($v1['CFConcepts'] ?? []) === 0)
+                    && (count($v1['CFSubjects'] ?? []) === 0)
+                    && (count($v1['CFLicenses'] ?? []) === 0)
+                    && (count($v1['CFItemTypes'] ?? []) === 0)
+                    && (count($v1['CFAssociationGroupings'] ?? []) === 0)) {
+                        unset($arr1[$k1]);
+                        continue;
+                    }
+
                 // remove information
                 $diff[$k1] = ['old' => $v1];
             }
@@ -343,7 +364,9 @@ class Framework implements Context
         reset($arr2); // Don't argue it's unnecessary (even I believe you)
         foreach ($arr2 as $k => $v) {
             // OK, it is quite stupid my friend
-            $diff[$k] = ['new' => $v];
+            if (!\in_array($k, $allowedDiffs, true)) {
+                $diff[$k] = ['new' => $v];
+            }
         }
 
         return $diff;
@@ -777,7 +800,7 @@ class Framework implements Context
 
         if (static::$failedCreateCount >= 5) {
             $I->amGoingTo('not bother trying, too many errors creating frameworks already');
-            throw new Fail('Not trying: Too many framework create failures already.');
+            throw new \RuntimeException('Not trying: Too many framework create failures already.');
         }
 
         /** @var \Faker\Generator $faker */
@@ -1102,7 +1125,7 @@ class Framework implements Context
                 $I->dontSee($item, '#tree1Section');
 
                 return;
-            } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+            } catch (ExpectationFailedException $e) {
                 // Try triggering the search again
                 $I->executeJS("$('#filterOnTree').trigger('keyup');");
                 $I->wait(1.5); // search has a 500ms delay to allow typing

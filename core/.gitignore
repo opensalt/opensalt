@@ -49,6 +49,7 @@ nbproject
 .sass-cache
 /lsp/*
 /.scannerwork/*
+phpstan-baseline.neon
 
 pw-archive/
 
@@ -62,12 +63,6 @@ pw-archive/
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
-
-###> friendsofphp/php-cs-fixer ###
-/.php_cs
-/.php_cs.cache
-###< friendsofphp/php-cs-fixer ###
-
 ###> symfony/framework-bundle ###
 /.symfony.env
 /.symfony.env.local
@@ -88,8 +83,3 @@ pw-archive/
 !/var/SymfonyRequirements.php
 /vendor/
 ###< symfony/framework-bundle ###
-
-###> squizlabs/php_codesniffer ###
-/.phpcs-cache
-/phpcs.xml
-###< squizlabs/php_codesniffer ###

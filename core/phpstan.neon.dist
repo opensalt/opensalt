@@ -1,14 +1,16 @@
 includes:
-	- './vendor/phpstan/phpstan-symfony/extension.neon'
-	- './vendor/phpstan/phpstan-symfony/rules.neon'
-	- './vendor/phpstan/phpstan-doctrine/extension.neon'
-	- './vendor/phpstan/phpstan-doctrine/rules.neon'
+	- './tools/phpstan/vendor/phpstan/phpstan-symfony/extension.neon'
+	- './tools/phpstan/vendor/phpstan/phpstan-symfony/rules.neon'
+	- './tools/phpstan/vendor/phpstan/phpstan-doctrine/extension.neon'
+	- './tools/phpstan/vendor/phpstan/phpstan-doctrine/rules.neon'
+	- phpstan-baseline.neon
 
 parameters:
 	#customRulesetUsed: true
 	bootstrapFiles:
 		- './vendor/autoload.php'
 	level: 6
+	reportUnmatchedIgnoredErrors: false
 	paths:
 		- './src'
 	excludes_analyse:
@@ -18,5 +20,9 @@ parameters:
 	doctrine:
 		objectManagerLoader: './tests/object-manager.php'
 
+	treatPhpDocTypesAsCertain: false
 	checkMissingIterableValueType: false
 	checkGenericClassInNonGenericObjectType: false
+
+	ignoreErrors:
+		- "#Property .* type mapping mismatch\\: property can contain string\\|null but database expects string\\.$#"

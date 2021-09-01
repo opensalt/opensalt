@@ -1,0 +1,10 @@
+{% extends base_template %}
+
+{% block body %}
+    <h1>Import CASE Framework</h1>
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <input class="btn btn-primary" type="submit" value="Import" />
+    {{ form_end(form) }}
+{% endblock %}

@@ -4,8 +4,8 @@ namespace App\Entity\Framework;
 
 trait AccessAdditionalFieldTrait
 {
-    abstract public function getExtraProperty(string $property);
-    abstract public function setExtraProperty(string $property, $value);
+    abstract public function getExtraProperty(string $property): mixed;
+    abstract public function setExtraProperty(string $property, mixed $value);
 
     public function getAdditionalFields(): array
     {
@@ -36,7 +36,7 @@ trait AccessAdditionalFieldTrait
         return $customFields[$name] ?? null;
     }
 
-    public function setAdditionalField(string $name, $value): void
+    public function setAdditionalField(string $name, mixed $value): void
     {
         $customFields = $this->getExtraProperty('customFields') ?? [];
 

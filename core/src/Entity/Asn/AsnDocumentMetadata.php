@@ -4,7 +4,7 @@ namespace App\Entity\Asn;
 
 class AsnDocumentMetadata extends AsnBase
 {
-    public static $properties = [
+    public static array $properties = [
         'primaryTopic' => 'http://xmlns.com/foaf/0.1/primaryTopic',
         'rightsHolder' => 'http://purl.org/dc/terms/rightsHolder',
         'modified' => 'http://purl.org/dc/terms/modified',

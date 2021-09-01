@@ -3,16 +3,15 @@
 namespace App\Service;
 
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 trait LoggerTrait
 {
     use \Psr\Log\LoggerTrait;
 
-    private LoggerInterface $logger;
+    private ?LoggerInterface $logger = null;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
@@ -28,8 +27,6 @@ trait LoggerTrait
      */
     public function log($level, $message, array $context = [])
     {
-        if (null !== $this->logger) {
-            $this->logger->log($level, $message, $context);
-        }
+        $this->logger?->log($level, $message, $context);
     }
 }

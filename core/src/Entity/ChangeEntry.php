@@ -62,7 +62,7 @@ class ChangeEntry
     {
         $this->doc = (null !== $doc) ? $doc->getId() : null;
         $this->user = (null !== $user) ? $user->getId() : null;
-        $this->username = (null !== $user) ? $user->getUsername() : null;
+        $this->username = (null !== $user) ? $user->getUserIdentifier() : null;
         $this->description = $description;
         $this->changed = $changed;
         $this->changedAt = new \DateTimeImmutable();

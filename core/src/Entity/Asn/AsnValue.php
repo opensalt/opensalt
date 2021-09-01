@@ -2,66 +2,39 @@
 
 namespace App\Entity\Asn;
 
-class AsnValue
+final class AsnValue
 {
-    /**
-     * @var string|int|\DateTime
-     */
-    public $value;
-
-    /**
-     * @var string
-     */
-    public $type;
-
-    /**
-     * @var string
-     */
-    public $datatype;
-
-    /**
-     * @var string
-     */
-    public $lang;
+    public null|string|int|\DateTime $value = null;
+    public ?string $type = null;
+    public ?string $datatype = null;
+    public ?string $lang = null;
 
 
     public function __construct()
     {
     }
 
-    /**
-     * @return \DateTime|int|string
-     */
-    public function getValue()
+    public function getValue(): \DateTime|int|string|null
     {
         return $this->value;
     }
 
-    /**
-     * @return string
-     */
-    public function getType()
+    public function getType(): ?string
     {
         return $this->type;
     }
 
-    /**
-     * @return string
-     */
-    public function getDatatype()
+    public function getDatatype(): ?string
     {
         return $this->datatype;
     }
 
-    /**
-     * @return string
-     */
-    public function getLang()
+    public function getLang(): ?string
     {
         return $this->lang;
     }
 
-    public static function fromArray($arr)
+    public static function fromArray(array $arr): static
     {
         $value = new static();
 
@@ -85,7 +58,7 @@ class AsnValue
         return $value;
     }
 
-    public static function fromJson($json)
+    public static function fromJson(string $json): static
     {
         $arr = json_decode($json);
 

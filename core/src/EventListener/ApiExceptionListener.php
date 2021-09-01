@@ -6,23 +6,21 @@ use App\DTO\Api1\ImsxCodeMinor;
 use App\DTO\Api1\ImsxCodeMinorField;
 use App\DTO\Api1\ImsxStatusInfo;
 use App\Service\LoggerTrait;
-use JMS\Serializer\SerializerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class ApiExceptionListener implements EventSubscriberInterface
 {
     use LoggerTrait;
 
-    private SerializerInterface $serializer;
-
-    public function __construct(SerializerInterface $serializer)
-    {
-        $this->serializer = $serializer;
+    public function __construct(
+        private SerializerInterface $serializer,
+    ) {
     }
 
     public static function getSubscribedEvents(): array

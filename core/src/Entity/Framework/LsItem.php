@@ -6,7 +6,6 @@ use App\Entity\LockableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -15,61 +14,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="ls_item")
  * @ORM\Entity(repositoryClass="App\Repository\Framework\LsItemRepository")
  * @UniqueEntity("uri")
- *
- * @Serializer\VirtualProperty(
- *     "cfDocumentUri",
- *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getLsDoc())",
- *     options={
- *         @Serializer\SerializedName("CFDocumentURI"),
- *         @Serializer\Expose(),
- *         @Serializer\Groups({"LsItem"})
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "cfItemType",
- *     exp="object.getItemType()?object.getItemType().getTitle():null",
- *     options={
- *         @Serializer\SerializedName("CFItemType"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "cfItemTypeUri",
- *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getItemType())",
- *     options={
- *         @Serializer\SerializedName("CFItemTypeURI"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "conceptKeywordsUri",
- *     exp="(object.getConcepts().count()===0)?null:service('App\\Service\\Api1Uris').getLinkUri(object.getConcepts()[0])",
- *     options={
- *         @Serializer\SerializedName("conceptKeywordsURI"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "educationLevel",
- *     exp="service('App\\Service\\Api1Uris').splitByComma(object.getEducationalAlignment())",
- *     options={
- *         @Serializer\SerializedName("educationLevel"),
- *         @Serializer\Expose()
- *     }
- * )
- *
- * @Serializer\VirtualProperty(
- *     "licenseUri",
- *     exp="service('App\\Service\\Api1Uris').getLinkUri(object.getLicence())",
- *     options={
- *         @Serializer\SerializedName("licenseURI"),
- *         @Serializer\Expose()
- *     }
- * )
  */
 class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterface
 {
@@ -82,8 +26,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @Assert\NotBlank()
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
      */
     private $lsDocIdentifier;
 
@@ -92,8 +34,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @ORM\Column(name="ls_doc_uri", type="string", length=300, nullable=true)
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
      */
     private $lsDocUri;
 
@@ -102,8 +42,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="lsItems")
      * @Assert\NotBlank()
-     *
-     * @Serializer\Exclude()
      */
     private $lsDoc;
 
@@ -113,9 +51,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @ORM\Column(name="human_coding_scheme", type="string", length=50, nullable=true)
      *
      * @Assert\Length(max=50)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("humanCodingScheme")
      */
     private $humanCodingScheme;
 
@@ -125,9 +60,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @ORM\Column(name="list_enum_in_source", type="string", length=20, nullable=true)
      *
      * @Assert\Length(max=20)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("listEnumeration")
      */
     private $listEnumInSource;
 
@@ -137,9 +69,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @ORM\Column(name="full_statement", type="text", nullable=false)
      *
      * @Assert\NotBlank()
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("fullStatement")
      */
     private $fullStatement;
 
@@ -149,9 +78,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @ORM\Column(name="abbreviated_statement", type="text", nullable=true)
      *
      * @Assert\Length(max=60)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("abbreviatedStatement")
      */
     private $abbreviatedStatement;
 
@@ -163,10 +89,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @Assert\All({
      *     @Assert\Type("string")
      * })
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("conceptKeywords")
-     * @Serializer\Type("array<string>")
      */
     private $conceptKeywords = [];
 
@@ -178,8 +100,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *      joinColumns={@ORM\JoinColumn(name="ls_item_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="concept_id", referencedColumnName="id")}
      * )
-     *
-     * @Serializer\Exclude()
      */
     private $concepts;
 
@@ -187,9 +107,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @var string|null
      *
      * @ORM\Column(name="notes", type="text", nullable=true)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("notes")
      */
     private $notes;
 
@@ -199,9 +116,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @ORM\Column(name="language", type="string", length=10, nullable=true)
      *
      * @Assert\Length(max=10)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("language")
      */
     private $language;
 
@@ -211,8 +125,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @ORM\Column(name="educational_alignment", type="string", length=300, nullable=true)
      *
      * @Assert\Length(max=300)
-     *
-     * @Serializer\Exclude()
      */
     private $educationalAlignment;
 
@@ -221,8 +133,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @ORM\ManyToOne(targetEntity="LsDefItemType")
      * @ORM\JoinColumn(name="item_type_id", referencedColumnName="id")
-     *
-     * @Serializer\Exclude()
      */
     private $itemType;
 
@@ -232,8 +142,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @ORM\Column(name="item_type_text", type="string", nullable=true)
      *
      * @Assert\Length(max=255)
-     *
-     * @Serializer\Exclude()
      */
     private $itemTypeText;
 
@@ -241,29 +149,16 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @var string|null
      *
      * @ORM\Column(name="alternative_label", type="text", nullable=true)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("alternativeLabel")
      */
     private $alternativeLabel;
 
     /**
      * @ORM\Column(name="status_start", type="date", nullable=true)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("statusStartDate")
-     * @Serializer\AccessType("public_method")
-     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private ?\DateTimeInterface $statusStart = null;
 
     /**
      * @ORM\Column(name="status_end", type="date", nullable=true)
-     *
-     * @Serializer\Expose()
-     * @Serializer\SerializedName("statusEndDate")
-     * @Serializer\AccessType("public_method")
-     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private ?\DateTimeInterface $statusEnd = null;
 
@@ -272,8 +167,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @ORM\ManyToOne(targetEntity="LsDefLicence")
      * @ORM\JoinColumn(name="licence_id", referencedColumnName="id", nullable=true)
-     *
-     * @Serializer\Exclude()
      */
     private $licence;
 
@@ -281,8 +174,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="LsAssociation", mappedBy="originLsItem", indexBy="id", cascade={"persist"})
-     *
-     * @Serializer\Exclude()
      */
     private $associations;
 
@@ -290,8 +181,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @var Collection|LsAssociation[]
      *
      * @ORM\OneToMany(targetEntity="LsAssociation", mappedBy="destinationLsItem", indexBy="id", cascade={"persist"})
-     *
-     * @Serializer\Exclude()
      */
     private $inverseAssociations;
 
@@ -299,8 +188,6 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @var Collection|CfRubricCriterion[]
      *
      * @ORM\OneToMany(targetEntity="CfRubricCriterion", mappedBy="item")
-     *
-     * @Serializer\Exclude()
      */
     private $criteria;
 
@@ -505,7 +392,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      */
     public function getShortStatement(): string
     {
-        if ($this->abbreviatedStatement) {
+        if (null !== $this->abbreviatedStatement) {
             return $this->getAbbreviatedStatement();
         }
 

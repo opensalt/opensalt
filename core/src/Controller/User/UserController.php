@@ -2,25 +2,25 @@
 
 namespace App\Controller\User;
 
-use App\Command\Email\SendUserApprovedEmailCommand;
 use App\Command\CommandDispatcherTrait;
+use App\Command\Email\SendUserApprovedEmailCommand;
+use App\Command\User\ActivateUserCommand;
 use App\Command\User\AddUserCommand;
 use App\Command\User\DeleteUserCommand;
 use App\Command\User\SuspendUserCommand;
-use App\Command\User\ActivateUserCommand;
 use App\Command\User\UpdateUserCommand;
 use App\Entity\User\User;
 use App\Form\Type\UserType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * User controller.
@@ -32,20 +32,10 @@ class UserController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @var AuthorizationCheckerInterface
-     */
-    private $authChecker;
-
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $passwordEncoder;
-
-    public function __construct(AuthorizationCheckerInterface $authChecker, UserPasswordEncoderInterface $passwordEncoder)
-    {
-        $this->authChecker = $authChecker;
-        $this->passwordEncoder = $passwordEncoder;
+    public function __construct(
+        private AuthorizationCheckerInterface $authChecker,
+        private UserPasswordHasherInterface $passwordEncoder,
+    ) {
     }
 
     /**
@@ -70,11 +60,13 @@ class UserController extends AbstractController
         $suspendForm = [];
         $activateForm = [];
         $rejectForm = [];
+        /** @var User $user */
         foreach ($users as $user) {
             $suspendForm[$user->getId()] = $this->createSuspendForm($user)->createView();
             $activateForm[$user->getId()] = $this->createActivateForm($user)->createView();
             $rejectForm[$user->getId()] = $this->createRejectForm($user)->createView();
         }
+
         return [
             'users' => $users,
             'suspend_form' => $suspendForm,
@@ -105,7 +97,7 @@ class UserController extends AbstractController
 
             // Encode the plaintext password
             $encryptedPassword = $this->passwordEncoder
-                ->encodePassword($targetUser, $targetUser->getPlainPassword());
+                ->hashPassword($targetUser, $targetUser->getPlainPassword());
 
             try {
                 $command = new AddUserCommand($targetUser, $encryptedPassword);
@@ -115,7 +107,6 @@ class UserController extends AbstractController
             } catch (\Exception $e) {
                 $form->addError(new FormError($e->getMessage()));
             }
-
         }
 
         return [
@@ -162,7 +153,7 @@ class UserController extends AbstractController
             $plainPassword = $targetUser->getPlainPassword();
             if (!empty($plainPassword)) {
                 $password = $this->passwordEncoder
-                    ->encodePassword($targetUser, $targetUser->getPlainPassword());
+                    ->hashPassword($targetUser, $targetUser->getPlainPassword());
                 $targetUser->setPassword($password);
             }
 
@@ -184,7 +175,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * Suspend a user
+     * Suspend a user.
      *
      * @Route("/{id}/suspend", methods={"POST"}, name="admin_user_suspend")
      * @Security("is_granted('manage', targetUser)")
@@ -203,7 +194,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * Activate a user
+     * Activate a user.
      *
      * @Route("/{id}/activate", methods={"POST"}, name="admin_user_activate")
      * @Security("is_granted('manage', targetUser)")
@@ -220,7 +211,7 @@ class UserController extends AbstractController
 
         // Send email after user has been approved
         try {
-            $command = new SendUserApprovedEmailCommand($targetUser->getUsername());
+            $command = new SendUserApprovedEmailCommand($targetUser->getUserIdentifier());
             $this->sendCommand($command);
         } catch (\Swift_RfcComplianceException $e) {
             throw new \RuntimeException('A valid email address must be given.');
@@ -232,7 +223,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * Reject a user
+     * Reject a user.
      *
      * @Route("/{id}/reject", methods={"POST"}, name="admin_user_reject")
      * @Security("is_granted('manage', targetUser)")
@@ -279,7 +270,7 @@ class UserController extends AbstractController
     private function createSuspendForm(User $targetUser): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('admin_user_suspend', array('id' => $targetUser->getId())))
+            ->setAction($this->generateUrl('admin_user_suspend', ['id' => $targetUser->getId()]))
             ->setMethod('POST')
             ->getForm();
     }
@@ -294,7 +285,7 @@ class UserController extends AbstractController
     private function createActivateForm(User $targetUser): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('admin_user_activate', array('id' => $targetUser->getId())))
+            ->setAction($this->generateUrl('admin_user_activate', ['id' => $targetUser->getId()]))
             ->setMethod('POST')
             ->getForm();
     }
@@ -309,7 +300,7 @@ class UserController extends AbstractController
     private function createRejectForm(User $targetUser): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('admin_user_reject', array('id' => $targetUser->getId())))
+            ->setAction($this->generateUrl('admin_user_reject', ['id' => $targetUser->getId()]))
             ->setMethod('POST')
             ->getForm();
     }
@@ -324,9 +315,8 @@ class UserController extends AbstractController
     private function createDeleteForm(User $targetUser): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('admin_user_delete', array('id' => $targetUser->getId())))
+            ->setAction($this->generateUrl('admin_user_delete', ['id' => $targetUser->getId()]))
             ->setMethod('DELETE')
             ->getForm();
     }
-
 }

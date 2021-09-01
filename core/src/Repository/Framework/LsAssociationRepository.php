@@ -8,6 +8,9 @@ use App\Entity\Framework\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @method LsAssociation|null findOneByIdentifier(string $identifier)
+ */
 class LsAssociationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -75,15 +78,15 @@ class LsAssociationRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return LsAssociation[]|null
+     * @return LsAssociation[]
      */
-    public function findAllAssociationsFor(string $identifier): ?array
+    public function findAllAssociationsFor(string $identifier): array
     {
         $item = $this->getEntityManager()->getRepository(LsItem::class)
             ->findOneBy(['identifier' => str_replace('_', '', $identifier)]);
 
         if (null === $item) {
-            return null;
+            return [];
         }
 
         $qry = $this->createQueryBuilder('a')
