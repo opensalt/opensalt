@@ -164,16 +164,7 @@ class UriController extends AbstractController
 
     protected function generateBaseResponse(\DateTimeInterface $lastModified): Response
     {
-        $response = new Response();
-
-        $response->setEtag(md5($lastModified->format('U.u').$this->assetsVersion), true);
-        $response->setLastModified($lastModified);
-        $response->setMaxAge(60);
-        $response->setSharedMaxAge(60);
-        $response->setPublic();
-        $response->setVary(['Accept', 'Accept-Language']);
-
-        return $response;
+        return new Response();
     }
 
     protected function addLinksToHeader(Request $request, string $originalUri): void
