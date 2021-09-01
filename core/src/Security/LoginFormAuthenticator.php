@@ -50,7 +50,9 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
         $csrfToken = $request->request->get('_csrf_token');
         $targetPath = $request->request->get('_target_path');
 
-        $this->saveTargetPath($request->getSession(), 'main', $targetPath);
+        if (null !== $targetPath) {
+            $this->saveTargetPath($request->getSession(), 'main', $targetPath);
+        }
 
         return new Passport(
             new UserBadge($username, function ($userIdentifier) {
