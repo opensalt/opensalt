@@ -11,6 +11,9 @@
             "config/packages/stof_doctrine_extensions.yaml"
         ]
     },
+    "aws/aws-crt-php": {
+        "version": "v1.0.2"
+    },
     "aws/aws-sdk-php": {
         "version": "3.61.6"
     },
