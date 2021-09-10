@@ -15,14 +15,12 @@ use App\Exception\AlreadyLockedException;
 use App\Form\Type\LsDocCreateType;
 use App\Form\Type\LsDocType;
 use App\Form\Type\RemoteCaseServerType;
-use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Client;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -35,19 +33,12 @@ class LsDocController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    public function __construct(private ClientInterface $guzzleJsonClient)
-    {
-    }
-
     /**
      * Lists all LsDoc entities.
      *
      * @Route("/", methods={"GET"}, name="lsdoc_index")
-     * @Template()
-     *
-     * @return array
      */
-    public function indexAction(?UserInterface $user = null)
+    public function indexAction(?UserInterface $user = null): Response
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -65,20 +56,15 @@ class LsDocController extends AbstractController
             }
         }
 
-        return [
-            'lsDocs' => $lsDocs,
-        ];
+        return $this->render('framework/ls_doc/index.html.twig', ['lsDocs' => $lsDocs]);
     }
 
     /**
      * Show frameworks from a remote system.
      *
      * @Route("/remote", methods={"GET", "POST"}, name="lsdoc_remote_index")
-     * @Template()
-     *
-     * @return array
      */
-    public function remoteIndexAction(Request $request)
+    public function remoteIndexAction(Request $request): Response
     {
         $form = $this->createForm(RemoteCaseServerType::class);
         $form->handleRequest($request);
@@ -92,21 +78,22 @@ class LsDocController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_doc/remote_index.html.twig', [
             'form' => $form->createView(),
             'docs' => $docs,
-        ];
+        ]);
     }
 
     protected function loadDocumentsFromServer(string $urlPrefix): \Psr\Http\Message\ResponseInterface
     {
-        $list = $this->guzzleJsonClient->request(
+        $jsonClient = new Client();
+        $list = $jsonClient->request(
             'GET',
             $urlPrefix.'/ims/case/v1p0/CFDocuments',
             [
                 'timeout' => 60,
                 'headers' => [
-                    'Accept' => 'application/json',
+                    'Accept' => 'application/vnd.opensalt+json, application/json;q=0.8',
                 ],
             ]
         );
@@ -118,12 +105,9 @@ class LsDocController extends AbstractController
      * Creates a new LsDoc entity.
      *
      * @Route("/new", methods={"GET", "POST"}, name="lsdoc_new")
-     * @Template()
      * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @return array|RedirectResponse
      */
-    public function newAction(Request $request)
+    public function newAction(Request $request): Response
     {
         $lsDoc = new LsDoc();
         $form = $this->createForm(LsDocCreateType::class, $lsDoc);
@@ -143,34 +127,33 @@ class LsDocController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_doc/new.html.twig', [
             'lsDoc' => $lsDoc,
             'form' => $form->createView(),
-        ];
+        ]);
     }
 
     /**
      * Finds and displays a LsDoc entity.
      *
      * @Route("/{id}.{_format}", methods={"GET"}, defaults={"_format"="html"}, name="lsdoc_show")
-     * @Template()
      * @Security("is_granted('view', lsDoc)")
-     *
-     * @return array
      */
-    public function showAction(LsDoc $lsDoc, $_format = 'html')
+    public function showAction(LsDoc $lsDoc, string $_format = 'html'): Response
     {
         if ('json' === $_format) {
             // Redirect?  Change Action for Template?
-            return ['lsDoc' => $lsDoc];
+            return $this->render('framework/ls_doc/show.json.twig', [
+                'lsDoc' => $lsDoc,
+            ]);
         }
 
         $deleteForm = $this->createDeleteForm($lsDoc);
 
-        return [
+        return $this->render('framework/ls_doc/show.html.twig', [
             'lsDoc' => $lsDoc,
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
@@ -181,7 +164,7 @@ class LsDocController extends AbstractController
      *
      * @deprecated It appears this is unused now
      */
-    public function updateAction(Request $request, LsDoc $lsDoc)
+    public function updateAction(Request $request, LsDoc $lsDoc): Response
     {
         $response = new JsonResponse();
         $fileContent = $request->request->get('content');
@@ -222,13 +205,14 @@ class LsDocController extends AbstractController
      * Displays a form to edit an existing LsDoc entity.
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdoc_edit")
-     * @Template()
      * @Security("is_granted('edit', lsDoc)")
-     *
-     * @return array|RedirectResponse|Response
      */
-    public function editAction(Request $request, LsDoc $lsDoc, UserInterface $user)
+    public function editAction(Request $request, LsDoc $lsDoc, UserInterface $user): Response
     {
+        if (!($user instanceof User)) {
+            throw $this->createAccessDeniedException();
+        }
+
         $ajax = $request->isXmlHttpRequest();
 
         try {
@@ -281,7 +265,7 @@ class LsDocController extends AbstractController
             );
         }
 
-        return $ret;
+        return $this->render('framework/ls_doc/show.html.twig', $ret);
     }
 
     /**
@@ -289,8 +273,6 @@ class LsDocController extends AbstractController
      *
      * @Route("/{id}", methods={"DELETE"}, name="lsdoc_delete")
      * @Security("is_granted('delete', lsDoc)")
-     *
-     * @return JsonResponse|RedirectResponse
      */
     public function deleteAction(Request $request, LsDoc $lsDoc): Response
     {
@@ -323,21 +305,22 @@ class LsDocController extends AbstractController
      * Finds and displays a LsDoc entity.
      *
      * @Route("/{id}/export.{_format}", methods={"GET"}, requirements={"_format"="(json|html|null)"}, defaults={"_format"="json"}, name="lsdoc_export")
-     * @Template()
      * @Security("is_granted('view', lsDoc)")
-     *
-     * @return array
      */
-    public function exportAction(LsDoc $lsDoc, $_format = 'json')
+    public function exportAction(LsDoc $lsDoc, string $_format = 'json'): Response
     {
+        if ('json' !== $_format) {
+            $_format = 'html';
+        }
+
         $items = $this->getDoctrine()
             ->getRepository(LsDoc::class)
             ->findAllChildrenArray($lsDoc);
 
-        return [
+        return $this->render('framework/ls_doc/export.'.$_format.'.twig', [
             'lsDoc' => $lsDoc,
             'items' => $items,
-        ];
+        ]);
     }
 
     /**
@@ -348,7 +331,7 @@ class LsDocController extends AbstractController
     protected function loadDocumentListFromHost(string $hostname): ?array
     {
         // Remove any scheme or path from the passed value
-        $hostname = preg_replace('#^(?:https?://)?([^/]+)(?:/.*)#', '$1', $hostname);
+        $hostname = preg_replace('#^(?:https?://)?([^/]+).*#', '$1', $hostname);
 
         try {
             $remoteResponse = $this->loadDocumentsFromServer(
@@ -366,7 +349,7 @@ class LsDocController extends AbstractController
 
         try {
             $docJson = $remoteResponse->getBody()->getContents();
-            $docs = json_decode($docJson, true);
+            $docs = json_decode($docJson, true, 512, JSON_THROW_ON_ERROR);
             $docs = $docs['CFDocuments'];
             foreach ($docs as $key => $doc) {
                 if (empty($doc['creator'])) {

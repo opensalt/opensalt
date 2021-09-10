@@ -77,27 +77,6 @@
     "composer/package-versions-deprecated": {
         "version": "1.11.99.1"
     },
-    "csa/guzzle-bundle": {
-        "version": "3.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.0",
-            "ref": "37c8c8a6c9b4365529a27975dced0589fea4bb48"
-        },
-        "files": [
-            "config/packages/csa_guzzle.yaml"
-        ]
-    },
-    "csa/guzzle-cache-middleware": {
-        "version": "v1.0.0"
-    },
-    "csa/guzzle-history-middleware": {
-        "version": "v1.0.0"
-    },
-    "csa/guzzle-stopwatch-middleware": {
-        "version": "v1.0.0"
-    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -196,7 +175,7 @@
         "version": "2.1.4"
     },
     "ericmartel/codeception-email": {
-        "version": "1.0.2"
+        "version": "1.0.3"
     },
     "ericmartel/codeception-email-mailtrap": {
         "version": "1.0.5"
@@ -323,9 +302,6 @@
     },
     "myclabs/php-enum": {
         "version": "1.7.6"
-    },
-    "namshi/cuzzle": {
-        "version": "2.0.3"
     },
     "nelmio/cors-bundle": {
         "version": "1.5",
