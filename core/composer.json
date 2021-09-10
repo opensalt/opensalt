@@ -22,6 +22,10 @@
         ]
     },
     "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/opensalt/codeception-email-mailtrap.git"
+        }
     ],
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -38,7 +42,6 @@
         "antishov/doctrine-extensions-bundle": "^1.4.3",
         "colinodell/json5": "^2.1",
         "composer/package-versions-deprecated": "^1.11",
-        "csa/guzzle-bundle": "dev-master#9858ec2472af768a86991ec0cf760208d7df73fb as 3.2.0.1",
         "doctrine/annotations": "^1.0",
         "doctrine/doctrine-bundle": "^2.3.2",
         "doctrine/doctrine-fixtures-bundle": "^3.0",
@@ -48,7 +51,8 @@
         "firebase/php-jwt": "^5.2",
         "gbprod/uuid-normalizer": "^1.1",
         "google/recaptcha": "~1.1",
-        "kamermans/guzzle-oauth2-subscriber": "^1.0.6",
+        "guzzlehttp/guzzle": "^6.5|^7.3",
+        "kamermans/guzzle-oauth2-subscriber": "^1.0.11",
         "laminas/laminas-code": "^4.0",
         "laminas/laminas-escaper": "^2.2",
         "league/csv": "^9.6",
@@ -56,7 +60,6 @@
         "league/oauth2-github": "^3.0",
         "league/uri": "^6.0",
         "milo/github-api": "^1.4",
-        "namshi/cuzzle": "^2.0",
         "nelmio/cors-bundle": "^2.0",
         "nelmio/security-bundle": "^2.7",
         "phpdocumentor/reflection-docblock": "^5.2",
@@ -108,11 +111,11 @@
         "codeception/module-webdriver": "^1.0",
         "codeception/specify": "^1.1",
         "codeception/verify": "^2.0",
-        "ericmartel/codeception-email-mailtrap": "^1.0",
+        "ericmartel/codeception-email-mailtrap": "dev-master#afb827dc34506706f5aa9aa2b041219cc8d6b933 as 1.0.5.1",
         "jetbrains/phpstorm-attributes": "^1.0",
         "league/factory-muffin": "^3.3",
         "league/factory-muffin-faker": "^2.0",
-        "phpunit/phpunit": "^9.0",
+        "phpunit/phpunit": "^9.1",
         "roave/security-advisories": "dev-master",
         "softcreatr/jsonpath": "~0.4",
         "symfony/browser-kit": "5.3.*",

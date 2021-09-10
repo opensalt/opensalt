@@ -18,7 +18,7 @@ use App\Entity\Framework\ObjectLock;
 use App\Entity\User\User;
 use App\Form\Type\LsDocListType;
 use App\Util\Compare;
-use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -45,7 +45,6 @@ class DocTreeController extends AbstractController
     private const ETAG_SEED = '2';
 
     public function __construct(
-        private ClientInterface $guzzleJsonClient,
         private PdoAdapter $externalDocCache,
         private ?string $caseNetworkClientId,
         private ?string $caseNetworkClientSecret,
@@ -323,7 +322,7 @@ class DocTreeController extends AbstractController
         );
     }
 
-    protected function isCaseUrl($url): bool
+    protected function isCaseNetworkUrl(string $url): bool
     {
         preg_match('|casenetwork\.imsglobal\.org|', $url, $matches);
         if (!empty($matches)) {
@@ -333,13 +332,11 @@ class DocTreeController extends AbstractController
         return false;
     }
 
-    /**
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    protected function retrieveCaseNetworkBearerToken()
+    protected function retrieveCaseNetworkBearerToken(): string
     {
         try {
-            $response = $this->guzzleJsonClient->request(
+            $jsonClient = new Client();
+            $response = $jsonClient->request(
                 'POST',
                 $this->caseNetworkTokenEndpoint,
                 [
@@ -358,7 +355,7 @@ class DocTreeController extends AbstractController
                 ]
             );
 
-            return json_decode($response->getBody(), false)->access_token;
+            return json_decode($response->getBody(), false, 512, JSON_THROW_ON_ERROR)->access_token;
         } catch (RequestException $e) {
             $message = $e->getHandlerContext();
 
@@ -609,17 +606,15 @@ class DocTreeController extends AbstractController
         }
     }
 
-    /**
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
     protected function fetchExternalDocument(string $url): string
     {
         $headers = [
-            'Accept' => 'application/json, application/x.opensalt+json;q=0.1',
+            'Accept' => 'application/vnd.opensalt+json, application/json;q=0.9, text/plain;q=0.2, */*;q=0.1',
         ];
         $headers = $this->addAuthentication($url, $headers);
 
-        $extDoc = $this->guzzleJsonClient->request(
+        $jsonClient = new Client();
+        $extDoc = $jsonClient->request(
             'GET',
             $url,
             [
@@ -632,13 +627,10 @@ class DocTreeController extends AbstractController
         return $extDoc->getBody()->getContents();
     }
 
-    /**
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
     protected function addAuthentication(string $url, array $headers): array
     {
-        // Check for CASE urls:
-        if ($this->isCaseUrl($url)) {
+        // Check for CASE Network urls
+        if ($this->isCaseNetworkUrl($url)) {
             $headers = array_merge([
                 'Authorization' => 'Bearer '.$this->retrieveCaseNetworkBearerToken(),
             ], $headers);

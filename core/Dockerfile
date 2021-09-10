@@ -33,7 +33,13 @@ RUN apk add --no-cache \
 		file \
 		gettext \
 		git \
+		gnu-libiconv \
 	;
+
+# install gnu-libiconv and set LD_PRELOAD env to make iconv work fully on Alpine image.
+# see https://github.com/docker-library/php/issues/240#issuecomment-763112749
+ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so
+
 
 ARG DOCKERIZE_VERSION=v0.6.1
 RUN curl -LsS https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \

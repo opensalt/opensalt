@@ -13,16 +13,13 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Client;
 use Ramsey\Uuid\Uuid;
 
 class AsnImport
 {
-    private ClientInterface $jsonClient;
-
-    public function __construct(private EntityManagerInterface $em, ClientInterface $guzzleJsonClient)
+    public function __construct(private EntityManagerInterface $em)
     {
-        $this->jsonClient = $guzzleJsonClient;
     }
 
     protected function getEntityManager(): EntityManagerInterface
@@ -31,7 +28,7 @@ class AsnImport
     }
 
     /**
-     * Parse an ASN document into a LsDoc/LsItem hierarchy
+     * Parse an ASN document into a LsDoc/LsItem hierarchy.
      */
     public function parseAsnDocument(string $asnDoc, ?string $creator = null): LsDoc
     {
@@ -101,7 +98,6 @@ class AsnImport
         return $lsDoc;
     }
 
-
     public function parseAsnStandard(AsnDocument $doc, LsDoc $lsDoc, AsnStandard $asnStandard): LsItem
     {
         $em = $this->getEntityManager();
@@ -169,7 +165,6 @@ class AsnImport
         return $lsItem;
     }
 
-
     public function generateFrameworkFromAsn(string $asnLocator, ?string $creator = null): LsDoc
     {
         $asnDoc = $this->fetchAsnDocument($asnLocator);
@@ -223,7 +218,7 @@ class AsnImport
      */
     public function requestAsnDocument(string $url): string
     {
-        $jsonClient = $this->jsonClient;
+        $jsonClient = new Client();
 
         $asnResponse = $jsonClient->request(
             'GET',
@@ -237,7 +232,7 @@ class AsnImport
             ]
         );
 
-        if ($asnResponse->getStatusCode() !== 200) {
+        if (200 !== $asnResponse->getStatusCode()) {
             throw new \Exception('Error getting document from ASN.');
         }
 
@@ -278,7 +273,6 @@ class AsnImport
         return $levels;
     }
 
-
     protected function addItemType(string $label): LsDefItemType
     {
         $itemType = new LsDefItemType();
@@ -299,7 +293,6 @@ class AsnImport
             $this->addExactMatch($lsDoc, $origin, $matching);
         }
     }
-
 
     protected function addExactMatch(LsDoc $lsDoc, IdentifiableInterface $origin, AsnValue $matching): LsAssociation
     {

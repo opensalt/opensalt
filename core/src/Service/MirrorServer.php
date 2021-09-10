@@ -11,9 +11,9 @@ use App\Form\DTO\MirroredFrameworkDTO;
 use App\Form\DTO\MirroredServerDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\RequestOptions;
 use kamermans\OAuth2\Exception\AccessTokenRequestException;
 use kamermans\OAuth2\GrantType\ClientCredentials;
@@ -26,11 +26,8 @@ class MirrorServer
     use LoggerTrait;
 
     public function __construct(
-        private ClientInterface $guzzleJsonClient,
-        private iterable $csaMiddleware,
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function fetchDocumentList(Server $server): array
@@ -201,21 +198,27 @@ class MirrorServer
 
     public function fetchUrlWithCredentials(string $url, ?OAuthCredential $credentials = null): string
     {
+        $stack = HandlerStack::create();
+
         if (null !== $credentials) {
             $oauth = $this->createOAuthHandler($credentials);
-            $this->guzzleJsonClient->getConfig('handler')->push($oauth);
+            $stack->push($oauth);
         }
+
+        $jsonClient = new Client([
+            'handler' => $stack,
+        ]);
 
         try {
             /** @noinspection PhpUnhandledExceptionInspection */
-            $response = $this->guzzleJsonClient->request(
+            $response = $jsonClient->request(
                 'GET',
                 $url,
                 [
                     RequestOptions::AUTH => (null !== $credentials) ? 'oauth' : null,
                     RequestOptions::TIMEOUT => 300,
                     RequestOptions::HEADERS => [
-                        'Accept' => 'application/json',
+                        'Accept' => 'application/json;q=0.8',
                     ],
                     RequestOptions::HTTP_ERRORS => false,
                 ]
@@ -226,7 +229,7 @@ class MirrorServer
              * @psalm-suppress UndefinedDocblockClass
              */
             $guzzleException = $e->getGuzzleException();
-            $this->warning('Error authenticating to server', ['exception' => $guzzleException->getMessage()]);
+            $this->warning('Error authenticating to server', ['message' => $e->getMessage(), 'exception' => $guzzleException->getMessage()]);
 
             throw new \RuntimeException('Error authenticating to server: '.$guzzleException->getMessage(), 0, $e);
         } catch (RequestException $e) {
@@ -237,10 +240,6 @@ class MirrorServer
             $this->warning('Error requesting URL from server', ['exception' => $e->getMessage()]);
 
             throw new \RuntimeException('Error requesting URL from server.', 0, $e);
-        } finally {
-            if (isset($oauth)) {
-                $this->guzzleJsonClient->getConfig('handler')->remove($oauth);
-            }
         }
 
         if (200 !== $response->getStatusCode()) {
@@ -257,10 +256,6 @@ class MirrorServer
         $authClient = new Client([
             'base_uri' => $credentials->getAuthenticationEndpoint(),
         ]);
-        $authClientHandler = $authClient->getConfig('handler');
-        foreach ($this->csaMiddleware as $middleware) {
-            $authClientHandler->push($middleware);
-        }
 
         $authConfig = [
             'client_id' => $credentials->getKey(),
@@ -271,7 +266,7 @@ class MirrorServer
         $grantType = new ClientCredentials($authClient, $authConfig);
         $oauth = new OAuth2Middleware($grantType);
 
-        $tokenFile = '/tmp/access_token.json';
+        $tokenFile = '/tmp/access_token_'.$credentials->getId().'.json';
         $tokenPersistence = new FileTokenPersistence($tokenFile);
         $oauth->setTokenPersistence($tokenPersistence);
 

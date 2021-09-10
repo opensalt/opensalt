@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "190bb6f5357ea8c3188c2c127e7317c9",
+    "content-hash": "8d82c9aabbfacdfca168d1996046a370",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -136,16 +136,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.193.0",
+            "version": "3.193.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "418ff1173253b8d0fd8e50eeb9ca15b51ab24e4a"
+                "reference": "5294e06519479b9f41d6e18a88d077c4837a58ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/418ff1173253b8d0fd8e50eeb9ca15b51ab24e4a",
-                "reference": "418ff1173253b8d0fd8e50eeb9ca15b51ab24e4a",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/5294e06519479b9f41d6e18a88d077c4837a58ff",
+                "reference": "5294e06519479b9f41d6e18a88d077c4837a58ff",
                 "shasum": ""
             },
             "require": {
@@ -221,9 +221,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.193.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.193.1"
             },
-            "time": "2021-09-08T18:14:42+00:00"
+            "time": "2021-09-09T18:28:04+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -573,238 +573,6 @@
                 }
             ],
             "time": "2021-08-17T13:49:14+00:00"
-        },
-        {
-            "name": "csa/guzzle-bundle",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/csarrazi/CsaGuzzleBundle.git",
-                "reference": "9858ec2472af768a86991ec0cf760208d7df73fb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/csarrazi/CsaGuzzleBundle/zipball/9858ec2472af768a86991ec0cf760208d7df73fb",
-                "reference": "9858ec2472af768a86991ec0cf760208d7df73fb",
-                "shasum": ""
-            },
-            "require": {
-                "csa/guzzle-cache-middleware": "^1.0.0",
-                "csa/guzzle-history-middleware": "^1.0.0",
-                "csa/guzzle-stopwatch-middleware": "^1.0.0",
-                "guzzlehttp/guzzle": "^6.1 || ^7.0",
-                "php": "^7.1 || ^8.0",
-                "symfony/dependency-injection": "^2.8 || ^3.0 || ^4.0 || ^5.0",
-                "symfony/filesystem": "^2.8 || ^3.0 || ^4.0 || ^5.0",
-                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0",
-                "twig/twig": "^2.10 || ^3.0"
-            },
-            "require-dev": {
-                "namshi/cuzzle": "^2.0",
-                "phpunit/phpunit": "^7.0",
-                "symfony/phpunit-bridge": "^2.8 || ^3.0 || ^4.0 || ^5.0",
-                "symfony/web-profiler-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0",
-                "symfony/yaml": "^2.8 || ^3.0 || ^4.0 || ^5.0"
-            },
-            "suggest": {
-                "doctrine/cache": "Allows caching of responses",
-                "namshi/cuzzle": "Output command to repeat request in command line",
-                "psr/cache": "Allows caching of responses",
-                "tolerance/tolerance": "Allows retrying failed requests"
-            },
-            "default-branch": true,
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-2.x": "2.3-dev",
-                    "dev-master": "4.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Csa\\Bundle\\GuzzleBundle\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Charles Sarrazin",
-                    "email": "charles@sarraz.in"
-                }
-            ],
-            "description": "A bundle integrating GuzzleHttp >= 4.0",
-            "support": {
-                "issues": "https://github.com/csarrazi/CsaGuzzleBundle/issues",
-                "source": "https://github.com/csarrazi/CsaGuzzleBundle/tree/master"
-            },
-            "abandoned": "symfony/http-client",
-            "time": "2021-07-01T09:21:11+00:00"
-        },
-        {
-            "name": "csa/guzzle-cache-middleware",
-            "version": "v1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/csarrazi/guzzle-cache-middleware.git",
-                "reference": "2ff242e660900ab6b8bcf64be2c76c0d6af61c8b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/csarrazi/guzzle-cache-middleware/zipball/2ff242e660900ab6b8bcf64be2c76c0d6af61c8b",
-                "reference": "2ff242e660900ab6b8bcf64be2c76c0d6af61c8b",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^6.1",
-                "php": ">=5.6.0",
-                "symfony/filesystem": "^2.7|^3.0|^4.0|^5.0"
-            },
-            "require-dev": {
-                "doctrine/cache": "^1.1",
-                "phpunit/phpunit": "^4.8",
-                "psr/cache": "^1.0",
-                "symfony/phpunit-bridge": "^2.7|^3.0|^4.0|^5.0"
-            },
-            "suggest": {
-                "doctrine/cache": "Allows caching of responses",
-                "namshi/cuzzle": "Output command to repeat request in command line",
-                "psr/cache": "Allows caching of responses",
-                "tolerance/tolerance": "Allows retrying failed requests"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Csa\\GuzzleHttp\\Middleware\\Cache\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Charles Sarrazin",
-                    "email": "charles@sarraz.in"
-                }
-            ],
-            "description": "A Cache middleware for GuzzleHttp >= 6.0",
-            "support": {
-                "issues": "https://github.com/csarrazi/guzzle-cache-middleware/issues",
-                "source": "https://github.com/csarrazi/guzzle-cache-middleware/tree/master"
-            },
-            "abandoned": "kevinrob/guzzle-cache-middleware",
-            "time": "2019-11-26T09:34:53+00:00"
-        },
-        {
-            "name": "csa/guzzle-history-middleware",
-            "version": "v1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/csarrazi/guzzle-history-middleware.git",
-                "reference": "ee0c1228f114113c3af8feb36c4c4e7dd3b30209"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/csarrazi/guzzle-history-middleware/zipball/ee0c1228f114113c3af8feb36c4c4e7dd3b30209",
-                "reference": "ee0c1228f114113c3af8feb36c4c4e7dd3b30209",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^6.1",
-                "php": ">=5.6.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8",
-                "symfony/phpunit-bridge": "^2.7|^3.0|^4.0|^5.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Csa\\GuzzleHttp\\Middleware\\History\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Charles Sarrazin",
-                    "email": "charles@sarraz.in"
-                }
-            ],
-            "description": "A History middleware for GuzzleHttp >= 6.0",
-            "support": {
-                "issues": "https://github.com/csarrazi/guzzle-history-middleware/issues",
-                "source": "https://github.com/csarrazi/guzzle-history-middleware/tree/master"
-            },
-            "abandoned": true,
-            "time": "2019-11-26T09:34:58+00:00"
-        },
-        {
-            "name": "csa/guzzle-stopwatch-middleware",
-            "version": "v1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/csarrazi/guzzle-stopwatch-middleware.git",
-                "reference": "9fa43b92a5d80ce86c2d999782e75f45da180aa9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/csarrazi/guzzle-stopwatch-middleware/zipball/9fa43b92a5d80ce86c2d999782e75f45da180aa9",
-                "reference": "9fa43b92a5d80ce86c2d999782e75f45da180aa9",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^6.1",
-                "php": ">=5.6.0",
-                "symfony/stopwatch": "^2.7|^3.0|^4.0|^5.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8",
-                "symfony/phpunit-bridge": "^2.7|^3.0|^4.0|^5.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Csa\\GuzzleHttp\\Middleware\\Stopwatch\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Charles Sarrazin",
-                    "email": "charles@sarraz.in"
-                }
-            ],
-            "description": "A Stopwatch middleware for GuzzleHttp >= 6.0",
-            "support": {
-                "issues": "https://github.com/csarrazi/guzzle-stopwatch-middleware/issues",
-                "source": "https://github.com/csarrazi/guzzle-stopwatch-middleware/tree/master"
-            },
-            "abandoned": true,
-            "time": "2019-11-26T09:35:03+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -2784,37 +2552,44 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "6.5.5",
+            "version": "7.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "9d4290de1cfd701f38099ef7e183b64b4b7b0c5e"
+                "reference": "7008573787b430c1c1f650e3722d9bba59967628"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/9d4290de1cfd701f38099ef7e183b64b4b7b0c5e",
-                "reference": "9d4290de1cfd701f38099ef7e183b64b4b7b0c5e",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/7008573787b430c1c1f650e3722d9bba59967628",
+                "reference": "7008573787b430c1c1f650e3722d9bba59967628",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp/promises": "^1.0",
-                "guzzlehttp/psr7": "^1.6.1",
-                "php": ">=5.5",
-                "symfony/polyfill-intl-idn": "^1.17.0"
+                "guzzlehttp/promises": "^1.4",
+                "guzzlehttp/psr7": "^1.7 || ^2.0",
+                "php": "^7.2.5 || ^8.0",
+                "psr/http-client": "^1.0"
+            },
+            "provide": {
+                "psr/http-client-implementation": "1.0"
             },
             "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.4.1",
                 "ext-curl": "*",
-                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.4 || ^7.0",
+                "php-http/client-integration-tests": "^3.0",
+                "phpunit/phpunit": "^8.5.5 || ^9.3.5",
                 "psr/log": "^1.1"
             },
             "suggest": {
+                "ext-curl": "Required for CURL handler support",
+                "ext-intl": "Required for Internationalized Domain Name (IDN) support",
                 "psr/log": "Required for using the Log middleware"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "6.5-dev"
+                    "dev-master": "7.3-dev"
                 }
             },
             "autoload": {
@@ -2834,6 +2609,11 @@
                     "name": "Michael Dowling",
                     "email": "mtdowling@gmail.com",
                     "homepage": "https://github.com/mtdowling"
+                },
+                {
+                    "name": "Márk Sági-Kazár",
+                    "email": "mark.sagikazar@gmail.com",
+                    "homepage": "https://sagikazarmark.hu"
                 }
             ],
             "description": "Guzzle is a PHP HTTP client library",
@@ -2844,14 +2624,34 @@
                 "framework",
                 "http",
                 "http client",
+                "psr-18",
+                "psr-7",
                 "rest",
                 "web service"
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/6.5"
+                "source": "https://github.com/guzzle/guzzle/tree/7.3.0"
             },
-            "time": "2020-06-16T21:01:06+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/GrahamCampbell",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/Nyholm",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/alexeyshockov",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/gmponos",
+                    "type": "github"
+                }
+            ],
+            "time": "2021-03-23T11:33:13+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -4378,60 +4178,6 @@
                 }
             ],
             "time": "2021-07-05T08:18:36+00:00"
-        },
-        {
-            "name": "namshi/cuzzle",
-            "version": "2.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/namshi/cuzzle.git",
-                "reference": "89849bb9c729a3d8aabf94c0b66e77c7df38abda"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/namshi/cuzzle/zipball/89849bb9c729a3d8aabf94c0b66e77c7df38abda",
-                "reference": "89849bb9c729a3d8aabf94c0b66e77c7df38abda",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^6.0",
-                "php": ">=5.5.0",
-                "psr/log": "^1.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.2.2"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Namshi\\Cuzzle\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nikita Nefedov",
-                    "email": "inefedor@gmail.com"
-                },
-                {
-                    "name": "cirpo",
-                    "email": "alessandro.cinelli@gmail.com"
-                }
-            ],
-            "description": "Get the cURL shell command from a Guzzle request",
-            "support": {
-                "issues": "https://github.com/namshi/cuzzle/issues",
-                "source": "https://github.com/namshi/cuzzle/tree/master"
-            },
-            "time": "2016-11-23T08:01:36+00:00"
         },
         {
             "name": "nelmio/cors-bundle",
@@ -12068,29 +11814,29 @@
         },
         {
             "name": "ericmartel/codeception-email-mailtrap",
-            "version": "1.0.5",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/ericmartel/codeception-email-mailtrap.git",
-                "reference": "996cad23d3963632306d1e0a101db9bd44635e5d"
+                "url": "https://github.com/opensalt/codeception-email-mailtrap.git",
+                "reference": "afb827dc34506706f5aa9aa2b041219cc8d6b933"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ericmartel/codeception-email-mailtrap/zipball/996cad23d3963632306d1e0a101db9bd44635e5d",
-                "reference": "996cad23d3963632306d1e0a101db9bd44635e5d",
+                "url": "https://api.github.com/repos/opensalt/codeception-email-mailtrap/zipball/afb827dc34506706f5aa9aa2b041219cc8d6b933",
+                "reference": "afb827dc34506706f5aa9aa2b041219cc8d6b933",
                 "shasum": ""
             },
             "require": {
                 "ericmartel/codeception-email": "^1.0",
-                "guzzlehttp/guzzle": "^6.1"
+                "guzzlehttp/guzzle": "^6.1|^7.0"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Codeception\\Module\\": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -12102,10 +11848,9 @@
             ],
             "description": "Provides test helpers for Codeception when testing email functionality with Mailtrap",
             "support": {
-                "issues": "https://github.com/ericmartel/codeception-email-mailtrap/issues",
-                "source": "https://github.com/ericmartel/codeception-email-mailtrap/tree/master"
+                "source": "https://github.com/opensalt/codeception-email-mailtrap/tree/master"
             },
-            "time": "2017-04-21T13:22:18+00:00"
+            "time": "2021-09-10T17:29:20+00:00"
         },
         {
             "name": "fakerphp/faker",
@@ -12850,33 +12595,33 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.13.0",
+            "version": "1.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "be1996ed8adc35c3fd795488a653f4b518be70ea"
+                "reference": "d86dfc2e2a3cd366cee475e52c6bb3bbc371aa0e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/be1996ed8adc35c3fd795488a653f4b518be70ea",
-                "reference": "be1996ed8adc35c3fd795488a653f4b518be70ea",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/d86dfc2e2a3cd366cee475e52c6bb3bbc371aa0e",
+                "reference": "d86dfc2e2a3cd366cee475e52c6bb3bbc371aa0e",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "^1.2",
-                "php": "^7.2 || ~8.0, <8.1",
+                "php": "^7.2 || ~8.0, <8.2",
                 "phpdocumentor/reflection-docblock": "^5.2",
                 "sebastian/comparator": "^3.0 || ^4.0",
                 "sebastian/recursion-context": "^3.0 || ^4.0"
             },
             "require-dev": {
-                "phpspec/phpspec": "^6.0",
+                "phpspec/phpspec": "^6.0 || ^7.0",
                 "phpunit/phpunit": "^8.0 || ^9.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.11.x-dev"
+                    "dev-master": "1.x-dev"
                 }
             },
             "autoload": {
@@ -12911,9 +12656,9 @@
             ],
             "support": {
                 "issues": "https://github.com/phpspec/prophecy/issues",
-                "source": "https://github.com/phpspec/prophecy/tree/1.13.0"
+                "source": "https://github.com/phpspec/prophecy/tree/1.14.0"
             },
-            "time": "2021-03-17T13:42:18+00:00"
+            "time": "2021-09-10T09:02:12+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -13342,12 +13087,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "07bff2dda1a042b95afcbdb1542e6123829a4ed6"
+                "reference": "8cebf1673eccd7e6552732142039c147c1023214"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/07bff2dda1a042b95afcbdb1542e6123829a4ed6",
-                "reference": "07bff2dda1a042b95afcbdb1542e6123829a4ed6",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/8cebf1673eccd7e6552732142039c147c1023214",
+                "reference": "8cebf1673eccd7e6552732142039c147c1023214",
                 "shasum": ""
             },
             "conflict": {
@@ -13454,6 +13199,7 @@
                 "grumpydictator/firefly-iii": "<5.6",
                 "guzzlehttp/guzzle": ">=4-rc.2,<4.2.4|>=5,<5.3.1|>=6,<6.2.1",
                 "helloxz/imgurl": "<=2.31",
+                "icecoder/icecoder": "<=8",
                 "illuminate/auth": ">=4,<4.0.99|>=4.1,<=4.1.31|>=4.2,<=4.2.22|>=5,<=5.0.35|>=5.1,<=5.1.46|>=5.2,<=5.2.45|>=5.3,<=5.3.31|>=5.4,<=5.4.36|>=5.5,<5.5.10",
                 "illuminate/cookie": ">=4,<=4.0.11|>=4.1,<=4.1.99999|>=4.2,<=4.2.99999|>=5,<=5.0.99999|>=5.1,<=5.1.99999|>=5.2,<=5.2.99999|>=5.3,<=5.3.99999|>=5.4,<=5.4.99999|>=5.5,<=5.5.49|>=5.6,<=5.6.99999|>=5.7,<=5.7.99999|>=5.8,<=5.8.99999|>=6,<6.18.31|>=7,<7.22.4",
                 "illuminate/database": "<6.20.26|>=7,<8.40",
@@ -13732,7 +13478,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-09-08T18:03:47+00:00"
+            "time": "2021-09-09T17:11:22+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -15439,15 +15185,15 @@
     ],
     "aliases": [
         {
-            "package": "csa/guzzle-bundle",
+            "package": "ericmartel/codeception-email-mailtrap",
             "version": "9999999-dev",
-            "alias": "3.2.0.1",
-            "alias_normalized": "3.2.0.1"
+            "alias": "1.0.5.1",
+            "alias_normalized": "1.0.5.1"
         }
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "csa/guzzle-bundle": 20,
+        "ericmartel/codeception-email-mailtrap": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,
