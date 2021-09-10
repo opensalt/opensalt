@@ -209,10 +209,6 @@ class LsDocController extends AbstractController
      */
     public function editAction(Request $request, LsDoc $lsDoc, UserInterface $user): Response
     {
-        if (!($user instanceof User)) {
-            throw $this->createAccessDeniedException();
-        }
-
         $ajax = $request->isXmlHttpRequest();
 
         try {
@@ -265,7 +261,7 @@ class LsDocController extends AbstractController
             );
         }
 
-        return $this->render('framework/ls_doc/show.html.twig', $ret);
+        return $this->render('framework/ls_doc/edit.html.twig', $ret);
     }
 
     /**
