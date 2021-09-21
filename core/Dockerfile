@@ -5,7 +5,6 @@
 ARG NODE_VERSION=14
 ARG PHP_VERSION=8.0
 ARG CADDY_VERSION=2
-ARG MERCURE_VERSION=v0.11
 #=======================================================================
 FROM node:${NODE_VERSION}-alpine AS salt_core_js_build
 
@@ -215,6 +214,7 @@ RUN set -eux; \
 #=======================================================================
 FROM caddy:${CADDY_VERSION}-builder-alpine AS salt_core_caddy_builder
 
+# install Mercure and Vulcain modules
 ARG XCADDY_SKIP_CLEANUP=0
 RUN xcaddy build \
     --with github.com/dunglas/mercure \
@@ -223,14 +223,10 @@ RUN xcaddy build \
     --with github.com/dunglas/vulcain/caddy
 
 #=======================================================================
-FROM dunglas/mercure:${MERCURE_VERSION} as mercure_build
-
-#=======================================================================
 FROM caddy:${CADDY_VERSION} AS salt_core_caddy
 
 WORKDIR /srv/core
 
-COPY --from=mercure_build /srv/public /srv/mercure-assets/
 COPY --from=salt_core_caddy_builder /usr/bin/caddy /usr/bin/caddy
 COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
 COPY docker/caddy/docker-healthcheck /usr/local/bin/
