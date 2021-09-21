@@ -42,5 +42,5 @@ services:
       - ./core/docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./core/public:/srv/core/public:ro
     environment:
-      MERCURE_EXTRA_DIRECTIVES: demo /srv/mercure-assets/
+      MERCURE_EXTRA_DIRECTIVES: demo
 
