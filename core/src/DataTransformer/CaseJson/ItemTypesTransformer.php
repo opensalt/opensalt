@@ -58,7 +58,9 @@ class ItemTypesTransformer
         $type = $this->findOrCreateItemType($cfItemType, $existingItemTypes);
         $type->setUri($cfItemType->uri);
         $type->setTitle($cfItemType->title);
-        $type->setDescription($cfItemType->description);
+        // Substitute title if description does not exist (as it is required)
+        //  - Added as CPALMS does not have description in their payload
+        $type->setDescription($cfItemType->description ?? $cfItemType->title);
         $type->setCode($cfItemType->typeCode);
         $type->setHierarchyCode($cfItemType->hierarchyCode);
         $type->setChangedAt($cfItemType->lastChangeDateTime);
