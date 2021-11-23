@@ -53,7 +53,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->from($this->getClassMetadata()->getTableName(), 'a')
             ->where('a.doc_id = :doc_id')
             ->setParameter('doc_id', $doc->getId())
-            ->execute()
+            ->executeQuery()
             ->fetchAssociative();
     }
 
@@ -64,7 +64,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->from($this->getClassMetadata()->getTableName(), 'a')
             ->where('a.doc_id = :doc_id')
             ->setParameter('doc_id', $doc->getId())
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
     }
 
@@ -100,7 +100,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->select('count(*)')
             ->from($this->getClassMetadata()->getTableName(), 'a')
             ->where('a.doc_id IS NULL')
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
     }
 
