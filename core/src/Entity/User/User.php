@@ -87,7 +87,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
     /**
      * @var string[]
      *
-     * @ORM\Column(name="roles", type="json_array", nullable=true)
+     * @ORM\Column(name="roles", type="json", nullable=true)
      */
     protected $roles = [];
 
