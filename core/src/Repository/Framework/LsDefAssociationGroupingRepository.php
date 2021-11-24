@@ -7,28 +7,12 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefAssociationGrouping|null findOneByIdentifier(string $identifier)
+ * @method LsDefAssociationGrouping[] findByIdentifier(array $identifiers)
  */
 class LsDefAssociationGroupingRepository extends AbstractLsDefinitionRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, LsDefAssociationGrouping::class);
-    }
-
-    /**
-     * @param string[] $identifiers
-     *
-     * @return LsDefAssociationGrouping[]
-     */
-    public function findByIdentifiers(array $identifiers): array
-    {
-        if (0 === count($identifiers)) {
-            return [];
-        }
-
-        $qb = $this->createQueryBuilder('t', 't.identifier');
-        $qb->where($qb->expr()->in('t.identifier', $identifiers));
-
-        return $qb->getQuery()->getResult();
     }
 }

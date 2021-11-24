@@ -47,7 +47,7 @@ class AssociationGroupingsTransformer
             return $group->identifier->toString();
         }, $cfAssociationGroupings);
 
-        return $repo->findByIdentifiers($newIds);
+        return $repo->findByIdentifier($newIds);
     }
 
     /**

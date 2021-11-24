@@ -59,7 +59,7 @@ class RubricsTransformer
             return $rubric->identifier->toString();
         }, $cfRubrics);
 
-        return $this->em->getRepository(CfRubric::class)->findByIdentifiers($identifiers);
+        return $this->em->getRepository(CfRubric::class)->findByIdentifier($identifiers);
     }
 
     private function createRubric(CFPackageRubric $cfRubric): CfRubric

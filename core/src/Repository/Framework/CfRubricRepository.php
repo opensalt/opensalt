@@ -17,7 +17,7 @@ class CfRubricRepository extends AbstractLsBaseRepository
      *
      * @return CfRubric[]
      */
-    public function findByIdentifiers(array $identifiers): array
+    public function findByIdentifier(array $identifiers): array
     {
         if (0 === count($identifiers)) {
             return [];
