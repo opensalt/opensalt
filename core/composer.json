@@ -85,7 +85,7 @@
         "symfony/property-access": "5.3.*",
         "symfony/property-info": "5.3.*",
         "symfony/proxy-manager-bridge": "5.3.*",
-        "symfony/security-bundle": "5.3.*",
+        "symfony/security-bundle": "5.4.*",
         "symfony/security-csrf": "5.3.*",
         "symfony/serializer": "5.3.*",
         "symfony/swiftmailer-bundle": "^3.2",
