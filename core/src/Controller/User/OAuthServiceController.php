@@ -5,6 +5,7 @@ namespace App\Controller\User;
 use App\Command\CommandDispatcherTrait;
 use App\Command\User\UpdateUserCommand;
 use App\Entity\User\User;
+use Doctrine\Persistence\ManagerRegistry;
 use League\OAuth2\Client\Provider\Github;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -53,7 +54,7 @@ class OAuthServiceController extends AbstractController
      *
      * @throws \UnexpectedValueException
      */
-    public function githubAction(Request $request, SessionInterface $session): Response
+    public function githubAction(Request $request, SessionInterface $session, ManagerRegistry $managerRegistry): Response
     {
         if (!empty($this->githubRedirectUri)) {
             $redirectUri = $this->githubRedirectUri;
@@ -77,6 +78,9 @@ class OAuthServiceController extends AbstractController
 
         // User logged in
         $currentUser = $this->getUser();
+        if (!$currentUser instanceof User) {
+            throw new \UnexpectedValueException('Invalid user.');
+        }
 
         if (!isset($code)) {
             $options = [
@@ -87,7 +91,7 @@ class OAuthServiceController extends AbstractController
             $session->set('oauth2state', $provider->getState());
 
             return $this->redirect($authUrl);
-        // Check given state against previously stored one to mitigate CSRF attack
+            // Check given state against previously stored one to mitigate CSRF attack
         }
 
         if (empty($state) || ($state !== $session->get('oauth2state'))) {
@@ -101,7 +105,7 @@ class OAuthServiceController extends AbstractController
             'code' => $code,
         ]);
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $managerRegistry->getManager();
         $user = $em->getRepository(User::class)->find($currentUser->getId());
         if (null === $user) {
             throw new \UnexpectedValueException('Invalid user.');
