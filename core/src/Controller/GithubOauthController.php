@@ -65,10 +65,6 @@ class GithubOauthController extends AbstractController
     {
         $currentUser = $this->getUser();
         $response = new JsonResponse();
-        $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
-        $api = new \Milo\Github\Api();
-        $api->setToken($token);
-
         if (!$currentUser instanceof User) {
             $response->setStatusCode(401);
 
@@ -76,6 +72,10 @@ class GithubOauthController extends AbstractController
                 'message' => 'Please log in.',
             ]);
         }
+
+        $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
+        $api = new \Milo\Github\Api();
+        $api->setToken($token);
 
         $owner = $request->query->get('owner');
         $repoName = $request->query->get('repo');
