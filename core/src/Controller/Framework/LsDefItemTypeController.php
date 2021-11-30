@@ -8,6 +8,7 @@ use App\Command\Framework\DeleteItemTypeCommand;
 use App\Command\Framework\UpdateItemTypeCommand;
 use App\Entity\Framework\LsDefItemType;
 use App\Form\Type\LsDefItemTypeType;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +26,11 @@ class LsDefItemTypeController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all LsDefItemType entities.
      *
@@ -35,7 +41,7 @@ class LsDefItemTypeController extends AbstractController
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $lsDefItemTypes = $em->getRepository(LsDefItemType::class)->findBy([], null, 100);
 
@@ -55,7 +61,7 @@ class LsDefItemTypeController extends AbstractController
     public function jsonListAction(Request $request)
     {
         // ?page_limit=N&q=SEARCHTEXT
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $search = $request->query->get('q', null);
         $page = $request->query->get('page', '1');

@@ -8,6 +8,7 @@ use App\Form\DTO\MirroredServerDTO;
 use App\Form\Type\MirroredServerDTOType;
 use App\Repository\Framework\Mirror\ServerRepository;
 use App\Service\MirrorServer;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
@@ -21,6 +22,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ServerController extends AbstractController
 {
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * @Route("/", name="mirror_server_index")
      */
@@ -106,7 +112,7 @@ class ServerController extends AbstractController
             $server->setCredentials($serverDto->credentials);
             $server->setAddFoundFrameworks($serverDto->autoAddFoundFrameworks);
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->managerRegistry->getManager()->flush();
 
             $mirrorService->updateFrameworkList($server);
 
@@ -165,7 +171,7 @@ class ServerController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->managerRegistry->getManager();
 
             foreach ($server->getFrameworks() as $framework) {
                 $doc = $framework->getFramework();

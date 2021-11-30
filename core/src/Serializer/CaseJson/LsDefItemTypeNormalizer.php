@@ -45,7 +45,7 @@ final class LsDefItemTypeNormalizer implements ContextAwareNormalizerInterface
             'uri' => $this->api1Uris->getUri($object),
             'title' => $object->getTitle(),
             'lastChangeDateTime' => $this->getLastChangeDateTime($object),
-            'description' => $object->getDescription(),
+            'description' => $object->getDescription() ?? $object->getTitle(),
             'typeCode' => $object->getCode(),
             'hierarchyCode' => $object->getHierarchyCode(),
         ];

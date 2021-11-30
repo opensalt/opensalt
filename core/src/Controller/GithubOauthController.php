@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User\User;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,6 +25,14 @@ class GithubOauthController extends AbstractController
     {
         $currentUser = $this->getUser();
         $response = new JsonResponse();
+
+        if (!$currentUser instanceof User) {
+            $response->setStatusCode(401);
+
+            return $response->setData([
+                'message' => 'Please log in.',
+            ]);
+        }
 
         if (!empty($currentUser->getGithubToken())) {
             $page = $request->query->get('page');
@@ -56,6 +65,14 @@ class GithubOauthController extends AbstractController
     {
         $currentUser = $this->getUser();
         $response = new JsonResponse();
+        if (!$currentUser instanceof User) {
+            $response->setStatusCode(401);
+
+            return $response->setData([
+                'message' => 'Please log in.',
+            ]);
+        }
+
         $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
         $api = new \Milo\Github\Api();
         $api->setToken($token);

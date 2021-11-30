@@ -44,8 +44,13 @@ class AbstractLsDefinition extends AbstractLsBase
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescriptionOrNull(): ?string
     {
         return $this->description;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description ?? $this->title;
     }
 }

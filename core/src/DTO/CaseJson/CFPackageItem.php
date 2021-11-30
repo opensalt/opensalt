@@ -22,14 +22,14 @@ class CFPackageItem
     public ?string $abbreviatedStatement = null;
 
     /** @var string[]|array|null */
-    public $conceptKeywords;
+    public ?array $conceptKeywords = null;
 
     public ?LinkURI $conceptKeywordsURI = null;
     public ?string $notes = null;
     public ?string $language = null;
 
     /** @var string[]|array|string|null */
-    public $educationLevel;
+    public string|array|null $educationLevel = null;
 
     /**
      * @SerializedName("CFItemTypeURI")

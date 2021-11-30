@@ -4,7 +4,6 @@ namespace App\Security\Session;
 
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -34,13 +33,7 @@ class SessionIdleHandler
             return;
         }
 
-        try {
-            $anonymousToken = new AnonymousToken(base64_encode(random_bytes(6)), 'anon.', []);
-        } catch (\Exception $e) {
-            // An exception can be thrown from random_bytes() if there is not enough entropy
-            $anonymousToken = new AnonymousToken(substr(sha1((string) mt_rand()), 0, 8), 'anon.', []);
-        }
-        $this->securityToken->setToken($anonymousToken);
+        $this->securityToken->setToken();
 
         $msg = 'You have been logged out due to inactivity.';
         $session->invalidate();

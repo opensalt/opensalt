@@ -4,6 +4,7 @@ namespace App\Controller\User;
 
 use App\Command\CommandDispatcherTrait;
 use App\Command\User\ChangePasswordCommand;
+use App\Entity\User\User;
 use App\Form\DTO\ChangePasswordDTO;
 use App\Form\Type\ChangePasswordType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -39,8 +40,12 @@ class ChangePasswordController extends AbstractController
 
         $form->handleRequest($request);
 
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw new \UnexpectedValueException('Invalid user.');
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
-            $user = $this->getUser();
             $encryptedPassword = $this->passwordEncoder->hashPassword($user, $form->getData()->newPassword);
 
             $command = new ChangePasswordCommand($user, $encryptedPassword);

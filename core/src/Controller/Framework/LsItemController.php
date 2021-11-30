@@ -21,6 +21,7 @@ use App\Form\Type\LsDocListType;
 use App\Form\Type\LsItemParentType;
 use App\Form\Type\LsItemType;
 use App\Service\BucketService;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -45,8 +46,10 @@ class LsItemController extends AbstractController
 
     private ?string $bucketProvider;
 
-    public function __construct(?string $bucketProvider)
-    {
+    public function __construct(
+        ?string $bucketProvider,
+        private ManagerRegistry $managerRegistry,
+    ) {
         $this->bucketProvider = $bucketProvider;
     }
 
@@ -90,7 +93,7 @@ class LsItemController extends AbstractController
 
                 // retrieve isChildOf assoc id for the new item
                 /** @var LsAssociation $assoc */
-                $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $lsItem]);
+                $assoc = $this->managerRegistry->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $lsItem]);
 
                 if ($ajax) {
                     // if ajax call, return the item as json

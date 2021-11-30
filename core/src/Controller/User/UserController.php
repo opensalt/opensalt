@@ -11,6 +11,7 @@ use App\Command\User\SuspendUserCommand;
 use App\Command\User\UpdateUserCommand;
 use App\Entity\User\User;
 use App\Form\Type\UserType;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,6 +36,7 @@ class UserController extends AbstractController
     public function __construct(
         private AuthorizationCheckerInterface $authChecker,
         private UserPasswordHasherInterface $passwordEncoder,
+        private ManagerRegistry $managerRegistry,
     ) {
     }
 
@@ -48,13 +50,18 @@ class UserController extends AbstractController
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         if ($this->authChecker->isGranted('manage', 'all_users')) {
             $users = $em->getRepository(User::class)->findAll();
         } else {
+            $user = $this->getUser();
+            if (!$user instanceof User) {
+                throw new \UnexpectedValueException('Invalid user.');
+            }
+
             $users = $em->getRepository(User::class)
-                ->findByOrg($this->getUser()->getOrg());
+                ->findByOrg($user->getOrg());
         }
 
         $suspendForm = [];
@@ -92,7 +99,12 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // Set to organization to match the creating users, unless the super-user
             if (!$this->authChecker->isGranted('manage', 'all_users')) {
-                $targetUser->setOrg($this->getUser()->getOrg());
+                $user = $this->getUser();
+                if (!$user instanceof User) {
+                    throw new \UnexpectedValueException('Invalid user.');
+                }
+
+                $targetUser->setOrg($user->getOrg());
             }
 
             // Encode the plaintext password

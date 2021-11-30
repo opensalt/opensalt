@@ -24,10 +24,6 @@ trait CommandDispatcherTrait
     {
         $dispatcher = $this->dispatcher ?? null;
 
-        if (null === $dispatcher && method_exists($this, 'get')) {
-            $dispatcher = $this->get('event_dispatcher');
-        }
-
         if (null === $dispatcher) {
             throw new \RuntimeException('Cannot access dispatcher');
         }

@@ -11,6 +11,7 @@ use App\Repository\Framework\CfDocQuery;
 use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsDocRepository;
 use App\Service\LoggerTrait;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +29,7 @@ class CaseV1P0Controller extends AbstractController
     public function __construct(
         private SerializerInterface $serializer,
         private string $assetsVersion,
+        private ManagerRegistry $managerRegistry,
     ) {
     }
 
@@ -107,7 +109,7 @@ class CaseV1P0Controller extends AbstractController
         $this->info('CASE API: package returned', ['id' => $id]);
 
         /** @var ChangeEntryRepository $changeRepo */
-        $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
+        $changeRepo = $this->managerRegistry->getRepository(ChangeEntry::class);
         $lastChange = $changeRepo->getLastChangeTimeForDoc($obj);
 
         $lastModified = $obj->getUpdatedAt();

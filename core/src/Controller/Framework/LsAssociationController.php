@@ -8,6 +8,7 @@ use App\Command\Framework\AddExemplarToItemCommand;
 use App\Command\Framework\AddTreeAssociationCommand;
 use App\Command\Framework\DeleteAssociationCommand;
 use App\Command\Framework\UpdateAssociationCommand;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -33,6 +34,11 @@ class LsAssociationController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all LsAssociation entities.
      *
@@ -41,7 +47,7 @@ class LsAssociationController extends AbstractController
      */
     public function indexAction(): array
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $lsAssociations = $em->getRepository(LsAssociation::class)->findBy([], null, 100);
 

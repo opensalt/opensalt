@@ -18,6 +18,7 @@ use App\Entity\Framework\ObjectLock;
 use App\Entity\User\User;
 use App\Form\Type\LsDocListType;
 use App\Util\Compare;
+use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
@@ -46,10 +47,11 @@ class DocTreeController extends AbstractController
 
     public function __construct(
         private PdoAdapter $externalDocCache,
+        private ManagerRegistry $managerRegistry,
         private ?string $caseNetworkClientId,
         private ?string $caseNetworkClientSecret,
         private ?string $caseNetworkScope,
-        private ?string $caseNetworkTokenEndpoint
+        private ?string $caseNetworkTokenEndpoint,
     ) {
     }
 
@@ -63,7 +65,7 @@ class DocTreeController extends AbstractController
      */
     public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, $lsItemId = null, $assocGroup = null): array
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         // Get all association groups (for all documents);
         // we need groups for other documents if/when we show a document on the right side
@@ -131,7 +133,7 @@ class DocTreeController extends AbstractController
      */
     public function viewRemoteAction(): Response
     {
-        $assocSubTypes = $this->getDoctrine()->getRepository(AssociationSubtype::class)->findAll();
+        $assocSubTypes = $this->managerRegistry->getRepository(AssociationSubtype::class)->findAll();
         $assocFilterTypes = [];
         $assocTypes = [];
         $inverseAssocTypes = [];
@@ -183,7 +185,7 @@ class DocTreeController extends AbstractController
     {
         $response = new JsonResponse();
 
-        $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
+        $changeRepo = $this->managerRegistry->getRepository(ChangeEntry::class);
         $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
 
         $lastModified = $lsDoc->getUpdatedAt();
@@ -202,12 +204,18 @@ class DocTreeController extends AbstractController
             return $response;
         }
 
-        $items = $this->getDoctrine()->getRepository(LsDoc::class)->findItemsForExportDoc($lsDoc);
-        $associations = $this->getDoctrine()->getRepository(LsDoc::class)->findAssociationsForExportDoc($lsDoc);
-        $assocGroups = $this->getDoctrine()->getRepository(LsDefAssociationGrouping::class)->findBy(['lsDoc' => $lsDoc]);
+        $items = $this->managerRegistry->getRepository(LsDoc::class)->findItemsForExportDoc($lsDoc);
+        $associations = $this->managerRegistry->getRepository(LsDoc::class)->findAssociationsForExportDoc($lsDoc);
+        $groupIds = [];
+        foreach ($associations as $association) {
+            if (($association['group']['identifier'] ?? null) !== null) {
+                $groupIds[$association['group']['identifier']] = 1;
+            }
+        }
+        $assocGroups = $this->managerRegistry->getRepository(LsDefAssociationGrouping::class)->findByIdentifier(array_keys($groupIds));
         $associatedDocs = array_merge(
             $lsDoc->getExternalDocs(),
-            $this->getDoctrine()->getRepository(LsDoc::class)->findAssociatedDocs($lsDoc)
+            $this->managerRegistry->getRepository(LsDoc::class)->findAssociatedDocs($lsDoc)
         );
 
         $docAttributes = [
@@ -393,7 +401,7 @@ class DocTreeController extends AbstractController
      */
     public function renderDocumentAction(LsDoc $lsDoc, $_format = 'html'): array
     {
-        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
+        $repo = $this->managerRegistry->getRepository(LsDoc::class);
 
         $items = $repo->findAllChildrenArray($lsDoc);
         $haveParents = $repo->findAllItemsWithParentsArray($lsDoc);
@@ -526,7 +534,7 @@ class DocTreeController extends AbstractController
     protected function respondWithDocumentById(Request $request, int $id): Response
     {
         // in this case it has to be a document on this OpenSALT instantiation
-        $newDoc = $this->getDoctrine()->getRepository(LsDoc::class)->find($id);
+        $newDoc = $this->managerRegistry->getRepository(LsDoc::class)->find($id);
         if (empty($newDoc)) {
             // if document not found, error
             return new Response('Document not found.', Response::HTTP_NOT_FOUND);
@@ -540,7 +548,7 @@ class DocTreeController extends AbstractController
      */
     protected function respondWithDocumentByIdentifier(Request $request, string $identifier, LsDoc $lsDoc): Response
     {
-        $newDoc = $this->getDoctrine()->getRepository(LsDoc::class)->findOneBy(['identifier' => $identifier]);
+        $newDoc = $this->managerRegistry->getRepository(LsDoc::class)->findOneBy(['identifier' => $identifier]);
         if (null !== $newDoc) {
             return $this->exportAction($request, $newDoc);
         }
@@ -646,7 +654,7 @@ class DocTreeController extends AbstractController
     {
         $lsDocs = [];
 
-        $docs = $this->getDoctrine()->getRepository(LsDoc::class)->findBy([], ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']);
+        $docs = $this->managerRegistry->getRepository(LsDoc::class)->findBy([], ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']);
         /** @var LsDoc $doc */
         foreach ($docs as $doc) {
             // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
@@ -665,7 +673,7 @@ class DocTreeController extends AbstractController
     {
         $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
         if ($user instanceof User) {
-            $locks = $this->getDoctrine()->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
+            $locks = $this->managerRegistry->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
             foreach ($locks as $lock) {
                 $expiry = false;
                 if ($lock->getUser() !== $user) {

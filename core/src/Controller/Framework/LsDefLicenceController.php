@@ -8,6 +8,7 @@ use App\Command\Framework\DeleteLicenceCommand;
 use App\Command\Framework\UpdateLicenceCommand;
 use App\Entity\Framework\LsDefLicence;
 use App\Form\Type\LsDefLicenceType;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +26,11 @@ class LsDefLicenceController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all LsDefLicence entities.
      *
@@ -35,7 +41,7 @@ class LsDefLicenceController extends AbstractController
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $lsDefLicences = $em->getRepository(LsDefLicence::class)->findBy([], null, 100);
 
@@ -52,7 +58,7 @@ class LsDefLicenceController extends AbstractController
      */
     public function jsonListAction(): array
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $objects = $em->getRepository(LsDefLicence::class)->getList();
 

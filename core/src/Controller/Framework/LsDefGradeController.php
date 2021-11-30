@@ -8,6 +8,7 @@ use App\Command\Framework\DeleteGradeCommand;
 use App\Command\Framework\UpdateGradeCommand;
 use App\Entity\Framework\LsDefGrade;
 use App\Form\Type\LsDefGradeType;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +26,11 @@ class LsDefGradeController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all LsDefGrade entities.
      *
@@ -35,7 +41,7 @@ class LsDefGradeController extends AbstractController
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $lsDefGrades = $em->getRepository(LsDefGrade::class)->findBy([], null, 100);
 

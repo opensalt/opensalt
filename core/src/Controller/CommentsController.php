@@ -13,6 +13,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
 use App\Service\BucketService;
+use Doctrine\Persistence\ManagerRegistry;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 use Qandidate\Toggle\Context;
 use Qandidate\Toggle\ContextFactory;
@@ -41,7 +42,8 @@ class CommentsController extends AbstractController
     public function __construct(
         private ToggleManager $manager,
         private SerializerInterface $serializer,
-        ContextFactory $contextFactory
+        private ManagerRegistry $managerRegistry,
+        ContextFactory $contextFactory,
     ) {
         $this->context = $contextFactory->createContext();
     }
@@ -154,8 +156,8 @@ class CommentsController extends AbstractController
         $response->setCallback(function () use ($itemType, $itemId) {
             $childIds = [];
             $handle = fopen('php://output', 'wb+');
-            $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
-            $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
+            $repo = $this->managerRegistry->getManager()->getRepository(Comment::class);
+            $lsItemRepo = $this->managerRegistry->getManager()->getRepository(LsItem::class);
             $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Attachment Url', 'Created Date', 'Updated Date'];
             fputcsv($handle, $headers);
 
@@ -166,7 +168,7 @@ class CommentsController extends AbstractController
                     foreach ($commentRows as $row) {
                         fputcsv($handle, $row);
                     }
-                    $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->find($itemId);
+                    $lsDoc = $this->managerRegistry->getManager()->getRepository(LsDoc::class)->find($itemId);
                     $lsDocChilds = $lsDoc->getLsItems();
                     foreach ($lsDocChilds as $lsDocChild) {
                         $childIds[] = $lsDocChild->getId();

@@ -8,6 +8,7 @@ use App\Command\Framework\DeleteConceptCommand;
 use App\Command\Framework\UpdateConceptCommand;
 use App\Entity\Framework\LsDefConcept;
 use App\Form\Type\LsDefConceptType;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,6 +27,11 @@ class LsDefConceptController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all LsDefConcept entities.
      *
@@ -36,7 +42,7 @@ class LsDefConceptController extends AbstractController
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $lsDefConcepts = $em->getRepository(LsDefConcept::class)->findBy([], null, 100);
 

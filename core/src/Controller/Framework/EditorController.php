@@ -4,6 +4,7 @@ namespace App\Controller\Framework;
 
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,6 +17,11 @@ use App\Util\Compare;
  */
 class EditorController extends AbstractController
 {
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * @Route("/doc/{id}.{_format}", methods={"GET"}, defaults={"_format" = "html"}, name="editor_lsdoc")
      * @Template()
@@ -49,7 +55,7 @@ class EditorController extends AbstractController
      */
     public function renderDocumentAction(LsDoc $lsDoc, ?int $highlight = null, $_format = 'html'): array
     {
-        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
+        $repo = $this->managerRegistry->getRepository(LsDoc::class);
 
         $items = $repo->findAllChildrenArray($lsDoc);
         $haveParents = $repo->findAllItemsWithParentsArray($lsDoc);

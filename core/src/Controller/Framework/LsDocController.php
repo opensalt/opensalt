@@ -15,6 +15,7 @@ use App\Exception\AlreadyLockedException;
 use App\Form\Type\LsDocCreateType;
 use App\Form\Type\LsDocType;
 use App\Form\Type\RemoteCaseServerType;
+use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,6 +34,11 @@ class LsDocController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all LsDoc entities.
      *
@@ -40,7 +46,7 @@ class LsDocController extends AbstractController
      */
     public function indexAction(?UserInterface $user = null): Response
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         /** @var LsDoc[] $results */
         $results = $em->getRepository(LsDoc::class)->findForList();
@@ -309,7 +315,7 @@ class LsDocController extends AbstractController
             $_format = 'html';
         }
 
-        $items = $this->getDoctrine()
+        $items = $this->managerRegistry
             ->getRepository(LsDoc::class)
             ->findAllChildrenArray($lsDoc);
 

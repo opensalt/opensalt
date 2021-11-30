@@ -8,6 +8,7 @@ use App\Entity\Framework\Mirror\Log;
 use App\Form\DTO\MirroredFrameworkDTO;
 use App\Form\Type\MirroredFrameworkDTOType;
 use App\Service\MirrorServer;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
@@ -21,6 +22,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class FrameworkController extends AbstractController
 {
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * @Route("/new", name="mirror_framework_new")
      */
@@ -52,7 +58,7 @@ class FrameworkController extends AbstractController
      */
     public function resolveConflict(Request $request, Framework $framework): Response
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $doc = $em->getRepository(LsDoc::class)->findOneByIdentifier($framework->getIdentifier());
         if (null === $doc) {
@@ -101,7 +107,7 @@ class FrameworkController extends AbstractController
     public function refresh(Framework $framework): Response
     {
         $framework->markToRefresh();
-        $this->getDoctrine()->getManager()->flush();
+        $this->managerRegistry->getManager()->flush();
 
         return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
     }
@@ -119,7 +125,7 @@ class FrameworkController extends AbstractController
             'Mirroring was enabled'
         );
         $framework->markToRefresh();
-        $this->getDoctrine()->getManager()->flush();
+        $this->managerRegistry->getManager()->flush();
 
         return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
     }
@@ -139,7 +145,7 @@ class FrameworkController extends AbstractController
                 'Mirroring was disabled, a framework now exists on the server with the same identifier'
             );
         }
-        $this->getDoctrine()->getManager()->flush();
+        $this->managerRegistry->getManager()->flush();
 
         return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
     }
