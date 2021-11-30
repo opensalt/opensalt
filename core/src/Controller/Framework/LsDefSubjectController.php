@@ -8,6 +8,7 @@ use App\Command\Framework\DeleteSubjectCommand;
 use App\Command\Framework\UpdateSubjectCommand;
 use App\Entity\Framework\LsDefSubject;
 use App\Form\Type\LsDefSubjectType;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +26,11 @@ class LsDefSubjectController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all LsDefSubject entities.
      *
@@ -35,7 +41,7 @@ class LsDefSubjectController extends AbstractController
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $lsDefSubjects = $em->getRepository(LsDefSubject::class)->findBy([], null, 100);
 
@@ -55,7 +61,7 @@ class LsDefSubjectController extends AbstractController
     public function jsonListAction(Request $request)
     {
         // ?page_limit=N&q=SEARCHTEXT
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $search = $request->query->get('q');
         $objects = $em->getRepository(LsDefSubject::class)->getList($search);

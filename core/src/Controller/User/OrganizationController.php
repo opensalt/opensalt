@@ -8,6 +8,7 @@ use App\Command\User\DeleteOrganizationCommand;
 use App\Command\User\UpdateOrganizationCommand;
 use App\Entity\User\Organization;
 use App\Form\Type\OrganizationType;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -27,6 +28,11 @@ class OrganizationController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all organization entities.
      *
@@ -37,7 +43,7 @@ class OrganizationController extends AbstractController
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $organizations = $em->getRepository(Organization::class)->findAll();
 

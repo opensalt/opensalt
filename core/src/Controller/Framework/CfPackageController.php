@@ -4,6 +4,7 @@ namespace App\Controller\Framework;
 
 use App\Entity\ChangeEntry;
 use App\Entity\Framework\LsDoc;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +21,7 @@ class CfPackageController extends AbstractController
 {
     public function __construct(
         private SerializerInterface $symfonySerializer,
+        private ManagerRegistry $managerRegistry,
     ) {
     }
 
@@ -32,7 +34,7 @@ class CfPackageController extends AbstractController
      */
     public function exportAction(Request $request, LsDoc $lsDoc, $_format = 'json')
     {
-        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
+        $repo = $this->managerRegistry->getRepository(LsDoc::class);
 
         if ('json' === $_format) {
             $response = $this->generateBaseResponse($lsDoc);
@@ -65,7 +67,7 @@ class CfPackageController extends AbstractController
     {
         $response = new Response();
 
-        $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
+        $changeRepo = $this->managerRegistry->getRepository(ChangeEntry::class);
         $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
 
         $lastModified = $lsDoc->getUpdatedAt();
@@ -90,7 +92,7 @@ class CfPackageController extends AbstractController
      */
     protected function generateSimplePackageArray(LsDoc $doc): array
     {
-        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
+        $repo = $this->managerRegistry->getRepository(LsDoc::class);
 
         $items = $repo->findAllItems($doc);
         $associations = $repo->findAllAssociations($doc);

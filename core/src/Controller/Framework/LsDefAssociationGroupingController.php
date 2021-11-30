@@ -8,6 +8,7 @@ use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\UpdateAssociationGroupCommand;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Form\Type\LsDefAssociationGroupingType;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,6 +25,11 @@ class LsDefAssociationGroupingController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all LsDefAssociationGrouping entities.
      *
@@ -32,7 +38,7 @@ class LsDefAssociationGroupingController extends AbstractController
      */
     public function indexAction(): array
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $associationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findBy([], null, 100);
 

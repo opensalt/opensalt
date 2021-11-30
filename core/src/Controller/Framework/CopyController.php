@@ -5,6 +5,7 @@ namespace App\Controller\Framework;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\CopyFrameworkCommand;
 use App\Entity\Framework\LsDoc;
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +21,11 @@ class CopyController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * @Route("/framework/{id}", name="copy_framework_content", methods={"POST"})
      * @Security("is_granted('view', lsDoc)")
@@ -28,7 +34,7 @@ class CopyController extends AbstractController
     {
         $type = $request->request->get('type');
         $frameworkToCopy = $request->request->get('copyToFramework');
-        $toLsDoc = $this->getDoctrine()->getRepository(LsDoc::class)->find($frameworkToCopy);
+        $toLsDoc = $this->managerRegistry->getRepository(LsDoc::class)->find($frameworkToCopy);
 
         if (null === $toLsDoc) {
             $this->createNotFoundException('The target framework is not found.');

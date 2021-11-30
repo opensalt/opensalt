@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,6 +17,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class UiInfoController extends AbstractController
 {
+    public function __construct(
+        private ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * @Route("/multi/{id}", methods={"POST"}, name="multi_tree_info_json")
      * @Security("is_granted('edit', doc)")
@@ -28,7 +34,7 @@ class UiInfoController extends AbstractController
         $docs = $request->request->get('doc');
         if (null !== $docs && is_array($docs)) {
             foreach ($docs as $id) {
-                $d = $this->getDoctrine()->getRepository(LsDoc::class)
+                $d = $this->managerRegistry->getRepository(LsDoc::class)
                     ->find($id);
                 if (null !== $d) {
                     $objs['docs'][$id] = $this->generateDocArray($d);
@@ -40,7 +46,7 @@ class UiInfoController extends AbstractController
         $items = $request->request->get('item');
         if (null !== $items && is_array($items)) {
             foreach ($items as $id) {
-                $i = $this->getDoctrine()->getRepository(LsItem::class)
+                $i = $this->managerRegistry->getRepository(LsItem::class)
                     ->find($id);
                 if (null !== $i) {
                     $objs['items'][$id] = $this->generateItemArray($i);
@@ -52,7 +58,7 @@ class UiInfoController extends AbstractController
         $assocs = $request->request->get('assoc');
         if (null !== $assocs && is_array($assocs)) {
             foreach ($assocs as $id) {
-                $a = $this->getDoctrine()->getRepository(LsAssociation::class)
+                $a = $this->managerRegistry->getRepository(LsAssociation::class)
                     ->find($id);
                 if (null !== $a) {
                     $objs['assocs'][$id] = $this->generateAssociationArray($a);
@@ -125,7 +131,7 @@ class UiInfoController extends AbstractController
     {
         // retrieve isChildOf assoc id for the item
         /** @var LsAssociation $assoc */
-        $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy([
+        $assoc = $this->managerRegistry->getRepository(LsAssociation::class)->findOneBy([
             'originLsItem' => $item,
             'type' => LsAssociation::CHILD_OF,
             'lsDoc' => $item->getLsDoc(),
