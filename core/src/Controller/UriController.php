@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use App\Service\IdentifiableObjectHelper;
 use App\Service\UriGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -63,6 +65,18 @@ class UriController extends AbstractController
             return $this->generateNotFoundResponse($request, $uri);
         }
 
+        if ('tree' === $request->getRequestFormat()) {
+            switch (get_class($obj)) {
+                case LsDoc::class:
+                    return $this->redirectToRoute('doc_tree_view', ['slug' => $obj->getId()]);
+
+                case LsItem::class:
+                    return $this->redirectToRoute('doc_tree_item_view', ['id' => $obj->getId()]);
+            }
+
+            $request->setRequestFormat('html');
+        }
+
         $this->addLinksToHeader($request, $originalUri);
         $headers = $this->generateTcnHeaders($originalUri);
 
@@ -119,6 +133,12 @@ class UriController extends AbstractController
     {
         if ($request->headers->has('x-opensalt')) {
             $request->setRequestFormat('opensalt');
+
+            return;
+        }
+
+        if ('tree' === $_format || 'tree' === $request->query->get('display')) {
+            $request->setRequestFormat('tree');
 
             return;
         }
