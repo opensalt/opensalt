@@ -204,7 +204,13 @@ class DocTreeController extends AbstractController
 
         $items = $this->getDoctrine()->getRepository(LsDoc::class)->findItemsForExportDoc($lsDoc);
         $associations = $this->getDoctrine()->getRepository(LsDoc::class)->findAssociationsForExportDoc($lsDoc);
-        $assocGroups = $this->getDoctrine()->getRepository(LsDefAssociationGrouping::class)->findBy(['lsDoc' => $lsDoc]);
+        $groupIds = [];
+        foreach ($associations as $association) {
+            if (($association['group']['identifier'] ?? null) !== null) {
+                $groupIds[$association['group']['identifier']] = 1;
+            }
+        }
+        $assocGroups = $this->getDoctrine()->getRepository(LsDefAssociationGrouping::class)->findByIdentifier(array_keys($groupIds));
         $associatedDocs = array_merge(
             $lsDoc->getExternalDocs(),
             $this->getDoctrine()->getRepository(LsDoc::class)->findAssociatedDocs($lsDoc)
