@@ -216,7 +216,7 @@ services:
             $options: { db_username: '%database_user%', db_password: '%database_password%', db_table: 'auth_session', db_id_col: 'id', db_connection_options: "%pdo_options%" }
 
     salt.cache.external_docs:
-        class: Symfony\Component\Cache\Adapter\PdoAdapter
+        class: Symfony\Component\Cache\Adapter\DoctrineDbalAdapter
         arguments:
             $connOrDsn: '@doctrine.dbal.default_connection'
             $namespace: 'externalDoc-'

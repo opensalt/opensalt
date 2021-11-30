@@ -25,7 +25,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Cache\Adapter\PdoAdapter;
+use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,7 +46,7 @@ class DocTreeController extends AbstractController
     private const ETAG_SEED = '2';
 
     public function __construct(
-        private PdoAdapter $externalDocCache,
+        private DoctrineDbalAdapter $externalDocCache,
         private ManagerRegistry $managerRegistry,
         private ?string $caseNetworkClientId,
         private ?string $caseNetworkClientSecret,
