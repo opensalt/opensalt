@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "14a0d838c90877d8419519cd305f9504",
+    "content-hash": "3f4d07e091709363aceedabd622a224f",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -11341,27 +11341,31 @@
         },
         {
             "name": "codeception/module-doctrine2",
-            "version": "1.1.1",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-doctrine2.git",
-                "reference": "a39cd444fac840c907d33d33bca83e57dd0e04d1"
+                "reference": "afcf8f4c0f9e3db21f9c6dc6a72f30b114383dec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/a39cd444fac840c907d33d33bca83e57dd0e04d1",
-                "reference": "a39cd444fac840c907d33d33bca83e57dd0e04d1",
+                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/afcf8f4c0f9e3db21f9c6dc6a72f30b114383dec",
+                "reference": "afcf8f4c0f9e3db21f9c6dc6a72f30b114383dec",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^4.0",
-                "php": ">=5.6.0 <9.0"
+                "ext-json": "*",
+                "ext-pdo": "*",
+                "php": "^7.4 | ^8.0"
             },
             "require-dev": {
                 "doctrine/annotations": "^1",
                 "doctrine/data-fixtures": "^1",
-                "doctrine/orm": "^2",
-                "ramsey/uuid-doctrine": "^1.5"
+                "doctrine/orm": "^2.10",
+                "phpstan/phpstan": "^0.12",
+                "ramsey/uuid-doctrine": "^1.5",
+                "symfony/cache": "^4.4 | ^5.4 | ^6.0"
             },
             "type": "library",
             "autoload": {
@@ -11382,16 +11386,16 @@
                 }
             ],
             "description": "Doctrine2 module for Codeception",
-            "homepage": "http://codeception.com/",
+            "homepage": "https://codeception.com/",
             "keywords": [
                 "codeception",
                 "doctrine2"
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-doctrine2/issues",
-                "source": "https://github.com/Codeception/module-doctrine2/tree/1.1.1"
+                "source": "https://github.com/Codeception/module-doctrine2/tree/2.0.0"
             },
-            "time": "2020-11-26T06:56:31+00:00"
+            "time": "2021-12-02T00:05:31+00:00"
         },
         {
             "name": "codeception/module-phpbrowser",
