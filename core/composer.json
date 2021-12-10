@@ -83,7 +83,7 @@
         "symfony/monolog-bundle": "^3.3",
         "symfony/process": "5.4.*",
         "symfony/property-access": "5.4.*",
-        "symfony/property-info": "5.4.*",
+        "symfony/property-info": "6.0.*",
         "symfony/proxy-manager-bridge": "5.4.*",
         "symfony/security-bundle": "5.4.*",
         "symfony/security-csrf": "5.4.*",
