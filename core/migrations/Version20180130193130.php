@@ -10,9 +10,6 @@ class Version20180130193130 extends AbstractMigration
 {
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('CREATE INDEX change_time_idx ON salt_change (changed_at)');
 
         $this->addSql('ALTER TABLE salt_user_doc_acl DROP PRIMARY KEY');
@@ -34,9 +31,6 @@ FROM salt_user_doc_acl;
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('ALTER TABLE audit_salt_user_doc_acl DROP PRIMARY KEY');
         $this->addSql('ALTER TABLE audit_salt_user_doc_acl DROP id, CHANGE user_id user_id INT NOT NULL, CHANGE doc_id doc_id INT NOT NULL');
         $this->addSql('ALTER TABLE audit_salt_user_doc_acl ADD PRIMARY KEY (user_id, doc_id, rev)');

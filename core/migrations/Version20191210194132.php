@@ -16,8 +16,6 @@ final class Version20191210194132 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
-
         $typeFixup = [
             'isChildOf' => LsAssociation::CHILD_OF,
             'exactMatchOf' => LsAssociation::EXACT_MATCH_OF,
@@ -36,8 +34,6 @@ final class Version20191210194132 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
-
         // Nothing to do
     }
 }

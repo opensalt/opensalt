@@ -4,16 +4,10 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 
-/**
- * Auto-generated Migration: Please modify to your needs!
- */
 class Version20170607010127 extends AbstractMigration
 {
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('CREATE UNIQUE INDEX UNIQ_60C4016C772E836A ON rubric (identifier)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_60C4016C841CB121 ON rubric (uri)');
         $this->addSql('CREATE INDEX IDX_1DA328DC9388802C ON import_logs (ls_doc_id)');
@@ -44,9 +38,6 @@ class Version20170607010127 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('DROP INDEX IDX_1DA328DC9388802C ON ls_association');
         $this->addSql('DROP INDEX UNIQ_A84022D4772E836A ON ls_association');
         $this->addSql('DROP INDEX UNIQ_A84022D4841CB121 ON ls_association');

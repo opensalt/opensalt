@@ -6,16 +6,10 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 
-/**
- * Auto-generated Migration: Please modify to your needs!
- */
 class Version20171214142307 extends AbstractMigration
 {
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('ALTER TABLE salt_comment ADD document_id INT DEFAULT NULL, ADD item_id INT DEFAULT NULL');
         $this->addSql('UPDATE salt_comment SET document_id = SUBSTRING_INDEX(item, ":", -1) WHERE SUBSTRING_INDEX(item, ":", 1) = "document"');
         $this->addSql('UPDATE salt_comment SET item_id = SUBSTRING_INDEX(item, ":", -1) WHERE SUBSTRING_INDEX(item, ":", 1) = "item"');
@@ -30,9 +24,6 @@ class Version20171214142307 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('ALTER TABLE salt_comment DROP FOREIGN KEY FK_5AD1C6CCC33F7837');
         $this->addSql('ALTER TABLE salt_comment DROP FOREIGN KEY FK_5AD1C6CC126F525E');
         $this->addSql('DROP INDEX IDX_5AD1C6CCC33F7837 ON salt_comment');

@@ -6,16 +6,10 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 
-/**
- * Auto-generated Migration: Please modify to your needs!
- */
 class Version20171227235729 extends AbstractMigration
 {
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('CREATE TABLE IF NOT EXISTS audit_ls_doc (id INT NOT NULL, rev INT NOT NULL, org_id INT DEFAULT NULL, user_id INT DEFAULT NULL, licence_id INT DEFAULT NULL, identifier VARCHAR(300) DEFAULT NULL, uri VARCHAR(300) DEFAULT NULL, extra JSON DEFAULT NULL COMMENT \'(DC2Type:json)\', updated_at DATETIME(6) DEFAULT NULL COMMENT \'(DC2Type:datetime)\', official_uri VARCHAR(300) DEFAULT NULL, creator VARCHAR(300) DEFAULT NULL, publisher VARCHAR(50) DEFAULT NULL, title VARCHAR(120) DEFAULT NULL, url_name VARCHAR(255) DEFAULT NULL, version VARCHAR(50) DEFAULT NULL, description VARCHAR(300) DEFAULT NULL, subject VARCHAR(50) DEFAULT NULL, subject_uri VARCHAR(300) DEFAULT NULL, language VARCHAR(10) DEFAULT NULL, adoption_status VARCHAR(50) DEFAULT NULL, status_start DATE DEFAULT NULL, status_end DATE DEFAULT NULL, note LONGTEXT DEFAULT NULL, revtype VARCHAR(4) NOT NULL, INDEX rev_2017c4975e95098d54218556d75e37b6_idx (rev), PRIMARY KEY(id, rev)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
         $this->addSql('CREATE TABLE IF NOT EXISTS audit_rubric (id INT NOT NULL, rev INT NOT NULL, identifier VARCHAR(300) DEFAULT NULL, uri VARCHAR(300) DEFAULT NULL, extra JSON DEFAULT NULL COMMENT \'(DC2Type:json)\', updated_at DATETIME(6) DEFAULT NULL COMMENT \'(DC2Type:datetime)\', title TEXT DEFAULT NULL, description TEXT DEFAULT NULL, revtype VARCHAR(4) NOT NULL, INDEX rev_5fd145a56a99316eb4b8a09af1f272dd_idx (rev), PRIMARY KEY(id, rev)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
         $this->addSql('CREATE TABLE IF NOT EXISTS audit_ls_item (id INT NOT NULL, rev INT NOT NULL, ls_doc_id INT DEFAULT NULL, item_type_id INT DEFAULT NULL, licence_id INT DEFAULT NULL, identifier VARCHAR(300) DEFAULT NULL, uri VARCHAR(300) DEFAULT NULL, extra JSON DEFAULT NULL COMMENT \'(DC2Type:json)\', updated_at DATETIME(6) DEFAULT NULL COMMENT \'(DC2Type:datetime)\', ls_doc_identifier VARCHAR(300) DEFAULT NULL, ls_doc_uri VARCHAR(300) DEFAULT NULL, human_coding_scheme VARCHAR(50) DEFAULT NULL, list_enum_in_source VARCHAR(20) DEFAULT NULL, rank BIGINT DEFAULT NULL, full_statement LONGTEXT DEFAULT NULL, abbreviated_statement VARCHAR(60) DEFAULT NULL, concept_keywords VARCHAR(300) DEFAULT NULL, concept_keywords_uri VARCHAR(300) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, language VARCHAR(10) DEFAULT NULL, educational_alignment VARCHAR(300) DEFAULT NULL, alternative_label VARCHAR(255) DEFAULT NULL, status_start DATE DEFAULT NULL, status_end DATE DEFAULT NULL, licence_uri VARCHAR(300) DEFAULT NULL, changed_at DATETIME(6) DEFAULT NULL COMMENT \'(DC2Type:datetime)\', revtype VARCHAR(4) NOT NULL, INDEX rev_6d8f50f455093038b4d1fe3c1726bbd2_idx (rev), PRIMARY KEY(id, rev)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
@@ -51,9 +45,6 @@ class Version20171227235729 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('DROP TABLE IF EXISTS audit_ls_doc');
         $this->addSql('DROP TABLE IF EXISTS audit_rubric');
         $this->addSql('DROP TABLE IF EXISTS audit_ls_item');

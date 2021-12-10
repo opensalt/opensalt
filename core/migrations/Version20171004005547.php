@@ -8,8 +8,6 @@ class Version20171004005547 extends AbstractMigration
 {
     public function up(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $dbParams = $this->connection->getParams();
         $dbName = $dbParams['dbname'];
 
@@ -56,8 +54,6 @@ ALTER DATABASE {$dbName} CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
     public function down(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $dbParams = $this->connection->getParams();
         $dbName = $dbParams['dbname'];
 

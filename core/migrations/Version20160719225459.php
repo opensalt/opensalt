@@ -4,16 +4,10 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 
-/**
- * Auto-generated Migration: Please modify to your needs!
- */
 class Version20160719225459 extends AbstractMigration
 {
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('
 ALTER TABLE ls_association
     ADD origin_lsdoc_id INT DEFAULT NULL AFTER origin_node_uri,
@@ -35,9 +29,6 @@ ALTER TABLE ls_association
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('ALTER TABLE ls_association DROP FOREIGN KEY FK_A84022D434C423C4');
         $this->addSql('ALTER TABLE ls_association DROP FOREIGN KEY FK_A84022D44C0C393B');
         $this->addSql('ALTER TABLE ls_association DROP FOREIGN KEY FK_A84022D459C28905');
