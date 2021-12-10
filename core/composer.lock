@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "14a0d838c90877d8419519cd305f9504",
+    "content-hash": "14bfceb2a273ca7b79c6e27624fab353",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -3950,23 +3950,23 @@
         },
         {
             "name": "milo/github-api",
-            "version": "v1.4.9",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/milo/github-api.git",
-                "reference": "182f7f0159e5f6fef1511f67f5d5a2db40f0a756"
+                "reference": "7600424e3ee39e90e8c8d97598ed7387b428d6d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/milo/github-api/zipball/182f7f0159e5f6fef1511f67f5d5a2db40f0a756",
-                "reference": "182f7f0159e5f6fef1511f67f5d5a2db40f0a756",
+                "url": "https://api.github.com/repos/milo/github-api/zipball/7600424e3ee39e90e8c8d97598ed7387b428d6d9",
+                "reference": "7600424e3ee39e90e8c8d97598ed7387b428d6d9",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "php": ">=8.0 <8.2"
             },
             "require-dev": {
-                "nette/tester": "^1.7 || ^2.0"
+                "nette/tester": "^2.4"
             },
             "suggest": {
                 "ext-curl": "Allows you to use Http\\CurlClient"
@@ -3988,12 +3988,12 @@
                     "homepage": "https://github.com/milo"
                 }
             ],
-            "description": "Github API easy access",
+            "description": "GitHub API easy access",
             "support": {
                 "issues": "https://github.com/milo/github-api/issues",
-                "source": "https://github.com/milo/github-api/tree/v1.4.9"
+                "source": "https://github.com/milo/github-api/tree/v2.0.0"
             },
-            "time": "2021-11-29T14:58:52+00:00"
+            "time": "2021-12-04T20:58:02+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -11341,27 +11341,31 @@
         },
         {
             "name": "codeception/module-doctrine2",
-            "version": "1.1.1",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-doctrine2.git",
-                "reference": "a39cd444fac840c907d33d33bca83e57dd0e04d1"
+                "reference": "afcf8f4c0f9e3db21f9c6dc6a72f30b114383dec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/a39cd444fac840c907d33d33bca83e57dd0e04d1",
-                "reference": "a39cd444fac840c907d33d33bca83e57dd0e04d1",
+                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/afcf8f4c0f9e3db21f9c6dc6a72f30b114383dec",
+                "reference": "afcf8f4c0f9e3db21f9c6dc6a72f30b114383dec",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^4.0",
-                "php": ">=5.6.0 <9.0"
+                "ext-json": "*",
+                "ext-pdo": "*",
+                "php": "^7.4 | ^8.0"
             },
             "require-dev": {
                 "doctrine/annotations": "^1",
                 "doctrine/data-fixtures": "^1",
-                "doctrine/orm": "^2",
-                "ramsey/uuid-doctrine": "^1.5"
+                "doctrine/orm": "^2.10",
+                "phpstan/phpstan": "^0.12",
+                "ramsey/uuid-doctrine": "^1.5",
+                "symfony/cache": "^4.4 | ^5.4 | ^6.0"
             },
             "type": "library",
             "autoload": {
@@ -11382,16 +11386,16 @@
                 }
             ],
             "description": "Doctrine2 module for Codeception",
-            "homepage": "http://codeception.com/",
+            "homepage": "https://codeception.com/",
             "keywords": [
                 "codeception",
                 "doctrine2"
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-doctrine2/issues",
-                "source": "https://github.com/Codeception/module-doctrine2/tree/1.1.1"
+                "source": "https://github.com/Codeception/module-doctrine2/tree/2.0.0"
             },
-            "time": "2020-11-26T06:56:31+00:00"
+            "time": "2021-12-02T00:05:31+00:00"
         },
         {
             "name": "codeception/module-phpbrowser",
