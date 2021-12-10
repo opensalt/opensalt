@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3f4d07e091709363aceedabd622a224f",
+    "content-hash": "9535085f9a45085579b25ed6ee094488",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -3950,23 +3950,23 @@
         },
         {
             "name": "milo/github-api",
-            "version": "v1.4.9",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/milo/github-api.git",
-                "reference": "182f7f0159e5f6fef1511f67f5d5a2db40f0a756"
+                "reference": "7600424e3ee39e90e8c8d97598ed7387b428d6d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/milo/github-api/zipball/182f7f0159e5f6fef1511f67f5d5a2db40f0a756",
-                "reference": "182f7f0159e5f6fef1511f67f5d5a2db40f0a756",
+                "url": "https://api.github.com/repos/milo/github-api/zipball/7600424e3ee39e90e8c8d97598ed7387b428d6d9",
+                "reference": "7600424e3ee39e90e8c8d97598ed7387b428d6d9",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "php": ">=8.0 <8.2"
             },
             "require-dev": {
-                "nette/tester": "^1.7 || ^2.0"
+                "nette/tester": "^2.4"
             },
             "suggest": {
                 "ext-curl": "Allows you to use Http\\CurlClient"
@@ -3988,12 +3988,12 @@
                     "homepage": "https://github.com/milo"
                 }
             ],
-            "description": "Github API easy access",
+            "description": "GitHub API easy access",
             "support": {
                 "issues": "https://github.com/milo/github-api/issues",
-                "source": "https://github.com/milo/github-api/tree/v1.4.9"
+                "source": "https://github.com/milo/github-api/tree/v2.0.0"
             },
-            "time": "2021-11-29T14:58:52+00:00"
+            "time": "2021-12-04T20:58:02+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -11284,22 +11284,22 @@
         },
         {
             "name": "codeception/module-asserts",
-            "version": "1.3.1",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-asserts.git",
-                "reference": "59374f2fef0cabb9e8ddb53277e85cdca74328de"
+                "reference": "ef4a27087b09bf3c3b88fa9025e3179848541a79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-asserts/zipball/59374f2fef0cabb9e8ddb53277e85cdca74328de",
-                "reference": "59374f2fef0cabb9e8ddb53277e85cdca74328de",
+                "url": "https://api.github.com/repos/Codeception/module-asserts/zipball/ef4a27087b09bf3c3b88fa9025e3179848541a79",
+                "reference": "ef4a27087b09bf3c3b88fa9025e3179848541a79",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "*@dev",
                 "codeception/lib-asserts": "^1.13.1",
-                "php": ">=5.6.0 <9.0"
+                "php": "^7.4 || ^8.0"
             },
             "conflict": {
                 "codeception/codeception": "<4.0"
@@ -11335,9 +11335,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-asserts/issues",
-                "source": "https://github.com/Codeception/module-asserts/tree/1.3.1"
+                "source": "https://github.com/Codeception/module-asserts/tree/2.0.0"
             },
-            "time": "2020-10-21T16:48:15+00:00"
+            "time": "2021-11-30T00:38:49+00:00"
         },
         {
             "name": "codeception/module-doctrine2",
@@ -11399,29 +11399,32 @@
         },
         {
             "name": "codeception/module-phpbrowser",
-            "version": "1.0.2",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-phpbrowser.git",
-                "reference": "770a6be4160a5c0c08d100dd51bff35f6056bbf1"
+                "reference": "955440661c41985962f5b7f68ab5b532d966768c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-phpbrowser/zipball/770a6be4160a5c0c08d100dd51bff35f6056bbf1",
-                "reference": "770a6be4160a5c0c08d100dd51bff35f6056bbf1",
+                "url": "https://api.github.com/repos/Codeception/module-phpbrowser/zipball/955440661c41985962f5b7f68ab5b532d966768c",
+                "reference": "955440661c41985962f5b7f68ab5b532d966768c",
                 "shasum": ""
             },
             "require": {
-                "codeception/codeception": "^4.0",
-                "codeception/lib-innerbrowser": "^1.3",
-                "guzzlehttp/guzzle": "^6.3|^7.0",
-                "php": ">=5.6.0 <9.0"
+                "codeception/codeception": "^4.0 | *@dev",
+                "codeception/lib-innerbrowser": "^1.5 | *@dev",
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^7.3",
+                "php": "^7.4 | ^8.0"
             },
             "conflict": {
                 "codeception/codeception": "<4.0"
             },
             "require-dev": {
-                "codeception/module-rest": "^1.0"
+                "aws/aws-sdk-php": "^3.199",
+                "codeception/module-rest": "^1.3 | *@dev",
+                "ext-curl": "*"
             },
             "suggest": {
                 "codeception/phpbuiltinserver": "Start and stop PHP built-in web server for your tests"
@@ -11445,7 +11448,7 @@
                 }
             ],
             "description": "Codeception module for testing web application over HTTP",
-            "homepage": "http://codeception.com/",
+            "homepage": "https://codeception.com/",
             "keywords": [
                 "codeception",
                 "functional-testing",
@@ -11453,32 +11456,35 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-phpbrowser/issues",
-                "source": "https://github.com/Codeception/module-phpbrowser/tree/1.0.2"
+                "source": "https://github.com/Codeception/module-phpbrowser/tree/2.0.0"
             },
-            "time": "2020-10-24T15:29:28+00:00"
+            "time": "2021-12-05T05:30:09+00:00"
         },
         {
             "name": "codeception/module-rest",
-            "version": "1.4.2",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-rest.git",
-                "reference": "9cd7a87fd9343494e7782f7bdb51687c25046917"
+                "reference": "da2666b9097f2a3951e56cb478bc6625a7f71fbb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-rest/zipball/9cd7a87fd9343494e7782f7bdb51687c25046917",
-                "reference": "9cd7a87fd9343494e7782f7bdb51687c25046917",
+                "url": "https://api.github.com/repos/Codeception/module-rest/zipball/da2666b9097f2a3951e56cb478bc6625a7f71fbb",
+                "reference": "da2666b9097f2a3951e56cb478bc6625a7f71fbb",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^4.0",
+                "ext-dom": "*",
+                "ext-json": "*",
                 "justinrainbow/json-schema": "~5.2.9",
-                "php": ">=5.6.6 <9.0",
-                "softcreatr/jsonpath": "^0.5 || ^0.7"
+                "php": "^7.4 | ^8.0",
+                "softcreatr/jsonpath": "^0.5 | ^0.7"
             },
             "require-dev": {
                 "codeception/lib-innerbrowser": "^1.0",
+                "codeception/stub": "^3.7",
                 "codeception/util-universalframework": "^1.0"
             },
             "suggest": {
@@ -11500,34 +11506,34 @@
                 }
             ],
             "description": "REST module for Codeception",
-            "homepage": "http://codeception.com/",
+            "homepage": "https://codeception.com/",
             "keywords": [
                 "codeception",
                 "rest"
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-rest/issues",
-                "source": "https://github.com/Codeception/module-rest/tree/1.4.2"
+                "source": "https://github.com/Codeception/module-rest/tree/2.0.0"
             },
-            "time": "2021-11-18T18:58:15+00:00"
+            "time": "2021-12-04T13:32:41+00:00"
         },
         {
             "name": "codeception/module-sequence",
-            "version": "1.0.1",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-sequence.git",
-                "reference": "b75be26681ae90824cde8f8df785981f293667e1"
+                "reference": "60607ad04949806d15d18d1639cd3614b338f07a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-sequence/zipball/b75be26681ae90824cde8f8df785981f293667e1",
-                "reference": "b75be26681ae90824cde8f8df785981f293667e1",
+                "url": "https://api.github.com/repos/Codeception/module-sequence/zipball/60607ad04949806d15d18d1639cd3614b338f07a",
+                "reference": "60607ad04949806d15d18d1639cd3614b338f07a",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^4.0",
-                "php": ">=5.6.0 <9.0"
+                "php": "^7.4 | ^8.0"
             },
             "type": "library",
             "autoload": {
@@ -11551,9 +11557,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-sequence/issues",
-                "source": "https://github.com/Codeception/module-sequence/tree/1.0.1"
+                "source": "https://github.com/Codeception/module-sequence/tree/2.0.0"
             },
-            "time": "2020-10-31T18:36:26+00:00"
+            "time": "2021-11-30T02:02:52+00:00"
         },
         {
             "name": "codeception/module-symfony",
@@ -11625,21 +11631,23 @@
         },
         {
             "name": "codeception/module-webdriver",
-            "version": "1.4.0",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-webdriver.git",
-                "reference": "baa18b7bf70aa024012f967b5ce5021e1faa9151"
+                "reference": "085c55430c5e17c1b710ecdc9bd22e175dffed4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-webdriver/zipball/baa18b7bf70aa024012f967b5ce5021e1faa9151",
-                "reference": "baa18b7bf70aa024012f967b5ce5021e1faa9151",
+                "url": "https://api.github.com/repos/Codeception/module-webdriver/zipball/085c55430c5e17c1b710ecdc9bd22e175dffed4b",
+                "reference": "085c55430c5e17c1b710ecdc9bd22e175dffed4b",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^4.0",
-                "php": ">=5.6.0 <9.0",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": "^7.4 | ^8.0",
                 "php-webdriver/webdriver": "^1.8.0"
             },
             "suggest": {
@@ -11667,7 +11675,7 @@
                 }
             ],
             "description": "WebDriver module for Codeception",
-            "homepage": "http://codeception.com/",
+            "homepage": "https://codeception.com/",
             "keywords": [
                 "acceptance-testing",
                 "browser-testing",
@@ -11675,9 +11683,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-webdriver/issues",
-                "source": "https://github.com/Codeception/module-webdriver/tree/1.4.0"
+                "source": "https://github.com/Codeception/module-webdriver/tree/2.0.0"
             },
-            "time": "2021-09-02T12:01:02+00:00"
+            "time": "2021-11-30T02:48:27+00:00"
         },
         {
             "name": "codeception/phpunit-wrapper",
@@ -11730,22 +11738,22 @@
         },
         {
             "name": "codeception/specify",
-            "version": "1.4.0",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Specify.git",
-                "reference": "17ae6d4d6cb201ef5461f6587ecfcff8c177f854"
+                "reference": "b718b4b9bb722be4756aa7c9aa7e89b6babc2cf6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Specify/zipball/17ae6d4d6cb201ef5461f6587ecfcff8c177f854",
-                "reference": "17ae6d4d6cb201ef5461f6587ecfcff8c177f854",
+                "url": "https://api.github.com/repos/Codeception/Specify/zipball/b718b4b9bb722be4756aa7c9aa7e89b6babc2cf6",
+                "reference": "b718b4b9bb722be4756aa7c9aa7e89b6babc2cf6",
                 "shasum": ""
             },
             "require": {
-                "myclabs/deep-copy": "~1.1",
-                "php": ">=7.1.0",
-                "phpunit/phpunit": ">=7.0 <10.0"
+                "myclabs/deep-copy": "^1.10",
+                "php": ">=7.4.0",
+                "phpunit/phpunit": "^8.0|^9.0"
             },
             "type": "library",
             "autoload": {
@@ -11770,9 +11778,9 @@
             "description": "BDD code blocks for PHPUnit and Codeception",
             "support": {
                 "issues": "https://github.com/Codeception/Specify/issues",
-                "source": "https://github.com/Codeception/Specify/tree/1.4.0"
+                "source": "https://github.com/Codeception/Specify/tree/2.0.0"
             },
-            "time": "2020-08-27T20:17:29+00:00"
+            "time": "2021-11-22T00:16:11+00:00"
         },
         {
             "name": "codeception/stub",
