@@ -89,7 +89,7 @@
         "symfony/security-csrf": "5.4.*",
         "symfony/serializer": "5.4.*",
         "symfony/swiftmailer-bundle": "^3.2",
-        "symfony/translation": "5.4.*",
+        "symfony/translation": "6.0.*",
         "symfony/twig-bundle": "5.4.*",
         "symfony/validator": "5.4.*",
         "symfony/web-link": "5.4.*",
