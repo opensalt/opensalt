@@ -1,76 +1,46 @@
 # https://docs.github.com/en/code-security/supply-chain-security/configuration-options-for-dependency-updates
 version: 2
 updates:
-- package-ecosystem: composer
-  directory: "/core"
-  schedule:
-    #interval: weekly
-    #day: monday
-    interval: daily
-    # Check for updates at noon UTC (5am PDT/4am PST)
-    time: "12:00"
-  open-pull-requests-limit: 5
-  reviewers:
-  - roverwolf
-  # Ignore dev dependencies that match what composer would update
-  # as we care more about non-dev dependencies,
-  # but notification of major upgrades to dev dependencies is good
-  ignore:
-  - dependency-name: roave/security-advisories
-  - dependency-name: vimeo/psalm
-    version: "^4.6"
-  - dependency-name: psalm/plugin-symfony
-    version: "^2.1"
-  - dependency-name: weirdan/doctrine-psalm-plugin
-    version: "^1.0"
-  - dependency-name: phpstan/phpstan
-    version: "^0.12"
-  - dependency-name: phpstan/phpstan-symfony
-    version: "^0.12"
-  - dependency-name: phpstan/phpstan-doctrine
-    version: "^0.12"
-  - dependency-name: symplify/easy-coding-standard
-    version: "^9.0"
-  - dependency-name: escapestudios/symfony2-coding-standard
-    version: "^3.1"
-  - dependency-name: codeception/codeception
-    version: "^4.1"
-  - dependency-name: codeception/module-asserts
-    version: "^1.0"
-  - dependency-name: codeception/module-doctrine2
-    version: "^1.0"
-  - dependency-name: codeception/module-phpbrowser
-    version: "^1.0"
-  - dependency-name: codeception/module-rest
-    version: "^1.0"
-  - dependency-name: codeception/module-sequence
-    version: "^1.0"
-  - dependency-name: codeception/module-symfony
-    version: "^2.0"
-  - dependency-name: codeception/module-webdriver
-    version: "^1.0"
-  - dependency-name: codeception/specify
-    version: "^1.1"
-  - dependency-name: codeception/verify
-    version: "^2.0"
-  - dependency-name: ericmartel/codeception-email-mailtrap
-    version: "^1.0"
-  - dependency-name: softcreatr/jsonpath
-    version: "~0.4"
-  - dependency-name: league/factory-muffin
-    version: "^3.3"
-  - dependency-name: league/factory-muffin-faker
-    version: "^2.0"
-  - dependency-name: phpunit/phpunit
-    version: "^9.0"
-  - dependency-name: vlucas/phpdotenv
-    version: "^5.0"
-  - dependency-name: symfony/maker-bundle
-    version: "^1.5"
-  - dependency-name: symfony/phpunit-bridge
-    version: "5.2.*"
-  - dependency-name: jetbrains/phpstorm-attributes
-    version: "^1.0"
-  # Also ignore aws-sdk-php at it updates frequently but doesn't affect much
-  - dependency-name: aws/aws-sdk-php
-    version: "^3"
+  - package-ecosystem: "composer"
+    directory: "/core"
+    schedule:
+      #interval: weekly
+      #day: monday
+      interval: "daily"
+      # Check for updates at noon UTC (5am PDT/4am PST)
+      time: "12:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - roverwolf
+    # Ignore dev dependencies that match what composer would update
+    # as we care more about non-dev dependencies,
+    # but notification of major upgrades to dev dependencies is good
+    ignore:
+      - dependency-name: roave/security-advisories
+      - dependency-name: symplify/easy-coding-standard
+        versions: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: escapestudios/symfony2-coding-standard
+        versions: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: "codeception/*"
+        versions: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: ericmartel/codeception-email-mailtrap
+        versions: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: softcreatr/jsonpath
+        versions: ["version-update:semver-patch"]
+      - dependency-name: league/factory-muffin
+        versions: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: league/factory-muffin-faker
+        versions: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: phpunit/phpunit
+      - dependency-name: vlucas/phpdotenv
+        versions: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: symfony/maker-bundle
+        versions: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: symfony/phpunit-bridge
+      - dependency-name: jetbrains/phpstorm-attributes
+        versions: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: "symfony/*"
+        versions: ["version-update:semver-major", "version-update:semver-minor"]
+      # Also ignore aws-sdk-php at it updates frequently but doesn't affect much
+      - dependency-name: aws/aws-sdk-php
+        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
