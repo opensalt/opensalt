@@ -77,7 +77,7 @@
         "symfony/flex": "^2.0",
         "symfony/form": "5.4.*",
         "symfony/framework-bundle": "5.4.*",
-        "symfony/intl": "5.4.*",
+        "symfony/intl": "6.0.*",
         "symfony/mercure-bundle": "^0.3.0",
         "symfony/mime": "5.4.*",
         "symfony/monolog-bundle": "^3.3",
@@ -103,7 +103,7 @@
     "require-dev": {
         "codeception/codeception": "^4.1",
         "codeception/module-asserts": "^1.0",
-        "codeception/module-doctrine2": "^1.0",
+        "codeception/module-doctrine2": "^2.0",
         "codeception/module-phpbrowser": "^1.0",
         "codeception/module-rest": "^1.0",
         "codeception/module-sequence": "^1.0",
