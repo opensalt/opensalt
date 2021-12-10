@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "14a0d838c90877d8419519cd305f9504",
+    "content-hash": "7058a57cf815f1beb2ed04b4fede7a2f",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -8490,21 +8490,20 @@
         },
         {
             "name": "symfony/process",
-            "version": "v5.4.0",
+            "version": "v6.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "5be20b3830f726e019162b26223110c8f47cf274"
+                "reference": "d970c45c2186aa4331d1656950a82df64e232580"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/5be20b3830f726e019162b26223110c8f47cf274",
-                "reference": "5be20b3830f726e019162b26223110c8f47cf274",
+                "url": "https://api.github.com/repos/symfony/process/zipball/d970c45c2186aa4331d1656950a82df64e232580",
+                "reference": "d970c45c2186aa4331d1656950a82df64e232580",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.5",
-                "symfony/polyfill-php80": "^1.16"
+                "php": ">=8.0.2"
             },
             "type": "library",
             "autoload": {
@@ -8532,7 +8531,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v5.4.0"
+                "source": "https://github.com/symfony/process/tree/v6.0.0"
             },
             "funding": [
                 {
@@ -8548,7 +8547,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-11-28T15:25:38+00:00"
+            "time": "2021-11-28T15:34:37+00:00"
         },
         {
             "name": "symfony/property-access",
@@ -11341,27 +11340,31 @@
         },
         {
             "name": "codeception/module-doctrine2",
-            "version": "1.1.1",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-doctrine2.git",
-                "reference": "a39cd444fac840c907d33d33bca83e57dd0e04d1"
+                "reference": "afcf8f4c0f9e3db21f9c6dc6a72f30b114383dec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/a39cd444fac840c907d33d33bca83e57dd0e04d1",
-                "reference": "a39cd444fac840c907d33d33bca83e57dd0e04d1",
+                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/afcf8f4c0f9e3db21f9c6dc6a72f30b114383dec",
+                "reference": "afcf8f4c0f9e3db21f9c6dc6a72f30b114383dec",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^4.0",
-                "php": ">=5.6.0 <9.0"
+                "ext-json": "*",
+                "ext-pdo": "*",
+                "php": "^7.4 | ^8.0"
             },
             "require-dev": {
                 "doctrine/annotations": "^1",
                 "doctrine/data-fixtures": "^1",
-                "doctrine/orm": "^2",
-                "ramsey/uuid-doctrine": "^1.5"
+                "doctrine/orm": "^2.10",
+                "phpstan/phpstan": "^0.12",
+                "ramsey/uuid-doctrine": "^1.5",
+                "symfony/cache": "^4.4 | ^5.4 | ^6.0"
             },
             "type": "library",
             "autoload": {
@@ -11382,16 +11385,16 @@
                 }
             ],
             "description": "Doctrine2 module for Codeception",
-            "homepage": "http://codeception.com/",
+            "homepage": "https://codeception.com/",
             "keywords": [
                 "codeception",
                 "doctrine2"
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-doctrine2/issues",
-                "source": "https://github.com/Codeception/module-doctrine2/tree/1.1.1"
+                "source": "https://github.com/Codeception/module-doctrine2/tree/2.0.0"
             },
-            "time": "2020-11-26T06:56:31+00:00"
+            "time": "2021-12-02T00:05:31+00:00"
         },
         {
             "name": "codeception/module-phpbrowser",
