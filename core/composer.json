@@ -104,7 +104,7 @@
         "codeception/codeception": "^4.1",
         "codeception/module-asserts": "^2.0",
         "codeception/module-doctrine2": "^2.0",
-        "codeception/module-phpbrowser": "^1.0",
+        "codeception/module-phpbrowser": "^2.0",
         "codeception/module-rest": "^2.0",
         "codeception/module-sequence": "^2.0",
         "codeception/module-symfony": "^2.0",
