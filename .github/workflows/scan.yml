@@ -1,7 +1,11 @@
 name: Scan
 
 on:
-  push: ~
+  push:
+    branches:
+      - '**'
+      - '!dependabot/**'
+      - '!**:**'
 
 defaults:
   run:
