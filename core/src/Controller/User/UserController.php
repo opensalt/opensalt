@@ -13,12 +13,12 @@ use App\Entity\User\User;
 use App\Form\Type\UserType;
 use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -44,11 +44,8 @@ class UserController extends AbstractController
      * Lists all user entities.
      *
      * @Route("/", methods={"GET"}, name="admin_user_index")
-     * @Template()
-     *
-     * @return array
      */
-    public function indexAction()
+    public function index(): Response
     {
         $em = $this->managerRegistry->getManager();
 
@@ -74,23 +71,20 @@ class UserController extends AbstractController
             $rejectForm[$user->getId()] = $this->createRejectForm($user)->createView();
         }
 
-        return [
+        return $this->render('user/user/index.html.twig', [
             'users' => $users,
             'suspend_form' => $suspendForm,
             'activate_form' => $activateForm,
             'reject_form' => $rejectForm,
-        ];
+        ]);
     }
 
     /**
      * Creates a new user entity.
      *
      * @Route("/new", methods={"GET", "POST"}, name="admin_user_new")
-     * @Template()
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function newAction(Request $request)
+    public function create(Request $request): Response
     {
         $targetUser = new User();
         $form = $this->createForm(UserType::class, $targetUser, ['validation_groups' => ['registration']]);
@@ -121,10 +115,10 @@ class UserController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('user/user/new.html.twig', [
             'user' => $targetUser,
             'form' => $form->createView(),
-        ];
+        ]);
     }
 
     /**
@@ -132,18 +126,15 @@ class UserController extends AbstractController
      *
      * @Route("/{id}", methods={"GET"}, name="admin_user_show")
      * @Security("is_granted('manage', targetUser)")
-     * @Template()
-     *
-     * @return array
      */
-    public function showAction(User $targetUser)
+    public function show(User $targetUser): Response
     {
         $deleteForm = $this->createDeleteForm($targetUser);
 
-        return [
+        return $this->render('user/user/show.html.twig', [
             'user' => $targetUser,
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
@@ -151,11 +142,8 @@ class UserController extends AbstractController
      *
      * @Route("/{id}/edit", methods={"GET", "POST"}, name="admin_user_edit")
      * @Security("is_granted('manage', targetUser)")
-     * @Template()
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function editAction(Request $request, User $targetUser)
+    public function edit(Request $request, User $targetUser): Response
     {
         $deleteForm = $this->createDeleteForm($targetUser);
         $editForm = $this->createForm(UserType::class, $targetUser);
@@ -179,11 +167,11 @@ class UserController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('user/user/edit.html.twig', [
             'user' => $targetUser,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
@@ -192,7 +180,7 @@ class UserController extends AbstractController
      * @Route("/{id}/suspend", methods={"POST"}, name="admin_user_suspend")
      * @Security("is_granted('manage', targetUser)")
      */
-    public function suspendAction(Request $request, User $targetUser): RedirectResponse
+    public function suspend(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createSuspendForm($targetUser);
         $form->handleRequest($request);
@@ -211,7 +199,7 @@ class UserController extends AbstractController
      * @Route("/{id}/activate", methods={"POST"}, name="admin_user_activate")
      * @Security("is_granted('manage', targetUser)")
      */
-    public function activateAction(Request $request, User $targetUser): RedirectResponse
+    public function activate(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createActivateForm($targetUser);
         $form->handleRequest($request);
@@ -240,7 +228,7 @@ class UserController extends AbstractController
      * @Route("/{id}/reject", methods={"POST"}, name="admin_user_reject")
      * @Security("is_granted('manage', targetUser)")
      */
-    public function rejectAction(Request $request, User $targetUser): RedirectResponse
+    public function reject(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createRejectForm($targetUser);
         $form->handleRequest($request);
@@ -259,7 +247,7 @@ class UserController extends AbstractController
      * @Route("/{id}", methods={"DELETE"}, name="admin_user_delete")
      * @Security("is_granted('manage', targetUser)")
      */
-    public function deleteAction(Request $request, User $targetUser): RedirectResponse
+    public function delete(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createDeleteForm($targetUser);
         $form->handleRequest($request);
@@ -274,10 +262,6 @@ class UserController extends AbstractController
 
     /**
      * Creates a form to suspend a user entity.
-     *
-     * @param User $targetUser The user entity
-     *
-     * @return \Symfony\Component\Form\FormInterface The form
      */
     private function createSuspendForm(User $targetUser): FormInterface
     {
@@ -289,10 +273,6 @@ class UserController extends AbstractController
 
     /**
      * Creates a form to activate a user entity.
-     *
-     * @param User $targetUser The user entity
-     *
-     * @return \Symfony\Component\Form\FormInterface The form
      */
     private function createActivateForm(User $targetUser): FormInterface
     {
@@ -304,10 +284,6 @@ class UserController extends AbstractController
 
     /**
      * Creates a form to reject a user entity.
-     *
-     * @param User $targetUser The user entity
-     *
-     * @return \Symfony\Component\Form\FormInterface The form
      */
     private function createRejectForm(User $targetUser): FormInterface
     {
@@ -319,10 +295,6 @@ class UserController extends AbstractController
 
     /**
      * Creates a form to delete a user entity.
-     *
-     * @param User $targetUser The user entity
-     *
-     * @return \Symfony\Component\Form\FormInterface The form
      */
     private function createDeleteForm(User $targetUser): FormInterface
     {

@@ -2,8 +2,8 @@
 
 namespace App\Controller\Site;
 
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class AboutController extends AbstractController
@@ -20,9 +20,8 @@ class AboutController extends AbstractController
 
     /**
      * @Route("/about", name="site_about")
-     * @Template()
      */
-    public function aboutAction()
+    public function aboutAction(): Response
     {
         if (file_exists($this->projectDir.'/public/version.txt')) {
             $fullVersion = trim(file_get_contents($this->projectDir.'/public/version.txt'));
@@ -32,8 +31,8 @@ class AboutController extends AbstractController
             $fullVersion = 'UNKNOWN';
         }
 
-        return [
+        return $this->render('site/about/about.html.twig', [
             'salt_version' => $fullVersion,
-        ];
+        ]);
     }
 }

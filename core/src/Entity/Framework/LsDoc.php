@@ -588,9 +588,9 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @return LsItem[]|Collection
+     * @return Collection<array-key, LsItem>
      */
-    public function getTopLsItems()
+    public function getTopLsItems(): Collection
     {
         $topAssociations = [];
 
@@ -620,6 +620,13 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         }, $topAssociations);
 
         return new ArrayCollection($orderedList);
+    }
+
+    public function getTopLsItemIds(): array
+    {
+        return $this->getTopLsItems()->map(static function (LsItem $item): ?int {
+            return $item->getId();
+        })->toArray();
     }
 
     public function addLsItem(LsItem $lsItem): LsDoc

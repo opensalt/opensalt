@@ -3,31 +3,28 @@
 namespace App\Controller\User;
 
 use App\Command\CommandDispatcherTrait;
-use App\Command\User\DeleteFrameworkAclCommand;
-use App\Entity\Framework\LsDoc;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use App\Entity\User\User;
-use App\Entity\User\UserDocAcl;
-use App\Form\Type\AddAclUsernameType;
-use App\Form\Type\AddAclUserType;
 use App\Command\User\AddFrameworkUserAclCommand;
 use App\Command\User\AddFrameworkUsernameAclCommand;
+use App\Command\User\DeleteFrameworkAclCommand;
+use App\Entity\Framework\LsDoc;
+use App\Entity\User\User;
+use App\Entity\User\UserDocAcl;
 use App\Form\DTO\AddAclUserDTO;
 use App\Form\DTO\AddAclUsernameDTO;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Form\Type\AddAclUsernameType;
+use App\Form\Type\AddAclUserType;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Class FrameworkAclController
- *
  * @Route("/cfdoc")
  */
 class FrameworkAclController extends AbstractController
@@ -36,12 +33,9 @@ class FrameworkAclController extends AbstractController
 
     /**
      * @Route("/{id}/acl", methods={"GET", "POST"}, name="framework_acl_edit")
-     * @Template()
      * @Security("is_granted('manage_editors', lsDoc)")
-     *
-     * @return array|RedirectResponse
      */
-    public function editAction(Request $request, LsDoc $lsDoc)
+    public function editAction(Request $request, LsDoc $lsDoc): Response
     {
         $addAclUserDto = new AddAclUserDTO($lsDoc, UserDocAcl::DENY);
         $addOrgUserForm = $this->createForm(AddAclUserType::class, $addAclUserDto, [
@@ -82,7 +76,7 @@ class FrameworkAclController extends AbstractController
             $orgUsers = $lsDoc->getOrg()->getUsers();
         }
 
-        return [
+        return $this->render('user/framework_acl/edit.html.twig', [
             'lsDoc' => $lsDoc,
             'aclCount' => $acls->count(),
             'acls' => $acls,
@@ -90,13 +84,10 @@ class FrameworkAclController extends AbstractController
             'addOrgUserForm' => $addOrgUserForm->createView(),
             'addUsernameForm' => $addUsernameForm->createView(),
             'deleteForms' => $deleteForms,
-        ];
+        ]);
     }
 
-    /**
-     * @return RedirectResponse|null
-     */
-    private function handleOrgUserAdd(LsDoc $lsDoc, FormInterface $addOrgUserForm): ?Response
+    private function handleOrgUserAdd(LsDoc $lsDoc, FormInterface $addOrgUserForm): ?RedirectResponse
     {
         if ($addOrgUserForm->isSubmitted() && $addOrgUserForm->isValid()) {
             $dto = $addOrgUserForm->getData();
@@ -124,10 +115,7 @@ class FrameworkAclController extends AbstractController
         return null;
     }
 
-    /**
-     * @return RedirectResponse|null
-     */
-    private function handleUsernameAdd(LsDoc $lsDoc, FormInterface $addUsernameForm): ?Response
+    private function handleUsernameAdd(LsDoc $lsDoc, FormInterface $addUsernameForm): ?RedirectResponse
     {
         if ($addUsernameForm->isSubmitted() && $addUsernameForm->isValid()) {
             $dto = $addUsernameForm->getData();
@@ -159,10 +147,8 @@ class FrameworkAclController extends AbstractController
     /**
      * @Route("/{id}/acl/{targetUser}", methods={"DELETE"}, name="framework_acl_remove")
      * @Security("is_granted('manage_editors', lsDoc)")
-     *
-     * @return RedirectResponse
      */
-    public function removeAclAction(Request $request, LsDoc $lsDoc, User $targetUser): Response
+    public function removeAclAction(Request $request, LsDoc $lsDoc, User $targetUser): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDoc, $targetUser);
         $form->handleRequest($request);
@@ -177,10 +163,6 @@ class FrameworkAclController extends AbstractController
 
     /**
      * Creates a form to delete a user entity.
-     *
-     * @param User $targetUser The user entity
-     *
-     * @return \Symfony\Component\Form\FormInterface The form
      */
     private function createDeleteForm(LsDoc $lsDoc, User $targetUser): FormInterface
     {
