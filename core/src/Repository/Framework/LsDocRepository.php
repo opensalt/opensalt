@@ -450,6 +450,7 @@ xENDx;
      * Get a list of all items for an LsDoc.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
      * @return array array of LsItems hydrated as an array
      */
     public function findAllItems(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
@@ -473,6 +474,7 @@ xENDx;
      * Get a list of all item types used in a document.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
      * @return array array of LsDefItemTypes
      */
     public function findAllUsedItemTypes(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
@@ -492,6 +494,7 @@ xENDx;
      * Get a list of all associations for an LsDoc.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
      * @return array array of LsAssociations hydrated as an array
      */
     public function findAllAssociations(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
@@ -514,6 +517,7 @@ xENDx;
      * Get a list of all association groups used in an LsDoc.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
      * @return array array of LsAssociations hydrated as an array
      */
     public function findAllUsedAssociationGroups(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
@@ -533,6 +537,7 @@ xENDx;
      * Get a list of all concepts used in a document.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
      * @return array array of LsDefItemTypes
      */
     public function findAllUsedConcepts(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
@@ -552,6 +557,7 @@ xENDx;
      * Get a list of all licences used in a document.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
      * @return array array of LsDefItemTypes
      */
     public function findAllUsedLicences(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
@@ -588,6 +594,7 @@ xENDx;
      * Get a list of all licences used in a document.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
      * @return array array of LsDefItemTypes
      */
     public function findAllUsedRubrics(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
@@ -608,6 +615,7 @@ xENDx;
      * Get a list of all association groups used in an LsDoc.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
      * @return array array of LsAssociations hydrated as an array
      */
     public function findAllDocAssociationGroups(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_OBJECT): array
@@ -729,6 +737,7 @@ xENDx;
      * Get a list of all items for an LsDoc.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
      * @return array array of LsItems hydrated as an array
      */
     public function findItemsForExportDoc(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
@@ -753,6 +762,7 @@ xENDx;
      * Get a list of all items for an LsDoc.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
      * @return array array of LsItems hydrated as an array
      */
     public function findAssociationsForExportDoc(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
