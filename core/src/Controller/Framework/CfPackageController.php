@@ -5,7 +5,6 @@ namespace App\Controller\Framework;
 use App\Entity\ChangeEntry;
 use App\Entity\Framework\LsDoc;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,12 +29,9 @@ class CfPackageController extends AbstractController
      *
      * @Route("/doc/{id}.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, methods={"GET"}, defaults={"_format"="json"}, name="cfpackage_export")
      * @Route("/doc/{id}/export.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, methods={"GET"}, defaults={"_format"="json"}, name="cfpackage_export2")
-     * @Template()
      */
-    public function exportAction(Request $request, LsDoc $lsDoc, $_format = 'json')
+    public function exportAction(Request $request, LsDoc $lsDoc, string $_format = 'json'): Response
     {
-        $repo = $this->managerRegistry->getRepository(LsDoc::class);
-
         if ('json' === $_format) {
             $response = $this->generateBaseResponse($lsDoc);
 
@@ -57,7 +53,11 @@ class CfPackageController extends AbstractController
             return $response;
         }
 
-        return $this->generateSimplePackageArray($lsDoc);
+        if (!in_array($_format, ['json', 'html', 'pdf', 'csv'])) {
+            $_format = 'json';
+        }
+
+        return $this->render('framework/cf_package/export.'.$_format.'.twig', $this->generateSimplePackageArray($lsDoc));
     }
 
     /**

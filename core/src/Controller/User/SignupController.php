@@ -11,10 +11,10 @@ use App\Entity\User\Organization;
 use App\Entity\User\User;
 use App\Form\Type\SignupType;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -39,11 +39,8 @@ class SignupController extends AbstractController
      * Creates a new user entity.
      *
      * @Route("/signup", methods={"GET", "POST"}, name="public_user_signup")
-     * @Template()
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function signupAction(Request $request)
+    public function signupAction(Request $request): Response
     {
         $targetUser = new User();
         $form = $this->createForm(SignupType::class, $targetUser, ['validation_groups' => ['registration']]);
@@ -121,9 +118,9 @@ class SignupController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('user/signup/signup.html.twig', [
             'user' => $targetUser,
             'form' => $form->createView(),
-        ];
+        ]);
     }
 }

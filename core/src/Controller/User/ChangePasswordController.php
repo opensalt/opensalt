@@ -8,9 +8,9 @@ use App\Entity\User\User;
 use App\Form\DTO\ChangePasswordDTO;
 use App\Form\Type\ChangePasswordType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -29,11 +29,8 @@ class ChangePasswordController extends AbstractController
 
     /**
      * @Route("/user/change-password", name="user_change_password")
-     * @Template()
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function changePasswordAction(Request $request)
+    public function changePasswordAction(Request $request): Response
     {
         $dto = new ChangePasswordDTO();
         $form = $this->createForm(ChangePasswordType::class, $dto);
@@ -56,8 +53,8 @@ class ChangePasswordController extends AbstractController
             return $this->redirectToRoute('salt_index');
         }
 
-        return [
+        return $this->render('user/change_password/change_password.html.twig', [
             'form' => $form->createView(),
-        ];
+        ]);
     }
 }

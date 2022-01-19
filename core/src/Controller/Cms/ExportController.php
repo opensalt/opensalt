@@ -4,9 +4,9 @@ namespace App\Controller\Cms;
 
 use App\Entity\Framework\LsDoc;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/cms")
@@ -19,21 +19,23 @@ class ExportController extends AbstractController
     }
 
     /**
-     * Generate JSON formatted for export to CMS
+     * Generate JSON formatted for export to CMS.
      *
      * @Route("/cfdoc/{id}.{_format}", methods={"GET"}, name="lsdoc_api_view", requirements={"id"="\d+"})
-     * @Template()
-     *
-     * @param string $_format
      */
-    public function exportAction(LsDoc $lsDoc, $_format = 'json'): array
+    public function exportAction(LsDoc $lsDoc, string $_format = 'json'): Response
     {
         $items = $this->managerRegistry->getRepository(LsDoc::class)->findAllChildrenArray($lsDoc);
 
-        return [
+        $params = [
             'lsDoc' => $lsDoc,
             'items' => $items,
         ];
-    }
 
+        if ('html' === $_format) {
+            return $this->render('cms/export/export.html.twig', $params);
+        }
+
+        return $this->render('cms/export/export.json.twig', $params);
+    }
 }

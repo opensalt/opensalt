@@ -19,9 +19,6 @@
         {% if parent is defined and parent is not empty -%}
             ,"parent": {{ parent.extra.cmsId|default(parent.identifier)|json_encode|raw }}
         {% endif -%}
-        {% if lsItem.rank is not empty -%}
-            ,"weight": {{ lsItem.rank|raw }}
-        {%- endif %}
 
     } }
 {%- if lsItem.children is not empty -%}
