@@ -18,7 +18,7 @@ final class LsDefItemTypeNormalizer implements ContextAwareNormalizerInterface
     /**
      * @inheritDoc
      */
-    public function supportsNormalization($data, string $format = null, array $context = [])
+    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof LsDefItemType;
     }
