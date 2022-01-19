@@ -7,7 +7,7 @@ use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 
 class CommentNormalizer implements ContextAwareNormalizerInterface
 {
-    public function supportsNormalization($data, string $format = null, array $context = [])
+    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof Comment;
     }
