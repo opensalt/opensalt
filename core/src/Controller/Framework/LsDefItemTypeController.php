@@ -63,6 +63,7 @@ class LsDefItemTypeController extends AbstractController
         // ?page_limit=N&q=SEARCHTEXT
         $em = $this->managerRegistry->getManager();
 
+        /** @var string|null $search */
         $search = $request->query->get('q', null);
         $page = $request->query->get('page', '1');
         $page_limit = $request->query->get('page_limit', '50');
