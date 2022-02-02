@@ -24,7 +24,7 @@ class MercureCreateJwtCommand extends Command
         $this
             ->setDescription('Create a JWT key to use with Mercure')
             ->addArgument('key', InputArgument::REQUIRED, 'JWT Key to use')
-            ->addOption('payload', null, InputOption::VALUE_OPTIONAL, 'Option payload in JSON')
+            ->addOption('payload', null, InputOption::VALUE_OPTIONAL, 'Optional payload in JSON')
         ;
     }
 
@@ -40,11 +40,12 @@ class MercureCreateJwtCommand extends Command
             ],
         ];
 
-        if (null !== $input->getOption('payload')) {
-            $payload = json_decode($input->getOption('payload'), true, 512, JSON_THROW_ON_ERROR);
+        $passedPayload = $input->getOption('payload');
+        if (null !== $passedPayload) {
+            $payload = json_decode($passedPayload, true, 512, JSON_THROW_ON_ERROR);
         }
 
-        $out = JWT::encode($payload, $key);
+        $out = JWT::encode($payload, $key, 'HS256');
 
         $io->writeln($out);
 
