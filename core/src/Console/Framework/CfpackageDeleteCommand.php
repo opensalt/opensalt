@@ -7,6 +7,7 @@ use App\Console\BaseDoctrineCommand;
 use App\Entity\Framework\LsDoc;
 use App\Event\CommandEvent;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -41,6 +42,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
         }
 
         if (!$input->getOption('yes')) {
+            /** @var QuestionHelper $helper */
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion("<question>Do you really want to delete '{$lsDoc->getTitle()}'? (y/n)</question> ", false);
             if (!$helper->ask($input, $output, $question)) {
@@ -53,7 +55,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
         $progress = new ProgressBar($output, 8);
         $progress->start();
 
-        $callback = static function ($message = '') use ($progress) {
+        $callback = static function (string $message = '') use ($progress): void {
             $progress->setMessage(' '.$message);
             $progress->advance();
         };

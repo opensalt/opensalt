@@ -6,6 +6,7 @@ use App\Command\User\AddOrganizationByNameCommand;
 use App\Console\BaseDoctrineCommand;
 use App\Event\CommandEvent;
 use App\Entity\User\Organization;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -22,10 +23,11 @@ class OrgAddCommand extends BaseDoctrineCommand
         ;
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
         parent::interact($input, $output);
 
+        /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
 
         if (empty($input->getArgument('org'))) {

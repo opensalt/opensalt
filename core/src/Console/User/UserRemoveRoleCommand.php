@@ -3,6 +3,7 @@
 namespace App\Console\User;
 
 use App\Command\User\RemoveUserRoleCommand;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,7 +11,7 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 
 class UserRemoveRoleCommand extends UserRoleCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('salt:user:remove-role')
@@ -20,10 +21,11 @@ class UserRemoveRoleCommand extends UserRoleCommand
         ;
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
         parent::interact($input, $output);
 
+        /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
 
         if (empty($input->getArgument('role'))) {

@@ -5,6 +5,7 @@ namespace App\Console\User;
 use App\Command\User\SetUserPasswordCommand;
 use App\Console\BaseDispatchingCommand;
 use App\Event\CommandEvent;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -26,12 +27,13 @@ class UserSetPasswordCommand extends BaseDispatchingCommand
     {
         parent::interact($input, $output);
 
+        /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
 
         if (empty($input->getArgument('username'))) {
             $question = new Question('Email address or username of new user: ');
-            $question->setValidator(function ($value) {
-                if (trim($value) === '') {
+            $question->setValidator(function (string $value): string {
+                if ('' === trim($value)) {
                     throw new \Exception('The username can not be empty');
                 }
 
@@ -51,7 +53,10 @@ class UserSetPasswordCommand extends BaseDispatchingCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $username = trim($input->getArgument('username'));
-        $password = trim($input->getArgument('password'));
+        $password = $input->getArgument('password');
+        if (null !== $password) {
+            $password = trim($password);
+        }
 
         $command = new SetUserPasswordCommand($username, $password);
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
