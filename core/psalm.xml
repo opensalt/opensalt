@@ -8,7 +8,8 @@
     errorLevel="6"
     reportMixedIssues="false"
     autoloader="vendor/autoload.php"
-    errorBaseline="../.github/psalm/psalm.baseline.xml"
+    errorBaseline="./psalm.baseline.xml"
+    allowStringToStandInForClass="true"
 >
     <plugins>
         <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>

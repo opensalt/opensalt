@@ -13,8 +13,6 @@ parameters:
 	reportUnmatchedIgnoredErrors: false
 	paths:
 		- './src'
-	excludes_analyse:
-		- './migrations'
 	symfony:
 		container_xml_path: './var/cache/dev/App_KernelDevDebugContainer.xml'
 	doctrine:
