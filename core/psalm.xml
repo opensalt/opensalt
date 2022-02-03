@@ -8,7 +8,7 @@
     errorLevel="6"
     reportMixedIssues="false"
     autoloader="vendor/autoload.php"
-    errorBaseline="./psalm.baseline.xml"
+    errorBaseline="../.github/psalm/psalm.baseline.xml"
     allowStringToStandInForClass="true"
 >
     <plugins>
