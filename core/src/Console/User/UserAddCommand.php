@@ -4,9 +4,10 @@ namespace App\Console\User;
 
 use App\Command\User\AddUserByNameCommand;
 use App\Console\BaseDoctrineCommand;
-use App\Event\CommandEvent;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
+use App\Event\CommandEvent;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,7 +17,7 @@ use Symfony\Component\Console\Question\Question;
 
 class UserAddCommand extends BaseDoctrineCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('salt:user:add')
@@ -28,10 +29,11 @@ class UserAddCommand extends BaseDoctrineCommand
         ;
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
         parent::interact($input, $output);
 
+        /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
 
         $em = $this->em;
@@ -45,12 +47,12 @@ class UserAddCommand extends BaseDoctrineCommand
             $question = new Question('Organization name for the new user: ');
             $question->setAutocompleterValues($orgs);
             $question->setValidator(function ($value) use ($em) {
-                if (trim($value) === '') {
+                if ('' === trim($value)) {
                     throw new \Exception('The organization name must exist');
                 }
 
                 $org = $em->getRepository(Organization::class)->findOneByName($value);
-                if (empty($org)) {
+                if (null === $org) {
                     throw new \Exception('The organization name must exist');
                 }
 
@@ -63,7 +65,7 @@ class UserAddCommand extends BaseDoctrineCommand
         if (empty($input->getArgument('username'))) {
             $question = new Question('Email address or username of new user: ');
             $question->setValidator(function ($value) {
-                if (trim($value) === '') {
+                if ('' === trim($value)) {
                     throw new \Exception('The username can not be empty');
                 }
 
@@ -76,7 +78,7 @@ class UserAddCommand extends BaseDoctrineCommand
         if (empty($input->getOption('password'))) {
             $question = new Question('Initial password for new user: ');
             $question->setValidator(function ($value) {
-                if (trim($value) === '') {
+                if ('' === trim($value)) {
                     throw new \Exception('The password can not be empty');
                 }
 

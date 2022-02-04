@@ -9,17 +9,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 class DeleteDocumentCommand extends BaseCommand
 {
     /**
-     * @var LsDoc
-     *
      * @Assert\Type(LsDoc::class)
      * @Assert\NotNull()
      */
-    private $doc;
+    private LsDoc $doc;
 
-    /**
-     * @var \Closure|null
-     */
-    private $callback;
+    private ?\Closure $callback;
 
     /**
      * constructor.

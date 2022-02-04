@@ -251,7 +251,7 @@ class LsDocRepository extends ServiceEntityRepository
         $params = ['lsDocId' => $lsDoc->getId()];
 
         if (null === $progressCallback) {
-            $progressCallback = static function ($message = '') {
+            $progressCallback = static function (string $message = ''): void {
             };
         }
 

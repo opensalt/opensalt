@@ -75,7 +75,7 @@ class MirrorServer
 
             if (null === $url) {
                 $uri = UriString::parse($server->getUrl());
-                $uri['path'] = rtrim($uri['path'] ?? '', '/').Server::URL_CASE_1_0_PACKAGE.'/'.$doc['identifier'];
+                $uri['path'] = rtrim($uri['path'], '/').Server::URL_CASE_1_0_PACKAGE.'/'.$doc['identifier'];
                 $url = UriString::build($uri);
             }
             $mirroredDoc->setUrl($url);
@@ -167,7 +167,7 @@ class MirrorServer
     private function fetchDocumentListJson(Server $server): string
     {
         $uri = UriString::parse($server->getUrl());
-        $uri['path'] = rtrim($uri['path'] ?? '', '/').Server::URL_CASE_1_0_LIST;
+        $uri['path'] = rtrim($uri['path'], '/').Server::URL_CASE_1_0_LIST;
         $url = UriString::build($uri);
 
         return $this->fetchUrlWithCredentials($url, $server->getCredentials());

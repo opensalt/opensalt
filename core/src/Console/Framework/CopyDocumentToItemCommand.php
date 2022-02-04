@@ -7,6 +7,7 @@ use App\Console\BaseDoctrineCommand;
 use App\Event\CommandEvent;
 use App\Entity\Framework\LsDoc;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -45,6 +46,7 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
             return 2;
         }
 
+        /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
         $question = new ConfirmationQuestion("<question>Do you really want to duplicate '{$oldDoc->getTitle()}'? (y/n)</question> ", false);
         if (!$helper->ask($input, $output, $question)) {
