@@ -16,6 +16,8 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
 {
     /**
      * @var string
+     *
+     * @ORM\Column(name="title", type="text", length=65535, nullable=true)
      */
     private $title;
 
