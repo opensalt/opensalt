@@ -5,6 +5,7 @@ namespace App\Entity\Framework;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\MappedSuperclass()
@@ -15,50 +16,46 @@ use Doctrine\ORM\Mapping as ORM;
 class CfRubric extends AbstractLsBase implements CaseApiInterface
 {
     /**
-     * @var string
-     *
      * @ORM\Column(name="title", type="text", length=65535, nullable=true)
      */
-    private $title;
+    private ?string $title = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="description", type="text", length=65535, nullable=true)
      */
-    private $description;
+    private ?string $description = null;
 
     /**
-     * @var Collection|CfRubricCriterion[]
+     * @var Collection<CfRubricCriterion>
      *
      * @ORM\OneToMany(targetEntity="CfRubricCriterion", mappedBy="rubric", orphanRemoval=true, cascade={"persist", "remove"})
      */
-    private $criteria;
+    private Collection $criteria;
 
-    public function __construct($identifier = null)
+    public function __construct(UuidInterface|string|null $identifier = null)
     {
         parent::__construct($identifier);
         $this->criteria = new ArrayCollection();
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): CfRubric
+    public function setTitle(?string $title): CfRubric
     {
         $this->title = $title;
 
         return $this;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): CfRubric
+    public function setDescription(?string $description): CfRubric
     {
         $this->description = $description;
 
@@ -66,9 +63,9 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * @return CfRubricCriterion[]|Collection
+     * @return Collection<CfRubricCriterion>
      */
-    public function getCriteria()
+    public function getCriteria(): Collection
     {
         return $this->criteria;
     }
