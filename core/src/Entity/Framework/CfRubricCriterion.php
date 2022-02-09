@@ -5,10 +5,9 @@ namespace App\Entity\Framework;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 /**
- * Class CfRubricCriterion
- *
  * @ORM\MappedSuperclass()
  *
  * @ORM\Table(name="rubric_criterion")
@@ -17,155 +16,116 @@ use Doctrine\ORM\Mapping as ORM;
 class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
 {
     /**
-     * @var string
-     *
      * @ORM\Column(name="category", type="string", nullable=true)
      */
-    private $category;
+    private ?string $category = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="description", type="text", length=65535, nullable=true)
      */
-    private $description;
+    private ?string $description = null;
 
     /**
-     * @var ?LsItem
-     *
      * @ORM\ManyToOne(targetEntity="LsItem", inversedBy="criteria")
      * @ORM\JoinColumn(name="ls_item_id", referencedColumnName="id")
      */
-    private $item;
+    private ?LsItem $item = null;
 
     /**
-     * @var float
-     *
      * @ORM\Column(name="weight", type="float", nullable=true)
      */
-    private $weight;
+    private ?float $weight = null;
 
     /**
-     * @var int
-     *
      * @ORM\Column(name="position", type="integer", nullable=true)
      */
-    private $position;
+    private ?int $position = null;
 
     /**
-     * @var CfRubric
-     *
      * @ORM\ManyToOne(targetEntity="CfRubric", inversedBy="criteria")
      * @ORM\JoinColumn(name="rubric_id", referencedColumnName="id", nullable=false)
      */
-    private $rubric;
+    private CfRubric $rubric;
 
     /**
-     * @var Collection|CfRubricCriterionLevel[]
+     * @var Collection<CfRubricCriterionLevel>
      *
      * @ORM\OneToMany(targetEntity="CfRubricCriterionLevel", mappedBy="criterion", orphanRemoval=true, cascade={"persist", "remove"})
      */
-    private $levels;
+    private Collection $levels;
 
-    /**
-     * Constructor.
-     */
-    public function __construct($identifier = null)
+    public function __construct(UuidInterface|string|null $identifier = null)
     {
         parent::__construct($identifier);
         $this->levels = new ArrayCollection();
     }
 
-
-    public function getCategory(): string
+    public function getCategory(): ?string
     {
         return $this->category;
     }
 
-    /**
-     * @param string $category
-     */
-    public function setCategory($category): CfRubricCriterion
+    public function setCategory(?string $category): CfRubricCriterion
     {
         $this->category = $category;
 
         return $this;
     }
 
-
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     * @param string $description
-     */
-    public function setDescription($description): CfRubricCriterion
+    public function setDescription(?string $description): CfRubricCriterion
     {
         $this->description = $description;
 
         return $this;
     }
 
-
     public function getItem(): ?LsItem
     {
         return $this->item;
     }
 
-    /**
-     * @param ?LsItem $item
-     */
-    public function setItem($item): CfRubricCriterion
+    public function setItem(?LsItem $item): CfRubricCriterion
     {
         $this->item = $item;
 
         return $this;
     }
 
-
-    public function getWeight(): float
+    public function getWeight(): ?float
     {
         return $this->weight;
     }
 
-    /**
-     * @param float $weight
-     */
-    public function setWeight($weight): CfRubricCriterion
+    public function setWeight(?float $weight): CfRubricCriterion
     {
         $this->weight = $weight;
 
         return $this;
     }
 
-
-    public function getPosition(): int
+    public function getPosition(): ?int
     {
         return $this->position;
     }
 
-    /**
-     * @param int $position
-     */
-    public function setPosition($position): CfRubricCriterion
+    public function setPosition(?int $position): CfRubricCriterion
     {
         $this->position = $position;
 
         return $this;
     }
 
-
-    public function getRubric(): CfRubric
+    public function getRubric(): ?CfRubric
     {
         return $this->rubric;
     }
 
-    /**
-     * @param CfRubric $rubric
-     */
-    public function setRubric($rubric): CfRubricCriterion
+    public function setRubric(CfRubric $rubric): CfRubricCriterion
     {
         $this->rubric = $rubric;
 
@@ -173,9 +133,9 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * @return CfRubricCriterionLevel[]|Collection
+     * @return Collection<CfRubricCriterionLevel>
      */
-    public function getLevels()
+    public function getLevels(): Collection
     {
         return $this->levels;
     }
