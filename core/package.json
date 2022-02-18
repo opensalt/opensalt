@@ -29,7 +29,7 @@
     "jquery-ui-dist": "^1.13.1",
     "jquery.fancytree": "=2.24.0",
     "lodash": ">= 4.17.21",
-    "markdown-it": "^8.4.1",
+    "markdown-it": "^12.3.2",
     "markdown-it-katex": "^2.0.3",
     "markdown-it-underline": "^1.0.1",
     "modernizr": "^3.3.1",
