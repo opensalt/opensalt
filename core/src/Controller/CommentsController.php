@@ -49,7 +49,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/document/{id}", name="create_doc_comment", methods={"POST"})
+     * @Route("/comments/document/{id<\d+>}", name="create_doc_comment", methods={"POST"})
      * @Security("is_granted('comment')")
      */
     public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user, BucketService $bucket): JsonResponse
@@ -58,7 +58,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/item/{id}", name="create_item_comment", methods={"POST"})
+     * @Route("/comments/item/{id<\d+>}", name="create_item_comment", methods={"POST"})
      * @Security("is_granted('comment')")
      */
     public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user, BucketService $bucket): JsonResponse
@@ -67,7 +67,7 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/{itemType}/{itemId}", name="get_comments", methods={"GET"})
+     * @Route("/comments/{itemType<document|item>}/{itemId<\d+>}", name="get_comments", methods={"GET"})
      * @Entity("comments", class="App\Entity\Comment\Comment", expr="repository.findByTypeItem(itemType, itemId)")
      * @Security("is_granted('comment_view')")
      *
