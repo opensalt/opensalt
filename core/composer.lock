@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7283a6d046898f9ee4c03d859ec1a0bb",
+    "content-hash": "0d0ffe248a11ac347e0fb9b96b7c65b8",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -4563,16 +4563,16 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "1.21.0",
+            "version": "1.22.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "1a359d2ccbb89c05f5dffb32711a95f4afc67964"
+                "reference": "3a9e29b4f386a08a151a33578e80ef1747037a48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/1a359d2ccbb89c05f5dffb32711a95f4afc67964",
-                "reference": "1a359d2ccbb89c05f5dffb32711a95f4afc67964",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/3a9e29b4f386a08a151a33578e80ef1747037a48",
+                "reference": "3a9e29b4f386a08a151a33578e80ef1747037a48",
                 "shasum": ""
             },
             "require": {
@@ -4603,7 +4603,7 @@
                 "dompdf/dompdf": "^1.0",
                 "friendsofphp/php-cs-fixer": "^3.2",
                 "jpgraph/jpgraph": "^4.0",
-                "mpdf/mpdf": "^8.0",
+                "mpdf/mpdf": "8.0.17",
                 "phpcompatibility/php-compatibility": "^9.3",
                 "phpstan/phpstan": "^1.1",
                 "phpstan/phpstan-phpunit": "^1.0",
@@ -4661,9 +4661,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/1.21.0"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/1.22.0"
             },
-            "time": "2022-01-06T11:10:08+00:00"
+            "time": "2022-02-18T12:57:07+00:00"
         },
         {
             "name": "phpoffice/phpword",
@@ -9553,34 +9553,33 @@
         },
         {
             "name": "symfony/string",
-            "version": "v5.4.3",
+            "version": "v6.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "92043b7d8383e48104e411bc9434b260dbeb5a10"
+                "reference": "522144f0c4c004c80d56fa47e40e17028e2eefc2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/92043b7d8383e48104e411bc9434b260dbeb5a10",
-                "reference": "92043b7d8383e48104e411bc9434b260dbeb5a10",
+                "url": "https://api.github.com/repos/symfony/string/zipball/522144f0c4c004c80d56fa47e40e17028e2eefc2",
+                "reference": "522144f0c4c004c80d56fa47e40e17028e2eefc2",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.5",
+                "php": ">=8.0.2",
                 "symfony/polyfill-ctype": "~1.8",
                 "symfony/polyfill-intl-grapheme": "~1.0",
                 "symfony/polyfill-intl-normalizer": "~1.0",
-                "symfony/polyfill-mbstring": "~1.0",
-                "symfony/polyfill-php80": "~1.15"
+                "symfony/polyfill-mbstring": "~1.0"
             },
             "conflict": {
-                "symfony/translation-contracts": ">=3.0"
+                "symfony/translation-contracts": "<2.0"
             },
             "require-dev": {
-                "symfony/error-handler": "^4.4|^5.0|^6.0",
-                "symfony/http-client": "^4.4|^5.0|^6.0",
-                "symfony/translation-contracts": "^1.1|^2",
-                "symfony/var-exporter": "^4.4|^5.0|^6.0"
+                "symfony/error-handler": "^5.4|^6.0",
+                "symfony/http-client": "^5.4|^6.0",
+                "symfony/translation-contracts": "^2.0|^3.0",
+                "symfony/var-exporter": "^5.4|^6.0"
             },
             "type": "library",
             "autoload": {
@@ -9619,7 +9618,7 @@
                 "utf8"
             ],
             "support": {
-                "source": "https://github.com/symfony/string/tree/v5.4.3"
+                "source": "https://github.com/symfony/string/tree/v6.0.3"
             },
             "funding": [
                 {
@@ -9635,7 +9634,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-01-02T09:53:40+00:00"
+            "time": "2022-01-02T09:55:41+00:00"
         },
         {
             "name": "symfony/swiftmailer-bundle",
