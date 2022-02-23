@@ -60,7 +60,7 @@ final class LsDocNormalizer implements ContextAwareNormalizerInterface
             'subject' => count($subject ?? []) > 0
                 ? $subject
                 : null,
-            'subjectURI' => count($subjectURIs ?? []) > 0
+            'subjectURI' => count($subjectURIs) > 0
                 ? $this->api1Uris->getLinkUriList($subjectURIs)
                 : null,
             'language' => $object->getLanguage(),

@@ -20,7 +20,6 @@ class UriController extends AbstractController
 {
     public function __construct(
         private IdentifiableObjectHelper $objectHelper,
-        private string $assetsVersion,
         private SerializerInterface $symfonySerializer,
     ) {
     }

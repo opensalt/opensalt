@@ -26,7 +26,7 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
     private ?string $description = null;
 
     /**
-     * @var Collection<CfRubricCriterion>
+     * @var Collection<array-key, CfRubricCriterion>
      *
      * @ORM\OneToMany(targetEntity="CfRubricCriterion", mappedBy="rubric", orphanRemoval=true, cascade={"persist", "remove"})
      */
@@ -63,7 +63,7 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * @return Collection<CfRubricCriterion>
+     * @return Collection<array-key, CfRubricCriterion>
      */
     public function getCriteria(): Collection
     {
