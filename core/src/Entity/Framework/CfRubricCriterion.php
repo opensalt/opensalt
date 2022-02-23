@@ -48,7 +48,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
     private CfRubric $rubric;
 
     /**
-     * @var Collection<CfRubricCriterionLevel>
+     * @var Collection<array-key, CfRubricCriterionLevel>
      *
      * @ORM\OneToMany(targetEntity="CfRubricCriterionLevel", mappedBy="criterion", orphanRemoval=true, cascade={"persist", "remove"})
      */
@@ -133,7 +133,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * @return Collection<CfRubricCriterionLevel>
+     * @return Collection<array-key, CfRubricCriterionLevel>
      */
     public function getLevels(): Collection
     {

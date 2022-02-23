@@ -92,7 +92,7 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwar
         });
     }
 
-    public function setNormalizer(NormalizerInterface $normalizer)
+    public function setNormalizer(NormalizerInterface $normalizer): void
     {
         $this->normalizer = $normalizer;
     }

@@ -49,7 +49,7 @@ class LsAssociationRepository extends ServiceEntityRepository
      *
      * @return LsAssociation[]
      */
-    public function removeAllAssociationsOfType(LsItem|LsDoc $object, $type): array
+    public function removeAllAssociationsOfType(LsItem|LsDoc $object, string $type): array
     {
         $deleted = [];
         foreach ($object->getAssociations() as $association) {
