@@ -336,16 +336,16 @@
         },
         {
             "name": "colinodell/json5",
-            "version": "v2.2.1",
+            "version": "v2.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/colinodell/json5.git",
-                "reference": "361fd1bc9175432b789401b616cd3a7b0f862cde"
+                "reference": "2b0fabd1ba71fe8079a832d6097ec5c6fd92361d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/colinodell/json5/zipball/361fd1bc9175432b789401b616cd3a7b0f862cde",
-                "reference": "361fd1bc9175432b789401b616cd3a7b0f862cde",
+                "url": "https://api.github.com/repos/colinodell/json5/zipball/2b0fabd1ba71fe8079a832d6097ec5c6fd92361d",
+                "reference": "2b0fabd1ba71fe8079a832d6097ec5c6fd92361d",
                 "shasum": ""
             },
             "require": {
@@ -370,7 +370,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.0-dev"
+                    "dev-main": "3.0-dev"
                 }
             },
             "autoload": {
@@ -403,7 +403,7 @@
             ],
             "support": {
                 "issues": "https://github.com/colinodell/json5/issues",
-                "source": "https://github.com/colinodell/json5/tree/v2.2.1"
+                "source": "https://github.com/colinodell/json5/tree/v2.2.2"
             },
             "funding": [
                 {
@@ -423,7 +423,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2021-11-06T05:25:47+00:00"
+            "time": "2022-02-22T14:42:16+00:00"
         },
         {
             "name": "composer/ca-bundle",
