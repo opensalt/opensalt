@@ -136,16 +136,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.209.29",
+            "version": "3.209.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "d2a7902ea12fbcfc26a0ae6a07d0e5f8c6e5e9a1"
+                "reference": "54c1e491b8de74360bbe94d727706db384c8d9a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d2a7902ea12fbcfc26a0ae6a07d0e5f8c6e5e9a1",
-                "reference": "d2a7902ea12fbcfc26a0ae6a07d0e5f8c6e5e9a1",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/54c1e491b8de74360bbe94d727706db384c8d9a8",
+                "reference": "54c1e491b8de74360bbe94d727706db384c8d9a8",
                 "shasum": ""
             },
             "require": {
@@ -221,9 +221,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.209.29"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.209.30"
             },
-            "time": "2022-02-22T19:14:12+00:00"
+            "time": "2022-02-23T19:14:31+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -3277,16 +3277,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "3.0.9",
+            "version": "3.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "fb0801a60b7f9ea4188f01c25cb48aed26db7fb6"
+                "reference": "bbc5026adb5a423dfcdcecec74c7e15943ff6115"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/fb0801a60b7f9ea4188f01c25cb48aed26db7fb6",
-                "reference": "fb0801a60b7f9ea4188f01c25cb48aed26db7fb6",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/bbc5026adb5a423dfcdcecec74c7e15943ff6115",
+                "reference": "bbc5026adb5a423dfcdcecec74c7e15943ff6115",
                 "shasum": ""
             },
             "require": {
@@ -3294,6 +3294,7 @@
                 "php": "^8.0.2"
             },
             "conflict": {
+                "aws/aws-sdk-php": "3.209.31 || 3.210.0",
                 "guzzlehttp/guzzle": "<7.0",
                 "guzzlehttp/ringphp": "<1.1.1",
                 "symfony/http-client": "<5.2"
@@ -3346,7 +3347,7 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/flysystem/issues",
-                "source": "https://github.com/thephpleague/flysystem/tree/3.0.9"
+                "source": "https://github.com/thephpleague/flysystem/tree/3.0.10"
             },
             "funding": [
                 {
@@ -3362,20 +3363,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-02-22T07:37:40+00:00"
+            "time": "2022-02-26T11:09:13+00:00"
         },
         {
             "name": "league/flysystem-aws-s3-v3",
-            "version": "3.0.9",
+            "version": "3.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem-aws-s3-v3.git",
-                "reference": "457042c76eec01f150a3e54e96d37ddb48da7833"
+                "reference": "79c63dc761b6a389a38bd409c2bf8ced73c29261"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem-aws-s3-v3/zipball/457042c76eec01f150a3e54e96d37ddb48da7833",
-                "reference": "457042c76eec01f150a3e54e96d37ddb48da7833",
+                "url": "https://api.github.com/repos/thephpleague/flysystem-aws-s3-v3/zipball/79c63dc761b6a389a38bd409c2bf8ced73c29261",
+                "reference": "79c63dc761b6a389a38bd409c2bf8ced73c29261",
                 "shasum": ""
             },
             "require": {
@@ -3416,9 +3417,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/flysystem-aws-s3-v3/issues",
-                "source": "https://github.com/thephpleague/flysystem-aws-s3-v3/tree/3.0.9"
+                "source": "https://github.com/thephpleague/flysystem-aws-s3-v3/tree/3.0.10"
             },
-            "time": "2022-02-22T07:32:04+00:00"
+            "time": "2022-02-26T10:59:05+00:00"
         },
         {
             "name": "league/mime-type-detection",
