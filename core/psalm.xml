@@ -17,6 +17,9 @@
             <containerXml>var/cache/dev/App_KernelDevDebugContainer.xml</containerXml>
         </pluginClass>
     </plugins>
+    <stubs>
+        <file name="tools/psalm/stubs.php" />
+    </stubs>
 
     <projectFiles>
         <directory name="src"/>
