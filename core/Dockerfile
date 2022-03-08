@@ -174,7 +174,7 @@ RUN set -eux; \
 	composer dump-env prod; \
 	composer run-script post-install-cmd
 
-ARG VERSION=3.1.0
+ARG VERSION=3.2.0
 ARG BUILD_NUMBER=x
 ARG BUILD_DATE=0
 ARG COMMIT=unknown
@@ -187,7 +187,7 @@ FROM salt_core_php AS salt_core_app
 
 ENV SYMFONY_PHPUNIT_VERSION=9
 
-ARG VERSION=3.1.0-dev
+ARG VERSION=3.2.0-dev
 ARG BUILD_NUMBER=x
 ARG BUILD_DATE=0
 ARG COMMIT=unknown
@@ -233,7 +233,7 @@ COPY docker/caddy/docker-healthcheck /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-healthcheck
 HEALTHCHECK --interval=10s --timeout=3s --retries=3 --start-period=30s CMD ["docker-healthcheck"]
 
-ARG VERSION=3.1.0-dev
+ARG VERSION=3.2.0-dev
 ARG BUILD_NUMBER=x
 ARG BUILD_DATE=0
 ARG COMMIT=unknown
