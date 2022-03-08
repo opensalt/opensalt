@@ -419,11 +419,16 @@ final class ExcelImport
     {
         static $itemTypes = [];
 
-        if (null === $itemTypeTitle || '' === trim($itemTypeTitle)) {
+        if (null === $itemTypeTitle) {
             return null;
         }
 
-        if (in_array($itemTypeTitle, $itemTypes, true)) {
+        $itemTypeTitle = trim($itemTypeTitle);
+        if ('' === $itemTypeTitle) {
+            return null;
+        }
+
+        if (isset($itemTypes[$itemTypeTitle])) {
             return $itemTypes[$itemTypeTitle];
         }
 
