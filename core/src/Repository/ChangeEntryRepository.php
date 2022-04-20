@@ -10,7 +10,7 @@ use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<ChangeEntry::class>
+ * @extends ServiceEntityRepository<ChangeEntry>
  */
 class ChangeEntryRepository extends ServiceEntityRepository
 {

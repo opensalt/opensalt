@@ -512,6 +512,9 @@
     "softcreatr/jsonpath": {
         "version": "0.7.0"
     },
+    "stella-maris/clock": {
+        "version": "0.1.4"
+    },
     "swaggest/json-diff": {
         "version": "v3.7.0"
     },
