@@ -2,9 +2,9 @@
 
 namespace App\Service;
 
+use App\Entity\Framework\AdditionalField;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use App\Entity\Framework\AdditionalField;
 use App\Util\Compare;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -14,7 +14,7 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 
 final class ExcelExport
 {
-    private static $customItemFields;
+    private static ?array $customItemFields = null;
 
     public function __construct(private EntityManagerInterface $entityManager)
     {
@@ -64,7 +64,7 @@ final class ExcelExport
         return $phpExcelObject;
     }
 
-    protected function getSmartLevel(array $items, $parentId, array $itemsArray, array &$smartLevel): void
+    private function getSmartLevel(array $items, $parentId, array $itemsArray, array &$smartLevel): void
     {
         $j = 1;
 
@@ -182,7 +182,7 @@ final class ExcelExport
         $phpExcelObject->setActiveSheetIndex(0);
     }
 
-    protected function addItemRows(array $set, Worksheet $activeSheet, int &$j, array $items, array $smartLevel): void
+    private function addItemRows(array $set, Worksheet $activeSheet, int &$j, array $items, array $smartLevel): void
     {
         foreach ($set as $child) {
             $item = $items[$child['id']];
@@ -202,7 +202,7 @@ final class ExcelExport
         }
     }
 
-    protected function addItemRow(Worksheet $sheet, int $row, array $rowData): void
+    private function addItemRow(Worksheet $sheet, int $row, array $rowData): void
     {
         $columns = [
             'A' => '[identifier]',
@@ -230,7 +230,7 @@ final class ExcelExport
         }
     }
 
-    protected function addAssociationRow(Worksheet $sheet, int $row, array $rowData): void
+    private function addAssociationRow(Worksheet $sheet, int $row, array $rowData): void
     {
         $columns = [
             'A' => '[identifier]',
@@ -250,13 +250,13 @@ final class ExcelExport
         }
     }
 
-    protected function addCellIfExists(Worksheet $sheet, string $col, int $row, array $rowData, string $propertyPath): void
+    private function addCellIfExists(Worksheet $sheet, string $col, int $row, array $rowData, string $propertyPath): void
     {
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
 
         try {
             $value = $propertyAccessor->getValue($rowData, $propertyPath);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // Treat value as unset if the path to it does not work
             return;
         }
@@ -266,13 +266,13 @@ final class ExcelExport
         }
     }
 
-    protected function setAdditionalFields(Worksheet $sheet): void
+    private function setAdditionalFields(Worksheet $sheet): void
     {
         $column = 13;
 
         if (count(self::$customItemFields) > 0) {
             foreach (self::$customItemFields as $cf) {
-                $sheet->setCellValueByColumnAndRow($column, 1, $cf);
+                $sheet->setCellValue([$column, 1], $cf);
                 ++$column;
             }
         }

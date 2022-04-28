@@ -170,13 +170,11 @@ class SubtypeUpdater
 
     protected function getValueFromSheet(Worksheet $sheet, int $columnIndex, int $rowIndex): ?string
     {
-        if (!$sheet->cellExistsByColumnAndRow($columnIndex, $rowIndex)) {
+        if (!$sheet->cellExists([$columnIndex, $rowIndex])) {
             return null;
         }
 
-        $cell = $sheet->getCellByColumnAndRow($columnIndex, $rowIndex);
-
-        return $cell->getFormattedValue();
+        return $sheet->getCell([$columnIndex, $rowIndex])->getFormattedValue();
     }
 
     protected function replaceAssociation(?string $origin, ?string $destination, ?string $newType, ?string $subtype, ?string $annotation): string
