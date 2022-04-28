@@ -14,7 +14,7 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 
 final class ExcelExport
 {
-    private static array $customItemFields;
+    private static ?array $customItemFields = null;
 
     public function __construct(private EntityManagerInterface $entityManager)
     {
