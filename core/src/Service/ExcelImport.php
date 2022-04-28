@@ -17,7 +17,7 @@ use Ramsey\Uuid\Uuid;
 
 final class ExcelImport
 {
-    private static $itemCustomFields;
+    private static ?array $itemCustomFields = null;
 
     public function __construct(private EntityManagerInterface $entityManager)
     {
@@ -366,13 +366,11 @@ final class ExcelImport
 
     private function getCellValueOrNull(Worksheet $sheet, int $col, int $row)
     {
-        if (!$sheet->cellExistsByColumnAndRow($col, $row)) {
+        if (!$sheet->cellExists([$col, $row])) {
             return null;
         }
 
-        $cell = $sheet->getCellByColumnAndRow($col, $row);
-
-        return $cell->getValue();
+        return $sheet->getCellByColumnAndRow($col, $row)->getValue();
     }
 
     private function checkRemovedItems(LsDoc $doc, array $array): void
