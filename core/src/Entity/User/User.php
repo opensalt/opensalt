@@ -20,7 +20,7 @@ use App\Validator\Constraints as CustomAssert;
  * @ORM\Table(name="salt_user")
  * @UniqueEntity("username", message="That email address is already being used", groups={"registration"})
  */
-class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serializable, EquatableInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
     public const USER_ROLES = [
         'ROLE_EDITOR',
@@ -263,30 +263,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
     {
     }
 
-    /**
-     * String representation of the user
-     *
-     * @return string the string representation of the user
-     */
-    public function serialize()
+    public function __serialize(): array
     {
-        return serialize([
+        return [
             $this->id,
             $this->username,
-        ]);
+        ];
     }
 
-    /**
-     * Constructs the object
-     *
-     * @param string $serialized the string representation of the object
-     */
-    public function unserialize($serialized)
+    public function __unserialize(array $data): void
     {
-        list(
-            $this->id,
-            $this->username,
-        ) = unserialize($serialized);
+        [$this->id, $this->username] = $data;
     }
 
     /**

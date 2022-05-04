@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "04d642bec28049d713bf5e50614ca017",
+    "content-hash": "1d6de0fe25cf1fcd9dcb5a216184a3a9",
     "packages": [
         {
             "name": "antishov/doctrine-extensions-bundle",
@@ -136,16 +136,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.222.4",
+            "version": "3.222.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "a6ea9c9a93b35de272286f1de470eea637109415"
+                "reference": "26596820b043db985bf7c9deb98aa2234f6054cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a6ea9c9a93b35de272286f1de470eea637109415",
-                "reference": "a6ea9c9a93b35de272286f1de470eea637109415",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/26596820b043db985bf7c9deb98aa2234f6054cb",
+                "reference": "26596820b043db985bf7c9deb98aa2234f6054cb",
                 "shasum": ""
             },
             "require": {
@@ -221,9 +221,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.222.4"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.222.5"
             },
-            "time": "2022-05-03T21:08:50+00:00"
+            "time": "2022-05-04T20:25:34+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -15467,7 +15467,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.0.0||^8.1.0",
+        "php": "^8.1.0",
         "ext-pdo": "*",
         "ext-bz2": "*",
         "ext-ctype": "*",

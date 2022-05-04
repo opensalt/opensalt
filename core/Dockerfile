@@ -3,7 +3,7 @@
 # https://docs.docker.com/compose/compose-file/#target
 
 ARG NODE_VERSION=14
-ARG PHP_VERSION=8.0
+ARG PHP_VERSION=8.1
 ARG CADDY_VERSION=2
 #=======================================================================
 FROM node:${NODE_VERSION}-alpine AS salt_core_js_build

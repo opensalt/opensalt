@@ -35,6 +35,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('skip', [
         'PhpCsFixer\Fixer\FunctionNotation\SingleLineThrowFixer' => null,
+        'PhpCsFixer\Fixer\FunctionNotation\FunctionTypehintSpaceFixer' => null, // Tries to add a space like &$param -> & $param in method var lists
         'SlevomatCodingStandard\Sniffs\Classes\UnusedPrivateElementsSniff.WriteOnlyProperty' => null,
         'SlevomatCodingStandard\Sniffs\PHP\UselessParenthesesSniff.UselessParentheses' => null,
         'SlevomatCodingStandard\Sniffs\TypeHints\ParameterTypeHintSniff.MissingAnyTypeHint' => null,
