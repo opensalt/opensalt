@@ -36,7 +36,8 @@ class LsDocAttribute
     private $value;
 
 
-    public function __construct($lsDoc, $attribute, $value) {
+    public function __construct($lsDoc, $attribute, $value)
+    {
         $this->lsDoc = $lsDoc;
         $this->attribute = $attribute;
         $this->value = $value;

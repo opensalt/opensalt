@@ -11,5 +11,4 @@ class CfRubricCriterionLevelRepository extends AbstractLsBaseRepository
     {
         parent::__construct($registry, CfRubricCriterionLevel::class);
     }
-
 }

@@ -111,5 +111,4 @@ class GithubOauthController extends AbstractController
 
         return $totalPages[1];
     }
-
 }
