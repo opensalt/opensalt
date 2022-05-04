@@ -4,9 +4,9 @@ namespace App\Command\Comment;
 
 use App\Command\BaseCommand;
 use App\Entity\Comment\Comment;
-use App\Entity\User\User;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\User\User;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AddCommentCommand extends BaseCommand

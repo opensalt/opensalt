@@ -8,6 +8,7 @@
 
 namespace App\Form\Type;
 
+use App\Entity\User\Organization;
 use App\Entity\User\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -21,7 +22,6 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use App\Entity\User\Organization;
 
 class SignupType extends AbstractType
 {

@@ -5,10 +5,10 @@ namespace App\DataTransformer\CaseJson;
 use App\DTO\CaseJson\CFRubric as CFPackageRubric;
 use App\DTO\CaseJson\CFRubricCriterion as CFPackageCriterion;
 use App\DTO\CaseJson\CFRubricCriterionLevel as CFPackageCriterionLevel;
+use App\Entity\Framework\CfRubric;
 use App\Entity\Framework\CfRubricCriterion;
 use App\Entity\Framework\CfRubricCriterionLevel;
 use App\Entity\Framework\LsItem;
-use App\Entity\Framework\CfRubric;
 use App\Service\LoggerTrait;
 use Doctrine\ORM\EntityManagerInterface;
 

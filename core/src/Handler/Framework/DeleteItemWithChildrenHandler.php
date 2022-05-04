@@ -3,9 +3,9 @@
 namespace App\Handler\Framework;
 
 use App\Command\Framework\DeleteItemWithChildrenCommand;
+use App\Entity\Framework\LsItem;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-use App\Entity\Framework\LsItem;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DeleteItemWithChildrenHandler extends BaseFrameworkHandler

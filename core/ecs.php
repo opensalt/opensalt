@@ -52,8 +52,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'SlevomatCodingStandard\Sniffs\TypeHints\ReturnTypeHintSniff.UselessAnnotation' => null,
         'SlevomatCodingStandard\Sniffs\Variables\UnusedVariableSniff.UnusedVariable' => null,
         'SlevomatCodingStandard\Sniffs\Variables\UselessVariableSniff.UselessVariable' => null,
-        FunctionDeclarationFixer::class => null,
-        OrderedImportsFixer::class => null,
         DeclareEqualNormalizeFixer::class => null,
         BinaryOperatorSpacesFixer::class => null,
         PhpdocAlignFixer::class => null,

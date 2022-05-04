@@ -3,9 +3,9 @@
 namespace App\Handler\Comment;
 
 use App\Command\Comment\AddCommentCommand;
+use App\Entity\Comment\Comment;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
-use App\Entity\Comment\Comment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AddCommentHandler extends BaseCommentHandler

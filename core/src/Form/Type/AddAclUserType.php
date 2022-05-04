@@ -3,10 +3,10 @@
 namespace App\Form\Type;
 
 use App\Entity\Framework\LsDoc;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Query\Expr;
 use App\Entity\User\User;
 use App\Form\DTO\AddAclUserDTO;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\Expr;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;

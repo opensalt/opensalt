@@ -3,15 +3,15 @@
 namespace App\Controller\Framework;
 
 use App\Entity\Framework\AdditionalField;
+use App\Form\Type\AdditionalFieldType;
+use App\Repository\Framework\AdditionalFieldRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\Framework\AdditionalFieldRepository;
 use Symfony\Component\HttpFoundation\Request;
-use App\Form\Type\AdditionalFieldType;
-use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * AdditionalField controller.

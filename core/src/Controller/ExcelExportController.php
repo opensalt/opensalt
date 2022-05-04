@@ -3,11 +3,11 @@
 namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
-use App\Service\ExcelExport;
 use App\Entity\Framework\LsDoc;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Service\ExcelExport;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ExcelExportController extends AbstractController
 {

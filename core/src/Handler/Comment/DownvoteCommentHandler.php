@@ -3,8 +3,8 @@
 namespace App\Handler\Comment;
 
 use App\Command\Comment\DownvoteCommentCommand;
-use App\Event\CommandEvent;
 use App\Entity\Comment\Comment;
+use App\Event\CommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DownvoteCommentHandler extends BaseCommentHandler

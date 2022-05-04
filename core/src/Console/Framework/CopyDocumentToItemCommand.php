@@ -4,8 +4,8 @@ namespace App\Console\Framework;
 
 use App\Command\Framework\CopyDocumentToItemCommand as CopyDocumentToItemEventCommand;
 use App\Console\BaseDoctrineCommand;
-use App\Event\CommandEvent;
 use App\Entity\Framework\LsDoc;
+use App\Event\CommandEvent;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
