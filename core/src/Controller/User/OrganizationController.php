@@ -145,7 +145,7 @@ class OrganizationController extends AbstractController
     private function createDeleteForm(Organization $organization): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('admin_organization_delete', array('id' => $organization->getId())))
+            ->setAction($this->generateUrl('admin_organization_delete', ['id' => $organization->getId()]))
             ->setMethod('DELETE')
             ->getForm()
         ;
