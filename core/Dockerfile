@@ -44,7 +44,7 @@ ARG DOCKERIZE_VERSION=v0.6.1
 RUN curl -LsS https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
 	  | tar -C /usr/local/bin -xzvf -
 
-ARG APCU_VERSION=5.1.20
+ARG APCU_VERSION=5.1.21
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
@@ -187,7 +187,7 @@ FROM salt_core_php AS salt_core_app
 
 ENV SYMFONY_PHPUNIT_VERSION=9
 
-ARG VERSION=3.2.0-dev
+ARG VERSION=3.2.0
 ARG BUILD_NUMBER=x
 ARG BUILD_DATE=0
 ARG COMMIT=unknown
@@ -204,7 +204,7 @@ VOLUME /srv/core/public/attachments
 #=======================================================================
 FROM salt_core_app as salt_core_dev
 
-ARG XDEBUG_VERSION=3.0.4
+ARG XDEBUG_VERSION=3.1.4
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps $PHPIZE_DEPS; \
 	pecl install xdebug-$XDEBUG_VERSION; \
@@ -233,7 +233,7 @@ COPY docker/caddy/docker-healthcheck /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-healthcheck
 HEALTHCHECK --interval=10s --timeout=3s --retries=3 --start-period=30s CMD ["docker-healthcheck"]
 
-ARG VERSION=3.2.0-dev
+ARG VERSION=3.2.0
 ARG BUILD_NUMBER=x
 ARG BUILD_DATE=0
 ARG COMMIT=unknown
