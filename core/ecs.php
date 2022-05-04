@@ -57,8 +57,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         PhpdocSummaryFixer::class => null,
         PhpdocToCommentFixer::class => null,
         PhpdocVarWithoutNameFixer::class => null,
-        ReturnAssignmentFixer::class => null,
-        NoExtraBlankLinesFixer::class => null,
         ParamReturnAndVarTagMalformsFixer::class => null
     ]);
 };

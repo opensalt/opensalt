@@ -21,7 +21,6 @@ class DeleteAssociationHandler extends BaseFrameworkHandler
         $associationId = $association->getId();
         $associationIdentifier = $association->getIdentifier();
 
-
         $this->validate($command, $association);
 
         $doc = $association->getLsDoc();

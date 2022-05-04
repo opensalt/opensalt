@@ -114,7 +114,6 @@ class SubtypeUpdater
 
         $types = [];
 
-
         try {
             $phpExcelObject = IOFactory::load($path);
         } catch (\Exception) {
