@@ -263,6 +263,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
     {
     }
 
+    public function __serialize(): array
+    {
+        return [
+            $this->id,
+            $this->username,
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        [$this->id, $this->username] = $data;
+    }
+
     /**
      * String representation of the user
      *
