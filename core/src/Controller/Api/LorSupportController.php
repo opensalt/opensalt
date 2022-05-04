@@ -37,7 +37,7 @@ class LorSupportController extends AbstractController
         $creators = [];
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $doc) {
-            /* @var LsDoc $doc */
+            /** @var LsDoc $doc */
             $creator = $doc->getCreator();
             $creators[$creator] = $creator;
             if ($doc->getUpdatedAt() > $lastModified) {
@@ -69,7 +69,7 @@ class LorSupportController extends AbstractController
         $docs = [];
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $doc) {
-            /* @var LsDoc $doc */
+            /** @var LsDoc $doc */
             $docs[] = [
                 'identifier' => $doc->getIdentifier(),
                 'title' => $doc->getTitle(),
@@ -105,7 +105,7 @@ class LorSupportController extends AbstractController
         $items = [];
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $item) {
-            /* @var LsItem $item */
+            /** @var LsItem $item */
             $items[] = $item->getIdentifier();
             if ($item->getUpdatedAt() > $lastModified) {
                 $lastModified = $item->getUpdatedAt();

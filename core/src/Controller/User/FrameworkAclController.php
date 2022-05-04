@@ -66,7 +66,7 @@ class FrameworkAclController extends AbstractController
 
         $deleteForms = [];
         foreach ($acls as $acl) {
-            /* @var UserDocAcl $acl */
+            /** @var UserDocAcl $acl */
             $aclUser = $acl->getUser();
             $deleteForms[$aclUser->getId()] = $this->createDeleteForm($lsDoc, $aclUser)->createView();
         }
