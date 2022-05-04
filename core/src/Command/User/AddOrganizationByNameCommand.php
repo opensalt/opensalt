@@ -20,7 +20,6 @@ class AddOrganizationByNameCommand extends BaseCommand
         $this->organizationName = $organizationName;
     }
 
-
     public function getOrganizationName(): string
     {
         return $this->organizationName;

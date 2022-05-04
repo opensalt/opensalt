@@ -9,7 +9,6 @@ final class AsnValue
     public ?string $datatype = null;
     public ?string $lang = null;
 
-
     public function __construct()
     {
     }

@@ -13,8 +13,7 @@ class CaseImport
     public function __construct(
         private SerializerInterface $serializer,
         private PackageTransformer $packageTransformer,
-    )
-    {
+    ) {
     }
 
     public function importCaseFile(string $content): LsDoc

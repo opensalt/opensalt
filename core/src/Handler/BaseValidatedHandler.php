@@ -31,7 +31,7 @@ abstract class BaseValidatedHandler implements EventSubscriberInterface
 
             $showErrors = [];
             foreach ($errors as $error) {
-                /* @var ConstraintViolationInterface $error */
+                /** @var ConstraintViolationInterface $error */
                 $showErrors[] = $error->getMessage();
             }
 
@@ -42,6 +42,7 @@ abstract class BaseValidatedHandler implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         $event = str_replace('Handler', 'Command', static::class);
+
         return [$event => 'handle'];
     }
 }

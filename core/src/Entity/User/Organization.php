@@ -49,11 +49,11 @@ class Organization
      */
     protected $frameworks;
 
-
     /**
      * Organization constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->users = new ArrayCollection();
         $this->frameworks = new ArrayCollection();
     }
@@ -63,12 +63,13 @@ class Organization
      *
      * @return int
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
-
-    public function setName(string $name): Organization {
+    public function setName(string $name): Organization
+    {
         $this->name = $name;
 
         return $this;
@@ -79,14 +80,16 @@ class Organization
      *
      * @return string
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
     /**
      * @return \Doctrine\Common\Collections\Collection|\App\Entity\User\User[]
      */
-    public function getUsers() {
+    public function getUsers()
+    {
         return $this->users;
     }
 
@@ -95,7 +98,8 @@ class Organization
      *
      * @param \App\Entity\User\User $user
      */
-    public function addUser(User $user): Organization {
+    public function addUser(User $user): Organization
+    {
         $this->users->add($user);
 
         return $this;
@@ -106,7 +110,8 @@ class Organization
      *
      * @param \App\Entity\User\User $user
      */
-    public function removeUser(User $user): Organization {
+    public function removeUser(User $user): Organization
+    {
         $this->users->removeElement($user);
 
         return $this;
@@ -117,7 +122,8 @@ class Organization
      *
      * @return \App\Entity\Framework\LsDoc[]|\Doctrine\Common\Collections\Collection
      */
-    public function getFrameworks() {
+    public function getFrameworks()
+    {
         return $this->frameworks;
     }
 }

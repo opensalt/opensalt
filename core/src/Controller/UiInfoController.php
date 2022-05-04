@@ -6,11 +6,11 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/treeuiinfo")
@@ -178,6 +178,7 @@ class UiInfoController extends AbstractController
         }
 
         $json = $this->renderView('framework/doc_tree/export_item.json.twig', ['lsItem' => $ret]);
+
         return \json_decode($json, true);
     }
 

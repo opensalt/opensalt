@@ -12,5 +12,4 @@ class LsDocAttributeRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, LsDocAttribute::class);
     }
-
 }

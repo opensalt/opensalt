@@ -26,11 +26,11 @@ class LsDefGrade extends AbstractLsDefinition
      */
     private $rank;
 
-
     /**
      * @return string
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -39,15 +39,18 @@ class LsDefGrade extends AbstractLsDefinition
      *
      * @return LsDefGrade
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
+
         return $this;
     }
 
     /**
      * @return int
      */
-    public function getRank() {
+    public function getRank()
+    {
         return $this->rank;
     }
 
@@ -56,12 +59,15 @@ class LsDefGrade extends AbstractLsDefinition
      *
      * @return LsDefGrade
      */
-    public function setRank($rank) {
+    public function setRank($rank)
+    {
         $this->rank = $rank;
+
         return $this;
     }
 
-    public function getLabel() {
+    public function getLabel()
+    {
         return "{$this->getCode()} - {$this->getTitle()}";
     }
 }

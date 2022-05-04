@@ -3,9 +3,9 @@
 namespace App\Entity;
 
 use App\Entity\Framework\LsDoc;
+use App\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use App\Entity\User\User;
 
 /**
  * @ORM\Table(name="salt_change",

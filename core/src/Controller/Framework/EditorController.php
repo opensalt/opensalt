@@ -4,11 +4,11 @@ namespace App\Controller\Framework;
 
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Util\Compare;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use App\Util\Compare;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Editor controller.

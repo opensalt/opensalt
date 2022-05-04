@@ -2,11 +2,11 @@
 
 namespace App\Handler\Import;
 
+use App\Command\Import\ParseCsvGithubDocumentCommand;
+use App\Entity\Framework\LsDoc;
+use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
-use App\Command\Import\ParseCsvGithubDocumentCommand;
-use App\Event\CommandEvent;
-use App\Entity\Framework\LsDoc;
 use App\Service\GithubImport;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

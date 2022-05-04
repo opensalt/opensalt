@@ -57,7 +57,7 @@ class LsItemType extends AbstractType
                 'required' => false,
                 'multiple' => true,
                 'query_builder' => static function (EntityRepository $er) {
-                    /* @var LsDefGradeRepository $er */
+                    /** @var LsDefGradeRepository $er */
                     return $er->createQueryBuilder('g')
                         ->addOrderBy('g.rank')
                         ;
@@ -99,7 +99,6 @@ class LsItemType extends AbstractType
             ->addModelTransformer(new EducationAlignmentTransformer($this->em))
             ;
     }
-
 
     public function configureOptions(OptionsResolver $resolver): void
     {

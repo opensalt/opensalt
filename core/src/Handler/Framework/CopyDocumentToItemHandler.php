@@ -3,9 +3,9 @@
 namespace App\Handler\Framework;
 
 use App\Command\Framework\CopyDocumentToItemCommand;
+use App\Entity\Framework\LsDoc;
 use App\Event\CommandEvent;
 use App\Handler\BaseDoctrineHandler;
-use App\Entity\Framework\LsDoc;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CopyDocumentToItemHandler extends BaseDoctrineHandler

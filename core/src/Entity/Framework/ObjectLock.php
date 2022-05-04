@@ -3,8 +3,8 @@
 namespace App\Entity\Framework;
 
 use App\Entity\LockableInterface;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\User\User;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(

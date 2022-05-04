@@ -5,6 +5,7 @@ namespace App\Entity\Framework;
 trait AccessAdditionalFieldTrait
 {
     abstract public function getExtraProperty(string $property): mixed;
+
     abstract public function setExtraProperty(string $property, mixed $value);
 
     public function getAdditionalFields(): array

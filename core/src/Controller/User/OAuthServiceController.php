@@ -7,11 +7,11 @@ use App\Command\User\UpdateUserCommand;
 use App\Entity\User\User;
 use Doctrine\Persistence\ManagerRegistry;
 use League\OAuth2\Client\Provider\Github;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**

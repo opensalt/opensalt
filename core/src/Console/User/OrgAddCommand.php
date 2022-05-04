@@ -4,8 +4,8 @@ namespace App\Console\User;
 
 use App\Command\User\AddOrganizationByNameCommand;
 use App\Console\BaseDoctrineCommand;
-use App\Event\CommandEvent;
 use App\Entity\User\Organization;
+use App\Event\CommandEvent;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

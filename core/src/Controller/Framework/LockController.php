@@ -10,10 +10,10 @@ use App\Command\Framework\UnlockItemCommand;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
-use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class LockController extends AbstractController

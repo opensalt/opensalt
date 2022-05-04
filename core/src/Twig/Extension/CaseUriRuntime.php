@@ -3,8 +3,8 @@
 namespace App\Twig\Extension;
 
 use App\Entity\Framework\IdentifiableInterface;
-use App\Service\UriGenerator;
 use App\Service\IdentifiableObjectHelper;
+use App\Service\UriGenerator;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Extension\RuntimeExtensionInterface;
 

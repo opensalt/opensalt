@@ -3,8 +3,8 @@
 namespace App\Handler\User;
 
 use App\Command\User\AddFrameworkUserAclCommand;
-use App\Event\CommandEvent;
 use App\Entity\User\UserDocAcl;
+use App\Event\CommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AddFrameworkUserAclHandler extends BaseUserHandler

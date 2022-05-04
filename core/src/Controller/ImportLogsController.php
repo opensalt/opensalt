@@ -6,10 +6,10 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Import\MarkImportLogsAsReadCommand;
 use App\Entity\Framework\LsDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ImportLogsController extends AbstractController
 {

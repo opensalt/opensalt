@@ -14,8 +14,7 @@ class Api1Uris
     public function __construct(
         private RouterInterface $router,
         private UriGenerator $uriGenerator,
-    )
-    {
+    ) {
     }
 
     public function getUri(?IdentifiableInterface $obj, ?string $route = null): ?string

@@ -41,6 +41,7 @@ class SiteVersionListener implements EventSubscriberInterface
     {
         return $this->cache->get('version', function (ItemInterface $item) {
             $item->expiresAfter(3600);
+
             return $this->getUncachedVersion();
         });
     }

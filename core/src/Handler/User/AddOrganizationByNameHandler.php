@@ -3,11 +3,11 @@
 namespace App\Handler\User;
 
 use App\Command\User\AddOrganizationByNameCommand;
+use App\Entity\User\Organization;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\User\Organization;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 

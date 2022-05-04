@@ -3,10 +3,10 @@
 namespace App\Controller;
 
 use App\Repository\SessionRepository;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class SessionController extends AbstractController
 {

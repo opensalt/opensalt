@@ -3,10 +3,10 @@
 namespace App\Handler\Framework;
 
 use App\Command\Framework\DeriveDocumentCommand;
+use App\Entity\Framework\LsDoc;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
-use App\Entity\Framework\LsDoc;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DeriveDocumentHandler extends BaseDoctrineHandler

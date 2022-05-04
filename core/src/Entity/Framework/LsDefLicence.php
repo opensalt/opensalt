@@ -19,11 +19,11 @@ class LsDefLicence extends AbstractLsDefinition implements CaseApiInterface
      */
     private $licenceText;
 
-
     /**
      * @return string
      */
-    public function getLicenceText() {
+    public function getLicenceText()
+    {
         return $this->licenceText;
     }
 
@@ -32,8 +32,10 @@ class LsDefLicence extends AbstractLsDefinition implements CaseApiInterface
      *
      * @return LsDefLicence
      */
-    public function setLicenceText($licenceText) {
+    public function setLicenceText($licenceText)
+    {
         $this->licenceText = $licenceText;
+
         return $this;
     }
 }

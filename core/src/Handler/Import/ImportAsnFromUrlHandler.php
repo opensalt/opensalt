@@ -2,10 +2,10 @@
 
 namespace App\Handler\Import;
 
-use App\Event\NotificationEvent;
-use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ImportAsnFromUrlCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
+use App\Handler\AbstractDoctrineHandler;
 use App\Service\AsnImport;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

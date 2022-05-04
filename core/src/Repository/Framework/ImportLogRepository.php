@@ -15,5 +15,4 @@ class ImportLogRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ImportLog::class);
     }
-
 }

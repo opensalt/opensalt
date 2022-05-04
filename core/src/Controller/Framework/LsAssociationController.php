@@ -8,22 +8,22 @@ use App\Command\Framework\AddExemplarToItemCommand;
 use App\Command\Framework\AddTreeAssociationCommand;
 use App\Command\Framework\DeleteAssociationCommand;
 use App\Command\Framework\UpdateAssociationCommand;
+use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
+use App\Form\Type\LsAssociationType;
 use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsItem;
-use App\Entity\Framework\LsAssociation;
-use App\Entity\Framework\LsDefAssociationGrouping;
-use App\Form\Type\LsAssociationType;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * LsAssociation controller.

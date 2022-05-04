@@ -2,10 +2,10 @@
 
 namespace App\EventListener;
 
+use ReCaptcha\ReCaptcha;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
-use ReCaptcha\ReCaptcha;
 use Symfony\Component\Security\Http\SecurityEvents;
 
 class LoginCaptchaListener implements EventSubscriberInterface

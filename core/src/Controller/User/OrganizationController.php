@@ -9,14 +9,14 @@ use App\Command\User\UpdateOrganizationCommand;
 use App\Entity\User\Organization;
 use App\Form\Type\OrganizationType;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Organization controller.
@@ -145,7 +145,7 @@ class OrganizationController extends AbstractController
     private function createDeleteForm(Organization $organization): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('admin_organization_delete', array('id' => $organization->getId())))
+            ->setAction($this->generateUrl('admin_organization_delete', ['id' => $organization->getId()]))
             ->setMethod('DELETE')
             ->getForm()
         ;

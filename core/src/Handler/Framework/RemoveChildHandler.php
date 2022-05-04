@@ -3,12 +3,12 @@
 namespace App\Handler\Framework;
 
 use App\Command\Framework\RemoveChildCommand;
-use App\Event\CommandEvent;
-use App\Event\NotificationEvent;
-use App\Handler\BaseDoctrineHandler;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
+use App\Handler\BaseDoctrineHandler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class RemoveChildHandler extends BaseDoctrineHandler

@@ -3,6 +3,7 @@
 namespace App\Entity\User;
 
 use App\Entity\Framework\LsDoc;
+use App\Validator\Constraints as CustomAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,7 +12,6 @@ use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Validator\Constraints as CustomAssert;
 
 /**
  * Class User
@@ -20,7 +20,7 @@ use App\Validator\Constraints as CustomAssert;
  * @ORM\Table(name="salt_user")
  * @UniqueEntity("username", message="That email address is already being used", groups={"registration"})
  */
-class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serializable, EquatableInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
     public const USER_ROLES = [
         'ROLE_EDITOR',
@@ -277,32 +277,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
     }
 
     /**
-     * String representation of the user
-     *
-     * @return string the string representation of the user
-     */
-    public function serialize()
-    {
-        return serialize([
-            $this->id,
-            $this->username,
-        ]);
-    }
-
-    /**
-     * Constructs the object
-     *
-     * @param string $serialized the string representation of the object
-     */
-    public function unserialize($serialized)
-    {
-        list(
-            $this->id,
-            $this->username,
-        ) = unserialize($serialized);
-    }
-
-    /**
      * The equality comparison should neither be done by referential equality
      * nor by comparing identities (i.e. getId() === getId()).
      *
@@ -527,6 +501,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
     public function getStatus()
     {
         $statusArray = ['Active', 'Suspended', 'Pending'];
+
         return $statusArray[$this->status];
     }
 }

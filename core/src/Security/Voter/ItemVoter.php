@@ -2,9 +2,9 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\User\User;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 

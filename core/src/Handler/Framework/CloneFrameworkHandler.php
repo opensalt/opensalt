@@ -3,10 +3,10 @@
 namespace App\Handler\Framework;
 
 use App\Command\Framework\CloneFrameworkCommand;
+use App\Entity\Framework\LsDoc;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
-use App\Entity\Framework\LsDoc;
 use App\Repository\Framework\LsDocRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class CloneFrameworkHandler extends BaseDoctrineHandler
 {
     private $repository;
+
     public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, LsDocRepository $repository)
     {
         $this->repository = $repository;

@@ -63,24 +63,20 @@ class AddExternalDocCommand extends BaseCommand
         return $this->doc;
     }
 
-
     public function getAutoload(): string
     {
         return $this->autoload;
     }
-
 
     public function getUrl(): string
     {
         return $this->url;
     }
 
-
     public function getTitle(): string
     {
         return $this->title;
     }
-
 
     public function getIdentifier(): string
     {
