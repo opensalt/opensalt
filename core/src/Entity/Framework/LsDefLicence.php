@@ -19,7 +19,6 @@ class LsDefLicence extends AbstractLsDefinition implements CaseApiInterface
      */
     private $licenceText;
 
-
     /**
      * @return string
      */

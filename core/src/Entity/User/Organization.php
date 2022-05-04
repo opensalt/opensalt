@@ -49,7 +49,6 @@ class Organization
      */
     protected $frameworks;
 
-
     /**
      * Organization constructor.
      */
@@ -68,7 +67,6 @@ class Organization
     {
         return $this->id;
     }
-
 
     public function setName(string $name): Organization
     {

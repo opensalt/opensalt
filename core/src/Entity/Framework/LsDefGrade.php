@@ -26,7 +26,6 @@ class LsDefGrade extends AbstractLsDefinition
      */
     private $rank;
 
-
     /**
      * @return string
      */

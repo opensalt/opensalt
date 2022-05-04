@@ -29,7 +29,6 @@ class CodeceptionBridge
      */
     private $userManager;
 
-
     /**
      * @required
      */

@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class CloneFrameworkHandler extends BaseDoctrineHandler
 {
     private $repository;
+
     public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, LsDocRepository $repository)
     {
         $this->repository = $repository;

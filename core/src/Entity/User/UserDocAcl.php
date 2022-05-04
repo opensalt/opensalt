@@ -53,7 +53,6 @@ class UserDocAcl
      */
     protected $access;
 
-
     /**
      * UserDocAcl constructor.
      *
@@ -68,7 +67,6 @@ class UserDocAcl
         $this->lsDoc = $lsDoc;
         $this->access = $access;
     }
-
 
     public function getId(): int
     {
