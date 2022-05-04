@@ -17,9 +17,9 @@ class AssociationUpdateCommand extends Command
 
     private SubtypeUpdater $updater;
 
-    public function __construct(string $name = null, SubtypeUpdater $updater)
+    public function __construct(SubtypeUpdater $updater)
     {
-        parent::__construct($name);
+        parent::__construct();
         $this->updater = $updater;
     }
 
