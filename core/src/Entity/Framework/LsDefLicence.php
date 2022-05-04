@@ -35,6 +35,7 @@ class LsDefLicence extends AbstractLsDefinition implements CaseApiInterface
     public function setLicenceText($licenceText)
     {
         $this->licenceText = $licenceText;
+
         return $this;
     }
 }

@@ -51,6 +51,7 @@ class GithubOauthController extends AbstractController
         }
 
         $response->setStatusCode(401);
+
         return $response->setData([
             'message' => 'Please log in with your GitHub account',
         ]);

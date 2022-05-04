@@ -52,14 +52,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'SlevomatCodingStandard\Sniffs\TypeHints\ReturnTypeHintSniff.UselessAnnotation' => null,
         'SlevomatCodingStandard\Sniffs\Variables\UnusedVariableSniff.UnusedVariable' => null,
         'SlevomatCodingStandard\Sniffs\Variables\UselessVariableSniff.UselessVariable' => null,
-        DeclareEqualNormalizeFixer::class => null,
         BinaryOperatorSpacesFixer::class => null,
         PhpdocAlignFixer::class => null,
         PhpdocSummaryFixer::class => null,
         PhpdocToCommentFixer::class => null,
         PhpdocVarWithoutNameFixer::class => null,
         ReturnAssignmentFixer::class => null,
-        BlankLineBeforeStatementFixer::class => null,
         NoExtraBlankLinesFixer::class => null,
         ParamReturnAndVarTagMalformsFixer::class => null
     ]);

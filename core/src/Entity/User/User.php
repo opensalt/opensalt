@@ -501,6 +501,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function getStatus()
     {
         $statusArray = ['Active', 'Suspended', 'Pending'];
+
         return $statusArray[$this->status];
     }
 }

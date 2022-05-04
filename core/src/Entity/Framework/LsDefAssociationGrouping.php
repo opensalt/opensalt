@@ -47,6 +47,7 @@ class LsDefAssociationGrouping extends AbstractLsDefinition implements CaseApiIn
     {
         $newAssociationGrouping = clone $this;
         $newAssociationGrouping->setLsDoc($newLsDoc);
+
         return $newAssociationGrouping;
     }
 }

@@ -42,6 +42,7 @@ abstract class BaseValidatedHandler implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         $event = str_replace('Handler', 'Command', static::class);
+
         return [$event => 'handle'];
     }
 }
