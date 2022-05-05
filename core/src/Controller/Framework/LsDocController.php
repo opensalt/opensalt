@@ -17,6 +17,7 @@ use App\Form\Type\LsDocType;
 use App\Form\Type\RemoteCaseServerType;
 use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -90,7 +91,7 @@ class LsDocController extends AbstractController
         ]);
     }
 
-    protected function loadDocumentsFromServer(string $urlPrefix): \Psr\Http\Message\ResponseInterface
+    protected function loadDocumentsFromServer(string $urlPrefix): ResponseInterface
     {
         $jsonClient = new Client();
         $list = $jsonClient->request(

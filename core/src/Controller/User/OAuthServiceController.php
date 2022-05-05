@@ -8,6 +8,7 @@ use App\Entity\User\User;
 use Doctrine\Persistence\ManagerRegistry;
 use League\OAuth2\Client\Provider\Github;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -50,7 +51,7 @@ class OAuthServiceController extends AbstractController
      *
      * @Route("/check-github", methods={"GET"}, name="github_login")
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return RedirectResponse
      *
      * @throws \UnexpectedValueException
      */

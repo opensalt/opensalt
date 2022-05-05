@@ -8,6 +8,7 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -46,7 +47,7 @@ class PdfExportController extends AbstractController
                 IOFactory::createWriter($phpWordObject, 'PDF')
                     ->save('php://output');
             },
-            200,
+            Response::HTTP_OK,
             [
                 'Content-Type' => 'application/PDF',
                 'Content-Disposition' => 'attachment; filename="'.$file.'"',

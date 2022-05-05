@@ -72,7 +72,7 @@ class LsItemController extends AbstractController
      * @Template()
      * @Security("is_granted('add-standard-to', doc)")
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|RedirectResponse|Response
      */
     public function newAction(Request $request, LsDoc $doc, ?LsItem $parent = null, ?LsDefAssociationGrouping $assocGroup = null)
     {
@@ -150,7 +150,7 @@ class LsItemController extends AbstractController
      * @Template()
      * @Security("is_granted('edit', lsItem)")
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|RedirectResponse|Response
      */
     public function editAction(Request $request, LsItem $lsItem, UserInterface $user)
     {
@@ -267,7 +267,7 @@ class LsItemController extends AbstractController
      * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|RedirectResponse|Response
      */
     public function copyAction(Request $request, LsItem $lsItem)
     {
@@ -317,7 +317,7 @@ class LsItemController extends AbstractController
      * @Security("is_granted('edit', lsItem)")
      * @Template()
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|RedirectResponse|Response
      */
     public function changeParentAction(Request $request, LsItem $lsItem)
     {

@@ -86,7 +86,7 @@ class Organization
     }
 
     /**
-     * @return \Doctrine\Common\Collections\Collection|\App\Entity\User\User[]
+     * @return Collection|User[]
      */
     public function getUsers()
     {
@@ -95,8 +95,6 @@ class Organization
 
     /**
      * Add a user to the organization
-     *
-     * @param \App\Entity\User\User $user
      */
     public function addUser(User $user): Organization
     {
@@ -107,8 +105,6 @@ class Organization
 
     /**
      * Remove a user from the organization
-     *
-     * @param \App\Entity\User\User $user
      */
     public function removeUser(User $user): Organization
     {
@@ -120,7 +116,7 @@ class Organization
     /**
      * Get the list of frameworks owned by the organization
      *
-     * @return \App\Entity\Framework\LsDoc[]|\Doctrine\Common\Collections\Collection
+     * @return LsDoc[]|Collection
      */
     public function getFrameworks()
     {

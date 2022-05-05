@@ -13,6 +13,7 @@ use App\Entity\User\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -50,7 +51,7 @@ class LockController extends AbstractController
             $command = new LockDocumentCommand($lsDoc, $user);
             $this->sendCommand($command);
         } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage(), 422);
+            return new JsonResponse($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return new JsonResponse('OK');
@@ -86,7 +87,7 @@ class LockController extends AbstractController
             $command = new LockItemCommand($item, $user);
             $this->sendCommand($command);
         } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage(), 422);
+            return new JsonResponse($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return new JsonResponse('OK');

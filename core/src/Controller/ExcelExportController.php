@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Command\CommandDispatcherTrait;
 use App\Entity\Framework\LsDoc;
 use App\Service\ExcelExport;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -34,10 +36,10 @@ class ExcelExportController extends AbstractController
 
         return new StreamedResponse(
             function () use ($phpExcelObject) {
-                \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($phpExcelObject, 'Xlsx')
+                IOFactory::createWriter($phpExcelObject, 'Xlsx')
                     ->save('php://output');
             },
-            200,
+            Response::HTTP_OK,
             [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 'Content-Disposition' => 'attachment; filename="'.$title.'.xlsx"',

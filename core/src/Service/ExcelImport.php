@@ -12,6 +12,8 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Util\EducationLevelSet;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Ramsey\Uuid\Uuid;
 
@@ -39,7 +41,7 @@ final class ExcelImport
     {
         set_time_limit(180); // increase time limit for large files
 
-        $phpExcelObject = \PhpOffice\PhpSpreadsheet\IOFactory::load($excelFilePath);
+        $phpExcelObject = IOFactory::load($excelFilePath);
 
         /** @var LsItem[] $items */
         $items = [];
@@ -167,7 +169,7 @@ final class ExcelImport
         if (!empty($this->getCellValueOrNull($sheet, 12, 2))) {
             $doc->setStatusStart(
                 new \DateTime(
-                    \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
+                    NumberFormat::toFormattedString(
                         $this->getCellValueOrNull($sheet, 12, 2),
                         'YYYY-MM-DD'
                     )
@@ -180,7 +182,7 @@ final class ExcelImport
         if (!empty($this->getCellValueOrNull($sheet, 13, 2))) {
             $doc->setStatusEnd(
                 new \DateTime(
-                    \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
+                    NumberFormat::toFormattedString(
                         $this->getCellValueOrNull($sheet, 13, 2),
                         'YYYY-MM-DD'
                     )

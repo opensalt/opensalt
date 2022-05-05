@@ -3,10 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\User\User;
+use Milo\Github\Api;
+use Milo\Github\OAuth\Token;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -27,7 +30,7 @@ class GithubOauthController extends AbstractController
         $response = new JsonResponse();
 
         if (!$currentUser instanceof User) {
-            $response->setStatusCode(401);
+            $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
 
             return $response->setData([
                 'message' => 'Please log in.',
@@ -38,8 +41,8 @@ class GithubOauthController extends AbstractController
             $page = $request->query->get('page');
             $perPage = $request->query->get('perPage');
 
-            $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
-            $api = new \Milo\Github\Api();
+            $token = new Token($currentUser->getGithubToken());
+            $api = new Api();
             $api->setToken($token);
 
             $repos = $api->get('/user/repos?page='.$page.'&per_page='.$perPage);
@@ -50,7 +53,7 @@ class GithubOauthController extends AbstractController
             ]);
         }
 
-        $response->setStatusCode(401);
+        $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
 
         return $response->setData([
             'message' => 'Please log in with your GitHub account',
@@ -67,15 +70,15 @@ class GithubOauthController extends AbstractController
         $currentUser = $this->getUser();
         $response = new JsonResponse();
         if (!$currentUser instanceof User) {
-            $response->setStatusCode(401);
+            $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
 
             return $response->setData([
                 'message' => 'Please log in.',
             ]);
         }
 
-        $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
-        $api = new \Milo\Github\Api();
+        $token = new Token($currentUser->getGithubToken());
+        $api = new Api();
         $api->setToken($token);
 
         $owner = $request->query->get('owner');

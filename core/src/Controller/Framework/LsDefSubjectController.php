@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -78,7 +79,7 @@ class LsDefSubjectController extends AbstractController
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @return array|RedirectResponse
      */
     public function newAction(Request $request)
     {
@@ -128,7 +129,7 @@ class LsDefSubjectController extends AbstractController
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @return array|RedirectResponse
      */
     public function editAction(Request $request, LsDefSubject $lsDefSubject)
     {
@@ -160,7 +161,7 @@ class LsDefSubjectController extends AbstractController
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_subject_delete")
      * @Security("is_granted('create', 'lsdoc')")
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return RedirectResponse
      */
     public function deleteAction(Request $request, LsDefSubject $lsDefSubject)
     {
@@ -180,7 +181,7 @@ class LsDefSubjectController extends AbstractController
      *
      * @param LsDefSubject $lsDefSubject The LsDefSubject entity
      *
-     * @return \Symfony\Component\Form\FormInterface The form
+     * @return FormInterface The form
      */
     private function createDeleteForm(LsDefSubject $lsDefSubject): FormInterface
     {

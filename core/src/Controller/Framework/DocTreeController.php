@@ -20,6 +20,7 @@ use App\Form\Type\LsDocListType;
 use App\Util\Compare;
 use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -282,7 +283,7 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     protected function exportExternalDocument(string $url, ?LsDoc $lsDoc = null): Response
     {
@@ -559,7 +560,7 @@ class DocTreeController extends AbstractController
         if (!empty($externalDocs[$identifier])) {
             // if we found it, load it, noting that we don't have to save a record of it in externalDocs (since it's already there)
             $response = $this->exportExternalDocument($externalDocs[$identifier]['url'], null);
-            if (200 !== $response->getStatusCode()) {
+            if (Response::HTTP_OK !== $response->getStatusCode()) {
                 return $response;
             }
 

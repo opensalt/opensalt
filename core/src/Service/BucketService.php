@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Utils;
 use League\Flysystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -26,7 +26,7 @@ class BucketService
         $path = "/$dir/$name.".$file->getClientOriginalExtension();
         $url = '';
 
-        $original = Psr7\Utils::tryFopen($file->getRealPath(), 'rb');
+        $original = Utils::tryFopen($file->getRealPath(), 'rb');
         $filesystem->writeStream($path, $original, ['directory_visibility' => 'public', 'visibility' => 'public']);
 
         if (!empty($this->attachmentUrlPrefix)) {

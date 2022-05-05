@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -113,7 +114,7 @@ class LsDefAssociationGroupingController extends AbstractController
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @return array|RedirectResponse
      */
     public function editAction(Request $request, LsDefAssociationGrouping $associationGrouping)
     {
@@ -145,7 +146,7 @@ class LsDefAssociationGroupingController extends AbstractController
      * @Route("/{id}", methods={"DELETE"}, name="lsdef_association_grouping_delete")
      * @Security("is_granted('create', 'lsdoc')")
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return RedirectResponse
      */
     public function deleteAction(Request $request, LsDefAssociationGrouping $associationGrouping)
     {
@@ -165,7 +166,7 @@ class LsDefAssociationGroupingController extends AbstractController
      *
      * @param LsDefAssociationGrouping $associationGrouping The LsDefAssociationGrouping entity
      *
-     * @return \Symfony\Component\Form\FormInterface The form
+     * @return FormInterface The form
      */
     private function createDeleteForm(LsDefAssociationGrouping $associationGrouping): FormInterface
     {

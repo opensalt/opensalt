@@ -339,7 +339,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     }
 
     /**
-     * @return \App\Entity\User\Organization
+     * @return Organization
      */
     public function getOrg()
     {
@@ -347,7 +347,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     }
 
     /**
-     * @param \App\Entity\User\Organization $org
+     * @param Organization $org
      *
      * @return User
      */
@@ -361,7 +361,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     /**
      * Get the frameworks owned by the user
      *
-     * @return \App\Entity\Framework\LsDoc[]|\Doctrine\Common\Collections\Collection
+     * @return LsDoc[]|Collection
      */
     public function getFrameworks()
     {
