@@ -26,7 +26,7 @@ class LockItemHandler extends BaseFrameworkHandler
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             LockItemCommand::class => 'handle',
