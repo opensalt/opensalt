@@ -13,11 +13,11 @@ use Symfony\Component\Console\Question\Question;
 
 class UserSetPasswordCommand extends BaseDispatchingCommand
 {
+    protected static $defaultName = 'salt:user:set-password';
+
     protected function configure()
     {
-        $this
-            ->setName('salt:user:set-password')
-            ->setDescription('Set the password for a local user')
+        $this->setDescription('Set the password for a local user')
             ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the user to change')
             ->addArgument('password', InputArgument::OPTIONAL, 'New password for the user')
         ;

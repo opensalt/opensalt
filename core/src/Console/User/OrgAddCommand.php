@@ -14,11 +14,11 @@ use Symfony\Component\Console\Question\Question;
 
 class OrgAddCommand extends BaseDoctrineCommand
 {
+    protected static $defaultName = 'salt:org:add';
+
     protected function configure(): void
     {
-        $this
-            ->setName('salt:org:add')
-            ->setDescription('Add an organization')
+        $this->setDescription('Add an organization')
             ->addArgument('org', InputArgument::REQUIRED, 'Organization name for the new user')
         ;
     }

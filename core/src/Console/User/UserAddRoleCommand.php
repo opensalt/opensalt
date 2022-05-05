@@ -11,11 +11,11 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 
 class UserAddRoleCommand extends UserRoleCommand
 {
+    protected static $defaultName = 'salt:user:add-role';
+
     protected function configure(): void
     {
-        $this
-            ->setName('salt:user:add-role')
-            ->setDescription('Add a role to a local user')
+        $this->setDescription('Add a role to a local user')
             ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the user to change')
             ->addArgument('role', InputArgument::REQUIRED, 'Role to give the user (editor, admin, super-user)')
         ;

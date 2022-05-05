@@ -17,11 +17,11 @@ use Symfony\Component\Console\Question\Question;
 
 class UserAddCommand extends BaseDoctrineCommand
 {
+    protected static $defaultName = 'salt:user:add';
+
     protected function configure(): void
     {
-        $this
-            ->setName('salt:user:add')
-            ->setDescription('Add a local user')
+        $this->setDescription('Add a local user')
             ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the new user')
             ->addArgument('org', InputArgument::REQUIRED, 'Organization name for the new user')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Initial password for the new user')
