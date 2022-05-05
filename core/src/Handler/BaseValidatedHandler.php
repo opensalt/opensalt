@@ -11,14 +11,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class BaseValidatedHandler implements EventSubscriberInterface
 {
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(protected ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     abstract public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void;
@@ -39,7 +33,7 @@ abstract class BaseValidatedHandler implements EventSubscriberInterface
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         $event = str_replace('Handler', 'Command', static::class);
 

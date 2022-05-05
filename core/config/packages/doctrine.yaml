@@ -46,12 +46,10 @@ doctrine:
                     log_enabled: true
                 mappings:
                     App:
-                        type: annotation
                         prefix: App\Entity
                         dir: "%kernel.project_dir%/src/Entity"
                         is_bundle: false
                     GedmoTree:
-                        type: annotation
                         prefix: Gedmo\Tree\Entity
                         dir: "%kernel.project_dir%/vendor/gedmo/doctrine-extensions/src/Tree/Entity"
                         #alias: GedmoTree # (optional) it will default to the name set for the mapping
