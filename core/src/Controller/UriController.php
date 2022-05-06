@@ -61,7 +61,7 @@ class UriController extends AbstractController
         }
 
         if ('tree' === $request->getRequestFormat()) {
-            switch (get_class($obj)) {
+            switch ($obj::class) {
                 case LsDoc::class:
                     return $this->redirectToRoute('doc_tree_view', ['slug' => $obj->getId()]);
 
@@ -91,7 +91,7 @@ class UriController extends AbstractController
         $headers['TCN'] = 'choice';
         $response->headers->add($headers);
 
-        $className = $isPackage ? 'CFPackage' : substr(strrchr(get_class($obj), '\\'), 1);
+        $className = $isPackage ? 'CFPackage' : substr(strrchr($obj::class, '\\'), 1);
         $groups = ['default', $className];
         if ('opensalt' === $request->getRequestFormat()) {
             $groups[] = 'opensalt';

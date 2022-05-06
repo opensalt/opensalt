@@ -242,7 +242,7 @@ class CaseV1P0Controller extends AbstractController
      */
     protected function generateObjectResponse(Request $request, CaseApiInterface $obj): Response
     {
-        $this->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
+        $this->info('CASE API: Returned object', ['type' => $obj::class, 'id' => $obj->getIdentifier()]);
 
         $response = $this->generateBaseResponse($obj->getUpdatedAt());
 
@@ -250,7 +250,7 @@ class CaseV1P0Controller extends AbstractController
             return $response;
         }
 
-        $className = substr(strrchr(get_class($obj), '\\'), 1);
+        $className = substr(strrchr($obj::class, '\\'), 1);
         $response->setContent(
             $this->serializer->serialize($obj, 'json', [
                 'groups' => ['default', $className],
@@ -266,7 +266,7 @@ class CaseV1P0Controller extends AbstractController
      */
     protected function generateObjectCollectionResponse(Request $request, CaseApiInterface $obj): Response
     {
-        $this->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
+        $this->info('CASE API: Returned object', ['type' => $obj::class, 'id' => $obj->getIdentifier()]);
 
         $response = $this->generateBaseResponse(new \DateTime());
 
@@ -276,7 +276,7 @@ class CaseV1P0Controller extends AbstractController
 
         $collection = explode('/', $request->getPathInfo())[4];
 
-        $className = substr(strrchr(get_class($obj), '\\'), 1);
+        $className = substr(strrchr($obj::class, '\\'), 1);
         $response->setContent(
             $this->serializer->serialize([$collection => [$obj]], 'json', [
                 'groups' => ['default', $className],

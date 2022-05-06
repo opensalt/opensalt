@@ -40,7 +40,7 @@ class ObjectLock
 
         $this->user = $user;
         $this->timeout = new \DateTime("now + {$minutes} minutes");
-        $this->objectType = \get_class($obj);
+        $this->objectType = $obj::class;
         $this->objectId = (string) $obj->getId();
         if ($obj instanceof LsDoc) {
             $this->doc = $obj;

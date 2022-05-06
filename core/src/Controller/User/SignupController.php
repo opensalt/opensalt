@@ -110,7 +110,7 @@ class SignupController extends AbstractController
                 return $this->redirectToRoute('lsdoc_index');
             } catch (\Exception $e) {
                 if ('dev' === $this->kernelEnv) {
-                    $form->addError(new FormError(get_class($e).': '.$e->getMessage()));
+                    $form->addError(new FormError($e::class.': '.$e->getMessage()));
                 } else {
                     $form->addError(new FormError('Sorry, an error occurred while creating your account.'));
                 }
