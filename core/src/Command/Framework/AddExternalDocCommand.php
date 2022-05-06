@@ -8,46 +8,26 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AddExternalDocCommand extends BaseCommand
 {
-    /**
-     * @var LsDoc
-     *
-     * @Assert\Type(LsDoc::class)
-     * @Assert\NotNull()
-     */
-    private $doc;
+    #[Assert\Type(LsDoc::class)]
+    #[Assert\NotNull]
+    private LsDoc $doc;
 
-    /**
-     * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
-     * @Assert\Choice({"true", "false"})
-     */
-    private $autoload;
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
+    #[Assert\Choice(['true', 'false'])]
+    private string $autoload;
 
-    /**
-     * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
-     */
-    private $url;
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
+    private string $url;
 
-    /**
-     * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
-     */
-    private $title;
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
+    private string $title;
 
-    /**
-     * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
-     */
-    private $identifier;
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
+    private string $identifier;
 
     public function __construct(LsDoc $doc, string $identifier, string $autoload, string $url, string $title)
     {

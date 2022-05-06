@@ -10,10 +10,9 @@ abstract class OrganizationCommand extends BaseCommand
 {
     /**
      * @var Organization
-     *
-     * @Assert\Type(Organization::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(Organization::class)]
+    #[Assert\NotNull]
     private $organization;
 
     public function __construct(Organization $organization)

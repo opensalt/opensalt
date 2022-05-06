@@ -10,10 +10,9 @@ abstract class UserCommand extends BaseCommand
 {
     /**
      * @var User
-     *
-     * @Assert\Type(User::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(User::class)]
+    #[Assert\NotNull]
     private $user;
 
     public function __construct(User $user)

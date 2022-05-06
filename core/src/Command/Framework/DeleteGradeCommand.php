@@ -10,10 +10,9 @@ class DeleteGradeCommand extends BaseCommand
 {
     /**
      * @var LsDefGrade
-     *
-     * @Assert\Type(LsDefGrade::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsDefGrade::class)]
+    #[Assert\NotNull]
     private $grade;
 
     public function __construct(LsDefGrade $grade)

@@ -11,33 +11,29 @@ class AddExemplarToItemCommand extends BaseCommand
 {
     /**
      * @var LsItem
-     *
-     * @Assert\Type(LsItem::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsItem::class)]
+    #[Assert\NotNull]
     private $item;
 
     /**
      * @var string
-     *
-     * @Assert\Type("string")
-     * @Assert\NotNull()
-     * @Assert\Length(max="300")
      */
+    #[Assert\Type('string')]
+    #[Assert\NotNull]
+    #[Assert\Length(max: 300)]
     private $url;
 
     /**
      * @var string|null
-     *
-     * @Assert\Type("string")
      */
+    #[Assert\Type('string')]
     private $annotation;
 
     /**
      * @var LsAssociation|null
-     *
-     * @Assert\Type(LsAssociation::class)
      */
+    #[Assert\Type(LsAssociation::class)]
     private $association;
 
     /**

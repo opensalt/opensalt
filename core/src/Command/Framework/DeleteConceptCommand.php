@@ -10,10 +10,9 @@ class DeleteConceptCommand extends BaseCommand
 {
     /**
      * @var LsDefConcept
-     *
-     * @Assert\Type(LsDefConcept::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsDefConcept::class)]
+    #[Assert\NotNull]
     private $concept;
 
     public function __construct(LsDefConcept $concept)

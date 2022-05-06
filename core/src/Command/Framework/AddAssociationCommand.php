@@ -10,10 +10,9 @@ class AddAssociationCommand extends BaseCommand
 {
     /**
      * @var LsAssociation
-     *
-     * @Assert\Type(LsAssociation::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsAssociation::class)]
+    #[Assert\NotNull]
     private $association;
 
     /**

@@ -10,10 +10,9 @@ class AddAssociationGroupCommand extends BaseCommand
 {
     /**
      * @var LsDefAssociationGrouping
-     *
-     * @Assert\Type(LsDefAssociationGrouping::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsDefAssociationGrouping::class)]
+    #[Assert\NotNull]
     private $associationGrouping;
 
     /**
