@@ -12,13 +12,13 @@ class FrameworkAccessVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const LIST = 'list'; // User can see the framework in a list
-    public const VIEW = 'view';
-    public const EDIT = 'edit';
-    public const DELETE = 'delete';
-    public const CREATE = 'create';
+    final public const LIST = 'list'; // User can see the framework in a list
+    final public const VIEW = 'view';
+    final public const EDIT = 'edit';
+    final public const DELETE = 'delete';
+    final public const CREATE = 'create';
 
-    public const FRAMEWORK = 'lsdoc';
+    final public const FRAMEWORK = 'lsdoc';
 
     /**
      * {@inheritdoc}

@@ -13,29 +13,29 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
 {
     use AccessAdditionalFieldTrait;
 
-    public const CHILD_OF = 'Is Child Of';
+    final public const CHILD_OF = 'Is Child Of';
 
-    public const EXACT_MATCH_OF = 'Exact Match Of';
-    public const RELATED_TO = 'Is Related To';
-    public const PART_OF = 'Is Part Of';
-    public const REPLACED_BY = 'Replaced By';
-    public const PRECEDES = 'Precedes';
-    public const SKILL_LEVEL = 'Has Skill Level';
-    public const IS_PEER_OF = 'Is Peer Of';
+    final public const EXACT_MATCH_OF = 'Exact Match Of';
+    final public const RELATED_TO = 'Is Related To';
+    final public const PART_OF = 'Is Part Of';
+    final public const REPLACED_BY = 'Replaced By';
+    final public const PRECEDES = 'Precedes';
+    final public const SKILL_LEVEL = 'Has Skill Level';
+    final public const IS_PEER_OF = 'Is Peer Of';
 
-    public const EXEMPLAR = 'Exemplar';
+    final public const EXEMPLAR = 'Exemplar';
 
-    public const INVERSE_CHILD_OF = 'Is Parent Of';
+    final public const INVERSE_CHILD_OF = 'Is Parent Of';
 
-    public const INVERSE_EXACT_MATCH_OF = 'Matched From';
-    public const INVERSE_RELATED_TO = 'Related From';
-    public const INVERSE_PART_OF = 'Has Part';
-    public const INVERSE_REPLACED_BY = 'Replaces';
-    public const INVERSE_PRECEDES = 'Has Predecessor';
-    public const INVERSE_SKILL_LEVEL = 'Skill Level For';
-    public const INVERSE_IS_PEER_OF = 'Peer Of';
+    final public const INVERSE_EXACT_MATCH_OF = 'Matched From';
+    final public const INVERSE_RELATED_TO = 'Related From';
+    final public const INVERSE_PART_OF = 'Has Part';
+    final public const INVERSE_REPLACED_BY = 'Replaces';
+    final public const INVERSE_PRECEDES = 'Has Predecessor';
+    final public const INVERSE_SKILL_LEVEL = 'Skill Level For';
+    final public const INVERSE_IS_PEER_OF = 'Peer Of';
 
-    public const INVERSE_EXEMPLAR = 'Exemplar For';
+    final public const INVERSE_EXEMPLAR = 'Exemplar For';
 
     #[ORM\Column(name: 'ls_doc_identifier', type: 'string', length: 300, nullable: false)]
     #[Assert\Length(max: 300)]

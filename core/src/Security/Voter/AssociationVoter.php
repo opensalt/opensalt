@@ -14,11 +14,11 @@ class AssociationVoter extends Voter
     use RoleCheckTrait;
     use DeferDecisionTrait;
 
-    public const ADD_TO = 'add-association-to';
-    public const CREATE = 'create';
-    public const EDIT = 'edit';
+    final public const ADD_TO = 'add-association-to';
+    final public const CREATE = 'create';
+    final public const EDIT = 'edit';
 
-    public const ASSOCIATION = 'lsassociation';
+    final public const ASSOCIATION = 'lsassociation';
 
     /**
      * {@inheritdoc}

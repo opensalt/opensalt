@@ -10,8 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'salt_user_doc_acl', uniqueConstraints: [new ORM\UniqueConstraint(name: 'uniq_acl_id', columns: ['doc_id', 'user_id'])])]
 class UserDocAcl
 {
-    public const DENY = 0;
-    public const ALLOW = 1;
+    final public const DENY = 0;
+    final public const ALLOW = 1;
 
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]

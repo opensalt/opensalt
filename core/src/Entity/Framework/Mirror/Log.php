@@ -9,8 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: LogRepository::class)]
 class Log
 {
-    public const STATUS_SUCCESS = 'success';
-    public const STATUS_FAILURE = 'failure';
+    final public const STATUS_SUCCESS = 'success';
+    final public const STATUS_FAILURE = 'failure';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

@@ -13,8 +13,8 @@ class ItemVoter extends Voter
     use DeferDecisionTrait;
     use RoleCheckTrait;
 
-    public const ADD_TO = 'add-standard-to';
-    public const EDIT = 'edit';
+    final public const ADD_TO = 'add-standard-to';
+    final public const EDIT = 'edit';
 
     /**
      * {@inheritdoc}

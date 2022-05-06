@@ -23,10 +23,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity('identifier')]
 class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterface
 {
-    public const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
-    public const ADOPTION_STATUS_DRAFT = 'Draft';
-    public const ADOPTION_STATUS_ADOPTED = 'Adopted';
-    public const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
+    final public const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
+    final public const ADOPTION_STATUS_DRAFT = 'Draft';
+    final public const ADOPTION_STATUS_ADOPTED = 'Adopted';
+    final public const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'frameworks')]
     #[ORM\JoinColumn(name: 'org_id', referencedColumnName: 'id', nullable: true)]

@@ -14,14 +14,14 @@ use Swaggest\JsonDiff\JsonDiff;
 #[ORM\Entity(repositoryClass: FrameworkRepository::class)]
 class Framework
 {
-    public const STATUS_NEW = 'new';
-    public const STATUS_SCHEDULED = 'scheduled';
-    public const STATUS_PROCESSING = 'processing';
-    public const STATUS_OK = 'ok';
-    public const STATUS_ERROR = 'error';
+    final public const STATUS_NEW = 'new';
+    final public const STATUS_SCHEDULED = 'scheduled';
+    final public const STATUS_PROCESSING = 'processing';
+    final public const STATUS_OK = 'ok';
+    final public const STATUS_ERROR = 'error';
 
-    public const ERROR_GENERAL = 'general';
-    public const ERROR_ID_CONFLICT = 'identifier_conflict';
+    final public const ERROR_GENERAL = 'general';
+    final public const ERROR_ID_CONFLICT = 'identifier_conflict';
 
     #[ORM\Column(name: 'id', type: 'integer')]
     #[ORM\Id]

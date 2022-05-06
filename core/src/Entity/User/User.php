@@ -19,16 +19,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity('username', message: 'That email address is already being used', groups: ['registration'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
-    public const USER_ROLES = [
+    final public const USER_ROLES = [
         'ROLE_EDITOR',
         'ROLE_ADMIN',
         'ROLE_SUPER_EDITOR',
         'ROLE_SUPER_USER',
     ];
 
-    public const ACTIVE = 0;
-    public const SUSPENDED = 1;
-    public const PENDING = 2;
+    final public const ACTIVE = 0;
+    final public const SUSPENDED = 1;
+    final public const PENDING = 2;
 
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]

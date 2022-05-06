@@ -9,9 +9,9 @@ class ManageMirrorVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const MANAGE = 'manage';
+    final public const MANAGE = 'manage';
 
-    public const MIRRORS = 'mirrors';
+    final public const MIRRORS = 'mirrors';
 
     /**
      * {@inheritdoc}

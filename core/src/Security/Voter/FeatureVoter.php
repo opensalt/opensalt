@@ -9,9 +9,9 @@ class FeatureVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const FEATURE = 'feature';
+    final public const FEATURE = 'feature';
 
-    public const DEV_ENV = 'dev_env';
+    final public const DEV_ENV = 'dev_env';
 
     /**
      * {@inheritdoc}

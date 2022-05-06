@@ -10,9 +10,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: AssociationSubtypeRepository::class)]
 class AssociationSubtype
 {
-    public const DIR_BOTH = 0;
-    public const DIR_FORWARD = 1;
-    public const DIR_INVERSE = -1;
+    final public const DIR_BOTH = 0;
+    final public const DIR_FORWARD = 1;
+    final public const DIR_INVERSE = -1;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

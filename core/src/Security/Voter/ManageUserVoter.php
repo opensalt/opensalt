@@ -10,10 +10,10 @@ class ManageUserVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const MANAGE = 'manage';
+    final public const MANAGE = 'manage';
 
-    public const USERS = 'users';
-    public const ALL_USERS = 'all_users';
+    final public const USERS = 'users';
+    final public const ALL_USERS = 'all_users';
 
     /**
      * {@inheritdoc}

@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: LsDocAttributeRepository::class)]
 class LsDocAttribute
 {
-    public const IS_GRADE_LEVELS = 'isGradeLevels';
+    final public const IS_GRADE_LEVELS = 'isGradeLevels';
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'attributes')]

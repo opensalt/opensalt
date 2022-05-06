@@ -11,7 +11,7 @@ class FrameworkManageEditorsVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const MANAGE_EDITORS = 'manage_editors';
+    final public const MANAGE_EDITORS = 'manage_editors';
 
     /**
      * {@inheritdoc}

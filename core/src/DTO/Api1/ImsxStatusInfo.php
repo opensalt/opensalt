@@ -4,14 +4,14 @@ namespace App\DTO\Api1;
 
 class ImsxStatusInfo
 {
-    public const CODE_MAJOR_SUCCESS = 'success';
-    public const CODE_MAJOR_PROCESSING = 'processing';
-    public const CODE_MAJOR_FAILURE = 'failure';
-    public const CODE_MAJOR_UNSUPPORTED = 'unsupported';
+    final public const CODE_MAJOR_SUCCESS = 'success';
+    final public const CODE_MAJOR_PROCESSING = 'processing';
+    final public const CODE_MAJOR_FAILURE = 'failure';
+    final public const CODE_MAJOR_UNSUPPORTED = 'unsupported';
 
-    public const SEVERITY_STATUS = 'status';
-    public const SEVERITY_WARNING = 'warning';
-    public const SEVERITY_ERROR = 'error';
+    final public const SEVERITY_STATUS = 'status';
+    final public const SEVERITY_WARNING = 'warning';
+    final public const SEVERITY_ERROR = 'error';
 
     public static array $codeMajorValues = [
         self::CODE_MAJOR_SUCCESS,

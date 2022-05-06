@@ -12,11 +12,11 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ORM\Entity(repositoryClass: ServerRepository::class)]
 class Server
 {
-    public const TYPE_CASE_1_0 = 'CASE/1.0';
-    public const TYPE_DIRECT = 'Direct URI/0.0';
+    final public const TYPE_CASE_1_0 = 'CASE/1.0';
+    final public const TYPE_DIRECT = 'Direct URI/0.0';
 
-    public const URL_CASE_1_0_LIST = '/ims/case/v1p0/CFDocuments';
-    public const URL_CASE_1_0_PACKAGE = '/ims/case/v1p0/CFPackages';
+    final public const URL_CASE_1_0_LIST = '/ims/case/v1p0/CFDocuments';
+    final public const URL_CASE_1_0_PACKAGE = '/ims/case/v1p0/CFPackages';
 
     #[ORM\Column(name: 'id', type: 'integer')]
     #[ORM\Id]
