@@ -18,7 +18,7 @@ class Organization
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     #[ORM\Column(name: 'id', type: 'integer')]
-    protected ?int $id;
+    protected ?int $id = null;
 
     #[ORM\Column(name: 'name', type: 'string', length: 255, unique: true)]
     #[Assert\NotBlank(groups: ['registration', 'Default'])]

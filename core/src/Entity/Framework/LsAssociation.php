@@ -39,7 +39,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
 
     #[ORM\Column(name: 'ls_doc_identifier', type: 'string', length: 300, nullable: false)]
     #[Assert\Length(max: 300)]
-    private ?string $lsDocIdentifier;
+    private ?string $lsDocIdentifier = null;
 
     #[ORM\Column(name: 'ls_doc_uri', type: 'string', length: 300, nullable: true)]
     #[Assert\Length(max: 300)]
@@ -55,7 +55,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     #[ORM\Column(name: 'origin_node_identifier', type: 'string', length: 300, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 300)]
-    private ?string $originNodeIdentifier;
+    private ?string $originNodeIdentifier = null;
 
     #[ORM\Column(name: 'origin_node_uri', type: 'string', length: 300, nullable: true)]
     private ?string $originNodeUri = null;
@@ -71,7 +71,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     #[ORM\Column(name: 'destination_node_identifier', type: 'string', length: 300, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 300)]
-    private ?string $destinationNodeIdentifier;
+    private ?string $destinationNodeIdentifier = null;
 
     #[ORM\Column(name: 'destination_node_uri', type: 'string', length: 300, nullable: true)]
     private ?string $destinationNodeUri = null;
@@ -85,7 +85,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     private ?LsItem $destinationLsItem = null;
 
     #[ORM\Column(name: 'type', type: 'string', length: 50, nullable: false)]
-    private ?string $type;
+    private ?string $type = null;
 
     #[ORM\Column(name: 'seq', type: 'bigint', nullable: true)]
     private ?int $sequenceNumber = null;

@@ -15,7 +15,7 @@ class ChangeEntry
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'bigint')]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
-    protected ?int $id;
+    protected ?int $id = null;
 
     #[ORM\Column(name: 'user_id', type: 'integer', nullable: true)]
     protected ?int $user;

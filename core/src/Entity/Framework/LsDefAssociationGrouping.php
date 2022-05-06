@@ -12,7 +12,7 @@ class LsDefAssociationGrouping extends AbstractLsDefinition implements CaseApiIn
 {
     #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'associationGroupings')]
     #[Assert\NotNull]
-    private ?LsDoc $lsDoc;
+    private ?LsDoc $lsDoc = null;
 
     public function getLsDoc(): ?LsDoc
     {

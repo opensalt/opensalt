@@ -15,7 +15,7 @@ class CommentUpvote
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     #[ORM\Column(type: 'integer')]
-    private ?int $id;
+    private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Comment::class, inversedBy: 'upvotes')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]

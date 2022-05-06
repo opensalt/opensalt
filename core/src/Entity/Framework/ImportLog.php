@@ -15,16 +15,16 @@ class ImportLog
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     #[ORM\Column(name: 'id', type: 'integer')]
-    protected ?int $id;
+    protected ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'importLogs')]
     #[ORM\JoinColumn(name: 'ls_doc_id', referencedColumnName: 'id', nullable: false)]
     #[Assert\NotBlank]
-    protected ?LsDoc $lsDoc;
+    protected ?LsDoc $lsDoc = null;
 
     #[ORM\Column(name: 'message_text', type: 'string', length: 250)]
     #[Assert\NotBlank]
-    protected ?string $message;
+    protected ?string $message = null;
 
     #[ORM\Column(name: 'message_type', type: 'string', length: 30, nullable: false)]
     protected string $messageType;

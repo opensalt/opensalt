@@ -14,7 +14,7 @@ class ObjectLock
     #[ORM\Column(name: 'id', type: 'integer')]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
-    protected ?int $id;
+    protected ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
@@ -30,7 +30,7 @@ class ObjectLock
     protected string $objectId;
 
     #[ORM\ManyToOne(targetEntity: LsDoc::class)]
-    protected ?LsDoc $doc;
+    protected ?LsDoc $doc = null;
 
     public function __construct(LockableInterface $obj, User $user, int $minutes = 5)
     {
