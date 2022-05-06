@@ -84,7 +84,7 @@ final class AsnDocument
 
     public static function fromJson(string $json): self
     {
-        $arr = json_decode($json, true);
+        $arr = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
         return self::fromArray($arr);
     }

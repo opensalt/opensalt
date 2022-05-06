@@ -557,7 +557,7 @@ class DocTreeController extends AbstractController
             }
 
             $content = $response->getContent();
-            $json = json_decode($content, true);
+            $json = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
             $lastModified = new \DateTime($json['CFDocument']['lastChangeDateTime'], new \DateTimeZone('UTC'));
 
             $response->setEtag(md5($lastModified->format('U.u').self::ETAG_SEED), true);
@@ -581,7 +581,7 @@ class DocTreeController extends AbstractController
 
     protected function addExternalDocumentToDoc(string $url, LsDoc $lsDoc, $document): void
     {
-        $doc = json_decode($document, false);
+        $doc = json_decode($document, false, 512, JSON_THROW_ON_ERROR);
         $title = $doc->CFDocument->title;
         $identifier = $doc->CFDocument->identifier;
 

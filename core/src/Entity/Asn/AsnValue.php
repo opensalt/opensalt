@@ -59,7 +59,7 @@ final class AsnValue
 
     public static function fromJson(string $json): static
     {
-        $arr = json_decode($json);
+        $arr = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 
         return static::fromArray($arr);
     }

@@ -23,7 +23,7 @@ class PdfExportController extends AbstractController
         $section = $phpWordObject->addSection();
 
         $response = $this->forward('App\Controller\Framework\CfPackageController::exportAction', ['id' => $id, '_format' => 'json']);
-        $data_array = json_decode($response->getContent(), true);
+        $data_array = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         for ($i = 0, $iMax = is_countable($data_array['CFItems']) ? count($data_array['CFItems']) : 0; $i < $iMax; ++$i) {
             $data_array['CFItems'][$i]['fullStatement'] = $this->renderImages($data_array['CFItems'][$i]['fullStatement']);
             if (isset($data_array['CFItems'][$i]['notes'])) {
