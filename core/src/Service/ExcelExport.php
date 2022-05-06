@@ -218,9 +218,7 @@ final class ExcelExport
             'K' => '[itemType][title]',
             'L' => '[license]',
         ];
-
-        end($columns);
-        $lastCol = key($columns);
+        $lastCol = array_key_last($columns);
         foreach (self::$customItemFields as $customField) {
             $columns[++$lastCol] = sprintf('[extra][customFields][%s]', $customField);
         }
