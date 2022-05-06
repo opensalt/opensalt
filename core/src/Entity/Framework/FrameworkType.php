@@ -2,25 +2,20 @@
 
 namespace App\Entity\Framework;
 
+use App\Repository\Framework\FrameworkTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="framework_type")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\FrameworkTypeRepository")
- */
+#[ORM\Table(name: 'framework_type')]
+#[ORM\Entity(repositoryClass: FrameworkTypeRepository::class)]
 class FrameworkType
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $frameworkType;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $frameworkType;
 
     public function getId(): ?int
     {
@@ -32,10 +27,8 @@ class FrameworkType
         return $this->frameworkType;
     }
 
-    public function setFrameworkType(string $frameworkType): self
+    public function setFrameworkType(string $frameworkType): void
     {
         $this->frameworkType = $frameworkType;
-
-        return $this;
     }
 }

@@ -2,40 +2,23 @@
 
 namespace App\Entity\Framework;
 
+use App\Repository\Framework\LsDefLicenceRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * LsDefLicence
- *
- * @ORM\Table(name="ls_def_licence")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\LsDefLicenceRepository")
- */
+#[ORM\Table(name: 'ls_def_licence')]
+#[ORM\Entity(repositoryClass: LsDefLicenceRepository::class)]
 class LsDefLicence extends AbstractLsDefinition implements CaseApiInterface
 {
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="licence_text", type="text")
-     */
-    private $licenceText;
+    #[ORM\Column(name: 'licence_text', type: 'text')]
+    private string $licenceText;
 
-    /**
-     * @return string
-     */
-    public function getLicenceText()
+    public function getLicenceText(): string
     {
         return $this->licenceText;
     }
 
-    /**
-     * @param string $licenceText
-     *
-     * @return LsDefLicence
-     */
-    public function setLicenceText($licenceText)
+    public function setLicenceText(string $licenceText): void
     {
         $this->licenceText = $licenceText;
-
-        return $this;
     }
 }

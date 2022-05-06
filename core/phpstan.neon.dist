@@ -17,6 +17,7 @@ parameters:
 		container_xml_path: './var/cache/dev/App_KernelDevDebugContainer.xml'
 	doctrine:
 		objectManagerLoader: './tests/object-manager.php'
+		allowNullablePropertyForRequiredField: true
 
 	treatPhpDocTypesAsCertain: false
 	checkMissingIterableValueType: false
@@ -24,3 +25,5 @@ parameters:
 
 	ignoreErrors:
 		- "#Property .* type mapping mismatch\\: property can contain string\\|null but database expects string\\.$#"
+		- "#Property .* type mapping mismatch\\: database can contain string.* but property expects int\\|null\\.$#"
+		- "#Parameter .* of attribute class .*Entity constructor expects class-string.*EntityRepository.* .*Repository. given\\.$#"

@@ -2,42 +2,25 @@
 
 namespace App\Entity;
 
+use App\Repository\SessionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="auth_session")
- * @ORM\Entity(repositoryClass="App\Repository\SessionRepository")
- */
+#[ORM\Table(name: 'auth_session')]
+#[ORM\Entity(repositoryClass: SessionRepository::class)]
 class Session
 {
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="id", type="binary", length=128)
-     * @ORM\Id()
-     */
-    private $id;
+    #[ORM\Column(name: 'id', type: 'binary', length: 128)]
+    #[ORM\Id]
+    private string $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="sess_data", type="blob")
-     */
-    private $data;
+    #[ORM\Column(name: 'sess_data', type: 'blob')]
+    private string $data;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="sess_time", type="integer")
-     */
-    private $lastUsed;
+    #[ORM\Column(name: 'sess_time', type: 'integer')]
+    private int $lastUsed;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="sess_lifetime", type="integer")
-     */
-    private $lifetime;
+    #[ORM\Column(name: 'sess_lifetime', type: 'integer')]
+    private int $lifetime;
 
     public function getId(): string
     {

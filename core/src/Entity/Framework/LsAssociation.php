@@ -2,19 +2,13 @@
 
 namespace App\Entity\Framework;
 
+use App\Repository\Framework\LsAssociationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(name="ls_association",
- *     indexes={
- *         @ORM\Index(name="dest_id_idx", columns={"destination_node_identifier"}),
- *         @ORM\Index(name="orig_id_idx", columns={"origin_node_identifier"}),
- *     }
- * )
- * @ORM\Entity(repositoryClass="App\Repository\Framework\LsAssociationRepository")
- */
+#[ORM\Table(name: 'ls_association', indexes: [new ORM\Index(columns: ['destination_node_identifier'], name: 'dest_id_idx'), new ORM\Index(columns: ['origin_node_identifier'], name: 'orig_id_idx')])]
+#[ORM\Entity(repositoryClass: LsAssociationRepository::class)]
 class LsAssociation extends AbstractLsBase implements CaseApiInterface
 {
     use AccessAdditionalFieldTrait;
@@ -43,137 +37,66 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
 
     public const INVERSE_EXEMPLAR = 'Exemplar For';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ls_doc_identifier", type="string", length=300, nullable=false)
-     *
-     * @Assert\Length(max=300)
-     */
-    private $lsDocIdentifier;
+    #[ORM\Column(name: 'ls_doc_identifier', type: 'string', length: 300, nullable: false)]
+    #[Assert\Length(max: 300)]
+    private ?string $lsDocIdentifier;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ls_doc_uri", type="string", length=300, nullable=true)
-     *
-     * @Assert\Length(max=300)
-     */
-    private $lsDocUri;
+    #[ORM\Column(name: 'ls_doc_uri', type: 'string', length: 300, nullable: true)]
+    #[Assert\Length(max: 300)]
+    private ?string $lsDocUri = null;
 
-    /**
-     * @var LsDoc
-     *
-     * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="docAssociations")
-     */
-    private $lsDoc;
+    #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'docAssociations')]
+    private ?LsDoc $lsDoc = null;
 
-    /**
-     * @var LsDefAssociationGrouping
-     *
-     * @ORM\ManyToOne(targetEntity="LsDefAssociationGrouping", fetch="EAGER")
-     * @ORM\JoinColumn(name="assoc_group_id", referencedColumnName="id")
-     */
-    private $group;
+    #[ORM\ManyToOne(targetEntity: LsDefAssociationGrouping::class, fetch: 'EAGER')]
+    #[ORM\JoinColumn(name: 'assoc_group_id', referencedColumnName: 'id')]
+    private ?LsDefAssociationGrouping $group = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="origin_node_identifier", type="string", length=300, nullable=false)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     */
-    private $originNodeIdentifier;
+    #[ORM\Column(name: 'origin_node_identifier', type: 'string', length: 300, nullable: false)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 300)]
+    private ?string $originNodeIdentifier;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="origin_node_uri", type="string", length=300, nullable=true)
-     */
-    private $originNodeUri;
+    #[ORM\Column(name: 'origin_node_uri', type: 'string', length: 300, nullable: true)]
+    private ?string $originNodeUri = null;
 
-    /**
-     * @var LsDoc
-     *
-     * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="associations", fetch="EAGER")
-     * @ORM\JoinColumn(name="origin_lsdoc_id", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $originLsDoc;
+    #[ORM\ManyToOne(targetEntity: LsDoc::class, fetch: 'EAGER', inversedBy: 'associations')]
+    #[ORM\JoinColumn(name: 'origin_lsdoc_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
+    private ?LsDoc $originLsDoc = null;
 
-    /**
-     * @var LsItem
-     *
-     * @ORM\ManyToOne(targetEntity="LsItem", inversedBy="associations", fetch="EAGER", cascade={"persist"})
-     * @ORM\JoinColumn(name="origin_lsitem_id", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $originLsItem;
+    #[ORM\ManyToOne(targetEntity: LsItem::class, cascade: ['persist'], fetch: 'EAGER', inversedBy: 'associations')]
+    #[ORM\JoinColumn(name: 'origin_lsitem_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
+    private ?LsItem $originLsItem = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="destination_node_identifier", type="string", length=300, nullable=false)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     */
-    private $destinationNodeIdentifier;
+    #[ORM\Column(name: 'destination_node_identifier', type: 'string', length: 300, nullable: false)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 300)]
+    private ?string $destinationNodeIdentifier;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="destination_node_uri", type="string", length=300, nullable=true)
-     */
-    private $destinationNodeUri;
+    #[ORM\Column(name: 'destination_node_uri', type: 'string', length: 300, nullable: true)]
+    private ?string $destinationNodeUri = null;
 
-    /**
-     * @var LsDoc
-     *
-     * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="inverseAssociations", fetch="EAGER")
-     * @ORM\JoinColumn(name="destination_lsdoc_id", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $destinationLsDoc;
+    #[ORM\ManyToOne(targetEntity: LsDoc::class, fetch: 'EAGER', inversedBy: 'inverseAssociations')]
+    #[ORM\JoinColumn(name: 'destination_lsdoc_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
+    private ?LsDoc $destinationLsDoc = null;
 
-    /**
-     * @var LsItem
-     *
-     * @ORM\ManyToOne(targetEntity="LsItem", inversedBy="inverseAssociations", fetch="EAGER", cascade={"persist"})
-     * @ORM\JoinColumn(name="destination_lsitem_id", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $destinationLsItem;
+    #[ORM\ManyToOne(targetEntity: LsItem::class, cascade: ['persist'], fetch: 'EAGER', inversedBy: 'inverseAssociations')]
+    #[ORM\JoinColumn(name: 'destination_lsitem_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
+    private ?LsItem $destinationLsItem = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="type", type="string", length=50, nullable=false)
-     */
-    private $type;
+    #[ORM\Column(name: 'type', type: 'string', length: 50, nullable: false)]
+    private ?string $type;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="seq", type="bigint", nullable=true)
-     */
-    private $sequenceNumber;
+    #[ORM\Column(name: 'seq', type: 'bigint', nullable: true)]
+    private ?int $sequenceNumber = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="subtype", type="string", nullable=true)
-     */
-    private $subtype;
+    #[ORM\Column(name: 'subtype', type: 'string', nullable: true)]
+    private ?string $subtype = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="annotation", type="text", length=65534, nullable=true)
-     */
-    private $annotation;
+    #[ORM\Column(name: 'annotation', type: 'text', length: 65534, nullable: true)]
+    private ?string $annotation = null;
 
-    /**
-     * @param string|UuidInterface|null $identifier
-     */
-    public function __construct($identifier = null)
+    public function __construct(UuidInterface|string|null $identifier = null)
     {
         parent::__construct($identifier);
     }
@@ -184,7 +107,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     }
 
     /**
-     * Get all types collectted by camel case.
+     * Get all types indexed by camel case.
      */
     public static function allTypesForImportFromCSV(): array
     {
@@ -270,11 +193,9 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     /**
      * Set the Origination of the association.
      *
-     * @param string|IdentifiableInterface $origin
-     *
      * @throws \UnexpectedValueException
      */
-    public function setOrigin($origin, ?string $identifier = null): self
+    public function setOrigin(IdentifiableInterface|string $origin, ?string $identifier = null): static
     {
         if (is_string($origin)) {
             $this->setOriginNodeUri($origin);
@@ -283,27 +204,21 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
             return $this;
         }
 
-        if ($origin instanceof IdentifiableInterface) {
-            if ($origin instanceof LsDoc) {
-                $this->setOriginLsDoc($origin);
-            } elseif ($origin instanceof LsItem) {
-                $this->setOriginLsItem($origin);
-            }
-            $this->setOriginNodeUri($origin->getUri());
-            $this->setOriginNodeIdentifier($identifier ?? $origin->getIdentifier());
-
-            return $this;
+        if ($origin instanceof LsDoc) {
+            $this->setOriginLsDoc($origin);
+        } elseif ($origin instanceof LsItem) {
+            $this->setOriginLsItem($origin);
         }
+        $this->setOriginNodeUri($origin->getUri());
+        $this->setOriginNodeIdentifier($identifier ?? $origin->getIdentifier());
 
-        throw new \UnexpectedValueException('The value must be a URI, an LsDoc, or an LsItem');
+        return $this;
     }
 
     /**
      * Get the Origination of the association.
-     *
-     * @return string|LsDoc|LsItem|null
      */
-    public function getOrigin()
+    public function getOrigin(): string|LsItem|LsDoc|null
     {
         if ($this->getOriginLsDoc()) {
             return $this->getOriginLsDoc();
@@ -320,7 +235,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return null;
     }
 
-    public function setOriginNodeUri(string $originNodeUri): self
+    public function setOriginNodeUri(string $originNodeUri): static
     {
         $this->originNodeUri = $originNodeUri;
 
@@ -335,11 +250,9 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     /**
      * Set the Destination of the association.
      *
-     * @param string|IdentifiableInterface $destination
-     *
      * @throws \UnexpectedValueException
      */
-    public function setDestination($destination, ?string $identifier = null): self
+    public function setDestination(IdentifiableInterface|string $destination, ?string $identifier = null): static
     {
         if (is_string($destination)) {
             $this->setDestinationNodeUri($destination);
@@ -348,27 +261,21 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
             return $this;
         }
 
-        if ($destination instanceof IdentifiableInterface) {
-            if ($destination instanceof LsDoc) {
-                $this->setDestinationLsDoc($destination);
-            } elseif ($destination instanceof LsItem) {
-                $this->setDestinationLsItem($destination);
-            }
-            $this->setDestinationNodeUri($destination->getUri());
-            $this->setDestinationNodeIdentifier($identifier ?? $destination->getIdentifier());
-
-            return $this;
+        if ($destination instanceof LsDoc) {
+            $this->setDestinationLsDoc($destination);
+        } elseif ($destination instanceof LsItem) {
+            $this->setDestinationLsItem($destination);
         }
+        $this->setDestinationNodeUri($destination->getUri());
+        $this->setDestinationNodeIdentifier($identifier ?? $destination->getIdentifier());
 
-        throw new \UnexpectedValueException('The value must be a URI, an LsDoc, or an LsItem');
+        return $this;
     }
 
     /**
      * Get the Destination of the association.
-     *
-     * @return string|LsDoc|LsItem|null
      */
-    public function getDestination()
+    public function getDestination(): string|LsItem|LsDoc|null
     {
         if ($this->getDestinationLsDoc()) {
             return $this->getDestinationLsDoc();
@@ -385,7 +292,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return null;
     }
 
-    public function setDestinationNodeUri(string $destinationNodeUri): self
+    public function setDestinationNodeUri(string $destinationNodeUri): static
     {
         $this->destinationNodeUri = $destinationNodeUri;
 
@@ -410,7 +317,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      */
     public function splitDestinationDataUri(): array
     {
-        if (0 !== strncmp($this->destinationNodeUri, 'data:text/x-', 12)) {
+        if (0 !== strncmp($this->destinationNodeUri ?? '', 'data:text/x-', 12)) {
             // Not a known data URI format, return the entire uri as the value
             return ['value' => $this->destinationNodeUri];
         }
@@ -437,7 +344,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $metadata;
     }
 
-    public function setType(?string $type): self
+    public function setType(?string $type): static
     {
         if (in_array($type, self::allTypes(), true)) {
             $this->type = $type;
@@ -485,7 +392,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return null;
     }
 
-    public function setOriginLsDoc(?LsDoc $originLsDoc = null): self
+    public function setOriginLsDoc(?LsDoc $originLsDoc = null): static
     {
         $this->originLsDoc = $originLsDoc;
 
@@ -502,7 +409,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->originLsDoc;
     }
 
-    public function setOriginLsItem(?LsItem $originLsItem = null): self
+    public function setOriginLsItem(?LsItem $originLsItem = null): static
     {
         $this->originLsItem = $originLsItem;
 
@@ -519,7 +426,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->originLsItem;
     }
 
-    public function setDestinationLsDoc(?LsDoc $destinationLsDoc = null): self
+    public function setDestinationLsDoc(?LsDoc $destinationLsDoc = null): static
     {
         $this->destinationLsDoc = $destinationLsDoc;
         if (null !== $destinationLsDoc) {
@@ -535,7 +442,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->destinationLsDoc;
     }
 
-    public function setDestinationLsItem(?LsItem $destinationLsItem = null): self
+    public function setDestinationLsItem(?LsItem $destinationLsItem = null): static
     {
         $this->destinationLsItem = $destinationLsItem;
         if (null !== $destinationLsItem) {
@@ -551,7 +458,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->destinationLsItem;
     }
 
-    public function setLsDocUri(?string $lsDocUri): self
+    public function setLsDocUri(?string $lsDocUri): static
     {
         $this->lsDocUri = $lsDocUri;
 
@@ -563,7 +470,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->lsDocUri;
     }
 
-    public function setLsDoc(LsDoc $lsDoc): self
+    public function setLsDoc(LsDoc $lsDoc): static
     {
         $this->lsDoc = $lsDoc;
         $this->setLsDocUri($lsDoc->getUri());
@@ -582,7 +489,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->lsDocIdentifier;
     }
 
-    public function setLsDocIdentifier(?string $lsDocIdentifier): self
+    public function setLsDocIdentifier(?string $lsDocIdentifier): static
     {
         $this->lsDocIdentifier = $lsDocIdentifier;
 
@@ -594,7 +501,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->originNodeIdentifier;
     }
 
-    public function setOriginNodeIdentifier(?string $originNodeIdentifier): self
+    public function setOriginNodeIdentifier(?string $originNodeIdentifier): static
     {
         $this->originNodeIdentifier = $originNodeIdentifier;
 
@@ -606,7 +513,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->destinationNodeIdentifier;
     }
 
-    public function setDestinationNodeIdentifier(?string $destinationNodeIdentifier): self
+    public function setDestinationNodeIdentifier(?string $destinationNodeIdentifier): static
     {
         $this->destinationNodeIdentifier = $destinationNodeIdentifier;
 
@@ -626,7 +533,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->sequenceNumber;
     }
 
-    public function setSequenceNumber(?int $sequenceNumber): self
+    public function setSequenceNumber(?int $sequenceNumber): static
     {
         $this->sequenceNumber = $sequenceNumber;
 
@@ -638,7 +545,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->group;
     }
 
-    public function setGroup(?LsDefAssociationGrouping $group): self
+    public function setGroup(?LsDefAssociationGrouping $group): static
     {
         $this->group = $group;
 
@@ -650,7 +557,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->subtype;
     }
 
-    public function setSubtype(?string $subtype): self
+    public function setSubtype(?string $subtype): static
     {
         $this->subtype = $subtype;
 
@@ -662,7 +569,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this->annotation;
     }
 
-    public function setAnnotation(?string $annotation): self
+    public function setAnnotation(?string $annotation): static
     {
         $this->annotation = $annotation;
 

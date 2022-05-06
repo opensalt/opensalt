@@ -4,25 +4,16 @@ namespace App\Entity\Framework;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\MappedSuperclass()
- */
+#[ORM\MappedSuperclass]
 class AbstractLsDefinition extends AbstractLsBase
 {
-    /**
-     * @ORM\Column(name="title", type="string", length=1024, nullable=true)
-     */
+    #[ORM\Column(name: 'title', type: 'string', length: 1024, nullable: true)]
     protected ?string $title = null;
 
-    /**
-     * @ORM\Column(name="description", type="text", nullable=true)
-     */
+    #[ORM\Column(name: 'description', type: 'text', nullable: true)]
     protected ?string $description = null;
 
-    /**
-     * @return static
-     */
-    public function setTitle(?string $title)
+    public function setTitle(?string $title): static
     {
         $this->title = $title;
 
@@ -34,10 +25,7 @@ class AbstractLsDefinition extends AbstractLsBase
         return $this->title;
     }
 
-    /**
-     * @return static
-     */
-    public function setDescription(?string $description)
+    public function setDescription(?string $description): static
     {
         $this->description = $description;
 

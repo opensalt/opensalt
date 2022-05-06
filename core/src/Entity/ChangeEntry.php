@@ -4,58 +4,38 @@ namespace App\Entity;
 
 use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
+use App\Repository\ChangeEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="salt_change",
- *     indexes={
- *         @ORM\Index(name="change_time_idx", columns={"changed_at"}),
- *         @ORM\Index(name="doc_idx", columns={"doc_id", "changed_at"})
- *     }
- * )
- * @ORM\Entity(repositoryClass="App\Repository\ChangeEntryRepository")
- */
+#[ORM\Table(name: 'salt_change', indexes: [new ORM\Index(columns: ['changed_at'], name: 'change_time_idx'), new ORM\Index(columns: ['doc_id', 'changed_at'], name: 'doc_idx')])]
+#[ORM\Entity(repositoryClass: ChangeEntryRepository::class)]
 class ChangeEntry
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="bigint")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    protected $id;
+    #[ORM\Id]
+    #[ORM\Column(name: 'id', type: 'bigint')]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    protected ?int $id;
 
-    /**
-     * @ORM\Column(name="user_id", type="integer", nullable=true)
-     */
+    #[ORM\Column(name: 'user_id', type: 'integer', nullable: true)]
     protected ?int $user;
 
-    /**
-     * @ORM\Column(name="username", type="string", nullable=true)
-     */
+    #[ORM\Column(name: 'username', type: 'string', nullable: true)]
     protected ?string $username;
 
-    /**
-     * @ORM\Column(name="doc_id", type="integer", nullable=true)
-     */
+    #[ORM\Column(name: 'doc_id', type: 'integer', nullable: true)]
     protected ?int $doc;
 
     /**
-     * @ORM\Column(name="changed_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(name: 'changed_at', type: 'datetime', precision: 6)]
     protected \DateTimeInterface $changedAt;
 
-    /**
-     * @ORM\Column(name="description", type="string", length=2048)
-     */
+    #[ORM\Column(name: 'description', type: 'string', length: 2048)]
     protected string $description;
 
-    /**
-     * @ORM\Column(name="changed", type="json", nullable=true)
-     */
+    #[ORM\Column(name: 'changed', type: 'json', nullable: true)]
     protected array $changed = [];
 
     public function __construct(?LsDoc $doc, ?User $user, string $description, array $changed = [])

@@ -2,15 +2,14 @@
 
 namespace App\Entity\Framework\Mirror;
 
+use App\Repository\Framework\Mirror\ServerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="mirror_server")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\Mirror\ServerRepository")
- */
+#[ORM\Table(name: 'mirror_server')]
+#[ORM\Entity(repositoryClass: ServerRepository::class)]
 class Server
 {
     public const TYPE_CASE_1_0 = 'CASE/1.0';
@@ -19,83 +18,46 @@ class Server
     public const URL_CASE_1_0_LIST = '/ims/case/v1p0/CFDocuments';
     public const URL_CASE_1_0_PACKAGE = '/ims/case/v1p0/CFPackages';
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
+    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    private ?int $id = null;
+
+    #[ORM\Column(name: 'url', type: 'string', nullable: false)]
+    private string $url;
+
+    #[ORM\Column(name: 'api_type', type: 'string', nullable: false)]
+    private string $serverType = self::TYPE_CASE_1_0;
+
+    #[ORM\Column(name: 'check_server', type: 'boolean', nullable: false)]
+    private bool $checkServer = true;
+
+    #[ORM\Column(name: 'add_found', type: 'boolean', nullable: false)]
+    private bool $addFoundFrameworks;
+
+    #[ORM\ManyToOne(targetEntity: OAuthCredential::class)]
+    private ?OAuthCredential $credentials;
+
+    #[ORM\Column(name: 'priority', type: 'integer', options: ['default' => 0])]
+    private int $priority = 0;
+
+    #[ORM\Column(name: 'next_check', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $nextCheck = null;
+
+    #[ORM\Column(name: 'last_check', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $lastCheck = null;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="url", type="string", nullable=false)
-     */
-    private $url;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="api_type", type="string", nullable=false)
-     */
-    private $serverType = self::TYPE_CASE_1_0;
-
-    /**
-     * @var bool
-     * @ORM\Column(name="check_server", type="boolean", nullable=false)
-     */
-    private $checkServer = true;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="add_found", type="boolean", nullable=false)
-     */
-    private $addFoundFrameworks;
-
-    /**
-     * @var OAuthCredential|null
-     *
-     * @ORM\ManyToOne(targetEntity="OAuthCredential")
-     */
-    private $credentials;
-
-    /**
-     * @var int
-     * @ORM\Column(name="priority", type="integer", options={"default": 0})
-     */
-    private $priority = 0;
-
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @ORM\Column(name="next_check", type="datetime", nullable=true)
-     */
-    private $nextCheck;
-
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @ORM\Column(name="last_check", type="datetime", nullable=true)
-     */
-    private $lastCheck;
-
-    /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(name="updated_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      */
-    private $updatedAt;
+    #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    private \DateTimeInterface $updatedAt;
 
     /**
-     * @var array<Framework>|Collection
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Framework\Mirror\Framework", mappedBy="server")
+     * @var Collection<array-key, Framework>
      */
-    private $frameworks;
+    #[ORM\OneToMany(mappedBy: 'server', targetEntity: Framework::class)]
+    private Collection $frameworks;
 
     public function __construct(string $hostname, bool $addFoundFrameworks, ?OAuthCredential $credentials = null)
     {
@@ -123,11 +85,9 @@ class Server
         return $this->url;
     }
 
-    public function setUrl(string $url): self
+    public function setUrl(string $url): void
     {
         $this->url = $url;
-
-        return $this;
     }
 
     public function getServerType(): string
@@ -135,11 +95,9 @@ class Server
         return $this->serverType;
     }
 
-    public function setServerType(string $serverType): self
+    public function setServerType(string $serverType): void
     {
         $this->serverType = $serverType;
-
-        return $this;
     }
 
     public function isAddFoundFrameworks(): bool
@@ -147,11 +105,9 @@ class Server
         return $this->addFoundFrameworks;
     }
 
-    public function setAddFoundFrameworks(bool $addFoundFrameworks): self
+    public function setAddFoundFrameworks(bool $addFoundFrameworks): void
     {
         $this->addFoundFrameworks = $addFoundFrameworks;
-
-        return $this;
     }
 
     public function getCredentials(): ?OAuthCredential
@@ -159,11 +115,9 @@ class Server
         return $this->credentials;
     }
 
-    public function setCredentials(?OAuthCredential $credentials): self
+    public function setCredentials(?OAuthCredential $credentials): void
     {
         $this->credentials = $credentials;
-
-        return $this;
     }
 
     public function getNextCheck(): ?\DateTimeInterface
@@ -171,11 +125,9 @@ class Server
         return $this->nextCheck;
     }
 
-    public function setNextCheck(?\DateTimeInterface $nextCheck): self
+    public function setNextCheck(?\DateTimeInterface $nextCheck): void
     {
         $this->nextCheck = $nextCheck;
-
-        return $this;
     }
 
     public function getUpdatedAt(): \DateTimeInterface
@@ -183,15 +135,13 @@ class Server
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-
-        return $this;
     }
 
     /**
-     * @return Collection|Framework[]
+     * @return Collection<array-key, Framework>
      */
     public function getFrameworks(): Collection
     {
@@ -203,11 +153,9 @@ class Server
         return $this->checkServer;
     }
 
-    public function setCheckServer(bool $checkServer): self
+    public function setCheckServer(bool $checkServer): void
     {
         $this->checkServer = $checkServer;
-
-        return $this;
     }
 
     public function getPriority(): int
@@ -215,11 +163,9 @@ class Server
         return $this->priority;
     }
 
-    public function setPriority(int $priority): self
+    public function setPriority(int $priority): void
     {
         $this->priority = $priority;
-
-        return $this;
     }
 
     public function getLastCheck(): ?\DateTimeInterface
@@ -227,11 +173,9 @@ class Server
         return $this->lastCheck;
     }
 
-    public function setLastCheck(\DateTimeInterface $lastCheck): self
+    public function setLastCheck(\DateTimeInterface $lastCheck): void
     {
         $this->lastCheck = $lastCheck;
-
-        return $this;
     }
 
     public function scheduleNextCheck(?\DateTimeInterface $when = null, int $in = 604800, ?int $variance = null): void

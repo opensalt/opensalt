@@ -3,55 +3,31 @@
 namespace App\Entity\User;
 
 use App\Entity\Framework\LsDoc;
+use App\Repository\User\UserDocAclRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * Class UserDocAcl
- *
- * @ORM\Entity(repositoryClass="App\Repository\User\UserDocAclRepository")
- * @ORM\Table(
- *     name="salt_user_doc_acl",
- *     uniqueConstraints={
- *         @ORM\UniqueConstraint(name="uniq_acl_id", columns={"doc_id", "user_id"})
- *     }
- * )
- */
+#[ORM\Entity(repositoryClass: UserDocAclRepository::class)]
+#[ORM\Table(name: 'salt_user_doc_acl', uniqueConstraints: [new ORM\UniqueConstraint(name: 'uniq_acl_id', columns: ['doc_id', 'user_id'])])]
 class UserDocAcl
 {
     public const DENY = 0;
     public const ALLOW = 1;
 
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @ORM\Column(name="id", type="integer")
-     */
-    protected $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Column(name: 'id', type: 'integer')]
+    protected ?int $id;
 
-    /**
-     * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="docAcls", fetch="EAGER")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
-     */
-    protected $user;
+    #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EAGER', inversedBy: 'docAcls')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
+    protected User $user;
 
-    /**
-     * @var LsDoc
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Framework\LsDoc", inversedBy="docAcls", fetch="EAGER")
-     * @ORM\JoinColumn(name="doc_id", referencedColumnName="id", nullable=false)
-     */
-    protected $lsDoc;
+    #[ORM\ManyToOne(targetEntity: LsDoc::class, fetch: 'EAGER', inversedBy: 'docAcls')]
+    #[ORM\JoinColumn(name: 'doc_id', referencedColumnName: 'id', nullable: false)]
+    protected LsDoc $lsDoc;
 
-    /**
-     * @var int 0|1 indicating Deny or Allow
-     *
-     * @ORM\Column(name="access", type="smallint", nullable=false)
-     */
-    protected $access;
+    #[ORM\Column(name: 'access', type: 'smallint', nullable: false)]
+    protected int $access;
 
     /**
      * UserDocAcl constructor.
@@ -74,7 +50,7 @@ class UserDocAcl
     }
 
     /**
-     * The User that the ACL is for
+     * The User that the ACL is for.
      */
     public function getUser(): User
     {
@@ -82,7 +58,7 @@ class UserDocAcl
     }
 
     /**
-     * The Document that the ACL is for
+     * The Document that the ACL is for.
      */
     public function getLsDoc(): LsDoc
     {
@@ -90,7 +66,7 @@ class UserDocAcl
     }
 
     /**
-     * Determine if the user has access
+     * Determine if the user has access.
      *
      * @return int 0|1 indicating Deny or Allow
      */
