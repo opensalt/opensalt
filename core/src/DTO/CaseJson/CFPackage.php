@@ -6,34 +6,27 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 
 class CFPackage
 {
-    /**
-     * @SerializedName("CFDocument")
-     */
+    #[SerializedName('CFDocument')]
     public CFPackageDocument $cfDocument;
 
     /**
      * @var CFPackageItem[]|array|null
-     *
-     * @SerializedName("CFItems")
      */
+    #[SerializedName('CFItems')]
     public ?array $cfItems = [];
 
     /**
      * @var CFPackageAssociation[]|array|null
-     *
-     * @SerializedName("CFAssociations")
      */
+    #[SerializedName('CFAssociations')]
     public ?array $cfAssociations = [];
 
-    /**
-     * @SerializedName("CFDefinitions")
-     */
+    #[SerializedName('CFDefinitions')]
     public ?CFDefinition $cfDefinitions = null;
 
     /**
      * @var CFRubric[]|array|null
-     *
-     * @SerializedName("CFRubrics")
      */
+    #[SerializedName('CFRubrics')]
     public ?array $cfRubrics = [];
 }

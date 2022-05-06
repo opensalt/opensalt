@@ -12,9 +12,7 @@ class CFRubricCriterion
     public ?string $category = null;
     public ?string $description = null;
 
-    /**
-     * @SerializedName("CFItemURI")
-     */
+    #[SerializedName('CFItemURI')]
     public ?LinkURI $cfItemURI = null;
 
     public ?float $weight = null;
@@ -24,8 +22,7 @@ class CFRubricCriterion
 
     /**
      * @var CFRubricCriterionLevel[]|array|null
-     *
-     * @SerializedName("CFRubricCriterionLevels")
      */
+    #[SerializedName('CFRubricCriterionLevels')]
     public ?array $cfRubricCriterionLevels = [];
 }

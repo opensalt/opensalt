@@ -8,36 +8,31 @@ class CFDefinition
 {
     /**
      * @var CFConcept[]|array|null
-     *
-     * @SerializedName("CFConcepts")
      */
+    #[SerializedName('CFConcepts')]
     public ?array $cfConcepts = [];
 
     /**
      * @var CFSubject[]|array|null
-     *
-     * @SerializedName("CFSubjects")
      */
+    #[SerializedName('CFSubjects')]
     public ?array $cfSubjects = [];
 
     /**
      * @var CFLicense[]|array|null
-     *
-     * @SerializedName("CFLicenses")
      */
+    #[SerializedName('CFLicenses')]
     public ?array $cfLicenses = [];
 
     /**
      * @var CFItemType[]|array|null
-     *
-     * @SerializedName("CFItemTypes")
      */
+    #[SerializedName('CFItemTypes')]
     public ?array $cfItemTypes = [];
 
     /**
      * @var CFAssociationGrouping[]|array|null
-     *
-     * @SerializedName("CFAssociationGroupings")
      */
+    #[SerializedName('CFAssociationGroupings')]
     public ?array $cfAssociationGroupings = [];
 }

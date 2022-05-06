@@ -12,9 +12,7 @@ class CFPackageItem
     public string $fullStatement;
     public ?string $alternativeLabel = null;
 
-    /**
-     * @SerializedName("CFItemType")
-     */
+    #[SerializedName('CFItemType')]
     public ?string $cfItemType = null;
 
     public ?string $humanCodingScheme = null;
@@ -31,9 +29,7 @@ class CFPackageItem
     /** @var string[]|array|string|null */
     public string|array|null $educationLevel = null;
 
-    /**
-     * @SerializedName("CFItemTypeURI")
-     */
+    #[SerializedName('CFItemTypeURI')]
     public ?LinkURI $cfItemTypeURI = null;
     public ?LinkURI $licenseURI = null;
     public ?\DateTimeInterface $statusStartDate = null;
