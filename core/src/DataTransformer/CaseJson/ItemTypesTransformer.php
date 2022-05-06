@@ -43,9 +43,7 @@ class ItemTypesTransformer
         /** @var LsDefItemTypeRepository $repo */
         $repo = $this->em->getRepository(LsDefItemType::class);
 
-        $newIds = array_map(static function (CFItemType $itemType) {
-            return $itemType->identifier->toString();
-        }, $cfItemTypes);
+        $newIds = array_map(static fn (CFItemType $itemType) => $itemType->identifier->toString(), $cfItemTypes);
 
         return $repo->findByIdentifiers($newIds);
     }

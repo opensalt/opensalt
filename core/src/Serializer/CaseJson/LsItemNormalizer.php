@@ -74,8 +74,6 @@ final class LsItemNormalizer implements ContextAwareNormalizerInterface
             'associationSet' => $this->createAssociationLinks($object, $context),
         ];
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 }

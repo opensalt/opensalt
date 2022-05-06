@@ -65,8 +65,6 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Con
             $data['CFRubricCriterionLevels'][] = $this->normalizer->normalize($level, $format, $context);
         }
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 }

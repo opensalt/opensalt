@@ -373,9 +373,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             $conceptKeywords = [];
         }
 
-        if (array_reduce($conceptKeywords, static function ($carry, $el): bool {
-            return $carry || !\is_string($el);
-        }, false)) {
+        if (array_reduce($conceptKeywords, static fn ($carry, $el): bool => $carry || !\is_string($el), false)) {
             throw new \InvalidArgumentException('setConceptKeywords must be passed an array of strings.');
         }
 
@@ -470,9 +468,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             throw new \InvalidArgumentException('setEducationalAlignment must be passed a string or an array of strings.');
         }
 
-        if (array_reduce($educationalAlignment, static function ($carry, $el): bool {
-            return $carry || !\is_string($el);
-        }, false)) {
+        if (array_reduce($educationalAlignment, static fn ($carry, $el): bool => $carry || !\is_string($el), false)) {
             throw new \InvalidArgumentException('setEducationalAlignment must be passed a string or an array of strings.');
         }
 
@@ -548,9 +544,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     public function getChildIds(): array
     {
         $ids = $this->getChildren()->map(
-            static function (LsItem $item): int {
-                return $item->getId();
-            }
+            static fn (LsItem $item): int => $item->getId()
         );
 
         return $ids->toArray();

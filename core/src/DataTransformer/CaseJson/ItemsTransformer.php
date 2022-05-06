@@ -53,9 +53,7 @@ class ItemsTransformer
         /** @var LsItemRepository $repo */
         $repo = $this->em->getRepository(LsItem::class);
 
-        $newIds = array_map(static function (CFPackageItem $item) {
-            return $item->identifier->toString();
-        }, $cfItems);
+        $newIds = array_map(static fn (CFPackageItem $item) => $item->identifier->toString(), $cfItems);
 
         return $repo->findByIdentifiers($newIds);
     }

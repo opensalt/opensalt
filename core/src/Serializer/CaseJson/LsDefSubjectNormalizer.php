@@ -49,8 +49,6 @@ final class LsDefSubjectNormalizer implements ContextAwareNormalizerInterface
             'hierarchyCode' => $object->getHierarchyCode(),
         ];
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 }

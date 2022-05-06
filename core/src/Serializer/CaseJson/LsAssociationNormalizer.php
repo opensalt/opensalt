@@ -59,14 +59,10 @@ final class LsAssociationNormalizer implements ContextAwareNormalizerInterface
                 'annotation' => $object->getAnnotation(),
             ];
 
-            $data['_opensalt'] = array_filter($data['_opensalt'], static function ($val) {
-                return null !== $val;
-            });
+            $data['_opensalt'] = array_filter($data['_opensalt'], static fn ($val) => null !== $val);
         }
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 
     protected function createOutLink(LsAssociation $association, string $which, array $context): ?array

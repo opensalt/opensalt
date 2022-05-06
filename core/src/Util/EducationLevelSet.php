@@ -108,10 +108,7 @@ class EducationLevelSet
                 return ['OT'];
             }
 
-            return array_map(static function (/* int */ $x): string {
-                /** @psalm-suppress RedundantCastGivenDocblockType */
-                return self::normalizeGrade((string) $x);
-            }, range($lo, $hi));
+            return array_map(static fn ($x): string => self::normalizeGrade((string) $x), range($lo, $hi));
         }
 
         return ['OT'];

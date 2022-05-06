@@ -49,8 +49,6 @@ final class LsDefLicenceNormalizer implements ContextAwareNormalizerInterface
             'licenseText' => $object->getLicenceText(),
         ];
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 }

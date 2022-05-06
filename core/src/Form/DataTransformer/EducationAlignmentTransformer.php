@@ -39,9 +39,7 @@ class EducationAlignmentTransformer implements DataTransformerInterface
             return null;
         }
 
-        $grades = array_map(static function (LsDefGrade $alignment) {
-            return $alignment->getCode();
-        }, $alignmentArray);
+        $grades = array_map(static fn (LsDefGrade $alignment) => $alignment->getCode(), $alignmentArray);
 
         return implode(',', $grades);
     }

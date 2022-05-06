@@ -40,17 +40,12 @@ class MirroredServerDTOType extends AbstractType
                 'help' => 'Select the credentials to use when authenticating with the server if they are needed.',
                 'help_html' => true,
                 'class' => OAuthCredential::class,
-                'choice_label' => static function (OAuthCredential $credential) {
-                    return $credential->getKey().' @ '.$credential->getAuthenticationEndpoint();
-                },
+                'choice_label' => static fn (OAuthCredential $credential) => $credential->getKey().' @ '.$credential->getAuthenticationEndpoint(),
                 'required' => false,
                 'multiple' => false,
-                'query_builder' => static function (EntityRepository $repo) {
-                    return $repo->createQueryBuilder('c')
-                        ->orderBy('c.key', 'ASC')
-                        ->addOrderBy('c.authenticationEndpoint', 'ASC')
-                        ;
-                },
+                'query_builder' => static fn (EntityRepository $repo) => $repo->createQueryBuilder('c')
+                    ->orderBy('c.key', 'ASC')
+                    ->addOrderBy('c.authenticationEndpoint', 'ASC'),
             ])
         ;
 

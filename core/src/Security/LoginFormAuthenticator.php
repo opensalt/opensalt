@@ -54,9 +54,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
         }
 
         return new Passport(
-            new UserBadge($username, function ($userIdentifier) {
-                return $this->userRepository->loadUserByIdentifier($userIdentifier);
-            }),
+            new UserBadge($username, fn ($userIdentifier) => $this->userRepository->loadUserByIdentifier($userIdentifier)),
             new PasswordCredentials($password),
             [new CsrfTokenBadge('authenticate', $csrfToken)]
         );

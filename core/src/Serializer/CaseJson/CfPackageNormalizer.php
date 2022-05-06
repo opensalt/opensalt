@@ -87,9 +87,7 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwar
             }
         }
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 
     public function setNormalizer(NormalizerInterface $normalizer): void

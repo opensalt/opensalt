@@ -26,9 +26,7 @@ final class ExcelImport
         if (null === self::$itemCustomFields) {
             $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
                 ->findBy(['appliesTo' => LsItem::class]);
-            self::$itemCustomFields = array_map(static function (AdditionalField $cf) {
-                return $cf->getName();
-            }, $customFieldsArray);
+            self::$itemCustomFields = array_map(static fn (AdditionalField $cf) => $cf->getName(), $customFieldsArray);
         }
     }
 
@@ -382,9 +380,7 @@ final class ExcelImport
 
         $existingItems = $docRepo->findAllItems($doc);
 
-        $existingItems = array_filter($existingItems, static function ($item) use ($array) {
-            return !array_key_exists($item['identifier'], $array);
-        });
+        $existingItems = array_filter($existingItems, static fn ($item) => !array_key_exists($item['identifier'], $array));
 
         foreach ($existingItems as $existingItem) {
             $element = $repo->findOneByIdentifier($existingItem['identifier']);
@@ -402,9 +398,7 @@ final class ExcelImport
 
         $existingAssociations = $docRepo->findAllAssociations($doc);
 
-        $existingAssociations = array_filter($existingAssociations, static function ($association) use ($array) {
-            return !array_key_exists($association['identifier'], $array);
-        });
+        $existingAssociations = array_filter($existingAssociations, static fn ($association) => !array_key_exists($association['identifier'], $array));
 
         foreach ($existingAssociations as $existingAssociation) {
             $element = $repo->findOneByIdentifier($existingAssociation['identifier']);

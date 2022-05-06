@@ -335,9 +335,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
             $subject = [$subject];
         }
 
-        if (array_reduce($subject, static function ($carry, $el): bool {
-            return $carry || !\is_string($el);
-        }, false)) {
+        if (array_reduce($subject, static fn ($carry, $el): bool => $carry || !\is_string($el), false)) {
             throw new \InvalidArgumentException('setSubject must be passed an array of strings.');
         }
 
@@ -482,18 +480,14 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
 
         Compare::sortArrayByFields($topAssociations, ['sequenceNumber', 'enum', 'hcs']);
 
-        $orderedList = array_map(static function ($rec): LsItem {
-            return $rec['item'];
-        }, $topAssociations);
+        $orderedList = array_map(static fn ($rec): LsItem => $rec['item'], $topAssociations);
 
         return new ArrayCollection($orderedList);
     }
 
     public function getTopLsItemIds(): array
     {
-        return $this->getTopLsItems()->map(static function (LsItem $item): ?int {
-            return $item->getId();
-        })->toArray();
+        return $this->getTopLsItems()->map(static fn (LsItem $item): ?int => $item->getId())->toArray();
     }
 
     public function addLsItem(LsItem $lsItem): static

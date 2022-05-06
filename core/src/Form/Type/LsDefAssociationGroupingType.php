@@ -23,10 +23,8 @@ class LsDefAssociationGroupingType extends AbstractType
                     'group_by' => 'creator',
                     'required' => true,
                     'multiple' => false,
-                    'query_builder' => function (EntityRepository $er) {
-                        return $er->createQueryBuilder('i')
-                            ->orderBy('i.title', 'ASC');
-                    },
+                    'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('i')
+                        ->orderBy('i.title', 'ASC'),
                 ])
         ;
     }

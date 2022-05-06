@@ -21,9 +21,7 @@ final class ExcelExport
         if (null === self::$customItemFields) {
             $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
                 ->findBy(['appliesTo' => LsItem::class]);
-            self::$customItemFields = array_map(function (AdditionalField $cf) {
-                return $cf->getName();
-            }, $customFieldsArray);
+            self::$customItemFields = array_map(fn (AdditionalField $cf) => $cf->getName(), $customFieldsArray);
         }
     }
 

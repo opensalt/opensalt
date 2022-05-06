@@ -80,9 +80,7 @@ class LorSupportController extends AbstractController
             return $response;
         }
 
-        usort($docs, function ($a, $b) {
-            return strcmp($a['title'], $b['title']);
-        });
+        usort($docs, fn ($a, $b) => strcmp($a['title'], $b['title']));
 
         $response->setData($docs);
 

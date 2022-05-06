@@ -48,8 +48,6 @@ final class LsDefAssociationGroupingNormalizer implements ContextAwareNormalizer
             'description' => $object->getDescription(),
         ];
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 }
