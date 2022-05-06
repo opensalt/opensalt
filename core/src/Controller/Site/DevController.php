@@ -12,9 +12,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class DevController extends AbstractController
 {
     /**
-     * @Route("/dev/cookie", name="dev_cookie")
      * @Security("is_granted('feature', 'dev_env')")
      */
+    #[Route(path: '/dev/cookie', name: 'dev_cookie')]
     public function devCookieAction(Request $request): Response
     {
         if (empty($cookie = $request->server->get('DEV_COOKIE'))) {
@@ -24,7 +24,7 @@ class DevController extends AbstractController
         }
 
         $response = $this->redirectToRoute('salt_index');
-        $response->headers->setCookie(new Cookie('dev', $cookie, 'now + 1 year'));
+        $response->headers->setCookie(Cookie::create('dev', $cookie, 'now + 1 year'));
         $this->addFlash('success', 'Development cookie set.');
 
         return $response;

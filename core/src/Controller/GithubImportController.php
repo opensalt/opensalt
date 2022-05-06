@@ -17,9 +17,7 @@ class GithubImportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @Route("/cf/github/import", name="import_from_github")
-     */
+    #[Route(path: '/cf/github/import', name: 'import_from_github')]
     public function importAction(Request $request): JsonResponse
     {
         /** @var array $lsItemKeys - argument passed as an array */

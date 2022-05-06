@@ -8,9 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/cms")
- */
+#[Route(path: '/cms')]
 class ExportController extends AbstractController
 {
     public function __construct(
@@ -20,9 +18,8 @@ class ExportController extends AbstractController
 
     /**
      * Generate JSON formatted for export to CMS.
-     *
-     * @Route("/cfdoc/{id}.{_format}", methods={"GET"}, name="lsdoc_api_view", requirements={"id"="\d+"})
      */
+    #[Route(path: '/cfdoc/{id}.{_format}', methods: ['GET'], name: 'lsdoc_api_view', requirements: ['id' => '\d+'])]
     public function exportAction(LsDoc $lsDoc, string $_format = 'json'): Response
     {
         $items = $this->managerRegistry->getRepository(LsDoc::class)->findAllChildrenArray($lsDoc);

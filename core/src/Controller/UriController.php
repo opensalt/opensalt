@@ -24,9 +24,7 @@ class UriController extends AbstractController
     ) {
     }
 
-    /**
-     * @Route("/uri/", methods={"GET"}, defaults={"_format"="html"}, name="uri_lookup_empty")
-     */
+    #[Route(path: '/uri/', methods: ['GET'], defaults: ['_format' => 'html'], name: 'uri_lookup_empty')]
     public function findEmptyUriAction(Request $request): Response
     {
         $this->determineRequestFormat($request, null);
@@ -42,9 +40,7 @@ class UriController extends AbstractController
         return $this->render('uri/no_uri.html.twig', ['uri' => null], new Response('', Response::HTTP_NOT_FOUND));
     }
 
-    /**
-     * @Route("/uri/{uri}.{_format}", methods={"GET"}, defaults={"_format"=null}, name="uri_lookup")
-     */
+    #[Route(path: '/uri/{uri}.{_format}', methods: ['GET'], defaults: ['_format' => null], name: 'uri_lookup')]
     public function findUriAction(Request $request, string $uri, ?string $_format): Response
     {
         if ($request->isXmlHttpRequest()) {

@@ -20,9 +20,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * LsDefSubject controller.
- *
- * @Route("/cfdef/subject")
  */
+#[Route(path: '/cfdef/subject')]
 class LsDefSubjectController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -35,11 +34,11 @@ class LsDefSubjectController extends AbstractController
     /**
      * Lists all LsDefSubject entities.
      *
-     * @Route("/", methods={"GET"}, name="lsdef_subject_index")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/', methods: ['GET'], name: 'lsdef_subject_index')]
     public function indexAction()
     {
         $em = $this->managerRegistry->getManager();
@@ -54,11 +53,11 @@ class LsDefSubjectController extends AbstractController
     /**
      * Lists all LsDefSubject entities.
      *
-     * @Route("/list.{_format}", methods={"GET"}, defaults={"_format"="json"}, name="lsdef_subject_index_json")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/list.{_format}', methods: ['GET'], defaults: ['_format' => 'json'], name: 'lsdef_subject_index_json')]
     public function jsonListAction(Request $request)
     {
         // ?page_limit=N&q=SEARCHTEXT
@@ -75,12 +74,12 @@ class LsDefSubjectController extends AbstractController
     /**
      * Creates a new LsDefSubject entity.
      *
-     * @Route("/new", methods={"GET", "POST"}, name="lsdef_subject_new")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return array|RedirectResponse
      */
+    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'lsdef_subject_new')]
     public function newAction(Request $request)
     {
         $lsDefSubject = new LsDefSubject();
@@ -107,11 +106,11 @@ class LsDefSubjectController extends AbstractController
     /**
      * Finds and displays a LsDefSubject entity.
      *
-     * @Route("/{id}", methods={"GET"}, name="lsdef_subject_show")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/{id}', methods: ['GET'], name: 'lsdef_subject_show')]
     public function showAction(LsDefSubject $lsDefSubject)
     {
         $deleteForm = $this->createDeleteForm($lsDefSubject);
@@ -125,12 +124,12 @@ class LsDefSubjectController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefSubject entity.
      *
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_subject_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return array|RedirectResponse
      */
+    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsdef_subject_edit')]
     public function editAction(Request $request, LsDefSubject $lsDefSubject)
     {
         $deleteForm = $this->createDeleteForm($lsDefSubject);
@@ -158,11 +157,11 @@ class LsDefSubjectController extends AbstractController
     /**
      * Deletes a LsDefSubject entity.
      *
-     * @Route("/{id}", methods={"DELETE"}, name="lsdef_subject_delete")
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return RedirectResponse
      */
+    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsdef_subject_delete')]
     public function deleteAction(Request $request, LsDefSubject $lsDefSubject)
     {
         $form = $this->createDeleteForm($lsDefSubject);

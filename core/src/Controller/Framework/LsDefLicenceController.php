@@ -20,9 +20,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * LsDefLicence controller.
- *
- * @Route("/cfdef/licence")
  */
+#[Route(path: '/cfdef/licence')]
 class LsDefLicenceController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -35,11 +34,11 @@ class LsDefLicenceController extends AbstractController
     /**
      * Lists all LsDefLicence entities.
      *
-     * @Route("/", methods={"GET"}, name="lsdef_licence_index")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/', methods: ['GET'], name: 'lsdef_licence_index')]
     public function indexAction()
     {
         $em = $this->managerRegistry->getManager();
@@ -54,9 +53,9 @@ class LsDefLicenceController extends AbstractController
     /**
      * Lists all LsDefLicence entities.
      *
-     * @Route("/list.{_format}", methods={"GET"}, defaults={"_format"="json"}, name="lsdef_licence_index_json")
      * @Template()
      */
+    #[Route(path: '/list.{_format}', methods: ['GET'], defaults: ['_format' => 'json'], name: 'lsdef_licence_index_json')]
     public function jsonListAction(): array
     {
         $em = $this->managerRegistry->getManager();
@@ -71,12 +70,12 @@ class LsDefLicenceController extends AbstractController
     /**
      * Creates a new LsDefLicence entity.
      *
-     * @Route("/new", methods={"GET", "POST"}, name="lsdef_licence_new")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return array|RedirectResponse
      */
+    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'lsdef_licence_new')]
     public function newAction(Request $request)
     {
         $lsDefLicence = new LsDefLicence();
@@ -103,11 +102,11 @@ class LsDefLicenceController extends AbstractController
     /**
      * Finds and displays a LsDefLicence entity.
      *
-     * @Route("/{id}", methods={"GET"}, name="lsdef_licence_show")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/{id}', methods: ['GET'], name: 'lsdef_licence_show')]
     public function showAction(LsDefLicence $lsDefLicence)
     {
         $deleteForm = $this->createDeleteForm($lsDefLicence);
@@ -121,12 +120,12 @@ class LsDefLicenceController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefLicence entity.
      *
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_licence_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return array|RedirectResponse
      */
+    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsdef_licence_edit')]
     public function editAction(Request $request, LsDefLicence $lsDefLicence)
     {
         $deleteForm = $this->createDeleteForm($lsDefLicence);
@@ -154,11 +153,11 @@ class LsDefLicenceController extends AbstractController
     /**
      * Deletes a LsDefLicence entity.
      *
-     * @Route("/{id}", methods={"DELETE"}, name="lsdef_licence_delete")
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return RedirectResponse
      */
+    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsdef_licence_delete')]
     public function deleteAction(Request $request, LsDefLicence $lsDefLicence)
     {
         $form = $this->createDeleteForm($lsDefLicence);

@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/api/v1/lor")
- */
+#[Route(path: '/api/v1/lor')]
 class LorSupportController extends AbstractController
 {
     use LoggerTrait;
@@ -26,9 +24,7 @@ class LorSupportController extends AbstractController
     ) {
     }
 
-    /**
-     * @Route("/creators", methods={"GET"}, name="api_get_creators")
-     */
+    #[Route(path: '/creators', methods: ['GET'], name: 'api_get_creators')]
     public function getCreators(Request $request): JsonResponse
     {
         // Get all creators for public documents
@@ -59,9 +55,7 @@ class LorSupportController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/frameworksByCreator/{creator}", methods={"GET"}, name="api_get_frameworks_by_creator")
-     */
+    #[Route(path: '/frameworksByCreator/{creator}', methods: ['GET'], name: 'api_get_frameworks_by_creator')]
     public function getFrameworksByCreator(Request $request, string $creator): JsonResponse
     {
         $results = $this->docRepository->findNonPrivateByCreator(urldecode($creator));
@@ -95,9 +89,7 @@ class LorSupportController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/exactMatchIdentifiers/{identifier}", methods={"GET"}, name="api_get_exact_matches")
-     */
+    #[Route(path: '/exactMatchIdentifiers/{identifier}', methods: ['GET'], name: 'api_get_exact_matches')]
     public function getMatches(Request $request, string $identifier): JsonResponse
     {
         $results = $this->itemRepository->findExactMatches($identifier);

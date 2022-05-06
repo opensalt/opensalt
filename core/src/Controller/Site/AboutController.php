@@ -18,9 +18,7 @@ class AboutController extends AbstractController
         $this->projectDir = $projectDir;
     }
 
-    /**
-     * @Route("/about", name="site_about")
-     */
+    #[Route(path: '/about', name: 'site_about')]
     public function aboutAction(): Response
     {
         if (file_exists($this->projectDir.'/public/version.txt')) {

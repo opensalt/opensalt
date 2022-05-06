@@ -20,9 +20,9 @@ class DocRevisionController extends AbstractController
     }
 
     /**
-     * @Route("/cfdoc/{id}/revisions/{offset}/{limit}", methods={"GET"}, requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="doc_revisions_json")
      * @Security("is_granted('edit', doc)")
      */
+    #[Route(path: '/cfdoc/{id}/revisions/{offset}/{limit}', methods: ['GET'], requirements: ['offset' => '\d+', 'limit' => '\d+'], defaults: ['offset' => 0, 'limit' => 0], name: 'doc_revisions_json')]
     public function listDocRevisionsAction(LsDoc $doc, int $offset, int $limit): Response
     {
         $response = new StreamedResponse();
@@ -52,9 +52,9 @@ class DocRevisionController extends AbstractController
     }
 
     /**
-     * @Route("/cfdoc/{id}/revisions/export", name="doc_revisions_csv", methods={"GET"})
      * @Security("is_granted('edit', doc)")
      */
+    #[Route(path: '/cfdoc/{id}/revisions/export', name: 'doc_revisions_csv', methods: ['GET'])]
     public function exportDocRevisions(LsDoc $doc): Response
     {
         $response = new StreamedResponse();

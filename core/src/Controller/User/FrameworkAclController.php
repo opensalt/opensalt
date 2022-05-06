@@ -24,17 +24,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/cfdoc")
- */
+#[Route(path: '/cfdoc')]
 class FrameworkAclController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/{id}/acl", methods={"GET", "POST"}, name="framework_acl_edit")
      * @Security("is_granted('manage_editors', lsDoc)")
      */
+    #[Route(path: '/{id}/acl', methods: ['GET', 'POST'], name: 'framework_acl_edit')]
     public function editAction(Request $request, LsDoc $lsDoc): Response
     {
         $addAclUserDto = new AddAclUserDTO($lsDoc, UserDocAcl::DENY);
@@ -145,9 +143,9 @@ class FrameworkAclController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/acl/{targetUser}", methods={"DELETE"}, name="framework_acl_remove")
      * @Security("is_granted('manage_editors', lsDoc)")
      */
+    #[Route(path: '/{id}/acl/{targetUser}', methods: ['DELETE'], name: 'framework_acl_remove')]
     public function removeAclAction(Request $request, LsDoc $lsDoc, User $targetUser): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDoc, $targetUser);

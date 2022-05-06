@@ -21,9 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * LsDefConcept controller.
- *
- * @Route("/cfdef/concept")
  */
+#[Route(path: '/cfdef/concept')]
 class LsDefConceptController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -36,11 +35,11 @@ class LsDefConceptController extends AbstractController
     /**
      * Lists all LsDefConcept entities.
      *
-     * @Route("/", methods={"GET"}, name="lsdef_concept_index")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/', methods: ['GET'], name: 'lsdef_concept_index')]
     public function indexAction()
     {
         $em = $this->managerRegistry->getManager();
@@ -55,12 +54,12 @@ class LsDefConceptController extends AbstractController
     /**
      * Creates a new LsDefConcept entity.
      *
-     * @Route("/new", methods={"GET", "POST"}, name="lsdef_concept_new")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return array|RedirectResponse
      */
+    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'lsdef_concept_new')]
     public function newAction(Request $request)
     {
         $lsDefConcept = new LsDefConcept();
@@ -87,9 +86,9 @@ class LsDefConceptController extends AbstractController
     /**
      * Finds and displays a LsDefConcept entity.
      *
-     * @Route("/{id}", methods={"GET"}, name="lsdef_concept_show")
      * @Template()
      */
+    #[Route(path: '/{id}', methods: ['GET'], name: 'lsdef_concept_show')]
     public function showAction(LsDefConcept $lsDefConcept): array
     {
         $deleteForm = $this->createDeleteForm($lsDefConcept);
@@ -103,12 +102,12 @@ class LsDefConceptController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefConcept entity.
      *
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_concept_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return array|RedirectResponse
      */
+    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsdef_concept_edit')]
     public function editAction(Request $request, LsDefConcept $lsDefConcept)
     {
         $deleteForm = $this->createDeleteForm($lsDefConcept);
@@ -136,11 +135,11 @@ class LsDefConceptController extends AbstractController
     /**
      * Deletes a LsDefConcept entity.
      *
-     * @Route("/{id}", methods={"DELETE"}, name="lsdef_concept_delete")
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return RedirectResponse
      */
+    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsdef_concept_delete')]
     public function deleteAction(Request $request, LsDefConcept $lsDefConcept): Response
     {
         $form = $this->createDeleteForm($lsDefConcept);

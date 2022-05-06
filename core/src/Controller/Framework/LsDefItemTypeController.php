@@ -20,9 +20,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * LsDefItemType controller.
- *
- * @Route("/cfdef/item_type")
  */
+#[Route(path: '/cfdef/item_type')]
 class LsDefItemTypeController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -35,11 +34,11 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Lists all LsDefItemType entities.
      *
-     * @Route("/", methods={"GET"}, name="lsdef_item_type_index")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/', methods: ['GET'], name: 'lsdef_item_type_index')]
     public function indexAction()
     {
         $em = $this->managerRegistry->getManager();
@@ -54,11 +53,11 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Lists all LsDefItemType entities.
      *
-     * @Route("/list.{_format}", methods={"GET"}, defaults={"_format"="json"}, name="lsdef_item_type_index_json")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/list.{_format}', methods: ['GET'], defaults: ['_format' => 'json'], name: 'lsdef_item_type_index_json')]
     public function jsonListAction(Request $request)
     {
         // ?page_limit=N&q=SEARCHTEXT
@@ -88,12 +87,12 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Creates a new LsDefItemType entity.
      *
-     * @Route("/new", methods={"GET", "POST"}, name="lsdef_item_type_new")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return array|RedirectResponse
      */
+    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'lsdef_item_type_new')]
     public function newAction(Request $request)
     {
         $lsDefItemType = new LsDefItemType();
@@ -120,11 +119,11 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Finds and displays a LsDefItemType entity.
      *
-     * @Route("/{id}", methods={"GET"}, name="lsdef_item_type_show")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/{id}', methods: ['GET'], name: 'lsdef_item_type_show')]
     public function showAction(LsDefItemType $lsDefItemType)
     {
         $deleteForm = $this->createDeleteForm($lsDefItemType);
@@ -138,12 +137,12 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefItemType entity.
      *
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_item_type_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return array|RedirectResponse
      */
+    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsdef_item_type_edit')]
     public function editAction(Request $request, LsDefItemType $lsDefItemType)
     {
         $deleteForm = $this->createDeleteForm($lsDefItemType);
@@ -171,11 +170,11 @@ class LsDefItemTypeController extends AbstractController
     /**
      * Deletes a LsDefItemType entity.
      *
-     * @Route("/{id}", methods={"DELETE"}, name="lsdef_item_type_delete")
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return RedirectResponse
      */
+    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsdef_item_type_delete')]
     public function deleteAction(Request $request, LsDefItemType $lsDefItemType)
     {
         $form = $this->createDeleteForm($lsDefItemType);

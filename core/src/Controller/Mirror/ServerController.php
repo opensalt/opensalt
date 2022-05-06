@@ -18,8 +18,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Security("is_granted('manage', 'mirrors')")
- * @Route("/admin/mirror/server")
  */
+#[Route(path: '/admin/mirror/server')]
 class ServerController extends AbstractController
 {
     public function __construct(
@@ -27,9 +27,7 @@ class ServerController extends AbstractController
     ) {
     }
 
-    /**
-     * @Route("/", name="mirror_server_index")
-     */
+    #[Route(path: '/', name: 'mirror_server_index')]
     public function index(ServerRepository $serverRepository): Response
     {
         $servers = $serverRepository->findAllForList();
@@ -66,9 +64,7 @@ class ServerController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/new", name="mirror_server_add")
-     */
+    #[Route(path: '/new', name: 'mirror_server_add')]
     public function new(Request $request, MirrorServer $mirrorService): Response
     {
         // Multiple steps
@@ -95,9 +91,7 @@ class ServerController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/edit", name="mirror_server_edit")
-     */
+    #[Route(path: '/{id}/edit', name: 'mirror_server_edit')]
     public function edit(Request $request, Server $server, MirrorServer $mirrorService): Response
     {
         $serverDto = new MirroredServerDTO();
@@ -125,9 +119,7 @@ class ServerController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/list", name="mirror_server_list")
-     */
+    #[Route(path: '/{id}/list', name: 'mirror_server_list')]
     public function list(Server $server): Response
     {
         $enableForms = [];
@@ -162,9 +154,7 @@ class ServerController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}", methods={"GET", "DELETE"}, name="mirror_server_delete")
-     */
+    #[Route(path: '/{id}', methods: ['GET', 'DELETE'], name: 'mirror_server_delete')]
     public function remove(Request $request, Server $server): Response
     {
         $form = $this->createDeleteForm($server);
@@ -194,9 +184,7 @@ class ServerController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/refresh", methods={"POST"}, name="mirror_server_refresh")
-     */
+    #[Route(path: '/{id}/refresh', methods: ['POST'], name: 'mirror_server_refresh')]
     public function refresh(Server $server, MirrorServer $mirrorServer): Response
     {
         $mirrorServer->updateFrameworkList($server);

@@ -17,9 +17,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * OAuth Service controller.
- *
- * @Route("/login")
  */
+#[Route(path: '/login')]
 class OAuthServiceController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -49,12 +48,11 @@ class OAuthServiceController extends AbstractController
     /**
      * Save the Github Access Token.
      *
-     * @Route("/check-github", methods={"GET"}, name="github_login")
-     *
      * @return RedirectResponse
      *
      * @throws \UnexpectedValueException
      */
+    #[Route(path: '/check-github', methods: ['GET'], name: 'github_login')]
     public function githubAction(Request $request, SessionInterface $session, ManagerRegistry $managerRegistry): Response
     {
         if (!empty($this->githubRedirectUri)) {

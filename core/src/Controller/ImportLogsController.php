@@ -16,11 +16,11 @@ class ImportLogsController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/cfdoc/{doc}/import_logs/mark_as_read", methods={"POST"}, name="mark_import_logs_as_read")
      * @Security("is_granted('edit', doc)")
      *
      * @return JsonResponse
      */
+    #[Route(path: '/cfdoc/{doc}/import_logs/mark_as_read', methods: ['POST'], name: 'mark_import_logs_as_read')]
     public function markAsReadAction(LsDoc $doc): Response
     {
         $command = new MarkImportLogsAsReadCommand($doc);

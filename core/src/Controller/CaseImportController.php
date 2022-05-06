@@ -22,9 +22,9 @@ class CaseImportController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/salt/case/import", name="import_case_file")
      * @Security("is_granted('create', 'lsdoc')")
      */
+    #[Route(path: '/salt/case/import', name: 'import_case_file')]
     public function importAction(Request $request, UserInterface $user): JsonResponse
     {
         if (!$user instanceof User) {
@@ -42,9 +42,9 @@ class CaseImportController extends AbstractController
     }
 
     /**
-     * @Route("/salt/case/importRemote", name="import_case_file_remote")
      * @Security("is_granted('create', 'lsdoc')")
      */
+    #[Route(path: '/salt/case/importRemote', name: 'import_case_file_remote')]
     public function importRemoteAction(Request $request, UserInterface $user): Response
     {
         if (!$user instanceof User) {

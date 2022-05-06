@@ -20,9 +20,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * LsDefGrade controller.
- *
- * @Route("/cfdef/grade")
  */
+#[Route(path: '/cfdef/grade')]
 class LsDefGradeController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -35,11 +34,11 @@ class LsDefGradeController extends AbstractController
     /**
      * Lists all LsDefGrade entities.
      *
-     * @Route("/", methods={"GET"}, name="lsdef_grade_index")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/', methods: ['GET'], name: 'lsdef_grade_index')]
     public function indexAction()
     {
         $em = $this->managerRegistry->getManager();
@@ -54,12 +53,12 @@ class LsDefGradeController extends AbstractController
     /**
      * Creates a new LsDefGrade entity.
      *
-     * @Route("/new", methods={"GET", "POST"}, name="lsdef_grade_new")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return array|RedirectResponse
      */
+    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'lsdef_grade_new')]
     public function newAction(Request $request)
     {
         $lsDefGrade = new LsDefGrade();
@@ -86,11 +85,11 @@ class LsDefGradeController extends AbstractController
     /**
      * Finds and displays a LsDefGrade entity.
      *
-     * @Route("/{id}", methods={"GET"}, name="lsdef_grade_show")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/{id}', methods: ['GET'], name: 'lsdef_grade_show')]
     public function showAction(LsDefGrade $lsDefGrade)
     {
         $deleteForm = $this->createDeleteForm($lsDefGrade);
@@ -104,12 +103,12 @@ class LsDefGradeController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefGrade entity.
      *
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_grade_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return array|RedirectResponse
      */
+    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsdef_grade_edit')]
     public function editAction(Request $request, LsDefGrade $lsDefGrade)
     {
         $deleteForm = $this->createDeleteForm($lsDefGrade);
@@ -137,11 +136,11 @@ class LsDefGradeController extends AbstractController
     /**
      * Deletes a LsDefGrade entity.
      *
-     * @Route("/{id}", methods={"DELETE"}, name="lsdef_grade_delete")
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return RedirectResponse
      */
+    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsdef_grade_delete')]
     public function deleteAction(Request $request, LsDefGrade $lsDefGrade)
     {
         $form = $this->createDeleteForm($lsDefGrade);

@@ -19,9 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/cfdef/association_grouping")
- */
+#[Route(path: '/cfdef/association_grouping')]
 class LsDefAssociationGroupingController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -34,9 +32,9 @@ class LsDefAssociationGroupingController extends AbstractController
     /**
      * Lists all LsDefAssociationGrouping entities.
      *
-     * @Route("/", methods={"GET"}, name="lsdef_association_grouping_index")
      * @Template()
      */
+    #[Route(path: '/', methods: ['GET'], name: 'lsdef_association_grouping_index')]
     public function indexAction(): array
     {
         $em = $this->managerRegistry->getManager();
@@ -51,10 +49,10 @@ class LsDefAssociationGroupingController extends AbstractController
     /**
      * Creates a new LsDefAssociationGrouping entity.
      *
-     * @Route("/new", methods={"GET", "POST"}, name="lsdef_association_grouping_new")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      */
+    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'lsdef_association_grouping_new')]
     public function newAction(Request $request): array|Response
     {
         $ajax = $request->isXmlHttpRequest();
@@ -92,11 +90,11 @@ class LsDefAssociationGroupingController extends AbstractController
     /**
      * Finds and displays a LsDefAssociationGrouping entity.
      *
-     * @Route("/{id}", methods={"GET"}, name="lsdef_association_grouping_show")
      * @Template()
      *
      * @return array
      */
+    #[Route(path: '/{id}', methods: ['GET'], name: 'lsdef_association_grouping_show')]
     public function showAction(LsDefAssociationGrouping $associationGrouping)
     {
         $deleteForm = $this->createDeleteForm($associationGrouping);
@@ -110,12 +108,12 @@ class LsDefAssociationGroupingController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefAssociationGrouping entity.
      *
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_association_grouping_edit")
      * @Template()
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return array|RedirectResponse
      */
+    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsdef_association_grouping_edit')]
     public function editAction(Request $request, LsDefAssociationGrouping $associationGrouping)
     {
         $deleteForm = $this->createDeleteForm($associationGrouping);
@@ -143,11 +141,11 @@ class LsDefAssociationGroupingController extends AbstractController
     /**
      * Deletes a LsDefAssociationGrouping entity.
      *
-     * @Route("/{id}", methods={"DELETE"}, name="lsdef_association_grouping_delete")
      * @Security("is_granted('create', 'lsdoc')")
      *
      * @return RedirectResponse
      */
+    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsdef_association_grouping_delete')]
     public function deleteAction(Request $request, LsDefAssociationGrouping $associationGrouping)
     {
         $form = $this->createDeleteForm($associationGrouping);

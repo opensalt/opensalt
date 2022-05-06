@@ -20,10 +20,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class GithubOauthController extends AbstractController
 {
     /**
-     * @Route("/user/github/repos")
-     *
      * @return JsonResponse
      */
+    #[Route(path: '/user/github/repos')]
     public function getReposAction(Request $request)
     {
         $currentUser = $this->getUser();
@@ -61,10 +60,9 @@ class GithubOauthController extends AbstractController
     }
 
     /**
-     * @Route("/user/github/files")
-     *
      * @return JsonResponse
      */
+    #[Route(path: '/user/github/files')]
     public function getFilesAction(Request $request)
     {
         $currentUser = $this->getUser();

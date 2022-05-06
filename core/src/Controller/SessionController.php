@@ -21,9 +21,7 @@ class SessionController extends AbstractController
         $this->sessionMaxIdleTime = $sessionMaxIdleTime;
     }
 
-    /**
-     * @Route("/session/check")
-     */
+    #[Route(path: '/session/check')]
     public function currentSession(Request $request, SessionRepository $repo): JsonResponse
     {
         if (null === ($sessionId = $request->cookies->get('session'))) {
@@ -43,9 +41,7 @@ class SessionController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/session/renew")
-     */
+    #[Route(path: '/session/renew')]
     public function renewSession(): JsonResponse
     {
         return new JsonResponse([

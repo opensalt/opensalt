@@ -13,17 +13,16 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Copy controller.
- *
- * @Route("/clone")
  */
+#[Route(path: '/clone')]
 class CloneController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/framework/{id}", name="clone_framework", methods={"GET"})
      * @Security("is_granted('edit', lsDoc) and is_granted('create', 'lsdoc')")
      */
+    #[Route(path: '/framework/{id}', name: 'clone_framework', methods: ['GET'])]
     public function frameworkAction(Request $request, LsDoc $lsDoc): Response
     {
         $command = new CloneFrameworkCommand($lsDoc);

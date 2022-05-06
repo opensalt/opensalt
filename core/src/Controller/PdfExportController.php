@@ -16,9 +16,7 @@ class PdfExportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @Route("/cfdoc/{id}/pdf", methods={"GET"}, name="export_pdf_file")
-     */
+    #[Route(path: '/cfdoc/{id}/pdf', methods: ['GET'], name: 'export_pdf_file')]
     public function exportPdfAction(int $id): StreamedResponse
     {
         $phpWordObject = new PhpWord();

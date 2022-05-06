@@ -16,9 +16,9 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * AdditionalField controller.
  *
- * @Route("/additionalfield")
  * @Security("is_granted('manage', 'additional_fields')")
  */
+#[Route(path: '/additionalfield')]
 class AdditionalFieldController extends AbstractController
 {
     private AdditionalFieldRepository $additionalFieldRepository;
@@ -32,9 +32,8 @@ class AdditionalFieldController extends AbstractController
 
     /**
      * List all AdditionalField entities.
-     *
-     * @Route("/", name="additional_field_index")
      */
+    #[Route(path: '/', name: 'additional_field_index')]
     public function index(): Response
     {
         return $this->render('framework/additional_field/index.html.twig', [
@@ -44,9 +43,8 @@ class AdditionalFieldController extends AbstractController
 
     /**
      * Create an AdditionalField entity.
-     *
-     * @Route("/new", name="additional_field_new")
      */
+    #[Route(path: '/new', name: 'additional_field_new')]
     public function create(Request $request): Response
     {
         $additionalField = new AdditionalField();
@@ -66,9 +64,8 @@ class AdditionalFieldController extends AbstractController
 
     /**
      * Show a AdditionalField entity.
-     *
-     * @Route("/{id}", name="additional_field_show")
      */
+    #[Route(path: '/{id}', name: 'additional_field_show')]
     public function show(AdditionalField $additionalField): Response
     {
         return $this->render('framework/additional_field/show.html.twig', [
@@ -78,9 +75,8 @@ class AdditionalFieldController extends AbstractController
 
     /**
      * Update an AdditionalField entity.
-     *
-     * @Route("/edit/{id}", name="additional_field_update")
      */
+    #[Route(path: '/edit/{id}', name: 'additional_field_update')]
     public function update(AdditionalField $additionalField, Request $request): Response
     {
         $form = $this->createForm(AdditionalFieldType::class, $additionalField);
@@ -98,9 +94,8 @@ class AdditionalFieldController extends AbstractController
 
     /**
      * Delete a AdditionalField entity.
-     *
-     * @Route("/delete/{id}", name="additional_field_delete")
      */
+    #[Route(path: '/delete/{id}', name: 'additional_field_delete')]
     public function delete(AdditionalField $additionalField): RedirectResponse
     {
         $this->entityManager->remove($additionalField);

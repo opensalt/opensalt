@@ -7,9 +7,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultController extends AbstractController
 {
-    /**
-     * @Route("/", name="salt_index")
-     */
+    #[Route(path: '/', name: 'salt_index')]
     public function indexAction()
     {
         return $this->redirectToRoute('lsdoc_index');
