@@ -22,7 +22,7 @@ class BucketService
     public function uploadFile(UploadedFile $file, string $dir): string
     {
         $filesystem = $this->filesystem;
-        $name = explode('.', $file->getClientOriginalName())[0].'-'.mt_rand();
+        $name = explode('.', $file->getClientOriginalName())[0].'-'.random_int(0, mt_getrandmax());
         $path = "/$dir/$name.".$file->getClientOriginalExtension();
         $url = '';
 
