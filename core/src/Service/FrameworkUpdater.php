@@ -158,7 +158,7 @@ class FrameworkUpdater
                     ->findByAllIdentifierOrHumanCodingSchemeByLsDoc($frameworkToAssociate, $cfAssociation);
             }
 
-            if (count($itemsAssociated) > 0) {
+            if ((is_countable($itemsAssociated) ? count($itemsAssociated) : 0) > 0) {
                 foreach ($itemsAssociated as $itemAssociated) {
                     $this->saveAssociation($lsDoc, $lsItem, $itemAssociated, $assocType);
                 }

@@ -391,7 +391,7 @@ class FrameworkService
             // so in this case, it's OK to just delete any existing childof association and create a new one below
             $deleted = $assocRepo->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
 
-            if (0 < \count($deleted) && !array_key_exists('assoc-d', $rv['changes'])) {
+            if (0 < (is_countable($deleted) ? \count($deleted) : 0) && !array_key_exists('assoc-d', $rv['changes'])) {
                 $rv['changes']['assoc-d'] = [];
             }
             foreach ($deleted as $assoc) {

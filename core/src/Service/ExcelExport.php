@@ -72,7 +72,7 @@ final class ExcelExport
             $item = $itemsArray[$item['id']];
             $smartLevel[$item['id']] = $smartLevel[$parentId].'.'.$j;
 
-            if (count($item['children']) > 0) {
+            if ((is_countable($item['children']) ? count($item['children']) : 0) > 0) {
                 $this->getSmartLevel($item['children'], $item['id'], $itemsArray, $smartLevel);
             }
 
@@ -196,7 +196,7 @@ final class ExcelExport
             }
             ++$j;
 
-            if (count($item['children']) > 0) {
+            if ((is_countable($item['children']) ? count($item['children']) : 0) > 0) {
                 $this->addItemRows($item['children'], $activeSheet, $j, $items, $smartLevel);
             }
         }
@@ -270,7 +270,7 @@ final class ExcelExport
     {
         $column = 13;
 
-        if (count(self::$customItemFields) > 0) {
+        if (count((array) self::$customItemFields) > 0) {
             foreach (self::$customItemFields as $cf) {
                 $sheet->setCellValue([$column, 1], $cf);
                 ++$column;

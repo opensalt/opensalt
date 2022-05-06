@@ -24,7 +24,7 @@ class PdfExportController extends AbstractController
 
         $response = $this->forward('App\Controller\Framework\CfPackageController::exportAction', ['id' => $id, '_format' => 'json']);
         $data_array = json_decode($response->getContent(), true);
-        for ($i = 0, $iMax = count($data_array['CFItems']); $i < $iMax; ++$i) {
+        for ($i = 0, $iMax = is_countable($data_array['CFItems']) ? count($data_array['CFItems']) : 0; $i < $iMax; ++$i) {
             $data_array['CFItems'][$i]['fullStatement'] = $this->renderImages($data_array['CFItems'][$i]['fullStatement']);
             if (isset($data_array['CFItems'][$i]['notes'])) {
                 $data_array['CFItems'][$i]['notes'] = $this->renderImages($data_array['CFItems'][$i]['notes']);

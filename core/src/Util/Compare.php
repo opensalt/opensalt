@@ -59,9 +59,9 @@ class Compare
 
         $xa = preg_split('/[\s.,-]/', $x);
         $ya = preg_split('/[\s.,-]/', $y);
-        $len = \count($xa);
-        if ($len < \count($ya)) {
-            $len = \count($ya);
+        $len = is_countable($xa) ? \count($xa) : 0;
+        if ($len < (is_countable($ya) ? \count($ya) : 0)) {
+            $len = is_countable($ya) ? \count($ya) : 0;
         }
         if (1 < $len) {
             for ($idx = 0; $idx < $len; ++$idx) {
