@@ -317,7 +317,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      */
     public function splitDestinationDataUri(): array
     {
-        if (0 !== strncmp($this->destinationNodeUri ?? '', 'data:text/x-', 12)) {
+        if (!str_starts_with($this->destinationNodeUri ?? '', 'data:text/x-')) {
             // Not a known data URI format, return the entire uri as the value
             return ['value' => $this->destinationNodeUri];
         }

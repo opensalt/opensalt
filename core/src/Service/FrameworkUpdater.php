@@ -80,7 +80,7 @@ class FrameworkUpdater
                     if (is_string($destination)) {
                         if ($this->validatePresenceOnAssociation($destination, $associationSeparatedByComma)) {
                             $assocNotMatched[$associationSeparatedByComma]['matched'] = false;
-                        } elseif ('data:text/x-ref-unresolved;base64,' === substr($destination, 0, 34)) {
+                        } elseif (str_starts_with($destination, 'data:text/x-ref-unresolved;base64,')) {
                             if ($this->validatePresenceOnAssociation($association->getHumanCodingSchemeFromDestinationNodeUri(), $associationSeparatedByComma)) {
                                 $assocNotMatched[$associationSeparatedByComma]['matched'] = false;
                             }
