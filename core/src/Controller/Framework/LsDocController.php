@@ -282,7 +282,7 @@ class LsDocController extends AbstractController
                     $this->deleteFramework($lsDoc);
 
                     return new JsonResponse('OK');
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     return new JsonResponse(['error' => ['message' => 'Error deleting framework']], Response::HTTP_BAD_REQUEST);
                 }
             }
@@ -336,12 +336,12 @@ class LsDocController extends AbstractController
             $remoteResponse = $this->loadDocumentsFromServer(
                 'https://'.$hostname
             );
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             try {
                 $remoteResponse = $this->loadDocumentsFromServer(
                     'http://'.$hostname
                 );
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 throw new \Exception("Could not access CASE API on {$hostname}.");
             }
         }
@@ -368,7 +368,7 @@ class LsDocController extends AbstractController
                     return $a['title'] <=> $b['title'];
                 }
             );
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $docs = null;
         }
 

@@ -141,7 +141,7 @@ class CommentsController extends AbstractController
             $this->sendCommand($command);
 
             return $this->apiResponse($comment);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return $this->apiResponse('Item not found', 404);
         }
     }

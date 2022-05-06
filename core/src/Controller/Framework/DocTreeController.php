@@ -364,7 +364,7 @@ class DocTreeController extends AbstractController
             $message = $e->getHandlerContext();
 
             throw new NotFoundHttpException($message['error']);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new NotFoundHttpException('Document not found.');
         }
     }

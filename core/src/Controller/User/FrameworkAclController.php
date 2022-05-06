@@ -101,7 +101,7 @@ class FrameworkAclController extends AbstractController
                 $error = new FormError($e->getMessage());
                 $error->setOrigin($addOrgUserForm);
                 $addOrgUserForm->addError($error);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $error = new FormError('Unknown Error');
                 $error->setOrigin($addOrgUserForm);
                 $addOrgUserForm->addError($error);
@@ -129,7 +129,7 @@ class FrameworkAclController extends AbstractController
                 $error = new FormError($e->getMessage());
                 $error->setOrigin($addUsernameForm);
                 $addUsernameForm->addError($error);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 //$error = new FormError($e->getMessage().' '.get_class($e));
                 $error = new FormError('Unknown Error');
                 $error->setOrigin($addUsernameForm);

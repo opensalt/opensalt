@@ -382,7 +382,7 @@ class Framework
                 json5_decode($framework),
                 JsonDiff::STOP_ON_DIFF + JsonDiff::REARRANGE_ARRAYS
             );
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 
