@@ -82,7 +82,9 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * @var Collection<array-key, LsDefSubject>
      */
     #[ORM\ManyToMany(targetEntity: LsDefSubject::class)]
-    #[ORM\JoinTable(name: 'ls_doc_subject', joinColumns: [new ORM\JoinColumn(name: 'ls_doc_id', referencedColumnName: 'id')], inverseJoinColumns: [new ORM\JoinColumn(name: 'subject_id', referencedColumnName: 'id')])]
+    #[ORM\JoinTable(name: 'ls_doc_subject')]
+    #[ORM\JoinColumn(name: 'ls_doc_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'subject_id', referencedColumnName: 'id')]
     #[Assert\All([new Assert\Type(LsDefSubject::class)])]
     private Collection $subjects;
 

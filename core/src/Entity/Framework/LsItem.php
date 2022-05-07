@@ -58,7 +58,9 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      * @var Collection<array-key, LsDefConcept>
      */
     #[ORM\ManyToMany(targetEntity: LsDefConcept::class)]
-    #[ORM\JoinTable(name: 'ls_item_concept', joinColumns: [new ORM\JoinColumn(name: 'ls_item_id', referencedColumnName: 'id')], inverseJoinColumns: [new ORM\JoinColumn(name: 'concept_id', referencedColumnName: 'id')])]
+    #[ORM\JoinTable(name: 'ls_item_concept')]
+    #[ORM\JoinColumn(name: 'ls_item_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'concept_id', referencedColumnName: 'id')]
     private Collection $concepts;
 
     #[ORM\Column(name: 'notes', type: 'text', nullable: true)]
