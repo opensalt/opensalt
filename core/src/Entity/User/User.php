@@ -50,7 +50,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      */
     #[Assert\NotBlank(groups: ['registration'])]
     #[Assert\Length(min: 8, max: 4096, minMessage: 'Password must be at least {{ limit }} characters long', maxMessage: 'Password cannot be longer than {{ limit }} characters', groups: ['registration'])]
-    private string $plainPassword;
+    private ?string $plainPassword = null;
 
     #[ORM\Column(name: 'password', type: 'string', nullable: true)]
     protected ?string $password = null;
