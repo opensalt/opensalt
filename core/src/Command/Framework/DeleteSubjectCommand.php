@@ -10,10 +10,9 @@ class DeleteSubjectCommand extends BaseCommand
 {
     /**
      * @var LsDefSubject
-     *
-     * @Assert\Type(LsDefSubject::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsDefSubject::class)]
+    #[Assert\NotNull]
     private $subject;
 
     public function __construct(LsDefSubject $subject)

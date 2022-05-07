@@ -10,10 +10,9 @@ class AddDocumentCommand extends BaseCommand
 {
     /**
      * @var LsDoc
-     *
-     * @Assert\Type(LsDoc::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsDoc::class)]
+    #[Assert\NotNull]
     private $doc;
 
     /**

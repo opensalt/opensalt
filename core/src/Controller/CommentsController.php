@@ -49,25 +49,24 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/document/{id<\d+>}", name="create_doc_comment", methods={"POST"})
      * @Security("is_granted('comment')")
      */
+    #[Route(path: '/comments/document/{id<\d+>}', name: 'create_doc_comment', methods: ['POST'])]
     public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'document', $doc, $user, $bucket);
     }
 
     /**
-     * @Route("/comments/item/{id<\d+>}", name="create_item_comment", methods={"POST"})
      * @Security("is_granted('comment')")
      */
+    #[Route(path: '/comments/item/{id<\d+>}', name: 'create_item_comment', methods: ['POST'])]
     public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'item', $item, $user, $bucket);
     }
 
     /**
-     * @Route("/comments/{itemType<document|item>}/{itemId<\d+>}", name="get_comments", methods={"GET"})
      * @Entity("comments", class="App\Entity\Comment\Comment", expr="repository.findByTypeItem(itemType, itemId)")
      * @Security("is_granted('comment_view')")
      *
@@ -75,6 +74,7 @@ class CommentsController extends AbstractController
      *
      * @return mixed
      */
+    #[Route(path: '/comments/{itemType<document|item>}/{itemId<\d+>}', name: 'get_comments', methods: ['GET'])]
     public function listAction(array $comments, UserInterface $user = null)
     {
         if ($user instanceof User) {
@@ -87,9 +87,9 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/{id}", methods={"PUT"})
      * @Security("is_granted('comment_update', comment)")
      */
+    #[Route(path: '/comments/{id}', methods: ['PUT'])]
     public function updateAction(Request $request, Comment $comment, UserInterface $user): JsonResponse
     {
         $command = new UpdateCommentCommand($comment, $request->request->get('content'));
@@ -99,9 +99,9 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/delete/{id}", methods={"DELETE"})
      * @Security("is_granted('comment_delete', comment)")
      */
+    #[Route(path: '/comments/delete/{id}', methods: ['DELETE'])]
     public function deleteAction(Comment $comment, UserInterface $user): JsonResponse
     {
         $command = new DeleteCommentCommand($comment);
@@ -111,9 +111,9 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/{id}/upvote", methods={"POST"})
      * @Security("is_granted('comment')")
      */
+    #[Route(path: '/comments/{id}/upvote', methods: ['POST'])]
     public function upvoteAction(Comment $comment, UserInterface $user = null): JsonResponse
     {
         if (!$user instanceof User) {
@@ -127,9 +127,9 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @Route("/comments/{id}/upvote", methods={"DELETE"})
      * @Security("is_granted('comment')")
      */
+    #[Route(path: '/comments/{id}/upvote', methods: ['DELETE'])]
     public function downvoteAction(Comment $comment, UserInterface $user): JsonResponse
     {
         if (!$user instanceof User) {
@@ -141,15 +141,15 @@ class CommentsController extends AbstractController
             $this->sendCommand($command);
 
             return $this->apiResponse($comment);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return $this->apiResponse('Item not found', 404);
         }
     }
 
     /**
-     * @Route("/salt/case/export_comment/{itemType}/{itemId}/comment.csv", name="export_comment_file")
      * @Security("is_granted('comment_view')")
      */
+    #[Route(path: '/salt/case/export_comment/{itemType}/{itemId}/comment.csv', name: 'export_comment_file')]
     public function exportCommentAction(string $itemType, int $itemId): Response
     {
         $response = new StreamedResponse();

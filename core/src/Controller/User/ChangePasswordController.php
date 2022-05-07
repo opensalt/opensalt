@@ -27,9 +27,7 @@ class ChangePasswordController extends AbstractController
     {
     }
 
-    /**
-     * @Route("/user/change-password", name="user_change_password")
-     */
+    #[Route(path: '/user/change-password', name: 'user_change_password')]
     public function changePasswordAction(Request $request): Response
     {
         $dto = new ChangePasswordDTO();

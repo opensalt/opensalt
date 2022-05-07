@@ -62,9 +62,7 @@ class AssociationsTransformer
         /** @var LsAssociationRepository $repo */
         $repo = $this->em->getRepository(LsAssociation::class);
 
-        $newIds = array_map(static function (CFPackageAssociation $item) {
-            return $item->identifier->toString();
-        }, $cfAssociations);
+        $newIds = array_map(static fn (CFPackageAssociation $item) => $item->identifier->toString(), $cfAssociations);
 
         return $repo->findByIdentifiers($newIds);
     }

@@ -21,9 +21,9 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Organization controller.
  *
- * @Route("/admin/organization")
  * @Security("is_granted('manage', 'organizations')")
  */
+#[Route(path: '/admin/organization')]
 class OrganizationController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -35,9 +35,8 @@ class OrganizationController extends AbstractController
 
     /**
      * Lists all organization entities.
-     *
-     * @Route("/", methods={"GET"}, name="admin_organization_index")
      */
+    #[Route(path: '/', methods: ['GET'], name: 'admin_organization_index')]
     public function index(): Response
     {
         $em = $this->managerRegistry->getManager();
@@ -51,9 +50,8 @@ class OrganizationController extends AbstractController
 
     /**
      * Creates a new organization entity.
-     *
-     * @Route("/new", methods={"GET", "POST"}, name="admin_organization_new")
      */
+    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'admin_organization_new')]
     public function create(Request $request): Response
     {
         $organization = new Organization();
@@ -79,9 +77,8 @@ class OrganizationController extends AbstractController
 
     /**
      * Finds and displays an organization entity.
-     *
-     * @Route("/{id}", methods={"GET"}, name="admin_organization_show")
      */
+    #[Route(path: '/{id}', methods: ['GET'], name: 'admin_organization_show')]
     public function show(Organization $organization): Response
     {
         $deleteForm = $this->createDeleteForm($organization);
@@ -94,9 +91,8 @@ class OrganizationController extends AbstractController
 
     /**
      * Displays a form to edit an existing organization entity.
-     *
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="admin_organization_edit")
      */
+    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'admin_organization_edit')]
     public function edit(Request $request, Organization $organization): Response
     {
         $deleteForm = $this->createDeleteForm($organization);
@@ -123,9 +119,8 @@ class OrganizationController extends AbstractController
 
     /**
      * Deletes an organization entity.
-     *
-     * @Route("/{id}", methods={"DELETE"}, name="admin_organization_delete")
      */
+    #[Route(path: '/{id}', methods: ['DELETE'], name: 'admin_organization_delete')]
     public function delete(Request $request, Organization $organization): RedirectResponse
     {
         $form = $this->createDeleteForm($organization);

@@ -4,15 +4,15 @@ namespace App\DTO\Api1;
 
 class ImsxCodeMinorField
 {
-    public const CODE_MINOR_FULLSUCCESS = 'fullsuccess';
-    public const CODE_MINOR_INVALID_SORT = 'invalid_sort_field';
-    public const CODE_MINOR_INVALID_SELECTION = 'invalid_selection_field';
-    public const CODE_MINOR_FORBIDDEN = 'forbidden';
-    public const CODE_MINOR_UNAUTHORISED = 'unauthorisedrequest';
-    public const CODE_MINOR_INTERNAL_SERVER_ERROR = 'internal_server_error';
-    public const CODE_MINOR_UNKNOWN_OBJECT = 'unknownobject';
-    public const CODE_MINOR_SERVER_BUSY = 'server_busy';
-    public const CODE_MINOR_INVALID_UUID = 'invaliduuid';
+    final public const CODE_MINOR_FULLSUCCESS = 'fullsuccess';
+    final public const CODE_MINOR_INVALID_SORT = 'invalid_sort_field';
+    final public const CODE_MINOR_INVALID_SELECTION = 'invalid_selection_field';
+    final public const CODE_MINOR_FORBIDDEN = 'forbidden';
+    final public const CODE_MINOR_UNAUTHORISED = 'unauthorisedrequest';
+    final public const CODE_MINOR_INTERNAL_SERVER_ERROR = 'internal_server_error';
+    final public const CODE_MINOR_UNKNOWN_OBJECT = 'unknownobject';
+    final public const CODE_MINOR_SERVER_BUSY = 'server_busy';
+    final public const CODE_MINOR_INVALID_UUID = 'invaliduuid';
 
     public static array $codeMinorValues = [
         self::CODE_MINOR_FULLSUCCESS,

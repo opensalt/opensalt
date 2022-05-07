@@ -32,15 +32,12 @@ class LsItemParentType extends AbstractType
                 'required' => false,
                 'multiple' => false,
                 'class' => LsItem::class,
-                'query_builder' => function (EntityRepository $er) use ($lsDoc, $id) {
-                    return $er->createQueryBuilder('i')
-                        ->where('i.lsDoc = :docId')
-                        ->andWhere('i.id != :id')
-                        ->orderBy('i.fullStatement', 'ASC')
-                        ->setParameter('docId', $lsDoc->getId())
-                        ->setParameter('id', $id)
-                    ;
-                },
+                'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('i')
+                    ->where('i.lsDoc = :docId')
+                    ->andWhere('i.id != :id')
+                    ->orderBy('i.fullStatement', 'ASC')
+                    ->setParameter('docId', $lsDoc->getId())
+                    ->setParameter('id', $id),
             ])
         ;
     }

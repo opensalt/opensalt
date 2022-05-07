@@ -3,6 +3,7 @@
 namespace App\Entity\Framework;
 
 use App\Entity\LockableInterface;
+use App\Repository\Framework\LsItemRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,193 +11,109 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(name="ls_item")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\LsItemRepository")
- * @UniqueEntity("uri")
- */
+#[ORM\Table(name: 'ls_item')]
+#[ORM\Entity(repositoryClass: LsItemRepository::class)]
+#[UniqueEntity('uri')]
 class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterface
 {
     use AccessAdditionalFieldTrait;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ls_doc_identifier", type="string", length=300, nullable=false)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     */
-    private $lsDocIdentifier;
+    #[ORM\Column(name: 'ls_doc_identifier', type: 'string', length: 300, nullable: false)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 300)]
+    private string $lsDocIdentifier;
+
+    #[ORM\Column(name: 'ls_doc_uri', type: 'string', length: 300, nullable: true)]
+    #[Assert\Length(max: 300)]
+    private ?string $lsDocUri = null;
+
+    #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'lsItems')]
+    #[Assert\NotBlank]
+    private LsDoc $lsDoc;
+
+    #[ORM\Column(name: 'human_coding_scheme', type: 'string', length: 50, nullable: true)]
+    #[Assert\Length(max: 50)]
+    private ?string $humanCodingScheme = null;
+
+    #[ORM\Column(name: 'list_enum_in_source', type: 'string', length: 20, nullable: true)]
+    #[Assert\Length(max: 20)]
+    private ?string $listEnumInSource = null;
+
+    #[ORM\Column(name: 'full_statement', type: 'text', nullable: false)]
+    #[Assert\NotBlank]
+    private string $fullStatement;
+
+    #[ORM\Column(name: 'abbreviated_statement', type: 'text', nullable: true)]
+    #[Assert\Length(max: 60)]
+    private ?string $abbreviatedStatement = null;
 
     /**
-     * @var string|null
-     *
-     * @ORM\Column(name="ls_doc_uri", type="string", length=300, nullable=true)
-     * @Assert\Length(max=300)
+     * @var string[]|null
      */
-    private $lsDocUri;
+    #[ORM\Column(name: 'concept_keywords', type: 'json', nullable: true)]
+    #[Assert\All([new Assert\Type('string')])]
+    private ?array $conceptKeywords = [];
 
     /**
-     * @var LsDoc
-     *
-     * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="lsItems")
-     * @Assert\NotBlank()
+     * @var Collection<array-key, LsDefConcept>
      */
-    private $lsDoc;
+    #[ORM\ManyToMany(targetEntity: LsDefConcept::class)]
+    #[ORM\JoinTable(name: 'ls_item_concept')]
+    #[ORM\JoinColumn(name: 'ls_item_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'concept_id', referencedColumnName: 'id')]
+    private Collection $concepts;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="human_coding_scheme", type="string", length=50, nullable=true)
-     *
-     * @Assert\Length(max=50)
-     */
-    private $humanCodingScheme;
+    #[ORM\Column(name: 'notes', type: 'text', nullable: true)]
+    private ?string $notes = null;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="list_enum_in_source", type="string", length=20, nullable=true)
-     *
-     * @Assert\Length(max=20)
-     */
-    private $listEnumInSource;
+    #[ORM\Column(name: 'language', type: 'string', length: 10, nullable: true)]
+    #[Assert\Length(max: 10)]
+    private ?string $language = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="full_statement", type="text", nullable=false)
-     *
-     * @Assert\NotBlank()
-     */
-    private $fullStatement;
+    #[ORM\Column(name: 'educational_alignment', type: 'string', length: 300, nullable: true)]
+    #[Assert\Length(max: 300)]
+    private ?string $educationalAlignment = null;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="abbreviated_statement", type="text", nullable=true)
-     *
-     * @Assert\Length(max=60)
-     */
-    private $abbreviatedStatement;
+    #[ORM\ManyToOne(targetEntity: LsDefItemType::class)]
+    #[ORM\JoinColumn(name: 'item_type_id', referencedColumnName: 'id')]
+    private ?LsDefItemType $itemType = null;
 
-    /**
-     * @var array
-     *
-     * @ORM\Column(name="concept_keywords", type="json", nullable=true)
-     *
-     * @Assert\All({
-     *     @Assert\Type("string")
-     * })
-     */
-    private $conceptKeywords = [];
+    #[ORM\Column(name: 'item_type_text', type: 'string', nullable: true)]
+    #[Assert\Length(max: 255)]
+    private ?string $itemTypeText = null;
 
-    /**
-     * @var LsDefConcept[]|Collection
-     *
-     * @ORM\ManyToMany(targetEntity="LsDefConcept")
-     * @ORM\JoinTable(name="ls_item_concept",
-     *      joinColumns={@ORM\JoinColumn(name="ls_item_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="concept_id", referencedColumnName="id")}
-     * )
-     */
-    private $concepts;
+    #[ORM\Column(name: 'alternative_label', type: 'text', nullable: true)]
+    private ?string $alternativeLabel = null;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="notes", type="text", nullable=true)
-     */
-    private $notes;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="language", type="string", length=10, nullable=true)
-     *
-     * @Assert\Length(max=10)
-     */
-    private $language;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="educational_alignment", type="string", length=300, nullable=true)
-     *
-     * @Assert\Length(max=300)
-     */
-    private $educationalAlignment;
-
-    /**
-     * @var LsDefItemType|null
-     *
-     * @ORM\ManyToOne(targetEntity="LsDefItemType")
-     * @ORM\JoinColumn(name="item_type_id", referencedColumnName="id")
-     */
-    private $itemType;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="item_type_text", type="string", nullable=true)
-     *
-     * @Assert\Length(max=255)
-     */
-    private $itemTypeText;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="alternative_label", type="text", nullable=true)
-     */
-    private $alternativeLabel;
-
-    /**
-     * @ORM\Column(name="status_start", type="date", nullable=true)
-     */
+    #[ORM\Column(name: 'status_start', type: 'date', nullable: true)]
     private ?\DateTimeInterface $statusStart = null;
 
-    /**
-     * @ORM\Column(name="status_end", type="date", nullable=true)
-     */
+    #[ORM\Column(name: 'status_end', type: 'date', nullable: true)]
     private ?\DateTimeInterface $statusEnd = null;
 
-    /**
-     * @var LsDefLicence|null
-     *
-     * @ORM\ManyToOne(targetEntity="LsDefLicence")
-     * @ORM\JoinColumn(name="licence_id", referencedColumnName="id", nullable=true)
-     */
-    private $licence;
+    #[ORM\ManyToOne(targetEntity: LsDefLicence::class)]
+    #[ORM\JoinColumn(name: 'licence_id', referencedColumnName: 'id', nullable: true)]
+    private ?LsDefLicence $licence = null;
 
     /**
-     * @var Collection|LsAssociation[]
-     *
-     * @ORM\OneToMany(targetEntity="LsAssociation", mappedBy="originLsItem", indexBy="id", cascade={"persist"})
+     * @var Collection<array-key, LsAssociation>
      */
-    private $associations;
+    #[ORM\OneToMany(mappedBy: 'originLsItem', targetEntity: LsAssociation::class, cascade: ['persist'], indexBy: 'id')]
+    private Collection $associations;
 
     /**
-     * @var Collection|LsAssociation[]
-     *
-     * @ORM\OneToMany(targetEntity="LsAssociation", mappedBy="destinationLsItem", indexBy="id", cascade={"persist"})
+     * @var Collection<array-key, LsAssociation>
      */
-    private $inverseAssociations;
+    #[ORM\OneToMany(mappedBy: 'destinationLsItem', targetEntity: LsAssociation::class, cascade: ['persist'], indexBy: 'id')]
+    private Collection $inverseAssociations;
 
     /**
-     * @var Collection|CfRubricCriterion[]
-     *
-     * @ORM\OneToMany(targetEntity="CfRubricCriterion", mappedBy="item")
+     * @var Collection<array-key, CfRubricCriterion>
      */
-    private $criteria;
+    #[ORM\OneToMany(mappedBy: 'item', targetEntity: CfRubricCriterion::class)]
+    private Collection $criteria;
 
-    /**
-     * LsItem constructor.
-     *
-     * @param string|UuidInterface|null $identifier
-     */
-    public function __construct($identifier = null)
+    public function __construct(UuidInterface|string|null $identifier = null)
     {
         parent::__construct($identifier);
 
@@ -231,7 +148,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @throws \UnexpectedValueException
      */
-    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, bool $exactMatchAssocs = true): LsItem
+    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, bool $exactMatchAssocs = true): static
     {
         $newItem = clone $this;
 
@@ -267,7 +184,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @throws \UnexpectedValueException
      */
-    public function duplicateToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null): LsItem
+    public function duplicateToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null): static
     {
         $newItem = clone $this;
         $newItem->setLsDoc($newLsDoc);
@@ -292,18 +209,12 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $newItem;
     }
 
-    /**
-     * @param UuidInterface|string|null $identifier
-     */
-    public function createItem($identifier = null): LsItem
+    public function createItem(UuidInterface|string|null $identifier = null): LsItem
     {
         return $this->getLsDoc()->createItem($identifier);
     }
 
-    /**
-     * @param UuidInterface|string|null $identifier
-     */
-    public function createAssociation($identifier = null): LsAssociation
+    public function createAssociation(UuidInterface|string|null $identifier = null): LsAssociation
     {
         return $this->getLsDoc()->createAssociation($identifier);
     }
@@ -392,14 +303,10 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      */
     public function getShortStatement(): string
     {
-        if (null !== $this->abbreviatedStatement) {
-            return $this->getAbbreviatedStatement();
-        }
-
-        return mb_substr($this->getFullStatement(), 0, 60);
+        return $this->getAbbreviatedStatement() ?? mb_substr($this->getFullStatement() ?? 'Unknown', 0, 60);
     }
 
-    public function setLsDocUri(?string $lsDocUri): LsItem
+    public function setLsDocUri(?string $lsDocUri): static
     {
         $this->lsDocUri = $lsDocUri;
 
@@ -411,7 +318,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->lsDocUri;
     }
 
-    public function setHumanCodingScheme(?string $humanCodingScheme): LsItem
+    public function setHumanCodingScheme(?string $humanCodingScheme): static
     {
         $this->humanCodingScheme = $humanCodingScheme;
 
@@ -423,7 +330,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->humanCodingScheme;
     }
 
-    public function setListEnumInSource(?string $listEnumInSource): LsItem
+    public function setListEnumInSource(?string $listEnumInSource): static
     {
         $this->listEnumInSource = $listEnumInSource;
 
@@ -435,7 +342,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->listEnumInSource;
     }
 
-    public function setFullStatement(string $fullStatement): LsItem
+    public function setFullStatement(string $fullStatement): static
     {
         $this->fullStatement = $fullStatement;
 
@@ -447,7 +354,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->fullStatement;
     }
 
-    public function setAbbreviatedStatement(?string $abbreviatedStatement): LsItem
+    public function setAbbreviatedStatement(?string $abbreviatedStatement): static
     {
         $this->abbreviatedStatement = $abbreviatedStatement;
 
@@ -462,15 +369,13 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * @param string[]|null $conceptKeywords
      */
-    public function setConceptKeywordsArray(?array $conceptKeywords): LsItem
+    public function setConceptKeywordsArray(?array $conceptKeywords): static
     {
         if (null === $conceptKeywords) {
             $conceptKeywords = [];
         }
 
-        if ([] !== array_filter($conceptKeywords, static function ($el) {
-            return !\is_string($el);
-        })) {
+        if (array_reduce($conceptKeywords, static fn ($carry, $el): bool => $carry || !\is_string($el), false)) {
             throw new \InvalidArgumentException('setConceptKeywords must be passed an array of strings.');
         }
 
@@ -487,7 +392,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * @deprecated Migrate to using setConceptKeywordsArray()
      */
-    public function setConceptKeywords(?string $conceptKeywords): LsItem
+    public function setConceptKeywords(?string $conceptKeywords): static
     {
         return $this->setConceptKeywordsString($conceptKeywords);
     }
@@ -500,7 +405,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->getConceptKeywordsString();
     }
 
-    public function setConceptKeywordsString(?string $conceptKeywords): LsItem
+    public function setConceptKeywordsString(?string $conceptKeywords): static
     {
         if (null === $conceptKeywords) {
             $conceptKeywords = '';
@@ -532,7 +437,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $concepts->first()->getUri();
     }
 
-    public function setNotes(?string $notes): LsItem
+    public function setNotes(?string $notes): static
     {
         $this->notes = $notes;
 
@@ -547,7 +452,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * @param string|string[]|null $educationalAlignment
      */
-    public function setEducationalAlignment($educationalAlignment): LsItem
+    public function setEducationalAlignment(array|string|null $educationalAlignment): static
     {
         if (null === $educationalAlignment) {
             $this->educationalAlignment = null;
@@ -565,9 +470,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             throw new \InvalidArgumentException('setEducationalAlignment must be passed a string or an array of strings.');
         }
 
-        if ([] !== array_filter($educationalAlignment, static function ($el) {
-            return !is_string($el);
-        })) {
+        if (array_reduce($educationalAlignment, static fn ($carry, $el): bool => $carry || !\is_string($el), false)) {
             throw new \InvalidArgumentException('setEducationalAlignment must be passed a string or an array of strings.');
         }
 
@@ -596,7 +499,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @throws \UnexpectedValueException
      */
-    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): LsItem
+    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): static
     {
         $association = new LsAssociation();
         $association->setLsDoc($child->getLsDoc());
@@ -619,7 +522,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @return Collection|LsItem[]
+     * @return Collection<array-key, LsItem>
      */
     public function getChildren(): Collection
     {
@@ -638,14 +541,12 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @return array|int[]
+     * @return array<array-key, int>
      */
     public function getChildIds(): array
     {
         $ids = $this->getChildren()->map(
-            static function (LsItem $item) {
-                return $item->getId();
-            }
+            static fn (LsItem $item): int => $item->getId()
         );
 
         return $ids->toArray();
@@ -667,7 +568,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $childIds;
     }
 
-    public function setLsDoc(LsDoc $lsDoc): LsItem
+    public function setLsDoc(LsDoc $lsDoc): static
     {
         $this->lsDoc = $lsDoc;
         $this->lsDocUri = $lsDoc->getUri();
@@ -682,7 +583,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @return Collection|LsItem[]
+     * @return Collection<array-key, LsItem>
      */
     public function getLsItemParent(): Collection
     {
@@ -701,14 +602,14 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $parents;
     }
 
-    public function addAssociation(LsAssociation $association): LsItem
+    public function addAssociation(LsAssociation $association): static
     {
         $this->associations[] = $association;
 
         return $this;
     }
 
-    public function removeAssociation(LsAssociation $association): LsItem
+    public function removeAssociation(LsAssociation $association): static
     {
         $this->associations->removeElement($association);
 
@@ -716,21 +617,21 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @return Collection|LsAssociation[]
+     * @return Collection<array-key, LsAssociation>
      */
     public function getAssociations(): Collection
     {
         return $this->associations;
     }
 
-    public function addInverseAssociation(LsAssociation $inverseAssociation): LsItem
+    public function addInverseAssociation(LsAssociation $inverseAssociation): static
     {
         $this->inverseAssociations[] = $inverseAssociation;
 
         return $this;
     }
 
-    public function removeInverseAssociation(LsAssociation $inverseAssociation): LsItem
+    public function removeInverseAssociation(LsAssociation $inverseAssociation): static
     {
         $this->inverseAssociations->removeElement($inverseAssociation);
 
@@ -738,7 +639,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @return Collection|LsAssociation[]
+     * @return Collection<array-key, LsAssociation>
      */
     public function getInverseAssociations(): Collection
     {
@@ -778,7 +679,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->lsDocIdentifier;
     }
 
-    public function setLsDocIdentifier(?string $lsDocIdentifier): LsItem
+    public function setLsDocIdentifier(?string $lsDocIdentifier): static
     {
         $this->lsDocIdentifier = $lsDocIdentifier;
 
@@ -786,17 +687,15 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @param LsItem|LsDoc $parent
-     *
      * @throws \UnexpectedValueException
      */
-    public function addParent($parent, ?int $sequenceNumber = null, ?LsDefAssociationGrouping $assocGroup = null): LsAssociation
+    public function addParent(LsItem|LsDoc $parent, ?int $sequenceNumber = null, ?LsDefAssociationGrouping $assocGroup = null): LsAssociation
     {
         $association = new LsAssociation();
         $association->setLsDoc($this->getLsDoc());
         $association->setOrigin($this);
         $association->setType(LsAssociation::CHILD_OF);
-        $association->setDestination($parent ?: $this->lsDoc);
+        $association->setDestination($parent);
 
         // set sequenceNumber if provided
         if (null !== $sequenceNumber) {
@@ -819,7 +718,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->language;
     }
 
-    public function setLanguage(?string $language): LsItem
+    public function setLanguage(?string $language): static
     {
         $this->language = $language;
 
@@ -859,7 +758,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->itemType;
     }
 
-    public function setItemType(?LsDefItemType $itemType): LsItem
+    public function setItemType(?LsDefItemType $itemType): static
     {
         $this->itemType = $itemType;
 
@@ -871,7 +770,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->itemTypeText;
     }
 
-    public function setItemTypeText(?string $itemTypeText): LsItem
+    public function setItemTypeText(?string $itemTypeText): static
     {
         $this->itemTypeText = $itemTypeText;
 
@@ -879,7 +778,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @return LsDefConcept[]|Collection
+     * @return Collection<array-key, LsDefConcept>
      */
     public function getConcepts()
     {
@@ -887,9 +786,9 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @param LsDefConcept[]|Collection|null $concepts
+     * @psalm-param ?iterable<array-key, LsDefConcept> $concepts
      */
-    public function setConcepts(?iterable $concepts): LsItem
+    public function setConcepts(?iterable $concepts): static
     {
         $this->concepts = new ArrayCollection();
 
@@ -904,7 +803,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this;
     }
 
-    public function addConcept(LsDefConcept $concept): LsItem
+    public function addConcept(LsDefConcept $concept): static
     {
         $this->concepts[] = $concept;
 
@@ -916,7 +815,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->alternativeLabel;
     }
 
-    public function setAlternativeLabel(?string $alternativeLabel): LsItem
+    public function setAlternativeLabel(?string $alternativeLabel): static
     {
         $this->alternativeLabel = $alternativeLabel;
 
@@ -932,7 +831,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->statusStart;
     }
 
-    public function setStatusStart(?\DateTimeInterface $statusStart): LsItem
+    public function setStatusStart(?\DateTimeInterface $statusStart): static
     {
         $this->statusStart = $statusStart;
 
@@ -948,7 +847,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->statusEnd;
     }
 
-    public function setStatusEnd(?\DateTimeInterface $statusEnd): LsItem
+    public function setStatusEnd(?\DateTimeInterface $statusEnd): static
     {
         $this->statusEnd = $statusEnd;
 
@@ -960,7 +859,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->licence;
     }
 
-    public function setLicence(?LsDefLicence $licence): LsItem
+    public function setLicence(?LsDefLicence $licence): static
     {
         $this->licence = $licence;
 
@@ -968,14 +867,14 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @return CfRubricCriterion[]|Collection
+     * @return Collection<array-key, CfRubricCriterion>
      */
     public function getCriteria(): Collection
     {
         return $this->criteria;
     }
 
-    public function addCriterion(CfRubricCriterion $criterion): LsItem
+    public function addCriterion(CfRubricCriterion $criterion): static
     {
         $this->criteria[] = $criterion;
 
@@ -983,9 +882,9 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     }
 
     /**
-     * @param CfRubricCriterion[]|Collection|null $criteria
+     * @psalm-param ?iterable<array-key, CfRubricCriterion> $criteria
      */
-    public function setCriteria(?iterable $criteria): LsItem
+    public function setCriteria(?iterable $criteria): static
     {
         $this->criteria = new ArrayCollection();
 

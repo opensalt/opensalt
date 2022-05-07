@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Command\CommandDispatcherTrait;
 use App\Entity\Framework\LsDoc;
 use App\Service\ExcelExport;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -23,9 +25,7 @@ class ExcelExportController extends AbstractController
         $this->excelExport = $excelExport;
     }
 
-    /**
-     * @Route("/cfdoc/{id}/excel", methods={"GET"}, name="export_excel_file")
-     */
+    #[Route(path: '/cfdoc/{id}/excel', methods: ['GET'], name: 'export_excel_file')]
     public function exportExcelAction(LsDoc $lsDoc): StreamedResponse
     {
         $title = preg_replace('/[^A-Za-z0-9]/', '_', $lsDoc->getTitle());
@@ -34,10 +34,10 @@ class ExcelExportController extends AbstractController
 
         return new StreamedResponse(
             function () use ($phpExcelObject) {
-                \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($phpExcelObject, 'Xlsx')
+                IOFactory::createWriter($phpExcelObject, 'Xlsx')
                     ->save('php://output');
             },
-            200,
+            Response::HTTP_OK,
             [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 'Content-Disposition' => 'attachment; filename="'.$title.'.xlsx"',

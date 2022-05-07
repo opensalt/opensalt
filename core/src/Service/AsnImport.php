@@ -201,7 +201,7 @@ class AsnImport
             try {
                 $asnDoc = $this->requestAsnDocument($urlPrefix.$asnId.'_full.json');
                 break;
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 // If on the second ASN URL then the first will not be found
             }
         }

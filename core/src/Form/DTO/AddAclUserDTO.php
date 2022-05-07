@@ -10,26 +10,23 @@ class AddAclUserDTO
 {
     /**
      * @var User
-     *
-     * @Assert\Type(User::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(User::class)]
+    #[Assert\NotNull]
     public $user;
 
     /**
      * @var LsDoc
-     *
-     * @Assert\Type(LsDoc::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsDoc::class)]
+    #[Assert\NotNull]
     public $lsDoc;
 
     /**
      * @var int
-     *
-     * @Assert\Type("int")
-     * @Assert\NotNull()
      */
+    #[Assert\Type('int')]
+    #[Assert\NotNull]
     public $access;
 
     public function __construct(LsDoc $doc, int $access, User $user = null)

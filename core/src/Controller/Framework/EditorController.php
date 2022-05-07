@@ -12,9 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Editor controller.
- *
- * @Route("/cf")
  */
+#[Route(path: '/cf')]
 class EditorController extends AbstractController
 {
     public function __construct(
@@ -23,9 +22,9 @@ class EditorController extends AbstractController
     }
 
     /**
-     * @Route("/doc/{id}.{_format}", methods={"GET"}, defaults={"_format" = "html"}, name="editor_lsdoc")
      * @Template()
      */
+    #[Route(path: '/doc/{id}.{_format}', methods: ['GET'], defaults: ['_format' => 'html'], name: 'editor_lsdoc')]
     public function viewDocAction(LsDoc $lsDoc, string $_format = 'html')
     {
         if ('json' === $_format) {
@@ -36,9 +35,9 @@ class EditorController extends AbstractController
     }
 
     /**
-     * @Route("/item/{id}.{_format}", methods={"GET"}, defaults={"_format" = "html"}, name="editor_lsitem")
      * @Template()
      */
+    #[Route(path: '/item/{id}.{_format}', methods: ['GET'], defaults: ['_format' => 'html'], name: 'editor_lsitem')]
     public function viewItemAction(LsItem $lsItem, string $_format = 'html')
     {
         if ('json' === $_format) {
@@ -49,10 +48,10 @@ class EditorController extends AbstractController
     }
 
     /**
-     * @Route("/render/{id}.{_format}", methods={"GET"}, defaults={"highlight"=null, "_format"="html"}, name="editor_render_document_only")
-     * @Route("/render/{id}/{highlight}.{_format}", methods={"GET"}, defaults={"highlight"=null, "_format"="html"}, name="editor_render")
      * @Template()
      */
+    #[Route(path: '/render/{id}.{_format}', methods: ['GET'], defaults: ['highlight' => null, '_format' => 'html'], name: 'editor_render_document_only')]
+    #[Route(path: '/render/{id}/{highlight}.{_format}', methods: ['GET'], defaults: ['highlight' => null, '_format' => 'html'], name: 'editor_render')]
     public function renderDocumentAction(LsDoc $lsDoc, ?int $highlight = null, $_format = 'html'): array
     {
         $repo = $this->managerRegistry->getRepository(LsDoc::class);

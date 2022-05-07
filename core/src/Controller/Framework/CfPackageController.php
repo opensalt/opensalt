@@ -13,9 +13,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Class CfPackageController.
- *
- * @Route("/cfpackage")
  */
+#[Route(path: '/cfpackage')]
 class CfPackageController extends AbstractController
 {
     public function __construct(
@@ -26,10 +25,9 @@ class CfPackageController extends AbstractController
 
     /**
      * Export a CFPackage.
-     *
-     * @Route("/doc/{id}.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, methods={"GET"}, defaults={"_format"="json"}, name="cfpackage_export")
-     * @Route("/doc/{id}/export.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, methods={"GET"}, defaults={"_format"="json"}, name="cfpackage_export2")
      */
+    #[Route(path: '/doc/{id}.{_format}', requirements: ['_format' => '(json|html|pdf|csv)'], methods: ['GET'], defaults: ['_format' => 'json'], name: 'cfpackage_export')]
+    #[Route(path: '/doc/{id}/export.{_format}', requirements: ['_format' => '(json|html|pdf|csv)'], methods: ['GET'], defaults: ['_format' => 'json'], name: 'cfpackage_export2')]
     public function exportAction(Request $request, LsDoc $lsDoc, string $_format = 'json'): Response
     {
         if ('json' === $_format) {

@@ -9,9 +9,9 @@ class ManageOrganizationVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const MANAGE = 'manage';
+    final public const MANAGE = 'manage';
 
-    public const ORGANIZATIONS = 'organizations';
+    final public const ORGANIZATIONS = 'organizations';
 
     /**
      * {@inheritdoc}

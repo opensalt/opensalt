@@ -21,9 +21,9 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Signup Controller.
  *
- * @Route("/public/user")
  * @Toggle("create_account")
  */
+#[Route(path: '/public/user')]
 class SignupController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -37,9 +37,8 @@ class SignupController extends AbstractController
 
     /**
      * Creates a new user entity.
-     *
-     * @Route("/signup", methods={"GET", "POST"}, name="public_user_signup")
      */
+    #[Route(path: '/signup', methods: ['GET', 'POST'], name: 'public_user_signup')]
     public function signupAction(Request $request): Response
     {
         $targetUser = new User();
@@ -111,7 +110,7 @@ class SignupController extends AbstractController
                 return $this->redirectToRoute('lsdoc_index');
             } catch (\Exception $e) {
                 if ('dev' === $this->kernelEnv) {
-                    $form->addError(new FormError(get_class($e).': '.$e->getMessage()));
+                    $form->addError(new FormError($e::class.': '.$e->getMessage()));
                 } else {
                     $form->addError(new FormError('Sorry, an error occurred while creating your account.'));
                 }

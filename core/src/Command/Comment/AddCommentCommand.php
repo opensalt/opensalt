@@ -13,10 +13,9 @@ class AddCommentCommand extends BaseCommand
 {
     /**
      * @var string
-     *
-     * @Assert\Type("string")
-     * @Assert\NotNull()
      */
+    #[Assert\Type('string')]
+    #[Assert\NotNull]
     private $itemType;
 
     /**
@@ -35,38 +34,33 @@ class AddCommentCommand extends BaseCommand
 
     /**
      * @var User
-     *
-     * @Assert\Type(User::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(User::class)]
+    #[Assert\NotNull]
     private $user;
 
     /**
      * @var string
-     *
-     * @Assert\Type("string")
      */
+    #[Assert\Type('string')]
     private $content;
 
     /**
      * @var int
-     *
-     * @Assert\Type("int")
      */
+    #[Assert\Type('int')]
     private $parentId;
 
     /**
      * @var Comment
-     *
-     * @Assert\Type(Comment::class)
      */
+    #[Assert\Type(Comment::class)]
     private $comment;
 
     /**
      * @var string
-     *
-     * @Assert\Type("string")
      */
+    #[Assert\Type('string')]
     private $fileUrl;
 
     private $mimeType;

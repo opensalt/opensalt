@@ -148,7 +148,7 @@ class SubtypeUpdater
 //            $type = strtolower($type);
 //            $type = preg_replace('/^<-ispartof$/', 'haspart', $type);
 //            $type = preg_replace('/^ispartof->$/', 'ispartof', $type);
-            $types[$type] = $types[$type] ?? [];
+            $types[$type] ??= [];
             $types[$type][$subtype] = 1;
 
             $annotation = $this->getValueFromSheet($sheet, 13, $rowIndex);

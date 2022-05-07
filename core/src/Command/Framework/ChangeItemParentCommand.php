@@ -10,10 +10,9 @@ class ChangeItemParentCommand extends BaseCommand
 {
     /**
      * @var ChangeLsItemParentDTO
-     *
-     * @Assert\Type(ChangeLsItemParentDTO::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(ChangeLsItemParentDTO::class)]
+    #[Assert\NotNull]
     private $dto;
 
     /**

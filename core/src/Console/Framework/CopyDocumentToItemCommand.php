@@ -15,11 +15,11 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class CopyDocumentToItemCommand extends BaseDoctrineCommand
 {
+    protected static $defaultName = 'cfpackage:duplicate';
+
     protected function configure()
     {
-        $this
-            ->setName('cfpackage:duplicate')
-            ->setDescription('Copy a package to an item in a framework')
+        $this->setDescription('Copy a package to an item in a framework')
             ->addArgument('from', InputArgument::REQUIRED, 'Id of package to duplicate')
             ->addArgument('to', InputArgument::REQUIRED, 'Id of package to copy into')
         ;

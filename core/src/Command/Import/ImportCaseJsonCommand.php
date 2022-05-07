@@ -11,9 +11,8 @@ class ImportCaseJsonCommand extends BaseCommand
 {
     /**
      * @var string
-     *
-     * @Assert\NotNull()
      */
+    #[Assert\NotNull]
     private $caseJson;
 
     /**

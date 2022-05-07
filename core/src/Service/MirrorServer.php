@@ -232,13 +232,8 @@ class MirrorServer
             $this->warning('Error authenticating to server', ['message' => $e->getMessage(), 'exception' => $guzzleException->getMessage()]);
 
             throw new \RuntimeException('Error authenticating to server: '.$guzzleException->getMessage(), 0, $e);
-        } catch (RequestException $e) {
+        } catch (RequestException|\Exception $e) {
             $this->warning('Error requesting URL from server', ['exception' => $e->getMessage()]);
-
-            throw new \RuntimeException('Error requesting URL from server.', 0, $e);
-        } catch (\Exception $e) {
-            $this->warning('Error requesting URL from server', ['exception' => $e->getMessage()]);
-
             throw new \RuntimeException('Error requesting URL from server.', 0, $e);
         }
 

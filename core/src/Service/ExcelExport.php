@@ -21,9 +21,7 @@ final class ExcelExport
         if (null === self::$customItemFields) {
             $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
                 ->findBy(['appliesTo' => LsItem::class]);
-            self::$customItemFields = array_map(function (AdditionalField $cf) {
-                return $cf->getName();
-            }, $customFieldsArray);
+            self::$customItemFields = array_map(fn (AdditionalField $cf) => $cf->getName(), $customFieldsArray);
         }
     }
 
@@ -72,7 +70,7 @@ final class ExcelExport
             $item = $itemsArray[$item['id']];
             $smartLevel[$item['id']] = $smartLevel[$parentId].'.'.$j;
 
-            if (count($item['children']) > 0) {
+            if ((is_countable($item['children']) ? count($item['children']) : 0) > 0) {
                 $this->getSmartLevel($item['children'], $item['id'], $itemsArray, $smartLevel);
             }
 
@@ -196,7 +194,7 @@ final class ExcelExport
             }
             ++$j;
 
-            if (count($item['children']) > 0) {
+            if ((is_countable($item['children']) ? count($item['children']) : 0) > 0) {
                 $this->addItemRows($item['children'], $activeSheet, $j, $items, $smartLevel);
             }
         }
@@ -218,9 +216,7 @@ final class ExcelExport
             'K' => '[itemType][title]',
             'L' => '[license]',
         ];
-
-        end($columns);
-        $lastCol = key($columns);
+        $lastCol = array_key_last($columns);
         foreach (self::$customItemFields as $customField) {
             $columns[++$lastCol] = sprintf('[extra][customFields][%s]', $customField);
         }
@@ -270,7 +266,7 @@ final class ExcelExport
     {
         $column = 13;
 
-        if (count(self::$customItemFields) > 0) {
+        if (count((array) self::$customItemFields) > 0) {
             foreach (self::$customItemFields as $cf) {
                 $sheet->setCellValue([$column, 1], $cf);
                 ++$column;

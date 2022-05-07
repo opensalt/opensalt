@@ -4,54 +4,33 @@ namespace App\Entity\Framework;
 
 use App\Entity\LockableInterface;
 use App\Entity\User\User;
+use App\Repository\Framework\ObjectLockRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(
- *     name="salt_object_lock",
- *     uniqueConstraints={
- *         @ORM\UniqueConstraint(name="lock_obj_idx", columns={"obj_type", "obj_id"})
- *     },
- *     indexes={
- *         @ORM\Index(name="expiry_idx", columns={"expiry"})
- *     }
- * )
- * @ORM\Entity(repositoryClass="App\Repository\Framework\ObjectLockRepository")
- */
+#[ORM\Table(name: 'salt_object_lock', indexes: [new ORM\Index(columns: ['expiry'], name: 'expiry_idx')], uniqueConstraints: [new ORM\UniqueConstraint(name: 'lock_obj_idx', columns: ['obj_type', 'obj_id'])])]
+#[ORM\Entity(repositoryClass: ObjectLockRepository::class)]
 class ObjectLock
 {
-    /**
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    protected ?int $id;
+    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    protected ?int $id = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
     protected User $user;
 
-    /**
-     * @ORM\Column(name="expiry", type="datetime", precision=6, nullable=false)
-     */
+    #[ORM\Column(name: 'expiry', type: 'datetime', precision: 6, nullable: false)]
     protected \DateTime $timeout;
 
-    /**
-     * @ORM\Column(name="obj_type", type="string", nullable=false)
-     */
+    #[ORM\Column(name: 'obj_type', type: 'string', nullable: false)]
     protected string $objectType;
 
-    /**
-     * @ORM\Column(name="obj_id", type="string", nullable=false)
-     */
+    #[ORM\Column(name: 'obj_id', type: 'string', nullable: false)]
     protected string $objectId;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="LsDoc")
-     */
-    protected ?LsDoc $doc;
+    #[ORM\ManyToOne(targetEntity: LsDoc::class)]
+    protected ?LsDoc $doc = null;
 
     public function __construct(LockableInterface $obj, User $user, int $minutes = 5)
     {
@@ -61,7 +40,7 @@ class ObjectLock
 
         $this->user = $user;
         $this->timeout = new \DateTime("now + {$minutes} minutes");
-        $this->objectType = \get_class($obj);
+        $this->objectType = $obj::class;
         $this->objectId = (string) $obj->getId();
         if ($obj instanceof LsDoc) {
             $this->doc = $obj;

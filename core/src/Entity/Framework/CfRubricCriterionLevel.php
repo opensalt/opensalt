@@ -2,45 +2,31 @@
 
 namespace App\Entity\Framework;
 
+use App\Repository\Framework\CfRubricCriterionLevelRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\MappedSuperclass()
- *
- * @ORM\Table(name="rubric_criterion_level")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\CfRubricCriterionLevelRepository")
- */
+#[ORM\MappedSuperclass]
+#[ORM\Table(name: 'rubric_criterion_level')]
+#[ORM\Entity(repositoryClass: CfRubricCriterionLevelRepository::class)]
 class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
 {
-    /**
-     * @ORM\Column(name="description", type="text", length=65535, nullable=true)
-     */
+    #[ORM\Column(name: 'description', type: 'text', length: 65535, nullable: true)]
     private ?string $description = null;
 
-    /**
-     * @ORM\Column(name="quality", type="text", length=65535, nullable=true)
-     */
+    #[ORM\Column(name: 'quality', type: 'text', length: 65535, nullable: true)]
     private ?string $quality = null;
 
-    /**
-     * @ORM\Column(name="score", type="float", nullable=true)
-     */
+    #[ORM\Column(name: 'score', type: 'float', nullable: true)]
     private ?float $score = null;
 
-    /**
-     * @ORM\Column(name="feedback", type="text", length=65535, nullable=true)
-     */
+    #[ORM\Column(name: 'feedback', type: 'text', length: 65535, nullable: true)]
     private ?string $feedback = null;
 
-    /**
-     * @ORM\Column(name="position", type="integer", nullable=true)
-     */
+    #[ORM\Column(name: 'position', type: 'integer', nullable: true)]
     private ?int $position = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="CfRubricCriterion", inversedBy="levels")
-     * @ORM\JoinColumn(name="criterion_id", referencedColumnName="id", nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: CfRubricCriterion::class, inversedBy: 'levels')]
+    #[ORM\JoinColumn(name: 'criterion_id', referencedColumnName: 'id', nullable: false)]
     private CfRubricCriterion $criterion;
 
     public function getDescription(): ?string
@@ -48,7 +34,7 @@ class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
         return $this->description;
     }
 
-    public function setDescription(?string $description): CfRubricCriterionLevel
+    public function setDescription(?string $description): static
     {
         $this->description = $description;
 
@@ -60,7 +46,7 @@ class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
         return $this->quality;
     }
 
-    public function setQuality(?string $quality): CfRubricCriterionLevel
+    public function setQuality(?string $quality): static
     {
         $this->quality = $quality;
 
@@ -72,7 +58,7 @@ class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
         return $this->score;
     }
 
-    public function setScore(?float $score): CfRubricCriterionLevel
+    public function setScore(?float $score): static
     {
         $this->score = $score;
 
@@ -84,7 +70,7 @@ class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
         return $this->feedback;
     }
 
-    public function setFeedback(?string $feedback): CfRubricCriterionLevel
+    public function setFeedback(?string $feedback): static
     {
         $this->feedback = $feedback;
 
@@ -96,7 +82,7 @@ class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
         return $this->position;
     }
 
-    public function setPosition(?int $position): CfRubricCriterionLevel
+    public function setPosition(?int $position): static
     {
         $this->position = $position;
 
@@ -108,7 +94,7 @@ class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
         return $this->criterion;
     }
 
-    public function setCriterion(CfRubricCriterion $criterion): CfRubricCriterionLevel
+    public function setCriterion(CfRubricCriterion $criterion): static
     {
         $this->criterion = $criterion;
 

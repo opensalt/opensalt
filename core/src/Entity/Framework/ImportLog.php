@@ -2,140 +2,73 @@
 
 namespace App\Entity\Framework;
 
+use App\Repository\Framework\ImportLogRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * Class ImportLog
- *
- * @ORM\Entity(repositoryClass="App\Repository\Framework\ImportLogRepository")
- * @ORM\Table(name="import_logs")
- * @UniqueEntity("id")
- */
+#[ORM\Entity(repositoryClass: ImportLogRepository::class)]
+#[ORM\Table(name: 'import_logs')]
+#[UniqueEntity('id')]
 class ImportLog
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @ORM\Column(name="id", type="integer")
-     */
-    protected $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Column(name: 'id', type: 'integer')]
+    protected ?int $id = null;
 
-    /**
-     * @var LsDoc
-     *
-     * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="importLogs")
-     * @ORM\JoinColumn(name="ls_doc_id", referencedColumnName="id", nullable=false)
-     *
-     * @Assert\NotBlank()
-     */
-    protected $lsDoc;
+    #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'importLogs')]
+    #[ORM\JoinColumn(name: 'ls_doc_id', referencedColumnName: 'id', nullable: false)]
+    #[Assert\NotBlank]
+    protected ?LsDoc $lsDoc = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="message_text", type="string", length=250)
-     *
-     * @Assert\NotBlank
-     */
-    protected $message;
+    #[ORM\Column(name: 'message_text', type: 'string', length: 250)]
+    #[Assert\NotBlank]
+    protected ?string $message = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="message_type", type="string", length=30, nullable=false)
-     */
-    protected $messageType;
+    #[ORM\Column(name: 'message_type', type: 'string', length: 30, nullable: false)]
+    protected string $messageType;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="is_read", type="boolean", nullable=false, options={"default": 0})
-     */
-    protected $read = false;
+    #[ORM\Column(name: 'is_read', type: 'boolean', nullable: false, options: ['default' => 0])]
+    protected bool $read = false;
 
-    /**
-     * Constructor
-     */
     public function __construct()
     {
         $this->messageType = 'warning';
     }
 
-    /**
-     * Set LsDoc
-     *
-     * @param LsDoc $lsDoc
-     */
-    public function setLsDoc($lsDoc): ImportLog
+    public function setLsDoc(LsDoc $lsDoc): void
     {
         $this->lsDoc = $lsDoc;
-
-        return $this;
     }
 
-    /**
-     * Set message
-     *
-     * @param string $message
-     */
-    public function setMessage($message): ImportLog
+    public function setMessage(string $message): void
     {
         $this->message = $message;
-
-        return $this;
     }
 
-    /**
-     * Get read
-     */
     public function isRead(): bool
     {
         return $this->read;
     }
 
-    /**
-     * Get message
-     *
-     * @return string
-     */
     public function getMessage(): ?string
     {
         return $this->message;
     }
 
-    /**
-     * Set read as true
-     */
-    public function markAsRead(): ImportLog
+    public function markAsRead(): void
     {
         $this->read = true;
-
-        return $this;
     }
 
-    /**
-     * Get messageType
-     *
-     * @return string
-     */
     public function getMessageType(): ?string
     {
         return $this->messageType;
     }
 
-    /**
-     * Set messageType
-     *
-     * @param string $messageType
-     */
-    public function setMessageType($messageType): ImportLog
+    public function setMessageType(string $messageType): void
     {
         $this->messageType = $messageType;
-
-        return $this;
     }
 }

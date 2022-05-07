@@ -47,7 +47,7 @@ final class Api1RouteMap
     private static function findByClassName(IdentifiableInterface $obj): ?string
     {
         // Performance hack -- try to do a quick lookup of the class name
-        $class = get_class($obj);
+        $class = $obj::class;
         $class = str_replace('Proxies\\__CG__\\', '', $class);
 
         return self::getForClass($class);

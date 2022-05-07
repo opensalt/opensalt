@@ -12,6 +12,7 @@ use PhpCsFixer\Fixer\ControlStructure\NoTrailingCommaInListCallFixer;
 use PhpCsFixer\Fixer\ControlStructure\TrailingCommaInMultilineFixer;
 use PhpCsFixer\Fixer\ControlStructure\YodaStyleFixer;
 use PhpCsFixer\Fixer\FunctionNotation\FunctionDeclarationFixer;
+use PhpCsFixer\Fixer\Import\NoUnusedImportsFixer;
 use PhpCsFixer\Fixer\Import\OrderedImportsFixer;
 use PhpCsFixer\Fixer\LanguageConstruct\DeclareEqualNormalizeFixer;
 use PhpCsFixer\Fixer\Operator\BinaryOperatorSpacesFixer;
@@ -25,13 +26,19 @@ use PhpCsFixer\Fixer\Whitespace\NoExtraBlankLinesFixer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symplify\CodingStandard\Fixer\Commenting\ParamReturnAndVarTagMalformsFixer;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
+use Symplify\EasyCodingStandard\ValueObject\Option;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
+    $parameters->set(Option::PARALLEL, true);
+
+    $services = $containerConfigurator->services();
 
     $containerConfigurator->import(SetList::CLEAN_CODE);
     $containerConfigurator->import(SetList::PSR_12);
     $containerConfigurator->import(SetList::SYMFONY);
+
+    $services->set(NoUnusedImportsFixer::class);
 
     $parameters->set('skip', [
         'PhpCsFixer\Fixer\FunctionNotation\FunctionTypehintSpaceFixer' => null, // Tries to add a space like &$param -> & $param in method var lists

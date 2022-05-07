@@ -12,10 +12,10 @@ class CommentVoter extends Voter
     use RoleCheckTrait;
     use FeatureCheckTrait;
 
-    public const COMMENT = 'comment';
-    public const VIEW = 'comment_view';
-    public const UPDATE = 'comment_update';
-    public const DELETE = 'comment_delete';
+    final public const COMMENT = 'comment';
+    final public const VIEW = 'comment_view';
+    final public const UPDATE = 'comment_update';
+    final public const DELETE = 'comment_delete';
 
     /**
      * {@inheritdoc}

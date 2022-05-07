@@ -5,97 +5,73 @@ namespace App\Entity\Comment;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
+use App\Repository\CommentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\CommentRepository")
- * @ORM\Table(name="salt_comment")
- */
+#[ORM\Entity(repositoryClass: CommentRepository::class)]
+#[ORM\Table(name: 'salt_comment')]
 class Comment
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Comment")
-     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: Comment::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Comment $parent = null;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private string $content;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User\User")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private User $user;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Framework\LsDoc")
-     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: LsDoc::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?LsDoc $document = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Framework\LsItem")
-     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: LsItem::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?LsItem $item = null;
 
     /**
      * @var Collection<array-key, CommentUpvote>
-     *
-     * @ORM\OneToMany(targetEntity="CommentUpvote", mappedBy="comment")
      */
+    #[ORM\OneToMany(mappedBy: 'comment', targetEntity: CommentUpvote::class)]
     private Collection $upvotes;
 
     /**
-     * @ORM\Column(type="datetime", precision=6)
      * @Gedmo\Timestampable(on="create")
      */
-    private \DateTime $createdAt;
+    #[ORM\Column(type: 'datetime', precision: 6)]
+    private \DateTimeInterface $createdAt;
 
     /**
-     * @ORM\Column(type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      */
-    private \DateTime $updatedAt;
+    #[ORM\Column(type: 'datetime', precision: 6)]
+    private \DateTimeInterface $updatedAt;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $fileUrl = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $fileMimeType = null;
 
-    /**
-     * @var bool
-     */
-    private $createdByCurrentUser = false;
+    private bool $createdByCurrentUser = false;
 
-    /**
-     * @var bool
-     */
-    private $userHasUpvoted = false;
+    private bool $userHasUpvoted = false;
 
     public function __construct()
     {
         $this->upvotes = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = $this->createdAt;
     }
 
     public function getId(): int
@@ -248,7 +224,7 @@ class Comment
         return $this;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
@@ -260,7 +236,7 @@ class Comment
         return $this;
     }
 
-    public function getUpdatedAt(): \DateTime
+    public function getUpdatedAt(): \DateTimeInterface
     {
         return $this->updatedAt;
     }

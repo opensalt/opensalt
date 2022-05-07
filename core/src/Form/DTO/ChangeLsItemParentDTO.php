@@ -9,16 +9,14 @@ class ChangeLsItemParentDTO
 {
     /**
      * @var LsItem
-     *
-     * @Assert\Type(LsItem::class)
      */
+    #[Assert\Type(LsItem::class)]
     public $parentItem;
 
     /**
      * @var LsItem
-     *
-     * @Assert\Type(LsItem::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsItem::class)]
+    #[Assert\NotNull]
     public $lsItem;
 }

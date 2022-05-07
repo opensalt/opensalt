@@ -2,59 +2,40 @@
 
 namespace App\Entity\Framework\Mirror;
 
+use App\Repository\Framework\Mirror\OAuthCredentialRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="mirror_oauth")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\Mirror\OAuthCredentialRepository")
- */
+#[ORM\Table(name: 'mirror_oauth')]
+#[ORM\Entity(repositoryClass: OAuthCredentialRepository::class)]
 class OAuthCredential
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
+    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    private ?int $id = null;
+
+    #[ORM\Column(name: 'endpoint', type: 'string', nullable: false)]
+    private string $authenticationEndpoint;
+
+    #[ORM\Column(name: 'auth_key', type: 'string', nullable: false)]
+    private string $key;
+
+    #[ORM\Column(name: 'auth_secret', type: 'string', nullable: false)]
+    private string $secret;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="endpoint", type="string", nullable=false)
+     * @var array<array-key, string>
      */
-    private $authenticationEndpoint;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="auth_key", type="string", nullable=false)
-     */
-    private $key;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="auth_secret", type="string", nullable=false)
-     */
-    private $secret;
-
-    /**
-     * @var array|string[]
-     */
-    private $scopes = [
+    private array $scopes = [
         'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/core.readonly',
     ];
 
     /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(name="updated_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      */
-    private $updatedAt;
+    #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    private \DateTimeInterface $updatedAt;
 
     public function getId(): int
     {
@@ -103,7 +84,7 @@ class OAuthCredential
     }
 
     /**
-     * @return array|string[]
+     * @return array<array-key, string>
      */
     public function getScopes(): array
     {

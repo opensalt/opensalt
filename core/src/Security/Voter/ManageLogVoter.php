@@ -9,9 +9,9 @@ class ManageLogVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const MANAGE = 'manage';
+    final public const MANAGE = 'manage';
 
-    public const SYSTEM_LOGS = 'system_logs';
+    final public const SYSTEM_LOGS = 'system_logs';
 
     /**
      * {@inheritdoc}

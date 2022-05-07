@@ -9,8 +9,8 @@ abstract class AbstractSendEmailCommand extends BaseCommand
 {
     /**
      * @var string|null
-     * @Assert\Email()
      */
+    #[Assert\Email]
     private $recipient;
 
     public function __construct(?string $recipient)

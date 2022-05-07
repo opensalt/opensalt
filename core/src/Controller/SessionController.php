@@ -6,6 +6,7 @@ use App\Repository\SessionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class SessionController extends AbstractController
@@ -20,21 +21,19 @@ class SessionController extends AbstractController
         $this->sessionMaxIdleTime = $sessionMaxIdleTime;
     }
 
-    /**
-     * @Route("/session/check")
-     */
+    #[Route(path: '/session/check')]
     public function currentSession(Request $request, SessionRepository $repo): JsonResponse
     {
         if (null === ($sessionId = $request->cookies->get('session'))) {
-            return new JsonResponse(null, 404);
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         }
 
         if (null === ($session = $repo->findSession($sessionId))) {
-            return new JsonResponse(null, 404);
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         }
 
         if (0 > ($remainingTime = $this->sessionMaxIdleTime - (time() - $session->getLastUsed()))) {
-            return new JsonResponse(null, 404);
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         }
 
         return new JsonResponse([
@@ -42,9 +41,7 @@ class SessionController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/session/renew")
-     */
+    #[Route(path: '/session/renew')]
     public function renewSession(): JsonResponse
     {
         return new JsonResponse([

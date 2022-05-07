@@ -10,19 +10,17 @@ class UpdateCommentCommand extends BaseCommand
 {
     /**
      * @var Comment
-     *
-     * @Assert\Type(Comment::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(Comment::class)]
+    #[Assert\NotNull]
     private $comment;
 
     /**
      * @var string
-     *
-     * @Assert\Type("string")
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
      */
+    #[Assert\Type('string')]
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     private $newContent;
 
     public function __construct(Comment $comment, string $newContent)

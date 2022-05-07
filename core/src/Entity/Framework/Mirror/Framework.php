@@ -3,152 +3,102 @@
 namespace App\Entity\Framework\Mirror;
 
 use App\Entity\Framework\LsDoc;
+use App\Repository\Framework\Mirror\FrameworkRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Swaggest\JsonDiff\JsonDiff;
 
-/**
- * @ORM\Table(name="mirror_framework")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\Mirror\FrameworkRepository")
- */
+#[ORM\Table(name: 'mirror_framework')]
+#[ORM\Entity(repositoryClass: FrameworkRepository::class)]
 class Framework
 {
-    public const STATUS_NEW = 'new';
-    public const STATUS_SCHEDULED = 'scheduled';
-    public const STATUS_PROCESSING = 'processing';
-    public const STATUS_OK = 'ok';
-    public const STATUS_ERROR = 'error';
+    final public const STATUS_NEW = 'new';
+    final public const STATUS_SCHEDULED = 'scheduled';
+    final public const STATUS_PROCESSING = 'processing';
+    final public const STATUS_OK = 'ok';
+    final public const STATUS_ERROR = 'error';
 
-    public const ERROR_GENERAL = 'general';
-    public const ERROR_ID_CONFLICT = 'identifier_conflict';
+    final public const ERROR_GENERAL = 'general';
+    final public const ERROR_ID_CONFLICT = 'identifier_conflict';
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
+    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    private ?int $id = null;
 
-    /**
-     * @var Server
-     *
-     * @ORM\ManyToOne(targetEntity="Server", inversedBy="frameworks")
-     */
-    private $server;
+    #[ORM\ManyToOne(targetEntity: Server::class, inversedBy: 'frameworks')]
+    private Server $server;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="url", type="string", nullable=false)
-     */
-    private $url;
+    #[ORM\Column(name: 'url', type: 'string', nullable: false)]
+    private string $url;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="identifier", type="string", nullable=false)
-     */
-    private $identifier;
+    #[ORM\Column(name: 'identifier', type: 'string', nullable: false)]
+    private string $identifier;
 
-    /**
-     * @ORM\Column(name="creator", type="string", nullable=true)
-     */
+    #[ORM\Column(name: 'creator', type: 'string', nullable: true)]
     private ?string $creator = null;
 
-    /**
-     * @ORM\Column(name="title", type="string", nullable=true)
-     */
+    #[ORM\Column(name: 'title', type: 'string', nullable: true)]
     private ?string $title = null;
 
-    /**
-     * @var LsDoc|null
-     *
-     * @ORM\OneToOne(targetEntity="App\Entity\Framework\LsDoc", mappedBy="mirroredFramework")
-     */
-    private $framework;
+    #[ORM\OneToOne(mappedBy: 'mirroredFramework', targetEntity: LsDoc::class)]
+    private ?LsDoc $framework = null;
 
-    /**
-     * @ORM\Column(name="include", type="boolean", nullable=false)
-     */
+    #[ORM\Column(name: 'include', type: 'boolean', nullable: false)]
     private bool $include = true;
 
-    /**
-     * @ORM\Column(name="priority", type="integer", options={"default": 0})
-     */
+    #[ORM\Column(name: 'priority', type: 'integer', options: ['default' => 0])]
     private int $priority = 0;
 
-    /**
-     * @ORM\Column(name="status", type="string", options={"default": "new"})
-     */
+    #[ORM\Column(name: 'status', type: 'string', options: ['default' => 'new'])]
     private string $status = self::STATUS_NEW;
 
-    /**
-     * @ORM\Column(name="status_count", type="integer", nullable=false, options={"default": 0})
-     */
+    #[ORM\Column(name: 'status_count', type: 'integer', nullable: false, options: ['default' => 0])]
     private int $statusCount = 0;
 
-    /**
-     * @ORM\Column(name="last_check", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'last_check', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $lastCheck = null;
 
-    /**
-     * @ORM\Column(name="last_success", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'last_success', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $lastSuccess = null;
 
-    /**
-     * @ORM\Column(name="last_failure", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'last_failure', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $lastFailure = null;
 
-    /**
-     * @ORM\Column(name="last_change", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'last_change', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $lastChange = null;
 
-    /**
-     * @ORM\Column(name="next_check", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'next_check', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $nextCheck = null;
 
-    /**
-     * @ORM\Column(name="error_type", type="string", nullable=true)
-     */
+    #[ORM\Column(name: 'error_type', type: 'string', nullable: true)]
     private ?string $errorType = null;
 
     /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(name="updated_at", type="datetime", precision=6)
      * @Gedmo\Timestampable(on="update")
      */
-    private $updatedAt;
+    #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    private \DateTimeInterface $updatedAt;
 
     /**
      * @var string|resource|null
-     *
-     * @ORM\Column(name="last_content", type="blob", nullable=true)
      */
+    #[ORM\Column(name: 'last_content', type: 'blob', nullable: true)]
     private $lastContent;
 
     /**
      * @var string|resource|null
-     *
-     * @ORM\Column(name="last_success_content", type="blob", nullable=true)
      */
+    #[ORM\Column(name: 'last_success_content', type: 'blob', nullable: true)]
     private $lastSuccessContent;
 
     /**
-     * @var Log[]|Collection
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Framework\Mirror\Log", mappedBy="mirror", orphanRemoval=true, cascade={"persist"})
+     * @var Collection<array-key, Log>
      */
-    private $logs;
+    #[ORM\OneToMany(mappedBy: 'mirror', targetEntity: Log::class, cascade: ['persist'], orphanRemoval: true)]
+    private Collection $logs;
 
     public function __construct(Server $server, string $identifier)
     {
@@ -172,7 +122,7 @@ class Framework
         return $this->url;
     }
 
-    public function setUrl(string $url): self
+    public function setUrl(string $url): static
     {
         $this->url = $url;
 
@@ -189,7 +139,7 @@ class Framework
         return $this->include;
     }
 
-    public function setInclude(bool $include): self
+    public function setInclude(bool $include): static
     {
         $this->include = $include;
 
@@ -206,7 +156,7 @@ class Framework
         return $this->framework;
     }
 
-    public function setFramework(?LsDoc $framework): self
+    public function setFramework(?LsDoc $framework): static
     {
         $this->framework = $framework;
 
@@ -235,10 +185,10 @@ class Framework
 
     public function isIdConflicted(): bool
     {
-        return self::STATUS_ERROR === $this->status && self::ERROR_ID_CONFLICT === $this->errorType;
+        return static::STATUS_ERROR === $this->status && static::ERROR_ID_CONFLICT === $this->errorType;
     }
 
-    public function setErrorType(?string $errorType): self
+    public function setErrorType(?string $errorType): static
     {
         $this->errorType = $errorType;
 
@@ -255,7 +205,7 @@ class Framework
         return $this->title ?? 'Unknown';
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(string $title): static
     {
         $this->title = $title;
 
@@ -267,7 +217,7 @@ class Framework
         return $this->creator ?? 'Unknown';
     }
 
-    public function setCreator(string $creator): self
+    public function setCreator(string $creator): static
     {
         $this->creator = $creator;
 
@@ -295,7 +245,7 @@ class Framework
         return $uncompressed;
     }
 
-    public function setLastSuccessContent(?string $lastSuccessContent): self
+    public function setLastSuccessContent(?string $lastSuccessContent): static
     {
         if (null === $lastSuccessContent) {
             $this->lastSuccessContent = null;
@@ -331,7 +281,7 @@ class Framework
         return $uncompressed;
     }
 
-    public function setLastContent(?string $lastContent): self
+    public function setLastContent(?string $lastContent): static
     {
         if (null === $lastContent) {
             $this->lastContent = null;
@@ -345,7 +295,7 @@ class Framework
     }
 
     /**
-     * @return Log[]|Collection
+     * @return Collection<array-key, Log>
      */
     public function getLogs(): Collection
     {
@@ -360,26 +310,26 @@ class Framework
         return $log;
     }
 
-    public function clearLogs(): self
+    public function clearLogs(): static
     {
         $this->logs->clear();
 
         return $this;
     }
 
-    public function markToRefresh(): self
+    public function markToRefresh(): static
     {
         $this->nextCheck = new \DateTimeImmutable();
         $this->priority = 1000;
-        $this->status = self::STATUS_SCHEDULED;
+        $this->status = static::STATUS_SCHEDULED;
 
         return $this;
     }
 
-    public function markSuccess(bool $changed = false): self
+    public function markSuccess(bool $changed = false): static
     {
         $this->errorType = null;
-        $this->status = self::STATUS_OK;
+        $this->status = static::STATUS_OK;
         ++$this->statusCount;
         if ($changed || null === $this->lastSuccess || (null !== $this->lastFailure && $this->lastFailure > $this->lastSuccess)) {
             $this->statusCount = 1;
@@ -396,10 +346,10 @@ class Framework
         return $this;
     }
 
-    public function markFailure(?string $errorType = self::ERROR_GENERAL): self
+    public function markFailure(?string $errorType = self::ERROR_GENERAL): static
     {
         $this->errorType = $errorType;
-        $this->status = self::STATUS_ERROR;
+        $this->status = static::STATUS_ERROR;
         ++$this->statusCount;
         if (null === $this->lastFailure || (null !== $this->lastSuccess && $this->lastFailure < $this->lastSuccess)) {
             $this->statusCount = 1;
@@ -417,7 +367,7 @@ class Framework
         return $this->status;
     }
 
-    public function setStatus($status): self
+    public function setStatus(string $status): static
     {
         $this->status = $status;
 
@@ -432,7 +382,7 @@ class Framework
                 json5_decode($framework),
                 JsonDiff::STOP_ON_DIFF + JsonDiff::REARRANGE_ARRAYS
             );
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 

@@ -7,10 +7,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class SetUserPasswordCommand extends BaseCommand
 {
-    /**
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
-     */
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     private string $username;
 
     private ?string $plainPassword;

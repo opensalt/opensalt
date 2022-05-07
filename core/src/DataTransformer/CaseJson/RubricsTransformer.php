@@ -55,9 +55,7 @@ class RubricsTransformer
      */
     private function findExistingRubrics(array $cfRubrics): array
     {
-        $identifiers = array_map(static function (CFPackageRubric $rubric) {
-            return $rubric->identifier->toString();
-        }, $cfRubrics);
+        $identifiers = array_map(static fn (CFPackageRubric $rubric) => $rubric->identifier->toString(), $cfRubrics);
 
         return $this->em->getRepository(CfRubric::class)->findByIdentifier($identifiers);
     }
@@ -87,15 +85,11 @@ class RubricsTransformer
      */
     private function updateCriteria(CfRubric $rubric, array $cfCriteria): void
     {
-        $newCriteria = array_combine(array_map(static function (CFPackageCriterion $cfCriterion) {
-            return $cfCriterion->identifier->toString();
-        }, $cfCriteria), $cfCriteria);
+        $newCriteria = array_combine(array_map(static fn (CFPackageCriterion $cfCriterion) => $cfCriterion->identifier->toString(), $cfCriteria), $cfCriteria);
 
         $tmpCriteria = $rubric->getCriteria()->toArray();
         /** @var CfRubricCriterion[] $existingCriteria */
-        $existingCriteria = array_combine(array_map(static function (CfRubricCriterion $criterion) {
-            return $criterion->getIdentifier();
-        }, $tmpCriteria), $tmpCriteria);
+        $existingCriteria = array_combine(array_map(static fn (CfRubricCriterion $criterion) => $criterion->getIdentifier(), $tmpCriteria), $tmpCriteria);
         $tmpCriteria = null;
 
         $criteria = [];
@@ -159,14 +153,10 @@ class RubricsTransformer
      */
     private function updateLevels(CfRubricCriterion $criterion, array $cfRubricCriterionLevels): array
     {
-        $newLevels = array_combine(array_map(static function (CFPackageCriterionLevel $cfCriterionLevel) {
-            return $cfCriterionLevel->identifier->toString();
-        }, $cfRubricCriterionLevels), $cfRubricCriterionLevels);
+        $newLevels = array_combine(array_map(static fn (CFPackageCriterionLevel $cfCriterionLevel) => $cfCriterionLevel->identifier->toString(), $cfRubricCriterionLevels), $cfRubricCriterionLevels);
 
         $tmpLevels = $criterion->getLevels()->toArray();
-        $existingLevels = array_combine(array_map(static function (CfRubricCriterionLevel $level) {
-            return $level->getIdentifier();
-        }, $tmpLevels), $tmpLevels);
+        $existingLevels = array_combine(array_map(static fn (CfRubricCriterionLevel $level) => $level->getIdentifier(), $tmpLevels), $tmpLevels);
         $tmpLevels = null;
 
         $levels = [];

@@ -11,11 +11,11 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 
 class UserRemoveRoleCommand extends UserRoleCommand
 {
+    protected static $defaultName = 'salt:user:remove-role';
+
     protected function configure(): void
     {
-        $this
-            ->setName('salt:user:remove-role')
-            ->setDescription('Remove a role from a local user')
+        $this->setDescription('Remove a role from a local user')
             ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the user to change')
             ->addArgument('role', InputArgument::REQUIRED, 'Role to remove from the user (editor, admin, super-user)')
         ;

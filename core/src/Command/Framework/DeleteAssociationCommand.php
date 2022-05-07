@@ -10,10 +10,9 @@ class DeleteAssociationCommand extends BaseCommand
 {
     /**
      * @var LsAssociation
-     *
-     * @Assert\Type(LsAssociation::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsAssociation::class)]
+    #[Assert\NotNull]
     private $association;
 
     public function __construct(LsAssociation $association)

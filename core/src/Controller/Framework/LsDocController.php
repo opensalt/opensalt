@@ -17,6 +17,7 @@ use App\Form\Type\LsDocType;
 use App\Form\Type\RemoteCaseServerType;
 use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -27,9 +28,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * @Route("/cfdoc")
- */
+#[Route(path: '/cfdoc')]
 class LsDocController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -41,9 +40,8 @@ class LsDocController extends AbstractController
 
     /**
      * Lists all LsDoc entities.
-     *
-     * @Route("/", methods={"GET"}, name="lsdoc_index")
      */
+    #[Route(path: '/', methods: ['GET'], name: 'lsdoc_index')]
     public function indexAction(?UserInterface $user = null): Response
     {
         $em = $this->managerRegistry->getManager();
@@ -67,9 +65,8 @@ class LsDocController extends AbstractController
 
     /**
      * Show frameworks from a remote system.
-     *
-     * @Route("/remote", methods={"GET", "POST"}, name="lsdoc_remote_index")
      */
+    #[Route(path: '/remote', methods: ['GET', 'POST'], name: 'lsdoc_remote_index')]
     public function remoteIndexAction(Request $request): Response
     {
         $form = $this->createForm(RemoteCaseServerType::class);
@@ -90,7 +87,7 @@ class LsDocController extends AbstractController
         ]);
     }
 
-    protected function loadDocumentsFromServer(string $urlPrefix): \Psr\Http\Message\ResponseInterface
+    protected function loadDocumentsFromServer(string $urlPrefix): ResponseInterface
     {
         $jsonClient = new Client();
         $list = $jsonClient->request(
@@ -110,9 +107,9 @@ class LsDocController extends AbstractController
     /**
      * Creates a new LsDoc entity.
      *
-     * @Route("/new", methods={"GET", "POST"}, name="lsdoc_new")
      * @Security("is_granted('create', 'lsdoc')")
      */
+    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'lsdoc_new')]
     public function newAction(Request $request): Response
     {
         $lsDoc = new LsDoc();
@@ -142,9 +139,9 @@ class LsDocController extends AbstractController
     /**
      * Finds and displays a LsDoc entity.
      *
-     * @Route("/{id}.{_format}", methods={"GET"}, defaults={"_format"="html"}, name="lsdoc_show")
      * @Security("is_granted('view', lsDoc)")
      */
+    #[Route(path: '/{id}.{_format}', methods: ['GET'], defaults: ['_format' => 'html'], name: 'lsdoc_show')]
     public function showAction(LsDoc $lsDoc, string $_format = 'html'): Response
     {
         if ('json' === $_format) {
@@ -165,11 +162,11 @@ class LsDocController extends AbstractController
     /**
      * Update a framework given a CSV or external File.
      *
-     * @Route("/doc/{id}/update", methods={"POST"}, name="lsdoc_update")
      * @Security("is_granted('edit', lsDoc)")
      *
      * @deprecated It appears this is unused now
      */
+    #[Route(path: '/doc/{id}/update', methods: ['POST'], name: 'lsdoc_update')]
     public function updateAction(Request $request, LsDoc $lsDoc): Response
     {
         $response = new JsonResponse();
@@ -189,9 +186,9 @@ class LsDocController extends AbstractController
     /**
      * Update a framework given a CSV or external File on a derivative framework.
      *
-     * @Route("/doc/{id}/derive", methods={"POST"}, name="lsdoc_update_derive")
      * @Security("is_granted('create', 'lsdoc')")
      */
+    #[Route(path: '/doc/{id}/derive', methods: ['POST'], name: 'lsdoc_update_derive')]
     public function deriveAction(Request $request, LsDoc $lsDoc): Response
     {
         $fileContent = $request->request->get('content');
@@ -210,9 +207,9 @@ class LsDocController extends AbstractController
     /**
      * Displays a form to edit an existing LsDoc entity.
      *
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdoc_edit")
      * @Security("is_granted('edit', lsDoc)")
      */
+    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsdoc_edit')]
     public function editAction(Request $request, LsDoc $lsDoc, UserInterface $user): Response
     {
         $ajax = $request->isXmlHttpRequest();
@@ -273,9 +270,9 @@ class LsDocController extends AbstractController
     /**
      * Deletes a LsDoc entity.
      *
-     * @Route("/{id}", methods={"DELETE"}, name="lsdoc_delete")
      * @Security("is_granted('delete', lsDoc)")
      */
+    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsdoc_delete')]
     public function deleteAction(Request $request, LsDoc $lsDoc): Response
     {
         if ($request->isXmlHttpRequest()) {
@@ -285,7 +282,7 @@ class LsDocController extends AbstractController
                     $this->deleteFramework($lsDoc);
 
                     return new JsonResponse('OK');
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     return new JsonResponse(['error' => ['message' => 'Error deleting framework']], Response::HTTP_BAD_REQUEST);
                 }
             }
@@ -306,9 +303,9 @@ class LsDocController extends AbstractController
     /**
      * Finds and displays a LsDoc entity.
      *
-     * @Route("/{id}/export.{_format}", methods={"GET"}, requirements={"_format"="(json|html|null)"}, defaults={"_format"="json"}, name="lsdoc_export")
      * @Security("is_granted('view', lsDoc)")
      */
+    #[Route(path: '/{id}/export.{_format}', methods: ['GET'], requirements: ['_format' => '(json|html|null)'], defaults: ['_format' => 'json'], name: 'lsdoc_export')]
     public function exportAction(LsDoc $lsDoc, string $_format = 'json'): Response
     {
         if ('json' !== $_format) {
@@ -339,12 +336,12 @@ class LsDocController extends AbstractController
             $remoteResponse = $this->loadDocumentsFromServer(
                 'https://'.$hostname
             );
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             try {
                 $remoteResponse = $this->loadDocumentsFromServer(
                     'http://'.$hostname
                 );
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 throw new \Exception("Could not access CASE API on {$hostname}.");
             }
         }
@@ -371,7 +368,7 @@ class LsDocController extends AbstractController
                     return $a['title'] <=> $b['title'];
                 }
             );
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $docs = null;
         }
 

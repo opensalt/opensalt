@@ -8,25 +8,22 @@ class OAuthCredentialDTO
 {
     /**
      * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
      */
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     public $authenticationEndpoint;
 
     /**
      * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
      */
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     public $key;
 
     /**
      * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
      */
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     public $secret;
 }

@@ -12,13 +12,13 @@ class FrameworkAccessVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const LIST = 'list'; // User can see the framework in a list
-    public const VIEW = 'view';
-    public const EDIT = 'edit';
-    public const DELETE = 'delete';
-    public const CREATE = 'create';
+    final public const LIST = 'list'; // User can see the framework in a list
+    final public const VIEW = 'view';
+    final public const EDIT = 'edit';
+    final public const DELETE = 'delete';
+    final public const CREATE = 'create';
 
-    public const FRAMEWORK = 'lsdoc';
+    final public const FRAMEWORK = 'lsdoc';
 
     /**
      * {@inheritdoc}
@@ -47,24 +47,14 @@ class FrameworkAccessVoter extends Voter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        switch ($attribute) {
-            case self::CREATE:
-                return (static::FRAMEWORK === $subject) && $this->canCreateFramework($token);
-
-            case self::LIST:
-                return $this->canListFramework($subject, $token);
-
-            case self::VIEW:
-                return $this->canViewFramework($subject, $token);
-
-            case self::EDIT:
-                return $this->canEditFramework($subject, $token);
-
-            case self::DELETE:
-                return $this->canDeleteFramework($subject, $token);
-        }
-
-        return false;
+        return match ($attribute) {
+            self::CREATE => (static::FRAMEWORK === $subject) && $this->canCreateFramework($token),
+            self::LIST => $this->canListFramework($subject, $token),
+            self::VIEW => $this->canViewFramework($subject, $token),
+            self::EDIT => $this->canEditFramework($subject, $token),
+            self::DELETE => $this->canDeleteFramework($subject, $token),
+            default => false,
+        };
     }
 
     private function canCreateFramework(TokenInterface $token): bool

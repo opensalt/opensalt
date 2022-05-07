@@ -10,17 +10,15 @@ class AddUserByNameCommand extends BaseCommand
 {
     /**
      * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
      */
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     private $userName;
 
     /**
      * @var Organization
-     *
-     * @Assert\NotNull()
      */
+    #[Assert\NotNull]
     private $organization;
 
     /**

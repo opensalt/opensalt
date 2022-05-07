@@ -9,9 +9,9 @@ class ManageAdditionalFieldVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const MANAGE = 'manage';
+    final public const MANAGE = 'manage';
 
-    public const ADDITIONAL_FIELDS = 'additional_fields';
+    final public const ADDITIONAL_FIELDS = 'additional_fields';
 
     /**
      * {@inheritdoc}

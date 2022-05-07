@@ -8,6 +8,7 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -15,17 +16,15 @@ class PdfExportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @Route("/cfdoc/{id}/pdf", methods={"GET"}, name="export_pdf_file")
-     */
+    #[Route(path: '/cfdoc/{id}/pdf', methods: ['GET'], name: 'export_pdf_file')]
     public function exportPdfAction(int $id): StreamedResponse
     {
         $phpWordObject = new PhpWord();
         $section = $phpWordObject->addSection();
 
         $response = $this->forward('App\Controller\Framework\CfPackageController::exportAction', ['id' => $id, '_format' => 'json']);
-        $data_array = json_decode($response->getContent(), true);
-        for ($i = 0, $iMax = count($data_array['CFItems']); $i < $iMax; ++$i) {
+        $data_array = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        for ($i = 0, $iMax = is_countable($data_array['CFItems']) ? count($data_array['CFItems']) : 0; $i < $iMax; ++$i) {
             $data_array['CFItems'][$i]['fullStatement'] = $this->renderImages($data_array['CFItems'][$i]['fullStatement']);
             if (isset($data_array['CFItems'][$i]['notes'])) {
                 $data_array['CFItems'][$i]['notes'] = $this->renderImages($data_array['CFItems'][$i]['notes']);
@@ -46,7 +45,7 @@ class PdfExportController extends AbstractController
                 IOFactory::createWriter($phpWordObject, 'PDF')
                     ->save('php://output');
             },
-            200,
+            Response::HTTP_OK,
             [
                 'Content-Type' => 'application/PDF',
                 'Content-Disposition' => 'attachment; filename="'.$file.'"',

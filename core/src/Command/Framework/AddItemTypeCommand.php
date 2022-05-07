@@ -10,10 +10,9 @@ class AddItemTypeCommand extends BaseCommand
 {
     /**
      * @var LsDefItemType
-     *
-     * @Assert\Type(LsDefItemType::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsDefItemType::class)]
+    #[Assert\NotNull]
     private $itemType;
 
     public function __construct(LsDefItemType $itemType)

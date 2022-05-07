@@ -73,7 +73,7 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler
         try {
             $this->mailer->send($email);
         } catch (\Exception $e) {
-            $this->setEmailNotSentNotification($command, 'Error: '.get_class($e).': '.$e->getMessage());
+            $this->setEmailNotSentNotification($command, 'Error: '.$e::class.': '.$e->getMessage());
 
             throw $e;
         }

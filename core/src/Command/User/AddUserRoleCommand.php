@@ -9,18 +9,16 @@ class AddUserRoleCommand extends BaseCommand
 {
     /**
      * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
      */
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     private $username;
 
     /**
      * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
      */
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     private $role;
 
     public function __construct(string $username, string $role)

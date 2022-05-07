@@ -25,7 +25,7 @@ class ObjectLockRepository extends ServiceEntityRepository
 
     public function findLockFor(LockableInterface $obj): ?ObjectLock
     {
-        $lock = $this->findOneBy(['objectType' => \get_class($obj), 'objectId' => $obj->getId()]);
+        $lock = $this->findOneBy(['objectType' => $obj::class, 'objectId' => $obj->getId()]);
 
         return $lock;
     }

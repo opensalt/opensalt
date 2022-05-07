@@ -13,6 +13,7 @@ use App\Entity\User\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -21,11 +22,11 @@ class LockController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/cfdoc/{id}/unlock", methods={"POST"}, name="lsdoc_unlock")
      * @Security("is_granted('edit', lsDoc)")
      *
      * @param User $user
      */
+    #[Route(path: '/cfdoc/{id}/unlock', methods: ['POST'], name: 'lsdoc_unlock')]
     public function releaseDocLock(LsDoc $lsDoc, UserInterface $user): JsonResponse
     {
         try {
@@ -39,29 +40,29 @@ class LockController extends AbstractController
     }
 
     /**
-     * @Route("/cfdoc/{id}/lock", methods={"POST"}, name="lsdoc_lock")
      * @Security("is_granted('edit', lsDoc)")
      *
      * @param User $user
      */
+    #[Route(path: '/cfdoc/{id}/lock', methods: ['POST'], name: 'lsdoc_lock')]
     public function extendDocLock(LsDoc $lsDoc, UserInterface $user): JsonResponse
     {
         try {
             $command = new LockDocumentCommand($lsDoc, $user);
             $this->sendCommand($command);
         } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage(), 422);
+            return new JsonResponse($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return new JsonResponse('OK');
     }
 
     /**
-     * @Route("/cfitem/{id}/unlock", methods={"POST"}, name="lsitem_unlock")
      * @Security("is_granted('edit', item)")
      *
      * @param User $user
      */
+    #[Route(path: '/cfitem/{id}/unlock', methods: ['POST'], name: 'lsitem_unlock')]
     public function releaseItemLock(LsItem $item, UserInterface $user): JsonResponse
     {
         try {
@@ -75,18 +76,18 @@ class LockController extends AbstractController
     }
 
     /**
-     * @Route("/cfitem/{id}/lock", methods={"POST"}, name="lsitem_lock")
      * @Security("is_granted('edit', item)")
      *
      * @param User $user
      */
+    #[Route(path: '/cfitem/{id}/lock', methods: ['POST'], name: 'lsitem_lock')]
     public function extendItemLock(LsItem $item, UserInterface $user): JsonResponse
     {
         try {
             $command = new LockItemCommand($item, $user);
             $this->sendCommand($command);
         } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage(), 422);
+            return new JsonResponse($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return new JsonResponse('OK');

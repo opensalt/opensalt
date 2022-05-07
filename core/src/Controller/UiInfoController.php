@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/treeuiinfo")
- */
+#[Route(path: '/treeuiinfo')]
 class UiInfoController extends AbstractController
 {
     public function __construct(
@@ -23,9 +21,9 @@ class UiInfoController extends AbstractController
     }
 
     /**
-     * @Route("/multi/{id}", methods={"POST"}, name="multi_tree_info_json")
      * @Security("is_granted('edit', doc)")
      */
+    #[Route(path: '/multi/{id}', methods: ['POST'], name: 'multi_tree_info_json')]
     public function multiJsonInfoAction(Request $request, LsDoc $doc): JsonResponse
     {
         $objs = [];
@@ -70,27 +68,27 @@ class UiInfoController extends AbstractController
     }
 
     /**
-     * @Route("/doc/{id}", methods={"GET"}, name="lsdoc_tree_json")
      * @Security("is_granted('edit', doc)")
      */
+    #[Route(path: '/doc/{id}', methods: ['GET'], name: 'lsdoc_tree_json')]
     public function docJsonInfoAction(LsDoc $doc): JsonResponse
     {
         return $this->generateDocJsonResponse($doc);
     }
 
     /**
-     * @Route("/item/{id}", methods={"GET"}, name="lsitem_tree_json")
      * @Security("is_granted('edit', item)")
      */
+    #[Route(path: '/item/{id}', methods: ['GET'], name: 'lsitem_tree_json')]
     public function itemJsonInfoAction(LsItem $item): JsonResponse
     {
         return $this->generateItemJsonResponse($item);
     }
 
     /**
-     * @Route("/association/{id}", methods={"GET"}, name="doc_tree_association_json")
      * @Security("is_granted('edit', association.getLsDoc())")
      */
+    #[Route(path: '/association/{id}', methods: ['GET'], name: 'doc_tree_association_json')]
     public function associationJsonInfoAction(LsAssociation $association): JsonResponse
     {
         return $this->generateAssociationJsonResponse($association);
@@ -179,7 +177,7 @@ class UiInfoController extends AbstractController
 
         $json = $this->renderView('framework/doc_tree/export_item.json.twig', ['lsItem' => $ret]);
 
-        return \json_decode($json, true);
+        return \json_decode($json, true, 512, JSON_THROW_ON_ERROR);
     }
 
     protected function generateAssociationJsonResponse(LsAssociation $association): JsonResponse

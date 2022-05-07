@@ -14,9 +14,7 @@ class CFPackageAssociation
     public LinkGenURI $originNodeURI;
     public LinkGenURI $destinationNodeURI;
 
-    /**
-     * @SerializedName("CFAssociationGroupingURI")
-     */
+    #[SerializedName('CFAssociationGroupingURI')]
     public ?LinkURI $cfAssociationGroupingURI = null;
 
     public \DateTimeInterface $lastChangeDateTime;

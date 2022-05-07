@@ -58,8 +58,6 @@ final class CfRubricNormalizer implements NormalizerAwareInterface, ContextAware
             $data['CFRubricCriteria'][] = $this->normalizer->normalize($criterion, $format, $context);
         }
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 }

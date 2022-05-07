@@ -69,10 +69,10 @@ class CommandEventRouter implements EventSubscriberInterface
     {
         $command = $event->getCommand();
 
-        $this->info('Routing command', ['command' => \get_class($command)]);
+        $this->info('Routing command', ['command' => $command::class]);
 
         try {
-            $dispatcher->dispatch($event, \get_class($command));
+            $dispatcher->dispatch($event, $command::class);
 
             if ($validationErrors = $command->getValidationErrors()) {
                 $errors = [];
@@ -81,10 +81,10 @@ class CommandEventRouter implements EventSubscriberInterface
                     $errors[] = $error->getMessage();
                 }
                 $errorString = implode(' ', $errors);
-                $this->info('Error in command', ['command' => \get_class($command), 'errors' => $errorString]);
+                $this->info('Error in command', ['command' => $command::class, 'errors' => $errorString]);
             }
         } catch (\Exception $e) {
-            $this->info('Exception in command', ['command' => \get_class($command), 'exception' => $e]);
+            $this->info('Exception in command', ['command' => $command::class, 'exception' => $e]);
 
             throw $e;
         }
@@ -97,7 +97,7 @@ class CommandEventRouter implements EventSubscriberInterface
             if (null !== $notification) {
                 $changeEntry = new ChangeEntry($notification->getDoc(), $this->getCurrentUser(), $notification->getMessage(), $notification->getChanged());
             } else {
-                $changeEntry = new ChangeEntry(null, $this->getCurrentUser(), \get_class($command), []);
+                $changeEntry = new ChangeEntry(null, $this->getCurrentUser(), $command::class, []);
             }
         }
 
@@ -160,7 +160,7 @@ class CommandEventRouter implements EventSubscriberInterface
     {
         $notification = $command->getNotificationEvent();
         if (null === $notification) {
-            $notification = new NotificationEvent('X01', 'Command '.\get_class($command).' handled', null, [], false);
+            $notification = new NotificationEvent('X01', 'Command '.$command::class.' handled', null, [], false);
         }
 
         if (null === $notification->getUsername()) {

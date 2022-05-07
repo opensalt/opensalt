@@ -7,6 +7,7 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Util\Compare;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
@@ -241,7 +242,7 @@ class LsDocRepository extends ServiceEntityRepository
     /**
      * Delete an LsDoc and all associated items and associations.
      *
-     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws Exception
      * @throws \Doctrine\DBAL\Exception
      */
     public function deleteDocument(LsDoc $lsDoc, ?\Closure $progressCallback = null): void

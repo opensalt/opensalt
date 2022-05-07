@@ -10,18 +10,16 @@ class RemoveChildCommand extends BaseCommand
 {
     /**
      * @var LsItem
-     *
-     * @Assert\Type(LsItem::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsItem::class)]
+    #[Assert\NotNull]
     private $parent;
 
     /**
      * @var LsItem
-     *
-     * @Assert\Type(LsItem::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsItem::class)]
+    #[Assert\NotNull]
     private $child;
 
     /**

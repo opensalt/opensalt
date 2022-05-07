@@ -24,17 +24,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/cfdoc")
- */
+#[Route(path: '/cfdoc')]
 class FrameworkAclController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     /**
-     * @Route("/{id}/acl", methods={"GET", "POST"}, name="framework_acl_edit")
      * @Security("is_granted('manage_editors', lsDoc)")
      */
+    #[Route(path: '/{id}/acl', methods: ['GET', 'POST'], name: 'framework_acl_edit')]
     public function editAction(Request $request, LsDoc $lsDoc): Response
     {
         $addAclUserDto = new AddAclUserDTO($lsDoc, UserDocAcl::DENY);
@@ -59,9 +57,7 @@ class FrameworkAclController extends AbstractController
         $acls = $lsDoc->getDocAcls();
         /** @var \ArrayIterator $iterator */
         $iterator = $acls->getIterator();
-        $iterator->uasort(function (UserDocAcl $a, UserDocAcl $b) {
-            return strcasecmp($a->getUser()->getUserIdentifier(), $b->getUser()->getUserIdentifier());
-        });
+        $iterator->uasort(fn (UserDocAcl $a, UserDocAcl $b) => strcasecmp($a->getUser()->getUserIdentifier(), $b->getUser()->getUserIdentifier()));
         $acls = new ArrayCollection(iterator_to_array($iterator));
 
         $deleteForms = [];
@@ -105,7 +101,7 @@ class FrameworkAclController extends AbstractController
                 $error = new FormError($e->getMessage());
                 $error->setOrigin($addOrgUserForm);
                 $addOrgUserForm->addError($error);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $error = new FormError('Unknown Error');
                 $error->setOrigin($addOrgUserForm);
                 $addOrgUserForm->addError($error);
@@ -133,7 +129,7 @@ class FrameworkAclController extends AbstractController
                 $error = new FormError($e->getMessage());
                 $error->setOrigin($addUsernameForm);
                 $addUsernameForm->addError($error);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 //$error = new FormError($e->getMessage().' '.get_class($e));
                 $error = new FormError('Unknown Error');
                 $error->setOrigin($addUsernameForm);
@@ -145,9 +141,9 @@ class FrameworkAclController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/acl/{targetUser}", methods={"DELETE"}, name="framework_acl_remove")
      * @Security("is_granted('manage_editors', lsDoc)")
      */
+    #[Route(path: '/{id}/acl/{targetUser}', methods: ['DELETE'], name: 'framework_acl_remove')]
     public function removeAclAction(Request $request, LsDoc $lsDoc, User $targetUser): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDoc, $targetUser);

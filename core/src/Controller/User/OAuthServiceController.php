@@ -8,6 +8,7 @@ use App\Entity\User\User;
 use Doctrine\Persistence\ManagerRegistry;
 use League\OAuth2\Client\Provider\Github;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -16,9 +17,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * OAuth Service controller.
- *
- * @Route("/login")
  */
+#[Route(path: '/login')]
 class OAuthServiceController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -48,12 +48,11 @@ class OAuthServiceController extends AbstractController
     /**
      * Save the Github Access Token.
      *
-     * @Route("/check-github", methods={"GET"}, name="github_login")
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return RedirectResponse
      *
      * @throws \UnexpectedValueException
      */
+    #[Route(path: '/check-github', methods: ['GET'], name: 'github_login')]
     public function githubAction(Request $request, SessionInterface $session, ManagerRegistry $managerRegistry): Response
     {
         if (!empty($this->githubRedirectUri)) {

@@ -16,11 +16,7 @@ class ChangePasswordDTO
 
     /**
      * @var string
-     *
-     * @Assert\Length(
-     *     min = 6,
-     *     minMessage="The new password should be at least 6 characters long"
-     * )
      */
+    #[Assert\Length(min: 6, minMessage: 'The new password should be at least 6 characters long')]
     public $newPassword;
 }

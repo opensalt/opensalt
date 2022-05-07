@@ -9,42 +9,31 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class Package extends AbstractLsBase
 {
-    /**
-     * @Assert\Type(LsDoc::class)
-     */
+    #[Assert\Type(LsDoc::class)]
     private LsDoc $doc;
 
     /**
-     * @var Collection|LsItem[]
-     * @Assert\All({
-     *     @Assert\Type(LsItem::class)
-     * })
-     * @Assert\Valid(traverse=true)
+     * @var Collection<array-key, LsItem>
      */
+    #[Assert\All([new Assert\Type(LsItem::class)])]
+    #[Assert\Valid]
     private Collection $items;
 
     /**
-     * @var Collection|LsAssociation[]
-     * @Assert\All({
-     *     @Assert\Type(LsAssociation::class)
-     * })
-     * @Assert\Valid(traverse=true)
+     * @var Collection<array-key, LsAssociation>
      */
+    #[Assert\All([new Assert\Type(LsAssociation::class)])]
+    #[Assert\Valid]
     private Collection $associations;
 
     /**
-     * @var Collection|CfRubric[]
-     * @Assert\All({
-     *     @Assert\Type(CfRubric::class)
-     * })
-     * @Assert\Valid(traverse=true)
+     * @var Collection<array-key, CfRubric>
      */
+    #[Assert\All([new Assert\Type(CfRubric::class)])]
+    #[Assert\Valid]
     private Collection $rubrics;
 
-    /**
-     * @param string|UuidInterface|null $identifier
-     */
-    public function __construct(LsDoc $doc, $identifier = null)
+    public function __construct(LsDoc $doc, UuidInterface|string|null $identifier = null)
     {
         parent::__construct($identifier);
         $this->doc = $doc;

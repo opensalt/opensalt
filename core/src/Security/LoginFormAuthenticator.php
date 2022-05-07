@@ -24,7 +24,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
 {
     use TargetPathTrait;
 
-    public const LOGIN_ROUTE = 'login';
+    final public const LOGIN_ROUTE = 'login';
 
     public function __construct(
         private UserRepository $userRepository,
@@ -54,9 +54,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
         }
 
         return new Passport(
-            new UserBadge($username, function ($userIdentifier) {
-                return $this->userRepository->loadUserByIdentifier($userIdentifier);
-            }),
+            new UserBadge($username, fn ($userIdentifier) => $this->userRepository->loadUserByIdentifier($userIdentifier)),
             new PasswordCredentials($password),
             [new CsrfTokenBadge('authenticate', $csrfToken)]
         );

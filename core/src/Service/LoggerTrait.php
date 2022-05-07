@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
@@ -23,7 +24,7 @@ trait LoggerTrait
      *
      * @return void
      *
-     * @throws \Psr\Log\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function log($level, $message, array $context = [])
     {

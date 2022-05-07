@@ -9,18 +9,16 @@ class MirroredServerDTO
 {
     /**
      * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
-     * @Assert\Url()
      */
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
+    #[Assert\Url]
     public $url;
 
     /**
      * @var bool
-     *
-     * @Assert\NotNull()
      */
+    #[Assert\NotNull]
     public $autoAddFoundFrameworks = false;
 
     /**

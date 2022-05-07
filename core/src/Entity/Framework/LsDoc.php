@@ -7,6 +7,7 @@ use App\Entity\LockableInterface;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
+use App\Repository\Framework\LsDocRepository;
 use App\Util\Compare;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -15,299 +16,167 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(name="ls_doc")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\LsDocRepository")
- * @UniqueEntity("uri")
- * @UniqueEntity("urlName")
- * @UniqueEntity("identifier")
- */
+#[ORM\Table(name: 'ls_doc')]
+#[ORM\Entity(repositoryClass: LsDocRepository::class)]
+#[UniqueEntity('uri')]
+#[UniqueEntity('urlName')]
+#[UniqueEntity('identifier')]
 class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterface
 {
-    public const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
-    public const ADOPTION_STATUS_DRAFT = 'Draft';
-    public const ADOPTION_STATUS_ADOPTED = 'Adopted';
-    public const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
+    final public const ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
+    final public const ADOPTION_STATUS_DRAFT = 'Draft';
+    final public const ADOPTION_STATUS_ADOPTED = 'Adopted';
+    final public const ADOPTION_STATUS_DEPRECATED = 'Deprecated';
 
-    /**
-     * @var Organization|null
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\User\Organization", inversedBy="frameworks")
-     * @ORM\JoinColumn(name="org_id", referencedColumnName="id", nullable=true)
-     *
-     * @Assert\Type(Organization::class)
-     */
-    protected $org;
+    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'frameworks')]
+    #[ORM\JoinColumn(name: 'org_id', referencedColumnName: 'id', nullable: true)]
+    #[Assert\Type(Organization::class)]
+    protected ?Organization $org = null;
 
-    /**
-     * @var User|null
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\User\User", inversedBy="frameworks")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true)
-     *
-     * @Assert\Type(User::class)
-     */
-    protected $user;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'frameworks')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
+    #[Assert\Type(User::class)]
+    protected ?User $user = null;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="official_uri", type="string", length=300, nullable=true)
-     *
-     * @Assert\Length(max=300)
-     * @Assert\Url()
-     */
-    private $officialUri;
+    #[ORM\Column(name: 'official_uri', type: 'string', length: 300, nullable: true)]
+    #[Assert\Length(max: 300)]
+    #[Assert\Url]
+    private ?string $officialUri = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="creator", type="string", length=300, nullable=false)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     */
-    private $creator;
+    #[ORM\Column(name: 'creator', type: 'string', length: 300, nullable: false)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 300)]
+    private ?string $creator = null;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="publisher", type="string", length=50, nullable=true)
-     *
-     * @Assert\Length(max=50)
-     */
-    private $publisher;
+    #[ORM\Column(name: 'publisher', type: 'string', length: 50, nullable: true)]
+    #[Assert\Length(max: 50)]
+    private ?string $publisher = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="title", type="string", length=120, nullable=false)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=120)
-     */
-    private $title;
+    #[ORM\Column(name: 'title', type: 'string', length: 120, nullable: false)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 120)]
+    private ?string $title = null;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="url_name", type="string", length=255, nullable=true, unique=true)
-     *
-     * @Assert\Length(max=10)
-     * @Assert\Regex(
-     *     pattern="/^\d+$/",
-     *     match=false,
-     *     message="The URL Name cannot be a number."
-     * )
-     * @Assert\Regex(
-     *     pattern="/^[a-zA-Z0-9.-]+$/",
-     *     message="The URL Name can only use alpha-numeric characters plus a period (.) or dash (-)."
-     * )
-     */
-    private $urlName;
+    #[ORM\Column(name: 'url_name', type: 'string', length: 255, unique: true, nullable: true)]
+    #[Assert\Length(max: 10)]
+    #[Assert\Regex(pattern: '/^\d+$/', message: 'The URL Name cannot be a number.', match: false)]
+    #[Assert\Regex(pattern: '/^[a-zA-Z0-9.-]+$/', message: 'The URL Name can only use alpha-numeric characters plus a period (.) or dash (-).')]
+    private ?string $urlName = null;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="version", type="string", length=50, nullable=true)
-     *
-     * @Assert\Length(max=50)
-     */
-    private $version;
+    #[ORM\Column(name: 'version', type: 'string', length: 50, nullable: true)]
+    #[Assert\Length(max: 50)]
+    private ?string $version = null;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="description", type="string", length=300, nullable=true)
-     *
-     * @Assert\Length(max=300)
-     */
-    private $description;
+    #[ORM\Column(name: 'description', type: 'string', length: 300, nullable: true)]
+    #[Assert\Length(max: 300)]
+    private ?string $description = null;
 
     /**
      * @var string[]|null
-     *
-     * @ORM\Column(name="subject", type="json", nullable=true)
-     *
-     * @Assert\All({
-     *     @Assert\Type("string")
-     * })
      */
-    private $subject = [];
+    #[ORM\Column(name: 'subject', type: 'json', nullable: true)]
+    #[Assert\All([new Assert\Type('string')])]
+    private ?array $subject = [];
 
     /**
-     * @var LsDefSubject[]|Collection
-     *
-     * @ORM\ManyToMany(targetEntity="LsDefSubject")
-     * @ORM\JoinTable(name="ls_doc_subject",
-     *      joinColumns={@ORM\JoinColumn(name="ls_doc_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="subject_id", referencedColumnName="id")}
-     * )
-     *
-     * @Assert\All({
-     *     @Assert\Type(LsDefSubject::class)
-     * })
+     * @var Collection<array-key, LsDefSubject>
      */
-    private $subjects;
+    #[ORM\ManyToMany(targetEntity: LsDefSubject::class)]
+    #[ORM\JoinTable(name: 'ls_doc_subject')]
+    #[ORM\JoinColumn(name: 'ls_doc_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'subject_id', referencedColumnName: 'id')]
+    #[Assert\All([new Assert\Type(LsDefSubject::class)])]
+    private Collection $subjects;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="language", type="string", length=10, nullable=true)
-     *
-     * @Assert\Length(max=10)
-     */
-    private $language;
+    #[ORM\Column(name: 'language', type: 'string', length: 10, nullable: true)]
+    #[Assert\Length(max: 10)]
+    private ?string $language = null;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="adoption_status", type="string", length=50, nullable=true)
-     *
-     * @Assert\Length(max=50)
-     * @Assert\Choice(callback = "getStatuses")
-     */
-    private $adoptionStatus;
+    #[ORM\Column(name: 'adoption_status', type: 'string', length: 50, nullable: true)]
+    #[Assert\Length(max: 50)]
+    #[Assert\Choice(callback: 'getStatuses')]
+    private ?string $adoptionStatus = null;
 
-    /**
-     * @ORM\Column(name="status_start", type="date", nullable=true)
-     */
+    #[ORM\Column(name: 'status_start', type: 'date', nullable: true)]
     private ?\DateTimeInterface $statusStart = null;
 
-    /**
-     * @ORM\Column(name="status_end", type="date", nullable=true)
-     */
+    #[ORM\Column(name: 'status_end', type: 'date', nullable: true)]
     private ?\DateTimeInterface $statusEnd = null;
 
-    /**
-     * @var LsDefLicence|null
-     *
-     * @ORM\ManyToOne(targetEntity="LsDefLicence")
-     * @ORM\JoinColumn(name="licence_id", referencedColumnName="id", nullable=true)
-     */
-    private $licence;
+    #[ORM\ManyToOne(targetEntity: LsDefLicence::class)]
+    #[ORM\JoinColumn(name: 'licence_id', referencedColumnName: 'id', nullable: true)]
+    private ?LsDefLicence $licence = null;
+
+    #[ORM\ManyToOne(targetEntity: FrameworkType::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'frameworktype_id', referencedColumnName: 'id', nullable: true)]
+    private ?FrameworkType $frameworkType = null;
+
+    #[ORM\Column(name: 'note', type: 'text', nullable: true)]
+    private ?string $note = null;
 
     /**
-     * @var FrameworkType|null
-     *
-     * @ORM\ManyToOne(targetEntity="FrameworkType", cascade = {"persist"})
-     * @ORM\JoinColumn(name="frameworktype_id", referencedColumnName="id", nullable=true)
+     * @var Collection<array-key, LsItem>
      */
-    private $frameworkType;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="note", type="text", nullable=true)
-     */
-    private $note;
-
-    /**
-     * @var Collection|LsItem[]
-     *
-     * @ORM\OneToMany(targetEntity="LsItem", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
-     *
-     * @Assert\All({
-     *     @Assert\Type(LsItem::class)
-     * })
-     */
-    private $lsItems;
-
-    /**
-     * @var Collection|LsAssociation[]
-     *
-     * @ORM\OneToMany(targetEntity="LsAssociation", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
-     *
-     * @Assert\All({
-     *     @Assert\Type(LsAssociation::class)
-     * })
-     */
-    private $docAssociations;
-
-    /**
-     * @var Collection|LsAssociation[]
-     *
-     * @Assert\All({
-     *     @Assert\Type(LsAssociation::class)
-     * })
-     *
-     * @ORM\OneToMany(targetEntity="LsAssociation", mappedBy="originLsDoc", indexBy="id", cascade={"persist"})
-     */
-    private $associations;
+    #[ORM\OneToMany(mappedBy: 'lsDoc', targetEntity: LsItem::class, fetch: 'EXTRA_LAZY', indexBy: 'id')]
+    #[Assert\All([new Assert\Type(LsItem::class)])]
+    private Collection $lsItems;
 
     /**
      * @var Collection<array-key, LsAssociation>
-     *
-     * @Assert\All({
-     *     @Assert\Type(LsAssociation::class)
-     * })
-     *
-     * @ORM\OneToMany(targetEntity="LsAssociation", mappedBy="destinationLsDoc", indexBy="id", cascade={"persist"})
      */
-    private $inverseAssociations;
+    #[ORM\OneToMany(mappedBy: 'lsDoc', targetEntity: LsAssociation::class, fetch: 'EXTRA_LAZY', indexBy: 'id')]
+    #[Assert\All([new Assert\Type(LsAssociation::class)])]
+    private Collection $docAssociations;
 
     /**
-     * @var LsDocAttribute[]|ArrayCollection
-     *
-     * @Assert\All({
-     *     @Assert\Type(LsDocAttribute::class)
-     * })
-     *
-     * @ORM\OneToMany(targetEntity="LsDocAttribute", mappedBy="lsDoc", cascade={"ALL"}, indexBy="attribute", orphanRemoval=true)
+     * @var Collection<array-key, LsAssociation>
      */
-    private $attributes;
+    #[Assert\All([new Assert\Type(LsAssociation::class)])]
+    #[ORM\OneToMany(mappedBy: 'originLsDoc', targetEntity: LsAssociation::class, cascade: ['persist'], indexBy: 'id')]
+    private Collection $associations;
 
     /**
-     * @var UserDocAcl[]|Collection
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\User\UserDocAcl", mappedBy="lsDoc", indexBy="user", fetch="EXTRA_LAZY")
-     *
-     * @Assert\All({
-     *     @Assert\Type(UserDocAcl::class)
-     * })
+     * @var Collection<array-key, LsAssociation>
      */
-    protected $docAcls;
+    #[Assert\All([new Assert\Type(LsAssociation::class)])]
+    #[ORM\OneToMany(mappedBy: 'destinationLsDoc', targetEntity: LsAssociation::class, cascade: ['persist'], indexBy: 'id')]
+    private Collection $inverseAssociations;
 
     /**
-     * @var ImportLog[]|Collection
-     *
-     * @ORM\OneToMany(targetEntity="ImportLog", mappedBy="lsDoc", indexBy="lsDoc", fetch="EXTRA_LAZY")
-     *
-     * @Assert\All({
-     *     @Assert\Type(ImportLog::class)
-     * })
+     * @var Collection<array-key, LsDocAttribute>
      */
-    protected $importLogs;
+    #[Assert\All([new Assert\Type(LsDocAttribute::class)])]
+    #[ORM\OneToMany(mappedBy: 'lsDoc', targetEntity: LsDocAttribute::class, cascade: ['ALL'], orphanRemoval: true, indexBy: 'attribute')]
+    private Collection $attributes;
 
     /**
-     * @var LsDefAssociationGrouping[]|Collection
-     *
-     * @ORM\OneToMany(targetEntity="LsDefAssociationGrouping", mappedBy="lsDoc", indexBy="id", fetch="EXTRA_LAZY")
-     *
-     * @Assert\All({
-     *     @Assert\Type(LsDefAssociationGrouping::class)
-     * })
+     * @var Collection<array-key, UserDocAcl>
      */
-    protected $associationGroupings;
+    #[ORM\OneToMany(mappedBy: 'lsDoc', targetEntity: UserDocAcl::class, fetch: 'EXTRA_LAZY', indexBy: 'user')]
+    #[Assert\All([new Assert\Type(UserDocAcl::class)])]
+    protected Collection $docAcls;
 
     /**
-     * @var ?string
-     *
-     * @Assert\Choice({"organization", "user"})
+     * @var Collection<array-key, ImportLog>
      */
-    protected $ownedBy;
+    #[ORM\OneToMany(mappedBy: 'lsDoc', targetEntity: ImportLog::class, fetch: 'EXTRA_LAZY', indexBy: 'lsDoc')]
+    #[Assert\All([new Assert\Type(ImportLog::class)])]
+    protected Collection $importLogs;
 
     /**
-     * @var ?Framework
-     *
-     * @ORM\OneToOne(targetEntity="App\Entity\Framework\Mirror\Framework", inversedBy="framework")
+     * @var Collection<array-key, LsDefAssociationGrouping>
      */
-    private $mirroredFramework;
+    #[ORM\OneToMany(mappedBy: 'lsDoc', targetEntity: LsDefAssociationGrouping::class, fetch: 'EXTRA_LAZY', indexBy: 'id')]
+    #[Assert\All([new Assert\Type(LsDefAssociationGrouping::class)])]
+    protected Collection $associationGroupings;
 
-    /**
-     * @param string|UuidInterface|null $identifier
-     */
-    public function __construct($identifier = null)
+    #[Assert\Choice(['organization', 'user'])]
+    protected ?string $ownedBy = null;
+
+    #[ORM\OneToOne(inversedBy: 'framework', targetEntity: Framework::class)]
+    private ?Framework $mirroredFramework = null;
+
+    public function __construct(UuidInterface|string|null $identifier = null)
     {
         parent::__construct($identifier);
 
@@ -370,7 +239,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->adoptionStatus === static::ADOPTION_STATUS_DEPRECATED;
     }
 
-    public function setOfficialUri(?string $officialUri): LsDoc
+    public function setOfficialUri(?string $officialUri): static
     {
         $this->officialUri = $officialUri;
 
@@ -382,7 +251,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->officialUri;
     }
 
-    public function setCreator(?string $creator): LsDoc
+    public function setCreator(?string $creator): static
     {
         $this->creator = $creator;
 
@@ -394,7 +263,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->creator;
     }
 
-    public function setPublisher(?string $publisher): LsDoc
+    public function setPublisher(?string $publisher): static
     {
         $this->publisher = $publisher;
 
@@ -406,7 +275,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->publisher;
     }
 
-    public function setTitle(string $title): LsDoc
+    public function setTitle(string $title): static
     {
         $this->title = mb_substr($title, 0, 120);
 
@@ -420,10 +289,10 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
 
     public function getShortStatement(): string
     {
-        return mb_substr($this->title, 0, 60);
+        return mb_substr($this->title ?? 'Unknown', 0, 60);
     }
 
-    public function setVersion(?string $version): LsDoc
+    public function setVersion(?string $version): static
     {
         $this->version = $version;
 
@@ -435,7 +304,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->version;
     }
 
-    public function setDescription(?string $description): LsDoc
+    public function setDescription(?string $description): static
     {
         if (null === $description) {
             $this->description = null;
@@ -456,7 +325,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * @param string|string[]|null $subject
      */
-    public function setSubject(array|string|null $subject): LsDoc
+    public function setSubject(array|string|null $subject): static
     {
         if (null === $subject) {
             $this->subject = null;
@@ -468,9 +337,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
             $subject = [$subject];
         }
 
-        if ([] !== array_filter($subject, static function ($el) {
-            return !is_string($el);
-        })) {
+        if (array_reduce($subject, static fn ($carry, $el): bool => $carry || !\is_string($el), false)) {
             throw new \InvalidArgumentException('setSubject must be passed an array of strings.');
         }
 
@@ -490,7 +357,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * @throws \InvalidArgumentException
      */
-    public function setAdoptionStatus(?string $adoptionStatus, ?string $default = null): LsDoc
+    public function setAdoptionStatus(?string $adoptionStatus, ?string $default = null): static
     {
         if (null === $adoptionStatus && null === $default) {
             $this->adoptionStatus = null;
@@ -523,7 +390,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->adoptionStatus;
     }
 
-    public function setStatusStart(?\DateTimeInterface $statusStart): LsDoc
+    public function setStatusStart(?\DateTimeInterface $statusStart): static
     {
         $this->statusStart = $statusStart;
 
@@ -535,7 +402,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->statusStart;
     }
 
-    public function setStatusEnd(?\DateTimeInterface $statusEnd): LsDoc
+    public function setStatusEnd(?\DateTimeInterface $statusEnd): static
     {
         $this->statusEnd = $statusEnd;
 
@@ -547,7 +414,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->statusEnd;
     }
 
-    public function setNote(?string $note): LsDoc
+    public function setNote(?string $note): static
     {
         $this->note = $note;
 
@@ -580,7 +447,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $association;
     }
 
-    public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): LsDoc
+    public function addTopLsItem(LsItem $topLsItem, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): static
     {
         $this->createChildItem($topLsItem, $assocGroup, $sequenceNumber);
 
@@ -615,21 +482,17 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
 
         Compare::sortArrayByFields($topAssociations, ['sequenceNumber', 'enum', 'hcs']);
 
-        $orderedList = array_map(static function ($rec): LsItem {
-            return $rec['item'];
-        }, $topAssociations);
+        $orderedList = array_map(static fn ($rec): LsItem => $rec['item'], $topAssociations);
 
         return new ArrayCollection($orderedList);
     }
 
     public function getTopLsItemIds(): array
     {
-        return $this->getTopLsItems()->map(static function (LsItem $item): ?int {
-            return $item->getId();
-        })->toArray();
+        return $this->getTopLsItems()->map(static fn (LsItem $item): ?int => $item->getId())->toArray();
     }
 
-    public function addLsItem(LsItem $lsItem): LsDoc
+    public function addLsItem(LsItem $lsItem): static
     {
         $this->lsItems[] = $lsItem;
 
@@ -642,14 +505,14 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @return Collection|LsItem[]
+     * @return Collection<array-key, LsItem>
      */
     public function getLsItems(): Collection
     {
         return $this->lsItems;
     }
 
-    public function addAssociation(LsAssociation $association): LsDoc
+    public function addAssociation(LsAssociation $association): static
     {
         $this->associations[] = $association;
 
@@ -662,14 +525,14 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @return Collection|LsAssociation[]
+     * @return Collection<array-key, LsAssociation>
      */
     public function getAssociations(): Collection
     {
         return $this->associations;
     }
 
-    public function addInverseAssociation(LsAssociation $inverseAssociation): LsDoc
+    public function addInverseAssociation(LsAssociation $inverseAssociation): static
     {
         $this->inverseAssociations[] = $inverseAssociation;
 
@@ -686,7 +549,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->inverseAssociations;
     }
 
-    public function addDocAssociation(LsAssociation $docAssociation): LsDoc
+    public function addDocAssociation(LsAssociation $docAssociation): static
     {
         $this->docAssociations[] = $docAssociation;
 
@@ -699,7 +562,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @return LsAssociation[]|Collection
+     * @return Collection<array-key, LsAssociation>
      */
     public function getDocAssociations(): Collection
     {
@@ -708,14 +571,12 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
 
     /**
      * Add a document attribute.
-     *
-     * @param string $name
-     * @param string $value
      */
-    public function setAttribute($name, $value): LsDoc
+    public function setAttribute(string $name, ?string $value): static
     {
         // if attribute already exists, update it
         if ($this->attributes->containsKey($name)) {
+            /* @noinspection NullPointerExceptionInspection -- containsKey guarantees the key exists */
             $this->attributes->get($name)->setValue($value);
         } else {
             $this->attributes->set($name, new LsDocAttribute($this, $name, $value));
@@ -724,10 +585,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this;
     }
 
-    /**
-     * @param string|int $name
-     */
-    public function removeAttribute($name): LsDoc
+    public function removeAttribute(string $name): static
     {
         // TODO (PW): does this really remove the item? I did add "orphanRemoval=true" to the attributes field above
         $this->attributes->remove($name);
@@ -735,12 +593,10 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this;
     }
 
-    /**
-     * @param string $name
-     */
-    public function getAttribute($name): ?string
+    public function getAttribute(string $name): ?string
     {
         if ($this->attributes->containsKey($name)) {
+            /* @noinspection NullPointerExceptionInspection -- containsKey guarantees the key exists */
             return $this->attributes->get($name)->getValue();
         }
 
@@ -752,7 +608,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->mirroredFramework;
     }
 
-    public function setMirroredFramework(?Framework $mirroredFramework): LsDoc
+    public function setMirroredFramework(?Framework $mirroredFramework): static
     {
         $this->mirroredFramework = $mirroredFramework;
 
@@ -762,10 +618,8 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * Use attributes fields to save the identifiers, urls, and titles of a list of associated documents on different servers
      * Note that this fn is protected; addExternalDoc and removeExternalDoc are the public functions.
-     *
-     * @param array $externalDocs
      */
-    protected function setExternalDocs($externalDocs): LsDoc
+    protected function setExternalDocs(array $externalDocs): static
     {
         // save all ed's passed in
         $i = 0;
@@ -790,7 +644,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      * Add an associated doc.
      *
      * @param string $identifier
-     * @param string $autoLoad - "true" or "false"
+     * @param string $autoLoad   - "true" or "false"
      * @param string $url
      * @param string $title
      */
@@ -843,7 +697,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
 
         $attrKeys = $this->attributes->getKeys();
         foreach ($attrKeys as $key) {
-            if (0 === strpos($key, 'externalDoc')) {
+            if (str_starts_with($key, 'externalDoc')) {
                 $ed = $this->getAttribute($key);
 
                 if (null !== $ed && preg_match("/^(.+?)\|(true|false)\|(.+?)\|(.*)/", $ed, $matches)) {
@@ -864,7 +718,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->language;
     }
 
-    public function setLanguage(?string $language): LsDoc
+    public function setLanguage(?string $language): static
     {
         $this->language = $language;
 
@@ -882,7 +736,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @return LsDefSubject[]|Collection
+     * @return Collection<array-key, LsDefSubject>
      */
     public function getSubjects(): Collection
     {
@@ -890,9 +744,9 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @param LsDefSubject[]|Collection $subjects
+     * @psalm-param ?iterable<array-key, LsDefSubject> $subjects
      */
-    public function setSubjects(?iterable $subjects): LsDoc
+    public function setSubjects(?iterable $subjects): static
     {
         $this->subjects = new ArrayCollection();
 
@@ -907,7 +761,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this;
     }
 
-    public function addSubject(LsDefSubject $subject): LsDoc
+    public function addSubject(LsDefSubject $subject): static
     {
         $this->subjects[] = $subject;
 
@@ -925,7 +779,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * Set the organization owner for the framework.
      */
-    public function setOrg(?Organization $org = null): LsDoc
+    public function setOrg(?Organization $org = null): static
     {
         $this->org = $org;
 
@@ -943,7 +797,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * Set the user owner for the framework.
      */
-    public function setUser(?User $user = null): LsDoc
+    public function setUser(?User $user = null): static
     {
         $this->user = $user;
 
@@ -952,15 +806,12 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
 
     public function getOwner(): User|Organization|null
     {
-        if (null !== $this->org) {
-            return $this->org;
-        }
-
-        return $this->user;
+        /* @noinspection ProperNullCoalescingOperatorUsageInspection */
+        return $this->org ?? $this->user;
     }
 
     /**
-     * @return Collection|ArrayCollection|UserDocAcl[]
+     * @return Collection<array-key, UserDocAcl>
      */
     public function getDocAcls(): Collection
     {
@@ -968,7 +819,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @return Collection|ArrayCollection|ImportLog[]
+     * @return Collection<array-key, ImportLog>
      */
     public function getImportLogs(): Collection
     {
@@ -998,7 +849,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * @throws \InvalidArgumentException
      */
-    public function setOwnedBy(?string $ownedBy): LsDoc
+    public function setOwnedBy(?string $ownedBy): static
     {
         if (!in_array($ownedBy, [null, 'organization', 'user'], true)) {
             throw new \InvalidArgumentException('Owner must be "organization" or "user" (or empty)');
@@ -1010,14 +861,14 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     }
 
     /**
-     * @return LsDefAssociationGrouping[]|Collection
+     * @return Collection<array-key, LsDefAssociationGrouping>
      */
     public function getAssociationGroupings(): Collection
     {
         return $this->associationGroupings;
     }
 
-    public function addAssociationGrouping(LsDefAssociationGrouping $associationGrouping): LsDoc
+    public function addAssociationGrouping(LsDefAssociationGrouping $associationGrouping): static
     {
         $this->associationGroupings[] = $associationGrouping;
 
@@ -1029,7 +880,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->urlName;
     }
 
-    public function setUrlName(?string $urlName = null): LsDoc
+    public function setUrlName(?string $urlName = null): static
     {
         $this->urlName = $urlName;
 
@@ -1038,11 +889,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
 
     public function getSlug(): string
     {
-        if (null !== $this->urlName) {
-            return $this->getUrlName();
-        }
-
-        return (string) $this->getId();
+        return $this->getUrlName() ?? (string) $this->getId();
     }
 
     public function getLicence(): ?LsDefLicence
@@ -1050,7 +897,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->licence;
     }
 
-    public function setLicence(?LsDefLicence $licence): LsDoc
+    public function setLicence(?LsDefLicence $licence): static
     {
         $this->licence = $licence;
 
@@ -1062,17 +909,14 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->frameworkType;
     }
 
-    public function setFrameworkType(?FrameworkType $frameworkType): LsDoc
+    public function setFrameworkType(?FrameworkType $frameworkType): static
     {
         $this->frameworkType = $frameworkType;
 
         return $this;
     }
 
-    /**
-     * @param UuidInterface|string|null $identifier
-     */
-    public function createItem($identifier = null): LsItem
+    public function createItem(UuidInterface|string|null $identifier = null): LsItem
     {
         $item = new LsItem($identifier);
         $item->setLsDoc($this);
@@ -1080,10 +924,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $item;
     }
 
-    /**
-     * @param UuidInterface|string|null $identifier
-     */
-    public function createAssociation($identifier = null): LsAssociation
+    public function createAssociation(UuidInterface|string|null $identifier = null): LsAssociation
     {
         $association = new LsAssociation($identifier);
         $association->setLsDoc($this);

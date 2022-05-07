@@ -43,9 +43,7 @@ class SubjectsTransformer
         /** @var LsDefSubjectRepository $repo */
         $repo = $this->em->getRepository(LsDefSubject::class);
 
-        $newIds = array_map(static function (CFSubject $subject) {
-            return $subject->identifier->toString();
-        }, $subjects);
+        $newIds = array_map(static fn (CFSubject $subject) => $subject->identifier->toString(), $subjects);
 
         return $repo->findByIdentifiers($newIds);
     }

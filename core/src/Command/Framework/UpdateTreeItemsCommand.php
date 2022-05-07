@@ -11,18 +11,16 @@ class UpdateTreeItemsCommand extends BaseCommand
 {
     /**
      * @var LsDoc
-     *
-     * @Assert\Type(LsDoc::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsDoc::class)]
+    #[Assert\NotNull]
     private $doc;
 
     /**
      * @var array
-     *
-     * @Assert\Type("array")
-     * @Assert\NotNull()
      */
+    #[Assert\Type('array')]
+    #[Assert\NotNull]
     private $items;
 
     /**
@@ -60,9 +58,7 @@ class UpdateTreeItemsCommand extends BaseCommand
         return $this->rv;
     }
 
-    /**
-     * @Assert\Callback()
-     */
+    #[Assert\Callback]
     public function validate(ExecutionContextInterface $context, $payload): void
     {
         foreach ($this->items as $itemId => $updates) {

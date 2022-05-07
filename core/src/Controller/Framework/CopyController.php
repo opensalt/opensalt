@@ -14,9 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Copy controller.
- *
- * @Route("/copy")
  */
+#[Route(path: '/copy')]
 class CopyController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -27,9 +26,9 @@ class CopyController extends AbstractController
     }
 
     /**
-     * @Route("/framework/{id}", name="copy_framework_content", methods={"POST"})
      * @Security("is_granted('view', lsDoc)")
      */
+    #[Route(path: '/framework/{id}', name: 'copy_framework_content', methods: ['POST'])]
     public function frameworkAction(Request $request, LsDoc $lsDoc): JsonResponse
     {
         $type = $request->request->get('type');

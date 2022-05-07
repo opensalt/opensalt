@@ -43,9 +43,7 @@ class ConceptsTransformer
         /** @var LsDefConceptRepository $repo */
         $repo = $this->em->getRepository(LsDefConcept::class);
 
-        $newIds = array_map(static function (CFConcept $itemType) {
-            return $itemType->identifier->toString();
-        }, $cfConcepts);
+        $newIds = array_map(static fn (CFConcept $itemType) => $itemType->identifier->toString(), $cfConcepts);
 
         return $repo->findByIdentifiers($newIds);
     }
