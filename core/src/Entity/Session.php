@@ -11,10 +11,10 @@ class Session
 {
     #[ORM\Column(name: 'id', type: 'binary', length: 128)]
     #[ORM\Id]
-    private string $id;
+    private mixed $id;
 
     #[ORM\Column(name: 'sess_data', type: 'blob')]
-    private string $data;
+    private mixed $data;
 
     #[ORM\Column(name: 'sess_time', type: 'integer')]
     private int $lastUsed;
