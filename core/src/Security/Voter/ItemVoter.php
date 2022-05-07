@@ -54,15 +54,11 @@ class ItemVoter extends Voter
             return false;
         }
 
-        switch ($attribute) {
-            case self::ADD_TO:
-                return $this->canAddTo($subject, $token);
-
-            case self::EDIT:
-                return $this->canEdit($subject, $token);
-        }
-
-        return false;
+        return match ($attribute) {
+            self::ADD_TO => $this->canAddTo($subject, $token),
+            self::EDIT => $this->canEdit($subject, $token),
+            default => false,
+        };
     }
 
     /**

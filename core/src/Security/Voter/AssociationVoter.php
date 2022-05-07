@@ -29,19 +29,16 @@ class AssociationVoter extends Voter
             return false;
         }
 
-        switch ($attribute) {
-            case self::ADD_TO:
-                // User can add to a specific doc or "some doc"
-                return $subject instanceof LsDoc || $subject instanceof LsItem || null === $subject;
-            case self::CREATE:
-                // User can create an association
-                return static::ASSOCIATION === $subject;
-            case self::EDIT:
-                // User can edit the LsAssociation
-                return $subject instanceof LsAssociation;
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            // User can add to a specific doc or "some doc"
+            self::ADD_TO => $subject instanceof LsDoc || $subject instanceof LsItem || null === $subject,
+
+            // User can create an association
+            self::CREATE => static::ASSOCIATION === $subject,
+
+            // User can edit the LsAssociation
+            self::EDIT => $subject instanceof LsAssociation,
+        };
     }
 
     /**
@@ -55,16 +52,12 @@ class AssociationVoter extends Voter
             return false;
         }
 
-        switch ($attribute) {
-            case self::ADD_TO:
-                return $this->canAddTo($subject, $token);
-            case self::CREATE:
-                return (static::ASSOCIATION === $subject) && $this->canCreate($token);
-            case self::EDIT:
-                return $this->canEdit($subject, $token);
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            self::ADD_TO => $this->canAddTo($subject, $token),
+            self::CREATE => (static::ASSOCIATION === $subject) && $this->canCreate($token),
+            self::EDIT => $this->canEdit($subject, $token),
+            default => false,
+        };
     }
 
     /**
