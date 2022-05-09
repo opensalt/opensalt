@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "45bf95d8d28312e3e61f0826eac70a9f",
+    "content-hash": "2661f83bb699482982b46166ff160044",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -11839,12 +11839,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/opensalt/codeception-email-mailtrap.git",
-                "reference": "afb827dc34506706f5aa9aa2b041219cc8d6b933"
+                "reference": "6cbfb9d3ce7002d840a56143c739c91ca890c078"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opensalt/codeception-email-mailtrap/zipball/afb827dc34506706f5aa9aa2b041219cc8d6b933",
-                "reference": "afb827dc34506706f5aa9aa2b041219cc8d6b933",
+                "url": "https://api.github.com/repos/opensalt/codeception-email-mailtrap/zipball/6cbfb9d3ce7002d840a56143c739c91ca890c078",
+                "reference": "6cbfb9d3ce7002d840a56143c739c91ca890c078",
                 "shasum": ""
             },
             "require": {
@@ -11871,7 +11871,7 @@
             "support": {
                 "source": "https://github.com/opensalt/codeception-email-mailtrap/tree/master"
             },
-            "time": "2021-09-10T17:29:20+00:00"
+            "time": "2022-05-09T18:55:17+00:00"
         },
         {
             "name": "fakerphp/faker",
@@ -15384,8 +15384,8 @@
         {
             "package": "ericmartel/codeception-email-mailtrap",
             "version": "9999999-dev",
-            "alias": "1.0.5.1",
-            "alias_normalized": "1.0.5.1"
+            "alias": "1.0.5.2",
+            "alias_normalized": "1.0.5.2"
         }
     ],
     "minimum-stability": "dev",
