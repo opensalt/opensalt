@@ -29,10 +29,8 @@ class FrameworkAclController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @Security("is_granted('manage_editors', lsDoc)")
-     */
-    #[Route(path: '/{id}/acl', methods: ['GET', 'POST'], name: 'framework_acl_edit')]
+    #[Route(path: '/{id}/acl', name: 'framework_acl_edit', methods: ['GET', 'POST'])]
+    #[Security("is_granted('manage_editors', lsDoc)")]
     public function editAction(Request $request, LsDoc $lsDoc): Response
     {
         $addAclUserDto = new AddAclUserDTO($lsDoc, UserDocAcl::DENY);
@@ -140,10 +138,8 @@ class FrameworkAclController extends AbstractController
         return null;
     }
 
-    /**
-     * @Security("is_granted('manage_editors', lsDoc)")
-     */
-    #[Route(path: '/{id}/acl/{targetUser}', methods: ['DELETE'], name: 'framework_acl_remove')]
+    #[Route(path: '/{id}/acl/{targetUser}', name: 'framework_acl_remove', methods: ['DELETE'])]
+    #[Security("is_granted('manage_editors', lsDoc)")]
     public function removeAclAction(Request $request, LsDoc $lsDoc, User $targetUser): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDoc, $targetUser);

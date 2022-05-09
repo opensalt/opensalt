@@ -12,23 +12,18 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * Copy controller.
- */
 #[Route(path: '/copy')]
 class CopyController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
-    /**
-     * @Security("is_granted('view', lsDoc)")
-     */
     #[Route(path: '/framework/{id}', name: 'copy_framework_content', methods: ['POST'])]
+    #[Security("is_granted('view', lsDoc)")]
     public function frameworkAction(Request $request, LsDoc $lsDoc): JsonResponse
     {
         $type = $request->request->get('type');

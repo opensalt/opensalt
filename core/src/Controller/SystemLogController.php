@@ -10,26 +10,21 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Security("is_granted('manage', 'system_logs')")
- */
 #[Route(path: '/admin/system_log')]
+#[Security("is_granted('manage', 'system_logs')")]
 class SystemLogController extends AbstractController
 {
-    private ChangeEntryRepository $entryRepository;
-
-    public function __construct(ChangeEntryRepository $entryRepository)
+    public function __construct(private readonly ChangeEntryRepository $entryRepository)
     {
-        $this->entryRepository = $entryRepository;
     }
 
-    #[Route(path: '/', methods: ['GET'], name: 'system_logs_show')]
+    #[Route(path: '/', name: 'system_logs_show', methods: ['GET'])]
     public function showSystemLogs(): Response
     {
         return $this->render('system_log/show_system_logs.html.twig');
     }
 
-    #[Route(path: '/revisions/{offset}/{limit}', methods: ['GET'], requirements: ['offset' => '\d+', 'limit' => '\d+'], defaults: ['offset' => 0, 'limit' => 0], name: 'system_logs_json')]
+    #[Route(path: '/revisions/{offset}/{limit}', name: 'system_logs_json', requirements: ['offset' => '\d+', 'limit' => '\d+'], defaults: ['offset' => 0, 'limit' => 0], methods: ['GET'])]
     public function listDocRevisionsAction(int $offset = 0, int $limit = 0): Response
     {
         $response = new StreamedResponse();
@@ -58,7 +53,7 @@ class SystemLogController extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/revisions/count', methods: ['GET'], name: 'system_logs_count')]
+    #[Route(path: '/revisions/count', name: 'system_logs_count', methods: ['GET'])]
     public function changeLogCount(): Response
     {
         $count = $this->entryRepository->getChangeEntryCountForSystem();
@@ -66,7 +61,7 @@ class SystemLogController extends AbstractController
         return new JsonResponse($count);
     }
 
-    #[Route(path: '/export', methods: ['GET'], name: 'system_logs_csv')]
+    #[Route(path: '/export', name: 'system_logs_csv', methods: ['GET'])]
     public function exportSystemLogs(): Response
     {
         $response = new StreamedResponse();

@@ -11,10 +11,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DevController extends AbstractController
 {
-    /**
-     * @Security("is_granted('feature', 'dev_env')")
-     */
     #[Route(path: '/dev/cookie', name: 'dev_cookie')]
+    #[Security("is_granted('feature', 'dev_env')")]
     public function devCookieAction(Request $request): Response
     {
         if (empty($cookie = $request->server->get('DEV_COOKIE'))) {

@@ -25,7 +25,7 @@ final class LsItemNormalizer implements ContextAwareNormalizerInterface
         return $data instanceof LsItem;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = []): ?array
+    public function normalize(mixed $object, string $format = null, array $context = [])
     {
         if (!$object instanceof LsItem) {
             return null;

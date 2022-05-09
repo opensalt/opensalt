@@ -12,18 +12,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * Class GithubOauthController
- *
- * @Security("is_granted('create', 'lsdoc')")
- */
+#[Security("is_granted('create', 'lsdoc')")]
 class GithubOauthController extends AbstractController
 {
-    /**
-     * @return JsonResponse
-     */
     #[Route(path: '/user/github/repos')]
-    public function getReposAction(Request $request)
+    public function getReposAction(Request $request): JsonResponse
     {
         $currentUser = $this->getUser();
         $response = new JsonResponse();
@@ -59,11 +52,8 @@ class GithubOauthController extends AbstractController
         ]);
     }
 
-    /**
-     * @return JsonResponse
-     */
     #[Route(path: '/user/github/files')]
-    public function getFilesAction(Request $request)
+    public function getFilesAction(Request $request): JsonResponse
     {
         $currentUser = $this->getUser();
         $response = new JsonResponse();

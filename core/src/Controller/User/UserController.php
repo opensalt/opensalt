@@ -23,27 +23,23 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-/**
- * User controller.
- *
- * @Security("is_granted('manage', 'users')")
- */
 #[Route(path: '/admin/user')]
+#[Security("is_granted('manage', 'users')")]
 class UserController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     public function __construct(
-        private AuthorizationCheckerInterface $authChecker,
-        private UserPasswordHasherInterface $passwordEncoder,
-        private ManagerRegistry $managerRegistry,
+        private readonly AuthorizationCheckerInterface $authChecker,
+        private readonly UserPasswordHasherInterface $passwordEncoder,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
     /**
      * Lists all user entities.
      */
-    #[Route(path: '/', methods: ['GET'], name: 'admin_user_index')]
+    #[Route(path: '/', name: 'admin_user_index', methods: ['GET'])]
     public function index(): Response
     {
         $em = $this->managerRegistry->getManager();
@@ -81,7 +77,7 @@ class UserController extends AbstractController
     /**
      * Creates a new user entity.
      */
-    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'admin_user_new')]
+    #[Route(path: '/new', name: 'admin_user_new', methods: ['GET', 'POST'])]
     public function create(Request $request): Response
     {
         $targetUser = new User();
@@ -121,10 +117,9 @@ class UserController extends AbstractController
 
     /**
      * Finds and displays a user entity.
-     *
-     * @Security("is_granted('manage', targetUser)")
      */
-    #[Route(path: '/{id}', methods: ['GET'], name: 'admin_user_show')]
+    #[Route(path: '/{id}', name: 'admin_user_show', methods: ['GET'])]
+    #[Security("is_granted('manage', targetUser)")]
     public function show(User $targetUser): Response
     {
         $deleteForm = $this->createDeleteForm($targetUser);
@@ -137,10 +132,9 @@ class UserController extends AbstractController
 
     /**
      * Displays a form to edit an existing user entity.
-     *
-     * @Security("is_granted('manage', targetUser)")
      */
-    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'admin_user_edit')]
+    #[Route(path: '/{id}/edit', name: 'admin_user_edit', methods: ['GET', 'POST'])]
+    #[Security("is_granted('manage', targetUser)")]
     public function edit(Request $request, User $targetUser): Response
     {
         $deleteForm = $this->createDeleteForm($targetUser);
@@ -174,10 +168,9 @@ class UserController extends AbstractController
 
     /**
      * Suspend a user.
-     *
-     * @Security("is_granted('manage', targetUser)")
      */
-    #[Route(path: '/{id}/suspend', methods: ['POST'], name: 'admin_user_suspend')]
+    #[Route(path: '/{id}/suspend', name: 'admin_user_suspend', methods: ['POST'])]
+    #[Security("is_granted('manage', targetUser)")]
     public function suspend(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createSuspendForm($targetUser);
@@ -193,10 +186,9 @@ class UserController extends AbstractController
 
     /**
      * Activate a user.
-     *
-     * @Security("is_granted('manage', targetUser)")
      */
-    #[Route(path: '/{id}/activate', methods: ['POST'], name: 'admin_user_activate')]
+    #[Route(path: '/{id}/activate', name: 'admin_user_activate', methods: ['POST'])]
+    #[Security("is_granted('manage', targetUser)")]
     public function activate(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createActivateForm($targetUser);
@@ -220,10 +212,9 @@ class UserController extends AbstractController
 
     /**
      * Reject a user.
-     *
-     * @Security("is_granted('manage', targetUser)")
      */
-    #[Route(path: '/{id}/reject', methods: ['POST'], name: 'admin_user_reject')]
+    #[Route(path: '/{id}/reject', name: 'admin_user_reject', methods: ['POST'])]
+    #[Security("is_granted('manage', targetUser)")]
     public function reject(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createRejectForm($targetUser);
@@ -239,10 +230,9 @@ class UserController extends AbstractController
 
     /**
      * Deletes a user entity.
-     *
-     * @Security("is_granted('manage', targetUser)")
      */
-    #[Route(path: '/{id}', methods: ['DELETE'], name: 'admin_user_delete')]
+    #[Route(path: '/{id}', name: 'admin_user_delete', methods: ['DELETE'])]
+    #[Security("is_granted('manage', targetUser)")]
     public function delete(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createDeleteForm($targetUser);

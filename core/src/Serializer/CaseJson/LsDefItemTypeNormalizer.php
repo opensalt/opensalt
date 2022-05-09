@@ -20,7 +20,7 @@ final class LsDefItemTypeNormalizer implements ContextAwareNormalizerInterface
         return $data instanceof LsDefItemType;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = []): ?array
+    public function normalize(mixed $object, string $format = null, array $context = [])
     {
         if (!$object instanceof LsDefItemType) {
             return null;

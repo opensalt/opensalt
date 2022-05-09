@@ -16,10 +16,8 @@ class ExcelImportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @Security("is_granted('create', 'lsdoc')")
-     */
-    #[Route(path: '/salt/excel/import', methods: ['POST'], name: 'import_excel_file')]
+    #[Route(path: '/salt/excel/import', name: 'import_excel_file', methods: ['POST'])]
+    #[Security("is_granted('create', 'lsdoc')")]
     public function importExcelAction(Request $request, UserInterface $user): Response
     {
         if (!($user instanceof User)) {

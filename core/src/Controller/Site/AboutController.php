@@ -8,14 +8,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AboutController extends AbstractController
 {
-    /**
-     * @var string Value of kernel.project_dir
-     */
-    protected $projectDir;
-
-    public function __construct(string $projectDir)
+    public function __construct(protected string $projectDir)
     {
-        $this->projectDir = $projectDir;
     }
 
     #[Route(path: '/about', name: 'site_about')]

@@ -13,20 +13,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * Class AsnImportController
- *
- * @Security("is_granted('create', 'lsdoc')")
- */
+#[Security("is_granted('create', 'lsdoc')")]
 class AsnImportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @return JsonResponse
-     */
     #[Route(path: '/cf/asn/import', name: 'import_from_asn')]
-    public function importAsnAction(Request $request, UserInterface $user): Response
+    public function importAsnAction(Request $request, UserInterface $user): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);

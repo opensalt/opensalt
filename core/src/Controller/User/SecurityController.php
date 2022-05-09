@@ -10,14 +10,8 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    /**
-     * @var AuthenticationUtils
-     */
-    private $authenticationUtils;
-
-    public function __construct(AuthenticationUtils $authenticationUtils)
+    public function __construct(private readonly AuthenticationUtils $authenticationUtils)
     {
-        $this->authenticationUtils = $authenticationUtils;
     }
 
     #[Route(path: '/login', name: 'login')]

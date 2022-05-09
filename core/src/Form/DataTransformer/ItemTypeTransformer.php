@@ -32,7 +32,7 @@ class ItemTypeTransformer implements DataTransformerInterface
     /**
      * Transform entity to array.
      */
-    public function transform(mixed $entity): array
+    public function transform(mixed $entity)
     {
         $data = [];
         if (empty($entity)) {
@@ -55,7 +55,7 @@ class ItemTypeTransformer implements DataTransformerInterface
      *
      * @return mixed|object|null
      */
-    public function reverseTransform(mixed $value): mixed
+    public function reverseTransform(mixed $value)
     {
         if (empty($value)) {
             return null;

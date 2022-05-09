@@ -15,11 +15,8 @@ use Symfony\Component\Validator\Constraints\File;
 #[Route('/subtype/update')]
 class SubtypeUpdateController extends AbstractController
 {
-    private SubtypeUpdater $updater;
-
-    public function __construct(SubtypeUpdater $updater)
+    public function __construct(private readonly SubtypeUpdater $updater)
     {
-        $this->updater = $updater;
     }
 
     #[Route('/', name: 'association_subtype_update')]

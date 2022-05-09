@@ -18,27 +18,23 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * LsDefLicence controller.
- */
 #[Route(path: '/cfdef/licence')]
 class LsDefLicenceController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
     /**
      * Lists all LsDefLicence entities.
      *
-     * @Template()
-     *
      * @return array
      */
-    #[Route(path: '/', methods: ['GET'], name: 'lsdef_licence_index')]
+    #[Route(path: '/', name: 'lsdef_licence_index', methods: ['GET'])]
+    #[Template]
     public function indexAction()
     {
         $em = $this->managerRegistry->getManager();
@@ -52,10 +48,9 @@ class LsDefLicenceController extends AbstractController
 
     /**
      * Lists all LsDefLicence entities.
-     *
-     * @Template()
      */
-    #[Route(path: '/list.{_format}', methods: ['GET'], defaults: ['_format' => 'json'], name: 'lsdef_licence_index_json')]
+    #[Route(path: '/list.{_format}', name: 'lsdef_licence_index_json', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Template]
     public function jsonListAction(): array
     {
         $em = $this->managerRegistry->getManager();
@@ -70,12 +65,11 @@ class LsDefLicenceController extends AbstractController
     /**
      * Creates a new LsDefLicence entity.
      *
-     * @Template()
-     * @Security("is_granted('create', 'lsdoc')")
-     *
      * @return array|RedirectResponse
      */
-    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'lsdef_licence_new')]
+    #[Route(path: '/new', name: 'lsdef_licence_new', methods: ['GET', 'POST'])]
+    #[Template]
+    #[Security("is_granted('create', 'lsdoc')")]
     public function newAction(Request $request)
     {
         $lsDefLicence = new LsDefLicence();
@@ -102,11 +96,10 @@ class LsDefLicenceController extends AbstractController
     /**
      * Finds and displays a LsDefLicence entity.
      *
-     * @Template()
-     *
      * @return array
      */
-    #[Route(path: '/{id}', methods: ['GET'], name: 'lsdef_licence_show')]
+    #[Route(path: '/{id}', name: 'lsdef_licence_show', methods: ['GET'])]
+    #[Template]
     public function showAction(LsDefLicence $lsDefLicence)
     {
         $deleteForm = $this->createDeleteForm($lsDefLicence);
@@ -120,12 +113,11 @@ class LsDefLicenceController extends AbstractController
     /**
      * Displays a form to edit an existing LsDefLicence entity.
      *
-     * @Template()
-     * @Security("is_granted('create', 'lsdoc')")
-     *
      * @return array|RedirectResponse
      */
-    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsdef_licence_edit')]
+    #[Route(path: '/{id}/edit', name: 'lsdef_licence_edit', methods: ['GET', 'POST'])]
+    #[Template]
+    #[Security("is_granted('create', 'lsdoc')")]
     public function editAction(Request $request, LsDefLicence $lsDefLicence)
     {
         $deleteForm = $this->createDeleteForm($lsDefLicence);
@@ -153,11 +145,10 @@ class LsDefLicenceController extends AbstractController
     /**
      * Deletes a LsDefLicence entity.
      *
-     * @Security("is_granted('create', 'lsdoc')")
-     *
      * @return RedirectResponse
      */
-    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsdef_licence_delete')]
+    #[Route(path: '/{id}', name: 'lsdef_licence_delete', methods: ['DELETE'])]
+    #[Security("is_granted('create', 'lsdoc')")]
     public function deleteAction(Request $request, LsDefLicence $lsDefLicence)
     {
         $form = $this->createDeleteForm($lsDefLicence);
@@ -173,10 +164,6 @@ class LsDefLicenceController extends AbstractController
 
     /**
      * Creates a form to delete a LsDefLicence entity.
-     *
-     * @param LsDefLicence $lsDefLicence The LsDefLicence entity
-     *
-     * @return FormInterface The form
      */
     private function createDeleteForm(LsDefLicence $lsDefLicence): FormInterface
     {

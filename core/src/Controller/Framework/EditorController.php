@@ -10,9 +10,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * Editor controller.
- */
 #[Route(path: '/cf')]
 class EditorController extends AbstractController
 {
@@ -21,10 +18,8 @@ class EditorController extends AbstractController
     ) {
     }
 
-    /**
-     * @Template()
-     */
-    #[Route(path: '/doc/{id}.{_format}', methods: ['GET'], defaults: ['_format' => 'html'], name: 'editor_lsdoc')]
+    #[Route(path: '/doc/{id}.{_format}', name: 'editor_lsdoc', defaults: ['_format' => 'html'], methods: ['GET'])]
+    #[Template]
     public function viewDocAction(LsDoc $lsDoc, string $_format = 'html')
     {
         if ('json' === $_format) {
@@ -34,10 +29,8 @@ class EditorController extends AbstractController
         return ['lsDoc' => $lsDoc];
     }
 
-    /**
-     * @Template()
-     */
-    #[Route(path: '/item/{id}.{_format}', methods: ['GET'], defaults: ['_format' => 'html'], name: 'editor_lsitem')]
+    #[Route(path: '/item/{id}.{_format}', name: 'editor_lsitem', defaults: ['_format' => 'html'], methods: ['GET'])]
+    #[Template]
     public function viewItemAction(LsItem $lsItem, string $_format = 'html')
     {
         if ('json' === $_format) {
@@ -47,11 +40,9 @@ class EditorController extends AbstractController
         return ['lsItem' => $lsItem];
     }
 
-    /**
-     * @Template()
-     */
-    #[Route(path: '/render/{id}.{_format}', methods: ['GET'], defaults: ['highlight' => null, '_format' => 'html'], name: 'editor_render_document_only')]
-    #[Route(path: '/render/{id}/{highlight}.{_format}', methods: ['GET'], defaults: ['highlight' => null, '_format' => 'html'], name: 'editor_render')]
+    #[Route(path: '/render/{id}.{_format}', name: 'editor_render_document_only', defaults: ['highlight' => null, '_format' => 'html'], methods: ['GET'])]
+    #[Route(path: '/render/{id}/{highlight}.{_format}', name: 'editor_render', defaults: ['highlight' => null, '_format' => 'html'], methods: ['GET'])]
+    #[Template]
     public function renderDocumentAction(LsDoc $lsDoc, ?int $highlight = null, $_format = 'html'): array
     {
         $repo = $this->managerRegistry->getRepository(LsDoc::class);

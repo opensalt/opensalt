@@ -15,34 +15,16 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-/**
- * OAuth Service controller.
- */
 #[Route(path: '/login')]
 class OAuthServiceController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @var string
-     */
-    private $githubClientId;
-
-    /**
-     * @var string
-     */
-    private $githubClientSecret;
-
-    /**
-     * @var string
-     */
-    private $githubRedirectUri;
-
-    public function __construct(string $githubClientId = null, string $githubClientSecret = null, string $githubRedirectUri = null)
-    {
-        $this->githubClientId = $githubClientId;
-        $this->githubClientSecret = $githubClientSecret;
-        $this->githubRedirectUri = $githubRedirectUri;
+    public function __construct(
+        private readonly ?string $githubClientId = null,
+        private readonly ?string $githubClientSecret = null,
+        private readonly ?string $githubRedirectUri = null,
+    ) {
     }
 
     /**
@@ -52,7 +34,7 @@ class OAuthServiceController extends AbstractController
      *
      * @throws \UnexpectedValueException
      */
-    #[Route(path: '/check-github', methods: ['GET'], name: 'github_login')]
+    #[Route(path: '/check-github', name: 'github_login', methods: ['GET'])]
     public function githubAction(Request $request, SessionInterface $session, ManagerRegistry $managerRegistry): Response
     {
         if (!empty($this->githubRedirectUri)) {
@@ -67,9 +49,9 @@ class OAuthServiceController extends AbstractController
         }
 
         $provider = new Github([
-            'clientId'     => $this->githubClientId,
+            'clientId' => $this->githubClientId,
             'clientSecret' => $this->githubClientSecret,
-            'redirectUri'  => $redirectUri,
+            'redirectUri' => $redirectUri,
         ]);
 
         $code = $request->query->get('code');

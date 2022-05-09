@@ -20,7 +20,7 @@ final class LsDefConceptNormalizer implements ContextAwareNormalizerInterface
         return $data instanceof LsDefConcept;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = []): ?array
+    public function normalize(mixed $object, string $format = null, array $context = [])
     {
         if (!$object instanceof LsDefConcept) {
             return null;

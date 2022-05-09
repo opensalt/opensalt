@@ -14,16 +14,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * Class ChangePasswordController.
- *
- * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
- */
+#[Security("is_granted('IS_AUTHENTICATED_FULLY')")]
 class ChangePasswordController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    public function __construct(private UserPasswordHasherInterface $passwordEncoder)
+    public function __construct(private readonly UserPasswordHasherInterface $passwordEncoder)
     {
     }
 

@@ -35,9 +35,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * Editor Tree controller.
- */
 #[Route(path: '/cftree')]
 class DocTreeController extends AbstractController
 {
@@ -46,23 +43,21 @@ class DocTreeController extends AbstractController
     private const ETAG_SEED = '2';
 
     public function __construct(
-        private DoctrineDbalAdapter $externalDocCache,
-        private ManagerRegistry $managerRegistry,
-        private ?string $caseNetworkClientId,
-        private ?string $caseNetworkClientSecret,
-        private ?string $caseNetworkScope,
-        private ?string $caseNetworkTokenEndpoint,
+        private readonly DoctrineDbalAdapter $externalDocCache,
+        private readonly ManagerRegistry $managerRegistry,
+        private readonly ?string $caseNetworkClientId,
+        private readonly ?string $caseNetworkClientSecret,
+        private readonly ?string $caseNetworkScope,
+        private readonly ?string $caseNetworkTokenEndpoint,
     ) {
     }
 
-    /**
-     * @Entity("lsDoc", expr="repository.findOneBySlug(slug)")
-     * @Template()
-     */
-    #[Route(path: '/doc/{slug}', name: 'doc_tree_view', methods: ['GET'], requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null])]
-    #[Route(path: '/doc/{slug}/av', name: 'doc_tree_view_av', methods: ['GET'], requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null])]
-    #[Route(path: '/doc/{slug}/lv', name: 'doc_tree_view_log', methods: ['GET'], requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null])]
-    #[Route(path: '/doc/{slug}/{assocGroup}', name: 'doc_tree_view_ag', methods: ['GET'], requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null])]
+    #[Route(path: '/doc/{slug}', name: 'doc_tree_view', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
+    #[Route(path: '/doc/{slug}/av', name: 'doc_tree_view_av', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
+    #[Route(path: '/doc/{slug}/lv', name: 'doc_tree_view_log', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
+    #[Route(path: '/doc/{slug}/{assocGroup}', name: 'doc_tree_view_ag', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
+    #[Entity('lsDoc', expr: 'repository.findOneBySlug(slug)')]
+    #[Template]
     public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, $lsItemId = null, $assocGroup = null): array
     {
         $em = $this->managerRegistry->getManager();
@@ -251,7 +246,7 @@ class DocTreeController extends AbstractController
      * @throws \Exception
      */
     #[Route(path: '/retrievedocument/{id}', name: 'doctree_retrieve_document', methods: ['GET'])]
-    #[Route(path: '/retrievedocument/url', name: 'doctree_retrieve_document_by_url', methods: ['GET'], defaults: ['id' => null])]
+    #[Route(path: '/retrievedocument/url', name: 'doctree_retrieve_document_by_url', defaults: ['id' => null], methods: ['GET'])]
     public function retrieveDocumentAction(Request $request, ?LsDoc $lsDoc = null): Response
     {
         ini_set('memory_limit', '1G');
@@ -370,30 +365,28 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * @Template()
-     *
      * Note that this must come before viewItemAction for the url mapping to work properly.
      */
     #[Route(path: '/item/{id}/details', name: 'doc_tree_item_details', methods: ['GET'])]
+    #[Template]
     public function treeItemDetailsAction(LsItem $lsItem): array
     {
         return ['lsItem' => $lsItem];
     }
 
-    #[Route(path: '/item/{id}.{_format}', name: 'doc_tree_item_view', methods: ['GET'], defaults: ['_format' => 'html'])]
-    #[Route(path: '/item/{id}/{assocGroup}.{_format}', name: 'doc_tree_item_view_ag', methods: ['GET'], defaults: ['_format' => 'html'])]
+    #[Route(path: '/item/{id}.{_format}', name: 'doc_tree_item_view', defaults: ['_format' => 'html'], methods: ['GET'])]
+    #[Route(path: '/item/{id}/{assocGroup}.{_format}', name: 'doc_tree_item_view_ag', defaults: ['_format' => 'html'], methods: ['GET'])]
     public function viewItemAction(LsItem $lsItem, ?string $assocGroup = null, string $_format = 'html'): Response
     {
         return $this->forward('App\Controller\Framework\DocTreeController::viewAction', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getid(), 'assocGroup' => $assocGroup]);
     }
 
     /**
-     * @Template()
-     *
      * PW: this is similar to the renderDocument function in the Editor directory, but different enough that I think it deserves a separate controller/view
      */
-    #[Route(path: '/render/{id}.{_format}', methods: ['GET'], defaults: ['_format' => 'html'], name: 'doctree_render_document')]
-    public function renderDocumentAction(LsDoc $lsDoc, $_format = 'html'): array
+    #[Route(path: '/render/{id}.{_format}', name: 'doctree_render_document', defaults: ['_format' => 'html'], methods: ['GET'])]
+    #[Template]
+    public function renderDocumentAction(LsDoc $lsDoc, string $_format = 'html'): array
     {
         $repo = $this->managerRegistry->getRepository(LsDoc::class);
 
@@ -434,11 +427,10 @@ class DocTreeController extends AbstractController
     /**
      * Deletes a LsItem entity, from the tree view.
      *
-     * @Security("is_granted('edit', lsItem)")
-     *
      * @throws \InvalidArgumentException
      */
-    #[Route(path: '/item/{id}/delete/{includingChildren}', methods: ['POST'], name: 'lsitem_tree_delete', defaults: ['includingChildren' => 0])]
+    #[Route(path: '/item/{id}/delete/{includingChildren}', name: 'lsitem_tree_delete', defaults: ['includingChildren' => 0], methods: ['POST'])]
+    #[Security("is_granted('edit', lsItem)")]
     public function deleteItemAction(Request $request, LsItem $lsItem, int $includingChildren = 0): Response
     {
         $ajax = false;
@@ -469,11 +461,10 @@ class DocTreeController extends AbstractController
      * This also does copies, of either single items or folders.
      * If we do a copy, the service returns an array of trees with the copied lsItemIds.
      * For other operations, we return an empty array.
-     *
-     * @Security("is_granted('edit', lsDoc)")
-     * @Template()
      */
-    #[Route(path: '/doc/{id}/updateitems.{_format}', methods: ['POST'], name: 'doctree_update_items')]
+    #[Route(path: '/doc/{id}/updateitems.{_format}', name: 'doctree_update_items', methods: ['POST'])]
+    #[Security("is_granted('edit', lsDoc)")]
+    #[Template]
     public function updateItemsAction(Request $request, LsDoc $lsDoc, string $_format = 'json'): array
     {
         /** @var array $lsItems */
@@ -503,7 +494,7 @@ class DocTreeController extends AbstractController
      *
      * @throws \InvalidArgumentException
      */
-    #[Route(path: '/assocgroup/{id}/delete', methods: ['POST'], name: 'lsdef_association_grouping_tree_delete')]
+    #[Route(path: '/assocgroup/{id}/delete', name: 'lsdef_association_grouping_tree_delete', methods: ['POST'])]
     public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
         $command = new DeleteAssociationGroupCommand($associationGrouping);
@@ -511,7 +502,7 @@ class DocTreeController extends AbstractController
         try {
             $this->sendCommand($command);
         } catch (\Exception $e) {
-            if (preg_match('/FOREIGN KEY/', $e->getMessage())) {
+            if (str_contains($e->getMessage(), 'FOREIGN KEY')) {
                 return new JsonResponse(['error' => ['message' => 'An association group may only be deleted if there are no associations in it.']], Response::HTTP_BAD_REQUEST);
             }
 

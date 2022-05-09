@@ -11,14 +11,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class SessionController extends AbstractController
 {
-    /**
-     * @var int
-     */
-    private $sessionMaxIdleTime;
-
-    public function __construct(int $sessionMaxIdleTime = 3600)
+    public function __construct(private readonly int $sessionMaxIdleTime = 3600)
     {
-        $this->sessionMaxIdleTime = $sessionMaxIdleTime;
     }
 
     #[Route(path: '/session/check')]

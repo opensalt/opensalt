@@ -12,7 +12,7 @@ class CommentNormalizer implements ContextAwareNormalizerInterface
         return $data instanceof Comment;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = []): array
+    public function normalize(mixed $object, string $format = null, array $context = [])
     {
         if (!$object instanceof Comment) {
             throw new \InvalidArgumentException('Expecting a Comment');

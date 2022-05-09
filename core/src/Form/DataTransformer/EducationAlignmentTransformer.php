@@ -16,7 +16,7 @@ class EducationAlignmentTransformer implements DataTransformerInterface
     /**
      * @param ?string $gradeString
      */
-    public function transform(mixed $gradeString): array
+    public function transform(mixed $gradeString)
     {
         if (null === $gradeString) {
             return [];
@@ -33,7 +33,7 @@ class EducationAlignmentTransformer implements DataTransformerInterface
     /**
      * @param array<array-key, LsDefGrade>|null $alignmentArray
      */
-    public function reverseTransform(mixed $alignmentArray): ?string
+    public function reverseTransform(mixed $alignmentArray)
     {
         if (!is_array($alignmentArray) || 0 === count($alignmentArray)) {
             return null;

@@ -13,14 +13,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Security("is_granted('manage', 'mirrors')")
- */
 #[Route(path: '/admin/mirror/credentials')]
+#[Security("is_granted('manage', 'mirrors')")]
 class OAuthCredentialsController extends AbstractController
 {
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 

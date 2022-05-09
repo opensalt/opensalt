@@ -43,21 +43,17 @@ class LsItemController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    private ?string $bucketProvider;
-
     public function __construct(
-        ?string $bucketProvider,
-        private ManagerRegistry $managerRegistry,
+        private readonly ?string $bucketProvider,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
-        $this->bucketProvider = $bucketProvider;
     }
 
     /**
      * Lists all LsItem entities.
-     *
-     * @Template()
      */
-    #[Route(path: '/', methods: ['GET'], name: 'lsitem_index')]
+    #[Route(path: '/', name: 'lsitem_index', methods: ['GET'])]
+    #[Template]
     public function indexAction(): array
     {
         return [];
@@ -66,13 +62,12 @@ class LsItemController extends AbstractController
     /**
      * Creates a new LsItem entity.
      *
-     * @Template()
-     * @Security("is_granted('add-standard-to', doc)")
-     *
      * @return array|RedirectResponse|Response
      */
-    #[Route(path: '/new/{doc}/{parent}', methods: ['GET', 'POST'], name: 'lsitem_new')]
-    #[Route(path: '/new/{doc}/{parent}/{assocGroup}', methods: ['GET', 'POST'], name: 'lsitem_new_ag')]
+    #[Route(path: '/new/{doc}/{parent}', name: 'lsitem_new', methods: ['GET', 'POST'])]
+    #[Route(path: '/new/{doc}/{parent}/{assocGroup}', name: 'lsitem_new_ag', methods: ['GET', 'POST'])]
+    #[Template]
+    #[Security("is_granted('add-standard-to', doc)")]
     public function newAction(Request $request, LsDoc $doc, ?LsItem $parent = null, ?LsDefAssociationGrouping $assocGroup = null)
     {
         $ajax = $request->isXmlHttpRequest();
@@ -120,14 +115,11 @@ class LsItemController extends AbstractController
     /**
      * Finds and displays a LsItem entity.
      *
-     * @Template()
-     *
-     * @param string $_format
-     *
      * @return array
      */
-    #[Route(path: '/{id}.{_format}', methods: ['GET'], defaults: ['_format' => 'html'], name: 'lsitem_show')]
-    public function showAction(LsItem $lsItem, $_format = 'html')
+    #[Route(path: '/{id}.{_format}', name: 'lsitem_show', defaults: ['_format' => 'html'], methods: ['GET'])]
+    #[Template]
+    public function showAction(LsItem $lsItem, string $_format = 'html')
     {
         if ('json' === $_format) {
             // Redirect?  Change Action for Template?
@@ -145,12 +137,11 @@ class LsItemController extends AbstractController
     /**
      * Displays a form to edit an existing LsItem entity.
      *
-     * @Template()
-     * @Security("is_granted('edit', lsItem)")
-     *
      * @return array|RedirectResponse|Response
      */
-    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsitem_edit')]
+    #[Route(path: '/{id}/edit', name: 'lsitem_edit', methods: ['GET', 'POST'])]
+    #[Template]
+    #[Security("is_granted('edit', lsItem)")]
     public function editAction(Request $request, LsItem $lsItem, UserInterface $user)
     {
         $ajax = $request->isXmlHttpRequest();
@@ -200,10 +191,9 @@ class LsItemController extends AbstractController
 
     /**
      * Deletes a LsItem entity.
-     *
-     * @Security("is_granted('edit', lsItem)")
      */
-    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsitem_delete')]
+    #[Route(path: '/{id}', name: 'lsitem_delete', methods: ['DELETE'])]
+    #[Security("is_granted('edit', lsItem)")]
     public function deleteAction(Request $request, LsItem $lsItem): RedirectResponse
     {
         $form = $this->createDeleteForm($lsItem);
@@ -233,10 +223,9 @@ class LsItemController extends AbstractController
 
     /**
      * Export an LsItem entity.
-     *
-     * @Template()
      */
-    #[Route(path: '/{id}/export', methods: ['GET'], defaults: ['_format' => 'json'], name: 'lsitem_export')]
+    #[Route(path: '/{id}/export', name: 'lsitem_export', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Template]
     public function exportAction(LsItem $lsItem): array
     {
         return [
@@ -246,11 +235,10 @@ class LsItemController extends AbstractController
 
     /**
      * Remove a child LSItem.
-     *
-     * @Security("is_granted('edit', lsItem)")
-     * @Template()
      */
-    #[Route(path: '/{id}/removeChild/{child}', methods: ['POST'], name: 'lsitem_remove_child')]
+    #[Route(path: '/{id}/removeChild/{child}', name: 'lsitem_remove_child', methods: ['POST'])]
+    #[Security("is_granted('edit', lsItem)")]
+    #[Template]
     public function removeChildAction(LsItem $parent, LsItem $child): array
     {
         $command = new RemoveChildCommand($parent, $child);
@@ -262,12 +250,11 @@ class LsItemController extends AbstractController
     /**
      * Copy an LsItem to a new LsDoc.
      *
-     * @Security("is_granted('edit', lsItem)")
-     * @Template()
-     *
      * @return array|RedirectResponse|Response
      */
-    #[Route(path: '/{id}/copy', methods: ['GET', 'POST'], name: 'lsitem_copy_item')]
+    #[Route(path: '/{id}/copy', name: 'lsitem_copy_item', methods: ['GET', 'POST'])]
+    #[Security("is_granted('edit', lsItem)")]
+    #[Template]
     public function copyAction(Request $request, LsItem $lsItem)
     {
         // Steps
@@ -312,12 +299,11 @@ class LsItemController extends AbstractController
     /**
      * Displays a form to change the parent of an existing LsItem entity.
      *
-     * @Security("is_granted('edit', lsItem)")
-     * @Template()
-     *
      * @return array|RedirectResponse|Response
      */
-    #[Route(path: '/{id}/parent', methods: ['GET', 'POST'], name: 'lsitem_change_parent')]
+    #[Route(path: '/{id}/parent', name: 'lsitem_change_parent', methods: ['GET', 'POST'])]
+    #[Security("is_granted('edit', lsItem)")]
+    #[Template]
     public function changeParentAction(Request $request, LsItem $lsItem)
     {
         $ajax = $request->isXmlHttpRequest();
@@ -354,11 +340,10 @@ class LsItemController extends AbstractController
 
     /**
      * Upload attachment to LsItem entity.
-     *
-     * @Template()
-     * @Security("is_granted('add-standard-to', doc)")
      */
-    #[Route(path: '/{id}/upload_attachment', methods: ['POST'], name: 'lsitem_upload_attachment')]
+    #[Route(path: '/{id}/upload_attachment', name: 'lsitem_upload_attachment', methods: ['POST'])]
+    #[Template]
+    #[Security("is_granted('add-standard-to', doc)")]
     public function uploadAttachmentAction(Request $request, LsDoc $doc, BucketService $bucket): Response
     {
         if (!empty($this->bucketProvider)) {

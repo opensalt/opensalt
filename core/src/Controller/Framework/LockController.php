@@ -22,11 +22,10 @@ class LockController extends AbstractController
     use CommandDispatcherTrait;
 
     /**
-     * @Security("is_granted('edit', lsDoc)")
-     *
      * @param User $user
      */
-    #[Route(path: '/cfdoc/{id}/unlock', methods: ['POST'], name: 'lsdoc_unlock')]
+    #[Route(path: '/cfdoc/{id}/unlock', name: 'lsdoc_unlock', methods: ['POST'])]
+    #[Security("is_granted('edit', lsDoc)")]
     public function releaseDocLock(LsDoc $lsDoc, UserInterface $user): JsonResponse
     {
         try {
@@ -40,11 +39,10 @@ class LockController extends AbstractController
     }
 
     /**
-     * @Security("is_granted('edit', lsDoc)")
-     *
      * @param User $user
      */
-    #[Route(path: '/cfdoc/{id}/lock', methods: ['POST'], name: 'lsdoc_lock')]
+    #[Route(path: '/cfdoc/{id}/lock', name: 'lsdoc_lock', methods: ['POST'])]
+    #[Security("is_granted('edit', lsDoc)")]
     public function extendDocLock(LsDoc $lsDoc, UserInterface $user): JsonResponse
     {
         try {
@@ -58,11 +56,10 @@ class LockController extends AbstractController
     }
 
     /**
-     * @Security("is_granted('edit', item)")
-     *
      * @param User $user
      */
-    #[Route(path: '/cfitem/{id}/unlock', methods: ['POST'], name: 'lsitem_unlock')]
+    #[Route(path: '/cfitem/{id}/unlock', name: 'lsitem_unlock', methods: ['POST'])]
+    #[Security("is_granted('edit', item)")]
     public function releaseItemLock(LsItem $item, UserInterface $user): JsonResponse
     {
         try {
@@ -76,11 +73,10 @@ class LockController extends AbstractController
     }
 
     /**
-     * @Security("is_granted('edit', item)")
-     *
      * @param User $user
      */
-    #[Route(path: '/cfitem/{id}/lock', methods: ['POST'], name: 'lsitem_lock')]
+    #[Route(path: '/cfitem/{id}/lock', name: 'lsitem_lock', methods: ['POST'])]
+    #[Security("is_granted('edit', item)")]
     public function extendItemLock(LsItem $item, UserInterface $user): JsonResponse
     {
         try {

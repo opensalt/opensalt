@@ -19,8 +19,6 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Signup Controller.
- *
  * @Toggle("create_account")
  */
 #[Route(path: '/public/user')]
@@ -29,16 +27,16 @@ class SignupController extends AbstractController
     use CommandDispatcherTrait;
 
     public function __construct(
-        private UserPasswordHasherInterface $passwordEncoder,
-        private ?string $mailFromEmail = null,
-        private ?string $kernelEnv = null,
+        private readonly UserPasswordHasherInterface $passwordEncoder,
+        private readonly ?string $mailFromEmail = null,
+        private readonly ?string $kernelEnv = null,
     ) {
     }
 
     /**
      * Creates a new user entity.
      */
-    #[Route(path: '/signup', methods: ['GET', 'POST'], name: 'public_user_signup')]
+    #[Route(path: '/signup', name: 'public_user_signup', methods: ['GET', 'POST'])]
     public function signupAction(Request $request): Response
     {
         $targetUser = new User();

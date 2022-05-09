@@ -23,7 +23,7 @@ final class CfRubricNormalizer implements NormalizerAwareInterface, ContextAware
         return $data instanceof CfRubric;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = []): ?array
+    public function normalize(mixed $object, string $format = null, array $context = [])
     {
         if (!$object instanceof CfRubric) {
             return null;

@@ -16,14 +16,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Security("is_granted('manage', 'mirrors')")
- */
 #[Route(path: '/admin/mirror/server')]
+#[Security("is_granted('manage', 'mirrors')")]
 class ServerController extends AbstractController
 {
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
@@ -154,7 +152,7 @@ class ServerController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/{id}', methods: ['GET', 'DELETE'], name: 'mirror_server_delete')]
+    #[Route(path: '/{id}', name: 'mirror_server_delete', methods: ['GET', 'DELETE'])]
     public function remove(Request $request, Server $server): Response
     {
         $form = $this->createDeleteForm($server);
@@ -184,7 +182,7 @@ class ServerController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/{id}/refresh', methods: ['POST'], name: 'mirror_server_refresh')]
+    #[Route(path: '/{id}/refresh', name: 'mirror_server_refresh', methods: ['POST'])]
     public function refresh(Server $server, MirrorServer $mirrorServer): Response
     {
         $mirrorServer->updateFrameworkList($server);

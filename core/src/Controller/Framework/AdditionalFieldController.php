@@ -13,21 +13,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * AdditionalField controller.
- *
- * @Security("is_granted('manage', 'additional_fields')")
- */
 #[Route(path: '/additionalfield')]
+#[Security("is_granted('manage', 'additional_fields')")]
 class AdditionalFieldController extends AbstractController
 {
-    private AdditionalFieldRepository $additionalFieldRepository;
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(AdditionalFieldRepository $additionalFieldRepository, EntityManagerInterface $entityManager)
-    {
-        $this->additionalFieldRepository = $additionalFieldRepository;
-        $this->entityManager = $entityManager;
+    public function __construct(
+        private readonly AdditionalFieldRepository $additionalFieldRepository,
+        private readonly EntityManagerInterface $entityManager,
+    ) {
     }
 
     /**

@@ -34,13 +34,13 @@ class CaseV1P0Controller extends AbstractController
     use LoggerTrait;
 
     public function __construct(
-        private SerializerInterface $serializer,
-        private string $assetsVersion,
-        private ManagerRegistry $managerRegistry,
+        private readonly SerializerInterface $serializer,
+        private readonly string          $assetsVersion,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
-    #[Route(path: '/CFDocuments.{_format}', name: 'api_v1p0_cfdocuments', methods: ['GET'], defaults: ['_format' => 'json'])]
+    #[Route(path: '/CFDocuments.{_format}', name: 'api_v1p0_cfdocuments', defaults: ['_format' => 'json'], methods: ['GET'])]
     public function getPublicCfDocumentsAction(Request $request, LsDocRepository $docRepository): Response
     {
         $limit = (int) $request->query->get('limit', '100');
@@ -103,10 +103,8 @@ class CaseV1P0Controller extends AbstractController
         return $response;
     }
 
-    /**
-     * @Entity("obj", expr="repository.findOneByIdentifier(id)")
-     */
-    #[Route(path: '/CFPackages/{id}.{_format}', name: 'api_v1p0_cfpackage', methods: ['GET'], defaults: ['_format' => 'json'])]
+    #[Route(path: '/CFPackages/{id}.{_format}', name: 'api_v1p0_cfpackage', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Entity('obj', expr: 'repository.findOneByIdentifier(id)')]
     public function getCfPackageAction(Request $request, LsDoc $obj): Response
     {
         $id = $obj->getIdentifier();
@@ -137,11 +135,9 @@ class CaseV1P0Controller extends AbstractController
         return $response;
     }
 
-    /**
-     * @Entity("obj", expr="repository.findOneByIdentifier(id)")
-     */
-    #[Route(path: '/CFItemAssociations/{id}.{_format}', name: 'api_v1p0_cfitemassociations', methods: ['GET'], defaults: ['_format' => 'json'])]
-    #[Route(path: '/CFItems/{id}/associations.{_format}', name: 'api_v1p0_cfitemassociations2', methods: ['GET'], defaults: ['_format' => 'json'])]
+    #[Route(path: '/CFItemAssociations/{id}.{_format}', name: 'api_v1p0_cfitemassociations', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFItems/{id}/associations.{_format}', name: 'api_v1p0_cfitemassociations2', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Entity('obj', expr: 'repository.findOneByIdentifier(id)')]
     public function getCfItemAssociationsAction(Request $request, LsItem $obj, LsAssociationRepository $associationRepository): Response
     {
         $item = $obj;
@@ -204,14 +200,14 @@ class CaseV1P0Controller extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/CFAssociationGroupings/{id}.{_format}', name: 'api_v1p0_cfassociationgrouping', methods: ['GET'], defaults: ['class' => LsDefAssociationGrouping::class, '_format' => 'json'])]
-    #[Route(path: '/CFAssociations/{id}.{_format}', name: 'api_v1p0_cfassociation', methods: ['GET'], defaults: ['class' => LsAssociation::class, '_format' => 'json'])]
-    #[Route(path: '/CFDocuments/{id}.{_format}', name: 'api_v1p0_cfdocument', methods: ['GET'], defaults: ['class' => LsDoc::class, '_format' => 'json'])]
-    #[Route(path: '/CFItems/{id}.{_format}', name: 'api_v1p0_cfitem', methods: ['GET'], defaults: ['class' => LsItem::class, '_format' => 'json'])]
-    #[Route(path: '/CFLicenses/{id}.{_format}', name: 'api_v1p0_cflicense', methods: ['GET'], defaults: ['class' => LsDefLicence::class, '_format' => 'json'])]
-    #[Route(path: '/CFRubrics/{id}.{_format}', name: 'api_v1p0_cfrubric', methods: ['GET'], defaults: ['class' => CfRubric::class, '_format' => 'json'])]
-    #[Route(path: '/CFRubricCriteria/{id}.{_format}', name: 'api_v1p0_cfrubriccriterion', methods: ['GET'], defaults: ['class' => CfRubricCriterion::class, '_format' => 'json'])]
-    #[Route(path: '/CFRubricCriterionLevels/{id}.{_format}', name: 'api_v1p0_cfrubriccriterionlevel', methods: ['GET'], defaults: ['class' => CfRubricCriterionLevel::class, '_format' => 'json'])]
+    #[Route(path: '/CFAssociationGroupings/{id}.{_format}', name: 'api_v1p0_cfassociationgrouping', defaults: ['class' => LsDefAssociationGrouping::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFAssociations/{id}.{_format}', name: 'api_v1p0_cfassociation', defaults: ['class' => LsAssociation::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFDocuments/{id}.{_format}', name: 'api_v1p0_cfdocument', defaults: ['class' => LsDoc::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFItems/{id}.{_format}', name: 'api_v1p0_cfitem', defaults: ['class' => LsItem::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFLicenses/{id}.{_format}', name: 'api_v1p0_cflicense', defaults: ['class' => LsDefLicence::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFRubrics/{id}.{_format}', name: 'api_v1p0_cfrubric', defaults: ['class' => CfRubric::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFRubricCriteria/{id}.{_format}', name: 'api_v1p0_cfrubriccriterion', defaults: ['class' => CfRubricCriterion::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFRubricCriterionLevels/{id}.{_format}', name: 'api_v1p0_cfrubriccriterionlevel', defaults: ['class' => CfRubricCriterionLevel::class, '_format' => 'json'], methods: ['GET'])]
     public function getObjectAction(Request $request, LsDocRepository $repo, string $class, string $id): Response
     {
         $obj = $repo->apiFindOneByClassIdentifier(['class' => $class, 'id' => $id]);
@@ -219,9 +215,9 @@ class CaseV1P0Controller extends AbstractController
         return $this->generateObjectResponse($request, $obj);
     }
 
-    #[Route(path: '/CFConcepts/{id}.{_format}', name: 'api_v1p0_cfconcept', methods: ['GET'], defaults: ['class' => LsDefConcept::class, '_format' => 'json'])]
-    #[Route(path: '/CFItemTypes/{id}.{_format}', name: 'api_v1p0_cfitemtype', methods: ['GET'], defaults: ['class' => LsDefItemType::class, '_format' => 'json'])]
-    #[Route(path: '/CFSubjects/{id}.{_format}', name: 'api_v1p0_cfsubject', methods: ['GET'], defaults: ['class' => LsDefSubject::class, '_format' => 'json'])]
+    #[Route(path: '/CFConcepts/{id}.{_format}', name: 'api_v1p0_cfconcept', defaults: ['class' => LsDefConcept::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFItemTypes/{id}.{_format}', name: 'api_v1p0_cfitemtype', defaults: ['class' => LsDefItemType::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFSubjects/{id}.{_format}', name: 'api_v1p0_cfsubject', defaults: ['class' => LsDefSubject::class, '_format' => 'json'], methods: ['GET'])]
     public function getObjectCollectionAction(Request $request, LsDocRepository $repo, string $class, string $id): Response
     {
         $obj = $repo->apiFindOneByClassIdentifier(['class' => $class, 'id' => $id]);

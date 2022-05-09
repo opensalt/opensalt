@@ -34,14 +34,14 @@ class LsDocController extends AbstractController
     use CommandDispatcherTrait;
 
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
     /**
      * Lists all LsDoc entities.
      */
-    #[Route(path: '/', methods: ['GET'], name: 'lsdoc_index')]
+    #[Route(path: '/', name: 'lsdoc_index', methods: ['GET'])]
     public function indexAction(?UserInterface $user = null): Response
     {
         $em = $this->managerRegistry->getManager();
@@ -66,7 +66,7 @@ class LsDocController extends AbstractController
     /**
      * Show frameworks from a remote system.
      */
-    #[Route(path: '/remote', methods: ['GET', 'POST'], name: 'lsdoc_remote_index')]
+    #[Route(path: '/remote', name: 'lsdoc_remote_index', methods: ['GET', 'POST'])]
     public function remoteIndexAction(Request $request): Response
     {
         $form = $this->createForm(RemoteCaseServerType::class);
@@ -106,10 +106,9 @@ class LsDocController extends AbstractController
 
     /**
      * Creates a new LsDoc entity.
-     *
-     * @Security("is_granted('create', 'lsdoc')")
      */
-    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'lsdoc_new')]
+    #[Route(path: '/new', name: 'lsdoc_new', methods: ['GET', 'POST'])]
+    #[Security("is_granted('create', 'lsdoc')")]
     public function newAction(Request $request): Response
     {
         $lsDoc = new LsDoc();
@@ -138,10 +137,9 @@ class LsDocController extends AbstractController
 
     /**
      * Finds and displays a LsDoc entity.
-     *
-     * @Security("is_granted('view', lsDoc)")
      */
-    #[Route(path: '/{id}.{_format}', methods: ['GET'], defaults: ['_format' => 'html'], name: 'lsdoc_show')]
+    #[Route(path: '/{id}.{_format}', name: 'lsdoc_show', defaults: ['_format' => 'html'], methods: ['GET'])]
+    #[Security("is_granted('view', lsDoc)")]
     public function showAction(LsDoc $lsDoc, string $_format = 'html'): Response
     {
         if ('json' === $_format) {
@@ -162,11 +160,10 @@ class LsDocController extends AbstractController
     /**
      * Update a framework given a CSV or external File.
      *
-     * @Security("is_granted('edit', lsDoc)")
-     *
      * @deprecated It appears this is unused now
      */
-    #[Route(path: '/doc/{id}/update', methods: ['POST'], name: 'lsdoc_update')]
+    #[Route(path: '/doc/{id}/update', name: 'lsdoc_update', methods: ['POST'])]
+    #[Security("is_granted('edit', lsDoc)")]
     public function updateAction(Request $request, LsDoc $lsDoc): Response
     {
         $response = new JsonResponse();
@@ -185,10 +182,9 @@ class LsDocController extends AbstractController
 
     /**
      * Update a framework given a CSV or external File on a derivative framework.
-     *
-     * @Security("is_granted('create', 'lsdoc')")
      */
-    #[Route(path: '/doc/{id}/derive', methods: ['POST'], name: 'lsdoc_update_derive')]
+    #[Route(path: '/doc/{id}/derive', name: 'lsdoc_update_derive', methods: ['POST'])]
+    #[Security("is_granted('create', 'lsdoc')")]
     public function deriveAction(Request $request, LsDoc $lsDoc): Response
     {
         $fileContent = $request->request->get('content');
@@ -206,10 +202,9 @@ class LsDocController extends AbstractController
 
     /**
      * Displays a form to edit an existing LsDoc entity.
-     *
-     * @Security("is_granted('edit', lsDoc)")
      */
-    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsdoc_edit')]
+    #[Route(path: '/{id}/edit', name: 'lsdoc_edit', methods: ['GET', 'POST'])]
+    #[Security("is_granted('edit', lsDoc)")]
     public function editAction(Request $request, LsDoc $lsDoc, UserInterface $user): Response
     {
         $ajax = $request->isXmlHttpRequest();
@@ -269,10 +264,9 @@ class LsDocController extends AbstractController
 
     /**
      * Deletes a LsDoc entity.
-     *
-     * @Security("is_granted('delete', lsDoc)")
      */
-    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsdoc_delete')]
+    #[Route(path: '/{id}', name: 'lsdoc_delete', methods: ['DELETE'])]
+    #[Security("is_granted('delete', lsDoc)")]
     public function deleteAction(Request $request, LsDoc $lsDoc): Response
     {
         if ($request->isXmlHttpRequest()) {
@@ -302,10 +296,9 @@ class LsDocController extends AbstractController
 
     /**
      * Finds and displays a LsDoc entity.
-     *
-     * @Security("is_granted('view', lsDoc)")
      */
-    #[Route(path: '/{id}/export.{_format}', methods: ['GET'], requirements: ['_format' => '(json|html|null)'], defaults: ['_format' => 'json'], name: 'lsdoc_export')]
+    #[Route(path: '/{id}/export.{_format}', name: 'lsdoc_export', requirements: ['_format' => '(json|html|null)'], defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Security("is_granted('view', lsDoc)")]
     public function exportAction(LsDoc $lsDoc, string $_format = 'json'): Response
     {
         if ('json' !== $_format) {
