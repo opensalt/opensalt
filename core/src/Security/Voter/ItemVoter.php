@@ -16,10 +16,17 @@ class ItemVoter extends Voter
     final public const ADD_TO = 'add-standard-to';
     final public const EDIT = 'edit';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
+    {
+        return \in_array($attribute, [self::ADD_TO, self::EDIT], true);
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return \in_array($subjectType, ['null', LsDoc::class, LsItem::class], true);
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (!\in_array($attribute, [self::ADD_TO, self::EDIT], true)) {
             return false;
@@ -43,10 +50,7 @@ class ItemVoter extends Voter
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 

@@ -13,18 +13,22 @@ class ManageOrganizationVoter extends Voter
 
     final public const ORGANIZATIONS = 'organizations';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
+    {
+        return self::MANAGE === $attribute;
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return 'string' === $subjectType;
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
     {
         return (self::MANAGE === $attribute) && (self::ORGANIZATIONS === $subject);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         return $this->roleChecker->isSuperUser($token);
     }

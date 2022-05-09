@@ -13,18 +13,22 @@ class FeatureVoter extends Voter
 
     final public const DEV_ENV = 'dev_env';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
+    {
+        return self::FEATURE === $attribute;
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return 'string' === $subjectType;
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
     {
         return (self::FEATURE === $attribute) && (self::DEV_ENV === $subject);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         return $this->roleChecker->isSuperUser($token);
     }

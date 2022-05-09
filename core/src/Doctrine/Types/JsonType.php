@@ -10,7 +10,7 @@ class JsonType extends DbalJsonType
     /**
      * {@inheritdoc}
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): mixed
     {
         if ([] === $value) {
             return null;

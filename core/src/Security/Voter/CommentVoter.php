@@ -17,10 +17,22 @@ class CommentVoter extends Voter
     final public const UPDATE = 'comment_update';
     final public const DELETE = 'comment_delete';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
+    {
+        if (!$this->hasActiveFeature('comments')) {
+            // No support for comments if the feature is not enabled
+            return false;
+        }
+
+        return \in_array($attribute, [self::UPDATE, self::DELETE, self::COMMENT, self::VIEW], true);
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return \in_array($subjectType, ['null', Comment::class], true);
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (!$this->hasActiveFeature('comments')) {
             // No support for comments if the feature is not enabled
@@ -34,10 +46,7 @@ class CommentVoter extends Voter
         };
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         // All users (including anonymous) can view comments
         if (self::VIEW === $attribute) {

@@ -188,10 +188,6 @@ services:
             $bucketPrefix: '%aws_prefix%'
 
     # Workarounds for 3.4 deprecations
-    Symfony\Bundle\SwiftmailerBundle\Command\:
-        resource: '../vendor/symfony/swiftmailer-bundle/Command'
-        tags: ['console.command']
-
     League\Flysystem\Filesystem:
         class: 'League\Flysystem\Filesystem'
 

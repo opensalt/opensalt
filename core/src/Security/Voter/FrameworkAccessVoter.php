@@ -20,10 +20,17 @@ class FrameworkAccessVoter extends Voter
 
     final public const FRAMEWORK = 'lsdoc';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
+    {
+        return \in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::DELETE], true);
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return \in_array($subjectType, ['string', LsDoc::class], true);
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (!\in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::DELETE], true)) {
             return false;
@@ -42,10 +49,7 @@ class FrameworkAccessVoter extends Voter
         return $subject instanceof LsDoc;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         return match ($attribute) {
             self::CREATE => (static::FRAMEWORK === $subject) && $this->canCreateFramework($token),

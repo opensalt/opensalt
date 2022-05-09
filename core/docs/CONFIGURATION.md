@@ -44,13 +44,7 @@ OpenSALT can allow users to self-create an organization and acccount, then email
 
  - CREATE_ACCOUNT_FEATURE - always-active or leave empty (turns on "create account" text on public /cfdoc
  - USE_MAIL_FEATURE - always-active or leave empty
- - MAILER_HOST - for example, smtp.sendgrid.com
- - MAILER_USER - the account for your mail service
- - MAILER_PASSWORD - the password for your user. This is stored just on the server configuration level so should be safe
- - MAIL_FEATURE_FROM_EMAIL - the account that your users will see the email is from
- - MAILER_AUTH_MODE - usually 'login'
- - MAILER_PORT - make sure there are no conflicts 
- - MAILER_TRANSPORT: (often SMTP)
+ - MAILER_DSN - mailer configuration, ex: smtp://user:pass@smtp.example.com:25
 OpenSALT instance with this feature active: http://frameworks.act.org 
 
 ### Realtime notifications

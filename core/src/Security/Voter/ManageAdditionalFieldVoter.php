@@ -13,18 +13,22 @@ class ManageAdditionalFieldVoter extends Voter
 
     final public const ADDITIONAL_FIELDS = 'additional_fields';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
+    {
+        return self::MANAGE === $attribute;
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return 'string' === $subjectType;
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
     {
         return (self::MANAGE === $attribute) && (self::ADDITIONAL_FIELDS === $subject);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         return $this->roleChecker->isSuperUser($token);
     }

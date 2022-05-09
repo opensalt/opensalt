@@ -84,8 +84,6 @@ class SignupController extends AbstractController
                 try {
                     $command = new SendSignupReceivedEmailCommand($targetUser->getUserIdentifier());
                     $this->sendCommand($command);
-                } catch (\Swift_RfcComplianceException $e) {
-                    throw new \RuntimeException('A valid email address must be given.');
                 } catch (\Exception $e) {
                     if ($command->hasValidationErrors()) {
                         $errors = $command->getValidationErrors();
@@ -101,8 +99,6 @@ class SignupController extends AbstractController
                     $from_email = $this->mailFromEmail;
                     $command = new SendAdminNotificationEmailCommand($from_email, $targetUser->getUserIdentifier(), $targetUser->getOrg()->getName());
                     $this->sendCommand($command);
-                } catch (\Swift_RfcComplianceException $e) {
-                    throw new \RuntimeException('A valid email address must be given.');
                 } catch (\Exception $e) {
                     // Do not throw an error to the client if the email could not be sent
                 }

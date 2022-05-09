@@ -20,10 +20,17 @@ class AssociationVoter extends Voter
 
     final public const ASSOCIATION = 'lsassociation';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
+    {
+        return \in_array($attribute, [self::ADD_TO, self::CREATE, self::EDIT], true);
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return \in_array($subjectType, ['string', 'null', LsDoc::class, LsItem::class, LsAssociation::class], true);
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (!\in_array($attribute, [self::ADD_TO, self::CREATE, self::EDIT], true)) {
             return false;
@@ -41,10 +48,7 @@ class AssociationVoter extends Voter
         };
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
@@ -62,10 +66,8 @@ class AssociationVoter extends Voter
 
     /**
      * Validate if a user can add a standard to a document.
-     *
-     * @param mixed $subject
      */
-    private function canAddTo($subject, TokenInterface $token): bool
+    private function canAddTo(mixed $subject, TokenInterface $token): bool
     {
         // Check if the user can edit the document
         if ($subject instanceof LsDoc) {
