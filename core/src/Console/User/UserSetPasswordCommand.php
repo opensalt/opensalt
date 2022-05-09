@@ -5,19 +5,19 @@ namespace App\Console\User;
 use App\Command\User\SetUserPasswordCommand;
 use App\Console\BaseDispatchingCommand;
 use App\Event\CommandEvent;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
+#[AsCommand('salt:user:set-password', 'Set the password for a local user')]
 class UserSetPasswordCommand extends BaseDispatchingCommand
 {
-    protected static $defaultName = 'salt:user:set-password';
-
-    protected function configure()
+    protected function configure(): void
     {
-        $this->setDescription('Set the password for a local user')
+        $this
             ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the user to change')
             ->addArgument('password', InputArgument::OPTIONAL, 'New password for the user')
         ;
