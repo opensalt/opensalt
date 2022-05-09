@@ -22,11 +22,9 @@ trait LoggerTrait
      * @param mixed  $level
      * @param string $message
      *
-     * @return void
-     *
      * @throws InvalidArgumentException
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, \Stringable|string $message, array $context = []): void
     {
         $this->logger?->log($level, $message, $context);
     }

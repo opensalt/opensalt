@@ -15,23 +15,17 @@ final class LsItemNormalizer implements ContextAwareNormalizerInterface
     use LastChangeDateTimeTrait;
 
     public function __construct(
-        private Api1Uris $api1Uris,
-        private AuthorizationCheckerInterface $authorizationChecker,
+        private readonly AuthorizationCheckerInterface $authorizationChecker,
+        private readonly Api1Uris $api1Uris,
     ) {
     }
 
-    /**
-     * @inheritDoc
-     */
     public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof LsItem;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function normalize($object, string $format = null, array $context = [])
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsItem) {
             return null;

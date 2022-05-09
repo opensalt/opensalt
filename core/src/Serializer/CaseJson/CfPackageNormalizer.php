@@ -18,24 +18,18 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwar
     use NormalizerAwareTrait;
 
     public function __construct(
-        private Api1Uris $api1Uris,
-        private LsDocRepository $docRepository,
-        private AuthorizationCheckerInterface $authorizationChecker,
+        private readonly Api1Uris $api1Uris,
+        private readonly LsDocRepository $docRepository,
+        private readonly AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
 
-    /**
-     * @inheritDoc
-     */
     public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof LsDoc && null !== ($context['generate-package'] ?? null);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function normalize($object, string $format = null, array $context = [])
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDoc) {
             return null;

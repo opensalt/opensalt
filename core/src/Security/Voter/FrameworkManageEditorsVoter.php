@@ -13,10 +13,17 @@ class FrameworkManageEditorsVoter extends Voter
 
     final public const MANAGE_EDITORS = 'manage_editors';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
+    {
+        return self::MANAGE_EDITORS === $attribute;
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return LsDoc::class === $subjectType;
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (self::MANAGE_EDITORS !== $attribute) {
             return false;
@@ -29,10 +36,7 @@ class FrameworkManageEditorsVoter extends Voter
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         // Do not allow editing of mirrored frameworks
         if (null !== $subject->getMirroredFramework()) {

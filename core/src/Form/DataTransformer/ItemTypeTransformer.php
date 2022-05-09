@@ -11,18 +11,16 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 /**
  * Data transformer which can create new ItemTypes.
- *
- * Class ItemTypeTransformer
  */
 class ItemTypeTransformer implements DataTransformerInterface
 {
     private PropertyAccessor $accessor;
 
     public function __construct(
-        private EntityManagerInterface $em,
-        private string $className,
-        private ?string $textProperty = null,
-        private string $primaryKey = 'id'
+        private readonly EntityManagerInterface $em,
+        private readonly string $className,
+        private readonly ? string $textProperty = null,
+        private readonly string $primaryKey = 'id'
     ) {
         $this->accessor = PropertyAccess::createPropertyAccessor();
 
@@ -33,10 +31,8 @@ class ItemTypeTransformer implements DataTransformerInterface
 
     /**
      * Transform entity to array.
-     *
-     * @param mixed $entity
      */
-    public function transform($entity): array
+    public function transform(mixed $entity): array
     {
         $data = [];
         if (empty($entity)) {
@@ -59,7 +55,7 @@ class ItemTypeTransformer implements DataTransformerInterface
      *
      * @return mixed|object|null
      */
-    public function reverseTransform($value)
+    public function reverseTransform(mixed $value): mixed
     {
         if (empty($value)) {
             return null;

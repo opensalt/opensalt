@@ -15,10 +15,17 @@ class ManageUserVoter extends Voter
     final public const USERS = 'users';
     final public const ALL_USERS = 'all_users';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
+    {
+        return self::MANAGE === $attribute;
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return \in_array($subjectType, [User::class, 'string'], true);
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (self::MANAGE !== $attribute) {
             return false;
@@ -31,10 +38,7 @@ class ManageUserVoter extends Voter
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 

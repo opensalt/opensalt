@@ -4,12 +4,13 @@ namespace Codeception\Module;
 
 use App\Service\CodeceptionBridge;
 use App\Service\User\UserManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Qandidate\Toggle\ContextFactory;
 use Qandidate\Toggle\ToggleManager;
 
 class Symfony2Module extends Symfony
 {
-    public function _getEntityManager()
+    public function _getEntityManager(): EntityManagerInterface
     {
         /** @var CodeceptionBridge $bridge */
         $bridge = $this->grabService(CodeceptionBridge::class);

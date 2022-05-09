@@ -243,7 +243,7 @@ class CommentsController extends AbstractController
      *
      * @param LsItem|LsDoc $item
      */
-    private function addComment(Request $request, string $itemType, $item, UserInterface $user, $bucket): JsonResponse
+    private function addComment(Request $request, string $itemType, $item, UserInterface $user, BucketService $bucket): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
