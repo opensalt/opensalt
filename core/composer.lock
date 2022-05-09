@@ -58,16 +58,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.222.7",
+            "version": "3.222.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "03d35eef5c509798d2c08587cfd9a7c33afe2260"
+                "reference": "c0344f5d8b1fa3238f96dcc60ff4edbeabbffcae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/03d35eef5c509798d2c08587cfd9a7c33afe2260",
-                "reference": "03d35eef5c509798d2c08587cfd9a7c33afe2260",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c0344f5d8b1fa3238f96dcc60ff4edbeabbffcae",
+                "reference": "c0344f5d8b1fa3238f96dcc60ff4edbeabbffcae",
                 "shasum": ""
             },
             "require": {
@@ -143,9 +143,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.222.7"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.222.8"
             },
-            "time": "2022-05-06T18:16:59+00:00"
+            "time": "2022-05-09T18:17:25+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -11499,12 +11499,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/opensalt/module-sequence.git",
-                "reference": "3a5fda3d406b59296ec67f6e3d8156e7068bc03a"
+                "reference": "44e12029c872f974b4ebb74cc9b7ccaa0bbb45d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opensalt/module-sequence/zipball/3a5fda3d406b59296ec67f6e3d8156e7068bc03a",
-                "reference": "3a5fda3d406b59296ec67f6e3d8156e7068bc03a",
+                "url": "https://api.github.com/repos/opensalt/module-sequence/zipball/44e12029c872f974b4ebb74cc9b7ccaa0bbb45d0",
+                "reference": "44e12029c872f974b4ebb74cc9b7ccaa0bbb45d0",
                 "shasum": ""
             },
             "require": {
@@ -11533,7 +11533,7 @@
             "support": {
                 "source": "https://github.com/opensalt/module-sequence/tree/codeception-5"
             },
-            "time": "2022-05-09T16:15:45+00:00"
+            "time": "2022-05-09T18:35:12+00:00"
         },
         {
             "name": "codeception/module-symfony",
