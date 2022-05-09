@@ -20,7 +20,7 @@ class ExcelExportController extends AbstractController
     }
 
     #[Route(path: '/cfdoc/{id}/excel', name: 'export_excel_file', methods: ['GET'])]
-    public function exportExcelAction(LsDoc $lsDoc): StreamedResponse
+    public function exportExcel(LsDoc $lsDoc): StreamedResponse
     {
         $title = preg_replace('/[^A-Za-z0-9]/', '_', $lsDoc->getTitle());
 

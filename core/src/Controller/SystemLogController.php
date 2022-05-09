@@ -25,7 +25,7 @@ class SystemLogController extends AbstractController
     }
 
     #[Route(path: '/revisions/{offset}/{limit}', name: 'system_logs_json', requirements: ['offset' => '\d+', 'limit' => '\d+'], defaults: ['offset' => 0, 'limit' => 0], methods: ['GET'])]
-    public function listDocRevisionsAction(int $offset = 0, int $limit = 0): Response
+    public function listDocRevisions(int $offset = 0, int $limit = 0): Response
     {
         $response = new StreamedResponse();
         $response->headers->set('Content-type', 'application/json');

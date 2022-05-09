@@ -15,7 +15,7 @@ class SecurityController extends AbstractController
     }
 
     #[Route(path: '/login', name: 'login')]
-    public function loginAction(Request $request): Response
+    public function login(Request $request): Response
     {
         // get the login error if there is one
         $error = $this->authenticationUtils->getLastAuthenticationError();

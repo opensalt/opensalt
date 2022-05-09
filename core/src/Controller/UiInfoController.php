@@ -22,7 +22,7 @@ class UiInfoController extends AbstractController
 
     #[Route(path: '/multi/{id}', name: 'multi_tree_info_json', methods: ['POST'])]
     #[Security("is_granted('edit', doc)")]
-    public function multiJsonInfoAction(Request $request, LsDoc $doc): JsonResponse
+    public function multiJsonInfo(Request $request, LsDoc $doc): JsonResponse
     {
         $objs = [];
 
@@ -67,21 +67,21 @@ class UiInfoController extends AbstractController
 
     #[Route(path: '/doc/{id}', name: 'lsdoc_tree_json', methods: ['GET'])]
     #[Security("is_granted('edit', doc)")]
-    public function docJsonInfoAction(LsDoc $doc): JsonResponse
+    public function docJsonInfo(LsDoc $doc): JsonResponse
     {
         return $this->generateDocJsonResponse($doc);
     }
 
     #[Route(path: '/item/{id}', name: 'lsitem_tree_json', methods: ['GET'])]
     #[Security("is_granted('edit', item)")]
-    public function itemJsonInfoAction(LsItem $item): JsonResponse
+    public function itemJsonInfo(LsItem $item): JsonResponse
     {
         return $this->generateItemJsonResponse($item);
     }
 
     #[Route(path: '/association/{id}', name: 'doc_tree_association_json', methods: ['GET'])]
     #[Security("is_granted('edit', association.getLsDoc())")]
-    public function associationJsonInfoAction(LsAssociation $association): JsonResponse
+    public function associationJsonInfo(LsAssociation $association): JsonResponse
     {
         return $this->generateAssociationJsonResponse($association);
     }

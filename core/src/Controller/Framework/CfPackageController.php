@@ -25,7 +25,7 @@ class CfPackageController extends AbstractController
      */
     #[Route(path: '/doc/{id}.{_format}', name: 'cfpackage_export', requirements: ['_format' => '(json|html|pdf|csv)'], defaults: ['_format' => 'json'], methods: ['GET'])]
     #[Route(path: '/doc/{id}/export.{_format}', name: 'cfpackage_export2', requirements: ['_format' => '(json|html|pdf|csv)'], defaults: ['_format' => 'json'], methods: ['GET'])]
-    public function exportAction(Request $request, LsDoc $lsDoc, string $_format = 'json'): Response
+    public function export(Request $request, LsDoc $lsDoc, string $_format = 'json'): Response
     {
         if ('json' === $_format) {
             $response = $this->generateBaseResponse($lsDoc);

@@ -13,7 +13,7 @@ class AboutController extends AbstractController
     }
 
     #[Route(path: '/about', name: 'site_about')]
-    public function aboutAction(): Response
+    public function about(): Response
     {
         if (file_exists($this->projectDir.'/public/version.txt')) {
             $fullVersion = trim(file_get_contents($this->projectDir.'/public/version.txt'));

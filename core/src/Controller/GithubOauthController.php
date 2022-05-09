@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class GithubOauthController extends AbstractController
 {
     #[Route(path: '/user/github/repos')]
-    public function getReposAction(Request $request): JsonResponse
+    public function getRepos(Request $request): JsonResponse
     {
         $currentUser = $this->getUser();
         $response = new JsonResponse();
@@ -53,7 +53,7 @@ class GithubOauthController extends AbstractController
     }
 
     #[Route(path: '/user/github/files')]
-    public function getFilesAction(Request $request): JsonResponse
+    public function getFiles(Request $request): JsonResponse
     {
         $currentUser = $this->getUser();
         $response = new JsonResponse();

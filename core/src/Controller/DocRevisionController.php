@@ -18,7 +18,7 @@ class DocRevisionController extends AbstractController
 
     #[Route(path: '/cfdoc/{id}/revisions/{offset}/{limit}', name: 'doc_revisions_json', requirements: ['offset' => '\d+', 'limit' => '\d+'], defaults: ['offset' => 0, 'limit' => 0], methods: ['GET'])]
     #[Security("is_granted('edit', doc)")]
-    public function listDocRevisionsAction(LsDoc $doc, int $offset, int $limit): Response
+    public function listDocRevisions(LsDoc $doc, int $offset, int $limit): Response
     {
         $response = new StreamedResponse();
         $response->headers->set('Content-type', 'application/json');

@@ -50,14 +50,14 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/comments/document/{id<\d+>}', name: 'create_doc_comment', methods: ['POST'])]
     #[Security("is_granted('comment')")]
-    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user, BucketService $bucket): JsonResponse
+    public function newDocComment(Request $request, LsDoc $doc, UserInterface $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'document', $doc, $user, $bucket);
     }
 
     #[Route(path: '/comments/item/{id<\d+>}', name: 'create_item_comment', methods: ['POST'])]
     #[Security("is_granted('comment')")]
-    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user, BucketService $bucket): JsonResponse
+    public function newItemComment(Request $request, LsItem $item, UserInterface $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'item', $item, $user, $bucket);
     }
@@ -70,7 +70,7 @@ class CommentsController extends AbstractController
     #[Route(path: '/comments/{itemType<document|item>}/{itemId<\d+>}', name: 'get_comments', methods: ['GET'])]
     #[Entity('comments', expr: 'repository.findByTypeItem(itemType, itemId)', class: Comment::class)]
     #[Security("is_granted('comment_view')")]
-    public function listAction(array $comments, UserInterface $user = null)
+    public function list(array $comments, UserInterface $user = null)
     {
         if ($user instanceof User) {
             foreach ($comments as $comment) {
@@ -83,7 +83,7 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/comments/{id}', methods: ['PUT'])]
     #[Security("is_granted('comment_update', comment)")]
-    public function updateAction(Request $request, Comment $comment, UserInterface $user): JsonResponse
+    public function update(Request $request, Comment $comment, UserInterface $user): JsonResponse
     {
         $command = new UpdateCommentCommand($comment, $request->request->get('content'));
         $this->sendCommand($command);
@@ -93,7 +93,7 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/comments/delete/{id}', methods: ['DELETE'])]
     #[Security("is_granted('comment_delete', comment)")]
-    public function deleteAction(Comment $comment, UserInterface $user): JsonResponse
+    public function delete(Comment $comment, UserInterface $user): JsonResponse
     {
         $command = new DeleteCommentCommand($comment);
         $this->sendCommand($command);
@@ -103,7 +103,7 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/comments/{id}/upvote', methods: ['POST'])]
     #[Security("is_granted('comment')")]
-    public function upvoteAction(Comment $comment, UserInterface $user = null): JsonResponse
+    public function upvote(Comment $comment, UserInterface $user = null): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -117,7 +117,7 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/comments/{id}/upvote', methods: ['DELETE'])]
     #[Security("is_granted('comment')")]
-    public function downvoteAction(Comment $comment, UserInterface $user): JsonResponse
+    public function downvote(Comment $comment, UserInterface $user): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -135,7 +135,7 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/salt/case/export_comment/{itemType}/{itemId}/comment.csv', name: 'export_comment_file')]
     #[Security("is_granted('comment_view')")]
-    public function exportCommentAction(string $itemType, int $itemId): Response
+    public function exportComment(string $itemType, int $itemId): Response
     {
         $response = new StreamedResponse();
         $response->setCallback(function () use ($itemType, $itemId) {

@@ -13,7 +13,7 @@ class DevController extends AbstractController
 {
     #[Route(path: '/dev/cookie', name: 'dev_cookie')]
     #[Security("is_granted('feature', 'dev_env')")]
-    public function devCookieAction(Request $request): Response
+    public function devCookie(Request $request): Response
     {
         if (empty($cookie = $request->server->get('DEV_COOKIE'))) {
             $this->addFlash('error', 'Could not add development cookie as no DEV_COOKIE set.');

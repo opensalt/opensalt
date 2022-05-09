@@ -35,7 +35,7 @@ class LsDefItemTypeController extends AbstractController
      */
     #[Route(path: '/', name: 'lsdef_item_type_index', methods: ['GET'])]
     #[Template]
-    public function indexAction()
+    public function index()
     {
         $em = $this->managerRegistry->getManager();
 
@@ -53,7 +53,7 @@ class LsDefItemTypeController extends AbstractController
      */
     #[Route(path: '/list.{_format}', name: 'lsdef_item_type_index_json', defaults: ['_format' => 'json'], methods: ['GET'])]
     #[Template]
-    public function jsonListAction(Request $request)
+    public function jsonList(Request $request)
     {
         // ?page_limit=N&q=SEARCHTEXT
         $em = $this->managerRegistry->getManager();
@@ -87,7 +87,7 @@ class LsDefItemTypeController extends AbstractController
     #[Route(path: '/new', name: 'lsdef_item_type_new', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function newAction(Request $request)
+    public function new(Request $request)
     {
         $lsDefItemType = new LsDefItemType();
         $form = $this->createForm(LsDefItemTypeType::class, $lsDefItemType);
@@ -117,7 +117,7 @@ class LsDefItemTypeController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_item_type_show', methods: ['GET'])]
     #[Template]
-    public function showAction(LsDefItemType $lsDefItemType)
+    public function show(LsDefItemType $lsDefItemType)
     {
         $deleteForm = $this->createDeleteForm($lsDefItemType);
 
@@ -135,7 +135,7 @@ class LsDefItemTypeController extends AbstractController
     #[Route(path: '/{id}/edit', name: 'lsdef_item_type_edit', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function editAction(Request $request, LsDefItemType $lsDefItemType)
+    public function edit(Request $request, LsDefItemType $lsDefItemType)
     {
         $deleteForm = $this->createDeleteForm($lsDefItemType);
         $editForm = $this->createForm(LsDefItemTypeType::class, $lsDefItemType);
@@ -166,7 +166,7 @@ class LsDefItemTypeController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_item_type_delete', methods: ['DELETE'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function deleteAction(Request $request, LsDefItemType $lsDefItemType)
+    public function delete(Request $request, LsDefItemType $lsDefItemType)
     {
         $form = $this->createDeleteForm($lsDefItemType);
         $form->handleRequest($request);

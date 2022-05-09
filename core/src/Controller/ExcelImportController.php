@@ -18,7 +18,7 @@ class ExcelImportController extends AbstractController
 
     #[Route(path: '/salt/excel/import', name: 'import_excel_file', methods: ['POST'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function importExcelAction(Request $request, UserInterface $user): Response
+    public function importExcel(Request $request, UserInterface $user): Response
     {
         if (!($user instanceof User)) {
             throw $this->createAccessDeniedException();

@@ -36,7 +36,7 @@ class LsDefConceptController extends AbstractController
      */
     #[Route(path: '/', name: 'lsdef_concept_index', methods: ['GET'])]
     #[Template]
-    public function indexAction()
+    public function index()
     {
         $em = $this->managerRegistry->getManager();
 
@@ -55,7 +55,7 @@ class LsDefConceptController extends AbstractController
     #[Route(path: '/new', name: 'lsdef_concept_new', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function newAction(Request $request)
+    public function new(Request $request)
     {
         $lsDefConcept = new LsDefConcept();
         $form = $this->createForm(LsDefConceptType::class, $lsDefConcept);
@@ -83,7 +83,7 @@ class LsDefConceptController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_concept_show', methods: ['GET'])]
     #[Template]
-    public function showAction(LsDefConcept $lsDefConcept): array
+    public function show(LsDefConcept $lsDefConcept): array
     {
         $deleteForm = $this->createDeleteForm($lsDefConcept);
 
@@ -101,7 +101,7 @@ class LsDefConceptController extends AbstractController
     #[Route(path: '/{id}/edit', name: 'lsdef_concept_edit', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function editAction(Request $request, LsDefConcept $lsDefConcept)
+    public function edit(Request $request, LsDefConcept $lsDefConcept)
     {
         $deleteForm = $this->createDeleteForm($lsDefConcept);
         $editForm = $this->createForm(LsDefConceptType::class, $lsDefConcept);
@@ -132,7 +132,7 @@ class LsDefConceptController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_concept_delete', methods: ['DELETE'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function deleteAction(Request $request, LsDefConcept $lsDefConcept): Response
+    public function delete(Request $request, LsDefConcept $lsDefConcept): Response
     {
         $form = $this->createDeleteForm($lsDefConcept);
         $form->handleRequest($request);

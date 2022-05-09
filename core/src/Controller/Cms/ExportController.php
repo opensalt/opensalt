@@ -20,7 +20,7 @@ class ExportController extends AbstractController
      * Generate JSON formatted for export to CMS.
      */
     #[Route(path: '/cfdoc/{id}.{_format}', name: 'lsdoc_api_view', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function exportAction(LsDoc $lsDoc, string $_format = 'json'): Response
+    public function export(LsDoc $lsDoc, string $_format = 'json'): Response
     {
         $items = $this->managerRegistry->getRepository(LsDoc::class)->findAllChildrenArray($lsDoc);
 

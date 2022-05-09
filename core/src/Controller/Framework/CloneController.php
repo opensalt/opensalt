@@ -18,7 +18,7 @@ class CloneController extends AbstractController
 
     #[Route(path: '/framework/{id}', name: 'clone_framework', methods: ['GET'])]
     #[Security("is_granted('edit', lsDoc) and is_granted('create', 'lsdoc')")]
-    public function frameworkAction(Request $request, LsDoc $lsDoc): Response
+    public function framework(Request $request, LsDoc $lsDoc): Response
     {
         $command = new CloneFrameworkCommand($lsDoc);
         $this->sendCommand($command);

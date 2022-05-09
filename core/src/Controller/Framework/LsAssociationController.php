@@ -40,7 +40,7 @@ class LsAssociationController extends AbstractController
      */
     #[Route(path: '/', name: 'lsassociation_index', methods: ['GET'])]
     #[Template]
-    public function indexAction(): array
+    public function index(): array
     {
         $em = $this->managerRegistry->getManager();
 
@@ -58,7 +58,7 @@ class LsAssociationController extends AbstractController
     #[Route(path: '/new/{sourceLsItem}/{assocGroup}', name: 'lsassociation_new_ag', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('add-association-to', sourceLsItem)")]
-    public function newAction(Request $request, ?LsItem $sourceLsItem = null, ?LsDefAssociationGrouping $assocGroup = null)
+    public function new(Request $request, ?LsItem $sourceLsItem = null, ?LsDefAssociationGrouping $assocGroup = null)
     {
         // @TODO: Add LsDoc of the new association for when adding via AJAX
         $ajax = $request->isXmlHttpRequest();
@@ -113,7 +113,7 @@ class LsAssociationController extends AbstractController
      */
     #[Route(path: '/treenew/{lsDoc}', name: 'lsassociation_tree_new', methods: ['POST'])]
     #[Security("is_granted('add-association-to', lsDoc)")]
-    public function treeNewAction(Request $request, LsDoc $lsDoc): Response
+    public function treeNew(Request $request, LsDoc $lsDoc): Response
     {
         // type, origin['externalDoc', 'id', 'identifier'], dest['externalDoc', 'id', 'identifier'], assocGroup
         foreach (['type', 'origin', 'dest'] as $value) {
@@ -156,7 +156,7 @@ class LsAssociationController extends AbstractController
      */
     #[Route(path: '/treenewexemplar/{originLsItem}', name: 'lsassociation_tree_new_exemplar', methods: ['GET', 'POST'])]
     #[Security("is_granted('add-association-to', originLsItem)")]
-    public function treeNewExemplarAction(Request $request, LsItem $originLsItem): Response
+    public function treeNewExemplar(Request $request, LsItem $originLsItem): Response
     {
         if (!$request->request->has('exemplarUrl')) {
             return new JsonResponse(['error' => ['message' => 'Missing value: exemplarUrl']], Response::HTTP_BAD_REQUEST);
@@ -190,7 +190,7 @@ class LsAssociationController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsassociation_show', methods: ['GET'])]
     #[Template]
-    public function showAction(LsAssociation $lsAssociation): array
+    public function show(LsAssociation $lsAssociation): array
     {
         $deleteForm = $this->createDeleteForm($lsAssociation);
 
@@ -206,7 +206,7 @@ class LsAssociationController extends AbstractController
     #[Route(path: '/{id}/edit', name: 'lsassociation_edit', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('edit', lsAssociation)")]
-    public function editAction(Request $request, LsAssociation $lsAssociation)
+    public function edit(Request $request, LsAssociation $lsAssociation)
     {
         $deleteForm = $this->createDeleteForm($lsAssociation);
         $editForm = $this->createForm(LsAssociationType::class, $lsAssociation);
@@ -235,7 +235,7 @@ class LsAssociationController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsassociation_delete', methods: ['DELETE'])]
     #[Security("is_granted('edit', lsAssociation)")]
-    public function deleteAction(Request $request, LsAssociation $lsAssociation): RedirectResponse
+    public function delete(Request $request, LsAssociation $lsAssociation): RedirectResponse
     {
         $form = $this->createDeleteForm($lsAssociation);
         $form->handleRequest($request);
@@ -254,7 +254,7 @@ class LsAssociationController extends AbstractController
     #[Route(path: '/{id}/remove', name: 'lsassociation_remove', methods: ['POST'])]
     #[Template]
     #[Security("is_granted('edit', lsAssociation)")]
-    public function removeChildAction(LsAssociation $lsAssociation): array
+    public function removeChild(LsAssociation $lsAssociation): array
     {
         $command = new DeleteAssociationCommand($lsAssociation);
         $this->sendCommand($command);
@@ -267,7 +267,7 @@ class LsAssociationController extends AbstractController
      */
     #[Route(path: '/{id}/export', name: 'lsassociation_export', defaults: ['_format' => 'json'], methods: ['GET'])]
     #[Template]
-    public function exportAction(LsAssociation $lsAssociation): array
+    public function export(LsAssociation $lsAssociation): array
     {
         return [
             'lsAssociation' => $lsAssociation,

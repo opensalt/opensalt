@@ -58,7 +58,7 @@ class DocTreeController extends AbstractController
     #[Route(path: '/doc/{slug}/{assocGroup}', name: 'doc_tree_view_ag', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
     #[Entity('lsDoc', expr: 'repository.findOneBySlug(slug)')]
     #[Template]
-    public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, $lsItemId = null, $assocGroup = null): array
+    public function view(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, $lsItemId = null, $assocGroup = null): array
     {
         $em = $this->managerRegistry->getManager();
 
@@ -124,7 +124,7 @@ class DocTreeController extends AbstractController
     }
 
     #[Route(path: '/remote', name: 'doc_tree_remote_view', methods: ['GET'])]
-    public function viewRemoteAction(): Response
+    public function viewRemote(): Response
     {
         $assocSubTypes = $this->managerRegistry->getRepository(AssociationSubtype::class)->findAll();
         $assocFilterTypes = [];
@@ -173,7 +173,7 @@ class DocTreeController extends AbstractController
      * Export a CFPackage in a special json format designed for efficiently loading the package's data to the OpenSALT doctree client.
      */
     #[Route(path: '/docexport/{id}.json', name: 'doctree_cfpackage_export', methods: ['GET'])]
-    public function exportAction(Request $request, LsDoc $lsDoc): JsonResponse
+    public function export(Request $request, LsDoc $lsDoc): JsonResponse
     {
         $response = new JsonResponse();
 
@@ -241,13 +241,13 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * Retrieve a CFPackage from the given document identifier, then use exportAction to export it.
+     * Retrieve a CFPackage from the given document identifier, then use export() to export it.
      *
      * @throws \Exception
      */
     #[Route(path: '/retrievedocument/{id}', name: 'doctree_retrieve_document', methods: ['GET'])]
     #[Route(path: '/retrievedocument/url', name: 'doctree_retrieve_document_by_url', defaults: ['id' => null], methods: ['GET'])]
-    public function retrieveDocumentAction(Request $request, ?LsDoc $lsDoc = null): Response
+    public function retrieveDocument(Request $request, ?LsDoc $lsDoc = null): Response
     {
         ini_set('memory_limit', '1G');
 
@@ -365,20 +365,20 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * Note that this must come before viewItemAction for the url mapping to work properly.
+     * Note that this must come before viewItem for the url mapping to work properly.
      */
     #[Route(path: '/item/{id}/details', name: 'doc_tree_item_details', methods: ['GET'])]
     #[Template]
-    public function treeItemDetailsAction(LsItem $lsItem): array
+    public function treeItemDetails(LsItem $lsItem): array
     {
         return ['lsItem' => $lsItem];
     }
 
     #[Route(path: '/item/{id}.{_format}', name: 'doc_tree_item_view', defaults: ['_format' => 'html'], methods: ['GET'])]
     #[Route(path: '/item/{id}/{assocGroup}.{_format}', name: 'doc_tree_item_view_ag', defaults: ['_format' => 'html'], methods: ['GET'])]
-    public function viewItemAction(LsItem $lsItem, ?string $assocGroup = null, string $_format = 'html'): Response
+    public function viewItem(LsItem $lsItem, ?string $assocGroup = null, string $_format = 'html'): Response
     {
-        return $this->forward('App\Controller\Framework\DocTreeController::viewAction', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getid(), 'assocGroup' => $assocGroup]);
+        return $this->forward('App\Controller\Framework\DocTreeController::view', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getid(), 'assocGroup' => $assocGroup]);
     }
 
     /**
@@ -386,7 +386,7 @@ class DocTreeController extends AbstractController
      */
     #[Route(path: '/render/{id}.{_format}', name: 'doctree_render_document', defaults: ['_format' => 'html'], methods: ['GET'])]
     #[Template]
-    public function renderDocumentAction(LsDoc $lsDoc, string $_format = 'html'): array
+    public function renderDocument(LsDoc $lsDoc, string $_format = 'html'): array
     {
         $repo = $this->managerRegistry->getRepository(LsDoc::class);
 
@@ -431,7 +431,7 @@ class DocTreeController extends AbstractController
      */
     #[Route(path: '/item/{id}/delete/{includingChildren}', name: 'lsitem_tree_delete', defaults: ['includingChildren' => 0], methods: ['POST'])]
     #[Security("is_granted('edit', lsItem)")]
-    public function deleteItemAction(Request $request, LsItem $lsItem, int $includingChildren = 0): Response
+    public function deleteItem(Request $request, LsItem $lsItem, int $includingChildren = 0): Response
     {
         $ajax = false;
         if ($request->isXmlHttpRequest()) {
@@ -465,7 +465,7 @@ class DocTreeController extends AbstractController
     #[Route(path: '/doc/{id}/updateitems.{_format}', name: 'doctree_update_items', methods: ['POST'])]
     #[Security("is_granted('edit', lsDoc)")]
     #[Template]
-    public function updateItemsAction(Request $request, LsDoc $lsDoc, string $_format = 'json'): array
+    public function updateItems(Request $request, LsDoc $lsDoc, string $_format = 'json'): array
     {
         /** @var array $lsItems */
         $lsItems = $request->request->all('lsItems');
@@ -495,7 +495,7 @@ class DocTreeController extends AbstractController
      * @throws \InvalidArgumentException
      */
     #[Route(path: '/assocgroup/{id}/delete', name: 'lsdef_association_grouping_tree_delete', methods: ['POST'])]
-    public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $associationGrouping): Response
+    public function deleteAssocGroup(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
         $command = new DeleteAssociationGroupCommand($associationGrouping);
 
@@ -524,7 +524,7 @@ class DocTreeController extends AbstractController
             return new Response('Document not found.', Response::HTTP_NOT_FOUND);
         }
 
-        return $this->exportAction($request, $newDoc);
+        return $this->export($request, $newDoc);
     }
 
     /**
@@ -534,7 +534,7 @@ class DocTreeController extends AbstractController
     {
         $newDoc = $this->managerRegistry->getRepository(LsDoc::class)->findOneBy(['identifier' => $identifier]);
         if (null !== $newDoc) {
-            return $this->exportAction($request, $newDoc);
+            return $this->export($request, $newDoc);
         }
 
         // otherwise look in this doc's externalDocs

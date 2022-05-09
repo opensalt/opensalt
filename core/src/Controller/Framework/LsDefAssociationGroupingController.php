@@ -34,7 +34,7 @@ class LsDefAssociationGroupingController extends AbstractController
      */
     #[Route(path: '/', name: 'lsdef_association_grouping_index', methods: ['GET'])]
     #[Template]
-    public function indexAction(): array
+    public function index(): array
     {
         $em = $this->managerRegistry->getManager();
 
@@ -51,7 +51,7 @@ class LsDefAssociationGroupingController extends AbstractController
     #[Route(path: '/new', name: 'lsdef_association_grouping_new', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function newAction(Request $request): array|Response
+    public function new(Request $request): array|Response
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -92,7 +92,7 @@ class LsDefAssociationGroupingController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_association_grouping_show', methods: ['GET'])]
     #[Template]
-    public function showAction(LsDefAssociationGrouping $associationGrouping)
+    public function show(LsDefAssociationGrouping $associationGrouping)
     {
         $deleteForm = $this->createDeleteForm($associationGrouping);
 
@@ -110,7 +110,7 @@ class LsDefAssociationGroupingController extends AbstractController
     #[Route(path: '/{id}/edit', name: 'lsdef_association_grouping_edit', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function editAction(Request $request, LsDefAssociationGrouping $associationGrouping)
+    public function edit(Request $request, LsDefAssociationGrouping $associationGrouping)
     {
         $deleteForm = $this->createDeleteForm($associationGrouping);
         $editForm = $this->createForm(LsDefAssociationGroupingType::class, $associationGrouping);
@@ -141,7 +141,7 @@ class LsDefAssociationGroupingController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_association_grouping_delete', methods: ['DELETE'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function deleteAction(Request $request, LsDefAssociationGrouping $associationGrouping)
+    public function delete(Request $request, LsDefAssociationGrouping $associationGrouping)
     {
         $form = $this->createDeleteForm($associationGrouping);
         $form->handleRequest($request);

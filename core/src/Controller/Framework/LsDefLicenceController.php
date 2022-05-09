@@ -35,7 +35,7 @@ class LsDefLicenceController extends AbstractController
      */
     #[Route(path: '/', name: 'lsdef_licence_index', methods: ['GET'])]
     #[Template]
-    public function indexAction()
+    public function index()
     {
         $em = $this->managerRegistry->getManager();
 
@@ -51,7 +51,7 @@ class LsDefLicenceController extends AbstractController
      */
     #[Route(path: '/list.{_format}', name: 'lsdef_licence_index_json', defaults: ['_format' => 'json'], methods: ['GET'])]
     #[Template]
-    public function jsonListAction(): array
+    public function jsonList(): array
     {
         $em = $this->managerRegistry->getManager();
 
@@ -70,7 +70,7 @@ class LsDefLicenceController extends AbstractController
     #[Route(path: '/new', name: 'lsdef_licence_new', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function newAction(Request $request)
+    public function new(Request $request)
     {
         $lsDefLicence = new LsDefLicence();
         $form = $this->createForm(LsDefLicenceType::class, $lsDefLicence);
@@ -100,7 +100,7 @@ class LsDefLicenceController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_licence_show', methods: ['GET'])]
     #[Template]
-    public function showAction(LsDefLicence $lsDefLicence)
+    public function show(LsDefLicence $lsDefLicence)
     {
         $deleteForm = $this->createDeleteForm($lsDefLicence);
 
@@ -118,7 +118,7 @@ class LsDefLicenceController extends AbstractController
     #[Route(path: '/{id}/edit', name: 'lsdef_licence_edit', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function editAction(Request $request, LsDefLicence $lsDefLicence)
+    public function edit(Request $request, LsDefLicence $lsDefLicence)
     {
         $deleteForm = $this->createDeleteForm($lsDefLicence);
         $editForm = $this->createForm(LsDefLicenceType::class, $lsDefLicence);
@@ -149,7 +149,7 @@ class LsDefLicenceController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_licence_delete', methods: ['DELETE'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function deleteAction(Request $request, LsDefLicence $lsDefLicence)
+    public function delete(Request $request, LsDefLicence $lsDefLicence)
     {
         $form = $this->createDeleteForm($lsDefLicence);
         $form->handleRequest($request);

@@ -16,7 +16,7 @@ class ImportLogsController extends AbstractController
 
     #[Route(path: '/cfdoc/{doc}/import_logs/mark_as_read', name: 'mark_import_logs_as_read', methods: ['POST'])]
     #[Security("is_granted('edit', doc)")]
-    public function markAsReadAction(LsDoc $doc): JsonResponse
+    public function markAsRead(LsDoc $doc): JsonResponse
     {
         $command = new MarkImportLogsAsReadCommand($doc);
         $this->sendCommand($command);

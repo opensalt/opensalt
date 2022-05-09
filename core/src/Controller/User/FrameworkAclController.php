@@ -31,7 +31,7 @@ class FrameworkAclController extends AbstractController
 
     #[Route(path: '/{id}/acl', name: 'framework_acl_edit', methods: ['GET', 'POST'])]
     #[Security("is_granted('manage_editors', lsDoc)")]
-    public function editAction(Request $request, LsDoc $lsDoc): Response
+    public function edit(Request $request, LsDoc $lsDoc): Response
     {
         $addAclUserDto = new AddAclUserDTO($lsDoc, UserDocAcl::DENY);
         $addOrgUserForm = $this->createForm(AddAclUserType::class, $addAclUserDto, [
@@ -140,7 +140,7 @@ class FrameworkAclController extends AbstractController
 
     #[Route(path: '/{id}/acl/{targetUser}', name: 'framework_acl_remove', methods: ['DELETE'])]
     #[Security("is_granted('manage_editors', lsDoc)")]
-    public function removeAclAction(Request $request, LsDoc $lsDoc, User $targetUser): RedirectResponse
+    public function removeAcl(Request $request, LsDoc $lsDoc, User $targetUser): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDoc, $targetUser);
         $form->handleRequest($request);

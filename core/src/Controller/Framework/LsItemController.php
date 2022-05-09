@@ -54,7 +54,7 @@ class LsItemController extends AbstractController
      */
     #[Route(path: '/', name: 'lsitem_index', methods: ['GET'])]
     #[Template]
-    public function indexAction(): array
+    public function index(): array
     {
         return [];
     }
@@ -68,7 +68,7 @@ class LsItemController extends AbstractController
     #[Route(path: '/new/{doc}/{parent}/{assocGroup}', name: 'lsitem_new_ag', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('add-standard-to', doc)")]
-    public function newAction(Request $request, LsDoc $doc, ?LsItem $parent = null, ?LsDefAssociationGrouping $assocGroup = null)
+    public function new(Request $request, LsDoc $doc, ?LsItem $parent = null, ?LsDefAssociationGrouping $assocGroup = null)
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -119,7 +119,7 @@ class LsItemController extends AbstractController
      */
     #[Route(path: '/{id}.{_format}', name: 'lsitem_show', defaults: ['_format' => 'html'], methods: ['GET'])]
     #[Template]
-    public function showAction(LsItem $lsItem, string $_format = 'html')
+    public function show(LsItem $lsItem, string $_format = 'html')
     {
         if ('json' === $_format) {
             // Redirect?  Change Action for Template?
@@ -142,7 +142,7 @@ class LsItemController extends AbstractController
     #[Route(path: '/{id}/edit', name: 'lsitem_edit', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('edit', lsItem)")]
-    public function editAction(Request $request, LsItem $lsItem, UserInterface $user)
+    public function edit(Request $request, LsItem $lsItem, UserInterface $user)
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -194,7 +194,7 @@ class LsItemController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsitem_delete', methods: ['DELETE'])]
     #[Security("is_granted('edit', lsItem)")]
-    public function deleteAction(Request $request, LsItem $lsItem): RedirectResponse
+    public function delete(Request $request, LsItem $lsItem): RedirectResponse
     {
         $form = $this->createDeleteForm($lsItem);
         $form->handleRequest($request);
@@ -226,7 +226,7 @@ class LsItemController extends AbstractController
      */
     #[Route(path: '/{id}/export', name: 'lsitem_export', defaults: ['_format' => 'json'], methods: ['GET'])]
     #[Template]
-    public function exportAction(LsItem $lsItem): array
+    public function export(LsItem $lsItem): array
     {
         return [
             'lsItem' => $lsItem,
@@ -239,7 +239,7 @@ class LsItemController extends AbstractController
     #[Route(path: '/{id}/removeChild/{child}', name: 'lsitem_remove_child', methods: ['POST'])]
     #[Security("is_granted('edit', lsItem)")]
     #[Template]
-    public function removeChildAction(LsItem $parent, LsItem $child): array
+    public function removeChild(LsItem $parent, LsItem $child): array
     {
         $command = new RemoveChildCommand($parent, $child);
         $this->sendCommand($command);
@@ -255,7 +255,7 @@ class LsItemController extends AbstractController
     #[Route(path: '/{id}/copy', name: 'lsitem_copy_item', methods: ['GET', 'POST'])]
     #[Security("is_granted('edit', lsItem)")]
     #[Template]
-    public function copyAction(Request $request, LsItem $lsItem)
+    public function copy(Request $request, LsItem $lsItem)
     {
         // Steps
         //  - Select LsDoc to copy to
@@ -304,7 +304,7 @@ class LsItemController extends AbstractController
     #[Route(path: '/{id}/parent', name: 'lsitem_change_parent', methods: ['GET', 'POST'])]
     #[Security("is_granted('edit', lsItem)")]
     #[Template]
-    public function changeParentAction(Request $request, LsItem $lsItem)
+    public function changeParent(Request $request, LsItem $lsItem)
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -344,7 +344,7 @@ class LsItemController extends AbstractController
     #[Route(path: '/{id}/upload_attachment', name: 'lsitem_upload_attachment', methods: ['POST'])]
     #[Template]
     #[Security("is_granted('add-standard-to', doc)")]
-    public function uploadAttachmentAction(Request $request, LsDoc $doc, BucketService $bucket): Response
+    public function uploadAttachment(Request $request, LsDoc $doc, BucketService $bucket): Response
     {
         if (!empty($this->bucketProvider)) {
             $file = $request->files->get('file');

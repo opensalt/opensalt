@@ -35,7 +35,7 @@ class OAuthServiceController extends AbstractController
      * @throws \UnexpectedValueException
      */
     #[Route(path: '/check-github', name: 'github_login', methods: ['GET'])]
-    public function githubAction(Request $request, SessionInterface $session, ManagerRegistry $managerRegistry): Response
+    public function github(Request $request, SessionInterface $session, ManagerRegistry $managerRegistry): Response
     {
         if (!empty($this->githubRedirectUri)) {
             $redirectUri = $this->githubRedirectUri;

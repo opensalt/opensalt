@@ -23,7 +23,7 @@ class CaseImportController extends AbstractController
 
     #[Route(path: '/salt/case/import', name: 'import_case_file')]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function importAction(Request $request, UserInterface $user): JsonResponse
+    public function import(Request $request, UserInterface $user): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -41,7 +41,7 @@ class CaseImportController extends AbstractController
 
     #[Route(path: '/salt/case/importRemote', name: 'import_case_file_remote')]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function importRemoteAction(Request $request, UserInterface $user): Response
+    public function importRemote(Request $request, UserInterface $user): Response
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);

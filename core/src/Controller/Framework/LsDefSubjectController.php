@@ -35,7 +35,7 @@ class LsDefSubjectController extends AbstractController
      */
     #[Route(path: '/', name: 'lsdef_subject_index', methods: ['GET'])]
     #[Template]
-    public function indexAction()
+    public function index()
     {
         $em = $this->managerRegistry->getManager();
 
@@ -53,7 +53,7 @@ class LsDefSubjectController extends AbstractController
      */
     #[Route(path: '/list.{_format}', name: 'lsdef_subject_index_json', defaults: ['_format' => 'json'], methods: ['GET'])]
     #[Template]
-    public function jsonListAction(Request $request)
+    public function jsonList(Request $request)
     {
         // ?page_limit=N&q=SEARCHTEXT
         $em = $this->managerRegistry->getManager();
@@ -74,7 +74,7 @@ class LsDefSubjectController extends AbstractController
     #[Route(path: '/new', name: 'lsdef_subject_new', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function newAction(Request $request)
+    public function new(Request $request)
     {
         $lsDefSubject = new LsDefSubject();
         $form = $this->createForm(LsDefSubjectType::class, $lsDefSubject);
@@ -104,7 +104,7 @@ class LsDefSubjectController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_subject_show', methods: ['GET'])]
     #[Template]
-    public function showAction(LsDefSubject $lsDefSubject)
+    public function show(LsDefSubject $lsDefSubject)
     {
         $deleteForm = $this->createDeleteForm($lsDefSubject);
 
@@ -122,7 +122,7 @@ class LsDefSubjectController extends AbstractController
     #[Route(path: '/{id}/edit', name: 'lsdef_subject_edit', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function editAction(Request $request, LsDefSubject $lsDefSubject)
+    public function edit(Request $request, LsDefSubject $lsDefSubject)
     {
         $deleteForm = $this->createDeleteForm($lsDefSubject);
         $editForm = $this->createForm(LsDefSubjectType::class, $lsDefSubject);
@@ -153,7 +153,7 @@ class LsDefSubjectController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_subject_delete', methods: ['DELETE'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function deleteAction(Request $request, LsDefSubject $lsDefSubject)
+    public function delete(Request $request, LsDefSubject $lsDefSubject)
     {
         $form = $this->createDeleteForm($lsDefSubject);
         $form->handleRequest($request);

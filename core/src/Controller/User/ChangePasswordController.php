@@ -24,7 +24,7 @@ class ChangePasswordController extends AbstractController
     }
 
     #[Route(path: '/user/change-password', name: 'user_change_password')]
-    public function changePasswordAction(Request $request): Response
+    public function changePassword(Request $request): Response
     {
         $dto = new ChangePasswordDTO();
         $form = $this->createForm(ChangePasswordType::class, $dto);

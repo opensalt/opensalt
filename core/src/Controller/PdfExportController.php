@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
+use App\Controller\Framework\CfPackageController;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
@@ -17,12 +18,12 @@ class PdfExportController extends AbstractController
     use CommandDispatcherTrait;
 
     #[Route(path: '/cfdoc/{id}/pdf', name: 'export_pdf_file', methods: ['GET'])]
-    public function exportPdfAction(int $id): StreamedResponse
+    public function exportPdf(int $id): StreamedResponse
     {
         $phpWordObject = new PhpWord();
         $section = $phpWordObject->addSection();
 
-        $response = $this->forward('App\Controller\Framework\CfPackageController::exportAction', ['id' => $id, '_format' => 'json']);
+        $response = $this->forward(CfPackageController::class.'::export', ['id' => $id, '_format' => 'json']);
         $data_array = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         for ($i = 0, $iMax = is_countable($data_array['CFItems']) ? count($data_array['CFItems']) : 0; $i < $iMax; ++$i) {
             $data_array['CFItems'][$i]['fullStatement'] = $this->renderImages($data_array['CFItems'][$i]['fullStatement']);

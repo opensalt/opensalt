@@ -25,7 +25,7 @@ class UriController extends AbstractController
     }
 
     #[Route(path: '/uri/', name: 'uri_lookup_empty', defaults: ['_format' => 'html'], methods: ['GET'])]
-    public function findEmptyUriAction(Request $request): Response
+    public function findEmptyUri(Request $request): Response
     {
         $this->determineRequestFormat($request, null);
 
@@ -41,7 +41,7 @@ class UriController extends AbstractController
     }
 
     #[Route(path: '/uri/{uri}.{_format}', name: 'uri_lookup', defaults: ['_format' => null], methods: ['GET'])]
-    public function findUriAction(Request $request, string $uri, ?string $_format): Response
+    public function findUri(Request $request, string $uri, ?string $_format): Response
     {
         if ($request->isXmlHttpRequest()) {
             $_format = 'json';

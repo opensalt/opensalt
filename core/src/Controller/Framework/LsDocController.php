@@ -42,7 +42,7 @@ class LsDocController extends AbstractController
      * Lists all LsDoc entities.
      */
     #[Route(path: '/', name: 'lsdoc_index', methods: ['GET'])]
-    public function indexAction(?UserInterface $user = null): Response
+    public function index(?UserInterface $user = null): Response
     {
         $em = $this->managerRegistry->getManager();
 
@@ -67,7 +67,7 @@ class LsDocController extends AbstractController
      * Show frameworks from a remote system.
      */
     #[Route(path: '/remote', name: 'lsdoc_remote_index', methods: ['GET', 'POST'])]
-    public function remoteIndexAction(Request $request): Response
+    public function remoteIndex(Request $request): Response
     {
         $form = $this->createForm(RemoteCaseServerType::class);
         $form->handleRequest($request);
@@ -109,7 +109,7 @@ class LsDocController extends AbstractController
      */
     #[Route(path: '/new', name: 'lsdoc_new', methods: ['GET', 'POST'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function newAction(Request $request): Response
+    public function new(Request $request): Response
     {
         $lsDoc = new LsDoc();
         $form = $this->createForm(LsDocCreateType::class, $lsDoc);
@@ -140,7 +140,7 @@ class LsDocController extends AbstractController
      */
     #[Route(path: '/{id}.{_format}', name: 'lsdoc_show', defaults: ['_format' => 'html'], methods: ['GET'])]
     #[Security("is_granted('view', lsDoc)")]
-    public function showAction(LsDoc $lsDoc, string $_format = 'html'): Response
+    public function show(LsDoc $lsDoc, string $_format = 'html'): Response
     {
         if ('json' === $_format) {
             // Redirect?  Change Action for Template?
@@ -164,7 +164,7 @@ class LsDocController extends AbstractController
      */
     #[Route(path: '/doc/{id}/update', name: 'lsdoc_update', methods: ['POST'])]
     #[Security("is_granted('edit', lsDoc)")]
-    public function updateAction(Request $request, LsDoc $lsDoc): Response
+    public function update(Request $request, LsDoc $lsDoc): Response
     {
         $response = new JsonResponse();
         $fileContent = $request->request->get('content');
@@ -185,7 +185,7 @@ class LsDocController extends AbstractController
      */
     #[Route(path: '/doc/{id}/derive', name: 'lsdoc_update_derive', methods: ['POST'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function deriveAction(Request $request, LsDoc $lsDoc): Response
+    public function derive(Request $request, LsDoc $lsDoc): Response
     {
         $fileContent = $request->request->get('content');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
@@ -205,7 +205,7 @@ class LsDocController extends AbstractController
      */
     #[Route(path: '/{id}/edit', name: 'lsdoc_edit', methods: ['GET', 'POST'])]
     #[Security("is_granted('edit', lsDoc)")]
-    public function editAction(Request $request, LsDoc $lsDoc, UserInterface $user): Response
+    public function edit(Request $request, LsDoc $lsDoc, UserInterface $user): Response
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -267,7 +267,7 @@ class LsDocController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdoc_delete', methods: ['DELETE'])]
     #[Security("is_granted('delete', lsDoc)")]
-    public function deleteAction(Request $request, LsDoc $lsDoc): Response
+    public function delete(Request $request, LsDoc $lsDoc): Response
     {
         if ($request->isXmlHttpRequest()) {
             $token = $request->request->get('token');
@@ -299,7 +299,7 @@ class LsDocController extends AbstractController
      */
     #[Route(path: '/{id}/export.{_format}', name: 'lsdoc_export', requirements: ['_format' => '(json|html|null)'], defaults: ['_format' => 'json'], methods: ['GET'])]
     #[Security("is_granted('view', lsDoc)")]
-    public function exportAction(LsDoc $lsDoc, string $_format = 'json'): Response
+    public function export(LsDoc $lsDoc, string $_format = 'json'): Response
     {
         if ('json' !== $_format) {
             $_format = 'html';

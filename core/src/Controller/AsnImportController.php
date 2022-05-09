@@ -19,7 +19,7 @@ class AsnImportController extends AbstractController
     use CommandDispatcherTrait;
 
     #[Route(path: '/cf/asn/import', name: 'import_from_asn')]
-    public function importAsnAction(Request $request, UserInterface $user): JsonResponse
+    public function importAsn(Request $request, UserInterface $user): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);

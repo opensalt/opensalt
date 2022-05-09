@@ -37,7 +37,7 @@ class SignupController extends AbstractController
      * Creates a new user entity.
      */
     #[Route(path: '/signup', name: 'public_user_signup', methods: ['GET', 'POST'])]
-    public function signupAction(Request $request): Response
+    public function signup(Request $request): Response
     {
         $targetUser = new User();
         $form = $this->createForm(SignupType::class, $targetUser, ['validation_groups' => ['registration']]);

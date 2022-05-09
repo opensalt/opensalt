@@ -8,33 +8,33 @@ use App\Util\Compare;
 use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/cf')]
 class EditorController extends AbstractController
 {
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
     #[Route(path: '/doc/{id}.{_format}', name: 'editor_lsdoc', defaults: ['_format' => 'html'], methods: ['GET'])]
-    #[Template]
-    public function viewDocAction(LsDoc $lsDoc, string $_format = 'html')
+    public function viewDoc(LsDoc $lsDoc, string $_format = 'html'): Response
     {
         if ('json' === $_format) {
-            return $this->forward('App\Controller\Framework\LsDocController::exportAction', ['lsDoc' => $lsDoc]);
+            return $this->forward(LsDocController::class.'::export', ['lsDoc' => $lsDoc]);
         }
 
-        return ['lsDoc' => $lsDoc];
+        return $this->render('framework/editor/view_doc.html.twig', ['lsDoc' => $lsDoc]);
     }
 
     #[Route(path: '/item/{id}.{_format}', name: 'editor_lsitem', defaults: ['_format' => 'html'], methods: ['GET'])]
     #[Template]
-    public function viewItemAction(LsItem $lsItem, string $_format = 'html')
+    public function viewItem(LsItem $lsItem, string $_format = 'html')
     {
         if ('json' === $_format) {
-            return $this->forward('App\Controller\Framework\LsItemController::exportAction', ['lsItem' => $lsItem]);
+            return $this->forward(LsItemController::class.'::export', ['lsItem' => $lsItem]);
         }
 
         return ['lsItem' => $lsItem];
@@ -43,7 +43,7 @@ class EditorController extends AbstractController
     #[Route(path: '/render/{id}.{_format}', name: 'editor_render_document_only', defaults: ['highlight' => null, '_format' => 'html'], methods: ['GET'])]
     #[Route(path: '/render/{id}/{highlight}.{_format}', name: 'editor_render', defaults: ['highlight' => null, '_format' => 'html'], methods: ['GET'])]
     #[Template]
-    public function renderDocumentAction(LsDoc $lsDoc, ?int $highlight = null, $_format = 'html'): array
+    public function renderDocument(LsDoc $lsDoc, ?int $highlight = null, string $_format = 'html'): array
     {
         $repo = $this->managerRegistry->getRepository(LsDoc::class);
 

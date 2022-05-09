@@ -24,7 +24,7 @@ class CopyController extends AbstractController
 
     #[Route(path: '/framework/{id}', name: 'copy_framework_content', methods: ['POST'])]
     #[Security("is_granted('view', lsDoc)")]
-    public function frameworkAction(Request $request, LsDoc $lsDoc): JsonResponse
+    public function framework(Request $request, LsDoc $lsDoc): JsonResponse
     {
         $type = $request->request->get('type');
         $frameworkToCopy = $request->request->get('copyToFramework');

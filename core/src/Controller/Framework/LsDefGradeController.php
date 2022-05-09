@@ -35,7 +35,7 @@ class LsDefGradeController extends AbstractController
      */
     #[Route(path: '/', name: 'lsdef_grade_index', methods: ['GET'])]
     #[Template]
-    public function indexAction()
+    public function index()
     {
         $em = $this->managerRegistry->getManager();
 
@@ -54,7 +54,7 @@ class LsDefGradeController extends AbstractController
     #[Route(path: '/new', name: 'lsdef_grade_new', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function newAction(Request $request)
+    public function new(Request $request)
     {
         $lsDefGrade = new LsDefGrade();
         $form = $this->createForm(LsDefGradeType::class, $lsDefGrade);
@@ -84,7 +84,7 @@ class LsDefGradeController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_grade_show', methods: ['GET'])]
     #[Template]
-    public function showAction(LsDefGrade $lsDefGrade)
+    public function show(LsDefGrade $lsDefGrade)
     {
         $deleteForm = $this->createDeleteForm($lsDefGrade);
 
@@ -102,7 +102,7 @@ class LsDefGradeController extends AbstractController
     #[Route(path: '/{id}/edit', name: 'lsdef_grade_edit', methods: ['GET', 'POST'])]
     #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function editAction(Request $request, LsDefGrade $lsDefGrade)
+    public function edit(Request $request, LsDefGrade $lsDefGrade)
     {
         $deleteForm = $this->createDeleteForm($lsDefGrade);
         $editForm = $this->createForm(LsDefGradeType::class, $lsDefGrade);
@@ -133,7 +133,7 @@ class LsDefGradeController extends AbstractController
      */
     #[Route(path: '/{id}', name: 'lsdef_grade_delete', methods: ['DELETE'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function deleteAction(Request $request, LsDefGrade $lsDefGrade)
+    public function delete(Request $request, LsDefGrade $lsDefGrade)
     {
         $form = $this->createDeleteForm($lsDefGrade);
         $form->handleRequest($request);
