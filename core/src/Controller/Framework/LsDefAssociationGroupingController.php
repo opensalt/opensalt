@@ -10,7 +10,6 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Form\Type\LsDefAssociationGroupingType;
 use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -33,25 +32,23 @@ class LsDefAssociationGroupingController extends AbstractController
      * Lists all LsDefAssociationGrouping entities.
      */
     #[Route(path: '/', name: 'lsdef_association_grouping_index', methods: ['GET'])]
-    #[Template]
-    public function index(): array
+    public function index(): Response
     {
         $em = $this->managerRegistry->getManager();
 
         $associationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findBy([], null, 100);
 
-        return [
+        return $this->render('framework/ls_def_association_grouping/index.html.twig', [
             'lsDefAssociationGroupings' => $associationGroupings,
-        ];
+        ]);
     }
 
     /**
      * Creates a new LsDefAssociationGrouping entity.
      */
     #[Route(path: '/new', name: 'lsdef_association_grouping_new', methods: ['GET', 'POST'])]
-    #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function new(Request $request): array|Response
+    public function new(Request $request): Response
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -79,38 +76,32 @@ class LsDefAssociationGroupingController extends AbstractController
             return $this->render('framework/ls_def_association_grouping/new.html.twig', ['form' => $form->createView()], new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
-        return [
+        return $this->render('framework/ls_def_association_grouping/new.html.twig', [
             'lsDefAssociationGrouping' => $associationGrouping,
             'form' => $form->createView(),
-        ];
+        ]);
     }
 
     /**
      * Finds and displays a LsDefAssociationGrouping entity.
-     *
-     * @return array
      */
     #[Route(path: '/{id}', name: 'lsdef_association_grouping_show', methods: ['GET'])]
-    #[Template]
-    public function show(LsDefAssociationGrouping $associationGrouping)
+    public function show(LsDefAssociationGrouping $associationGrouping): Response
     {
         $deleteForm = $this->createDeleteForm($associationGrouping);
 
-        return [
+        return $this->render('framework/ls_def_association_grouping/show.html.twig', [
             'lsDefAssociationGrouping' => $associationGrouping,
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Displays a form to edit an existing LsDefAssociationGrouping entity.
-     *
-     * @return array|RedirectResponse
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_association_grouping_edit', methods: ['GET', 'POST'])]
-    #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function edit(Request $request, LsDefAssociationGrouping $associationGrouping)
+    public function edit(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
         $deleteForm = $this->createDeleteForm($associationGrouping);
         $editForm = $this->createForm(LsDefAssociationGroupingType::class, $associationGrouping);
@@ -127,21 +118,19 @@ class LsDefAssociationGroupingController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_def_association_grouping/edit.html.twig', [
             'lsDefAssociationGrouping' => $associationGrouping,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Deletes a LsDefAssociationGrouping entity.
-     *
-     * @return RedirectResponse
      */
     #[Route(path: '/{id}', name: 'lsdef_association_grouping_delete', methods: ['DELETE'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function delete(Request $request, LsDefAssociationGrouping $associationGrouping)
+    public function delete(Request $request, LsDefAssociationGrouping $associationGrouping): RedirectResponse
     {
         $form = $this->createDeleteForm($associationGrouping);
         $form->handleRequest($request);

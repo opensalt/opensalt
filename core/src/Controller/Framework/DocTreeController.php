@@ -24,7 +24,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -57,8 +56,7 @@ class DocTreeController extends AbstractController
     #[Route(path: '/doc/{slug}/lv', name: 'doc_tree_view_log', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
     #[Route(path: '/doc/{slug}/{assocGroup}', name: 'doc_tree_view_ag', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
     #[Entity('lsDoc', expr: 'repository.findOneBySlug(slug)')]
-    #[Template]
-    public function view(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, $lsItemId = null, $assocGroup = null): array
+    public function view(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, ?string $lsItemId = null, ?string $assocGroup = null): Response
     {
         $em = $this->managerRegistry->getManager();
 
@@ -120,7 +118,7 @@ class DocTreeController extends AbstractController
             $ret['locks'] = $this->getLocks($lsDoc, $user);
         }
 
-        return $ret;
+        return $this->render('framework/doc_tree/view.html.twig', $ret);
     }
 
     #[Route(path: '/remote', name: 'doc_tree_remote_view', methods: ['GET'])]
@@ -368,10 +366,9 @@ class DocTreeController extends AbstractController
      * Note that this must come before viewItem for the url mapping to work properly.
      */
     #[Route(path: '/item/{id}/details', name: 'doc_tree_item_details', methods: ['GET'])]
-    #[Template]
-    public function treeItemDetails(LsItem $lsItem): array
+    public function treeItemDetails(LsItem $lsItem): Response
     {
-        return ['lsItem' => $lsItem];
+        return $this->render('framework/doc_tree/tree_item_details.html.twig', ['lsItem' => $lsItem]);
     }
 
     #[Route(path: '/item/{id}.{_format}', name: 'doc_tree_item_view', defaults: ['_format' => 'html'], methods: ['GET'])]
@@ -384,9 +381,8 @@ class DocTreeController extends AbstractController
     /**
      * PW: this is similar to the renderDocument function in the Editor directory, but different enough that I think it deserves a separate controller/view
      */
-    #[Route(path: '/render/{id}.{_format}', name: 'doctree_render_document', defaults: ['_format' => 'html'], methods: ['GET'])]
-    #[Template]
-    public function renderDocument(LsDoc $lsDoc, string $_format = 'html'): array
+    #[Route(path: '/render/{id}.{_format}', name: 'doctree_render_document', defaults: ['_format' => 'json'], methods: ['GET'])]
+    public function renderDocument(LsDoc $lsDoc, string $_format = 'json'): Response
     {
         $repo = $this->managerRegistry->getRepository(LsDoc::class);
 
@@ -415,13 +411,13 @@ class DocTreeController extends AbstractController
 
         Compare::sortArrayByFields($orphaned, ['sequenceNumber', 'listEnumInSource', 'humanCodingScheme']);
 
-        return [
+        return $this->render('framework/doc_tree/render_document.json.twig', [
             'topItemIds' => $topChildren,
             'lsDoc' => $lsDoc,
             'items' => $items,
             'parentsElsewhere' => $parentsElsewhere,
             'orphaned' => $orphaned,
-        ];
+        ]);
     }
 
     /**
@@ -464,10 +460,8 @@ class DocTreeController extends AbstractController
      */
     #[Route(path: '/doc/{id}/updateitems.{_format}', name: 'doctree_update_items', methods: ['POST'])]
     #[Security("is_granted('edit', lsDoc)")]
-    #[Template]
-    public function updateItems(Request $request, LsDoc $lsDoc, string $_format = 'json'): array
+    public function updateItems(Request $request, LsDoc $lsDoc, string $_format = 'json'): Response
     {
-        /** @var array $lsItems */
         $lsItems = $request->request->all('lsItems');
         $command = new UpdateTreeItemsCommand($lsDoc, $lsItems);
         $this->sendCommand($command);
@@ -486,7 +480,7 @@ class DocTreeController extends AbstractController
             }
         }
 
-        return ['returnedItems' => $rv];
+        return $this->render('framework/doc_tree/update_items.json.twig', ['returnedItems' => $rv]);
     }
 
     /**

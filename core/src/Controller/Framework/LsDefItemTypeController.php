@@ -10,12 +10,12 @@ use App\Entity\Framework\LsDefItemType;
 use App\Form\Type\LsDefItemTypeType;
 use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/cfdef/item_type')]
@@ -30,30 +30,24 @@ class LsDefItemTypeController extends AbstractController
 
     /**
      * Lists all LsDefItemType entities.
-     *
-     * @return array
      */
     #[Route(path: '/', name: 'lsdef_item_type_index', methods: ['GET'])]
-    #[Template]
-    public function index()
+    public function index(): Response
     {
         $em = $this->managerRegistry->getManager();
 
         $lsDefItemTypes = $em->getRepository(LsDefItemType::class)->findBy([], null, 100);
 
-        return [
+        return $this->render('framework/ls_def_item_type/index.html.twig', [
             'lsDefItemTypes' => $lsDefItemTypes,
-        ];
+        ]);
     }
 
     /**
      * Lists all LsDefItemType entities.
-     *
-     * @return array
      */
     #[Route(path: '/list.{_format}', name: 'lsdef_item_type_index_json', defaults: ['_format' => 'json'], methods: ['GET'])]
-    #[Template]
-    public function jsonList(Request $request)
+    public function jsonList(Request $request, string $_format = 'json'): Response
     {
         // ?page_limit=N&q=SEARCHTEXT
         $em = $this->managerRegistry->getManager();
@@ -73,21 +67,18 @@ class LsDefItemTypeController extends AbstractController
             );
         }
 
-        return [
+        return $this->render('framework/ls_def_item_type/json_list.'.$_format.'.twig', [
             'results' => $results['results'],
             'more' => $results['more'],
-        ];
+        ]);
     }
 
     /**
      * Creates a new LsDefItemType entity.
-     *
-     * @return array|RedirectResponse
      */
     #[Route(path: '/new', name: 'lsdef_item_type_new', methods: ['GET', 'POST'])]
-    #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function new(Request $request)
+    public function new(Request $request): Response
     {
         $lsDefItemType = new LsDefItemType();
         $form = $this->createForm(LsDefItemTypeType::class, $lsDefItemType);
@@ -104,38 +95,32 @@ class LsDefItemTypeController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_def_item_type/new.html.twig', [
             'lsDefItemType' => $lsDefItemType,
             'form' => $form->createView(),
-        ];
+        ]);
     }
 
     /**
      * Finds and displays a LsDefItemType entity.
-     *
-     * @return array
      */
     #[Route(path: '/{id}', name: 'lsdef_item_type_show', methods: ['GET'])]
-    #[Template]
-    public function show(LsDefItemType $lsDefItemType)
+    public function show(LsDefItemType $lsDefItemType): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefItemType);
 
-        return [
+        return $this->render('framework/ls_def_item_type/show.html.twig', [
             'lsDefItemType' => $lsDefItemType,
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Displays a form to edit an existing LsDefItemType entity.
-     *
-     * @return array|RedirectResponse
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_item_type_edit', methods: ['GET', 'POST'])]
-    #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function edit(Request $request, LsDefItemType $lsDefItemType)
+    public function edit(Request $request, LsDefItemType $lsDefItemType): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefItemType);
         $editForm = $this->createForm(LsDefItemTypeType::class, $lsDefItemType);
@@ -152,21 +137,19 @@ class LsDefItemTypeController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_def_item_type/edit.html.twig', [
             'lsDefItemType' => $lsDefItemType,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Deletes a LsDefItemType entity.
-     *
-     * @return RedirectResponse
      */
     #[Route(path: '/{id}', name: 'lsdef_item_type_delete', methods: ['DELETE'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function delete(Request $request, LsDefItemType $lsDefItemType)
+    public function delete(Request $request, LsDefItemType $lsDefItemType): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefItemType);
         $form->handleRequest($request);

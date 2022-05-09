@@ -6,7 +6,6 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Util\Compare;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,20 +29,18 @@ class EditorController extends AbstractController
     }
 
     #[Route(path: '/item/{id}.{_format}', name: 'editor_lsitem', defaults: ['_format' => 'html'], methods: ['GET'])]
-    #[Template]
-    public function viewItem(LsItem $lsItem, string $_format = 'html')
+    public function viewItem(LsItem $lsItem, string $_format = 'html'): Response
     {
         if ('json' === $_format) {
             return $this->forward(LsItemController::class.'::export', ['lsItem' => $lsItem]);
         }
 
-        return ['lsItem' => $lsItem];
+        return $this->render('framework/editor/view_item.html.twig', ['lsItem' => $lsItem]);
     }
 
     #[Route(path: '/render/{id}.{_format}', name: 'editor_render_document_only', defaults: ['highlight' => null, '_format' => 'html'], methods: ['GET'])]
     #[Route(path: '/render/{id}/{highlight}.{_format}', name: 'editor_render', defaults: ['highlight' => null, '_format' => 'html'], methods: ['GET'])]
-    #[Template]
-    public function renderDocument(LsDoc $lsDoc, ?int $highlight = null, string $_format = 'html'): array
+    public function renderDocument(LsDoc $lsDoc, ?int $highlight = null, string $_format = 'html'): Response
     {
         $repo = $this->managerRegistry->getRepository(LsDoc::class);
 
@@ -61,12 +58,12 @@ class EditorController extends AbstractController
         }
         Compare::sortArrayByFields($orphaned, ['listEnumInSource', 'humanCodingScheme']);
 
-        return [
+        return $this->render('framework/editor/render_document.'.$_format.'.twig', [
             'topItemIds' => $topChildren,
             'lsDoc' => $lsDoc,
             'items' => $items,
             'highlight' => $highlight,
             'orphaned' => $orphaned,
-        ];
+        ]);
     }
 }

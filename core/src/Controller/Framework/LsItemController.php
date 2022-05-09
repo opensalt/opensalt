@@ -23,7 +23,6 @@ use App\Form\Type\LsItemType;
 use App\Service\BucketService;
 use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -53,22 +52,18 @@ class LsItemController extends AbstractController
      * Lists all LsItem entities.
      */
     #[Route(path: '/', name: 'lsitem_index', methods: ['GET'])]
-    #[Template]
-    public function index(): array
+    public function index(): Response
     {
-        return [];
+        return $this->render('framework/ls_item/index.html.twig', []);
     }
 
     /**
      * Creates a new LsItem entity.
-     *
-     * @return array|RedirectResponse|Response
      */
     #[Route(path: '/new/{doc}/{parent}', name: 'lsitem_new', methods: ['GET', 'POST'])]
     #[Route(path: '/new/{doc}/{parent}/{assocGroup}', name: 'lsitem_new_ag', methods: ['GET', 'POST'])]
-    #[Template]
     #[Security("is_granted('add-standard-to', doc)")]
-    public function new(Request $request, LsDoc $doc, ?LsItem $parent = null, ?LsDefAssociationGrouping $assocGroup = null)
+    public function new(Request $request, LsDoc $doc, ?LsItem $parent = null, ?LsDefAssociationGrouping $assocGroup = null): Response
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -109,40 +104,36 @@ class LsItemController extends AbstractController
             return $this->render('framework/ls_item/new.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
-        return $ret;
+        return $this->render('framework/ls_item/new.html.twig', $ret);
     }
 
     /**
      * Finds and displays a LsItem entity.
-     *
-     * @return array
      */
     #[Route(path: '/{id}.{_format}', name: 'lsitem_show', defaults: ['_format' => 'html'], methods: ['GET'])]
-    #[Template]
-    public function show(LsItem $lsItem, string $_format = 'html')
+    public function show(LsItem $lsItem, string $_format = 'html'): Response
     {
         if ('json' === $_format) {
             // Redirect?  Change Action for Template?
-            return ['lsItem' => $lsItem];
+            return $this->render('framework/ls_item/show.json.twig', [
+                'lsItem' => $lsItem,
+            ]);
         }
 
         $deleteForm = $this->createDeleteForm($lsItem);
 
-        return [
+        return $this->render('framework/ls_item/show.html.twig', [
             'lsItem' => $lsItem,
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Displays a form to edit an existing LsItem entity.
-     *
-     * @return array|RedirectResponse|Response
      */
     #[Route(path: '/{id}/edit', name: 'lsitem_edit', methods: ['GET', 'POST'])]
-    #[Template]
     #[Security("is_granted('edit', lsItem)")]
-    public function edit(Request $request, LsItem $lsItem, UserInterface $user)
+    public function edit(Request $request, LsItem $lsItem, UserInterface $user): Response
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -186,7 +177,7 @@ class LsItemController extends AbstractController
             return $this->render('framework/ls_item/edit.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
-        return $ret;
+        return $this->render('framework/ls_item/edit.html.twig', $ret);
     }
 
     /**
@@ -225,12 +216,11 @@ class LsItemController extends AbstractController
      * Export an LsItem entity.
      */
     #[Route(path: '/{id}/export', name: 'lsitem_export', defaults: ['_format' => 'json'], methods: ['GET'])]
-    #[Template]
-    public function export(LsItem $lsItem): array
+    public function export(LsItem $lsItem): Response
     {
-        return [
+        return $this->render('framework/ls_item/export.json.twig', [
             'lsItem' => $lsItem,
-        ];
+        ]);
     }
 
     /**
@@ -238,24 +228,20 @@ class LsItemController extends AbstractController
      */
     #[Route(path: '/{id}/removeChild/{child}', name: 'lsitem_remove_child', methods: ['POST'])]
     #[Security("is_granted('edit', lsItem)")]
-    #[Template]
-    public function removeChild(LsItem $parent, LsItem $child): array
+    public function removeChild(LsItem $parent, LsItem $child): Response
     {
         $command = new RemoveChildCommand($parent, $child);
         $this->sendCommand($command);
 
-        return [];
+        return $this->render('framework/ls_item/remove_child.html.twig', []);
     }
 
     /**
      * Copy an LsItem to a new LsDoc.
-     *
-     * @return array|RedirectResponse|Response
      */
     #[Route(path: '/{id}/copy', name: 'lsitem_copy_item', methods: ['GET', 'POST'])]
     #[Security("is_granted('edit', lsItem)")]
-    #[Template]
-    public function copy(Request $request, LsItem $lsItem)
+    public function copy(Request $request, LsItem $lsItem): Response
     {
         // Steps
         //  - Select LsDoc to copy to
@@ -293,18 +279,15 @@ class LsItemController extends AbstractController
             return $this->render('framework/ls_item/copy.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
-        return $ret;
+        return $this->render('framework/ls_item/copy.html.twig', $ret);
     }
 
     /**
      * Displays a form to change the parent of an existing LsItem entity.
-     *
-     * @return array|RedirectResponse|Response
      */
     #[Route(path: '/{id}/parent', name: 'lsitem_change_parent', methods: ['GET', 'POST'])]
     #[Security("is_granted('edit', lsItem)")]
-    #[Template]
-    public function changeParent(Request $request, LsItem $lsItem)
+    public function changeParent(Request $request, LsItem $lsItem): Response
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -335,14 +318,13 @@ class LsItemController extends AbstractController
             return $this->render('framework/ls_item/change_parent.html.twig', $ret, new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
-        return $ret;
+        return $this->render('framework/ls_item/change_parent.html.twig', $ret);
     }
 
     /**
      * Upload attachment to LsItem entity.
      */
     #[Route(path: '/{id}/upload_attachment', name: 'lsitem_upload_attachment', methods: ['POST'])]
-    #[Template]
     #[Security("is_granted('add-standard-to', doc)")]
     public function uploadAttachment(Request $request, LsDoc $doc, BucketService $bucket): Response
     {

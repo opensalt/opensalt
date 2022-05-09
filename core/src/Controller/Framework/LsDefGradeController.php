@@ -10,12 +10,12 @@ use App\Entity\Framework\LsDefGrade;
 use App\Form\Type\LsDefGradeType;
 use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/cfdef/grade')]
@@ -30,31 +30,23 @@ class LsDefGradeController extends AbstractController
 
     /**
      * Lists all LsDefGrade entities.
-     *
-     * @return array
      */
     #[Route(path: '/', name: 'lsdef_grade_index', methods: ['GET'])]
-    #[Template]
-    public function index()
+    public function index(): Response
     {
         $em = $this->managerRegistry->getManager();
 
         $lsDefGrades = $em->getRepository(LsDefGrade::class)->findBy([], null, 100);
 
-        return [
-            'lsDefGrades' => $lsDefGrades,
-        ];
+        return $this->render('framework/ls_def_grade/index.html.twig', ['lsDefGrades' => $lsDefGrades]);
     }
 
     /**
      * Creates a new LsDefGrade entity.
-     *
-     * @return array|RedirectResponse
      */
     #[Route(path: '/new', name: 'lsdef_grade_new', methods: ['GET', 'POST'])]
-    #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function new(Request $request)
+    public function new(Request $request): Response
     {
         $lsDefGrade = new LsDefGrade();
         $form = $this->createForm(LsDefGradeType::class, $lsDefGrade);
@@ -71,38 +63,32 @@ class LsDefGradeController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_def_grade/new.html.twig', [
             'lsDefGrade' => $lsDefGrade,
             'form' => $form->createView(),
-        ];
+        ]);
     }
 
     /**
      * Finds and displays a LsDefGrade entity.
-     *
-     * @return array
      */
     #[Route(path: '/{id}', name: 'lsdef_grade_show', methods: ['GET'])]
-    #[Template]
-    public function show(LsDefGrade $lsDefGrade)
+    public function show(LsDefGrade $lsDefGrade): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefGrade);
 
-        return [
+        return $this->render('framework/ls_def_grade/show.html.twig', [
             'lsDefGrade' => $lsDefGrade,
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Displays a form to edit an existing LsDefGrade entity.
-     *
-     * @return array|RedirectResponse
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_grade_edit', methods: ['GET', 'POST'])]
-    #[Template]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function edit(Request $request, LsDefGrade $lsDefGrade)
+    public function edit(Request $request, LsDefGrade $lsDefGrade): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefGrade);
         $editForm = $this->createForm(LsDefGradeType::class, $lsDefGrade);
@@ -119,21 +105,19 @@ class LsDefGradeController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_def_grade/edit.html.twig', [
             'lsDefGrade' => $lsDefGrade,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Deletes a LsDefGrade entity.
-     *
-     * @return RedirectResponse
      */
     #[Route(path: '/{id}', name: 'lsdef_grade_delete', methods: ['DELETE'])]
     #[Security("is_granted('create', 'lsdoc')")]
-    public function delete(Request $request, LsDefGrade $lsDefGrade)
+    public function delete(Request $request, LsDefGrade $lsDefGrade): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefGrade);
         $form->handleRequest($request);
