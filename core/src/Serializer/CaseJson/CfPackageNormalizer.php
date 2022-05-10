@@ -30,7 +30,7 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwar
         return $data instanceof LsDoc && null !== ($context['generate-package'] ?? null);
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = [])
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDoc) {
             return null;

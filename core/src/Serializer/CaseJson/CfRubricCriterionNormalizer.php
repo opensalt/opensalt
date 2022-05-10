@@ -24,7 +24,7 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Con
         return $data instanceof CfRubricCriterion;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = [])
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof CfRubricCriterion) {
             return null;

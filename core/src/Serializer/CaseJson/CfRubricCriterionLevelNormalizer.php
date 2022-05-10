@@ -20,7 +20,7 @@ final class CfRubricCriterionLevelNormalizer implements ContextAwareNormalizerIn
         return $data instanceof CfRubricCriterionLevel;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = [])
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof CfRubricCriterionLevel) {
             return null;

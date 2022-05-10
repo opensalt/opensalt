@@ -20,7 +20,7 @@ final class LsDefAssociationGroupingNormalizer implements ContextAwareNormalizer
         return $data instanceof LsDefAssociationGrouping;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = [])
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDefAssociationGrouping) {
             return null;

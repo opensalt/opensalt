@@ -20,7 +20,7 @@ final class LsDefLicenceNormalizer implements ContextAwareNormalizerInterface
         return $data instanceof LsDefLicence;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = [])
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDefLicence) {
             return null;

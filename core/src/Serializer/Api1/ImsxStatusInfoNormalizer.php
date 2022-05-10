@@ -12,7 +12,7 @@ class ImsxStatusInfoNormalizer implements ContextAwareNormalizerInterface
         return $data instanceof ImsxStatusInfo;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = [])
+    public function normalize(mixed $object, string $format = null, array $context = []): array
     {
         if (!$object instanceof ImsxStatusInfo) {
             throw new \InvalidArgumentException('ImsxStatusInfo object expected');
