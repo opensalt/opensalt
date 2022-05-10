@@ -21,9 +21,10 @@ use App\Form\Command\CopyToLsDocCommand;
 use App\Form\Type\LsDocListType;
 use App\Form\Type\LsItemParentType;
 use App\Form\Type\LsItemType;
+use App\Security\Permission;
 use App\Service\BucketService;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -63,7 +64,7 @@ class LsItemController extends AbstractController
      */
     #[Route(path: '/new/{doc}/{parent}', name: 'lsitem_new', methods: ['GET', 'POST'])]
     #[Route(path: '/new/{doc}/{parent}/{assocGroup}', name: 'lsitem_new_ag', methods: ['GET', 'POST'])]
-    #[Security("is_granted('add-standard-to', doc)")]
+    #[IsGranted(Permission::ITEM_ADD_TO, 'doc')]
     public function new(Request $request, LsDoc $doc, ?LsItem $parent = null, ?LsDefAssociationGrouping $assocGroup = null): Response
     {
         $ajax = $request->isXmlHttpRequest();
@@ -133,7 +134,7 @@ class LsItemController extends AbstractController
      * Displays a form to edit an existing LsItem entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsitem_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('edit', lsItem)")]
+    #[IsGranted(Permission::ITEM_EDIT, 'lsItem')]
     public function edit(Request $request, LsItem $lsItem, #[CurrentUser] User $user): Response
     {
         $ajax = $request->isXmlHttpRequest();
@@ -185,7 +186,7 @@ class LsItemController extends AbstractController
      * Deletes a LsItem entity.
      */
     #[Route(path: '/{id}', name: 'lsitem_delete', methods: ['DELETE'])]
-    #[Security("is_granted('edit', lsItem)")]
+    #[IsGranted(Permission::ITEM_EDIT, 'lsItem')]
     public function delete(Request $request, LsItem $lsItem): RedirectResponse
     {
         $form = $this->createDeleteForm($lsItem);
@@ -228,7 +229,7 @@ class LsItemController extends AbstractController
      * Remove a child LSItem.
      */
     #[Route(path: '/{id}/removeChild/{child}', name: 'lsitem_remove_child', methods: ['POST'])]
-    #[Security("is_granted('edit', lsItem)")]
+    #[IsGranted(Permission::ITEM_EDIT, 'lsItem')]
     public function removeChild(LsItem $parent, LsItem $child): Response
     {
         $command = new RemoveChildCommand($parent, $child);
@@ -241,7 +242,7 @@ class LsItemController extends AbstractController
      * Copy an LsItem to a new LsDoc.
      */
     #[Route(path: '/{id}/copy', name: 'lsitem_copy_item', methods: ['GET', 'POST'])]
-    #[Security("is_granted('edit', lsItem)")]
+    #[IsGranted(Permission::ITEM_EDIT, 'lsItem')]
     public function copy(Request $request, LsItem $lsItem): Response
     {
         // Steps
@@ -287,7 +288,7 @@ class LsItemController extends AbstractController
      * Displays a form to change the parent of an existing LsItem entity.
      */
     #[Route(path: '/{id}/parent', name: 'lsitem_change_parent', methods: ['GET', 'POST'])]
-    #[Security("is_granted('edit', lsItem)")]
+    #[IsGranted(Permission::ITEM_EDIT, 'lsItem')]
     public function changeParent(Request $request, LsItem $lsItem): Response
     {
         $ajax = $request->isXmlHttpRequest();
@@ -326,7 +327,7 @@ class LsItemController extends AbstractController
      * Upload attachment to LsItem entity.
      */
     #[Route(path: '/{id}/upload_attachment', name: 'lsitem_upload_attachment', methods: ['POST'])]
-    #[Security("is_granted('add-standard-to', doc)")]
+    #[IsGranted(Permission::ITEM_ADD_TO, 'doc')]
     public function uploadAttachment(Request $request, LsDoc $doc, BucketService $bucket): Response
     {
         if (!empty($this->bucketProvider)) {

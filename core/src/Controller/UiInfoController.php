@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,7 +23,7 @@ class UiInfoController extends AbstractController
     }
 
     #[Route(path: '/multi/{id}', name: 'multi_tree_info_json', methods: ['POST'])]
-    #[Security("is_granted('edit', doc)")]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
     public function multiJsonInfo(Request $request, LsDoc $doc): JsonResponse
     {
         $objs = [];
@@ -66,14 +68,14 @@ class UiInfoController extends AbstractController
     }
 
     #[Route(path: '/doc/{id}', name: 'lsdoc_tree_json', methods: ['GET'])]
-    #[Security("is_granted('edit', doc)")]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
     public function docJsonInfo(LsDoc $doc): JsonResponse
     {
         return $this->generateDocJsonResponse($doc);
     }
 
     #[Route(path: '/item/{id}', name: 'lsitem_tree_json', methods: ['GET'])]
-    #[Security("is_granted('edit', item)")]
+    #[IsGranted(Permission::ITEM_EDIT, 'item')]
     public function itemJsonInfo(LsItem $item): JsonResponse
     {
         return $this->generateItemJsonResponse($item);

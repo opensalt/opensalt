@@ -12,21 +12,14 @@ class ManageAdditionalFieldVoter extends Voter
 
     final public const MANAGE = Permission::ADDITIONAL_FIELDS_MANAGE;
 
-    final public const ADDITIONAL_FIELDS = Permission::ADDITIONAL_FIELDS_MANAGE_SUBJECT;
-
     public function supportsAttribute(string $attribute): bool
     {
         return self::MANAGE === $attribute;
     }
 
-    public function supportsType(string $subjectType): bool
-    {
-        return 'string' === $subjectType;
-    }
-
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return (self::MANAGE === $attribute) && (self::ADDITIONAL_FIELDS === $subject);
+        return self::MANAGE === $attribute;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool

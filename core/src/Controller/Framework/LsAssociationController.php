@@ -13,8 +13,9 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Form\Type\LsAssociationType;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -54,7 +55,7 @@ class LsAssociationController extends AbstractController
      */
     #[Route(path: '/new/{sourceLsItem}', name: 'lsassociation_new', methods: ['GET', 'POST'])]
     #[Route(path: '/new/{sourceLsItem}/{assocGroup}', name: 'lsassociation_new_ag', methods: ['GET', 'POST'])]
-    #[Security("is_granted('add-association-to', sourceLsItem)")]
+    #[IsGranted(Permission::ASSOCIATION_ADD_TO, 'sourceLsItem')]
     public function new(Request $request, ?LsItem $sourceLsItem = null, ?LsDefAssociationGrouping $assocGroup = null): Response
     {
         // @TODO: Add LsDoc of the new association for when adding via AJAX
@@ -109,7 +110,7 @@ class LsAssociationController extends AbstractController
      * Creates a new LsAssociation entity -- tree-view version, called via ajax.
      */
     #[Route(path: '/treenew/{lsDoc}', name: 'lsassociation_tree_new', methods: ['POST'])]
-    #[Security("is_granted('add-association-to', lsDoc)")]
+    #[IsGranted(Permission::ASSOCIATION_ADD_TO, 'lsDoc')]
     public function treeNew(Request $request, LsDoc $lsDoc): Response
     {
         // type, origin['externalDoc', 'id', 'identifier'], dest['externalDoc', 'id', 'identifier'], assocGroup
@@ -152,7 +153,7 @@ class LsAssociationController extends AbstractController
      * @throws \InvalidArgumentException
      */
     #[Route(path: '/treenewexemplar/{originLsItem}', name: 'lsassociation_tree_new_exemplar', methods: ['GET', 'POST'])]
-    #[Security("is_granted('add-association-to', originLsItem)")]
+    #[IsGranted(Permission::ASSOCIATION_ADD_TO, 'originLsItem')]
     public function treeNewExemplar(Request $request, LsItem $originLsItem): Response
     {
         if (!$request->request->has('exemplarUrl')) {
@@ -200,7 +201,7 @@ class LsAssociationController extends AbstractController
      * Displays a form to edit an existing LsAssociation entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsassociation_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('edit', lsAssociation)")]
+    #[IsGranted(Permission::ASSOCIATION_EDIT, 'lsAssociation')]
     public function edit(Request $request, LsAssociation $lsAssociation): Response
     {
         $deleteForm = $this->createDeleteForm($lsAssociation);
@@ -229,7 +230,7 @@ class LsAssociationController extends AbstractController
      * Deletes a LsAssociation entity.
      */
     #[Route(path: '/{id}', name: 'lsassociation_delete', methods: ['DELETE'])]
-    #[Security("is_granted('edit', lsAssociation)")]
+    #[IsGranted(Permission::ASSOCIATION_EDIT, 'lsAssociation')]
     public function delete(Request $request, LsAssociation $lsAssociation): RedirectResponse
     {
         $form = $this->createDeleteForm($lsAssociation);
@@ -247,7 +248,7 @@ class LsAssociationController extends AbstractController
      * Remove a child LSItem.
      */
     #[Route(path: '/{id}/remove', name: 'lsassociation_remove', methods: ['POST'])]
-    #[Security("is_granted('edit', lsAssociation)")]
+    #[IsGranted(Permission::ASSOCIATION_EDIT, 'lsAssociation')]
     public function removeChild(LsAssociation $lsAssociation): Response
     {
         $command = new DeleteAssociationCommand($lsAssociation);

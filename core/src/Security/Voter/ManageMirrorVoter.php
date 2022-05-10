@@ -12,21 +12,14 @@ class ManageMirrorVoter extends Voter
 
     final public const MANAGE = Permission::MANAGE_MIRRORS;
 
-    final public const MIRRORS = Permission::MANAGE_MIRRORS_SUBJECT;
-
     public function supportsAttribute(string $attribute): bool
     {
         return self::MANAGE === $attribute;
     }
 
-    public function supportsType(string $subjectType): bool
-    {
-        return 'string' === $subjectType;
-    }
-
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return (self::MANAGE === $attribute) && (self::MIRRORS === $subject);
+        return self::MANAGE === $attribute;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool

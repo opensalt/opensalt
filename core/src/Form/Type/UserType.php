@@ -57,7 +57,7 @@ class UserType extends AbstractType
             ])
         ;
 
-        if ($this->authorizationChecker->isGranted(Permission::MANAGE_USERS, Permission::MANAGE_ALL_USERS_SUBJECT)) {
+        if ($this->authorizationChecker->isGranted(Permission::MANAGE_ALL_USERS)) {
             $builder->add('org', EntityType::class, [
                 'class' => Organization::class,
                 'choice_label' => 'name',

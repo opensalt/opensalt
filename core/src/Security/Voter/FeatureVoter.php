@@ -10,23 +10,16 @@ class FeatureVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const FEATURE = Permission::FEATURE_CHECK;
-
-    final public const DEV_ENV = Permission::FEATURE_SUBJECT_DEV_ENV;
+    final public const FEATURE_DEV_ENV = Permission::FEATURE_DEV_ENV_CHECK;
 
     public function supportsAttribute(string $attribute): bool
     {
-        return self::FEATURE === $attribute;
-    }
-
-    public function supportsType(string $subjectType): bool
-    {
-        return 'string' === $subjectType;
+        return self::FEATURE_DEV_ENV === $attribute;
     }
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return (self::FEATURE === $attribute) && (self::DEV_ENV === $subject);
+        return self::FEATURE_DEV_ENV === $attribute;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool

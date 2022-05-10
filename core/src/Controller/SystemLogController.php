@@ -3,7 +3,8 @@
 namespace App\Controller;
 
 use App\Repository\ChangeEntryRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,7 +12,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/admin/system_log')]
-#[Security("is_granted('manage', 'system_logs')")]
+#[IsGranted(Permission::MANAGE_SYSTEM_LOGS)]
 class SystemLogController extends AbstractController
 {
     public function __construct(private readonly ChangeEntryRepository $entryRepository)

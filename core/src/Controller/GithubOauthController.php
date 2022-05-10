@@ -3,16 +3,17 @@
 namespace App\Controller;
 
 use App\Entity\User\User;
+use App\Security\Permission;
 use Milo\Github\Api;
 use Milo\Github\OAuth\Token;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Security("is_granted('framework_create')")]
+#[IsGranted(Permission::FRAMEWORK_CREATE)]
 class GithubOauthController extends AbstractController
 {
     #[Route(path: '/user/github/repos')]

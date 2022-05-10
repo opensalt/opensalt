@@ -55,20 +55,20 @@
                         {% endfor %}
                     </ul>
 
-                    {% if is_granted('edit', lsItem) or is_granted('add-standard-to', null) %}
+                    {% if is_granted(constant('App\\Security\\Permission::ITEM_EDIT'), lsItem) or is_granted(constant('App\\Security\\Permission::ITEM_ADD_TO'), null) %}
                     <div class="text-center">
                         <ul class="list-inline">
-                            {% if is_granted('edit', lsItem) %}
+                            {% if is_granted(constant('App\\Security\\Permission::ITEM_EDIT'), lsItem) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#editModal">Edit</button>
                             </li>
                             {% endif %}
-                            {% if is_granted('add-standard-to', null) %}
+                            {% if is_granted(constant('App\\Security\\Permission::ITEM_ADD_TO'), null) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#copyModal">Add to Another CF Package</button>
                             </li>
                             {% endif %}
-                            {% if is_granted('edit', lsItem) %}
+                            {% if is_granted(constant('App\\Security\\Permission::ITEM_EDIT'), lsItem) %}
                             <li>
                                 <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#addChildModal">Create Child Statement</button>
                             </li>
@@ -92,7 +92,7 @@
             {% for group, list in lsItem.groupedAssociations|filter(list => list is not empty) %}
                 {% embed 'framework/editor/_ls_association_component.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
                     {% block end_of_item_a %}
-                        {% if is_granted('edit', lsItem) and is_granted('edit', lsItem.lsDoc) %}
+                        {% if is_granted(constant('App\\Security\\Permission::ITEM_EDIT'), lsItem) or is_granted(constant('App\\Security\\Permission::FRAMEWORK_EDIT'), lsItem.lsDoc) %}
                             <span class="pull-right">
                             {% if group is constant('App\\Entity\\Framework\\LsAssociation::CHILD_OF') %}
                                 <span role="button" class="btn btn-xs btn-default btn-change-parent">Change</span>

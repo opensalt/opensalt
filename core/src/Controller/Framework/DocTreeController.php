@@ -24,7 +24,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -427,7 +427,7 @@ class DocTreeController extends AbstractController
      * @throws \InvalidArgumentException
      */
     #[Route(path: '/item/{id}/delete/{includingChildren}', name: 'lsitem_tree_delete', defaults: ['includingChildren' => 0], methods: ['POST'])]
-    #[Security("is_granted('edit', lsItem)")]
+    #[IsGranted(Permission::ITEM_EDIT, 'lsItem')]
     public function deleteItem(Request $request, LsItem $lsItem, int $includingChildren = 0): Response
     {
         $ajax = false;
@@ -460,7 +460,7 @@ class DocTreeController extends AbstractController
      * For other operations, we return an empty array.
      */
     #[Route(path: '/doc/{id}/updateitems.{_format}', name: 'doctree_update_items', methods: ['POST'])]
-    #[Security("is_granted('edit', lsDoc)")]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
     public function updateItems(Request $request, LsDoc $lsDoc, string $_format = 'json'): Response
     {
         $lsItems = $request->request->all('lsItems');

@@ -8,8 +8,9 @@ use App\Command\Framework\DeleteConceptCommand;
 use App\Command\Framework\UpdateConceptCommand;
 use App\Entity\Framework\LsDefConcept;
 use App\Form\Type\LsDefConceptType;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -47,7 +48,7 @@ class LsDefConceptController extends AbstractController
      * Creates a new LsDefConcept entity.
      */
     #[Route(path: '/new', name: 'lsdef_concept_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function new(Request $request): Response
     {
         $lsDefConcept = new LsDefConcept();
@@ -89,7 +90,7 @@ class LsDefConceptController extends AbstractController
      * Displays a form to edit an existing LsDefConcept entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_concept_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function edit(Request $request, LsDefConcept $lsDefConcept): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefConcept);
@@ -118,7 +119,7 @@ class LsDefConceptController extends AbstractController
      * Deletes a LsDefConcept entity.
      */
     #[Route(path: '/{id}', name: 'lsdef_concept_delete', methods: ['DELETE'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function delete(Request $request, LsDefConcept $lsDefConcept): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefConcept);

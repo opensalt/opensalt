@@ -4,7 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Framework\LsDoc;
 use App\Repository\ChangeEntryRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -17,7 +18,7 @@ class DocRevisionController extends AbstractController
     }
 
     #[Route(path: '/cfdoc/{id}/revisions/{offset}/{limit}', name: 'doc_revisions_json', requirements: ['offset' => '\d+', 'limit' => '\d+'], defaults: ['offset' => 0, 'limit' => 0], methods: ['GET'])]
-    #[Security("is_granted('edit', doc)")]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
     public function listDocRevisions(LsDoc $doc, int $offset, int $limit): Response
     {
         $response = new StreamedResponse();
@@ -47,7 +48,7 @@ class DocRevisionController extends AbstractController
     }
 
     #[Route(path: '/cfdoc/{id}/revisions/export', name: 'doc_revisions_csv', methods: ['GET'])]
-    #[Security("is_granted('edit', doc)")]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
     public function exportDocRevisions(LsDoc $doc): Response
     {
         $response = new StreamedResponse();

@@ -8,8 +8,9 @@ use App\Command\Framework\DeleteGradeCommand;
 use App\Command\Framework\UpdateGradeCommand;
 use App\Entity\Framework\LsDefGrade;
 use App\Form\Type\LsDefGradeType;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -45,7 +46,7 @@ class LsDefGradeController extends AbstractController
      * Creates a new LsDefGrade entity.
      */
     #[Route(path: '/new', name: 'lsdef_grade_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function new(Request $request): Response
     {
         $lsDefGrade = new LsDefGrade();
@@ -87,7 +88,7 @@ class LsDefGradeController extends AbstractController
      * Displays a form to edit an existing LsDefGrade entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_grade_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function edit(Request $request, LsDefGrade $lsDefGrade): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefGrade);
@@ -116,7 +117,7 @@ class LsDefGradeController extends AbstractController
      * Deletes a LsDefGrade entity.
      */
     #[Route(path: '/{id}', name: 'lsdef_grade_delete', methods: ['DELETE'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function delete(Request $request, LsDefGrade $lsDefGrade): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefGrade);

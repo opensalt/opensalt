@@ -8,8 +8,9 @@ use App\Command\Framework\DeleteSubjectCommand;
 use App\Command\Framework\UpdateSubjectCommand;
 use App\Entity\Framework\LsDefSubject;
 use App\Form\Type\LsDefSubjectType;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -64,7 +65,7 @@ class LsDefSubjectController extends AbstractController
      * Creates a new LsDefSubject entity.
      */
     #[Route(path: '/new', name: 'lsdef_subject_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function new(Request $request): Response
     {
         $lsDefSubject = new LsDefSubject();
@@ -106,7 +107,7 @@ class LsDefSubjectController extends AbstractController
      * Displays a form to edit an existing LsDefSubject entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_subject_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function edit(Request $request, LsDefSubject $lsDefSubject): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefSubject);
@@ -135,7 +136,7 @@ class LsDefSubjectController extends AbstractController
      * Deletes a LsDefSubject entity.
      */
     #[Route(path: '/{id}', name: 'lsdef_subject_delete', methods: ['DELETE'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function delete(Request $request, LsDefSubject $lsDefSubject): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefSubject);

@@ -5,7 +5,8 @@ namespace App\Controller;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportExcelFileCommand;
 use App\Entity\User\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +18,7 @@ class ExcelImportController extends AbstractController
     use CommandDispatcherTrait;
 
     #[Route(path: '/salt/excel/import', name: 'import_excel_file', methods: ['POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function importExcel(Request $request, #[CurrentUser] User $user): Response
     {
         $file = $request->files->get('file');

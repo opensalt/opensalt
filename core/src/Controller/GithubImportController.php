@@ -4,13 +4,14 @@ namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ParseCsvGithubDocumentCommand;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Security("is_granted('framework_create')")]
+#[IsGranted(Permission::FRAMEWORK_CREATE)]
 class GithubImportController extends AbstractController
 {
     use CommandDispatcherTrait;

@@ -8,8 +8,9 @@ use App\Command\Framework\DeleteLicenceCommand;
 use App\Command\Framework\UpdateLicenceCommand;
 use App\Entity\Framework\LsDefLicence;
 use App\Form\Type\LsDefLicenceType;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -62,7 +63,7 @@ class LsDefLicenceController extends AbstractController
      * Creates a new LsDefLicence entity.
      */
     #[Route(path: '/new', name: 'lsdef_licence_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function new(Request $request): Response
     {
         $lsDefLicence = new LsDefLicence();
@@ -104,7 +105,7 @@ class LsDefLicenceController extends AbstractController
      * Displays a form to edit an existing LsDefLicence entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_licence_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function edit(Request $request, LsDefLicence $lsDefLicence): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefLicence);
@@ -133,7 +134,7 @@ class LsDefLicenceController extends AbstractController
      * Deletes a LsDefLicence entity.
      */
     #[Route(path: '/{id}', name: 'lsdef_licence_delete', methods: ['DELETE'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function delete(Request $request, LsDefLicence $lsDefLicence): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefLicence);

@@ -13,9 +13,10 @@ use App\Form\DTO\AddAclUserDTO;
 use App\Form\DTO\AddAclUsernameDTO;
 use App\Form\Type\AddAclUsernameType;
 use App\Form\Type\AddAclUserType;
+use App\Security\Permission;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -30,7 +31,7 @@ class FrameworkAclController extends AbstractController
     use CommandDispatcherTrait;
 
     #[Route(path: '/{id}/acl', name: 'framework_acl_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('manage_editors', lsDoc)")]
+    #[IsGranted(Permission::MANAGE_EDITORS, 'lsDoc')]
     public function edit(Request $request, LsDoc $lsDoc): Response
     {
         $addAclUserDto = new AddAclUserDTO($lsDoc, UserDocAcl::DENY);
@@ -139,7 +140,7 @@ class FrameworkAclController extends AbstractController
     }
 
     #[Route(path: '/{id}/acl/{targetUser}', name: 'framework_acl_remove', methods: ['DELETE'])]
-    #[Security("is_granted('manage_editors', lsDoc)")]
+    #[IsGranted(Permission::MANAGE_EDITORS, 'lsDoc')]
     public function removeAcl(Request $request, LsDoc $lsDoc, User $targetUser): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDoc, $targetUser);

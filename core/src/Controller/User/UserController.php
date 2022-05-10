@@ -13,7 +13,7 @@ use App\Entity\User\User;
 use App\Form\Type\UserType;
 use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -25,7 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 #[Route(path: '/admin/user')]
-#[Security("is_granted('manage', 'users')")]
+#[IsGranted(Permission::MANAGE_USERS)]
 class UserController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -45,7 +45,7 @@ class UserController extends AbstractController
     {
         $em = $this->managerRegistry->getManager();
 
-        if ($this->authChecker->isGranted(Permission::MANAGE_USERS, Permission::MANAGE_ALL_USERS_SUBJECT)) {
+        if ($this->authChecker->isGranted(Permission::MANAGE_ALL_USERS)) {
             $users = $em->getRepository(User::class)->findAll();
         } else {
             $user = $this->getUser();
@@ -87,7 +87,7 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Set to organization to match the creating users, unless the super-user
-            if (!$this->authChecker->isGranted(Permission::MANAGE_USERS, Permission::MANAGE_ALL_USERS_SUBJECT)) {
+            if (!$this->authChecker->isGranted(Permission::MANAGE_ALL_USERS)) {
                 $user = $this->getUser();
                 if (!$user instanceof User) {
                     throw new \UnexpectedValueException('Invalid user.');
@@ -120,7 +120,7 @@ class UserController extends AbstractController
      * Finds and displays a user entity.
      */
     #[Route(path: '/{id}', name: 'admin_user_show', methods: ['GET'])]
-    #[Security("is_granted('manage', targetUser)")]
+    #[IsGranted(Permission::MANAGE_THIS_USER, 'targetUser')]
     public function show(User $targetUser): Response
     {
         $deleteForm = $this->createDeleteForm($targetUser);
@@ -135,7 +135,7 @@ class UserController extends AbstractController
      * Displays a form to edit an existing user entity.
      */
     #[Route(path: '/{id}/edit', name: 'admin_user_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('manage', targetUser)")]
+    #[IsGranted(Permission::MANAGE_THIS_USER, 'targetUser')]
     public function edit(Request $request, User $targetUser): Response
     {
         $deleteForm = $this->createDeleteForm($targetUser);
@@ -171,7 +171,7 @@ class UserController extends AbstractController
      * Suspend a user.
      */
     #[Route(path: '/{id}/suspend', name: 'admin_user_suspend', methods: ['POST'])]
-    #[Security("is_granted('manage', targetUser)")]
+    #[IsGranted(Permission::MANAGE_THIS_USER, 'targetUser')]
     public function suspend(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createSuspendForm($targetUser);
@@ -189,7 +189,7 @@ class UserController extends AbstractController
      * Activate a user.
      */
     #[Route(path: '/{id}/activate', name: 'admin_user_activate', methods: ['POST'])]
-    #[Security("is_granted('manage', targetUser)")]
+    #[IsGranted(Permission::MANAGE_THIS_USER, 'targetUser')]
     public function activate(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createActivateForm($targetUser);
@@ -215,7 +215,7 @@ class UserController extends AbstractController
      * Reject a user.
      */
     #[Route(path: '/{id}/reject', name: 'admin_user_reject', methods: ['POST'])]
-    #[Security("is_granted('manage', targetUser)")]
+    #[IsGranted(Permission::MANAGE_THIS_USER, 'targetUser')]
     public function reject(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createRejectForm($targetUser);
@@ -233,7 +233,7 @@ class UserController extends AbstractController
      * Deletes a user entity.
      */
     #[Route(path: '/{id}', name: 'admin_user_delete', methods: ['DELETE'])]
-    #[Security("is_granted('manage', targetUser)")]
+    #[IsGranted(Permission::MANAGE_THIS_USER, 'targetUser')]
     public function delete(Request $request, User $targetUser): RedirectResponse
     {
         $form = $this->createDeleteForm($targetUser);

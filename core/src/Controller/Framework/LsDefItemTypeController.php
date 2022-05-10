@@ -8,8 +8,9 @@ use App\Command\Framework\DeleteItemTypeCommand;
 use App\Command\Framework\UpdateItemTypeCommand;
 use App\Entity\Framework\LsDefItemType;
 use App\Form\Type\LsDefItemTypeType;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -77,7 +78,7 @@ class LsDefItemTypeController extends AbstractController
      * Creates a new LsDefItemType entity.
      */
     #[Route(path: '/new', name: 'lsdef_item_type_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function new(Request $request): Response
     {
         $lsDefItemType = new LsDefItemType();
@@ -119,7 +120,7 @@ class LsDefItemTypeController extends AbstractController
      * Displays a form to edit an existing LsDefItemType entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_item_type_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function edit(Request $request, LsDefItemType $lsDefItemType): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefItemType);
@@ -148,7 +149,7 @@ class LsDefItemTypeController extends AbstractController
      * Deletes a LsDefItemType entity.
      */
     #[Route(path: '/{id}', name: 'lsdef_item_type_delete', methods: ['DELETE'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function delete(Request $request, LsDefItemType $lsDefItemType): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefItemType);

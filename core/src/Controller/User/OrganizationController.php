@@ -8,8 +8,9 @@ use App\Command\User\DeleteOrganizationCommand;
 use App\Command\User\UpdateOrganizationCommand;
 use App\Entity\User\Organization;
 use App\Form\Type\OrganizationType;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -19,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/admin/organization')]
-#[Security("is_granted('manage', 'organizations')")]
+#[IsGranted(Permission::MANAGE_ORGANIZATIONS)]
 class OrganizationController extends AbstractController
 {
     use CommandDispatcherTrait;

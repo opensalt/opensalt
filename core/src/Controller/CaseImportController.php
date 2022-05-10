@@ -5,9 +5,10 @@ namespace App\Controller;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportCaseJsonCommand;
 use App\Entity\User\User;
+use App\Security\Permission;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,7 +23,7 @@ class CaseImportController extends AbstractController
     use CommandDispatcherTrait;
 
     #[Route(path: '/salt/case/import', name: 'import_case_file')]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function import(Request $request, #[CurrentUser] User $user): JsonResponse
     {
         $content = base64_decode($request->request->get('fileContent'));
@@ -36,7 +37,7 @@ class CaseImportController extends AbstractController
     }
 
     #[Route(path: '/salt/case/importRemote', name: 'import_case_file_remote')]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function importRemote(Request $request, #[CurrentUser] User $user): Response
     {
         $defaultData = [];

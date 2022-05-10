@@ -20,7 +20,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -110,7 +109,7 @@ class LsDocController extends AbstractController
      * Creates a new LsDoc entity.
      */
     #[Route(path: '/new', name: 'lsdoc_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function new(Request $request): Response
     {
         $lsDoc = new LsDoc();
@@ -165,7 +164,7 @@ class LsDocController extends AbstractController
      * @deprecated It appears this is unused now
      */
     #[Route(path: '/doc/{id}/update', name: 'lsdoc_update', methods: ['POST'])]
-    #[Security("is_granted('edit', lsDoc)")]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
     public function update(Request $request, LsDoc $lsDoc): Response
     {
         $response = new JsonResponse();
@@ -186,7 +185,7 @@ class LsDocController extends AbstractController
      * Update a framework given a CSV or external File on a derivative framework.
      */
     #[Route(path: '/doc/{id}/derive', name: 'lsdoc_update_derive', methods: ['POST'])]
-    #[Security("is_granted('framework_create')")]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function derive(Request $request, LsDoc $lsDoc): Response
     {
         $fileContent = $request->request->get('content');
@@ -206,7 +205,7 @@ class LsDocController extends AbstractController
      * Displays a form to edit an existing LsDoc entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdoc_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('edit', lsDoc)")]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
     public function edit(Request $request, LsDoc $lsDoc, #[CurrentUser] User $user): Response
     {
         $ajax = $request->isXmlHttpRequest();
@@ -268,7 +267,7 @@ class LsDocController extends AbstractController
      * Deletes a LsDoc entity.
      */
     #[Route(path: '/{id}', name: 'lsdoc_delete', methods: ['DELETE'])]
-    #[Security("is_granted('delete', lsDoc)")]
+    #[IsGranted(Permission::FRAMEWORK_DELETE, 'lsDoc')]
     public function delete(Request $request, LsDoc $lsDoc): Response
     {
         if ($request->isXmlHttpRequest()) {

@@ -10,7 +10,8 @@ use App\Command\Framework\UnlockItemCommand;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +23,7 @@ class LockController extends AbstractController
     use CommandDispatcherTrait;
 
     #[Route(path: '/cfdoc/{id}/unlock', name: 'lsdoc_unlock', methods: ['POST'])]
-    #[Security("is_granted('edit', lsDoc)")]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
     public function releaseDocLock(LsDoc $lsDoc, #[CurrentUser] User $user): JsonResponse
     {
         try {
@@ -36,7 +37,7 @@ class LockController extends AbstractController
     }
 
     #[Route(path: '/cfdoc/{id}/lock', name: 'lsdoc_lock', methods: ['POST'])]
-    #[Security("is_granted('edit', lsDoc)")]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
     public function extendDocLock(LsDoc $lsDoc, #[CurrentUser] User $user): JsonResponse
     {
         try {
@@ -50,7 +51,7 @@ class LockController extends AbstractController
     }
 
     #[Route(path: '/cfitem/{id}/unlock', name: 'lsitem_unlock', methods: ['POST'])]
-    #[Security("is_granted('edit', item)")]
+    #[IsGranted(Permission::ITEM_EDIT, 'item')]
     public function releaseItemLock(LsItem $item, #[CurrentUser] User $user): JsonResponse
     {
         try {
@@ -64,7 +65,7 @@ class LockController extends AbstractController
     }
 
     #[Route(path: '/cfitem/{id}/lock', name: 'lsitem_lock', methods: ['POST'])]
-    #[Security("is_granted('edit', item)")]
+    #[IsGranted(Permission::ITEM_EDIT, 'item')]
     public function extendItemLock(LsItem $item, #[CurrentUser] User $user): JsonResponse
     {
         try {
