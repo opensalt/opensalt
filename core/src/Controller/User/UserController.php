@@ -11,6 +11,7 @@ use App\Command\User\SuspendUserCommand;
 use App\Command\User\UpdateUserCommand;
 use App\Entity\User\User;
 use App\Form\Type\UserType;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -44,7 +45,7 @@ class UserController extends AbstractController
     {
         $em = $this->managerRegistry->getManager();
 
-        if ($this->authChecker->isGranted('manage', 'all_users')) {
+        if ($this->authChecker->isGranted(Permission::MANAGE_USERS, Permission::MANAGE_ALL_USERS_SUBJECT)) {
             $users = $em->getRepository(User::class)->findAll();
         } else {
             $user = $this->getUser();
@@ -86,7 +87,7 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Set to organization to match the creating users, unless the super-user
-            if (!$this->authChecker->isGranted('manage', 'all_users')) {
+            if (!$this->authChecker->isGranted(Permission::MANAGE_USERS, Permission::MANAGE_ALL_USERS_SUBJECT)) {
                 $user = $this->getUser();
                 if (!$user instanceof User) {
                     throw new \UnexpectedValueException('Invalid user.');

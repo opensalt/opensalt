@@ -15,6 +15,7 @@ use App\Exception\AlreadyLockedException;
 use App\Form\Type\LsDocCreateType;
 use App\Form\Type\LsDocType;
 use App\Form\Type\RemoteCaseServerType;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
@@ -53,7 +54,7 @@ class LsDocController extends AbstractController
         $loggedIn = $user instanceof User;
         foreach ($results as $lsDoc) {
             // Optimization: All but "Private Draft" are viewable to everyone (if not mirrored), only auth check "Private Draft"
-            if (($loggedIn && $this->isGranted('list', $lsDoc))
+            if (($loggedIn && $this->isGranted(Permission::FRAMEWORK_LIST, $lsDoc))
                 || (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus()
                     && null === $lsDoc->getMirroredFramework())) {
                 $lsDocs[] = $lsDoc;

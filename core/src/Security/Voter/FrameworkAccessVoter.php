@@ -5,6 +5,7 @@ namespace App\Security\Voter;
 use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -12,13 +13,14 @@ class FrameworkAccessVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const LIST = 'list'; // User can see the framework in a list
-    final public const VIEW = 'view';
-    final public const EDIT = 'edit';
-    final public const DELETE = 'delete';
-    final public const CREATE = 'create';
+    final public const LIST = Permission::FRAMEWORK_LIST; // User can see the framework in a list
+    final public const VIEW = Permission::FRAMEWORK_VIEW;
+    final public const EDIT = Permission::FRAMEWORK_EDIT;
+    final public const DELETE = Permission::FRAMEWORK_DELETE;
+    final public const CREATE = Permission::FRAMEWORK_CREATE;
 
-    final public const FRAMEWORK = 'lsdoc';
+    final public const FRAMEWORK = Permission::FRAMEWORK_CREATE_SUBJECT;
+    final public const ALL_FRAMEWORKS = Permission::FRAMEWORK_EDIT_ALL_SUBJECT;
 
     public function supportsAttribute(string $attribute): bool
     {
@@ -41,7 +43,7 @@ class FrameworkAccessVoter extends Voter
             return true;
         }
 
-        if ('all_frameworks' === $subject && static::EDIT === $attribute) {
+        if (static::ALL_FRAMEWORKS === $subject && static::EDIT === $attribute) {
             return true;
         }
 

@@ -12,6 +12,7 @@ use App\Entity\Comment\Comment;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
+use App\Security\Permission;
 use App\Service\BucketService;
 use Doctrine\Persistence\ManagerRegistry;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
@@ -19,7 +20,7 @@ use Qandidate\Toggle\Context;
 use Qandidate\Toggle\ContextFactory;
 use Qandidate\Toggle\ToggleManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,28 +50,26 @@ class CommentsController extends AbstractController
     }
 
     #[Route(path: '/comments/document/{id<\d+>}', name: 'create_doc_comment', methods: ['POST'])]
-    #[Security("is_granted('comment')")]
+    #[IsGranted(Permission::COMMENT_ADD)]
     public function newDocComment(Request $request, LsDoc $doc, UserInterface $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'document', $doc, $user, $bucket);
     }
 
     #[Route(path: '/comments/item/{id<\d+>}', name: 'create_item_comment', methods: ['POST'])]
-    #[Security("is_granted('comment')")]
+    #[IsGranted(Permission::COMMENT_ADD)]
     public function newItemComment(Request $request, LsItem $item, UserInterface $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'item', $item, $user, $bucket);
     }
 
     /**
-     * @param array|Comment[] $comments
-     *
-     * @return mixed
+     * @param Comment[] $comments
      */
     #[Route(path: '/comments/{itemType<document|item>}/{itemId<\d+>}', name: 'get_comments', methods: ['GET'])]
     #[Entity('comments', expr: 'repository.findByTypeItem(itemType, itemId)', class: Comment::class)]
-    #[Security("is_granted('comment_view')")]
-    public function list(array $comments, UserInterface $user = null)
+    #[IsGranted(Permission::COMMENT_VIEW)]
+    public function list(array $comments, UserInterface $user = null): JsonResponse
     {
         if ($user instanceof User) {
             foreach ($comments as $comment) {
@@ -82,7 +81,7 @@ class CommentsController extends AbstractController
     }
 
     #[Route(path: '/comments/{id}', methods: ['PUT'])]
-    #[Security("is_granted('comment_update', comment)")]
+    #[IsGranted(Permission::COMMENT_UPDATE, 'comment')]
     public function update(Request $request, Comment $comment, UserInterface $user): JsonResponse
     {
         $command = new UpdateCommentCommand($comment, $request->request->get('content'));
@@ -92,7 +91,7 @@ class CommentsController extends AbstractController
     }
 
     #[Route(path: '/comments/delete/{id}', methods: ['DELETE'])]
-    #[Security("is_granted('comment_delete', comment)")]
+    #[IsGranted(Permission::COMMENT_DELETE, 'comment')]
     public function delete(Comment $comment, UserInterface $user): JsonResponse
     {
         $command = new DeleteCommentCommand($comment);
@@ -102,7 +101,7 @@ class CommentsController extends AbstractController
     }
 
     #[Route(path: '/comments/{id}/upvote', methods: ['POST'])]
-    #[Security("is_granted('comment')")]
+    #[IsGranted(Permission::COMMENT_ADD)]
     public function upvote(Comment $comment, UserInterface $user = null): JsonResponse
     {
         if (!$user instanceof User) {
@@ -116,7 +115,7 @@ class CommentsController extends AbstractController
     }
 
     #[Route(path: '/comments/{id}/upvote', methods: ['DELETE'])]
-    #[Security("is_granted('comment')")]
+    #[IsGranted(Permission::COMMENT_ADD)]
     public function downvote(Comment $comment, UserInterface $user): JsonResponse
     {
         if (!$user instanceof User) {
@@ -134,7 +133,7 @@ class CommentsController extends AbstractController
     }
 
     #[Route(path: '/salt/case/export_comment/{itemType}/{itemId}/comment.csv', name: 'export_comment_file')]
-    #[Security("is_granted('comment_view')")]
+    #[IsGranted(Permission::COMMENT_VIEW)]
     public function exportComment(string $itemType, int $itemId): Response
     {
         $response = new StreamedResponse();

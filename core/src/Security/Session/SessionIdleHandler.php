@@ -11,9 +11,9 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class SessionIdleHandler
 {
     public function __construct(
-        private AuthorizationCheckerInterface $securityContext,
-        private TokenStorageInterface $securityToken,
-        private int $sessionMaxIdleTime = 0,
+        private readonly AuthorizationCheckerInterface $securityContext,
+        private readonly TokenStorageInterface $securityToken,
+        private readonly int $sessionMaxIdleTime = 0,
     ) {
     }
 

@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\User\User;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -10,10 +11,10 @@ class ManageUserVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const MANAGE = 'manage';
+    final public const MANAGE = Permission::MANAGE_USERS;
 
-    final public const USERS = 'users';
-    final public const ALL_USERS = 'all_users';
+    final public const USERS = Permission::MANAGE_USERS_SUBJECT;
+    final public const ALL_USERS = Permission::MANAGE_ALL_USERS_SUBJECT;
 
     public function supportsAttribute(string $attribute): bool
     {

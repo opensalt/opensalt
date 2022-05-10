@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter;
 
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -9,9 +10,9 @@ class ManageAdditionalFieldVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const MANAGE = 'manage';
+    final public const MANAGE = Permission::ADDITIONAL_FIELDS_MANAGE;
 
-    final public const ADDITIONAL_FIELDS = 'additional_fields';
+    final public const ADDITIONAL_FIELDS = Permission::ADDITIONAL_FIELDS_MANAGE_SUBJECT;
 
     public function supportsAttribute(string $attribute): bool
     {

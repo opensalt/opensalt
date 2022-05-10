@@ -19,6 +19,7 @@ use App\Repository\ChangeEntryRepository;
 use App\Repository\Framework\CfDocQuery;
 use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsDocRepository;
+use App\Security\Permission;
 use App\Service\LoggerTrait;
 use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
@@ -66,7 +67,7 @@ class CaseV1P0Controller extends AbstractController
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $doc) {
             if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $doc->getAdoptionStatus()
-                && !$this->isGranted('list', $doc)) {
+                && !$this->isGranted(Permission::FRAMEWORK_LIST, $doc)) {
                 continue;
             }
             if (null !== $doc->getMirroredFramework()) {
@@ -153,7 +154,7 @@ class CaseV1P0Controller extends AbstractController
             $associationDoc = $association->getLsDoc();
             if ($itemDocId !== $associationDoc->getId()
                 && LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $associationDoc->getAdoptionStatus()
-                && !$this->isGranted('list', $associationDoc)) {
+                && !$this->isGranted(Permission::FRAMEWORK_LIST, $associationDoc)) {
                 continue;
             }
 
@@ -161,7 +162,7 @@ class CaseV1P0Controller extends AbstractController
             if (null !== $originDoc
                 && $itemDocId !== $originDoc->getId()
                 && LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $originDoc->getAdoptionStatus()
-                && !$this->isGranted('list', $originDoc)) {
+                && !$this->isGranted(Permission::FRAMEWORK_LIST, $originDoc)) {
                 continue;
             }
 
@@ -169,7 +170,7 @@ class CaseV1P0Controller extends AbstractController
             if (null !== $destDoc
                 && $itemDocId !== $destDoc->getId()
                 && LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $destDoc->getAdoptionStatus()
-                && !$this->isGranted('list', $destDoc)) {
+                && !$this->isGranted(Permission::FRAMEWORK_LIST, $destDoc)) {
                 continue;
             }
 

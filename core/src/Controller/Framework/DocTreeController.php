@@ -17,6 +17,7 @@ use App\Entity\Framework\LsItem;
 use App\Entity\Framework\ObjectLock;
 use App\Entity\User\User;
 use App\Form\Type\LsDocListType;
+use App\Security\Permission;
 use App\Util\Compare;
 use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
@@ -87,7 +88,7 @@ class DocTreeController extends AbstractController
             }
         }
 
-        $editorRights = $authChecker->isGranted('edit', $lsDoc);
+        $editorRights = $authChecker->isGranted(Permission::FRAMEWORK_EDIT, $lsDoc);
 
         $ret = [
             'lsDoc' => $lsDoc,
@@ -98,8 +99,8 @@ class DocTreeController extends AbstractController
             'isDraft' => $lsDoc->isDraft(),
             'isAdopted' => $lsDoc->isAdopted(),
             'isDeprecated' => $lsDoc->isDeprecated(),
-            'manageEditorsRights' => $authChecker->isGranted('manage_editors', $lsDoc),
-            'createRights' => $authChecker->isGranted('create', 'lsdoc'),
+            'manageEditorsRights' => $authChecker->isGranted(Permission::MANAGE_EDITORS, $lsDoc),
+            'createRights' => $authChecker->isGranted(Permission::FRAMEWORK_CREATE, 'lsdoc'),
 
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,
@@ -636,7 +637,7 @@ class DocTreeController extends AbstractController
         /** @var LsDoc $doc */
         foreach ($docs as $doc) {
             // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
-            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus() || $authChecker->isGranted('view', $doc)) {
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus() || $authChecker->isGranted(Permission::FRAMEWORK_VIEW, $doc)) {
                 $lsDocs[] = $doc;
             }
         }
