@@ -15,10 +15,11 @@ use App\Exception\AlreadyLockedException;
 use App\Form\Type\LsDocCreateType;
 use App\Form\Type\LsDocType;
 use App\Form\Type\RemoteCaseServerType;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -26,7 +27,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[Route(path: '/cfdoc')]
 class LsDocController extends AbstractController
@@ -34,15 +35,15 @@ class LsDocController extends AbstractController
     use CommandDispatcherTrait;
 
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
     /**
      * Lists all LsDoc entities.
      */
-    #[Route(path: '/', methods: ['GET'], name: 'lsdoc_index')]
-    public function indexAction(?UserInterface $user = null): Response
+    #[Route(path: '/', name: 'lsdoc_index', methods: ['GET'])]
+    public function index(#[CurrentUser] ?User $user): Response
     {
         $em = $this->managerRegistry->getManager();
 
@@ -53,7 +54,7 @@ class LsDocController extends AbstractController
         $loggedIn = $user instanceof User;
         foreach ($results as $lsDoc) {
             // Optimization: All but "Private Draft" are viewable to everyone (if not mirrored), only auth check "Private Draft"
-            if (($loggedIn && $this->isGranted('list', $lsDoc))
+            if (($loggedIn && $this->isGranted(Permission::FRAMEWORK_LIST, $lsDoc))
                 || (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus()
                     && null === $lsDoc->getMirroredFramework())) {
                 $lsDocs[] = $lsDoc;
@@ -66,8 +67,8 @@ class LsDocController extends AbstractController
     /**
      * Show frameworks from a remote system.
      */
-    #[Route(path: '/remote', methods: ['GET', 'POST'], name: 'lsdoc_remote_index')]
-    public function remoteIndexAction(Request $request): Response
+    #[Route(path: '/remote', name: 'lsdoc_remote_index', methods: ['GET', 'POST'])]
+    public function remoteIndex(Request $request): Response
     {
         $form = $this->createForm(RemoteCaseServerType::class);
         $form->handleRequest($request);
@@ -106,11 +107,10 @@ class LsDocController extends AbstractController
 
     /**
      * Creates a new LsDoc entity.
-     *
-     * @Security("is_granted('create', 'lsdoc')")
      */
-    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'lsdoc_new')]
-    public function newAction(Request $request): Response
+    #[Route(path: '/new', name: 'lsdoc_new', methods: ['GET', 'POST'])]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function new(Request $request): Response
     {
         $lsDoc = new LsDoc();
         $form = $this->createForm(LsDocCreateType::class, $lsDoc);
@@ -138,11 +138,10 @@ class LsDocController extends AbstractController
 
     /**
      * Finds and displays a LsDoc entity.
-     *
-     * @Security("is_granted('view', lsDoc)")
      */
-    #[Route(path: '/{id}.{_format}', methods: ['GET'], defaults: ['_format' => 'html'], name: 'lsdoc_show')]
-    public function showAction(LsDoc $lsDoc, string $_format = 'html'): Response
+    #[Route(path: '/{id}.{_format}', name: 'lsdoc_show', defaults: ['_format' => 'html'], methods: ['GET'])]
+    #[IsGranted(Permission::FRAMEWORK_VIEW, 'lsDoc')]
+    public function show(LsDoc $lsDoc, string $_format = 'html'): Response
     {
         if ('json' === $_format) {
             // Redirect?  Change Action for Template?
@@ -162,12 +161,11 @@ class LsDocController extends AbstractController
     /**
      * Update a framework given a CSV or external File.
      *
-     * @Security("is_granted('edit', lsDoc)")
-     *
      * @deprecated It appears this is unused now
      */
-    #[Route(path: '/doc/{id}/update', methods: ['POST'], name: 'lsdoc_update')]
-    public function updateAction(Request $request, LsDoc $lsDoc): Response
+    #[Route(path: '/doc/{id}/update', name: 'lsdoc_update', methods: ['POST'])]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
+    public function update(Request $request, LsDoc $lsDoc): Response
     {
         $response = new JsonResponse();
         $fileContent = $request->request->get('content');
@@ -185,11 +183,10 @@ class LsDocController extends AbstractController
 
     /**
      * Update a framework given a CSV or external File on a derivative framework.
-     *
-     * @Security("is_granted('create', 'lsdoc')")
      */
-    #[Route(path: '/doc/{id}/derive', methods: ['POST'], name: 'lsdoc_update_derive')]
-    public function deriveAction(Request $request, LsDoc $lsDoc): Response
+    #[Route(path: '/doc/{id}/derive', name: 'lsdoc_update_derive', methods: ['POST'])]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function derive(Request $request, LsDoc $lsDoc): Response
     {
         $fileContent = $request->request->get('content');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
@@ -206,11 +203,10 @@ class LsDocController extends AbstractController
 
     /**
      * Displays a form to edit an existing LsDoc entity.
-     *
-     * @Security("is_granted('edit', lsDoc)")
      */
-    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsdoc_edit')]
-    public function editAction(Request $request, LsDoc $lsDoc, UserInterface $user): Response
+    #[Route(path: '/{id}/edit', name: 'lsdoc_edit', methods: ['GET', 'POST'])]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
+    public function edit(Request $request, LsDoc $lsDoc, #[CurrentUser] User $user): Response
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -269,11 +265,10 @@ class LsDocController extends AbstractController
 
     /**
      * Deletes a LsDoc entity.
-     *
-     * @Security("is_granted('delete', lsDoc)")
      */
-    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsdoc_delete')]
-    public function deleteAction(Request $request, LsDoc $lsDoc): Response
+    #[Route(path: '/{id}', name: 'lsdoc_delete', methods: ['DELETE'])]
+    #[IsGranted(Permission::FRAMEWORK_DELETE, 'lsDoc')]
+    public function delete(Request $request, LsDoc $lsDoc): Response
     {
         if ($request->isXmlHttpRequest()) {
             $token = $request->request->get('token');
@@ -302,11 +297,10 @@ class LsDocController extends AbstractController
 
     /**
      * Finds and displays a LsDoc entity.
-     *
-     * @Security("is_granted('view', lsDoc)")
      */
-    #[Route(path: '/{id}/export.{_format}', methods: ['GET'], requirements: ['_format' => '(json|html|null)'], defaults: ['_format' => 'json'], name: 'lsdoc_export')]
-    public function exportAction(LsDoc $lsDoc, string $_format = 'json'): Response
+    #[Route(path: '/{id}/export.{_format}', name: 'lsdoc_export', requirements: ['_format' => '(json|html|null)'], defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[IsGranted(Permission::FRAMEWORK_VIEW, 'lsDoc')]
+    public function export(LsDoc $lsDoc, string $_format = 'json'): Response
     {
         if ('json' !== $_format) {
             $_format = 'html';

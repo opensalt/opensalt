@@ -4,7 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Framework\LsDoc;
 use App\Repository\ChangeEntryRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -12,18 +13,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DocRevisionController extends AbstractController
 {
-    private ChangeEntryRepository $entryRepository;
-
-    public function __construct(ChangeEntryRepository $entryRepository)
+    public function __construct(private readonly ChangeEntryRepository $entryRepository)
     {
-        $this->entryRepository = $entryRepository;
     }
 
-    /**
-     * @Security("is_granted('edit', doc)")
-     */
-    #[Route(path: '/cfdoc/{id}/revisions/{offset}/{limit}', methods: ['GET'], requirements: ['offset' => '\d+', 'limit' => '\d+'], defaults: ['offset' => 0, 'limit' => 0], name: 'doc_revisions_json')]
-    public function listDocRevisionsAction(LsDoc $doc, int $offset, int $limit): Response
+    #[Route(path: '/cfdoc/{id}/revisions/{offset}/{limit}', name: 'doc_revisions_json', requirements: ['offset' => '\d+', 'limit' => '\d+'], defaults: ['offset' => 0, 'limit' => 0], methods: ['GET'])]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
+    public function listDocRevisions(LsDoc $doc, int $offset, int $limit): Response
     {
         $response = new StreamedResponse();
         $response->headers->set('Content-type', 'application/json');
@@ -51,10 +47,8 @@ class DocRevisionController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Security("is_granted('edit', doc)")
-     */
     #[Route(path: '/cfdoc/{id}/revisions/export', name: 'doc_revisions_csv', methods: ['GET'])]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
     public function exportDocRevisions(LsDoc $doc): Response
     {
         $response = new StreamedResponse();

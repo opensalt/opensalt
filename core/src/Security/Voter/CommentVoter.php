@@ -4,6 +4,8 @@ namespace App\Security\Voter;
 
 use App\Entity\Comment\Comment;
 use App\Entity\User\User;
+use App\Security\Feature;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -12,14 +14,14 @@ class CommentVoter extends Voter
     use RoleCheckTrait;
     use FeatureCheckTrait;
 
-    final public const COMMENT = 'comment';
-    final public const VIEW = 'comment_view';
-    final public const UPDATE = 'comment_update';
-    final public const DELETE = 'comment_delete';
+    final public const COMMENT = Permission::COMMENT_ADD;
+    final public const VIEW = Permission::COMMENT_VIEW;
+    final public const UPDATE = Permission::COMMENT_UPDATE;
+    final public const DELETE = Permission::COMMENT_DELETE;
 
     public function supportsAttribute(string $attribute): bool
     {
-        if (!$this->hasActiveFeature('comments')) {
+        if (!$this->hasActiveFeature(Feature::COMMENTS)) {
             // No support for comments if the feature is not enabled
             return false;
         }
@@ -34,7 +36,7 @@ class CommentVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (!$this->hasActiveFeature('comments')) {
+        if (!$this->hasActiveFeature(Feature::COMMENTS)) {
             // No support for comments if the feature is not enabled
             return false;
         }
@@ -75,7 +77,7 @@ class CommentVoter extends Voter
     }
 
     /**
-     * All logged in users can comment.
+     * All logged-in users can comment.
      */
     private function canComment(): bool
     {

@@ -5,6 +5,7 @@ namespace App\Security\Voter;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -13,8 +14,8 @@ class ItemVoter extends Voter
     use DeferDecisionTrait;
     use RoleCheckTrait;
 
-    final public const ADD_TO = 'add-standard-to';
-    final public const EDIT = 'edit';
+    final public const ADD_TO = Permission::ITEM_ADD_TO;
+    final public const EDIT = Permission::ITEM_EDIT;
 
     public function supportsAttribute(string $attribute): bool
     {

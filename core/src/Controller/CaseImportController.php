@@ -5,32 +5,27 @@ namespace App\Controller;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportCaseJsonCommand;
 use App\Entity\User\User;
+use App\Security\Permission;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CaseImportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @Security("is_granted('create', 'lsdoc')")
-     */
     #[Route(path: '/salt/case/import', name: 'import_case_file')]
-    public function importAction(Request $request, UserInterface $user): JsonResponse
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function import(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        if (!$user instanceof User) {
-            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
-        }
-
         $content = base64_decode($request->request->get('fileContent'));
 
         $command = new ImportCaseJsonCommand($content, $user->getOrg(), $user);
@@ -41,16 +36,10 @@ class CaseImportController extends AbstractController
         ]);
     }
 
-    /**
-     * @Security("is_granted('create', 'lsdoc')")
-     */
     #[Route(path: '/salt/case/importRemote', name: 'import_case_file_remote')]
-    public function importRemoteAction(Request $request, UserInterface $user): Response
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function importRemote(Request $request, #[CurrentUser] User $user): Response
     {
-        if (!$user instanceof User) {
-            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
-        }
-
         $defaultData = [];
         $form = $this->createFormBuilder($defaultData)
             ->add('url', UrlType::class, [

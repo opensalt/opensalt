@@ -5,6 +5,7 @@ namespace App\Security\Voter;
 use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -12,36 +13,35 @@ class FrameworkAccessVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const LIST = 'list'; // User can see the framework in a list
-    final public const VIEW = 'view';
-    final public const EDIT = 'edit';
-    final public const DELETE = 'delete';
-    final public const CREATE = 'create';
-
-    final public const FRAMEWORK = 'lsdoc';
+    final public const LIST = Permission::FRAMEWORK_LIST; // User can see the framework in a list
+    final public const VIEW = Permission::FRAMEWORK_VIEW;
+    final public const EDIT = Permission::FRAMEWORK_EDIT;
+    final public const EDIT_ALL = Permission::FRAMEWORK_EDIT_ALL;
+    final public const DELETE = Permission::FRAMEWORK_DELETE;
+    final public const CREATE = Permission::FRAMEWORK_CREATE;
 
     public function supportsAttribute(string $attribute): bool
     {
-        return \in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::DELETE], true);
+        return \in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::EDIT_ALL, static::DELETE], true);
     }
 
     public function supportsType(string $subjectType): bool
     {
-        return \in_array($subjectType, ['string', LsDoc::class], true);
+        return \in_array($subjectType, ['null', LsDoc::class], true);
     }
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (!\in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::DELETE], true)) {
+        if (!\in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::EDIT_ALL, static::DELETE], true)) {
             return false;
         }
 
         // If the attribute is CREATE then we can handle if the subject is FRAMEWORK
-        if (static::FRAMEWORK === $subject && static::CREATE === $attribute) {
+        if (static::CREATE === $attribute) {
             return true;
         }
 
-        if ('all_frameworks' === $subject && static::EDIT === $attribute) {
+        if (static::EDIT_ALL === $attribute) {
             return true;
         }
 
@@ -52,7 +52,7 @@ class FrameworkAccessVoter extends Voter
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         return match ($attribute) {
-            self::CREATE => (static::FRAMEWORK === $subject) && $this->canCreateFramework($token),
+            self::CREATE => $this->canCreateFramework($token),
             self::LIST => $this->canListFramework($subject, $token),
             self::VIEW => $this->canViewFramework($subject, $token),
             self::EDIT => $this->canEditFramework($subject, $token),

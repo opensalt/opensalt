@@ -3,27 +3,21 @@
 namespace App\Controller;
 
 use App\Entity\User\User;
+use App\Security\Permission;
 use Milo\Github\Api;
 use Milo\Github\OAuth\Token;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * Class GithubOauthController
- *
- * @Security("is_granted('create', 'lsdoc')")
- */
+#[IsGranted(Permission::FRAMEWORK_CREATE)]
 class GithubOauthController extends AbstractController
 {
-    /**
-     * @return JsonResponse
-     */
     #[Route(path: '/user/github/repos')]
-    public function getReposAction(Request $request)
+    public function getRepos(Request $request): JsonResponse
     {
         $currentUser = $this->getUser();
         $response = new JsonResponse();
@@ -59,11 +53,8 @@ class GithubOauthController extends AbstractController
         ]);
     }
 
-    /**
-     * @return JsonResponse
-     */
     #[Route(path: '/user/github/files')]
-    public function getFilesAction(Request $request)
+    public function getFiles(Request $request): JsonResponse
     {
         $currentUser = $this->getUser();
         $response = new JsonResponse();

@@ -20,7 +20,7 @@
             <li>
                 <a class="btn btn-default" href="{{ path('lsdoc_index') }}">Back to list</a>
             </li>
-            {% if is_granted('delete', lsDoc) %}
+            {% if is_granted(constant('App\\Security\\Permission::FRAMEWORK_DELETE'), lsDoc) %}
                 <li>
                     {{ form_start(delete_form) }}
                         <input class="btn btn-danger" type="submit" value="Delete">

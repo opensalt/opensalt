@@ -7,6 +7,7 @@ use App\Console\BaseDoctrineCommand;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
 use App\Event\CommandEvent;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,13 +16,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 
+#[AsCommand('salt:user:add', 'Add a local user')]
 class UserAddCommand extends BaseDoctrineCommand
 {
-    protected static $defaultName = 'salt:user:add';
-
     protected function configure(): void
     {
-        $this->setDescription('Add a local user')
+        $this
             ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the new user')
             ->addArgument('org', InputArgument::REQUIRED, 'Organization name for the new user')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Initial password for the new user')

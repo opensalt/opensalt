@@ -5,25 +5,22 @@ namespace App\Controller\Framework;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\CloneFrameworkCommand;
 use App\Entity\Framework\LsDoc;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * Copy controller.
- */
 #[Route(path: '/clone')]
 class CloneController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @Security("is_granted('edit', lsDoc) and is_granted('create', 'lsdoc')")
-     */
     #[Route(path: '/framework/{id}', name: 'clone_framework', methods: ['GET'])]
-    public function frameworkAction(Request $request, LsDoc $lsDoc): Response
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function framework(Request $request, LsDoc $lsDoc): Response
     {
         $command = new CloneFrameworkCommand($lsDoc);
         $this->sendCommand($command);

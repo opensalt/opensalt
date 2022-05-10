@@ -3,19 +3,19 @@
 namespace App\Console\User;
 
 use App\Command\User\AddUserRoleCommand;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 
+#[AsCommand('salt:user:add-role', 'Add a role to a local user')]
 class UserAddRoleCommand extends UserRoleCommand
 {
-    protected static $defaultName = 'salt:user:add-role';
-
     protected function configure(): void
     {
-        $this->setDescription('Add a role to a local user')
+        $this
             ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the user to change')
             ->addArgument('role', InputArgument::REQUIRED, 'Role to give the user (editor, admin, super-user)')
         ;

@@ -6,19 +6,19 @@ use App\Command\User\AddOrganizationByNameCommand;
 use App\Console\BaseDoctrineCommand;
 use App\Entity\User\Organization;
 use App\Event\CommandEvent;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
+#[AsCommand('salt:org:add', 'Add an organization')]
 class OrgAddCommand extends BaseDoctrineCommand
 {
-    protected static $defaultName = 'salt:org:add';
-
     protected function configure(): void
     {
-        $this->setDescription('Add an organization')
+        $this
             ->addArgument('org', InputArgument::REQUIRED, 'Organization name for the new user')
         ;
     }

@@ -17,14 +17,14 @@ use App\Entity\Framework\LsItem;
 use App\Entity\Framework\ObjectLock;
 use App\Entity\User\User;
 use App\Form\Type\LsDocListType;
+use App\Security\Permission;
 use App\Util\Compare;
 use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -33,11 +33,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
-/**
- * Editor Tree controller.
- */
 #[Route(path: '/cftree')]
 class DocTreeController extends AbstractController
 {
@@ -46,24 +43,21 @@ class DocTreeController extends AbstractController
     private const ETAG_SEED = '2';
 
     public function __construct(
-        private DoctrineDbalAdapter $externalDocCache,
-        private ManagerRegistry $managerRegistry,
-        private ?string $caseNetworkClientId,
-        private ?string $caseNetworkClientSecret,
-        private ?string $caseNetworkScope,
-        private ?string $caseNetworkTokenEndpoint,
+        private readonly DoctrineDbalAdapter $externalDocCache,
+        private readonly ManagerRegistry $managerRegistry,
+        private readonly ?string $caseNetworkClientId,
+        private readonly ?string $caseNetworkClientSecret,
+        private readonly ?string $caseNetworkScope,
+        private readonly ?string $caseNetworkTokenEndpoint,
     ) {
     }
 
-    /**
-     * @Entity("lsDoc", expr="repository.findOneBySlug(slug)")
-     * @Template()
-     */
-    #[Route(path: '/doc/{slug}', name: 'doc_tree_view', methods: ['GET'], requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null])]
-    #[Route(path: '/doc/{slug}/av', name: 'doc_tree_view_av', methods: ['GET'], requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null])]
-    #[Route(path: '/doc/{slug}/lv', name: 'doc_tree_view_log', methods: ['GET'], requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null])]
-    #[Route(path: '/doc/{slug}/{assocGroup}', name: 'doc_tree_view_ag', methods: ['GET'], requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null])]
-    public function viewAction(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, $lsItemId = null, $assocGroup = null): array
+    #[Route(path: '/doc/{slug}', name: 'doc_tree_view', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
+    #[Route(path: '/doc/{slug}/av', name: 'doc_tree_view_av', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
+    #[Route(path: '/doc/{slug}/lv', name: 'doc_tree_view_log', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
+    #[Route(path: '/doc/{slug}/{assocGroup}', name: 'doc_tree_view_ag', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
+    #[Entity('lsDoc', expr: 'repository.findOneBySlug(slug)')]
+    public function view(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, #[CurrentUser] ?User $user, ?string $lsItemId = null, ?string $assocGroup = null): Response
     {
         $em = $this->managerRegistry->getManager();
 
@@ -94,7 +88,7 @@ class DocTreeController extends AbstractController
             }
         }
 
-        $editorRights = $authChecker->isGranted('edit', $lsDoc);
+        $editorRights = $authChecker->isGranted(Permission::FRAMEWORK_EDIT, $lsDoc);
 
         $ret = [
             'lsDoc' => $lsDoc,
@@ -105,8 +99,8 @@ class DocTreeController extends AbstractController
             'isDraft' => $lsDoc->isDraft(),
             'isAdopted' => $lsDoc->isAdopted(),
             'isDeprecated' => $lsDoc->isDeprecated(),
-            'manageEditorsRights' => $authChecker->isGranted('manage_editors', $lsDoc),
-            'createRights' => $authChecker->isGranted('create', 'lsdoc'),
+            'manageEditorsRights' => $authChecker->isGranted(Permission::MANAGE_EDITORS, $lsDoc),
+            'createRights' => $authChecker->isGranted(Permission::FRAMEWORK_CREATE),
 
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,
@@ -125,11 +119,11 @@ class DocTreeController extends AbstractController
             $ret['locks'] = $this->getLocks($lsDoc, $user);
         }
 
-        return $ret;
+        return $this->render('framework/doc_tree/view.html.twig', $ret);
     }
 
     #[Route(path: '/remote', name: 'doc_tree_remote_view', methods: ['GET'])]
-    public function viewRemoteAction(): Response
+    public function viewRemote(): Response
     {
         $assocSubTypes = $this->managerRegistry->getRepository(AssociationSubtype::class)->findAll();
         $assocFilterTypes = [];
@@ -178,7 +172,7 @@ class DocTreeController extends AbstractController
      * Export a CFPackage in a special json format designed for efficiently loading the package's data to the OpenSALT doctree client.
      */
     #[Route(path: '/docexport/{id}.json', name: 'doctree_cfpackage_export', methods: ['GET'])]
-    public function exportAction(Request $request, LsDoc $lsDoc): JsonResponse
+    public function export(Request $request, LsDoc $lsDoc): JsonResponse
     {
         $response = new JsonResponse();
 
@@ -246,13 +240,13 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * Retrieve a CFPackage from the given document identifier, then use exportAction to export it.
+     * Retrieve a CFPackage from the given document identifier, then use export() to export it.
      *
      * @throws \Exception
      */
     #[Route(path: '/retrievedocument/{id}', name: 'doctree_retrieve_document', methods: ['GET'])]
-    #[Route(path: '/retrievedocument/url', name: 'doctree_retrieve_document_by_url', methods: ['GET'], defaults: ['id' => null])]
-    public function retrieveDocumentAction(Request $request, ?LsDoc $lsDoc = null): Response
+    #[Route(path: '/retrievedocument/url', name: 'doctree_retrieve_document_by_url', defaults: ['id' => null], methods: ['GET'])]
+    public function retrieveDocument(Request $request, ?LsDoc $lsDoc = null): Response
     {
         ini_set('memory_limit', '1G');
 
@@ -370,30 +364,26 @@ class DocTreeController extends AbstractController
     }
 
     /**
-     * @Template()
-     *
-     * Note that this must come before viewItemAction for the url mapping to work properly.
+     * Note that this must come before viewItem for the url mapping to work properly.
      */
     #[Route(path: '/item/{id}/details', name: 'doc_tree_item_details', methods: ['GET'])]
-    public function treeItemDetailsAction(LsItem $lsItem): array
+    public function treeItemDetails(LsItem $lsItem): Response
     {
-        return ['lsItem' => $lsItem];
+        return $this->render('framework/doc_tree/tree_item_details.html.twig', ['lsItem' => $lsItem]);
     }
 
-    #[Route(path: '/item/{id}.{_format}', name: 'doc_tree_item_view', methods: ['GET'], defaults: ['_format' => 'html'])]
-    #[Route(path: '/item/{id}/{assocGroup}.{_format}', name: 'doc_tree_item_view_ag', methods: ['GET'], defaults: ['_format' => 'html'])]
-    public function viewItemAction(LsItem $lsItem, ?string $assocGroup = null, string $_format = 'html'): Response
+    #[Route(path: '/item/{id}.{_format}', name: 'doc_tree_item_view', defaults: ['_format' => 'html'], methods: ['GET'])]
+    #[Route(path: '/item/{id}/{assocGroup}.{_format}', name: 'doc_tree_item_view_ag', defaults: ['_format' => 'html'], methods: ['GET'])]
+    public function viewItem(LsItem $lsItem, ?string $assocGroup = null, string $_format = 'html'): Response
     {
-        return $this->forward('App\Controller\Framework\DocTreeController::viewAction', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getid(), 'assocGroup' => $assocGroup]);
+        return $this->forward('App\Controller\Framework\DocTreeController::view', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getid(), 'assocGroup' => $assocGroup]);
     }
 
     /**
-     * @Template()
-     *
      * PW: this is similar to the renderDocument function in the Editor directory, but different enough that I think it deserves a separate controller/view
      */
-    #[Route(path: '/render/{id}.{_format}', methods: ['GET'], defaults: ['_format' => 'html'], name: 'doctree_render_document')]
-    public function renderDocumentAction(LsDoc $lsDoc, $_format = 'html'): array
+    #[Route(path: '/render/{id}.{_format}', name: 'doctree_render_document', defaults: ['_format' => 'json'], methods: ['GET'])]
+    public function renderDocument(LsDoc $lsDoc, string $_format = 'json'): Response
     {
         $repo = $this->managerRegistry->getRepository(LsDoc::class);
 
@@ -422,24 +412,23 @@ class DocTreeController extends AbstractController
 
         Compare::sortArrayByFields($orphaned, ['sequenceNumber', 'listEnumInSource', 'humanCodingScheme']);
 
-        return [
+        return $this->render('framework/doc_tree/render_document.json.twig', [
             'topItemIds' => $topChildren,
             'lsDoc' => $lsDoc,
             'items' => $items,
             'parentsElsewhere' => $parentsElsewhere,
             'orphaned' => $orphaned,
-        ];
+        ]);
     }
 
     /**
      * Deletes a LsItem entity, from the tree view.
      *
-     * @Security("is_granted('edit', lsItem)")
-     *
      * @throws \InvalidArgumentException
      */
-    #[Route(path: '/item/{id}/delete/{includingChildren}', methods: ['POST'], name: 'lsitem_tree_delete', defaults: ['includingChildren' => 0])]
-    public function deleteItemAction(Request $request, LsItem $lsItem, int $includingChildren = 0): Response
+    #[Route(path: '/item/{id}/delete/{includingChildren}', name: 'lsitem_tree_delete', defaults: ['includingChildren' => 0], methods: ['POST'])]
+    #[IsGranted(Permission::ITEM_EDIT, 'lsItem')]
+    public function deleteItem(Request $request, LsItem $lsItem, int $includingChildren = 0): Response
     {
         $ajax = false;
         if ($request->isXmlHttpRequest()) {
@@ -469,14 +458,11 @@ class DocTreeController extends AbstractController
      * This also does copies, of either single items or folders.
      * If we do a copy, the service returns an array of trees with the copied lsItemIds.
      * For other operations, we return an empty array.
-     *
-     * @Security("is_granted('edit', lsDoc)")
-     * @Template()
      */
-    #[Route(path: '/doc/{id}/updateitems.{_format}', methods: ['POST'], name: 'doctree_update_items')]
-    public function updateItemsAction(Request $request, LsDoc $lsDoc, string $_format = 'json'): array
+    #[Route(path: '/doc/{id}/updateitems.{_format}', name: 'doctree_update_items', methods: ['POST'])]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
+    public function updateItems(Request $request, LsDoc $lsDoc, string $_format = 'json'): Response
     {
-        /** @var array $lsItems */
         $lsItems = $request->request->all('lsItems');
         $command = new UpdateTreeItemsCommand($lsDoc, $lsItems);
         $this->sendCommand($command);
@@ -495,7 +481,7 @@ class DocTreeController extends AbstractController
             }
         }
 
-        return ['returnedItems' => $rv];
+        return $this->render('framework/doc_tree/update_items.json.twig', ['returnedItems' => $rv]);
     }
 
     /**
@@ -503,15 +489,15 @@ class DocTreeController extends AbstractController
      *
      * @throws \InvalidArgumentException
      */
-    #[Route(path: '/assocgroup/{id}/delete', methods: ['POST'], name: 'lsdef_association_grouping_tree_delete')]
-    public function deleteAssocGroupAction(Request $request, LsDefAssociationGrouping $associationGrouping): Response
+    #[Route(path: '/assocgroup/{id}/delete', name: 'lsdef_association_grouping_tree_delete', methods: ['POST'])]
+    public function deleteAssocGroup(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
         $command = new DeleteAssociationGroupCommand($associationGrouping);
 
         try {
             $this->sendCommand($command);
         } catch (\Exception $e) {
-            if (preg_match('/FOREIGN KEY/', $e->getMessage())) {
+            if (str_contains($e->getMessage(), 'FOREIGN KEY')) {
                 return new JsonResponse(['error' => ['message' => 'An association group may only be deleted if there are no associations in it.']], Response::HTTP_BAD_REQUEST);
             }
 
@@ -533,7 +519,7 @@ class DocTreeController extends AbstractController
             return new Response('Document not found.', Response::HTTP_NOT_FOUND);
         }
 
-        return $this->exportAction($request, $newDoc);
+        return $this->export($request, $newDoc);
     }
 
     /**
@@ -543,7 +529,7 @@ class DocTreeController extends AbstractController
     {
         $newDoc = $this->managerRegistry->getRepository(LsDoc::class)->findOneBy(['identifier' => $identifier]);
         if (null !== $newDoc) {
-            return $this->exportAction($request, $newDoc);
+            return $this->export($request, $newDoc);
         }
 
         // otherwise look in this doc's externalDocs
@@ -651,7 +637,7 @@ class DocTreeController extends AbstractController
         /** @var LsDoc $doc */
         foreach ($docs as $doc) {
             // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
-            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus() || $authChecker->isGranted('view', $doc)) {
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus() || $authChecker->isGranted(Permission::FRAMEWORK_VIEW, $doc)) {
                 $lsDocs[] = $doc;
             }
         }
@@ -662,7 +648,7 @@ class DocTreeController extends AbstractController
     /**
      * Get a list of all locks for the document.
      */
-    private function getLocks(LsDoc $lsDoc, ?UserInterface $user): array
+    private function getLocks(LsDoc $lsDoc, #[CurrentUser] ?User $user): array
     {
         $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
         if ($user instanceof User) {

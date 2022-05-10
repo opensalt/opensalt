@@ -4,21 +4,20 @@ namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ParseCsvGithubDocumentCommand;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Security("is_granted('create', 'lsdoc')")
- */
+#[IsGranted(Permission::FRAMEWORK_CREATE)]
 class GithubImportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     #[Route(path: '/cf/github/import', name: 'import_from_github')]
-    public function importAction(Request $request): JsonResponse
+    public function import(Request $request): JsonResponse
     {
         /** @var array $lsItemKeys - argument passed as an array */
         $lsItemKeys = $request->request->get('cfItemKeys');

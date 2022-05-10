@@ -6,6 +6,7 @@ use App\Command\Import\ImportCaseJsonCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\AbstractDoctrineHandler;
+use App\Security\Permission;
 use App\Service\CaseImport;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -14,21 +15,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ImportCaseJsonHandler extends AbstractDoctrineHandler
 {
-    /**
-     * @var CaseImport
-     */
-    protected $importService;
-
-    /**
-     * @var AuthorizationCheckerInterface
-     */
-    private $authChecker;
-
-    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, CaseImport $caseImport, AuthorizationCheckerInterface $authChecker)
-    {
+    public function __construct(
+        ValidatorInterface $validator,
+        EntityManagerInterface $entityManager,
+        protected CaseImport $caseImport,
+        private readonly AuthorizationCheckerInterface $authChecker,
+    ) {
         parent::__construct($validator, $entityManager);
-        $this->importService = $caseImport;
-        $this->authChecker = $authChecker;
     }
 
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
@@ -40,9 +33,9 @@ class ImportCaseJsonHandler extends AbstractDoctrineHandler
         $organization = $command->getOrganization();
         $user = $command->getUser();
 
-        $doc = $this->importService->importCaseFile($command->getCaseJson());
+        $doc = $this->caseImport->importCaseFile($command->getCaseJson());
 
-        if (null !== $user && null !== $doc->getOrg() && !$this->authChecker->isGranted('edit', $doc)) {
+        if (null !== $user && null !== $doc->getOrg() && !$this->authChecker->isGranted(Permission::FRAMEWORK_EDIT, $doc)) {
             throw new \RuntimeException('The current user cannot update this framework');
         }
 

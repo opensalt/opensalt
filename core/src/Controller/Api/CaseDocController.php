@@ -8,8 +8,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CaseDocController extends AbstractController
 {
-    #[Route(path: '/api/doc', methods: ['GET'], name: 'case_swagger_doc')]
-    public function caseSwaggerDocAction(): Response
+    #[Route(path: '/api/doc', name: 'case_swagger_doc', methods: ['GET'])]
+    public function caseSwaggerDoc(): Response
     {
         return $this->render('api/case_doc/case_swagger_doc.html.twig');
     }

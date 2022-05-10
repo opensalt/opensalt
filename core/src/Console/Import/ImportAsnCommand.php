@@ -5,20 +5,18 @@ namespace App\Console\Import;
 use App\Command\Import\ImportAsnFromUrlCommand;
 use App\Console\BaseDispatchingCommand;
 use App\Event\CommandEvent;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand('import:asn', 'Import ASN Standards Document')]
 class ImportAsnCommand extends BaseDispatchingCommand
 {
-    protected static $defaultName = 'import:asn';
-
     protected function configure(): void
     {
         $this
-            ->setName(static::$defaultName)
-            ->setDescription('Import ASN Standards Document')
             ->addArgument('asnId', InputArgument::REQUIRED, 'Identifier for ASN Document')
             ->addOption('creator', null, InputOption::VALUE_OPTIONAL, 'Document creator')
         ;

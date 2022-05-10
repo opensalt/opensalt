@@ -12,15 +12,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class ExportController extends AbstractController
 {
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
     /**
      * Generate JSON formatted for export to CMS.
      */
-    #[Route(path: '/cfdoc/{id}.{_format}', methods: ['GET'], name: 'lsdoc_api_view', requirements: ['id' => '\d+'])]
-    public function exportAction(LsDoc $lsDoc, string $_format = 'json'): Response
+    #[Route(path: '/cfdoc/{id}.{_format}', name: 'lsdoc_api_view', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function export(LsDoc $lsDoc, string $_format = 'json'): Response
     {
         $items = $this->managerRegistry->getRepository(LsDoc::class)->findAllChildrenArray($lsDoc);
 

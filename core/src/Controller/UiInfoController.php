@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,21 +18,19 @@ use Symfony\Component\Routing\Annotation\Route;
 class UiInfoController extends AbstractController
 {
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
-    /**
-     * @Security("is_granted('edit', doc)")
-     */
-    #[Route(path: '/multi/{id}', methods: ['POST'], name: 'multi_tree_info_json')]
-    public function multiJsonInfoAction(Request $request, LsDoc $doc): JsonResponse
+    #[Route(path: '/multi/{id}', name: 'multi_tree_info_json', methods: ['POST'])]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
+    public function multiJsonInfo(Request $request, LsDoc $doc): JsonResponse
     {
         $objs = [];
 
         /** @var ?array $docs - argument passed as an array */
         $docs = $request->request->get('doc');
-        if (null !== $docs && is_array($docs)) {
+        if (is_array($docs)) {
             foreach ($docs as $id) {
                 $d = $this->managerRegistry->getRepository(LsDoc::class)
                     ->find($id);
@@ -42,7 +42,7 @@ class UiInfoController extends AbstractController
 
         /** @var ?array $items - argument passed as an array */
         $items = $request->request->get('item');
-        if (null !== $items && is_array($items)) {
+        if (is_array($items)) {
             foreach ($items as $id) {
                 $i = $this->managerRegistry->getRepository(LsItem::class)
                     ->find($id);
@@ -54,7 +54,7 @@ class UiInfoController extends AbstractController
 
         /** @var ?array $assocs - argument passed as an array */
         $assocs = $request->request->get('assoc');
-        if (null !== $assocs && is_array($assocs)) {
+        if (is_array($assocs)) {
             foreach ($assocs as $id) {
                 $a = $this->managerRegistry->getRepository(LsAssociation::class)
                     ->find($id);
@@ -67,29 +67,23 @@ class UiInfoController extends AbstractController
         return new JsonResponse($objs);
     }
 
-    /**
-     * @Security("is_granted('edit', doc)")
-     */
-    #[Route(path: '/doc/{id}', methods: ['GET'], name: 'lsdoc_tree_json')]
-    public function docJsonInfoAction(LsDoc $doc): JsonResponse
+    #[Route(path: '/doc/{id}', name: 'lsdoc_tree_json', methods: ['GET'])]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
+    public function docJsonInfo(LsDoc $doc): JsonResponse
     {
         return $this->generateDocJsonResponse($doc);
     }
 
-    /**
-     * @Security("is_granted('edit', item)")
-     */
-    #[Route(path: '/item/{id}', methods: ['GET'], name: 'lsitem_tree_json')]
-    public function itemJsonInfoAction(LsItem $item): JsonResponse
+    #[Route(path: '/item/{id}', name: 'lsitem_tree_json', methods: ['GET'])]
+    #[IsGranted(Permission::ITEM_EDIT, 'item')]
+    public function itemJsonInfo(LsItem $item): JsonResponse
     {
         return $this->generateItemJsonResponse($item);
     }
 
-    /**
-     * @Security("is_granted('edit', association.getLsDoc())")
-     */
-    #[Route(path: '/association/{id}', methods: ['GET'], name: 'doc_tree_association_json')]
-    public function associationJsonInfoAction(LsAssociation $association): JsonResponse
+    #[Route(path: '/association/{id}', name: 'doc_tree_association_json', methods: ['GET'])]
+    #[Security("is_granted('edit', association.getLsDoc())")]
+    public function associationJsonInfo(LsAssociation $association): JsonResponse
     {
         return $this->generateAssociationJsonResponse($association);
     }

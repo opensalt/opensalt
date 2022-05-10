@@ -6,6 +6,7 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsDocRepository;
+use App\Security\Permission;
 use App\Service\Api1Uris;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
@@ -115,6 +116,6 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwar
             return true;
         }
 
-        return $this->authorizationChecker->isGranted('list', $targetDoc);
+        return $this->authorizationChecker->isGranted(Permission::FRAMEWORK_LIST, $targetDoc);
     }
 }

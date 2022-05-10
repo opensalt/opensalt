@@ -12,13 +12,13 @@ class CommentNormalizer implements ContextAwareNormalizerInterface
         return $data instanceof Comment;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = []): array
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof Comment) {
             throw new \InvalidArgumentException('Expecting a Comment');
         }
 
-        $data = [
+        return [
             'fullname' => $object->getFullname(),
             'id' => $object->getId(),
             'parent' => $object->getParentId(),
@@ -33,7 +33,5 @@ class CommentNormalizer implements ContextAwareNormalizerInterface
             'created_by_current_user' => $object->isCreatedByCurrentUser(),
             'user_has_upvoted' => $object->hasUserUpvoted(),
         ];
-
-        return $data;
     }
 }

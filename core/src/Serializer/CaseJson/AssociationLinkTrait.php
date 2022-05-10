@@ -5,6 +5,7 @@ namespace App\Serializer\CaseJson;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Security\Permission;
 
 trait AssociationLinkTrait
 {
@@ -72,7 +73,7 @@ trait AssociationLinkTrait
         // Check that the doc the association is in is allowed to be viewed
         if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $associationDoc->getAdoptionStatus()
             && $sourceDocId !== $associationDoc->getId()
-            && !$this->authorizationChecker->isGranted('list', $associationDoc)) {
+            && !$this->authorizationChecker->isGranted(Permission::FRAMEWORK_LIST, $associationDoc)) {
             return null;
         }
 
@@ -87,7 +88,7 @@ trait AssociationLinkTrait
             if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $targetDoc->getAdoptionStatus()
                 && $sourceDocId !== $targetDocId
                 && $associationDoc->getId() !== $targetDocId
-                && !$this->authorizationChecker->isGranted('list', $targetDoc)
+                && !$this->authorizationChecker->isGranted(Permission::FRAMEWORK_LIST, $targetDoc)
             ) {
                 return null;
             }

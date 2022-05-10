@@ -19,13 +19,13 @@ use Symfony\Component\WebLink\Link;
 class UriController extends AbstractController
 {
     public function __construct(
-        private IdentifiableObjectHelper $objectHelper,
-        private SerializerInterface $symfonySerializer,
+        private readonly IdentifiableObjectHelper $objectHelper,
+        private readonly SerializerInterface $symfonySerializer,
     ) {
     }
 
-    #[Route(path: '/uri/', methods: ['GET'], defaults: ['_format' => 'html'], name: 'uri_lookup_empty')]
-    public function findEmptyUriAction(Request $request): Response
+    #[Route(path: '/uri/', name: 'uri_lookup_empty', defaults: ['_format' => 'html'], methods: ['GET'])]
+    public function findEmptyUri(Request $request): Response
     {
         $this->determineRequestFormat($request, null);
 
@@ -40,8 +40,8 @@ class UriController extends AbstractController
         return $this->render('uri/no_uri.html.twig', ['uri' => null], new Response('', Response::HTTP_NOT_FOUND));
     }
 
-    #[Route(path: '/uri/{uri}.{_format}', methods: ['GET'], defaults: ['_format' => null], name: 'uri_lookup')]
-    public function findUriAction(Request $request, string $uri, ?string $_format): Response
+    #[Route(path: '/uri/{uri}.{_format}', name: 'uri_lookup', defaults: ['_format' => null], methods: ['GET'])]
+    public function findUri(Request $request, string $uri, ?string $_format): Response
     {
         if ($request->isXmlHttpRequest()) {
             $_format = 'json';

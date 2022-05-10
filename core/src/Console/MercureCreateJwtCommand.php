@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use Firebase\JWT\JWT;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -10,19 +11,17 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand('mercure:create-jwt', 'Create a JWT key to use with Mercure')]
 class MercureCreateJwtCommand extends Command
 {
-    protected static $defaultName = 'mercure:create-jwt';
-
-    public function __construct($name = null)
+    public function __construct()
     {
-        parent::__construct($name);
+        parent::__construct();
     }
 
     protected function configure(): void
     {
         $this
-            ->setDescription('Create a JWT key to use with Mercure')
             ->addArgument('key', InputArgument::REQUIRED, 'JWT Key to use')
             ->addOption('payload', null, InputOption::VALUE_OPTIONAL, 'Optional payload in JSON')
         ;

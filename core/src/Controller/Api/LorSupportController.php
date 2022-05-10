@@ -18,13 +18,13 @@ class LorSupportController extends AbstractController
     use LoggerTrait;
 
     public function __construct(
-        private LsDocRepository $docRepository,
-        private LsItemRepository $itemRepository,
-        private string $assetsVersion,
+        private readonly LsDocRepository $docRepository,
+        private readonly LsItemRepository $itemRepository,
+        private readonly string $assetsVersion,
     ) {
     }
 
-    #[Route(path: '/creators', methods: ['GET'], name: 'api_get_creators')]
+    #[Route(path: '/creators', name: 'api_get_creators', methods: ['GET'])]
     public function getCreators(Request $request): JsonResponse
     {
         // Get all creators for public documents
@@ -55,7 +55,7 @@ class LorSupportController extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/frameworksByCreator/{creator}', methods: ['GET'], name: 'api_get_frameworks_by_creator')]
+    #[Route(path: '/frameworksByCreator/{creator}', name: 'api_get_frameworks_by_creator', methods: ['GET'])]
     public function getFrameworksByCreator(Request $request, string $creator): JsonResponse
     {
         $results = $this->docRepository->findNonPrivateByCreator(urldecode($creator));
@@ -87,7 +87,7 @@ class LorSupportController extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/exactMatchIdentifiers/{identifier}', methods: ['GET'], name: 'api_get_exact_matches')]
+    #[Route(path: '/exactMatchIdentifiers/{identifier}', name: 'api_get_exact_matches', methods: ['GET'])]
     public function getMatches(Request $request, string $identifier): JsonResponse
     {
         $results = $this->itemRepository->findExactMatches($identifier);

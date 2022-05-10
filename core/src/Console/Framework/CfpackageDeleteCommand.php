@@ -6,6 +6,7 @@ use App\Command\Framework\DeleteDocumentCommand;
 use App\Console\BaseDoctrineCommand;
 use App\Entity\Framework\LsDoc;
 use App\Event\CommandEvent;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,15 +15,12 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
+#[AsCommand('cfpackage:delete', 'Permanently delete a CFPackage')]
 class CfpackageDeleteCommand extends BaseDoctrineCommand
 {
-    protected static $defaultName = 'cfpackage:delete';
-
     protected function configure(): void
     {
         $this
-            ->setName(static::$defaultName)
-            ->setDescription('Permanently delete a CFPackage')
             ->addArgument('id', InputArgument::REQUIRED, 'Id of LSDoc for the package')
             ->addOption('yes', 'y', InputOption::VALUE_NONE, 'Delete without prompting')
         ;

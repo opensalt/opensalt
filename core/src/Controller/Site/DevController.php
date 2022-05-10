@@ -2,7 +2,8 @@
 
 namespace App\Controller\Site;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,11 +12,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DevController extends AbstractController
 {
-    /**
-     * @Security("is_granted('feature', 'dev_env')")
-     */
     #[Route(path: '/dev/cookie', name: 'dev_cookie')]
-    public function devCookieAction(Request $request): Response
+    #[IsGranted(Permission::FEATURE_DEV_ENV_CHECK)]
+    public function devCookie(Request $request): Response
     {
         if (empty($cookie = $request->server->get('DEV_COOKIE'))) {
             $this->addFlash('error', 'Could not add development cookie as no DEV_COOKIE set.');

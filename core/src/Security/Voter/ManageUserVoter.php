@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\User\User;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -10,28 +11,22 @@ class ManageUserVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const MANAGE = 'manage';
-
-    final public const USERS = 'users';
-    final public const ALL_USERS = 'all_users';
+    final public const MANAGE = Permission::MANAGE_USERS;
+    final public const MANAGE_ALL = Permission::MANAGE_ALL_USERS;
+    final public const MANAGE_THIS = Permission::MANAGE_THIS_USER;
 
     public function supportsAttribute(string $attribute): bool
     {
-        return self::MANAGE === $attribute;
-    }
-
-    public function supportsType(string $subjectType): bool
-    {
-        return \in_array($subjectType, [User::class, 'string'], true);
+        return \in_array($attribute, [static::MANAGE, static::MANAGE_ALL, static::MANAGE_THIS], true);
     }
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (self::MANAGE !== $attribute) {
+        if (!\in_array($attribute, [static::MANAGE, static::MANAGE_ALL, static::MANAGE_THIS], true)) {
             return false;
         }
 
-        if (!$subject instanceof User && !\in_array($subject, [self::USERS, self::ALL_USERS], true)) {
+        if (!$subject instanceof User && !\in_array($subject, [self::MANAGE, self::MANAGE_ALL], true)) {
             return false;
         }
 
@@ -46,20 +41,12 @@ class ManageUserVoter extends Voter
             return false;
         }
 
-        switch ($attribute) {
-            case self::MANAGE:
-                if (self::USERS === $subject) {
-                    return $this->canManageUsers($token);
-                }
-
-                if (self::ALL_USERS === $subject) {
-                    return $this->canManageAllUsers($token);
-                }
-
-                return $this->canManageUser($subject, $user, $token);
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            self::MANAGE => $this->canManageUsers($token),
+            self::MANAGE_ALL => $this->canManageAllUsers($token),
+            self::MANAGE_THIS => $this->canManageUser($subject, $user, $token),
+            default => false,
+        };
     }
 
     private function canManageUser(?User $targetUser, User $user, TokenInterface $token): bool

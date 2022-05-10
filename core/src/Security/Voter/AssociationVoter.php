@@ -6,6 +6,7 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -14,11 +15,11 @@ class AssociationVoter extends Voter
     use RoleCheckTrait;
     use DeferDecisionTrait;
 
-    final public const ADD_TO = 'add-association-to';
-    final public const CREATE = 'create';
-    final public const EDIT = 'edit';
+    final public const ADD_TO = Permission::ASSOCIATION_ADD_TO;
+    final public const CREATE = Permission::ASSOCIATION_CREATE;
+    final public const EDIT = Permission::ASSOCIATION_EDIT;
 
-    final public const ASSOCIATION = 'lsassociation';
+    final public const ASSOCIATION = Permission::ASSOCIATION_CREATE_SUBJECT;
 
     public function supportsAttribute(string $attribute): bool
     {

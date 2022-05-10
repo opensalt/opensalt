@@ -10,6 +10,7 @@ namespace App\Form\Type;
 
 use App\Entity\User\Organization;
 use App\Entity\User\User;
+use App\Security\Permission;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -56,7 +57,7 @@ class UserType extends AbstractType
             ])
         ;
 
-        if ($this->authorizationChecker->isGranted('manage', 'all_users')) {
+        if ($this->authorizationChecker->isGranted(Permission::MANAGE_ALL_USERS)) {
             $builder->add('org', EntityType::class, [
                 'class' => Organization::class,
                 'choice_label' => 'name',

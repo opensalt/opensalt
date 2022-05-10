@@ -7,23 +7,22 @@ use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Log;
 use App\Form\DTO\MirroredFrameworkDTO;
 use App\Form\Type\MirroredFrameworkDTOType;
+use App\Security\Permission;
 use App\Service\MirrorServer;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Security("is_granted('manage', 'mirrors')")
- */
 #[Route(path: '/admin/mirror/framework')]
+#[IsGranted(Permission::MANAGE_MIRRORS)]
 class FrameworkController extends AbstractController
 {
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
@@ -97,7 +96,7 @@ class FrameworkController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/{id}/refresh', methods: ['POST'], name: 'mirror_framework_refresh')]
+    #[Route(path: '/{id}/refresh', name: 'mirror_framework_refresh', methods: ['POST'])]
     public function refresh(Framework $framework): Response
     {
         $framework->markToRefresh();
@@ -106,7 +105,7 @@ class FrameworkController extends AbstractController
         return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
     }
 
-    #[Route(path: '/{id}/enable', methods: ['POST'], name: 'mirror_framework_enable')]
+    #[Route(path: '/{id}/enable', name: 'mirror_framework_enable', methods: ['POST'])]
     public function enable(Framework $framework): Response
     {
         $framework->setInclude(true);
@@ -122,7 +121,7 @@ class FrameworkController extends AbstractController
         return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
     }
 
-    #[Route(path: '/{id}/disable', methods: ['POST'], name: 'mirror_framework_disable')]
+    #[Route(path: '/{id}/disable', name: 'mirror_framework_disable', methods: ['POST'])]
     public function disable(Framework $framework): Response
     {
         $framework->setInclude(false);

@@ -57,9 +57,9 @@
     </ul>
     <div class="lsItemDetailsMoreInfoLink"><a>More Info</a></div>
 
-    {% if is_granted('edit', lsItem) or is_granted('edit', lsItem.lsDoc) %}
+    {% if is_granted(constant('App\\Security\\Permission::ITEM_EDIT'), lsItem) or is_granted(constant('App\\Security\\Permission::FRAMEWORK_EDIT'), lsItem.lsDoc) %}
     <div class="itemOptions">
-        {% if is_granted('edit', lsItem) %}
+        {% if is_granted(constant('App\\Security\\Permission::ITEM_EDIT'), lsItem) %}
             <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editItemModal">Edit</button>
             <button type="button" id="deleteItemBtn" class="btn btn-default btn-sm" data-toggle="modal">Delete</button>
         {% endif %}
@@ -67,7 +67,7 @@
         <button type="button" class="btn btn-default btn-sm" disabled="disabled">Find Aligned Resources</button>
         #}
 
-        {% if is_granted('edit', lsItem.lsDoc) %}
+        {% if is_granted(constant('App\\Security\\Permission::FRAMEWORK_EDIT'), lsItem.lsDoc) %}
             <button type="button" id="toggleFolderBtn" class="btn btn-default btn-sm" data-toggle="modal">Make This Item a Parent</button>
             <button type="button" id="addChildBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addNewChildModal">Add a New Child Item</button>
             <button type="button" id="addExemplarBtn" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addExemplarModal">Add an Exemplar</button>
@@ -81,7 +81,7 @@
         {% if (group is not constant('App\\Entity\\Framework\\LsAssociation::CHILD_OF')) and (group is not constant('App\\Entity\\Framework\\LsAssociation::INVERSE_CHILD_OF')) %}
             {% embed 'framework/doc_tree/_ls_association_component.html.twig' with {'title':group, 'items':list, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
                 {% block start_of_item_a %}
-                    {% if is_granted('edit', lsItem.lsDoc) %}
+                    {% if is_granted(constant('App\\Security\\Permission::FRAMEWORK_EDIT'), lsItem.lsDoc) %}
                         <span class="pull-right">
                             <span role="button" class="btn btn-xs btn-default btn-remove-association">Remove</span>
                         </span>
@@ -108,7 +108,7 @@
             {% if filteredList is not empty %}
                 {% embed 'framework/doc_tree/_ls_association_component.html.twig' with {'title':group, 'items':filteredList, 'viewingItem':lsItem, 'componentName':group|lower|replace({' ': '_'})} %}
                     {% block start_of_item_a %}
-                        {% if is_granted('edit', lsItem.lsDoc) %}
+                        {% if is_granted(constant('App\\Security\\Permission::FRAMEWORK_EDIT'), lsItem.lsDoc) %}
                             <span class="pull-right">
                                 <span role="button" class="btn btn-xs btn-default btn-remove-association">Remove</span>
                             </span>

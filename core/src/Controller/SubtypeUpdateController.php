@@ -2,8 +2,9 @@
 
 namespace App\Controller;
 
+use App\Security\Permission;
 use App\Service\SubtypeUpdater;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
@@ -15,15 +16,12 @@ use Symfony\Component\Validator\Constraints\File;
 #[Route('/subtype/update')]
 class SubtypeUpdateController extends AbstractController
 {
-    private SubtypeUpdater $updater;
-
-    public function __construct(SubtypeUpdater $updater)
+    public function __construct(private readonly SubtypeUpdater $updater)
     {
-        $this->updater = $updater;
     }
 
     #[Route('/', name: 'association_subtype_update')]
-    #[Security('is_granted("edit", "all_frameworks")')]
+    #[IsGranted(Permission::FRAMEWORK_EDIT_ALL)]
     public function index(Request $request): Response
     {
         $form = $this->createFormBuilder()

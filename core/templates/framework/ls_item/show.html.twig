@@ -96,7 +96,7 @@
         <li>
             <a class="btn btn-primary" href="{{ path('lsitem_index') }}">Back to the list</a>
         </li>
-        {% if is_granted('edit', lsItem) %}
+        {% if is_granted(constant('App\\Security\\Permission::ITEM_EDIT'), lsItem) %}
           <li>
               <a class="btn btn-default" href="{{ path('lsitem_edit', { 'id': lsItem.id }) }}">Edit</a>
           </li>

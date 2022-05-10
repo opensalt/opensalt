@@ -8,57 +8,47 @@ use App\Command\Framework\DeleteSubjectCommand;
 use App\Command\Framework\UpdateSubjectCommand;
 use App\Entity\Framework\LsDefSubject;
 use App\Form\Type\LsDefSubjectType;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * LsDefSubject controller.
- */
 #[Route(path: '/cfdef/subject')]
 class LsDefSubjectController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
     /**
      * Lists all LsDefSubject entities.
-     *
-     * @Template()
-     *
-     * @return array
      */
-    #[Route(path: '/', methods: ['GET'], name: 'lsdef_subject_index')]
-    public function indexAction()
+    #[Route(path: '/', name: 'lsdef_subject_index', methods: ['GET'])]
+    public function index(): Response
     {
         $em = $this->managerRegistry->getManager();
 
         $lsDefSubjects = $em->getRepository(LsDefSubject::class)->findBy([], null, 100);
 
-        return [
+        return $this->render('framework/ls_def_subject/index.html.twig', [
             'lsDefSubjects' => $lsDefSubjects,
-        ];
+        ]);
     }
 
     /**
      * Lists all LsDefSubject entities.
-     *
-     * @Template()
-     *
-     * @return array
      */
-    #[Route(path: '/list.{_format}', methods: ['GET'], defaults: ['_format' => 'json'], name: 'lsdef_subject_index_json')]
-    public function jsonListAction(Request $request)
+    #[Route(path: '/list.{_format}', name: 'lsdef_subject_index_json', defaults: ['_format' => 'json'], methods: ['GET'])]
+    public function jsonList(Request $request, string $_format = 'json'): Response
     {
         // ?page_limit=N&q=SEARCHTEXT
         $em = $this->managerRegistry->getManager();
@@ -66,21 +56,17 @@ class LsDefSubjectController extends AbstractController
         $search = $request->query->get('q');
         $objects = $em->getRepository(LsDefSubject::class)->getList($search);
 
-        return [
+        return $this->render('framework/ls_def_subject/json_list.'.$_format.'.twig', [
             'objects' => $objects,
-        ];
+        ]);
     }
 
     /**
      * Creates a new LsDefSubject entity.
-     *
-     * @Template()
-     * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @return array|RedirectResponse
      */
-    #[Route(path: '/new', methods: ['GET', 'POST'], name: 'lsdef_subject_new')]
-    public function newAction(Request $request)
+    #[Route(path: '/new', name: 'lsdef_subject_new', methods: ['GET', 'POST'])]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function new(Request $request): Response
     {
         $lsDefSubject = new LsDefSubject();
         $form = $this->createForm(LsDefSubjectType::class, $lsDefSubject);
@@ -97,40 +83,32 @@ class LsDefSubjectController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_def_subject/new.html.twig', [
             'lsDefSubject' => $lsDefSubject,
             'form' => $form->createView(),
-        ];
+        ]);
     }
 
     /**
      * Finds and displays a LsDefSubject entity.
-     *
-     * @Template()
-     *
-     * @return array
      */
-    #[Route(path: '/{id}', methods: ['GET'], name: 'lsdef_subject_show')]
-    public function showAction(LsDefSubject $lsDefSubject)
+    #[Route(path: '/{id}', name: 'lsdef_subject_show', methods: ['GET'])]
+    public function show(LsDefSubject $lsDefSubject): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefSubject);
 
-        return [
+        return $this->render('framework/ls_def_subject/show.html.twig', [
             'lsDefSubject' => $lsDefSubject,
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Displays a form to edit an existing LsDefSubject entity.
-     *
-     * @Template()
-     * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @return array|RedirectResponse
      */
-    #[Route(path: '/{id}/edit', methods: ['GET', 'POST'], name: 'lsdef_subject_edit')]
-    public function editAction(Request $request, LsDefSubject $lsDefSubject)
+    #[Route(path: '/{id}/edit', name: 'lsdef_subject_edit', methods: ['GET', 'POST'])]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function edit(Request $request, LsDefSubject $lsDefSubject): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefSubject);
         $editForm = $this->createForm(LsDefSubjectType::class, $lsDefSubject);
@@ -147,22 +125,19 @@ class LsDefSubjectController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_def_subject/edit.html.twig', [
             'lsDefSubject' => $lsDefSubject,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Deletes a LsDefSubject entity.
-     *
-     * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @return RedirectResponse
      */
-    #[Route(path: '/{id}', methods: ['DELETE'], name: 'lsdef_subject_delete')]
-    public function deleteAction(Request $request, LsDefSubject $lsDefSubject)
+    #[Route(path: '/{id}', name: 'lsdef_subject_delete', methods: ['DELETE'])]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function delete(Request $request, LsDefSubject $lsDefSubject): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefSubject);
         $form->handleRequest($request);
@@ -177,10 +152,6 @@ class LsDefSubjectController extends AbstractController
 
     /**
      * Creates a form to delete a LsDefSubject entity.
-     *
-     * @param LsDefSubject $lsDefSubject The LsDefSubject entity
-     *
-     * @return FormInterface The form
      */
     private function createDeleteForm(LsDefSubject $lsDefSubject): FormInterface
     {

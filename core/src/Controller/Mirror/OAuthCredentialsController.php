@@ -6,21 +6,20 @@ use App\Entity\Framework\Mirror\OAuthCredential;
 use App\Form\DTO\OAuthCredentialDTO;
 use App\Form\Type\OAuthCredentialDTOType;
 use App\Repository\Framework\Mirror\OAuthCredentialRepository;
+use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Security("is_granted('manage', 'mirrors')")
- */
 #[Route(path: '/admin/mirror/credentials')]
+#[IsGranted(Permission::MANAGE_MIRRORS)]
 class OAuthCredentialsController extends AbstractController
 {
     public function __construct(
-        private ManagerRegistry $managerRegistry,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
