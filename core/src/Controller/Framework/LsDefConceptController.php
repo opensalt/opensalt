@@ -47,7 +47,7 @@ class LsDefConceptController extends AbstractController
      * Creates a new LsDefConcept entity.
      */
     #[Route(path: '/new', name: 'lsdef_concept_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function new(Request $request): Response
     {
         $lsDefConcept = new LsDefConcept();
@@ -89,7 +89,7 @@ class LsDefConceptController extends AbstractController
      * Displays a form to edit an existing LsDefConcept entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_concept_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function edit(Request $request, LsDefConcept $lsDefConcept): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefConcept);
@@ -118,7 +118,7 @@ class LsDefConceptController extends AbstractController
      * Deletes a LsDefConcept entity.
      */
     #[Route(path: '/{id}', name: 'lsdef_concept_delete', methods: ['DELETE'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function delete(Request $request, LsDefConcept $lsDefConcept): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefConcept);

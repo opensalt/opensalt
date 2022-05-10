@@ -10,20 +10,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class ExcelImportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     #[Route(path: '/salt/excel/import', name: 'import_excel_file', methods: ['POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
-    public function importExcel(Request $request, UserInterface $user): Response
+    #[Security("is_granted('framework_create')")]
+    public function importExcel(Request $request, #[CurrentUser] User $user): Response
     {
-        if (!($user instanceof User)) {
-            throw $this->createAccessDeniedException();
-        }
-
         $file = $request->files->get('file');
 
         $command = new ImportExcelFileCommand($file->getRealPath(), null, $user->getOrg());

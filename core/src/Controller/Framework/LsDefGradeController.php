@@ -45,7 +45,7 @@ class LsDefGradeController extends AbstractController
      * Creates a new LsDefGrade entity.
      */
     #[Route(path: '/new', name: 'lsdef_grade_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function new(Request $request): Response
     {
         $lsDefGrade = new LsDefGrade();
@@ -87,7 +87,7 @@ class LsDefGradeController extends AbstractController
      * Displays a form to edit an existing LsDefGrade entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_grade_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function edit(Request $request, LsDefGrade $lsDefGrade): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefGrade);
@@ -116,7 +116,7 @@ class LsDefGradeController extends AbstractController
      * Deletes a LsDefGrade entity.
      */
     #[Route(path: '/{id}', name: 'lsdef_grade_delete', methods: ['DELETE'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function delete(Request $request, LsDefGrade $lsDefGrade): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefGrade);

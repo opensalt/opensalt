@@ -15,18 +15,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class LockController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @param User $user
-     */
     #[Route(path: '/cfdoc/{id}/unlock', name: 'lsdoc_unlock', methods: ['POST'])]
     #[Security("is_granted('edit', lsDoc)")]
-    public function releaseDocLock(LsDoc $lsDoc, UserInterface $user): JsonResponse
+    public function releaseDocLock(LsDoc $lsDoc, #[CurrentUser] User $user): JsonResponse
     {
         try {
             $command = new UnlockDocumentCommand($lsDoc, $user);
@@ -38,12 +35,9 @@ class LockController extends AbstractController
         return new JsonResponse('OK');
     }
 
-    /**
-     * @param User $user
-     */
     #[Route(path: '/cfdoc/{id}/lock', name: 'lsdoc_lock', methods: ['POST'])]
     #[Security("is_granted('edit', lsDoc)")]
-    public function extendDocLock(LsDoc $lsDoc, UserInterface $user): JsonResponse
+    public function extendDocLock(LsDoc $lsDoc, #[CurrentUser] User $user): JsonResponse
     {
         try {
             $command = new LockDocumentCommand($lsDoc, $user);
@@ -55,12 +49,9 @@ class LockController extends AbstractController
         return new JsonResponse('OK');
     }
 
-    /**
-     * @param User $user
-     */
     #[Route(path: '/cfitem/{id}/unlock', name: 'lsitem_unlock', methods: ['POST'])]
     #[Security("is_granted('edit', item)")]
-    public function releaseItemLock(LsItem $item, UserInterface $user): JsonResponse
+    public function releaseItemLock(LsItem $item, #[CurrentUser] User $user): JsonResponse
     {
         try {
             $command = new UnlockItemCommand($item, $user);
@@ -72,12 +63,9 @@ class LockController extends AbstractController
         return new JsonResponse('OK');
     }
 
-    /**
-     * @param User $user
-     */
     #[Route(path: '/cfitem/{id}/lock', name: 'lsitem_lock', methods: ['POST'])]
     #[Security("is_granted('edit', item)")]
-    public function extendItemLock(LsItem $item, UserInterface $user): JsonResponse
+    public function extendItemLock(LsItem $item, #[CurrentUser] User $user): JsonResponse
     {
         try {
             $command = new LockItemCommand($item, $user);

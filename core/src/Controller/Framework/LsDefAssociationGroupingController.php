@@ -47,7 +47,7 @@ class LsDefAssociationGroupingController extends AbstractController
      * Creates a new LsDefAssociationGrouping entity.
      */
     #[Route(path: '/new', name: 'lsdef_association_grouping_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function new(Request $request): Response
     {
         $ajax = $request->isXmlHttpRequest();
@@ -100,7 +100,7 @@ class LsDefAssociationGroupingController extends AbstractController
      * Displays a form to edit an existing LsDefAssociationGrouping entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_association_grouping_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function edit(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
         $deleteForm = $this->createDeleteForm($associationGrouping);
@@ -129,7 +129,7 @@ class LsDefAssociationGroupingController extends AbstractController
      * Deletes a LsDefAssociationGrouping entity.
      */
     #[Route(path: '/{id}', name: 'lsdef_association_grouping_delete', methods: ['DELETE'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function delete(Request $request, LsDefAssociationGrouping $associationGrouping): RedirectResponse
     {
         $form = $this->createDeleteForm($associationGrouping);

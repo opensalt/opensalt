@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CaseImportController extends AbstractController
@@ -22,13 +22,9 @@ class CaseImportController extends AbstractController
     use CommandDispatcherTrait;
 
     #[Route(path: '/salt/case/import', name: 'import_case_file')]
-    #[Security("is_granted('create', 'lsdoc')")]
-    public function import(Request $request, UserInterface $user): JsonResponse
+    #[Security("is_granted('framework_create')")]
+    public function import(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        if (!$user instanceof User) {
-            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
-        }
-
         $content = base64_decode($request->request->get('fileContent'));
 
         $command = new ImportCaseJsonCommand($content, $user->getOrg(), $user);
@@ -40,13 +36,9 @@ class CaseImportController extends AbstractController
     }
 
     #[Route(path: '/salt/case/importRemote', name: 'import_case_file_remote')]
-    #[Security("is_granted('create', 'lsdoc')")]
-    public function importRemote(Request $request, UserInterface $user): Response
+    #[Security("is_granted('framework_create')")]
+    public function importRemote(Request $request, #[CurrentUser] User $user): Response
     {
-        if (!$user instanceof User) {
-            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
-        }
-
         $defaultData = [];
         $form = $this->createFormBuilder($defaultData)
             ->add('url', UrlType::class, [

@@ -64,7 +64,7 @@ class LsDefSubjectController extends AbstractController
      * Creates a new LsDefSubject entity.
      */
     #[Route(path: '/new', name: 'lsdef_subject_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function new(Request $request): Response
     {
         $lsDefSubject = new LsDefSubject();
@@ -106,7 +106,7 @@ class LsDefSubjectController extends AbstractController
      * Displays a form to edit an existing LsDefSubject entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_subject_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function edit(Request $request, LsDefSubject $lsDefSubject): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefSubject);
@@ -135,7 +135,7 @@ class LsDefSubjectController extends AbstractController
      * Deletes a LsDefSubject entity.
      */
     #[Route(path: '/{id}', name: 'lsdef_subject_delete', methods: ['DELETE'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function delete(Request $request, LsDefSubject $lsDefSubject): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefSubject);

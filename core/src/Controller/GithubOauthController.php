@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Security("is_granted('create', 'lsdoc')")]
+#[Security("is_granted('framework_create')")]
 class GithubOauthController extends AbstractController
 {
     #[Route(path: '/user/github/repos')]

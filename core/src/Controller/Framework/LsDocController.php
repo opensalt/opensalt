@@ -19,6 +19,7 @@ use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -27,7 +28,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[Route(path: '/cfdoc')]
 class LsDocController extends AbstractController
@@ -43,7 +44,7 @@ class LsDocController extends AbstractController
      * Lists all LsDoc entities.
      */
     #[Route(path: '/', name: 'lsdoc_index', methods: ['GET'])]
-    public function index(?UserInterface $user = null): Response
+    public function index(#[CurrentUser] ?User $user): Response
     {
         $em = $this->managerRegistry->getManager();
 
@@ -109,7 +110,7 @@ class LsDocController extends AbstractController
      * Creates a new LsDoc entity.
      */
     #[Route(path: '/new', name: 'lsdoc_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function new(Request $request): Response
     {
         $lsDoc = new LsDoc();
@@ -140,7 +141,7 @@ class LsDocController extends AbstractController
      * Finds and displays a LsDoc entity.
      */
     #[Route(path: '/{id}.{_format}', name: 'lsdoc_show', defaults: ['_format' => 'html'], methods: ['GET'])]
-    #[Security("is_granted('view', lsDoc)")]
+    #[IsGranted(Permission::FRAMEWORK_VIEW, 'lsDoc')]
     public function show(LsDoc $lsDoc, string $_format = 'html'): Response
     {
         if ('json' === $_format) {
@@ -185,7 +186,7 @@ class LsDocController extends AbstractController
      * Update a framework given a CSV or external File on a derivative framework.
      */
     #[Route(path: '/doc/{id}/derive', name: 'lsdoc_update_derive', methods: ['POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function derive(Request $request, LsDoc $lsDoc): Response
     {
         $fileContent = $request->request->get('content');
@@ -206,7 +207,7 @@ class LsDocController extends AbstractController
      */
     #[Route(path: '/{id}/edit', name: 'lsdoc_edit', methods: ['GET', 'POST'])]
     #[Security("is_granted('edit', lsDoc)")]
-    public function edit(Request $request, LsDoc $lsDoc, UserInterface $user): Response
+    public function edit(Request $request, LsDoc $lsDoc, #[CurrentUser] User $user): Response
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -299,7 +300,7 @@ class LsDocController extends AbstractController
      * Finds and displays a LsDoc entity.
      */
     #[Route(path: '/{id}/export.{_format}', name: 'lsdoc_export', requirements: ['_format' => '(json|html|null)'], defaults: ['_format' => 'json'], methods: ['GET'])]
-    #[Security("is_granted('view', lsDoc)")]
+    #[IsGranted(Permission::FRAMEWORK_VIEW, 'lsDoc')]
     public function export(LsDoc $lsDoc, string $_format = 'json'): Response
     {
         if ('json' !== $_format) {

@@ -17,7 +17,7 @@ class CloneController extends AbstractController
     use CommandDispatcherTrait;
 
     #[Route(path: '/framework/{id}', name: 'clone_framework', methods: ['GET'])]
-    #[Security("is_granted('edit', lsDoc) and is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('edit', lsDoc) and is_granted('framework_create')")]
     public function framework(Request $request, LsDoc $lsDoc): Response
     {
         $command = new CloneFrameworkCommand($lsDoc);

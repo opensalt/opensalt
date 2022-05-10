@@ -9,13 +9,12 @@ class Permission
     final public const COMMENT_UPDATE = 'comment_update';
     final public const COMMENT_DELETE = 'comment_delete';
 
-    final public const FRAMEWORK_CREATE = 'create';
+    final public const FRAMEWORK_CREATE = 'framework_create';
     final public const FRAMEWORK_LIST = 'list';
     final public const FRAMEWORK_VIEW = 'view';
     final public const FRAMEWORK_EDIT = 'edit';
+    final public const FRAMEWORK_EDIT_ALL = 'framework_edit_all';
     final public const FRAMEWORK_DELETE = 'delete';
-    final public const FRAMEWORK_CREATE_SUBJECT = 'lsdoc';
-    final public const FRAMEWORK_EDIT_ALL_SUBJECT = 'all_frameworks';
 
     final public const ITEM_EDIT = 'edit';
     final public const ITEM_ADD_TO = 'add-standard-to';

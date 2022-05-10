@@ -77,7 +77,7 @@ class LsDefItemTypeController extends AbstractController
      * Creates a new LsDefItemType entity.
      */
     #[Route(path: '/new', name: 'lsdef_item_type_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function new(Request $request): Response
     {
         $lsDefItemType = new LsDefItemType();
@@ -119,7 +119,7 @@ class LsDefItemTypeController extends AbstractController
      * Displays a form to edit an existing LsDefItemType entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_item_type_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function edit(Request $request, LsDefItemType $lsDefItemType): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefItemType);
@@ -148,7 +148,7 @@ class LsDefItemTypeController extends AbstractController
      * Deletes a LsDefItemType entity.
      */
     #[Route(path: '/{id}', name: 'lsdef_item_type_delete', methods: ['DELETE'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function delete(Request $request, LsDefItemType $lsDefItemType): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefItemType);

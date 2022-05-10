@@ -14,6 +14,7 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\User\User;
 use App\Exception\AlreadyLockedException;
 use App\Form\Command\ChangeLsItemParentCommand;
 use App\Form\Command\CopyToLsDocCommand;
@@ -32,7 +33,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 /**
  * LsItem controller.
@@ -133,7 +134,7 @@ class LsItemController extends AbstractController
      */
     #[Route(path: '/{id}/edit', name: 'lsitem_edit', methods: ['GET', 'POST'])]
     #[Security("is_granted('edit', lsItem)")]
-    public function edit(Request $request, LsItem $lsItem, UserInterface $user): Response
+    public function edit(Request $request, LsItem $lsItem, #[CurrentUser] User $user): Response
     {
         $ajax = $request->isXmlHttpRequest();
 

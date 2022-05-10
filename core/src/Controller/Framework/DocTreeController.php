@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[Route(path: '/cftree')]
 class DocTreeController extends AbstractController
@@ -57,7 +57,7 @@ class DocTreeController extends AbstractController
     #[Route(path: '/doc/{slug}/lv', name: 'doc_tree_view_log', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
     #[Route(path: '/doc/{slug}/{assocGroup}', name: 'doc_tree_view_ag', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
     #[Entity('lsDoc', expr: 'repository.findOneBySlug(slug)')]
-    public function view(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, ?UserInterface $user = null, ?string $lsItemId = null, ?string $assocGroup = null): Response
+    public function view(LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, #[CurrentUser] ?User $user, ?string $lsItemId = null, ?string $assocGroup = null): Response
     {
         $em = $this->managerRegistry->getManager();
 
@@ -100,7 +100,7 @@ class DocTreeController extends AbstractController
             'isAdopted' => $lsDoc->isAdopted(),
             'isDeprecated' => $lsDoc->isDeprecated(),
             'manageEditorsRights' => $authChecker->isGranted(Permission::MANAGE_EDITORS, $lsDoc),
-            'createRights' => $authChecker->isGranted(Permission::FRAMEWORK_CREATE, 'lsdoc'),
+            'createRights' => $authChecker->isGranted(Permission::FRAMEWORK_CREATE),
 
             'lsItemId' => $lsItemId,
             'assocGroup' => $assocGroup,
@@ -648,7 +648,7 @@ class DocTreeController extends AbstractController
     /**
      * Get a list of all locks for the document.
      */
-    private function getLocks(LsDoc $lsDoc, ?UserInterface $user): array
+    private function getLocks(LsDoc $lsDoc, #[CurrentUser] ?User $user): array
     {
         $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
         if ($user instanceof User) {

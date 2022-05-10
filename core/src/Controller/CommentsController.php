@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -51,14 +51,14 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/comments/document/{id<\d+>}', name: 'create_doc_comment', methods: ['POST'])]
     #[IsGranted(Permission::COMMENT_ADD)]
-    public function newDocComment(Request $request, LsDoc $doc, UserInterface $user, BucketService $bucket): JsonResponse
+    public function newDocComment(Request $request, LsDoc $doc, #[CurrentUser] User $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'document', $doc, $user, $bucket);
     }
 
     #[Route(path: '/comments/item/{id<\d+>}', name: 'create_item_comment', methods: ['POST'])]
     #[IsGranted(Permission::COMMENT_ADD)]
-    public function newItemComment(Request $request, LsItem $item, UserInterface $user, BucketService $bucket): JsonResponse
+    public function newItemComment(Request $request, LsItem $item, #[CurrentUser] User $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'item', $item, $user, $bucket);
     }
@@ -69,7 +69,7 @@ class CommentsController extends AbstractController
     #[Route(path: '/comments/{itemType<document|item>}/{itemId<\d+>}', name: 'get_comments', methods: ['GET'])]
     #[Entity('comments', expr: 'repository.findByTypeItem(itemType, itemId)', class: Comment::class)]
     #[IsGranted(Permission::COMMENT_VIEW)]
-    public function list(array $comments, UserInterface $user = null): JsonResponse
+    public function list(array $comments, #[CurrentUser] ?User $user): JsonResponse
     {
         if ($user instanceof User) {
             foreach ($comments as $comment) {
@@ -82,7 +82,7 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/comments/{id}', methods: ['PUT'])]
     #[IsGranted(Permission::COMMENT_UPDATE, 'comment')]
-    public function update(Request $request, Comment $comment, UserInterface $user): JsonResponse
+    public function update(Request $request, Comment $comment): JsonResponse
     {
         $command = new UpdateCommentCommand($comment, $request->request->get('content'));
         $this->sendCommand($command);
@@ -92,7 +92,7 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/comments/delete/{id}', methods: ['DELETE'])]
     #[IsGranted(Permission::COMMENT_DELETE, 'comment')]
-    public function delete(Comment $comment, UserInterface $user): JsonResponse
+    public function delete(Comment $comment): JsonResponse
     {
         $command = new DeleteCommentCommand($comment);
         $this->sendCommand($command);
@@ -102,12 +102,8 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/comments/{id}/upvote', methods: ['POST'])]
     #[IsGranted(Permission::COMMENT_ADD)]
-    public function upvote(Comment $comment, UserInterface $user = null): JsonResponse
+    public function upvote(Comment $comment, #[CurrentUser] User $user): JsonResponse
     {
-        if (!$user instanceof User) {
-            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
-        }
-
         $command = new UpvoteCommentCommand($comment, $user);
         $this->sendCommand($command);
 
@@ -116,12 +112,8 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/comments/{id}/upvote', methods: ['DELETE'])]
     #[IsGranted(Permission::COMMENT_ADD)]
-    public function downvote(Comment $comment, UserInterface $user): JsonResponse
+    public function downvote(Comment $comment, #[CurrentUser] User $user): JsonResponse
     {
-        if (!$user instanceof User) {
-            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
-        }
-
         try {
             $command = new DownvoteCommentCommand($comment, $user);
             $this->sendCommand($command);
@@ -227,7 +219,7 @@ class CommentsController extends AbstractController
      *
      * @param LsItem|LsDoc $item
      */
-    private function addComment(Request $request, string $itemType, $item, UserInterface $user, BucketService $bucket): JsonResponse
+    private function addComment(Request $request, string $itemType, $item, ?User $user, BucketService $bucket): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);

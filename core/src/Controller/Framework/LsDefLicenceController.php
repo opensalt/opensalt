@@ -62,7 +62,7 @@ class LsDefLicenceController extends AbstractController
      * Creates a new LsDefLicence entity.
      */
     #[Route(path: '/new', name: 'lsdef_licence_new', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function new(Request $request): Response
     {
         $lsDefLicence = new LsDefLicence();
@@ -104,7 +104,7 @@ class LsDefLicenceController extends AbstractController
      * Displays a form to edit an existing LsDefLicence entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdef_licence_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function edit(Request $request, LsDefLicence $lsDefLicence): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefLicence);
@@ -133,7 +133,7 @@ class LsDefLicenceController extends AbstractController
      * Deletes a LsDefLicence entity.
      */
     #[Route(path: '/{id}', name: 'lsdef_licence_delete', methods: ['DELETE'])]
-    #[Security("is_granted('create', 'lsdoc')")]
+    #[Security("is_granted('framework_create')")]
     public function delete(Request $request, LsDefLicence $lsDefLicence): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefLicence);
