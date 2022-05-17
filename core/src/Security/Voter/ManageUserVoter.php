@@ -26,7 +26,7 @@ class ManageUserVoter extends Voter
             return false;
         }
 
-        if (!$subject instanceof User && !\in_array($subject, [self::MANAGE, self::MANAGE_ALL], true)) {
+        if (!$subject instanceof User && !\in_array($attribute, [self::MANAGE, self::MANAGE_ALL], true)) {
             return false;
         }
 
