@@ -20,8 +20,6 @@ class Permission
     final public const ITEM_ADD_TO = 'add-standard-to';
 
     final public const ASSOCIATION_ADD_TO = 'add-association-to';
-    final public const ASSOCIATION_CREATE = 'create';
-    final public const ASSOCIATION_CREATE_SUBJECT = 'lsassociation';
     final public const ASSOCIATION_EDIT = 'edit';
 
     final public const ADDITIONAL_FIELDS_MANAGE = 'manage_additional_fields';
