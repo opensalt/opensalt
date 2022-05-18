@@ -45,16 +45,12 @@ class Comment
     #[ORM\OneToMany(mappedBy: 'comment', targetEntity: CommentUpvote::class)]
     private Collection $upvotes;
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
     #[ORM\Column(type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'create')]
     private \DateTimeInterface $createdAt;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]

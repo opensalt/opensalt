@@ -25,16 +25,12 @@ class CommentUpvote
     #[ORM\JoinColumn(nullable: false)]
     private User $user;
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
     #[ORM\Column(type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'create')]
     private \DateTimeInterface $createdAt;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 
     public function getId(): ?int

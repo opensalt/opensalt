@@ -47,10 +47,8 @@ class Server
     #[ORM\Column(name: 'last_check', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $lastCheck = null;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 
     /**

@@ -31,10 +31,8 @@ class OAuthCredential
         'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/core.readonly',
     ];
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 
     public function getId(): int
