@@ -26,10 +26,8 @@ class ChangeEntry
     #[ORM\Column(name: 'doc_id', type: 'integer', nullable: true)]
     protected ?int $doc;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(name: 'changed_at', type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected \DateTimeInterface $changedAt;
 
     #[ORM\Column(name: 'description', type: 'string', length: 2048)]

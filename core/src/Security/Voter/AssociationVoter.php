@@ -16,33 +16,27 @@ class AssociationVoter extends Voter
     use DeferDecisionTrait;
 
     final public const ADD_TO = Permission::ASSOCIATION_ADD_TO;
-    final public const CREATE = Permission::ASSOCIATION_CREATE;
     final public const EDIT = Permission::ASSOCIATION_EDIT;
-
-    final public const ASSOCIATION = Permission::ASSOCIATION_CREATE_SUBJECT;
 
     public function supportsAttribute(string $attribute): bool
     {
-        return \in_array($attribute, [self::ADD_TO, self::CREATE, self::EDIT], true);
+        return \in_array($attribute, [self::ADD_TO, self::EDIT], true);
     }
 
     public function supportsType(string $subjectType): bool
     {
-        return \in_array($subjectType, ['string', 'null', LsDoc::class, LsItem::class, LsAssociation::class], true);
+        return \in_array($subjectType, ['null', LsDoc::class, LsItem::class, LsAssociation::class], true);
     }
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (!\in_array($attribute, [self::ADD_TO, self::CREATE, self::EDIT], true)) {
+        if (!\in_array($attribute, [self::ADD_TO, self::EDIT], true)) {
             return false;
         }
 
         return match ($attribute) {
             // User can add to a specific doc or "some doc"
             self::ADD_TO => $subject instanceof LsDoc || $subject instanceof LsItem || null === $subject,
-
-            // User can create an association
-            self::CREATE => static::ASSOCIATION === $subject,
 
             // User can edit the LsAssociation
             self::EDIT => $subject instanceof LsAssociation,
@@ -59,7 +53,6 @@ class AssociationVoter extends Voter
 
         return match ($attribute) {
             self::ADD_TO => $this->canAddTo($subject, $token),
-            self::CREATE => (static::ASSOCIATION === $subject) && $this->canCreate($token),
             self::EDIT => $this->canEdit($subject, $token),
             default => false,
         };

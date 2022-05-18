@@ -76,10 +76,8 @@ class Framework
     #[ORM\Column(name: 'error_type', type: 'string', nullable: true)]
     private ?string $errorType = null;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 
     /**

@@ -30,16 +30,12 @@ class AbstractLsBase implements IdentifiableInterface
     #[ORM\Column(name: 'extra', type: 'json', nullable: true)]
     protected ?array $extra = null;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(name: 'changed_at', type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $changedAt;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected \DateTimeInterface $updatedAt;
 
     public function __construct(UuidInterface|string|null $identifier = null)
