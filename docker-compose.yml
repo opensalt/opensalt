@@ -100,9 +100,14 @@ services:
       MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY:-!ChangeMe!}
       MERCURE_TRANSPORT_URL: 'local://local'
     restart: unless-stopped
+    #user: caddy
+    sysctls:
+      - net.ipv4.ip_unprivileged_port_start=0
+    cap_add:
+      - CAP_NET_BIND_SERVICE
     volumes:
-      - caddy_data:/data
-      - caddy_config:/config
+      - caddy_data:/data/caddy
+      - caddy_config:/config/caddy
     networks:
       default:
       external:
@@ -115,6 +120,8 @@ services:
       context: ./core/docker/mysql
       cache_from:
         - opensalt/opensalt:db-develop
+    cap_add:
+      - SYS_NICE # CAP_SYS_NICE
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:

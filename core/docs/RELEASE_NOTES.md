@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+3.2
+---
+### New
+
+### Improvements
+* Upgraded to Symfony 6, PHP 8.1, MySQL 8
+
+### Fixes
+
+
 2.2 ([Full issue and PR list](https://github.com/opensalt/opensalt/milestone/23?closed=1))
 ---
 ### New
