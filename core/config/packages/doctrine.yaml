@@ -20,7 +20,7 @@ doctrine:
                 options:  '%pdo_options%'
                 charset:  utf8mb4
                 schema_filter: ~^(?!(cache_items|LearningStandards|std_*|map_*|grade_level))~
-                server_version: 5.7
+                server_version: 8.0
                 mapping_types:
                     json: string
                 default_table_options:

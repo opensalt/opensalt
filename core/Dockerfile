@@ -8,6 +8,7 @@ ARG CADDY_VERSION=2
 #=======================================================================
 FROM node:${NODE_VERSION}-alpine AS salt_core_js_build
 
+USER node
 WORKDIR /srv/core
 
 COPY package.json yarn.lock ./
@@ -201,15 +202,21 @@ COPY --from=salt_code_layer /srv/core/ ./
 VOLUME /srv/core/var
 VOLUME /srv/core/public/attachments
 
+USER www-data
+
 #=======================================================================
 FROM salt_core_app as salt_core_dev
 
 ARG XDEBUG_VERSION=3.1.4
+
+USER root
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps $PHPIZE_DEPS; \
 	pecl install xdebug-$XDEBUG_VERSION; \
 	docker-php-ext-enable xdebug; \
 	apk del .build-deps
+
+USER www-data
 
 #=======================================================================
 FROM caddy:${CADDY_VERSION}-builder-alpine AS salt_core_caddy_builder
@@ -225,13 +232,18 @@ RUN xcaddy build \
 #=======================================================================
 FROM caddy:${CADDY_VERSION} AS salt_core_caddy
 
-WORKDIR /srv/core
+RUN addgroup -g 1001 caddy; \
+    adduser -u 1001 -G caddy -D -s /sbin/nologin \
+        -g "Default Application User" caddy
 
 COPY --from=salt_core_caddy_builder /usr/bin/caddy /usr/bin/caddy
 COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
 COPY docker/caddy/docker-healthcheck /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-healthcheck
 HEALTHCHECK --interval=10s --timeout=3s --retries=3 --start-period=30s CMD ["docker-healthcheck"]
+
+RUN mkdir -p /data/caddy /config/caddy ;\
+    chown -R caddy:caddy /data/caddy /config/caddy
 
 ARG VERSION=3.2.0
 ARG BUILD_NUMBER=x
@@ -242,5 +254,10 @@ LABEL org.opencontainers.title="OpenSALT Web Server" \
       org.opencontainers.source="https://github.com/opensalt/opensalt" \
       org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
 
+WORKDIR /srv/core
+VOLUME /data/caddy
+VOLUME /config/caddy
+
 COPY --from=salt_core_app /srv/core/public public/
 
+USER caddy
