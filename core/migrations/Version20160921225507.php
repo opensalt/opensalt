@@ -19,7 +19,7 @@ class Version20160921225507 extends AbstractMigration
 
             $this->addSql('
 INSERT IGNORE INTO ls_def_grade
-(identifier, uri, updated_at, title, description, code, rank)
+(identifier, uri, updated_at, title, description, code, `rank`)
 VALUES
 (:UUID, CONCAT("level:", :UUID), NOW(), :Title, :Title, :Code, :Rank);
             ', $level);
