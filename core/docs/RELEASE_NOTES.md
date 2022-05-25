@@ -7,6 +7,7 @@ Release Notes
 
 ### Improvements
 * Upgraded to Symfony 6, PHP 8.1, MySQL 8
+* All containers run as non-root
 
 ### Fixes
 
