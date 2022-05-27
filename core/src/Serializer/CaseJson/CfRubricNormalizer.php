@@ -4,11 +4,11 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\CfRubric;
 use App\Service\Api1Uris;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class CfRubricNormalizer implements NormalizerAwareInterface, ContextAwareNormalizerInterface
+final class CfRubricNormalizer implements NormalizerAwareInterface, NormalizerInterface
 {
     use NormalizerAwareTrait;
     use LastChangeDateTimeTrait;

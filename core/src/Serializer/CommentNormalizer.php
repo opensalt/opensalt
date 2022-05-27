@@ -3,9 +3,9 @@
 namespace App\Serializer;
 
 use App\Entity\Comment\Comment;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class CommentNormalizer implements ContextAwareNormalizerInterface
+class CommentNormalizer implements NormalizerInterface
 {
     public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {

@@ -9,12 +9,11 @@ use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
 use App\Service\Api1Uris;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwareNormalizerInterface
+final class CfPackageNormalizer implements NormalizerAwareInterface, NormalizerInterface
 {
     use NormalizerAwareTrait;
 

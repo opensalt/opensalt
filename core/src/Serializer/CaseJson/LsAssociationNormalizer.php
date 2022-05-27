@@ -4,9 +4,9 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsAssociation;
 use App\Service\Api1Uris;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class LsAssociationNormalizer implements ContextAwareNormalizerInterface
+final class LsAssociationNormalizer implements NormalizerInterface
 {
     use LinkUriTrait;
     use LastChangeDateTimeTrait;
