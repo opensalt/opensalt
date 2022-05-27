@@ -64,6 +64,12 @@
                         {% if framework.idConflicted %}
                             <a class="btn btn-primary" href="{{ path('mirror_framework_resolve_conflict', {'id': framework.id}) }}">Resolve ID Conflict</a>
                         {% else %}
+                            {% if visibleForms[framework.id] is defined %}
+                                {{ form_start(visibleForms[framework.id], {'attr': {'class': 'form-inline-block'}}) }}
+                                <input class="btn btn-default" type="submit" value="{{  framework.visible ?  'Make Invisible' : 'Make Visible' }}" />
+                                {{ form_end(visibleForms[framework.id]) }}
+                            {% endif %}
+
                             {% if refreshForms[framework.id] is defined and framework.status != 'scheduled' %}
                                 {{ form_start(refreshForms[framework.id], {'attr': {'class': 'form-inline-block'}}) }}
                                 <input class="btn btn-default" type="submit" value="Refresh" />

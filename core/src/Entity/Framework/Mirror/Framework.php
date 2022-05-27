@@ -47,13 +47,16 @@ class Framework
     #[ORM\OneToOne(mappedBy: 'mirroredFramework', targetEntity: LsDoc::class)]
     private ?LsDoc $framework = null;
 
+    #[ORM\Column(name: 'visible', type: 'boolean', nullable: false, options: ['default' => true])]
+    private bool $visible = true;
+
     #[ORM\Column(name: 'include', type: 'boolean', nullable: false)]
     private bool $include = true;
 
     #[ORM\Column(name: 'priority', type: 'integer', options: ['default' => 0])]
     private int $priority = 0;
 
-    #[ORM\Column(name: 'status', type: 'string', options: ['default' => 'new'])]
+    #[ORM\Column(name: 'status', type: 'string', options: ['default' => self::STATUS_NEW])]
     private string $status = self::STATUS_NEW;
 
     #[ORM\Column(name: 'status_count', type: 'integer', nullable: false, options: ['default' => 0])]
@@ -414,5 +417,15 @@ class Framework
         $this->nextCheck = $nextCheck;
 
         $this->priority = 0;
+    }
+
+    public function isVisible(): bool
+    {
+        return $this->visible;
+    }
+
+    public function setVisible(bool $visible): void
+    {
+        $this->visible = $visible;
     }
 }

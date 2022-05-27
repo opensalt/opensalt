@@ -139,6 +139,32 @@ class FrameworkController extends AbstractController
         return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
     }
 
+    #[Route(path: '/{id}/visible', name: 'mirror_framework_visible', methods: ['POST'])]
+    public function visible(Framework $framework): Response
+    {
+        $framework->setVisible(true);
+        $framework->addLog(
+            Log::STATUS_SUCCESS,
+            'Mirror was set to visible'
+        );
+        $this->managerRegistry->getManager()->flush();
+
+        return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
+    }
+
+    #[Route(path: '/{id}/invisible', name: 'mirror_framework_invisible', methods: ['POST'])]
+    public function invisible(Framework $framework): Response
+    {
+        $framework->setVisible(false);
+        $framework->addLog(
+            Log::STATUS_SUCCESS,
+            'Mirror was set to invisible'
+        );
+        $this->managerRegistry->getManager()->flush();
+
+        return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
+    }
+
     #[Route(path: '/{id}/logs', name: 'mirror_framework_logs')]
     public function viewLog(Framework $framework): Response
     {
