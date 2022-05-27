@@ -30,6 +30,6 @@ class UserParamConverter implements ParamConverterInterface
 
     public function supports(ParamConverter $configuration): bool
     {
-        return User::class === $configuration->getClass();
+        return User::class === $configuration->getClass() && 'user' === $configuration->getName();
     }
 }
