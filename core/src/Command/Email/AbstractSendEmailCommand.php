@@ -7,15 +7,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 abstract class AbstractSendEmailCommand extends BaseCommand
 {
-    /**
-     * @var string|null
-     */
-    #[Assert\Email]
-    private $recipient;
-
-    public function __construct(?string $recipient)
+    public function __construct(#[Assert\Email] private readonly ?string $recipient)
     {
-        $this->recipient = $recipient;
     }
 
     public function getRecipient(): ?string

@@ -5,9 +5,9 @@ namespace App\Serializer\CaseJson;
 use App\Entity\Framework\LsDoc;
 use App\Service\Api1Uris;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class LsDocNormalizer implements ContextAwareNormalizerInterface
+final class LsDocNormalizer implements NormalizerInterface
 {
     use DateCallbackTrait;
     use AssociationLinkTrait;

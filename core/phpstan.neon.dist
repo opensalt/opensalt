@@ -23,6 +23,8 @@ parameters:
 	checkMissingIterableValueType: false
 	checkGenericClassInNonGenericObjectType: false
 
+	editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+
 	ignoreErrors:
 		- "#Property .* type mapping mismatch\\: property can contain string\\|null but database expects string\\.$#"
 		- "#Property .* type mapping mismatch\\: database can contain string.* but property expects int\\|null\\.$#"

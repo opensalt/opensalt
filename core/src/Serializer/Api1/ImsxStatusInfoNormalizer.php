@@ -3,9 +3,9 @@
 namespace App\Serializer\Api1;
 
 use App\DTO\Api1\ImsxStatusInfo;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class ImsxStatusInfoNormalizer implements ContextAwareNormalizerInterface
+class ImsxStatusInfoNormalizer implements NormalizerInterface
 {
     public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {

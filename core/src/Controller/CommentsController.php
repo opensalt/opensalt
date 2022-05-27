@@ -214,12 +214,7 @@ class CommentsController extends AbstractController
         return null;
     }
 
-    /**
-     * Add a comment.
-     *
-     * @param LsItem|LsDoc $item
-     */
-    private function addComment(Request $request, string $itemType, $item, ?User $user, BucketService $bucket): JsonResponse
+    private function addComment(Request $request, string $itemType, LsItem|LsDoc $item, ?User $user, BucketService $bucket): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -247,12 +242,12 @@ class CommentsController extends AbstractController
         return $this->apiResponse($comment);
     }
 
-    private function serialize($data): string
+    private function serialize(mixed $data): string
     {
         return $this->serializer->serialize($data, 'json');
     }
 
-    private function apiResponse($data, int $statusCode = 200): JsonResponse
+    private function apiResponse(mixed $data, int $statusCode = 200): JsonResponse
     {
         $json = $this->serialize($data);
 

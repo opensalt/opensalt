@@ -4,9 +4,9 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\CfRubricCriterionLevel;
 use App\Service\Api1Uris;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class CfRubricCriterionLevelNormalizer implements ContextAwareNormalizerInterface
+final class CfRubricCriterionLevelNormalizer implements NormalizerInterface
 {
     use LastChangeDateTimeTrait;
 

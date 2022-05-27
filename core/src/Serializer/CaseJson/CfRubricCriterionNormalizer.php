@@ -4,11 +4,11 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\CfRubricCriterion;
 use App\Service\Api1Uris;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, ContextAwareNormalizerInterface
+final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, NormalizerInterface
 {
     use NormalizerAwareTrait;
     use LinkUriTrait;
@@ -47,7 +47,7 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Con
             'lastChangeDateTime' => $this->getLastChangeDateTime($object),
             'CFItemURI' => $this->createLinkUri($object->getItem(), $context),
             'rubricId' => in_array('CfRubricCriterion', $context['groups'] ?? [], true)
-                ? $object->getRubric()->getIdentifier()
+                ? $object->getRubric()?->getIdentifier()
                 : null,
             'category' => $object->getCategory(),
             'description' => $object->getDescription(),

@@ -4,9 +4,9 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsDefItemType;
 use App\Service\Api1Uris;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class LsDefItemTypeNormalizer implements ContextAwareNormalizerInterface
+final class LsDefItemTypeNormalizer implements NormalizerInterface
 {
     use LastChangeDateTimeTrait;
 
