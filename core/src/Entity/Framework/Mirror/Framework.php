@@ -29,6 +29,7 @@ class Framework
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Server::class, inversedBy: 'frameworks')]
+    #[ORM\JoinColumn(nullable: false)]
     private Server $server;
 
     #[ORM\Column(name: 'url', type: 'string', nullable: false)]
