@@ -6,6 +6,7 @@ use App\Entity\Framework\Mirror\OAuthCredential;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -21,6 +22,11 @@ class MirroredFrameworkDTOType extends AbstractType
                     'placeholder' => 'https://server.name.com/ims/case/v1p0/CFPackages/00000000-0000-0000-0000-000000000000',
                 ],
                 'help' => 'Enter the URL of the framework you want to mirror.',
+            ])
+            ->add('visible', CheckboxType::class, [
+                'label' => 'Display publicly if non-private',
+                'help' => 'If checked then show on the first page if non-private',
+                'required' => false,
             ])
             ->add('credentials', EntityType::class, [
                 'label' => 'Use credentials (if required)',

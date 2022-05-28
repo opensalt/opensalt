@@ -2,6 +2,7 @@
 
 namespace App\Controller\Mirror;
 
+use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Server;
 use App\Form\DTO\MirroredServerDTO;
@@ -122,6 +123,7 @@ class ServerController extends AbstractController
     public function list(Server $server): Response
     {
         $enableForms = [];
+        $visibleForms = [];
         $disableForms = [];
         $refreshForms = [];
         $showLogs = [];
@@ -129,6 +131,11 @@ class ServerController extends AbstractController
         foreach ($server->getFrameworks() as $framework) {
             if ($framework->hasLogs()) {
                 $showLogs[$framework->getId()] = $this->generateUrl('mirror_framework_logs', ['id' => $framework->getId()]);
+            }
+
+            $visibleForm = $this->createVisibilityForm($framework);
+            if (null !== $visibleForm) {
+                $visibleForms[$framework->getId()] = $visibleForm->createView();
             }
 
             if (!$framework->isInclude()) {
@@ -147,6 +154,7 @@ class ServerController extends AbstractController
             'server' => $server,
             'serverRefreshForm' => $serverRefreshForm->createView(),
             'enableForms' => $enableForms,
+            'visibleForms' => $visibleForms,
             'disableForms' => $disableForms,
             'refreshForms' => $refreshForms,
             'showLogs' => $showLogs,
@@ -228,6 +236,19 @@ class ServerController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('mirror_framework_refresh', ['id' => $framework->getId()]))
+            ->getForm()
+        ;
+    }
+
+    private function createVisibilityForm(Framework $framework): ?FormInterface
+    {
+        $actualFramework = $framework->getFramework();
+        if (null === $actualFramework || LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $actualFramework->getAdoptionStatus()) {
+            return null;
+        }
+
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('mirror_framework_'.($framework->isVisible() ? 'invisible' : 'visible'), ['id' => $framework->getId()]))
             ->getForm()
         ;
     }

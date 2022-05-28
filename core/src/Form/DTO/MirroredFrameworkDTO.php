@@ -16,6 +16,11 @@ class MirroredFrameworkDTO
     public $url;
 
     /**
+     * @var bool
+     */
+    public $visible;
+
+    /**
      * @var OAuthCredential|null
      */
     public $credentials;

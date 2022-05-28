@@ -72,7 +72,8 @@ class FrameworkAccessVoter extends Voter
 
     private function canListFramework(LsDoc $subject, TokenInterface $token): bool
     {
-        if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $subject->getAdoptionStatus()) {
+        if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $subject->getAdoptionStatus()
+            && (!$subject->isMirrored() || true === $subject->getMirroredFramework()?->isVisible())) {
             return true;
         }
 
@@ -88,7 +89,7 @@ class FrameworkAccessVoter extends Voter
         }
 
         // Editors can see all mirrored frameworks in the list
-        if (null !== $subject->getMirroredFramework()) {
+        if ($subject->isMirrored()) {
             return $this->roleChecker->isEditor($token);
         }
 
@@ -101,10 +102,10 @@ class FrameworkAccessVoter extends Voter
         return true;
     }
 
-    private function canEditFramework(mixed $subject, TokenInterface $token): bool
+    private function canEditFramework(LsDoc $subject, TokenInterface $token): bool
     {
         // Do not allow editing if the framework is mirrored
-        if ($subject instanceof LsDoc && null !== $subject->getMirroredFramework() && $subject->getMirroredFramework()->isInclude()) {
+        if ($subject->isMirrored()) {
             return false;
         }
 

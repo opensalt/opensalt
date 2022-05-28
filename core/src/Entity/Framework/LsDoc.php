@@ -603,6 +603,11 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return null;
     }
 
+    public function isMirrored(): bool
+    {
+        return true === $this->getMirroredFramework()?->isInclude();
+    }
+
     public function getMirroredFramework(): ?Framework
     {
         return $this->mirroredFramework;

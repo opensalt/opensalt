@@ -43,7 +43,7 @@ class LsDocController extends AbstractController
      * Lists all LsDoc entities.
      */
     #[Route(path: '/', name: 'lsdoc_index', methods: ['GET'])]
-    public function index(#[CurrentUser] ?User $user): Response
+    public function index(): Response
     {
         $em = $this->managerRegistry->getManager();
 
@@ -51,12 +51,11 @@ class LsDocController extends AbstractController
         $results = $em->getRepository(LsDoc::class)->findForList();
 
         $lsDocs = [];
-        $loggedIn = $user instanceof User;
         foreach ($results as $lsDoc) {
             // Optimization: All but "Private Draft" are viewable to everyone (if not mirrored), only auth check "Private Draft"
-            if (($loggedIn && $this->isGranted(Permission::FRAMEWORK_LIST, $lsDoc))
+            if ((null !== $this->getUser() && $this->isGranted(Permission::FRAMEWORK_LIST, $lsDoc))
                 || (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus()
-                    && null === $lsDoc->getMirroredFramework())) {
+                    && (!$lsDoc->isMirrored() || true === $lsDoc->getMirroredFramework()?->isVisible()))) {
                 $lsDocs[] = $lsDoc;
             }
         }
