@@ -13,7 +13,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 
 class CommandEventRouter implements EventSubscriberInterface
 {
@@ -76,7 +75,6 @@ class CommandEventRouter implements EventSubscriberInterface
 
             if ($validationErrors = $command->getValidationErrors()) {
                 $errors = [];
-                /** @var ConstraintViolationInterface $error */
                 foreach ($validationErrors as $error) {
                     $errors[] = $error->getMessage();
                 }
