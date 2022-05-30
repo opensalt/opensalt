@@ -76,6 +76,8 @@ class MirrorServer
             if (null === $url) {
                 $uri = UriString::parse($server->getUrl());
                 $uri['path'] = rtrim($uri['path'], '/').Server::URL_CASE_1_0_PACKAGE.'/'.$doc['identifier'];
+                $uri['query'] = null;
+                $uri['fragment'] = null;
                 $url = UriString::build($uri);
             }
             $mirroredDoc->setUrl($url);

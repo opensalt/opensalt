@@ -29,9 +29,19 @@ abstract class AbstractLsDocCreateType extends AbstractType
         /** @var LsDoc $doc */
         $doc = $builder->getData();
         $exists = null !== $doc->getId();
-        $isAdopted = ($exists && LsDoc::ADOPTION_STATUS_ADOPTED === $doc->getAdoptionStatus());
-        $isDeprecated = ($exists && LsDoc::ADOPTION_STATUS_DEPRECATED === $doc->getAdoptionStatus());
+        $adoptionStatus = $doc->getAdoptionStatus();
+        $isAdopted = ($exists && LsDoc::ADOPTION_STATUS_ADOPTED === $adoptionStatus);
+        $isDeprecated = ($exists && LsDoc::ADOPTION_STATUS_DEPRECATED === $adoptionStatus);
         $disableAsAdopted = $isAdopted || $isDeprecated;
+        $adoptionStatusChoices = [
+            'Private Draft' => LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT,
+            'Draft' => LsDoc::ADOPTION_STATUS_DRAFT,
+            'Adopted' => LsDoc::ADOPTION_STATUS_ADOPTED,
+            'Deprecated' => LsDoc::ADOPTION_STATUS_DEPRECATED,
+        ];
+        if (!in_array($adoptionStatus, LsDoc::getStatuses(), true)) {
+            $adoptionStatusChoices[$adoptionStatus] = $adoptionStatus;
+        }
 
         $builder
             ->add('title', null, [
@@ -62,8 +72,8 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ->add('description', null, [
                 'disabled' => $disableAsAdopted,
             ])
-            //->add('subject')
-            //->add('subjectUri')
+            // ->add('subject')
+            // ->add('subjectUri')
             ->add('subjects', Select2EntityType::class, [
                 'disabled' => $disableAsAdopted,
                 'multiple' => true,
@@ -91,12 +101,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ])
             ->add('adoptionStatus', ChoiceType::class, [
                 'required' => false,
-                'choices' => [
-                    'Private Draft' => LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT,
-                    'Draft' => LsDoc::ADOPTION_STATUS_DRAFT,
-                    'Adopted' => LsDoc::ADOPTION_STATUS_ADOPTED,
-                    'Deprecated' => LsDoc::ADOPTION_STATUS_DEPRECATED,
-                ],
+                'choices' => $adoptionStatusChoices,
             ])
             ->add('statusStart', DateType::class, [
                 'required' => false,
@@ -163,7 +168,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
         $resolver->setDefaults([
             'data_class' => LsDoc::class,
             'ajax' => false,
-            //'csrf_protection' => false,
+            // 'csrf_protection' => false,
         ]);
     }
 

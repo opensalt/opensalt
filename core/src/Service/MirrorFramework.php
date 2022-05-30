@@ -76,17 +76,17 @@ class MirrorFramework
         } catch (MirrorAlreadyChangedException $e) {
             throw $e;
         } catch (\Exception $e) {
+            // Don't try to save anything we've done if an error occurred (such as partial document loaded)
+            $this->em->clear();
             if (!$this->em->isOpen()) {
                 // A SQL Exception causes the EntityManager to close
-                // Reset it so we can store the error
-                $this->em->clear();
+                // Reset it, so we can store the error
                 $this->managerRegistry->resetManager();
                 /** @var EntityManagerInterface $em */
                 $em = $this->managerRegistry->getManager();
                 $this->em = $em;
-
-                $next = $this->em->getRepository(Framework::class)->find($next->getId());
             }
+            $next = $this->em->getRepository(Framework::class)->find($next->getId());
 
             if (null === $next) {
                 throw new \RuntimeException('Error mirroring framework: Mirrored framework went missing.');
