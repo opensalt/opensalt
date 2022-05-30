@@ -169,7 +169,7 @@ class LsDocController extends AbstractController
         $response = new JsonResponse();
         $fileContent = $request->request->get('content');
         /** @var array $cfItemKeys - cfItemKeys is an array argument */
-        $cfItemKeys = $request->request->get('cfItemKeys');
+        $cfItemKeys = $request->request->all('cfItemKeys');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
 
         $command = new UpdateFrameworkCommand($lsDoc, base64_decode($fileContent), $frameworkToAssociate, $cfItemKeys);
