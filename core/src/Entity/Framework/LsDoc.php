@@ -354,9 +354,6 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this->subject;
     }
 
-    /**
-     * @throws \InvalidArgumentException
-     */
     public function setAdoptionStatus(?string $adoptionStatus, ?string $default = null): static
     {
         if (null === $adoptionStatus && null === $default) {
@@ -378,11 +375,9 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
             }
         }
 
-        if (null !== $default) {
-            return $this->setAdoptionStatus($default);
-        }
+        $this->adoptionStatus = $adoptionStatus;
 
-        throw new \InvalidArgumentException('Invalid Adoptions Status of '.$adoptionStatus);
+        return $this;
     }
 
     public function getAdoptionStatus(): ?string
