@@ -134,8 +134,8 @@ class LsAssociationController extends AbstractController
 
             // return id of created association
             $rv = [
-                'id' => isset($lsAssociation) ? $lsAssociation->getId() : null,
-                'identifier' => isset($lsAssociation) ? $lsAssociation->getIdentifier() : null,
+                'id' => $lsAssociation?->getId(),
+                'identifier' => $lsAssociation?->getIdentifier(),
             ];
 
             $response = new JsonResponse($rv);
@@ -170,8 +170,8 @@ class LsAssociationController extends AbstractController
             $lsAssociation = $command->getAssociation();
 
             $rv = [
-                'id' => isset($lsAssociation) ? $lsAssociation->getId() : null,
-                'identifier' => isset($lsAssociation) ? $lsAssociation->getIdentifier() : null,
+                'id' => $lsAssociation?->getId(),
+                'identifier' => $lsAssociation?->getIdentifier(),
             ];
 
             $response = new JsonResponse($rv);

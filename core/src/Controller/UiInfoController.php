@@ -106,8 +106,8 @@ class UiInfoController extends AbstractController
             'description' => $doc->getDescription(),
             'language' => $doc->getLanguage(),
             'adoptionStatus' => $doc->getAdoptionStatus(),
-            'statusStart' => (null !== $doc->getStatusStart()) ? $doc->getStatusStart()->format('Y-m-d') : null,
-            'statusEnd' => (null !== $doc->getStatusEnd()) ? $doc->getStatusEnd()->format('Y-m-d') : null,
+            'statusStart' => $doc->getStatusStart()?->format('Y-m-d'),
+            'statusEnd' => $doc->getStatusEnd()?->format('Y-m-d'),
             'note' => $doc->getNote(),
             'version' => $doc->getVersion(),
             'lastChangeDateTime' => $doc->getChangedAt()->format('Y-m-d\TH:i:s'),
@@ -122,7 +122,6 @@ class UiInfoController extends AbstractController
     protected function generateItemArray(LsItem $item): array
     {
         // retrieve isChildOf assoc id for the item
-        /** @var LsAssociation $assoc */
         $assoc = $this->managerRegistry->getRepository(LsAssociation::class)->findOneBy([
             'originLsItem' => $item,
             'type' => LsAssociation::CHILD_OF,
@@ -157,7 +156,7 @@ class UiInfoController extends AbstractController
                     'assocId' => $assoc->getId(),
                     'identifier' => $assoc->getIdentifier(),
                     'uri' => $assoc->getUri(),
-                    //'groupId' => (null !== $assoc->getGroup()) ? $assoc->getGroup()->getId() : null,
+                    //'groupId' => $assoc->getGroup()?->getId(),
                     'dest' => ['doc' => $assoc->getLsDocIdentifier(), 'item' => $destItem, 'uri' => $destItem],
                 ];
                 if ($assoc->getGroup()) {
@@ -220,7 +219,7 @@ class UiInfoController extends AbstractController
                 'item' => $destIdentifier,
                 'uri' => $destIdentifier,
             ],
-            'groupId' => $association->getGroup() ? $association->getGroup()->getId() : null,
+            'groupId' => $association->getGroup()?->getId(),
             'seq' => $association->getSequenceNumber(),
             'mod' => $association->getUpdatedAt()->format('Y-m-d\TH:i:s'),
         ];
