@@ -372,7 +372,7 @@ class LsItemController extends AbstractController
                     'assocDoc' => $assoc->getLsDocIdentifier(),
                     'assocId' => $assoc->getId(),
                     'identifier' => $assoc->getIdentifier(),
-                    //'groupId' => (null !== $assoc->getGroup()) ? $assoc->getGroup()->getId() : null,
+                    //'groupId' => $assoc->getGroup()?->getId(),
                     'dest' => ['doc' => $assoc->getLsDocIdentifier(), 'item' => $destItem, 'uri' => $destItem],
                 ];
                 if ($assoc->getGroup()) {

@@ -28,39 +28,33 @@ class UiInfoController extends AbstractController
     {
         $objs = [];
 
-        /** @var ?array $docs - argument passed as an array */
-        $docs = $request->request->get('doc');
-        if (is_array($docs)) {
-            foreach ($docs as $id) {
-                $d = $this->managerRegistry->getRepository(LsDoc::class)
-                    ->find($id);
-                if (null !== $d) {
-                    $objs['docs'][$id] = $this->generateDocArray($d);
-                }
+        /** @var array $docs - argument passed as an array */
+        $docs = $request->request->all('doc');
+        foreach ($docs as $id) {
+            $d = $this->managerRegistry->getRepository(LsDoc::class)
+                ->find($id);
+            if (null !== $d) {
+                $objs['docs'][$id] = $this->generateDocArray($d);
             }
         }
 
-        /** @var ?array $items - argument passed as an array */
-        $items = $request->request->get('item');
-        if (is_array($items)) {
-            foreach ($items as $id) {
-                $i = $this->managerRegistry->getRepository(LsItem::class)
-                    ->find($id);
-                if (null !== $i) {
-                    $objs['items'][$id] = $this->generateItemArray($i);
-                }
+        /** @var array $items - argument passed as an array */
+        $items = $request->request->all('item');
+        foreach ($items as $id) {
+            $i = $this->managerRegistry->getRepository(LsItem::class)
+                ->find($id);
+            if (null !== $i) {
+                $objs['items'][$id] = $this->generateItemArray($i);
             }
         }
 
-        /** @var ?array $assocs - argument passed as an array */
-        $assocs = $request->request->get('assoc');
-        if (is_array($assocs)) {
-            foreach ($assocs as $id) {
-                $a = $this->managerRegistry->getRepository(LsAssociation::class)
-                    ->find($id);
-                if (null !== $a) {
-                    $objs['assocs'][$id] = $this->generateAssociationArray($a);
-                }
+        /** @var array $assocs - argument passed as an array */
+        $assocs = $request->request->all('assoc');
+        foreach ($assocs as $id) {
+            $a = $this->managerRegistry->getRepository(LsAssociation::class)
+                ->find($id);
+            if (null !== $a) {
+                $objs['assocs'][$id] = $this->generateAssociationArray($a);
             }
         }
 
@@ -106,8 +100,8 @@ class UiInfoController extends AbstractController
             'description' => $doc->getDescription(),
             'language' => $doc->getLanguage(),
             'adoptionStatus' => $doc->getAdoptionStatus(),
-            'statusStart' => (null !== $doc->getStatusStart()) ? $doc->getStatusStart()->format('Y-m-d') : null,
-            'statusEnd' => (null !== $doc->getStatusEnd()) ? $doc->getStatusEnd()->format('Y-m-d') : null,
+            'statusStart' => $doc->getStatusStart()?->format('Y-m-d'),
+            'statusEnd' => $doc->getStatusEnd()?->format('Y-m-d'),
             'note' => $doc->getNote(),
             'version' => $doc->getVersion(),
             'lastChangeDateTime' => $doc->getChangedAt()->format('Y-m-d\TH:i:s'),
@@ -122,7 +116,6 @@ class UiInfoController extends AbstractController
     protected function generateItemArray(LsItem $item): array
     {
         // retrieve isChildOf assoc id for the item
-        /** @var LsAssociation $assoc */
         $assoc = $this->managerRegistry->getRepository(LsAssociation::class)->findOneBy([
             'originLsItem' => $item,
             'type' => LsAssociation::CHILD_OF,
@@ -157,7 +150,7 @@ class UiInfoController extends AbstractController
                     'assocId' => $assoc->getId(),
                     'identifier' => $assoc->getIdentifier(),
                     'uri' => $assoc->getUri(),
-                    //'groupId' => (null !== $assoc->getGroup()) ? $assoc->getGroup()->getId() : null,
+                    //'groupId' => $assoc->getGroup()?->getId(),
                     'dest' => ['doc' => $assoc->getLsDocIdentifier(), 'item' => $destItem, 'uri' => $destItem],
                 ];
                 if ($assoc->getGroup()) {
@@ -220,7 +213,7 @@ class UiInfoController extends AbstractController
                 'item' => $destIdentifier,
                 'uri' => $destIdentifier,
             ],
-            'groupId' => $association->getGroup() ? $association->getGroup()->getId() : null,
+            'groupId' => $association->getGroup()?->getId(),
             'seq' => $association->getSequenceNumber(),
             'mod' => $association->getUpdatedAt()->format('Y-m-d\TH:i:s'),
         ];

@@ -20,7 +20,7 @@ class GithubImportController extends AbstractController
     public function import(Request $request): JsonResponse
     {
         /** @var array $lsItemKeys - argument passed as an array */
-        $lsItemKeys = $request->request->get('cfItemKeys');
+        $lsItemKeys = $request->request->all('cfItemKeys');
         $fileContent = $request->request->get('content');
         $lsDocId = $request->request->get('lsDocId');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
