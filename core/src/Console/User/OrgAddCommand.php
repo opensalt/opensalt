@@ -59,7 +59,7 @@ class OrgAddCommand extends BaseDoctrineCommand
 
         $orgObj = $orgRepository->findOneByName($org);
         if (null !== $orgObj) {
-            $output->writeln(sprintf('<error>Organization "%s" aleady exists.</error>', $org));
+            $output->writeln(sprintf('<error>Organization "%s" already exists.</error>', $org));
 
             return 1;
         }
@@ -67,7 +67,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         $command = new AddOrganizationByNameCommand($org);
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
-        $output->writeln('The organization "%s" has been added.');
+        $output->writeln(sprintf('The organization "%s" has been added.', $org));
 
         return 0;
     }
