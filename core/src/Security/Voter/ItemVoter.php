@@ -24,7 +24,15 @@ class ItemVoter extends Voter
 
     public function supportsType(string $subjectType): bool
     {
-        return \in_array($subjectType, ['null', LsDoc::class, LsItem::class], true);
+        if ('null' === $subjectType) {
+            return true;
+        }
+
+        if (is_a($subjectType, LsDoc::class, true)) {
+            return true;
+        }
+
+        return is_a($subjectType, LsItem::class, true);
     }
 
     protected function supports(string $attribute, mixed $subject): bool

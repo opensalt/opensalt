@@ -31,7 +31,11 @@ class CommentVoter extends Voter
 
     public function supportsType(string $subjectType): bool
     {
-        return \in_array($subjectType, ['null', Comment::class], true);
+        if ('null' === $subjectType) {
+            return true;
+        }
+
+        return is_a($subjectType, Comment::class, true);
     }
 
     protected function supports(string $attribute, mixed $subject): bool
