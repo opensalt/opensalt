@@ -460,7 +460,7 @@ class DocTreeController extends AbstractController
      * For other operations, we return an empty array.
      */
     #[Route(path: '/doc/{id}/updateitems.{_format}', name: 'doctree_update_items', methods: ['POST'])]
-    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
     public function updateItems(Request $request, LsDoc $lsDoc, string $_format = 'json'): Response
     {
         $lsItems = $request->request->all('lsItems');

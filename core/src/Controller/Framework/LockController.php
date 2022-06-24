@@ -23,7 +23,7 @@ class LockController extends AbstractController
     use CommandDispatcherTrait;
 
     #[Route(path: '/cfdoc/{id}/unlock', name: 'lsdoc_unlock', methods: ['POST'])]
-    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
     public function releaseDocLock(LsDoc $lsDoc, #[CurrentUser] User $user): JsonResponse
     {
         try {
@@ -37,7 +37,7 @@ class LockController extends AbstractController
     }
 
     #[Route(path: '/cfdoc/{id}/lock', name: 'lsdoc_lock', methods: ['POST'])]
-    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
     public function extendDocLock(LsDoc $lsDoc, #[CurrentUser] User $user): JsonResponse
     {
         try {

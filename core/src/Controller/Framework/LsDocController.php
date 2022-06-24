@@ -163,7 +163,7 @@ class LsDocController extends AbstractController
      * @deprecated It appears this is unused now
      */
     #[Route(path: '/doc/{id}/update', name: 'lsdoc_update', methods: ['POST'])]
-    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
     public function update(Request $request, LsDoc $lsDoc): Response
     {
         $response = new JsonResponse();
@@ -204,7 +204,7 @@ class LsDocController extends AbstractController
      * Displays a form to edit an existing LsDoc entity.
      */
     #[Route(path: '/{id}/edit', name: 'lsdoc_edit', methods: ['GET', 'POST'])]
-    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsdoc')]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
     public function edit(Request $request, LsDoc $lsDoc, #[CurrentUser] User $user): Response
     {
         $ajax = $request->isXmlHttpRequest();
