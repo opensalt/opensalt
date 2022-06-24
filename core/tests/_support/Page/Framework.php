@@ -836,7 +836,7 @@ class Framework implements Context
         $I->fillField('#ls_doc_create_description', $description);
         //       $I->selectOption('.select2-search__field', array('text' => 'Math')); //Subject field
         $I->selectOption('ls_doc_create[language]', ['value' => $this->frameworkData['language']]);
-        $I->selectOption('ls_doc_create[adoptionStatus]', ['value' => $this->frameworkData['adoptionStatus']]);
+        $I->selectOption('ls_doc_create[adoptionStatus]', ['text' => $this->frameworkData['adoptionStatus']]);
         $statusStart = $this->frameworkData['statusStart'];
         //$I->fillField('#ls_doc_statusStart', $statusStart);
         $I->executeJS("$('#ls_doc_create_statusStart').val('{$statusStart}');");
