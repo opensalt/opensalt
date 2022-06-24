@@ -29,26 +29,12 @@ class ItemVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (!\in_array($attribute, [self::ADD_TO, self::EDIT], true)) {
-            return false;
-        }
-
-        switch ($attribute) {
-            case self::ADD_TO:
-                // User can add to a specific doc or "some doc"
-                if ($subject instanceof LsDoc || null === $subject) {
-                    return true;
-                }
-                break;
-
-            case self::EDIT:
-                // User can edit the LsItem
-                if ($subject instanceof LsItem) {
-                    return true;
-                }
-        }
-
-        return false;
+        return match ($attribute) {
+            // User can add to a specific doc or "some doc"
+            self::ADD_TO => $subject instanceof LsDoc || null === $subject,
+            self::EDIT => $subject instanceof LsItem,
+            default => false,
+        };
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool

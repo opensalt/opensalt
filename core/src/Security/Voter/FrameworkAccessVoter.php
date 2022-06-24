@@ -32,21 +32,11 @@ class FrameworkAccessVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (!\in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::EDIT_ALL, static::DELETE], true)) {
-            return false;
-        }
-
-        // If the attribute is CREATE then we can handle if the subject is FRAMEWORK
-        if (static::CREATE === $attribute) {
-            return true;
-        }
-
-        if (static::EDIT_ALL === $attribute) {
-            return true;
-        }
-
-        // For the other attributes the subject must be a document
-        return $subject instanceof LsDoc;
+        return match ($attribute) {
+            self::CREATE, self::EDIT_ALL => null === $subject,
+            self::LIST, self::VIEW, self::EDIT, self::DELETE => $subject instanceof LsDoc,
+            default => false,
+        };
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -56,6 +46,7 @@ class FrameworkAccessVoter extends Voter
             self::LIST => $this->canListFramework($subject, $token),
             self::VIEW => $this->canViewFramework($subject, $token),
             self::EDIT => $this->canEditFramework($subject, $token),
+            self::EDIT_ALL => $this->canEditAllFrameworks($token),
             self::DELETE => $this->canDeleteFramework($subject, $token),
             default => false,
         };
@@ -150,5 +141,14 @@ class FrameworkAccessVoter extends Voter
     private function canDeleteFramework(LsDoc $subject, TokenInterface $token): bool
     {
         return $this->canEditFramework($subject, $token);
+    }
+
+    private function canEditAllFrameworks(TokenInterface $token): bool
+    {
+        if ($this->roleChecker->isSuperEditor($token)) {
+            return true;
+        }
+
+        return false;
     }
 }
