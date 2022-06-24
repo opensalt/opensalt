@@ -25,7 +25,19 @@ class AssociationVoter extends Voter
 
     public function supportsType(string $subjectType): bool
     {
-        return \in_array($subjectType, ['null', LsDoc::class, LsItem::class, LsAssociation::class], true);
+        if ('null' === $subjectType) {
+            return true;
+        }
+
+        if (is_a($subjectType, LsDoc::class, true)) {
+            return true;
+        }
+
+        if (is_a($subjectType, LsItem::class, true)) {
+            return true;
+        }
+
+        return is_a($subjectType, LsAssociation::class, true);
     }
 
     protected function supports(string $attribute, mixed $subject): bool

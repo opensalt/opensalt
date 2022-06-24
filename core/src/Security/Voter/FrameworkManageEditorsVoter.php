@@ -21,7 +21,7 @@ class FrameworkManageEditorsVoter extends Voter
 
     public function supportsType(string $subjectType): bool
     {
-        return LsDoc::class === $subjectType;
+        return is_a($subjectType, LsDoc::class, true);
     }
 
     protected function supports(string $attribute, mixed $subject): bool
