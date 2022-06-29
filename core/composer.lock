@@ -3554,16 +3554,16 @@
         },
         {
             "name": "league/uri",
-            "version": "6.6.0",
+            "version": "6.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri.git",
-                "reference": "4147f19b9de3b5af6a258f35d7a0efbbf9963298"
+                "reference": "9bae56eeccfbb1875c33d8757f0edeb65ee64f4d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri/zipball/4147f19b9de3b5af6a258f35d7a0efbbf9963298",
-                "reference": "4147f19b9de3b5af6a258f35d7a0efbbf9963298",
+                "url": "https://api.github.com/repos/thephpleague/uri/zipball/9bae56eeccfbb1875c33d8757f0edeb65ee64f4d",
+                "reference": "9bae56eeccfbb1875c33d8757f0edeb65ee64f4d",
                 "shasum": ""
             },
             "require": {
@@ -3640,7 +3640,7 @@
                 "docs": "https://uri.thephpleague.com",
                 "forum": "https://thephpleague.slack.com",
                 "issues": "https://github.com/thephpleague/uri/issues",
-                "source": "https://github.com/thephpleague/uri/tree/6.6.0"
+                "source": "https://github.com/thephpleague/uri/tree/6.7.0"
             },
             "funding": [
                 {
@@ -3648,7 +3648,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-05-28T05:44:35+00:00"
+            "time": "2022-06-28T21:54:49+00:00"
         },
         {
             "name": "league/uri-interfaces",
