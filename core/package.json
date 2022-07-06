@@ -36,7 +36,7 @@
     "normalize.css": "^3.0.3",
     "papaparse": "^5.2.0",
     "sanitize-html": "^1.15.0",
-    "select2": "^4.0.3",
+    "select2": "^4.0.6",
     "select2-bootstrap-theme": "^0.1.0-beta.10",
     "select2entity-bundle": "https://github.com/tetranz/select2entity-bundle/archive/v2.9.5.tar.gz",
     "simplemde": "^1.11.2",
