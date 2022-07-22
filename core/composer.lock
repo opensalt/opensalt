@@ -10895,16 +10895,16 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "5.0.0-RC6",
+            "version": "5.0.0-RC7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "6021a4a7e7f7351a3c187ff6b8761f49a0d83ce6"
+                "reference": "3b1b241a2aa51cb0f364553e70aba97c9792f019"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/6021a4a7e7f7351a3c187ff6b8761f49a0d83ce6",
-                "reference": "6021a4a7e7f7351a3c187ff6b8761f49a0d83ce6",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/3b1b241a2aa51cb0f364553e70aba97c9792f019",
+                "reference": "3b1b241a2aa51cb0f364553e70aba97c9792f019",
                 "shasum": ""
             },
             "require": {
@@ -10996,7 +10996,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/Codeception/issues",
-                "source": "https://github.com/Codeception/Codeception/tree/5.0.0-RC6"
+                "source": "https://github.com/Codeception/Codeception/tree/5.0.0-RC7"
             },
             "funding": [
                 {
@@ -11004,7 +11004,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2022-07-12T06:02:32+00:00"
+            "time": "2022-07-22T05:40:14+00:00"
         },
         {
             "name": "codeception/lib-asserts",
