@@ -28,10 +28,6 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/opensalt/module-sequence.git"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/opensalt/qandidate-toggle-bundle.git"
         }
     ],
@@ -114,7 +110,7 @@
         "codeception/module-doctrine2": "^3.0",
         "codeception/module-phpbrowser": "^3.0",
         "codeception/module-rest": "^3.0",
-        "codeception/module-sequence": "dev-codeception-5",
+        "codeception/module-sequence": "^3.0",
         "codeception/module-symfony": "^3.0",
         "codeception/module-webdriver": "^3.0",
         "codeception/specify": "^2.0",
