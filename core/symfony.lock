@@ -345,9 +345,6 @@
     "phpoption/phpoption": {
         "version": "1.5.0"
     },
-    "phpspec/prophecy": {
-        "version": "1.7.6"
-    },
     "phpunit/php-code-coverage": {
         "version": "4.0.8"
     },
