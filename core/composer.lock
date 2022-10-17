@@ -11618,16 +11618,16 @@
         },
         {
             "name": "codeception/module-webdriver",
-            "version": "3.1.3",
+            "version": "3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-webdriver.git",
-                "reference": "7472027411d4edd236e04c3bde00950a486bbf26"
+                "reference": "8d65b02f50f90bf3f4da2174693a1cb5cd5fe7b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-webdriver/zipball/7472027411d4edd236e04c3bde00950a486bbf26",
-                "reference": "7472027411d4edd236e04c3bde00950a486bbf26",
+                "url": "https://api.github.com/repos/Codeception/module-webdriver/zipball/8d65b02f50f90bf3f4da2174693a1cb5cd5fe7b2",
+                "reference": "8d65b02f50f90bf3f4da2174693a1cb5cd5fe7b2",
                 "shasum": ""
             },
             "require": {
@@ -11672,9 +11672,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-webdriver/issues",
-                "source": "https://github.com/Codeception/module-webdriver/tree/3.1.3"
+                "source": "https://github.com/Codeception/module-webdriver/tree/3.2.0"
             },
-            "time": "2022-09-11T12:33:19+00:00"
+            "time": "2022-10-15T19:19:42+00:00"
         },
         {
             "name": "codeception/specify",
