@@ -2161,16 +2161,16 @@
         },
         {
             "name": "firebase/php-jwt",
-            "version": "v6.3.0",
+            "version": "v6.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/firebase/php-jwt.git",
-                "reference": "018dfc4e1da92ad8a1b90adc4893f476a3b41cb8"
+                "reference": "ddfaddcb520488b42bca3a75e17e9dd53c3667da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/018dfc4e1da92ad8a1b90adc4893f476a3b41cb8",
-                "reference": "018dfc4e1da92ad8a1b90adc4893f476a3b41cb8",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/ddfaddcb520488b42bca3a75e17e9dd53c3667da",
+                "reference": "ddfaddcb520488b42bca3a75e17e9dd53c3667da",
                 "shasum": ""
             },
             "require": {
@@ -2217,9 +2217,9 @@
             ],
             "support": {
                 "issues": "https://github.com/firebase/php-jwt/issues",
-                "source": "https://github.com/firebase/php-jwt/tree/v6.3.0"
+                "source": "https://github.com/firebase/php-jwt/tree/v6.3.1"
             },
-            "time": "2022-07-15T16:48:45+00:00"
+            "time": "2022-11-01T21:20:08+00:00"
         },
         {
             "name": "friendsofphp/proxy-manager-lts",
@@ -13206,12 +13206,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "fda7ea1b92062f67c9721c120cd09b7af5b67e63"
+                "reference": "cca41afdc42d1c011c063c5698d44a47d0df15b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/fda7ea1b92062f67c9721c120cd09b7af5b67e63",
-                "reference": "fda7ea1b92062f67c9721c120cd09b7af5b67e63",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/cca41afdc42d1c011c063c5698d44a47d0df15b6",
+                "reference": "cca41afdc42d1c011c063c5698d44a47d0df15b6",
                 "shasum": ""
             },
             "conflict": {
@@ -13510,6 +13510,7 @@
                 "prestashop/ps_facetedsearch": "<3.4.1",
                 "prestashop/ps_linklist": "<3.1",
                 "privatebin/privatebin": "<1.4",
+                "processwire/processwire": "<=3.0.200",
                 "propel/propel": ">=2-alpha.1,<=2-alpha.7",
                 "propel/propel1": ">=1,<=1.7.1",
                 "pterodactyl/panel": "<1.7",
@@ -13730,7 +13731,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-11-01T19:04:38+00:00"
+            "time": "2022-11-01T22:05:19+00:00"
         },
         {
             "name": "sebastian/cli-parser",
