@@ -259,14 +259,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
             throw new \InvalidArgumentException(sprintf('The role "%s" is not valid', $role));
         }
 
-        if (!in_array($role, $this->roles, true)) {
+        if (!in_array($role, $this->roles ?? [], true)) {
+            if (null === $this->roles) {
+                $this->roles = [];
+            }
             $this->roles[] = $role;
         }
     }
 
     public function removeRole(string $role): void
     {
-        if (($key = array_search($role, $this->roles, true)) !== false) {
+        if (($key = array_search($role, $this->roles ?? [], true)) !== false) {
             unset($this->roles[$key]);
         }
     }
