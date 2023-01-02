@@ -157,11 +157,9 @@ services:
         arguments:
             $captchaSecret: '%google_captcha_secret_key%'
 
-    App\Security\Session\SessionIdleHandler:
+    App\Security\Session\SessionIdleHandlerEventSubscriber:
         arguments:
             $sessionMaxIdleTime: '%session_max_idle_time%'
-        tags:
-            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
 
     App\Service\Api1Uris:
         public: true

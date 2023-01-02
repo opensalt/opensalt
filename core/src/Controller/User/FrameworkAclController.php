@@ -16,7 +16,6 @@ use App\Form\Type\AddAclUserType;
 use App\Security\Permission;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -24,6 +23,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/cfdoc')]
 class FrameworkAclController extends AbstractController
@@ -161,7 +161,7 @@ class FrameworkAclController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('framework_acl_remove', ['id' => $lsDoc->getId(), 'targetUser' => $targetUser->getId()]))
-            ->setMethod('DELETE')
+            ->setMethod(Request::METHOD_DELETE)
             ->getForm()
             ;
     }

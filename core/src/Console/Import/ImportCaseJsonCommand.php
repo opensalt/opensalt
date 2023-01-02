@@ -37,6 +37,6 @@ class ImportCaseJsonCommand extends BaseDoctrineCommand
 
         $output->writeln('Done.');
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

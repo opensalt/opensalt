@@ -28,11 +28,11 @@ class MirrorJobCommand extends Command
         if (null === $framework) {
             $io->comment('Nothing to do');
 
-            return 0;
+            return (int) Command::SUCCESS;
         }
 
         $io->success(sprintf('Updated %s', $framework->getIdentifier()));
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

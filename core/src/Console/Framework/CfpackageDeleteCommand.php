@@ -36,7 +36,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
         if (!$lsDoc) {
             $output->writeln("<error>LSDoc with id '{$lsDocId}' not found.</error>");
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         if (!$input->getOption('yes')) {
@@ -46,7 +46,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
             if (!$helper->ask($input, $output, $question)) {
                 $output->writeln('<info>Not deleting LSDoc.</info>');
 
-                return 2;
+                return (int) Command::INVALID;
             }
         }
 
@@ -63,6 +63,6 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
 
         $output->writeln('<info>Deleted.</info>');
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

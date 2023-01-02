@@ -8,11 +8,11 @@ use App\Form\Type\OAuthCredentialDTOType;
 use App\Repository\Framework\Mirror\OAuthCredentialRepository;
 use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/admin/mirror/credentials')]
 #[IsGranted(Permission::MANAGE_MIRRORS)]

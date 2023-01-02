@@ -38,9 +38,9 @@ class ImportAsnCommand extends BaseDispatchingCommand
             $output->write($e->getMessage());
             $output->writeln('<error>Error importing document from ASN.</error>');
 
-            return 1; // Fail out of command
+            return (int) Command::FAILURE; // Fail out of command
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

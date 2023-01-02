@@ -50,6 +50,6 @@ class MirrorFrameworkCommand extends Command
 
         $io->success('Complete');
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

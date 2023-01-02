@@ -6,13 +6,13 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportAsnFromUrlCommand;
 use App\Entity\User\User;
 use App\Security\Permission;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted(Permission::FRAMEWORK_CREATE)]
 class AsnImportController extends AbstractController

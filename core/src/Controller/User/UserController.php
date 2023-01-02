@@ -13,7 +13,6 @@ use App\Entity\User\User;
 use App\Form\Type\UserType;
 use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -23,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/admin/user')]
 #[IsGranted(Permission::MANAGE_USERS)]
@@ -254,7 +254,7 @@ class UserController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('admin_user_suspend', ['id' => $targetUser->getId()]))
-            ->setMethod('POST')
+            ->setMethod(Request::METHOD_POST)
             ->getForm();
     }
 
@@ -265,7 +265,7 @@ class UserController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('admin_user_activate', ['id' => $targetUser->getId()]))
-            ->setMethod('POST')
+            ->setMethod(Request::METHOD_POST)
             ->getForm();
     }
 
@@ -276,7 +276,7 @@ class UserController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('admin_user_reject', ['id' => $targetUser->getId()]))
-            ->setMethod('POST')
+            ->setMethod(Request::METHOD_POST)
             ->getForm();
     }
 
@@ -287,7 +287,7 @@ class UserController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('admin_user_delete', ['id' => $targetUser->getId()]))
-            ->setMethod('DELETE')
+            ->setMethod(Request::METHOD_DELETE)
             ->getForm();
     }
 }

@@ -71,7 +71,6 @@
         "qandidate/toggle-bundle": "dev-allow-symfony-6",
         "ramsey/uuid": "^4.0",
         "ramsey/uuid-doctrine": "^1.6",
-        "sensio/framework-extra-bundle": "^6.0",
         "stof/doctrine-extensions-bundle": "^1.7",
         "swaggest/json-schema": "^0.12.20",
         "symfony/asset": "*",
@@ -177,7 +176,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "6.1.*"
+            "require": "6.2.*"
         }
     }
 }

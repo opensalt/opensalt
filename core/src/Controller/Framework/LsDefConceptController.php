@@ -10,7 +10,6 @@ use App\Entity\Framework\LsDefConcept;
 use App\Form\Type\LsDefConceptType;
 use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -18,6 +17,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/cfdef/concept')]
 class LsDefConceptController extends AbstractController
@@ -140,7 +140,7 @@ class LsDefConceptController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsdef_concept_delete', ['id' => $lsDefConcept->getId()]))
-            ->setMethod('DELETE')
+            ->setMethod(Request::METHOD_DELETE)
             ->getForm()
         ;
     }

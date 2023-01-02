@@ -68,6 +68,6 @@ class UserSetPasswordCommand extends BaseDispatchingCommand
             $output->writeln(sprintf('The password for "%s" has been set.', $input->getArgument('username')));
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

@@ -61,7 +61,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         if (null !== $orgObj) {
             $output->writeln(sprintf('<error>Organization "%s" already exists.</error>', $org));
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $command = new AddOrganizationByNameCommand($org);
@@ -69,6 +69,6 @@ class OrgAddCommand extends BaseDoctrineCommand
 
         $output->writeln(sprintf('The organization "%s" has been added.', $org));
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

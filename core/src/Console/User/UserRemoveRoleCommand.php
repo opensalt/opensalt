@@ -38,11 +38,11 @@ class UserRemoveRoleCommand extends UserRoleCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (0 !== $this->doChange($input, $output, RemoveUserRoleCommand::class)) {
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $output->writeln(sprintf('The role "%s" has been removed.', $input->getArgument('role')));
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

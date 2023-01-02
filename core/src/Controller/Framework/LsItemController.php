@@ -24,7 +24,6 @@ use App\Form\Type\LsItemType;
 use App\Security\Permission;
 use App\Service\BucketService;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -35,6 +34,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * LsItem controller.
@@ -209,7 +209,7 @@ class LsItemController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsitem_delete', ['id' => $lsItem->getId()]))
-            ->setMethod('DELETE')
+            ->setMethod(Request::METHOD_DELETE)
             ->getForm()
         ;
     }

@@ -32,6 +32,6 @@ class ImportGeneric1Command extends BaseDispatchingCommand
 
         $output->writeln('Done.');
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

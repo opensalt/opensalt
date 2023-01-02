@@ -19,7 +19,6 @@ use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -28,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/cfdoc')]
 class LsDocController extends AbstractController
@@ -386,7 +386,7 @@ class LsDocController extends AbstractController
                     ['id' => $lsDoc->getId()]
                 )
             )
-            ->setMethod('DELETE')
+            ->setMethod(Request::METHOD_DELETE)
             ->getForm();
     }
 }
