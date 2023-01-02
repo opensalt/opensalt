@@ -2,6 +2,12 @@
 # https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage
 # https://docs.docker.com/compose/compose-file/#target
 
+# Version and build of OpenSALT
+ARG VERSION=3.2.0
+ARG BUILD_NUMBER=x
+ARG BUILD_DATE=0
+ARG COMMIT=unknown
+
 ARG NODE_VERSION=14
 ARG PHP_VERSION=8.1
 ARG CADDY_VERSION=2
@@ -45,7 +51,7 @@ ARG DOCKERIZE_VERSION=v0.6.1
 RUN curl -LsS https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
 	  | tar -C /usr/local/bin -xzvf -
 
-ARG APCU_VERSION=5.1.21
+ARG APCU_VERSION=5.1.22
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
@@ -175,10 +181,10 @@ RUN set -eux; \
 	composer dump-env prod; \
 	composer run-script post-install-cmd
 
-ARG VERSION=3.2.0
-ARG BUILD_NUMBER=x
-ARG BUILD_DATE=0
-ARG COMMIT=unknown
+ARG VERSION
+ARG BUILD_NUMBER
+ARG BUILD_DATE
+ARG COMMIT
 
 RUN echo ${VERSION}.${BUILD_NUMBER} > public/version.txt ; \
     echo ${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT} > public/revision.txt
@@ -188,10 +194,10 @@ FROM salt_core_php AS salt_core_app
 
 ENV SYMFONY_PHPUNIT_VERSION=9
 
-ARG VERSION=3.2.0
-ARG BUILD_NUMBER=x
-ARG BUILD_DATE=0
-ARG COMMIT=unknown
+ARG VERSION
+ARG BUILD_NUMBER
+ARG BUILD_DATE
+ARG COMMIT
 
 LABEL org.opencontainers.title="OpenSALT PHP Application" \
       org.opencontainers.source="https://github.com/opensalt/opensalt" \
@@ -245,10 +251,10 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=3 --start-period=30s CMD ["doc
 RUN mkdir -p /data/caddy /config/caddy ;\
     chown -R caddy:caddy /data/caddy /config/caddy
 
-ARG VERSION=3.2.0
-ARG BUILD_NUMBER=x
-ARG BUILD_DATE=0
-ARG COMMIT=unknown
+ARG VERSION
+ARG BUILD_NUMBER
+ARG BUILD_DATE
+ARG COMMIT
 
 LABEL org.opencontainers.title="OpenSALT Web Server" \
       org.opencontainers.source="https://github.com/opensalt/opensalt" \
