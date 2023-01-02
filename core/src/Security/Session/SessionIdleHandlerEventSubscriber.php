@@ -35,7 +35,7 @@ class SessionIdleHandlerEventSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->securityToken->setToken();
+        $this->securityToken->setToken(null);
 
         $msg = 'You have been logged out due to inactivity.';
         $session->invalidate();

@@ -123,17 +123,23 @@ class AsnImport
         }
 
         if ($asnStandard->statementLabel) {
-            $label = $asnStandard->statementLabel->first()->value;
+            $firstValue = $asnStandard->statementLabel->first();
+            if (false !== $firstValue) {
+                $label = $firstValue->value;
 
-            $itemType = $this->findItemType($label);
+                $itemType = $this->findItemType($label);
 
-            $lsItem->setItemType($itemType);
+                $lsItem->setItemType($itemType);
+            }
         }
 
         if ($asnStandard->language) {
-            $lang = $asnStandard->language->first()->value;
-            if (preg_match('/eng$/', $lang)) {
-                $lsItem->setLanguage('en');
+            $firstValue = $asnStandard->language->first();
+            if (false !== $firstValue) {
+                $lang = $firstValue->value;
+                if (str_ends_with($lang, 'eng')) {
+                    $lsItem->setLanguage('en');
+                }
             }
         }
 

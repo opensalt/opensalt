@@ -6,6 +6,7 @@ use App\Command\Import\ImportGenericCsvCommand;
 use App\Console\BaseDispatchingCommand;
 use App\Event\CommandEvent;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
