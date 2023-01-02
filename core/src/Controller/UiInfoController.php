@@ -7,12 +7,12 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/treeuiinfo')]
 class UiInfoController extends AbstractController
@@ -76,7 +76,7 @@ class UiInfoController extends AbstractController
     }
 
     #[Route(path: '/association/{id}', name: 'doc_tree_association_json', methods: ['GET'])]
-    #[Security("is_granted('edit', association.getLsDoc())")]
+    #[IsGranted(Permission::ASSOCIATION_EDIT, new Expression('args["association"].getLsDoc()'))]
     public function associationJsonInfo(LsAssociation $association): JsonResponse
     {
         return $this->generateAssociationJsonResponse($association);

@@ -28,11 +28,11 @@ class UpdateListCommand extends Command
         if (null === $server) {
             $io->comment('Nothing to do');
 
-            return 0;
+            return (int) Command::SUCCESS;
         }
 
         $io->success(sprintf('Updated %s', $server->getUrl()));
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

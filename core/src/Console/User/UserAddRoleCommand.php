@@ -4,6 +4,7 @@ namespace App\Console\User;
 
 use App\Command\User\AddUserRoleCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,11 +39,11 @@ class UserAddRoleCommand extends UserRoleCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (0 !== $this->doChange($input, $output, AddUserRoleCommand::class)) {
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $output->writeln(sprintf('The role "%s" has been added.', $input->getArgument('role')));
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

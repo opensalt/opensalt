@@ -7,6 +7,7 @@ use App\Console\BaseDoctrineCommand;
 use App\Entity\Framework\LsDoc;
 use App\Event\CommandEvent;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
@@ -36,14 +37,14 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
         if (!$oldDoc) {
             $output->writeln("<error>Doc with id '{$oldDocId}' not found.</error>");
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $newDoc = $lsDocRepo->find((int) $newDocId);
         if (!$newDoc) {
             $output->writeln("<error>Doc with id '{$newDocId}' not found.</error>");
 
-            return 2;
+            return (int) Command::INVALID;
         }
 
         /** @var QuestionHelper $helper */
@@ -68,6 +69,6 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
 
         $output->writeln('<info>Duplicated.</info>');
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

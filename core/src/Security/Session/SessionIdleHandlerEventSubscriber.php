@@ -2,13 +2,15 @@
 
 namespace App\Security\Session;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class SessionIdleHandler
+class SessionIdleHandlerEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly AuthorizationCheckerInterface $securityContext,
@@ -33,7 +35,7 @@ class SessionIdleHandler
             return;
         }
 
-        $this->securityToken->setToken();
+        $this->securityToken->setToken(null);
 
         $msg = 'You have been logged out due to inactivity.';
         $session->invalidate();
@@ -63,5 +65,13 @@ class SessionIdleHandler
         }
 
         return true;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [KernelEvents::REQUEST => 'onKernelRequest'];
     }
 }

@@ -4,12 +4,12 @@ namespace App\Controller;
 
 use App\Repository\ChangeEntryRepository;
 use App\Security\Permission;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/admin/system_log')]
 #[IsGranted(Permission::MANAGE_SYSTEM_LOGS)]

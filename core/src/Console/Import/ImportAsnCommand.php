@@ -6,6 +6,7 @@ use App\Command\Import\ImportAsnFromUrlCommand;
 use App\Console\BaseDispatchingCommand;
 use App\Event\CommandEvent;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -38,9 +39,9 @@ class ImportAsnCommand extends BaseDispatchingCommand
             $output->write($e->getMessage());
             $output->writeln('<error>Error importing document from ASN.</error>');
 
-            return 1; // Fail out of command
+            return (int) Command::FAILURE; // Fail out of command
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

@@ -7,6 +7,7 @@ use App\Console\BaseDoctrineCommand;
 use App\Entity\User\Organization;
 use App\Event\CommandEvent;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -61,7 +62,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         if (null !== $orgObj) {
             $output->writeln(sprintf('<error>Organization "%s" already exists.</error>', $org));
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $command = new AddOrganizationByNameCommand($org);
@@ -69,6 +70,6 @@ class OrgAddCommand extends BaseDoctrineCommand
 
         $output->writeln(sprintf('The organization "%s" has been added.', $org));
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

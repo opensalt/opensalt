@@ -49,12 +49,12 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @property AsnValue[]|ArrayCollection $indexingStatus
  * @property AsnValue[]|ArrayCollection $statementNotation
  * @property AsnValue[]|ArrayCollection $listID
- * @property AsnValue[]|ArrayCollection $educationLevel
+ * @property ArrayCollection<array-key, AsnValue>|null $educationLevel
  * @property AsnValue[]|ArrayCollection $subject
  * @property AsnValue[]|ArrayCollection $altStatementNotation
- * @property AsnValue[]|ArrayCollection $statementLabel
+ * @property ArrayCollection<array-key, AsnValue>|null $statementLabel
  * @property AsnValue[]|ArrayCollection $description
- * @property AsnValue[]|ArrayCollection $language
+ * @property ArrayCollection<array-key, AsnValue>|null $language
  * @property AsnValue[]|ArrayCollection $hasChild
  * @property AsnValue[]|ArrayCollection $isChildOf
  * @property AsnValue[]|ArrayCollection $comment

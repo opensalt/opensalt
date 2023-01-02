@@ -46,6 +46,6 @@ class AssociationUpdateCommand extends Command
 
         $io->success('Spreadsheets loaded.');
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

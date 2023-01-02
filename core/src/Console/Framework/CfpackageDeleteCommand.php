@@ -7,6 +7,7 @@ use App\Console\BaseDoctrineCommand;
 use App\Entity\Framework\LsDoc;
 use App\Event\CommandEvent;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
@@ -36,7 +37,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
         if (!$lsDoc) {
             $output->writeln("<error>LSDoc with id '{$lsDocId}' not found.</error>");
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         if (!$input->getOption('yes')) {
@@ -46,7 +47,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
             if (!$helper->ask($input, $output, $question)) {
                 $output->writeln('<info>Not deleting LSDoc.</info>');
 
-                return 2;
+                return (int) Command::INVALID;
             }
         }
 
@@ -63,6 +64,6 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
 
         $output->writeln('<info>Deleted.</info>');
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

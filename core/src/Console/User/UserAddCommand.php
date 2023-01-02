@@ -8,6 +8,7 @@ use App\Entity\User\Organization;
 use App\Entity\User\User;
 use App\Event\CommandEvent;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -113,7 +114,7 @@ class UserAddCommand extends BaseDoctrineCommand
         if (!in_array($role, User::USER_ROLES)) {
             $output->writeln(sprintf('<error>Role "%s" is not valid.</error>', $input->getOption('role')));
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $em = $this->em;
@@ -121,7 +122,7 @@ class UserAddCommand extends BaseDoctrineCommand
         if (empty($orgObj)) {
             $output->writeln(sprintf('<error>Organization "%s" is not valid.</error>', $org));
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $command = new AddUserByNameCommand($username, $orgObj, $password, $role);
@@ -134,6 +135,6 @@ class UserAddCommand extends BaseDoctrineCommand
             $output->writeln(sprintf('The user "%s" has been added.', $username));
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

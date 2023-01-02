@@ -6,6 +6,7 @@ use App\Command\User\SetUserPasswordCommand;
 use App\Console\BaseDispatchingCommand;
 use App\Event\CommandEvent;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -68,6 +69,6 @@ class UserSetPasswordCommand extends BaseDispatchingCommand
             $output->writeln(sprintf('The password for "%s" has been set.', $input->getArgument('username')));
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

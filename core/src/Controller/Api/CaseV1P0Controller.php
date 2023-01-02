@@ -22,7 +22,7 @@ use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
 use App\Service\LoggerTrait;
 use Doctrine\Persistence\ManagerRegistry;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -105,8 +105,7 @@ class CaseV1P0Controller extends AbstractController
     }
 
     #[Route(path: '/CFPackages/{id}.{_format}', name: 'api_v1p0_cfpackage', defaults: ['_format' => 'json'], methods: ['GET'])]
-    #[Entity('obj', expr: 'repository.findOneByIdentifier(id)')]
-    public function getCfPackage(Request $request, LsDoc $obj): Response
+    public function getCfPackage(Request $request, #[MapEntity(expr: 'repository.findOneByIdentifier(id)')] LsDoc $obj): Response
     {
         $id = $obj->getIdentifier();
 
@@ -138,8 +137,7 @@ class CaseV1P0Controller extends AbstractController
 
     #[Route(path: '/CFItemAssociations/{id}.{_format}', name: 'api_v1p0_cfitemassociations', defaults: ['_format' => 'json'], methods: ['GET'])]
     #[Route(path: '/CFItems/{id}/associations.{_format}', name: 'api_v1p0_cfitemassociations2', defaults: ['_format' => 'json'], methods: ['GET'])]
-    #[Entity('obj', expr: 'repository.findOneByIdentifier(id)')]
-    public function getCfItemAssociations(Request $request, LsItem $obj, LsAssociationRepository $associationRepository): Response
+    public function getCfItemAssociations(Request $request, #[MapEntity(expr: 'repository.findOneByIdentifier(id)')] LsItem $obj, LsAssociationRepository $associationRepository): Response
     {
         $item = $obj;
         $id = $obj->getIdentifier();
