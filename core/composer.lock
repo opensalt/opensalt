@@ -10375,16 +10375,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v6.1.9",
+            "version": "v6.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "ef4e569114404d6d0ae832f8ad3cd78e68cfb4d0"
+                "reference": "6ed8243aa5f2cb5a57009f826b5e7fb3c4200cf3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/ef4e569114404d6d0ae832f8ad3cd78e68cfb4d0",
-                "reference": "ef4e569114404d6d0ae832f8ad3cd78e68cfb4d0",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/6ed8243aa5f2cb5a57009f826b5e7fb3c4200cf3",
+                "reference": "6ed8243aa5f2cb5a57009f826b5e7fb3c4200cf3",
                 "shasum": ""
             },
             "require": {
@@ -10429,7 +10429,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v6.1.9"
+                "source": "https://github.com/symfony/yaml/tree/v6.2.2"
             },
             "funding": [
                 {
@@ -10445,7 +10445,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-12-14T16:05:20+00:00"
+            "time": "2022-12-14T16:11:27+00:00"
         },
         {
             "name": "tecnickcom/tcpdf",
