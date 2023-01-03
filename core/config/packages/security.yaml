@@ -1,8 +1,6 @@
 # To get started with security, check out the documentation:
 # http://symfony.com/doc/current/book/security.html
 security:
-    enable_authenticator_manager: true
-
     role_hierarchy:
         ROLE_USER: []
         ROLE_EDITOR: [ROLE_USER]
