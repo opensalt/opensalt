@@ -5,6 +5,7 @@ namespace App\Handler\Comment;
 use App\Command\Comment\DownvoteCommentCommand;
 use App\Entity\Comment\Comment;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DownvoteCommentHandler extends BaseCommentHandler
@@ -23,6 +24,7 @@ class DownvoteCommentHandler extends BaseCommentHandler
             throw new \RuntimeException('Upvote does not exist');
         }
 
-        /* No notification for a down vote */
+        $notification = new NotificationEvent('C06', 'Comment up vote removed' /* for [Short name] */, null);
+        $command->setNotificationEvent($notification);
     }
 }
