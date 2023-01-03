@@ -70,7 +70,7 @@
         "phpoffice/phpword": "^1.0",
         "qandidate/toggle-bundle": "dev-allow-symfony-6",
         "ramsey/uuid": "^4.0",
-        "ramsey/uuid-doctrine": "^1.6",
+        "ramsey/uuid-doctrine": "^2.0",
         "stof/doctrine-extensions-bundle": "^1.7",
         "swaggest/json-schema": "^0.12.20",
         "symfony/asset": "*",
