@@ -14,6 +14,7 @@ use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
 use App\Security\Permission;
 use App\Service\BucketService;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 use Qandidate\Toggle\Context;
@@ -64,11 +65,11 @@ class CommentsController extends AbstractController
     }
 
     /**
-     * @param Comment[] $comments
+     * @param Collection<array-key,Comment> $comments
      */
     #[Route(path: '/comments/{itemType<document|item>}/{itemId<\d+>}', name: 'get_comments', methods: ['GET'])]
     #[IsGranted(Permission::COMMENT_VIEW)]
-    public function list(#[MapEntity(class: Comment::class, expr: 'repository.findByTypeItem(itemType, itemId)')] array $comments, #[CurrentUser] ?User $user): JsonResponse
+    public function list(#[MapEntity(class: Comment::class, expr: 'repository.findByTypeItem(itemType, itemId)')] Collection $comments, #[CurrentUser] ?User $user): JsonResponse
     {
         if ($user instanceof User) {
             foreach ($comments as $comment) {
