@@ -240,7 +240,7 @@ class Framework
             $uncompressed = bzdecompress(stream_get_contents($this->lastSuccessContent));
         }
 
-        if (!isset($uncompressed) || is_int($uncompressed) || false === $uncompressed) {
+        if (is_int($uncompressed) || false === $uncompressed) {
             return null;
         }
 
@@ -276,7 +276,7 @@ class Framework
             $uncompressed = bzdecompress(stream_get_contents($this->lastContent));
         }
 
-        if (!isset($uncompressed) || is_int($uncompressed) || false === $uncompressed) {
+        if (is_int($uncompressed) || false === $uncompressed) {
             return null;
         }
 
