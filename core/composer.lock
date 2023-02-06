@@ -58,20 +58,20 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.258.2",
+            "version": "3.258.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "ed1bede7fe80a5e1528d6cff530341ad2018a128"
+                "reference": "c20d674f502ed96ed0de63e9da087eb5f0e95590"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ed1bede7fe80a5e1528d6cff530341ad2018a128",
-                "reference": "ed1bede7fe80a5e1528d6cff530341ad2018a128",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c20d674f502ed96ed0de63e9da087eb5f0e95590",
+                "reference": "c20d674f502ed96ed0de63e9da087eb5f0e95590",
                 "shasum": ""
             },
             "require": {
-                "aws/aws-crt-php": "^1.0.2",
+                "aws/aws-crt-php": "^1.0.4",
                 "ext-json": "*",
                 "ext-pcre": "*",
                 "ext-simplexml": "*",
@@ -146,9 +146,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.258.2"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.258.4"
             },
-            "time": "2023-02-02T19:41:58+00:00"
+            "time": "2023-02-06T19:28:40+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -1079,16 +1079,16 @@
         },
         {
             "name": "doctrine/doctrine-bundle",
-            "version": "2.8.2",
+            "version": "2.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineBundle.git",
-                "reference": "251cd5aaea32bb92cdad4204840786b317dcdd4c"
+                "reference": "fd67ba64db3c806f626a33dcab15a4db0c77652e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineBundle/zipball/251cd5aaea32bb92cdad4204840786b317dcdd4c",
-                "reference": "251cd5aaea32bb92cdad4204840786b317dcdd4c",
+                "url": "https://api.github.com/repos/doctrine/DoctrineBundle/zipball/fd67ba64db3c806f626a33dcab15a4db0c77652e",
+                "reference": "fd67ba64db3c806f626a33dcab15a4db0c77652e",
                 "shasum": ""
             },
             "require": {
@@ -1102,7 +1102,7 @@
                 "symfony/console": "^5.4 || ^6.0",
                 "symfony/dependency-injection": "^5.4 || ^6.0",
                 "symfony/deprecation-contracts": "^2.1 || ^3",
-                "symfony/doctrine-bridge": "^5.4.7 || ^6.0.7",
+                "symfony/doctrine-bridge": "^5.4.19 || ^6.0.7",
                 "symfony/framework-bundle": "^5.4 || ^6.0",
                 "symfony/service-contracts": "^1.1.1 || ^2.0 || ^3"
             },
@@ -1174,7 +1174,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/DoctrineBundle/issues",
-                "source": "https://github.com/doctrine/DoctrineBundle/tree/2.8.2"
+                "source": "https://github.com/doctrine/DoctrineBundle/tree/2.8.3"
             },
             "funding": [
                 {
@@ -1190,7 +1190,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-01-06T11:42:10+00:00"
+            "time": "2023-02-03T09:32:42+00:00"
         },
         {
             "name": "doctrine/doctrine-fixtures-bundle",
@@ -4004,16 +4004,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "3.2.0",
+            "version": "3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "305444bc6fb6c89e490f4b34fa6e979584d7fa81"
+                "reference": "9b5daeaffce5b926cac47923798bba91059e60e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/305444bc6fb6c89e490f4b34fa6e979584d7fa81",
-                "reference": "305444bc6fb6c89e490f4b34fa6e979584d7fa81",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/9b5daeaffce5b926cac47923798bba91059e60e2",
+                "reference": "9b5daeaffce5b926cac47923798bba91059e60e2",
                 "shasum": ""
             },
             "require": {
@@ -4028,16 +4028,16 @@
                 "doctrine/couchdb": "~1.0@dev",
                 "elasticsearch/elasticsearch": "^7 || ^8",
                 "ext-json": "*",
-                "graylog2/gelf-php": "^1.4.2",
-                "guzzlehttp/guzzle": "^7.4",
+                "graylog2/gelf-php": "^1.4.2 || ^2@dev",
+                "guzzlehttp/guzzle": "^7.4.5",
                 "guzzlehttp/psr7": "^2.2",
                 "mongodb/mongodb": "^1.8",
                 "php-amqplib/php-amqplib": "~2.4 || ^3",
-                "phpstan/phpstan": "^1.4",
+                "phpstan/phpstan": "^1.9",
                 "phpstan/phpstan-deprecation-rules": "^1.0",
-                "phpstan/phpstan-strict-rules": "^1.1",
-                "phpunit/phpunit": "^9.5.16",
-                "predis/predis": "^1.1",
+                "phpstan/phpstan-strict-rules": "^1.4",
+                "phpunit/phpunit": "^9.5.26",
+                "predis/predis": "^1.1 || ^2",
                 "ruflin/elastica": "^7",
                 "symfony/mailer": "^5.4 || ^6",
                 "symfony/mime": "^5.4 || ^6"
@@ -4089,7 +4089,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/3.2.0"
+                "source": "https://github.com/Seldaek/monolog/tree/3.3.1"
             },
             "funding": [
                 {
@@ -4101,7 +4101,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-07-24T12:00:55+00:00"
+            "time": "2023-02-06T13:46:10+00:00"
         },
         {
             "name": "mtdowling/jmespath.php",
@@ -10919,16 +10919,16 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "5.0.7",
+            "version": "5.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "9c0bc32bd05cfa3b43dc04c6880489398b99436a"
+                "reference": "dd6e795f20fca72e4b9ad16527f49943f474d323"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/9c0bc32bd05cfa3b43dc04c6880489398b99436a",
-                "reference": "9c0bc32bd05cfa3b43dc04c6880489398b99436a",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/dd6e795f20fca72e4b9ad16527f49943f474d323",
+                "reference": "dd6e795f20fca72e4b9ad16527f49943f474d323",
                 "shasum": ""
             },
             "require": {
@@ -10939,13 +10939,13 @@
                 "ext-json": "*",
                 "ext-mbstring": "*",
                 "php": "^8.0",
-                "phpunit/php-code-coverage": "^9.2",
-                "phpunit/php-text-template": "^2.0",
-                "phpunit/php-timer": "^5.0.3",
-                "phpunit/phpunit": "^9.5.20",
+                "phpunit/php-code-coverage": "^9.2 || ^10.0",
+                "phpunit/php-text-template": "^2.0 || ^3.0",
+                "phpunit/php-timer": "^5.0.3 || ^6.0",
+                "phpunit/phpunit": "^9.5.20 || ^10.0",
                 "psy/psysh": "^0.11.2",
-                "sebastian/comparator": "^4.0.5",
-                "sebastian/diff": "^4.0.3",
+                "sebastian/comparator": "^4.0.5 || ^5.0",
+                "sebastian/diff": "^4.0.3 || ^5.0",
                 "symfony/console": ">=4.4.24 <7.0",
                 "symfony/css-selector": ">=4.4.24 <7.0",
                 "symfony/event-dispatcher": ">=4.4.24 <7.0",
@@ -10954,7 +10954,7 @@
                 "symfony/yaml": ">=4.4.24 <7.0"
             },
             "conflict": {
-                "codeception/lib-innerbrowser": "<3.1",
+                "codeception/lib-innerbrowser": "<3.1.3",
                 "codeception/module-filesystem": "<3.0",
                 "codeception/module-phpbrowser": "<2.5"
             },
@@ -11023,7 +11023,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/Codeception/issues",
-                "source": "https://github.com/Codeception/Codeception/tree/5.0.7"
+                "source": "https://github.com/Codeception/Codeception/tree/5.0.8"
             },
             "funding": [
                 {
@@ -11031,7 +11031,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2023-01-14T20:02:13+00:00"
+            "time": "2023-02-03T21:54:18+00:00"
         },
         {
             "name": "codeception/lib-asserts",
@@ -11308,16 +11308,16 @@
         },
         {
             "name": "codeception/module-doctrine2",
-            "version": "3.0.0",
+            "version": "3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-doctrine2.git",
-                "reference": "ab2846b13247353b0089f65d992983950a7d2f37"
+                "reference": "2bbd4987b4c48daa97b672f7fa8692fc001c142a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/ab2846b13247353b0089f65d992983950a7d2f37",
-                "reference": "ab2846b13247353b0089f65d992983950a7d2f37",
+                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/2bbd4987b4c48daa97b672f7fa8692fc001c142a",
+                "reference": "2bbd4987b4c48daa97b672f7fa8692fc001c142a",
                 "shasum": ""
             },
             "require": {
@@ -11364,9 +11364,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-doctrine2/issues",
-                "source": "https://github.com/Codeception/module-doctrine2/tree/3.0.0"
+                "source": "https://github.com/Codeception/module-doctrine2/tree/3.0.1"
             },
-            "time": "2022-02-20T10:46:06+00:00"
+            "time": "2022-11-08T22:10:02+00:00"
         },
         {
             "name": "codeception/module-phpbrowser",
@@ -11545,21 +11545,21 @@
         },
         {
             "name": "codeception/module-symfony",
-            "version": "3.1.0",
+            "version": "3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-symfony.git",
-                "reference": "83eb81019ad778ff57084c451caeb94df991d4bd"
+                "reference": "f758a245e7554c8deff0f0272a2be868808a34a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-symfony/zipball/83eb81019ad778ff57084c451caeb94df991d4bd",
-                "reference": "83eb81019ad778ff57084c451caeb94df991d4bd",
+                "url": "https://api.github.com/repos/Codeception/module-symfony/zipball/f758a245e7554c8deff0f0272a2be868808a34a0",
+                "reference": "f758a245e7554c8deff0f0272a2be868808a34a0",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^5.0.0-RC3",
-                "codeception/lib-innerbrowser": "^3.1.1",
+                "codeception/lib-innerbrowser": "^3.1.1 | ^4.0",
                 "ext-json": "*",
                 "php": "^8.0"
             },
@@ -11607,22 +11607,22 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-symfony/issues",
-                "source": "https://github.com/Codeception/module-symfony/tree/3.1.0"
+                "source": "https://github.com/Codeception/module-symfony/tree/3.1.1"
             },
-            "time": "2022-05-27T22:37:23+00:00"
+            "time": "2023-02-06T07:43:26+00:00"
         },
         {
             "name": "codeception/module-webdriver",
-            "version": "3.2.0",
+            "version": "3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-webdriver.git",
-                "reference": "8d65b02f50f90bf3f4da2174693a1cb5cd5fe7b2"
+                "reference": "59b6fe426dddbe889c23593f8698c52e08bba6e9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-webdriver/zipball/8d65b02f50f90bf3f4da2174693a1cb5cd5fe7b2",
-                "reference": "8d65b02f50f90bf3f4da2174693a1cb5cd5fe7b2",
+                "url": "https://api.github.com/repos/Codeception/module-webdriver/zipball/59b6fe426dddbe889c23593f8698c52e08bba6e9",
+                "reference": "59b6fe426dddbe889c23593f8698c52e08bba6e9",
                 "shasum": ""
             },
             "require": {
@@ -11632,7 +11632,8 @@
                 "ext-json": "*",
                 "ext-mbstring": "*",
                 "php": "^8.0",
-                "php-webdriver/webdriver": "^1.8.0"
+                "php-webdriver/webdriver": "^1.8.0",
+                "phpunit/phpunit": "^9.5"
             },
             "suggest": {
                 "codeception/phpbuiltinserver": "Start and stop PHP built-in web server for your tests"
@@ -11667,9 +11668,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-webdriver/issues",
-                "source": "https://github.com/Codeception/module-webdriver/tree/3.2.0"
+                "source": "https://github.com/Codeception/module-webdriver/tree/3.2.1"
             },
-            "time": "2022-10-15T19:19:42+00:00"
+            "time": "2023-02-03T21:46:32+00:00"
         },
         {
             "name": "codeception/specify",
@@ -13024,16 +13025,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.6.0",
+            "version": "9.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "70fc8be1d0b9fad56a199a4df5f9cfabfc246f84"
+                "reference": "e7b1615e3e887d6c719121c6d4a44b0ab9645555"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/70fc8be1d0b9fad56a199a4df5f9cfabfc246f84",
-                "reference": "70fc8be1d0b9fad56a199a4df5f9cfabfc246f84",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e7b1615e3e887d6c719121c6d4a44b0ab9645555",
+                "reference": "e7b1615e3e887d6c719121c6d4a44b0ab9645555",
                 "shasum": ""
             },
             "require": {
@@ -13106,7 +13107,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.0"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.3"
             },
             "funding": [
                 {
@@ -13122,7 +13123,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-02-03T07:32:24+00:00"
+            "time": "2023-02-04T13:37:15+00:00"
         },
         {
             "name": "psy/psysh",
@@ -13206,12 +13207,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "92f4424ad5419a427f950f7d1df1aae30b02687d"
+                "reference": "90538aab13dced1209eb1b30e169308fea0fd783"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/92f4424ad5419a427f950f7d1df1aae30b02687d",
-                "reference": "92f4424ad5419a427f950f7d1df1aae30b02687d",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/90538aab13dced1209eb1b30e169308fea0fd783",
+                "reference": "90538aab13dced1209eb1b30e169308fea0fd783",
                 "shasum": ""
             },
             "conflict": {
@@ -13235,6 +13236,7 @@
                 "arc/web": "<3",
                 "area17/twill": "<1.2.5|>=2,<2.5.3",
                 "asymmetricrypt/asymmetricrypt": ">=0,<9.9.99",
+                "automad/automad": "<1.8",
                 "awesome-support/awesome-support": "<=6.0.7",
                 "aws/aws-sdk-php": ">=3,<3.2.1",
                 "backdrop/backdrop": "<=1.23",
@@ -13599,6 +13601,7 @@
                 "sukohi/surpass": "<1",
                 "sulu/sulu": "= 2.4.0-RC1|<1.6.44|>=2,<2.2.18|>=2.3,<2.3.8",
                 "sumocoders/framework-user-bundle": "<1.4",
+                "swag/paypal": "<5.4.4",
                 "swiftmailer/swiftmailer": ">=4,<5.4.5",
                 "sylius/admin-bundle": ">=1,<1.0.17|>=1.1,<1.1.9|>=1.2,<1.2.2",
                 "sylius/grid": ">=1,<1.1.19|>=1.2,<1.2.18|>=1.3,<1.3.13|>=1.4,<1.4.5|>=1.5,<1.5.1",
@@ -13767,7 +13770,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-02-03T01:33:09+00:00"
+            "time": "2023-02-04T01:32:15+00:00"
         },
         {
             "name": "sebastian/cli-parser",
