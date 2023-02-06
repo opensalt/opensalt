@@ -10919,16 +10919,16 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "5.0.7",
+            "version": "5.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "9c0bc32bd05cfa3b43dc04c6880489398b99436a"
+                "reference": "dd6e795f20fca72e4b9ad16527f49943f474d323"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/9c0bc32bd05cfa3b43dc04c6880489398b99436a",
-                "reference": "9c0bc32bd05cfa3b43dc04c6880489398b99436a",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/dd6e795f20fca72e4b9ad16527f49943f474d323",
+                "reference": "dd6e795f20fca72e4b9ad16527f49943f474d323",
                 "shasum": ""
             },
             "require": {
@@ -10939,13 +10939,13 @@
                 "ext-json": "*",
                 "ext-mbstring": "*",
                 "php": "^8.0",
-                "phpunit/php-code-coverage": "^9.2",
-                "phpunit/php-text-template": "^2.0",
-                "phpunit/php-timer": "^5.0.3",
-                "phpunit/phpunit": "^9.5.20",
+                "phpunit/php-code-coverage": "^9.2 || ^10.0",
+                "phpunit/php-text-template": "^2.0 || ^3.0",
+                "phpunit/php-timer": "^5.0.3 || ^6.0",
+                "phpunit/phpunit": "^9.5.20 || ^10.0",
                 "psy/psysh": "^0.11.2",
-                "sebastian/comparator": "^4.0.5",
-                "sebastian/diff": "^4.0.3",
+                "sebastian/comparator": "^4.0.5 || ^5.0",
+                "sebastian/diff": "^4.0.3 || ^5.0",
                 "symfony/console": ">=4.4.24 <7.0",
                 "symfony/css-selector": ">=4.4.24 <7.0",
                 "symfony/event-dispatcher": ">=4.4.24 <7.0",
@@ -10954,7 +10954,7 @@
                 "symfony/yaml": ">=4.4.24 <7.0"
             },
             "conflict": {
-                "codeception/lib-innerbrowser": "<3.1",
+                "codeception/lib-innerbrowser": "<3.1.3",
                 "codeception/module-filesystem": "<3.0",
                 "codeception/module-phpbrowser": "<2.5"
             },
@@ -11023,7 +11023,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/Codeception/issues",
-                "source": "https://github.com/Codeception/Codeception/tree/5.0.7"
+                "source": "https://github.com/Codeception/Codeception/tree/5.0.8"
             },
             "funding": [
                 {
@@ -11031,7 +11031,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2023-01-14T20:02:13+00:00"
+            "time": "2023-02-03T21:54:18+00:00"
         },
         {
             "name": "codeception/lib-asserts",
@@ -13024,16 +13024,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.6.0",
+            "version": "9.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "70fc8be1d0b9fad56a199a4df5f9cfabfc246f84"
+                "reference": "e7b1615e3e887d6c719121c6d4a44b0ab9645555"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/70fc8be1d0b9fad56a199a4df5f9cfabfc246f84",
-                "reference": "70fc8be1d0b9fad56a199a4df5f9cfabfc246f84",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e7b1615e3e887d6c719121c6d4a44b0ab9645555",
+                "reference": "e7b1615e3e887d6c719121c6d4a44b0ab9645555",
                 "shasum": ""
             },
             "require": {
@@ -13106,7 +13106,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.0"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.3"
             },
             "funding": [
                 {
@@ -13122,7 +13122,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-02-03T07:32:24+00:00"
+            "time": "2023-02-04T13:37:15+00:00"
         },
         {
             "name": "psy/psysh",
