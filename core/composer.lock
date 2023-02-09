@@ -11436,20 +11436,20 @@
         },
         {
             "name": "codeception/module-rest",
-            "version": "3.3.0",
+            "version": "3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-rest.git",
-                "reference": "57b35f9732bcebd744119c054fdb1b82345147a7"
+                "reference": "097e8d2be639142aba938a502fd8e2bbbefaf6a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-rest/zipball/57b35f9732bcebd744119c054fdb1b82345147a7",
-                "reference": "57b35f9732bcebd744119c054fdb1b82345147a7",
+                "url": "https://api.github.com/repos/Codeception/module-rest/zipball/097e8d2be639142aba938a502fd8e2bbbefaf6a1",
+                "reference": "097e8d2be639142aba938a502fd8e2bbbefaf6a1",
                 "shasum": ""
             },
             "require": {
-                "codeception/codeception": "^5.0.0-alpha2",
+                "codeception/codeception": "^5.0.8",
                 "codeception/lib-xml": "^1.0",
                 "ext-dom": "*",
                 "ext-json": "*",
@@ -11457,11 +11457,8 @@
                 "php": "^8.0",
                 "softcreatr/jsonpath": "^0.8"
             },
-            "conflict": {
-                "codeception/codeception": "<5.0.0-alpha3"
-            },
             "require-dev": {
-                "codeception/lib-innerbrowser": "^3.0",
+                "codeception/lib-innerbrowser": "^3.0 | ^4.0",
                 "codeception/stub": "^4.0",
                 "codeception/util-universalframework": "^1.0",
                 "ext-libxml": "*",
@@ -11493,9 +11490,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-rest/issues",
-                "source": "https://github.com/Codeception/module-rest/tree/3.3.0"
+                "source": "https://github.com/Codeception/module-rest/tree/3.3.1"
             },
-            "time": "2022-08-22T07:10:02+00:00"
+            "time": "2023-02-09T06:25:31+00:00"
         },
         {
             "name": "codeception/module-sequence",
