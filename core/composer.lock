@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0765935c29ec4b9ab1df92a6327b51ab",
+    "content-hash": "0e1d8d026d018d19a34b81f4bbc628db",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -11760,22 +11760,22 @@
         },
         {
             "name": "codeception/verify",
-            "version": "2.3.0",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Verify.git",
-                "reference": "2f8f5ce6ea1be5c011f77eb7f1ca0c9f4d551513"
+                "reference": "25b84a96f0fe7dcf28e8021f02b57643b751a707"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Verify/zipball/2f8f5ce6ea1be5c011f77eb7f1ca0c9f4d551513",
-                "reference": "2f8f5ce6ea1be5c011f77eb7f1ca0c9f4d551513",
+                "url": "https://api.github.com/repos/Codeception/Verify/zipball/25b84a96f0fe7dcf28e8021f02b57643b751a707",
+                "reference": "25b84a96f0fe7dcf28e8021f02b57643b751a707",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "php": "^7.4 || ^8.0",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "^9.5 | ^10.0"
             },
             "type": "library",
             "autoload": {
@@ -11803,9 +11803,9 @@
             "description": "BDD assertion library for PHPUnit",
             "support": {
                 "issues": "https://github.com/Codeception/Verify/issues",
-                "source": "https://github.com/Codeception/Verify/tree/2.3.0"
+                "source": "https://github.com/Codeception/Verify/tree/3.0.0"
             },
-            "time": "2023-02-09T07:21:39+00:00"
+            "time": "2023-02-09T07:33:00+00:00"
         },
         {
             "name": "ericmartel/codeception-email",
