@@ -9,7 +9,7 @@ ARG BUILD_DATE=0
 ARG COMMIT=unknown
 
 ARG NODE_VERSION=14
-ARG PHP_VERSION=8.1
+ARG PHP_VERSION=8.2
 ARG CADDY_VERSION=2
 #=======================================================================
 FROM node:${NODE_VERSION}-alpine AS salt_core_js_build
@@ -40,6 +40,7 @@ RUN apk add --no-cache \
 		gettext \
 		git \
 		gnu-libiconv \
+		supervisor \
 	;
 
 # install gnu-libiconv and set LD_PRELOAD env to make iconv work fully on Alpine image.
@@ -213,11 +214,11 @@ USER www-data
 #=======================================================================
 FROM salt_core_app as salt_core_dev
 
-ARG XDEBUG_VERSION=3.1.4
+ARG XDEBUG_VERSION=3.2.0
 
 USER root
 RUN set -eux; \
-	apk add --no-cache --virtual .build-deps $PHPIZE_DEPS; \
+	apk add --no-cache --virtual .build-deps $PHPIZE_DEPS linux-headers; \
 	pecl install xdebug-$XDEBUG_VERSION; \
 	docker-php-ext-enable xdebug; \
 	apk del .build-deps
@@ -256,9 +257,9 @@ ARG BUILD_NUMBER
 ARG BUILD_DATE
 ARG COMMIT
 
-LABEL org.opencontainers.title="OpenSALT Web Server" \
-      org.opencontainers.source="https://github.com/opensalt/opensalt" \
-      org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
+LABEL org.opencontainers.image.title="OpenSALT Web Server" \
+      org.opencontainers.image.source="https://github.com/opensalt/opensalt" \
+      org.opencontainers.image.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
 
 WORKDIR /srv/core
 VOLUME /data/caddy
