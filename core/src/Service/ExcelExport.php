@@ -132,6 +132,8 @@ final class ExcelExport
             ->setCellValue('O2', $licenseText)
             ->setCellValue('P2', $cfDoc->getNote())
             ->setTitle('CF Doc');
+        $phpExcelObject->setActiveSheetIndex(0)
+            ->getStyle('J2')->setQuotePrefix(true);
 
         $phpExcelObject->createSheet();
         $activeSheet = $phpExcelObject->setActiveSheetIndex(1);
@@ -258,7 +260,11 @@ final class ExcelExport
         }
 
         if (null !== $value) {
-            $sheet->setCellValue($col.$row, $value);
+            $sheet->setCellValueExplicit(
+                $col.$row,
+                $value,
+                DataType::TYPE_STRING
+            );
         }
     }
 
