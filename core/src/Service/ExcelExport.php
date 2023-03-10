@@ -9,6 +9,7 @@ use App\Util\Compare;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
@@ -90,6 +91,13 @@ final class ExcelExport
         $phpExcelObject->getProperties()
             ->setCreator('OpenSALT')
             ->setTitle('case')
+        ;
+
+        $phpExcelObject->getDefaultStyle()
+            ->getNumberFormat()
+            ->setFormatCode(
+                NumberFormat::FORMAT_TEXT
+            )
         ;
 
         $license = $cfDoc->getLicence();
