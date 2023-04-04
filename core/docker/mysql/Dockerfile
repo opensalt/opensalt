@@ -1,4 +1,4 @@
-FROM percona:8.0
+FROM percona:8.0.28-20
 
 USER root
 COPY docker-healthcheck /usr/local/bin/
