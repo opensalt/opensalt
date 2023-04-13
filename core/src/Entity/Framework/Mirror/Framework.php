@@ -380,8 +380,8 @@ class Framework
     {
         try {
             $diff = new JsonDiff(
-                json5_decode($this->getLastSuccessContent()),
-                json5_decode($framework),
+                json5_decode($this->getLastSuccessContent() ?? '{}'),
+                json5_decode($framework ?? '{}'),
                 JsonDiff::STOP_ON_DIFF + JsonDiff::REARRANGE_ARRAYS
             );
         } catch (\Exception) {
