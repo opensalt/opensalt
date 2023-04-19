@@ -437,6 +437,9 @@
     "roave/security-advisories": {
         "version": "dev-master"
     },
+    "scheb/2fa": {
+        "version": "v6.8.0"
+    },
     "sebastian/cli-parser": {
         "version": "1.0.1"
     },

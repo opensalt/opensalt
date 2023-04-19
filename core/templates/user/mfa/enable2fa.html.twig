@@ -1,0 +1,43 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}2FA Activation{% endblock %}
+
+{% block body %}
+    <div class="container">
+        {% if dataUri is defined %}
+        <div class="row">
+            <div class="col-xs-12">
+                <h1 class="text-center">Please setup two factor authentication now.</h1>
+
+                <h3 class="text-muted">
+                    If you do not have an authenticator app, you can download one from your phone's store.<br/>
+                    Google Authenticator, Microsoft Authenticator, and Authy are commonly used authenticators.
+                </h3>
+
+                <h2>Use your authenticator app to scan the QR code below:</h2>
+
+                <div class="text-center">
+                    <img src="{{ dataUri }}" alt="2fa QR code" />
+                    <div>or manually enter {{ code }}</div>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        {% endif %}
+        <div class="row">
+            <div class="col-xs-12">
+                <h3>
+                    Once you have configured your authenticator app, enter the displayed code below to confirm that it works:
+                </h3>
+            </div>
+        </div>
+        {{ form(form) }}
+        <div class="row">
+            <div class="col-xs-2">
+            </div>
+            <div class="col-xs-10">
+                <a href="" class="btn-warning btn">Generate New Code</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

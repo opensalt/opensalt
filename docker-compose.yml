@@ -46,6 +46,8 @@ services:
       BRAND_LOGO_STYLE:
       BRAND_LINK_URL:
       BRAND_LINK_STYLE:
+      MFA_ISSUER:
+      USE_MFA:
       FOOTER_LEFT_TEXT:
       ALLOW_LOCAL_DEV: "true"
       ALLOW_EXTERNAL_DEV_IPS:

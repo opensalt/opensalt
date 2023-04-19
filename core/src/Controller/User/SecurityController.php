@@ -10,8 +10,9 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    public function __construct(private readonly AuthenticationUtils $authenticationUtils)
-    {
+    public function __construct(
+        private readonly AuthenticationUtils $authenticationUtils,
+    ) {
     }
 
     #[Route(path: '/login', name: 'login')]
@@ -27,8 +28,8 @@ class SecurityController extends AbstractController
 
         return $this->render('user/security/login.html.twig', [
             'last_username' => $lastUsername,
-            'error'         => $error,
-            'redirect'      => $redirect,
+            'error' => $error,
+            'redirect' => $redirect,
         ]);
     }
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa6ec9f3f96f64acfeea8970ee18b8d4",
+    "content-hash": "5deac07be95397c80718564b30119b6c",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -153,6 +153,60 @@
                 "source": "https://github.com/aws/aws-sdk-php/tree/3.263.12"
             },
             "time": "2023-04-17T18:22:13+00:00"
+        },
+        {
+            "name": "bacon/bacon-qr-code",
+            "version": "2.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Bacon/BaconQrCode.git",
+                "reference": "8674e51bb65af933a5ffaf1c308a660387c35c22"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/8674e51bb65af933a5ffaf1c308a660387c35c22",
+                "reference": "8674e51bb65af933a5ffaf1c308a660387c35c22",
+                "shasum": ""
+            },
+            "require": {
+                "dasprid/enum": "^1.0.3",
+                "ext-iconv": "*",
+                "php": "^7.1 || ^8.0"
+            },
+            "require-dev": {
+                "phly/keep-a-changelog": "^2.1",
+                "phpunit/phpunit": "^7 | ^8 | ^9",
+                "spatie/phpunit-snapshot-assertions": "^4.2.9",
+                "squizlabs/php_codesniffer": "^3.4"
+            },
+            "suggest": {
+                "ext-imagick": "to generate QR code images"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BaconQrCode\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Scholzen 'DASPRiD'",
+                    "email": "mail@dasprids.de",
+                    "homepage": "https://dasprids.de/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "BaconQrCode is a QR code generator for PHP.",
+            "homepage": "https://github.com/Bacon/BaconQrCode",
+            "support": {
+                "issues": "https://github.com/Bacon/BaconQrCode/issues",
+                "source": "https://github.com/Bacon/BaconQrCode/tree/2.0.8"
+            },
+            "time": "2022-12-07T17:46:57+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -497,6 +551,56 @@
                 }
             ],
             "time": "2022-01-17T14:14:24+00:00"
+        },
+        {
+            "name": "dasprid/enum",
+            "version": "1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DASPRiD/Enum.git",
+                "reference": "8e6b6ea76eabbf19ea2bf5b67b98e1860474012f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DASPRiD/Enum/zipball/8e6b6ea76eabbf19ea2bf5b67b98e1860474012f",
+                "reference": "8e6b6ea76eabbf19ea2bf5b67b98e1860474012f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1 <9.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7 | ^8 | ^9",
+                "squizlabs/php_codesniffer": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DASPRiD\\Enum\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Scholzen 'DASPRiD'",
+                    "email": "mail@dasprids.de",
+                    "homepage": "https://dasprids.de/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP 7.1 enum implementation",
+            "keywords": [
+                "enum",
+                "map"
+            ],
+            "support": {
+                "issues": "https://github.com/DASPRiD/Enum/issues",
+                "source": "https://github.com/DASPRiD/Enum/tree/1.0.4"
+            },
+            "time": "2023-03-01T18:44:03+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -2116,6 +2220,81 @@
             "time": "2023-01-14T14:17:03+00:00"
         },
         {
+            "name": "endroid/qr-code",
+            "version": "4.8.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/endroid/qr-code.git",
+                "reference": "2436c2333a3931c95e2b96eb82f16f53143d6bba"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/endroid/qr-code/zipball/2436c2333a3931c95e2b96eb82f16f53143d6bba",
+                "reference": "2436c2333a3931c95e2b96eb82f16f53143d6bba",
+                "shasum": ""
+            },
+            "require": {
+                "bacon/bacon-qr-code": "^2.0.5",
+                "php": "^8.0"
+            },
+            "conflict": {
+                "khanamiryan/qrcode-detector-decoder": "^1.0.6"
+            },
+            "require-dev": {
+                "endroid/quality": "dev-master",
+                "ext-gd": "*",
+                "khanamiryan/qrcode-detector-decoder": "^1.0.4||^2.0.2",
+                "setasign/fpdf": "^1.8.2"
+            },
+            "suggest": {
+                "ext-gd": "Enables you to write PNG images",
+                "khanamiryan/qrcode-detector-decoder": "Enables you to use the image validator",
+                "roave/security-advisories": "Makes sure package versions with known security issues are not installed",
+                "setasign/fpdf": "Enables you to use the PDF writer"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Endroid\\QrCode\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jeroen van den Enden",
+                    "email": "info@endroid.nl"
+                }
+            ],
+            "description": "Endroid QR Code",
+            "homepage": "https://github.com/endroid/qr-code",
+            "keywords": [
+                "code",
+                "endroid",
+                "php",
+                "qr",
+                "qrcode"
+            ],
+            "support": {
+                "issues": "https://github.com/endroid/qr-code/issues",
+                "source": "https://github.com/endroid/qr-code/tree/4.8.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/endroid",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-03-30T18:46:02+00:00"
+        },
+        {
             "name": "ezyang/htmlpurifier",
             "version": "v4.16.0",
             "source": {
@@ -3028,6 +3207,70 @@
                 }
             ],
             "time": "2022-10-10T10:11:09+00:00"
+        },
+        {
+            "name": "lcobucci/clock",
+            "version": "3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lcobucci/clock.git",
+                "reference": "30a854ceb22bd87d83a7a4563b3f6312453945fc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lcobucci/clock/zipball/30a854ceb22bd87d83a7a4563b3f6312453945fc",
+                "reference": "30a854ceb22bd87d83a7a4563b3f6312453945fc",
+                "shasum": ""
+            },
+            "require": {
+                "php": "~8.2.0",
+                "psr/clock": "^1.0"
+            },
+            "provide": {
+                "psr/clock-implementation": "1.0"
+            },
+            "require-dev": {
+                "infection/infection": "^0.26",
+                "lcobucci/coding-standard": "^10.0.0",
+                "phpstan/extension-installer": "^1.2",
+                "phpstan/phpstan": "^1.10.7",
+                "phpstan/phpstan-deprecation-rules": "^1.1.3",
+                "phpstan/phpstan-phpunit": "^1.3.10",
+                "phpstan/phpstan-strict-rules": "^1.5.0",
+                "phpunit/phpunit": "^10.0.17"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Lcobucci\\Clock\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Luís Cobucci",
+                    "email": "lcobucci@gmail.com"
+                }
+            ],
+            "description": "Yet another clock abstraction",
+            "support": {
+                "issues": "https://github.com/lcobucci/clock/issues",
+                "source": "https://github.com/lcobucci/clock/tree/3.1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/lcobucci",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/lcobucci",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2023-03-20T19:12:25+00:00"
         },
         {
             "name": "lcobucci/jwt",
@@ -4298,6 +4541,73 @@
                 "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v3.0.0"
             },
             "time": "2022-03-17T07:30:15+00:00"
+        },
+        {
+            "name": "paragonie/constant_time_encoding",
+            "version": "v2.6.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/paragonie/constant_time_encoding.git",
+                "reference": "58c3f47f650c94ec05a151692652a868995d2938"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/58c3f47f650c94ec05a151692652a868995d2938",
+                "reference": "58c3f47f650c94ec05a151692652a868995d2938",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7|^8"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6|^7|^8|^9",
+                "vimeo/psalm": "^1|^2|^3|^4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ParagonIE\\ConstantTime\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Paragon Initiative Enterprises",
+                    "email": "security@paragonie.com",
+                    "homepage": "https://paragonie.com",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Steve 'Sc00bz' Thomas",
+                    "email": "steve@tobtu.com",
+                    "homepage": "https://www.tobtu.com",
+                    "role": "Original Developer"
+                }
+            ],
+            "description": "Constant-time Implementations of RFC 4648 Encoding (Base-64, Base-32, Base-16)",
+            "keywords": [
+                "base16",
+                "base32",
+                "base32_decode",
+                "base32_encode",
+                "base64",
+                "base64_decode",
+                "base64_encode",
+                "bin2hex",
+                "encoding",
+                "hex",
+                "hex2bin",
+                "rfc4648"
+            ],
+            "support": {
+                "email": "info@paragonie.com",
+                "issues": "https://github.com/paragonie/constant_time_encoding/issues",
+                "source": "https://github.com/paragonie/constant_time_encoding"
+            },
+            "time": "2022-06-14T06:56:20+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -5735,6 +6045,177 @@
                 }
             ],
             "time": "2022-12-20T23:38:28+00:00"
+        },
+        {
+            "name": "scheb/2fa",
+            "version": "v6.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scheb/2fa.git",
+                "reference": "779aff190608671eb2c4cb47e4b02aea2499f81e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scheb/2fa/zipball/779aff190608671eb2c4cb47e4b02aea2499f81e",
+                "reference": "779aff190608671eb2c4cb47e4b02aea2499f81e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "lcobucci/clock": "^2.0 || ^3.0",
+                "lcobucci/jwt": "^4.1 || ^5.0",
+                "paragonie/constant_time_encoding": "^2.4",
+                "php": "~8.0.0 || ~8.1.0 || ~8.2.0",
+                "spomky-labs/otphp": "^10.0 || ^11.0",
+                "symfony/config": "^5.4 || ^6.0",
+                "symfony/dependency-injection": "^5.4 || ^6.0",
+                "symfony/event-dispatcher": "^5.4 || ^6.0",
+                "symfony/framework-bundle": "^5.4 || ^6.0",
+                "symfony/http-foundation": "^5.4 || ^6.0",
+                "symfony/http-kernel": "^5.4 || ^6.0",
+                "symfony/property-access": "^5.4 || ^6.0",
+                "symfony/security-bundle": "^5.4 || ^6.0",
+                "symfony/twig-bundle": "^5.4 || ^6.0"
+            },
+            "conflict": {
+                "scheb/two-factor-bundle": "*"
+            },
+            "replace": {
+                "scheb/2fa-backup-code": "^6.0",
+                "scheb/2fa-bundle": "^6.0",
+                "scheb/2fa-email": "^6.0",
+                "scheb/2fa-google-authenticator": "^6.0",
+                "scheb/2fa-totp": "^6.0",
+                "scheb/2fa-trusted-device": "^6.0"
+            },
+            "require-dev": {
+                "doctrine/coding-standard": "^9.0",
+                "doctrine/persistence": "^1.3 || ^2.0",
+                "egulias/email-validator": "^3.0",
+                "phpunit/phpunit": "^9.0",
+                "psr/container": ">=1.1",
+                "squizlabs/php_codesniffer": "^3.5",
+                "symfony/mailer": "^5.4 || ^6.0",
+                "symfony/yaml": "^5.4 || ^6.0",
+                "vimeo/psalm": "^4.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Scheb\\TwoFactorBundle\\": [
+                        "src/backup-code",
+                        "src/bundle",
+                        "src/email",
+                        "src/google-authenticator",
+                        "src/totp",
+                        "src/trusted-device"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christian Scheb",
+                    "email": "me@christianscheb.de"
+                }
+            ],
+            "description": "Two-factor authentication for Symfony applications (please use scheb/2fa-bundle to install)",
+            "homepage": "https://github.com/scheb/2fa",
+            "keywords": [
+                "Authentication",
+                "security",
+                "symfony",
+                "two-factor",
+                "two-step"
+            ],
+            "support": {
+                "issues": "https://github.com/scheb/2fa/issues",
+                "source": "https://github.com/scheb/2fa/tree/v6.8.0"
+            },
+            "time": "2023-04-01T11:20:00+00:00"
+        },
+        {
+            "name": "spomky-labs/otphp",
+            "version": "11.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Spomky-Labs/otphp.git",
+                "reference": "9a1569038bb1c8e98040b14b8bcbba54f25e7795"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Spomky-Labs/otphp/zipball/9a1569038bb1c8e98040b14b8bcbba54f25e7795",
+                "reference": "9a1569038bb1c8e98040b14b8bcbba54f25e7795",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "paragonie/constant_time_encoding": "^2.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "ekino/phpstan-banned-code": "^1.0",
+                "infection/infection": "^0.26",
+                "php-parallel-lint/php-parallel-lint": "^1.3",
+                "phpstan/phpstan": "^1.0",
+                "phpstan/phpstan-deprecation-rules": "^1.0",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "phpstan/phpstan-strict-rules": "^1.0",
+                "phpunit/phpunit": "^9.5.26",
+                "qossmic/deptrac-shim": "^1.0",
+                "rector/rector": "^0.15",
+                "symfony/phpunit-bridge": "^6.1",
+                "symplify/easy-coding-standard": "^11.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "OTPHP\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Florent Morselli",
+                    "homepage": "https://github.com/Spomky"
+                },
+                {
+                    "name": "All contributors",
+                    "homepage": "https://github.com/Spomky-Labs/otphp/contributors"
+                }
+            ],
+            "description": "A PHP library for generating one time passwords according to RFC 4226 (HOTP Algorithm) and the RFC 6238 (TOTP Algorithm) and compatible with Google Authenticator",
+            "homepage": "https://github.com/Spomky-Labs/otphp",
+            "keywords": [
+                "FreeOTP",
+                "RFC 4226",
+                "RFC 6238",
+                "google authenticator",
+                "hotp",
+                "otp",
+                "totp"
+            ],
+            "support": {
+                "issues": "https://github.com/Spomky-Labs/otphp/issues",
+                "source": "https://github.com/Spomky-Labs/otphp/tree/11.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/Spomky",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/FlorentMorselli",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2023-03-16T19:16:25+00:00"
         },
         {
             "name": "stof/doctrine-extensions-bundle",
@@ -11137,16 +11618,16 @@
         },
         {
             "name": "codeception/lib-web",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/lib-web.git",
-                "reference": "91e35c5a849479a626f79daf4754ca4ba4e3227f"
+                "reference": "f488ff9bc08c8985d43796db28da0bd18813bcae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/lib-web/zipball/91e35c5a849479a626f79daf4754ca4ba4e3227f",
-                "reference": "91e35c5a849479a626f79daf4754ca4ba4e3227f",
+                "url": "https://api.github.com/repos/Codeception/lib-web/zipball/f488ff9bc08c8985d43796db28da0bd18813bcae",
+                "reference": "f488ff9bc08c8985d43796db28da0bd18813bcae",
                 "shasum": ""
             },
             "require": {
@@ -11184,9 +11665,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/lib-web/issues",
-                "source": "https://github.com/Codeception/lib-web/tree/1.0.1"
+                "source": "https://github.com/Codeception/lib-web/tree/1.0.2"
             },
-            "time": "2022-04-09T08:17:46+00:00"
+            "time": "2023-04-18T20:32:51+00:00"
         },
         {
             "name": "codeception/lib-xml",
@@ -11297,16 +11778,16 @@
         },
         {
             "name": "codeception/module-doctrine2",
-            "version": "3.0.2",
+            "version": "3.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-doctrine2.git",
-                "reference": "18dd720a9e0258618728b3a7176439a9e1dcc659"
+                "reference": "3ba1c67fc15a0fe9dcf594746e81a876c667daf1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/18dd720a9e0258618728b3a7176439a9e1dcc659",
-                "reference": "18dd720a9e0258618728b3a7176439a9e1dcc659",
+                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/3ba1c67fc15a0fe9dcf594746e81a876c667daf1",
+                "reference": "3ba1c67fc15a0fe9dcf594746e81a876c667daf1",
                 "shasum": ""
             },
             "require": {
@@ -11353,9 +11834,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-doctrine2/issues",
-                "source": "https://github.com/Codeception/module-doctrine2/tree/3.0.2"
+                "source": "https://github.com/Codeception/module-doctrine2/tree/3.0.3"
             },
-            "time": "2023-03-18T18:35:55+00:00"
+            "time": "2023-04-18T19:35:17+00:00"
         },
         {
             "name": "codeception/module-phpbrowser",
@@ -13195,12 +13676,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "d6da623259549bc05d08fd5f39d339d75f78a978"
+                "reference": "39006a790754a68b3a476069297b0cb83abb17d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/d6da623259549bc05d08fd5f39d339d75f78a978",
-                "reference": "d6da623259549bc05d08fd5f39d339d75f78a978",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/39006a790754a68b3a476069297b0cb83abb17d2",
+                "reference": "39006a790754a68b3a476069297b0cb83abb17d2",
                 "shasum": ""
             },
             "conflict": {
@@ -13592,6 +14073,7 @@
                 "simplesamlphp/simplesamlphp-module-openidprovider": "<0.9",
                 "simplito/elliptic-php": "<1.0.6",
                 "sitegeist/fluid-components": "<3.5",
+                "slim/psr7": "<1.6.1",
                 "slim/slim": "<2.6",
                 "smarty/smarty": "<3.1.48|>=4,<4.3.1",
                 "snipe/snipe-it": "<=6.0.14|>= 6.0.0-RC-1, <= 6.0.0-RC-5",
@@ -13786,7 +14268,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-04-18T14:04:28+00:00"
+            "time": "2023-04-18T23:04:21+00:00"
         },
         {
             "name": "sebastian/cli-parser",

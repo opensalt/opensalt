@@ -49,6 +49,8 @@ parameters:
     env(CASE_NETWORK_CLIENT_SECRET): null
     env(CASE_NETWORK_TOKEN_ENDPOINT): 'https://oauth2-case.imsglobal.org/oauth2server/clienttoken'
     env(CASE_NETWORK_SCOPE): 'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/all.readonly'
+    env(MFA_ISSUER): 'OpenSALT'
+    env(USE_MFA): inactive
 
     locale: en
     database_host: '%env(MYSQL_HOST)%'
@@ -93,6 +95,8 @@ parameters:
     case_network_client_secret: '%env(CASE_NETWORK_CLIENT_SECRET)%'
     case_network_token_endpoint: '%env(CASE_NETWORK_TOKEN_ENDPOINT)%'
     case_network_scope: '%env(CASE_NETWORK_SCOPE)%'
+    mfa_issuer: '%env(MFA_ISSUER)%'
+    use_mfa: '%env(USE_MFA)%'
 
 services:
     # default configuration for services in *this* file

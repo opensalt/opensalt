@@ -18,4 +18,5 @@ return [
     Twig\Extra\TwigExtraBundle\TwigExtraBundle::class => ['all' => true],
     Symfony\Bundle\MercureBundle\MercureBundle::class => ['all' => true],
     Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle::class => ['all' => true],
+    Scheb\TwoFactorBundle\SchebTwoFactorBundle::class => ['all' => true],
 ];
