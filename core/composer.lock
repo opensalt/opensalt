@@ -11297,16 +11297,16 @@
         },
         {
             "name": "codeception/module-doctrine2",
-            "version": "3.0.2",
+            "version": "3.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-doctrine2.git",
-                "reference": "18dd720a9e0258618728b3a7176439a9e1dcc659"
+                "reference": "3ba1c67fc15a0fe9dcf594746e81a876c667daf1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/18dd720a9e0258618728b3a7176439a9e1dcc659",
-                "reference": "18dd720a9e0258618728b3a7176439a9e1dcc659",
+                "url": "https://api.github.com/repos/Codeception/module-doctrine2/zipball/3ba1c67fc15a0fe9dcf594746e81a876c667daf1",
+                "reference": "3ba1c67fc15a0fe9dcf594746e81a876c667daf1",
                 "shasum": ""
             },
             "require": {
@@ -11353,9 +11353,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-doctrine2/issues",
-                "source": "https://github.com/Codeception/module-doctrine2/tree/3.0.2"
+                "source": "https://github.com/Codeception/module-doctrine2/tree/3.0.3"
             },
-            "time": "2023-03-18T18:35:55+00:00"
+            "time": "2023-04-18T19:35:17+00:00"
         },
         {
             "name": "codeception/module-phpbrowser",
