@@ -69,7 +69,6 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         if ($this->toggleManager->active('mfa', $this->toggleContextFactory->createContext())) {
-            dump($token);
             $user = $token->getUser();
             if ($user instanceof User && !$user->isTotpAuthenticationEnabled()) {
                 return new RedirectResponse($this->router->generate('app_2fa_enable'));
