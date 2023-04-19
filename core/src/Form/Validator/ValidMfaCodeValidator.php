@@ -20,7 +20,7 @@ class ValidMfaCodeValidator extends ConstraintValidator
     /**
      * {@inheritDoc}
      */
-    public function validate(mixed $value, Constraint $constraint)
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ValidMfaCode) {
             throw new UnexpectedTypeException($constraint, ValidMfaCode::class);
