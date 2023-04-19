@@ -8,6 +8,9 @@ use App\Validator\Constraints as CustomAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -17,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'salt_user')]
 #[UniqueEntity('username', message: 'That email address is already being used', groups: ['registration'])]
-class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, TwoFactorInterface
 {
     final public const USER_ROLES = [
         'ROLE_EDITOR',
@@ -66,6 +69,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     #[ORM\Column(name: 'github_token', type: 'string', length: 40, nullable: true)]
     protected ?string $githubToken = null;
+
+    #[ORM\Column(nullable: true)]
+    protected ?string $totpSecret = null;
+
+    #[ORM\Column(name: 'totp_enabled', nullable: true)]
+    protected ?bool $isTotpEnabled = false;
 
     /**
      * @var Collection<array-key, LsDoc>
@@ -400,5 +409,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         $statusArray = ['Active', 'Suspended', 'Pending'];
 
         return $statusArray[$this->status];
+    }
+
+    public function setTotpSecret(?string $totpSecret): self
+    {
+        $this->totpSecret = $totpSecret;
+
+        return $this;
+    }
+
+    public function setIsTotpEnabled(bool $isTotpEnabled): void
+    {
+        $this->isTotpEnabled = $isTotpEnabled;
+    }
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return null !== $this->totpSecret && true === $this->isTotpEnabled;
+    }
+
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->getUserIdentifier();
+    }
+
+    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
+    {
+        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
     }
 }

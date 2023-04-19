@@ -10,6 +10,8 @@
     autoloader="vendor/autoload.php"
     errorBaseline="../.github/psalm/psalm.baseline.xml"
     allowStringToStandInForClass="true"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
 >
     <plugins>
         <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>

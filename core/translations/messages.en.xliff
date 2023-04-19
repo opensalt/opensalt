@@ -6,6 +6,14 @@
                 <source>Document:</source>
                 <target>Document:</target>
             </trans-unit>
+            <trans-unit id="2">
+                <source>Enter code to confirm</source>
+                <target>Enter code to confirm</target>
+            </trans-unit>
+            <trans-unit id="3">
+                <source>Confirm</source>
+                <target>Confirm</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
