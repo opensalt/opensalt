@@ -75,4 +75,30 @@ class MfaController extends AbstractController
             'form' => $form,
         ]);
     }
+
+    #[Route('/authentication/2fa/reset', name: 'app_2fa_reset_confirm', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function reset2faConfirm(#[CurrentUser] User $user): Response
+    {
+        if ($user->isTotpAuthenticationEnabled()) {
+            return $this->render('user/mfa/reset2fa.html.twig', [
+            ]);
+        }
+
+        return $this->redirectToRoute('salt_index');
+    }
+
+    #[Route('/authentication/2fa/reset', name: 'app_2fa_reset', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function reset2fa(#[CurrentUser] User $user): Response
+    {
+        if ($user->isTotpAuthenticationEnabled()) {
+            $user->setIsTotpEnabled(false);
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('app_2fa_enable');
+        }
+
+        return $this->redirectToRoute('salt_index');
+    }
 }

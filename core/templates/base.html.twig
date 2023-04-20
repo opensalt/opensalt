@@ -68,6 +68,9 @@
                                                 <li role="separator" class="divider"></li>
                                             {% endif %}
                                             <li><a href="{{ url("user_change_password") }}">Change password</a></li>
+                                            {% if feature_is_active('mfa') %}
+                                                <li><a href="{{ url("app_2fa_reset_confirm") }}">Reset 2FA Config</a></li>
+                                            {% endif %}
                                             <li role="separator" class="divider"></li>
                                             <li><a href="{{ url("logout") }}" class="logout">Sign out</a></li>
                                         </ul>

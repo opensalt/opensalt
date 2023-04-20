@@ -1,0 +1,36 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}2FA Reset{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="alert-danger alert text-center">
+                    <h2>This will reset your two factor authentication configuration.</h2>
+                    <h2>Once reset, you will need to reconfigure your authentication app.</h2>
+                </div>
+
+                <br/>
+                <h2>Are you sure you want to do this?</h2>
+                <br/>
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm-4"></div>
+                        <div class="col-sm-2">
+                            <form name="mfa_reset_cancel" method="get" action="{{ path('salt_index') }}">
+                                <button type="submit" id="mfa_reset_cancel_save" name="mfa_reset_cancal[save]" class="btn-primary btn">No, Cancel</button>
+                            </form>
+                        </div>
+                        <div class="col-sm-3">
+                            <form name="mfa_reset" method="post" action="{{ path('app_2fa_reset') }}">
+                                <button type="submit" id="mfa_reset_save" name="mfa_reset[save]" class="btn-danger btn">Yes, Reset Two Factor Authentication</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
