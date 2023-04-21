@@ -11,8 +11,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 class CaseImport
 {
     public function __construct(
-        private SerializerInterface $serializer,
-        private PackageTransformer $packageTransformer,
+        private readonly SerializerInterface $serializer,
+        private readonly PackageTransformer $packageTransformer,
     ) {
     }
 
@@ -23,8 +23,20 @@ class CaseImport
 
         try {
             $this->validate($content);
-        } catch (\Exception $e) {
-            throw $e;
+        } catch (\Throwable $e) {
+            if (str_starts_with($e->getMessage(), 'Missing scheme in URI')) {
+                // Check for common issue seen from CASE Network
+                try {
+                    $newContent = $this->fixupContent($content);
+                    $this->validate($newContent);
+                    $content = $newContent;
+                } catch (\Throwable $e) {
+                    // Ignore error and throw original
+                    throw $e;
+                }
+            } else {
+                throw $e;
+            }
         }
 
         /** @var CFPackage $package */
@@ -38,5 +50,32 @@ class CaseImport
         $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p0-cfpackage-schema.json')));
         $schema->in(json5_decode($content));
         $schema = null;
+    }
+
+    private function fixupContent(string $content): string
+    {
+        $json = json5_decode($content, true);
+
+        $items = [];
+        foreach (($json['CFItems'] ?? []) as $item) {
+            if (isset($item['identifier']) && isset($item['uri'])) {
+                $items[$item['identifier']] = $item['uri'];
+            }
+        }
+
+        // Try fixing up for issue we have seen in the CASE Network where the URI is the identifier instead of a URI
+        foreach (($json['CFAssociations'] ?? []) as $key => $association) {
+            $node = $association['originNodeURI'];
+            if ($node['identifier'] === $node['uri']) {
+                $json['CFAssociations'][$key]['originNodeURI']['uri'] = $items[$node['identifier']] ?? $node['uri'];
+            }
+
+            $node = $association['destinationNodeURI'];
+            if ($node['identifier'] === $node['uri']) {
+                $json['CFAssociations'][$key]['destinationNodeURI']['uri'] = $items[$node['identifier']] ?? $node['uri'];
+            }
+        }
+
+        return json_encode($json, JSON_THROW_ON_ERROR|JSON_UNESCAPED_SLASHES);
     }
 }
