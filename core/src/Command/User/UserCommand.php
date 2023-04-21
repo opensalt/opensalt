@@ -8,16 +8,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 abstract class UserCommand extends BaseCommand
 {
-    /**
-     * @var User
-     */
-    #[Assert\Type(User::class)]
-    #[Assert\NotNull]
-    private $user;
-
-    public function __construct(User $user)
-    {
-        $this->user = $user;
+    public function __construct(
+        #[Assert\Type(User::class)]
+        #[Assert\NotNull]
+        private readonly User $user,
+    ) {
     }
 
     public function getUser(): User

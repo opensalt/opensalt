@@ -17,6 +17,15 @@
             <a class="btn btn-primary" href="{{ path('admin_user_index') }}">Back to the list</a>
         </li>
         <li>
+            {% if feature_is_active('mfa') %}
+        <li>
+            {{ form_start(mfa_reset_form) }}
+            <input class="btn btn-danger" type="submit" value="Reset Two Factor Settings">
+            {{ form_end(mfa_reset_form) }}
+        </li>
+        {% endif %}
+        </li>
+        <li>
             {{ form_start(delete_form) }}
                 <input class="btn btn-danger" type="submit" value="Delete">
             {{ form_end(delete_form) }}

@@ -7,6 +7,7 @@ use App\Command\Email\SendUserApprovedEmailCommand;
 use App\Command\User\ActivateUserCommand;
 use App\Command\User\AddUserCommand;
 use App\Command\User\DeleteUserCommand;
+use App\Command\User\ResetMfaUserCommand;
 use App\Command\User\SuspendUserCommand;
 use App\Command\User\UpdateUserCommand;
 use App\Entity\User\User;
@@ -15,6 +16,7 @@ use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,6 +36,7 @@ class UserController extends AbstractController
         private readonly AuthorizationCheckerInterface $authChecker,
         private readonly UserPasswordHasherInterface $passwordEncoder,
         private readonly ManagerRegistry $managerRegistry,
+        private readonly FormFactoryInterface $formBuilder,
     ) {
     }
 
@@ -139,6 +142,7 @@ class UserController extends AbstractController
     public function edit(Request $request, User $targetUser): Response
     {
         $deleteForm = $this->createDeleteForm($targetUser);
+        $resetMfaForm = $this->createResetMfaForm($targetUser);
         $editForm = $this->createForm(UserType::class, $targetUser);
         $editForm->handleRequest($request);
 
@@ -164,6 +168,7 @@ class UserController extends AbstractController
             'user' => $targetUser,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
+            'mfa_reset_form' => $resetMfaForm->createView(),
         ]);
     }
 
@@ -230,6 +235,26 @@ class UserController extends AbstractController
     }
 
     /**
+     * Reject a user.
+     */
+    #[Route(path: '/{id}/2fa_reset', name: 'admin_user_reset_mfa', methods: ['POST'])]
+    #[IsGranted(Permission::MANAGE_THIS_USER, 'targetUser')]
+    public function resetMfa(Request $request, User $targetUser): RedirectResponse
+    {
+        $form = $this->createResetMfaForm($targetUser);
+        $form->handleRequest($request);
+
+        dump('handled form', $form->isSubmitted(), $form->isSubmitted() && $form->isValid());
+        if ($form->isSubmitted() && $form->isValid()) {
+            dump('sending comand');
+            $command = new ResetMfaUserCommand($targetUser);
+            $this->sendCommand($command);
+        }
+
+        return $this->redirectToRoute('admin_user_index');
+    }
+
+    /**
      * Deletes a user entity.
      */
     #[Route(path: '/{id}', name: 'admin_user_delete', methods: ['DELETE'])]
@@ -288,6 +313,17 @@ class UserController extends AbstractController
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('admin_user_delete', ['id' => $targetUser->getId()]))
             ->setMethod(Request::METHOD_DELETE)
+            ->getForm();
+    }
+
+    /**
+     * Creates a form to delete a user entity.
+     */
+    private function createResetMfaForm(User $targetUser): FormInterface
+    {
+        return $this->formBuilder->createNamedBuilder('mfa_reset')
+            ->setAction($this->generateUrl('admin_user_reset_mfa', ['id' => $targetUser->getId()]))
+            ->setMethod(Request::METHOD_POST)
             ->getForm();
     }
 }
