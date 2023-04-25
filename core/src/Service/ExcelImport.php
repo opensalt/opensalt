@@ -159,7 +159,12 @@ final class ExcelImport
         $doc->setOfficialUri($this->getCellValueOrNull($sheet, 5, 2));
         $doc->setPublisher($this->getCellValueOrNull($sheet, 6, 2));
         $doc->setDescription($this->getCellValueOrNull($sheet, 7, 2));
-        $doc->setSubject(explode('|', $this->getCellValueOrNull($sheet, 8, 2)));
+        $subject = $this->getCellValueOrNull($sheet, 8, 2);
+        if (!empty($subject)) {
+            $doc->setSubject(explode('|', $subject));
+        } else {
+            $doc->setSubject(null);
+        }
         $doc->setLanguage($this->getCellValueOrNull($sheet, 9, 2));
         $doc->setVersion($this->getCellValueOrNull($sheet, 10, 2));
         $doc->setAdoptionStatus($this->getCellValueOrNull($sheet, 11, 2));
