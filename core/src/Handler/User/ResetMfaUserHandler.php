@@ -17,7 +17,6 @@ class ResetMfaUserHandler extends BaseUserHandler
 
         $user = $command->getUser();
         $user->setIsTotpEnabled(false);
-        dump($user);
 
         $command->setNotificationEvent(new NotificationEvent(
             'U09',
