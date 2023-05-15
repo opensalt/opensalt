@@ -16,7 +16,7 @@ class CFPackageDocument
     public ?string $description = null;
 
     /** @var string[]|string */
-    public $subject;
+    public string|array $subject;
 
     /** @var LinkURI[] */
     public ?array $subjectURI = [];

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\DTO\CaseJson\CFDocument;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Log;
@@ -20,6 +21,7 @@ use kamermans\OAuth2\GrantType\ClientCredentials;
 use kamermans\OAuth2\OAuth2Middleware;
 use kamermans\OAuth2\Persistence\FileTokenPersistence;
 use League\Uri\UriString;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class MirrorServer
 {
@@ -27,6 +29,7 @@ class MirrorServer
 
     public function __construct(
         private EntityManagerInterface $em,
+        private readonly SerializerInterface $serializer,
     ) {
     }
 
@@ -43,6 +46,18 @@ class MirrorServer
         }
 
         if (!array_key_exists('CFDocuments', $docList)) {
+            if (count($docList) > 0) {
+                // Texas's API does not have a CFDocuments JSON key and just returns an array from /CDocuments, add an exception to handle
+                try {
+                    $cfDocument = $this->serializer->deserialize(json_encode($docList[0], JSON_THROW_ON_ERROR), CFDocument::class, 'json');
+                    if (null !== $cfDocument?->cfPackageURI?->uri) {
+                        return $docList;
+                    }
+                } catch (\Throwable) {
+                    // Fall through with error
+                }
+            }
+
             $this->warning('Error: CFDocuments list did not contain a CFDocuments JSON key', ['response' => $docList]);
 
             throw new \RuntimeException(sprintf('Error getting CFDocuments list: Response JSON did not contain a CFDocuments key.'));
