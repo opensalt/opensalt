@@ -67,12 +67,12 @@ class MfaController extends AbstractController
             return $this->render('user/mfa/enable2fa.html.twig', [
                 'dataUri' => $uri,
                 'code' => $secret,
-                'form' => $form,
+                'form' => $form->createView(),
             ]);
         }
 
         return $this->render('user/mfa/enable2fa.html.twig', [
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
