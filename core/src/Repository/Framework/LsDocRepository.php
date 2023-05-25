@@ -85,9 +85,15 @@ class LsDocRepository extends ServiceEntityRepository
             $query = new CfDocQuery();
         }
 
-        $sortBy = ('updatedAt' === $query->getSort()) ? 'd.updatedAt' : 'd.id';
+        $sortBy = match ($query->getSort()) {
+            'updatedAt' => 'd.updatedAt',
+            'title' => 'd.title',
+            'identifier' => 'd.identifier',
+            'lastChangeDateTime' => 'd.changedAt',
+            default => 'd.id',
+        };
 
-        $qb = $this->findAllNonPrivateQueryBuilder();
+        $qb = $this->findAllNonPrivateQueryBuilder('d');
         $qb->setFirstResult($query->getOffset())
             ->setMaxResults($query->getLimit())
             ->addOrderBy($sortBy, $query->getOrderBy())
