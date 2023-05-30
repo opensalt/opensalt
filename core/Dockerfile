@@ -226,18 +226,17 @@ RUN set -eux; \
 USER www-data
 
 #=======================================================================
-FROM caddy:${CADDY_VERSION}-builder-alpine AS salt_core_caddy_builder
+# Added 2.7 as temporary fix for https://github.com/dunglas/mercure/issues/770
+FROM caddy:2.7-builder-alpine AS salt_core_caddy_builder
 
 # install Mercure and Vulcain modules
 ARG XCADDY_SKIP_CLEANUP=0
-RUN xcaddy build \
-    --with github.com/dunglas/mercure \
+RUN xcaddy build v2.6.4 \
     --with github.com/dunglas/mercure/caddy \
-    --with github.com/dunglas/vulcain \
     --with github.com/dunglas/vulcain/caddy
 
 #=======================================================================
-FROM caddy:${CADDY_VERSION} AS salt_core_caddy
+FROM caddy:${CADDY_VERSION}-alpine AS salt_core_caddy
 
 RUN addgroup -g 1001 caddy; \
     adduser -u 1001 -G caddy -D -s /sbin/nologin \
