@@ -20,6 +20,11 @@ final class LsDefItemTypeNormalizer implements NormalizerInterface
         return $data instanceof LsDefItemType;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsDefItemType::class => true];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDefItemType) {

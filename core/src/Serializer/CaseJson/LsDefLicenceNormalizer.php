@@ -20,6 +20,11 @@ final class LsDefLicenceNormalizer implements NormalizerInterface
         return $data instanceof LsDefLicence;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsDefLicence::class => true];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDefLicence) {

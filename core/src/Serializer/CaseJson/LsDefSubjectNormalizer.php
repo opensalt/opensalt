@@ -20,6 +20,11 @@ final class LsDefSubjectNormalizer implements NormalizerInterface
         return $data instanceof LsDefSubject;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsDefSubject::class => true];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDefSubject) {

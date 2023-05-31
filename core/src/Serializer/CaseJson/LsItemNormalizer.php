@@ -25,6 +25,11 @@ final class LsItemNormalizer implements NormalizerInterface
         return $data instanceof LsItem;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsItem::class => true];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsItem) {

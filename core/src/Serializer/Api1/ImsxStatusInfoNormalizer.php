@@ -12,6 +12,11 @@ class ImsxStatusInfoNormalizer implements NormalizerInterface
         return $data instanceof ImsxStatusInfo;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [ImsxStatusInfo::class => true];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): array
     {
         if (!$object instanceof ImsxStatusInfo) {

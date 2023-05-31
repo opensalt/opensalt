@@ -12,6 +12,11 @@ class CommentNormalizer implements NormalizerInterface
         return $data instanceof Comment;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [Comment::class => true];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof Comment) {

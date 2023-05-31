@@ -25,6 +25,11 @@ final class LsDocNormalizer implements NormalizerInterface
         return $data instanceof LsDoc && null === ($context['generate-package'] ?? null);
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsDoc::class => false];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDoc) {

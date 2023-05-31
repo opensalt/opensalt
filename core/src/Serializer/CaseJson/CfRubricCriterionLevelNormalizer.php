@@ -20,6 +20,11 @@ final class CfRubricCriterionLevelNormalizer implements NormalizerInterface
         return $data instanceof CfRubricCriterionLevel;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [CfRubricCriterionLevel::class => true];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof CfRubricCriterionLevel) {

@@ -20,6 +20,11 @@ final class LsDefAssociationGroupingNormalizer implements NormalizerInterface
         return $data instanceof LsDefAssociationGrouping;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsDefAssociationGrouping::class => true];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDefAssociationGrouping) {

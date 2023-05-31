@@ -23,6 +23,11 @@ final class CfRubricNormalizer implements NormalizerAwareInterface, NormalizerIn
         return $data instanceof CfRubric;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [CfRubric::class => true];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof CfRubric) {

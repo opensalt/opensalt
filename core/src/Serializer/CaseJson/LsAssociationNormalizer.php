@@ -21,6 +21,11 @@ final class LsAssociationNormalizer implements NormalizerInterface
         return $data instanceof LsAssociation;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsAssociation::class => true];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsAssociation) {

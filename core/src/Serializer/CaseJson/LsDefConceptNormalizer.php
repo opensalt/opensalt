@@ -20,6 +20,11 @@ final class LsDefConceptNormalizer implements NormalizerInterface
         return $data instanceof LsDefConcept;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsDefConcept::class => true];
+    }
+
     public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDefConcept) {
