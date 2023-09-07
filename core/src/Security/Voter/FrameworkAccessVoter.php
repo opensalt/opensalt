@@ -19,10 +19,11 @@ class FrameworkAccessVoter extends Voter
     final public const EDIT_ALL = Permission::FRAMEWORK_EDIT_ALL;
     final public const DELETE = Permission::FRAMEWORK_DELETE;
     final public const CREATE = Permission::FRAMEWORK_CREATE;
+    final public const DOWNLOAD_EXCEL = Permission::FRAMEWORK_DOWNLOAD_EXCEL;
 
     public function supportsAttribute(string $attribute): bool
     {
-        return \in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::EDIT_ALL, static::DELETE], true);
+        return \in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::EDIT_ALL, static::DELETE, static::DOWNLOAD_EXCEL], true);
     }
 
     public function supportsType(string $subjectType): bool
@@ -38,7 +39,7 @@ class FrameworkAccessVoter extends Voter
     {
         return match ($attribute) {
             self::CREATE, self::EDIT_ALL => null === $subject,
-            self::LIST, self::VIEW, self::EDIT, self::DELETE => $subject instanceof LsDoc,
+            self::LIST, self::VIEW, self::EDIT, self::DELETE, self::DOWNLOAD_EXCEL => $subject instanceof LsDoc,
             default => false,
         };
     }
@@ -52,6 +53,7 @@ class FrameworkAccessVoter extends Voter
             self::EDIT => $this->canEditFramework($subject, $token),
             self::EDIT_ALL => $this->canEditAllFrameworks($token),
             self::DELETE => $this->canDeleteFramework($subject, $token),
+            self::DOWNLOAD_EXCEL => $this->canDownloadExcelFramework($subject, $token),
             default => false,
         };
     }
@@ -154,5 +156,16 @@ class FrameworkAccessVoter extends Voter
         }
 
         return false;
+    }
+
+    private function canDownloadExcelFramework(mixed $subject, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            // If the user is not logged in then deny access to the Excel download
+            return false;
+        }
+
+        return true;
     }
 }

@@ -231,7 +231,7 @@ FROM caddy:2.7-builder-alpine AS salt_core_caddy_builder
 
 # install Mercure and Vulcain modules
 ARG XCADDY_SKIP_CLEANUP=0
-RUN xcaddy build v2.6.4 \
+RUN xcaddy build \
     --with github.com/dunglas/mercure/caddy \
     --with github.com/dunglas/vulcain/caddy
 

@@ -48,3 +48,9 @@ framework:
         packages:
           encore:
             json_manifest_path: '%kernel.project_dir%/public/build/manifest.json'
+
+    rate_limiter:
+        excel_download:
+            policy: 'sliding_window'
+            limit: 3
+            interval: '10 minutes'

@@ -244,9 +244,7 @@ class UserController extends AbstractController
         $form = $this->createResetMfaForm($targetUser);
         $form->handleRequest($request);
 
-        dump('handled form', $form->isSubmitted(), $form->isSubmitted() && $form->isValid());
         if ($form->isSubmitted() && $form->isValid()) {
-            dump('sending comand');
             $command = new ResetMfaUserCommand($targetUser);
             $this->sendCommand($command);
         }

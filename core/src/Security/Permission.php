@@ -16,6 +16,8 @@ class Permission
     final public const FRAMEWORK_EDIT_ALL = 'framework_edit_all';
     final public const FRAMEWORK_DELETE = 'delete';
 
+    final public const FRAMEWORK_DOWNLOAD_EXCEL = 'framework_download_excel';
+
     final public const ITEM_EDIT = 'edit';
     final public const ITEM_ADD_TO = 'add-standard-to';
 
