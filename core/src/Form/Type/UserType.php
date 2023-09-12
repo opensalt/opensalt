@@ -10,6 +10,7 @@ namespace App\Form\Type;
 
 use App\Entity\User\Organization;
 use App\Entity\User\User;
+use App\Security\Permission;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -20,14 +21,15 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class UserType extends AbstractType
 {
-    public function __construct(private AuthorizationCheckerInterface $authorizationChecker)
-    {
+    public function __construct(
+        private AuthorizationCheckerInterface $authorizationChecker,
+    ) {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $roleChoices = [];
         if ($this->authorizationChecker->isGranted('ROLE_SUPER_USER')) {
@@ -56,7 +58,7 @@ class UserType extends AbstractType
             ])
         ;
 
-        if ($this->authorizationChecker->isGranted('manage', 'all_users')) {
+        if ($this->authorizationChecker->isGranted(Permission::MANAGE_ALL_USERS)) {
             $builder->add('org', EntityType::class, [
                 'class' => Organization::class,
                 'choice_label' => 'name',
@@ -67,7 +69,7 @@ class UserType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => User::class,
@@ -78,7 +80,7 @@ class UserType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'salt_userbundle_user';
     }

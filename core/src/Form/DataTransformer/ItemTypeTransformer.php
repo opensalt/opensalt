@@ -7,51 +7,34 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 /**
- * Data transformer which can create new ItemTypes
- *
- * Class ItemTypeTransformer
+ * Data transformer which can create new ItemTypes.
  */
 class ItemTypeTransformer implements DataTransformerInterface
 {
-    /** @var EntityManagerInterface */
-    protected $em;
-    /** @var string */
-    protected $className;
-    /** @var string */
-    protected $textProperty;
-    /** @var string */
-    protected $primaryKey;
+    private PropertyAccessor $accessor;
 
-    protected $accessor;
-
-    /**
-     * @param string        $class
-     * @param string|null   $textProperty
-     * @param string        $primaryKey
-     */
-    public function __construct(EntityManagerInterface $em, $class, $textProperty = null, $primaryKey = 'id')
-    {
-        $this->em = $em;
-        $this->className = $class;
-        $this->textProperty = $textProperty;
-        $this->primaryKey = $primaryKey;
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly string $className,
+        private readonly ? string $textProperty = null,
+        private readonly string $primaryKey = 'id'
+    ) {
         $this->accessor = PropertyAccess::createPropertyAccessor();
 
         if (LsDefItemType::class !== $this->className) {
-            throw new \InvalidArgumentException("Class {$class} not supported in ItemTypeTransformer");
+            throw new \InvalidArgumentException("Class {$className} not supported in ItemTypeTransformer");
         }
     }
 
     /**
-     * Transform entity to array
-     *
-     * @param mixed $entity
+     * Transform entity to array.
      */
-    public function transform($entity): array
+    public function transform(mixed $entity): mixed
     {
-        $data = array();
+        $data = [];
         if (empty($entity)) {
             return $data;
         }
@@ -66,46 +49,42 @@ class ItemTypeTransformer implements DataTransformerInterface
     }
 
     /**
-     * Transform single id value to an entity
+     * Transform single id value to an entity.
      *
      * @param string $value
-     *
-     * @return mixed|object|null
      */
-    public function reverseTransform($value)
+    public function reverseTransform(mixed $value): mixed
     {
         if (empty($value)) {
             return null;
         }
 
         // Add a potential new tag entry
-        $cleanValue = substr($value, 2);
         $valuePrefix = substr($value, 0, 2);
         if ('__' === $valuePrefix) {
             // In that case, we have a new entry
+            $cleanValue = substr($value, 2);
             $entity = new LsDefItemType();
             $entity->setCode($cleanValue);
             $entity->setTitle($cleanValue);
             $entity->setHierarchyCode($cleanValue);
             $this->em->persist($entity);
-        } else {
-            // We do not search for a new entry, as it does not exist yet, by definition
-            try {
-                $entity = $this->em->createQueryBuilder()
-                    ->select('entity')
-                    ->from($this->className, 'entity')
-                    ->where('entity.'.$this->primaryKey.' = :id')
-                    ->setParameter('id', $value)
-                    ->getQuery()
-                    ->getSingleResult();
-            } catch (\Exception $ex) {
-                // this will happen if the form submits invalid data
-                throw new TransformationFailedException(sprintf('The choice "%s" does not exist or is not unique', $value));
-            }
+
+            return $entity;
         }
 
-        if (!$entity) {
-            return null;
+        // We do not search for a new entry, as it does not exist yet, by definition
+        try {
+            $entity = $this->em->createQueryBuilder()
+                ->select('entity')
+                ->from($this->className, 'entity')
+                ->where('entity.'.$this->primaryKey.' = :id')
+                ->setParameter('id', $value)
+                ->getQuery()
+                ->getSingleResult();
+        } catch (\Exception) {
+            // this will happen if the form submits invalid data
+            throw new TransformationFailedException(sprintf('The choice "%s" does not exist or is not unique', $value));
         }
 
         return $entity;

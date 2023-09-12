@@ -395,7 +395,7 @@ class FrameworkService
                 $rv['changes']['assoc-d'] = [];
             }
             foreach ($deleted as $assoc) {
-                /* @var LsAssociation $assoc */
+                /** @var LsAssociation $assoc */
                 $rv['changes']['assoc-d'][$assoc->getId()] = $assoc->getIdentifier();
             }
         }

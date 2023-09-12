@@ -20,7 +20,7 @@ doctrine:
                 options:  '%pdo_options%'
                 charset:  utf8mb4
                 schema_filter: ~^(?!(cache_items|LearningStandards|std_*|map_*|grade_level))~
-                server_version: 5.7
+                server_version: 8.0
                 mapping_types:
                     json: string
                 default_table_options:
@@ -46,12 +46,10 @@ doctrine:
                     log_enabled: true
                 mappings:
                     App:
-                        type: annotation
                         prefix: App\Entity
                         dir: "%kernel.project_dir%/src/Entity"
                         is_bundle: false
                     GedmoTree:
-                        type: annotation
                         prefix: Gedmo\Tree\Entity
                         dir: "%kernel.project_dir%/vendor/gedmo/doctrine-extensions/src/Tree/Entity"
                         #alias: GedmoTree # (optional) it will default to the name set for the mapping

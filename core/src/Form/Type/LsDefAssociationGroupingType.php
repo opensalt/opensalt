@@ -12,7 +12,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class LsDefAssociationGroupingType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('title')
@@ -23,15 +23,13 @@ class LsDefAssociationGroupingType extends AbstractType
                     'group_by' => 'creator',
                     'required' => true,
                     'multiple' => false,
-                    'query_builder' => function (EntityRepository $er) {
-                        return $er->createQueryBuilder('i')
-                            ->orderBy('i.title', 'ASC');
-                    },
+                    'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('i')
+                        ->orderBy('i.title', 'ASC'),
                 ])
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => LsDefAssociationGrouping::class,

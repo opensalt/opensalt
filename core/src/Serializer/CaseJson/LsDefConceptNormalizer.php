@@ -4,29 +4,28 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsDefConcept;
 use App\Service\Api1Uris;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class LsDefConceptNormalizer implements ContextAwareNormalizerInterface
+final class LsDefConceptNormalizer implements NormalizerInterface
 {
     use LastChangeDateTimeTrait;
 
     public function __construct(
-        private Api1Uris $api1Uris,
+        private readonly Api1Uris $api1Uris,
     ) {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function supportsNormalization($data, string $format = null, array $context = [])
+    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof LsDefConcept;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function normalize($object, string $format = null, array $context = [])
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsDefConcept::class => true];
+    }
+
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDefConcept) {
             return null;
@@ -50,8 +49,6 @@ final class LsDefConceptNormalizer implements ContextAwareNormalizerInterface
             'keywords' => $object->getKeywords(),
         ];
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 }

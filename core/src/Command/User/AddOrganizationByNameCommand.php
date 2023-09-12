@@ -9,17 +9,15 @@ class AddOrganizationByNameCommand extends BaseCommand
 {
     /**
      * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
      */
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     private $organizationName;
 
     public function __construct(string $organizationName)
     {
         $this->organizationName = $organizationName;
     }
-
 
     public function getOrganizationName(): string
     {

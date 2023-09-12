@@ -188,7 +188,7 @@
                                                 </button>
                                             {% endif %}
                                             {% endif %}
-                                            {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %}
+                                            {% if 'comments' is active feature and is_granted(constant('App\\Security\\Permission::COMMENT_ADD')) and is_granted('ROLE_ADMIN') %}
                                                 <a href="#" id="item_export_comment" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
                                             {% endif %}
                                         </div>
@@ -234,10 +234,10 @@
                                                 </button>
                                             {% endif %}
                                         {% endif %}
-                                        {% if 'comments' is active feature and is_granted('comment') and is_granted('ROLE_ADMIN') %}
+                                        {% if 'comments' is active feature and is_granted(constant('App\\Security\\Permission::COMMENT_ADD')) and is_granted('ROLE_ADMIN') %}
                                                 <a href="#" id="doc_export_comment" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
                                         {% endif %}
-                                        {% if is_granted('delete', lsDoc) %}
+                                        {% if is_granted(constant('App\\Security\\Permission::FRAMEWORK_DELETE'), lsDoc) %}
                                             <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteFrameworkModal" data-alt-document-disabled="true">
                                                 Delete Framework
                                             </button>
@@ -261,7 +261,7 @@
                     </div>
                 </section>
                 {% if 'comments' is active feature %}
-                    {% if not is_granted('comment') %}
+                    {% if not is_granted(constant('App\\Security\\Permission::COMMENT_ADD')) %}
                         <p>To comment please login first</p>
                     {% endif %}
                     <div class="js-comments-container" data-lsdocid="{{ lsDocId }}"></div>

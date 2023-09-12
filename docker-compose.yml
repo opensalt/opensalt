@@ -25,7 +25,7 @@ services:
         - BUILD_NUMBER=${BUILD_NUMBER:-x}
         - BUILD_DATE=${BUILD_DATE:-0}
         - COMMIT=${COMMIT:-unknown}
-        - VERSION=${VERSION:-3.0.0-dev}
+        - VERSION=${VERSION:-3.2.0-dev}
       cache_from:
         - opensalt/opensalt:core-develop
     depends_on:
@@ -46,16 +46,13 @@ services:
       BRAND_LOGO_STYLE:
       BRAND_LINK_URL:
       BRAND_LINK_STYLE:
+      MFA_ISSUER:
+      USE_MFA:
       FOOTER_LEFT_TEXT:
       ALLOW_LOCAL_DEV: "true"
       ALLOW_EXTERNAL_DEV_IPS:
       DEV_COOKIE:
-      MAILER_TRANSPORT:
-      MAILER_HOST:
-      MAILER_USER:
-      MAILER_PASSWORD:
-      MAILER_AUTH_MODE:
-      MAILER_PORT:
+      MAILER_DSN:
       USE_MAIL_FEATURE:
       MAIL_FEATURE_FROM_EMAIL:
       COMMENTS_FEATURE:
@@ -93,7 +90,7 @@ services:
         - BUILD_NUMBER=${BUILD_NUMBER:-x}
         - BUILD_DATE=${BUILD_DATE:-0}
         - COMMIT=${COMMIT:-unknown}
-        - VERSION=${VERSION:-3.0.0-dev}
+        - VERSION=${VERSION:-3.2.0-dev}
       cache_from:
         - opensalt/opensalt:web-develop
     depends_on:
@@ -101,13 +98,18 @@ services:
 #      - pwa
     environment:
 #      PWA_UPSTREAM: pwa:3000
-      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY:-!ChangeMe!}
-      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY:-!ChangeMe!}
+      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY:-!ChangeThisMercureHubJWTSecretKey!}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY:-!ChangeThisMercureHubJWTSecretKey!}
       MERCURE_TRANSPORT_URL: 'local://local'
     restart: unless-stopped
+    #user: caddy
+    sysctls:
+      - net.ipv4.ip_unprivileged_port_start=0
+    cap_add:
+      - CAP_NET_BIND_SERVICE
     volumes:
-      - caddy_data:/data
-      - caddy_config:/config
+      - caddy_data:/data/caddy
+      - caddy_config:/config/caddy
     networks:
       default:
       external:
@@ -120,6 +122,8 @@ services:
       context: ./core/docker/mysql
       cache_from:
         - opensalt/opensalt:db-develop
+    cap_add:
+      - SYS_NICE # CAP_SYS_NICE
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:

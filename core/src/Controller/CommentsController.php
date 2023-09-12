@@ -12,13 +12,15 @@ use App\Entity\Comment\Comment;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
+use App\Security\Permission;
 use App\Service\BucketService;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Persistence\ManagerRegistry;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
 use Qandidate\Toggle\Context;
 use Qandidate\Toggle\ContextFactory;
 use Qandidate\Toggle\ToggleManager;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +28,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -39,41 +42,34 @@ class CommentsController extends AbstractController
     private Context $context;
 
     public function __construct(
-        private ToggleManager $manager,
-        private SerializerInterface $serializer,
-        ContextFactory $contextFactory
+        private readonly ToggleManager $manager,
+        private readonly SerializerInterface $serializer,
+        private readonly ManagerRegistry $managerRegistry,
+        ContextFactory $contextFactory,
     ) {
         $this->context = $contextFactory->createContext();
     }
 
-    /**
-     * @Route("/comments/document/{id}", name="create_doc_comment", methods={"POST"})
-     * @Security("is_granted('comment')")
-     */
-    public function newDocCommentAction(Request $request, LsDoc $doc, UserInterface $user, BucketService $bucket): JsonResponse
+    #[Route(path: '/comments/document/{id<\d+>}', name: 'create_doc_comment', methods: ['POST'])]
+    #[IsGranted(Permission::COMMENT_ADD)]
+    public function newDocComment(Request $request, LsDoc $doc, #[CurrentUser] User $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'document', $doc, $user, $bucket);
     }
 
-    /**
-     * @Route("/comments/item/{id}", name="create_item_comment", methods={"POST"})
-     * @Security("is_granted('comment')")
-     */
-    public function newItemCommentAction(Request $request, LsItem $item, UserInterface $user, BucketService $bucket): JsonResponse
+    #[Route(path: '/comments/item/{id<\d+>}', name: 'create_item_comment', methods: ['POST'])]
+    #[IsGranted(Permission::COMMENT_ADD)]
+    public function newItemComment(Request $request, LsItem $item, #[CurrentUser] User $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'item', $item, $user, $bucket);
     }
 
     /**
-     * @Route("/comments/{itemType}/{itemId}", name="get_comments", methods={"GET"})
-     * @Entity("comments", class="App\Entity\Comment\Comment", expr="repository.findByTypeItem(itemType, itemId)")
-     * @Security("is_granted('comment_view')")
-     *
-     * @param array|Comment[] $comments
-     *
-     * @return mixed
+     * @param Collection<array-key,Comment> $comments
      */
-    public function listAction(array $comments, UserInterface $user = null)
+    #[Route(path: '/comments/{itemType<document|item>}/{itemId<\d+>}', name: 'get_comments', methods: ['GET'])]
+    #[IsGranted(Permission::COMMENT_VIEW)]
+    public function list(#[MapEntity(class: Comment::class, expr: 'repository.findByTypeItem(itemType, itemId)')] Collection $comments, #[CurrentUser] ?User $user): JsonResponse
     {
         if ($user instanceof User) {
             foreach ($comments as $comment) {
@@ -84,11 +80,9 @@ class CommentsController extends AbstractController
         return $this->apiResponse($comments);
     }
 
-    /**
-     * @Route("/comments/{id}", methods={"PUT"})
-     * @Security("is_granted('comment_update', comment)")
-     */
-    public function updateAction(Request $request, Comment $comment, UserInterface $user): JsonResponse
+    #[Route(path: '/comments/{id}', methods: ['PUT'])]
+    #[IsGranted(Permission::COMMENT_UPDATE, 'comment')]
+    public function update(Request $request, Comment $comment): JsonResponse
     {
         $command = new UpdateCommentCommand($comment, $request->request->get('content'));
         $this->sendCommand($command);
@@ -96,11 +90,9 @@ class CommentsController extends AbstractController
         return $this->apiResponse($comment);
     }
 
-    /**
-     * @Route("/comments/delete/{id}", methods={"DELETE"})
-     * @Security("is_granted('comment_delete', comment)")
-     */
-    public function deleteAction(Comment $comment, UserInterface $user): JsonResponse
+    #[Route(path: '/comments/delete/{id}', methods: ['DELETE'])]
+    #[IsGranted(Permission::COMMENT_DELETE, 'comment')]
+    public function delete(Comment $comment): JsonResponse
     {
         $command = new DeleteCommentCommand($comment);
         $this->sendCommand($command);
@@ -108,54 +100,40 @@ class CommentsController extends AbstractController
         return $this->apiResponse('Ok', 200);
     }
 
-    /**
-     * @Route("/comments/{id}/upvote", methods={"POST"})
-     * @Security("is_granted('comment')")
-     */
-    public function upvoteAction(Comment $comment, UserInterface $user = null): JsonResponse
+    #[Route(path: '/comments/{id}/upvote', methods: ['POST'])]
+    #[IsGranted(Permission::COMMENT_ADD)]
+    public function upvote(Comment $comment, #[CurrentUser] User $user): JsonResponse
     {
-        if (!$user instanceof User) {
-            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
-        }
-
         $command = new UpvoteCommentCommand($comment, $user);
         $this->sendCommand($command);
 
         return $this->apiResponse($comment);
     }
 
-    /**
-     * @Route("/comments/{id}/upvote", methods={"DELETE"})
-     * @Security("is_granted('comment')")
-     */
-    public function downvoteAction(Comment $comment, UserInterface $user): JsonResponse
+    #[Route(path: '/comments/{id}/upvote', methods: ['DELETE'])]
+    #[IsGranted(Permission::COMMENT_ADD)]
+    public function downvote(Comment $comment, #[CurrentUser] User $user): JsonResponse
     {
-        if (!$user instanceof User) {
-            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
-        }
-
         try {
             $command = new DownvoteCommentCommand($comment, $user);
             $this->sendCommand($command);
 
             return $this->apiResponse($comment);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return $this->apiResponse('Item not found', 404);
         }
     }
 
-    /**
-     * @Route("/salt/case/export_comment/{itemType}/{itemId}/comment.csv", name="export_comment_file")
-     * @Security("is_granted('comment_view')")
-     */
-    public function exportCommentAction(string $itemType, int $itemId): Response
+    #[Route(path: '/salt/case/export_comment/{itemType}/{itemId}/comment.csv', name: 'export_comment_file')]
+    #[IsGranted(Permission::COMMENT_VIEW)]
+    public function exportComment(string $itemType, int $itemId): Response
     {
         $response = new StreamedResponse();
         $response->setCallback(function () use ($itemType, $itemId) {
             $childIds = [];
             $handle = fopen('php://output', 'wb+');
-            $repo = $this->getDoctrine()->getManager()->getRepository(Comment::class);
-            $lsItemRepo = $this->getDoctrine()->getManager()->getRepository(LsItem::class);
+            $repo = $this->managerRegistry->getManager()->getRepository(Comment::class);
+            $lsItemRepo = $this->managerRegistry->getManager()->getRepository(LsItem::class);
             $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Attachment Url', 'Created Date', 'Updated Date'];
             fputcsv($handle, $headers);
 
@@ -166,7 +144,7 @@ class CommentsController extends AbstractController
                     foreach ($commentRows as $row) {
                         fputcsv($handle, $row);
                     }
-                    $lsDoc = $this->getDoctrine()->getManager()->getRepository(LsDoc::class)->find($itemId);
+                    $lsDoc = $this->managerRegistry->getManager()->getRepository(LsDoc::class)->find($itemId);
                     $lsDocChilds = $lsDoc->getLsItems();
                     foreach ($lsDocChilds as $lsDocChild) {
                         $childIds[] = $lsDocChild->getId();
@@ -236,12 +214,7 @@ class CommentsController extends AbstractController
         return null;
     }
 
-    /**
-     * Add a comment.
-     *
-     * @param LsItem|LsDoc $item
-     */
-    private function addComment(Request $request, string $itemType, $item, UserInterface $user, $bucket): JsonResponse
+    private function addComment(Request $request, string $itemType, LsItem|LsDoc $item, ?User $user, BucketService $bucket): JsonResponse
     {
         if (!$user instanceof User) {
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
@@ -269,12 +242,12 @@ class CommentsController extends AbstractController
         return $this->apiResponse($comment);
     }
 
-    private function serialize($data): string
+    private function serialize(mixed $data): string
     {
         return $this->serializer->serialize($data, 'json');
     }
 
-    private function apiResponse($data, int $statusCode = 200): JsonResponse
+    private function apiResponse(mixed $data, int $statusCode = 200): JsonResponse
     {
         $json = $this->serialize($data);
 

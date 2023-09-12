@@ -43,11 +43,9 @@ class AssociationGroupingsTransformer
         /** @var LsDefAssociationGroupingRepository $repo */
         $repo = $this->em->getRepository(LsDefAssociationGrouping::class);
 
-        $newIds = array_map(static function (CFAssociationGrouping $group) {
-            return $group->identifier->toString();
-        }, $cfAssociationGroupings);
+        $newIds = array_map(static fn (CFAssociationGrouping $group) => $group->identifier->toString(), $cfAssociationGroupings);
 
-        return $repo->findByIdentifiers($newIds);
+        return $repo->findByIdentifier($newIds);
     }
 
     /**

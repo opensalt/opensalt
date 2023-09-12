@@ -15,8 +15,7 @@ class CFRubric
 
     /**
      * @var CFRubricCriterion[]|array|null
-     *
-     * @SerializedName("CFRubricCriteria")
      */
+    #[SerializedName('CFRubricCriteria')]
     public ?array $cfRubricCriteria = [];
 }

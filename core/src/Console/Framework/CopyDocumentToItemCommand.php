@@ -4,21 +4,23 @@ namespace App\Console\Framework;
 
 use App\Command\Framework\CopyDocumentToItemCommand as CopyDocumentToItemEventCommand;
 use App\Console\BaseDoctrineCommand;
-use App\Event\CommandEvent;
 use App\Entity\Framework\LsDoc;
+use App\Event\CommandEvent;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
+#[AsCommand('cfpackage:duplicate', 'Copy a package to an item in a framework')]
 class CopyDocumentToItemCommand extends BaseDoctrineCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setName('cfpackage:duplicate')
-            ->setDescription('Copy a package to an item in a framework')
             ->addArgument('from', InputArgument::REQUIRED, 'Id of package to duplicate')
             ->addArgument('to', InputArgument::REQUIRED, 'Id of package to copy into')
         ;
@@ -35,16 +37,17 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
         if (!$oldDoc) {
             $output->writeln("<error>Doc with id '{$oldDocId}' not found.</error>");
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $newDoc = $lsDocRepo->find((int) $newDocId);
         if (!$newDoc) {
             $output->writeln("<error>Doc with id '{$newDocId}' not found.</error>");
 
-            return 2;
+            return (int) Command::INVALID;
         }
 
+        /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
         $question = new ConfirmationQuestion("<question>Do you really want to duplicate '{$oldDoc->getTitle()}'? (y/n)</question> ", false);
         if (!$helper->ask($input, $output, $question)) {
@@ -56,7 +59,7 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
         $progress = new ProgressBar($output);
         $progress->start();
 
-        $callback = function ($message = '') use ($progress) {
+        $callback = function (string $message = '') use ($progress): void {
             $progress->setMessage(' '.$message);
             $progress->advance();
         };
@@ -66,6 +69,6 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
 
         $output->writeln('<info>Duplicated.</info>');
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

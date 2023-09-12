@@ -4,9 +4,12 @@ namespace App\Console\User;
 
 use App\Command\User\AddUserByNameCommand;
 use App\Console\BaseDoctrineCommand;
-use App\Event\CommandEvent;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
+use App\Event\CommandEvent;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -14,13 +17,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 
+#[AsCommand('salt:user:add', 'Add a local user')]
 class UserAddCommand extends BaseDoctrineCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setName('salt:user:add')
-            ->setDescription('Add a local user')
             ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the new user')
             ->addArgument('org', InputArgument::REQUIRED, 'Organization name for the new user')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Initial password for the new user')
@@ -28,10 +30,11 @@ class UserAddCommand extends BaseDoctrineCommand
         ;
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
         parent::interact($input, $output);
 
+        /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
 
         $em = $this->em;
@@ -45,12 +48,12 @@ class UserAddCommand extends BaseDoctrineCommand
             $question = new Question('Organization name for the new user: ');
             $question->setAutocompleterValues($orgs);
             $question->setValidator(function ($value) use ($em) {
-                if (trim($value) === '') {
+                if ('' === trim($value)) {
                     throw new \Exception('The organization name must exist');
                 }
 
                 $org = $em->getRepository(Organization::class)->findOneByName($value);
-                if (empty($org)) {
+                if (null === $org) {
                     throw new \Exception('The organization name must exist');
                 }
 
@@ -63,7 +66,7 @@ class UserAddCommand extends BaseDoctrineCommand
         if (empty($input->getArgument('username'))) {
             $question = new Question('Email address or username of new user: ');
             $question->setValidator(function ($value) {
-                if (trim($value) === '') {
+                if ('' === trim($value)) {
                     throw new \Exception('The username can not be empty');
                 }
 
@@ -76,7 +79,7 @@ class UserAddCommand extends BaseDoctrineCommand
         if (empty($input->getOption('password'))) {
             $question = new Question('Initial password for new user: ');
             $question->setValidator(function ($value) {
-                if (trim($value) === '') {
+                if ('' === trim($value)) {
                     throw new \Exception('The password can not be empty');
                 }
 
@@ -111,7 +114,7 @@ class UserAddCommand extends BaseDoctrineCommand
         if (!in_array($role, User::USER_ROLES)) {
             $output->writeln(sprintf('<error>Role "%s" is not valid.</error>', $input->getOption('role')));
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $em = $this->em;
@@ -119,7 +122,7 @@ class UserAddCommand extends BaseDoctrineCommand
         if (empty($orgObj)) {
             $output->writeln(sprintf('<error>Organization "%s" is not valid.</error>', $org));
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $command = new AddUserByNameCommand($username, $orgObj, $password, $role);
@@ -132,6 +135,6 @@ class UserAddCommand extends BaseDoctrineCommand
             $output->writeln(sprintf('The user "%s" has been added.', $username));
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

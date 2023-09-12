@@ -4,28 +4,31 @@ namespace App\Console\User;
 
 use App\Command\User\AddOrganizationByNameCommand;
 use App\Console\BaseDoctrineCommand;
-use App\Event\CommandEvent;
 use App\Entity\User\Organization;
+use App\Event\CommandEvent;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
+#[AsCommand('salt:org:add', 'Add an organization')]
 class OrgAddCommand extends BaseDoctrineCommand
 {
     protected function configure(): void
     {
         $this
-            ->setName('salt:org:add')
-            ->setDescription('Add an organization')
             ->addArgument('org', InputArgument::REQUIRED, 'Organization name for the new user')
         ;
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
         parent::interact($input, $output);
 
+        /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
 
         if (empty($input->getArgument('org'))) {
@@ -57,16 +60,16 @@ class OrgAddCommand extends BaseDoctrineCommand
 
         $orgObj = $orgRepository->findOneByName($org);
         if (null !== $orgObj) {
-            $output->writeln(sprintf('<error>Organization "%s" aleady exists.</error>', $org));
+            $output->writeln(sprintf('<error>Organization "%s" already exists.</error>', $org));
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $command = new AddOrganizationByNameCommand($org);
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
-        $output->writeln('The organization "%s" has been added.');
+        $output->writeln(sprintf('The organization "%s" has been added.', $org));
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

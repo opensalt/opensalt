@@ -4,15 +4,14 @@ namespace App\Security\Voter;
 
 use Qandidate\Toggle\ContextFactory;
 use Qandidate\Toggle\ToggleManager;
+use Symfony\Contracts\Service\Attribute\Required;
 
 trait FeatureCheckTrait
 {
     private ToggleManager $toggleManager;
     private ContextFactory $toggleContextFactory;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setToggleManager(ToggleManager $toggleManager, ContextFactory $contextFactory): void
     {
         $this->toggleManager = $toggleManager;

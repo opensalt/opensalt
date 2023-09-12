@@ -7,7 +7,7 @@
           <a class="btn btn-default" href="{{ path('admin_user_new') }}">Add a new user</a>
       </li>
   </ul>
-    {% if is_granted('manage', 'organizations') %}
+    {% if is_granted(constant('App\\Security\\Permission::MANAGE_ORGANIZATIONS')) %}
         <div class="row bottomPadd8">
             <form class="form-inline">
                 <div class="form-group col-md-4" >

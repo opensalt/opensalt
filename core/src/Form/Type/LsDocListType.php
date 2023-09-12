@@ -3,6 +3,7 @@
 namespace App\Form\Type;
 
 use App\Entity\Framework\LsDoc;
+use App\Security\Permission;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -18,7 +19,6 @@ class LsDocListType extends AbstractType
     ) {
     }
 
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $repo = $this->em->getRepository(LsDoc::class);
@@ -32,7 +32,7 @@ class LsDocListType extends AbstractType
         /** @var LsDoc $doc */
         foreach ($list as $i => $doc) {
             // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
-            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $doc->getAdoptionStatus() && !$this->authChecker->isGranted('view', $doc)) {
+            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $doc->getAdoptionStatus() && !$this->authChecker->isGranted(Permission::FRAMEWORK_VIEW, $doc)) {
                 unset($list[$i]);
             }
         }
@@ -63,7 +63,6 @@ class LsDocListType extends AbstractType
             ])
         ;
     }
-
 
     public function configureOptions(OptionsResolver $resolver): void
     {

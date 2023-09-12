@@ -68,9 +68,9 @@ class ApiExceptionListener implements EventSubscriberInterface
 
         $response = new Response(
             $this->serializer->serialize($err, $_format),
-            404
+            Response::HTTP_NOT_FOUND
         );
-        $response->setStatusCode(404, $errText); // Add error text for IMS Global Compliance Test Suite
+        $response->setStatusCode(Response::HTTP_NOT_FOUND, $errText); // Add error text for IMS Global Compliance Test Suite
 
         $response->setMaxAge(60);
         $response->setSharedMaxAge(60);

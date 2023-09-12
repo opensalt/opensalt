@@ -4,14 +4,13 @@ namespace App\Security\Voter;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 trait DeferDecisionTrait
 {
     private AccessDecisionManagerInterface $decisionManager;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setDecisionManager(AccessDecisionManagerInterface $decisionManager): void
     {
         $this->decisionManager = $decisionManager;

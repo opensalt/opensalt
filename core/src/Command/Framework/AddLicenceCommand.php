@@ -10,10 +10,9 @@ class AddLicenceCommand extends BaseCommand
 {
     /**
      * @var LsDefLicence
-     *
-     * @Assert\Type(LsDefLicence::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsDefLicence::class)]
+    #[Assert\NotNull]
     private $licence;
 
     public function __construct(LsDefLicence $licence)

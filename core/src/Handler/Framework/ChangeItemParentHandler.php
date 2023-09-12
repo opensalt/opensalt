@@ -3,10 +3,10 @@
 namespace App\Handler\Framework;
 
 use App\Command\Framework\ChangeItemParentCommand;
+use App\Entity\Framework\LsAssociation;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
-use App\Entity\Framework\LsAssociation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ChangeItemParentHandler extends BaseDoctrineHandler

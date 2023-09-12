@@ -8,47 +8,48 @@ use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\UpdateAssociationGroupCommand;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Form\Type\LsDefAssociationGroupingType;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use App\Security\Permission;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Route("/cfdef/association_grouping")
- */
+#[Route(path: '/cfdef/association_grouping')]
 class LsDefAssociationGroupingController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private readonly ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all LsDefAssociationGrouping entities.
-     *
-     * @Route("/", methods={"GET"}, name="lsdef_association_grouping_index")
-     * @Template()
      */
-    public function indexAction(): array
+    #[Route(path: '/', name: 'lsdef_association_grouping_index', methods: ['GET'])]
+    public function index(): Response
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $associationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findBy([], null, 100);
 
-        return [
+        return $this->render('framework/ls_def_association_grouping/index.html.twig', [
             'lsDefAssociationGroupings' => $associationGroupings,
-        ];
+        ]);
     }
 
     /**
      * Creates a new LsDefAssociationGrouping entity.
-     *
-     * @Route("/new", methods={"GET", "POST"}, name="lsdef_association_grouping_new")
-     * @Template()
-     * @Security("is_granted('create', 'lsdoc')")
      */
-    public function newAction(Request $request): array|Response
+    #[Route(path: '/new', name: 'lsdef_association_grouping_new', methods: ['GET', 'POST'])]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function new(Request $request): Response
     {
         $ajax = $request->isXmlHttpRequest();
 
@@ -76,40 +77,32 @@ class LsDefAssociationGroupingController extends AbstractController
             return $this->render('framework/ls_def_association_grouping/new.html.twig', ['form' => $form->createView()], new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
-        return [
+        return $this->render('framework/ls_def_association_grouping/new.html.twig', [
             'lsDefAssociationGrouping' => $associationGrouping,
             'form' => $form->createView(),
-        ];
+        ]);
     }
 
     /**
      * Finds and displays a LsDefAssociationGrouping entity.
-     *
-     * @Route("/{id}", methods={"GET"}, name="lsdef_association_grouping_show")
-     * @Template()
-     *
-     * @return array
      */
-    public function showAction(LsDefAssociationGrouping $associationGrouping)
+    #[Route(path: '/{id}', name: 'lsdef_association_grouping_show', methods: ['GET'])]
+    public function show(LsDefAssociationGrouping $associationGrouping): Response
     {
         $deleteForm = $this->createDeleteForm($associationGrouping);
 
-        return [
+        return $this->render('framework/ls_def_association_grouping/show.html.twig', [
             'lsDefAssociationGrouping' => $associationGrouping,
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Displays a form to edit an existing LsDefAssociationGrouping entity.
-     *
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_association_grouping_edit")
-     * @Template()
-     * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function editAction(Request $request, LsDefAssociationGrouping $associationGrouping)
+    #[Route(path: '/{id}/edit', name: 'lsdef_association_grouping_edit', methods: ['GET', 'POST'])]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function edit(Request $request, LsDefAssociationGrouping $associationGrouping): Response
     {
         $deleteForm = $this->createDeleteForm($associationGrouping);
         $editForm = $this->createForm(LsDefAssociationGroupingType::class, $associationGrouping);
@@ -126,22 +119,19 @@ class LsDefAssociationGroupingController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_def_association_grouping/edit.html.twig', [
             'lsDefAssociationGrouping' => $associationGrouping,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Deletes a LsDefAssociationGrouping entity.
-     *
-     * @Route("/{id}", methods={"DELETE"}, name="lsdef_association_grouping_delete")
-     * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function deleteAction(Request $request, LsDefAssociationGrouping $associationGrouping)
+    #[Route(path: '/{id}', name: 'lsdef_association_grouping_delete', methods: ['DELETE'])]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function delete(Request $request, LsDefAssociationGrouping $associationGrouping): RedirectResponse
     {
         $form = $this->createDeleteForm($associationGrouping);
         $form->handleRequest($request);
@@ -156,16 +146,12 @@ class LsDefAssociationGroupingController extends AbstractController
 
     /**
      * Creates a form to delete a LsDefAssociationGrouping entity.
-     *
-     * @param LsDefAssociationGrouping $associationGrouping The LsDefAssociationGrouping entity
-     *
-     * @return \Symfony\Component\Form\FormInterface The form
      */
     private function createDeleteForm(LsDefAssociationGrouping $associationGrouping): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsdef_association_grouping_delete', ['id' => $associationGrouping->getId()]))
-            ->setMethod('DELETE')
+            ->setMethod(Request::METHOD_DELETE)
             ->getForm()
         ;
     }

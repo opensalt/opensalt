@@ -12,6 +12,7 @@ use PhpCsFixer\Fixer\ControlStructure\NoTrailingCommaInListCallFixer;
 use PhpCsFixer\Fixer\ControlStructure\TrailingCommaInMultilineFixer;
 use PhpCsFixer\Fixer\ControlStructure\YodaStyleFixer;
 use PhpCsFixer\Fixer\FunctionNotation\FunctionDeclarationFixer;
+use PhpCsFixer\Fixer\Import\NoUnusedImportsFixer;
 use PhpCsFixer\Fixer\Import\OrderedImportsFixer;
 use PhpCsFixer\Fixer\LanguageConstruct\DeclareEqualNormalizeFixer;
 use PhpCsFixer\Fixer\Operator\BinaryOperatorSpacesFixer;
@@ -25,16 +26,22 @@ use PhpCsFixer\Fixer\Whitespace\NoExtraBlankLinesFixer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symplify\CodingStandard\Fixer\Commenting\ParamReturnAndVarTagMalformsFixer;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
+use Symplify\EasyCodingStandard\ValueObject\Option;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
+    $parameters->set(Option::PARALLEL, true);
+
+    $services = $containerConfigurator->services();
 
     $containerConfigurator->import(SetList::CLEAN_CODE);
     $containerConfigurator->import(SetList::PSR_12);
     $containerConfigurator->import(SetList::SYMFONY);
 
+    $services->set(NoUnusedImportsFixer::class);
+
     $parameters->set('skip', [
-        'PhpCsFixer\Fixer\FunctionNotation\SingleLineThrowFixer' => null,
+        'PhpCsFixer\Fixer\FunctionNotation\FunctionTypehintSpaceFixer' => null, // Tries to add a space like &$param -> & $param in method var lists
         'SlevomatCodingStandard\Sniffs\Classes\UnusedPrivateElementsSniff.WriteOnlyProperty' => null,
         'SlevomatCodingStandard\Sniffs\PHP\UselessParenthesesSniff.UselessParentheses' => null,
         'SlevomatCodingStandard\Sniffs\TypeHints\ParameterTypeHintSniff.MissingAnyTypeHint' => null,
@@ -52,26 +59,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'SlevomatCodingStandard\Sniffs\TypeHints\ReturnTypeHintSniff.UselessAnnotation' => null,
         'SlevomatCodingStandard\Sniffs\Variables\UnusedVariableSniff.UnusedVariable' => null,
         'SlevomatCodingStandard\Sniffs\Variables\UselessVariableSniff.UselessVariable' => null,
-        ArraySyntaxFixer::class => null,
-        TrailingCommaInMultilineFixer::class => null,
-        BracesFixer::class => null,
-        ConstantCaseFixer::class => null,
-        ClassAttributesSeparationFixer::class => null,
-        ProtectedToPrivateFixer::class => null,
-        SelfAccessorFixer::class => null,
-        NoTrailingCommaInListCallFixer::class => null,
-        YodaStyleFixer::class => null,
-        FunctionDeclarationFixer::class => null,
-        OrderedImportsFixer::class => null,
-        DeclareEqualNormalizeFixer::class => null,
         BinaryOperatorSpacesFixer::class => null,
         PhpdocAlignFixer::class => null,
         PhpdocSummaryFixer::class => null,
         PhpdocToCommentFixer::class => null,
         PhpdocVarWithoutNameFixer::class => null,
-        ReturnAssignmentFixer::class => null,
-        BlankLineBeforeStatementFixer::class => null,
-        NoExtraBlankLinesFixer::class => null,
-        ParamReturnAndVarTagMalformsFixer::class => null
     ]);
 };

@@ -2,10 +2,10 @@
 
 namespace App\Handler\Import;
 
-use App\Event\NotificationEvent;
-use App\Handler\AbstractDoctrineHandler;
 use App\Command\Import\ImportExcelFileCommand;
 use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
+use App\Handler\AbstractDoctrineHandler;
 use App\Service\ExcelImport;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

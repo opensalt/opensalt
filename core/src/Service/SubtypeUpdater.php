@@ -114,7 +114,6 @@ class SubtypeUpdater
 
         $types = [];
 
-
         try {
             $phpExcelObject = IOFactory::load($path);
         } catch (\Exception) {
@@ -149,7 +148,7 @@ class SubtypeUpdater
 //            $type = strtolower($type);
 //            $type = preg_replace('/^<-ispartof$/', 'haspart', $type);
 //            $type = preg_replace('/^ispartof->$/', 'ispartof', $type);
-            $types[$type] = $types[$type] ?? [];
+            $types[$type] ??= [];
             $types[$type][$subtype] = 1;
 
             $annotation = $this->getValueFromSheet($sheet, 13, $rowIndex);
@@ -170,13 +169,11 @@ class SubtypeUpdater
 
     protected function getValueFromSheet(Worksheet $sheet, int $columnIndex, int $rowIndex): ?string
     {
-        if (!$sheet->cellExistsByColumnAndRow($columnIndex, $rowIndex)) {
+        if (!$sheet->cellExists([$columnIndex, $rowIndex])) {
             return null;
         }
 
-        $cell = $sheet->getCellByColumnAndRow($columnIndex, $rowIndex);
-
-        return $cell->getFormattedValue();
+        return $sheet->getCell([$columnIndex, $rowIndex])->getFormattedValue();
     }
 
     protected function replaceAssociation(?string $origin, ?string $destination, ?string $newType, ?string $subtype, ?string $annotation): string

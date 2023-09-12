@@ -15,10 +15,8 @@ class Version20180117204204 extends AbstractMigration
 {
     public function up(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('
-ALTER TABLE auth_session        
+ALTER TABLE auth_session
   CHANGE sess_time sess_time INTEGER NOT NULL,
   CHANGE sess_lifetime sess_lifetime INTEGER NOT NULL
 ;
@@ -27,10 +25,8 @@ ALTER TABLE auth_session
 
     public function down(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('
-ALTER TABLE auth_session        
+ALTER TABLE auth_session
   CHANGE sess_time sess_time INTEGER UNSIGNED NOT NULL,
   CHANGE sess_lifetime sess_lifetime MEDIUMINT NOT NULL
 ;

@@ -4,37 +4,45 @@ namespace App\Controller\Api;
 
 use App\Entity\ChangeEntry;
 use App\Entity\Framework\CaseApiInterface;
+use App\Entity\Framework\CfRubric;
+use App\Entity\Framework\CfRubricCriterion;
+use App\Entity\Framework\CfRubricCriterionLevel;
+use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDefConcept;
+use App\Entity\Framework\LsDefItemType;
+use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\ChangeEntryRepository;
 use App\Repository\Framework\CfDocQuery;
 use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsDocRepository;
+use App\Security\Permission;
 use App\Service\LoggerTrait;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * @Route("/ims/case/v1p0")
- */
+#[Route(path: '/ims/case/v1p0')]
 class CaseV1P0Controller extends AbstractController
 {
     use LoggerTrait;
 
     public function __construct(
-        private SerializerInterface $serializer,
-        private string $assetsVersion,
+        private readonly SerializerInterface $serializer,
+        private readonly string          $assetsVersion,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
-    /**
-     * @Route("/CFDocuments.{_format}", name="api_v1p0_cfdocuments", methods={"GET"}, defaults={"_format"="json"})
-     */
-    public function getPublicCfDocumentsAction(Request $request, LsDocRepository $docRepository): Response
+    #[Route(path: '/CFDocuments.{_format}', name: 'api_v1p0_cfdocuments', defaults: ['_format' => 'json'], methods: ['GET'])]
+    public function getPublicCfDocuments(Request $request, LsDocRepository $docRepository): Response
     {
         $limit = (int) $request->query->get('limit', '100');
         $offset = (int) $request->query->get('offset', '0');
@@ -59,7 +67,7 @@ class CaseV1P0Controller extends AbstractController
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $doc) {
             if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $doc->getAdoptionStatus()
-                && !$this->isGranted('list', $doc)) {
+                && !$this->isGranted(Permission::FRAMEWORK_LIST, $doc)) {
                 continue;
             }
             if (null !== $doc->getMirroredFramework()) {
@@ -96,18 +104,15 @@ class CaseV1P0Controller extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/CFPackages/{id}.{_format}", name="api_v1p0_cfpackage", methods={"GET"}, defaults={"_format"="json"})
-     * @Entity("obj", expr="repository.findOneByIdentifier(id)")
-     */
-    public function getCfPackageAction(Request $request, LsDoc $obj): Response
+    #[Route(path: '/CFPackages/{id}.{_format}', name: 'api_v1p0_cfpackage', defaults: ['_format' => 'json'], methods: ['GET'])]
+    public function getCfPackage(Request $request, #[MapEntity(expr: 'repository.findOneByIdentifier(id)')] LsDoc $obj): Response
     {
         $id = $obj->getIdentifier();
 
         $this->info('CASE API: package returned', ['id' => $id]);
 
         /** @var ChangeEntryRepository $changeRepo */
-        $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
+        $changeRepo = $this->managerRegistry->getRepository(ChangeEntry::class);
         $lastChange = $changeRepo->getLastChangeTimeForDoc($obj);
 
         $lastModified = $obj->getUpdatedAt();
@@ -130,12 +135,9 @@ class CaseV1P0Controller extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/CFItemAssociations/{id}.{_format}", name="api_v1p0_cfitemassociations", methods={"GET"}, defaults={"_format"="json"})
-     * @Route("/CFItems/{id}/associations.{_format}", name="api_v1p0_cfitemassociations2", methods={"GET"}, defaults={"_format"="json"})
-     * @Entity("obj", expr="repository.findOneByIdentifier(id)")
-     */
-    public function getCfItemAssociationsAction(Request $request, LsItem $obj, LsAssociationRepository $associationRepository): Response
+    #[Route(path: '/CFItemAssociations/{id}.{_format}', name: 'api_v1p0_cfitemassociations', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFItems/{id}/associations.{_format}', name: 'api_v1p0_cfitemassociations2', defaults: ['_format' => 'json'], methods: ['GET'])]
+    public function getCfItemAssociations(Request $request, #[MapEntity(expr: 'repository.findOneByIdentifier(id)')] LsItem $obj, LsAssociationRepository $associationRepository): Response
     {
         $item = $obj;
         $id = $obj->getIdentifier();
@@ -150,7 +152,7 @@ class CaseV1P0Controller extends AbstractController
             $associationDoc = $association->getLsDoc();
             if ($itemDocId !== $associationDoc->getId()
                 && LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $associationDoc->getAdoptionStatus()
-                && !$this->isGranted('list', $associationDoc)) {
+                && !$this->isGranted(Permission::FRAMEWORK_LIST, $associationDoc)) {
                 continue;
             }
 
@@ -158,7 +160,7 @@ class CaseV1P0Controller extends AbstractController
             if (null !== $originDoc
                 && $itemDocId !== $originDoc->getId()
                 && LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $originDoc->getAdoptionStatus()
-                && !$this->isGranted('list', $originDoc)) {
+                && !$this->isGranted(Permission::FRAMEWORK_LIST, $originDoc)) {
                 continue;
             }
 
@@ -166,7 +168,7 @@ class CaseV1P0Controller extends AbstractController
             if (null !== $destDoc
                 && $itemDocId !== $destDoc->getId()
                 && LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $destDoc->getAdoptionStatus()
-                && !$this->isGranted('list', $destDoc)) {
+                && !$this->isGranted(Permission::FRAMEWORK_LIST, $destDoc)) {
                 continue;
             }
 
@@ -197,29 +199,25 @@ class CaseV1P0Controller extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/CFAssociationGroupings/{id}.{_format}", name="api_v1p0_cfassociationgrouping", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefAssociationGrouping", "_format"="json"})
-     * @Route("/CFAssociations/{id}.{_format}", name="api_v1p0_cfassociation", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsAssociation", "_format"="json"})
-     * @Route("/CFDocuments/{id}.{_format}", name="api_v1p0_cfdocument", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDoc", "_format"="json"})
-     * @Route("/CFItems/{id}.{_format}", name="api_v1p0_cfitem", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsItem", "_format"="json"})
-     * @Route("/CFLicenses/{id}.{_format}", name="api_v1p0_cflicense", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefLicence", "_format"="json"})
-     * @Route("/CFRubrics/{id}.{_format}", name="api_v1p0_cfrubric", methods={"GET"}, defaults={"class"="App\Entity\Framework\CfRubric", "_format"="json"})
-     * @Route("/CFRubricCriteria/{id}.{_format}", name="api_v1p0_cfrubriccriterion", methods={"GET"}, defaults={"class"="App\Entity\Framework\CfRubricCriterion", "_format"="json"})
-     * @Route("/CFRubricCriterionLevels/{id}.{_format}", name="api_v1p0_cfrubriccriterionlevel", methods={"GET"}, defaults={"class"="App\Entity\Framework\CfRubricCriterionLevel", "_format"="json"})
-     */
-    public function getObjectAction(Request $request, LsDocRepository $repo, string $class, string $id): Response
+    #[Route(path: '/CFAssociationGroupings/{id}.{_format}', name: 'api_v1p0_cfassociationgrouping', defaults: ['class' => LsDefAssociationGrouping::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFAssociations/{id}.{_format}', name: 'api_v1p0_cfassociation', defaults: ['class' => LsAssociation::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFDocuments/{id}.{_format}', name: 'api_v1p0_cfdocument', defaults: ['class' => LsDoc::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFItems/{id}.{_format}', name: 'api_v1p0_cfitem', defaults: ['class' => LsItem::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFLicenses/{id}.{_format}', name: 'api_v1p0_cflicense', defaults: ['class' => LsDefLicence::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFRubrics/{id}.{_format}', name: 'api_v1p0_cfrubric', defaults: ['class' => CfRubric::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFRubricCriteria/{id}.{_format}', name: 'api_v1p0_cfrubriccriterion', defaults: ['class' => CfRubricCriterion::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFRubricCriterionLevels/{id}.{_format}', name: 'api_v1p0_cfrubriccriterionlevel', defaults: ['class' => CfRubricCriterionLevel::class, '_format' => 'json'], methods: ['GET'])]
+    public function getObject(Request $request, LsDocRepository $repo, string $class, string $id): Response
     {
         $obj = $repo->apiFindOneByClassIdentifier(['class' => $class, 'id' => $id]);
 
         return $this->generateObjectResponse($request, $obj);
     }
 
-    /**
-     * @Route("/CFConcepts/{id}.{_format}", name="api_v1p0_cfconcept", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefConcept", "_format"="json"})
-     * @Route("/CFItemTypes/{id}.{_format}", name="api_v1p0_cfitemtype", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefItemType", "_format"="json"})
-     * @Route("/CFSubjects/{id}.{_format}", name="api_v1p0_cfsubject", methods={"GET"}, defaults={"class"="App\Entity\Framework\LsDefSubject", "_format"="json"})
-     */
-    public function getObjectCollectionAction(Request $request, LsDocRepository $repo, string $class, string $id): Response
+    #[Route(path: '/CFConcepts/{id}.{_format}', name: 'api_v1p0_cfconcept', defaults: ['class' => LsDefConcept::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFItemTypes/{id}.{_format}', name: 'api_v1p0_cfitemtype', defaults: ['class' => LsDefItemType::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFSubjects/{id}.{_format}', name: 'api_v1p0_cfsubject', defaults: ['class' => LsDefSubject::class, '_format' => 'json'], methods: ['GET'])]
+    public function getObjectCollection(Request $request, LsDocRepository $repo, string $class, string $id): Response
     {
         $obj = $repo->apiFindOneByClassIdentifier(['class' => $class, 'id' => $id]);
 
@@ -248,7 +246,7 @@ class CaseV1P0Controller extends AbstractController
      */
     protected function generateObjectResponse(Request $request, CaseApiInterface $obj): Response
     {
-        $this->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
+        $this->info('CASE API: Returned object', ['type' => $obj::class, 'id' => $obj->getIdentifier()]);
 
         $response = $this->generateBaseResponse($obj->getUpdatedAt());
 
@@ -256,7 +254,7 @@ class CaseV1P0Controller extends AbstractController
             return $response;
         }
 
-        $className = substr(strrchr(get_class($obj), '\\'), 1);
+        $className = substr(strrchr($obj::class, '\\'), 1);
         $response->setContent(
             $this->serializer->serialize($obj, 'json', [
                 'groups' => ['default', $className],
@@ -272,7 +270,7 @@ class CaseV1P0Controller extends AbstractController
      */
     protected function generateObjectCollectionResponse(Request $request, CaseApiInterface $obj): Response
     {
-        $this->info('CASE API: Returned object', ['type' => get_class($obj), 'id' => $obj->getIdentifier()]);
+        $this->info('CASE API: Returned object', ['type' => $obj::class, 'id' => $obj->getIdentifier()]);
 
         $response = $this->generateBaseResponse(new \DateTime());
 
@@ -282,7 +280,7 @@ class CaseV1P0Controller extends AbstractController
 
         $collection = explode('/', $request->getPathInfo())[4];
 
-        $className = substr(strrchr(get_class($obj), '\\'), 1);
+        $className = substr(strrchr($obj::class, '\\'), 1);
         $response->setContent(
             $this->serializer->serialize([$collection => [$obj]], 'json', [
                 'groups' => ['default', $className],

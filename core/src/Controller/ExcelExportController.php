@@ -3,41 +3,48 @@
 namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
-use App\Service\ExcelExport;
 use App\Entity\Framework\LsDoc;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Security\Permission;
+use App\Service\ExcelExport;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class ExcelExportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @var ExcelExport
-     */
-    protected $excelExport;
-
-    public function __construct(ExcelExport $excelExport)
-    {
-        $this->excelExport = $excelExport;
+    public function __construct(
+        private readonly ExcelExport $excelExport,
+        private readonly RateLimiterFactory $excelDownloadLimiter,
+    ) {
     }
 
-    /**
-     * @Route("/cfdoc/{id}/excel", methods={"GET"}, name="export_excel_file")
-     */
-    public function exportExcelAction(LsDoc $lsDoc): StreamedResponse
+    #[Route(path: '/cfdoc/{id}/excel', name: 'export_excel_file', methods: ['GET'])]
+    #[IsGranted(Permission::FRAMEWORK_DOWNLOAD_EXCEL, 'lsDoc')]
+    public function exportExcel(Request $request, LsDoc $lsDoc): StreamedResponse
     {
+        $limiter = $this->excelDownloadLimiter->create($request->getClientIp());
+        if (false === $limiter->consume()->isAccepted()) {
+            throw new TooManyRequestsHttpException(600);
+        }
+
         $title = preg_replace('/[^A-Za-z0-9]/', '_', $lsDoc->getTitle());
 
         $phpExcelObject = $this->excelExport->exportExcelFile($lsDoc);
 
         return new StreamedResponse(
             function () use ($phpExcelObject) {
-                \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($phpExcelObject, 'Xlsx')
+                IOFactory::createWriter($phpExcelObject, 'Xlsx')
                     ->save('php://output');
             },
-            200,
+            Response::HTTP_OK,
             [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 'Content-Disposition' => 'attachment; filename="'.$title.'.xlsx"',

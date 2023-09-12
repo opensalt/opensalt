@@ -5,6 +5,7 @@ namespace App\Security\Voter;
 use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -12,59 +13,49 @@ class FrameworkAccessVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const LIST = 'list'; // User can see the framework in a list
-    public const VIEW = 'view';
-    public const EDIT = 'edit';
-    public const DELETE = 'delete';
-    public const CREATE = 'create';
+    final public const LIST = Permission::FRAMEWORK_LIST; // User can see the framework in a list
+    final public const VIEW = Permission::FRAMEWORK_VIEW;
+    final public const EDIT = Permission::FRAMEWORK_EDIT;
+    final public const EDIT_ALL = Permission::FRAMEWORK_EDIT_ALL;
+    final public const DELETE = Permission::FRAMEWORK_DELETE;
+    final public const CREATE = Permission::FRAMEWORK_CREATE;
+    final public const DOWNLOAD_EXCEL = Permission::FRAMEWORK_DOWNLOAD_EXCEL;
 
-    public const FRAMEWORK = 'lsdoc';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
     {
-        if (!\in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::DELETE], true)) {
-            return false;
-        }
-
-        // If the attribute is CREATE then we can handle if the subject is FRAMEWORK
-        if (static::FRAMEWORK === $subject && static::CREATE === $attribute) {
-            return true;
-        }
-
-        if ('all_frameworks' === $subject && static::EDIT === $attribute) {
-            return true;
-        }
-
-        // For the other attributes the subject must be a document
-        return $subject instanceof LsDoc;
+        return \in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::EDIT_ALL, static::DELETE, static::DOWNLOAD_EXCEL], true);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    public function supportsType(string $subjectType): bool
     {
-        switch ($attribute) {
-            case self::CREATE:
-                return (static::FRAMEWORK === $subject) && $this->canCreateFramework($token);
-
-            case self::LIST:
-                return $this->canListFramework($subject, $token);
-
-            case self::VIEW:
-                return $this->canViewFramework($subject, $token);
-
-            case self::EDIT:
-                return $this->canEditFramework($subject, $token);
-
-            case self::DELETE:
-                return $this->canDeleteFramework($subject, $token);
+        if ('null' === $subjectType) {
+            return true;
         }
 
-        return false;
+        return is_a($subjectType, LsDoc::class, true);
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        return match ($attribute) {
+            self::CREATE, self::EDIT_ALL => null === $subject,
+            self::LIST, self::VIEW, self::EDIT, self::DELETE, self::DOWNLOAD_EXCEL => $subject instanceof LsDoc,
+            default => false,
+        };
+    }
+
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    {
+        return match ($attribute) {
+            self::CREATE => $this->canCreateFramework($token),
+            self::LIST => $this->canListFramework($subject, $token),
+            self::VIEW => $this->canViewFramework($subject, $token),
+            self::EDIT => $this->canEditFramework($subject, $token),
+            self::EDIT_ALL => $this->canEditAllFrameworks($token),
+            self::DELETE => $this->canDeleteFramework($subject, $token),
+            self::DOWNLOAD_EXCEL => $this->canDownloadExcelFramework($subject, $token),
+            default => false,
+        };
     }
 
     private function canCreateFramework(TokenInterface $token): bool
@@ -78,7 +69,8 @@ class FrameworkAccessVoter extends Voter
 
     private function canListFramework(LsDoc $subject, TokenInterface $token): bool
     {
-        if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $subject->getAdoptionStatus()) {
+        if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $subject->getAdoptionStatus()
+            && (!$subject->isMirrored() || true === $subject->getMirroredFramework()?->isVisible())) {
             return true;
         }
 
@@ -94,7 +86,7 @@ class FrameworkAccessVoter extends Voter
         }
 
         // Editors can see all mirrored frameworks in the list
-        if (null !== $subject->getMirroredFramework()) {
+        if ($subject->isMirrored()) {
             return $this->roleChecker->isEditor($token);
         }
 
@@ -107,10 +99,10 @@ class FrameworkAccessVoter extends Voter
         return true;
     }
 
-    private function canEditFramework(mixed $subject, TokenInterface $token): bool
+    private function canEditFramework(LsDoc $subject, TokenInterface $token): bool
     {
         // Do not allow editing if the framework is mirrored
-        if ($subject instanceof LsDoc && null !== $subject->getMirroredFramework() && $subject->getMirroredFramework()->isInclude()) {
+        if ($subject->isMirrored()) {
             return false;
         }
 
@@ -155,5 +147,25 @@ class FrameworkAccessVoter extends Voter
     private function canDeleteFramework(LsDoc $subject, TokenInterface $token): bool
     {
         return $this->canEditFramework($subject, $token);
+    }
+
+    private function canEditAllFrameworks(TokenInterface $token): bool
+    {
+        if ($this->roleChecker->isSuperEditor($token)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function canDownloadExcelFramework(mixed $subject, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            // If the user is not logged in then deny access to the Excel download
+            return false;
+        }
+
+        return true;
     }
 }

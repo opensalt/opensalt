@@ -2,9 +2,10 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\User\User;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\User\User;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -13,40 +14,38 @@ class ItemVoter extends Voter
     use DeferDecisionTrait;
     use RoleCheckTrait;
 
-    public const ADD_TO = 'add-standard-to';
-    public const EDIT = 'edit';
+    final public const ADD_TO = Permission::ITEM_ADD_TO;
+    final public const EDIT = Permission::ITEM_EDIT;
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
     {
-        if (!\in_array($attribute, [self::ADD_TO, self::EDIT], true)) {
-            return false;
-        }
-
-        switch ($attribute) {
-            case self::ADD_TO:
-                // User can add to a specific doc or "some doc"
-                if ($subject instanceof LsDoc || null === $subject) {
-                    return true;
-                }
-                break;
-
-            case self::EDIT:
-                // User can edit the LsItem
-                if ($subject instanceof LsItem) {
-                    return true;
-                }
-        }
-
-        return false;
+        return \in_array($attribute, [self::ADD_TO, self::EDIT], true);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    public function supportsType(string $subjectType): bool
+    {
+        if ('null' === $subjectType) {
+            return true;
+        }
+
+        if (is_a($subjectType, LsDoc::class, true)) {
+            return true;
+        }
+
+        return is_a($subjectType, LsItem::class, true);
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        return match ($attribute) {
+            // User can add to a specific doc or "some doc"
+            self::ADD_TO => $subject instanceof LsDoc || null === $subject,
+            self::EDIT => $subject instanceof LsItem,
+            default => false,
+        };
+    }
+
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
@@ -54,15 +53,11 @@ class ItemVoter extends Voter
             return false;
         }
 
-        switch ($attribute) {
-            case self::ADD_TO:
-                return $this->canAddTo($subject, $token);
-
-            case self::EDIT:
-                return $this->canEdit($subject, $token);
-        }
-
-        return false;
+        return match ($attribute) {
+            self::ADD_TO => $this->canAddTo($subject, $token),
+            self::EDIT => $this->canEdit($subject, $token),
+            default => false,
+        };
     }
 
     /**

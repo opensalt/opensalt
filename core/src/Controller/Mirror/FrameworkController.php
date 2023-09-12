@@ -7,23 +7,26 @@ use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Log;
 use App\Form\DTO\MirroredFrameworkDTO;
 use App\Form\Type\MirroredFrameworkDTOType;
+use App\Security\Permission;
 use App\Service\MirrorServer;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Security("is_granted('manage', 'mirrors')")
- * @Route("/admin/mirror/framework")
- */
+#[Route(path: '/admin/mirror/framework')]
+#[IsGranted(Permission::MANAGE_MIRRORS)]
 class FrameworkController extends AbstractController
 {
-    /**
-     * @Route("/new", name="mirror_framework_new")
-     */
+    public function __construct(
+        private readonly ManagerRegistry $managerRegistry,
+    ) {
+    }
+
+    #[Route(path: '/new', name: 'mirror_framework_new')]
     public function new(Request $request, MirrorServer $mirrorService): Response
     {
         $frameworkDto = new MirroredFrameworkDTO();
@@ -47,12 +50,10 @@ class FrameworkController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/resolve-id-conflict", name="mirror_framework_resolve_conflict")
-     */
+    #[Route(path: '/{id}/resolve-id-conflict', name: 'mirror_framework_resolve_conflict')]
     public function resolveConflict(Request $request, Framework $framework): Response
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $doc = $em->getRepository(LsDoc::class)->findOneByIdentifier($framework->getIdentifier());
         if (null === $doc) {
@@ -95,20 +96,16 @@ class FrameworkController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/refresh", methods={"POST"}, name="mirror_framework_refresh")
-     */
+    #[Route(path: '/{id}/refresh', name: 'mirror_framework_refresh', methods: ['POST'])]
     public function refresh(Framework $framework): Response
     {
         $framework->markToRefresh();
-        $this->getDoctrine()->getManager()->flush();
+        $this->managerRegistry->getManager()->flush();
 
         return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
     }
 
-    /**
-     * @Route("/{id}/enable", methods={"POST"}, name="mirror_framework_enable")
-     */
+    #[Route(path: '/{id}/enable', name: 'mirror_framework_enable', methods: ['POST'])]
     public function enable(Framework $framework): Response
     {
         $framework->setInclude(true);
@@ -119,14 +116,12 @@ class FrameworkController extends AbstractController
             'Mirroring was enabled'
         );
         $framework->markToRefresh();
-        $this->getDoctrine()->getManager()->flush();
+        $this->managerRegistry->getManager()->flush();
 
         return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
     }
 
-    /**
-     * @Route("/{id}/disable", methods={"POST"}, name="mirror_framework_disable")
-     */
+    #[Route(path: '/{id}/disable', name: 'mirror_framework_disable', methods: ['POST'])]
     public function disable(Framework $framework): Response
     {
         $framework->setInclude(false);
@@ -139,14 +134,38 @@ class FrameworkController extends AbstractController
                 'Mirroring was disabled, a framework now exists on the server with the same identifier'
             );
         }
-        $this->getDoctrine()->getManager()->flush();
+        $this->managerRegistry->getManager()->flush();
 
         return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
     }
 
-    /**
-     * @Route("/{id}/logs", name="mirror_framework_logs")
-     */
+    #[Route(path: '/{id}/visible', name: 'mirror_framework_visible', methods: ['POST'])]
+    public function visible(Framework $framework): Response
+    {
+        $framework->setVisible(true);
+        $framework->addLog(
+            Log::STATUS_SUCCESS,
+            'Mirror was set to visible'
+        );
+        $this->managerRegistry->getManager()->flush();
+
+        return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
+    }
+
+    #[Route(path: '/{id}/invisible', name: 'mirror_framework_invisible', methods: ['POST'])]
+    public function invisible(Framework $framework): Response
+    {
+        $framework->setVisible(false);
+        $framework->addLog(
+            Log::STATUS_SUCCESS,
+            'Mirror was set to invisible'
+        );
+        $this->managerRegistry->getManager()->flush();
+
+        return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
+    }
+
+    #[Route(path: '/{id}/logs', name: 'mirror_framework_logs')]
     public function viewLog(Framework $framework): Response
     {
         return $this->render('mirror/framework/logs.html.twig', [

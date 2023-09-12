@@ -91,28 +91,24 @@ class EducationLevelSet
             [$lo, $hi] = explode('-', $gradeString, 2);
 
             $lo = self::normalizeGrade($lo);
-            if ('PK' === $lo) {
-                $lo = '-1';
-            }
-            if ('KG' === $lo) {
-                $lo = '0';
-            }
+            $lo = match ($lo) {
+                'PK' => '-1',
+                'KG' => '0',
+                default => $lo,
+            };
 
             $hi = self::normalizeGrade($hi);
-            if ('PK' === $hi) {
-                $hi = '-1';
-            }
-            if ('KG' === $hi) {
-                $hi = '0';
-            }
+            $hi = match ($hi) {
+                'PK' => '-1',
+                'KG' => '0',
+                default => $hi,
+            };
 
             if (!is_numeric($lo) || !is_numeric($hi) || $hi < $lo) {
                 return ['OT'];
             }
 
-            return array_map(static function ($x) {
-                return self::normalizeGrade($x);
-            }, range($lo, $hi));
+            return array_map(static fn ($x): string => self::normalizeGrade((string) $x), range($lo, $hi));
         }
 
         return ['OT'];

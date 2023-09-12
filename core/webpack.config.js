@@ -10,7 +10,8 @@ var sharedScripts = [
     npmDir+'/html5-boilerplate/dist/js/plugins.js',
     npmDir+'/jquery/dist/jquery.js',
     npmDir+'/jquery-migrate/dist/jquery-migrate'+(Encore.isProduction()?'.min':'')+'.js',
-    npmDir+'/jquery-ui-bundle/jquery-ui.js',
+    //npmDir+'/jquery-ui-bundle/jquery-ui.js',
+    npmDir+'/jquery-ui-dist/jquery-ui.js',
     npmDir+'/bootstrap-sass/assets/javascripts/bootstrap.js',
     npmDir+'/jquery.fancytree/dist/jquery.fancytree-all.js',
     assetsDir+'/js/site.js'
@@ -179,7 +180,8 @@ config.context = __dirname;
 config.resolve.alias = {
   'jquery': path.resolve(__dirname, npmDir+'/jquery/dist/jquery.js'),
   //'jquery-ui': path.resolve(__dirname, npmDir+'/jquery-ui/jquery-ui.js'),
-  'jquery-ui': path.resolve(__dirname, npmDir+'/jquery-ui-bundle/jquery-ui.js'),
+  //'jquery-ui': path.resolve(__dirname, npmDir+'/jquery-ui-bundle/jquery-ui.js'),
+  'jquery-ui': path.resolve(__dirname, npmDir+'/jquery-ui-dist/jquery-ui.js'),
   //'datatables.net': path.resolve(__dirname, npmDir+'/datatables.net/js/jquery.dataTables.js'),
   //'jquery-ui/ui/widgets/menu': path.resolve(__dirname, npmDir+'/jquery-ui/ui/widgets/menu.js'),
   //'simplemde': path.resolve(__dirname, npmDir+'/simplemde/dist/simplemde.min.js'),

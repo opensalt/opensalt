@@ -5,87 +5,79 @@ namespace App\Controller;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Route("/treeuiinfo")
- */
+#[Route(path: '/treeuiinfo')]
 class UiInfoController extends AbstractController
 {
-    /**
-     * @Route("/multi/{id}", methods={"POST"}, name="multi_tree_info_json")
-     * @Security("is_granted('edit', doc)")
-     */
-    public function multiJsonInfoAction(Request $request, LsDoc $doc): JsonResponse
+    public function __construct(
+        private readonly ManagerRegistry $managerRegistry,
+    ) {
+    }
+
+    #[Route(path: '/multi/{id}', name: 'multi_tree_info_json', methods: ['POST'])]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
+    public function multiJsonInfo(Request $request, LsDoc $doc): JsonResponse
     {
         $objs = [];
 
-        /** @var ?array $docs - argument passed as an array */
-        $docs = $request->request->get('doc');
-        if (null !== $docs && is_array($docs)) {
-            foreach ($docs as $id) {
-                $d = $this->getDoctrine()->getRepository(LsDoc::class)
-                    ->find($id);
-                if (null !== $d) {
-                    $objs['docs'][$id] = $this->generateDocArray($d);
-                }
+        /** @var array $docs - argument passed as an array */
+        $docs = $request->request->all('doc');
+        foreach ($docs as $id) {
+            $d = $this->managerRegistry->getRepository(LsDoc::class)
+                ->find($id);
+            if (null !== $d) {
+                $objs['docs'][$id] = $this->generateDocArray($d);
             }
         }
 
-        /** @var ?array $items - argument passed as an array */
-        $items = $request->request->get('item');
-        if (null !== $items && is_array($items)) {
-            foreach ($items as $id) {
-                $i = $this->getDoctrine()->getRepository(LsItem::class)
-                    ->find($id);
-                if (null !== $i) {
-                    $objs['items'][$id] = $this->generateItemArray($i);
-                }
+        /** @var array $items - argument passed as an array */
+        $items = $request->request->all('item');
+        foreach ($items as $id) {
+            $i = $this->managerRegistry->getRepository(LsItem::class)
+                ->find($id);
+            if (null !== $i) {
+                $objs['items'][$id] = $this->generateItemArray($i);
             }
         }
 
-        /** @var ?array $assocs - argument passed as an array */
-        $assocs = $request->request->get('assoc');
-        if (null !== $assocs && is_array($assocs)) {
-            foreach ($assocs as $id) {
-                $a = $this->getDoctrine()->getRepository(LsAssociation::class)
-                    ->find($id);
-                if (null !== $a) {
-                    $objs['assocs'][$id] = $this->generateAssociationArray($a);
-                }
+        /** @var array $assocs - argument passed as an array */
+        $assocs = $request->request->all('assoc');
+        foreach ($assocs as $id) {
+            $a = $this->managerRegistry->getRepository(LsAssociation::class)
+                ->find($id);
+            if (null !== $a) {
+                $objs['assocs'][$id] = $this->generateAssociationArray($a);
             }
         }
 
         return new JsonResponse($objs);
     }
 
-    /**
-     * @Route("/doc/{id}", methods={"GET"}, name="lsdoc_tree_json")
-     * @Security("is_granted('edit', doc)")
-     */
-    public function docJsonInfoAction(LsDoc $doc): JsonResponse
+    #[Route(path: '/doc/{id}', name: 'lsdoc_tree_json', methods: ['GET'])]
+    #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
+    public function docJsonInfo(LsDoc $doc): JsonResponse
     {
         return $this->generateDocJsonResponse($doc);
     }
 
-    /**
-     * @Route("/item/{id}", methods={"GET"}, name="lsitem_tree_json")
-     * @Security("is_granted('edit', item)")
-     */
-    public function itemJsonInfoAction(LsItem $item): JsonResponse
+    #[Route(path: '/item/{id}', name: 'lsitem_tree_json', methods: ['GET'])]
+    #[IsGranted(Permission::ITEM_EDIT, 'item')]
+    public function itemJsonInfo(LsItem $item): JsonResponse
     {
         return $this->generateItemJsonResponse($item);
     }
 
-    /**
-     * @Route("/association/{id}", methods={"GET"}, name="doc_tree_association_json")
-     * @Security("is_granted('edit', association.getLsDoc())")
-     */
-    public function associationJsonInfoAction(LsAssociation $association): JsonResponse
+    #[Route(path: '/association/{id}', name: 'doc_tree_association_json', methods: ['GET'])]
+    #[IsGranted(Permission::ASSOCIATION_EDIT, new Expression('args["association"].getLsDoc()'))]
+    public function associationJsonInfo(LsAssociation $association): JsonResponse
     {
         return $this->generateAssociationJsonResponse($association);
     }
@@ -108,8 +100,8 @@ class UiInfoController extends AbstractController
             'description' => $doc->getDescription(),
             'language' => $doc->getLanguage(),
             'adoptionStatus' => $doc->getAdoptionStatus(),
-            'statusStart' => (null !== $doc->getStatusStart()) ? $doc->getStatusStart()->format('Y-m-d') : null,
-            'statusEnd' => (null !== $doc->getStatusEnd()) ? $doc->getStatusEnd()->format('Y-m-d') : null,
+            'statusStart' => $doc->getStatusStart()?->format('Y-m-d'),
+            'statusEnd' => $doc->getStatusEnd()?->format('Y-m-d'),
             'note' => $doc->getNote(),
             'version' => $doc->getVersion(),
             'lastChangeDateTime' => $doc->getChangedAt()->format('Y-m-d\TH:i:s'),
@@ -124,8 +116,7 @@ class UiInfoController extends AbstractController
     protected function generateItemArray(LsItem $item): array
     {
         // retrieve isChildOf assoc id for the item
-        /** @var LsAssociation $assoc */
-        $assoc = $this->getDoctrine()->getRepository(LsAssociation::class)->findOneBy([
+        $assoc = $this->managerRegistry->getRepository(LsAssociation::class)->findOneBy([
             'originLsItem' => $item,
             'type' => LsAssociation::CHILD_OF,
             'lsDoc' => $item->getLsDoc(),
@@ -159,7 +150,7 @@ class UiInfoController extends AbstractController
                     'assocId' => $assoc->getId(),
                     'identifier' => $assoc->getIdentifier(),
                     'uri' => $assoc->getUri(),
-                    //'groupId' => (null !== $assoc->getGroup()) ? $assoc->getGroup()->getId() : null,
+                    //'groupId' => $assoc->getGroup()?->getId(),
                     'dest' => ['doc' => $assoc->getLsDocIdentifier(), 'item' => $destItem, 'uri' => $destItem],
                 ];
                 if ($assoc->getGroup()) {
@@ -172,7 +163,8 @@ class UiInfoController extends AbstractController
         }
 
         $json = $this->renderView('framework/doc_tree/export_item.json.twig', ['lsItem' => $ret]);
-        return \json_decode($json, true);
+
+        return \json_decode($json, true, 512, JSON_THROW_ON_ERROR);
     }
 
     protected function generateAssociationJsonResponse(LsAssociation $association): JsonResponse
@@ -221,7 +213,7 @@ class UiInfoController extends AbstractController
                 'item' => $destIdentifier,
                 'uri' => $destIdentifier,
             ],
-            'groupId' => $association->getGroup() ? $association->getGroup()->getId() : null,
+            'groupId' => $association->getGroup()?->getId(),
             'seq' => $association->getSequenceNumber(),
             'mod' => $association->getUpdatedAt()->format('Y-m-d\TH:i:s'),
         ];

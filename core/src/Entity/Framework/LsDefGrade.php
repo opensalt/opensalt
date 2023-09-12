@@ -2,66 +2,41 @@
 
 namespace App\Entity\Framework;
 
+use App\Repository\Framework\LsDefGradeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * LsDefGrade
- *
- * @ORM\Table(name="ls_def_grade")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\LsDefGradeRepository")
- */
+#[ORM\Table(name: 'ls_def_grade')]
+#[ORM\Entity(repositoryClass: LsDefGradeRepository::class)]
 class LsDefGrade extends AbstractLsDefinition
 {
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="code", type="string", length=255)
-     */
-    private $code;
+    #[ORM\Column(name: 'code', type: 'string', length: 255)]
+    private string $code;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="rank", type="integer", nullable=true)
-     */
-    private $rank;
+    #[ORM\Column(name: 'rank', type: 'integer', nullable: true)]
+    private int $rank;
 
-
-    /**
-     * @return string
-     */
-    public function getCode() {
+    public function getCode(): string
+    {
         return $this->code;
     }
 
-    /**
-     * @param string $code
-     *
-     * @return LsDefGrade
-     */
-    public function setCode($code) {
+    public function setCode(string $code): void
+    {
         $this->code = $code;
-        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getRank() {
+    public function getRank(): int
+    {
         return $this->rank;
     }
 
-    /**
-     * @param int $rank
-     *
-     * @return LsDefGrade
-     */
-    public function setRank($rank) {
+    public function setRank(int $rank): void
+    {
         $this->rank = $rank;
-        return $this;
     }
 
-    public function getLabel() {
+    public function getLabel(): string
+    {
         return "{$this->getCode()} - {$this->getTitle()}";
     }
 }

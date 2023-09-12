@@ -4,19 +4,18 @@ namespace App\Command\Comment;
 
 use App\Command\BaseCommand;
 use App\Entity\Comment\Comment;
-use App\Entity\User\User;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\User\User;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AddCommentCommand extends BaseCommand
 {
     /**
      * @var string
-     *
-     * @Assert\Type("string")
-     * @Assert\NotNull()
      */
+    #[Assert\Type('string')]
+    #[Assert\NotNull]
     private $itemType;
 
     /**
@@ -35,38 +34,33 @@ class AddCommentCommand extends BaseCommand
 
     /**
      * @var User
-     *
-     * @Assert\Type(User::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(User::class)]
+    #[Assert\NotNull]
     private $user;
 
     /**
      * @var string
-     *
-     * @Assert\Type("string")
      */
+    #[Assert\Type('string')]
     private $content;
 
     /**
      * @var int
-     *
-     * @Assert\Type("int")
      */
+    #[Assert\Type('int')]
     private $parentId;
 
     /**
      * @var Comment
-     *
-     * @Assert\Type(Comment::class)
      */
+    #[Assert\Type(Comment::class)]
     private $comment;
 
     /**
      * @var string
-     *
-     * @Assert\Type("string")
      */
+    #[Assert\Type('string')]
     private $fileUrl;
 
     private $mimeType;
@@ -74,7 +68,7 @@ class AddCommentCommand extends BaseCommand
     public function __construct(string $itemType, $itemId, User $user, ?string $content = null, ?string $fileUrl = null, ?string $mimeType = null, $parentId = null)
     {
         $this->itemType = $itemType;
-        if ($this->itemType === 'item') {
+        if ('item' === $this->itemType) {
             $this->item = $itemId;
         } else {
             $this->document = $itemId;

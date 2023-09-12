@@ -3,12 +3,12 @@
 namespace App\Handler\User;
 
 use App\Command\User\AddUserByNameCommand;
+use App\Entity\User\User;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseDoctrineHandler;
 use App\Service\User\UserManager;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\User\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 

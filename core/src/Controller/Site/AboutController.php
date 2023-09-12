@@ -2,27 +2,18 @@
 
 namespace App\Controller\Site;
 
-use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class AboutController extends AbstractController
 {
-    /**
-     * @var string Value of kernel.project_dir
-     */
-    protected $projectDir;
-
-    public function __construct(string $projectDir)
+    public function __construct(protected string $projectDir)
     {
-        $this->projectDir = $projectDir;
     }
 
-    /**
-     * @Route("/about", name="site_about")
-     * @Template()
-     */
-    public function aboutAction()
+    #[Route(path: '/about', name: 'site_about')]
+    public function about(): Response
     {
         if (file_exists($this->projectDir.'/public/version.txt')) {
             $fullVersion = trim(file_get_contents($this->projectDir.'/public/version.txt'));
@@ -32,8 +23,8 @@ class AboutController extends AbstractController
             $fullVersion = 'UNKNOWN';
         }
 
-        return [
+        return $this->render('site/about/about.html.twig', [
             'salt_version' => $fullVersion,
-        ];
+        ]);
     }
 }

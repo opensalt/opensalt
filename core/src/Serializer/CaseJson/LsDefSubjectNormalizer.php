@@ -4,29 +4,28 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsDefSubject;
 use App\Service\Api1Uris;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class LsDefSubjectNormalizer implements ContextAwareNormalizerInterface
+final class LsDefSubjectNormalizer implements NormalizerInterface
 {
     use LastChangeDateTimeTrait;
 
     public function __construct(
-        private Api1Uris $api1Uris,
+        private readonly Api1Uris $api1Uris,
     ) {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function supportsNormalization($data, string $format = null, array $context = [])
+    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof LsDefSubject;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function normalize($object, string $format = null, array $context = [])
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsDefSubject::class => true];
+    }
+
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDefSubject) {
             return null;
@@ -49,8 +48,6 @@ final class LsDefSubjectNormalizer implements ContextAwareNormalizerInterface
             'hierarchyCode' => $object->getHierarchyCode(),
         ];
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 }

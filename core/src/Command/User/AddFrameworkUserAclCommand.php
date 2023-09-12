@@ -10,17 +10,15 @@ class AddFrameworkUserAclCommand extends BaseCommand
 {
     /**
      * @var AddAclUserDTO
-     *
-     * @Assert\Type(AddAclUserDTO::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(AddAclUserDTO::class)]
+    #[Assert\NotNull]
     private $dto;
 
     public function __construct(AddAclUserDTO $dto)
     {
         $this->dto = $dto;
     }
-
 
     public function getDto(): AddAclUserDTO
     {

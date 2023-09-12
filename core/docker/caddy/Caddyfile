@@ -1,95 +1,93 @@
 {
-    # Debug
-    {$DEBUG}
-    # HTTP/3 support
-    servers {
-        protocol {
-            experimental_http3
-        }
-    }
+	# Debug
+	{$DEBUG}
+	servers {
+	}
+	auto_https off
 }
 
-{$SERVER_NAME::80}
+:80 {
+	log
 
-log
+	header {
+		Server "OpenSALT"
+	}
 
-header {
-    Server "OpenSALT"
-}
+	# Matches requests for HTML documents, for static files and for Next.js files,
+	# except for known API paths and paths with extensions handled by API Platform
+	#@pwa expression ( \
+	#        {header.Accept}.matches('\\btext/html\\b') \
+	#        && !{path}.matches('(?i)(?:^/docs|^/graphql|^/bundles/|^/_profiler|^/_wdt|\\.(?:json|html$|csv$|ya?ml$|xml$))') \
+	#    ) \
+	#    || {path} == '/favicon.ico' \
+	#    || {path} == '/manifest.json' \
+	#    || {path} == '/robots.txt' \
+	#    || {path}.startsWith('/_next') \
+	#    || {path}.startsWith('/sitemap')
 
-# Matches requests for HTML documents, for static files and for Next.js files,
-# except for known API paths and paths with extensions handled by API Platform
-#@pwa expression ( \
-#        {header.Accept}.matches('\\btext/html\\b') \
-#        && !{path}.matches('(?i)(?:^/docs|^/graphql|^/bundles/|^/_profiler|^/_wdt|\\.(?:json|html$|csv$|ya?ml$|xml$))') \
-#    ) \
-#    || {path} == '/favicon.ico' \
-#    || {path} == '/manifest.json' \
-#    || {path} == '/robots.txt' \
-#    || {path}.startsWith('/_next') \
-#    || {path}.startsWith('/sitemap')
+	route {
+		root * /srv/core/public
 
-route {
-    root * /srv/core/public
+		respond /health-check "OK"
 
-    respond /health-check "OK"
+		mercure {
+			# Transport to use (default to Bolt)
+			transport_url {$MERCURE_TRANSPORT_URL:bolt:///data/mercure.db}
+			# Publisher JWT key
+			publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
+			# Subscriber JWT key
+			subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG}
+			# Allow anonymous subscribers (double-check that it's what you want)
+			anonymous
+			# Enable the subscription API (double-check that it's what you want)
+			subscriptions
+			# Extra directives
+			{$MERCURE_EXTRA_DIRECTIVES}
+		}
+		vulcain
+		push
 
-    mercure {
-        # Transport to use (default to Bolt)
-        transport_url {$MERCURE_TRANSPORT_URL:bolt:///data/mercure.db}
-        # Publisher JWT key
-        publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
-        # Subscriber JWT key
-        subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG}
-        # Allow anonymous subscribers (double-check that it's what you want)
-        anonymous
-        # Enable the subscription API (double-check that it's what you want)
-        subscriptions
-        # Extra directives
-        {$MERCURE_EXTRA_DIRECTIVES}
-    }
-    vulcain
-    push
+		# Add links to the API docs and to the Mercure Hub if not set explicitly (e.g. the PWA)
+		#header ?Link "</docs.jsonld>; rel=\"http://www.w3.org/ns/hydra/core#apiDocumentation\", </.well-known/mercure>; rel=\"mercure\""
 
-    # Add links to the API docs and to the Mercure Hub if not set explicitly (e.g. the PWA)
-    #header ?Link "</docs.jsonld>; rel=\"http://www.w3.org/ns/hydra/core#apiDocumentation\", </.well-known/mercure>; rel=\"mercure\""
+		# Comment the following line if you don't want Next.js to catch requests for HTML documents.
+		# In this case, they will be handled by the PHP app.
+		#reverse_proxy @pwa http://{$PWA_UPSTREAM}
 
-    # Comment the following line if you don't want Next.js to catch requests for HTML documents.
-    # In this case, they will be handled by the PHP app.
-    #reverse_proxy @pwa http://{$PWA_UPSTREAM}
+		# Used instead of php_fastcgi to limit php files allowed
+		route {
+			# Add trailing slash for directory requests
+			@canonicalPath {
+				file {
+					try_files {path}/index.php
+				}
+				not path */
+			}
+			redir @canonicalPath {path}/ 308
 
-    # Used instead of php_fastcgi to limit php files allowed
-    route {
-        # Add trailing slash for directory requests
-        @canonicalPath {
-            file {
-                try_files {path}/index.php
-            }
-            not path */
-        }
-        redir @canonicalPath {path}/ 308
+			# If the requested file does not exist, try index files
+			@indexFiles {
+				file {
+					try_files {path} {path}/index.php /index.php
+					split_path .php
+				}
+			}
+			rewrite @indexFiles {http.matchers.file.relative}
 
-        # If the requested file does not exist, try index files
-        @indexFiles {
-            file {
-                try_files {path} {path}/index.php /index.php
-                split_path .php
-            }
-        }
-        rewrite @indexFiles {http.matchers.file.relative}
+			# Proxy PHP files to the FastCGI responder
+			@phpFiles {
+				# Only allow index.php and app_dev.php
+				path_regexp ^/(index|app_dev)\.php$
+			}
+			reverse_proxy @phpFiles tcp/php:9000 {
+				trusted_proxies private_ranges
+				transport fastcgi {
+					split .php
+				}
+			}
+		}
 
-        # Proxy PHP files to the FastCGI responder
-        @phpFiles {
-            # Only allow index.php and app_dev.php
-            path_regexp ^/(index|app_dev)\.php$
-        }
-        reverse_proxy @phpFiles tcp/php:9000 {
-            transport fastcgi {
-                split .php
-            }
-        }
-    }
-
-    encode zstd gzip
-    file_server
+		encode zstd gzip
+		file_server
+	}
 }

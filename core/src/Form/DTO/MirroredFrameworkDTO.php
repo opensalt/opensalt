@@ -9,12 +9,16 @@ class MirroredFrameworkDTO
 {
     /**
      * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
-     * @Assert\Url()
      */
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
+    #[Assert\Url]
     public $url;
+
+    /**
+     * @var bool
+     */
+    public $visible;
 
     /**
      * @var OAuthCredential|null

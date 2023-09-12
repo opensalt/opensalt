@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use App\Service\IdentifiableObjectHelper;
 use App\Service\UriGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,16 +19,13 @@ use Symfony\Component\WebLink\Link;
 class UriController extends AbstractController
 {
     public function __construct(
-        private IdentifiableObjectHelper $objectHelper,
-        private string $assetsVersion,
-        private SerializerInterface $symfonySerializer,
+        private readonly IdentifiableObjectHelper $objectHelper,
+        private readonly SerializerInterface $symfonySerializer,
     ) {
     }
 
-    /**
-     * @Route("/uri/", methods={"GET"}, defaults={"_format"="html"}, name="uri_lookup_empty")
-     */
-    public function findEmptyUriAction(Request $request): Response
+    #[Route(path: '/uri/', name: 'uri_lookup_empty', defaults: ['_format' => 'html'], methods: ['GET'])]
+    public function findEmptyUri(Request $request): Response
     {
         $this->determineRequestFormat($request, null);
 
@@ -41,10 +40,8 @@ class UriController extends AbstractController
         return $this->render('uri/no_uri.html.twig', ['uri' => null], new Response('', Response::HTTP_NOT_FOUND));
     }
 
-    /**
-     * @Route("/uri/{uri}.{_format}", methods={"GET"}, defaults={"_format"=null}, name="uri_lookup")
-     */
-    public function findUriAction(Request $request, string $uri, ?string $_format): Response
+    #[Route(path: '/uri/{uri}.{_format}', name: 'uri_lookup', defaults: ['_format' => null], methods: ['GET'])]
+    public function findUri(Request $request, string $uri, ?string $_format): Response
     {
         if ($request->isXmlHttpRequest()) {
             $_format = 'json';
@@ -61,6 +58,18 @@ class UriController extends AbstractController
         $obj = $this->objectHelper->findObjectByIdentifier($uri);
         if (null === $obj) {
             return $this->generateNotFoundResponse($request, $uri);
+        }
+
+        if ('tree' === $request->getRequestFormat()) {
+            switch ($obj::class) {
+                case LsDoc::class:
+                    return $this->redirectToRoute('doc_tree_view', ['slug' => $obj->getId()]);
+
+                case LsItem::class:
+                    return $this->redirectToRoute('doc_tree_item_view', ['id' => $obj->getId()]);
+            }
+
+            $request->setRequestFormat('html');
         }
 
         $this->addLinksToHeader($request, $originalUri);
@@ -82,7 +91,7 @@ class UriController extends AbstractController
         $headers['TCN'] = 'choice';
         $response->headers->add($headers);
 
-        $className = $isPackage ? 'CFPackage' : substr(strrchr(get_class($obj), '\\'), 1);
+        $className = $isPackage ? 'CFPackage' : substr(strrchr($obj::class, '\\'), 1);
         $groups = ['default', $className];
         if ('opensalt' === $request->getRequestFormat()) {
             $groups[] = 'opensalt';
@@ -119,6 +128,12 @@ class UriController extends AbstractController
     {
         if ($request->headers->has('x-opensalt')) {
             $request->setRequestFormat('opensalt');
+
+            return;
+        }
+
+        if ('tree' === $_format || 'tree' === $request->query->get('display')) {
+            $request->setRequestFormat('tree');
 
             return;
         }

@@ -2,28 +2,27 @@
 
 namespace App\Service;
 
+use App\Entity\Framework\AdditionalField;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use App\Entity\Framework\AdditionalField;
 use App\Util\Compare;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 final class ExcelExport
 {
-    private static $customItemFields;
+    private static ?array $customItemFields = null;
 
     public function __construct(private EntityManagerInterface $entityManager)
     {
         if (null === self::$customItemFields) {
             $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
                 ->findBy(['appliesTo' => LsItem::class]);
-            self::$customItemFields = array_map(function (AdditionalField $cf) {
-                return $cf->getName();
-            }, $customFieldsArray);
+            self::$customItemFields = array_map(fn (AdditionalField $cf) => $cf->getName(), $customFieldsArray);
         }
     }
 
@@ -64,7 +63,7 @@ final class ExcelExport
         return $phpExcelObject;
     }
 
-    protected function getSmartLevel(array $items, $parentId, array $itemsArray, array &$smartLevel): void
+    private function getSmartLevel(array $items, $parentId, array $itemsArray, array &$smartLevel): void
     {
         $j = 1;
 
@@ -72,7 +71,7 @@ final class ExcelExport
             $item = $itemsArray[$item['id']];
             $smartLevel[$item['id']] = $smartLevel[$parentId].'.'.$j;
 
-            if (count($item['children']) > 0) {
+            if ((is_countable($item['children']) ? count($item['children']) : 0) > 0) {
                 $this->getSmartLevel($item['children'], $item['id'], $itemsArray, $smartLevel);
             }
 
@@ -92,6 +91,13 @@ final class ExcelExport
         $phpExcelObject->getProperties()
             ->setCreator('OpenSALT')
             ->setTitle('case')
+        ;
+
+        $phpExcelObject->getDefaultStyle()
+            ->getNumberFormat()
+            ->setFormatCode(
+                NumberFormat::FORMAT_TEXT
+            )
         ;
 
         $license = $cfDoc->getLicence();
@@ -134,6 +140,8 @@ final class ExcelExport
             ->setCellValue('O2', $licenseText)
             ->setCellValue('P2', $cfDoc->getNote())
             ->setTitle('CF Doc');
+        $phpExcelObject->setActiveSheetIndex(0)
+            ->getStyle('J2')->setQuotePrefix(true);
 
         $phpExcelObject->createSheet();
         $activeSheet = $phpExcelObject->setActiveSheetIndex(1);
@@ -182,7 +190,7 @@ final class ExcelExport
         $phpExcelObject->setActiveSheetIndex(0);
     }
 
-    protected function addItemRows(array $set, Worksheet $activeSheet, int &$j, array $items, array $smartLevel): void
+    private function addItemRows(array $set, Worksheet $activeSheet, int &$j, array $items, array $smartLevel): void
     {
         foreach ($set as $child) {
             $item = $items[$child['id']];
@@ -196,13 +204,13 @@ final class ExcelExport
             }
             ++$j;
 
-            if (count($item['children']) > 0) {
+            if ((is_countable($item['children']) ? count($item['children']) : 0) > 0) {
                 $this->addItemRows($item['children'], $activeSheet, $j, $items, $smartLevel);
             }
         }
     }
 
-    protected function addItemRow(Worksheet $sheet, int $row, array $rowData): void
+    private function addItemRow(Worksheet $sheet, int $row, array $rowData): void
     {
         $columns = [
             'A' => '[identifier]',
@@ -218,9 +226,7 @@ final class ExcelExport
             'K' => '[itemType][title]',
             'L' => '[license]',
         ];
-
-        end($columns);
-        $lastCol = key($columns);
+        $lastCol = array_key_last($columns);
         foreach (self::$customItemFields as $customField) {
             $columns[++$lastCol] = sprintf('[extra][customFields][%s]', $customField);
         }
@@ -230,7 +236,7 @@ final class ExcelExport
         }
     }
 
-    protected function addAssociationRow(Worksheet $sheet, int $row, array $rowData): void
+    private function addAssociationRow(Worksheet $sheet, int $row, array $rowData): void
     {
         $columns = [
             'A' => '[identifier]',
@@ -250,29 +256,33 @@ final class ExcelExport
         }
     }
 
-    protected function addCellIfExists(Worksheet $sheet, string $col, int $row, array $rowData, string $propertyPath): void
+    private function addCellIfExists(Worksheet $sheet, string $col, int $row, array $rowData, string $propertyPath): void
     {
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
 
         try {
             $value = $propertyAccessor->getValue($rowData, $propertyPath);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // Treat value as unset if the path to it does not work
             return;
         }
 
         if (null !== $value) {
-            $sheet->setCellValue($col.$row, $value);
+            $sheet->setCellValueExplicit(
+                $col.$row,
+                $value,
+                DataType::TYPE_STRING
+            );
         }
     }
 
-    protected function setAdditionalFields(Worksheet $sheet): void
+    private function setAdditionalFields(Worksheet $sheet): void
     {
         $column = 13;
 
-        if (count(self::$customItemFields) > 0) {
+        if (count((array) self::$customItemFields) > 0) {
             foreach (self::$customItemFields as $cf) {
-                $sheet->setCellValueByColumnAndRow($column, 1, $cf);
+                $sheet->setCellValue([$column, 1], $cf);
                 ++$column;
             }
         }

@@ -10,10 +10,9 @@ class DeleteAssociationGroupCommand extends BaseCommand
 {
     /**
      * @var LsDefAssociationGrouping
-     *
-     * @Assert\Type(LsDefAssociationGrouping::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsDefAssociationGrouping::class)]
+    #[Assert\NotNull]
     private $associationGrouping;
 
     public function __construct(LsDefAssociationGrouping $associationGrouping)

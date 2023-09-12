@@ -3,11 +3,11 @@
 namespace App\Handler\Framework;
 
 use App\Command\Framework\DeleteAssociationCommand;
-use App\Event\CommandEvent;
-use App\Event\NotificationEvent;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Event\CommandEvent;
+use App\Event\NotificationEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DeleteAssociationHandler extends BaseFrameworkHandler
@@ -20,7 +20,6 @@ class DeleteAssociationHandler extends BaseFrameworkHandler
         $association = $command->getAssociation();
         $associationId = $association->getId();
         $associationIdentifier = $association->getIdentifier();
-
 
         $this->validate($command, $association);
 

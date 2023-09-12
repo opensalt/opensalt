@@ -4,29 +4,28 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsDefItemType;
 use App\Service\Api1Uris;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class LsDefItemTypeNormalizer implements ContextAwareNormalizerInterface
+final class LsDefItemTypeNormalizer implements NormalizerInterface
 {
     use LastChangeDateTimeTrait;
 
     public function __construct(
-        private Api1Uris $api1Uris,
+        private readonly Api1Uris $api1Uris,
     ) {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function supportsNormalization($data, string $format = null, array $context = [])
+    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof LsDefItemType;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function normalize($object, string $format = null, array $context = [])
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsDefItemType::class => true];
+    }
+
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDefItemType) {
             return null;
@@ -45,13 +44,11 @@ final class LsDefItemTypeNormalizer implements ContextAwareNormalizerInterface
             'uri' => $this->api1Uris->getUri($object),
             'title' => $object->getTitle(),
             'lastChangeDateTime' => $this->getLastChangeDateTime($object),
-            'description' => $object->getDescription(),
+            'description' => $object->getDescription() ?? $object->getTitle(),
             'typeCode' => $object->getCode(),
             'hierarchyCode' => $object->getHierarchyCode(),
         ];
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 }

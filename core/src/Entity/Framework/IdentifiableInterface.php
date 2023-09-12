@@ -6,6 +6,5 @@ interface IdentifiableInterface
 {
     public function getIdentifier(): string;
 
-
     public function getUri(): string;
 }

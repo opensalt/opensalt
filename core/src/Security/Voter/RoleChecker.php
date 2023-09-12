@@ -7,10 +7,10 @@ use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 
 class RoleChecker
 {
-    public const ROLE_EDITOR = 'ROLE_EDITOR';
-    public const ROLE_ADMIN = 'ROLE_ADMIN';
-    public const ROLE_SUPER_EDITOR = 'ROLE_SUPER_EDITOR';
-    public const ROLE_SUPER_USER = 'ROLE_SUPER_USER';
+    final public const ROLE_EDITOR = 'ROLE_EDITOR';
+    final public const ROLE_ADMIN = 'ROLE_ADMIN';
+    final public const ROLE_SUPER_EDITOR = 'ROLE_SUPER_EDITOR';
+    final public const ROLE_SUPER_USER = 'ROLE_SUPER_USER';
 
     private RoleHierarchyInterface $roleHierarchy;
 

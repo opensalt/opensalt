@@ -6,7 +6,7 @@ parameters:
 framework:
     secret: '%secret%'
     csrf_protection: true
-    #http_method_override: true
+    http_method_override: true
     trusted_proxies: '%env(TRUSTED_PROXIES)%'
     trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
 
@@ -48,3 +48,9 @@ framework:
         packages:
           encore:
             json_manifest_path: '%kernel.project_dir%/public/build/manifest.json'
+
+    rate_limiter:
+        excel_download:
+            policy: 'sliding_window'
+            limit: 3
+            interval: '10 minutes'

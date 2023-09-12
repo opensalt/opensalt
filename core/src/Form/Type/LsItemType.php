@@ -9,7 +9,6 @@ use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsItem;
 use App\Form\DataTransformer\EducationAlignmentTransformer;
 use App\Form\DataTransformer\ItemTypeTransformer;
-use App\Repository\Framework\LsDefGradeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -38,7 +37,7 @@ class LsItemType extends AbstractType
         $builder
             ->add('fullStatement')
             ->add('humanCodingScheme')
-            //->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
+            // ->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
             ->add('listEnumInSource')
             ->add('abbreviatedStatement')
             ->add('conceptKeywords')
@@ -51,17 +50,10 @@ class LsItemType extends AbstractType
                 'class' => LsDefGrade::class,
                 'label' => 'Education Level',
                 'choice_label' => 'code',
-                'choice_attr' => static function (LsDefGrade $val, $key, $index) {
-                    return ['data-title' => $val->getTitle()];
-                },
+                'choice_attr' => static fn (LsDefGrade $val, $key, $index) => ['data-title' => $val->getTitle()],
                 'required' => false,
                 'multiple' => true,
-                'query_builder' => static function (EntityRepository $er) {
-                    /* @var LsDefGradeRepository $er */
-                    return $er->createQueryBuilder('g')
-                        ->addOrderBy('g.rank')
-                        ;
-                },
+                'query_builder' => static fn (EntityRepository $er) => $er->createQueryBuilder('g')->addOrderBy('g.rank'),
             ])
             ->add('itemType', Select2EntityType::class, [
                 'multiple' => false,
@@ -99,7 +91,6 @@ class LsItemType extends AbstractType
             ->addModelTransformer(new EducationAlignmentTransformer($this->em))
             ;
     }
-
 
     public function configureOptions(OptionsResolver $resolver): void
     {

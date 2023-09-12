@@ -3,31 +3,18 @@
 namespace App\Console\Mirror;
 
 use App\Service\MirrorServer;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand('jobs:update-next-server', 'Find and process the next scheduled framework list update')]
 class UpdateListCommand extends Command
 {
-    protected static $defaultName = 'jobs:update-next-server';
-
-    /**
-     * @var MirrorServer
-     */
-    private $mirrorServer;
-
-    public function __construct(MirrorServer $mirrorServer, string $name = null)
+    public function __construct(private readonly MirrorServer $mirrorServer)
     {
-        parent::__construct($name);
-        $this->mirrorServer = $mirrorServer;
-    }
-
-    protected function configure(): void
-    {
-        $this
-            ->setDescription('Find and process the next scheduled framework list update')
-        ;
+        parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -41,11 +28,11 @@ class UpdateListCommand extends Command
         if (null === $server) {
             $io->comment('Nothing to do');
 
-            return 0;
+            return (int) Command::SUCCESS;
         }
 
         $io->success(sprintf('Updated %s', $server->getUrl()));
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

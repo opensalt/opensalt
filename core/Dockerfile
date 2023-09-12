@@ -2,13 +2,19 @@
 # https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage
 # https://docs.docker.com/compose/compose-file/#target
 
+# Version and build of OpenSALT
+ARG VERSION=3.2.0
+ARG BUILD_NUMBER=x
+ARG BUILD_DATE=0
+ARG COMMIT=unknown
+
 ARG NODE_VERSION=14
-ARG PHP_VERSION=8.0
+ARG PHP_VERSION=8.2
 ARG CADDY_VERSION=2
-ARG MERCURE_VERSION=v0.11
 #=======================================================================
 FROM node:${NODE_VERSION}-alpine AS salt_core_js_build
 
+USER node
 WORKDIR /srv/core
 
 COPY package.json yarn.lock ./
@@ -33,13 +39,20 @@ RUN apk add --no-cache \
 		file \
 		gettext \
 		git \
+		gnu-libiconv \
+		supervisor \
 	;
+
+# install gnu-libiconv and set LD_PRELOAD env to make iconv work fully on Alpine image.
+# see https://github.com/docker-library/php/issues/240#issuecomment-763112749
+ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so
+
 
 ARG DOCKERIZE_VERSION=v0.6.1
 RUN curl -LsS https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
 	  | tar -C /usr/local/bin -xzvf -
 
-ARG APCU_VERSION=5.1.20
+ARG APCU_VERSION=5.1.22
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
@@ -169,10 +182,10 @@ RUN set -eux; \
 	composer dump-env prod; \
 	composer run-script post-install-cmd
 
-ARG VERSION=3.1.0
-ARG BUILD_NUMBER=x
-ARG BUILD_DATE=0
-ARG COMMIT=unknown
+ARG VERSION
+ARG BUILD_NUMBER
+ARG BUILD_DATE
+ARG COMMIT
 
 RUN echo ${VERSION}.${BUILD_NUMBER} > public/version.txt ; \
     echo ${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT} > public/revision.txt
@@ -182,10 +195,10 @@ FROM salt_core_php AS salt_core_app
 
 ENV SYMFONY_PHPUNIT_VERSION=9
 
-ARG VERSION=3.1.0-dev
-ARG BUILD_NUMBER=x
-ARG BUILD_DATE=0
-ARG COMMIT=unknown
+ARG VERSION
+ARG BUILD_NUMBER
+ARG BUILD_DATE
+ARG COMMIT
 
 LABEL org.opencontainers.title="OpenSALT PHP Application" \
       org.opencontainers.source="https://github.com/opensalt/opensalt" \
@@ -196,49 +209,61 @@ COPY --from=salt_code_layer /srv/core/ ./
 VOLUME /srv/core/var
 VOLUME /srv/core/public/attachments
 
+USER www-data
+
 #=======================================================================
 FROM salt_core_app as salt_core_dev
 
-ARG XDEBUG_VERSION=3.0.4
+ARG XDEBUG_VERSION=3.2.0
+
+USER root
 RUN set -eux; \
-	apk add --no-cache --virtual .build-deps $PHPIZE_DEPS; \
+	apk add --no-cache --virtual .build-deps $PHPIZE_DEPS linux-headers; \
 	pecl install xdebug-$XDEBUG_VERSION; \
 	docker-php-ext-enable xdebug; \
 	apk del .build-deps
 
-#=======================================================================
-FROM caddy:${CADDY_VERSION}-builder-alpine AS salt_core_caddy_builder
+USER www-data
 
+#=======================================================================
+# Added 2.7 as temporary fix for https://github.com/dunglas/mercure/issues/770
+FROM caddy:2.7-builder-alpine AS salt_core_caddy_builder
+
+# install Mercure and Vulcain modules
 ARG XCADDY_SKIP_CLEANUP=0
 RUN xcaddy build \
-    --with github.com/dunglas/mercure \
     --with github.com/dunglas/mercure/caddy \
-    --with github.com/dunglas/vulcain \
     --with github.com/dunglas/vulcain/caddy
 
 #=======================================================================
-FROM dunglas/mercure:${MERCURE_VERSION} as mercure_build
+FROM caddy:${CADDY_VERSION}-alpine AS salt_core_caddy
 
-#=======================================================================
-FROM caddy:${CADDY_VERSION} AS salt_core_caddy
+RUN addgroup -g 1001 caddy; \
+    adduser -u 1001 -G caddy -D -s /sbin/nologin \
+        -g "Default Application User" caddy
 
-WORKDIR /srv/core
-
-COPY --from=mercure_build /srv/public /srv/mercure-assets/
 COPY --from=salt_core_caddy_builder /usr/bin/caddy /usr/bin/caddy
 COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
 COPY docker/caddy/docker-healthcheck /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-healthcheck
 HEALTHCHECK --interval=10s --timeout=3s --retries=3 --start-period=30s CMD ["docker-healthcheck"]
 
-ARG VERSION=3.1.0-dev
-ARG BUILD_NUMBER=x
-ARG BUILD_DATE=0
-ARG COMMIT=unknown
+RUN mkdir -p /data/caddy /config/caddy ;\
+    chown -R caddy:caddy /data/caddy /config/caddy
 
-LABEL org.opencontainers.title="OpenSALT Web Server" \
-      org.opencontainers.source="https://github.com/opensalt/opensalt" \
-      org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
+ARG VERSION
+ARG BUILD_NUMBER
+ARG BUILD_DATE
+ARG COMMIT
+
+LABEL org.opencontainers.image.title="OpenSALT Web Server" \
+      org.opencontainers.image.source="https://github.com/opensalt/opensalt" \
+      org.opencontainers.image.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
+
+WORKDIR /srv/core
+VOLUME /data/caddy
+VOLUME /config/caddy
 
 COPY --from=salt_core_app /srv/core/public public/
 
+USER caddy

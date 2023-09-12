@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\DTO\CaseJson\CFDocument;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Log;
@@ -11,26 +12,25 @@ use App\Form\DTO\MirroredFrameworkDTO;
 use App\Form\DTO\MirroredServerDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\RequestOptions;
 use kamermans\OAuth2\Exception\AccessTokenRequestException;
 use kamermans\OAuth2\GrantType\ClientCredentials;
 use kamermans\OAuth2\OAuth2Middleware;
 use kamermans\OAuth2\Persistence\FileTokenPersistence;
 use League\Uri\UriString;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class MirrorServer
 {
     use LoggerTrait;
 
     public function __construct(
-        private ClientInterface $guzzleJsonClient,
-        private iterable $csaMiddleware,
         private EntityManagerInterface $em,
-    )
-    {
+        private readonly SerializerInterface $serializer,
+    ) {
     }
 
     public function fetchDocumentList(Server $server): array
@@ -46,6 +46,18 @@ class MirrorServer
         }
 
         if (!array_key_exists('CFDocuments', $docList)) {
+            if (count($docList) > 0) {
+                // Texas's API does not have a CFDocuments JSON key and just returns an array from /CDocuments, add an exception to handle
+                try {
+                    $cfDocument = $this->serializer->deserialize(json_encode($docList[0], JSON_THROW_ON_ERROR), CFDocument::class, 'json');
+                    if (null !== $cfDocument?->cfPackageURI?->uri) {
+                        return $docList;
+                    }
+                } catch (\Throwable) {
+                    // Fall through with error
+                }
+            }
+
             $this->warning('Error: CFDocuments list did not contain a CFDocuments JSON key', ['response' => $docList]);
 
             throw new \RuntimeException(sprintf('Error getting CFDocuments list: Response JSON did not contain a CFDocuments key.'));
@@ -78,7 +90,9 @@ class MirrorServer
 
             if (null === $url) {
                 $uri = UriString::parse($server->getUrl());
-                $uri['path'] = rtrim($uri['path'] ?? '', '/').Server::URL_CASE_1_0_PACKAGE.'/'.$doc['identifier'];
+                $uri['path'] = rtrim($uri['path'], '/').Server::URL_CASE_1_0_PACKAGE.'/'.$doc['identifier'];
+                $uri['query'] = null;
+                $uri['fragment'] = null;
                 $url = UriString::build($uri);
             }
             $mirroredDoc->setUrl($url);
@@ -170,7 +184,7 @@ class MirrorServer
     private function fetchDocumentListJson(Server $server): string
     {
         $uri = UriString::parse($server->getUrl());
-        $uri['path'] = rtrim($uri['path'] ?? '', '/').Server::URL_CASE_1_0_LIST;
+        $uri['path'] = rtrim($uri['path'], '/').Server::URL_CASE_1_0_LIST;
         $url = UriString::build($uri);
 
         return $this->fetchUrlWithCredentials($url, $server->getCredentials());
@@ -201,21 +215,27 @@ class MirrorServer
 
     public function fetchUrlWithCredentials(string $url, ?OAuthCredential $credentials = null): string
     {
+        $stack = HandlerStack::create();
+
         if (null !== $credentials) {
             $oauth = $this->createOAuthHandler($credentials);
-            $this->guzzleJsonClient->getConfig('handler')->push($oauth);
+            $stack->push($oauth);
         }
+
+        $jsonClient = new Client([
+            'handler' => $stack,
+        ]);
 
         try {
             /** @noinspection PhpUnhandledExceptionInspection */
-            $response = $this->guzzleJsonClient->request(
+            $response = $jsonClient->request(
                 'GET',
                 $url,
                 [
                     RequestOptions::AUTH => (null !== $credentials) ? 'oauth' : null,
                     RequestOptions::TIMEOUT => 300,
                     RequestOptions::HEADERS => [
-                        'Accept' => 'application/json',
+                        'Accept' => 'application/json;q=0.8',
                     ],
                     RequestOptions::HTTP_ERRORS => false,
                 ]
@@ -226,21 +246,12 @@ class MirrorServer
              * @psalm-suppress UndefinedDocblockClass
              */
             $guzzleException = $e->getGuzzleException();
-            $this->warning('Error authenticating to server', ['exception' => $guzzleException->getMessage()]);
+            $this->warning('Error authenticating to server', ['message' => $e->getMessage(), 'exception' => $guzzleException->getMessage()]);
 
             throw new \RuntimeException('Error authenticating to server: '.$guzzleException->getMessage(), 0, $e);
-        } catch (RequestException $e) {
+        } catch (RequestException|\Exception $e) {
             $this->warning('Error requesting URL from server', ['exception' => $e->getMessage()]);
-
             throw new \RuntimeException('Error requesting URL from server.', 0, $e);
-        } catch (\Exception $e) {
-            $this->warning('Error requesting URL from server', ['exception' => $e->getMessage()]);
-
-            throw new \RuntimeException('Error requesting URL from server.', 0, $e);
-        } finally {
-            if (isset($oauth)) {
-                $this->guzzleJsonClient->getConfig('handler')->remove($oauth);
-            }
         }
 
         if (200 !== $response->getStatusCode()) {
@@ -257,10 +268,6 @@ class MirrorServer
         $authClient = new Client([
             'base_uri' => $credentials->getAuthenticationEndpoint(),
         ]);
-        $authClientHandler = $authClient->getConfig('handler');
-        foreach ($this->csaMiddleware as $middleware) {
-            $authClientHandler->push($middleware);
-        }
 
         $authConfig = [
             'client_id' => $credentials->getKey(),
@@ -271,7 +278,7 @@ class MirrorServer
         $grantType = new ClientCredentials($authClient, $authConfig);
         $oauth = new OAuth2Middleware($grantType);
 
-        $tokenFile = '/tmp/access_token.json';
+        $tokenFile = '/tmp/access_token_'.$credentials->getId().'.json';
         $tokenPersistence = new FileTokenPersistence($tokenFile);
         $oauth->setTokenPersistence($tokenPersistence);
 

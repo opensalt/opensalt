@@ -55,9 +55,9 @@ FROM rubric;
         ');
         $this->addSql('
 INSERT IGNORE INTO audit_ls_item
-(id, rev, ls_doc_id, item_type_id, licence_id, identifier, uri, extra, updated_at, ls_doc_identifier, ls_doc_uri, human_coding_scheme, list_enum_in_source, rank, full_statement, abbreviated_statement, concept_keywords, concept_keywords_uri, notes, language, educational_alignment, alternative_label, status_start, status_end, licence_uri, changed_at, revtype)
+(id, rev, ls_doc_id, item_type_id, licence_id, identifier, uri, extra, updated_at, ls_doc_identifier, ls_doc_uri, human_coding_scheme, list_enum_in_source, `rank`, full_statement, abbreviated_statement, concept_keywords, concept_keywords_uri, notes, language, educational_alignment, alternative_label, status_start, status_end, licence_uri, changed_at, revtype)
 SELECT
-id, (SELECT ad.rev FROM audit_doc ad WHERE ad.doc_id = ls_doc_id), ls_doc_id, item_type_id, licence_id, identifier, uri, extra, updated_at, ls_doc_identifier, ls_doc_uri, human_coding_scheme, list_enum_in_source, rank, full_statement, abbreviated_statement, concept_keywords, concept_keywords_uri, notes, language, educational_alignment, alternative_label, status_start, status_end, licence_uri, changed_at, "INS"
+id, (SELECT ad.rev FROM audit_doc ad WHERE ad.doc_id = ls_doc_id), ls_doc_id, item_type_id, licence_id, identifier, uri, extra, updated_at, ls_doc_identifier, ls_doc_uri, human_coding_scheme, list_enum_in_source, `rank`, full_statement, abbreviated_statement, concept_keywords, concept_keywords_uri, notes, language, educational_alignment, alternative_label, status_start, status_end, licence_uri, changed_at, "INS"
 FROM ls_item;
         ');
         $this->addSql('
@@ -118,9 +118,9 @@ FROM ls_def_item_type;
         ');
         $this->addSql('
 INSERT IGNORE INTO audit_ls_def_grade
-(id, rev, identifier, uri, extra, updated_at, title, description, code, rank, revtype)
+(id, rev, identifier, uri, extra, updated_at, title, description, code, `rank`, revtype)
 SELECT
-id, (SELECT ad.rev FROM audit_doc ad WHERE ad.doc_id IS NULL), identifier, uri, extra, updated_at, title, description, code, rank, "INS"
+id, (SELECT ad.rev FROM audit_doc ad WHERE ad.doc_id IS NULL), identifier, uri, extra, updated_at, title, description, code, `rank`, "INS"
 FROM ls_def_grade;
         ');
         $this->addSql('

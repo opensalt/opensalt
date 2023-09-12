@@ -6,6 +6,7 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -14,40 +15,47 @@ class AssociationVoter extends Voter
     use RoleCheckTrait;
     use DeferDecisionTrait;
 
-    public const ADD_TO = 'add-association-to';
-    public const CREATE = 'create';
-    public const EDIT = 'edit';
+    final public const ADD_TO = Permission::ASSOCIATION_ADD_TO;
+    final public const EDIT = Permission::ASSOCIATION_EDIT;
 
-    public const ASSOCIATION = 'lsassociation';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
     {
-        if (!\in_array($attribute, [self::ADD_TO, self::CREATE, self::EDIT], true)) {
+        return \in_array($attribute, [self::ADD_TO, self::EDIT], true);
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        if ('null' === $subjectType) {
+            return true;
+        }
+
+        if (is_a($subjectType, LsDoc::class, true)) {
+            return true;
+        }
+
+        if (is_a($subjectType, LsItem::class, true)) {
+            return true;
+        }
+
+        return is_a($subjectType, LsAssociation::class, true);
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        if (!\in_array($attribute, [self::ADD_TO, self::EDIT], true)) {
             return false;
         }
 
-        switch ($attribute) {
-            case self::ADD_TO:
-                // User can add to a specific doc or "some doc"
-                return $subject instanceof LsDoc || $subject instanceof LsItem || null === $subject;
-            case self::CREATE:
-                // User can create an association
-                return static::ASSOCIATION === $subject;
-            case self::EDIT:
-                // User can edit the LsAssociation
-                return $subject instanceof LsAssociation;
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            // User can add to a specific doc or "some doc"
+            self::ADD_TO => $subject instanceof LsDoc || $subject instanceof LsItem || null === $subject,
+
+            // User can edit the LsAssociation
+            self::EDIT => $subject instanceof LsAssociation,
+        };
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
@@ -55,24 +63,17 @@ class AssociationVoter extends Voter
             return false;
         }
 
-        switch ($attribute) {
-            case self::ADD_TO:
-                return $this->canAddTo($subject, $token);
-            case self::CREATE:
-                return (static::ASSOCIATION === $subject) && $this->canCreate($token);
-            case self::EDIT:
-                return $this->canEdit($subject, $token);
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            self::ADD_TO => $this->canAddTo($subject, $token),
+            self::EDIT => $this->canEdit($subject, $token),
+            default => false,
+        };
     }
 
     /**
      * Validate if a user can add a standard to a document.
-     *
-     * @param mixed $subject
      */
-    private function canAddTo($subject, TokenInterface $token): bool
+    private function canAddTo(mixed $subject, TokenInterface $token): bool
     {
         // Check if the user can edit the document
         if ($subject instanceof LsDoc) {

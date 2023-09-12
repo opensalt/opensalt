@@ -11,18 +11,16 @@ class DeleteFrameworkAclCommand extends BaseCommand
 {
     /**
      * @var LsDoc
-     *
-     * @Assert\Type(LsDoc::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsDoc::class)]
+    #[Assert\NotNull]
     private $doc;
 
     /**
      * @var User
-     *
-     * @Assert\Type(User::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(User::class)]
+    #[Assert\NotNull]
     private $user;
 
     public function __construct(LsDoc $doc, User $user)
@@ -31,12 +29,10 @@ class DeleteFrameworkAclCommand extends BaseCommand
         $this->user = $user;
     }
 
-
     public function getDoc(): LsDoc
     {
         return $this->doc;
     }
-
 
     public function getUser(): User
     {

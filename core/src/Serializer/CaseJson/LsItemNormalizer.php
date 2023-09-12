@@ -5,9 +5,9 @@ namespace App\Serializer\CaseJson;
 use App\Entity\Framework\LsItem;
 use App\Service\Api1Uris;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class LsItemNormalizer implements ContextAwareNormalizerInterface
+final class LsItemNormalizer implements NormalizerInterface
 {
     use DateCallbackTrait;
     use AssociationLinkTrait;
@@ -15,23 +15,22 @@ final class LsItemNormalizer implements ContextAwareNormalizerInterface
     use LastChangeDateTimeTrait;
 
     public function __construct(
-        private Api1Uris $api1Uris,
-        private AuthorizationCheckerInterface $authorizationChecker,
+        private readonly AuthorizationCheckerInterface $authorizationChecker,
+        private readonly Api1Uris $api1Uris,
     ) {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function supportsNormalization($data, string $format = null, array $context = [])
+    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof LsItem;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function normalize($object, string $format = null, array $context = [])
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsItem::class => true];
+    }
+
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsItem) {
             return null;
@@ -74,8 +73,6 @@ final class LsItemNormalizer implements ContextAwareNormalizerInterface
             'associationSet' => $this->createAssociationLinks($object, $context),
         ];
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 }

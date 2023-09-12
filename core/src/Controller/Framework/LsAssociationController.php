@@ -8,57 +8,55 @@ use App\Command\Framework\AddExemplarToItemCommand;
 use App\Command\Framework\AddTreeAssociationCommand;
 use App\Command\Framework\DeleteAssociationCommand;
 use App\Command\Framework\UpdateAssociationCommand;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
+use App\Form\Type\LsAssociationType;
+use App\Security\Permission;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsItem;
-use App\Entity\Framework\LsAssociation;
-use App\Entity\Framework\LsDefAssociationGrouping;
-use App\Form\Type\LsAssociationType;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * LsAssociation controller.
- *
- * @Route("/cfassociation")
- */
+#[Route(path: '/cfassociation')]
 class LsAssociationController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private readonly ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all LsAssociation entities.
-     *
-     * @Route("/", name="lsassociation_index", methods={"GET"})
-     * @Template()
      */
-    public function indexAction(): array
+    #[Route(path: '/', name: 'lsassociation_index', methods: ['GET'])]
+    public function index(): Response
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $lsAssociations = $em->getRepository(LsAssociation::class)->findBy([], null, 100);
 
-        return [
+        return $this->render('framework/ls_association/index.html.twig', [
             'lsAssociations' => $lsAssociations,
-        ];
+        ]);
     }
 
     /**
      * Creates a new LsAssociation entity.
-     *
-     * @Route("/new/{sourceLsItem}", methods={"GET", "POST"}, name="lsassociation_new")
-     * @Route("/new/{sourceLsItem}/{assocGroup}", methods={"GET", "POST"}, name="lsassociation_new_ag")
-     * @Template()
-     * @Security("is_granted('add-association-to', sourceLsItem)")
      */
-    public function newAction(Request $request, ?LsItem $sourceLsItem = null, ?LsDefAssociationGrouping $assocGroup = null)
+    #[Route(path: '/new/{sourceLsItem}', name: 'lsassociation_new', methods: ['GET', 'POST'])]
+    #[Route(path: '/new/{sourceLsItem}/{assocGroup}', name: 'lsassociation_new_ag', methods: ['GET', 'POST'])]
+    #[IsGranted(Permission::ASSOCIATION_ADD_TO, 'sourceLsItem')]
+    public function new(Request $request, ?LsItem $sourceLsItem = null, ?LsDefAssociationGrouping $assocGroup = null): Response
     {
         // @TODO: Add LsDoc of the new association for when adding via AJAX
         $ajax = $request->isXmlHttpRequest();
@@ -105,16 +103,15 @@ class LsAssociationController extends AbstractController
             return $this->render('framework/ls_association/new.html.twig', $ret, new Response('', Response::HTTP_OK));
         }
 
-        return $ret;
+        return $this->render('framework/ls_association/new.html.twig', $ret);
     }
 
     /**
      * Creates a new LsAssociation entity -- tree-view version, called via ajax.
-     *
-     * @Route("/treenew/{lsDoc}", methods={"POST"}, name="lsassociation_tree_new")
-     * @Security("is_granted('add-association-to', lsDoc)")
      */
-    public function treeNewAction(Request $request, LsDoc $lsDoc): Response
+    #[Route(path: '/treenew/{lsDoc}', name: 'lsassociation_tree_new', methods: ['POST'])]
+    #[IsGranted(Permission::ASSOCIATION_ADD_TO, 'lsDoc')]
+    public function treeNew(Request $request, LsDoc $lsDoc): Response
     {
         // type, origin['externalDoc', 'id', 'identifier'], dest['externalDoc', 'id', 'identifier'], assocGroup
         foreach (['type', 'origin', 'dest'] as $value) {
@@ -137,8 +134,8 @@ class LsAssociationController extends AbstractController
 
             // return id of created association
             $rv = [
-                'id' => isset($lsAssociation) ? $lsAssociation->getId() : null,
-                'identifier' => isset($lsAssociation) ? $lsAssociation->getIdentifier() : null,
+                'id' => $lsAssociation?->getId(),
+                'identifier' => $lsAssociation?->getIdentifier(),
             ];
 
             $response = new JsonResponse($rv);
@@ -153,12 +150,11 @@ class LsAssociationController extends AbstractController
     /**
      * Creates a new LsAssociation entity for an exemplar.
      *
-     * @Route("/treenewexemplar/{originLsItem}", methods={"GET", "POST"}, name="lsassociation_tree_new_exemplar")
-     * @Security("is_granted('add-association-to', originLsItem)")
-     *
      * @throws \InvalidArgumentException
      */
-    public function treeNewExemplarAction(Request $request, LsItem $originLsItem): Response
+    #[Route(path: '/treenewexemplar/{originLsItem}', name: 'lsassociation_tree_new_exemplar', methods: ['GET', 'POST'])]
+    #[IsGranted(Permission::ASSOCIATION_ADD_TO, 'originLsItem')]
+    public function treeNewExemplar(Request $request, LsItem $originLsItem): Response
     {
         if (!$request->request->has('exemplarUrl')) {
             return new JsonResponse(['error' => ['message' => 'Missing value: exemplarUrl']], Response::HTTP_BAD_REQUEST);
@@ -174,8 +170,8 @@ class LsAssociationController extends AbstractController
             $lsAssociation = $command->getAssociation();
 
             $rv = [
-                'id' => isset($lsAssociation) ? $lsAssociation->getId() : null,
-                'identifier' => isset($lsAssociation) ? $lsAssociation->getIdentifier() : null,
+                'id' => $lsAssociation?->getId(),
+                'identifier' => $lsAssociation?->getIdentifier(),
             ];
 
             $response = new JsonResponse($rv);
@@ -189,28 +185,24 @@ class LsAssociationController extends AbstractController
 
     /**
      * Finds and displays a LsAssociation entity.
-     *
-     * @Route("/{id}", methods={"GET"}, name="lsassociation_show")
-     * @Template()
      */
-    public function showAction(LsAssociation $lsAssociation): array
+    #[Route(path: '/{id}', name: 'lsassociation_show', methods: ['GET'])]
+    public function show(LsAssociation $lsAssociation): Response
     {
         $deleteForm = $this->createDeleteForm($lsAssociation);
 
-        return [
+        return $this->render('framework/ls_association/show.html.twig', [
             'lsAssociation' => $lsAssociation,
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Displays a form to edit an existing LsAssociation entity.
-     *
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsassociation_edit")
-     * @Template()
-     * @Security("is_granted('edit', lsAssociation)")
      */
-    public function editAction(Request $request, LsAssociation $lsAssociation)
+    #[Route(path: '/{id}/edit', name: 'lsassociation_edit', methods: ['GET', 'POST'])]
+    #[IsGranted(Permission::ASSOCIATION_EDIT, 'lsAssociation')]
+    public function edit(Request $request, LsAssociation $lsAssociation): Response
     {
         $deleteForm = $this->createDeleteForm($lsAssociation);
         $editForm = $this->createForm(LsAssociationType::class, $lsAssociation);
@@ -227,20 +219,19 @@ class LsAssociationController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_association/edit.html.twig', [
             'lsAssociation' => $lsAssociation,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Deletes a LsAssociation entity.
-     *
-     * @Route("/{id}", methods={"DELETE"}, name="lsassociation_delete")
-     * @Security("is_granted('edit', lsAssociation)")
      */
-    public function deleteAction(Request $request, LsAssociation $lsAssociation): RedirectResponse
+    #[Route(path: '/{id}', name: 'lsassociation_delete', methods: ['DELETE'])]
+    #[IsGranted(Permission::ASSOCIATION_EDIT, 'lsAssociation')]
+    public function delete(Request $request, LsAssociation $lsAssociation): RedirectResponse
     {
         $form = $this->createDeleteForm($lsAssociation);
         $form->handleRequest($request);
@@ -255,30 +246,26 @@ class LsAssociationController extends AbstractController
 
     /**
      * Remove a child LSItem.
-     *
-     * @Route("/{id}/remove", methods={"POST"}, name="lsassociation_remove")
-     * @Template()
-     * @Security("is_granted('edit', lsAssociation)")
      */
-    public function removeChildAction(LsAssociation $lsAssociation): array
+    #[Route(path: '/{id}/remove', name: 'lsassociation_remove', methods: ['POST'])]
+    #[IsGranted(Permission::ASSOCIATION_EDIT, 'lsAssociation')]
+    public function removeChild(LsAssociation $lsAssociation): Response
     {
         $command = new DeleteAssociationCommand($lsAssociation);
         $this->sendCommand($command);
 
-        return [];
+        return $this->render('framework/ls_association/remove_child.html.twig', []);
     }
 
     /**
      * Export an LsAssociation entity.
-     *
-     * @Route("/{id}/export", methods={"GET"}, defaults={"_format"="json"}, name="lsassociation_export")
-     * @Template()
      */
-    public function exportAction(LsAssociation $lsAssociation): array
+    #[Route(path: '/{id}/export', name: 'lsassociation_export', defaults: ['_format' => 'json'], methods: ['GET'])]
+    public function export(LsAssociation $lsAssociation): Response
     {
-        return [
+        return $this->render('framework/ls_association/export.json.twig', [
             'lsAssociation' => $lsAssociation,
-        ];
+        ]);
     }
 
     /**
@@ -288,7 +275,7 @@ class LsAssociationController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsassociation_delete', ['id' => $lsAssociation->getId()]))
-            ->setMethod('DELETE')
+            ->setMethod(Request::METHOD_DELETE)
             ->getForm()
             ;
     }

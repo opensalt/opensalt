@@ -3,7 +3,7 @@
 {% block bodyclasses %}{{ parent() }}{% endblock %}
 {% block body %}
     <h1>Competency Frameworks
-        {% if is_granted('create', 'lsdoc') %}
+        {% if is_granted(constant('App\\Security\\Permission::FRAMEWORK_CREATE')) %}
             <ul class="list-inline pull-right">
                 <li>
                     <a class="btn btn-default" href="{{ path('lsdoc_new') }}">Create a new Framework</a>

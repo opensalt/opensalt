@@ -3,10 +3,10 @@
 namespace App\Form\Type;
 
 use App\Entity\Framework\LsDoc;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Query\Expr;
 use App\Entity\User\User;
 use App\Form\DTO\AddAclUserDTO;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -34,7 +34,7 @@ class AddAclUserType extends AbstractType
                     }
 
                     return $er->createQueryBuilder('u')
-                        ->leftJoin('u.docAcls', 'acl', Expr\Join::WITH, 'acl.lsDoc = :docId')
+                        ->leftJoin('u.docAcls', 'acl', Join::WITH, 'acl.lsDoc = :docId')
                         ->where('u.org = :orgId')
                         ->andWhere('acl.user is null')
                         ->addOrderBy('u.username')

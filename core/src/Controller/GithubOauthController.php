@@ -2,35 +2,40 @@
 
 namespace App\Controller;
 
-use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Entity\User\User;
+use App\Security\Permission;
+use Milo\Github\Api;
+use Milo\Github\OAuth\Token;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * Class GithubOauthController
- *
- * @Security("is_granted('create', 'lsdoc')")
- */
+#[IsGranted(Permission::FRAMEWORK_CREATE)]
 class GithubOauthController extends AbstractController
 {
-    /**
-     * @Route("/user/github/repos")
-     *
-     * @return JsonResponse
-     */
-    public function getReposAction(Request $request)
+    #[Route(path: '/user/github/repos')]
+    public function getRepos(Request $request): JsonResponse
     {
         $currentUser = $this->getUser();
         $response = new JsonResponse();
+
+        if (!$currentUser instanceof User) {
+            $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
+
+            return $response->setData([
+                'message' => 'Please log in.',
+            ]);
+        }
 
         if (!empty($currentUser->getGithubToken())) {
             $page = $request->query->get('page');
             $perPage = $request->query->get('perPage');
 
-            $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
-            $api = new \Milo\Github\Api();
+            $token = new Token($currentUser->getGithubToken());
+            $api = new Api();
             $api->setToken($token);
 
             $repos = $api->get('/user/repos?page='.$page.'&per_page='.$perPage);
@@ -41,23 +46,28 @@ class GithubOauthController extends AbstractController
             ]);
         }
 
-        $response->setStatusCode(401);
+        $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
+
         return $response->setData([
             'message' => 'Please log in with your GitHub account',
         ]);
     }
 
-    /**
-     * @Route("/user/github/files")
-     *
-     * @return JsonResponse
-     */
-    public function getFilesAction(Request $request)
+    #[Route(path: '/user/github/files')]
+    public function getFiles(Request $request): JsonResponse
     {
         $currentUser = $this->getUser();
         $response = new JsonResponse();
-        $token = new \Milo\Github\OAuth\Token($currentUser->getGithubToken());
-        $api = new \Milo\Github\Api();
+        if (!$currentUser instanceof User) {
+            $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
+
+            return $response->setData([
+                'message' => 'Please log in.',
+            ]);
+        }
+
+        $token = new Token($currentUser->getGithubToken());
+        $api = new Api();
         $api->setToken($token);
 
         $owner = $request->query->get('owner');
@@ -94,5 +104,4 @@ class GithubOauthController extends AbstractController
 
         return $totalPages[1];
     }
-
 }

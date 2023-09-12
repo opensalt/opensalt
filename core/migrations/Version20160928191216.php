@@ -41,8 +41,7 @@ xENDx;
 
         $this->connection->beginTransaction();
 
-        $docsStmt->execute();
-        $docs = $docsStmt->fetchAll();
+        $docs = $docsStmt->executeQuery()->fetchAllAssociative();
         $subjects = [];
         foreach ($docs as $doc) {
             if (empty($doc['subject'])) {
@@ -59,17 +58,16 @@ xENDx;
                     'title' => $subject,
                     'hierarchy' => 1,
                 ];
-                $insertSubjectStmt->execute($params);
+                $insertSubjectStmt->executeStatement($params);
 
-                $fetchStmt->execute(['uuid' => $uuid]);
-                $s = $fetchStmt->fetch();
+                $s = $fetchStmt->executeQuery(['uuid' => $uuid])->fetchOne();
 
                 $subjects[$subject] = $s;
             } else {
                 $s = $subjects[$subject];
             }
 
-            $insertDocSubjectStmt->execute(['doc_id' => $doc['id'], 'subj_id' => $s['id']]);
+            $insertDocSubjectStmt->executeStatement(['doc_id' => $doc['id'], 'subj_id' => $s['id']]);
         }
 
         $this->connection->commit();

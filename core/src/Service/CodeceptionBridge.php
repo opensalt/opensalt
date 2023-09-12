@@ -6,6 +6,7 @@ use App\Service\User\UserManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Qandidate\Toggle\ContextFactory;
 use Qandidate\Toggle\ToggleManager;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class CodeceptionBridge
 {
@@ -29,27 +30,20 @@ class CodeceptionBridge
      */
     private $userManager;
 
-
-    /**
-     * @required
-     */
+    #[Required]
     public function setEntityManager(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setToggles(ToggleManager $toggleManager, ContextFactory $contextFactory)
     {
         $this->toggleManager = $toggleManager;
         $this->contextFactory = $contextFactory;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setUserManager(UserManager $userManager)
     {
         $this->userManager = $userManager;

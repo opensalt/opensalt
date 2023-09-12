@@ -4,6 +4,7 @@ namespace App\Security\Voter;
 
 use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -11,12 +12,19 @@ class FrameworkManageEditorsVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const MANAGE_EDITORS = 'manage_editors';
+    final public const MANAGE_EDITORS = Permission::MANAGE_EDITORS;
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
+    {
+        return self::MANAGE_EDITORS === $attribute;
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, LsDoc::class, true);
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (self::MANAGE_EDITORS !== $attribute) {
             return false;
@@ -29,10 +37,7 @@ class FrameworkManageEditorsVoter extends Voter
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         // Do not allow editing of mirrored frameworks
         if (null !== $subject->getMirroredFramework()) {

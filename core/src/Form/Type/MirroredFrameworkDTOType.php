@@ -6,6 +6,7 @@ use App\Entity\Framework\Mirror\OAuthCredential;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -22,22 +23,22 @@ class MirroredFrameworkDTOType extends AbstractType
                 ],
                 'help' => 'Enter the URL of the framework you want to mirror.',
             ])
+            ->add('visible', CheckboxType::class, [
+                'label' => 'Display publicly if non-private',
+                'help' => 'If checked then show on the first page if non-private',
+                'required' => false,
+            ])
             ->add('credentials', EntityType::class, [
                 'label' => 'Use credentials (if required)',
                 'help' => 'Select the credentials to use when authenticating with the server if they are needed.',
                 'help_html' => true,
                 'class' => OAuthCredential::class,
-                'choice_label' => static function (OAuthCredential $credential) {
-                    return $credential->getKey().' @ '.$credential->getAuthenticationEndpoint();
-                },
+                'choice_label' => static fn (OAuthCredential $credential) => $credential->getKey().' @ '.$credential->getAuthenticationEndpoint(),
                 'required' => false,
                 'multiple' => false,
-                'query_builder' => static function (EntityRepository $repo) {
-                    return $repo->createQueryBuilder('c')
-                        ->orderBy('c.key', 'ASC')
-                        ->addOrderBy('c.authenticationEndpoint', 'ASC')
-                        ;
-                },
+                'query_builder' => static fn (EntityRepository $repo) => $repo->createQueryBuilder('c')
+                    ->orderBy('c.key', 'ASC')
+                    ->addOrderBy('c.authenticationEndpoint', 'ASC'),
             ])
         ;
     }

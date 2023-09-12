@@ -45,19 +45,19 @@
                                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" area-expanded="false">Signed in as <strong>{{ app.user.username }}</strong> <span class="caret"></span></a>
                                         <ul class="dropdown-menu">
                                             {%- set seperator_1 = false -%}
-                                            {% if is_granted('manage', 'organizations') %}
+                                            {% if is_granted(constant('App\\Security\\Permission::MANAGE_ORGANIZATIONS')) %}
                                                 {%- set seperator_1 = true -%}
                                                 <li><a href="{{ url("admin_organization_index") }}">Manage organizations</a></li>
                                             {% endif %}
-                                            {% if is_granted('manage', 'users') %}
+                                            {% if is_granted(constant('App\\Security\\Permission::MANAGE_USERS')) %}
                                                 {%- set seperator_1 = true -%}
                                                 <li><a href="{{ url("admin_user_index") }}">Manage users</a></li>
                                             {% endif %}
-                                            {% if is_granted('manage', 'system_logs') %}
+                                            {% if is_granted(constant('App\\Security\\Permission::MANAGE_SYSTEM_LOGS')) %}
                                                 {%- set seperator_1 = true -%}
                                                 <li><a href="{{ url("system_logs_show") }}">Manage system logs</a></li>
                                             {% endif %}
-                                            {% if is_granted('manage', 'mirrors') %}
+                                            {% if is_granted(constant('App\\Security\\Permission::MANAGE_MIRRORS')) %}
                                                 {% if seperator_1 %}
                                                     <li role="separator" class="divider"></li>
                                                 {% endif %}
@@ -68,6 +68,9 @@
                                                 <li role="separator" class="divider"></li>
                                             {% endif %}
                                             <li><a href="{{ url("user_change_password") }}">Change password</a></li>
+                                            {% if feature_is_active('mfa') %}
+                                                <li><a href="{{ url("app_2fa_reset_confirm") }}">Reset 2FA Config</a></li>
+                                            {% endif %}
                                             <li role="separator" class="divider"></li>
                                             <li><a href="{{ url("logout") }}" class="logout">Sign out</a></li>
                                         </ul>

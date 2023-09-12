@@ -4,23 +4,16 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 
-/**
- * Auto-generated Migration: Please modify to your needs!
- */
 class Version20160823233434 extends AbstractMigration
 {
     public function up(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
-        $this->addSql('ALTER TABLE ls_item ADD rank BIGINT DEFAULT NULL AFTER list_enum_in_source');
+        $this->addSql('ALTER TABLE ls_item ADD `rank` BIGINT DEFAULT NULL AFTER list_enum_in_source');
     }
 
 
     public function down(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
-        $this->addSql('ALTER TABLE ls_item DROP rank');
+        $this->addSql('ALTER TABLE ls_item DROP `rank`');
     }
 }

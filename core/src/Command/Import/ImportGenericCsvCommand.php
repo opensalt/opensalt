@@ -10,10 +10,9 @@ class ImportGenericCsvCommand extends BaseCommand
 {
     /**
      * @var string
-     *
-     * @Assert\NotNull()
-     * @Assert\NotBlank()
      */
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     private $filePath;
 
     /**

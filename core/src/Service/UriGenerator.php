@@ -10,7 +10,7 @@ use Symfony\Component\Routing\RouterInterface;
 
 class UriGenerator
 {
-    public const PACKAGE_PREFIX = 'p';
+    final public const PACKAGE_PREFIX = 'p';
 
     public function __construct(private RouterInterface $router)
     {

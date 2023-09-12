@@ -12,6 +12,8 @@ use Qandidate\Toggle\Context;
 use Qandidate\Toggle\ContextFactory;
 use Qandidate\Toggle\ToggleManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Twig\Environment;
 
@@ -20,10 +22,10 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler
     protected Environment $templating;
     private ToggleManager $manager;
     private Context $context;
-    private \Swift_Mailer $mailer;
+    private MailerInterface $mailer;
     private ?string $mailFromEmail;
 
-    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, \Swift_Mailer $mailer, Environment $templating, ?string $mailFromEmail = null)
+    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, MailerInterface $mailer, Environment $templating, ?string $mailFromEmail = null)
     {
         parent::__construct($validator);
         $this->templating = $templating;
@@ -65,15 +67,15 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler
             return;
         }
 
-        $email = (new \Swift_Message())
-            ->setFrom($this->mailFromEmail)
-            ->setTo($command->getRecipient());
+        $email = (new Email())
+            ->from($this->mailFromEmail)
+            ->to($command->getRecipient());
         $this->configureMessage($email, $command);
 
         try {
             $this->mailer->send($email);
         } catch (\Exception $e) {
-            $this->setEmailNotSentNotification($command, 'Error: '.get_class($e).': '.$e->getMessage());
+            $this->setEmailNotSentNotification($command, 'Error: '.$e::class.': '.$e->getMessage());
 
             throw $e;
         }
@@ -124,5 +126,5 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler
         return new NotificationOnlyChangeEntry(null, null, 'Email sent');
     }
 
-    abstract protected function configureMessage(\Swift_Message $email, AbstractSendEmailCommand $command): void;
+    abstract protected function configureMessage(Email $email, AbstractSendEmailCommand $command): void;
 }

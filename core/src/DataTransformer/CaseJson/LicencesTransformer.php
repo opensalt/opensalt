@@ -43,9 +43,7 @@ class LicencesTransformer
         /** @var LsDefLicenceRepository $repo */
         $repo = $this->em->getRepository(LsDefLicence::class);
 
-        $newIds = array_map(static function (CFLicense $itemType) {
-            return $itemType->identifier->toString();
-        }, $cfLicences);
+        $newIds = array_map(static fn (CFLicense $itemType) => $itemType->identifier->toString(), $cfLicences);
 
         return $repo->findByIdentifiers($newIds);
     }

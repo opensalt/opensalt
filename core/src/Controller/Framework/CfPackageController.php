@@ -4,36 +4,29 @@ namespace App\Controller\Framework;
 
 use App\Entity\ChangeEntry;
 use App\Entity\Framework\LsDoc;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * Class CfPackageController.
- *
- * @Route("/cfpackage")
- */
+#[Route(path: '/cfpackage')]
 class CfPackageController extends AbstractController
 {
     public function __construct(
-        private SerializerInterface $symfonySerializer,
+        private readonly SerializerInterface $symfonySerializer,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
     /**
      * Export a CFPackage.
-     *
-     * @Route("/doc/{id}.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, methods={"GET"}, defaults={"_format"="json"}, name="cfpackage_export")
-     * @Route("/doc/{id}/export.{_format}", requirements={"_format"="(json|html|pdf|csv)"}, methods={"GET"}, defaults={"_format"="json"}, name="cfpackage_export2")
-     * @Template()
      */
-    public function exportAction(Request $request, LsDoc $lsDoc, $_format = 'json')
+    #[Route(path: '/doc/{id}.{_format}', name: 'cfpackage_export', requirements: ['_format' => '(json|html|pdf|csv)'], defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/doc/{id}/export.{_format}', name: 'cfpackage_export2', requirements: ['_format' => '(json|html|pdf|csv)'], defaults: ['_format' => 'json'], methods: ['GET'])]
+    public function export(Request $request, LsDoc $lsDoc, string $_format = 'json'): Response
     {
-        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
-
         if ('json' === $_format) {
             $response = $this->generateBaseResponse($lsDoc);
 
@@ -55,7 +48,11 @@ class CfPackageController extends AbstractController
             return $response;
         }
 
-        return $this->generateSimplePackageArray($lsDoc);
+        if (!in_array($_format, ['json', 'html', 'pdf', 'csv'])) {
+            $_format = 'json';
+        }
+
+        return $this->render('framework/cf_package/export.'.$_format.'.twig', $this->generateSimplePackageArray($lsDoc));
     }
 
     /**
@@ -65,7 +62,7 @@ class CfPackageController extends AbstractController
     {
         $response = new Response();
 
-        $changeRepo = $this->getDoctrine()->getRepository(ChangeEntry::class);
+        $changeRepo = $this->managerRegistry->getRepository(ChangeEntry::class);
         $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
 
         $lastModified = $lsDoc->getUpdatedAt();
@@ -90,7 +87,7 @@ class CfPackageController extends AbstractController
      */
     protected function generateSimplePackageArray(LsDoc $doc): array
     {
-        $repo = $this->getDoctrine()->getRepository(LsDoc::class);
+        $repo = $this->managerRegistry->getRepository(LsDoc::class);
 
         $items = $repo->findAllItems($doc);
         $associations = $repo->findAllAssociations($doc);

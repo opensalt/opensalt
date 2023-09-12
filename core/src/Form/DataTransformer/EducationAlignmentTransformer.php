@@ -9,14 +9,14 @@ use Symfony\Component\Form\DataTransformerInterface;
 
 class EducationAlignmentTransformer implements DataTransformerInterface
 {
-    public function __construct(private EntityManagerInterface $manager)
+    public function __construct(private readonly EntityManagerInterface $manager)
     {
     }
 
     /**
      * @param ?string $gradeString
      */
-    public function transform($gradeString): array
+    public function transform(mixed $gradeString): mixed
     {
         if (null === $gradeString) {
             return [];
@@ -33,15 +33,13 @@ class EducationAlignmentTransformer implements DataTransformerInterface
     /**
      * @param array<array-key, LsDefGrade>|null $alignmentArray
      */
-    public function reverseTransform($alignmentArray): ?string
+    public function reverseTransform(mixed $alignmentArray): mixed
     {
-        if (null === $alignmentArray || !is_array($alignmentArray) || 0 === count($alignmentArray)) {
+        if (!is_array($alignmentArray) || 0 === count($alignmentArray)) {
             return null;
         }
 
-        $grades = array_map(static function (LsDefGrade $alignment) {
-            return $alignment->getCode();
-        }, $alignmentArray);
+        $grades = array_map(static fn (LsDefGrade $alignment) => $alignment->getCode(), $alignmentArray);
 
         return implode(',', $grades);
     }

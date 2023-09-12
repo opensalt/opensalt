@@ -11,10 +11,9 @@ class LockItemCommand extends BaseCommand
 {
     /**
      * @var LsItem
-     *
-     * @Assert\Type(LsItem::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(LsItem::class)]
+    #[Assert\NotNull]
     private $item;
 
     /**

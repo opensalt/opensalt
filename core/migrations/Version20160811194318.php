@@ -4,9 +4,6 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 
-/**
- * Auto-generated Migration: Please modify to your needs!
- */
 class Version20160811194318 extends AbstractMigration
 {
     /**
@@ -14,8 +11,6 @@ class Version20160811194318 extends AbstractMigration
      */
     public function up(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('DROP INDEX UNIQ_D8D02498841CB121 ON ls_item');
 
         $this->addSql('
@@ -43,8 +38,6 @@ ALTER TABLE ls_item
      */
     public function down(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('CREATE UNIQUE INDEX UNIQ_9AE8CF1F2D2FD50E ON ls_doc (global_id)');
         $this->addSql('
 ALTER TABLE ls_item

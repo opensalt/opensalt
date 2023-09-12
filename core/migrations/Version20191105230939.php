@@ -15,8 +15,6 @@ final class Version20191105230939 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('ALTER TABLE ls_association DROP FOREIGN KEY FK_A84022D434C423C4');
         $this->addSql('ALTER TABLE ls_association DROP FOREIGN KEY FK_A84022D44C0C393B');
         $this->addSql('ALTER TABLE ls_association DROP FOREIGN KEY FK_A84022D459C28905');
@@ -29,8 +27,6 @@ final class Version20191105230939 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('ALTER TABLE ls_association DROP FOREIGN KEY FK_A84022D434C423C4');
         $this->addSql('ALTER TABLE ls_association DROP FOREIGN KEY FK_A84022D44C0C393B');
         $this->addSql('ALTER TABLE ls_association DROP FOREIGN KEY FK_A84022D459C28905');

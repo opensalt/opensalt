@@ -12,21 +12,21 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Util\EducationLevelSet;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Ramsey\Uuid\Uuid;
 
 final class ExcelImport
 {
-    private static $itemCustomFields;
+    private static ?array $itemCustomFields = null;
 
     public function __construct(private EntityManagerInterface $entityManager)
     {
         if (null === self::$itemCustomFields) {
             $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
                 ->findBy(['appliesTo' => LsItem::class]);
-            self::$itemCustomFields = array_map(static function (AdditionalField $cf) {
-                return $cf->getName();
-            }, $customFieldsArray);
+            self::$itemCustomFields = array_map(static fn (AdditionalField $cf) => $cf->getName(), $customFieldsArray);
         }
     }
 
@@ -39,7 +39,7 @@ final class ExcelImport
     {
         set_time_limit(180); // increase time limit for large files
 
-        $phpExcelObject = \PhpOffice\PhpSpreadsheet\IOFactory::load($excelFilePath);
+        $phpExcelObject = IOFactory::load($excelFilePath);
 
         /** @var LsItem[] $items */
         $items = [];
@@ -159,7 +159,12 @@ final class ExcelImport
         $doc->setOfficialUri($this->getCellValueOrNull($sheet, 5, 2));
         $doc->setPublisher($this->getCellValueOrNull($sheet, 6, 2));
         $doc->setDescription($this->getCellValueOrNull($sheet, 7, 2));
-        $doc->setSubject(explode('|', $this->getCellValueOrNull($sheet, 8, 2)));
+        $subject = $this->getCellValueOrNull($sheet, 8, 2);
+        if (!empty($subject)) {
+            $doc->setSubject(explode('|', $subject));
+        } else {
+            $doc->setSubject(null);
+        }
         $doc->setLanguage($this->getCellValueOrNull($sheet, 9, 2));
         $doc->setVersion($this->getCellValueOrNull($sheet, 10, 2));
         $doc->setAdoptionStatus($this->getCellValueOrNull($sheet, 11, 2));
@@ -167,7 +172,7 @@ final class ExcelImport
         if (!empty($this->getCellValueOrNull($sheet, 12, 2))) {
             $doc->setStatusStart(
                 new \DateTime(
-                    \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
+                    NumberFormat::toFormattedString(
                         $this->getCellValueOrNull($sheet, 12, 2),
                         'YYYY-MM-DD'
                     )
@@ -180,7 +185,7 @@ final class ExcelImport
         if (!empty($this->getCellValueOrNull($sheet, 13, 2))) {
             $doc->setStatusEnd(
                 new \DateTime(
-                    \PhpOffice\PhpSpreadsheet\Style\NumberFormat::toFormattedString(
+                    NumberFormat::toFormattedString(
                         $this->getCellValueOrNull($sheet, 13, 2),
                         'YYYY-MM-DD'
                     )
@@ -366,13 +371,11 @@ final class ExcelImport
 
     private function getCellValueOrNull(Worksheet $sheet, int $col, int $row)
     {
-        if (!$sheet->cellExistsByColumnAndRow($col, $row)) {
+        if (!$sheet->cellExists([$col, $row])) {
             return null;
         }
 
-        $cell = $sheet->getCellByColumnAndRow($col, $row);
-
-        return $cell->getValue();
+        return $sheet->getCellByColumnAndRow($col, $row)->getValue();
     }
 
     private function checkRemovedItems(LsDoc $doc, array $array): void
@@ -382,9 +385,7 @@ final class ExcelImport
 
         $existingItems = $docRepo->findAllItems($doc);
 
-        $existingItems = array_filter($existingItems, static function ($item) use ($array) {
-            return !array_key_exists($item['identifier'], $array);
-        });
+        $existingItems = array_filter($existingItems, static fn ($item) => !array_key_exists($item['identifier'], $array));
 
         foreach ($existingItems as $existingItem) {
             $element = $repo->findOneByIdentifier($existingItem['identifier']);
@@ -402,9 +403,7 @@ final class ExcelImport
 
         $existingAssociations = $docRepo->findAllAssociations($doc);
 
-        $existingAssociations = array_filter($existingAssociations, static function ($association) use ($array) {
-            return !array_key_exists($association['identifier'], $array);
-        });
+        $existingAssociations = array_filter($existingAssociations, static fn ($association) => !array_key_exists($association['identifier'], $array));
 
         foreach ($existingAssociations as $existingAssociation) {
             $element = $repo->findOneByIdentifier($existingAssociation['identifier']);

@@ -2,26 +2,17 @@
 
 namespace App\Entity\Framework;
 
+use App\Repository\Framework\LsDefConceptRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * LsDefConcept.
- *
- * @ORM\Table(name="ls_def_concept")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\LsDefConceptRepository")
- */
+#[ORM\Table(name: 'ls_def_concept')]
+#[ORM\Entity(repositoryClass: LsDefConceptRepository::class)]
 class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
 {
-    /**
-     * @ORM\Column(name="hierarchy_code", type="string", length=255)
-     */
+    #[ORM\Column(name: 'hierarchy_code', type: 'string', length: 255)]
     private string $hierarchyCode;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="keywords", type="text", nullable=true)
-     */
+    #[ORM\Column(name: 'keywords', type: 'text', nullable: true)]
     private ?string $keywords = null;
 
     public function getHierarchyCode(): string
@@ -29,11 +20,9 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
         return $this->hierarchyCode;
     }
 
-    public function setHierarchyCode(string $hierarchyCode): LsDefConcept
+    public function setHierarchyCode(string $hierarchyCode): void
     {
         $this->hierarchyCode = $hierarchyCode;
-
-        return $this;
     }
 
     public function getKeywords(): ?string
@@ -41,11 +30,9 @@ class LsDefConcept extends AbstractLsDefinition implements CaseApiInterface
         return $this->keywords;
     }
 
-    public function setKeywords(?string $keywords): LsDefConcept
+    public function setKeywords(?string $keywords): void
     {
         $this->keywords = $keywords;
-
-        return $this;
     }
 
     /**

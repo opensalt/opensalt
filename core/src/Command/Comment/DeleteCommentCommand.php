@@ -10,10 +10,9 @@ class DeleteCommentCommand extends BaseCommand
 {
     /**
      * @var Comment
-     *
-     * @Assert\Type(Comment::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(Comment::class)]
+    #[Assert\NotNull]
     private $comment;
 
     public function __construct(Comment $comment)

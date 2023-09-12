@@ -4,6 +4,8 @@ namespace App\Security\Voter;
 
 use App\Entity\Comment\Comment;
 use App\Entity\User\User;
+use App\Security\Feature;
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -12,17 +14,33 @@ class CommentVoter extends Voter
     use RoleCheckTrait;
     use FeatureCheckTrait;
 
-    public const COMMENT = 'comment';
-    public const VIEW = 'comment_view';
-    public const UPDATE = 'comment_update';
-    public const DELETE = 'comment_delete';
+    final public const COMMENT = Permission::COMMENT_ADD;
+    final public const VIEW = Permission::COMMENT_VIEW;
+    final public const UPDATE = Permission::COMMENT_UPDATE;
+    final public const DELETE = Permission::COMMENT_DELETE;
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
     {
-        if (!$this->hasActiveFeature('comments')) {
+        if (!$this->hasActiveFeature(Feature::COMMENTS)) {
+            // No support for comments if the feature is not enabled
+            return false;
+        }
+
+        return \in_array($attribute, [self::UPDATE, self::DELETE, self::COMMENT, self::VIEW], true);
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        if ('null' === $subjectType) {
+            return true;
+        }
+
+        return is_a($subjectType, Comment::class, true);
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        if (!$this->hasActiveFeature(Feature::COMMENTS)) {
             // No support for comments if the feature is not enabled
             return false;
         }
@@ -34,10 +52,7 @@ class CommentVoter extends Voter
         };
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         // All users (including anonymous) can view comments
         if (self::VIEW === $attribute) {
@@ -66,7 +81,7 @@ class CommentVoter extends Voter
     }
 
     /**
-     * All logged in users can comment.
+     * All logged-in users can comment.
      */
     private function canComment(): bool
     {

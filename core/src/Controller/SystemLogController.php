@@ -3,38 +3,30 @@
 namespace App\Controller;
 
 use App\Repository\ChangeEntryRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Route("/admin/system_log")
- * @Security("is_granted('manage', 'system_logs')")
- */
+#[Route(path: '/admin/system_log')]
+#[IsGranted(Permission::MANAGE_SYSTEM_LOGS)]
 class SystemLogController extends AbstractController
 {
-    private ChangeEntryRepository $entryRepository;
-
-    public function __construct(ChangeEntryRepository $entryRepository)
+    public function __construct(private readonly ChangeEntryRepository $entryRepository)
     {
-        $this->entryRepository = $entryRepository;
     }
 
-    /**
-     * @Route("/", methods={"GET"}, name="system_logs_show")
-     */
+    #[Route(path: '/', name: 'system_logs_show', methods: ['GET'])]
     public function showSystemLogs(): Response
     {
         return $this->render('system_log/show_system_logs.html.twig');
     }
 
-    /**
-     * @Route("/revisions/{offset}/{limit}", methods={"GET"}, requirements={"offset" = "\d+", "limit" = "\d+"}, defaults={"offset" = 0, "limit" = 0}, name="system_logs_json")
-     */
-    public function listDocRevisionsAction(int $offset = 0, int $limit = 0): Response
+    #[Route(path: '/revisions/{offset}/{limit}', name: 'system_logs_json', requirements: ['offset' => '\d+', 'limit' => '\d+'], defaults: ['offset' => 0, 'limit' => 0], methods: ['GET'])]
+    public function listDocRevisions(int $offset = 0, int $limit = 0): Response
     {
         $response = new StreamedResponse();
         $response->headers->set('Content-type', 'application/json');
@@ -62,9 +54,7 @@ class SystemLogController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/revisions/count", methods={"GET"}, name="system_logs_count")
-     */
+    #[Route(path: '/revisions/count', name: 'system_logs_count', methods: ['GET'])]
     public function changeLogCount(): Response
     {
         $count = $this->entryRepository->getChangeEntryCountForSystem();
@@ -72,9 +62,7 @@ class SystemLogController extends AbstractController
         return new JsonResponse($count);
     }
 
-    /**
-     * @Route("/export", methods={"GET"}, name="system_logs_csv")
-     */
+    #[Route(path: '/export', name: 'system_logs_csv', methods: ['GET'])]
     public function exportSystemLogs(): Response
     {
         $response = new StreamedResponse();

@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter;
 
+use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -9,22 +10,19 @@ class ManageAdditionalFieldVoter extends Voter
 {
     use RoleCheckTrait;
 
-    public const MANAGE = 'manage';
+    final public const MANAGE = Permission::ADDITIONAL_FIELDS_MANAGE;
 
-    public const ADDITIONAL_FIELDS = 'additional_fields';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function supports(string $attribute, $subject): bool
+    public function supportsAttribute(string $attribute): bool
     {
-        return (self::MANAGE === $attribute) && (self::ADDITIONAL_FIELDS === $subject);
+        return self::MANAGE === $attribute;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        return self::MANAGE === $attribute;
+    }
+
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         return $this->roleChecker->isSuperUser($token);
     }

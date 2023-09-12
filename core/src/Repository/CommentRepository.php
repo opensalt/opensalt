@@ -8,6 +8,8 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -73,10 +75,10 @@ class CommentRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Comment[]
+     * @return Collection<array-key, Comment>
      */
-    public function findByTypeItem(string $itemType, int $itemId): array
+    public function findByTypeItem(string $itemType, int $itemId): Collection
     {
-        return $this->findBy([$itemType => $itemId]);
+        return new ArrayCollection($this->findBy([$itemType => $itemId]));
     }
 }

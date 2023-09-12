@@ -3,22 +3,27 @@
 namespace App\Serializer;
 
 use App\Entity\Comment\Comment;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class CommentNormalizer implements ContextAwareNormalizerInterface
+class CommentNormalizer implements NormalizerInterface
 {
-    public function supportsNormalization($data, string $format = null, array $context = [])
+    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof Comment;
     }
 
-    public function normalize($object, string $format = null, array $context = [])
+    public function getSupportedTypes(?string $format): array
+    {
+        return [Comment::class => true];
+    }
+
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof Comment) {
             throw new \InvalidArgumentException('Expecting a Comment');
         }
 
-        $data = [
+        return [
             'fullname' => $object->getFullname(),
             'id' => $object->getId(),
             'parent' => $object->getParentId(),
@@ -33,7 +38,5 @@ class CommentNormalizer implements ContextAwareNormalizerInterface
             'created_by_current_user' => $object->isCreatedByCurrentUser(),
             'user_has_upvoted' => $object->hasUserUpvoted(),
         ];
-
-        return $data;
     }
 }

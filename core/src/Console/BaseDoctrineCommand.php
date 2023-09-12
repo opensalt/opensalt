@@ -7,12 +7,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 abstract class BaseDoctrineCommand extends BaseDispatchingCommand
 {
-    protected EntityManagerInterface $em;
-
-    public function __construct(EventDispatcherInterface $dispatcher, EntityManagerInterface $entityManager)
+    public function __construct(EventDispatcherInterface $dispatcher, protected EntityManagerInterface $em)
     {
-        $this->em = $entityManager;
-
         parent::__construct($dispatcher);
     }
 }

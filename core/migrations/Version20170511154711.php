@@ -4,16 +4,10 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 
-/**
- * Auto-generated Migration: Please modify to your needs!
- */
 class Version20170511154711 extends AbstractMigration
 {
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('CREATE TABLE ls_item_concept (ls_item_id INT NOT NULL, concept_id INT NOT NULL, INDEX IDX_FF2E1B51E27A1FD2 (ls_item_id), INDEX IDX_FF2E1B51F909284E (concept_id), PRIMARY KEY(ls_item_id, concept_id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
         $this->addSql('ALTER TABLE ls_item_concept ADD CONSTRAINT FK_FF2E1B51E27A1FD2 FOREIGN KEY (ls_item_id) REFERENCES ls_item (id)');
         $this->addSql('ALTER TABLE ls_item_concept ADD CONSTRAINT FK_FF2E1B51F909284E FOREIGN KEY (concept_id) REFERENCES ls_def_concept (id)');
@@ -33,9 +27,6 @@ class Version20170511154711 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('DROP TABLE ls_item_concept');
 
         $this->addSql('ALTER TABLE ls_doc DROP FOREIGN KEY FK_9AE8CF1F26EF07C9');

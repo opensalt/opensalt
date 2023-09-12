@@ -50,10 +50,8 @@ class LsAssociationType extends AbstractType
                 'required' => false,
                 'multiple' => false,
                 'class' => LsDoc::class,
-                'query_builder' => static function (EntityRepository $er) {
-                    return $er->createQueryBuilder('d')
-                        ->orderBy('d.title', 'ASC');
-                },
+                'query_builder' => static fn (EntityRepository $er) => $er->createQueryBuilder('d')
+                    ->orderBy('d.title', 'ASC'),
             ])
         ;
 
@@ -66,11 +64,9 @@ class LsAssociationType extends AbstractType
                     'required' => true,
                     'multiple' => false,
                     'class' => LsItem::class,
-                    'query_builder' => static function (EntityRepository $er) use ($lsDoc) {
-                        return $er->createQueryBuilder('d')
-                            ->where('d.lsDoc = '.$lsDoc->getId())
-                            ->orderBy('d.fullStatement', 'ASC');
-                    },
+                    'query_builder' => static fn (EntityRepository $er) => $er->createQueryBuilder('d')
+                        ->where('d.lsDoc = '.$lsDoc->getId())
+                        ->orderBy('d.fullStatement', 'ASC'),
                 ]);
             } else {
                 $form->add('destinationNodeIdentifier', null, [
@@ -117,7 +113,6 @@ class LsAssociationType extends AbstractType
             }
         );
     }
-
 
     public function configureOptions(OptionsResolver $resolver): void
     {

@@ -11,18 +11,16 @@ class UpvoteCommentCommand extends BaseCommand
 {
     /**
      * @var Comment
-     *
-     * @Assert\Type(Comment::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(Comment::class)]
+    #[Assert\NotNull]
     private $comment;
 
     /**
      * @var User
-     *
-     * @Assert\Type(User::class)
-     * @Assert\NotNull()
      */
+    #[Assert\Type(User::class)]
+    #[Assert\NotNull]
     private $user;
 
     public function __construct(Comment $comment, User $user)

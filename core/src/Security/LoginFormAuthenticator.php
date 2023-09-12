@@ -2,7 +2,11 @@
 
 namespace App\Security;
 
+use App\Entity\User\User;
 use App\Repository\User\UserRepository;
+use Qandidate\Toggle\ContextFactory;
+use Qandidate\Toggle\ToggleManager;
+use Scheb\TwoFactorBundle\Security\Http\Authenticator\TwoFactorAuthenticator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -18,18 +22,19 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements EventSubscriberInterface
 {
     use TargetPathTrait;
 
-    public const LOGIN_ROUTE = 'login';
+    final public const LOGIN_ROUTE = 'login';
 
     public function __construct(
-        private UserRepository $userRepository,
-        private RouterInterface $router,
+        private readonly UserRepository $userRepository,
+        private readonly RouterInterface $router,
+        private readonly ToggleManager $toggleManager,
+        private readonly ContextFactory $toggleContextFactory,
     ) {
     }
 
@@ -43,7 +48,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
         return $request->isMethod('POST') && self::LOGIN_ROUTE === $request->attributes->get('_route');
     }
 
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
         $username = $request->request->get('_username');
         $password = $request->request->get('_password');
@@ -55,9 +60,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
         }
 
         return new Passport(
-            new UserBadge($username, function ($userIdentifier) {
-                return $this->userRepository->loadUserByIdentifier($userIdentifier);
-            }),
+            new UserBadge($username, fn ($userIdentifier) => $this->userRepository->loadUserByIdentifier($userIdentifier)),
             new PasswordCredentials($password),
             [new CsrfTokenBadge('authenticate', $csrfToken)]
         );
@@ -65,12 +68,30 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        if ($this->toggleManager->active('mfa', $this->toggleContextFactory->createContext())) {
+            $user = $token->getUser();
+            if ($user instanceof User && !$user->isTotpAuthenticationEnabled()) {
+                return new RedirectResponse($this->router->generate('app_2fa_enable'));
+            }
+        }
+
         if (($targetPath = $this->getTargetPath($request->getSession(), $firewallName))
             && $targetPath !== $this->getLoginUrl($request)) {
             return new RedirectResponse($targetPath);
         }
 
         return new RedirectResponse($this->router->generate('salt_index'));
+    }
+
+    public function createToken(Passport $passport, string $firewallName): TokenInterface
+    {
+        $token = parent::createToken($passport, $firewallName);
+
+        if (!$this->toggleManager->active('mfa', $this->toggleContextFactory->createContext())) {
+            $token->setAttribute(TwoFactorAuthenticator::FLAG_2FA_COMPLETE, true);
+        }
+
+        return $token;
     }
 
     public function onKernelRequest(RequestEvent $event): void
@@ -85,7 +106,10 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
             return;
         }
 
-        $this->saveTargetPath($request->getSession(), 'main', $request->getUri());
+        $targetPath = $this->getTargetPath($request->getSession(), 'main');
+        if (null === $targetPath && !str_ends_with($request->getUri(), '/2fa')) {
+            $this->saveTargetPath($request->getSession(), 'main', $request->getUri());
+        }
     }
 
     public function start(Request $request, AuthenticationException $authException = null): Response

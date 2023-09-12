@@ -5,33 +5,26 @@ namespace App\Console\Mirror;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportCaseJsonCommand;
 use App\Service\MirrorFramework;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand('mirror:framework', 'Mirror a framework')]
 class MirrorFrameworkCommand extends Command
 {
     use CommandDispatcherTrait;
 
-    protected static $defaultName = 'mirror:framework';
-
-    /**
-     * @var MirrorFramework
-     */
-    private $mirrorFramework;
-
-    public function __construct(MirrorFramework $mirrorServer, string $name = null)
+    public function __construct(private readonly MirrorFramework $mirrorFramework)
     {
-        parent::__construct($name);
-        $this->mirrorFramework = $mirrorServer;
+        parent::__construct();
     }
 
     protected function configure(): void
     {
         $this
-            ->setDescription('Mirror a framework')
             ->addArgument('url', InputArgument::REQUIRED, 'URL of framework to mirror')
         ;
     }
@@ -57,6 +50,6 @@ class MirrorFrameworkCommand extends Command
 
         $io->success('Complete');
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

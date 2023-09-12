@@ -4,14 +4,13 @@ namespace App\Command;
 
 use App\Event\CommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 trait CommandDispatcherTrait
 {
     protected ?EventDispatcherInterface $dispatcher = null;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setDispatcher(EventDispatcherInterface $dispatcher): void
     {
         $this->dispatcher = $dispatcher;
@@ -23,10 +22,6 @@ trait CommandDispatcherTrait
     protected function sendCommand(CommandInterface $command): void
     {
         $dispatcher = $this->dispatcher ?? null;
-
-        if (null === $dispatcher && method_exists($this, 'get')) {
-            $dispatcher = $this->get('event_dispatcher');
-        }
 
         if (null === $dispatcher) {
             throw new \RuntimeException('Cannot access dispatcher');

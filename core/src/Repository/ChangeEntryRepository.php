@@ -10,7 +10,7 @@ use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<ChangeEntry::class>
+ * @extends ServiceEntityRepository<ChangeEntry>
  */
 class ChangeEntryRepository extends ServiceEntityRepository
 {
@@ -53,7 +53,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->from($this->getClassMetadata()->getTableName(), 'a')
             ->where('a.doc_id = :doc_id')
             ->setParameter('doc_id', $doc->getId())
-            ->execute()
+            ->executeQuery()
             ->fetchAssociative();
     }
 
@@ -64,7 +64,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->from($this->getClassMetadata()->getTableName(), 'a')
             ->where('a.doc_id = :doc_id')
             ->setParameter('doc_id', $doc->getId())
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
     }
 
@@ -79,7 +79,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->setParameter('doc_id', $doc->getId())
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
-            ->setMaxResults(($limit > 0) ? $limit : 1000000)
+            ->setMaxResults(($limit > 0) ? $limit : 1_000_000)
             ->getQuery()
             ->setHydrationMode(Query::HYDRATE_ARRAY)
             ->toIterable();
@@ -100,7 +100,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->select('count(*)')
             ->from($this->getClassMetadata()->getTableName(), 'a')
             ->where('a.doc_id IS NULL')
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
     }
 
@@ -114,7 +114,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->where('a.doc IS NULL')
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
-            ->setMaxResults(($limit > 0) ? $limit : 1000000)
+            ->setMaxResults(($limit > 0) ? $limit : 1_000_000)
             ->getQuery()
             ->setHydrationMode(Query::HYDRATE_ARRAY)
             ->toIterable();

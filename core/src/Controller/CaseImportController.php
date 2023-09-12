@@ -5,32 +5,27 @@ namespace App\Controller;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportCaseJsonCommand;
 use App\Entity\User\User;
-use GuzzleHttp\ClientInterface;
+use App\Security\Permission;
+use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CaseImportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    /**
-     * @Route("/salt/case/import", name="import_case_file")
-     * @Security("is_granted('create', 'lsdoc')")
-     */
-    public function importAction(Request $request, UserInterface $user): JsonResponse
+    #[Route(path: '/salt/case/import', name: 'import_case_file')]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function import(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        if (!$user instanceof User) {
-            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
-        }
-
         $content = base64_decode($request->request->get('fileContent'));
 
         $command = new ImportCaseJsonCommand($content, $user->getOrg(), $user);
@@ -41,16 +36,10 @@ class CaseImportController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/salt/case/importRemote", name="import_case_file_remote")
-     * @Security("is_granted('create', 'lsdoc')")
-     */
-    public function importRemoteAction(Request $request, UserInterface $user, ClientInterface $guzzleJsonClient): Response
+    #[Route(path: '/salt/case/importRemote', name: 'import_case_file_remote')]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function importRemote(Request $request, #[CurrentUser] User $user): Response
     {
-        if (!$user instanceof User) {
-            return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
-        }
-
         $defaultData = [];
         $form = $this->createFormBuilder($defaultData)
             ->add('url', UrlType::class, [
@@ -65,8 +54,9 @@ class CaseImportController extends AbstractController
 
             $data = $form->getData();
 
+            $jsonClient = new Client();
             try {
-                $response = $guzzleJsonClient->request(
+                $response = $jsonClient->request(
                     'GET',
                     $data['url'],
                     [
@@ -74,7 +64,7 @@ class CaseImportController extends AbstractController
                         RequestOptions::ALLOW_REDIRECTS => true,
                         RequestOptions::TIMEOUT => 300,
                         RequestOptions::HEADERS => [
-                            'Accept' => 'application/json, text/plain, */*;q=0.5',
+                            'Accept' => 'application/vnd.opensalt+json, application/json;q=0.8, text/plain;q=0.2, */*;q=0.1',
                         ],
                         RequestOptions::HTTP_ERRORS => false,
                     ]

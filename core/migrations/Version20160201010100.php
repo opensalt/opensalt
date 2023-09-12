@@ -8,8 +8,6 @@ class Version20160201010100 extends AbstractMigration
 {
     public function up(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('
 CREATE TABLE auth_session (
     id            VARBINARY(128)   NOT NULL PRIMARY KEY,
@@ -24,8 +22,6 @@ CREATE TABLE auth_session (
 
     public function down(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('
 DROP TABLE auth_session;
         ');

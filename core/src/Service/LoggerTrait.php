@@ -17,15 +17,7 @@ trait LoggerTrait
         $this->logger = $logger;
     }
 
-    /**
-     * @param mixed  $level
-     * @param string $message
-     *
-     * @return void
-     *
-     * @throws \Psr\Log\InvalidArgumentException
-     */
-    public function log($level, $message, array $context = [])
+    public function log(mixed $level, \Stringable|string $message, array $context = []): void
     {
         $this->logger?->log($level, $message, $context);
     }

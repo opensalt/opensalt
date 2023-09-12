@@ -11,39 +11,33 @@ use App\Entity\User\Organization;
 use App\Entity\User\User;
 use App\Form\Type\SignupType;
 use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Signup Controller.
- *
- * @Route("/public/user")
  * @Toggle("create_account")
  */
+#[Route(path: '/public/user')]
 class SignupController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     public function __construct(
-        private UserPasswordHasherInterface $passwordEncoder,
-        private ?string $mailFromEmail = null,
-        private ?string $kernelEnv = null,
+        private readonly UserPasswordHasherInterface $passwordEncoder,
+        private readonly ?string $mailFromEmail = null,
+        private readonly ?string $kernelEnv = null,
     ) {
     }
 
     /**
      * Creates a new user entity.
-     *
-     * @Route("/signup", methods={"GET", "POST"}, name="public_user_signup")
-     * @Template()
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function signupAction(Request $request)
+    #[Route(path: '/signup', name: 'public_user_signup', methods: ['GET', 'POST'])]
+    public function signup(Request $request): Response
     {
         $targetUser = new User();
         $form = $this->createForm(SignupType::class, $targetUser, ['validation_groups' => ['registration']]);
@@ -88,8 +82,6 @@ class SignupController extends AbstractController
                 try {
                     $command = new SendSignupReceivedEmailCommand($targetUser->getUserIdentifier());
                     $this->sendCommand($command);
-                } catch (\Swift_RfcComplianceException $e) {
-                    throw new \RuntimeException('A valid email address must be given.');
                 } catch (\Exception $e) {
                     if ($command->hasValidationErrors()) {
                         $errors = $command->getValidationErrors();
@@ -105,8 +97,6 @@ class SignupController extends AbstractController
                     $from_email = $this->mailFromEmail;
                     $command = new SendAdminNotificationEmailCommand($from_email, $targetUser->getUserIdentifier(), $targetUser->getOrg()->getName());
                     $this->sendCommand($command);
-                } catch (\Swift_RfcComplianceException $e) {
-                    throw new \RuntimeException('A valid email address must be given.');
                 } catch (\Exception $e) {
                     // Do not throw an error to the client if the email could not be sent
                 }
@@ -114,16 +104,16 @@ class SignupController extends AbstractController
                 return $this->redirectToRoute('lsdoc_index');
             } catch (\Exception $e) {
                 if ('dev' === $this->kernelEnv) {
-                    $form->addError(new FormError(get_class($e).': '.$e->getMessage()));
+                    $form->addError(new FormError($e::class.': '.$e->getMessage()));
                 } else {
                     $form->addError(new FormError('Sorry, an error occurred while creating your account.'));
                 }
             }
         }
 
-        return [
+        return $this->render('user/signup/signup.html.twig', [
             'user' => $targetUser,
             'form' => $form->createView(),
-        ];
+        ]);
     }
 }

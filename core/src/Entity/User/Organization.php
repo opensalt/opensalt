@@ -3,99 +3,72 @@
 namespace App\Entity\User;
 
 use App\Entity\Framework\LsDoc;
+use App\Repository\User\OrganizationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * Class Organization
- *
- * @ORM\Entity(repositoryClass="App\Repository\User\OrganizationRepository")
- * @ORM\Table(name="salt_org")
- * @UniqueEntity("name", message="The organization name is already being used")
- */
+#[ORM\Entity(repositoryClass: OrganizationRepository::class)]
+#[ORM\Table(name: 'salt_org')]
+#[UniqueEntity('name', message: 'The organization name is already being used')]
 class Organization
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @ORM\Column(name="id", type="integer")
-     */
-    protected $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Column(name: 'id', type: 'integer')]
+    protected ?int $id = null;
+
+    #[ORM\Column(name: 'name', type: 'string', length: 255, unique: true)]
+    #[Assert\NotBlank(groups: ['registration', 'Default'])]
+    protected string $name;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=255, unique=true)
-     *
-     * @Assert\NotBlank(groups={"registration", "Default"})
+     * @var Collection<array-key, User>
      */
-    protected $name;
+    #[ORM\OneToMany(mappedBy: 'org', targetEntity: User::class, fetch: 'EXTRA_LAZY', indexBy: 'id')]
+    private Collection $users;
 
     /**
-     * @var Collection|User[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\User\User", mappedBy="org", indexBy="id", fetch="EXTRA_LAZY")
+     * @var Collection<array-key, LsDoc>
      */
-    private $users;
+    #[ORM\OneToMany(mappedBy: 'org', targetEntity: LsDoc::class, fetch: 'EXTRA_LAZY', indexBy: 'id')]
+    protected Collection $frameworks;
 
-    /**
-     * @var LsDoc[]|Collection
-     * @ORM\OneToMany(targetEntity="App\Entity\Framework\LsDoc", mappedBy="org", indexBy="id", fetch="EXTRA_LAZY")
-     */
-    protected $frameworks;
-
-
-    /**
-     * Organization constructor.
-     */
-    public function __construct() {
+    public function __construct()
+    {
         $this->users = new ArrayCollection();
         $this->frameworks = new ArrayCollection();
     }
 
-    /**
-     * Returns the internal id of the user
-     *
-     * @return int
-     */
-    public function getId() {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
-
-    public function setName(string $name): Organization {
+    public function setName(string $name): Organization
+    {
         $this->name = $name;
 
         return $this;
     }
 
-    /**
-     * Get the name of the organization
-     *
-     * @return string
-     */
-    public function getName() {
+    public function getName(): string
+    {
         return $this->name;
     }
 
     /**
-     * @return \Doctrine\Common\Collections\Collection|\App\Entity\User\User[]
+     * @return Collection<array-key, User>
      */
-    public function getUsers() {
+    public function getUsers(): Collection
+    {
         return $this->users;
     }
 
-    /**
-     * Add a user to the organization
-     *
-     * @param \App\Entity\User\User $user
-     */
-    public function addUser(User $user): Organization {
+    public function addUser(User $user): Organization
+    {
         $this->users->add($user);
 
         return $this;
@@ -103,10 +76,9 @@ class Organization
 
     /**
      * Remove a user from the organization
-     *
-     * @param \App\Entity\User\User $user
      */
-    public function removeUser(User $user): Organization {
+    public function removeUser(User $user): Organization
+    {
         $this->users->removeElement($user);
 
         return $this;
@@ -115,9 +87,10 @@ class Organization
     /**
      * Get the list of frameworks owned by the organization
      *
-     * @return \App\Entity\Framework\LsDoc[]|\Doctrine\Common\Collections\Collection
+     * @return Collection<array-key, LsDoc>
      */
-    public function getFrameworks() {
+    public function getFrameworks(): Collection
+    {
         return $this->frameworks;
     }
 }

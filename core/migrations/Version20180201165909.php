@@ -33,7 +33,7 @@ xENDx;
             'licence_text' => $licence_text,
             'description' => 'Creative Commons Attribution 4.0 International',
         ];
-        $insertLicence->execute($params);
+        $insertLicence->executeStatement($params);
     }
 
     public function down(Schema $schema): void

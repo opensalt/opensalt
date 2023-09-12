@@ -8,50 +8,34 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\MappedSuperclass()
- */
+#[ORM\MappedSuperclass]
 class AbstractLsBase implements IdentifiableInterface
 {
-    /**
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
+    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
     protected ?int $id = null;
 
-    /**
-     * @ORM\Column(name="identifier", type="string", length=300, nullable=false, unique=true)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Uuid(strict=false)
-     * @Assert\Length(max=300)
-     */
+    #[ORM\Column(name: 'identifier', type: 'string', length: 300, unique: true, nullable: false)]
+    #[Assert\NotBlank]
+    #[Assert\Uuid(strict: false)]
+    #[Assert\Length(max: 300)]
     protected ?string $identifier = null;
 
-    /**
-     * @ORM\Column(name="uri", type="string", length=300, nullable=true, unique=true)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Length(max=300)
-     */
+    #[ORM\Column(name: 'uri', type: 'string', length: 300, unique: true, nullable: true)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 300)]
     protected ?string $uri = null;
 
-    /**
-     * @ORM\Column(name="extra", type="json", nullable=true)
-     */
+    #[ORM\Column(name: 'extra', type: 'json', nullable: true)]
     protected ?array $extra = null;
 
-    /**
-     * @ORM\Column(name="changed_at", type="datetime", precision=6)
-     * @Gedmo\Timestampable(on="update")
-     */
+    #[ORM\Column(name: 'changed_at', type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $changedAt;
 
-    /**
-     * @ORM\Column(name="updated_at", type="datetime", precision=6)
-     * @Gedmo\Timestampable(on="update")
-     */
+    #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected \DateTimeInterface $updatedAt;
 
     public function __construct(UuidInterface|string|null $identifier = null)
@@ -102,7 +86,7 @@ class AbstractLsBase implements IdentifiableInterface
         // If the identifier is in the form of a UUID then lower case it
         if ($identifier instanceof UuidInterface) {
             $identifier = strtolower($identifier->toString());
-        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+        } elseif (Uuid::isValid($identifier)) {
             $identifier = strtolower(Uuid::fromString($identifier)->toString());
         } else {
             throw new \InvalidArgumentException('The identifier must be a UUID.');

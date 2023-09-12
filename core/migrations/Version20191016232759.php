@@ -15,8 +15,6 @@ final class Version20191016232759 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
-
         $tables = [
             'ls_doc',
             'ls_def_association_grouping',
@@ -44,8 +42,6 @@ final class Version20191016232759 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
-
         $tables = [
             'ls_doc',
             'ls_def_association_grouping',

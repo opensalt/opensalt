@@ -50,6 +50,7 @@ jobs:
         run: |
           docker-compose up -d
           docker-compose exec -T php dockerize -timeout 60s -wait tcp://db:3306 && sleep 5
+          docker-compose exec -T php dockerize -timeout 60s -wait tcp://web:80
 
       - name: Initialize db
         run: |

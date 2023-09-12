@@ -9,6 +9,9 @@
     reportMixedIssues="false"
     autoloader="vendor/autoload.php"
     errorBaseline="../.github/psalm/psalm.baseline.xml"
+    allowStringToStandInForClass="true"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
 >
     <plugins>
         <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
@@ -16,6 +19,9 @@
             <containerXml>var/cache/dev/App_KernelDevDebugContainer.xml</containerXml>
         </pluginClass>
     </plugins>
+    <stubs>
+        <file name="tools/psalm/stubs.php" />
+    </stubs>
 
     <projectFiles>
         <directory name="src"/>

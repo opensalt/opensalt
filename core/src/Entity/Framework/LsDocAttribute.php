@@ -2,100 +2,58 @@
 
 namespace App\Entity\Framework;
 
+use App\Repository\Framework\LsDocAttributeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * LsDocAttribute
- *
- * @ORM\Table(name="ls_doc_attribute")
- * @ORM\Entity(repositoryClass="App\Repository\Framework\LsDocAttributeRepository")
- */
+#[ORM\Table(name: 'ls_doc_attribute')]
+#[ORM\Entity(repositoryClass: LsDocAttributeRepository::class)]
 class LsDocAttribute
 {
-    public const IS_GRADE_LEVELS = 'isGradeLevels';
+    final public const IS_GRADE_LEVELS = 'isGradeLevels';
 
-    /**
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="LsDoc", inversedBy="attributes")
-     */
-    private $lsDoc;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'attributes')]
+    private LsDoc $lsDoc;
 
-    /**
-     * @var string
-     *
-     * @ORM\Id
-     * @ORM\Column(name="attribute", type="string", length=255)
-     */
-    private $attribute;
+    #[ORM\Id]
+    #[ORM\Column(name: 'attribute', type: 'string', length: 255)]
+    private string $attribute;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="value", type="string", length=255, nullable=true)
-     */
-    private $value;
+    #[ORM\Column(name: 'value', type: 'string', length: 255, nullable: true)]
+    private ?string $value;
 
-
-    public function __construct($lsDoc, $attribute, $value) {
+    public function __construct(LsDoc $lsDoc, string $attribute, ?string $value)
+    {
         $this->lsDoc = $lsDoc;
         $this->attribute = $attribute;
         $this->value = $value;
     }
 
-    /**
-     * Get lsDoc
-     *
-     * @return LsDoc
-     */
-    public function getLsDoc()
+    public function getLsDoc(): LsDoc
     {
         return $this->lsDoc;
     }
 
-    /**
-     * Set attribute
-     *
-     * @param string $attribute
-     *
-     * @return LsDocAttribute
-     */
-    public function setAttribute($attribute)
+    public function setAttribute(string $attribute): static
     {
         $this->attribute = $attribute;
 
         return $this;
     }
 
-    /**
-     * Get attribute
-     *
-     * @return string
-     */
-    public function getAttribute()
+    public function getAttribute(): string
     {
         return $this->attribute;
     }
 
-    /**
-     * Set value
-     *
-     * @param string $value
-     *
-     * @return LsDocAttribute
-     */
-    public function setValue($value)
+    public function setValue(?string $value): static
     {
         $this->value = $value;
 
         return $this;
     }
 
-    /**
-     * Get value
-     *
-     * @return string
-     */
-    public function getValue()
+    public function getValue(): ?string
     {
         return $this->value;
     }

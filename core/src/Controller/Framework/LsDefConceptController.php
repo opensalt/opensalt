@@ -8,53 +8,48 @@ use App\Command\Framework\DeleteConceptCommand;
 use App\Command\Framework\UpdateConceptCommand;
 use App\Entity\Framework\LsDefConcept;
 use App\Form\Type\LsDefConceptType;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use App\Security\Permission;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * LsDefConcept controller.
- *
- * @Route("/cfdef/concept")
- */
+#[Route(path: '/cfdef/concept')]
 class LsDefConceptController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private readonly ManagerRegistry $managerRegistry,
+    ) {
+    }
+
     /**
      * Lists all LsDefConcept entities.
-     *
-     * @Route("/", methods={"GET"}, name="lsdef_concept_index")
-     * @Template()
-     *
-     * @return array
      */
-    public function indexAction()
+    #[Route(path: '/', name: 'lsdef_concept_index', methods: ['GET'])]
+    public function index(): Response
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->managerRegistry->getManager();
 
         $lsDefConcepts = $em->getRepository(LsDefConcept::class)->findBy([], null, 100);
 
-        return [
+        return $this->render('framework/ls_def_concept/index.html.twig', [
             'lsDefConcepts' => $lsDefConcepts,
-        ];
+        ]);
     }
 
     /**
      * Creates a new LsDefConcept entity.
-     *
-     * @Route("/new", methods={"GET", "POST"}, name="lsdef_concept_new")
-     * @Template()
-     * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function newAction(Request $request)
+    #[Route(path: '/new', name: 'lsdef_concept_new', methods: ['GET', 'POST'])]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function new(Request $request): Response
     {
         $lsDefConcept = new LsDefConcept();
         $form = $this->createForm(LsDefConceptType::class, $lsDefConcept);
@@ -71,38 +66,32 @@ class LsDefConceptController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_def_concept/new.html.twig', [
             'lsDefConcept' => $lsDefConcept,
             'form' => $form->createView(),
-        ];
+        ]);
     }
 
     /**
      * Finds and displays a LsDefConcept entity.
-     *
-     * @Route("/{id}", methods={"GET"}, name="lsdef_concept_show")
-     * @Template()
      */
-    public function showAction(LsDefConcept $lsDefConcept): array
+    #[Route(path: '/{id}', name: 'lsdef_concept_show', methods: ['GET'])]
+    public function show(LsDefConcept $lsDefConcept): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefConcept);
 
-        return [
+        return $this->render('framework/ls_def_concept/show.html.twig', [
             'lsDefConcept' => $lsDefConcept,
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Displays a form to edit an existing LsDefConcept entity.
-     *
-     * @Route("/{id}/edit", methods={"GET", "POST"}, name="lsdef_concept_edit")
-     * @Template()
-     * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function editAction(Request $request, LsDefConcept $lsDefConcept)
+    #[Route(path: '/{id}/edit', name: 'lsdef_concept_edit', methods: ['GET', 'POST'])]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function edit(Request $request, LsDefConcept $lsDefConcept): Response
     {
         $deleteForm = $this->createDeleteForm($lsDefConcept);
         $editForm = $this->createForm(LsDefConceptType::class, $lsDefConcept);
@@ -119,22 +108,19 @@ class LsDefConceptController extends AbstractController
             }
         }
 
-        return [
+        return $this->render('framework/ls_def_concept/edit.html.twig', [
             'lsDefConcept' => $lsDefConcept,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ];
+        ]);
     }
 
     /**
      * Deletes a LsDefConcept entity.
-     *
-     * @Route("/{id}", methods={"DELETE"}, name="lsdef_concept_delete")
-     * @Security("is_granted('create', 'lsdoc')")
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function deleteAction(Request $request, LsDefConcept $lsDefConcept): Response
+    #[Route(path: '/{id}', name: 'lsdef_concept_delete', methods: ['DELETE'])]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
+    public function delete(Request $request, LsDefConcept $lsDefConcept): RedirectResponse
     {
         $form = $this->createDeleteForm($lsDefConcept);
         $form->handleRequest($request);
@@ -149,16 +135,12 @@ class LsDefConceptController extends AbstractController
 
     /**
      * Creates a form to delete a LsDefConcept entity.
-     *
-     * @param LsDefConcept $lsDefConcept The LsDefConcept entity
-     *
-     * @return \Symfony\Component\Form\FormInterface The form
      */
     private function createDeleteForm(LsDefConcept $lsDefConcept): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('lsdef_concept_delete', ['id' => $lsDefConcept->getId()]))
-            ->setMethod('DELETE')
+            ->setMethod(Request::METHOD_DELETE)
             ->getForm()
         ;
     }

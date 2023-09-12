@@ -4,33 +4,32 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\CfRubricCriterion;
 use App\Service\Api1Uris;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, ContextAwareNormalizerInterface
+final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, NormalizerInterface
 {
     use NormalizerAwareTrait;
     use LinkUriTrait;
     use LastChangeDateTimeTrait;
 
     public function __construct(
-        private Api1Uris $api1Uris,
+        private readonly Api1Uris $api1Uris,
     ) {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function supportsNormalization($data, string $format = null, array $context = [])
+    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof CfRubricCriterion;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function normalize($object, string $format = null, array $context = [])
+    public function getSupportedTypes(?string $format): array
+    {
+        return [CfRubricCriterion::class => true];
+    }
+
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof CfRubricCriterion) {
             return null;
@@ -53,7 +52,7 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Con
             'lastChangeDateTime' => $this->getLastChangeDateTime($object),
             'CFItemURI' => $this->createLinkUri($object->getItem(), $context),
             'rubricId' => in_array('CfRubricCriterion', $context['groups'] ?? [], true)
-                ? $object->getRubric()->getIdentifier()
+                ? $object->getRubric()?->getIdentifier()
                 : null,
             'category' => $object->getCategory(),
             'description' => $object->getDescription(),
@@ -65,8 +64,6 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Con
             $data['CFRubricCriterionLevels'][] = $this->normalizer->normalize($level, $format, $context);
         }
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 }

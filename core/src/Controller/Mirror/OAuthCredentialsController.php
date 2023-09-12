@@ -6,21 +6,24 @@ use App\Entity\Framework\Mirror\OAuthCredential;
 use App\Form\DTO\OAuthCredentialDTO;
 use App\Form\Type\OAuthCredentialDTOType;
 use App\Repository\Framework\Mirror\OAuthCredentialRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use App\Security\Permission;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Security("is_granted('manage', 'mirrors')")
- * @Route("/admin/mirror/credentials")
- */
+#[Route(path: '/admin/mirror/credentials')]
+#[IsGranted(Permission::MANAGE_MIRRORS)]
 class OAuthCredentialsController extends AbstractController
 {
-    /**
-     * @Route("/", name="oauth_credentials_index", methods={"GET"})
-     */
+    public function __construct(
+        private readonly ManagerRegistry $managerRegistry,
+    ) {
+    }
+
+    #[Route(path: '/', name: 'oauth_credentials_index', methods: ['GET'])]
     public function index(OAuthCredentialRepository $oAuthCredentialRepository): Response
     {
         return $this->render('mirror/oauth_credentials/index.html.twig', [
@@ -28,9 +31,7 @@ class OAuthCredentialsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/new", name="oauth_credentials_new", methods={"GET","POST"})
-     */
+    #[Route(path: '/new', name: 'oauth_credentials_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
         $oAuthCredentialDto = new OAuthCredentialDTO();
@@ -43,7 +44,7 @@ class OAuthCredentialsController extends AbstractController
             $oAuthCredential->setKey($oAuthCredentialDto->key);
             $oAuthCredential->setSecret($oAuthCredentialDto->secret);
 
-            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager = $this->managerRegistry->getManager();
             $entityManager->persist($oAuthCredential);
             $entityManager->flush();
 
@@ -56,9 +57,7 @@ class OAuthCredentialsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="oauth_credentials_show", methods={"GET"})
-     */
+    #[Route(path: '/{id}', name: 'oauth_credentials_show', methods: ['GET'])]
     public function show(OAuthCredential $oAuthCredential): Response
     {
         return $this->render('mirror/oauth_credentials/show.html.twig', [
@@ -66,9 +65,7 @@ class OAuthCredentialsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/edit", name="oauth_credentials_edit", methods={"GET","POST"})
-     */
+    #[Route(path: '/{id}/edit', name: 'oauth_credentials_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, OAuthCredential $oAuthCredential): Response
     {
         $dto = new OAuthCredentialDTO();
@@ -83,7 +80,7 @@ class OAuthCredentialsController extends AbstractController
             $oAuthCredential->setAuthenticationEndpoint($dto->authenticationEndpoint);
             $oAuthCredential->setKey($dto->key);
             $oAuthCredential->setSecret($dto->secret);
-            $this->getDoctrine()->getManager()->flush();
+            $this->managerRegistry->getManager()->flush();
 
             return $this->redirectToRoute('oauth_credentials_index');
         }
@@ -94,13 +91,11 @@ class OAuthCredentialsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="oauth_credentials_delete", methods={"DELETE"})
-     */
+    #[Route(path: '/{id}', name: 'oauth_credentials_delete', methods: ['DELETE'])]
     public function delete(Request $request, OAuthCredential $oAuthCredential): Response
     {
         if ($this->isCsrfTokenValid('delete'.$oAuthCredential->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager = $this->managerRegistry->getManager();
             $entityManager->remove($oAuthCredential);
             $entityManager->flush();
         }

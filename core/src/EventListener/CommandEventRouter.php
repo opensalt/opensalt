@@ -5,15 +5,14 @@ namespace App\EventListener;
 use App\Command\CommandInterface;
 use App\Entity\ChangeEntry;
 use App\Entity\NotificationOnlyChangeEntry;
+use App\Entity\User\User;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Service\LoggerTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\User\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 
 class CommandEventRouter implements EventSubscriberInterface
 {
@@ -69,22 +68,21 @@ class CommandEventRouter implements EventSubscriberInterface
     {
         $command = $event->getCommand();
 
-        $this->info('Routing command', ['command' => \get_class($command)]);
+        $this->info('Routing command', ['command' => $command::class]);
 
         try {
-            $dispatcher->dispatch($event, \get_class($command));
+            $dispatcher->dispatch($event, $command::class);
 
             if ($validationErrors = $command->getValidationErrors()) {
                 $errors = [];
-                /** @var ConstraintViolationInterface $error */
                 foreach ($validationErrors as $error) {
                     $errors[] = $error->getMessage();
                 }
                 $errorString = implode(' ', $errors);
-                $this->info('Error in command', ['command' => \get_class($command), 'errors' => $errorString]);
+                $this->info('Error in command', ['command' => $command::class, 'errors' => $errorString]);
             }
         } catch (\Exception $e) {
-            $this->info('Exception in command', ['command' => \get_class($command), 'exception' => $e]);
+            $this->info('Exception in command', ['command' => $command::class, 'exception' => $e]);
 
             throw $e;
         }
@@ -97,7 +95,7 @@ class CommandEventRouter implements EventSubscriberInterface
             if (null !== $notification) {
                 $changeEntry = new ChangeEntry($notification->getDoc(), $this->getCurrentUser(), $notification->getMessage(), $notification->getChanged());
             } else {
-                $changeEntry = new ChangeEntry(null, $this->getCurrentUser(), \get_class($command), []);
+                $changeEntry = new ChangeEntry(null, $this->getCurrentUser(), $command::class, []);
             }
         }
 
@@ -160,7 +158,7 @@ class CommandEventRouter implements EventSubscriberInterface
     {
         $notification = $command->getNotificationEvent();
         if (null === $notification) {
-            $notification = new NotificationEvent('X01', 'Command '.\get_class($command).' handled', null, [], false);
+            $notification = new NotificationEvent('X01', 'Command '.$command::class.' handled', null, [], false);
         }
 
         if (null === $notification->getUsername()) {

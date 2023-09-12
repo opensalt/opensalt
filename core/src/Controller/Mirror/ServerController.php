@@ -2,28 +2,32 @@
 
 namespace App\Controller\Mirror;
 
+use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Server;
 use App\Form\DTO\MirroredServerDTO;
 use App\Form\Type\MirroredServerDTOType;
 use App\Repository\Framework\Mirror\ServerRepository;
+use App\Security\Permission;
 use App\Service\MirrorServer;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Security("is_granted('manage', 'mirrors')")
- * @Route("/admin/mirror/server")
- */
+#[Route(path: '/admin/mirror/server')]
+#[IsGranted(Permission::MANAGE_MIRRORS)]
 class ServerController extends AbstractController
 {
-    /**
-     * @Route("/", name="mirror_server_index")
-     */
+    public function __construct(
+        private readonly ManagerRegistry $managerRegistry,
+    ) {
+    }
+
+    #[Route(path: '/', name: 'mirror_server_index')]
     public function index(ServerRepository $serverRepository): Response
     {
         $servers = $serverRepository->findAllForList();
@@ -60,9 +64,7 @@ class ServerController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/new", name="mirror_server_add")
-     */
+    #[Route(path: '/new', name: 'mirror_server_add')]
     public function new(Request $request, MirrorServer $mirrorService): Response
     {
         // Multiple steps
@@ -89,9 +91,7 @@ class ServerController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/edit", name="mirror_server_edit")
-     */
+    #[Route(path: '/{id}/edit', name: 'mirror_server_edit')]
     public function edit(Request $request, Server $server, MirrorServer $mirrorService): Response
     {
         $serverDto = new MirroredServerDTO();
@@ -106,7 +106,7 @@ class ServerController extends AbstractController
             $server->setCredentials($serverDto->credentials);
             $server->setAddFoundFrameworks($serverDto->autoAddFoundFrameworks);
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->managerRegistry->getManager()->flush();
 
             $mirrorService->updateFrameworkList($server);
 
@@ -119,12 +119,11 @@ class ServerController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/list", name="mirror_server_list")
-     */
+    #[Route(path: '/{id}/list', name: 'mirror_server_list')]
     public function list(Server $server): Response
     {
         $enableForms = [];
+        $visibleForms = [];
         $disableForms = [];
         $refreshForms = [];
         $showLogs = [];
@@ -132,6 +131,11 @@ class ServerController extends AbstractController
         foreach ($server->getFrameworks() as $framework) {
             if ($framework->hasLogs()) {
                 $showLogs[$framework->getId()] = $this->generateUrl('mirror_framework_logs', ['id' => $framework->getId()]);
+            }
+
+            $visibleForm = $this->createVisibilityForm($framework);
+            if (null !== $visibleForm) {
+                $visibleForms[$framework->getId()] = $visibleForm->createView();
             }
 
             if (!$framework->isInclude()) {
@@ -150,22 +154,21 @@ class ServerController extends AbstractController
             'server' => $server,
             'serverRefreshForm' => $serverRefreshForm->createView(),
             'enableForms' => $enableForms,
+            'visibleForms' => $visibleForms,
             'disableForms' => $disableForms,
             'refreshForms' => $refreshForms,
             'showLogs' => $showLogs,
         ]);
     }
 
-    /**
-     * @Route("/{id}", methods={"GET", "DELETE"}, name="mirror_server_delete")
-     */
+    #[Route(path: '/{id}', name: 'mirror_server_delete', methods: ['GET', 'DELETE'])]
     public function remove(Request $request, Server $server): Response
     {
         $form = $this->createDeleteForm($server);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->managerRegistry->getManager();
 
             foreach ($server->getFrameworks() as $framework) {
                 $doc = $framework->getFramework();
@@ -188,9 +191,7 @@ class ServerController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/refresh", methods={"POST"}, name="mirror_server_refresh")
-     */
+    #[Route(path: '/{id}/refresh', name: 'mirror_server_refresh', methods: ['POST'])]
     public function refresh(Server $server, MirrorServer $mirrorServer): Response
     {
         $mirrorServer->updateFrameworkList($server);
@@ -202,7 +203,7 @@ class ServerController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('mirror_server_delete', ['id' => $server->getId()]))
-            ->setMethod('DELETE')
+            ->setMethod(Request::METHOD_DELETE)
             ->getForm()
         ;
     }
@@ -235,6 +236,19 @@ class ServerController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('mirror_framework_refresh', ['id' => $framework->getId()]))
+            ->getForm()
+        ;
+    }
+
+    private function createVisibilityForm(Framework $framework): ?FormInterface
+    {
+        $actualFramework = $framework->getFramework();
+        if (null === $actualFramework || LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT === $actualFramework->getAdoptionStatus()) {
+            return null;
+        }
+
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('mirror_framework_'.($framework->isVisible() ? 'invisible' : 'visible'), ['id' => $framework->getId()]))
             ->getForm()
         ;
     }

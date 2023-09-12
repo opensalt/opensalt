@@ -11,91 +11,50 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class AddTreeAssociationCommand extends BaseCommand
 {
-    /**
-     * @var LsDoc
-     *
-     * @Assert\Type(LsDoc::class)
-     * @Assert\NotNull()
-     */
-    private $doc;
+    #[Assert\Type(LsDoc::class)]
+    #[Assert\NotNull]
+    private LsDoc $doc;
 
-    /**
-     * @var string
-     *
-     * @Assert\Type("string")
-     * @Assert\NotNull()
-     */
-    private $type;
+    #[Assert\Type('string')]
+    #[Assert\NotNull]
+    private string $type;
 
-    /**
-     * @var array
-     *
-     * @Assert\Type("array")
-     * @Assert\NotNull()
-     * @Assert\Collection(
-     *     fields = {
-     *         "id" = {
-     *             @Assert\Type("string")
-     *         },
-     *         "identifier" = {
-     *             @Assert\Type("string")
-     *         },
-     *         "uri" = {
-     *             @Assert\Type("string")
-     *         },
-     *         "externalDoc" = {
-     *             @Assert\Type("string")
-     *         }
-     *     },
-     *     allowMissingFields = true
-     * )
-     */
-    private $origin;
+    #[Assert\Type('array')]
+    #[Assert\NotNull]
+    #[Assert\Collection(
+        fields: [
+            'id' => new Assert\Type('string'),
+            'identifier' => new Assert\Type('string'),
+            'uri' => new Assert\Type('string'),
+            'externalDoc' => new Assert\Type('string'),
+        ],
+        allowMissingFields: true,
+    )]
+    private array $origin;
 
-    /**
-     * @var array
-     *
-     * @Assert\Type("array")
-     * @Assert\NotNull()
-     * @Assert\Collection(
-     *     fields = {
-     *         "id" = {
-     *             @Assert\Type("string")
-     *         },
-     *         "identifier" = {
-     *             @Assert\Type("string")
-     *         },
-     *         "uri" = {
-     *             @Assert\Type("string")
-     *         },
-     *         "externalDoc" = {
-     *             @Assert\Type("string")
-     *         }
-     *     },
-     *     allowMissingFields = true
-     * )
-     */
-    private $dest;
+    #[Assert\Type('array')]
+    #[Assert\NotNull]
+    #[Assert\Collection(
+        fields: [
+            'id' => new Assert\Type('string'),
+            'identifier' => new Assert\Type('string'),
+            'uri' => new Assert\Type('string'),
+            'externalDoc' => new Assert\Type('string'),
+        ],
+        allowMissingFields: true,
+    )]
+    private array $dest;
 
-    /**
-     * @var string|null
-     *
-     * @Assert\Type("string")
-     */
-    private $assocGroup;
+    #[Assert\Type('string')]
+    private ?string $assocGroup;
 
-    /**
-     * @var string|null
-     *
-     * @Assert\Type("string")
-     */
-    private $annotation;
+    #[Assert\Type('string')]
+    private ?string $annotation;
 
     /**
      * @var LsAssociation|null
-     *
-     * @Assert\Type(LsAssociation::class)
      */
+    #[Assert\Type(LsAssociation::class)]
     private $association;
 
     /**
@@ -161,9 +120,7 @@ class AddTreeAssociationCommand extends BaseCommand
         $this->allowedSubtypes = $subtypes;
     }
 
-    /**
-     * @Assert\Callback()
-     */
+    #[Assert\Callback]
     public function validate(ExecutionContextInterface $context, $payload): void
     {
         if (empty($this->origin['id']) && empty($this->origin['identifier'])) {

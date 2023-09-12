@@ -12,7 +12,7 @@ const render = (function() {
             "errorColor": " #cc0000"
         }),
         mdInline = markdown('default', {
-            html: false,
+            html: true,
             breaks: false,
             linkify: false
         }).use(underline).use(mk, {
@@ -20,7 +20,7 @@ const render = (function() {
             "errorColor": " #cc0000"
         }),
         mdInlineLinked = markdown('default', {
-            html: false,
+            html: true,
             breaks: false,
             linkify: true
         }).use(underline).use(mk, {
@@ -36,10 +36,12 @@ const render = (function() {
                 'ul', 'ol', 'li',
                 'u', 'b', 'i',
                 'br', 'p',
-                'sup', 'sub'
+                'sup', 'sub',
+                'img'
             ],
             allowedAttributes: {
-                'ol': ['type']
+                'ol': ['type'],
+                'img': ['src', 'alt', 'title']
             }
         });
     }
@@ -48,8 +50,8 @@ const render = (function() {
         let sanitizeHtml = require('sanitize-html');
 
         return sanitizeHtml(dirty, {
-            allowedTags: [],
-            allowedAttributes: {}
+            allowedTags: ['img'],
+            allowedAttributes: {'img': ['alt', 'title']}
         });
     }
 
@@ -62,7 +64,7 @@ const render = (function() {
             // Remove images and replace with alt text or "[image]"
             let wrap = $('<div>').html(mdInline.renderInline(sanitizerInline(value)));
             wrap.find('img').replaceWith(function() {
-                return this.alt || '[image]';
+                return '[' + (this.alt || this.title || 'image') + ']';
             });
             return wrap.html();
         },
@@ -71,7 +73,7 @@ const render = (function() {
             // Remove images and replace with alt text or "[image]"
             let wrap = $('<div>').html(mdInlineLinked.renderInline(sanitizerInline(value)));
             wrap.find('img').replaceWith(function() {
-                return this.alt || '[image]';
+                return '[' + (this.alt || this.title || 'image') + ']';
             });
             return wrap.html();
         },

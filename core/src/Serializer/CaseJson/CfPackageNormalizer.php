@@ -6,36 +6,35 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsDocRepository;
+use App\Security\Permission;
 use App\Service\Api1Uris;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwareNormalizerInterface
+final class CfPackageNormalizer implements NormalizerAwareInterface, NormalizerInterface
 {
     use NormalizerAwareTrait;
 
     public function __construct(
-        private Api1Uris $api1Uris,
-        private LsDocRepository $docRepository,
-        private AuthorizationCheckerInterface $authorizationChecker,
+        private readonly Api1Uris $api1Uris,
+        private readonly LsDocRepository $docRepository,
+        private readonly AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function supportsNormalization($data, string $format = null, array $context = [])
+    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
         return $data instanceof LsDoc && null !== ($context['generate-package'] ?? null);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function normalize($object, string $format = null, array $context = [])
+    public function getSupportedTypes(?string $format): array
+    {
+        return [LsDoc::class => false];
+    }
+
+    public function normalize(mixed $object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof LsDoc) {
             return null;
@@ -87,12 +86,10 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwar
             }
         }
 
-        return array_filter($data, static function ($val) {
-            return null !== $val;
-        });
+        return array_filter($data, static fn ($val) => null !== $val);
     }
 
-    public function setNormalizer(NormalizerInterface $normalizer)
+    public function setNormalizer(NormalizerInterface $normalizer): void
     {
         $this->normalizer = $normalizer;
     }
@@ -123,6 +120,6 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, ContextAwar
             return true;
         }
 
-        return $this->authorizationChecker->isGranted('list', $targetDoc);
+        return $this->authorizationChecker->isGranted(Permission::FRAMEWORK_LIST, $targetDoc);
     }
 }
