@@ -1,7 +1,7 @@
 {
     "require": {
-        "vimeo/psalm": "^4.7",
-        "psalm/plugin-symfony": "^3.1",
-        "weirdan/doctrine-psalm-plugin": "^2.2"
+        "vimeo/psalm": "^5.1",
+        "psalm/plugin-symfony": "^5.0",
+        "weirdan/doctrine-psalm-plugin": "^2.9"
     }
 }

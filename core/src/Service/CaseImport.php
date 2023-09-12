@@ -24,17 +24,13 @@ class CaseImport
         try {
             $this->validate($content);
         } catch (\Throwable $e) {
-            if (str_starts_with($e->getMessage(), 'Missing scheme in URI')) {
-                // Check for common issue seen from CASE Network
-                try {
-                    $newContent = $this->fixupContent($content);
-                    $this->validate($newContent);
-                    $content = $newContent;
-                } catch (\Throwable $e) {
-                    // Ignore error and throw original
-                    throw $e;
-                }
-            } else {
+            // Try to fix things based on common issues seen
+            try {
+                $newContent = $this->fixupContent($content);
+                $this->validate($newContent);
+                $content = $newContent;
+            } catch (\Throwable) {
+                // Ignore error and throw original
                 throw $e;
             }
         }
@@ -57,13 +53,20 @@ class CaseImport
         $json = json5_decode($content, true);
 
         $items = [];
-        foreach (($json['CFItems'] ?? []) as $item) {
+        foreach (($json['CFItems'] ?? []) as $key => $item) {
+            // Save URIs for items
             if (isset($item['identifier']) && isset($item['uri'])) {
                 $items[$item['identifier']] = $item['uri'];
+            }
+
+            // Some TX frameworks are missing fullStatement but have alternativeLabel
+            if (empty($item['fullStatement']) && (!empty($item['alternativeLabel']) || !empty($item['abbreviatedStatement']))) {
+                $json['CFItems'][$key]['fullStatement'] = $item['alternativeLabel'] ?? $item['abbreviatedStatement'];
             }
         }
 
         // Try fixing up for issue we have seen in the CASE Network where the URI is the identifier instead of a URI
+        // but the item has the URI available
         foreach (($json['CFAssociations'] ?? []) as $key => $association) {
             $node = $association['originNodeURI'];
             if ($node['identifier'] === $node['uri']) {
@@ -76,6 +79,6 @@ class CaseImport
             }
         }
 
-        return json_encode($json, JSON_THROW_ON_ERROR|JSON_UNESCAPED_SLASHES);
+        return json_encode($json, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
     }
 }

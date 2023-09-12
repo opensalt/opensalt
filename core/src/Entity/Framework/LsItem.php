@@ -31,8 +31,8 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     #[Assert\NotBlank]
     private LsDoc $lsDoc;
 
-    #[ORM\Column(name: 'human_coding_scheme', type: 'string', length: 50, nullable: true)]
-    #[Assert\Length(max: 50)]
+    #[ORM\Column(name: 'human_coding_scheme', type: 'string', length: 80, nullable: true)]
+    #[Assert\Length(max: 80)]
     private ?string $humanCodingScheme = null;
 
     #[ORM\Column(name: 'list_enum_in_source', type: 'string', length: 20, nullable: true)]

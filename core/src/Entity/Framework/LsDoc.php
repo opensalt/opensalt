@@ -48,8 +48,8 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     #[Assert\Length(max: 300)]
     private ?string $creator = null;
 
-    #[ORM\Column(name: 'publisher', type: 'string', length: 50, nullable: true)]
-    #[Assert\Length(max: 50)]
+    #[ORM\Column(name: 'publisher', type: 'string', length: 300, nullable: true)]
+    #[Assert\Length(max: 300)]
     private ?string $publisher = null;
 
     #[ORM\Column(name: 'title', type: 'string', length: 120, nullable: false)]
