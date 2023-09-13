@@ -77,6 +77,11 @@ class CaseImport
             if ($node['identifier'] === $node['uri']) {
                 $json['CFAssociations'][$key]['destinationNodeURI']['uri'] = $items[$node['identifier']] ?? $node['uri'];
             }
+
+            // Fixup for a couple frameworks we have seen that have bad association types
+            if ('RelatedTo' === $association['associationType']) {
+                $json['CFAssociations'][$key]['associationType'] = 'isRelatedTo';
+            }
         }
 
         return json_encode($json, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);

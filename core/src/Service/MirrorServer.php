@@ -87,16 +87,19 @@ class MirrorServer
         if (null === $mirroredDoc) {
             $mirroredDoc = new Framework($server, $doc['identifier']);
             $mirroredDoc->setInclude($include ?? $server->isAddFoundFrameworks());
+        }
 
-            if (null === $url) {
-                $uri = UriString::parse($server->getUrl());
-                $uri['path'] = rtrim($uri['path'], '/').Server::URL_CASE_1_0_PACKAGE.'/'.$doc['identifier'];
-                $uri['query'] = null;
-                $uri['fragment'] = null;
-                $url = UriString::build($uri);
-            }
+        if (null === $url) {
+            $uri = UriString::parse($server->getUrl());
+            $uri['path'] = rtrim($uri['path'], '/').Server::URL_CASE_1_0_PACKAGE.'/'.($doc['CFPackageURI']['identifier'] ?? $doc['identifier']);
+            $uri['query'] = null;
+            $uri['fragment'] = null;
+            $url = UriString::build($uri);
+        }
+        if ($mirroredDoc->getUrl() !== $url) {
             $mirroredDoc->setUrl($url);
         }
+
         $this->em->persist($mirroredDoc);
 
         $mirroredDoc->setCreator($doc['creator'] ?? 'Unknown');
