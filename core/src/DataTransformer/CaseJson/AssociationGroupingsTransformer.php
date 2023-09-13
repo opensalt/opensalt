@@ -45,7 +45,7 @@ class AssociationGroupingsTransformer
 
         $newIds = array_map(static fn (CFAssociationGrouping $group) => $group->identifier->toString(), $cfAssociationGroupings);
 
-        return $repo->findByIdentifier($newIds);
+        return $repo->findByIdentifiers($newIds);
     }
 
     /**

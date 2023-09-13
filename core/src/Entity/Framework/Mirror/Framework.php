@@ -33,7 +33,7 @@ class Framework
     private Server $server;
 
     #[ORM\Column(name: 'url', type: 'string', nullable: false)]
-    private string $url;
+    private string $url = '';
 
     #[ORM\Column(name: 'identifier', type: 'string', nullable: false)]
     private string $identifier;

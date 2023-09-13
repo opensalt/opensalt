@@ -202,7 +202,7 @@ class DocTreeController extends AbstractController
                 $groupIds[$association['group']['identifier']] = 1;
             }
         }
-        $assocGroups = $this->managerRegistry->getRepository(LsDefAssociationGrouping::class)->findByIdentifier(array_keys($groupIds));
+        $assocGroups = $this->managerRegistry->getRepository(LsDefAssociationGrouping::class)->findByIdentifiers(array_keys($groupIds));
         $associatedDocs = array_merge(
             $lsDoc->getExternalDocs(),
             $this->managerRegistry->getRepository(LsDoc::class)->findAssociatedDocs($lsDoc)
