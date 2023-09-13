@@ -32,14 +32,16 @@ class ServerRepository extends ServiceEntityRepository
      */
     public function findAllForList(): array
     {
-        $servers = array_map(fn ($rec) => $rec[0], $this->createQueryBuilder('server')
-            ->select(sprintf(
-                'server.id, NEW %s(server.id, server.url)',
-                ServerListItem::class
-            ))
-            ->indexBy('server', 'server.id')
-            ->getQuery()
-            ->getResult()
+        $servers = array_map(
+            fn ($rec) => $rec[0],
+            $this->createQueryBuilder('server')
+                ->select(sprintf(
+                    'server.id, NEW %s(server.id, server.url)',
+                    ServerListItem::class
+                ))
+                ->indexBy('server', 'server.id')
+                ->getQuery()
+                ->getResult()
         );
 
         $frameworks = $this->createQueryBuilder('server')
