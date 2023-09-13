@@ -769,23 +769,38 @@ xENDx;
     /**
      * Get a list of all items for an LsDoc.
      *
-     * @psalm-param AbstractQuery::HYDRATE_* $format
-     *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAssociationsForExportDoc(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
+    public function findAssociationsForExportDoc(LsDoc $lsDoc): array
     {
-        $query = $this->getEntityManager()->createQuery('
-            SELECT a, g, partial oi.{id,identifier,lsDocIdentifier}, partial di.{id,identifier,lsDocIdentifier}
-            FROM App\Entity\Framework\LsAssociation a INDEX BY a.id
+        $query = $this->getEntityManager()->createQuery(sprintf('
+            SELECT a, g, oi.id AS oi_id, oi.identifier AS oi_identifier, oi.lsDocIdentifier AS oi_lsDocIdentifier, di.id AS di_id, di.identifier AS di_identifier, di.lsDocIdentifier as di_lsDocIdentifier
+            FROM %s a INDEX BY a.id
             LEFT JOIN a.group g
             LEFT JOIN a.originLsItem oi
             LEFT JOIN a.destinationLsItem di
             WHERE a.lsDoc = :lsDocId
             ORDER BY a.sequenceNumber ASC
-        ');
+        ', LsAssociation::class));
         $query->setParameter('lsDocId', $lsDoc->getId());
 
-        return $query->getResult($format);
+        return array_map(
+            function ($rec) {
+                $ret = $rec[0];
+                $ret['originLsItem'] = [
+                    'id' => $rec['oi_id'],
+                    'identifier' => $rec['oi_identifier'],
+                    'lsDocIdentifier' => $rec['oi_lsDocIdentifier'],
+                ];
+                $ret['destinationLsItem'] = [
+                    'id' => $rec['di_id'],
+                    'identifier' => $rec['di_identifier'],
+                    'lsDocIdentifier' => $rec['di_lsDocIdentifier'],
+                ];
+
+                return $ret;
+            },
+            $query->getResult(AbstractQuery::HYDRATE_ARRAY)
+        );
     }
 }
