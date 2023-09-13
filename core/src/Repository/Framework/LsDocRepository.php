@@ -666,8 +666,8 @@ xENDx;
     {
         $docs = [];
 
-        $qb = $this->createQueryBuilder('d');
-        $qb->select('partial d.{id,identifier,uri,title}')
+        $qb = $this->createQueryBuilder('d')
+            ->select('d.id, d.identifier, d.uri, d.title')
             ->distinct()
             ->join('d.lsItems', 'i')
             ->join('i.associations', 'a')
@@ -684,8 +684,8 @@ xENDx;
             ];
         }
 
-        $qb = $this->createQueryBuilder('d');
-        $qb->select('partial d.{id,identifier,uri,title}')
+        $qb = $this->createQueryBuilder('d')
+            ->select('d.id, d.identifier, d.uri, d.title')
             ->distinct()
             ->join('d.lsItems', 'i')
             ->join('i.associations', 'a')
@@ -702,8 +702,8 @@ xENDx;
             ];
         }
 
-        $qb = $this->createQueryBuilder('d');
-        $qb->select('partial d.{id,identifier,uri,title}')
+        $qb = $this->createQueryBuilder('d')
+            ->select('d.id, d.identifier, d.uri, d.title')
             ->distinct()
             ->join('d.lsItems', 'i')
             ->join('i.associations', 'a')
@@ -720,8 +720,8 @@ xENDx;
             ];
         }
 
-        $qb = $this->createQueryBuilder('d');
-        $qb->select('partial d.{id,identifier,uri,title}')
+        $qb = $this->createQueryBuilder('d')
+            ->select('d.id, d.identifier, d.uri, d.title')
             ->distinct()
             ->join('d.lsItems', 'i')
             ->join('i.associations', 'a')
