@@ -22,12 +22,12 @@ jobs:
           coverage: none
 
       - name: Checkout target branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.base_ref }}
 
       - name: Checkout PR
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Psalm
         run: |
@@ -63,12 +63,12 @@ jobs:
           coverage: none
 
       - name: Checkout target branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.base_ref }}
 
       - name: Checkout PR
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install PHPStan
         run: |
