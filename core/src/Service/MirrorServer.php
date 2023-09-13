@@ -290,7 +290,16 @@ class MirrorServer
 
     public function updateFrameworkList(Server $server): void
     {
-        $docList = $this->fetchDocumentList($server);
+        try {
+            $docList = $this->fetchDocumentList($server);
+        } catch (\Throwable $e) {
+            $this->warning('Error: Could not update framework list', ['exception' => $e->getMessage(), 'previousException' => $e->getPrevious()?->getMessage() ?? '']);
+            $server->scheduleNextCheck();
+            $this->em->flush();
+
+            return;
+        }
+
         foreach ($docList as $doc) {
             $this->addFramework($doc, $server);
         }
