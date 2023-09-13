@@ -20,7 +20,7 @@ doctrine:
                 options:  '%pdo_options%'
                 charset:  utf8mb4
                 schema_filter: ~^(?!(cache_items|LearningStandards|std_*|map_*|grade_level))~
-                server_version: 8.0
+                server_version: 8.0.29
                 mapping_types:
                     json: string
                 default_table_options:
@@ -41,6 +41,7 @@ doctrine:
                 auto_mapping: true
                 #metadata_cache_driver: apc
                 #query_cache_driver: apc
+                report_fields_where_declared: true
                 second_level_cache:
                     enabled: false
                     log_enabled: true
