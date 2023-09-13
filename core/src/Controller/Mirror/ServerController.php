@@ -2,6 +2,7 @@
 
 namespace App\Controller\Mirror;
 
+use App\DTO\Mirror\ServerListItem;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Server;
@@ -199,7 +200,7 @@ class ServerController extends AbstractController
         return $this->redirectToRoute('mirror_server_list', ['id' => $server->getId()]);
     }
 
-    private function createDeleteForm(Server $server): FormInterface
+    private function createDeleteForm(ServerListItem $server): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('mirror_server_delete', ['id' => $server->getId()]))
