@@ -59,6 +59,9 @@ final class LsAssociationNormalizer implements NormalizerInterface
             ];
 
             $data['_opensalt'] = array_filter($data['_opensalt'], static fn ($val) => null !== $val);
+            if (0 === count($data['_opensalt'])) {
+                unset($data['_opensalt']);
+            }
         }
 
         return array_filter($data, static fn ($val) => null !== $val);
