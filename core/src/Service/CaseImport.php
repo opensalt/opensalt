@@ -52,8 +52,16 @@ class CaseImport
     {
         $json = json5_decode($content, true);
 
+        $teks = 1 === preg_match('/teks-api/', $json['CFDocument']['uri']);
+
         $items = [];
         foreach (($json['CFItems'] ?? []) as $key => $item) {
+            // Some TX frameworks have a bad URI for items where it is missing the / after CFItems
+            if ($teks && 1 === preg_match('/CFItems[0-9a-fA-F]/', $item['uri'])) {
+                $item['uri'] = preg_replace('/CFItems/', 'CFItems/', $item['uri']);
+                $json['CFItems'][$key]['uri'] = $item['uri'];
+            }
+
             // Save URIs for items
             if (isset($item['identifier']) && isset($item['uri'])) {
                 $items[$item['identifier']] = $item['uri'];
