@@ -55,7 +55,6 @@
         "doctrine/orm": "^2.8",
         "endroid/qr-code": "^4.8",
         "firebase/php-jwt": "^6.0",
-        "gbprod/uuid-normalizer": "^1.1",
         "google/recaptcha": "~1.1",
         "guzzlehttp/guzzle": "^6.5|^7.3",
         "kamermans/guzzle-oauth2-subscriber": "^1.0.11",

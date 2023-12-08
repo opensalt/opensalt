@@ -171,15 +171,6 @@ services:
     App\Service\Api1RouteMap:
         public: true
 
-    # Add UUID normalizer for the serializer
-    GBProd\UuidNormalizer\UuidNormalizer:
-        tags:
-            - { name: serializer.normalizer }
-
-    GBProd\UuidNormalizer\UuidDenormalizer:
-        tags:
-            - { name: serializer.normalizer }
-
     # Allow Codeception to get some defined services for testing
     App\Service\CodeceptionBridge:
         public: true

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a4b6e9de3b5f5dd1a4e98a991f69ce98",
+    "content-hash": "fc71debb6c9a5df300b5ba8b2315c5f4",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -2520,54 +2520,6 @@
                 }
             ],
             "time": "2023-05-24T07:17:17+00:00"
-        },
-        {
-            "name": "gbprod/uuid-normalizer",
-            "version": "v1.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/gbprod/uuid-normalizer.git",
-                "reference": "062a3d9b3734794bde4bc5f92289b9e4eef00c26"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/gbprod/uuid-normalizer/zipball/062a3d9b3734794bde4bc5f92289b9e4eef00c26",
-                "reference": "062a3d9b3734794bde4bc5f92289b9e4eef00c26",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.4|^8.0|^8.1",
-                "ramsey/uuid": "^4.0",
-                "symfony/serializer": "^5.4|^6.0"
-            },
-            "require-dev": {
-                "phpdocumentor/reflection-docblock": "^5.3",
-                "phpstan/phpstan": "^1.8",
-                "phpunit/phpunit": "^9.5",
-                "symfony/property-access": "^5.4|^6.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "GBProd\\UuidNormalizer\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "WTFPL"
-            ],
-            "authors": [
-                {
-                    "name": "gbprod",
-                    "email": "contact@gb-prod.fr"
-                }
-            ],
-            "description": "Normalizer to serialize Ramsey Uuid with Symfony Serializer",
-            "support": {
-                "issues": "https://github.com/gbprod/uuid-normalizer/issues",
-                "source": "https://github.com/gbprod/uuid-normalizer/tree/v1.3.0"
-            },
-            "time": "2022-09-23T12:17:24+00:00"
         },
         {
             "name": "gedmo/doctrine-extensions",

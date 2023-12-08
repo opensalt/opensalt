@@ -183,9 +183,6 @@
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.3"
     },
-    "gbprod/uuid-normalizer": {
-        "version": "v1.1.1"
-    },
     "gedmo/doctrine-extensions": {
         "version": "v2.4.35"
     },
