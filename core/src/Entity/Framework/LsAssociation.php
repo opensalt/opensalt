@@ -60,11 +60,11 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     #[ORM\Column(name: 'origin_node_uri', type: 'string', length: 300, nullable: true)]
     private ?string $originNodeUri = null;
 
-    #[ORM\ManyToOne(targetEntity: LsDoc::class, fetch: 'EAGER', inversedBy: 'associations')]
+    #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'associations')]
     #[ORM\JoinColumn(name: 'origin_lsdoc_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?LsDoc $originLsDoc = null;
 
-    #[ORM\ManyToOne(targetEntity: LsItem::class, cascade: ['persist'], fetch: 'EAGER', inversedBy: 'associations')]
+    #[ORM\ManyToOne(targetEntity: LsItem::class, cascade: ['persist'], inversedBy: 'associations')]
     #[ORM\JoinColumn(name: 'origin_lsitem_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?LsItem $originLsItem = null;
 
@@ -76,11 +76,11 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     #[ORM\Column(name: 'destination_node_uri', type: 'string', length: 300, nullable: true)]
     private ?string $destinationNodeUri = null;
 
-    #[ORM\ManyToOne(targetEntity: LsDoc::class, fetch: 'EAGER', inversedBy: 'inverseAssociations')]
+    #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'inverseAssociations')]
     #[ORM\JoinColumn(name: 'destination_lsdoc_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?LsDoc $destinationLsDoc = null;
 
-    #[ORM\ManyToOne(targetEntity: LsItem::class, cascade: ['persist'], fetch: 'EAGER', inversedBy: 'inverseAssociations')]
+    #[ORM\ManyToOne(targetEntity: LsItem::class, cascade: ['persist'], inversedBy: 'inverseAssociations')]
     #[ORM\JoinColumn(name: 'destination_lsitem_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?LsItem $destinationLsItem = null;
 
@@ -88,7 +88,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     private ?string $type = null;
 
     #[ORM\Column(name: 'seq', type: 'bigint', nullable: true)]
-    private ?int $sequenceNumber = null;
+    private ?string $sequenceNumber = null;
 
     #[ORM\Column(name: 'subtype', type: 'string', nullable: true)]
     private ?string $subtype = null;

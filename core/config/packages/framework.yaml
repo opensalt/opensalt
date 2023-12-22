@@ -10,6 +10,13 @@ framework:
     trusted_proxies: '%env(TRUSTED_PROXIES)%'
     trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
 
+    # Defaults to true in Symfony 7, was false in 6
+    handle_all_throwables: true
+
+    # Annotations are deprecated and will be removed in Symfony 7
+    annotations:
+        enabled: false
+
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
     # Remove or comment this section to explicitly disable session support.
     session:
