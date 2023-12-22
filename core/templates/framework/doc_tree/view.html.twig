@@ -4,7 +4,7 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    {% if 'comments' is active feature %}
+    {% if isFeatureEnabled('comments') %}
         <link rel="stylesheet" href="{{ asset('build/commentscss.css', 'encore') }}"/>
     {% endif %}
 {% endblock %}
@@ -188,7 +188,7 @@
                                                 </button>
                                             {% endif %}
                                             {% endif %}
-                                            {% if 'comments' is active feature and is_granted(constant('App\\Security\\Permission::COMMENT_ADD')) and is_granted('ROLE_ADMIN') %}
+                                            {% if isFeatureEnabled('comments') and is_granted(constant('App\\Security\\Permission::COMMENT_ADD')) and is_granted('ROLE_ADMIN') %}
                                                 <a href="#" id="item_export_comment" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
                                             {% endif %}
                                         </div>
@@ -234,7 +234,7 @@
                                                 </button>
                                             {% endif %}
                                         {% endif %}
-                                        {% if 'comments' is active feature and is_granted(constant('App\\Security\\Permission::COMMENT_ADD')) and is_granted('ROLE_ADMIN') %}
+                                        {% if isFeatureEnabled('comments') and is_granted(constant('App\\Security\\Permission::COMMENT_ADD')) and is_granted('ROLE_ADMIN') %}
                                                 <a href="#" id="doc_export_comment" class="export_csv_comment btn btn-default btn-sm" onclick="CommentSystem.exportCSV();" data-alt-document-disabled="true">Export Comments</a>
                                         {% endif %}
                                         {% if is_granted(constant('App\\Security\\Permission::FRAMEWORK_DELETE'), lsDoc) %}
@@ -260,7 +260,7 @@
                         </div>  <!-- itemInfo -->
                     </div>
                 </section>
-                {% if 'comments' is active feature %}
+                {% if isFeatureEnabled('comments') %}
                     {% if not is_granted(constant('App\\Security\\Permission::COMMENT_ADD')) %}
                         <p>To comment please login first</p>
                     {% endif %}
@@ -709,13 +709,13 @@
     {% endblock %}
 
     {% block javascripts %}
-        {% if 'comment_attachments' is active feature %}
+        {% if isFeatureEnabled('comment_attachments') %}
             <script>var COMMENT_ATTACHMENTS = true;</script>
         {% else %}
             <script>var COMMENT_ATTACHMENTS = false;</script>
         {% endif %}
 
-        {% if 'comments' is active feature %}
+        {% if isFeatureEnabled('comments') %}
             <script src="{{ asset('build/comments.js', 'encore') }}"></script>
         {% endif %}
 

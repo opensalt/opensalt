@@ -2,24 +2,21 @@
 
 namespace App\Security\Voter;
 
-use Qandidate\Toggle\ContextFactory;
-use Qandidate\Toggle\ToggleManager;
+use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 use Symfony\Contracts\Service\Attribute\Required;
 
 trait FeatureCheckTrait
 {
-    private ToggleManager $toggleManager;
-    private ContextFactory $toggleContextFactory;
+    private FeatureManager $featureManager;
 
     #[Required]
-    public function setToggleManager(ToggleManager $toggleManager, ContextFactory $contextFactory): void
+    public function setFeatureManager(FeatureManager $featureManager): void
     {
-        $this->toggleManager = $toggleManager;
-        $this->toggleContextFactory = $contextFactory;
+        $this->featureManager = $featureManager;
     }
 
     public function hasActiveFeature(string $feature): bool
     {
-        return $this->toggleManager->active($feature, $this->toggleContextFactory->createContext());
+        return $this->featureManager->isEnabled($feature);
     }
 }

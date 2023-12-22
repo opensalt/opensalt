@@ -3,9 +3,8 @@
 namespace Helper;
 
 use Codeception\Module\Symfony;
+use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 use PHPUnit\Framework\SkippedTestError;
-use Qandidate\Toggle\ContextFactory;
-use Qandidate\Toggle\ToggleManager;
 
 class Toggles extends \Codeception\Module
 {
@@ -20,10 +19,9 @@ class Toggles extends \Codeception\Module
         /** @var Symfony $symfony */
         $symfony = $this->getModule('Symfony2Module');
 
-        $toggles = $symfony->grabService(ToggleManager::class);
-        $context = $symfony->grabService(ContextFactory::class);
+        $features = $symfony->grabService(FeatureManager::class);
 
-        if ($toggles->active($feature, $context->createContext())) {
+        if ($features->isEnabled($feature)) {
             return true;
         }
 

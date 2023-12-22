@@ -24,10 +24,10 @@ parameters:
     env(COOKIE_SECRET): null
     env(GITHUB_CLIENT_ID): null
     env(GITHUB_CLIENT_SECRET): null
-    env(COMMENTS_FEATURE): inactive
-    env(COMMENT_ATTACHMENTS): inactive
-    env(CREATE_ACCOUNT_FEATURE): inactive
-    env(USE_MAIL_FEATURE): inactive
+    env(COMMENTS_FEATURE): false
+    env(COMMENT_ATTACHMENTS): false
+    env(CREATE_ACCOUNT_FEATURE): false
+    env(USE_MAIL_FEATURE): false
     env(MAIL_FEATURE_FROM_EMAIL): null
     env(BRAND_LOGO_URL): null
     env(BRAND_LOGO_STYLE): null
@@ -50,7 +50,7 @@ parameters:
     env(CASE_NETWORK_TOKEN_ENDPOINT): 'https://oauth2-case.imsglobal.org/oauth2server/clienttoken'
     env(CASE_NETWORK_SCOPE): 'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/all.readonly'
     env(MFA_ISSUER): 'OpenSALT'
-    env(USE_MFA): inactive
+    env(USE_MFA): false
 
     locale: en
     database_host: '%env(MYSQL_HOST)%'
@@ -72,10 +72,10 @@ parameters:
     brand_logo_style: '%env(BRAND_LOGO_STYLE)%'
     brand_link_url: '%env(BRAND_LINK_URL)%'
     brand_link_style: '%env(BRAND_LINK_STYLE)%'
-    comments_feature: '%env(COMMENTS_FEATURE)%'
-    comment_attachments: '%env(COMMENT_ATTACHMENTS)%'
-    create_account_feature: '%env(CREATE_ACCOUNT_FEATURE)%'
-    use_mail_feature: '%env(USE_MAIL_FEATURE)%'
+    comments_feature: '%env(feature_flag:COMMENTS_FEATURE)%'
+    comment_attachments: '%env(feature_flag:COMMENT_ATTACHMENTS)%'
+    create_account_feature: '%env(feature_flag:CREATE_ACCOUNT_FEATURE)%'
+    use_mail_feature: '%env(feature_flag:USE_MAIL_FEATURE)%'
     mail_feature_from_email: '%env(MAIL_FEATURE_FROM_EMAIL)%'
     google_captcha_site_key: '%env(GOOGLE_CAPTCHA_SITE_KEY)%'
     google_captcha_secret_key: '%env(GOOGLE_CAPTCHA_SECRET_KEY)%'
@@ -96,7 +96,7 @@ parameters:
     case_network_token_endpoint: '%env(CASE_NETWORK_TOKEN_ENDPOINT)%'
     case_network_scope: '%env(CASE_NETWORK_SCOPE)%'
     mfa_issuer: '%env(MFA_ISSUER)%'
-    use_mfa: '%env(USE_MFA)%'
+    use_mfa: '%env(feature_flag:USE_MFA)%'
 
 services:
     # default configuration for services in *this* file
@@ -188,14 +188,6 @@ services:
         factory: ['@App\Service\BucketFactory', 'filesystem']
 
     # Aliased services
-    Qandidate\Toggle\ToggleManager: '@qandidate.toggle.manager'
-    Qandidate\Toggle\ContextFactory: '@qandidate.toggle.user_context_factory'
-
-    #force to use untracked_token_storage for Symfony 5.3
-    qandidate.toggle.user_context_factory:
-        class: Qandidate\Bundle\ToggleBundle\Context\UserContextFactory
-        arguments:
-            $tokenStorage: '@security.untracked_token_storage'
 
     # Manual services
     session.handler.pdo:

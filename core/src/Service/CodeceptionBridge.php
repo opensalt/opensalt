@@ -4,8 +4,7 @@ namespace App\Service;
 
 use App\Service\User\UserManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Qandidate\Toggle\ContextFactory;
-use Qandidate\Toggle\ToggleManager;
+use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class CodeceptionBridge
@@ -16,14 +15,9 @@ class CodeceptionBridge
     private $entityManager;
 
     /**
-     * @var ToggleManager
+     * @var FeatureManager
      */
-    private $toggleManager;
-
-    /**
-     * @var ContextFactory
-     */
-    private $contextFactory;
+    private $featureManager;
 
     /**
      * @var UserManager
@@ -37,10 +31,9 @@ class CodeceptionBridge
     }
 
     #[Required]
-    public function setToggles(ToggleManager $toggleManager, ContextFactory $contextFactory)
+    public function setToggles(FeatureManager $featureManager)
     {
-        $this->toggleManager = $toggleManager;
-        $this->contextFactory = $contextFactory;
+        $this->featureManager = $featureManager;
     }
 
     #[Required]
@@ -56,15 +49,10 @@ class CodeceptionBridge
 
     public function grabService(string $service)
     {
-        switch ($service) {
-            case ToggleManager::class:
-                return $this->toggleManager;
-            case ContextFactory::class:
-                return $this->contextFactory;
-            case UserManager::class:
-                return $this->userManager;
-            default:
-                return null;
-        }
+        return match ($service) {
+            FeatureManager::class => $this->featureManager,
+            UserManager::class => $this->userManager,
+            default => null,
+        };
     }
 }

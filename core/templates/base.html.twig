@@ -68,7 +68,7 @@
                                                 <li role="separator" class="divider"></li>
                                             {% endif %}
                                             <li><a href="{{ url("user_change_password") }}">Change password</a></li>
-                                            {% if feature_is_active('mfa') %}
+                                            {% if isFeatureEnabled('mfa') %}
                                                 <li><a href="{{ url("app_2fa_reset_confirm") }}">Reset 2FA Config</a></li>
                                             {% endif %}
                                             <li role="separator" class="divider"></li>
@@ -77,8 +77,8 @@
                                     </li>
                                 </ul>
                             {% elseif (app.request.attributes.get('_route') != 'login') %}
-                                <a href="{{ url("login") }}" class="btn {% if 'create_account' is active feature %}btn-login{% else %}btn-default{% endif %} navbar-btn pull-right login">Sign in</a>
-                                {% if 'create_account' is active feature %}
+                                <a href="{{ url("login") }}" class="btn {% if isFeatureEnabled('create_account') %}btn-login{% else %}btn-default{% endif %} navbar-btn pull-right login">Sign in</a>
+                                {% if isFeatureEnabled('create_account') %}
                                     <a href="{{ url("public_user_signup") }}" class="btn btn-signup navbar-btn pull-right login">Sign up</a>
                                 {% endif %}
                             {% endif %}

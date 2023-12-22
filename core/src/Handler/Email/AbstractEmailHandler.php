@@ -8,9 +8,7 @@ use App\Entity\NotificationOnlyChangeEntry;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use App\Handler\BaseValidatedHandler;
-use Qandidate\Toggle\Context;
-use Qandidate\Toggle\ContextFactory;
-use Qandidate\Toggle\ToggleManager;
+use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -19,20 +17,13 @@ use Twig\Environment;
 
 abstract class AbstractEmailHandler extends BaseValidatedHandler
 {
-    protected Environment $templating;
-    private ToggleManager $manager;
-    private Context $context;
-    private MailerInterface $mailer;
-    private ?string $mailFromEmail;
-
-    public function __construct(ValidatorInterface $validator, ToggleManager $manager, ContextFactory $contextFactory, MailerInterface $mailer, Environment $templating, ?string $mailFromEmail = null)
-    {
+    public function __construct(
+        ValidatorInterface $validator,
+        private readonly FeatureManager $featureManager,
+        private readonly MailerInterface $mailer,
+        private readonly ?string $mailFromEmail = null
+    ) {
         parent::__construct($validator);
-        $this->templating = $templating;
-        $this->manager = $manager;
-        $this->context = $contextFactory->createContext();
-        $this->mailer = $mailer;
-        $this->mailFromEmail = $mailFromEmail;
     }
 
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
@@ -41,7 +32,7 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler
         $command = $event->getCommand();
 
         // Only send emails if the feature is enabled
-        if (!$this->manager->active('email_feature', $this->context)) {
+        if (!$this->featureManager->isEnabled('email_feature')) {
             $this->setEmailNotSentNotification($command, 'disabled');
 
             return;

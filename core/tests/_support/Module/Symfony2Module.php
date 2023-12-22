@@ -5,8 +5,7 @@ namespace Codeception\Module;
 use App\Service\CodeceptionBridge;
 use App\Service\User\UserManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Qandidate\Toggle\ContextFactory;
-use Qandidate\Toggle\ToggleManager;
+use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 
 class Symfony2Module extends Symfony
 {
@@ -22,8 +21,7 @@ class Symfony2Module extends Symfony
     {
         switch ($serviceId) {
             case UserManager::class:
-            case ToggleManager::class:
-            case ContextFactory::class:
+            case FeatureManager::class:
                 /** @var CodeceptionBridge $bridge */
                 $bridge = $this->grabService(CodeceptionBridge::class);
 

@@ -41,7 +41,7 @@
                         <button class="pull-right btn btn-primary btn-login" type="submit">Login</button>
                     {% endif %}
                 </form>
-                {% if 'create_account' is active feature %}
+                {% if isFeatureEnabled('create_account') %}
                     <a class="btn btn-link new-account" href="{{ path('public_user_signup') }}">Create User Account</a>
                 {% endif %}
             </div>

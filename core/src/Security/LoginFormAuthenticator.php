@@ -4,8 +4,7 @@ namespace App\Security;
 
 use App\Entity\User\User;
 use App\Repository\User\UserRepository;
-use Qandidate\Toggle\ContextFactory;
-use Qandidate\Toggle\ToggleManager;
+use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 use Scheb\TwoFactorBundle\Security\Http\Authenticator\TwoFactorAuthenticator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -33,8 +32,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly RouterInterface $router,
-        private readonly ToggleManager $toggleManager,
-        private readonly ContextFactory $toggleContextFactory,
+        private readonly FeatureManager $featureManager,
     ) {
     }
 
@@ -68,7 +66,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        if ($this->toggleManager->active('mfa', $this->toggleContextFactory->createContext())) {
+        if ($this->featureManager->isEnabled('mfa')) {
             $user = $token->getUser();
             if ($user instanceof User && !$user->isTotpAuthenticationEnabled()) {
                 return new RedirectResponse($this->router->generate('app_2fa_enable'));
@@ -87,7 +85,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements E
     {
         $token = parent::createToken($passport, $firewallName);
 
-        if (!$this->toggleManager->active('mfa', $this->toggleContextFactory->createContext())) {
+        if (!$this->featureManager->isEnabled('mfa')) {
             $token->setAttribute(TwoFactorAuthenticator::FLAG_2FA_COMPLETE, true);
         }
 

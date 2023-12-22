@@ -1,0 +1,22 @@
+novaway_feature_flag:
+    default_manager: default
+    managers:
+        default:
+            factory: 'novaway_feature_flag.factory.array'
+            options:
+                features:
+                    comments:
+                        enabled: '%comments_feature%'
+                        description: Allow comments
+                    comment_attachments:
+                        enabled: '%comment_attachments%'
+                        description: Allow comments to have attachments
+                    create_account:
+                        enabled: '%create_account_feature%'
+                        description: Allow self-creation of accounts
+                    email_feature:
+                        enabled: '%use_mail_feature%'
+                        description: Allow sending emails
+                    mfa:
+                        enabled: '%use_mfa%'
+                        description: Use MFA for authentication

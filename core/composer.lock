@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fc71debb6c9a5df300b5ba8b2315c5f4",
+    "content-hash": "e0e24fd7456140e1bc704a26c36d305a",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.294.4",
+            "version": "3.294.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "4f59bf50aa445fc3ec0b10648b205dd2465e9bec"
+                "reference": "2e34d45e970c77775e4c298e08732d64b647c41c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/4f59bf50aa445fc3ec0b10648b205dd2465e9bec",
-                "reference": "4f59bf50aa445fc3ec0b10648b205dd2465e9bec",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/2e34d45e970c77775e4c298e08732d64b647c41c",
+                "reference": "2e34d45e970c77775e4c298e08732d64b647c41c",
                 "shasum": ""
             },
             "require": {
@@ -151,9 +151,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.294.4"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.294.5"
             },
-            "time": "2023-12-20T19:21:19+00:00"
+            "time": "2023-12-21T19:10:21+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -4600,6 +4600,73 @@
             "time": "2023-12-03T08:44:55+00:00"
         },
         {
+            "name": "novaway/feature-flag-bundle",
+            "version": "3.0.0-beta1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/novaway/NovawayFeatureFlagBundle.git",
+                "reference": "7c749815b217d580b470c670a341bed753c4653e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/novaway/NovawayFeatureFlagBundle/zipball/7c749815b217d580b470c670a341bed753c4653e",
+                "reference": "7c749815b217d580b470c670a341bed753c4653e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">= 8.1",
+                "symfony/console": "^5.4|^6.0|^7.0",
+                "symfony/framework-bundle": "^5.4|^6.0|^7.0",
+                "symfony/options-resolver": "^5.4|^6.0|^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.1",
+                "symfony/asset": "^5.4|^6.0|^7.0",
+                "symfony/browser-kit": "^5.4|^6.0|^7.0",
+                "symfony/css-selector": "^5.4|^6.0|^7.0",
+                "symfony/expression-language": "^5.4|^6.0|^7.0",
+                "symfony/templating": "^5.4|^6.0|^7.0",
+                "symfony/twig-bundle": "^5.4|^6.0|^7.0",
+                "symfony/yaml": "^5.4|^6.0|^7.0",
+                "twig/twig": "^3.0"
+            },
+            "suggest": {
+                "twig/twig": "To check feature in your Twig templates"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Novaway\\Bundle\\FeatureFlagBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jérémy DECOOL",
+                    "email": "jeremy@activinnov.fr"
+                },
+                {
+                    "name": "Novaway Team",
+                    "email": "git@novaway.fr"
+                }
+            ],
+            "description": "Very KISS bundle to manage features flag",
+            "keywords": [
+                "feature",
+                "flag",
+                "symfony"
+            ],
+            "support": {
+                "issues": "https://github.com/novaway/NovawayFeatureFlagBundle/issues",
+                "source": "https://github.com/novaway/NovawayFeatureFlagBundle/tree/3.0.0-beta1"
+            },
+            "time": "2023-10-27T06:29:00+00:00"
+        },
+        {
             "name": "paragonie/constant_time_encoding",
             "version": "v2.6.3",
             "source": {
@@ -5658,135 +5725,6 @@
                 "source": "https://github.com/php-fig/simple-cache/tree/3.0.0"
             },
             "time": "2021-10-29T13:26:27+00:00"
-        },
-        {
-            "name": "qandidate/toggle",
-            "version": "2.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/qandidate-labs/qandidate-toggle.git",
-                "reference": "a1549f2efe4ad6824c6547d335d2d45e8004e041"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/qandidate-labs/qandidate-toggle/zipball/a1549f2efe4ad6824c6547d335d2d45e8004e041",
-                "reference": "a1549f2efe4ad6824c6547d335d2d45e8004e041",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2"
-            },
-            "require-dev": {
-                "broadway/coding-standard": "^1.2",
-                "phpstan/phpstan": "@stable",
-                "phpunit/phpunit": "^9.5",
-                "predis/predis": "^1.1||^2.0",
-                "symfony/expression-language": "^3.4||^4.4||^5.0"
-            },
-            "suggest": {
-                "predis/predis": "To use the PredisCollection to persist toggles in redis",
-                "symfony/expression-language": "To use the ExpressionCondition to add conditions as a symfony language expression"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Qandidate\\Toggle\\": "lib/Qandidate/Toggle/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Alexander",
-                    "email": "iam.asm89@gmail.com"
-                },
-                {
-                    "name": "Qandidate.com",
-                    "homepage": "http://labs.qandidate.com/"
-                }
-            ],
-            "description": "Feature toggling for your PHP application.",
-            "keywords": [
-                "bits",
-                "feature",
-                "flip",
-                "flipping",
-                "switch",
-                "toggle",
-                "trigger"
-            ],
-            "support": {
-                "issues": "https://github.com/qandidate-labs/qandidate-toggle/issues",
-                "source": "https://github.com/qandidate-labs/qandidate-toggle/tree/2.0.2"
-            },
-            "time": "2022-07-29T14:13:25+00:00"
-        },
-        {
-            "name": "qandidate/toggle-bundle",
-            "version": "dev-allow-symfony-6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/opensalt/qandidate-toggle-bundle.git",
-                "reference": "d7ee331ed938428feb87a0ecff12595f99db962b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/opensalt/qandidate-toggle-bundle/zipball/d7ee331ed938428feb87a0ecff12595f99db962b",
-                "reference": "d7ee331ed938428feb87a0ecff12595f99db962b",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/annotations": "^1.13",
-                "doctrine/common": "^2.13||^3.0",
-                "php": ">=7.2",
-                "qandidate/toggle": "^2.0",
-                "symfony/framework-bundle": "^6.0",
-                "symfony/http-foundation": "^6.0",
-                "symfony/http-kernel": "^6.0",
-                "symfony/security-bundle": "^6.0"
-            },
-            "require-dev": {
-                "broadway/coding-standard": "^1.2",
-                "matthiasnoback/symfony-config-test": "^4.0",
-                "matthiasnoback/symfony-dependency-injection-test": "^4.0",
-                "phpstan/phpstan": "^1.0",
-                "phpunit/phpunit": "^9.5",
-                "symfony/browser-kit": "^6.0",
-                "symfony/twig-bundle": "^6.0",
-                "twig/twig": "^3.0"
-            },
-            "suggest": {
-                "twig/twig": "For using the twig helper"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Qandidate\\Bundle\\ToggleBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Willem-Jan",
-                    "email": "wjzijderveld@gmail.com"
-                },
-                {
-                    "name": "Qandidate.com",
-                    "homepage": "http://labs.qandidate.com"
-                }
-            ],
-            "description": "This Bundle provides the integration with qandidate/toggle. It provides the services and configuration you need to implement feature toggles in your Symfony application.",
-            "support": {
-                "source": "https://github.com/opensalt/qandidate-toggle-bundle/tree/allow-symfony-6"
-            },
-            "time": "2022-05-09T18:03:11+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -13433,23 +13371,23 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.29",
+            "version": "9.2.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "6a3a87ac2bbe33b25042753df8195ba4aa534c76"
+                "reference": "ca2bd87d2f9215904682a9cb9bb37dda98e76089"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/6a3a87ac2bbe33b25042753df8195ba4aa534c76",
-                "reference": "6a3a87ac2bbe33b25042753df8195ba4aa534c76",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/ca2bd87d2f9215904682a9cb9bb37dda98e76089",
+                "reference": "ca2bd87d2f9215904682a9cb9bb37dda98e76089",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
                 "ext-xmlwriter": "*",
-                "nikic/php-parser": "^4.15",
+                "nikic/php-parser": "^4.18 || ^5.0",
                 "php": ">=7.3",
                 "phpunit/php-file-iterator": "^3.0.3",
                 "phpunit/php-text-template": "^2.0.2",
@@ -13499,7 +13437,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
                 "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.29"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.30"
             },
             "funding": [
                 {
@@ -13507,7 +13445,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-09-19T04:57:46+00:00"
+            "time": "2023-12-22T06:47:57+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -13939,12 +13877,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "bdde663d321b2d2130c2f88e2607c2edf4071f2c"
+                "reference": "be9456d1430df8be755ff7da33b22b80f0ed2f5f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/bdde663d321b2d2130c2f88e2607c2edf4071f2c",
-                "reference": "bdde663d321b2d2130c2f88e2607c2edf4071f2c",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/be9456d1430df8be755ff7da33b22b80f0ed2f5f",
+                "reference": "be9456d1430df8be755ff7da33b22b80f0ed2f5f",
                 "shasum": ""
             },
             "conflict": {
@@ -13978,7 +13916,7 @@
                 "austintoddj/canvas": "<=3.4.2",
                 "automad/automad": "<1.8",
                 "awesome-support/awesome-support": "<=6.0.7",
-                "aws/aws-sdk-php": ">=3,<3.2.1",
+                "aws/aws-sdk-php": "<3.288.1",
                 "azuracast/azuracast": "<0.18.3",
                 "backdrop/backdrop": "<1.24.2",
                 "backpack/crud": "<3.4.9",
@@ -14648,7 +14586,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-12-20T21:04:04+00:00"
+            "time": "2023-12-22T00:14:36+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -14893,20 +14831,20 @@
         },
         {
             "name": "sebastian/complexity",
-            "version": "2.0.2",
+            "version": "2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/complexity.git",
-                "reference": "739b35e53379900cc9ac327b2147867b8b6efd88"
+                "reference": "25f207c40d62b8b7aa32f5ab026c53561964053a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/complexity/zipball/739b35e53379900cc9ac327b2147867b8b6efd88",
-                "reference": "739b35e53379900cc9ac327b2147867b8b6efd88",
+                "url": "https://api.github.com/repos/sebastianbergmann/complexity/zipball/25f207c40d62b8b7aa32f5ab026c53561964053a",
+                "reference": "25f207c40d62b8b7aa32f5ab026c53561964053a",
                 "shasum": ""
             },
             "require": {
-                "nikic/php-parser": "^4.7",
+                "nikic/php-parser": "^4.18 || ^5.0",
                 "php": ">=7.3"
             },
             "require-dev": {
@@ -14938,7 +14876,7 @@
             "homepage": "https://github.com/sebastianbergmann/complexity",
             "support": {
                 "issues": "https://github.com/sebastianbergmann/complexity/issues",
-                "source": "https://github.com/sebastianbergmann/complexity/tree/2.0.2"
+                "source": "https://github.com/sebastianbergmann/complexity/tree/2.0.3"
             },
             "funding": [
                 {
@@ -14946,7 +14884,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-26T15:52:27+00:00"
+            "time": "2023-12-22T06:19:30+00:00"
         },
         {
             "name": "sebastian/diff",
@@ -15220,20 +15158,20 @@
         },
         {
             "name": "sebastian/lines-of-code",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/lines-of-code.git",
-                "reference": "c1c2e997aa3146983ed888ad08b15470a2e22ecc"
+                "reference": "e1e4a170560925c26d424b6a03aed157e7dcc5c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/lines-of-code/zipball/c1c2e997aa3146983ed888ad08b15470a2e22ecc",
-                "reference": "c1c2e997aa3146983ed888ad08b15470a2e22ecc",
+                "url": "https://api.github.com/repos/sebastianbergmann/lines-of-code/zipball/e1e4a170560925c26d424b6a03aed157e7dcc5c5",
+                "reference": "e1e4a170560925c26d424b6a03aed157e7dcc5c5",
                 "shasum": ""
             },
             "require": {
-                "nikic/php-parser": "^4.6",
+                "nikic/php-parser": "^4.18 || ^5.0",
                 "php": ">=7.3"
             },
             "require-dev": {
@@ -15265,7 +15203,7 @@
             "homepage": "https://github.com/sebastianbergmann/lines-of-code",
             "support": {
                 "issues": "https://github.com/sebastianbergmann/lines-of-code/issues",
-                "source": "https://github.com/sebastianbergmann/lines-of-code/tree/1.0.3"
+                "source": "https://github.com/sebastianbergmann/lines-of-code/tree/1.0.4"
             },
             "funding": [
                 {
@@ -15273,7 +15211,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-11-28T06:42:11+00:00"
+            "time": "2023-12-22T06:20:34+00:00"
         },
         {
             "name": "sebastian/object-enumerator",
@@ -16356,7 +16294,6 @@
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "qandidate/toggle-bundle": 20,
         "ericmartel/codeception-email-mailtrap": 20,
         "roave/security-advisories": 20
     },

@@ -16,10 +16,8 @@ use App\Security\Permission;
 use App\Service\BucketService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
-use Qandidate\Bundle\ToggleBundle\Annotations\Toggle;
-use Qandidate\Toggle\Context;
-use Qandidate\Toggle\ContextFactory;
-use Qandidate\Toggle\ToggleManager;
+use Novaway\Bundle\FeatureFlagBundle\Attribute\IsFeatureEnabled;
+use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -32,22 +30,16 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * @Toggle("comments")
- */
+#[IsFeatureEnabled(name: "comments")]
 class CommentsController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    private Context $context;
-
     public function __construct(
-        private readonly ToggleManager $manager,
+        private readonly FeatureManager $featureManager,
         private readonly SerializerInterface $serializer,
         private readonly ManagerRegistry $managerRegistry,
-        ContextFactory $contextFactory,
     ) {
-        $this->context = $contextFactory->createContext();
     }
 
     #[Route(path: '/comments/document/{id<\d+>}', name: 'create_doc_comment', methods: ['POST'])]
@@ -225,7 +217,7 @@ class CommentsController extends AbstractController
         $fileUrl = null;
         $fileMimeType = null;
 
-        if ($this->manager->active('comment_attachments', $this->context)) {
+        if ($this->featureManager->isEnabled('comment_attachments')) {
             $file = $request->files->get('file');
 
             if (!is_null($file) && $file->isValid()) {

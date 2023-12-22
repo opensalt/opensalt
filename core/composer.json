@@ -25,10 +25,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/opensalt/codeception-email-mailtrap.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/opensalt/qandidate-toggle-bundle.git"
         }
     ],
     "minimum-stability": "dev",
@@ -67,10 +63,10 @@
         "milo/github-api": "^2.0",
         "nelmio/cors-bundle": "^2.0",
         "nelmio/security-bundle": "^3.0",
+        "novaway/feature-flag-bundle": "^3.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "phpoffice/phpspreadsheet": "~1.28.0",
         "phpoffice/phpword": "^1.0",
-        "qandidate/toggle-bundle": "dev-allow-symfony-6",
         "ramsey/uuid": "^4.0",
         "ramsey/uuid-doctrine": "^2.0",
         "scheb/2fa": "^6.8",
