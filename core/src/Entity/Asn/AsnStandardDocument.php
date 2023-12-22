@@ -47,7 +47,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @method AsnStandardDocument setPublisher(ArrayCollection $value)
  * @method AsnStandardDocument setRights(ArrayCollection $value)
  * @method AsnStandardDocument setRightsHolder(ArrayCollection $value)
- * @method AsnStandardDocument setIdentifier(ArrayCollection $value)
+ * @method AsnStandardDocument setIdentifier($value)
  * @method AsnStandardDocument setHasChild(ArrayCollection $value)
  *
  * @property AsnValue[]|ArrayCollection $type

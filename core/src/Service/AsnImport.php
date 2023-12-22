@@ -246,9 +246,9 @@ class AsnImport
     }
 
     /**
-     * @param array|Collection $levelList
+     * @param array<array-key, AsnValue>|Collection<array-key, AsnValue> $levelList
      */
-    protected function getLevels($levelList): array
+    protected function getLevels(array|Collection $levelList): array
     {
         $levels = [];
 

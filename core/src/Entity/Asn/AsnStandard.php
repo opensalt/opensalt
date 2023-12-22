@@ -25,7 +25,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @method AsnValue[]|ArrayCollection getComment()
  * @method AsnValue[]|ArrayCollection getExactMatch()
  * @method AsnStandard setType(ArrayCollection $value)
- * @method AsnStandard setIdentifier(ArrayCollection $value)
+ * @method AsnStandard setIdentifier($value)
  * @method AsnStandard setIsPartOf(ArrayCollection $value)
  * @method AsnStandard setAuthorityStatus(ArrayCollection $value)
  * @method AsnStandard setIndexingStatus(ArrayCollection $value)
