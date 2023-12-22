@@ -200,7 +200,7 @@ class ServerController extends AbstractController
         return $this->redirectToRoute('mirror_server_list', ['id' => $server->getId()]);
     }
 
-    private function createDeleteForm(ServerListItem $server): FormInterface
+    private function createDeleteForm(Server|ServerListItem $server): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('mirror_server_delete', ['id' => $server->getId()]))

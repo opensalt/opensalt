@@ -13,7 +13,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Twig\Environment;
 
 abstract class AbstractEmailHandler extends BaseValidatedHandler
 {

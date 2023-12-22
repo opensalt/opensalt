@@ -50,7 +50,7 @@ class MirrorServer
                 // Texas's API does not have a CFDocuments JSON key and just returns an array from /CDocuments, add an exception to handle
                 try {
                     $cfDocument = $this->serializer->deserialize(json_encode($docList[0], JSON_THROW_ON_ERROR), CFDocument::class, 'json');
-                    if (null !== $cfDocument?->cfPackageURI?->uri) {
+                    if (null !== $cfDocument->cfPackageURI->uri) {
                         return $docList;
                     }
                 } catch (\Throwable) {

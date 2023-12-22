@@ -30,7 +30,7 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[IsFeatureEnabled(name: "comments")]
+#[IsFeatureEnabled(name: 'comments')]
 class CommentsController extends AbstractController
 {
     use CommandDispatcherTrait;

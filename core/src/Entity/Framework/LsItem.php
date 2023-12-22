@@ -126,7 +126,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * Representation of this item as a string.
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getUri();
     }
