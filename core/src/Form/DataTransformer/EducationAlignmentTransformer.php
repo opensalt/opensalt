@@ -7,6 +7,7 @@ use App\Repository\Framework\LsDefGradeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 
+/** @implements DataTransformerInterface<string|null, array> */
 class EducationAlignmentTransformer implements DataTransformerInterface
 {
     public function __construct(private readonly EntityManagerInterface $manager)

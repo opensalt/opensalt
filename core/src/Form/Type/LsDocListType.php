@@ -3,6 +3,7 @@
 namespace App\Form\Type;
 
 use App\Entity\Framework\LsDoc;
+use App\Form\DTO\CopyToLsDocDTO;
 use App\Security\Permission;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -11,6 +12,10 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
+
+/**
+ * @extends AbstractType<CopyToLsDocDTO>
+ */
 class LsDocListType extends AbstractType
 {
     public function __construct(

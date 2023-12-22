@@ -23,6 +23,9 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<User>
+ */
 class SignupType extends AbstractType
 {
     /**

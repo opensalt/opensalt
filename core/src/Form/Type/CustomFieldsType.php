@@ -13,6 +13,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 
+/**
+ * @extends AbstractType<AdditionalField>
+ */
 class CustomFieldsType extends AbstractType
 {
     public function __construct(private EntityManagerInterface $em)

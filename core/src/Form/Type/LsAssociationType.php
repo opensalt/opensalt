@@ -18,6 +18,9 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Valid;
 
+/**
+ * @extends AbstractType<LsAssociation>
+ */
 class LsAssociationType extends AbstractType
 {
     public function __construct(private EntityManagerInterface $em)

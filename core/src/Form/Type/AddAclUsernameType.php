@@ -7,6 +7,9 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<AddAclUsernameDTO>
+ */
 class AddAclUsernameType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -15,7 +18,7 @@ class AddAclUsernameType extends AbstractType
             ->add('username', null, [
                 'required' => true,
             ])
-            ;
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

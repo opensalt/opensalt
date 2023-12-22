@@ -3,6 +3,7 @@
 namespace App\Form\Type;
 
 use App\Entity\Framework\Mirror\OAuthCredential;
+use App\Form\DTO\MirroredServerDTO;
 use Doctrine\ORM\EntityRepository;
 use League\Uri\UriString;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -14,6 +15,9 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<MirroredServerDTO>
+ */
 class MirroredServerDTOType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

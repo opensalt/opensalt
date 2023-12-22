@@ -7,6 +7,9 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<LsDefGrade>
+ */
 class LsDefGradeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

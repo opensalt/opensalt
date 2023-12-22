@@ -19,6 +19,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Valid;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 
+/**
+ * @extends AbstractType<LsItem>
+ */
 class LsItemType extends AbstractType
 {
     public function __construct(private EntityManagerInterface $em)

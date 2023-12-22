@@ -16,6 +16,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 
+/**
+ * @extends AbstractType<LsDoc>
+ */
 abstract class AbstractLsDocCreateType extends AbstractType
 {
     public function __construct(protected EntityManagerInterface $em)
@@ -61,7 +64,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
                 'label' => 'URL Name',
                 'disabled' => $disableAsAdopted,
             ])
-            ;
+        ;
 
         $this->addOwnership($builder);
 
