@@ -12,7 +12,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-
 /**
  * @extends AbstractType<CopyToLsDocDTO>
  */
