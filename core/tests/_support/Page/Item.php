@@ -72,9 +72,9 @@ class Item implements Context
         $faker = \Faker\Factory::create();
         $enum = ++$this->enum;
         $item .= ' '.$enum;
-        $note = $faker->paragraph;
-        $fullStatement = $faker->paragraph;
-        $keywords = $faker->word;
+        $note = $faker->paragraph();
+        $fullStatement = $faker->paragraph();
+        $keywords = $faker->word();
         $statement = $item;
         $this->rememberedItem = $item;
 

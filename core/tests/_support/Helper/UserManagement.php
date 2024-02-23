@@ -101,7 +101,7 @@ class UserManagement extends \Codeception\Module
         $faker = \Faker\Factory::create();
 
         $role = preg_replace('/[^A-Z]/', '_', strtoupper($role));
-        $password = $faker->password.'aB3';
+        $password = $faker->password().'aB3';
 
         /** @var UserRepository $userRepo */
         $userRepo = $em->getRepository(User::class);
@@ -129,12 +129,12 @@ class UserManagement extends \Codeception\Module
                 ->getOneOrNullResult();
             if (!$org) {
                 $org = $orgRepo->addNewOrganization(
-                    'TEST:'.str_replace("'", '', $faker->company)
+                    'TEST:'.str_replace("'", '', $faker->company())
                 );
                 $em->flush($org);
             }
 
-            $username = 'TEST:'.$role.':'.$faker->userName;
+            $username = 'TEST:'.$role.':'.$faker->userName();
             $userManager->addNewUser($username, $org, $password, $role, $status);
             $em->flush();
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed71e12655b50e7508eccc949cb8cd92",
+    "content-hash": "18e849a702f141524718a46bce5ee1b5",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.300.3",
+            "version": "3.300.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "a1202d1a82593fc2cdad54d627e54c518a984738"
+                "reference": "27d59c22c121ce9c0041c563dc9d7270e180925c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a1202d1a82593fc2cdad54d627e54c518a984738",
-                "reference": "a1202d1a82593fc2cdad54d627e54c518a984738",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/27d59c22c121ce9c0041c563dc9d7270e180925c",
+                "reference": "27d59c22c121ce9c0041c563dc9d7270e180925c",
                 "shasum": ""
             },
             "require": {
@@ -151,9 +151,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.300.3"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.300.4"
             },
-            "time": "2024-02-22T19:20:21+00:00"
+            "time": "2024-02-23T19:10:30+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -12316,26 +12316,27 @@
         },
         {
             "name": "codeception/module-webdriver",
-            "version": "3.2.0",
+            "version": "4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-webdriver.git",
-                "reference": "8d65b02f50f90bf3f4da2174693a1cb5cd5fe7b2"
+                "reference": "68bd12857f2b3321d3114c3c87c9ad9345b3bd5e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-webdriver/zipball/8d65b02f50f90bf3f4da2174693a1cb5cd5fe7b2",
-                "reference": "8d65b02f50f90bf3f4da2174693a1cb5cd5fe7b2",
+                "url": "https://api.github.com/repos/Codeception/module-webdriver/zipball/68bd12857f2b3321d3114c3c87c9ad9345b3bd5e",
+                "reference": "68bd12857f2b3321d3114c3c87c9ad9345b3bd5e",
                 "shasum": ""
             },
             "require": {
-                "codeception/codeception": "^5.0.0-RC2",
+                "codeception/codeception": "^5.0.8",
                 "codeception/lib-web": "^1.0.1",
                 "codeception/stub": "^4.0",
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "php": "^8.0",
-                "php-webdriver/webdriver": "^1.8.0"
+                "php": "^8.1",
+                "php-webdriver/webdriver": "^1.14.0",
+                "phpunit/phpunit": "^10.0 || ^11.0"
             },
             "suggest": {
                 "codeception/phpbuiltinserver": "Start and stop PHP built-in web server for your tests"
@@ -12370,9 +12371,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-webdriver/issues",
-                "source": "https://github.com/Codeception/module-webdriver/tree/3.2.0"
+                "source": "https://github.com/Codeception/module-webdriver/tree/4.0.1"
             },
-            "time": "2022-10-15T19:19:42+00:00"
+            "time": "2024-02-16T12:47:00+00:00"
         },
         {
             "name": "codeception/stub",

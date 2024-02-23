@@ -806,9 +806,9 @@ class Framework implements Context
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
 
-        $description = $faker->sentence;
+        $description = $faker->sentence();
 
-        $note = $faker->paragraph;
+        $note = $faker->paragraph();
         $framework = sq($framework);
         $this->rememberedFramework = $framework;
 
@@ -888,7 +888,7 @@ class Framework implements Context
 
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
-        $this->rememberedCreator = $faker->company;
+        $this->rememberedCreator = $faker->company();
         $oldCreator = $this->creatorName;
         $this->creatorName = $this->rememberedCreator;
 
