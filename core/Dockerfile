@@ -9,7 +9,7 @@ ARG BUILD_DATE=0
 ARG COMMIT=unknown
 
 ARG NODE_VERSION=14
-ARG PHP_VERSION=8.2
+ARG PHP_VERSION=8.3
 ARG CADDY_VERSION=2
 #=======================================================================
 FROM node:${NODE_VERSION}-alpine AS salt_core_js_build
@@ -214,7 +214,7 @@ USER www-data
 #=======================================================================
 FROM salt_core_app as salt_core_dev
 
-ARG XDEBUG_VERSION=3.2.0
+ARG XDEBUG_VERSION=3.3.1
 
 USER root
 RUN set -eux; \

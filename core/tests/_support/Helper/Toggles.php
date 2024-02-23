@@ -4,7 +4,7 @@ namespace Helper;
 
 use Codeception\Module\Symfony;
 use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
-use PHPUnit\Framework\SkippedTestError;
+use PHPUnit\Framework\SkippedWithMessageException;
 
 class Toggles extends \Codeception\Module
 {
@@ -37,7 +37,7 @@ class Toggles extends \Codeception\Module
         }
 
         if (!$enabled[$feature]) {
-            throw new SkippedTestError(sprintf('"%s" feature is disabled', $feature));
+            throw new SkippedWithMessageException(sprintf('"%s" feature is disabled', $feature));
         }
     }
 }

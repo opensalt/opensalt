@@ -25,7 +25,7 @@ services:
         - BUILD_NUMBER=${BUILD_NUMBER:-x}
         - BUILD_DATE=${BUILD_DATE:-0}
         - COMMIT=${COMMIT:-unknown}
-        - VERSION=${VERSION:-3.2.0-dev}
+        - VERSION=${VERSION:-3.3.0-dev}
       cache_from:
         - opensalt/opensalt:core-develop
     depends_on:

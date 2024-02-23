@@ -32,8 +32,8 @@ class User implements Context
         ];
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
-        $username = $faker->email;
-        $password = $faker->password.'aB3';
+        $username = $faker->email();
+        $password = $faker->password().'aB3';
         $this->userName = $username;
 
         $I->click('a.dropdown-toggle');
@@ -57,8 +57,8 @@ class User implements Context
 
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
-        $username = $faker->email;
-        $password = $faker->password.'aB3';
+        $username = $faker->email();
+        $password = $faker->password().'aB3';
         $this->userName = $username;
 
         $I->click('a.dropdown-toggle');
@@ -81,9 +81,9 @@ class User implements Context
 
         /** @var \Faker\Generator $faker */
         $faker = \Faker\Factory::create();
-        $username = $faker->email;
-        $password = $faker->password.'aB3';
-        $org = $faker->company;
+        $username = $faker->email();
+        $password = $faker->password().'aB3';
+        $org = $faker->company();
         $this->userName = $username;
 
         $I->fillField('#signup_username', $username);
@@ -164,7 +164,7 @@ class User implements Context
         $I = $this->I;
 
         $faker = \Faker\Factory::create();
-        $newUsername = $faker->email;
+        $newUsername = $faker->email();
 
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
