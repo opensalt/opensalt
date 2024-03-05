@@ -7,6 +7,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @method LsAssociation|null findOneByIdentifier(string $identifier)
@@ -82,8 +83,14 @@ class LsAssociationRepository extends ServiceEntityRepository
      */
     public function findAllAssociationsFor(string $identifier): array
     {
+        try {
+            $uuid = Uuid::fromString(str_replace('_', '', $identifier))->toString();
+        } catch (\Throwable) {
+            return [];
+        }
+
         $item = $this->getEntityManager()->getRepository(LsItem::class)
-            ->findOneBy(['identifier' => str_replace('_', '', $identifier)]);
+            ->findOneBy(['identifier' => $uuid]);
 
         if (null === $item) {
             return [];
@@ -92,10 +99,36 @@ class LsAssociationRepository extends ServiceEntityRepository
         $qry = $this->createQueryBuilder('a')
             ->where('a.originLsItem = :id')
             ->orWhere('a.destinationLsItem = :id')
+            ->orWhere('a.originNodeIdentifier = :uuid')
+            ->orWhere('a.destinationNodeIdentifier = :uuid')
             ->setParameter('id', $item->getId())
+            ->setParameter('uuid', $uuid)
             ->getQuery();
 
         return $qry->getResult();
+    }
+
+    public function findAllAssociationsForAsSplitArray(string $identifier): array
+    {
+        try {
+            $uuid = Uuid::fromString(str_replace('_', '', $identifier))->toString();
+        } catch (\Throwable) {
+            return ['associations' => [], 'inverseAssociations' => []];
+        }
+
+        $associations = $this->findAllAssociationsFor($uuid);
+        $forward = [];
+        $reverse = [];
+
+        foreach ($associations as $association) {
+            if ($association->getOriginNodeIdentifier() === $uuid) {
+                $forward[] = $association;
+            } else {
+                $reverse[] = $association;
+            }
+        }
+
+        return ['associations' => $forward, 'inverseAssociations' => $reverse];
     }
 
     /**

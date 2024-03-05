@@ -1,0 +1,27 @@
+{% set criteria = [] %}
+{% if criterion.itemType.title|default(null) starts with 'Credential - ' %}
+    {% set associations = associationRepo.findAllAssociationsForAsSplitArray(criterion.identifier).inverseAssociations %}
+    {% for association in associations %}
+        {% if association.type == 'Precedes' %}
+            {% set criteria = criteria|merge([itemRepo.findOneByIdentifier(association.originNodeIdentifier)])%}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<li>
+        <details>
+            <summary class="children-{{ criteria|length }}">
+                <span class="title">
+                {%  if criterion.humanCodingScheme is not empty %}<strong class="cred-hcs">{{ criterion.humanCodingScheme }}</strong> {% endif %}
+                {{ criterion.abbreviatedStatment|default(criterion.fullStatement) }}
+                <a class="" href="{{ path('uri_lookup', {'uri': criterion.identifier}) }}">
+                    <i class="fa fa-external-link"></i>
+                </a>
+                </span>
+            </summary>
+            <ul>
+                {% for c in criteria %}
+                    {{ include('uri/_criterion.html.twig', {criterion: c}) }}
+                {% endfor %}
+            </ul>
+        </details>
+</li>

@@ -32,7 +32,7 @@ class CaseUriRuntime implements RuntimeExtensionInterface
             return null;
         }
 
-        if (preg_match('/^data:text/', $identifier)) {
+        if (str_starts_with($identifier, 'data:text')) {
             return $identifier;
         }
 
@@ -45,7 +45,7 @@ class CaseUriRuntime implements RuntimeExtensionInterface
             return null;
         }
 
-        if (preg_match('/^local:/', $uri)) {
+        if (str_starts_with($uri, 'local:')) {
             $uri = preg_replace('/^local:/', '', $uri);
 
             return $this->getUriForIdentifier($uri);
@@ -66,7 +66,7 @@ class CaseUriRuntime implements RuntimeExtensionInterface
             return null;
         }
 
-        if (preg_match('/^local:/', $uri)) {
+        if (str_starts_with($uri, 'local:')) {
             return $this->getLocalUri($uri);
         }
 

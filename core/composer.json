@@ -34,7 +34,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "ext-PDO": "*",
         "ext-bz2": "*",
         "ext-ctype": "*",
@@ -60,6 +60,7 @@
         "kamermans/guzzle-oauth2-subscriber": "^1.0.11",
         "laminas/laminas-code": "^4.0",
         "laminas/laminas-escaper": "^2.2",
+        "league/commonmark": "^2.4",
         "league/csv": "^9.6",
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/oauth2-github": "^3.0",
@@ -105,6 +106,7 @@
         "tecnickcom/tcpdf": "^6.2",
         "tetranz/select2entity-bundle": "dev-symfony-7 as 3.0.0.1",
         "twig/extra-bundle": "^2.12|^3.0",
+        "twig/markdown-extra": "^3.8",
         "twig/string-extra": "^3.1",
         "twig/twig": "^3.1"
     },

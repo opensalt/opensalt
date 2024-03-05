@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Repository\Framework\LsAssociationRepository;
+use App\Repository\Framework\LsItemRepository;
 use App\Service\IdentifiableObjectHelper;
 use App\Service\UriGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,6 +24,9 @@ class UriController extends AbstractController
     public function __construct(
         private readonly IdentifiableObjectHelper $objectHelper,
         private readonly SerializerInterface $symfonySerializer,
+        private readonly UriGenerator $uriGenerator,
+        private readonly LsAssociationRepository $associationRepository,
+        private readonly LsItemRepository $itemRepository,
     ) {
     }
 
@@ -91,6 +97,13 @@ class UriController extends AbstractController
         $headers['TCN'] = 'choice';
         $response->headers->add($headers);
 
+        if ($obj instanceof LsItem) {
+            $type = $obj->getItemType()?->getTitle();
+            if (str_starts_with($type ?? '', 'Credential -') && in_array($request->getRequestFormat(), ['html', 'jsonld'])) {
+                return $this->renderCredentialView($obj, $request, $response);
+            }
+        }
+
         $className = $isPackage ? 'CFPackage' : substr(strrchr($obj::class, '\\'), 1);
         $groups = ['default', $className];
         if ('opensalt' === $request->getRequestFormat()) {
@@ -98,7 +111,7 @@ class UriController extends AbstractController
         }
         $serialized = $this->symfonySerializer->serialize($obj, 'json', [
             'groups' => $groups,
-            'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
+            'json_encode_options' => \JSON_UNESCAPED_SLASHES | \JSON_PRESERVE_ZERO_FRACTION,
             'case-json-ld' => ('jsonld' === $request->getRequestFormat()) ? 'v1p0' : null,
             'add-case-context' => ('jsonld' === $request->getRequestFormat()) ? 'v1p0' : null,
             'generate-package' => $isPackage ? 'v1p0' : null,
@@ -245,5 +258,145 @@ xENDx;
         }
 
         throw new NotFoundHttpException(sprintf('Object with identifier "%s" was not found', $uri));
+    }
+
+    private function renderCredentialView(LsItem $obj, Request $request, Response $response): Response
+    {
+        $response->setPublic();
+
+        $allAssociations = $this->associationRepository->findAllAssociationsForAsSplitArray($obj->getIdentifier());
+        $associations = $allAssociations['associations'];
+        $img = null;
+        $criteria = [];
+        $alignments = [];
+        foreach ($associations as $association) {
+            $destination = $association->getDestination();
+
+            if ($destination instanceof LsDoc) {
+                continue;
+            }
+
+            switch ($association->getType()) {
+                case LsAssociation::PRECEDES:
+                //case LsAssociation::CHILD_OF:
+                    break;
+
+                case LsAssociation::EXEMPLAR:
+                    if (is_string($destination) && (str_ends_with($destination, '.png') || str_ends_with($destination, '.svg'))) {
+                        $img = $destination;
+                    }
+                    break;
+
+                default:
+                    if ($destination instanceof LsItem) {
+                        $alignments[$destination->getIdentifier()] = $destination;
+                    }
+                    break;
+            }
+        }
+
+        $associations = $allAssociations['inverseAssociations'];
+        foreach ($associations as $association) {
+            $origin = $association->getOrigin();
+            if (is_string($origin)) {
+                $origin = $this->itemRepository->findOneBy(['identifier' => $association->getOriginNodeIdentifier()]);
+            }
+            if (!$origin instanceof LsItem) {
+                continue;
+            }
+
+            switch ($association->getType()) {
+                case LsAssociation::EXEMPLAR:
+                //case LsAssociation::CHILD_OF:
+                case LsAssociation::EXACT_MATCH_OF:
+                    break;
+
+                case LsAssociation::PRECEDES:
+                    $criteria[$origin->getIdentifier()] = $origin;
+                    break;
+
+                default:
+                    $alignments[$origin->getIdentifier()] = $origin;
+                    break;
+            }
+        }
+
+        // If we have an alignment in the criteria, remove it from the alignments
+        foreach (array_keys($criteria) as $key) {
+            if (array_key_exists($key, $alignments)) {
+                unset($alignments[$key]);
+            }
+        }
+
+        if ('jsonld' === $request->getRequestFormat()) {
+            $achievementType = preg_replace('/Credential - /', '', $obj->getItemType()?->getTitle() ?? '');
+
+            $credential = [
+                '@context' => [
+                    'https://www.w3.org/2018/credentials/v1',
+                    'https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json',
+                ],
+                'id' => $this->uriGenerator->getUri($obj),
+                'type' => ['Achievement'],
+                'achievementType' => [$achievementType],
+                'name' => $obj->getAbbreviatedStatement() ?? $obj->getFullStatement(),
+                'description' => $obj->getFullStatement(),
+                'humanCode' => $obj->getHumanCodingScheme() ?? '',
+                'criteria' => [
+                    'narrative' => null,
+                    'id' => $this->uriGenerator->getUri($obj).'.html',
+                ],
+                'alignment' => [],
+                'image' => [
+                    'id' => $img ?? '',
+                    'type' => 'Image',
+                ],
+            ];
+
+            $narrative = [];
+            foreach ($criteria as $criterion) {
+                $narrative[] = '- '.($criterion->getAbbreviatedStatement() ?? $criterion->getFullStatement());
+            }
+            $credential['criteria']['narrative'] = implode("\n", $narrative);
+
+            if ('' === $credential['criteria']['narrative']) {
+                unset($credential['criteria']['narrative']);
+            }
+
+            foreach ($alignments as $alignment) {
+                $credential['alignment'][] = [
+                    'type' => 'Alignment',
+                    // 'targetCode' => $alignment->getIdentifier(),
+                    // 'targetDescription' => $alignment->getFullStatement(),
+                    'targetName' => $alignment->getAbbreviatedStatement() ?? $alignment->getFullStatement(),
+                    // 'targetFramework' => $alignment->getFramework(),
+                    // 'targetType' => $alignment->getItemType()?->getTitle() ?? '',
+                    'targetType' => 'CFItem',
+                    'targetUrl' => $this->uriGenerator->getUri($alignment),
+                ];
+            }
+            if (0 === count($credential['alignment'])) {
+                unset($credential['alignment']);
+            }
+
+            if ('' === $credential['humanCode']) {
+                unset($credential['humanCode']);
+            }
+
+            if ('' === $credential['image']['id']) {
+                unset($credential['image']);
+            }
+
+            return new JsonResponse($credential, Response::HTTP_OK);
+        }
+
+        return $this->render('uri/credential_view.html.twig', [
+            'obj' => $obj,
+            'img' => $img,
+            'criteria' => $criteria,
+            'alignments' => $alignments,
+            'associationRepo' => $this->associationRepository,
+            'itemRepo' => $this->itemRepository,
+        ], $response);
     }
 }
