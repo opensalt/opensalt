@@ -44,7 +44,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private string $fullStatement;
 
     #[ORM\Column(name: 'abbreviated_statement', type: 'text', nullable: true)]
-    #[Assert\Length(max: 60)]
+    #[Assert\Length(max: 255)]
     private ?string $abbreviatedStatement = null;
 
     /**
