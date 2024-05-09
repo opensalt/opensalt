@@ -99,7 +99,7 @@ class UriController extends AbstractController
 
         if ($obj instanceof LsItem) {
             $type = $obj->getItemType()?->getTitle();
-            if (str_starts_with($type ?? '', 'Credential -') && in_array($request->getRequestFormat(), ['html', 'jsonld'])) {
+            if (str_starts_with($type ?? '', 'Credential - ') && in_array($request->getRequestFormat(), ['html', 'jsonld'])) {
                 return $this->renderCredentialView($obj, $request, $response);
             }
         }
@@ -199,7 +199,7 @@ class UriController extends AbstractController
     {
         $this->addLink(
             $request,
-            (new Link('canonical', "/uri/{$originalUri}"))
+            new Link('canonical', "/uri/{$originalUri}")
         );
         $this->addLink(
             $request,
@@ -329,7 +329,42 @@ xENDx;
         }
 
         if ('jsonld' === $request->getRequestFormat()) {
-            $achievementType = preg_replace('/Credential - /', '', $obj->getItemType()?->getTitle() ?? '');
+            $achievementType = preg_replace('/Credential - /', '', $obj->getItemType()?->getTitle() ?? 'Credential - Achievement');
+            if (!in_array($achievementType, [
+                'Achievement',
+                'ApprenticeshipCertificate',
+                'Assessment',
+                'Assignment',
+                'AssociateDegree',
+                'Award',
+                'Badge',
+                'BachelorDegree',
+                'Certificate',
+                'CertificateOfCompletion',
+                'Certification',
+                'CommunityService',
+                'Competency',
+                'Course',
+                'CoCurricular',
+                'Degree',
+                'Diploma',
+                'DoctoralDegree',
+                'Fieldwork',
+                'GeneralEducationDevelopment',
+                'JourneymanCertificate',
+                'LearningProgram',
+                'License',
+                'Membership',
+                'ProfessionalDoctorate',
+                'QualityAssuranceCredential',
+                'MasterCertificate',
+                'MasterDegree',
+                'MicroCredential',
+                'ResearchDoctorate',
+                'SecondarySchoolDiploma',
+              ], true)) {
+                $achievementType = 'ext:'.$achievementType;
+            }
 
             $credential = [
                 '@context' => [
@@ -338,7 +373,7 @@ xENDx;
                 ],
                 'id' => $this->uriGenerator->getUri($obj),
                 'type' => ['Achievement'],
-                'achievementType' => [$achievementType],
+                'achievementType' => $achievementType,
                 'name' => $obj->getAbbreviatedStatement() ?? $obj->getFullStatement(),
                 'description' => $obj->getFullStatement(),
                 'humanCode' => $obj->getHumanCodingScheme() ?? '',
