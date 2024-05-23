@@ -375,7 +375,7 @@ final class ExcelImport
             return null;
         }
 
-        return $sheet->getCellByColumnAndRow($col, $row)->getValue();
+        return $sheet->getCell([$col, $row])->getValue();
     }
 
     private function checkRemovedItems(LsDoc $doc, array $array): void

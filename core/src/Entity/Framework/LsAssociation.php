@@ -528,14 +528,20 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return !(LsDoc::ADOPTION_STATUS_DEPRECATED === $this->lsDoc->getAdoptionStatus());
     }
 
-    public function getSequenceNumber(): ?int
+    public function getSequenceNumber(): ?string
     {
         return $this->sequenceNumber;
     }
 
-    public function setSequenceNumber(?int $sequenceNumber): static
+    public function setSequenceNumber(string|int|null $sequenceNumber): static
     {
-        $this->sequenceNumber = $sequenceNumber;
+        if (null === $sequenceNumber) {
+            $this->sequenceNumber = null;
+
+            return $this;
+        }
+
+        $this->sequenceNumber = (string) $sequenceNumber;
 
         return $this;
     }
