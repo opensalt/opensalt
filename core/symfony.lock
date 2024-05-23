@@ -32,9 +32,6 @@
     "codeception/module-asserts": {
         "version": "1.1.1"
     },
-    "codeception/module-doctrine2": {
-        "version": "1.0.1"
-    },
     "codeception/module-phpbrowser": {
         "version": "1.0.0"
     },
@@ -162,9 +159,6 @@
     "ericmartel/codeception-email-mailtrap": {
         "version": "1.0.5"
     },
-    "ezyang/htmlpurifier": {
-        "version": "v4.13.0"
-    },
     "fakerphp/faker": {
         "version": "v1.13.0"
     },
@@ -272,9 +266,6 @@
     },
     "myclabs/deep-copy": {
         "version": "1.7.0"
-    },
-    "myclabs/php-enum": {
-        "version": "1.7.6"
     },
     "nelmio/cors-bundle": {
         "version": "1.5",

@@ -17,7 +17,7 @@ class LsItemTest extends \Codeception\Test\Unit
     {
         $lsItem = new LsItem();
         /** @var EntityManagerInterface $em */
-        $em = $this->getModule('Doctrine2')->em;
+        $em = $this->getModule('Doctrine')->em;
 
         $identifier = Uuid::uuid4()->toString();
         $docIdentifier = Uuid::uuid4()->toString();

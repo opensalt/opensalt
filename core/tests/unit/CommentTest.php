@@ -18,7 +18,7 @@ class CommentTest extends \Codeception\Test\Unit
     {
         $this->tester->ensureUserExistsWithRole('Editor');
         $user = $this->tester->getLastUser();
-        $em = $this->getModule('Doctrine2')->em;
+        $em = $this->getModule('Doctrine')->em;
         $comment = new Comment();
         $itemId = $this->addLsItem();
         $item = $em->getRepository(LsItem::class)->find($itemId);
@@ -38,7 +38,7 @@ class CommentTest extends \Codeception\Test\Unit
     {
         $commentId = $this->createComment('new comment');
 
-        $em = $this->getModule('Doctrine2')->em;
+        $em = $this->getModule('Doctrine')->em;
 
         $comment = $em->find(Comment::class, $commentId);
         $comment->setContent('updated content');
@@ -54,7 +54,7 @@ class CommentTest extends \Codeception\Test\Unit
     {
         $commentId = $this->createComment('deleted comment');
 
-        $em = $this->getModule('Doctrine2')->em;
+        $em = $this->getModule('Doctrine')->em;
         $commentsCount = count($this->tester->grabEntitiesFromRepository(Comment::class));
         $comment = $em->find(Comment::class, $commentId);
 
@@ -68,7 +68,7 @@ class CommentTest extends \Codeception\Test\Unit
     public function testUpvoteComment()
     {
         /** @var EntityManager $em */
-        $em = $this->getModule('Doctrine2')->em;
+        $em = $this->getModule('Doctrine')->em;
         $commentId = $this->createComment('upvoted comment');
         $comment = $em->find(Comment::class, $commentId);
         $upvotes = $comment->getUpvoteCount();
@@ -90,7 +90,7 @@ class CommentTest extends \Codeception\Test\Unit
     public function testDownvoteComment()
     {
         /** @var EntityManager $em */
-        $em = $this->getModule('Doctrine2')->em;
+        $em = $this->getModule('Doctrine')->em;
         $commentRepo = $em->getRepository(Comment::class);
         $commentId = $this->createComment('comment');
         $comment = $commentRepo->find($commentId);
@@ -118,7 +118,7 @@ class CommentTest extends \Codeception\Test\Unit
     private function createComment($content)
     {
         $this->tester->ensureUserExistsWithRole('Editor');
-        $em = $this->getModule('Doctrine2')->em;
+        $em = $this->getModule('Doctrine')->em;
         $user = $this->tester->getLastUser();
         $itemId = $this->addLsItem();
         $item = $em->getRepository(LsItem::class)->find($itemId);
@@ -140,7 +140,7 @@ class CommentTest extends \Codeception\Test\Unit
     {
         $this->tester->ensureUserExistsWithRole('Editor');
         $user = $this->tester->getLastUser();
-        $em = $this->getModule('Doctrine2')->em;
+        $em = $this->getModule('Doctrine')->em;
         $comment = new Comment();
         $itemId = $this->addLsItem();
         $item = $em->getRepository(LsItem::class)->find($itemId);

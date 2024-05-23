@@ -49,7 +49,7 @@ class CaseImportController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            ini_set('memory_limit', '4G');
+            ini_set('memory_limit', '4096M');
             set_time_limit(900);
 
             $data = $form->getData();

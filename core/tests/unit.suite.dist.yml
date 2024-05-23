@@ -6,7 +6,7 @@ modules:
             var_path: 'var'
             environment: 'prod'
             part: SERVICES
-        - Doctrine2:
+        - Doctrine:
             depends: Symfony2Module
             cleanup: true
         - \Helper\Unit

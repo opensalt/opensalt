@@ -14,7 +14,7 @@ class UserTest extends \Codeception\Test\Unit
     public function testAddUser()
     {
         /* @var EntityManagerInterface $em */
-        $em = $this->getModule('Doctrine2')->em;
+        $em = $this->getModule('Doctrine')->em;
 
         /* @var User $user */
         $user = new User();

@@ -666,6 +666,7 @@ xENDx;
     {
         $docs = [];
 
+        // Where the framework has a destination item in the document
         $qb = $this->createQueryBuilder('d')
             ->select('d.id, d.identifier, d.uri, d.title')
             ->distinct()
@@ -684,6 +685,7 @@ xENDx;
             ];
         }
 
+        // Where the framework has an origin item in the document
         $qb = $this->createQueryBuilder('d')
             ->select('d.id, d.identifier, d.uri, d.title')
             ->distinct()
@@ -702,6 +704,7 @@ xENDx;
             ];
         }
 
+        // Where the framework has a destination document as the document
         $qb = $this->createQueryBuilder('d')
             ->select('d.id, d.identifier, d.uri, d.title')
             ->distinct()
@@ -720,6 +723,7 @@ xENDx;
             ];
         }
 
+        // Where the framework has an origin document as the document
         $qb = $this->createQueryBuilder('d')
             ->select('d.id, d.identifier, d.uri, d.title')
             ->distinct()
@@ -727,6 +731,42 @@ xENDx;
             ->join('i.associations', 'a')
             ->join('a.originLsDoc', 'd2')
             ->where('d2.id = :doc')
+            ->setParameter('doc', $lsDoc->getId())
+        ;
+        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+        foreach ($results as $doc) {
+            $docs[$doc['identifier']] = [
+                'autoLoad' => 'true',
+                'url' => $doc['uri'],
+                'title' => $doc['title'],
+            ];
+        }
+
+        // Where there is an association belonging to the framework to an item in the document
+        $qb = $this->createQueryBuilder('d')
+            ->select('d.id, d.identifier, d.uri, d.title')
+            ->distinct()
+            ->join('d.docAssociations', 'a')
+            ->join('a.destinationLsItem', 'i2')
+            ->where('i2.lsDoc = :doc')
+            ->setParameter('doc', $lsDoc->getId())
+        ;
+        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+        foreach ($results as $doc) {
+            $docs[$doc['identifier']] = [
+                'autoLoad' => 'true',
+                'url' => $doc['uri'],
+                'title' => $doc['title'],
+            ];
+        }
+
+        // Where there is an association belonging to the framework to an item in the document
+        $qb = $this->createQueryBuilder('d')
+            ->select('d.id, d.identifier, d.uri, d.title')
+            ->distinct()
+            ->join('d.docAssociations', 'a')
+            ->join('a.originLsItem', 'i2')
+            ->where('i2.lsDoc = :doc')
             ->setParameter('doc', $lsDoc->getId())
         ;
         $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);

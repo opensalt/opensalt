@@ -18,7 +18,7 @@ class CaseImport
 
     public function importCaseFile(string $content): LsDoc
     {
-        ini_set('memory_limit', '2G');
+        ini_set('memory_limit', '4096M');
         set_time_limit(900); // increase time limit for large files
 
         try {

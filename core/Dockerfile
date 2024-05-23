@@ -62,6 +62,7 @@ RUN set -eux; \
 		libpng-dev \
 		libzip-dev \
 		mysql-dev \
+		libpq-dev \
 		zlib-dev \
 	; \
 	\
@@ -75,6 +76,7 @@ RUN set -eux; \
 		opcache \
 		pcntl \
 		pdo_mysql \
+		pdo_pgsql \
 		zip \
 	; \
 	pecl install \
