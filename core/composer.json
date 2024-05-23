@@ -6,7 +6,10 @@
     "autoload": {
         "psr-4": {
             "App\\": "src/",
-            "DoctrineMigrations\\": "migrations/",
+            "DoctrineMigrations\\": [
+                "migrations/mysql",
+                "migrations/pgsql"
+            ],
             "LocalApp\\": "local-src/"
         },
         "exclude-from-classmap": [

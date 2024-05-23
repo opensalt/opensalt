@@ -9,6 +9,7 @@ imports:
 
 parameters:
     # Defaults for environment variables
+    env(DB_TYPE): 'mysql'
     env(MYSQL_HOST): 'db'
     env(MYSQL_PORT): '3306'
     env(MYSQL_DATABASE): null
@@ -53,6 +54,7 @@ parameters:
     env(USE_MFA): false
 
     locale: en
+    database_type: '%env(DB_TYPE)%'
     database_host: '%env(MYSQL_HOST)%'
     database_port: '%env(int:MYSQL_PORT)%'
     database_name: '%env(MYSQL_DATABASE)%'
