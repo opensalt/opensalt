@@ -34,18 +34,18 @@ class ItemTypeTransformer implements DataTransformerInterface
     /**
      * Transform entity to array.
      */
-    public function transform(mixed $entity): array
+    public function transform(mixed $value): array
     {
         $data = [];
-        if (empty($entity)) {
+        if (empty($value)) {
             return $data;
         }
 
         $text = (null === $this->textProperty)
-            ? (string) $entity
-            : $this->accessor->getValue($entity, $this->textProperty);
+            ? (string) $value
+            : $this->accessor->getValue($value, $this->textProperty);
 
-        $data[$this->accessor->getValue($entity, $this->primaryKey)] = $text;
+        $data[$this->accessor->getValue($value, $this->primaryKey)] = $text;
 
         return $data;
     }

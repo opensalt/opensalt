@@ -8,39 +8,39 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 
 /** @implements DataTransformerInterface<string|null, array> */
-class EducationAlignmentTransformer implements DataTransformerInterface
+readonly class EducationAlignmentTransformer implements DataTransformerInterface
 {
     public function __construct(private readonly EntityManagerInterface $manager)
     {
     }
 
     /**
-     * @param ?string $gradeString
+     * @param ?string $value
      */
-    public function transform(mixed $gradeString): array
+    public function transform(mixed $value): array
     {
-        if (null === $gradeString) {
+        if (null === $value) {
             return [];
         }
 
         /** @var LsDefGradeRepository $repo */
         $repo = $this->manager->getRepository(LsDefGrade::class);
 
-        $grades = explode(',', $gradeString);
+        $grades = explode(',', $value);
 
         return $repo->findBy(['code' => $grades]);
     }
 
     /**
-     * @param array<array-key, LsDefGrade>|null $alignmentArray
+     * @param array<array-key, LsDefGrade>|null $value
      */
-    public function reverseTransform(mixed $alignmentArray): ?string
+    public function reverseTransform(mixed $value): ?string
     {
-        if (!is_array($alignmentArray) || 0 === count($alignmentArray)) {
+        if (!is_array($value) || 0 === count($value)) {
             return null;
         }
 
-        $grades = array_map(static fn (LsDefGrade $alignment) => $alignment->getCode(), $alignmentArray);
+        $grades = array_map(static fn (LsDefGrade $alignment) => $alignment->getCode(), $value);
 
         return implode(',', $grades);
     }

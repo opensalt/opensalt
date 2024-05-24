@@ -11,6 +11,7 @@ class CaseUriExtension extends AbstractExtension
 {
     public function getFilters(): array
     {
+        /** @psalm-suppress InvalidArgument This works for a Twig Runtime class */
         return [
             new TwigFilter('object_uri', [CaseUriRuntime::class, 'getObjectUri']),
             new TwigFilter('uri_for_identifier', [CaseUriRuntime::class, 'getUriForIdentifier']),
@@ -21,6 +22,7 @@ class CaseUriExtension extends AbstractExtension
 
     public function getFunctions(): array
     {
+        /** @psalm-suppress InvalidArgument This works for a Twig Runtime class */
         return [
             new TwigFunction('object_uri', [CaseUriRuntime::class, 'getObjectUri']),
             new TwigFunction('uri_for_identifier', [CaseUriRuntime::class, 'getUriForIdentifier']),

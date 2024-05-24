@@ -69,8 +69,6 @@ class Api1Uris
         return $uri;
     }
 
-    /** @psalm-pure  */
-    #[Pure]
     public function splitByComma(?string $csv): ?array
     {
         if (null === $csv) {
