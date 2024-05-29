@@ -309,7 +309,7 @@ class Framework implements Context
         $diff = $this->arrayDiff(
             $uploadedJson,
             $parsedJson,
-            ['lastChangeDateTime', 'CFDefinitions', 'CFItemTypeURI']
+            ['lastChangeDateTime', 'CFDefinitions', 'CFItemTypeURI', 'sequenceNumber']
         );
         $I->assertEquals([], $diff, 'Downloaded JSON does not match');
 

@@ -42,7 +42,7 @@ class UriController extends AbstractController
         private readonly LsDocRepository $docRepository,
         private readonly AuthorizationCheckerInterface $authorizationChecker,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Stopwatch $stopwatch,
+        private readonly Stopwatch $stopwatch, private readonly SerializerInterface $serializer,
     ) {
     }
 
@@ -469,17 +469,24 @@ xENDx;
     {
         set_time_limit(60);
 
+        $_format = $request->getRequestFormat();
+
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
         unset($context['add-case-context'], $context['generate-package']);
         $context['no-association-links'] = true;
-        if ('ndjson' === $request->getRequestFormat()) {
+        if (in_array($_format, ['ndjson', 'csv'])) {
             $context['add-case-type'] = true;
             $context['no-case-link-uri-type'] = true;
             $context['case-json-ld'] = true;
             $jsonLd = true;
             $addContext = null;
             $context['groups'][] = 'opensalt';
+        }
+
+        $context['useFormat'] = 'json';
+        if ('csv' === $_format) {
+            $context['useFormat'] = 'csv';
         }
 
         $headers = [];
@@ -584,6 +591,51 @@ xENDx;
             }
         };
 
+        if (in_array($_format, ['ndjson', 'csv'])) {
+            return new StreamedResponse(function () use ($obj, $itemCallback, $associationCallback, $conceptCallback, $subjectCallback, $licenseCallback, $itemTypeCallback, $groupCallback, $context) {
+                $context += [
+                   'json_encode_options' => JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES,
+                   'no_headers' => true,
+                   'csv_end_of_line' => '',
+                ];
+                $eol = ('csv' === $context['useFormat']) ? '' : "\n";
+                echo $this->serializer->serialize($obj, $context['useFormat'], $context)."$eol";
+                foreach ($itemCallback() as $item) {
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                }
+                foreach ($associationCallback() as $item) {
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                }
+                foreach ($conceptCallback() as $item) {
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                }
+                foreach ($subjectCallback() as $item) {
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                }
+                foreach ($licenseCallback() as $item) {
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                }
+                foreach ($itemTypeCallback() as $item) {
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                }
+                foreach ($groupCallback() as $item) {
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                }
+
+                // Put criteria and levels on their own lines
+                $items = $this->docRepository->findAllUsedRubrics($obj, Query::HYDRATE_OBJECT);
+                foreach ($items as $key => $item) {
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                    foreach ($item->getCriteria() as $criteria) {
+                        echo $this->serializer->serialize($criteria, $context['useFormat'], $context)."$eol";
+                        foreach ($criteria->getLevels() as $level) {
+                            echo $this->serializer->serialize($level, $context['useFormat'], $context)."$eol";
+                        }
+                    }
+                }
+            }, $originalResponse->getStatusCode(), $headers);
+        }
+
         $json = [];
         if (null !== $addContext) {
             $json['@context'] = 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld';
@@ -595,46 +647,6 @@ xENDx;
                 : null;
         }
         $json = array_filter($json, static function ($field) { return null !== $field; });
-
-        if ('ndjson' === $request->getRequestFormat()) {
-            $response = new StreamedResponse(function () use ($obj, $itemCallback, $associationCallback, $conceptCallback, $subjectCallback, $licenseCallback, $itemTypeCallback, $groupCallback, $context) {
-                echo json_encode($this->normalizer->normalize($obj, 'json', $context))."\n";
-                foreach ($itemCallback() as $item) {
-                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
-                }
-                foreach ($associationCallback() as $item) {
-                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
-                }
-                foreach ($conceptCallback() as $item) {
-                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
-                }
-                foreach ($subjectCallback() as $item) {
-                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
-                }
-                foreach ($licenseCallback() as $item) {
-                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
-                }
-                foreach ($itemTypeCallback() as $item) {
-                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
-                }
-                foreach ($groupCallback() as $item) {
-                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
-                }
-
-                $items = $this->docRepository->findAllUsedRubrics($obj, Query::HYDRATE_OBJECT);
-                foreach ($items as $key => $item) {
-                    echo json_encode($this->normalizer->normalize($item, 'json', $context), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
-                    foreach ($item->getCriteria() as $criteria) {
-                        echo json_encode($this->normalizer->normalize($criteria, 'json', $context), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
-                        foreach ($criteria->getLevels() as $level) {
-                            echo json_encode($this->normalizer->normalize($level, 'json', $context), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
-                        }
-                    }
-                }
-            }, $originalResponse->getStatusCode(), $headers);
-
-            return $response;
-        }
 
         $json += [
             'CFDocument' => $this->normalizer->normalize($obj, 'json', $context),
