@@ -281,7 +281,7 @@ apx.initializeNotification = function() {
     $('#notifications-switch').on('click', apx.notifications.toggle);
     apx.notifications.enableMonitor();
 
-    $.each(apx.locks.docs, function (id, tm) {
+    $.each(apx.locks.docs || [], function (id, tm) {
         if ("number" !== typeof tm || tm < apx.startTime) {
             return;
         }
@@ -300,7 +300,7 @@ apx.initializeNotification = function() {
             });
         }, tm - apx.startTime, id);
     });
-    $.each(apx.locks.items, function (id, tm) {
+    $.each(apx.locks.items || [], function (id, tm) {
         if ("number" !== typeof tm || tm < apx.startTime) {
             return;
         }
