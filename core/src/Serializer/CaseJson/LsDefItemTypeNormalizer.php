@@ -4,6 +4,7 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsDefItemType;
 use App\Service\Api1Uris;
+use App\Util\Collection;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class LsDefItemTypeNormalizer implements NormalizerInterface
@@ -49,6 +50,10 @@ final class LsDefItemTypeNormalizer implements NormalizerInterface
             'hierarchyCode' => $object->getHierarchyCode(),
         ];
 
-        return array_filter($data, static fn ($val) => null !== $val);
+        if (in_array('opensalt', $context['groups'] ?? [], true)) {
+            $data['_opensalt'] = $object->getExtra();
+        }
+
+        return Collection::removeEmptyElements($data);
     }
 }

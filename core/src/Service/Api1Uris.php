@@ -5,7 +5,6 @@ namespace App\Service;
 use App\Entity\Framework\IdentifiableInterface;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\Package;
-use JetBrains\PhpStorm\Pure;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 

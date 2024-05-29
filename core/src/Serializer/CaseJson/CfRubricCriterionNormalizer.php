@@ -4,6 +4,7 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\CfRubricCriterion;
 use App\Service\Api1Uris;
+use App\Util\Collection;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -64,6 +65,10 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Nor
             $data['CFRubricCriterionLevels'][] = $this->normalizer->normalize($level, $format, $context);
         }
 
-        return array_filter($data, static fn ($val) => null !== $val);
+        if (in_array('opensalt', $context['groups'] ?? [], true)) {
+            $data['_opensalt'] = $object->getExtra();
+        }
+
+        return Collection::removeEmptyElements($data);
     }
 }

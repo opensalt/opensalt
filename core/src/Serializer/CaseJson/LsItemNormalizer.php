@@ -4,6 +4,7 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsItem;
 use App\Service\Api1Uris;
+use App\Util\Collection;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -73,6 +74,10 @@ final class LsItemNormalizer implements NormalizerInterface
             'associationSet' => $this->createAssociationLinks($object, $context),
         ];
 
-        return array_filter($data, static fn ($val) => null !== $val);
+        if (in_array('opensalt', $context['groups'] ?? [], true)) {
+            $data['_opensalt'] = $object->getExtra();
+        }
+
+        return Collection::removeEmptyElements($data);
     }
 }

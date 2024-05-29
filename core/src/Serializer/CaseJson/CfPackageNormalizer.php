@@ -8,6 +8,9 @@ use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
 use App\Service\Api1Uris;
+use App\Util\Collection;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
@@ -21,6 +24,7 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, NormalizerI
         private readonly Api1Uris $api1Uris,
         private readonly LsDocRepository $docRepository,
         private readonly AuthorizationCheckerInterface $authorizationChecker,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -57,14 +61,16 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, NormalizerI
             'CFDocument' => $this->normalizer->normalize($object, $format, $context),
         ];
 
-        $package = $this->docRepository->getPackageArray($object);
-
-        foreach ($package['CFItems'] as $obj) {
+        $items = $this->docRepository->findAllItemsForCFPackage($object, Query::HYDRATE_OBJECT);
+        foreach ($items as $key => $obj) {
+            $this->entityManager->detach($obj);
             $data['CFItems'][] = $this->normalizer->normalize($obj, $format, $context);
+            unset($items[$key]);
         }
 
-        /** @var LsAssociation $obj */
-        foreach ($package['CFAssociations'] as $obj) {
+        $items = $this->docRepository->findAllAssociationsIterator($object, Query::HYDRATE_OBJECT);
+        foreach ($items as $key => $obj) {
+            $this->entityManager->detach($obj);
             if (!$this->canListDocument($obj, 'origin') ||
                 !$this->canListDocument($obj, 'destination')) {
                 // Remove associations to frameworks one can't normally see
@@ -74,19 +80,26 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, NormalizerI
             $data['CFAssociations'][] = $this->normalizer->normalize($obj, $format, $context);
         }
 
-        foreach ($package['CFDefinitions'] as $defType => $defs) {
+        foreach (['CFConcepts', 'CFSubjects', 'CFLicenses', 'CFItemTypes', 'CFAssociationGroupings'] as $defType) {
+            $defs = match ($defType) {
+                'CFConcepts' => $this->docRepository->findAllUsedConcepts($object, Query::HYDRATE_OBJECT),
+                'CFSubjects' => $object->getSubjects(),
+                'CFLicenses' => array_values($this->docRepository->findAllUsedLicences($object, Query::HYDRATE_OBJECT)),
+                'CFItemTypes' => $this->docRepository->findAllUsedItemTypes($object, Query::HYDRATE_OBJECT),
+                'CFAssociationGroupings' => $this->docRepository->findAllUsedAssociationGroups($object, Query::HYDRATE_OBJECT),
+            };
+
             foreach ($defs as $obj) {
                 $data['CFDefinitions'][$defType][] = $this->normalizer->normalize($obj, $format, $context);
             }
         }
 
-        if (!empty($package['CFRubrics'])) {
-            foreach ($package['CFRubrics'] as $obj) {
-                $data['CFRubrics'][] = $this->normalizer->normalize($obj, $format, $context);
-            }
+        $items = $this->docRepository->findAllUsedRubrics($object, Query::HYDRATE_OBJECT);
+        foreach ($items as $obj) {
+            $data['CFRubrics'][] = $this->normalizer->normalize($obj, $format, $context);
         }
 
-        return array_filter($data, static fn ($val) => null !== $val);
+        return Collection::removeEmptyElements($data);
     }
 
     public function setNormalizer(NormalizerInterface $normalizer): void

@@ -461,7 +461,7 @@ xENDx;
      *
      * @return array array of LsItems hydrated as an array
      */
-    public function findAllItems(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
+    public function findAllItems(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY, int $start = 0, int $limit = 0): array
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t, a, adi, add, c
@@ -472,8 +472,41 @@ xENDx;
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE i.lsDoc = :lsDocId
+              AND i.id > :start
+            ORDER BY i.id
         ');
+        if ($limit > 0) {
+            $query->setMaxResults($limit);
+        }
         $query->setParameter('lsDocId', $lsDoc->getId());
+        $query->setParameter('start', $start);
+
+        return $query->getResult($format);
+    }
+
+    /**
+     * Get a list of all items for an LsDoc.
+     *
+     * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
+     * @return array array of LsItems hydrated as an array
+     */
+    public function findAllItemsForCFPackage(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY, int $start = 0, int $limit = 0): array
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT i, t, c
+            FROM App\Entity\Framework\LsItem i INDEX BY i.id
+            LEFT JOIN i.itemType t
+            LEFT JOIN i.concepts c
+            WHERE i.lsDoc = :lsDocId
+              AND i.id > :start
+            ORDER BY i.id
+        ');
+        if ($limit > 0) {
+            $query->setMaxResults($limit);
+        }
+        $query->setParameter('lsDocId', $lsDoc->getId());
+        $query->setParameter('start', $start);
 
         return $query->getResult($format);
     }
@@ -488,7 +521,7 @@ xENDx;
     public function findAllUsedItemTypes(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
-            SELECT t
+            SELECT DISTINCT t
             FROM App\Entity\Framework\LsDefItemType t, App\Entity\Framework\LsItem i
             WHERE i.lsDoc = :lsDocId
               AND i.itemType = t
@@ -522,6 +555,35 @@ xENDx;
     }
 
     /**
+     * Get a list of all associations for an LsDoc.
+     *
+     * @psalm-param AbstractQuery::HYDRATE_* $format
+     *
+     * @return iterable<array>|iterable<LsAssociation>
+     */
+    public function findAllAssociationsIterator(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY, int $start = 0, int $limit = 0): iterable
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT a, ag, adi, aoi, add
+            FROM App\Entity\Framework\LsAssociation a INDEX BY a.id
+            LEFT JOIN a.group ag
+            LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
+            LEFT JOIN a.originLsItem aoi WITH aoi.lsDoc = :lsDocId
+            LEFT JOIN a.destinationLsDoc add WITH add.id = :lsDocId
+            WHERE a.lsDoc = :lsDocId
+              AND a.id > :start
+            ORDER BY a.id
+        ');
+        if ($limit > 0) {
+            $query->setMaxResults($limit);
+        }
+        $query->setParameter('start', $start);
+        $query->setParameter('lsDocId', $lsDoc->getId());
+
+        return $query->toIterable([], $format);
+    }
+
+    /**
      * Get a list of all association groups used in an LsDoc.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format
@@ -531,7 +593,7 @@ xENDx;
     public function findAllUsedAssociationGroups(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
-            SELECT ag
+            SELECT DISTINCT ag
             FROM App\Entity\Framework\LsDefAssociationGrouping ag, App\Entity\Framework\LsAssociation a
             WHERE a.lsDoc = :lsDocId
               AND a.group = ag
@@ -551,7 +613,7 @@ xENDx;
     public function findAllUsedConcepts(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
     {
         $query = $this->getEntityManager()->createQuery('
-            SELECT c
+            SELECT DISTINCT c
             FROM App\Entity\Framework\LsDefConcept c, App\Entity\Framework\LsItem i
             WHERE i.lsDoc = :lsDocId
               AND c MEMBER OF i.concepts

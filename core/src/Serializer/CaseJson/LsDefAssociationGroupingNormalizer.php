@@ -4,6 +4,7 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Service\Api1Uris;
+use App\Util\Collection;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class LsDefAssociationGroupingNormalizer implements NormalizerInterface
@@ -47,6 +48,10 @@ final class LsDefAssociationGroupingNormalizer implements NormalizerInterface
             'description' => $object->getDescription(),
         ];
 
-        return array_filter($data, static fn ($val) => null !== $val);
+        if (in_array('opensalt', $context['groups'] ?? [], true)) {
+            $data['_opensalt'] = $object->getExtra();
+        }
+
+        return Collection::removeEmptyElements($data);
     }
 }

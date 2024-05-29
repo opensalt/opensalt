@@ -4,6 +4,7 @@ namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsAssociation;
 use App\Service\Api1Uris;
+use App\Util\Collection;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class LsAssociationNormalizer implements NormalizerInterface
@@ -53,18 +54,12 @@ final class LsAssociationNormalizer implements NormalizerInterface
         ];
 
         if (in_array('opensalt', $context['groups'] ?? [], true)) {
-            $data['_opensalt'] = [
-                'subtype' => $object->getSubtype(),
-                'annotation' => $object->getAnnotation(),
-            ];
-
-            $data['_opensalt'] = array_filter($data['_opensalt'], static fn ($val) => null !== $val);
-            if (0 === count($data['_opensalt'])) {
-                unset($data['_opensalt']);
-            }
+            $data['_opensalt'] = $object->getExtra();
+            $data['_opensalt']['subtype'] = $object->getSubtype();
+            $data['_opensalt']['annotation'] = $object->getAnnotation();
         }
 
-        return array_filter($data, static fn ($val) => null !== $val);
+        return Collection::removeEmptyElements($data);
     }
 
     protected function createOutLink(LsAssociation $association, string $which, array $context): ?array

@@ -6,17 +6,25 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsAssociationRepository;
+use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
+use App\Security\Permission;
 use App\Service\IdentifiableObjectHelper;
 use App\Service\UriGenerator;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Stopwatch\Stopwatch;
 use Symfony\Component\WebLink\Link;
 
 class UriController extends AbstractController
@@ -24,9 +32,14 @@ class UriController extends AbstractController
     public function __construct(
         private readonly IdentifiableObjectHelper $objectHelper,
         private readonly SerializerInterface $symfonySerializer,
+        private readonly NormalizerInterface $normalizer,
         private readonly UriGenerator $uriGenerator,
         private readonly LsAssociationRepository $associationRepository,
         private readonly LsItemRepository $itemRepository,
+        private readonly LsDocRepository $docRepository,
+        private readonly AuthorizationCheckerInterface $authorizationChecker,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly Stopwatch $stopwatch,
     ) {
     }
 
@@ -94,8 +107,14 @@ class UriController extends AbstractController
             return $response;
         }
 
+        $response->headers->set('Content-Type', $request->getMimeType($request->getRequestFormat()));
+
         $headers['TCN'] = 'choice';
         $response->headers->add($headers);
+
+        if ($request->headers->has('x-opensalt')) {
+            $response->headers->set('X-OpenSALT-Response', 'requested');
+        }
 
         if ($obj instanceof LsItem) {
             $type = $obj->getItemType()?->getTitle();
@@ -109,13 +128,20 @@ class UriController extends AbstractController
         if ('opensalt' === $request->getRequestFormat()) {
             $groups[] = 'opensalt';
         }
-        $serialized = $this->symfonySerializer->serialize($obj, 'json', [
+
+        $context = [
             'groups' => $groups,
             'json_encode_options' => \JSON_UNESCAPED_SLASHES | \JSON_PRESERVE_ZERO_FRACTION,
             'case-json-ld' => ('jsonld' === $request->getRequestFormat()) ? 'v1p0' : null,
             'add-case-context' => ('jsonld' === $request->getRequestFormat()) ? 'v1p0' : null,
             'generate-package' => $isPackage ? 'v1p0' : null,
-        ]);
+        ];
+
+        if ($isPackage && 'html' !== $request->getRequestFormat()) {
+            return $this->generatePackageResponse($request, $response, $obj, $context);
+        }
+
+        $serialized = $this->symfonySerializer->serialize($obj, 'json', $context);
 
         // Found -- Display
         if ('html' === $request->getRequestFormat()) {
@@ -127,12 +153,7 @@ class UriController extends AbstractController
             ], $response);
         }
 
-        if ($request->headers->has('x-opensalt')) {
-            $request->setRequestFormat('json');
-            $response->headers->set('X-OpenSALT-Response', 'requested');
-        }
         $response->setContent($serialized);
-        $response->headers->set('Content-Type', $request->getMimeType($request->getRequestFormat()));
 
         return $response;
     }
@@ -278,7 +299,7 @@ xENDx;
 
             switch ($association->getType()) {
                 case LsAssociation::PRECEDES:
-                //case LsAssociation::CHILD_OF:
+                    // case LsAssociation::CHILD_OF:
                     break;
 
                 case LsAssociation::EXEMPLAR:
@@ -307,7 +328,7 @@ xENDx;
 
             switch ($association->getType()) {
                 case LsAssociation::EXEMPLAR:
-                //case LsAssociation::CHILD_OF:
+                    // case LsAssociation::CHILD_OF:
                 case LsAssociation::EXACT_MATCH_OF:
                     break;
 
@@ -433,5 +454,159 @@ xENDx;
             'associationRepo' => $this->associationRepository,
             'itemRepo' => $this->itemRepository,
         ], $response);
+    }
+
+    private function generatePackageResponse(Request $request, Response $originalResponse, mixed $obj, array $context): Response
+    {
+        set_time_limit(60);
+
+        unset($context['generate-package']);
+
+        $itemCallback = function () use ($obj, $context): \Generator {
+            $cnt = -1;
+            $start = 0;
+            $limit = 2000;
+            while (0 !== $cnt) {
+                $this->stopwatch->start('fetchItems');
+                $cnt = 0;
+                $last = 0;
+                $items = $this->docRepository->findAllItemsForCFPackage($obj, Query::HYDRATE_OBJECT, $start, $limit);
+                foreach ($items as $key => $item) {
+                    ++$cnt;
+                    $last = $item->getId();
+                    $this->entityManager->detach($item);
+                    yield $this->normalizer->normalize($item, 'json', $context);
+                    unset($items[$key]);
+                }
+                $start = $last;
+                $this->stopwatch->stop('fetchItems');
+            }
+        };
+
+        $associationCallback = function () use ($obj, $context): \Generator {
+            $cnt = -1;
+            $start = 0;
+            $limit = 20000;
+            while (0 !== $cnt) {
+                $this->stopwatch->start('fetchAssociations');
+                $cnt = 0;
+                $last = 0;
+                $items = $this->docRepository->findAllAssociationsIterator($obj, Query::HYDRATE_OBJECT, $start, $limit);
+                foreach ($items as $key => $item) {
+                    $this->entityManager->detach($item);
+                    ++$cnt;
+                    $last = $item->getId();
+                    if (!$this->canListDocument($item, 'origin') ||
+                        !$this->canListDocument($item, 'destination')) {
+                        // Remove associations to frameworks one can't normally see
+                        // unset($items[$key]);
+                        continue;
+                    }
+                    yield $this->normalizer->normalize($item, 'json', $context);
+                    // unset($items[$key]);
+                }
+                $start = $last;
+                $this->stopwatch->stop('fetchAssociations');
+            }
+        };
+
+        $conceptCallback = function () use ($obj, $context): \Generator {
+            $items = $this->docRepository->findAllUsedConcepts($obj, Query::HYDRATE_OBJECT);
+            foreach ($items as $key => $item) {
+                yield $this->normalizer->normalize($item, 'json', $context);
+                unset($items[$key]);
+            }
+        };
+
+        $subjectCallback = function () use ($obj, $context): \Generator {
+            $items = $obj->getSubjects();
+            foreach ($items as $key => $item) {
+                yield $this->normalizer->normalize($item, 'json', $context);
+                unset($items[$key]);
+            }
+        };
+
+        $licenseCallback = function () use ($obj, $context): \Generator {
+            $items = $this->docRepository->findAllUsedLicences($obj, Query::HYDRATE_OBJECT);
+            foreach ($items as $key => $item) {
+                yield $this->normalizer->normalize($item, 'json', $context);
+                unset($items[$key]);
+            }
+        };
+
+        $itemTypeCallback = function () use ($obj, $context): \Generator {
+            $items = $this->docRepository->findAllUsedItemTypes($obj, Query::HYDRATE_OBJECT);
+            foreach ($items as $key => $item) {
+                yield $this->normalizer->normalize($item, 'json', $context);
+                unset($items[$key]);
+            }
+        };
+
+        $groupCallback = function () use ($obj, $context): \Generator {
+            $items = $this->docRepository->findAllUsedAssociationGroups($obj, Query::HYDRATE_OBJECT);
+            foreach ($items as $key => $item) {
+                yield $this->normalizer->normalize($item, 'json', $context);
+                unset($items[$key]);
+            }
+        };
+
+        $rubricCallback = function () use ($obj, $context): \Generator {
+            $items = $this->docRepository->findAllUsedRubrics($obj, Query::HYDRATE_OBJECT);
+            foreach ($items as $key => $item) {
+                yield $this->normalizer->normalize($item, 'json', $context);
+                unset($items[$key]);
+            }
+        };
+
+        $json = [
+            'CFDocument' => $this->normalizer->normalize($obj, 'json', $context),
+            'CFItems' => $itemCallback(),
+            'CFAssociations' => $associationCallback(),
+            'CFDefinitions' => [
+                'CFConcepts' => $conceptCallback(),
+                'CFSubjects' => $subjectCallback(),
+                'CFLicenses' => $licenseCallback(),
+                'CFItemTypes' => $itemTypeCallback(),
+                'CFAssociationGroupings' => $groupCallback(),
+            ],
+            'CFRubrics' => $rubricCallback(),
+        ];
+
+        $headers = [];
+        foreach ($originalResponse->headers->getIterator() as $key => $value) {
+            /** @psalm-var array<array-key, string>|string $value */
+            $headers[$key] = $value;
+        }
+
+        return new StreamedJsonResponse($json, $originalResponse->getStatusCode(), $headers);
+    }
+
+    protected function canListDocument(LsAssociation $obj, string $which): bool
+    {
+        $target = match ($which) {
+            'origin' => $obj->getOrigin(),
+            'destination' => $obj->getDestination(),
+            default => throw new \InvalidArgumentException('Expected "origin" or "destination"'),
+        };
+
+        if (!is_object($target)) {
+            return true;
+        }
+
+        $targetDoc = match (true) {
+            $target instanceof LsDoc => $target,
+            $target instanceof LsItem => $target->getLsDoc(),
+        };
+
+        if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $targetDoc->getAdoptionStatus()) {
+            return true;
+        }
+
+        if ($obj->getLsDoc()?->getId() === $targetDoc->getId()) {
+            // Even if private draft, we can view if the targetDoc is the same as this one
+            return true;
+        }
+
+        return $this->authorizationChecker->isGranted(Permission::FRAMEWORK_LIST, $targetDoc);
     }
 }
