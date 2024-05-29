@@ -42,7 +42,8 @@ class UriController extends AbstractController
         private readonly LsDocRepository $docRepository,
         private readonly AuthorizationCheckerInterface $authorizationChecker,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Stopwatch $stopwatch, private readonly SerializerInterface $serializer,
+        private readonly Stopwatch $stopwatch,
+        private readonly SerializerInterface $serializer,
     ) {
     }
 
