@@ -15,7 +15,7 @@ class ImportLogsController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    #[Route(path: '/cfdoc/{doc}/import_logs/mark_as_read', name: 'mark_import_logs_as_read', methods: ['POST'])]
+    #[Route(path: '/cfdoc/{id}/import_logs/mark_as_read', name: 'mark_import_logs_as_read', methods: ['POST'])]
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
     public function markAsRead(LsDoc $doc): JsonResponse
     {

@@ -24,6 +24,7 @@ use App\Form\Type\LsItemType;
 use App\Security\Permission;
 use App\Service\BucketService;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -65,8 +66,12 @@ class LsItemController extends AbstractController
     #[Route(path: '/new/{doc}/{parent}', name: 'lsitem_new', methods: ['GET', 'POST'])]
     #[Route(path: '/new/{doc}/{parent}/{assocGroup}', name: 'lsitem_new_ag', methods: ['GET', 'POST'])]
     #[IsGranted(Permission::ITEM_ADD_TO, 'doc')]
-    public function new(Request $request, LsDoc $doc, ?LsItem $parent = null, ?LsDefAssociationGrouping $assocGroup = null): Response
-    {
+    public function new(
+        Request $request,
+        #[MapEntity(id: 'doc')] LsDoc $doc,
+        #[MapEntity(id: 'parent')] ?LsItem $parent = null,
+        #[MapEntity(id: 'assocGroup')] ?LsDefAssociationGrouping $assocGroup = null
+    ): Response {
         $ajax = $request->isXmlHttpRequest();
 
         $lsItem = new LsItem();
@@ -230,8 +235,10 @@ class LsItemController extends AbstractController
      */
     #[Route(path: '/{id}/removeChild/{child}', name: 'lsitem_remove_child', methods: ['POST'])]
     #[IsGranted(Permission::ITEM_EDIT, 'lsItem')]
-    public function removeChild(LsItem $parent, LsItem $child): Response
-    {
+    public function removeChild(
+        #[MapEntity(id: 'id')] LsItem $parent,
+        #[MapEntity(id: 'child')] LsItem $child
+    ): Response {
         $command = new RemoveChildCommand($parent, $child);
         $this->sendCommand($command);
 

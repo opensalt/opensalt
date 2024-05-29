@@ -16,6 +16,7 @@ use App\Form\Type\AddAclUserType;
 use App\Security\Permission;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -141,8 +142,11 @@ class FrameworkAclController extends AbstractController
 
     #[Route(path: '/{id}/acl/{targetUser}', name: 'framework_acl_remove', methods: ['DELETE'])]
     #[IsGranted(Permission::MANAGE_EDITORS, 'lsDoc')]
-    public function removeAcl(Request $request, LsDoc $lsDoc, User $targetUser): RedirectResponse
-    {
+    public function removeAcl(
+        Request $request,
+        LsDoc $lsDoc,
+        #[MapEntity(id: 'targetUser')] User $targetUser
+    ): RedirectResponse {
         $form = $this->createDeleteForm($lsDoc, $targetUser);
         $form->handleRequest($request);
 

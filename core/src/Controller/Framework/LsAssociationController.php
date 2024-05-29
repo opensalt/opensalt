@@ -15,6 +15,7 @@ use App\Entity\Framework\LsItem;
 use App\Form\Type\LsAssociationType;
 use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -56,8 +57,11 @@ class LsAssociationController extends AbstractController
     #[Route(path: '/new/{sourceLsItem}', name: 'lsassociation_new', methods: ['GET', 'POST'])]
     #[Route(path: '/new/{sourceLsItem}/{assocGroup}', name: 'lsassociation_new_ag', methods: ['GET', 'POST'])]
     #[IsGranted(Permission::ASSOCIATION_ADD_TO, 'sourceLsItem')]
-    public function new(Request $request, ?LsItem $sourceLsItem = null, ?LsDefAssociationGrouping $assocGroup = null): Response
-    {
+    public function new(
+        Request $request,
+        #[MapEntity(id: 'sourceLsItem')] ?LsItem $sourceLsItem = null,
+        #[MapEntity(id: 'assocGroup')] ?LsDefAssociationGrouping $assocGroup = null
+    ): Response {
         // @TODO: Add LsDoc of the new association for when adding via AJAX
         $ajax = $request->isXmlHttpRequest();
 
