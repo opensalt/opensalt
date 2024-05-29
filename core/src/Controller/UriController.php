@@ -586,9 +586,7 @@ xENDx;
 
         $json = [];
         if (null !== $addContext) {
-            $json['@context'] = (null !== $addContext)
-                ? 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld'
-                : null;
+            $json['@context'] = 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld';
             $json['uri'] = (null !== $jsonLd)
                 ? $this->api1Uris->getUri($obj, 'api_v1p0_cfpackage')
                 : null;
@@ -596,10 +594,10 @@ xENDx;
                 ? 'CFPackage'
                 : null;
         }
-        $json = array_filter($json, static function ($field) { return $field !== null;});
+        $json = array_filter($json, static function ($field) { return null !== $field; });
 
         if ('ndjson' === $request->getRequestFormat()) {
-            $response = new StreamedResponse(function () use ($json, $obj, $itemCallback, $associationCallback, $conceptCallback, $subjectCallback, $licenseCallback, $itemTypeCallback, $groupCallback, $rubricCallback, $context) {
+            $response = new StreamedResponse(function () use ($obj, $itemCallback, $associationCallback, $conceptCallback, $subjectCallback, $licenseCallback, $itemTypeCallback, $groupCallback, $context) {
                 echo json_encode($this->normalizer->normalize($obj, 'json', $context))."\n";
                 foreach ($itemCallback() as $item) {
                     echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
