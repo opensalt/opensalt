@@ -39,13 +39,14 @@ final class LsItemNormalizer implements NormalizerInterface
 
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
+        $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
         $conceptKeywords = $object->getConceptKeywordsArray();
         $conceptKeywordsUri = $object->getConcepts();
         $data = [
             '@context' => (null !== $addContext)
                 ? 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld'
                 : null,
-            'type' => (null !== $addContext)
+            'type' => (null !== $addType)
                 ? 'CFItem'
                 : null,
             'identifier' => $object->getIdentifier(),

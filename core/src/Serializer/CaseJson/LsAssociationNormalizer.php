@@ -35,11 +35,13 @@ final class LsAssociationNormalizer implements NormalizerInterface
 
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
+        $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
+        $addLinkUriType = (($context['no-case-link-uri-type'] ?? null) !== null) ? null : $addContext;
         $data = [
             '@context' => (null !== $addContext)
                 ? 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld'
                 : null,
-            'type' => (null !== $addContext)
+            'type' => (null !== $addType)
                 ? 'CFAssociation'
                 : null,
             'identifier' => $object->getIdentifier(),
@@ -48,9 +50,9 @@ final class LsAssociationNormalizer implements NormalizerInterface
             'lastChangeDateTime' => $this->getLastChangeDateTime($object),
             'sequenceNumber' => $object->getSequenceNumber(),
             'CFAssociationGroupingURI' => $this->createLinkUri($object->getGroup(), $context),
-            'originNodeURI' => $this->createOutLink($object, 'origin', $context),
+            'originNodeURI' => $this->createOutLink($object, 'origin', $context, null !== $addLinkUriType),
             'associationType' => $object->getNormalizedType(),
-            'destinationNodeURI' => $this->createOutLink($object, 'destination', $context),
+            'destinationNodeURI' => $this->createOutLink($object, 'destination', $context, null !== $addLinkUriType),
         ];
 
         if (in_array('opensalt', $context['groups'] ?? [], true)) {
@@ -62,7 +64,7 @@ final class LsAssociationNormalizer implements NormalizerInterface
         return Collection::removeEmptyElements($data);
     }
 
-    protected function createOutLink(LsAssociation $association, string $which, array $context): ?array
+    protected function createOutLink(LsAssociation $association, string $which, array $context, bool $addType = true): ?array
     {
         if (!in_array($which, ['origin', 'destination'])) {
             throw new \InvalidArgumentException('Expecting "origin" or "destination" for which part of the association is wanted');
@@ -79,11 +81,10 @@ final class LsAssociationNormalizer implements NormalizerInterface
         }
 
         return [
-            'type' => 'LinkURI',
+            'type' => $addType ? 'LinkURI' : null,
             'title' => $targetLink['title'],
             'identifier' => $targetLink['identifier'],
             'uri' => $targetLink['uri'],
-            'targetId' => $targetLink['uri'],
         ];
     }
 }

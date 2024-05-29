@@ -9,6 +9,7 @@ use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
 use App\Security\Permission;
+use App\Service\Api1Uris;
 use App\Service\IdentifiableObjectHelper;
 use App\Service\UriGenerator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedJsonResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -34,6 +36,7 @@ class UriController extends AbstractController
         private readonly SerializerInterface $symfonySerializer,
         private readonly NormalizerInterface $normalizer,
         private readonly UriGenerator $uriGenerator,
+        private readonly Api1Uris $api1Uris,
         private readonly LsAssociationRepository $associationRepository,
         private readonly LsItemRepository $itemRepository,
         private readonly LsDocRepository $docRepository,
@@ -141,7 +144,11 @@ class UriController extends AbstractController
             return $this->generatePackageResponse($request, $response, $obj, $context);
         }
 
-        $serialized = $this->symfonySerializer->serialize($obj, 'json', $context);
+        $serializationFormat = match ($request->getRequestFormat()) {
+            'json', 'jsonld', 'opensalt', 'ndjson', 'html' => 'json',
+            default => $request->getRequestFormat(),
+        };
+        $serialized = $this->symfonySerializer->serialize($obj, $serializationFormat, $context);
 
         // Found -- Display
         if ('html' === $request->getRequestFormat()) {
@@ -177,6 +184,8 @@ class UriController extends AbstractController
             'application/json' => 'json',
             'application/ld+json' => 'jsonld',
             'text/html' => 'html',
+            'text/csv' => 'csv',
+            'application/x-ndjson' => 'ndjson',
         ];
 
         if (in_array($_format, $allowedFormats, true)) {
@@ -460,7 +469,24 @@ xENDx;
     {
         set_time_limit(60);
 
-        unset($context['generate-package']);
+        $jsonLd = $context['case-json-ld'] ?? null;
+        $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
+        unset($context['add-case-context'], $context['generate-package']);
+        $context['no-association-links'] = true;
+        if ('ndjson' === $request->getRequestFormat()) {
+            $context['add-case-type'] = true;
+            $context['no-case-link-uri-type'] = true;
+            $context['case-json-ld'] = true;
+            $jsonLd = true;
+            $addContext = null;
+            $context['groups'][] = 'opensalt';
+        }
+
+        $headers = [];
+        foreach ($originalResponse->headers->getIterator() as $key => $value) {
+            /** @psalm-var array<array-key, string>|string $value */
+            $headers[$key] = $value;
+        }
 
         $itemCallback = function () use ($obj, $context): \Generator {
             $cnt = -1;
@@ -558,7 +584,61 @@ xENDx;
             }
         };
 
-        $json = [
+        $json = [];
+        if (null !== $addContext) {
+            $json['@context'] = (null !== $addContext)
+                ? 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld'
+                : null;
+            $json['uri'] = (null !== $jsonLd)
+                ? $this->api1Uris->getUri($obj, 'api_v1p0_cfpackage')
+                : null;
+            $json['type'] = (null !== $jsonLd)
+                ? 'CFPackage'
+                : null;
+        }
+        $json = array_filter($json, static function ($field) { return $field !== null;});
+
+        if ('ndjson' === $request->getRequestFormat()) {
+            $response = new StreamedResponse(function () use ($json, $obj, $itemCallback, $associationCallback, $conceptCallback, $subjectCallback, $licenseCallback, $itemTypeCallback, $groupCallback, $rubricCallback, $context) {
+                echo json_encode($this->normalizer->normalize($obj, 'json', $context))."\n";
+                foreach ($itemCallback() as $item) {
+                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
+                }
+                foreach ($associationCallback() as $item) {
+                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
+                }
+                foreach ($conceptCallback() as $item) {
+                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
+                }
+                foreach ($subjectCallback() as $item) {
+                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
+                }
+                foreach ($licenseCallback() as $item) {
+                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
+                }
+                foreach ($itemTypeCallback() as $item) {
+                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
+                }
+                foreach ($groupCallback() as $item) {
+                    echo json_encode($item, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES)."\n";
+                }
+
+                $items = $this->docRepository->findAllUsedRubrics($obj, Query::HYDRATE_OBJECT);
+                foreach ($items as $key => $item) {
+                    echo json_encode($this->normalizer->normalize($item, 'json', $context), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+                    foreach ($item->getCriteria() as $criteria) {
+                        echo json_encode($this->normalizer->normalize($criteria, 'json', $context), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+                        foreach ($criteria->getLevels() as $level) {
+                            echo json_encode($this->normalizer->normalize($level, 'json', $context), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+                        }
+                    }
+                }
+            }, $originalResponse->getStatusCode(), $headers);
+
+            return $response;
+        }
+
+        $json += [
             'CFDocument' => $this->normalizer->normalize($obj, 'json', $context),
             'CFItems' => $itemCallback(),
             'CFAssociations' => $associationCallback(),
@@ -571,12 +651,6 @@ xENDx;
             ],
             'CFRubrics' => $rubricCallback(),
         ];
-
-        $headers = [];
-        foreach ($originalResponse->headers->getIterator() as $key => $value) {
-            /** @psalm-var array<array-key, string>|string $value */
-            $headers[$key] = $value;
-        }
 
         return new StreamedJsonResponse($json, $originalResponse->getStatusCode(), $headers);
     }

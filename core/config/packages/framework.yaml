@@ -49,6 +49,7 @@ framework:
         opensalt: 'application/vnd.opensalt+json'
         jsonapi: 'application/vnd.api+json'
         csv: ['text/csv', 'text/plain']
+        ndjson: 'application/x-ndjson'
 
     assets:
         version: '%assets_version%'

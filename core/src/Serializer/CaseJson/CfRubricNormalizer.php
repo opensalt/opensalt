@@ -37,6 +37,8 @@ final class CfRubricNormalizer implements NormalizerAwareInterface, NormalizerIn
 
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
+        $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
+        $addCriteria = !($context['no-sub-items'] ?? false);
         if (null !== ($context['add-case-context'] ?? null)) {
             unset($context['add-case-context']);
         }
@@ -44,7 +46,7 @@ final class CfRubricNormalizer implements NormalizerAwareInterface, NormalizerIn
             '@context' => (null !== $addContext)
                 ? 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld'
                 : null,
-            'type' => (null !== $addContext)
+            'type' => (null !== $addType)
                 ? 'CFRubric'
                 : null,
             'identifier' => $object->getIdentifier(),
@@ -54,8 +56,10 @@ final class CfRubricNormalizer implements NormalizerAwareInterface, NormalizerIn
             'description' => $object->getDescription(),
         ];
 
-        foreach ($object->getCriteria() as $criterion) {
-            $data['CFRubricCriteria'][] = $this->normalizer->normalize($criterion, $format, $context);
+        if ($addCriteria) {
+            foreach ($object->getCriteria() as $criterion) {
+                $data['CFRubricCriteria'][] = $this->normalizer->normalize($criterion, $format, $context);
+            }
         }
 
         if (in_array('opensalt', $context['groups'] ?? [], true)) {
