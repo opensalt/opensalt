@@ -8,7 +8,7 @@ class Version20160921225507 extends AbstractMigration
 {
     public function up(Schema $schema): void
     {
-        $filename = __DIR__.'/../src/DataFixtures/Data/USGrades.csv';
+        $filename = __DIR__.'/../../src/DataFixtures/Data/USGrades.csv';
 
         $fd = fopen($filename, 'rb');
 
