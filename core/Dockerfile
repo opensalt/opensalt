@@ -52,7 +52,7 @@ ARG DOCKERIZE_VERSION=v0.6.1
 RUN curl -LsS https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
 	  | tar -C /usr/local/bin -xzvf -
 
-ARG APCU_VERSION=5.1.22
+ARG APCU_VERSION=5.1.23
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
@@ -216,7 +216,7 @@ USER www-data
 #=======================================================================
 FROM salt_core_app as salt_core_dev
 
-ARG XDEBUG_VERSION=3.3.1
+ARG XDEBUG_VERSION=3.3.2
 
 USER root
 RUN set -eux; \
@@ -228,8 +228,7 @@ RUN set -eux; \
 USER www-data
 
 #=======================================================================
-# Added 2.7 as temporary fix for https://github.com/dunglas/mercure/issues/770
-FROM caddy:2.7-builder-alpine AS salt_core_caddy_builder
+FROM caddy:2-builder-alpine AS salt_core_caddy_builder
 
 # install Mercure and Vulcain modules
 ARG XCADDY_SKIP_CLEANUP=0
