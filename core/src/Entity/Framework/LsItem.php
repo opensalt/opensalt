@@ -150,7 +150,31 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      */
     public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, bool $exactMatchAssocs = true): static
     {
+        // Clear out values so the clone will work without an out of memory error
+        $associations = $this->associations;
+        $this->associations = new ArrayCollection();
+        $inverseAssociations = $this->inverseAssociations;
+        $this->inverseAssociations = new ArrayCollection();
+        $concepts = $this->concepts;
+        $this->concepts = new ArrayCollection();
+        $criteria = $this->criteria;
+        $this->criteria = new ArrayCollection();
+
         $newItem = clone $this;
+
+        // Add the values back to the original
+        $this->associations = $associations;
+        $this->inverseAssociations = $inverseAssociations;
+        $this->concepts = $concepts;
+        $this->criteria = $criteria;
+
+        // Add values to the new item
+        foreach ($this->concepts as $concept) {
+            $newItem->addConcept($concept);
+        }
+        foreach ($this->criteria as $criteria) {
+            $newItem->addCriterion($criteria);
+        }
 
         $newItem->setLsDoc($newLsDoc);
 
@@ -526,14 +550,16 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      */
     public function getChildren(): Collection
     {
+        /** @var Collection<array-key, LsItem> $children */
         $children = new ArrayCollection();
 
         $associations = $this->getInverseAssociations();
         foreach ($associations as $association) {
-            /** @var LsAssociation $association */
             if (LsAssociation::CHILD_OF === $association->getType()) {
-                /** @psalm-suppress InvalidArgument */
-                $children->add($association->getOriginLsItem());
+                $child = $association->getOriginLsItem();
+                if (null !== $child) {
+                    $children->add($child);
+                }
             }
         }
 

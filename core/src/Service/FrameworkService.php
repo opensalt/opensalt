@@ -345,7 +345,6 @@ class FrameworkService
             return null;
         }
 
-        /** @var LsItem $lsItem */
         $lsItem = $originalItem->copyToLsDoc($lsDoc, $assocGroup);
 
         // if addCopyToTitle is set, add "Copy of " to fullStatement and abbreviatedStatement
