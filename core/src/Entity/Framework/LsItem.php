@@ -210,7 +210,32 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      */
     public function duplicateToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null): static
     {
+        // Clear out values so the clone will work without an out of memory error
+        $associations = $this->associations;
+        $this->associations = new ArrayCollection();
+        $inverseAssociations = $this->inverseAssociations;
+        $this->inverseAssociations = new ArrayCollection();
+        $concepts = $this->concepts;
+        $this->concepts = new ArrayCollection();
+        $criteria = $this->criteria;
+        $this->criteria = new ArrayCollection();
+
         $newItem = clone $this;
+
+        // Add the values back to the original
+        $this->associations = $associations;
+        $this->inverseAssociations = $inverseAssociations;
+        $this->concepts = $concepts;
+        $this->criteria = $criteria;
+
+        // Add values to the new item
+        foreach ($this->concepts as $concept) {
+            $newItem->addConcept($concept);
+        }
+        foreach ($this->criteria as $criteria) {
+            $newItem->addCriterion($criteria);
+        }
+
         $newItem->setLsDoc($newLsDoc);
 
         foreach ($this->getAssociations() as $association) {
