@@ -1,15 +1,27 @@
 {% set criteria = [] %}
+{% set isCredential = false %}
+{% set isAssessment = false %}
 {% if criterion.itemType.title|default(null) starts with 'Credential - ' %}
+    {% set isCredential = true %}
     {% set associations = associationRepo.findAllAssociationsForAsSplitArray(criterion.identifier).inverseAssociations %}
     {% for association in associations %}
         {% if association.type == 'Precedes' %}
             {% set criteria = criteria|merge([itemRepo.findOneByIdentifier(association.originNodeIdentifier)])%}
         {% endif %}
     {% endfor %}
+{% elseif criterion.itemType.title|default(null) starts with 'Assessment - ' %}
+    {% set isAssessment = true %}
 {% endif %}
 <li>
         <details>
             <summary class="children-{{ criteria|length }}">
+                {% if isCredential %}
+                    <i class="fa fa-id-card-o"></i>
+                {% elseif isAssessment %}
+                    <i class="fa fa-pencil-square-o"></i>
+                {% else %}
+                    <i class="fa fa-bullseye"></i>
+                {% endif %}
                 <span class="title">
                 {%  if criterion.humanCodingScheme is not empty %}<strong class="cred-hcs">{{ criterion.humanCodingScheme }}</strong> {% endif %}
                 {{ criterion.abbreviatedStatment|default(criterion.fullStatement) }}
@@ -18,10 +30,26 @@
                 </a>
                 </span>
             </summary>
-            <ul>
-                {% for c in criteria %}
-                    {{ include('uri/_criterion.html.twig', {criterion: c}) }}
-                {% endfor %}
-            </ul>
+            {% if criteria is not empty %}
+                {% set conditions = criterion.notes|default('')|u.replaceMatches('/.*__START_CRITERIA_RULES__(.*)__END_CRITERIA_RULES__.*/s', '$1')|json_decode %}
+                {% if conditions.requires is not defined or conditions.requires is not numeric or conditions.of is not iterable or conditions.requires == conditions.of|length %}{% set conditions = null %}{% endif %}
+                {% if conditions.requires is defined %}
+                    <ul>
+                        <li><strong>Requires {{ conditions.requires }} of:</strong>
+                            <ul>
+                                {% for c in criteria %}
+                                    {{ include('uri/_criterion.html.twig', {criterion: c}) }}
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                {% else %}
+                    <ul>
+                        {% for c in criteria %}
+                            {{ include('uri/_criterion.html.twig', {criterion: c}) }}
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endif %}
         </details>
 </li>

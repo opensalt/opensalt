@@ -49,7 +49,7 @@ class CredentialController extends AbstractController
         */
         return $this->render('credential/pathway_view.html.twig', [
             'id' => $id,
-            'criteria' => [$credential],
+            'credential' => $credential,
             'checked' => $checked,
             'associationRepo' => $this->associationRepository,
             'itemRepo' => $this->itemRepository,
