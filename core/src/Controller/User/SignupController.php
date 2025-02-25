@@ -10,7 +10,7 @@ use App\Command\User\AddUserCommand;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
 use App\Form\Type\SignupType;
-use Novaway\Bundle\FeatureFlagBundle\Attribute\IsFeatureEnabled;
+use Novaway\Bundle\FeatureFlagBundle\Attribute\FeatureEnabled;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +19,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(path: '/public/user')]
-#[IsFeatureEnabled(name: 'create_account')]
+#[FeatureEnabled(name: 'create_account')]
 class SignupController extends AbstractController
 {
     use CommandDispatcherTrait;

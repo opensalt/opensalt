@@ -16,7 +16,7 @@ use App\Security\Permission;
 use App\Service\BucketService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
-use Novaway\Bundle\FeatureFlagBundle\Attribute\IsFeatureEnabled;
+use Novaway\Bundle\FeatureFlagBundle\Attribute\FeatureEnabled;
 use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,7 +30,7 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[IsFeatureEnabled(name: 'comments')]
+#[FeatureEnabled(name: 'comments')]
 class CommentsController extends AbstractController
 {
     use CommandDispatcherTrait;
