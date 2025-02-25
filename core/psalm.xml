@@ -78,5 +78,7 @@
         <RawObjectIteration errorLevel="info"/>
 
         <InvalidStringClass errorLevel="info"/>
+
+        <MissingOverrideAttribute errorLevel="info"/>
     </issueHandlers>
 </psalm>

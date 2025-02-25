@@ -2,5 +2,11 @@
     "require": {
         "symplify/easy-coding-standard": "^12.2",
         "escapestudios/symfony2-coding-standard": "^3.13"
+    },
+    "config": {
+        "preferred-install": {
+            "symplify/easy-coding-standard": "source",
+            "*": "source"
+        }
     }
 }
