@@ -31,8 +31,10 @@ abstract class BaseValidatedHandler implements EventSubscriberInterface
         }
     }
 
+    // @phpstan-ignore symfony.noStringInGetSubscribedEvents
     public static function getSubscribedEvents(): array
     {
+        // Creates event name based on class name, so ignoring phpstan's issue for now
         $event = str_replace('Handler', 'Command', static::class);
 
         return [$event => 'handle'];

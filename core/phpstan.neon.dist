@@ -5,6 +5,19 @@ includes:
 	- './tools/phpstan/vendor/phpstan/phpstan-doctrine/rules.neon'
 	- phpstan-baseline.neon
 
+rules:
+	# https://tomasvotruba.com/blog/custom-phpstan-rules-to-improve-every-symfony-project
+	# - Symplify\PHPStanRules\Rules\Symfony\NoRequiredOutsideClassRule
+	- Symplify\PHPStanRules\Rules\Symfony\NoAbstractControllerConstructorRule
+	- Symplify\PHPStanRules\Rules\Symfony\NoConstructorAndRequiredTogetherRule
+	- Symplify\PHPStanRules\Rules\Symfony\NoFindTaggedServiceIdsCallRule
+	- Symplify\PHPStanRules\Rules\Symfony\NoGetInControllerRule
+	- Symplify\PHPStanRules\Rules\Symfony\NoGetInCommandRule
+	- Symplify\PHPStanRules\Rules\Symfony\NoRoutingPrefixRule
+	# - Symplify\PHPStanRules\Rules\Symfony\NoClassLevelRouteRule
+	- Symplify\PHPStanRules\Rules\Symfony\NoListenerWithoutContractRule
+	- Symplify\PHPStanRules\Rules\Symfony\NoStringInGetSubscribedEventsRule
+
 parameters:
 	#customRulesetUsed: true
 	bootstrapFiles:

@@ -277,7 +277,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function removeRole(string $role): void
     {
         if (($key = array_search($role, $this->roles ?? [], true)) !== false) {
-            unset($this->roles[$key]);
+            unset($this->roles[$key]); // @phpstan-ignore unset.possiblyHookedProperty
         }
     }
 

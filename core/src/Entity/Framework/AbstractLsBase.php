@@ -162,7 +162,7 @@ class AbstractLsBase implements IdentifiableInterface
         }
 
         if (null === $value) {
-            unset($this->extra[$property]);
+            unset($this->extra[$property]); // @phpstan-ignore unset.possiblyHookedProperty
         } else {
             $this->extra[$property] = $value;
         }
