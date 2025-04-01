@@ -107,9 +107,8 @@ class CredentialController extends AbstractController
     #[Route('/credential/{id}/{versionId}/edit', name: 'credential_edit', methods: ['GET', 'POST'])]
     public function editAction(Request $request, string $id, string $versionId, #[CurrentUser] User $user): Response
     {
-        $uuid = Uuid::fromBase58($id);
-
         try {
+            $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
         } catch (\Throwable $e) {
             throw $this->createNotFoundException('No credential found');
@@ -184,9 +183,8 @@ class CredentialController extends AbstractController
     #[Route('/credential/{id}/{versionId}/publish', name: 'credential_publish', methods: ['POST'])]
     public function publishAction(Request $request, string $id, string $versionId, #[CurrentUser] User $user): Response
     {
-        $uuid = Uuid::fromBase58($id);
-
         try {
+            $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
         } catch (\Throwable $e) {
             throw $this->createNotFoundException('No credential found');
@@ -204,9 +202,8 @@ class CredentialController extends AbstractController
     #[Route('/credential/{id}/{versionId}/deprecate', name: 'credential_deprecate', methods: ['POST'])]
     public function deprecateAction(Request $request, string $id, string $versionId, #[CurrentUser] User $user): Response
     {
-        $uuid = Uuid::fromBase58($id);
-
         try {
+            $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
         } catch (\Throwable $e) {
             throw $this->createNotFoundException('No credential found');
@@ -224,9 +221,8 @@ class CredentialController extends AbstractController
     #[Route('/credential/{id}/hierarchy', name: 'credential_hierarchy', methods: ['GET', 'POST'])]
     public function hierarchyAction(Request $request, string $id, #[CurrentUser] User $user): Response
     {
-        $uuid = Uuid::fromBase58($id);
-
         try {
+            $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
         } catch (\Throwable $e) {
             throw $this->createNotFoundException('No credential found');
@@ -268,9 +264,8 @@ class CredentialController extends AbstractController
     #[Route('/credential/{id}/organization', name: 'credential_organization', methods: ['GET', 'POST'])]
     public function organizationAction(Request $request, string $id, #[CurrentUser] User $user): Response
     {
-        $uuid = Uuid::fromBase58($id);
-
         try {
+            $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
         } catch (\Throwable $e) {
             throw $this->createNotFoundException('No credential found');
@@ -313,9 +308,8 @@ class CredentialController extends AbstractController
     #[Route('/credential/{id}', name: 'credential_show_redirect', methods: ['GET'])]
     public function showCurrent(string $id): Response
     {
-        $uuid = Uuid::fromBase58($id);
-
         try {
+            $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
         } catch (\Throwable $e) {
             throw $this->createNotFoundException('No credential found');
