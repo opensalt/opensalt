@@ -23,6 +23,10 @@
 		-Server
 	}
 
+	header /static/* {
+        X-Content-Type-Options  nosniff
+	}
+
 	log {
 		# Redact the authorization query parameter that can be set by Mercure
 		format filter {
