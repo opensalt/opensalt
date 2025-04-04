@@ -23,9 +23,7 @@
 		-Server
 	}
 
-	header /static/* {
-        X-Content-Type-Options  nosniff
-	}
+	header ?X-Content-Type-Options nosniff
 
 	log {
 		# Redact the authorization query parameter that can be set by Mercure
