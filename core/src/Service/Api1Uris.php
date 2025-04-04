@@ -108,6 +108,7 @@ readonly class Api1Uris
 
         $title = null;
         foreach ($descriptors as $descriptor) {
+            // @phpstan-ignore method.notFound, method.notFound, method.notFound, method.notFound (needs 4 as there are 4 methods tried)
             if (method_exists($obj, $descriptor) && !empty($title = $obj->{$descriptor}())) {
                 break;
             }
