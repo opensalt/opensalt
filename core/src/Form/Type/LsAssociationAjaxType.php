@@ -16,8 +16,8 @@ class LsAssociationAjaxType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $choiceList = [];
-        foreach (LsAssociation::typeChoiceList() as $choice) {
-            $choiceList[$choice] = $choice;
+        foreach (LsAssociation::typeChoiceList() as $key => $choice) {
+            $choiceList[$key] = $choice;
         }
 
         if (!$options['ajax']) {

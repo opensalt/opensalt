@@ -8,36 +8,38 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'ls_association')]
-#[ORM\Index(columns: ['destination_node_identifier'], name: 'dest_id_idx')]
-#[ORM\Index(columns: ['origin_node_identifier'], name: 'orig_id_idx')]
+#[ORM\Index(name: 'dest_id_idx', columns: ['destination_node_identifier'])]
+#[ORM\Index(name: 'orig_id_idx', columns: ['origin_node_identifier'])]
 #[ORM\Entity(repositoryClass: LsAssociationRepository::class)]
 class LsAssociation extends AbstractLsBase implements CaseApiInterface
 {
     use AccessAdditionalFieldTrait;
 
-    final public const CHILD_OF = 'Is Child Of';
+    final public const string CHILD_OF = 'Is Child Of';
 
-    final public const EXACT_MATCH_OF = 'Exact Match Of';
-    final public const RELATED_TO = 'Is Related To';
-    final public const PART_OF = 'Is Part Of';
-    final public const REPLACED_BY = 'Replaced By';
-    final public const PRECEDES = 'Precedes';
-    final public const SKILL_LEVEL = 'Has Skill Level';
-    final public const IS_PEER_OF = 'Is Peer Of';
+    final public const string EXACT_MATCH_OF = 'Exact Match Of';
+    final public const string RELATED_TO = 'Is Related To';
+    final public const string PART_OF = 'Is Part Of';
+    final public const string REPLACED_BY = 'Replaced By';
+    final public const string PRECEDES = 'Precedes';
+    final public const string SKILL_LEVEL = 'Has Skill Level';
+    final public const string IS_PEER_OF = 'Is Peer Of';
+    final public const string IS_TRANSLATION_OF = 'Is Translation Of';
 
-    final public const EXEMPLAR = 'Exemplar';
+    final public const string EXEMPLAR = 'Exemplar';
 
-    final public const INVERSE_CHILD_OF = 'Is Parent Of';
+    final public const string INVERSE_CHILD_OF = 'Is Parent Of';
 
-    final public const INVERSE_EXACT_MATCH_OF = 'Matched From';
-    final public const INVERSE_RELATED_TO = 'Related From';
-    final public const INVERSE_PART_OF = 'Has Part';
-    final public const INVERSE_REPLACED_BY = 'Replaces';
-    final public const INVERSE_PRECEDES = 'Has Predecessor';
-    final public const INVERSE_SKILL_LEVEL = 'Skill Level For';
-    final public const INVERSE_IS_PEER_OF = 'Peer Of';
+    final public const string INVERSE_EXACT_MATCH_OF = 'Matched From';
+    final public const string INVERSE_RELATED_TO = 'Related From';
+    final public const string INVERSE_PART_OF = 'Has Part';
+    final public const string INVERSE_REPLACED_BY = 'Replaces';
+    final public const string INVERSE_PRECEDES = 'Has Predecessor';
+    final public const string INVERSE_SKILL_LEVEL = 'Skill Level For';
+    final public const string INVERSE_IS_PEER_OF = 'Peer Of';
+    final public const string INVERSE_IS_TRANSLATION_OF = 'Translation Of';
 
-    final public const INVERSE_EXEMPLAR = 'Exemplar For';
+    final public const string INVERSE_EXEMPLAR = 'Exemplar For';
 
     #[ORM\Column(name: 'ls_doc_identifier', type: 'string', length: 300, nullable: false)]
     #[Assert\Length(max: 300)]
@@ -121,6 +123,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
             'isRelatedTo' => static::RELATED_TO,
             'replacedBy' => static::REPLACED_BY,
             'hasSkillLevel' => static::SKILL_LEVEL,
+            'isTranslationOf' => static::IS_TRANSLATION_OF,
         ];
     }
 
@@ -138,6 +141,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
             static::SKILL_LEVEL,
             static::IS_PEER_OF,
             static::EXEMPLAR,
+            // static::IS_TRANSLATION_OF, // CASE 1.1
 
             static::CHILD_OF,
         ];
@@ -149,13 +153,14 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     public static function typeChoiceList(): array
     {
         return [
-            static::RELATED_TO,
-            static::EXACT_MATCH_OF,
-            static::PART_OF,
-            static::REPLACED_BY,
-            static::PRECEDES,
-            static::SKILL_LEVEL,
-            static::IS_PEER_OF,
+            static::RELATED_TO => 'Is Related To',
+            static::EXACT_MATCH_OF => 'Exact Match Of',
+            static::PART_OF => 'Is Part Of',
+            static::REPLACED_BY => 'Replaced By',
+            static::PRECEDES => 'Precedes',
+            static::SKILL_LEVEL => 'Has Skill Level',
+            static::IS_PEER_OF => 'Is Peer Of',
+            // static::IS_TRANSLATION_OF => 'Is Translation Of', // CASE 1.1
         ];
     }
 
@@ -173,6 +178,8 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
                 static::IS_PEER_OF => static::INVERSE_IS_PEER_OF,
                 static::SKILL_LEVEL => static::INVERSE_SKILL_LEVEL,
                 static::EXEMPLAR => static::INVERSE_EXEMPLAR,
+                static::IS_TRANSLATION_OF => static::INVERSE_IS_TRANSLATION_OF,
+
                 static::INVERSE_CHILD_OF => static::CHILD_OF,
                 static::INVERSE_EXACT_MATCH_OF => static::EXACT_MATCH_OF,
                 static::INVERSE_RELATED_TO => static::RELATED_TO,
@@ -182,6 +189,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
                 static::INVERSE_IS_PEER_OF => static::IS_PEER_OF,
                 static::INVERSE_SKILL_LEVEL => static::SKILL_LEVEL,
                 static::INVERSE_EXEMPLAR => static::EXEMPLAR,
+                static::INVERSE_IS_TRANSLATION_OF => static::IS_TRANSLATION_OF,
             ];
         }
 
@@ -346,8 +354,13 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $metadata;
     }
 
-    public function setType(?string $type): static
+    public function setType(string $type): static
     {
+        if (str_starts_with($type, 'ext:') && (1 === preg_match('/^ext:[a-zA-Z0-9.\-_]+$/', $type))) {
+            // Allow extension types for CASE 1.1
+            $this->type = $type;
+        }
+
         if (in_array($type, self::allTypes(), true)) {
             $this->type = $type;
 
@@ -372,9 +385,19 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     /**
      * Return the normalized type (like "isChildOf" instead of "Is Child Of").
      */
-    public function getNormalizedType(?string $type = null): string
+    public function getNormalizedType(?string $type = null, ?string $caseVersion = null): string
     {
-        return lcfirst(str_replace(' ', '', $type ?? $this->type ?? ''));
+        $returnType = $type ?? $this->type ?? '';
+
+        if (('1.1' !== $caseVersion) && str_starts_with($returnType, 'ext:')) {
+            return self::RELATED_TO;
+        }
+
+        if (('1.1' !== $caseVersion) && self::IS_TRANSLATION_OF === $returnType) {
+            return self::RELATED_TO;
+        }
+
+        return lcfirst(str_replace(' ', '', $returnType));
     }
 
     /**
