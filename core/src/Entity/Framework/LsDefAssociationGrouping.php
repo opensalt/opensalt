@@ -8,11 +8,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'ls_def_association_grouping')]
 #[ORM\Entity(repositoryClass: LsDefAssociationGroupingRepository::class)]
-class LsDefAssociationGrouping extends AbstractLsDefinition implements CaseApiInterface
+class LsDefAssociationGrouping extends AbstractLsBase implements CaseApiInterface
 {
     #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'associationGroupings')]
     #[Assert\NotNull]
     private ?LsDoc $lsDoc = null;
+
+    #[ORM\Column(name: 'title', type: 'string', length: 1024, nullable: true)]
+    protected ?string $title = null;
+
+    #[ORM\Column(name: 'description', type: 'text', nullable: true)]
+    protected ?string $description = null;
 
     public function getLsDoc(): ?LsDoc
     {
@@ -33,5 +39,29 @@ class LsDefAssociationGrouping extends AbstractLsDefinition implements CaseApiIn
         $newAssociationGrouping->setLsDoc($newLsDoc);
 
         return $newAssociationGrouping;
+    }
+
+    public function setTitle(?string $title): static
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description ?? $this->title;
     }
 }
