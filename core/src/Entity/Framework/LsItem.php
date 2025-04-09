@@ -283,18 +283,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
 
     public function getGroupedAssociations(): array
     {
-        $groups = [
-//            'Children' => $this->getChildren(),
-//            'Parent' => $this->getLsItemParent(),
-        ];
-
-//        $topItems = $this->getTopItemOf();
-//        foreach ($topItems as $item) {
-//            $groups['Parent']->add($item);
-//        }
-//        if ($groups['Parent']->isEmpty()) {
-//            $groups['Parent']->add($this->getLsDoc());
-//        }
+        $groups = [];
 
         $typeList = LsAssociation::allTypes();
         foreach ($typeList as $type) {
@@ -651,14 +640,13 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      */
     public function getLsItemParent(): Collection
     {
+        /** @var ArrayCollection<array-key, LsItem> $parents */
         $parents = new ArrayCollection();
         $associations = $this->getAssociations();
         foreach ($associations as $association) {
-            /** @var LsAssociation $association */
             if (LsAssociation::CHILD_OF === $association->getType()
                 && null !== $association->getDestinationLsItem()
             ) {
-                /** @psalm-suppress InvalidArgument */
                 $parents->add($association->getDestinationLsItem());
             }
         }

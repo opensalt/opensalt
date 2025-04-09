@@ -2,7 +2,7 @@
 
 namespace App\Event;
 
-use App\Entity\Framework\AbstractLsBase;
+use App\Entity\Framework\IdentifiableInterface;
 use App\Entity\Framework\LsDoc;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -98,7 +98,7 @@ class NotificationEvent extends Event
         foreach ($orig as $type => $set) {
             /**
              * @var string|int                 $key
-             * @var string|AbstractLsBase|null $value
+             * @var string|IdentifiableInterface|null $value
              */
             foreach ($set as $key => $value) {
                 if (null === $value) {

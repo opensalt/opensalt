@@ -2,19 +2,19 @@
 
 namespace App\Service;
 
-use App\Entity\Framework\AbstractLsBase;
+use App\Entity\Framework\IdentifiableInterface;
 use App\Entity\Framework\Package;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\Uuid;
 
-class IdentifiableObjectHelper
+readonly class IdentifiableObjectHelper
 {
     public function __construct(private ManagerRegistry $registry)
     {
     }
 
-    public function findObjectByIdentifier(string $identifier): ?AbstractLsBase
+    public function findObjectByIdentifier(string $identifier): ?IdentifiableInterface
     {
         try {
             $uuid = Uuid::fromString($identifier);
@@ -29,7 +29,7 @@ class IdentifiableObjectHelper
                 continue;
             }
 
-            /** @var ?AbstractLsBase $obj */
+            /** @var ?IdentifiableInterface $obj */
             $obj = $this->registry->getRepository($objectType)->findOneBy(['identifier' => $uuid]);
             if (null !== $obj) {
                 return $obj;
@@ -39,7 +39,7 @@ class IdentifiableObjectHelper
         return null;
     }
 
-    public function findObjectByUri(string $uri): ?AbstractLsBase
+    public function findObjectByUri(string $uri): ?IdentifiableInterface
     {
         $objectTypes = array_keys(Api1RouteMap::$routeMap);
 
@@ -48,7 +48,7 @@ class IdentifiableObjectHelper
                 continue;
             }
 
-            /** @var ?AbstractLsBase $obj */
+            /** @var ?IdentifiableInterface $obj */
             $obj = $this->registry->getRepository($objectType)->findOneBy(['uri' => $uri]);
             if (null !== $obj) {
                 return $obj;
