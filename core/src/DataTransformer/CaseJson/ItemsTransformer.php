@@ -74,7 +74,7 @@ class ItemsTransformer
 
     private function createItem(CFPackageItem $cfItem, LsDoc $doc): LsItem
     {
-        $item = new LsItem($cfItem->identifier);
+        $item = new LsItem($cfItem->identifier->toString());
         $item->setLsDoc($doc);
 
         $this->em->persist($item);

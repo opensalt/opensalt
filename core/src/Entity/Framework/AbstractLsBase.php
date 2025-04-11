@@ -4,7 +4,6 @@ namespace App\Entity\Framework;
 
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 
 #[ORM\MappedSuperclass]
 class AbstractLsBase implements IdentifiableInterface
@@ -13,11 +12,9 @@ class AbstractLsBase implements IdentifiableInterface
     use IdentifiableTrait;
     use ExtraDataTrait;
 
-    public function __construct(UuidInterface|string|null $identifier = null)
+    public function __construct(string|null $identifier = null)
     {
-        if ($identifier instanceof UuidInterface) {
-            $identifier = strtolower($identifier->toString());
-        } elseif (is_string($identifier) && Uuid::isValid($identifier)) {
+        if (is_string($identifier) && Uuid::isValid($identifier)) {
             $identifier = strtolower(Uuid::fromString($identifier)->toString());
         } else {
             $identifier = Uuid::uuid1()->toString();

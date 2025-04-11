@@ -83,7 +83,7 @@ class AssociationsTransformer
 
     private function createAssociation(CFPackageAssociation $cfAssociation, LsDoc $doc): LsAssociation
     {
-        $association = new LsAssociation($cfAssociation->identifier);
+        $association = new LsAssociation($cfAssociation->identifier->toString());
         $association->setLsDoc($doc);
 
         $this->em->persist($association);

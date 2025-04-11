@@ -27,7 +27,7 @@ class DocumentTransformer
         $doc = $this->em->getRepository(LsDoc::class)->findOneByIdentifier($cfDocument->identifier->toString());
 
         if (null === $doc) {
-            $doc = new LsDoc($cfDocument->identifier);
+            $doc = new LsDoc($cfDocument->identifier->toString());
             $this->em->persist($doc);
         }
 
