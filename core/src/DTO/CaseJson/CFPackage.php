@@ -29,4 +29,6 @@ class CFPackage
      */
     #[SerializedName('CFRubrics')]
     public ?array $cfRubrics = [];
+
+    public ?array $extensions = null;
 }

@@ -108,6 +108,7 @@ class AssociationsTransformer
         $association->setSequenceNumber($cfAssociation->sequenceNumber);
         $this->setGroup($association, $cfAssociation->cfAssociationGroupingURI);
         $association->setChangedAt($cfAssociation->lastChangeDateTime);
+        $association->setExtensions($cfAssociation->extensions);
 
         return $association;
     }

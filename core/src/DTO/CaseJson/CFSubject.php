@@ -12,4 +12,5 @@ class CFSubject
     public string $hierarchyCode;
     public ?string $description = null;
     public \DateTimeInterface $lastChangeDateTime;
+    public ?array $extensions = null;
 }

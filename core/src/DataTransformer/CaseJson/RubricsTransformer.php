@@ -74,6 +74,7 @@ class RubricsTransformer
         $rubric->setTitle($cfRubric->title);
         $rubric->setDescription($cfRubric->description);
         $rubric->setChangedAt($cfRubric->lastChangeDateTime);
+        $rubric->setExtensions($cfRubric->extensions);
 
         $this->updateCriteria($rubric, $cfRubric->cfRubricCriteria);
 
@@ -137,6 +138,7 @@ class RubricsTransformer
         $criterion->setCategory($cfCriterion->category);
         $criterion->setPosition($cfCriterion->position);
         $criterion->setWeight($cfCriterion->weight);
+        $criterion->setExtensions($cfCriterion->extensions);
 
         $itemIdentifier = $cfCriterion->cfItemURI->identifier->toString();
         $criterion->setItem($this->items[$itemIdentifier] ?? $this->findItem($itemIdentifier));
@@ -207,6 +209,7 @@ class RubricsTransformer
         $level->setQuality($cfCriterionLevel->quality);
         $level->setScore($cfCriterionLevel->score);
         $level->setChangedAt($cfCriterionLevel->lastChangeDateTime);
+        $level->setExtensions($cfCriterionLevel->extensions);
 
         return $level;
     }

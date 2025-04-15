@@ -35,4 +35,6 @@ class CFDefinition
      */
     #[SerializedName('CFAssociationGroupings')]
     public ?array $cfAssociationGroupings = [];
+
+    public ?array $extensions = null;
 }

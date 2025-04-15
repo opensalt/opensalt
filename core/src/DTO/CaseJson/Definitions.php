@@ -34,4 +34,6 @@ class Definitions
      * @var LsDefSubject[]
      */
     public ?array $subjects = [];
+
+    public ?array $extensions = null;
 }

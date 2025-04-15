@@ -59,6 +59,7 @@ class AssociationGroupingsTransformer
 //        $grouping->setLsDoc($lsDoc); // TODO
         $grouping->setDescription($cfAssociationGrouping->description);
         $grouping->setChangedAt($cfAssociationGrouping->lastChangeDateTime);
+        $grouping->setExtensions($cfAssociationGrouping->extensions);
     }
 
     /**

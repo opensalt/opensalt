@@ -28,4 +28,5 @@ class CFPackageDocument
     public ?\DateTimeInterface $statusEndDate = null;
     public ?LinkURI $licenseURI = null;
     public ?string $notes = null;
+    public ?array $extensions = null;
 }

@@ -18,4 +18,5 @@ class CFPackageAssociation
     public ?LinkURI $cfAssociationGroupingURI = null;
 
     public \DateTimeInterface $lastChangeDateTime;
+    public ?array $extensions = null;
 }

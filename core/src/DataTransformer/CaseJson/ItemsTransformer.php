@@ -101,6 +101,7 @@ class ItemsTransformer
         $item->setNotes($cfItem->notes);
         $item->setStatusStart($cfItem->statusStartDate);
         $item->setStatusEnd($cfItem->statusEndDate);
+        $item->setExtensions($cfItem->extensions);
 
         $item->setConceptKeywordsArray($cfItem->conceptKeywords);
         $edLevels = EducationLevelSet::fromStringOrArray($cfItem->educationLevel);

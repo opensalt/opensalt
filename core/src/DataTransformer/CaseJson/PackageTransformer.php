@@ -5,7 +5,7 @@ namespace App\DataTransformer\CaseJson;
 use App\DTO\CaseJson\CFPackage;
 use App\Entity\Framework\LsDoc;
 
-class PackageTransformer
+final readonly class PackageTransformer
 {
     public function __construct(
         private DefinitionsTransformer $definitionsTransformer,

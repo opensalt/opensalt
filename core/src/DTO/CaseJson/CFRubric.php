@@ -18,4 +18,5 @@ class CFRubric
      */
     #[SerializedName('CFRubricCriteria')]
     public ?array $cfRubricCriteria = [];
+    public ?array $extensions = null;
 }

@@ -11,4 +11,5 @@ class CFAssociationGrouping
     public string $title;
     public ?string $description = null;
     public \DateTimeInterface $lastChangeDateTime;
+    public ?array $extensions = null;
 }

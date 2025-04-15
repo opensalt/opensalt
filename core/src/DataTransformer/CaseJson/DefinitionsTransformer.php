@@ -5,7 +5,7 @@ namespace App\DataTransformer\CaseJson;
 use App\DTO\CaseJson\CFDefinition;
 use App\DTO\CaseJson\Definitions;
 
-class DefinitionsTransformer
+final readonly class DefinitionsTransformer
 {
     public function __construct(
         private AssociationGroupingsTransformer $associationGroupingsTransformer,

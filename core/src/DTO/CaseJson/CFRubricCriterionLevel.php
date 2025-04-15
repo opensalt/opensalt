@@ -15,4 +15,5 @@ class CFRubricCriterionLevel
     public ?int $position = null;
     public ?string $rubricCriterionId = null;
     public \DateTimeInterface $lastChangeDateTime;
+    public ?array $extensions = null;
 }

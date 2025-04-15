@@ -35,4 +35,5 @@ class CFPackageItem
     public ?\DateTimeInterface $statusStartDate = null;
     public ?\DateTimeInterface $statusEndDate = null;
     public \DateTimeInterface $lastChangeDateTime;
+    public ?array $extensions = null;
 }

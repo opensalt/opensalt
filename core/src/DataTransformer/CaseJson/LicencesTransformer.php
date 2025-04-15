@@ -59,6 +59,7 @@ class LicencesTransformer
         $licence->setDescription($cfLicence->description);
         $licence->setChangedAt($cfLicence->lastChangeDateTime);
         $licence->setLicenceText($cfLicence->licenseText);
+        $licence->setExtensions($cfLicence->extensions);
     }
 
     /**

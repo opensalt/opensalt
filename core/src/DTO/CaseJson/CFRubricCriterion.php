@@ -25,4 +25,5 @@ class CFRubricCriterion
      */
     #[SerializedName('CFRubricCriterionLevels')]
     public ?array $cfRubricCriterionLevels = [];
+    public ?array $extensions = null;
 }

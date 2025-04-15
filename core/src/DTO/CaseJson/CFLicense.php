@@ -12,4 +12,5 @@ class CFLicense
     public ?string $description = null;
     public string $licenseText;
     public \DateTimeInterface $lastChangeDateTime;
+    public ?array $extensions = null;
 }
