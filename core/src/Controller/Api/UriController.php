@@ -136,7 +136,7 @@ class UriController extends AbstractController
         }
 
         $className = $isPackage ? 'CFPackage' : substr(strrchr($obj::class, '\\'), 1);
-        $groups = ['default', $className];
+        $groups = ['default', 'CASE-1.1', $className];
         if ('opensalt' === $request->getRequestFormat()) {
             $groups[] = 'opensalt';
         }
@@ -484,6 +484,7 @@ xENDx;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
         unset($context['add-case-context'], $context['generate-package']);
         $context['no-association-links'] = true;
+        $context['groups'][] = 'CASE-1.1';
         if (in_array($_format, ['ndjson', 'csv'])) {
             $context['add-case-type'] = true;
             $context['no-case-link-uri-type'] = true;
@@ -669,6 +670,7 @@ xENDx;
                 'CFAssociationGroupings' => $groupCallback(),
             ],
             'CFRubrics' => $rubricCallback(),
+            // 'extensions' => null,
         ];
 
         return new StreamedJsonResponse($json, $originalResponse->getStatusCode(), $headers);

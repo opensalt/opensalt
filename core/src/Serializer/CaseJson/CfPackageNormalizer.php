@@ -99,6 +99,8 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, NormalizerI
             $return['CFRubrics'][] = $this->normalizer->normalize($obj, $format, $context);
         }
 
+        $return['extensions'] = null; // CASE 1.1 adds "extensions", but OpenSALT does not yet support that for packages
+
         return Collection::removeEmptyElements($return);
     }
 

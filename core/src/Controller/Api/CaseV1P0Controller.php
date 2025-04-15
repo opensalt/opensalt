@@ -36,7 +36,7 @@ class CaseV1P0Controller extends AbstractController
 
     public function __construct(
         private readonly SerializerInterface $serializer,
-        private readonly string          $assetsVersion,
+        private readonly string $assetsVersion,
         private readonly ManagerRegistry $managerRegistry,
     ) {
     }

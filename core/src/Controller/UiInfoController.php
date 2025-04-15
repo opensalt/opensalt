@@ -207,7 +207,7 @@ class UiInfoController extends AbstractController
                 'item' => $originIdentifier,
                 'uri' => $originIdentifier,
             ],
-            'type' => $association->getNormalizedType(),
+            'type' => $association->getNormalizedType(caseVersion: '1.1'),
             'dest' => [
                 'doc' => $destDoc,
                 'item' => $destIdentifier,

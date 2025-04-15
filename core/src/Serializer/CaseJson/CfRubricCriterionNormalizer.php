@@ -40,6 +40,7 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Nor
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
         $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
         $addCriterionLevels = !($context['no-sub-items'] ?? false);
+        $case10 = in_array('CASE-1.0', $context['groups'] ?? []);
         if (null !== ($context['add-case-context'] ?? null)) {
             unset($context['add-case-context']);
         }
@@ -61,6 +62,7 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Nor
             'description' => $data->getDescription(),
             'position' => $data->getPosition(),
             'weight' => $data->getWeight(),
+            'extensions' => $case10 ? null : $data->getExtensions(),
         ];
 
         if ($addCriterionLevels) {

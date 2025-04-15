@@ -35,6 +35,7 @@ final class CfRubricCriterionLevelNormalizer implements NormalizerInterface
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
         $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
+        $case10 = in_array('CASE-1.0', $context['groups'] ?? []);
         $return = [
             '@context' => (null !== $addContext)
                 ? 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld'
@@ -53,6 +54,7 @@ final class CfRubricCriterionLevelNormalizer implements NormalizerInterface
             'quality' => $data->getQuality(),
             'score' => $data->getScore(),
             'position' => $data->getPosition(),
+            'extensions' => $case10 ? null : $data->getExtensions(),
         ];
 
         if (in_array('opensalt', $context['groups'] ?? [], true)) {

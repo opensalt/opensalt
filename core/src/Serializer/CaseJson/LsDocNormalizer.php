@@ -40,6 +40,7 @@ final class LsDocNormalizer implements NormalizerInterface
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
         $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
+        $case10 = in_array('CASE-1.0', $context['groups'] ?? []);
         $subject = $data->getSubject();
         $subjectURIs = $data->getSubjects();
         $ret = [
@@ -73,6 +74,7 @@ final class LsDocNormalizer implements NormalizerInterface
             'notes' => $data->getNote(),
             'updatedAt' => in_array('updatedAt', $context['groups'] ?? [], true) ? $data->getUpdatedAt() : null,
             'associationSet' => $this->createAssociationLinks($data, $context),
+            'extensions' => $case10 ? null : $data->getExtensions(),
         ];
 
         if (in_array('opensalt', $context['groups'] ?? [], true)) {

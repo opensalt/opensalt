@@ -19,11 +19,16 @@ trait AssociationLinkTrait
             return null;
         }
 
+        $caseVersion = null;
+        if (in_array('CASE-1.1', $context['groups'])) {
+            $caseVersion = '1.1';
+        }
+
         $associationSet = [];
 
         $associations = $object->getAssociations();
         foreach ($associations as $association) {
-            $link = $this->createAssociationLink($association, 'destination');
+            $link = $this->createAssociationLink($association, 'destination', $caseVersion);
             if (null !== $link) {
                 $associationSet[] = $link;
             }
@@ -31,7 +36,7 @@ trait AssociationLinkTrait
 
         $associations = $object->getInverseAssociations();
         foreach ($associations as $association) {
-            $link = $this->createAssociationLink($association, 'origin');
+            $link = $this->createAssociationLink($association, 'origin', $caseVersion);
             if (null !== $link) {
                 $associationSet[] = $link;
             }
@@ -44,7 +49,7 @@ trait AssociationLinkTrait
         return $associationSet;
     }
 
-    private function createAssociationLink(LsAssociation $association, string $which): ?array
+    private function createAssociationLink(LsAssociation $association, string $which, ?string $caseVersion = null): ?array
     {
         if (!in_array($which, ['origin', 'destination'])) {
             throw new \InvalidArgumentException('Expecting "origin" or "destination" for which part of the association is wanted');
@@ -95,7 +100,7 @@ trait AssociationLinkTrait
         }
 
         $targetLink = $this->api1Uris->getNodeLinkUri($which, $association);
-        $associationType = $association->getNormalizedType($association->getType());
+        $associationType = $association->getNormalizedType(caseVersion: $caseVersion);
 
         return [
             'associationType' => match ($which) {
@@ -109,6 +114,7 @@ trait AssociationLinkTrait
                     'isPartOf' => 'hasPart',
                     'precedes' => 'hasPredecessor',
                     'isChildOf' => 'isParentOf',
+                    'isTranslationOf' => 'isTranslationOf',
                     default => throw new \InvalidArgumentException('Unknown association type'),
                 },
             },

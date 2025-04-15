@@ -39,6 +39,7 @@ final class CfRubricNormalizer implements NormalizerAwareInterface, NormalizerIn
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
         $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
         $addCriteria = !($context['no-sub-items'] ?? false);
+        $case10 = in_array('CASE-1.0', $context['groups'] ?? []);
         if (null !== ($context['add-case-context'] ?? null)) {
             unset($context['add-case-context']);
         }
@@ -54,6 +55,7 @@ final class CfRubricNormalizer implements NormalizerAwareInterface, NormalizerIn
             'title' => $data->getTitle(),
             'lastChangeDateTime' => $this->getLastChangeDateTime($data),
             'description' => $data->getDescription(),
+            'extensions' => $case10 ? null : $data->getExtensions(),
         ];
 
         if ($addCriteria) {

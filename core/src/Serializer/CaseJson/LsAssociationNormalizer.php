@@ -37,6 +37,8 @@ final class LsAssociationNormalizer implements NormalizerInterface
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
         $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
         $addLinkUriType = (($context['no-case-link-uri-type'] ?? null) !== null) ? null : $addContext;
+        $case10 = in_array('CASE-1.0', $context['groups'] ?? []);
+        $caseVersion = $case10 ? '1.0' : '1.1';
         $ret = [
             '@context' => (null !== $addContext)
                 ? 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld'
@@ -51,8 +53,9 @@ final class LsAssociationNormalizer implements NormalizerInterface
             'sequenceNumber' => $data->getSequenceNumber(),
             'CFAssociationGroupingURI' => $this->createLinkUri($data->getGroup(), $context),
             'originNodeURI' => $this->createOutLink($data, 'origin', $context, null !== $addLinkUriType),
-            'associationType' => $data->getNormalizedType(),
+            'associationType' => $data->getNormalizedType(caseVersion: $caseVersion),
             'destinationNodeURI' => $this->createOutLink($data, 'destination', $context, null !== $addLinkUriType),
+            'extensions' => $case10 ? null : $data->getExtensions(),
         ];
 
         if (in_array('opensalt', $context['groups'] ?? [], true)) {

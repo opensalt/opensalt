@@ -141,7 +141,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
             static::SKILL_LEVEL,
             static::IS_PEER_OF,
             static::EXEMPLAR,
-            // static::IS_TRANSLATION_OF, // CASE 1.1
+            static::IS_TRANSLATION_OF, // CASE 1.1
 
             static::CHILD_OF,
         ];
@@ -160,7 +160,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
             static::PRECEDES => 'Precedes',
             static::SKILL_LEVEL => 'Has Skill Level',
             static::IS_PEER_OF => 'Is Peer Of',
-            // static::IS_TRANSLATION_OF => 'Is Translation Of', // CASE 1.1
+            static::IS_TRANSLATION_OF => 'Is Translation Of', // CASE 1.1
         ];
     }
 

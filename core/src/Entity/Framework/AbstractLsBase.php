@@ -8,11 +8,12 @@ use Ramsey\Uuid\Uuid;
 #[ORM\MappedSuperclass]
 class AbstractLsBase implements IdentifiableInterface
 {
-    use CloneIdentifiableTrait;
     use IdentifiableTrait;
+    use CloneIdentifiableTrait;
     use ExtraDataTrait;
+    use ExtensionTrait;
 
-    public function __construct(string|null $identifier = null)
+    public function __construct(?string $identifier = null)
     {
         if (is_string($identifier) && Uuid::isValid($identifier)) {
             $identifier = strtolower(Uuid::fromString($identifier)->toString());

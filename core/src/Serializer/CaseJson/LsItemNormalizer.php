@@ -40,6 +40,7 @@ final class LsItemNormalizer implements NormalizerInterface
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
         $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
+        $case10 = in_array('CASE-1.0', $context['groups'] ?? []);
         $conceptKeywords = $data->getConceptKeywordsArray();
         $conceptKeywordsUri = $data->getConcepts();
         $ret = [
@@ -73,6 +74,7 @@ final class LsItemNormalizer implements NormalizerInterface
             'statusEndDate' => $this->toDate($data->getStatusEnd()),
             'lastChangeDateTime' => $this->getLastChangeDateTime($data),
             'associationSet' => $this->createAssociationLinks($data, $context),
+            'extensions' => $case10 ? null : $data->getExtensions(),
         ];
 
         if (in_array('opensalt', $context['groups'] ?? [], true)) {
