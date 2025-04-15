@@ -26,6 +26,7 @@ class AddTreeAssociationHandler extends BaseFrameworkHandler
         parent::__construct($validator, $framework);
     }
 
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var AddTreeAssociationCommand $command */

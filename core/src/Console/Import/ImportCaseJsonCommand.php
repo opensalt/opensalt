@@ -15,6 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand('import:case-json', 'Import CASE JSON file')]
 class ImportCaseJsonCommand extends BaseDoctrineCommand
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -24,6 +25,7 @@ class ImportCaseJsonCommand extends BaseDoctrineCommand
         ;
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $filename = $input->getArgument('filename');

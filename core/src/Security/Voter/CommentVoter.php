@@ -22,6 +22,7 @@ class CommentVoter extends Voter
     final public const UPDATE = Permission::COMMENT_UPDATE;
     final public const DELETE = Permission::COMMENT_DELETE;
 
+    #[\Override]
     public function supportsAttribute(string $attribute): bool
     {
         if (!$this->hasActiveFeature(Feature::COMMENTS)) {
@@ -32,6 +33,7 @@ class CommentVoter extends Voter
         return \in_array($attribute, [self::UPDATE, self::DELETE, self::COMMENT, self::VIEW], true);
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         if ('null' === $subjectType) {
@@ -41,6 +43,7 @@ class CommentVoter extends Voter
         return is_a($subjectType, Comment::class, true);
     }
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         if (!$this->hasActiveFeature(Feature::COMMENTS)) {
@@ -55,6 +58,7 @@ class CommentVoter extends Voter
         };
     }
 
+    #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         // All users (including anonymous) can view comments

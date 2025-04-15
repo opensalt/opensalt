@@ -21,6 +21,7 @@ class LsItemCourseType extends AbstractType
     {
     }
 
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -61,11 +62,13 @@ class LsItemCourseType extends AbstractType
         ;
     }
 
+    #[\Override]
     public function getBlockPrefix(): string
     {
         return 'ls_item';
     }
 
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

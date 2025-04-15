@@ -8,6 +8,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UpdateLicenceHandler extends BaseFrameworkHandler
 {
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var UpdateLicenceCommand $command */

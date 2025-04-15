@@ -12,16 +12,19 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  */
 class RamseyUuidNormalizer implements NormalizerInterface
 {
+    #[\Override]
     public function normalize(mixed $data, ?string $format = null, array $context = []): string
     {
         return $data->toString();
     }
 
+    #[\Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof UuidInterface;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [UuidInterface::class => true];

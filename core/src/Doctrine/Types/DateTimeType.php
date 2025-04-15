@@ -17,6 +17,7 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): mixed
     {
         if (null === $value) {
@@ -34,6 +35,7 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?\DateTime
     {
         if (null === $value || $value instanceof \DateTime) {
@@ -53,6 +55,7 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
         return $val;
     }
 
+    #[\Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         if (!in_array($column['precision'] ?? 0, [0, 10], false)) {
@@ -62,6 +65,7 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
         return parent::getSQLDeclaration($column, $platform);
     }
 
+    #[\Override]
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return true;

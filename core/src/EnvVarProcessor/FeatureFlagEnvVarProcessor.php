@@ -9,6 +9,7 @@ class FeatureFlagEnvVarProcessor implements EnvVarProcessorInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getEnv(string $prefix, string $name, \Closure $getEnv): mixed
     {
         $env = $getEnv($name);
@@ -23,6 +24,7 @@ class FeatureFlagEnvVarProcessor implements EnvVarProcessorInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public static function getProvidedTypes(): array
     {
         return [

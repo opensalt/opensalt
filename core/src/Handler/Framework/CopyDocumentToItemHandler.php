@@ -10,6 +10,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CopyDocumentToItemHandler extends BaseDoctrineHandler
 {
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var CopyDocumentToItemCommand $command */

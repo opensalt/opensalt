@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
  */
 class RamseyUuidDenormalizer implements DenormalizerInterface
 {
+    #[\Override]
     public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): ?UuidInterface
     {
         if (null === $data) {
@@ -27,11 +28,13 @@ class RamseyUuidDenormalizer implements DenormalizerInterface
         return Uuid::fromString($data);
     }
 
+    #[\Override]
     public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
         return Uuid::class === $type || UuidInterface::class === $type;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [

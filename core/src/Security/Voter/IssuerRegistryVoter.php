@@ -20,11 +20,13 @@ class IssuerRegistryVoter extends Voter
     final public const string EDIT = Permission::ISSUER_REGISTRY_EDIT;
     final public const string DELETE = Permission::ISSUER_REGISTRY_DELETE;
 
+    #[\Override]
     public function supportsAttribute(string $attribute): bool
     {
         return \in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::DELETE], true);
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         if ('null' === $subjectType) {
@@ -34,6 +36,7 @@ class IssuerRegistryVoter extends Voter
         return is_a($subjectType, Issuer::class, true);
     }
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         return match ($attribute) {
@@ -43,6 +46,7 @@ class IssuerRegistryVoter extends Voter
         };
     }
 
+    #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         return match ($attribute) {

@@ -34,6 +34,7 @@ class ItemTypeTransformer implements DataTransformerInterface
     /**
      * Transform entity to array.
      */
+    #[\Override]
     public function transform(mixed $value): array
     {
         $data = [];
@@ -55,6 +56,7 @@ class ItemTypeTransformer implements DataTransformerInterface
      *
      * @param ?string $value
      */
+    #[\Override]
     public function reverseTransform(mixed $value): ?LsDefItemType
     {
         if (empty($value)) {

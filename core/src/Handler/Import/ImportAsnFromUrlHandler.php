@@ -24,6 +24,7 @@ class ImportAsnFromUrlHandler extends AbstractDoctrineHandler
         $this->importService = $asnImportService;
     }
 
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var ImportAsnFromUrlCommand $command */

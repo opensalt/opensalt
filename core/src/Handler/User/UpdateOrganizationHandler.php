@@ -9,6 +9,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UpdateOrganizationHandler extends BaseUserHandler
 {
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var UpdateOrganizationCommand $command */

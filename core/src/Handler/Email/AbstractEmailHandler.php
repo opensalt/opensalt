@@ -25,6 +25,7 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler
         parent::__construct($validator);
     }
 
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var AbstractSendEmailCommand $command */

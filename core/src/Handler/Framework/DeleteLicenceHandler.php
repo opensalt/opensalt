@@ -8,6 +8,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DeleteLicenceHandler extends BaseFrameworkHandler
 {
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var DeleteLicenceCommand $command */

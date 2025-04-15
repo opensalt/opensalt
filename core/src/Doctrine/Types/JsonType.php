@@ -10,6 +10,7 @@ class JsonType extends DbalJsonType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): mixed
     {
         if ([] === $value) {
@@ -19,6 +20,7 @@ class JsonType extends DbalJsonType
         return parent::convertToDatabaseValue($value, $platform);
     }
 
+    #[\Override]
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return true;

@@ -20,11 +20,13 @@ class ItemVoter extends Voter
     final public const ADD_TO = Permission::ITEM_ADD_TO;
     final public const EDIT = Permission::ITEM_EDIT;
 
+    #[\Override]
     public function supportsAttribute(string $attribute): bool
     {
         return \in_array($attribute, [self::ADD_TO, self::EDIT], true);
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         if ('null' === $subjectType) {
@@ -38,6 +40,7 @@ class ItemVoter extends Voter
         return is_a($subjectType, LsItem::class, true);
     }
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         return match ($attribute) {
@@ -48,6 +51,7 @@ class ItemVoter extends Voter
         };
     }
 
+    #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();

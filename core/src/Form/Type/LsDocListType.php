@@ -23,6 +23,7 @@ class LsDocListType extends AbstractType
     ) {
     }
 
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $repo = $this->em->getRepository(LsDoc::class);
@@ -68,6 +69,7 @@ class LsDocListType extends AbstractType
         ;
     }
 
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

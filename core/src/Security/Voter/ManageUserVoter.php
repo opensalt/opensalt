@@ -18,11 +18,13 @@ class ManageUserVoter extends Voter
     final public const MANAGE_ALL = Permission::MANAGE_ALL_USERS;
     final public const MANAGE_THIS = Permission::MANAGE_THIS_USER;
 
+    #[\Override]
     public function supportsAttribute(string $attribute): bool
     {
         return \in_array($attribute, [static::MANAGE, static::MANAGE_ALL, static::MANAGE_THIS], true);
     }
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         if (!\in_array($attribute, [static::MANAGE, static::MANAGE_ALL, static::MANAGE_THIS], true)) {
@@ -36,6 +38,7 @@ class ManageUserVoter extends Voter
         return true;
     }
 
+    #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();

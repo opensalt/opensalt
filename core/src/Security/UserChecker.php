@@ -33,6 +33,7 @@ class UserChecker implements UserCheckerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function checkPreAuth(UserInterface $user): void
     {
         if (!$user instanceof User) {
@@ -64,6 +65,7 @@ class UserChecker implements UserCheckerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function checkPostAuth(UserInterface $user): void
     {
         if (!$user instanceof User) {

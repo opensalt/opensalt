@@ -22,6 +22,7 @@ class CloneFrameworkHandler extends BaseDoctrineHandler
         parent::__construct($validator, $entityManager);
     }
 
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var CloneFrameworkCommand $command */

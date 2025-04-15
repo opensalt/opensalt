@@ -9,6 +9,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class VaryOriginListener implements EventSubscriberInterface
 {
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [KernelEvents::RESPONSE => ['onKernelResponse', -10]];

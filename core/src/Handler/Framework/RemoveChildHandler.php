@@ -13,6 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class RemoveChildHandler extends BaseDoctrineHandler
 {
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var RemoveChildCommand $command */

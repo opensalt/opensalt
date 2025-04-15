@@ -23,6 +23,7 @@ class RemoveUserRoleHandler extends BaseDoctrineHandler
         $this->userManager = $userManager;
     }
 
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var RemoveUserRoleCommand $command */

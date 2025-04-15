@@ -15,16 +15,19 @@ class ManageOrganizationVoter extends Voter
 
     final public const MANAGE = Permission::MANAGE_ORGANIZATIONS;
 
+    #[\Override]
     public function supportsAttribute(string $attribute): bool
     {
         return self::MANAGE === $attribute;
     }
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         return self::MANAGE === $attribute;
     }
 
+    #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         return $this->roleChecker->isSuperUser($token);

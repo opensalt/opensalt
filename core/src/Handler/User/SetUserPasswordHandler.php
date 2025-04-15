@@ -24,6 +24,7 @@ class SetUserPasswordHandler extends BaseDoctrineHandler
         $this->userManager = $userManager;
     }
 
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var SetUserPasswordCommand $command */

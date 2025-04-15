@@ -16,16 +16,19 @@ final class LsDefItemTypeNormalizer implements NormalizerInterface
     ) {
     }
 
+    #[\Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof LsDefItemType;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [LsDefItemType::class => true];
     }
 
+    #[\Override]
     public function normalize(mixed $data, ?string $format = null, array $context = []): ?array
     {
         if (!$data instanceof LsDefItemType) {

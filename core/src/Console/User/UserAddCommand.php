@@ -20,6 +20,7 @@ use Symfony\Component\Console\Question\Question;
 #[AsCommand('salt:user:add', 'Add a local user')]
 class UserAddCommand extends BaseDoctrineCommand
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -30,6 +31,7 @@ class UserAddCommand extends BaseDoctrineCommand
         ;
     }
 
+    #[\Override]
     protected function interact(InputInterface $input, OutputInterface $output): void
     {
         parent::interact($input, $output);
@@ -100,6 +102,7 @@ class UserAddCommand extends BaseDoctrineCommand
         }
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $username = trim($input->getArgument('username'));

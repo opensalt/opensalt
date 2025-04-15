@@ -11,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LockDocumentHandler extends BaseFrameworkHandler
 {
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var LockDocumentCommand|UnlockDocumentCommand $command */
@@ -26,6 +27,7 @@ class LockDocumentHandler extends BaseFrameworkHandler
         }
     }
 
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [

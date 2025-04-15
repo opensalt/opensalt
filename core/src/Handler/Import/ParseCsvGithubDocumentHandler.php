@@ -22,6 +22,7 @@ class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
         parent::__construct($validator, $entityManager);
     }
 
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var ParseCsvGithubDocumentCommand $command */

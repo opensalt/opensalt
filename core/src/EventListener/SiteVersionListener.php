@@ -20,6 +20,7 @@ class SiteVersionListener implements EventSubscriberInterface
         $this->cache = $cache;
     }
 
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [KernelEvents::RESPONSE => ['onKernelResponse', 200]];

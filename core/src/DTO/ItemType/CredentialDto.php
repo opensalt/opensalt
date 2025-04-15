@@ -19,6 +19,7 @@ class CredentialDto implements ItemTypeInterface
     ) {
     }
 
+    #[\Override]
     public static function fromItem(LsItem $item): self
     {
         $jobItemInfo = $item->getExtraProperty('extendedItem');
@@ -28,6 +29,7 @@ class CredentialDto implements ItemTypeInterface
         );
     }
 
+    #[\Override]
     public function applyToItem(LsItem $item, HtmlSanitizerInterface $htmlSanitizer): void
     {
         $credentialInfo = json5_decode($this->credential, true);

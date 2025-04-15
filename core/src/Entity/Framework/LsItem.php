@@ -147,6 +147,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * Clone the LsItem - Do not carry over any associations.
      */
+    #[\Override]
     public function __clone()
     {
         parent::__clone();

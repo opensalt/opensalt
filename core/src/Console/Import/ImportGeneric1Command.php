@@ -15,6 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand('import:generic-csv', 'Import Generic CSV file (Type, Statement, Coding, Parent)')]
 class ImportGeneric1Command extends BaseDispatchingCommand
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -24,6 +25,7 @@ class ImportGeneric1Command extends BaseDispatchingCommand
         ;
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $filename = $input->getArgument('filename');

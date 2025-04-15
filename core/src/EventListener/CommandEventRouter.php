@@ -28,6 +28,7 @@ class CommandEventRouter implements EventSubscriberInterface
         $this->tokenStorage = $tokenStorage;
     }
 
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [CommandEvent::class => 'routeCommand'];

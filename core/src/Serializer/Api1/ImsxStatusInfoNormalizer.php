@@ -7,16 +7,19 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class ImsxStatusInfoNormalizer implements NormalizerInterface
 {
+    #[\Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof ImsxStatusInfo;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [ImsxStatusInfo::class => true];
     }
 
+    #[\Override]
     public function normalize(mixed $data, ?string $format = null, array $context = []): array
     {
         if (!$data instanceof ImsxStatusInfo) {

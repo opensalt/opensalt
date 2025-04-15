@@ -17,16 +17,19 @@ final class LsAssociationNormalizer implements NormalizerInterface
     ) {
     }
 
+    #[\Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof LsAssociation;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [LsAssociation::class => true];
     }
 
+    #[\Override]
     public function normalize(mixed $data, ?string $format = null, array $context = []): ?array
     {
         if (!$data instanceof LsAssociation) {

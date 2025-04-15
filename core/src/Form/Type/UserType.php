@@ -33,6 +33,7 @@ class UserType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $roleChoices = [];
@@ -73,6 +74,7 @@ class UserType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
@@ -84,6 +86,7 @@ class UserType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getBlockPrefix(): string
     {
         return 'salt_userbundle_user';

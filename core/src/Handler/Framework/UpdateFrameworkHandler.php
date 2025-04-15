@@ -27,6 +27,7 @@ class UpdateFrameworkHandler extends AbstractDoctrineHandler
         $this->frameworkUpdater = $frameworkUpdater;
     }
 
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var UpdateFrameworkCommand $command */

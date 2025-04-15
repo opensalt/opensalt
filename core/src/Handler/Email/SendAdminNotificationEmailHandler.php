@@ -22,6 +22,7 @@ class SendAdminNotificationEmailHandler extends AbstractEmailHandler
         parent::__construct($validator, $featureManager, $mailer, $mailFromEmail);
     }
 
+    #[\Override]
     protected function configureMessage(Email $email, AbstractSendEmailCommand $command): void
     {
         /** @var SendAdminNotificationEmailCommand $command */

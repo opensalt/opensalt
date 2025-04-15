@@ -14,6 +14,7 @@ use Symfony\Component\Console\Question\Question;
 
 abstract class UserRoleCommand extends BaseDispatchingCommand
 {
+    #[\Override]
     protected function interact(InputInterface $input, OutputInterface $output): void
     {
         parent::interact($input, $output);

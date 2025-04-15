@@ -21,16 +21,19 @@ final class LsItemNormalizer implements NormalizerInterface
     ) {
     }
 
+    #[\Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof LsItem;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [LsItem::class => true];
     }
 
+    #[\Override]
     public function normalize(mixed $data, ?string $format = null, array $context = []): ?array
     {
         if (!$data instanceof LsItem) {

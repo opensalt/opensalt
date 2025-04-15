@@ -7,6 +7,7 @@ use Symfony\Component\Mime\Email;
 
 class SendUserApprovedEmailHandler extends AbstractEmailHandler
 {
+    #[\Override]
     protected function configureMessage(Email $email, AbstractSendEmailCommand $command): void
     {
         $email

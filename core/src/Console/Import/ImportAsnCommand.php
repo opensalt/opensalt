@@ -15,6 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand('import:asn', 'Import ASN Standards Document')]
 class ImportAsnCommand extends BaseDispatchingCommand
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -23,6 +24,7 @@ class ImportAsnCommand extends BaseDispatchingCommand
         ;
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $asnId = $input->getArgument('asnId');

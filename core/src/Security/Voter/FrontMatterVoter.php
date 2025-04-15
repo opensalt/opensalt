@@ -21,11 +21,13 @@ class FrontMatterVoter extends Voter
     final public const string DELETE = Permission::FRONT_MATTER_DELETE;
     final public const string CREATE = Permission::FRONT_MATTER_CREATE;
 
+    #[\Override]
     public function supportsAttribute(string $attribute): bool
     {
         return \in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::EDIT_ALL, static::DELETE], true);
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         if ('null' === $subjectType) {
@@ -35,6 +37,7 @@ class FrontMatterVoter extends Voter
         return is_a($subjectType, FrontMatter::class, true);
     }
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         return match ($attribute) {
@@ -44,6 +47,7 @@ class FrontMatterVoter extends Voter
         };
     }
 
+    #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         return match ($attribute) {

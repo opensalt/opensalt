@@ -16,16 +16,19 @@ final class LsDefSubjectNormalizer implements NormalizerInterface
     ) {
     }
 
+    #[\Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof LsDefSubject;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [LsDefSubject::class => true];
     }
 
+    #[\Override]
     public function normalize(mixed $data, ?string $format = null, array $context = []): ?array
     {
         if (!$data instanceof LsDefSubject) {

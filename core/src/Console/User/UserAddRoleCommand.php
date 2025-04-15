@@ -14,6 +14,7 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 #[AsCommand('salt:user:add-role', 'Add a role to a local user')]
 class UserAddRoleCommand extends UserRoleCommand
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -22,6 +23,7 @@ class UserAddRoleCommand extends UserRoleCommand
         ;
     }
 
+    #[\Override]
     protected function interact(InputInterface $input, OutputInterface $output): void
     {
         parent::interact($input, $output);
@@ -36,6 +38,7 @@ class UserAddRoleCommand extends UserRoleCommand
         }
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (0 !== $this->doChange($input, $output, AddUserRoleCommand::class)) {

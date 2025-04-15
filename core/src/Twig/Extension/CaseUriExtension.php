@@ -9,6 +9,7 @@ use Twig\TwigTest;
 
 class CaseUriExtension extends AbstractExtension
 {
+    #[\Override]
     public function getFilters(): array
     {
         /** @psalm-suppress InvalidArgument This works for a Twig Runtime class */
@@ -20,6 +21,7 @@ class CaseUriExtension extends AbstractExtension
         ];
     }
 
+    #[\Override]
     public function getFunctions(): array
     {
         /** @psalm-suppress InvalidArgument This works for a Twig Runtime class */
@@ -29,6 +31,7 @@ class CaseUriExtension extends AbstractExtension
         ];
     }
 
+    #[\Override]
     public function getTests(): array
     {
         return [

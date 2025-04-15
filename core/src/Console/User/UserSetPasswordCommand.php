@@ -16,6 +16,7 @@ use Symfony\Component\Console\Question\Question;
 #[AsCommand('salt:user:set-password', 'Set the password for a local user')]
 class UserSetPasswordCommand extends BaseDispatchingCommand
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -24,6 +25,7 @@ class UserSetPasswordCommand extends BaseDispatchingCommand
         ;
     }
 
+    #[\Override]
     protected function interact(InputInterface $input, OutputInterface $output): void
     {
         parent::interact($input, $output);
@@ -51,6 +53,7 @@ class UserSetPasswordCommand extends BaseDispatchingCommand
         }
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $username = trim($input->getArgument('username'));

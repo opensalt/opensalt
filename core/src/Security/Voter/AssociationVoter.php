@@ -21,11 +21,13 @@ class AssociationVoter extends Voter
     final public const ADD_TO = Permission::ASSOCIATION_ADD_TO;
     final public const EDIT = Permission::ASSOCIATION_EDIT;
 
+    #[\Override]
     public function supportsAttribute(string $attribute): bool
     {
         return \in_array($attribute, [self::ADD_TO, self::EDIT], true);
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         if ('null' === $subjectType) {
@@ -43,6 +45,7 @@ class AssociationVoter extends Voter
         return is_a($subjectType, LsAssociation::class, true);
     }
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         if (!\in_array($attribute, [self::ADD_TO, self::EDIT], true)) {
@@ -58,6 +61,7 @@ class AssociationVoter extends Voter
         };
     }
 
+    #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();

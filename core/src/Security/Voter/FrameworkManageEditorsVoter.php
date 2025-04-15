@@ -17,16 +17,19 @@ class FrameworkManageEditorsVoter extends Voter
 
     final public const MANAGE_EDITORS = Permission::MANAGE_EDITORS;
 
+    #[\Override]
     public function supportsAttribute(string $attribute): bool
     {
         return self::MANAGE_EDITORS === $attribute;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, LsDoc::class, true);
     }
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         if (self::MANAGE_EDITORS !== $attribute) {
@@ -40,6 +43,7 @@ class FrameworkManageEditorsVoter extends Voter
         return true;
     }
 
+    #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         // Do not allow editing of mirrored frameworks

@@ -9,6 +9,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DeleteCommentHandler extends BaseCommentHandler
 {
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var DeleteCommentCommand $command */

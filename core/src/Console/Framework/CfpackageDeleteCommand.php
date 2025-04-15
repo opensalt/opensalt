@@ -19,6 +19,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 #[AsCommand('cfpackage:delete', 'Permanently delete a CFPackage')]
 class CfpackageDeleteCommand extends BaseDoctrineCommand
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -27,6 +28,7 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
         ;
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $lsDocId = $input->getArgument('id');

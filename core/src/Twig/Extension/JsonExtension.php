@@ -10,6 +10,7 @@ use Twig\TwigFunction;
 
 class JsonExtension extends AbstractExtension
 {
+    #[\Override]
     public function getFunctions(): array
     {
         return [
@@ -17,6 +18,7 @@ class JsonExtension extends AbstractExtension
         ];
     }
 
+    #[\Override]
     public function getFilters(): array
     {
         return [

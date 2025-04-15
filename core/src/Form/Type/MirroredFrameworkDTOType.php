@@ -17,6 +17,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class MirroredFrameworkDTOType extends AbstractType
 {
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -47,6 +48,7 @@ class MirroredFrameworkDTOType extends AbstractType
         ;
     }
 
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([]);

@@ -18,6 +18,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 #[AsCommand('cfpackage:duplicate', 'Copy a package to an item in a framework')]
 class CopyDocumentToItemCommand extends BaseDoctrineCommand
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -26,6 +27,7 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
         ;
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $oldDocId = $input->getArgument('from');

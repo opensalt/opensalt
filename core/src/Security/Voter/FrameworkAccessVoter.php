@@ -24,11 +24,13 @@ class FrameworkAccessVoter extends Voter
     final public const CREATE = Permission::FRAMEWORK_CREATE;
     final public const DOWNLOAD_EXCEL = Permission::FRAMEWORK_DOWNLOAD_EXCEL;
 
+    #[\Override]
     public function supportsAttribute(string $attribute): bool
     {
         return \in_array($attribute, [static::LIST, static::VIEW, static::CREATE, static::EDIT, static::EDIT_ALL, static::DELETE, static::DOWNLOAD_EXCEL], true);
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         if ('null' === $subjectType) {
@@ -38,6 +40,7 @@ class FrameworkAccessVoter extends Voter
         return is_a($subjectType, LsDoc::class, true);
     }
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         return match ($attribute) {
@@ -47,6 +50,7 @@ class FrameworkAccessVoter extends Voter
         };
     }
 
+    #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         return match ($attribute) {

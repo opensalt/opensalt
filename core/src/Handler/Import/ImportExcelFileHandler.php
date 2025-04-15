@@ -24,6 +24,7 @@ class ImportExcelFileHandler extends AbstractDoctrineHandler
         $this->importService = $excelImportService;
     }
 
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var ImportExcelFileCommand $command */

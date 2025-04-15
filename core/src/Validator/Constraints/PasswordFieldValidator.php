@@ -7,6 +7,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class PasswordFieldValidator extends ConstraintValidator
 {
+    #[\Override]
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof PasswordField) {

@@ -28,6 +28,7 @@ class AssessmentDto implements ItemTypeInterface
     ) {
     }
 
+    #[\Override]
     public static function fromItem(LsItem $item): self
     {
         $jobItemInfo = $item->getExtraProperty('extendedItem');
@@ -42,6 +43,7 @@ class AssessmentDto implements ItemTypeInterface
         );
     }
 
+    #[\Override]
     public function applyToItem(LsItem $item, HtmlSanitizerInterface $htmlSanitizer): void
     {
         $item->setAbbreviatedStatement($this->name);

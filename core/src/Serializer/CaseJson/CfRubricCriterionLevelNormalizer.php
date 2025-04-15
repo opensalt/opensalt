@@ -16,16 +16,19 @@ final class CfRubricCriterionLevelNormalizer implements NormalizerInterface
     ) {
     }
 
+    #[\Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof CfRubricCriterionLevel;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [CfRubricCriterionLevel::class => true];
     }
 
+    #[\Override]
     public function normalize(mixed $data, ?string $format = null, array $context = []): ?array
     {
         if (!$data instanceof CfRubricCriterionLevel) {

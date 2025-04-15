@@ -17,6 +17,7 @@ readonly class EducationAlignmentTransformer implements DataTransformerInterface
     /**
      * @param ?string $value
      */
+    #[\Override]
     public function transform(mixed $value): array
     {
         if (null === $value) {
@@ -34,6 +35,7 @@ readonly class EducationAlignmentTransformer implements DataTransformerInterface
     /**
      * @param array<array-key, LsDefGrade>|null $value
      */
+    #[\Override]
     public function reverseTransform(mixed $value): ?string
     {
         if (!is_array($value) || 0 === count($value)) {

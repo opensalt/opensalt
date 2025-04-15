@@ -13,6 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class LsAssociationTreeType extends AbstractType
 {
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $choiceList = [];
@@ -35,6 +36,7 @@ class LsAssociationTreeType extends AbstractType
         ;
     }
 
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

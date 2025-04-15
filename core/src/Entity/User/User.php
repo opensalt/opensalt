@@ -118,6 +118,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this->username;
     }
 
+    #[\Override]
     public function getUserIdentifier(): string
     {
         return $this->username;
@@ -144,6 +145,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      * This should be the encoded password. On authentication, a plain-text
      * password will be salted, encoded, and then compared to this value.
      */
+    #[\Override]
     public function getPassword(): ?string
     {
         return $this->password;
@@ -159,6 +161,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      *
      * @return string[] The user roles
      */
+    #[\Override]
     public function getRoles(): array
     {
         $roles = $this->roles;
@@ -209,6 +212,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      * This is important if, at any given point, sensitive information like
      * the plain-text password is stored on this object.
      */
+    #[\Override]
     public function eraseCredentials(): void
     {
     }
@@ -236,6 +240,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      * Also implementation should consider that $user instance may implement
      * the extended user interface `AdvancedUserInterface`.
      */
+    #[\Override]
     public function isEqualTo(UserInterface $user): bool
     {
         if (!($user instanceof self)) {
@@ -421,16 +426,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         $this->isTotpEnabled = $isTotpEnabled;
     }
 
+    #[\Override]
     public function isTotpAuthenticationEnabled(): bool
     {
         return null !== $this->totpSecret && true === $this->isTotpEnabled;
     }
 
+    #[\Override]
     public function getTotpAuthenticationUsername(): string
     {
         return $this->getUserIdentifier();
     }
 
+    #[\Override]
     public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
     {
         return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);

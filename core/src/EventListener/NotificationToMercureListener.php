@@ -39,6 +39,7 @@ class NotificationToMercureListener implements EventSubscriberInterface
     ) {
     }
 
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [NotificationEvent::class => 'handleNotification'];

@@ -20,6 +20,7 @@ class ValidMfaCodeValidator extends ConstraintValidator
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ValidMfaCode) {

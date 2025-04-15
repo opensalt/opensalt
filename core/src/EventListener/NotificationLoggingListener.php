@@ -11,6 +11,7 @@ class NotificationLoggingListener implements EventSubscriberInterface
 {
     use LoggerTrait;
 
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [NotificationEvent::class => 'logNotification'];

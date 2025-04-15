@@ -20,6 +20,7 @@ readonly class DatabaseLoader implements LoaderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getSourceContext(string $name): Source
     {
         $template = $this->getTemplate($name);
@@ -33,6 +34,7 @@ readonly class DatabaseLoader implements LoaderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getCacheKey(string $name): string
     {
         return $name;
@@ -41,6 +43,7 @@ readonly class DatabaseLoader implements LoaderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function isFresh(string $name, int $time): bool
     {
         $template = $this->getTemplate($name);
@@ -54,6 +57,7 @@ readonly class DatabaseLoader implements LoaderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function exists(string $name): bool
     {
         return (bool) $this->getTemplate($name);

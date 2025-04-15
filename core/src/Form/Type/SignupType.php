@@ -32,6 +32,7 @@ class SignupType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function buildform(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -99,6 +100,7 @@ class SignupType extends AbstractType
         ]);
     }
 
+    #[\Override]
     public function finishView(FormView $view, FormInterface $form, array $options): void
     {
         $newOrg = new ChoiceView([], 'other', 'Other');

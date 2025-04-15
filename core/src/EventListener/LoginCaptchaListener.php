@@ -17,6 +17,7 @@ class LoginCaptchaListener implements EventSubscriberInterface
         $this->captchaSecret = $captchaSecret;
     }
 
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [SecurityEvents::INTERACTIVE_LOGIN => 'onSecurityInteractiveLogin'];

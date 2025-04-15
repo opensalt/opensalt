@@ -9,6 +9,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DeleteAssociationGroupHandler extends BaseFrameworkHandler
 {
+    #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         /** @var DeleteAssociationGroupCommand $command */

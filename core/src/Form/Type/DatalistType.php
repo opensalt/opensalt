@@ -11,6 +11,7 @@ use Symfony\Component\Form\AbstractType;
  */
 class DatalistType extends AbstractType
 {
+    #[\Override]
     public function getParent(): ?string
     {
         return EntityType::class;

@@ -32,6 +32,7 @@ abstract class BaseValidatedHandler implements EventSubscriberInterface
     }
 
     // @phpstan-ignore symfony.noStringInGetSubscribedEvents
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         // Creates event name based on class name, so ignoring phpstan's issue for now

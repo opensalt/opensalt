@@ -33,16 +33,19 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     ) {
     }
 
+    #[\Override]
     protected function getLoginUrl(Request $request): string
     {
         return $this->router->generate(self::LOGIN_ROUTE);
     }
 
+    #[\Override]
     public function supports(Request $request): bool
     {
         return $request->isMethod('POST') && self::LOGIN_ROUTE === $request->attributes->get('_route');
     }
 
+    #[\Override]
     public function authenticate(Request $request): Passport
     {
         $username = $request->request->get('_username');
@@ -61,6 +64,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         );
     }
 
+    #[\Override]
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         if ($this->featureManager->isEnabled('mfa')) {
@@ -79,6 +83,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         return new RedirectResponse($this->router->generate('salt_index'));
     }
 
+    #[\Override]
     public function createToken(Passport $passport, string $firewallName): TokenInterface
     {
         $token = parent::createToken($passport, $firewallName);
@@ -90,6 +95,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         return $token;
     }
 
+    #[\Override]
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         // Return JSON-formatted error if request is an ajax call

@@ -25,6 +25,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
     {
     }
 
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $em = $this->em;
@@ -166,6 +167,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ));
     }
 
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

@@ -21,16 +21,19 @@ final class LsDocNormalizer implements NormalizerInterface
     ) {
     }
 
+    #[\Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof LsDoc && null === ($context['generate-package'] ?? null);
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [LsDoc::class => false];
     }
 
+    #[\Override]
     public function normalize(mixed $data, ?string $format = null, array $context = []): ?array
     {
         if (!$data instanceof LsDoc) {

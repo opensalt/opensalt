@@ -17,6 +17,7 @@ use Symfony\Component\Console\Question\Question;
 #[AsCommand('salt:org:add', 'Add an organization')]
 class OrgAddCommand extends BaseDoctrineCommand
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -24,6 +25,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         ;
     }
 
+    #[\Override]
     protected function interact(InputInterface $input, OutputInterface $output): void
     {
         parent::interact($input, $output);
@@ -51,6 +53,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         }
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $org = trim($input->getArgument('org'));

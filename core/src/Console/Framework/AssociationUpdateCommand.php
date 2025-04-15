@@ -20,6 +20,7 @@ class AssociationUpdateCommand extends Command
         parent::__construct();
     }
 
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -27,6 +28,7 @@ class AssociationUpdateCommand extends Command
         ;
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         set_time_limit(180); // increase time limit for large files

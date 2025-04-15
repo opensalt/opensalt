@@ -70,6 +70,7 @@ class SessionIdleHandlerEventSubscriber implements EventSubscriberInterface
     /**
      * @return array<string, mixed>
      */
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [KernelEvents::REQUEST => 'onKernelRequest'];

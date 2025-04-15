@@ -20,16 +20,19 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Nor
     ) {
     }
 
+    #[\Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof CfRubricCriterion;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [CfRubricCriterion::class => true];
     }
 
+    #[\Override]
     public function normalize(mixed $data, ?string $format = null, array $context = []): ?array
     {
         if (!$data instanceof CfRubricCriterion) {
