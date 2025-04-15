@@ -18,7 +18,7 @@ class AddCommentHandler extends BaseCommentHandler
         $this->validate($command, $command);
 
         $itemType = $command->getItemType();
-        $itemId = ('item' === $itemType) ? $command->getItem() : $command->getDocument();
+        $itemId = $command->getItem();
         $user = $command->getUser();
         $content = $command->getContent();
         $parentId = $command->getParentId();

@@ -11,12 +11,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AddCommentCommand extends BaseCommand
 {
-    #[Assert\Type(LsItem::class)]
-    private ?LsItem $item = null;
-
-    #[Assert\Type(LsDoc::class)]
-    private ?LsDoc $document = null;
-
     #[Assert\Type(Comment::class)]
     private ?Comment $comment = null;
 
@@ -24,7 +18,7 @@ class AddCommentCommand extends BaseCommand
         #[Assert\Type('string')]
         #[Assert\NotNull]
         private readonly string $itemType,
-        LsItem|LsDoc $itemId,
+        private readonly LsItem|LsDoc $item,
         #[Assert\Type(User::class)]
         #[Assert\NotNull]
         private readonly User $user,
@@ -37,11 +31,6 @@ class AddCommentCommand extends BaseCommand
         #[Assert\Type('int')]
         private readonly ?int $parentId = null,
     ) {
-        if ('item' === $this->itemType) {
-            $this->item = $itemId;
-        } else {
-            $this->document = $itemId;
-        }
     }
 
     public function getItemType(): string
@@ -49,14 +38,9 @@ class AddCommentCommand extends BaseCommand
         return $this->itemType;
     }
 
-    public function getItem(): LsItem
+    public function getItem(): LsItem|LsDoc
     {
         return $this->item;
-    }
-
-    public function getDocument(): LsDoc
-    {
-        return $this->document;
     }
 
     public function getUser(): User
@@ -69,7 +53,7 @@ class AddCommentCommand extends BaseCommand
         return $this->content;
     }
 
-    public function getParentId(): int
+    public function getParentId(): ?int
     {
         return $this->parentId;
     }
