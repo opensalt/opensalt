@@ -912,7 +912,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $this;
     }
 
-    public function createItem(string|null $identifier = null): LsItem
+    public function createItem(?string $identifier = null): LsItem
     {
         $item = new LsItem($identifier);
         $item->setLsDoc($this);
@@ -920,7 +920,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return $item;
     }
 
-    public function createAssociation(string|null $identifier = null): LsAssociation
+    public function createAssociation(?string $identifier = null): LsAssociation
     {
         $association = new LsAssociation($identifier);
         $association->setLsDoc($this);
