@@ -7,7 +7,6 @@ services:
         condition: service_healthy
     environment:
       APP_ENV: "${APP_ENV:-prod}"
-      APP_SECRET:
       SERVER_NAME: ${SERVER_NAME:-localhost}, :80
       MYSQL_DATABASE:
       MYSQL_USER:
@@ -54,7 +53,6 @@ services:
         condition: service_healthy
     environment:
       APP_ENV: "${APP_ENV:-prod}"
-      APP_SECRET:
       APP_RUNTIME: 'Runtime\\FrankenPhpSymfony\\Runtime'
       SERVER_NAME: ${SERVER_NAME:-localhost}, :80
       MYSQL_DATABASE:

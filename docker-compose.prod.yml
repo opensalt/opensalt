@@ -5,5 +5,4 @@ services:
   web:
     environment:
       APP_ENV: prod
-      APP_SECRET: ${APP_SECRET}
 
