@@ -149,7 +149,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ->resetViewTransformers()
             ->resetModelTransformers()
             ->addModelTransformer(new CallbackTransformer(
-                static fn (?FrameworkType $frameworkType): ?string => $frameworkType ? $frameworkType->getFrameworkType() : '',
+                static fn (?FrameworkType $frameworkType): string => $frameworkType ? $frameworkType->getFrameworkType() : '',
                 static function (?string $frameworkType) use ($em): ?FrameworkType {
                     if (null === $frameworkType) {
                         return null;
@@ -158,8 +158,7 @@ abstract class AbstractLsDocCreateType extends AbstractType
                     $object = $em->getRepository(FrameworkType::class)->findOneBy(['frameworkType' => $frameworkType]);
 
                     if (null === $object) {
-                        $object = new FrameworkType();
-                        $object->setFrameworkType($frameworkType);
+                        $object = new FrameworkType($frameworkType);
                     }
 
                     return $object;

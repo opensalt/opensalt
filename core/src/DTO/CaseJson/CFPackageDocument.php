@@ -8,6 +8,7 @@ class CFPackageDocument
 {
     public UuidInterface $identifier;
     public string $uri;
+    public ?string $frameworkType = null;
     public string $creator;
     public string $title;
     public \DateTimeInterface $lastChangeDateTime;

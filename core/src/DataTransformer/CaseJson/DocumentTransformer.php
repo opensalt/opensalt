@@ -4,6 +4,7 @@ namespace App\DataTransformer\CaseJson;
 
 use App\DTO\CaseJson\CFPackageDocument;
 use App\DTO\CaseJson\Definitions;
+use App\Entity\Framework\FrameworkType;
 use App\Entity\Framework\LsDoc;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -34,9 +35,26 @@ class DocumentTransformer
         return $doc;
     }
 
+    private function findOrCreateFrameworkType(?string $frameworkType): ?FrameworkType
+    {
+        if (null === $frameworkType) {
+            return null;
+        }
+
+        $frameworkTypeObj = $this->em->getRepository(FrameworkType::class)->findOneBy(['frameworkType' => $frameworkType]);
+
+        if (null === $frameworkTypeObj) {
+            $frameworkTypeObj = new FrameworkType($frameworkType);
+            $this->em->persist($frameworkTypeObj);
+        }
+
+        return $frameworkTypeObj;
+    }
+
     private function updateDocument(LsDoc $doc, CFPackageDocument $cfDocument, Definitions $definitions): LsDoc
     {
         $doc->setUri($cfDocument->uri);
+        $doc->setFrameworkType($this->findOrCreateFrameworkType($cfDocument->frameworkType));
         $doc->setTitle($cfDocument->title);
         $doc->setDescription($cfDocument->description);
         $doc->setAdoptionStatus($cfDocument->adoptionStatus);

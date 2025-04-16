@@ -55,6 +55,7 @@ final class LsDocNormalizer implements NormalizerInterface
                 : null,
             'identifier' => $data->getIdentifier(),
             'uri' => $this->api1Uris->getUri($data),
+            'frameworkType' => $case10 ? null : $data->getFrameworkType()?->getFrameworkType(),
             'creator' => $data->getCreator(),
             'title' => $data->getTitle(),
             'lastChangeDateTime' => $this->getLastChangeDateTime($data),

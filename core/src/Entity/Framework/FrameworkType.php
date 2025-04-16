@@ -15,20 +15,20 @@ class FrameworkType
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private ?string $frameworkType = null;
+    private string $frameworkType;
+
+    public function __construct(string $frameworkType)
+    {
+        $this->frameworkType = $frameworkType;
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getFrameworkType(): ?string
+    public function getFrameworkType(): string
     {
         return $this->frameworkType;
-    }
-
-    public function setFrameworkType(string $frameworkType): void
-    {
-        $this->frameworkType = $frameworkType;
     }
 }
