@@ -38,6 +38,9 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     #[Assert\Type(User::class)]
     protected ?User $user = null;
 
+    #[ORM\Column(name: 'case_version', type: 'string', nullable: true)]
+    private ?string $caseVersion = null;
+
     #[ORM\Column(name: 'official_uri', type: 'string', length: 300, nullable: true)]
     #[Assert\Length(max: 300)]
     #[Assert\Url(requireTld: true)]
@@ -926,5 +929,17 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         $association->setLsDoc($this);
 
         return $association;
+    }
+
+    public function getCaseVersion(): ?string
+    {
+        return $this->caseVersion;
+    }
+
+    public function setCaseVersion(?string $caseVersion): LsDoc
+    {
+        $this->caseVersion = $caseVersion;
+
+        return $this;
     }
 }

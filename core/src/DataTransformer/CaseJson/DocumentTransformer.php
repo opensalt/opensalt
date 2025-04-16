@@ -54,6 +54,7 @@ class DocumentTransformer
     private function updateDocument(LsDoc $doc, CFPackageDocument $cfDocument, Definitions $definitions): LsDoc
     {
         $doc->setUri($cfDocument->uri);
+        $doc->setCaseVersion($cfDocument->caseVersion);
         $doc->setFrameworkType($this->findOrCreateFrameworkType($cfDocument->frameworkType));
         $doc->setTitle($cfDocument->title);
         $doc->setDescription($cfDocument->description);

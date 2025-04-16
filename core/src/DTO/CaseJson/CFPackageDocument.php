@@ -8,6 +8,7 @@ class CFPackageDocument
 {
     public UuidInterface $identifier;
     public string $uri;
+    public ?string $caseVersion = null;
     public ?string $frameworkType = null;
     public string $creator;
     public string $title;
